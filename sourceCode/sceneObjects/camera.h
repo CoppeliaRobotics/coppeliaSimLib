@@ -136,7 +136,6 @@ protected:
 
     bool _extRenderer_prepareView(int extRendererIndex,int resolution[2],bool perspective);
     void _extRenderer_prepareLights();
-    void _extRenderer_prepareMirrors();
     void _extRenderer_retrieveImage(char* rgbBuffer);
 #endif
 };

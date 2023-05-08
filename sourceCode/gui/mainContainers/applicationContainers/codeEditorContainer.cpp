@@ -1,5 +1,4 @@
 #include <codeEditorContainer.h>
-#include <pluginContainer.h>
 #include <simInternal.h>
 #include <simStrings.h>
 #include <vVarious.h>
@@ -259,7 +258,7 @@ void CCodeEditorContainer::announceScriptStateWillBeErased(int scriptHandle)
         {
             int handle=_allEditors[i].handle;
             int pas[4];
-            CPluginContainer::codeEditor_close(handle,pas);
+            App::worldContainer->pluginContainer->codeEditor_close(handle,pas);
             // Here we need to find the correct index again, ordering might have changed (see above):
             for (size_t j=0;j<_allEditors.size();j++)
             {
@@ -296,13 +295,13 @@ int CCodeEditorContainer::open(const char* initText,const char* xml,int callingS
 {
     CScriptObject* it=App::worldContainer->getScriptFromHandle(callingScriptHandle);
     int retVal=-1;
-    if (CPluginContainer::isCodeEditorPluginAvailable())
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
     {
         if (it!=nullptr)
         {
             if (!App::currentWorld->environment->getSceneLocked())
             {
-                retVal=CPluginContainer::codeEditor_open(initText,xml);
+                retVal=App::worldContainer->pluginContainer->codeEditor_open(initText,xml);
                 SCodeEditor inf;
                 inf.handle=retVal;
                 inf.scriptHandle=-1;
@@ -343,7 +342,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     if ( (_allEditors[i].scriptHandle==scriptHandle)&&(_allEditors[i].sceneUniqueId==sceneId) )
                         return(_allEditors[i].handle);
                 }
-                if (CPluginContainer::isCodeEditorPluginAvailable())
+                if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
                 {
                     int posAndSize[4];
                     it->getPreviousEditionWindowPosAndSize(posAndSize);
@@ -428,7 +427,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     xmlDoc.Print(&printer);
                     //printf("%s\n",printer.CStr());
 
-                    retVal=CPluginContainer::codeEditor_open(it->getScriptText(),printer.CStr());
+                    retVal=App::worldContainer->pluginContainer->codeEditor_open(it->getScriptText(),printer.CStr());
                     SCodeEditor inf;
                     inf.handle=retVal;
                     inf.scriptHandle=scriptHandle;
@@ -468,7 +467,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                 return(_allEditors[i].handle);
         }
         CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
-        if (CPluginContainer::isCodeEditorPluginAvailable())
+        if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
         {
             if (it!=nullptr)
             {
@@ -539,7 +538,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     xmlDoc.Print(&printer);
                     //printf("%s\n",printer.CStr());
 
-                    retVal=CPluginContainer::codeEditor_open(it->getScriptText(),printer.CStr());
+                    retVal=App::worldContainer->pluginContainer->codeEditor_open(it->getScriptText(),printer.CStr());
                     SCodeEditor inf;
                     inf.handle=retVal;
                     inf.scriptHandle=scriptHandle;
@@ -570,7 +569,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
 int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,const int position[2],const int size[2],const int textColor[3],const int backColor[3],int callingScriptHandle)
 {
     int retVal=-1;
-    if (CPluginContainer::isCodeEditorPluginAvailable())
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
     {
         int _position[2]={100,100};
         int _size[2]={640,200};
@@ -629,7 +628,7 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         xmlDoc.Print(&printer);
         //printf("%s\n",printer.CStr());
 
-        retVal=CPluginContainer::codeEditor_open("",printer.CStr());
+        retVal=App::worldContainer->pluginContainer->codeEditor_open("",printer.CStr());
         SCodeEditor inf;
         inf.handle=retVal;
         inf.scriptHandle=-1;
@@ -654,7 +653,7 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
 std::string CCodeEditorContainer::openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4],bool oldXml/*=false*/) const
 {
     std::string retVal;
-    if (CPluginContainer::isCodeEditorPluginAvailable())
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
     {
         std::string newXml;
         if (xml!=nullptr)
@@ -665,7 +664,7 @@ std::string CCodeEditorContainer::openModalTextEditor(const char* initText,const
                 newXml=xml;
         }
         int posAndSize[4];
-        CPluginContainer::codeEditor_openModal(initText,newXml.c_str(),retVal,posAndSize);
+        App::worldContainer->pluginContainer->codeEditor_openModal(initText,newXml.c_str(),retVal,posAndSize);
         if (windowSizeAndPos!=nullptr)
         {
             windowSizeAndPos[0]=posAndSize[2];
@@ -682,11 +681,11 @@ std::string CCodeEditorContainer::openModalTextEditor(const char* initText,const
 int CCodeEditorContainer::openTextEditor(const char* initText,const char* xml,const char* callback,int callingScriptHandle,bool isSimulationScript)
 {
     int retVal=-1;
-    if (CPluginContainer::isCodeEditorPluginAvailable())
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
     {
         std::string newXml;
         newXml=translateXml(xml,callback);
-        retVal=CPluginContainer::codeEditor_open(initText,newXml.c_str());
+        retVal=App::worldContainer->pluginContainer->codeEditor_open(initText,newXml.c_str());
         SCodeEditor inf;
         inf.handle=retVal;
         inf.scriptHandle=-1;
@@ -717,7 +716,7 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
                 callback[0]=_allEditors[i].callbackFunction;
             std::string _txt;
             CScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
-            if (CPluginContainer::codeEditor_getText(handle,_txt,nullptr))
+            if (App::worldContainer->pluginContainer->codeEditor_getText(handle,_txt,nullptr))
             {
                 if (txt!=nullptr)
                     txt[0]=_txt;
@@ -729,7 +728,7 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
                 }
             }
             int pas[4];
-            CPluginContainer::codeEditor_close(handle,pas);
+            App::worldContainer->pluginContainer->codeEditor_close(handle,pas);
             if (it!=nullptr)
                 it->setPreviousEditionWindowPosAndSize(pas);
             if (posAndSize!=nullptr)
@@ -771,7 +770,7 @@ void CCodeEditorContainer::applyChanges(int handle) const
                 CScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
                 if (it!=nullptr)
                 {
-                    if (CPluginContainer::codeEditor_getText(_allEditors[i].handle,_txt,nullptr))
+                    if (App::worldContainer->pluginContainer->codeEditor_getText(_allEditors[i].handle,_txt,nullptr))
                         it->setScriptText(_txt.c_str());
                 }
             }
@@ -792,7 +791,7 @@ bool CCodeEditorContainer::closeFromScriptHandle(int scriptHandle,int posAndSize
                 if (!ignoreChange)
                     applyChanges(_allEditors[i].handle);
                 int pas[4];
-                CPluginContainer::codeEditor_close(_allEditors[i].handle,pas);
+                App::worldContainer->pluginContainer->codeEditor_close(_allEditors[i].handle,pas);
                 if (it!=nullptr)
                     it->setPreviousEditionWindowPosAndSize(pas);
                 if (posAndSize!=nullptr)
@@ -816,7 +815,7 @@ bool CCodeEditorContainer::closeFromScriptHandle(int scriptHandle,int posAndSize
 void CCodeEditorContainer::closeAll()
 { // before unloading the code editor plugin
     for (size_t i=0;i<_allEditors.size();i++)
-        CPluginContainer::codeEditor_close(_allEditors[i].handle,nullptr);
+        App::worldContainer->pluginContainer->codeEditor_close(_allEditors[i].handle,nullptr);
     _allEditors.clear();
 }
 
@@ -828,7 +827,7 @@ void CCodeEditorContainer::restartScript(int handle) const
         {
             std::string txt;
             CScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
-            if (CPluginContainer::codeEditor_getText(handle,txt,nullptr))
+            if (App::worldContainer->pluginContainer->codeEditor_getText(handle,txt,nullptr))
             {
                 if ( (it!=nullptr)&&(!it->getThreadedExecution_oldThreads()) )
                 {
@@ -869,7 +868,7 @@ std::string CCodeEditorContainer::getText(int handle,int posAndSize[4]) const
     {
         if (_allEditors[i].handle==handle)
         {
-            CPluginContainer::codeEditor_getText(handle,retVal,posAndSize);
+            App::worldContainer->pluginContainer->codeEditor_getText(handle,retVal,posAndSize);
             break;
         }
     }
@@ -882,7 +881,7 @@ bool CCodeEditorContainer::setText(int handle,const char* txt) const
     {
         if (_allEditors[i].handle==handle)
         {
-            CPluginContainer::codeEditor_setText(handle,txt,0);
+            App::worldContainer->pluginContainer->codeEditor_setText(handle,txt,0);
             return(true);
         }
     }
@@ -895,7 +894,7 @@ bool CCodeEditorContainer::appendText(int handle,const char* txt) const
     {
         if (_allEditors[i].handle==handle)
         {
-            CPluginContainer::codeEditor_setText(handle,txt,1);
+            App::worldContainer->pluginContainer->codeEditor_setText(handle,txt,1);
             return(true);
         }
     }
@@ -912,7 +911,7 @@ bool CCodeEditorContainer::hasSomethingBeenModifiedInCurrentScene() const
         {
             CScriptObject* it=App::worldContainer->getScriptFromHandle(_allEditors[i].scriptHandle);
             std::string txt;
-            if ( (it!=nullptr)&&CPluginContainer::codeEditor_getText(_allEditors[i].handle,txt,nullptr) )
+            if ( (it!=nullptr)&&App::worldContainer->pluginContainer->codeEditor_getText(_allEditors[i].handle,txt,nullptr) )
             {
                 std::string txt2(it->getScriptText());
                 utils::removeSpacesAtBeginningAndEnd(txt);
@@ -974,7 +973,7 @@ void CCodeEditorContainer::simulationAboutToEnd()
     {
         if ( (_allEditors[i].sceneUniqueId==sceneId)&&_allEditors[i].closeAtSimulationEnd )
         {
-            CPluginContainer::codeEditor_close(_allEditors[i].handle,nullptr);
+            App::worldContainer->pluginContainer->codeEditor_close(_allEditors[i].handle,nullptr);
             _allEditors.erase(_allEditors.begin()+i);
             i--;
         }
@@ -1023,7 +1022,7 @@ void CCodeEditorContainer::sceneClosed(int sceneUniqueId)
     {
         if ( (_allEditors[i].sceneUniqueId==sceneUniqueId)&&(!_allEditors[i].openAcrossScenes) )
         {
-            CPluginContainer::codeEditor_close(_allEditors[i].handle,nullptr);
+            App::worldContainer->pluginContainer->codeEditor_close(_allEditors[i].handle,nullptr);
             _allEditors.erase(_allEditors.begin()+i);
             i--;
         }
@@ -1041,9 +1040,9 @@ void CCodeEditorContainer::showOrHideAll(bool showState)
             {
                 _allEditors[i].systemVisibility=showState;
                 if (showState&&_allEditors[i].userVisibility)
-                    CPluginContainer::codeEditor_show(_allEditors[i].handle,1);
+                    App::worldContainer->pluginContainer->codeEditor_show(_allEditors[i].handle,1);
                 else
-                    CPluginContainer::codeEditor_show(_allEditors[i].handle,0);
+                    App::worldContainer->pluginContainer->codeEditor_show(_allEditors[i].handle,0);
             }
         }
     }
@@ -1062,9 +1061,9 @@ int CCodeEditorContainer::showOrHide(int handle,bool showState)
                 retVal=1;
             _allEditors[i].userVisibility=showState;
             if (showState&&_allEditors[i].systemVisibility)
-                CPluginContainer::codeEditor_show(_allEditors[i].handle,1);
+                App::worldContainer->pluginContainer->codeEditor_show(_allEditors[i].handle,1);
             else
-                CPluginContainer::codeEditor_show(_allEditors[i].handle,0);
+                App::worldContainer->pluginContainer->codeEditor_show(_allEditors[i].handle,0);
             break;
         }
     }

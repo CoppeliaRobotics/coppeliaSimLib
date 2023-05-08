@@ -1,6 +1,5 @@
 #include <simInternal.h>
 #include <dynamicsContainer.h>
-#include <pluginContainer.h>
 #include <app.h>
 #include <simStringTable.h>
 #include <tt.h>
@@ -106,15 +105,15 @@ void CDynamicsContainer::handleDynamics(double dt)
     if (getDynamicsEnabled())
     {
         _currentlyInDynamicsCalculations=true;
-        CPluginContainer::dyn_step(dt,App::currentWorld->simulation->getSimulationTime());
+        App::worldContainer->pluginContainer->dyn_step(dt,App::currentWorld->simulation->getSimulationTime());
         _currentlyInDynamicsCalculations=false;
     }
 
     for (size_t i=0;i<App::currentWorld->sceneObjects->getShapeCount();i++)
         App::currentWorld->sceneObjects->getShapeFromIndex(i)->decrementRespondableSuspendCount();
 
-    if (CPluginContainer::dyn_isDynamicContentAvailable())
-        App::worldContainer->calcInfo->dynamicsEnd(CPluginContainer::dyn_getDynamicStepDivider(),true);
+    if (App::worldContainer->pluginContainer->dyn_isDynamicContentAvailable())
+        App::worldContainer->calcInfo->dynamicsEnd(App::worldContainer->pluginContainer->dyn_getDynamicStepDivider(),true);
     else
         App::worldContainer->calcInfo->dynamicsEnd(0,false);
 }
@@ -122,7 +121,7 @@ void CDynamicsContainer::handleDynamics(double dt)
 bool CDynamicsContainer::getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],double* contactInfo) const
 {
     if (getDynamicsEnabled())
-        return(CPluginContainer::dyn_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0);
+        return(App::worldContainer->pluginContainer->dyn_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0);
     return(false);
 }
 
@@ -148,19 +147,19 @@ void CDynamicsContainer::addWorldIfNotThere()
         intParams[intIndex++]=SIM_IDSTART_SCENEOBJECT;
         intParams[intIndex++]=SIM_IDEND_SCENEOBJECT;
 
-        CPluginContainer::dyn_startSimulation(_dynamicEngineToUse,_dynamicEngineVersionToUse,floatParams,intParams);
+        App::worldContainer->pluginContainer->dyn_startSimulation(_dynamicEngineToUse,_dynamicEngineVersionToUse,floatParams,intParams);
     }
 }
 
 void CDynamicsContainer::removeWorld()
 {
     if (isWorldThere())
-        CPluginContainer::dyn_endSimulation();
+        App::worldContainer->pluginContainer->dyn_endSimulation();
 }
 
 bool CDynamicsContainer::isWorldThere() const
 {
-    return(CPluginContainer::dyn_isInitialized());
+    return(App::worldContainer->pluginContainer->dyn_isInitialized());
 }
 
 void CDynamicsContainer::markForWarningDisplay_pureSpheroidNotSupported()
@@ -2117,7 +2116,7 @@ void CDynamicsContainer::renderYour3DStuff(CViewableBase* renderingObject,int di
             int objectType;
             int particlesCount;
             C4X4Matrix m(renderingObject->getFullCumulativeTransformation().getMatrix());
-            void** particlesPointer=CPluginContainer::dyn_getParticles(index++,&particlesCount,&objectType,&cols);
+            void** particlesPointer=App::worldContainer->pluginContainer->dyn_getParticles(index++,&particlesCount,&objectType,&cols);
             while (particlesCount!=-1)
             {
                 if ((particlesPointer!=nullptr)&&(particlesCount>0)&&((objectType&sim_particle_invisible)==0))
@@ -2125,7 +2124,7 @@ void CDynamicsContainer::renderYour3DStuff(CViewableBase* renderingObject,int di
                     if ( ((displayAttrib&sim_displayattribute_forvisionsensor)==0)||(objectType&sim_particle_painttag) )
                         displayParticles(particlesPointer,particlesCount,displayAttrib,m,cols,objectType);
                 }
-                particlesPointer=CPluginContainer::dyn_getParticles(index++,&particlesCount,&objectType,&cols);
+                particlesPointer=App::worldContainer->pluginContainer->dyn_getParticles(index++,&particlesCount,&objectType,&cols);
             }
         }
     }
@@ -2142,7 +2141,7 @@ void CDynamicsContainer::renderYour3DStuff_overlay(CViewableBase* renderingObjec
                 if (getDisplayContactPoints())
                 {
                     int cnt=0;
-                    double* pts=CPluginContainer::dyn_getContactPoints(&cnt);
+                    double* pts=App::worldContainer->pluginContainer->dyn_getContactPoints(&cnt);
 
                     displayContactPoints(displayAttrib,contactPointColor,pts,cnt);
                 }

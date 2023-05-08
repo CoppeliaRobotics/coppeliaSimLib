@@ -7,7 +7,6 @@
 #include <dlgCont.h>
 #include <imgLoaderSaver.h>
 #include <vDateTime.h>
-#include <pluginContainer.h>
 #include <simStrings.h>
 #include <simFlavor.h>
 
@@ -721,72 +720,9 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
     static int prevResX=-1;
     static int prevResY=-1;
     static char* buff=nullptr;
-    if (CPluginContainer::shouldSend_openglframe_msg())
-    {
-        if ((prevResX!=surfaceSize[0])||(prevResY!=surfaceSize[1]))
-        {
-            delete[] buff;
-            buff=new char[surfaceSize[0]*surfaceSize[1]*3];
-        }
-        glPixelStorei(GL_PACK_ALIGNMENT,1);
-        glReadPixels(0, 0, surfaceSize[0], surfaceSize[1], GL_RGB, GL_UNSIGNED_BYTE, buff);
-        glPixelStorei(GL_PACK_ALIGNMENT,4); // important to restore! Really?
-
-        int auxVals[4];
-        int retVals[4];
-        auxVals[0]=surfaceSize[0];
-        auxVals[1]=surfaceSize[1];
-        auxVals[2]=0;
-        auxVals[3]=0;
-        CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_openglframe,auxVals,buff,retVals);
-        if (auxVals[3]!=0)
-        { // we want to apply a new image!
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-            glOrtho(0,surfaceSize[0],0,surfaceSize[1],-100,100);
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity ();
-            glDisable(GL_DEPTH_TEST);
-            ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
-
-            GLuint _oglTextureName;
-            _oglTextureName=ogl::genTexture();//glGenTextures(1,&_oglTextureName);
-            glBindTexture(GL_TEXTURE_2D,_oglTextureName);
-            glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-            glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,surfaceSize[0],surfaceSize[1],0,GL_RGB,GL_UNSIGNED_BYTE,buff);
-            glPixelStorei(GL_UNPACK_ALIGNMENT,4); // important to restore! Really?
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // keep to GL_LINEAR here!!
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-            glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
-            glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
-            glTexEnvi (GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D,_oglTextureName);
-
-            glColor3f(1.0,1.0,1.0);
-
-            glBegin(GL_QUADS);
-            glTexCoord2f(0.0,0.0);
-            glVertex3i(0,0,0);
-            glTexCoord2f(0.0,1.0);
-            glVertex3i(0,surfaceSize[1],0);
-            glTexCoord2f(1.0,1.0);
-            glVertex3i(surfaceSize[0],surfaceSize[1],0);
-            glTexCoord2f(1.0,0.0);
-            glVertex3i(surfaceSize[0],0,0);
-            glEnd();
-
-            glDisable(GL_TEXTURE_2D);
-            ogl::delTexture(_oglTextureName);//glDeleteTextures(1,&_oglTextureName);
-            glEnable(GL_DEPTH_TEST);
-        }
-    }
-    else
-    {
-        delete[] buff;
-        buff=nullptr;
-        prevResX=-1;
-    }
+    delete[] buff;
+    buff=nullptr;
+    prevResX=-1;
 //*************************************************
 
     if (frameResol!=nullptr)

@@ -1,5 +1,4 @@
 #include <syncObject.h>
-#include <pluginContainer.h>
 #include <string.h>
 
 #define MSG_SEND_ENABLED

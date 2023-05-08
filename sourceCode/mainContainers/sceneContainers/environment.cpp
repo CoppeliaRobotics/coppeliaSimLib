@@ -10,7 +10,6 @@
 #include <environmentRendering.h>
 #include <base64.h>
 #include <boost/algorithm/string.hpp>
-#include <pluginContainer.h>
 #include <simFlavor.h>
 
 int CEnvironment::_nextSceneUniqueID=0;

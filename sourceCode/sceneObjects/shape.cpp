@@ -5,7 +5,6 @@
 #include <app.h>
 #include <meshWrapper.h>
 #include <mesh.h>
-#include <pluginContainer.h>
 #include <shapeRendering.h>
 #include <meshManip.h>
 #include <base64.h>
@@ -482,7 +481,7 @@ void CShape::scaleObject(double scalingFactor)
     _meshModificationCounter++;
     // Scale collision info
     if (_meshCalculationStructure!=nullptr)
-        CPluginContainer::geomPlugin_scaleMesh(_meshCalculationStructure,scalingFactor);
+        App::worldContainer->pluginContainer->geomPlugin_scaleMesh(_meshCalculationStructure,scalingFactor);
     // Scale meshes and adjust textures:
     getMesh()->scale(scalingFactor);
     _dynamicsResetFlag=true;
@@ -906,7 +905,7 @@ void CShape::_serializeMesh(CSer& ar)
             if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp()&&isMeshCalculationStructureInitialized())
             {
                 std::vector<unsigned char> serializationData;
-                CPluginContainer::geomPlugin_getMeshSerializationData(_meshCalculationStructure,serializationData);
+                App::worldContainer->pluginContainer->geomPlugin_getMeshSerializationData(_meshCalculationStructure,serializationData);
                 ar.storeDataName("Coj");
                 ar.setCountingMode(true);
                 for (int i=0;i<serializationData.size();i++)
@@ -962,7 +961,7 @@ void CShape::_serializeMesh(CSer& ar)
                             ar >> dummy;
                             data.push_back(dummy);
                         }
-                        _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData(&data[0]);
+                        _meshCalculationStructure=App::worldContainer->pluginContainer->geomPlugin_getMeshFromSerializationData(&data[0]);
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -979,7 +978,7 @@ void CShape::_serializeMesh(CSer& ar)
             if (App::currentWorld->environment->getSaveExistingCalculationStructuresTemp()&&isMeshCalculationStructureInitialized())
             {
                 std::vector<unsigned char> collInfoData;
-                CPluginContainer::geomPlugin_getMeshSerializationData(_meshCalculationStructure,collInfoData);
+                App::worldContainer->pluginContainer->geomPlugin_getMeshSerializationData(_meshCalculationStructure,collInfoData);
                 ar.xmlPushNewNode("calculationStructure");
                 if (ar.xmlSaveDataInline(int(collInfoData.size())))
                 {
@@ -1011,7 +1010,7 @@ void CShape::_serializeMesh(CSer& ar)
                 std::vector<double> wvert;
                 std::vector<int> wind;
                 _mesh->getCumulativeMeshes(C7Vector::identityTransformation,wvert,&wind,nullptr);
-                _meshCalculationStructure=CPluginContainer::geomPlugin_getMeshFromSerializationData((unsigned char*)str.c_str());
+                _meshCalculationStructure=App::worldContainer->pluginContainer->geomPlugin_getMeshFromSerializationData((unsigned char*)str.c_str());
                 ar.xmlPopNode();
             }
             if (ar.xmlPushChildNode("mesh",false))
@@ -1044,7 +1043,7 @@ bool CShape::computeMassAndInertia(double density)
     C3Vector diagI;
 
     if (_mesh->isPure())
-        mass=CPluginContainer::dyn_computeInertia(_objectHandle,localTr,diagI);
+        mass=App::worldContainer->pluginContainer->dyn_computeInertia(_objectHandle,localTr,diagI);
     else
     { // we use the convex hull
         std::vector<double> vert;
@@ -1052,7 +1051,7 @@ bool CShape::computeMassAndInertia(double density)
         std::vector<double> hull;
         std::vector<int> indices;
         if (CMeshRoutines::getConvexHull(vert,hull,indices))
-            mass=CPluginContainer::dyn_computePMI(hull,indices,localTr,diagI);
+            mass=App::worldContainer->pluginContainer->dyn_computePMI(hull,indices,localTr,diagI);
     }
     if (mass>0.0)
     {
@@ -1185,7 +1184,7 @@ void CShape::removeMeshCalculationStructure()
     TRACE_INTERNAL;
     if (_meshCalculationStructure!=nullptr)
     {
-        CPluginContainer::geomPlugin_destroyMesh(_meshCalculationStructure);
+        App::worldContainer->pluginContainer->geomPlugin_destroyMesh(_meshCalculationStructure);
         _meshCalculationStructure=nullptr;
     }
 }
@@ -1212,7 +1211,7 @@ void CShape::initializeMeshCalculationStructureIfNeeded()
         double minTriSize=(std::max<double>(std::max<double>(_bbHalfSize(0),_bbHalfSize(1)),_bbHalfSize(2)))*2.0*App::currentWorld->environment->getCalculationMinRelTriangleSize();
         if (maxTriSize<minTriSize)
             maxTriSize=minTriSize;
-        _meshCalculationStructure=CPluginContainer::geomPlugin_createMesh(&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size(),nullptr,maxTriSize,App::userSettings->triCountInOBB);
+        _meshCalculationStructure=App::worldContainer->pluginContainer->geomPlugin_createMesh(&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size(),nullptr,maxTriSize,App::userSettings->triCountInOBB);
     }
 }
 
@@ -1339,7 +1338,7 @@ bool CShape::doesShapeCollideWithShape(CShape* collidee,std::vector<double>* int
     std::vector<double>* _intersectP=nullptr;
     if (intersections!=nullptr)
         _intersectP=&_intersect;
-    if ( CPluginContainer::geomPlugin_getMeshMeshCollision(_meshCalculationStructure,getCumulCenteredMeshFrame(),collidee->_meshCalculationStructure,collidee->getCumulCenteredMeshFrame(),_intersectP,nullptr,nullptr))
+    if ( App::worldContainer->pluginContainer->geomPlugin_getMeshMeshCollision(_meshCalculationStructure,getCumulCenteredMeshFrame(),collidee->_meshCalculationStructure,collidee->getCumulCenteredMeshFrame(),_intersectP,nullptr,nullptr))
     { // There was a collision
         if (intersections!=nullptr)
             intersections->insert(intersections->end(),_intersect.begin(),_intersect.end());
@@ -1357,7 +1356,7 @@ bool CShape::getDistanceToDummy_IfSmaller(CDummy* dummy,double &dist,double ray[
 
     C3Vector dummyPos(dummy->getFullCumulativeTransformation().X);
     C3Vector rayPart0;
-    if (CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(_meshCalculationStructure,getCumulCenteredMeshFrame(),dummyPos,dist,&rayPart0,&buffer))
+    if (App::worldContainer->pluginContainer->geomPlugin_getMeshPointDistanceIfSmaller(_meshCalculationStructure,getCumulCenteredMeshFrame(),dummyPos,dist,&rayPart0,&buffer))
     {
         rayPart0.getData(ray+0);
         dummyPos.getData(ray+3);
@@ -1382,10 +1381,10 @@ bool CShape::getShapeShapeDistance_IfSmaller(CShape* it,double &dist,double ray[
     C3Vector ptOnShapeB;
 
     bool smaller=false;
-    if (CPluginContainer::geomPlugin_getMeshRootObbVolume(shapeA->_meshCalculationStructure)<CPluginContainer::geomPlugin_getMeshRootObbVolume(shapeB->_meshCalculationStructure))
-        smaller=CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(shapeA->_meshCalculationStructure,shapeATr,shapeB->_meshCalculationStructure,shapeBTr,dist,&ptOnShapeA,&ptOnShapeB,&buffer[0],&buffer[1]);
+    if (App::worldContainer->pluginContainer->geomPlugin_getMeshRootObbVolume(shapeA->_meshCalculationStructure)<App::worldContainer->pluginContainer->geomPlugin_getMeshRootObbVolume(shapeB->_meshCalculationStructure))
+        smaller=App::worldContainer->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(shapeA->_meshCalculationStructure,shapeATr,shapeB->_meshCalculationStructure,shapeBTr,dist,&ptOnShapeA,&ptOnShapeB,&buffer[0],&buffer[1]);
     else
-        smaller=CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(shapeB->_meshCalculationStructure,shapeBTr,shapeA->_meshCalculationStructure,shapeATr,dist,&ptOnShapeB,&ptOnShapeA,&buffer[1],&buffer[0]);
+        smaller=App::worldContainer->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(shapeB->_meshCalculationStructure,shapeBTr,shapeA->_meshCalculationStructure,shapeATr,dist,&ptOnShapeB,&ptOnShapeA,&buffer[1],&buffer[0]);
 
     if (smaller)
     {
@@ -1591,7 +1590,7 @@ CSceneObject* CShape::copyYourself()
         newShape->_mesh=_mesh->copyYourself();
 
     if (_meshCalculationStructure!=nullptr)
-        newShape->_meshCalculationStructure=CPluginContainer::geomPlugin_copyMesh(_meshCalculationStructure);
+        newShape->_meshCalculationStructure=App::worldContainer->pluginContainer->geomPlugin_copyMesh(_meshCalculationStructure);
 
     delete newShape->_dynMaterial;
     newShape->_dynMaterial=_dynMaterial->copyYourself();

@@ -3,7 +3,6 @@
 #include <utils.h>
 #include <tt.h>
 #include <pointCloud.h>
-#include <pluginContainer.h>
 #include <sceneObjectOperations.h>
 #include <global.h>
 #include <vDateTime.h>
@@ -100,11 +99,11 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
         _colors.clear();
         if (_pointCloudInfo!=nullptr)
         {
-            _nonEmptyCells=CPluginContainer::geomPlugin_getPtcloudNonEmptyCellCount(_pointCloudInfo);
+            _nonEmptyCells=App::worldContainer->pluginContainer->geomPlugin_getPtcloudNonEmptyCellCount(_pointCloudInfo);
 
-            CPluginContainer::geomPlugin_getPtcloudPoints(_pointCloudInfo,_points,&_colors);
+            App::worldContainer->pluginContainer->geomPlugin_getPtcloudPoints(_pointCloudInfo,_points,&_colors);
             if (_pointDisplayRatio<0.99)
-                CPluginContainer::geomPlugin_getPtcloudPoints(_pointCloudInfo,_displayPoints,&_displayColors,_pointDisplayRatio);
+                App::worldContainer->pluginContainer->geomPlugin_getPtcloudPoints(_pointCloudInfo,_displayPoints,&_displayColors,_pointDisplayRatio);
             else
             {
                 _displayPoints.assign(_points.begin(),_points.end());
@@ -261,9 +260,9 @@ int CPointCloud::removePoints(const double* pts,int ptsCnt,bool ptsAreRelativeTo
             }
             _pts=&__pts[0];
         }
-        if (CPluginContainer::geomPlugin_removePointsFromPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,distanceTolerance,&pointCntRemoved))
+        if (App::worldContainer->pluginContainer->geomPlugin_removePointsFromPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,distanceTolerance,&pointCntRemoved))
         {
-            CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
+            App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -311,9 +310,9 @@ void CPointCloud::subtractOctree(const void* octree2Info,const C7Vector& octree2
     if (_pointCloudInfo!=nullptr)
     {
         int ptCntRemoved;
-        if (CPluginContainer::geomPlugin_removeOctreeFromPtcloud(_pointCloudInfo,getFullCumulativeTransformation(),octree2Info,octree2Tr,&ptCntRemoved))
+        if (App::worldContainer->pluginContainer->geomPlugin_removeOctreeFromPtcloud(_pointCloudInfo,getFullCumulativeTransformation(),octree2Info,octree2Tr,&ptCntRemoved))
         {
-            CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
+            App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -360,9 +359,9 @@ int CPointCloud::intersectPoints(const double* pts,int ptsCnt,bool ptsAreRelativ
             }
             _pts=&__pts[0];
         }
-        if (CPluginContainer::geomPlugin_intersectPointsWithPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,distanceTolerance))
+        if (App::worldContainer->pluginContainer->geomPlugin_intersectPointsWithPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,distanceTolerance))
         {
-            CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
+            App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -435,14 +434,14 @@ void CPointCloud::insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeT
             if (optionalColors3==nullptr)
             {
                 unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1),(unsigned char)(color.getColorsPtr()[1]*255.1),(unsigned char)(color.getColorsPtr()[2]*255.1)};
-                _pointCloudInfo=CPluginContainer::geomPlugin_createPtcloudFromPoints(_pts,ptsCnt,nullptr,_cellSize,_maxPointCountPerCell,cols,_insertionDistanceTolerance);
+                _pointCloudInfo=App::worldContainer->pluginContainer->geomPlugin_createPtcloudFromPoints(_pts,ptsCnt,nullptr,_cellSize,_maxPointCountPerCell,cols,_insertionDistanceTolerance);
             }
             else
             {
                 if (colorsAreIndividual)
-                    _pointCloudInfo=CPluginContainer::geomPlugin_createPtcloudFromColorPoints(_pts,ptsCnt,nullptr,_cellSize,_maxPointCountPerCell,optionalColors3,_insertionDistanceTolerance);
+                    _pointCloudInfo=App::worldContainer->pluginContainer->geomPlugin_createPtcloudFromColorPoints(_pts,ptsCnt,nullptr,_cellSize,_maxPointCountPerCell,optionalColors3,_insertionDistanceTolerance);
                 else
-                    _pointCloudInfo=CPluginContainer::geomPlugin_createPtcloudFromPoints(_pts,ptsCnt,nullptr,_cellSize,_maxPointCountPerCell,optionalColors3,_insertionDistanceTolerance);
+                    _pointCloudInfo=App::worldContainer->pluginContainer->geomPlugin_createPtcloudFromPoints(_pts,ptsCnt,nullptr,_cellSize,_maxPointCountPerCell,optionalColors3,_insertionDistanceTolerance);
             }
         }
         else
@@ -450,14 +449,14 @@ void CPointCloud::insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeT
             if (optionalColors3==nullptr)
             {
                 unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1),(unsigned char)(color.getColorsPtr()[1]*255.1),(unsigned char)(color.getColorsPtr()[2]*255.1)};
-                CPluginContainer::geomPlugin_insertPointsIntoPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,cols,_insertionDistanceTolerance);
+                App::worldContainer->pluginContainer->geomPlugin_insertPointsIntoPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,cols,_insertionDistanceTolerance);
             }
             else
             {
                 if (colorsAreIndividual)
-                    CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,_insertionDistanceTolerance);
+                    App::worldContainer->pluginContainer->geomPlugin_insertColorPointsIntoPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,_insertionDistanceTolerance);
                 else
-                    CPluginContainer::geomPlugin_insertPointsIntoPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,_insertionDistanceTolerance);
+                    App::worldContainer->pluginContainer->geomPlugin_insertPointsIntoPtcloud(_pointCloudInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,_insertionDistanceTolerance);
             }
         }
     }
@@ -472,10 +471,10 @@ void CPointCloud::insertShape(CShape* shape)
     C4X4Matrix m(getCumulativeTransformation().getMatrix());
     unsigned char dummyColor[3];
     const C7Vector tr(getCumulativeTransformation());
-    void* octree=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),&tr,_buildResolution,dummyColor,0);
+    void* octree=App::worldContainer->pluginContainer->geomPlugin_createOctreeFromMesh(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),&tr,_buildResolution,dummyColor,0);
     std::vector<double> pts;
-    CPluginContainer::geomPlugin_getOctreeVoxelPositions(octree,pts);
-    CPluginContainer::geomPlugin_destroyOctree(octree);
+    App::worldContainer->pluginContainer->geomPlugin_getOctreeVoxelPositions(octree,pts);
+    App::worldContainer->pluginContainer->geomPlugin_destroyOctree(octree);
     insertPoints(&pts[0],(int)pts.size()/3,true,nullptr,false);
 }
 
@@ -560,7 +559,7 @@ void CPointCloud::clear()
     _displayColorsByte.clear();
     if (_pointCloudInfo!=nullptr)
     {
-        CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
+        App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
         _pointCloudInfo=nullptr;
     }
 
@@ -657,7 +656,7 @@ void CPointCloud::scaleObject(double scalingFactor)
     for (size_t i=0;i<_displayPoints.size();i++)
         _displayPoints[i]*=scalingFactor;
     if (_pointCloudInfo!=nullptr)
-        CPluginContainer::geomPlugin_scalePtcloud(_pointCloudInfo,scalingFactor);
+        App::worldContainer->pluginContainer->geomPlugin_scalePtcloud(_pointCloudInfo,scalingFactor);
     _updatePointCloudEvent();
 
     CSceneObject::scaleObject(scalingFactor);
@@ -705,7 +704,7 @@ CSceneObject* CPointCloud::copyYourself()
     color.copyYourselfInto(&newPointcloud->color);
 
     if (_pointCloudInfo!=nullptr)
-        newPointcloud->_pointCloudInfo=CPluginContainer::geomPlugin_copyPtcloud(_pointCloudInfo);
+        newPointcloud->_pointCloudInfo=App::worldContainer->pluginContainer->geomPlugin_copyPtcloud(_pointCloudInfo);
     newPointcloud->_points.assign(_points.begin(),_points.end());
     newPointcloud->_colors.assign(_colors.begin(),_colors.end());
     newPointcloud->_displayPoints.assign(_displayPoints.begin(),_displayPoints.end());
@@ -1106,7 +1105,7 @@ void CPointCloud::serialize(CSer& ar)
                     ar << (float)boundingBoxMax(0) << (float)boundingBoxMax(1) << (float)boundingBoxMax(2);
                     ar.flush();
 
-                    CPluginContainer::geomPlugin_getPtcloudSerializationData_float(_pointCloudInfo,data);
+                    App::worldContainer->pluginContainer->geomPlugin_getPtcloudSerializationData_float(_pointCloudInfo,data);
                     ar.storeDataName("Co2");
                     ar.setCountingMode(true);
                     for (size_t i=0;i<data.size();i++)
@@ -1120,7 +1119,7 @@ void CPointCloud::serialize(CSer& ar)
                     }
 #endif
 
-                    CPluginContainer::geomPlugin_getPtcloudSerializationData(_pointCloudInfo,data);
+                    App::worldContainer->pluginContainer->geomPlugin_getPtcloudSerializationData(_pointCloudInfo,data);
                     ar.storeDataName("_o2");
                     ar.setCountingMode(true);
                     for (size_t i=0;i<data.size();i++)
@@ -1317,8 +1316,8 @@ void CPointCloud::serialize(CSer& ar)
                         for (int i=0;i<byteQuantity;i++)
                             ar >> data[i];
                         if (_pointCloudInfo!=nullptr)
-                            CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
-                        _pointCloudInfo=CPluginContainer::geomPlugin_getPtcloudFromSerializationData_float(&data[0]);
+                            App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
+                        _pointCloudInfo=App::worldContainer->pluginContainer->geomPlugin_getPtcloudFromSerializationData_float(&data[0]);
                         _readPositionsAndColorsAndSetDimensions();
                     }
 
@@ -1335,8 +1334,8 @@ void CPointCloud::serialize(CSer& ar)
                             data.push_back(dummy);
                         }
                         if (_pointCloudInfo!=nullptr) // we could also have read "Co2"
-                            CPluginContainer::geomPlugin_destroyPtcloud(_pointCloudInfo);
-                        _pointCloudInfo=CPluginContainer::geomPlugin_getPtcloudFromSerializationData(&data[0]);
+                            App::worldContainer->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
+                        _pointCloudInfo=App::worldContainer->pluginContainer->geomPlugin_getPtcloudFromSerializationData(&data[0]);
                         _readPositionsAndColorsAndSetDimensions();
                     }
 

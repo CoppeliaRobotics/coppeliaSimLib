@@ -23,7 +23,6 @@ See the GNU General Public License for more details.
 #ifdef SIM_WITH_OPENGL
 #include <meshWrapper.h>
 #include <mesh.h>
-#include <pluginContainer.h>
 
 void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib)
 {

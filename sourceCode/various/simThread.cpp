@@ -9,7 +9,6 @@
 #include <sceneObjectOperations.h>
 #include <fileOperations.h>
 #include <addOperations.h>
-#include <pluginContainer.h>
 #include <utils.h>
 #include <vVarious.h>
 #include <easyLock.h>
@@ -57,8 +56,7 @@ void CSimThread::executeMessages()
     { // we need to render. Send the appropriate signal
         if (triggerType==2)
         {
-            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_beforerendering,nullptr,nullptr,nullptr);
-            delete[] (char*)returnVal;
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_beforerendering,nullptr,0);
             App::uiThread->requestSceneRender_wait(); // non-threaded rendering
         }
     }
@@ -312,7 +310,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 script->systemCallScript(sim_syscb_moduleentry,inStack,nullptr);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
                 int data[4]={cmd.intParams[1],0,0,0};
-                CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_moduleentry,data,nullptr,nullptr);
+                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_moduleentry,data,4);
             }
         }
 
@@ -4484,17 +4482,9 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         triNormal=sensTr.Q*triNormal;
         simRemoveObject_internal(psh);
 
-        // Now generate a plugin callback:
+        // Now generate a script message:
         double ptdata[6]={pt(0),pt(1),pt(2),triNormal(0),triNormal(1),triNormal(2)};
         int msg;
-        if (mouseDown)
-            msg=sim_message_eventcallback_proxsensorselectdown;
-        else
-            msg=sim_message_eventcallback_proxsensorselectup;
-        int data[4]={obj,0,0,0};
-        void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(msg,data,ptdata,nullptr);
-        delete[] (char*)retVal;
-        // Now generate a script message:
         if (mouseDown)
             msg=sim_message_prox_sensor_select_down;
         else

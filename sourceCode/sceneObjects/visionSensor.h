@@ -140,7 +140,6 @@ protected:
 
     bool _extRenderer_prepareView(int extRendererIndex);
     void _extRenderer_prepareLights();
-    void _extRenderer_prepareMirrors();
     void _extRenderer_retrieveImage();
 
     unsigned char* _rgbBuffer;

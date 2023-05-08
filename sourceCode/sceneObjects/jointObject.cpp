@@ -6,7 +6,6 @@
 #include <utils.h>
 #include <app.h>
 #include <jointRendering.h>
-#include <pluginContainer.h>
 #include <simFlavor.h>
 
 CJoint::CJoint()
@@ -816,7 +815,7 @@ void CJoint::_setDependencyJointHandle_sendOldIk(int depJointID) const
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(depJointID);
         if (it!=nullptr)
             dep=it->getIkPluginCounterpartHandle();
-        CPluginContainer::ikPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,_dependencyJointMult);
+        App::worldContainer->pluginContainer->ikPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,_dependencyJointMult);
     }
 }
 
@@ -846,7 +845,7 @@ void CJoint::_setDependencyJointMult_sendOldIk(double coeff) const
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_dependencyMasterJointHandle);
         if (it!=nullptr)
             dep=it->getIkPluginCounterpartHandle();
-        CPluginContainer::ikPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,coeff);
+        App::worldContainer->pluginContainer->ikPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,coeff);
     }
 }
 
@@ -876,7 +875,7 @@ void CJoint::_setDependencyJointOffset_sendOldIk(double off) const
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_dependencyMasterJointHandle);
         if (it!=nullptr)
             dep=it->getIkPluginCounterpartHandle();
-        CPluginContainer::ikPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,_dependencyJointMult);
+        App::worldContainer->pluginContainer->ikPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,_dependencyJointMult);
     }
 }
 
@@ -1285,7 +1284,7 @@ void CJoint::_setScrewPitch_sendOldIk(double pitch) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setJointScrewPitch(_ikPluginCounterpartHandle,_screwLead/piValT2);
+        App::worldContainer->pluginContainer->ikPlugin_setJointScrewPitch(_ikPluginCounterpartHandle,_screwLead/piValT2);
 }
 
 void CJoint::setPositionMin(double min)
@@ -1318,7 +1317,7 @@ void CJoint::_setPositionIntervalMin_sendOldIk(double min) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
+        App::worldContainer->pluginContainer->ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
 }
 
 void CJoint::setPositionRange(double range)
@@ -1356,7 +1355,7 @@ void CJoint::_setPositionIntervalRange_sendOldIk(double range) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
+        App::worldContainer->pluginContainer->ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
 }
 
 void CJoint::setLength(double l)
@@ -1553,11 +1552,11 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],double currentPosVelAc
                         double targetVel=double(_targetVel);
                         double pos=0.0;
                         bool sel=true;
-                        int ruckObj=CPluginContainer::ruckigPlugin_vel(-1,1,double(dynStepSize),-1,&pos,dynVelCtrlCurrentVelAccel,dynVelCtrlCurrentVelAccel+1,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&targetVel);
+                        int ruckObj=App::worldContainer->pluginContainer->ruckigPlugin_vel(-1,1,double(dynStepSize),-1,&pos,dynVelCtrlCurrentVelAccel,dynVelCtrlCurrentVelAccel+1,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&targetVel);
                         if (ruckObj>=0)
                         {
-                            int res=CPluginContainer::ruckigPlugin_step(ruckObj,double(dynStepSize),&pos,dynVelCtrlCurrentVelAccel,dynVelCtrlCurrentVelAccel+1,&pos);
-                            CPluginContainer::ruckigPlugin_remove(ruckObj);
+                            int res=App::worldContainer->pluginContainer->ruckigPlugin_step(ruckObj,double(dynStepSize),&pos,dynVelCtrlCurrentVelAccel,dynVelCtrlCurrentVelAccel+1,&pos);
+                            App::worldContainer->pluginContainer->ruckigPlugin_remove(ruckObj);
                             velAndForce[0]=double(dynVelCtrlCurrentVelAccel[0]);
                             velAndForce[1]=_targetForce;
                             if (velAndForce[0]*velAndForce[1]<0.0)
@@ -1606,11 +1605,11 @@ int CJoint::handleDynJoint(int flags,const int intVals[3],double currentPosVelAc
                     double maxVelAccelJerk[3]={double(_maxVelAccelJerk[0]),double(_maxVelAccelJerk[1]),double(_maxVelAccelJerk[2])};
                     bool sel=true;
                     double dummy=0.0;
-                    int ruckObj=CPluginContainer::ruckigPlugin_pos(-1,1,dynStepSize,-1,&cp,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,maxVelAccelJerk,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&tp,&dummy);
+                    int ruckObj=App::worldContainer->pluginContainer->ruckigPlugin_pos(-1,1,dynStepSize,-1,&cp,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,maxVelAccelJerk,maxVelAccelJerk+1,maxVelAccelJerk+2,&sel,&tp,&dummy);
                     if (ruckObj>=0)
                     {
-                        int res=CPluginContainer::ruckigPlugin_step(ruckObj,dynStepSize,&dummy,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,&dummy);
-                        CPluginContainer::ruckigPlugin_remove(ruckObj);
+                        int res=App::worldContainer->pluginContainer->ruckigPlugin_step(ruckObj,dynStepSize,&dummy,dynPosCtrlCurrentVelAccel,dynPosCtrlCurrentVelAccel+1,&dummy);
+                        App::worldContainer->pluginContainer->ruckigPlugin_remove(ruckObj);
                         velAndForce[0]=double(dynPosCtrlCurrentVelAccel[0]);
                         velAndForce[1]=_targetForce;
                         if (velAndForce[0]*velAndForce[1]<0.0)
@@ -1997,7 +1996,7 @@ void CJoint::_setPositionIsCyclic_sendOldIk(bool isCyclic) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
+        App::worldContainer->pluginContainer->ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
 }
 
 void CJoint::removeSceneDependencies()
@@ -4031,7 +4030,7 @@ void CJoint::_setJointMode_sendOldIk(int theMode) const
     {
         if ((theMode==sim_jointmode_reserved_previously_ikdependent)||(theMode==sim_jointmode_dependent)||(theMode==sim_jointmode_hybrid_deprecated) )
             theMode=2; // actually ik_jointmode_ik
-        CPluginContainer::ikPlugin_setJointMode(_ikPluginCounterpartHandle,theMode);
+        App::worldContainer->pluginContainer->ikPlugin_setJointMode(_ikPluginCounterpartHandle,theMode);
     }
 }
 
@@ -4061,7 +4060,7 @@ void CJoint::_setSphericalTransformation_sendOldIk(const C4Vector& tr) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if ( (_ikPluginCounterpartHandle!=-1)&&(_jointType==sim_joint_spherical_subtype) )
-        CPluginContainer::ikPlugin_setSphericalJointQuaternion(_ikPluginCounterpartHandle,tr);
+        App::worldContainer->pluginContainer->ikPlugin_setSphericalJointQuaternion(_ikPluginCounterpartHandle,tr);
 }
 
 void CJoint::setMaxStepSize_old(double stepS)
@@ -4085,7 +4084,7 @@ void CJoint::_setMaxStepSize_sendOldIk(double stepS) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setJointMaxStepSize(_ikPluginCounterpartHandle,_maxStepSize_old);
+        App::worldContainer->pluginContainer->ikPlugin_setJointMaxStepSize(_ikPluginCounterpartHandle,_maxStepSize_old);
 }
 
 void CJoint::setIKWeight_old(double newWeight)
@@ -4104,7 +4103,7 @@ void CJoint::_setIkWeight_sendOldIk(double newWeight) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setJointIkWeight(_ikPluginCounterpartHandle,_ikWeight_old);
+        App::worldContainer->pluginContainer->ikPlugin_setJointIkWeight(_ikPluginCounterpartHandle,_ikWeight_old);
 }
 
 void CJoint::setPosition(double pos,const CJoint* masterJoint/*=nullptr*/,bool setDirect/*=false*/)
@@ -4161,7 +4160,7 @@ void CJoint::_setPosition_sendOldIk(double pos) const
 { // Overriden from _CJoint_
     // Synchronize with IK plugin:
     if ( (_ikPluginCounterpartHandle!=-1)&&(_jointType!=sim_joint_spherical_subtype) )
-        CPluginContainer::ikPlugin_setJointPosition(_ikPluginCounterpartHandle,pos);
+        App::worldContainer->pluginContainer->ikPlugin_setJointPosition(_ikPluginCounterpartHandle,pos);
 }
 
 void CJoint::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
@@ -4221,7 +4220,7 @@ void CJoint::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSync
         setSyncMsgRouting(parentRouting,r);
 
         // Build IK plugin counterpart:
-        _ikPluginCounterpartHandle=CPluginContainer::ikPlugin_createJoint(_jointType);
+        _ikPluginCounterpartHandle=App::worldContainer->pluginContainer->ikPlugin_createJoint(_jointType);
 
         // Update the remote sceneObject:
         CSceneObject::buildUpdateAndPopulateSynchronizationObject(parentRouting);

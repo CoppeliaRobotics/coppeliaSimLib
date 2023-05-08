@@ -5,7 +5,6 @@
 #include <vDateTime.h>
 #include <utils.h>
 #include <app.h>
-#include <pluginContainer.h>
 #include <proximitySensorRendering.h>
 
 CProxSensor::CProxSensor(int theType)
@@ -838,7 +837,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
     _calcTimeInMs=0;
     if (!App::currentWorld->mainSettings->proximitySensorsEnabled)
         return(false);
-    if (!CPluginContainer::isGeomPluginAvailable())
+    if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
         return(false);
 
     _sensorResultValid=true;

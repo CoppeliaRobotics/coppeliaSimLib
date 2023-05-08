@@ -6,7 +6,6 @@
 #include <persistentDataContainer.h>
 #include <tt.h>
 #include <threadPool_old.h>
-#include <pluginContainer.h>
 #include <simStrings.h>
 #include <vDateTime.h>
 #include <sceneObjectOperations.h>
@@ -128,9 +127,9 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     if ( (cmdIn->cmdId>PLUGIN_START_PLUGUITHREADCMD)&&(cmdIn->cmdId<PLUGIN_END_PLUGUITHREADCMD) )
     {
         if (cmdIn->cmdId==PLUGIN_LOAD_AND_START_PLUGUITHREADCMD)
-            cmdOut->intParams.push_back(CPluginContainer::addAndInitPlugin(cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str()));
+            cmdOut->intParams.push_back(App::worldContainer->pluginContainer->addAndInitPlugin_old(cmdIn->stringParams[0].c_str(),cmdIn->stringParams[1].c_str()));
         if (cmdIn->cmdId==PLUGIN_STOP_AND_UNLOAD_PLUGUITHREADCMD)
-            cmdOut->boolParams.push_back(CPluginContainer::unloadPlugin(cmdIn->intParams[0]));
+            cmdOut->boolParams.push_back(App::worldContainer->pluginContainer->unloadPlugin_old(cmdIn->intParams[0]));
     }
 
     if (cmdIn->cmdId==DESTROY_GL_TEXTURE_UITHREADCMD)
@@ -270,9 +269,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
         if (cmdIn->cmdId==INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD)
         {
             int auxData[4]={0,0,0,0};
-            void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_uipass,auxData,nullptr,nullptr);
-            if (replyBuffer!=nullptr)
-                simReleaseBuffer_internal((char*)replyBuffer);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_uipass,auxData,4);
         }
         if (cmdIn->cmdId==INSTANCE_ABOUT_TO_BE_CREATED_UITHREADCMD)
             App::mainWindow->newInstanceAboutToBeCreated();

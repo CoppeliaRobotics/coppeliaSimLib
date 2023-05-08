@@ -8,7 +8,6 @@
 #include <app.h>
 #include <simStrings.h>
 #include <vDateTime.h>
-#include <pluginContainer.h>
 #include <distanceRendering.h>
 #include <base64.h>
 
@@ -228,7 +227,7 @@ double CDistanceObject_old::handleDistance()
     clearDistanceResult();
     if (!App::currentWorld->mainSettings->distanceCalculationEnabled)
         return(-1.0);
-    if (!CPluginContainer::isGeomPluginAvailable())
+    if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
         return(-1.0);
     int stTime=(int)VDateTime::getTimeInMs();
     _distance=DBL_MAX;

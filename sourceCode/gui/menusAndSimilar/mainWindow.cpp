@@ -14,7 +14,6 @@
 #include <helpMenu.h>
 #include <tt.h>
 #include <app.h>
-#include <pluginContainer.h>
 #include <auxLibVideo.h>
 #include <vVarious.h>
 #include <simStrings.h>
@@ -644,8 +643,7 @@ void CMainWindow::refreshDialogs_uiThread()
         scenePath=p;
         setWindowFilePath(scenePath.c_str());
     }
-    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_guipass,nullptr,nullptr,nullptr);
-    delete[] (char*)returnVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_guipass,nullptr,0);
 
     // We refresh dialogs and the toolbar here:
     //----------------------------------------------------------------------------------
@@ -667,8 +665,7 @@ void CMainWindow::refreshDialogs_uiThread()
         if (!_dialogRefreshDontPublishFlag)
         {
             int data[4]={_fullDialogRefreshFlag?2:0,0,0,0};
-            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_refreshdialogs,data,nullptr,nullptr);
-            delete[] (char*)returnVal;
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_refreshdialogs,data,4);
         }
         _dialogRefreshDontPublishFlag=false;
         dlgCont->refresh();
@@ -768,8 +765,6 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         }
 
         int mp[2]={_mouseRenderingPos[0],_mouseRenderingPos[1]};
-
-        CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_renderingpass,nullptr,nullptr,nullptr);
 
         if (!_hasStereo)
             oglSurface->render(_currentCursor,_mouseButtonsState,mp,nullptr);

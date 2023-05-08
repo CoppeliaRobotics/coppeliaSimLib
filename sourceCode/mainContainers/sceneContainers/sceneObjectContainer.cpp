@@ -5,7 +5,6 @@
 #include <fileOperations.h>
 #include <tt.h>
 #include <utils.h>
-#include <pluginContainer.h>
 #include <mesh.h>
 #include <sstream>
 #include <iostream>
@@ -1883,12 +1882,12 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
         if (ar.xmlGetNode_string("fileName",str,false))
         { // try to load from file first
             std::string filename(ar.getFilenamePath()+str);
-            if (CPluginContainer::isAssimpPluginAvailable())
+            if (App::worldContainer->pluginContainer->isAssimpPluginAvailable())
             {
                 if (VFile::doesFileExist(filename.c_str()))
                 {
                     int cnt=0;
-                    int* shapes=CPluginContainer::assimp_importShapes(filename.c_str(),512,1.0,1,32+128+256,&cnt);
+                    int* shapes=App::worldContainer->pluginContainer->assimp_importShapes(filename.c_str(),512,1.0,1,32+128+256,&cnt);
                     if (shapes!=nullptr)
                     {
                         int newShapeHandle=shapes[0];
@@ -2166,14 +2165,14 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar,const char* orig
         C7Vector x(frame.getInverse()*trOld);
         shape->setLocalTransformation(C7Vector::identityTransformation);
         ar.xmlAddNode_comment(" one of following tags is required: 'fileName' or 'vertices' and 'indices' ",false);
-        if ( CPluginContainer::isAssimpPluginAvailable()&&(!ar.xmlSaveDataInline(geom->getVerticesForDisplayAndDisk()->size()+geom->getIndices()->size()*4)) )
+        if ( App::worldContainer->pluginContainer->isAssimpPluginAvailable()&&(!ar.xmlSaveDataInline(geom->getVerticesForDisplayAndDisk()->size()+geom->getIndices()->size()*4)) )
         {
             int shapeHandle=shape->getObjectHandle();
             std::string filename(ar.getFilenameBase()+"_mesh_"+originalShapeName+utils::getIntString(false,ar.getIncrementCounter())+".dae");
             bool wireframe=shape->getShapeWireframe_OLD();
             if (wireframe)
                 shape->setShapeWireframe_OLD(false); // The Assimp plugin will ignore wireframe shapes and not write them!!
-            CPluginContainer::assimp_exportShapes(&shapeHandle,1,(ar.getFilenamePath()+filename).c_str(),"collada",1.0,1,256);
+            App::worldContainer->pluginContainer->assimp_exportShapes(&shapeHandle,1,(ar.getFilenamePath()+filename).c_str(),"collada",1.0,1,256);
             if (wireframe)
                 shape->setShapeWireframe_OLD(true);
             ar.xmlAddNode_string("fileName",filename.c_str());

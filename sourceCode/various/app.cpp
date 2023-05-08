@@ -1,7 +1,6 @@
 #include <app.h>
 #include <vThread.h>
 #include <utils.h>
-#include <pluginContainer.h>
 #include <simStrings.h>
 #include <vDateTime.h>
 #include <pathPlanningInterface.h>
@@ -115,16 +114,13 @@ void App::simulationThreadInit()
 
     // Send the "instancePass" message to all plugins already here (needed for some plugins to properly finish initialization):
     int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
-    void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,nullptr,nullptr);
-    if (replyBuffer!=nullptr)
-        simReleaseBuffer_internal((char*)replyBuffer);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,4);
 #ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
-
     App::worldContainer->sandboxScript=new CScriptObject(sim_scripttype_sandboxscript);
     App::worldContainer->sandboxScript->setScriptTextFromFile((App::folders->getSystemPath()+"/"+"sandboxScript.lua").c_str());
     App::worldContainer->sandboxScript->systemCallScript(sim_syscb_init,nullptr,nullptr);
@@ -133,6 +129,7 @@ void App::simulationThreadInit()
         App::worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(),nullptr);
         _startupScriptString.clear();
     }
+    App::worldContainer->addOnScriptContainer->loadAllAddOns();
 }
 
 // Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
@@ -140,9 +137,7 @@ void App::simulationThreadDestroy()
 {
     // Send the last "instancePass" message to all plugins:
     int auxData[4]={0,0,0,0};
-    void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_lastinstancepass,auxData,nullptr,nullptr);
-    if (replyBuffer!=nullptr)
-        simReleaseBuffer_internal((char*)replyBuffer);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_lastinstancepass,auxData,4);
 
     App::worldContainer->addOnScriptContainer->removeAllAddOns();
     App::worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup,nullptr,nullptr);
@@ -183,9 +178,7 @@ void App::simulationThreadLoop()
 {
     // Send the "instancePass" message to all plugins:
     int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
-    void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,nullptr,nullptr);
-    if (replyBuffer!=nullptr)
-        simReleaseBuffer_internal((char*)replyBuffer);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,4);
 #ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
@@ -1395,7 +1388,9 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
 {
     bool retVal=false;
 
-    CPlugin* it=CPluginContainer::getPluginFromName(pluginName,true);
+    CPlugin* it=nullptr;
+    if (App::worldContainer!=nullptr)
+        it=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
     if ( (it!=nullptr)||(strcmp(pluginName,"CoppeliaSimClient")==0) )
     {
         int realVerbosityLevel=verbosityLevel&0x0fff;
@@ -1850,7 +1845,7 @@ int App::getConsoleVerbosity(const char* pluginName/*=nullptr*/)
     int retVal=_consoleVerbosity;
     if (pluginName!=nullptr)
     {
-        CPlugin* pl=CPluginContainer::getPluginFromName(pluginName,true);
+        CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
         if (pl!=nullptr)
         {
             if (pl->getConsoleVerbosity()!=sim_verbosity_useglobal)
@@ -1864,7 +1859,7 @@ void App::setConsoleVerbosity(int v,const char* pluginName/*=nullptr*/)
 { // sim_verbosity_none, etc.
     if (pluginName!=nullptr)
     {
-        CPlugin* pl=CPluginContainer::getPluginFromName(pluginName,true);
+        CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
         if (pl!=nullptr)
             pl->setConsoleVerbosity(v);
     }
@@ -1877,7 +1872,7 @@ int App::getStatusbarVerbosity(const char* pluginName/*=nullptr*/)
     int retVal=_statusbarVerbosity;
     if (pluginName!=nullptr)
     {
-        CPlugin* pl=CPluginContainer::getPluginFromName(pluginName,true);
+        CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
         if (pl!=nullptr)
         {
             if (pl->getStatusbarVerbosity()!=sim_verbosity_useglobal)
@@ -1891,7 +1886,7 @@ void App::setStatusbarVerbosity(int v,const char* pluginName/*=nullptr*/)
 { // sim_verbosity_none, etc.
     if (pluginName!=nullptr)
     {
-        CPlugin* pl=CPluginContainer::getPluginFromName(pluginName,true);
+        CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
         if (pl!=nullptr)
             pl->setStatusbarVerbosity(v);
     }

@@ -4,10 +4,8 @@
 #include <app.h>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
-#include <pluginContainer.h>
 #include <boost/algorithm/string/predicate.hpp>
 #include <imgLoaderSaver.h>
-#include <pluginContainer.h>
 #include <simFlavor.h>
 
 int CSer::SER_SERIALIZATION_VERSION=24; // 9 since 2008/09/01,
@@ -1291,7 +1289,7 @@ void CSer::xmlAddNode_imageFile(const char* name,const char* localFilenameSuffix
 void CSer::xmlAddNode_meshFile(const char* name,const char* localFilenameSuffix,const float* vertices,int vl,const int* indices,int il,const float* normals,int nl,const unsigned char* edges,int el)
 { // keep this as single precision float
     bool exhaustiveXml=( (getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
-    if ( _xmlUseImageAndMeshFileformats&&CPluginContainer::isAssimpPluginAvailable()&&(!exhaustiveXml) )
+    if ( _xmlUseImageAndMeshFileformats&&App::worldContainer->pluginContainer->isAssimpPluginAvailable()&&(!exhaustiveXml) )
     {
         std::string fn(getFilenameBase()+"_"+localFilenameSuffix+".ply");
         xmlNode* node=_xmlCreateNode(name,fn.c_str());
@@ -1314,7 +1312,7 @@ void CSer::xmlAddNode_meshFile(const char* name,const char* localFilenameSuffix,
         _verticesSizes[0]=vl;
         _indices[0]=(int*)indices;
         _indicesSizes[0]=il;
-        CPluginContainer::assimp_exportMeshes(1,(const double**)_vertices,_verticesSizes,(const int**)_indices,_indicesSizes,(getFilenamePath()+fn).c_str(),"ply",1.0,1,256);
+        App::worldContainer->pluginContainer->assimp_exportMeshes(1,(const double**)_vertices,_verticesSizes,(const int**)_indices,_indicesSizes,(getFilenamePath()+fn).c_str(),"ply",1.0,1,256);
         delete[] _vertices;
         delete[] _verticesSizes;
         delete[] _indices;
@@ -1884,9 +1882,9 @@ bool CSer::xmlGetNode_meshFile(const char* name,std::vector<float>& vertices,std
                 int* _verticesSizes;
                 int** _indices;
                 int* _indicesSizes;
-                if (!CPluginContainer::isAssimpPluginAvailable())
+                if (!App::worldContainer->pluginContainer->isAssimpPluginAvailable())
                     App::logMsg(sim_verbosity_errors,"assimp plugin was not found. CoppeliaSim will now crash.");
-                int cnt=CPluginContainer::assimp_importMeshes(filename.c_str(),1.0,1,16+256,&_vertices,&_verticesSizes,&_indices,&_indicesSizes);
+                int cnt=App::worldContainer->pluginContainer->assimp_importMeshes(filename.c_str(),1.0,1,16+256,&_vertices,&_verticesSizes,&_indices,&_indicesSizes);
                 if (cnt>0)
                 {
                     if (cnt==1)

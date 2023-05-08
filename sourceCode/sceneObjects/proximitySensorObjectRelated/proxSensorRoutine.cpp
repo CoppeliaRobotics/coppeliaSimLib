@@ -1,5 +1,4 @@
 #include <proxSensorRoutine.h>
-#include <pluginContainer.h>
 #include <app.h>
 #include <tt.h>
 
@@ -124,7 +123,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,double* vertexPointer,int 
                     double _maxAngle=0.0;
                     if (angleLimitation)
                         _maxAngle=maxAngle;
-                    if (CPluginContainer::geomPlugin_volumeSensorDetectTriangleIfSmaller(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,a0,e0,e1,dist,frontFace,backFace,_maxAngle,&detectedPt,&triNormal))
+                    if (App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectTriangleIfSmaller(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,a0,e0,e1,dist,frontFace,backFace,_maxAngle,&detectedPt,&triNormal))
                     {
                         if (sens->convexVolume->getSmallestDistanceEnabled())
                         {
@@ -177,7 +176,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,double* vertexPointer,int 
                     double l=p0.getLength();
                     if (l<=dist)
                     { // ok, the point is closer..
-                        detect=CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,p0);
+                        detect=App::worldContainer->pluginContainer->geomPlugin_isPointInVolume1AndOutVolume2(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,p0);
                         if (detect)
                             detectedPt=p0;
                     }
@@ -191,7 +190,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,double* vertexPointer,int 
                     double _maxAngle=0.0;
                     if (angleLimitation)
                         _maxAngle=maxAngle;
-                    detect=CPluginContainer::geomPlugin_volumeSensorDetectSegmentIfSmaller(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,p0,p1-p0,dist,_maxAngle,&detectedPt);
+                    detect=App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectSegmentIfSmaller(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,p0,p1-p0,dist,_maxAngle,&detectedPt);
                 }
             }
             if (itemType==2)
@@ -207,7 +206,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,double* vertexPointer,int 
                 double _maxAngle=0.0;
                 if (angleLimitation)
                     _maxAngle=maxAngle;
-                detect=CPluginContainer::geomPlugin_volumeSensorDetectTriangleIfSmaller(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,a0,e0,e1,dist,frontFace,backFace,_maxAngle,&detectedPt,&triNormal);
+                detect=App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectTriangleIfSmaller(sens->convexVolume->planesInside,sens->convexVolume->planesOutside,a0,e0,e1,dist,frontFace,backFace,_maxAngle,&detectedPt,&triNormal);
             }
             if (detect)
             {
@@ -250,7 +249,7 @@ int CProxSensorRoutine::_detectDummy(CProxSensor* sensor,CDummy* dummy,C3Vector&
     C7Vector inv(sensor->getFullCumulativeTransformation().getInverse());
     C4X4Matrix dummyCTM((inv*dummy->getFullCumulativeTransformation()).getMatrix());
     double theDistance=dummyCTM.X.getLength();
-    if (CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,dummyCTM.X) )
+    if (App::worldContainer->pluginContainer->geomPlugin_isPointInVolume1AndOutVolume2(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,dummyCTM.X) )
     {
         if (theDistance<dist)
         {
@@ -311,7 +310,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
             double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
-            bool result=CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(lp,lvFar,shape->_meshCalculationStructure,shapeITr,distTmp,sensor->convexVolume->getSmallestDistanceAllowed(),!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPtTmp,&triNormalNotNormalizedTmp,closeDetectionTriggered);
+            bool result=App::worldContainer->pluginContainer->geomPlugin_raySensorDetectMeshIfSmaller(lp,lvFar,shape->_meshCalculationStructure,shapeITr,distTmp,sensor->convexVolume->getSmallestDistanceAllowed(),!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPtTmp,&triNormalNotNormalizedTmp,closeDetectionTriggered);
             if ((closeDetectionTriggered!=nullptr)&&closeDetectionTriggered[0])
             { // We triggered the sensor in the forbiden zone
                 normalDetectionCnt=0;
@@ -349,7 +348,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
             double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
-            bool result=CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(lp,lvFar,shape->_meshCalculationStructure,shapeITr,dist,sensor->convexVolume->getSmallestDistanceAllowed(),!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized,closeDetectionTriggered);
+            bool result=App::worldContainer->pluginContainer->geomPlugin_raySensorDetectMeshIfSmaller(lp,lvFar,shape->_meshCalculationStructure,shapeITr,dist,sensor->convexVolume->getSmallestDistanceAllowed(),!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized,closeDetectionTriggered);
             if ((closeDetectionTriggered!=nullptr)&&closeDetectionTriggered[0])
                 retVal=-2; // We triggered the sensor in the forbiden zone: to inform the calling routine, we do following:
             else
@@ -363,7 +362,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
             double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
-            if (CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,shape->_meshCalculationStructure,shapeITr,dist,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized))
+            if (App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectMeshIfSmaller(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,shape->_meshCalculationStructure,shapeITr,dist,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized))
             {
                 if (sensor->convexVolume->getSmallestDistanceEnabled())
                 {
@@ -424,7 +423,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COcTree* octree,C3Vect
             double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
-            bool result=CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(lp,lvFar,octree->getOctreeInfo(),octreeITr,distTmp,0.0,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPtTmp,&triNormalNotNormalizedTmp,nullptr);
+            bool result=App::worldContainer->pluginContainer->geomPlugin_raySensorDetectOctreeIfSmaller(lp,lvFar,octree->getOctreeInfo(),octreeITr,distTmp,0.0,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPtTmp,&triNormalNotNormalizedTmp,nullptr);
             if (result)
             { // We triggered the sensor
                 if (sensor->convexVolume->getSmallestDistanceEnabled())
@@ -462,7 +461,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COcTree* octree,C3Vect
             double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
-            bool result=CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(lp,lvFar,octree->getOctreeInfo(),octreeITr,dist,0.0,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized,nullptr);
+            bool result=App::worldContainer->pluginContainer->geomPlugin_raySensorDetectOctreeIfSmaller(lp,lvFar,octree->getOctreeInfo(),octreeITr,dist,0.0,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized,nullptr);
             if (result)
             {
                 if (sensor->convexVolume->getSmallestDistanceEnabled())
@@ -480,7 +479,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COcTree* octree,C3Vect
             double _maxAngle=0.0;
             if (angleLimitation)
                 _maxAngle=maxAngle;
-            if ( CPluginContainer::geomPlugin_volumeSensorDetectOctreeIfSmaller(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,octree->getOctreeInfo(),octreeITr,dist,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized) )
+            if ( App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectOctreeIfSmaller(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,octree->getOctreeInfo(),octreeITr,dist,!closestFeatureMode,frontFace,backFace,_maxAngle,&detectedPt,&triNormalNotNormalized) )
             {
                 if (sensor->convexVolume->getSmallestDistanceEnabled())
                 {
@@ -520,7 +519,7 @@ int CProxSensorRoutine::_detectPointCloud(CProxSensor* sensor,CPointCloud* point
     C7Vector sensTrInv(sensTr.getInverse());
     C7Vector pointCloudITr(sensTrInv*pointCloud->getFullCumulativeTransformation());
 
-    if (CPluginContainer::geomPlugin_volumeSensorDetectPtcloudIfSmaller(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,pointCloud->getPointCloudInfo(),pointCloudITr,dist,!closestFeatureMode,&detectedPt))
+    if (App::worldContainer->pluginContainer->geomPlugin_volumeSensorDetectPtcloudIfSmaller(sensor->convexVolume->planesInside,sensor->convexVolume->planesOutside,pointCloud->getPointCloudInfo(),pointCloudITr,dist,!closestFeatureMode,&detectedPt))
     {
         bool doIt=true;
         if (sensor->convexVolume->getSmallestDistanceEnabled())
@@ -570,7 +569,7 @@ double CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vect
     if (isPointToo)
         return((tr.X-point).getLength()); // pt vs pt
     else
-        return(CPluginContainer::geomPlugin_getBoxPointDistance(tr,halfSize,true,point,nullptr));
+        return(App::worldContainer->pluginContainer->geomPlugin_getBoxPointDistance(tr,halfSize,true,point,nullptr));
 }
 
 bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSensor* sensor,CSceneObject* obj)
@@ -586,9 +585,9 @@ bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSens
     if (obj->getObjectType()==sim_object_dummy_type)
         objectIsPoint=true;
     if (objectIsPoint)
-        return(CPluginContainer::geomPlugin_getBoxPointCollision(sensorTr,sensorHalfSize,objectTr.X));
+        return(App::worldContainer->pluginContainer->geomPlugin_getBoxPointCollision(sensorTr,sensorHalfSize,objectTr.X));
     else
-        return(CPluginContainer::geomPlugin_getBoxBoxCollision(sensorTr,sensorHalfSize,objectTr,objectHalfSize,true));
+        return(App::worldContainer->pluginContainer->geomPlugin_getBoxBoxCollision(sensorTr,sensorHalfSize,objectTr,objectHalfSize,true));
 }
 
 int CProxSensorRoutine::_detectObject(CProxSensor* sensor,CSceneObject* object,C3Vector& detectedPt,double& dist,C3Vector& triNormalNotNormalized,bool closestFeatureMode,bool angleLimitation,double maxAngle,bool frontFace,bool backFace,double minThreshold)

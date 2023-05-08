@@ -266,13 +266,13 @@ SIM_DLLEXPORT int simGetPage()
 {
     return(simGetPage_internal());
 }
-SIM_DLLEXPORT int simRegisterScriptCallbackFunction(const char* funcNameAtPluginName,const char* callTips,void(*callBack)(struct SScriptCallBack* cb))
+SIM_DLLEXPORT int simRegisterScriptCallbackFunction(const char* func,const char* reserved_setToNull,void(*callBack)(struct SScriptCallBack* cb))
 {
-    return(simRegisterScriptCallbackFunction_internal(funcNameAtPluginName,callTips,callBack));
+    return(simRegisterScriptCallbackFunction_internal(func,reserved_setToNull,callBack));
 }
-SIM_DLLEXPORT int simRegisterScriptVariable(const char* varNameAtPluginName,const char* varValue,int stackHandle)
+SIM_DLLEXPORT int simRegisterScriptVariable(const char* var,const char* val,int stackHandle)
 {
-    return(simRegisterScriptVariable_internal(varNameAtPluginName,varValue,stackHandle));
+    return(simRegisterScriptVariable_internal(var,val,stackHandle));
 }
 SIM_DLLEXPORT int simRegisterScriptFuncHook(int scriptHandle,const char* funcToHook,const char* userFunction,bool executeBefore,int options)
 {

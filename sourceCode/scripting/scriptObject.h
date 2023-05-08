@@ -3,6 +3,7 @@
 #include <simLib/simTypes.h>
 #include <outsideCommandQueueForScript.h>
 #include <interfaceStack.h>
+#include <plugin.h>
 #include <random>
 
 #define DEFAULT_MAINSCRIPT_CODE "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
@@ -11,6 +12,7 @@
 #define DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT "customizationScript"
 #define DEFAULT_THREADEDCUSTOMIZATIONSCRIPT "customizationScript-threaded"
 #define SIM_SCRIPT_HANDLE "sim_script_handle" // keep this global, e.g. not _S.sim_script_handle
+#define SIM_PLUGIN_NAMESPACES "sim_plugin_namespaces" // keep this global, e.g. not _S.sim_plugin_handles
 
 // Old:
 // **********************
@@ -137,6 +139,8 @@ public:
     int getAutoYieldingForbidLevel() const;
     int changeOverallYieldingForbidLevel(int dx,bool absolute);
     int getLanguage();
+
+    void loadPluginFuncsAndVars(CPlugin* plug);
 
     void registerPluginFunctions();
     bool registerPluginVariables(bool onlyRequireStatements);

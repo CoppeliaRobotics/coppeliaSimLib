@@ -1,6 +1,5 @@
 #include <worldContainer.h>
 #include <app.h>
-#include <pluginContainer.h>
 #include <rendering.h>
 #include <tt.h>
 #include <utils.h>
@@ -11,6 +10,7 @@ CWorldContainer::CWorldContainer()
 {
     TRACE_INTERNAL;
     _sessionId=utils::generateUniqueReadableString();
+    pluginContainer=nullptr;
     copyBuffer=nullptr;
     sandboxScript=nullptr;
     addOnScriptContainer=nullptr;
@@ -95,8 +95,7 @@ int CWorldContainer::createNewWorld()
     if (currentWorld!=nullptr)
     {
         int pluginData[4]={_currentWorldIndex,CEnvironment::getNextSceneUniqueId(),0,0};
-        void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,nullptr,nullptr);
-        delete[] (char*)pluginReturnVal;
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,4);
     }
 
 #ifdef SIM_WITH_GUI
@@ -128,8 +127,7 @@ int CWorldContainer::createNewWorld()
 
     // Inform plugins about performed switch to new world:
     int dat[4]={getCurrentWorldIndex(),currentWorld->environment->getSceneUniqueID(),0,0};
-    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,dat,nullptr,nullptr);
-    delete[] (char*)returnVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,dat,4);
     setModificationFlag(64); // instance switched
 
 #ifdef SIM_WITH_GUI
@@ -167,8 +165,7 @@ int CWorldContainer::destroyCurrentWorld()
 
         // Inform plugins about future world switch:
         int pluginData[4]={-1,_worlds[nextWorldIndex]->environment->getSceneUniqueID(),0,0};
-        void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,nullptr,nullptr);
-        delete[] (char*)pluginReturnVal;
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,4);
     }
 
     // Empty current scene:
@@ -209,8 +206,7 @@ int CWorldContainer::destroyCurrentWorld()
 
         // Inform plugins about performed world switch:
         int pluginData[4]={_currentWorldIndex,currentWorld->environment->getSceneUniqueID(),0,0};
-        void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,pluginData,nullptr,nullptr);
-        delete[] (char*)pluginReturnVal;
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,pluginData,4);
         setModificationFlag(64); // instance switched
 
 #ifdef SIM_WITH_GUI
@@ -250,6 +246,7 @@ void CWorldContainer::initialize()
     scriptCustomFuncAndVarContainer=new CScriptCustomFuncAndVarContainer();
     customAppData_old=new CCustomData_old();
     calcInfo=new CCalculationInfo();
+    pluginContainer=new CPluginContainer();
     addOnScriptContainer=new CAddOnScriptContainer();
 
     _bufferedEvents=new SBufferedEvents;
@@ -274,6 +271,7 @@ void CWorldContainer::deinitialize()
 
 //    delete sandboxScript;
     delete addOnScriptContainer;
+    delete pluginContainer;
     delete customAppData_old;
     delete scriptCustomFuncAndVarContainer;
     delete interfaceStackContainer;
@@ -306,8 +304,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
 
     // Inform plugins about future world switch:
     int pluginData[4]={_currentWorldIndex,_worlds[newWorldIndex]->environment->getSceneUniqueID(),0,0};
-    void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,nullptr,nullptr);
-    delete[] (char*)pluginReturnVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,4);
 
 #ifdef SIM_WITH_GUI
     // Inform UI about future world switch:
@@ -337,8 +334,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     // Inform plugins about performed world switch:
     pluginData[0]=_currentWorldIndex;
     pluginData[1]=currentWorld->environment->getSceneUniqueID();
-    pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,pluginData,nullptr,nullptr);
-    delete[] (char*)pluginReturnVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,pluginData,4);
     setModificationFlag(64); // instance switched
 
 
@@ -930,19 +926,14 @@ void CWorldContainer::announceScriptWillBeErased(int scriptHandle,bool simulatio
 {
     // Inform plugins about this event:
     int pluginData[4]={scriptHandle,0,0,0};
-    void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptdestroyed,pluginData,nullptr,nullptr);
-    delete[] (char*)pluginReturnVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptdestroyed,pluginData,4);
 
     currentWorld->announceScriptWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
 }
 
 void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
 {
-    // Inform plugins about this event:
-    int pluginData[4]={scriptHandle,0,0,0};
-    void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstatedestroyed,pluginData,nullptr,nullptr);
-    delete[] (char*)pluginReturnVal;
-
+    pluginContainer->announceScriptStateWillBeErased(scriptHandle);
     moduleMenuItemContainer->announceScriptStateWillBeErased(scriptHandle);
     currentWorld->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
 #ifdef SIM_WITH_GUI

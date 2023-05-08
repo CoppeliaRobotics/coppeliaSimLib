@@ -13,6 +13,10 @@ CAddOnScriptContainer::CAddOnScriptContainer()
     _sysFuncAndHookCnt_dyn=0;
     _sysFuncAndHookCnt_contact=0;
     _sysFuncAndHookCnt_joint=0;
+}
+
+void CAddOnScriptContainer::loadAllAddOns()
+{ // will load them. But not call any script function yet (including 'info', which is called on-demand when a callback is distributed)
     _insertAddOns();
     _prepareAddOnFunctionNames_old();
 }
@@ -132,7 +136,7 @@ int CAddOnScriptContainer::_insertAddOns()
                 defScript->setAddOnName(nm.c_str());
                 if ( (at.compare(ADDON_SCRIPT_PREFIX1_NOAUTOSTART)==0)||(at.compare(ADDON_SCRIPT_PREFIX2_NOAUTOSTART)==0) )
                     defScript->setScriptState(CScriptObject::scriptState_ended);
-                App::logMsg(sim_verbosity_infos,"add-on '%s' was loaded.",foundItem->name.c_str());
+                App::logMsg(sim_verbosity_loadinfos,"add-on '%s' was loaded.",foundItem->name.c_str());
                 addOnsCount++;
             }
             else
@@ -189,7 +193,7 @@ int CAddOnScriptContainer::_insertAddOns()
                 file.close();
 
                 addOnsCount++;
-                App::logMsg(sim_verbosity_infos,"add-on '%s' was loaded.",fileName_withExtension.c_str());
+                App::logMsg(sim_verbosity_loadinfos,"add-on '%s' was loaded.",fileName_withExtension.c_str());
             }
             catch(VFILE_EXCEPTION_TYPE e)
             {

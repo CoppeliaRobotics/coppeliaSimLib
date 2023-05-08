@@ -21,7 +21,6 @@ See the GNU General Public License for more details.
 #include <cameraRendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include <pluginContainer.h>
 
 void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAttrib)
 {

@@ -21,7 +21,6 @@ See the GNU General Public License for more details.
 #include <octreeRendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include <pluginContainer.h>
 
 const int _cubeIndices[]={
     0,1,2,0,2,3,
@@ -118,7 +117,7 @@ void displayOctree(COcTree* octree,CViewableBase* renderingObject,int displayAtt
             if (octree->getShowOctree()&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
             {
                 std::vector<double> corners;
-                CPluginContainer::geomPlugin_getOctreeCornersFromOctree(octree->getOctreeInfo(),corners);
+                App::worldContainer->pluginContainer->geomPlugin_getOctreeCornersFromOctree(octree->getOctreeInfo(),corners);
 
                 glBegin(GL_LINES);
                 glNormal3dv(normalVectorForLinesAndPoints.data);

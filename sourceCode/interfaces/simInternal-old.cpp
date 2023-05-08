@@ -4681,19 +4681,7 @@ int simSetConfigurationTree_internal(const char* data)
 
 int simEnableEventCallback_internal(int eventCallbackType,const char* plugin,int reserved)
 { // deprecated on 18.06.2021
-    TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (CPluginContainer::enableOrDisableSpecificEventCallback(eventCallbackType,plugin))
-            return(1);
-        return(0);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return(-1);
+    return(0);
 }
 
 int simSetObjectSizeValues_internal(int objectHandle,const double* sizeValues)
@@ -4749,7 +4737,7 @@ char* simFileDialog_internal(int mode,const char* title,const char* startPath,co
     #ifndef WIN_SIM // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, we don't use native dialogs
         native=0;
     #endif
-    CPluginContainer::customUi_fileDialog(mode,title,startPath,initName,extName,ext,native,nameAndPath);
+    App::worldContainer->pluginContainer->customUi_fileDialog(mode,title,startPath,initName,extName,ext,native,nameAndPath);
 
 /*
     std::string stPath(startPath);
@@ -4777,7 +4765,7 @@ int simMsgBox_internal(int dlgType,int buttons,const char* title,const char* mes
         return(-1);
     int retVal=sim_msgbox_return_ok;
 #ifdef SIM_WITH_GUI
-    retVal=CPluginContainer::customUi_msgBox(dlgType,buttons,title,message,sim_msgbox_return_ok);
+    retVal=App::worldContainer->pluginContainer->customUi_msgBox(dlgType,buttons,title,message,sim_msgbox_return_ok);
 #endif
     return(retVal);
 }
@@ -5893,8 +5881,7 @@ void* simBroadcastMessage_internal(int* auxiliaryData,void* customData,int* repl
         replyData[2]=-1;
         replyData[3]=-1;
     }
-    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_broadcast,auxiliaryData,customData,replyData);
-    return(retVal);
+    return(nullptr);
 }
 
 void* simSendModuleMessage_internal(int message,int* auxiliaryData,void* customData,int* replyData)
@@ -5908,8 +5895,7 @@ void* simSendModuleMessage_internal(int message,int* auxiliaryData,void* customD
         replyData[2]=-1;
         replyData[3]=-1;
     }
-    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(message,auxiliaryData,customData,replyData);
-    return(retVal);
+    return(nullptr);
 }
 
 int simBuildMatrixQ_internal(const double* position,const double* quaternion,double* matrix)

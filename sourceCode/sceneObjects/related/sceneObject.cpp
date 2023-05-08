@@ -20,7 +20,6 @@
 #include <simFlavor.h>
 #include <base64.h>
 #include <boost/algorithm/string.hpp>
-#include <pluginContainer.h>
 #ifdef SIM_WITH_GUI
     #include <rendering.h>
     #include <oGL.h>
@@ -2033,7 +2032,7 @@ void CSceneObject::_setLocalTransformation_send(const C7Vector& tr) const
 {
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setObjectLocalTransformation(_ikPluginCounterpartHandle,_localTransformation);
+        App::worldContainer->pluginContainer->ikPlugin_setObjectLocalTransformation(_ikPluginCounterpartHandle,_localTransformation);
 }
 
 void CSceneObject::_setParent_send(int parentHandle) const
@@ -2044,7 +2043,7 @@ void CSceneObject::_setParent_send(int parentHandle) const
         int p=-1;
         if (getParent()!=nullptr)
             p=getParent()->getIkPluginCounterpartHandle();
-        CPluginContainer::ikPlugin_setObjectParent(_ikPluginCounterpartHandle,p);
+        App::worldContainer->pluginContainer->ikPlugin_setObjectParent(_ikPluginCounterpartHandle,p);
     }
 }
 
@@ -4460,7 +4459,7 @@ void CSceneObject::buildUpdateAndPopulateSynchronizationObject(const std::vector
 
         // Build IK plugin counterpart, if not a joint:
         if (_ikPluginCounterpartHandle==-1)
-            _ikPluginCounterpartHandle=CPluginContainer::ikPlugin_createDummy();
+            _ikPluginCounterpartHandle=App::worldContainer->pluginContainer->ikPlugin_createDummy();
         // Update the remote object:
         _setLocalTransformation_send(_localTransformation);
     }
@@ -4487,7 +4486,7 @@ void CSceneObject::removeSynchronizationObject(bool localReferencesToItOnly)
         {
             // Synchronize with IK plugin:
             if (_ikPluginCounterpartHandle!=-1)
-                CPluginContainer::ikPlugin_eraseObject(_ikPluginCounterpartHandle);
+                App::worldContainer->pluginContainer->ikPlugin_eraseObject(_ikPluginCounterpartHandle);
         }
     }
     // IK plugin part:

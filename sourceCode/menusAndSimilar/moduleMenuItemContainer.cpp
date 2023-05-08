@@ -1,6 +1,5 @@
 #include <app.h>
 #include <moduleMenuItemContainer.h>
-#include <pluginContainer.h>
 #include <global.h>
 
 CModuleMenuItemContainer::CModuleMenuItemContainer()
@@ -112,8 +111,7 @@ bool CModuleMenuItemContainer::processCommand(int commandID)
             if (it->getHandle()==commandID)
             {
                 int data[4]={commandID,it->getState(),0,0};
-                void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_menuitemselected,data,nullptr,nullptr);
-                delete[] (char*)returnVal;
+                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_menuitemselected,data,4);
                 return(true);
             }
         }

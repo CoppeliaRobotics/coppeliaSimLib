@@ -5,7 +5,6 @@
 #include <global.h>
 #include <sceneObjectOperations.h>
 #include <graphingRoutines_old.h>
-#include <pluginContainer.h>
 #include <simStrings.h>
 #include <vDateTime.h>
 #include <utils.h>
@@ -2078,118 +2077,86 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
 
     App::currentWorld->environment->deactivateFog();
 
-    // Following allows to hand the rendered camera image to a plugin, that might modify it and return it!
-    // Or - following is also used to generate an externally rendered view:
-    bool executeNextRoutine=CPluginContainer::shouldSend_openglcameraview_msg();
-    executeNextRoutine=(!getInternalRendering())||executeNextRoutine;
-    if (executeNextRoutine)
+    // Following is used to generate an externally rendered view:
+    if (!getInternalRendering())
     {
         char* buff=new char[_currentViewSize[0]*_currentViewSize[1]*3];
-        bool applyNewImage=false;
-        if (!getInternalRendering())
-        {
-            int rendererIndex=_renderMode-sim_rendermode_povray;
+        int rendererIndex=_renderMode-sim_rendermode_povray;
 
-            bool renderView=true;
-            if (App::mainWindow->simulationRecorder->getIsRecording()&&(rendererIndex<2))
-                renderView=App::mainWindow->simulationRecorder->willNextFrameBeRecorded();
+        bool renderView=true;
+        if (App::mainWindow->simulationRecorder->getIsRecording()&&(rendererIndex<2))
+            renderView=App::mainWindow->simulationRecorder->willNextFrameBeRecorded();
 
-            if (renderView)
-            { // When using a ray-tracer during video recording, and we want to record not every frame, don't render those frames!!
-                App::mainWindow->openglWidget->doneCurrent();
+        if (renderView)
+        { // When using a ray-tracer during video recording, and we want to record not every frame, don't render those frames!!
+            App::mainWindow->openglWidget->doneCurrent();
 
 #ifdef SIM_WITH_GUI
-                if (!_extRenderer_prepareView(rendererIndex,_currentViewSize,isPerspective))
+            if (!_extRenderer_prepareView(rendererIndex,_currentViewSize,isPerspective))
+            {
+                if (rendererIndex==0)
                 {
-                    if (rendererIndex==0)
-                    {
-                        static bool alreadyShown=false;
-                        if (!alreadyShown)
-                            App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin","The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                        alreadyShown=true;
-                    }
+                    static bool alreadyShown=false;
+                    if (!alreadyShown)
+                        App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin","The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    alreadyShown=true;
                 }
-#endif
-                _extRenderer_prepareLights();
-                _extRenderer_prepareMirrors();
-
-                if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3))
-                    setFrustumCullingTemporarilyDisabled(true); // important with ray-tracers and similar
-
-                // Draw objects:
-                _drawObjects(RENDERING_MODE_SOLID,RENDERPASS,currentWinSize,subView,false);
-
-                if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3))
-                    setFrustumCullingTemporarilyDisabled(false); // important with ray-tracers and similar
-
-                _extRenderer_retrieveImage(buff);
-
-                App::mainWindow->openglWidget->makeCurrent();
-
-                applyNewImage=true;
             }
-        }
-        else
-        { // regular openGl
-            GLint viewport[4];
-            glGetIntegerv(GL_VIEWPORT,viewport);
+#endif
+            _extRenderer_prepareLights();
 
-            glPixelStorei(GL_PACK_ALIGNMENT,1);
-            glReadPixels(viewport[0],viewport[1], _currentViewSize[0], _currentViewSize[1], GL_RGB, GL_UNSIGNED_BYTE, buff);
-            glPixelStorei(GL_PACK_ALIGNMENT,4); // important to restore! Really?
+            if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3))
+                setFrustumCullingTemporarilyDisabled(true); // important with ray-tracers and similar
 
-            int auxVals[4];
-            int retVals[4];
-            auxVals[0]=_currentViewSize[0];
-            auxVals[1]=_currentViewSize[1];
-            auxVals[2]=-1;
-            if (subView!=nullptr)
-                auxVals[2]=int(subView->getViewIndex());
-            auxVals[3]=0;
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_openglcameraview,auxVals,buff,retVals);
-            applyNewImage=(auxVals[3]!=0);
+            // Draw objects:
+            _drawObjects(RENDERING_MODE_SOLID,RENDERPASS,currentWinSize,subView,false);
+
+            if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3))
+                setFrustumCullingTemporarilyDisabled(false); // important with ray-tracers and similar
+
+            _extRenderer_retrieveImage(buff);
+
+            App::mainWindow->openglWidget->makeCurrent();
         }
 
-        if (applyNewImage)
-        { // we want to apply a new image!
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-            glOrtho(0,_currentViewSize[0],0,_currentViewSize[1],-100,100);
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity ();
-            glDisable(GL_DEPTH_TEST);
-            ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
-            if (_textureNameForExtGeneratedView==(unsigned int)-1)
-                _textureNameForExtGeneratedView=ogl::genTexture();//glGenTextures(1,&_textureNameForExtGeneratedView);
-            glBindTexture(GL_TEXTURE_2D,_textureNameForExtGeneratedView);
-            glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-            glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,_currentViewSize[0],_currentViewSize[1],0,GL_RGB,GL_UNSIGNED_BYTE,buff);
-            glPixelStorei(GL_UNPACK_ALIGNMENT,4); // important to restore! Really?
+        // we want to apply a new image!
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0,_currentViewSize[0],0,_currentViewSize[1],-100,100);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity ();
+        glDisable(GL_DEPTH_TEST);
+        ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite);
+        if (_textureNameForExtGeneratedView==(unsigned int)-1)
+            _textureNameForExtGeneratedView=ogl::genTexture();//glGenTextures(1,&_textureNameForExtGeneratedView);
+        glBindTexture(GL_TEXTURE_2D,_textureNameForExtGeneratedView);
+        glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+        glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,_currentViewSize[0],_currentViewSize[1],0,GL_RGB,GL_UNSIGNED_BYTE,buff);
+        glPixelStorei(GL_UNPACK_ALIGNMENT,4); // important to restore! Really?
 
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // keep to GL_LINEAR here!!
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-            glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
-            glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
-            glTexEnvi (GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D,_textureNameForExtGeneratedView);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // keep to GL_LINEAR here!!
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
+        glTexParameteri (GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
+        glTexEnvi (GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,_textureNameForExtGeneratedView);
 
-            glColor3f(1.0,1.0,1.0);
+        glColor3f(1.0,1.0,1.0);
 
-            glBegin(GL_QUADS);
-            glTexCoord2f(0.0,0.0);
-            glVertex3i(0,0,0);
-            glTexCoord2f(0.0,1.0);
-            glVertex3i(0,_currentViewSize[1],0);
-            glTexCoord2f(1.0,1.0);
-            glVertex3i(_currentViewSize[0],_currentViewSize[1],0);
-            glTexCoord2f(1.0,0.0);
-            glVertex3i(_currentViewSize[0],0,0);
-            glEnd();
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0,0.0);
+        glVertex3i(0,0,0);
+        glTexCoord2f(0.0,1.0);
+        glVertex3i(0,_currentViewSize[1],0);
+        glTexCoord2f(1.0,1.0);
+        glVertex3i(_currentViewSize[0],_currentViewSize[1],0);
+        glTexCoord2f(1.0,0.0);
+        glVertex3i(_currentViewSize[0],0,0);
+        glEnd();
 
-            glDisable(GL_TEXTURE_2D);
-            glEnable(GL_DEPTH_TEST);
-        }
+        glDisable(GL_TEXTURE_2D);
+        glEnable(GL_DEPTH_TEST);
         delete[] buff;
     }
 
@@ -2319,7 +2286,7 @@ void CCamera::_handleMirrors(int renderingMode,bool noSelection,int pass,int nav
 bool CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bool perspective)
 {   // Set-up the resolution, clear color, camera properties and camera pose:
 
-    bool retVal=CPluginContainer::selectExtRenderer(extRendererIndex);
+    bool retVal=App::worldContainer->pluginContainer->selectExtRenderer(extRendererIndex);
 
     void* data[30];
     data[0]=resolution+0;
@@ -2406,7 +2373,7 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bo
     data[26]=&povAperture;
     data[27]=&povBlurSamples;
 
-    CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_start,data);
+    App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_start,data);
     return(retVal);
 }
 
@@ -2450,79 +2417,7 @@ void CCamera::_extRenderer_prepareLights()
             data[10]=&povFadeXDist;
             data[12]=&povNoShadow;
 
-            CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_light,data);
-        }
-    }
-}
-
-void CCamera::_extRenderer_prepareMirrors()
-{
-    for (size_t li=0;li<App::currentWorld->sceneObjects->getMirrorCount();li++)
-    {
-        CMirror* mirror=App::currentWorld->sceneObjects->getMirrorFromIndex(li);
-        bool visible=mirror->getShouldObjectBeDisplayed(_objectHandle,_attributesForRendering);
-        if (mirror->getIsMirror()&&visible)
-        {
-            bool active=mirror->getActive()&&(!App::currentWorld->mainSettings->mirrorsDisabled);
-            C7Vector tr=mirror->getCumulativeTransformation();
-            float w_=float(mirror->getMirrorWidth())/2.0f;
-            float h_=float(mirror->getMirrorHeight())/2.0f;
-            float vertices[18]={w_,-h_,0.0005f,w_,h_,0.0005f,-w_,-h_,0.0005f,-w_,-h_,0.0005f,w_,h_,0.0005f,-w_,h_,0.0005f};
-            int verticesCnt=6;
-            float normals[18]={0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f};
-            for (int i=0;i<6;i++)
-            {
-                C3Vector v;
-                v.setData(vertices+i*3);
-                v*=tr;
-                C3Vector n;
-                n.setData(normals+i*3);
-                n=tr.Q*n;
-                vertices[i*3+0]=(float)v(0);
-                vertices[i*3+1]=(float)v(1);
-                vertices[i*3+2]=(float)v(2);
-                normals[i*3+0]=(float)n(0);
-                normals[i*3+1]=(float)n(1);
-                normals[i*3+2]=(float)n(2);
-            }
-            void* data[20];
-            data[0]=vertices;
-            data[1]=&verticesCnt;
-            data[2]=normals;
-            float colors[15];
-            colors[0]=mirror->mirrorColor[0];
-            colors[1]=mirror->mirrorColor[1];
-            colors[2]=mirror->mirrorColor[2];
-            colors[6]=0.0f;
-            colors[7]=0.0f;
-            colors[8]=0.0f;
-            colors[9]=0.0f;
-            colors[10]=0.0f;
-            colors[11]=0.0f;
-            colors[12]=0.0f;
-            colors[13]=0.0f;
-            colors[14]=0.0f;
-            data[3]=colors;
-            bool translucid=false;
-            data[4]=&translucid;
-            float opacityFactor=1.0f;
-            data[5]=&opacityFactor;
-            const char* povMaterial={"mirror"};
-            data[6]=(char*)povMaterial;
-            data[7]=&active;
-            CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_triangles,data);
-            C3Vector shift=tr.Q.getMatrix().axis[2]*(-0.001);
-            for (int i=0;i<6;i++)
-            {
-                C3Vector v;
-                v.setData(vertices+i*3);
-                v+=shift;
-                vertices[i*3+0]=(float)v(0);
-                vertices[i*3+1]=(float)v(1);
-                vertices[i*3+2]=(float)v(2);
-            }
-            active=false;
-            CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_triangles,data);
+            App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_light,data);
         }
     }
 }
@@ -2536,7 +2431,7 @@ void CCamera::_extRenderer_retrieveImage(char* rgbBuffer)
     data[2]=&readRgb;
     bool readDepth=false;
     data[3]=&readDepth;
-    CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_stop,data);
+    App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_stop,data);
 }
 
 void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSView* subView,bool mirrored)
@@ -2649,20 +2544,8 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
 
         if (!shapeEditModeAndPicking)
         {
-            if (getInternalRendering())
-            {
-                if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,0,displayAttrib,_objectHandle,viewIndex);
-            }
-
             if (getInternalRendering()) // following not yet implemented for ext. rendering
                 App::currentWorld->renderYourGeneralObject3DStuff_beforeRegularObjects(this,displayAttrib,currentWinSize,verticalViewSizeOrAngle,_currentPerspective); // those objects are not supposed to be translucid!
-
-            if (getInternalRendering())
-            {
-                if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,1,displayAttrib,_objectHandle,viewIndex);
-            }
         }
 
         if (getInternalRendering())
@@ -2759,30 +2642,10 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
 
         if (!shapeEditModeAndPicking)
         {
-            if (getInternalRendering())
-            {
-                if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,2,displayAttrib,_objectHandle,viewIndex);
-            }
-
             if (getInternalRendering()) // following not yet implemented for ext. rendering
                 App::currentWorld->renderYourGeneralObject3DStuff_afterRegularObjects(this,displayAttrib,currentWinSize,verticalViewSizeOrAngle,_currentPerspective); // those objects can be translucid
-
-            if (getInternalRendering())
-            {
-                if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,3,displayAttrib,_objectHandle,viewIndex);
-            }
-
             if (getInternalRendering()) // following not yet implemented for ext. rendering
                 App::currentWorld->renderYourGeneralObject3DStuff_onTopOfRegularObjects(this,displayAttrib,currentWinSize,verticalViewSizeOrAngle,_currentPerspective); // those objects are overlay
-
-            if (getInternalRendering())
-            {
-                if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,4,displayAttrib,_objectHandle,viewIndex);
-            }
-
             if (getInternalRendering())
             {   //Now we display all graphs' 3D curves that should appear on top of everything:
                 for (size_t i=0;i<App::currentWorld->sceneObjects->getGraphCount();i++)
@@ -2821,12 +2684,6 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                 // Wireless communication activities:
                 if ((displayAttrib&sim_displayattribute_dynamiccontentonly)==0)
                     App::currentWorld->embeddedScriptContainer->broadcastDataContainer.visualizeCommunications((int)VDateTime::getTimeInMs());
-            }
-
-            if (!shapeEditModeAndPicking)
-            {
-                if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,5,displayAttrib,_objectHandle,viewIndex);
             }
         }
     }
@@ -3293,8 +3150,7 @@ int CCamera::handleHits(int hits,unsigned int selectBuff[])
 
             // OLD:
             int data[4]={hitThatIgnoresTheSelectableFlag,0,0,0};
-            void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_pickselectdown,data,nullptr,nullptr);
-            delete[] (char*)retVal;
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_pickselectdown,data,4);
             App::currentWorld->outsideCommandQueue->addCommand(sim_message_pick_select_down,hitThatIgnoresTheSelectableFlag,0,0,0,nullptr,0);
 
             return(hitId);
@@ -3319,15 +3175,7 @@ void CCamera::_handleBannerClick(int bannerID)
                 App::currentWorld->sceneObjects->addObjectToSelection(it->getParentObjectHandle());
         }
         if (it->getOptions()&sim_banner_clicktriggersevent)
-        {
-            int auxVals[4]={bannerID,0,0,0};
-            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_bannerclicked,auxVals,nullptr,nullptr);
-            delete[] (char*)returnVal;
-            auxVals[0]=bannerID;
-            returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_bannerclicked,auxVals,nullptr,nullptr); // for backward compatibility
-            delete[] (char*)returnVal;
             App::currentWorld->outsideCommandQueue->addCommand(sim_message_bannerclicked,bannerID,0,0,0,nullptr,0);
-        }
     }
 }
 

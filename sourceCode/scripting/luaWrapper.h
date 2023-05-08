@@ -75,6 +75,8 @@ int luaWrap_lua_getinfo(luaWrap_lua_State* L,const char* what,luaWrap_lua_Debug*
 void luaWrap_lua_setglobal(luaWrap_lua_State* L,const char* name);
 void luaWrap_lua_getfield(luaWrap_lua_State* L,int idx,const char* name);
 void luaWrap_lua_setfield(luaWrap_lua_State* L,int idx,const char* name);
+void luaWrap_lua_geti(luaWrap_lua_State* L,int idx,lua_Integer i);
+void luaWrap_lua_seti(luaWrap_lua_State* L,int idx,lua_Integer i);
 void luaWrap_lua_yield(luaWrap_lua_State* L,int nresults);
 int luaWrap_luaL_dostring(luaWrap_lua_State* L,const char* str);
 void luaWrap_lua_getglobal(luaWrap_lua_State* L,const char* str);

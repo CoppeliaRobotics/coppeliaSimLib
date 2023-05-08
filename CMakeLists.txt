@@ -240,7 +240,6 @@ target_include_directories(coppeliaSim
     sourceCode/geometricAlgorithms
     sourceCode/various
     sourceCode/shared/various
-    sourceCode/libsAndPlugins
     sourceCode/visual
     sourceCode/displ
     sourceCode/utils
@@ -535,6 +534,10 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/applicationContainers/calculationInfo.cpp
     sourceCode/mainContainers/applicationContainers/interfaceStackContainer.cpp
     sourceCode/mainContainers/applicationContainers/addOnScriptContainer.cpp
+    sourceCode/mainContainers/applicationContainers/pluginContainer.cpp
+    sourceCode/mainContainers/applicationContainers/plugin.cpp
+    sourceCode/mainContainers/applicationContainers/pluginCallbackContainer.cpp
+    sourceCode/mainContainers/applicationContainers/pluginVariableContainer.cpp
 
     sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.cpp
     sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.cpp
@@ -636,8 +639,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/rendering/environmentRendering.cpp
     sourceCode/rendering/pageRendering.cpp
     sourceCode/rendering/viewRendering.cpp
-
-    sourceCode/libsAndPlugins/pluginContainer.cpp
 
     sourceCode/displ/colorObject.cpp
 

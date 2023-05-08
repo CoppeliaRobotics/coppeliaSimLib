@@ -10,7 +10,6 @@
 #include <simStrings.h>
 #include <vDateTime.h>
 #include <proxSensorRoutine.h>
-#include <pluginContainer.h>
 #include <app.h>
 #include <viewRendering.h>
 #ifdef SIM_WITH_GUI

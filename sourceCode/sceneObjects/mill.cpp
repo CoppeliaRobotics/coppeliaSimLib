@@ -4,7 +4,6 @@
 #include <vDateTime.h>
 #include <utils.h>
 #include <app.h>
-#include <pluginContainer.h>
 #include <millRendering.h>
 
 CMill::CMill(int theType)
@@ -474,7 +473,7 @@ int CMill::handleMill(bool exceptExplicitHandling,double& milledSurface,double& 
     _calcTimeInMs=0;
     if (!App::currentWorld->mainSettings->millsEnabled)
         return(0);
-    if (!CPluginContainer::isGeomPluginAvailable())
+    if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
         return(0);
 
     int stTime=(int)VDateTime::getTimeInMs();

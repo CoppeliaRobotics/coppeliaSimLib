@@ -2,7 +2,6 @@
 #include <meshRoutines.h>
 #include <meshManip.h>
 #include <tt.h>
-#include <pluginContainer.h>
 #include <stdio.h>
 #include <simInternal.h>
 #include <algorithm>
@@ -259,7 +258,7 @@ bool CMeshRoutines::getConvexHull(const std::vector<double>& verticesIn,std::vec
     data[7]=&outIndLength;
     for (size_t j=0;j<5;j++)
     { // we try 5 times, each time with the output of previous calculation:
-        if ( CPluginContainer::qhull(data)&&success )
+        if ( App::worldContainer->pluginContainer->qhull(data)&&success )
         {
             std::vector<double> vertices(outVert,outVert+outVertLength);
             std::vector<int> indices(outInd,outInd+outIndLength);
@@ -324,7 +323,7 @@ bool CMeshRoutines::getDecimatedMesh(const std::vector<double>& verticesIn,const
         data[10]=&outIndLength;
         verticesOut.clear();
         indicesOut.clear();
-        if (CPluginContainer::meshDecimator(data))
+        if (App::worldContainer->pluginContainer->meshDecimator(data))
         {
             if (success)
             {
@@ -381,7 +380,7 @@ int CMeshRoutines::convexDecompose(const double* vertices,int verticesLength,con
         data[14]=&indList;
         data[15]=&vertCountList;
         data[16]=&indCountList;
-        CPluginContainer::hacd(data);
+        App::worldContainer->pluginContainer->hacd(data);
     }
     else
     {
@@ -402,7 +401,7 @@ int CMeshRoutines::convexDecompose(const double* vertices,int verticesLength,con
         data[18]=&indList;
         data[19]=&vertCountList;
         data[20]=&indCountList;
-        CPluginContainer::vhacd(data);
+        App::worldContainer->pluginContainer->vhacd(data);
     }
 
     for (int mesh=0;mesh<el;mesh++)

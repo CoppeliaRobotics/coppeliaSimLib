@@ -3,7 +3,6 @@
 #include <utils.h>
 #include <tt.h>
 #include <pointCloud.h>
-#include <pluginContainer.h>
 #include <sceneObjectOperations.h>
 #include <global.h>
 #include <app.h>
@@ -88,8 +87,8 @@ void COcTree::_readPositionsAndColorsAndSetDimensions()
     bool generateEvent=true;
     if (_octreeInfo!=nullptr)
     {
-        CPluginContainer::geomPlugin_getOctreeVoxelPositions(_octreeInfo,_voxelPositions);
-        CPluginContainer::geomPlugin_getOctreeVoxelColors(_octreeInfo,_colors);
+        App::worldContainer->pluginContainer->geomPlugin_getOctreeVoxelPositions(_octreeInfo,_voxelPositions);
+        App::worldContainer->pluginContainer->geomPlugin_getOctreeVoxelColors(_octreeInfo,_colors);
         if (_useRandomColors)
         {
             _colors.clear();
@@ -197,14 +196,14 @@ void COcTree::insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOct
         if (optionalColors3==nullptr)
         {
             unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1),(unsigned char)(color.getColorsPtr()[1]*255.1),(unsigned char)(color.getColorsPtr()[2]*255.1)};
-            _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromPoints(_pts,ptsCnt,nullptr,_cellSize,cols,theTagWhenOptionalTagsIsNull);
+            _octreeInfo=App::worldContainer->pluginContainer->geomPlugin_createOctreeFromPoints(_pts,ptsCnt,nullptr,_cellSize,cols,theTagWhenOptionalTagsIsNull);
         }
         else
         {
             if (colorsAreIndividual)
-                _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromColorPoints(_pts,ptsCnt,nullptr,_cellSize,optionalColors3,optionalTags);
+                _octreeInfo=App::worldContainer->pluginContainer->geomPlugin_createOctreeFromColorPoints(_pts,ptsCnt,nullptr,_cellSize,optionalColors3,optionalTags);
             else
-                _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromPoints(_pts,ptsCnt,nullptr,_cellSize,optionalColors3,optionalTags[0]);
+                _octreeInfo=App::worldContainer->pluginContainer->geomPlugin_createOctreeFromPoints(_pts,ptsCnt,nullptr,_cellSize,optionalColors3,optionalTags[0]);
         }
     }
     else
@@ -212,14 +211,14 @@ void COcTree::insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOct
         if (optionalColors3==nullptr)
         {
             unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1),(unsigned char)(color.getColorsPtr()[1]*255.1),(unsigned char)(color.getColorsPtr()[2]*255.1)};
-            CPluginContainer::geomPlugin_insertPointsIntoOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt,cols,theTagWhenOptionalTagsIsNull);
+            App::worldContainer->pluginContainer->geomPlugin_insertPointsIntoOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt,cols,theTagWhenOptionalTagsIsNull);
         }
         else
         {
             if (colorsAreIndividual)
-                CPluginContainer::geomPlugin_insertColorPointsIntoOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,optionalTags);
+                App::worldContainer->pluginContainer->geomPlugin_insertColorPointsIntoOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,optionalTags);
             else
-                CPluginContainer::geomPlugin_insertPointsIntoOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,optionalTags[0]);
+                App::worldContainer->pluginContainer->geomPlugin_insertPointsIntoOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt,optionalColors3,optionalTags[0]);
         }
     }
     _readPositionsAndColorsAndSetDimensions();
@@ -234,9 +233,9 @@ void COcTree::insertShape(CShape* shape,unsigned int theTag)
     C7Vector shapeTr(((CShape*)shape)->getCumulCenteredMeshFrame());
     unsigned char cols[3]={(unsigned char)(color.getColorsPtr()[0]*255.1),(unsigned char)(color.getColorsPtr()[1]*255.1),(unsigned char)(color.getColorsPtr()[2]*255.1)};
     if (_octreeInfo==nullptr)
-        _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromMesh(shape->_meshCalculationStructure,shapeTr,&octreeTr,_cellSize,cols,theTag);
+        _octreeInfo=App::worldContainer->pluginContainer->geomPlugin_createOctreeFromMesh(shape->_meshCalculationStructure,shapeTr,&octreeTr,_cellSize,cols,theTag);
     else
-        CPluginContainer::geomPlugin_insertMeshIntoOctree(_octreeInfo,octreeTr,shape->_meshCalculationStructure,shapeTr,cols,theTag);
+        App::worldContainer->pluginContainer->geomPlugin_insertMeshIntoOctree(_octreeInfo,octreeTr,shape->_meshCalculationStructure,shapeTr,cols,theTag);
     _readPositionsAndColorsAndSetDimensions();
 }
 
@@ -282,10 +281,10 @@ void COcTree::insertOctree(const void* octree2Info,const C7Vector& octree2Tr,uns
     if (_octreeInfo==nullptr)
     {
         const C7Vector tr(getFullCumulativeTransformation());
-        _octreeInfo=CPluginContainer::geomPlugin_createOctreeFromOctree(octree2Info,octree2Tr,&tr,_cellSize,cols,theTag);
+        _octreeInfo=App::worldContainer->pluginContainer->geomPlugin_createOctreeFromOctree(octree2Info,octree2Tr,&tr,_cellSize,cols,theTag);
     }
     else
-        CPluginContainer::geomPlugin_insertOctreeIntoOctree(_octreeInfo,getFullCumulativeTransformation(),octree2Info,octree2Tr,cols,theTag);
+        App::worldContainer->pluginContainer->geomPlugin_insertOctreeIntoOctree(_octreeInfo,getFullCumulativeTransformation(),octree2Info,octree2Tr,cols,theTag);
     _readPositionsAndColorsAndSetDimensions();
 }
 
@@ -331,9 +330,9 @@ void COcTree::subtractPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToO
     }
     if (_octreeInfo!=nullptr)
     {
-        if (CPluginContainer::geomPlugin_removePointsFromOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt))
+        if (App::worldContainer->pluginContainer->geomPlugin_removePointsFromOctree(_octreeInfo,C7Vector::identityTransformation,_pts,ptsCnt))
         {
-            CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
+            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo=nullptr;
         }
     }
@@ -349,9 +348,9 @@ void COcTree::subtractShape(CShape* shape)
 
         C4X4Matrix octreeM(getCumulativeTransformation().getMatrix());
         C4X4Matrix shapeM(((CShape*)shape)->getCumulCenteredMeshFrame().getMatrix());
-        if (CPluginContainer::geomPlugin_removeMeshFromOctree(_octreeInfo,octreeM,shape->_meshCalculationStructure,shapeM))
+        if (App::worldContainer->pluginContainer->geomPlugin_removeMeshFromOctree(_octreeInfo,octreeM,shape->_meshCalculationStructure,shapeM))
         {
-            CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
+            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -397,9 +396,9 @@ void COcTree::subtractOctree(const void* octree2Info,const C7Vector& octree2Tr)
     TRACE_INTERNAL;
     if (_octreeInfo!=nullptr)
     {
-        if (CPluginContainer::geomPlugin_removeOctreeFromOctree(_octreeInfo,getFullCumulativeTransformation(),octree2Info,octree2Tr))
+        if (App::worldContainer->pluginContainer->geomPlugin_removeOctreeFromOctree(_octreeInfo,getFullCumulativeTransformation(),octree2Info,octree2Tr))
         {
-            CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
+            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
@@ -433,7 +432,7 @@ void COcTree::clear()
     TRACE_INTERNAL;
     if (_octreeInfo!=nullptr)
     {
-        CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
+        App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
         _octreeInfo=nullptr;
     }
     _voxelPositions.clear();
@@ -568,7 +567,7 @@ void COcTree::scaleObject(double scalingFactor)
     for (size_t i=0;i<_voxelPositions.size();i++)
         _voxelPositions[i]*=scalingFactor;
     if (_octreeInfo!=nullptr)
-        CPluginContainer::geomPlugin_scaleOctree(_octreeInfo,scalingFactor);
+        App::worldContainer->pluginContainer->geomPlugin_scaleOctree(_octreeInfo,scalingFactor);
     _updateOctreeEvent();
 
     CSceneObject::scaleObject(scalingFactor);
@@ -615,7 +614,7 @@ CSceneObject* COcTree::copyYourself()
     color.copyYourselfInto(&newOctree->color);
 
     if (_octreeInfo!=nullptr)
-        newOctree->_octreeInfo=CPluginContainer::geomPlugin_copyOctree(_octreeInfo);
+        newOctree->_octreeInfo=App::worldContainer->pluginContainer->geomPlugin_copyOctree(_octreeInfo);
     newOctree->_voxelPositions.assign(_voxelPositions.begin(),_voxelPositions.end());
     newOctree->_colors.assign(_colors.begin(),_colors.end());
     newOctree->_colorsByte.assign(_colorsByte.begin(),_colorsByte.end());
@@ -643,7 +642,7 @@ void COcTree::setCellSize(double theNewSize)
             _octreeInfo=nullptr;
             clear();
             insertOctree(octree2Info,getFullCumulativeTransformation().getMatrix(),0);
-            CPluginContainer::geomPlugin_destroyOctree(octree2Info);
+            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(octree2Info);
         }
     }
 }
@@ -829,7 +828,7 @@ void COcTree::serialize(CSer& ar)
                     ar << (float)boundingBoxMax(0) << (float)boundingBoxMax(1) << (float)boundingBoxMax(2);
                     ar.flush();
 
-                    CPluginContainer::geomPlugin_getOctreeSerializationData_float(_octreeInfo,data);
+                    App::worldContainer->pluginContainer->geomPlugin_getOctreeSerializationData_float(_octreeInfo,data);
                     ar.storeDataName("Co2");
                     ar.setCountingMode(true);
                     for (size_t i=0;i<data.size();i++)
@@ -843,7 +842,7 @@ void COcTree::serialize(CSer& ar)
                     }
 #endif
 
-                    CPluginContainer::geomPlugin_getOctreeSerializationData(_octreeInfo,data);
+                    App::worldContainer->pluginContainer->geomPlugin_getOctreeSerializationData(_octreeInfo,data);
                     ar.storeDataName("_o2");
                     ar.setCountingMode(true);
                     for (size_t i=0;i<data.size();i++)
@@ -980,8 +979,8 @@ void COcTree::serialize(CSer& ar)
                             data.push_back(dummy);
                         }
                         if (_octreeInfo!=nullptr)
-                            CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
-                        _octreeInfo=CPluginContainer::geomPlugin_getOctreeFromSerializationData_float(&data[0]);
+                            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
+                        _octreeInfo=App::worldContainer->pluginContainer->geomPlugin_getOctreeFromSerializationData_float(&data[0]);
                         _readPositionsAndColorsAndSetDimensions();
                     }
 
@@ -997,8 +996,8 @@ void COcTree::serialize(CSer& ar)
                             data.push_back(dummy);
                         }
                         if (_octreeInfo!=nullptr) // we could have also read "Co2"
-                            CPluginContainer::geomPlugin_destroyOctree(_octreeInfo);
-                        _octreeInfo=CPluginContainer::geomPlugin_getOctreeFromSerializationData(&data[0]);
+                            App::worldContainer->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
+                        _octreeInfo=App::worldContainer->pluginContainer->geomPlugin_getOctreeFromSerializationData(&data[0]);
                         _readPositionsAndColorsAndSetDimensions();
                     }
 

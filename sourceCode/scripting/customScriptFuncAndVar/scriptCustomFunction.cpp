@@ -1,6 +1,6 @@
 #include <scriptCustomFunction.h>
 
-CScriptCustomFunction::CScriptCustomFunction(const char* theFullFunctionName,const char* theCallTips,void(*callBack)(struct SScriptCallBack* cb))
+CScriptCustomFunction::CScriptCustomFunction(const char* theFullFunctionName,const char* theCallTips,void(*callBack)(struct SScriptCallBack* cb),bool pluginFunction)
 { // the new way, called through simRegisterScriptCallbackFunction
     useStackToExchangeData=true;
     _functionIsDefinedInScript=false;
@@ -9,16 +9,9 @@ CScriptCustomFunction::CScriptCustomFunction(const char* theFullFunctionName,con
         functionName=_getFunctionNameFromFull(theFullFunctionName);
         pluginName=_getPluginNameFromFull(theFullFunctionName);
     }
+    _functionIsDefinedInScript=!pluginFunction;
     if (theCallTips!=nullptr)
-    {
-        std::string ct(theCallTips);
-        if (ct.find("####")==0)
-        {
-            ct.erase(0,4);
-            _functionIsDefinedInScript=true;
-        }
-        callTips=ct;
-    }
+        callTips=theCallTips;
     callBackFunction_old=nullptr;
     callBackFunction_new=callBack;
 }

@@ -6,7 +6,6 @@
 #include <app.h>
 #include <tt.h>
 #include <dummyRendering.h>
-#include <pluginContainer.h>
 
 CDummy::CDummy()
 {
@@ -960,7 +959,7 @@ void CDummy::_setLinkedDummyHandle_sendOldIk(int h) const
             if (_linkType==sim_dummy_linktype_ik_tip_target)
                 hh=App::currentWorld->sceneObjects->getObjectFromHandle(h)->getIkPluginCounterpartHandle();
         }
-        CPluginContainer::ikPlugin_setLinkedDummy(_ikPluginCounterpartHandle,hh);
+        App::worldContainer->pluginContainer->ikPlugin_setLinkedDummy(_ikPluginCounterpartHandle,hh);
     }
 }
 
@@ -975,7 +974,7 @@ void CDummy::_setLinkType_sendOldIk(int t) const
             if (t==sim_dummy_linktype_ik_tip_target)
                 hh=App::currentWorld->sceneObjects->getObjectFromHandle(_linkedDummyHandle)->getIkPluginCounterpartHandle();
         }
-        CPluginContainer::ikPlugin_setLinkedDummy(_ikPluginCounterpartHandle,hh);
+        App::worldContainer->pluginContainer->ikPlugin_setLinkedDummy(_ikPluginCounterpartHandle,hh);
     }
 }
 

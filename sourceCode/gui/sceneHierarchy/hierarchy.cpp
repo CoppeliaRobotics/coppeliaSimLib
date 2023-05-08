@@ -9,7 +9,6 @@
 #include <addOperations.h>
 #include <fileOperations.h>
 #include <tt.h>
-#include <pluginContainer.h>
 #include <simStrings.h>
 #include <app.h>
 #include <vVarious.h>
@@ -1103,24 +1102,11 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
         if (it!=nullptr)
         {
-            bool openScriptEditor=true;
-            int auxData[4]={-1,-1,-1,-1};
-            if (it->getScriptType()==sim_scripttype_childscript)
-                auxData[0]=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
-            if (it->getScriptType()==sim_scripttype_customizationscript)
-                auxData[0]=it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript);
-            int retVals[4]={-1,-1,-1,-1};
-            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scripticondblclick,auxData,nullptr,retVals);
-            delete[] (char*)returnVal;
-            openScriptEditor=(retVals[0]!=1);
-            if (openScriptEditor)
-            {
-                // Process the command via the simulation thread (delayed):
-                SSimulationThreadCommand cmd;
-                cmd.cmdId=OPEN_SCRIPT_EDITOR_CMD;
-                cmd.intParams.push_back(it->getScriptHandle());
-                App::appendSimulationThreadCommand(cmd);
-            }
+            // Process the command via the simulation thread (delayed):
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=OPEN_SCRIPT_EDITOR_CMD;
+            cmd.intParams.push_back(it->getScriptHandle());
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }

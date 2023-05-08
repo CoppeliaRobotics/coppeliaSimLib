@@ -2,7 +2,6 @@
 #include <ikElement_old.h>
 #include <app.h>
 #include <tt.h>
-#include <pluginContainer.h>
 
 CIkElement_old::CIkElement_old()
 {
@@ -378,9 +377,9 @@ void CIkElement_old::setAllInvolvedJointsToIkPluginPositions() const
                     {
                         int h=joint->getIkPluginCounterpartHandle();
                         if (joint->getJointType()==sim_joint_spherical_subtype)
-                            joint->setSphericalTransformation(CPluginContainer::ikPlugin_getSphericalJointQuaternion(h));
+                            joint->setSphericalTransformation(App::worldContainer->pluginContainer->ikPlugin_getSphericalJointQuaternion(h));
                         else
-                            joint->setPosition(CPluginContainer::ikPlugin_getJointPosition(h));
+                            joint->setPosition(App::worldContainer->pluginContainer->ikPlugin_getJointPosition(h));
                     }
                 }
             }
@@ -413,7 +412,7 @@ void CIkElement_old::_setEnabled_send(bool e) const
         int flags=0;
         if (e)
             flags=flags|1;
-        CPluginContainer::ikPlugin_setIkElementFlags(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,flags);
+        App::worldContainer->pluginContainer->ikPlugin_setIkElementFlags(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,flags);
     }
 }
 
@@ -432,7 +431,7 @@ void CIkElement_old::_setBase_send(int h) const
         obj=App::currentWorld->sceneObjects->getObjectFromHandle(_constraintBaseHandle);
         if (obj!=nullptr)
             abh=obj->getIkPluginCounterpartHandle();
-        CPluginContainer::ikPlugin_setIkElementBase(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,bh,abh);
+        App::worldContainer->pluginContainer->ikPlugin_setIkElementBase(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,bh,abh);
     }
 }
 
@@ -451,7 +450,7 @@ void CIkElement_old::_setAlternativeBaseForConstraints_send(int h) const
         obj=App::currentWorld->sceneObjects->getObjectFromHandle(h);
         if (obj!=nullptr)
             abh=obj->getIkPluginCounterpartHandle();
-        CPluginContainer::ikPlugin_setIkElementBase(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,bh,abh);
+        App::worldContainer->pluginContainer->ikPlugin_setIkElementBase(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,bh,abh);
     }
 }
 
@@ -461,7 +460,7 @@ void CIkElement_old::_setMinLinearPrecision_send(double f) const
 
     // Synchronize with IK plugin:
     if (_ikElementPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_minAngularPrecision);
+        App::worldContainer->pluginContainer->ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_minAngularPrecision);
 }
 
 void CIkElement_old::_setMinAngularPrecision_send(double f) const
@@ -470,7 +469,7 @@ void CIkElement_old::_setMinAngularPrecision_send(double f) const
 
     // Synchronize with IK plugin:
     if (_ikElementPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,_minLinearPrecision,f);
+        App::worldContainer->pluginContainer->ikPlugin_setIkElementPrecision(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,_minLinearPrecision,f);
 }
 
 void CIkElement_old::_setPositionWeight_send(double f) const
@@ -479,7 +478,7 @@ void CIkElement_old::_setPositionWeight_send(double f) const
 
     // Synchronize with IK plugin:
     if (_ikElementPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkElementWeights(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_orientationWeight);
+        App::worldContainer->pluginContainer->ikPlugin_setIkElementWeights(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,f,_orientationWeight);
 }
 
 void CIkElement_old::_setOrientationWeight_send(double f) const
@@ -488,7 +487,7 @@ void CIkElement_old::_setOrientationWeight_send(double f) const
 
     // Synchronize with IK plugin:
     if (_ikElementPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkElementWeights(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,_positionWeight,f);
+        App::worldContainer->pluginContainer->ikPlugin_setIkElementWeights(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,_positionWeight,f);
 }
 
 void CIkElement_old::_setConstraints_send(int c) const
@@ -497,7 +496,7 @@ void CIkElement_old::_setConstraints_send(int c) const
 
     // Synchronize with IK plugin:
     if (_ikElementPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkElementConstraints(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,c);
+        App::worldContainer->pluginContainer->ikPlugin_setIkElementConstraints(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle,c);
 }
 
 std::string CIkElement_old::getTipLoadName() const
@@ -540,7 +539,7 @@ void CIkElement_old::buildUpdateAndPopulateSynchronizationObject(const std::vect
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_tipHandle);
         if (it!=nullptr)
             counterpartHandle=it->getIkPluginCounterpartHandle();
-        _ikElementPluginCounterpartHandle=CPluginContainer::ikPlugin_addIkElement(_ikGroupPluginCounterpartHandle,counterpartHandle);
+        _ikElementPluginCounterpartHandle=App::worldContainer->pluginContainer->ikPlugin_addIkElement(_ikGroupPluginCounterpartHandle,counterpartHandle);
 
         // Update remote IK element:
         _setEnabled_send(_enabled);
@@ -571,7 +570,7 @@ void CIkElement_old::removeSynchronizationObject(bool localReferencesToItOnly)
         {
             // Synchronize with IK plugin:
             if ( (_ikGroupPluginCounterpartHandle!=-1)&&(_ikElementPluginCounterpartHandle!=-1) )
-                CPluginContainer::ikPlugin_eraseIkElement(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle);
+                App::worldContainer->pluginContainer->ikPlugin_eraseIkElement(_ikGroupPluginCounterpartHandle,_ikElementPluginCounterpartHandle);
         }
     }
     // IK plugin part:

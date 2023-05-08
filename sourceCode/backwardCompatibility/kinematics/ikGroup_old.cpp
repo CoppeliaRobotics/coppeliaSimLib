@@ -7,7 +7,6 @@
 #include <utils.h>
 #include <algorithm>
 #include <base64.h>
-#include <pluginContainer.h>
 #include <collisionRoutines.h>
 
 CIkGroup_old::CIkGroup_old()
@@ -496,8 +495,8 @@ void CIkGroup_old::setAllInvolvedJointsToNewJointMode(int jointMode) const
 bool CIkGroup_old::computeOnlyJacobian(int options)
 {
     bool retVal=false;
-    retVal=CPluginContainer::ikPlugin_computeJacobian(_ikPluginCounterpartHandle,options);
-    _setLastJacobian(CPluginContainer::ikPlugin_getJacobian(_ikPluginCounterpartHandle));
+    retVal=App::worldContainer->pluginContainer->ikPlugin_computeJacobian(_ikPluginCounterpartHandle,options);
+    _setLastJacobian(App::worldContainer->pluginContainer->ikPlugin_getJacobian(_ikPluginCounterpartHandle));
     return(retVal);
 }
 
@@ -540,7 +539,7 @@ int CIkGroup_old::computeGroupIk(bool independentComputation)
 
         if (doIt)
         {
-            retVal=CPluginContainer::ikPlugin_handleIkGroup(_ikPluginCounterpartHandle);
+            retVal=App::worldContainer->pluginContainer->ikPlugin_handleIkGroup(_ikPluginCounterpartHandle);
             // do not check for success to apply values. Always apply them (the IK lib decides for that)
             for (size_t i=0;i<getIkElementCount();i++)
             {
@@ -548,7 +547,7 @@ int CIkGroup_old::computeGroupIk(bool independentComputation)
                 element->setAllInvolvedJointsToIkPluginPositions();
             }
             if (!independentComputation)
-                _setLastJacobian(CPluginContainer::ikPlugin_getJacobian(_ikPluginCounterpartHandle));
+                _setLastJacobian(App::worldContainer->pluginContainer->ikPlugin_getJacobian(_ikPluginCounterpartHandle));
             /*
             if (_lastJacobian!=nullptr)
             {
@@ -666,7 +665,7 @@ void CIkGroup_old::_setEnabled_send(bool e) const
             flags|=4;
         if (_restoreIfOrientationNotReached)
             flags|=8;
-        CPluginContainer::ikPlugin_setIkGroupFlags(_ikPluginCounterpartHandle,flags);
+        App::worldContainer->pluginContainer->ikPlugin_setIkGroupFlags(_ikPluginCounterpartHandle,flags);
     }
 }
 
@@ -676,7 +675,7 @@ void CIkGroup_old::_setMaxIterations_send(int it) const
 
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle,_calculationMethod,_dampingFactor,it);
+        App::worldContainer->pluginContainer->ikPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle,_calculationMethod,_dampingFactor,it);
 }
 
 void CIkGroup_old::_setCalculationMethod_send(int m) const
@@ -685,7 +684,7 @@ void CIkGroup_old::_setCalculationMethod_send(int m) const
 
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle,m,_dampingFactor,_maxIterations);
+        App::worldContainer->pluginContainer->ikPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle,m,_dampingFactor,_maxIterations);
 }
 
 void CIkGroup_old::_setDampingFactor_send(double f) const
@@ -694,7 +693,7 @@ void CIkGroup_old::_setDampingFactor_send(double f) const
 
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        CPluginContainer::ikPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle,_calculationMethod,f,_maxIterations);
+        App::worldContainer->pluginContainer->ikPlugin_setIkGroupCalculation(_ikPluginCounterpartHandle,_calculationMethod,f,_maxIterations);
 }
 
 void CIkGroup_old::_setIgnoreMaxStepSizes_send(bool e) const
@@ -713,7 +712,7 @@ void CIkGroup_old::_setIgnoreMaxStepSizes_send(bool e) const
             flags|=4;
         if (_restoreIfOrientationNotReached)
             flags|=8;
-        CPluginContainer::ikPlugin_setIkGroupFlags(_ikPluginCounterpartHandle,flags);
+        App::worldContainer->pluginContainer->ikPlugin_setIkGroupFlags(_ikPluginCounterpartHandle,flags);
     }
 }
 
@@ -733,7 +732,7 @@ void CIkGroup_old::_setRestoreIfPositionNotReached_send(bool e) const
             flags|=4;
         if (_restoreIfOrientationNotReached)
             flags|=8;
-        CPluginContainer::ikPlugin_setIkGroupFlags(_ikPluginCounterpartHandle,flags);
+        App::worldContainer->pluginContainer->ikPlugin_setIkGroupFlags(_ikPluginCounterpartHandle,flags);
     }
 }
 
@@ -753,7 +752,7 @@ void CIkGroup_old::_setRestoreIfOrientationNotReached_send(bool e) const
             flags|=4;
         if (e)
             flags|=8;
-        CPluginContainer::ikPlugin_setIkGroupFlags(_ikPluginCounterpartHandle,flags);
+        App::worldContainer->pluginContainer->ikPlugin_setIkGroupFlags(_ikPluginCounterpartHandle,flags);
     }
 }
 
@@ -807,7 +806,7 @@ void CIkGroup_old::buildUpdateAndPopulateSynchronizationObject(const std::vector
         setSyncMsgRouting(parentRouting,r);
 
         // Build IK group in IK plugin:
-        _ikPluginCounterpartHandle=CPluginContainer::ikPlugin_createIkGroup();
+        _ikPluginCounterpartHandle=App::worldContainer->pluginContainer->ikPlugin_createIkGroup();
 
         // Prepare the IK elements for building their plugin counterparts:
         for (size_t i=0;i<getIkElementCount();i++)
@@ -857,7 +856,7 @@ void CIkGroup_old::removeSynchronizationObject(bool localReferencesToItOnly)
         {
             // Synchronize with IK plugin:
             if (_ikPluginCounterpartHandle!=-1)
-                CPluginContainer::ikPlugin_eraseIkGroup(_ikPluginCounterpartHandle);
+                App::worldContainer->pluginContainer->ikPlugin_eraseIkGroup(_ikPluginCounterpartHandle);
         }
     }
     // IK plugin part:
@@ -867,7 +866,7 @@ void CIkGroup_old::removeSynchronizationObject(bool localReferencesToItOnly)
 int CIkGroup_old::getConfigForTipPose(int jointCnt,const int* jointHandles,double thresholdDist,int maxTimeInMs,double* retConfig,const double* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const double* lowLimits,const double* ranges,std::string& errorMsg)
 { // ret: -1: error, 0: nothing found, 1: solution found
     int retVal=-1;
-    retVal=CPluginContainer::ikPlugin_getConfigForTipPose(getIkPluginCounterpartHandle(),jointCnt,jointHandles,thresholdDist,-maxTimeInMs,retConfig,metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,errorMsg);
+    retVal=App::worldContainer->pluginContainer->ikPlugin_getConfigForTipPose(getIkPluginCounterpartHandle(),jointCnt,jointHandles,thresholdDist,-maxTimeInMs,retConfig,metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,errorMsg);
     return(retVal);
 }
 

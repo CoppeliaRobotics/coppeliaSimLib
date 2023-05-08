@@ -11,7 +11,6 @@
 #include <utils.h>
 #include <threadPool_old.h>
 #include <app.h>
-#include <pluginContainer.h>
 #include <visionSensorRendering.h>
 #include <interfaceStackString.h>
 #ifdef SIM_WITH_OPENGL
@@ -966,7 +965,7 @@ void CVisionSensor::detectEntity2(int entityID,bool detectAll,bool entityIsModel
 
 bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
 {   // Set-up the resolution, clear color, camera properties and camera pose:
-    bool retVal=CPluginContainer::selectExtRenderer(extRendererIndex);
+    bool retVal=App::worldContainer->pluginContainer->selectExtRenderer(extRendererIndex);
 
     void* data[30];
     if ((_renderMode!=sim_rendermode_extrendererwindowed)&&(_renderMode!=sim_rendermode_opengl3windowed))
@@ -1059,7 +1058,7 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     data[26]=&povAperture;
     data[27]=&povBlurSamples;
 
-    CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_start,data);
+    App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_start,data);
     return(retVal);
 }
 
@@ -1103,79 +1102,7 @@ void CVisionSensor::_extRenderer_prepareLights()
             data[10]=&povFadeXDist;
             data[12]=&povNoShadow;
 
-            CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_light,data);
-        }
-    }
-}
-
-void CVisionSensor::_extRenderer_prepareMirrors()
-{
-    for (size_t li=0;li<App::currentWorld->sceneObjects->getMirrorCount();li++)
-    {
-        CMirror* mirror=App::currentWorld->sceneObjects->getMirrorFromIndex(li);
-        bool visible=mirror->getShouldObjectBeDisplayed(_objectHandle,_attributesForRendering);
-        if (mirror->getIsMirror()&&visible)
-        {
-            bool active=mirror->getActive()&&(!App::currentWorld->mainSettings->mirrorsDisabled);
-            C7Vector tr=mirror->getCumulativeTransformation();
-            float w_=float(mirror->getMirrorWidth())/2.0f;
-            float h_=float(mirror->getMirrorHeight())/2.0f;
-            float vertices[18]={w_,-h_,0.0005f,w_,h_,0.0005f,-w_,-h_,0.0005f,-w_,-h_,0.0005f,w_,h_,0.0005f,-w_,h_,0.0005f};
-            int verticesCnt=6;
-            float normals[18]={0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f,0.0f,0.0f,1.0f};
-            for (int i=0;i<6;i++)
-            {
-                C3Vector v;
-                v.setData(vertices+i*3);
-                v*=tr;
-                C3Vector n;
-                n.setData(normals+i*3);
-                n=tr.Q*n;
-                vertices[i*3+0]=(float)v(0);
-                vertices[i*3+1]=(float)v(1);
-                vertices[i*3+2]=(float)v(2);
-                normals[i*3+0]=(float)n(0);
-                normals[i*3+1]=(float)n(1);
-                normals[i*3+2]=(float)n(2);
-            }
-            void* data[20];
-            data[0]=vertices;
-            data[1]=&verticesCnt;
-            data[2]=normals;
-            float colors[15];
-            colors[0]=(float)mirror->mirrorColor[0];
-            colors[1]=(float)mirror->mirrorColor[1];
-            colors[2]=(float)mirror->mirrorColor[2];
-            colors[6]=0.0f;
-            colors[7]=0.0f;
-            colors[8]=0.0f;
-            colors[9]=0.0f;
-            colors[10]=0.0f;
-            colors[11]=0.0f;
-            colors[12]=0.0f;
-            colors[13]=0.0f;
-            colors[14]=0.0f;
-            data[3]=colors;
-            bool translucid=false;
-            data[4]=&translucid;
-            float opacityFactor=1.0f;
-            data[5]=&opacityFactor;
-            const char* povMaterial={"mirror"};
-            data[6]=(char*)povMaterial;
-            data[7]=&active;
-            CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_triangles,data);
-            C3Vector shift=tr.Q.getMatrix().axis[2]*(-0.001);
-            for (int i=0;i<6;i++)
-            {
-                C3Vector v;
-                v.setData(vertices+i*3);
-                v+=shift;
-                vertices[i*3+0]=(float)v(0);
-                vertices[i*3+1]=(float)v(1);
-                vertices[i*3+2]=(float)v(2);
-            }
-            active=false;
-            CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_triangles,data);
+            App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_light,data);
         }
     }
 }
@@ -1189,7 +1116,7 @@ void CVisionSensor::_extRenderer_retrieveImage()
     data[2]=&readRgb;
     bool readDepth=!_ignoreDepthInfo;
     data[3]=&readDepth;
-    CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_stop,data);
+    App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_stop,data);
 }
 
 void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections,const std::vector<int>& activeMirrors)
@@ -1298,7 +1225,6 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
 #endif
         }
         _extRenderer_prepareLights();
-        _extRenderer_prepareMirrors();
     }
 
     // Set data for view frustum culling
@@ -1379,9 +1305,6 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
     {
         _prepareAuxClippingPlanes();
         _enableAuxClippingPlanes(-1);
-
-        if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,0,rendAttrib,_objectHandle,-1);
     }
 #endif
 
@@ -1408,12 +1331,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
 
 #ifdef SIM_WITH_OPENGL
     if (getInternalRendering())
-    {
-        if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,1,rendAttrib,_objectHandle,-1);
-
         _disableAuxClippingPlanes();
-    }
 #endif
 
     // Rendering the scene objects:
@@ -1448,12 +1366,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
 
 #ifdef SIM_WITH_OPENGL
     if (getInternalRendering())
-    {
         _enableAuxClippingPlanes(-1);
-
-        if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,2,rendAttrib,_objectHandle,-1);
-    }
 #endif
 
 #ifdef SIM_WITH_OPENGL
@@ -1468,14 +1381,6 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
 
         // Ghost objects:
         App::currentWorld->ghostObjectCont->renderYour3DStuff_transparent(this,rendAttrib);
-    }
-#endif
-
-#ifdef SIM_WITH_OPENGL
-    if (getInternalRendering())
-    {
-        if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,3,rendAttrib,_objectHandle,-1);
     }
 #endif
 
@@ -1496,15 +1401,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
 
 #ifdef SIM_WITH_OPENGL
     if (getInternalRendering())
-    {
-        if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,4,rendAttrib,_objectHandle,-1);
-
         _disableAuxClippingPlanes();
-
-        if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,5,rendAttrib,_objectHandle,-1);
-    }
 #endif
 }
 

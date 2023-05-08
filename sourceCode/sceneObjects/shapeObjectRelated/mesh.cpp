@@ -5,7 +5,6 @@
 #include <meshManip.h>
 #include <utils.h>
 #include <app.h>
-#include <pluginContainer.h>
 #include <shapeRendering.h>
 #include <tt.h>
 #include <base64.h>
@@ -273,12 +272,12 @@ void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,i
             data[16]=&interpolateColors;
             data[17]=&applyMode;
             data[18]=&textured;
-            CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_mesh,data);
+            App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh,data);
         }
         else
         {
             data[18]=&textured;
-            CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_mesh,data);
+            App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh,data);
         }
     }
     componentIndex++;

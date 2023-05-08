@@ -13,7 +13,6 @@
 #include <threadPool_old.h>
 #include <addOperations.h>
 #include <app.h>
-#include <pluginContainer.h>
 #include <mesh.h>
 #include <vDateTime.h>
 #include <utils.h>
@@ -1028,10 +1027,7 @@ int simRunSimulator_internal(const char* applicationName,int options,void(*initC
     if ((App::operationalUIParts&sim_gui_hierarchy)==0)
         COglSurface::_hierarchyEnabled=false;
     if ((App::operationalUIParts&sim_gui_browser)==0)
-    {
-        //OLDMODELBROWSER COglSurface::_browserEnabled=false;
         App::setBrowserEnabled(false);
-    }
     App::setIcon();
 #endif
 
@@ -3356,7 +3352,7 @@ int simGetBoolParam_internal(int parameter)
         if (parameter==sim_boolparam_rml2_available)
         {
             int retVal=0;
-            if (CPluginContainer::currentRuckigPlugin!=nullptr)
+            if (App::worldContainer->pluginContainer->currentRuckigPlugin!=nullptr)
                 retVal=1;
             return(retVal);
         }
@@ -3364,7 +3360,7 @@ int simGetBoolParam_internal(int parameter)
         if (parameter==sim_boolparam_rml4_available)
         {
             int retVal=0;
-            if (CPluginContainer::currentRuckigPlugin!=nullptr)
+            if (App::worldContainer->pluginContainer->currentRuckigPlugin!=nullptr)
                 retVal=1;
             return(retVal);
         }
@@ -4307,7 +4303,7 @@ int simGetInt32Param_internal(int parameter,int* intState)
 #endif
         if (parameter==sim_intparam_dynamic_step_divider)
         {
-            intState[0]=CPluginContainer::dyn_getDynamicStepDivider();
+            intState[0]=App::worldContainer->pluginContainer->dyn_getDynamicStepDivider();
             if (intState[0]>0)
                 return(1);
             return(-1);
@@ -5168,7 +5164,7 @@ int simHandleDynamics_internal(double deltaTime)
             App::currentWorld->dynamicsContainer->markForWarningDisplay_physicsEngineNotSupported();
             return(0);
         }
-        return(CPluginContainer::dyn_getDynamicStepDivider());
+        return(App::worldContainer->pluginContainer->dyn_getDynamicStepDivider());
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
@@ -5185,8 +5181,7 @@ int simHandleMainScript_internal()
     // Plugins:
     int data[4]={0,0,0,0};
     int rtVal[4]={-1,-1,-1,-1};
-    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_mainscriptabouttobecalled,data,nullptr,rtVal);
-    delete[] (char*)returnVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_mainscriptabouttobecalled,data,nullptr,rtVal);
 
     // Child scripts & customization scripts:
     bool cs=!App::currentWorld->embeddedScriptContainer->shouldTemporarilySuspendMainScript();
@@ -5622,7 +5617,7 @@ int simUnloadModule_internal(int pluginhandle)
 { // we cannot lock/unlock, because this function might trigger another thread (GUI) that itself will initialize the plugin and call sim-functions --> forever locked!!
     TRACE_C_API;
     int retVal=0;
-    CPlugin* pl=CPluginContainer::getPluginFromHandle(pluginhandle);
+    CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromHandle(pluginhandle);
     if (pl!=nullptr)
     {
         std::string nm(pl->getName());
@@ -5645,7 +5640,7 @@ int simUnloadModule_internal(int pluginhandle)
     return(retVal);
 }
 
-int simRegisterScriptCallbackFunction_internal(const char* funcNameAtPluginName,const char* callTips,void(*callBack)(struct SScriptCallBack* cb))
+int simRegisterScriptCallbackFunction_internal(const char* func,const char* reserved_setToNull,void(*callBack)(struct SScriptCallBack* cb))
 {
     TRACE_C_API;
 
@@ -5654,32 +5649,49 @@ int simRegisterScriptCallbackFunction_internal(const char* funcNameAtPluginName,
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-
-        std::string funcName;
-        std::string pluginName;
-
-        std::string funcNameAtPluginNm(funcNameAtPluginName);
-        size_t p=funcNameAtPluginNm.find('@');
-        if (p!=std::string::npos)
-        {
-            pluginName.assign(funcNameAtPluginNm.begin()+p+1,funcNameAtPluginNm.end());
-            funcName.assign(funcNameAtPluginNm.begin(),funcNameAtPluginNm.begin()+p);
+        int retVal=-1;
+        CPlugin* plug=App::worldContainer->pluginContainer->getCurrentPlugin();
+        if ( (plug!=nullptr)&&(!plug->isLegacyPlugin()) )
+        { // new plugins. e.g. 'createGroup', and not 'simIK.createGroup'
+            size_t p=std::string(func).find('.');
+            if (p==std::string::npos)
+            {
+                if (plug->getPluginCallbackContainer()->addCallback(func,nullptr,callBack))
+                    retVal=1;
+                else
+                    retVal=0;
+            }
+            else
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_FUNCTION_NAME);
         }
-        if (pluginName.size()<1)
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_MISSING_PLUGIN_NAME);
-            return(-1);
-        }
+        else
+        { // old plugins
+            std::string funcName;
+            std::string pluginName;
 
-        bool retVal=1;
-        if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomFunction(funcNameAtPluginName))
-            retVal=0;// that function already existed. We remove it and replace it!
-        CScriptCustomFunction* newFunction=new CScriptCustomFunction(funcNameAtPluginName,callTips,callBack);
-        if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
-        {
-            delete newFunction;
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
-            return(-1);
+            std::string funcNameAtPluginNm(func);
+            size_t p=funcNameAtPluginNm.find('@');
+            if (p!=std::string::npos)
+            {
+                pluginName.assign(funcNameAtPluginNm.begin()+p+1,funcNameAtPluginNm.end());
+                funcName.assign(funcNameAtPluginNm.begin(),funcNameAtPluginNm.begin()+p);
+            }
+            if (pluginName.size()<1)
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_MISSING_PLUGIN_NAME);
+                return(-1);
+            }
+
+            retVal=1;
+            if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomFunction(func))
+                retVal=0;// that function already existed. We remove it and replace it!
+            CScriptCustomFunction* newFunction=new CScriptCustomFunction(func,reserved_setToNull,callBack,true);
+            if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
+            {
+                delete newFunction;
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
+                retVal=-1;
+            }
         }
         return(retVal);
     }
@@ -5687,7 +5699,7 @@ int simRegisterScriptCallbackFunction_internal(const char* funcNameAtPluginName,
     return(-1);
 }
 
-int simRegisterScriptVariable_internal(const char* varNameAtPluginName,const char* varValue,int stackHandle)
+int simRegisterScriptVariable_internal(const char* var,const char* val,int stackHandle)
 {
     TRACE_C_API;
 
@@ -5696,13 +5708,31 @@ int simRegisterScriptVariable_internal(const char* varNameAtPluginName,const cha
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        bool retVal=1;
-        if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomVariable(varNameAtPluginName))
-            retVal=0;// that variable already existed. We remove it and replace it!
-        if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomVariable(varNameAtPluginName,varValue,stackHandle))
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CUSTOM_LUA_VAR_COULD_NOT_BE_REGISTERED);
-            return(-1);
+        int retVal=-1;
+        CPlugin* plug=App::worldContainer->pluginContainer->getCurrentPlugin();
+        if ( (plug!=nullptr)&&(!plug->isLegacyPlugin()) )
+        { // new plugins. e.g. 'method_jacobian_transpose', not 'simIK.method_jacobian_transpose'
+            size_t p=std::string(var).find('.');
+            if (p==std::string::npos)
+            {
+                if (plug->getPluginVariableContainer()->addVariable(var,val,stackHandle))
+                    retVal=1;
+                else
+                    retVal=0;
+            }
+            else
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_VARIABLE_NAME);
+        }
+        else
+        { // old plugins
+            retVal=1;
+            if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomVariable(var))
+                retVal=0;// that variable already existed. We remove it and replace it!
+            if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomVariable(var,val,stackHandle))
+            {
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CUSTOM_LUA_VAR_COULD_NOT_BE_REGISTERED);
+                retVal=-1;
+            }
         }
         return(retVal);
     }
@@ -6316,7 +6346,7 @@ char* simGetModuleName_internal(int index,unsigned char* moduleVersion)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CPlugin* plug=CPluginContainer::getPluginFromIndex(index);
+        CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromIndex(index);
         if (plug==nullptr)
             return(nullptr);
         char* name=new char[plug->getName().length()+1];
@@ -6324,7 +6354,7 @@ char* simGetModuleName_internal(int index,unsigned char* moduleVersion)
             name[i]=plug->getName()[i];
         name[plug->getName().length()]=0;
         if (moduleVersion!=nullptr)
-            moduleVersion[0]=plug->pluginVersion;
+            moduleVersion[0]=(unsigned char)plug->getPluginVersion();
         return(name);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -8126,7 +8156,7 @@ int simImportShape_internal(int fileformat,const char* pathAndFilename,int optio
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if (!CPluginContainer::isAssimpPluginAvailable())
+        if (!App::worldContainer->pluginContainer->isAssimpPluginAvailable())
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return(-1);
@@ -8149,7 +8179,7 @@ int simImportShape_internal(int fileformat,const char* pathAndFilename,int optio
             op|=128;
         int h=-1;
         int cnt=0;
-        int* shapes=CPluginContainer::assimp_importShapes(pathAndFilename,512,scalingFactor,1,op,&cnt);
+        int* shapes=App::worldContainer->pluginContainer->assimp_importShapes(pathAndFilename,512,scalingFactor,1,op,&cnt);
         if (cnt>0)
         {
             h=shapes[0];
@@ -8176,7 +8206,7 @@ int simImportMesh_internal(int fileformat,const char* pathAndFilename,int option
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_FILE_NOT_FOUND);
             return(-1);
         }
-        if (!CPluginContainer::isAssimpPluginAvailable())
+        if (!App::worldContainer->pluginContainer->isAssimpPluginAvailable())
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return(-1);
@@ -8186,7 +8216,7 @@ int simImportMesh_internal(int fileformat,const char* pathAndFilename,int option
             op|=16;
         if ((options&128)!=0)
             op|=128;
-        int retVal=CPluginContainer::assimp_importMeshes(pathAndFilename,scalingFactor,1,op,vertices,verticesSizes,indices,indicesSizes);
+        int retVal=App::worldContainer->pluginContainer->assimp_importMeshes(pathAndFilename,scalingFactor,1,op,vertices,verticesSizes,indices,indicesSizes);
         if (names!=nullptr)
             names[0]=new char*[retVal];
         for (int i=0;i<retVal;i++)
@@ -8217,7 +8247,7 @@ int simExportMesh_internal(int fileformat,const char* pathAndFilename,int option
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
             return(-1);
         }
-        if (!CPluginContainer::isAssimpPluginAvailable())
+        if (!App::worldContainer->pluginContainer->isAssimpPluginAvailable())
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND);
             return(-1);
@@ -8264,7 +8294,7 @@ int simExportMesh_internal(int fileformat,const char* pathAndFilename,int option
             return(-1);
         }
         int op=0;
-        CPluginContainer::assimp_exportMeshes(elementCount,vertices,verticesSizes,indices,indicesSizes,pathAndFilename,format.c_str(),scalingFactor,1,op);
+        App::worldContainer->pluginContainer->assimp_exportMeshes(elementCount,vertices,verticesSizes,indices,indicesSizes,pathAndFilename,format.c_str(),scalingFactor,1,op);
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -11722,7 +11752,7 @@ int simRuckigPos_internal(int dofs,double baseCycleTime,int flags,const double* 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal=CPluginContainer::ruckigPlugin_pos(_currentScriptHandle,dofs,baseCycleTime,flags,currentPos,currentVel,currentAccel,maxVel,maxAccel,maxJerk,selection,targetPos,targetVel);
+        int retVal=App::worldContainer->pluginContainer->ruckigPlugin_pos(_currentScriptHandle,dofs,baseCycleTime,flags,currentPos,currentVel,currentAccel,maxVel,maxAccel,maxJerk,selection,targetPos,targetVel);
         if (retVal==-2)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_FIND_RUCKIG);
         return(retVal);
@@ -11740,7 +11770,7 @@ int simRuckigVel_internal(int dofs,double baseCycleTime,int flags,const double* 
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal=CPluginContainer::ruckigPlugin_vel(_currentScriptHandle,dofs,baseCycleTime,flags,currentPos,currentVel,currentAccel,maxAccel,maxJerk,selection,targetVel);
+        int retVal=App::worldContainer->pluginContainer->ruckigPlugin_vel(_currentScriptHandle,dofs,baseCycleTime,flags,currentPos,currentVel,currentAccel,maxAccel,maxJerk,selection,targetVel);
         if (retVal==-2)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_FIND_RUCKIG);
         return(retVal);
@@ -11758,7 +11788,7 @@ int simRuckigStep_internal(int objHandle,double cycleTime,double* newPos,double*
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal=CPluginContainer::ruckigPlugin_step(objHandle,cycleTime,newPos,newVel,newAccel,syncTime);
+        int retVal=App::worldContainer->pluginContainer->ruckigPlugin_step(objHandle,cycleTime,newPos,newVel,newAccel,syncTime);
         if (retVal==-3)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_RUCKIG_CYCLETIME_ERROR);
         if (retVal==-2)
@@ -11780,7 +11810,7 @@ int simRuckigRemove_internal(int objHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal=CPluginContainer::ruckigPlugin_remove(objHandle);
+        int retVal=App::worldContainer->pluginContainer->ruckigPlugin_remove(objHandle);
         if (retVal==-2)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_FIND_RUCKIG);
         if (retVal==-1)
@@ -15751,12 +15781,12 @@ int simCheckOctreePointOccupancy_internal(int octreeHandle,int options,const dou
         }
         if (ptCnt==1)
         {
-            if (CPluginContainer::geomPlugin_getOctreePointCollision(it->getOctreeInfo(),it->getFullCumulativeTransformation(),C3Vector(_pts),tag,location))
+            if (App::worldContainer->pluginContainer->geomPlugin_getOctreePointCollision(it->getOctreeInfo(),it->getFullCumulativeTransformation(),C3Vector(_pts),tag,location))
                 return(1);
         }
         else
         {
-            if (CPluginContainer::geomPlugin_getOctreePointsCollision(it->getOctreeInfo(),it->getFullCumulativeTransformation(),_pts,ptCnt))
+            if (App::worldContainer->pluginContainer->geomPlugin_getOctreePointsCollision(it->getOctreeInfo(),it->getFullCumulativeTransformation(),_pts,ptCnt))
                 return(1);
         }
         return(0);
@@ -16355,22 +16385,22 @@ int simSetModuleInfo_internal(const char* moduleName,int infoType,const char* st
     TRACE_C_API;
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CPlugin* plug=CPluginContainer::getPluginFromName(moduleName,true);
+        CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromName_old(moduleName,true);
         if (plug!=nullptr)
         {
             if (infoType==sim_moduleinfo_extversionstr)
             {
-                plug->extendedVersionString=stringInfo;
+                plug->setExtendedVersionString(stringInfo);
                 return(1);
             }
             if (infoType==sim_moduleinfo_builddatestr)
             {
-                plug->buildDateString=stringInfo;
+                plug->setBuildDateString(stringInfo);
                 return(1);
             }
             if (infoType==sim_moduleinfo_extversionint)
             {
-                plug->extendedVersionInt=intInfo;
+                plug->setExtendedVersionInt(intInfo);
                 return(1);
             }
             if (infoType==sim_moduleinfo_verbosity)
@@ -16399,13 +16429,14 @@ int simGetModuleInfo_internal(const char* moduleName,int infoType,char** stringI
     TRACE_C_API;
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CPlugin* plug=CPluginContainer::getPluginFromName(moduleName,true);
+        CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromName_old(moduleName,true);
         if (plug!=nullptr)
         {
             if (infoType==sim_moduleinfo_extversionstr)
             {
-                char* txt=new char[plug->extendedVersionString.length()+1];
-                strcpy(txt,plug->extendedVersionString.c_str());
+                std::string str(plug->getExtendedVersionString());
+                char* txt=new char[str.length()+1];
+                strcpy(txt,str.c_str());
                 if (stringInfo!=nullptr)
                     stringInfo[0]=txt;
                 else
@@ -16414,8 +16445,9 @@ int simGetModuleInfo_internal(const char* moduleName,int infoType,char** stringI
             }
             if (infoType==sim_moduleinfo_builddatestr)
             {
-                char* txt=new char[plug->buildDateString.length()+1];
-                strcpy(txt,plug->buildDateString.c_str());
+                std::string str(plug->getBuildDateString());
+                char* txt=new char[str.length()+1];
+                strcpy(txt,str.c_str());
                 if (stringInfo!=nullptr)
                     stringInfo[0]=txt;
                 else
@@ -16424,7 +16456,7 @@ int simGetModuleInfo_internal(const char* moduleName,int infoType,char** stringI
             }
             if (infoType==sim_moduleinfo_extversionint)
             {
-                intInfo[0]=plug->extendedVersionInt;
+                intInfo[0]=plug->getExtendedVersionInt();
                 return(1);
             }
             if (infoType==sim_moduleinfo_verbosity)
@@ -16741,7 +16773,7 @@ double _simGetLocalInertiaInfo_internal(const void* object,double* pos,double* q
     if (App::currentWorld->dynamicsContainer->getComputeInertias())
     {
         if (shape->getMesh()->isPure())
-            mass=CPluginContainer::dyn_computeInertia(shape->getObjectHandle(),localTr,diagI);
+            mass=App::worldContainer->pluginContainer->dyn_computeInertia(shape->getObjectHandle(),localTr,diagI);
         else
         { // we use the convex hull
             std::vector<double> vert;
@@ -16749,7 +16781,7 @@ double _simGetLocalInertiaInfo_internal(const void* object,double* pos,double* q
             std::vector<double> hull;
             std::vector<int> indices;
             if (CMeshRoutines::getConvexHull(vert,hull,indices))
-                mass=CPluginContainer::dyn_computePMI(hull,indices,localTr,diagI);
+                mass=App::worldContainer->pluginContainer->dyn_computePMI(hull,indices,localTr,diagI);
         }
     }
     if (mass>0.0)

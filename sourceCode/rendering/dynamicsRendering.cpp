@@ -21,7 +21,6 @@ See the GNU General Public License for more details.
 #include <dynamicsRendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include <pluginContainer.h>
 
 const double SPHEREVERTICES[24*3]={
 -0.4142,-1.0000,-0.4142,
@@ -138,7 +137,7 @@ void displayParticles(void** particlesPointer,int particlesCount,int displayAttr
     {
         if (particlesPointer[i]!=nullptr)
         {
-            if (CPluginContainer::dyn_getParticleData(particlesPointer[i],pos.data,&size,&particleType,&additionalColor))
+            if (App::worldContainer->pluginContainer->dyn_getParticleData(particlesPointer[i],pos.data,&size,&particleType,&additionalColor))
             {
             //  displayParticle(displayAttrib,m,pos,size,particleType,additionalColor);
                 glPushMatrix();

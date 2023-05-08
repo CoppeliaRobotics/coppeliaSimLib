@@ -62,7 +62,7 @@ int checkOneGeneralInputArgument(luaWrap_lua_State* L,int index,
                            int type,int cnt_orZeroIfNotTable,bool optional,bool nilInsteadOfTypeAndCountAllowed,std::string* errStr);
 bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* errStr);
 
-int _genericFunctionHandler(luaWrap_lua_State* L,CScriptCustomFunction* func,std::string& raiseErrorWithMsg);
+int _genericFunctionHandler(luaWrap_lua_State* L,void(*callback)(struct SScriptCallBack* cb),std::string& raiseErrorWithMsg,CScriptCustomFunction* func=nullptr);
 
 const extern SLuaCommands simLuaCommands[];
 const extern SLuaVariables simLuaVariables[];
@@ -338,6 +338,8 @@ extern int _simRelocateShapeFrame(luaWrap_lua_State* L);
 extern int _simBuildMatrixQ(luaWrap_lua_State* L);
 extern int _simGetQuaternionFromMatrix(luaWrap_lua_State* L);
 extern int _simLoadModule(luaWrap_lua_State* L);
+extern int _sim_loadPlugin(luaWrap_lua_State* L);
+extern int _simUnloadPlugin(luaWrap_lua_State* L);
 extern int _simUnloadModule(luaWrap_lua_State* L);
 extern int _simCallScriptFunction(luaWrap_lua_State* L);
 extern int _simGetExtensionString(luaWrap_lua_State* L);

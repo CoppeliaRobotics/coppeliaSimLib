@@ -1,6 +1,5 @@
 #include <simInternal.h>
 #include <undoBufferCont.h>
-#include <pluginContainer.h>
 #include <vDateTime.h>
 #include <app.h>
 #include <simStrings.h>
@@ -327,8 +326,7 @@ void CUndoBufferCont::undo()
     CUndoBufferCameras* cameraBuffers=_getFullBuffer(_currentStateIndex,theBuff);
     // 3. Load the buffer:
 
-    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoundo,nullptr,nullptr,nullptr);
-    delete[] (char*)returnVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoundo,nullptr,0);
 
     _rememberSelectionState();
     cameraBuffers->preRestoreCameras();
@@ -358,8 +356,7 @@ void CUndoBufferCont::undo()
 
     _inUndoRoutineNow=false;
     
-    returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_undoperformed,nullptr,nullptr,nullptr);
-    delete[] (char*)returnVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_undoperformed,nullptr,0);
     App::worldContainer->setModificationFlag(16); // undo called
 
     // 5. Dialog refresh:
@@ -388,8 +385,7 @@ void CUndoBufferCont::redo()
 
     // 3. Load the buffer:
 
-    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoredo,nullptr,nullptr,nullptr);
-    delete[] (char*)returnVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoredo,nullptr,0);
 
     _rememberSelectionState();
     cameraBuffers->preRestoreCameras();
@@ -418,8 +414,7 @@ void CUndoBufferCont::redo()
     // 4. We select previously selected objects:
     _restoreSelectionState();
 
-    returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_redoperformed,nullptr,nullptr,nullptr);
-    delete[] (char*)returnVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_redoperformed,nullptr,0);
     App::worldContainer->setModificationFlag(32); // redo called
 
     // 5. Dialog refresh:

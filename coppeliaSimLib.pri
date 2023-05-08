@@ -208,7 +208,6 @@ INCLUDEPATH += $$PWD/"sourceCode/variousFunctions"
 INCLUDEPATH += $$PWD/"sourceCode/geometricAlgorithms"
 INCLUDEPATH += $$PWD/"sourceCode/various"
 INCLUDEPATH += $$PWD/"sourceCode/shared/various"
-INCLUDEPATH += $$PWD/"sourceCode/libsAndPlugins"
 INCLUDEPATH += $$PWD/"sourceCode/visual"
 INCLUDEPATH += $$PWD/"sourceCode/displ"
 INCLUDEPATH += $$PWD/"sourceCode/utils"
@@ -451,6 +450,10 @@ HEADERS += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/calculationInfo.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/interfaceStackContainer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/addOnScriptContainer.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/pluginContainer.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/plugin.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/pluginCallbackContainer.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/pluginVariableContainer.h \
 
 HEADERS += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.h \
     $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.h \
@@ -561,8 +564,6 @@ HEADERS += $$PWD/sourceCode/rendering/rendering.h \
     $$PWD/sourceCode/rendering/environmentRendering.h \
     $$PWD/sourceCode/rendering/pageRendering.h \
     $$PWD/sourceCode/rendering/viewRendering.h \
-
-HEADERS += $$PWD/sourceCode/libsAndPlugins/pluginContainer.h \
 
 HEADERS += $$PWD/sourceCode/visual/thumbnail.h \
 
@@ -851,6 +852,10 @@ SOURCES += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.cpp 
     $$PWD/sourceCode/mainContainers/applicationContainers/calculationInfo.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/interfaceStackContainer.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/addOnScriptContainer.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/pluginContainer.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/plugin.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/pluginCallbackContainer.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/pluginVariableContainer.cpp \
 
 SOURCES += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.cpp \
     $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.cpp \
@@ -959,8 +964,6 @@ SOURCES += $$PWD/sourceCode/rendering/rendering.cpp \
     $$PWD/sourceCode/rendering/environmentRendering.cpp \
     $$PWD/sourceCode/rendering/pageRendering.cpp \
     $$PWD/sourceCode/rendering/viewRendering.cpp \
-
-SOURCES += $$PWD/sourceCode/libsAndPlugins/pluginContainer.cpp \
 
 SOURCES += $$PWD/sourceCode/displ/colorObject.cpp \
 

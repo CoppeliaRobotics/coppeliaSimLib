@@ -3,7 +3,6 @@
 #include <tt.h>
 #include <threadPool_old.h>
 #include <linMotionRoutines.h>
-#include <pluginContainer.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -363,6 +362,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.buildMatrixQ",_simBuildMatrixQ,                        "float[12] matrix=sim.buildMatrixQ(float[3] position,float[4] quaternion)",true},
     {"sim.getQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "float[4] quaternion=sim.getQuaternionFromMatrix(float[12] matrix)",true},
     {"sim.loadModule",_simLoadModule,                            "int pluginHandle=sim.loadModule(string filenameAndPath,string pluginName)",true},
+    {"sim._loadPlugin",_sim_loadPlugin,                          "",false},
+    {"sim.unloadPlugin",_simUnloadPlugin,                        "sim.unloadPlugin(map pluginNamespace)",true},
     {"sim.unloadModule",_simUnloadModule,                        "int result=sim.unloadModule(int pluginHandle)",true},
     {"sim.callScriptFunction",_simCallScriptFunction,            "any outArg=sim.callScriptFunction(string functionName,int scriptHandle,any inArg=nil)",true},
     {"sim.getExtensionString",_simGetExtensionString,            "string theString=sim.getExtensionString(int objectHandle,int index,string key=nil)",true},
@@ -2083,7 +2084,7 @@ int checkOneGeneralInputArgument(luaWrap_lua_State* L,int index,
     }
     // 3. we check if we expect a table:
     if (cnt_orZeroIfNotTable!=0) // was >=1 until 18/2/2016
-    { 
+    {
         // We check if we really have a table at that position:
         if (!luaWrap_lua_istable(L,index))
         {
@@ -2280,7 +2281,7 @@ bool doesEntityExist(std::string* errStr,int identifier)
     }
 }
 
-int _genericFunctionHandler(luaWrap_lua_State* L,CScriptCustomFunction* func,std::string& raiseErrorWithMsg)
+int _genericFunctionHandler(luaWrap_lua_State* L,void(*callback)(struct SScriptCallBack* cb),std::string& raiseErrorWithMsg,CScriptCustomFunction* func/*=nullptr*/)
 {
     TRACE_LUA_API;
 
@@ -2320,7 +2321,10 @@ int _genericFunctionHandler(luaWrap_lua_State* L,CScriptCustomFunction* func,std
 
     // Now we can call the callback:
     CScriptObject::setInExternalCall(currentScriptID);
-    func->callBackFunction_new(cb);
+    if (callback!=nullptr)
+        callback(cb);
+    else
+        func->callBackFunction_new(cb); // call into old plugin
     CScriptObject::setInExternalCall(-1);
 
     bool dontDeleteStructureYet=false;
@@ -2361,37 +2365,55 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.genericFunctionHandler");
 
-//    CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
-//    it->printInterpreterStack();
-
     luaWrap_lua_pushvalue(L,luaWrap_lua_upvalueindex(1));
-    int id=luaToInt(L,-1)-1;
-    luaWrap_lua_pop(L,1); // we have to pop the pushed value to get the original stack state
-
-
-//    it->printInterpreterStack();
+    int id_old=-1;
+    std::string funcN;
+    if (luaWrap_lua_isinteger(L,-1))
+        id_old=luaWrap_lua_tointeger(L,-1)-1;
+    else
+        funcN=luaWrap_lua_tostring(L,-1);
+    luaWrap_lua_pop(L,1);
 
     int outputArgCount=0;
-    for (size_t j=0;j<App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount();j++)
-    { // we now search for the callback to call:
-        CScriptCustomFunction* it=App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
-        if (it->getFunctionID()==id)
-        { // we have the right one! Now we need to prepare the input and output argument arrays:
-            functionName=it->getFunctionName();
+    if (funcN.size()>0)
+    { // new plugin functions
+        size_t p=funcN.find('@');
+        std::string namespaceAndVer(funcN.begin(),funcN.begin()+p);
+        std::string funcName(funcN.begin()+p+1,funcN.end());
+        CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromName(namespaceAndVer.c_str());
+        if (plug!=nullptr)
+        {
+            CPluginCallbackContainer* cont=plug->getPluginCallbackContainer();
+            SPluginCallback* pcb=cont->getCallbackFromName(funcName.c_str());
             App::logMsg(sim_verbosity_debug,(std::string("sim.genericFunctionHandler: ")+functionName).c_str());
-            if (it->getPluginName().size()!=0)
-            {
-                functionName+="@simExt";
-                functionName+=it->getPluginName();
-            }
-            else
-                functionName+="@plugin";
+            outputArgCount=_genericFunctionHandler(L,pcb->callback,errorString);
+        }
+        else
+            errorString="could not find plugin.";
+    }
+    else
+    { // old plugin functions
+        for (size_t j=0;j<App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount();j++)
+        { // we now search for the callback to call:
+            CScriptCustomFunction* it=App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
+            if (it->getFunctionID()==id_old)
+            { // we have the right one! Now we need to prepare the input and output argument arrays:
+                functionName=it->getFunctionName();
+                App::logMsg(sim_verbosity_debug,(std::string("sim.genericFunctionHandler: ")+functionName).c_str());
+                if (it->getPluginName().size()!=0)
+                {
+                    functionName+="@simExt";
+                    functionName+=it->getPluginName();
+                }
+                else
+                    functionName+="@plugin";
 
-            if (it->getUsesStackToExchangeData())
-                outputArgCount=_genericFunctionHandler(L,it,errorString);
-            else
-                outputArgCount=_genericFunctionHandler_old(L,it);
-            break;
+                if (it->getUsesStackToExchangeData())
+                    outputArgCount=_genericFunctionHandler(L,nullptr,errorString,it);
+                else
+                    outputArgCount=_genericFunctionHandler_old(L,it);
+                break;
+            }
         }
     }
 
@@ -5436,7 +5458,7 @@ int _simTextEditorOpen(luaWrap_lua_State* L)
     int retVal=-1;
 
 #ifdef SIM_WITH_GUI
-    if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
         {
@@ -5460,7 +5482,7 @@ int _simTextEditorClose(luaWrap_lua_State* L)
     LUA_START("sim.textEditorClose");
 
 #ifdef SIM_WITH_GUI
-    if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
@@ -5491,7 +5513,7 @@ int _simTextEditorShow(luaWrap_lua_State* L)
     int retVal=-1;
 
 #ifdef SIM_WITH_GUI
-    if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
@@ -5517,7 +5539,7 @@ int _simTextEditorGetInfo(luaWrap_lua_State* L)
     LUA_START("sim.textEditorGetInfo");
 
 #ifdef SIM_WITH_GUI
-    if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
@@ -8371,7 +8393,7 @@ int _simAddParticleObject(luaWrap_lua_State* L)
                             if (!App::currentWorld->simulation->isSimulationRunning())
                                 errorString=SIM_ERROR_SIMULATION_NOT_RUNNING;
                             else
-                                retVal=CPluginContainer::dyn_addParticleObject(objType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,nullptr,specular,emission);
+                                retVal=App::worldContainer->pluginContainer->dyn_addParticleObject(objType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,nullptr,specular,emission);
                         }
                     }
                     delete[] ((char*)params);
@@ -8393,7 +8415,7 @@ int _simRemoveParticleObject(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        if (CPluginContainer::dyn_removeParticleObject(luaToInt(L,1))!=0)
+        if (App::worldContainer->pluginContainer->dyn_removeParticleObject(luaToInt(L,1))!=0)
             retVal=1;
     }
 
@@ -8411,14 +8433,14 @@ int _simAddParticleObjectItem(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int particleObjHandle=luaToInt(L,1);
-        int d=6+CPluginContainer::dyn_getParticleObjectOtherFloatsPerItem(particleObjHandle);
+        int d=6+App::worldContainer->pluginContainer->dyn_getParticleObjectOtherFloatsPerItem(particleObjHandle);
         int res=checkOneGeneralInputArgument(L,2,lua_arg_number,d,true,true,&errorString);
         if (res==2)
         {
             double vertex[20]; // we should have enough here!
             getDoublesFromTable(L,2,d,vertex);
 
-            if (CPluginContainer::dyn_addParticleObjectItem(particleObjHandle,vertex,App::currentWorld->simulation->getSimulationTime())!=0)
+            if (App::worldContainer->pluginContainer->dyn_addParticleObjectItem(particleObjHandle,vertex,App::currentWorld->simulation->getSimulationTime())!=0)
                 retVal=1;
             else
                 errorString=SIM_ERROR_OBJECT_INEXISTANT;
@@ -8427,7 +8449,7 @@ int _simAddParticleObjectItem(luaWrap_lua_State* L)
         {
             if (res>=0)
             {
-                if (CPluginContainer::dyn_addParticleObjectItem(particleObjHandle,nullptr,App::currentWorld->simulation->getSimulationTime())!=0)
+                if (App::worldContainer->pluginContainer->dyn_addParticleObjectItem(particleObjHandle,nullptr,App::currentWorld->simulation->getSimulationTime())!=0)
                     retVal=1;
                 else
                     errorString=SIM_ERROR_OBJECT_INEXISTANT;
@@ -10682,7 +10704,7 @@ int _simRuckigStep(luaWrap_lua_State* L)
     {
         int handle=luaToInt(L,1);
         double timeStep=luaToDouble(L,2);
-        int dofs=CPluginContainer::ruckigPlugin_dofs(handle);
+        int dofs=App::worldContainer->pluginContainer->ruckigPlugin_dofs(handle);
         if (dofs<0)
             dofs=1; // will be caught later down
         newPosVelAccel.resize(dofs*3);
@@ -10822,6 +10844,88 @@ int _simLoadModule(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
+}
+
+int _sim_loadPlugin(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim._loadPlugin");
+
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+        std::string namespaceAndVersion(luaWrap_lua_tostring(L,1));
+        std::string fileAndPath(App::folders->getExecutablePath()+"/");
+#ifndef WIN_SIM
+        fileAndPath+="lib";
+#endif
+        fileAndPath+=namespaceAndVersion;
+#ifdef WIN_SIM
+        fileAndPath+=".dll";
+#endif
+#ifdef LIN_SIM
+        fileAndPath+=".so";
+#endif
+#ifdef MAC_SIM
+        fileAndPath+=".dylib";
+#endif
+
+        CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromName(namespaceAndVersion.c_str());
+        if ( (plug!=nullptr)&&(plug->hasDependency(it->getScriptHandle())) )
+        { // that script already loaded that plugin
+            luaWrap_lua_getglobal(L,SIM_PLUGIN_NAMESPACES);
+            luaWrap_lua_getfield(L,-1,namespaceAndVersion.c_str());
+            LUA_END(1);
+        }
+
+        plug=App::worldContainer->pluginContainer->loadAndInitPlugin(fileAndPath.c_str(),namespaceAndVersion.c_str(),it->getScriptHandle(),&errorString);
+        if (plug!=nullptr)
+        { // success
+            it->loadPluginFuncsAndVars(plug);
+
+            luaWrap_lua_getglobal(L,SIM_PLUGIN_NAMESPACES);
+            luaWrap_lua_getfield(L,-1,namespaceAndVersion.c_str());
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simUnloadPlugin(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.unloadPlugin");
+
+    errorString=SIM_ERROR_INVALID_PLUGIN;
+    if (luaWrap_lua_istable(L,1))
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+        int pluginHandle=-1;
+        luaWrap_lua_getfield(L,1,"pluginHandle");
+        if (luaWrap_lua_isinteger(L,-1))
+            pluginHandle=luaWrap_lua_tointeger(L,-1);
+        luaWrap_lua_pop(L,1);
+
+        if (pluginHandle>=0)
+        {
+            CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromHandle(pluginHandle);
+            if ( (plug!=nullptr)&&(plug->hasDependency(it->getScriptHandle())) )
+            {
+                errorString.clear();
+
+                luaWrap_lua_getglobal(L,SIM_PLUGIN_NAMESPACES);
+                luaWrap_lua_pushnil(L);
+                luaWrap_lua_setfield(L,-2,plug->getName().c_str());
+
+                App::worldContainer->pluginContainer->deinitAndUnloadPlugin(pluginHandle,it->getScriptHandle());
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simUnloadModule(luaWrap_lua_State* L)
@@ -13474,8 +13578,38 @@ int _simRegisterScriptFunction(luaWrap_lua_State* L)
     {
         std::string funcNameAtPluginName(luaWrap_lua_tostring(L,1));
         std::string ct(luaWrap_lua_tostring(L,2));
-        ct="####"+ct;
-        retVal=simRegisterScriptCallbackFunction_internal(funcNameAtPluginName.c_str(),ct.c_str(),nullptr);
+
+        std::string funcName;
+        std::string pluginName;
+
+        size_t p=funcNameAtPluginName.find('@');
+        if (p!=std::string::npos)
+        {
+            pluginName.assign(funcNameAtPluginName.begin()+p+1,funcNameAtPluginName.end());
+            funcName.assign(funcNameAtPluginName.begin(),funcNameAtPluginName.begin()+p);
+        }
+        if (pluginName.size()>0)
+        {
+            if (funcName.find('.')==std::string::npos)
+            { // new way of doing: pluginName='simIK' or 'simIK.2.78', funcName='eraseDebugOverlay'
+
+            }
+            else
+            { // old way of doing: pluginName='IK' or 'simIK', funcName='simIK.eraseDebugOverlay'
+                retVal=1;
+                if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomFunction(funcNameAtPluginName.c_str()))
+                    retVal=0;// that function already existed. We remove it and replace it!
+                CScriptCustomFunction* newFunction=new CScriptCustomFunction(funcNameAtPluginName.c_str(),ct.c_str(),nullptr,false);
+                if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
+                {
+                    delete newFunction;
+                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
+                    retVal=-1;
+                }
+            }
+        }
+        else
+            errorString=SIM_ERROR_MISSING_PLUGIN_NAME;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -13491,11 +13625,25 @@ int _simRegisterScriptVariable(luaWrap_lua_State* L)
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
-        const char* varNameAtPluginName=luaWrap_lua_tostring(L,1);
-        if (checkOneGeneralInputArgument(L,2,lua_arg_string,0,true,false,&errorString)==2)
-            retVal=simRegisterScriptVariable_internal(varNameAtPluginName,luaWrap_lua_tostring(L,2),-1);
+        std::string varNameAtPluginName(luaWrap_lua_tostring(L,1));
+        std::string varName;
+        std::string pluginName;
+
+        size_t p=varNameAtPluginName.find('@');
+        if (p!=std::string::npos)
+        {
+            pluginName.assign(varNameAtPluginName.begin()+p+1,varNameAtPluginName.end());
+            varName.assign(varNameAtPluginName.begin(),varNameAtPluginName.begin()+p);
+        }
+        if ( (varName.find('.')==std::string::npos)&&(pluginName.size()>0) )
+        { // new way of doing: pluginName='simIK' or 'simIK.2.78', varName='someVarName'
+
+        }
         else
-            retVal=simRegisterScriptVariable_internal(varNameAtPluginName,nullptr,0);
+        { // old way of doing: pluginName='IK' or 'simIK', varName='simIK.someVarName'
+            retVal=1;
+            App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomVariable(varNameAtPluginName.c_str(),nullptr,0);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -20441,23 +20589,12 @@ void moduleCommonPart_old(luaWrap_lua_State* L,int action,std::string* errorStri
             if (luaToInt(L,1)==sim_handle_all)
             {
                 handleAll=true;
-                void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(action,nullptr,nullptr,nullptr);
-                delete[] ((char*)retVal);
+                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(action,nullptr,0);
                 luaWrap_lua_pushinteger(L,1);
             }
         }
         if (!handleAll)
-        {
-            if (checkInputArguments(L,errorString,lua_arg_string,0))
-            {
-                std::string modName(luaWrap_lua_tostring(L,1));
-                void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(action,nullptr,(char*)modName.c_str(),nullptr);
-                delete[] ((char*)retVal);
-                luaWrap_lua_pushinteger(L,1);
-            }
-            else
-                luaWrap_lua_pushinteger(L,-1);
-        }
+            luaWrap_lua_pushinteger(L,1);
     }
 }
 int _simGetLastError(luaWrap_lua_State* L)

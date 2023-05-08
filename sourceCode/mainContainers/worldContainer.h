@@ -1,5 +1,6 @@
 #pragma once
 
+#include <pluginContainer.h>
 #include <scriptCustomFuncAndVarContainer.h>
 #include <persistentDataContainer.h>
 #include <copyBuffer.h>
@@ -118,6 +119,7 @@ public:
     CSimulatorMessageQueue* simulatorMessageQueue;
     CCalculationInfo* calcInfo;
     CInterfaceStackContainer* interfaceStackContainer;
+    CPluginContainer* pluginContainer;
     CScriptCustomFuncAndVarContainer* scriptCustomFuncAndVarContainer;
     CCustomData customAppData;
     CCustomData_old* customAppData_old;

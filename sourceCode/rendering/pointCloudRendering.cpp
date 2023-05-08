@@ -21,7 +21,6 @@ See the GNU General Public License for more details.
 #include <pointCloudRendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include <pluginContainer.h>
 
 void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,int displayAttrib)
 {
@@ -71,7 +70,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
             if (pointCloud->getShowOctree()&&(pointCloud->getPointCloudInfo()!=nullptr)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
             {
                 std::vector<double> corners;
-                CPluginContainer::geomPlugin_getPtcloudOctreeCorners(pointCloud->getPointCloudInfo(),corners);
+                App::worldContainer->pluginContainer->geomPlugin_getPtcloudOctreeCorners(pointCloud->getPointCloudInfo(),corners);
 
                 glBegin(GL_LINES);
                 glNormal3dv(normalVectorForLinesAndPoints.data);

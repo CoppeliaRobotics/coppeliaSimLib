@@ -10,7 +10,6 @@
 #include <interfaceStackInteger.h>
 #include <interfaceStackString.h>
 #include <interfaceStackTable.h>
-#include <pluginContainer.h>
 #include <simFlavor.h>
 #include <unordered_map>
 #include <luaScriptFunctions.h>
@@ -1509,7 +1508,10 @@ int CScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,
                 if (callType==sim_syscb_info)
                     retVal=_callSystemScriptFunction(sim_syscb_info,inStack,outStack);
                 else
-                    retVal=_callSystemScriptFunction(sim_syscb_info,nullptr,nullptr); // implicit call
+                {
+                    if (_scriptType!=sim_scripttype_addonscript)
+                        retVal=_callSystemScriptFunction(sim_syscb_info,nullptr,nullptr); // implicit call, not for add-ons
+                }
             }
             else
                 retVal=-2;
@@ -1945,13 +1947,13 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     { // corresponding calls for plugins:
         int data[4]={0,int(App::currentWorld->simulation->getSimulationTime()*1000.0),0,0};
         if (callType==sim_syscb_init)
-            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data,nullptr,nullptr);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data,4);
         if (callType==sim_syscb_actuation)
-            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationactuation,data,nullptr,nullptr);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationactuation,data,4);
         if (callType==sim_syscb_sensing)
-            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationsensing,data,nullptr,nullptr);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationsensing,data,4);
         if (callType==sim_syscb_cleanup)
-            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationcleanup,data,nullptr,nullptr);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationcleanup,data,4);
     }
 
     // Following to make sure we get updates on the presence of sim_syscb_userconfig:
@@ -1983,13 +1985,13 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     { // corresponding calls for plugins:
         int data[4]={1,int(App::currentWorld->simulation->getSimulationTime()*1000.0),0,0};
         if (callType==sim_syscb_init)
-            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data,nullptr,nullptr);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data,4);
         if (callType==sim_syscb_actuation)
-            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationactuation,data,nullptr,nullptr);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationactuation,data,4);
         if (callType==sim_syscb_sensing)
-            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationsensing,data,nullptr,nullptr);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationsensing,data,4);
         if (callType==sim_syscb_cleanup)
-            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationcleanup,data,nullptr,nullptr);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationcleanup,data,4);
     }
     // ---------------------------------
 
@@ -2663,6 +2665,7 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     _execSimpleString_safe_lua(L,"os.setlocale'C'");
 
     _setScriptHandleToInterpreterState_lua(L,_scriptHandle);
+    _execSimpleString_safe_lua(L,(std::string(SIM_PLUGIN_NAMESPACES)+"={}").c_str());
     setScriptNameIndexToInterpreterState_lua_old(L,_getScriptNameIndexNumber_old());
 
     // --------------------------------------------
@@ -3025,6 +3028,74 @@ void CScriptObject::printInterpreterStack() const
     printf("***********\n");
 }
 
+void CScriptObject::loadPluginFuncsAndVars(CPlugin* plug)
+{
+    luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
+
+    _execSimpleString_safe_lua(L,"__tmploadPluginFuncsAndVars1={}");
+
+    // Now load the callbacks into Lua state:
+    CPluginCallbackContainer* cbCont=plug->getPluginCallbackContainer();
+    size_t index=0;
+    while (true)
+    {
+        SPluginCallback* dat=cbCont->getCallbackFromIndex(index++);
+        if (dat!=nullptr)
+        {
+            std::string idName(plug->getName()+"@"+dat->funcName);
+            luaWrap_lua_rawgeti(L,luaWrapGet_LUA_REGISTRYINDEX(),luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
+            luaWrap_lua_pushstring(L,idName.c_str());
+            luaWrap_lua_pushcclosure(L,_simGenericFunctionHandler,1);
+            luaWrap_lua_setfield(L,-2,"__tmploadPluginFuncsAndVars2");
+            luaWrap_lua_pop(L,1); // pop table of globals
+            std::string tmp("__tmploadPluginFuncsAndVars1."+dat->funcName+"=__tmploadPluginFuncsAndVars2 __tmploadPluginFuncsAndVars2=nil");
+            _execSimpleString_safe_lua(L,tmp.c_str());
+        }
+        else
+            break;
+    }
+
+    // Now load the variables into Lua state:
+    CPluginVariableContainer* varCont=plug->getPluginVariableContainer();
+    index=0;
+    while (true)
+    {
+        SPluginVariable* dat=varCont->getVariableFromIndex(index++);
+        if (dat!=nullptr)
+        {
+            std::string variableName("__tmploadPluginFuncsAndVars1."+dat->varName);
+            if (dat->stackHandle<=0)
+            { // simple variable
+                std::string tmp(variableName+"="+dat->varValue);
+                if ( (0!=_execSimpleString_safe_lua(L,tmp.c_str()))&&(_scriptType==sim_scripttype_sandboxscript) )
+                { // warning only with sandbox scripts
+                    tmp="failed executing '"+tmp+"'";
+                    App::logScriptMsg(getShortDescriptiveName().c_str(),sim_verbosity_scriptwarnings,tmp.c_str());
+                }
+            }
+            else
+            { // stack variable
+                CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(dat->stackHandle);
+                buildOntoInterpreterStack_lua(L,stack,true);
+                luaWrap_lua_setglobal(L,variableName.c_str());
+            }
+        }
+        else
+            break;
+    }
+
+    // Place the plugin handle in there, e.g. simBB.pluginHandle=pluginHandle:
+    std::string tmp("__tmploadPluginFuncsAndVars1.pluginHandle=");
+    tmp+=std::to_string(plug->getHandle());
+    _execSimpleString_safe_lua(L,tmp.c_str());
+
+    // Set API to SIM_PLUGIN_NAMESPACES table, e.g. sim_plugin_namespaces[pluginName]=funcsAndVars:
+    tmp=SIM_PLUGIN_NAMESPACES;
+    tmp+="[\"";
+    tmp+=plug->getName()+"\"]=__tmploadPluginFuncsAndVars1 __tmploadPluginFuncsAndVars1=nil";
+    _execSimpleString_safe_lua(L,tmp.c_str());
+}
+
 void CScriptObject::registerPluginFunctions()
 {
     for (size_t i=0;i<App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount();i++)
@@ -3042,6 +3113,7 @@ void CScriptObject::registerPluginFunctions()
                 std::string prefix(functionName.begin(),functionName.begin()+p);
                 luaWrap_lua_rawgeti(L,luaWrapGet_LUA_REGISTRYINDEX(),luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
                 luaWrap_lua_pushinteger(L,functionID+1);
+//                luaWrap_lua_pushstring(L,functionName.c_str());
                 luaWrap_lua_pushcclosure(L,_simGenericFunctionHandler,1);
                 luaWrap_lua_setfield(L,-2,"__iuafkjsdgoi158zLK");
                 luaWrap_lua_pop(L,1); // pop table of globals

@@ -213,6 +213,16 @@ void luaWrap_lua_setfield(luaWrap_lua_State* L,int idx,const char* name)
     lua_setfield((lua_State*)L,idx,name);
 }
 
+void luaWrap_lua_geti(luaWrap_lua_State* L,int idx,lua_Integer i)
+{
+    lua_geti((lua_State*)L,idx,i);
+}
+
+void luaWrap_lua_seti(luaWrap_lua_State* L,int idx,lua_Integer i)
+{
+    lua_seti((lua_State*)L,idx,i);
+}
+
 void luaWrap_lua_yield(luaWrap_lua_State* L,int nresults)
 {
     lua_yield((lua_State*)L,nresults);

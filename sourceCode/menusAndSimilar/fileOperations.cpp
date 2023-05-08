@@ -6,7 +6,6 @@
 #include <sceneObjectOperations.h>
 #include <algos.h>
 #include <app.h>
-#include <pluginContainer.h>
 #include <meshManip.h>
 #include <mesh.h>
 #include <simStrings.h>
@@ -368,7 +367,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (CPluginContainer::isAssimpPluginAvailable())
+            if (App::worldContainer->pluginContainer->isAssimpPluginAvailable())
             {
                 App::logMsg(sim_verbosity_msgs,IDS_IMPORTING_MESH___);
                 App::currentWorld->sceneObjects->deselectObjects();
@@ -437,7 +436,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (CPluginContainer::isAssimpPluginAvailable())
+            if (App::worldContainer->pluginContainer->isAssimpPluginAvailable())
             {
                 std::vector<int> sel;
                 App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
@@ -525,7 +524,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             if (!App::currentWorld->environment->getSceneLocked())
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_EXPORTING_DYNAMIC_CONTENT);
-                if (CPluginContainer::dyn_isDynamicContentAvailable()!=0)
+                if (App::worldContainer->pluginContainer->dyn_isDynamicContentAvailable()!=0)
                 {
                     int eng=App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr);
                     if (eng==sim_physics_ode)
@@ -535,7 +534,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         if (filenameAndPath.length()!=0)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                            CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),0);
+                            App::worldContainer->pluginContainer->dyn_serializeDynamicContent(filenameAndPath.c_str(),0);
                             App::logMsg(sim_verbosity_msgs,"done.");
                         }
                         else
@@ -548,7 +547,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         if (filenameAndPath.length()!=0)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                            CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),10000000);
+                            App::worldContainer->pluginContainer->dyn_serializeDynamicContent(filenameAndPath.c_str(),10000000);
                             App::logMsg(sim_verbosity_msgs,"done.");
                         }
                         else
@@ -561,7 +560,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         if (filenameAndPath.length()!=0)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                            CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),10000000);
+                            App::worldContainer->pluginContainer->dyn_serializeDynamicContent(filenameAndPath.c_str(),10000000);
                             App::logMsg(sim_verbosity_msgs,"done.");
                         }
                         else
@@ -574,7 +573,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         if (filenameAndPath.length()!=0)
                         {
                             App::folders->setOtherFilesPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                            CPluginContainer::dyn_serializeDynamicContent(filenameAndPath.c_str(),10000000);
+                            App::worldContainer->pluginContainer->dyn_serializeDynamicContent(filenameAndPath.c_str(),10000000);
                             App::logMsg(sim_verbosity_msgs,"done.");
                         }
                         else
@@ -1029,8 +1028,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
             App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 #endif
 
-        void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scenesave,nullptr,nullptr,nullptr);
-        delete[] (char*)returnVal;
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scenesave,nullptr,0);
 
         if (pathAndFilename!=nullptr)
         { // saving to file...
@@ -1132,8 +1130,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
 #endif
 
         App::currentWorld->sceneObjects->addModelObjects(sel);
-        void* plugRetVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelsave,nullptr,nullptr,nullptr);
-        delete[] (char*)plugRetVal;
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelsave,nullptr,0);
 
         std::string infoPrintOut(IDSNS_SAVING_MODEL);
         if (pathAndFilename!=nullptr)
@@ -1577,7 +1574,7 @@ void CFileOperations::addMenu(VMenu* menu)
         VMenu* expMenu=new VMenu();
         expMenu->appendMenuItem(simStoppedOrPausedNoEditMode&&(shapeNumber>0),false,FILE_OPERATION_EXPORT_SHAPE_FOCMD,IDS_EXPORT_SELECTION_SHAPES_MENU_ITEM);
         expMenu->appendMenuItem(fileOpOk&&(graphNumber!=0),false,FILE_OPERATION_EXPORT_GRAPHS_FOCMD,IDS_EXPORT_SELECTION_GRAPHS_MENU_ITEM);
-        bool canExportDynamicContent=CPluginContainer::dyn_isDynamicContentAvailable()!=0;
+        bool canExportDynamicContent=App::worldContainer->pluginContainer->dyn_isDynamicContentAvailable()!=0;
         expMenu->appendMenuItem(canExportDynamicContent,false,FILE_OPERATION_EXPORT_DYNAMIC_CONTENT_FOCMD,IDSN_EXPORT_DYNAMIC_CONTENT);
         menu->appendMenuAndDetach(expMenu,true,IDSN_EXPORT_MENU_ITEM);
     }

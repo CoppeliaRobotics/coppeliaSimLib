@@ -6,7 +6,7 @@
 class CScriptCustomFunction
 {
 public:
-    CScriptCustomFunction(const char* theFullFunctionName,const char* theCallTips,void(*callBack)(struct SScriptCallBack* cb));
+    CScriptCustomFunction(const char* theFullFunctionName,const char* theCallTips,void(*callBack)(struct SScriptCallBack* cb),bool pluginFunction);
 
     virtual ~CScriptCustomFunction();
     

@@ -1,6 +1,5 @@
 #include <collisionRoutines.h>
 #include <distanceRoutines.h>
-#include <pluginContainer.h>
 #include <app.h>
 
 //---------------------------- GENERAL COLLISION QUERIES ---------------------------
@@ -142,7 +141,7 @@ bool CCollisionRoutine::_doesShapeCollideWithShape(CShape* shape1,CShape* shape2
     // Before building collision nodes, check if the shape's bounding boxes collide (new since 9/7/2014):
     if ( (!shape1->isMeshCalculationStructureInitialized())||(!shape2->isMeshCalculationStructureInitialized()) )
     {
-        if (!CPluginContainer::geomPlugin_getBoxBoxCollision(shape1->getCumulativeTransformation()*shape1->getBB(nullptr),shape1->getBBHSize(),shape2->getCumulativeTransformation()*shape2->getBB(nullptr),shape2->getBBHSize(),true))
+        if (!App::worldContainer->pluginContainer->geomPlugin_getBoxBoxCollision(shape1->getCumulativeTransformation()*shape1->getBB(nullptr),shape1->getBBHSize(),shape2->getCumulativeTransformation()*shape2->getBB(nullptr),shape2->getBBHSize(),true))
             return(false);
     }
 
@@ -251,7 +250,7 @@ bool CCollisionRoutine::_areObjectBoundingBoxesOverlapping(CSceneObject* obj1,CS
         if (obj->getObjectType()==sim_object_dummy_type)
             halfSizes[cnt]=C3Vector(0.0001,0.0001,0.0001);
     }
-    return (CPluginContainer::geomPlugin_getBoxBoxCollision(m[0],halfSizes[0],m[1],halfSizes[1],true));
+    return (App::worldContainer->pluginContainer->geomPlugin_getBoxBoxCollision(m[0],halfSizes[0],m[1],halfSizes[1],true));
 }
 
 bool CCollisionRoutine::_doesOctreeCollideWithShape(COcTree* octree,CShape* shape,bool overrideOctreeCollidableFlag,bool overrideShapeCollidableFlag)
@@ -276,7 +275,7 @@ bool CCollisionRoutine::_doesOctreeCollideWithShape(COcTree* octree,CShape* shap
     // TODO_CACHING
     int meshCaching=-1;
     unsigned long long int ocCaching=0;
-    return(CPluginContainer::geomPlugin_getMeshOctreeCollision(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),octree->getOctreeInfo(),octree->getCumulativeTransformation(),&meshCaching,&ocCaching));
+    return(App::worldContainer->pluginContainer->geomPlugin_getMeshOctreeCollision(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),octree->getOctreeInfo(),octree->getCumulativeTransformation(),&meshCaching,&ocCaching));
 }
 
 bool CCollisionRoutine::_doesOctreeCollideWithOctree(COcTree* octree1,COcTree* octree2,bool overrideOctree1CollidableFlag,bool overrideOctree2CollidableFlag)
@@ -293,7 +292,7 @@ bool CCollisionRoutine::_doesOctreeCollideWithOctree(COcTree* octree1,COcTree* o
         return(false);
     if (!_areObjectBoundingBoxesOverlapping(octree1,octree2))
         return(false);
-    return(CPluginContainer::geomPlugin_getOctreeOctreeCollision(octree1->getOctreeInfo(),octree1->getFullCumulativeTransformation().getMatrix(),octree2->getOctreeInfo(),octree2->getFullCumulativeTransformation().getMatrix()));
+    return(App::worldContainer->pluginContainer->geomPlugin_getOctreeOctreeCollision(octree1->getOctreeInfo(),octree1->getFullCumulativeTransformation().getMatrix(),octree2->getOctreeInfo(),octree2->getFullCumulativeTransformation().getMatrix()));
 }
 
 bool CCollisionRoutine::_doesOctreeCollideWithPointCloud(COcTree* octree,CPointCloud* pointCloud,bool overrideOctreeCollidableFlag,bool overridePointCloudCollidableFlag)
@@ -313,7 +312,7 @@ bool CCollisionRoutine::_doesOctreeCollideWithPointCloud(COcTree* octree,CPointC
     // TODO_CACHING
     unsigned long long int ocCaching=0;
     unsigned long long int pcCaching=0;
-    return(CPluginContainer::geomPlugin_getOctreePtcloudCollision(octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),pointCloud->getPointCloudInfo(),pointCloud->getFullCumulativeTransformation(),&ocCaching,&pcCaching));
+    return(App::worldContainer->pluginContainer->geomPlugin_getOctreePtcloudCollision(octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),pointCloud->getPointCloudInfo(),pointCloud->getFullCumulativeTransformation(),&ocCaching,&pcCaching));
 }
 
 bool CCollisionRoutine::_doesOctreeCollideWithDummy(COcTree* octree,CDummy* dummy,bool overrideOctreeCollidableFlag,bool overrideDummyCollidableFlag)
@@ -327,7 +326,7 @@ bool CCollisionRoutine::_doesOctreeCollideWithDummy(COcTree* octree,CDummy* dumm
 
     // TODO_CACHING
     unsigned long long int ocCaching=0;
-    return(CPluginContainer::geomPlugin_getOctreePointCollision(octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),dummy->getFullCumulativeTransformation().X,nullptr,&ocCaching));
+    return(App::worldContainer->pluginContainer->geomPlugin_getOctreePointCollision(octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),dummy->getFullCumulativeTransformation().X,nullptr,&ocCaching));
 }
 
 bool CCollisionRoutine::_doesObjectCollideWithObject(CSceneObject* object1,CSceneObject* object2,bool overrideObject1CollidableFlag,bool overrideObject2CollidableFlag,std::vector<double>* intersections)

@@ -1,5 +1,4 @@
 #include <world.h>
-#include <pluginContainer.h>
 #include <mesh.h>
 #include <utils.h>
 #include <tt.h>
@@ -38,7 +37,7 @@ CWorld::~CWorld()
 void CWorld::removeRemoteWorlds()
 {
     // IK plugin world:
-    CPluginContainer::ikPlugin_emptyEnvironment();
+    App::worldContainer->pluginContainer->ikPlugin_emptyEnvironment();
 
     // Local references to remote worlds:
     sceneObjects->removeSynchronizationObjects(true);
@@ -188,8 +187,7 @@ bool CWorld::loadScene(CSer& ar,bool forUndoRedoOperation)
         retVal=_loadModelOrScene(ar,false,true,false,false,nullptr,nullptr,nullptr);
         if (!forUndoRedoOperation)
         {
-            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_sceneloaded,nullptr,nullptr,nullptr);
-            delete[] (char*)returnVal;
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_sceneloaded,nullptr,0);
             App::worldContainer->setModificationFlag(8); // scene loaded
             outsideCommandQueue->addCommand(sim_message_scene_loaded,0,0,0,0,nullptr,0);
         }
@@ -580,10 +578,8 @@ bool CWorld::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7V
         retVal=_loadModelOrScene(ar,true,false,justLoadThumbnail,forceModelAsCopy,optionalModelTr,optionalModelBoundingBoxSize,optionalModelNonDefaultTranslationStepSize);
     if (!justLoadThumbnail)
     {
-        void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelloaded,nullptr,nullptr,nullptr);
-        delete[] (char*)returnVal;
-        returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_model_loaded,nullptr,nullptr,nullptr); // for backward compatibility
-        delete[] (char*)returnVal;
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelloaded,nullptr,0);
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_model_loaded,nullptr,0); // for backward compatibility
 
         outsideCommandQueue->addCommand(sim_message_model_loaded,0,0,0,0,nullptr,0); // only for Lua
         App::worldContainer->setModificationFlag(4); // model loaded
@@ -619,7 +615,7 @@ void CWorld::simulationAboutToStart()
         App::mainWindow->codeEditorContainer->simulationAboutToStart();
 #endif
 
-    if (!CPluginContainer::isGeomPluginAvailable())
+    if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
     {
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
@@ -631,8 +627,7 @@ void CWorld::simulationAboutToStart()
     _simulationAboutToStart();
     App::worldContainer->calcInfo->simulationAboutToStart();
 
-    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttostart,nullptr,nullptr,nullptr);
-    delete[] (char*)retVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttostart,nullptr,0);
 
     App::worldContainer->setModificationFlag(2048); // simulation started
 
@@ -672,8 +667,7 @@ void CWorld::simulationAboutToEnd()
 {
     TRACE_INTERNAL;
 
-    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttoend,nullptr,nullptr,nullptr);
-    delete[] (char*)retVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttoend,nullptr,0);
 
     _simulationAboutToEnd();
 
@@ -688,8 +682,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
     TRACE_INTERNAL;
     App::undoRedo_sceneChanged(""); // keeps this (this has the objects in their last position, including additional objects)
 
-    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationended,nullptr,nullptr,nullptr);
-    delete[] (char*)retVal;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationended,nullptr,0);
     App::worldContainer->setModificationFlag(4096); // simulation ended
 
     if (removeNewObjects)

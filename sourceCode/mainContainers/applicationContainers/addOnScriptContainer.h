@@ -25,6 +25,7 @@ public:
     void simulationEnded();
     void simulationAboutToEnd();
     bool processCommand(int commandID);
+    void loadAllAddOns();
     void removeAllAddOns();
     CScriptObject* getAddOnFromID(int scriptID) const;
     CScriptObject* getAddOnFromName(const char* name) const;

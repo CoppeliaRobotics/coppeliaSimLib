@@ -8,7 +8,6 @@
 #include <app.h>
 #include <simStrings.h>
 #include <vDateTime.h>
-#include <pluginContainer.h>
 #include <collisionContourRendering.h>
 #include <base64.h>
 
@@ -265,7 +264,7 @@ bool CCollisionObject_old::handleCollision()
     clearCollisionResult();
     if (!App::currentWorld->mainSettings->collisionDetectionEnabled)
         return(false);
-    if (!CPluginContainer::isGeomPluginAvailable())
+    if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
         return(false);
     int stT=(int)VDateTime::getTimeInMs();
     int collObjs[2];

@@ -10,7 +10,6 @@
 #include <iostream>
 #include <algos.h>
 #include <meshRoutines.h>
-#include <pluginContainer.h>
 
 CMeshWrapper::CMeshWrapper()
 {

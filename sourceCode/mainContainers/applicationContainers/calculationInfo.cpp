@@ -2,7 +2,6 @@
 #include <app.h>
 #include <tt.h>
 #include <utils.h>
-#include <pluginContainer.h>
 #include <threadPool_old.h>
 #include <boost/lexical_cast.hpp>
 #include <simStrings.h>
@@ -72,7 +71,7 @@ void CCalculationInfo::formatInfo()
     _scriptTxt[1]+=" ms)";
 
     // Proximity sensor calculation:
-    if (CPluginContainer::isGeomPluginAvailable())
+    if (App::worldContainer->pluginContainer->isGeomPluginAvailable())
     {
         if (!App::currentWorld->mainSettings->proximitySensorsEnabled)
             _sensTxt[0]="&&fg930Proximity sensor handling disabled";

@@ -21,7 +21,6 @@ See the GNU General Public License for more details.
 #include <visionSensorRendering.h>
 
 #ifdef SIM_WITH_OPENGL
-#include <pluginContainer.h>
 
 void displayVisionSensor(CVisionSensor* visionSensor,CViewableBase* renderingObject,int displayAttrib)
 {

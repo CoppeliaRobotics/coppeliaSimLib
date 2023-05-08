@@ -1,5 +1,4 @@
 #include <distanceRoutines.h>
-#include <pluginContainer.h>
 #include <tt.h>
 #include <app.h>
 
@@ -200,16 +199,16 @@ double CDistanceRoutine::_getApproxBoundingBoxDistance(CSceneObject* obj1,CScene
         if (isPt[1])
             return((m[0].X-m[1].X).getLength()); // pt vs pt
         else
-            return(CPluginContainer::geomPlugin_getBoxPointDistance(m[1],halfSizes[1],true,m[0].X)); // pt vs box
+            return(App::worldContainer->pluginContainer->geomPlugin_getBoxPointDistance(m[1],halfSizes[1],true,m[0].X)); // pt vs box
     }
     else
     { // box vs ...
         if (isPt[1])
-            return(CPluginContainer::geomPlugin_getBoxPointDistance(m[0],halfSizes[0],true,m[1].X)); // box vs pt
+            return(App::worldContainer->pluginContainer->geomPlugin_getBoxPointDistance(m[0],halfSizes[0],true,m[1].X)); // box vs pt
         else
         {
             // box box is too slow here
-            return(CPluginContainer::geomPlugin_getApproxBoxBoxDistance(m[0],halfSizes[0],m[1],halfSizes[1])); // box vs box
+            return(App::worldContainer->pluginContainer->geomPlugin_getApproxBoxBoxDistance(m[0],halfSizes[0],m[1],halfSizes[1])); // box vs box
         }
     }
 }
@@ -280,7 +279,7 @@ bool CDistanceRoutine::_getShapeDummyDistanceIfSmaller(CShape* shape,CDummy* dum
     C3Vector rayPart0;
     C3Vector rayPart1(dummyPos);
     int buffer=0;
-    if (CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),dummyPos,dist,&rayPart0,&buffer))
+    if (App::worldContainer->pluginContainer->geomPlugin_getMeshPointDistanceIfSmaller(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),dummyPos,dist,&rayPart0,&buffer))
     {
         rayPart0.getData(ray);
         rayPart1.getData(ray+3);
@@ -329,7 +328,7 @@ bool CDistanceRoutine::_getShapeShapeDistanceIfSmaller(CShape* shape1,CShape* sh
     shape2->initializeMeshCalculationStructureIfNeeded();
 
     C3Vector minDistPt1,minDistPt2;
-    if (CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(shape1->_meshCalculationStructure,shape1->getCumulCenteredMeshFrame(),shape2->_meshCalculationStructure,shape2->getCumulCenteredMeshFrame(),dist,&minDistPt1,&minDistPt2,cache1+1,cache2+1))
+    if (App::worldContainer->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(shape1->_meshCalculationStructure,shape1->getCumulCenteredMeshFrame(),shape2->_meshCalculationStructure,shape2->getCumulCenteredMeshFrame(),dist,&minDistPt1,&minDistPt2,cache1+1,cache2+1))
     {
         minDistPt1.getData(ray+0);
         minDistPt2.getData(ray+3);
@@ -361,7 +360,7 @@ bool CDistanceRoutine::_getOctreeDummyDistanceIfSmaller(COcTree* octree,CDummy* 
     unsigned long long int cacheV=getExtendedCacheValue(cache1[1]);
     C3Vector dummyPos(dummy->getFullCumulativeTransformation().X);
     C3Vector minDistPt;
-    if (CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),dummyPos,dist,&minDistPt,&cacheV))
+    if (App::worldContainer->pluginContainer->geomPlugin_getOctreePointDistanceIfSmaller(octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),dummyPos,dist,&minDistPt,&cacheV))
     {
         minDistPt.getData(ray+0);
         dummyPos.getData(ray+3);
@@ -411,7 +410,7 @@ bool CDistanceRoutine::_getOctreeShapeDistanceIfSmaller(COcTree* octree,CShape* 
     unsigned long long int cache1V=getExtendedCacheValue(cache1[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),octree->getOctreeInfo(),octree->getCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
+    if (App::worldContainer->pluginContainer->geomPlugin_getMeshOctreeDistanceIfSmaller(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),octree->getOctreeInfo(),octree->getCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
     {
         distPt1.getData(ray+0);
         distPt2.getData(ray+3);
@@ -469,7 +468,7 @@ bool CDistanceRoutine::_getOctreeOctreeDistanceIfSmaller(COcTree* octree1,COcTre
     bool hasCoherency=getOctreesHaveCoherentMovement(octree1,octree2);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(octree1->getOctreeInfo(),octree1->getFullCumulativeTransformation(),octree2->getOctreeInfo(),octree2->getFullCumulativeTransformation(),dist,&distPt1,&distPt2,&cache1V,&cache2V))
+    if (App::worldContainer->pluginContainer->geomPlugin_getOctreeOctreeDistanceIfSmaller(octree1->getOctreeInfo(),octree1->getFullCumulativeTransformation(),octree2->getOctreeInfo(),octree2->getFullCumulativeTransformation(),dist,&distPt1,&distPt2,&cache1V,&cache2V))
     {
         distPt1.getData(ray+0);
         distPt2.getData(ray+3);
@@ -503,7 +502,7 @@ bool CDistanceRoutine::_getPointCloudDummyDistanceIfSmaller(CPointCloud* pointCl
     unsigned long long int cacheV=getExtendedCacheValue(cache1[1]);
     C3Vector dummyPos(dummy->getFullCumulativeTransformation().X);
     C3Vector distPt;
-    if (CPluginContainer::geomPlugin_getPtcloudPointDistanceIfSmaller(pointCloud->getPointCloudInfo(),pointCloud->getFullCumulativeTransformation(),dummyPos,dist,&distPt,&cacheV))
+    if (App::worldContainer->pluginContainer->geomPlugin_getPtcloudPointDistanceIfSmaller(pointCloud->getPointCloudInfo(),pointCloud->getFullCumulativeTransformation(),dummyPos,dist,&distPt,&cacheV))
     {
         distPt.getData(ray+0);
         dummyPos.getData(ray+3);
@@ -553,7 +552,7 @@ bool CDistanceRoutine::_getPointCloudShapeDistanceIfSmaller(CPointCloud* pointCl
     unsigned long long int cache1V=getExtendedCacheValue(cache1[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),pointCloud->getPointCloudInfo(),pointCloud->getCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
+    if (App::worldContainer->pluginContainer->geomPlugin_getMeshPtcloudDistanceIfSmaller(shape->_meshCalculationStructure,shape->getCumulCenteredMeshFrame(),pointCloud->getPointCloudInfo(),pointCloud->getCumulativeTransformation(),dist,&distPt2,&distPt1,cache2+1,&cache1V))
     {
         distPt1.getData(ray+0);
         distPt2.getData(ray+3);
@@ -603,7 +602,7 @@ bool CDistanceRoutine::_getOctreePointCloudDistanceIfSmaller(COcTree* octree,CPo
     unsigned long long int cache2V=getExtendedCacheValue(cache2[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),pointCloud->getPointCloudInfo(),pointCloud->getFullCumulativeTransformation(),dist,&distPt1,&distPt2,&cache1V,&cache2V))
+    if (App::worldContainer->pluginContainer->geomPlugin_getOctreePtcloudDistanceIfSmaller(octree->getOctreeInfo(),octree->getFullCumulativeTransformation(),pointCloud->getPointCloudInfo(),pointCloud->getFullCumulativeTransformation(),dist,&distPt1,&distPt2,&cache1V,&cache2V))
     {
         distPt1.getData(ray+0);
         distPt2.getData(ray+3);
@@ -656,7 +655,7 @@ bool CDistanceRoutine::_getPointCloudPointCloudDistanceIfSmaller(CPointCloud* po
     unsigned long long int cache2V=getExtendedCacheValue(cache2[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(pointCloud1->getPointCloudInfo(),pointCloud1->getFullCumulativeTransformation(),pointCloud2->getPointCloudInfo(),pointCloud2->getFullCumulativeTransformation(),dist,&distPt1,&distPt2,&cache1V,&cache2V))
+    if (App::worldContainer->pluginContainer->geomPlugin_getPtcloudPtcloudDistanceIfSmaller(pointCloud1->getPointCloudInfo(),pointCloud1->getFullCumulativeTransformation(),pointCloud2->getPointCloudInfo(),pointCloud2->getFullCumulativeTransformation(),dist,&distPt1,&distPt2,&cache1V,&cache2V))
     {
         distPt1.getData(ray+0);
         distPt2.getData(ray+3);
