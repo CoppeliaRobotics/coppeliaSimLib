@@ -144,7 +144,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     {
         if (openglWidget->format().stereo())
         {
-            App::logMsg(sim_verbosity_loadinfos,"enabled stereo (OpenGL).");
+            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"enabled stereo (OpenGL).");
             _hasStereo=true;
             setStereoDistance(App::userSettings->stereoDist);
         }
@@ -154,7 +154,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     #ifdef LIN_SIM
         std::string msg("if CoppeliaSim crashes now, try to install libgl1-mesa-dev on your system:");
         msg+="\n    >sudo apt install libgl1-mesa-dev";
-        App::logMsg(sim_verbosity_loadinfos,msg.c_str());
+        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,msg.c_str());
     #endif
     #ifndef USING_QOPENGLWIDGET
         openglWidget->makeCurrent();

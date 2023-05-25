@@ -454,6 +454,9 @@ HEADERS += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/plugin.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/pluginCallbackContainer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/pluginVariableContainer.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorInfos.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorFunctions.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorVariables.h \
 
 HEADERS += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.h \
     $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.h \
@@ -856,6 +859,9 @@ SOURCES += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.cpp 
     $$PWD/sourceCode/mainContainers/applicationContainers/plugin.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/pluginCallbackContainer.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/pluginVariableContainer.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorInfos.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorFunctions.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp \
 
 SOURCES += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.cpp \
     $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.cpp \

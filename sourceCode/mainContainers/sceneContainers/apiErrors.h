@@ -165,6 +165,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_SCRIPT_FUNCTION_INEXISTANT "script function does not exist."
 #define SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION "error in script function."
 #define SIM_ERROR_INVALID_PLUGIN "invalid plugin."
+#define SIM_ERROR_INVALID_INFO_STRING "invalid info string."
 #define SIM_ERROR_INVALID_STACK_CONTENT "invalid stack content."
 #define SIM_ERROR_MISSING_PLUGIN_NAME "missing plugin name."
 #define SIM_ERROR_INVALID_FUNCTION_NAME "invalid function name."

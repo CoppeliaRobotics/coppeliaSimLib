@@ -22,45 +22,45 @@ std::string CCodeEditorContainer::getColorStr(const int rgbCol[3])
     return(retVal.toStdString());
 }
 
-void CCodeEditorContainer::getKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded)
+void CCodeEditorContainer::getKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin)
 {
     sim::tinyxml2::XMLElement* keywords1Node=doc->NewElement("keywords1");
     parentNode->InsertEndChild(keywords1Node);
-    getFuncKeywords(doc,keywords1Node,scriptType,threaded);
+    getFuncKeywords(doc,keywords1Node,requestOrigin);
     sim::tinyxml2::XMLElement* keywords2Node=doc->NewElement("keywords2");
     parentNode->InsertEndChild(keywords2Node);
-    getVarKeywords(doc,keywords2Node,scriptType,threaded);
+    getVarKeywords(doc,keywords2Node,requestOrigin);
 }
 
-void CCodeEditorContainer::getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded)
+void CCodeEditorContainer::getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin)
 {
-    std::vector<std::string> t;
-    CScriptObject::getMatchingFunctions("",t); // basically all functions
-    for (size_t i=0;i<t.size();i++)
+    std::set<std::string> t;
+    CScriptObject::getMatchingFunctions("",t,requestOrigin); // basically all functions
+    for (const auto& str : t)
     {
-        std::string tip(CScriptObject::getFunctionCalltip(t[i].c_str()));
+        std::string tip(CScriptObject::getFunctionCalltip(str.c_str(),requestOrigin));
         sim::tinyxml2::XMLElement* itemNode=doc->NewElement("item");
         parentNode->InsertEndChild(itemNode);
-        itemNode->SetAttribute("word",t[i].c_str());
+        itemNode->SetAttribute("word",str.c_str());
         itemNode->SetAttribute("autocomplete",toBoolStr(true));
         itemNode->SetAttribute("calltip",tip.c_str());
     }
 }
 
-void CCodeEditorContainer::getVarKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded)
+void CCodeEditorContainer::getVarKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin)
 {
-    std::vector<std::string> t;
-    CScriptObject::getMatchingConstants("",t); // basically all constants
-    for (size_t i=0;i<t.size();i++)
+    std::set<std::string> t;
+    CScriptObject::getMatchingConstants("",t,requestOrigin); // basically all constants
+    for (const auto& str : t)
     {
         sim::tinyxml2::XMLElement* itemNode=doc->NewElement("item");
         parentNode->InsertEndChild(itemNode);
-        itemNode->SetAttribute("word",t[i].c_str());
+        itemNode->SetAttribute("word",str.c_str());
         itemNode->SetAttribute("autocomplete",toBoolStr(true));
     }
 }
 
-std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* callback)
+std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* callback,const CScriptObject* requestOrigin)
 {
     sim::tinyxml2::XMLDocument xmlNewDoc;
     sim::tinyxml2::XMLElement* editorNode=xmlNewDoc.NewElement("editor");
@@ -206,7 +206,7 @@ std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* ca
                     item=item->NextSiblingElement("item");
                 }
                 if (csimKeywords)
-                    getFuncKeywords(&xmlNewDoc,keywordsNode1,sim_scripttype_childscript,false);
+                    getFuncKeywords(&xmlNewDoc,keywordsNode1,requestOrigin);
             }
 
             sim::tinyxml2::XMLElement* keywordsNode2=xmlNewDoc.NewElement("keywords2");
@@ -232,7 +232,7 @@ std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* ca
                     item=item->NextSiblingElement("item");
                 }
                 if (csimKeywords)
-                    getVarKeywords(&xmlNewDoc,keywordsNode2,sim_scripttype_childscript,false);
+                    getVarKeywords(&xmlNewDoc,keywordsNode2,requestOrigin);
             }
         }
     }
@@ -421,7 +421,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                         editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->childScriptColor_word4).c_str());
                     }
 
-                    getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution_oldThreads());
+                    getKeywords(&xmlDoc,editorNode,it);
 
                     sim::tinyxml2::XMLPrinter printer;
                     xmlDoc.Print(&printer);
@@ -532,7 +532,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     editorNode->SetAttribute("keyword3-col",getColorStr(App::userSettings->customizationScriptColor_word).c_str());
                     editorNode->SetAttribute("keyword4-col",getColorStr(App::userSettings->customizationScriptColor_word4).c_str());
 
-                    getKeywords(&xmlDoc,editorNode,it->getScriptType(),it->getThreadedExecution_oldThreads());
+                    getKeywords(&xmlDoc,editorNode,it);
 
                     sim::tinyxml2::XMLPrinter printer;
                     xmlDoc.Print(&printer);
@@ -650,7 +650,7 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
     return(retVal);
 }
 
-std::string CCodeEditorContainer::openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4],bool oldXml/*=false*/) const
+std::string CCodeEditorContainer::openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4],bool oldXml) const
 {
     std::string retVal;
     if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
@@ -659,7 +659,7 @@ std::string CCodeEditorContainer::openModalTextEditor(const char* initText,const
         if (xml!=nullptr)
         {
             if (oldXml)
-                newXml=translateXml(xml,"");
+                newXml=translateXml(xml,"",nullptr);
             else
                 newXml=xml;
         }
@@ -678,21 +678,21 @@ std::string CCodeEditorContainer::openModalTextEditor(const char* initText,const
     return(retVal);
 }
 
-int CCodeEditorContainer::openTextEditor(const char* initText,const char* xml,const char* callback,int callingScriptHandle,bool isSimulationScript)
+int CCodeEditorContainer::openTextEditor_old(const char* initText,const char* xml,const char* callback,const CScriptObject* requestOrigin)
 {
     int retVal=-1;
     if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable())
     {
         std::string newXml;
-        newXml=translateXml(xml,callback);
+        newXml=translateXml(xml,callback,requestOrigin);
         retVal=App::worldContainer->pluginContainer->codeEditor_open(initText,newXml.c_str());
         SCodeEditor inf;
         inf.handle=retVal;
         inf.scriptHandle=-1;
-        inf.callingScriptHandle=callingScriptHandle;
+        inf.callingScriptHandle=requestOrigin->getScriptHandle();
         inf.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
         inf.openAcrossScenes=false;
-        inf.closeAtSimulationEnd=isSimulationScript;
+        inf.closeAtSimulationEnd=requestOrigin->isSimulationScript();
         inf.systemVisibility=true;
         inf.userVisibility=true;
         inf.closeAfterCallbackCalled=true;

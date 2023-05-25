@@ -1,5 +1,6 @@
 #pragma once
 
+#include <scriptObject.h>
 #include <vector>
 #include <QString>
 #include <tinyxml2.h>
@@ -39,8 +40,8 @@ public:
     int openSimulationScript(int scriptHandle,int callingScriptHandle); // main and child scripts
     int openCustomizationScript(int scriptHandle,int callingScriptHandle); // customization scripts
     int openConsole(const char* title,int maxLines,int mode,const int position[2],const int size[2],const int textColor[3],const int backColor[3],int callingScriptHandle);
-    std::string openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4],bool oldXml=false) const; // modal C func. sim.openTextEditor
-    int openTextEditor(const char* initText,const char* xml,const char* callback,int callingScriptHandle,bool isSimulationScript); // deprec. func. sim.openTextEditor
+    std::string openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4],bool oldXml) const; // modal C func. sim.openTextEditor
+    int openTextEditor_old(const char* initText,const char* xml,const char* callback,const CScriptObject* requestOrigin); // deprec. func. sim.openTextEditor
     bool close(int handle,int posAndSize[4],std::string* txt,std::string* callback);
     void applyChanges(int handle) const;
     bool closeFromScriptHandle(int scriptHandle,int posAndSize[4],bool ignoreChange);
@@ -65,10 +66,10 @@ public:
     bool areSceneEditorsOpen() const;
     void sceneClosed(int sceneUniqueId);
     static std::string getColorStr(const int rgbCol[3]);
-    static void getKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded);
-    static void getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded);
-    static void getVarKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,int scriptType,bool threaded);
-    static std::string translateXml(const char* oldXml,const char* callback);
+    static void getKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin);
+    static void getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin);
+    static void getVarKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin);
+    static std::string translateXml(const char* oldXml,const char* callback,const CScriptObject* requestOrigin);
     static const char* toBoolStr(bool v);
 
 protected:

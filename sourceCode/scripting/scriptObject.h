@@ -3,6 +3,8 @@
 #include <simLib/simTypes.h>
 #include <outsideCommandQueueForScript.h>
 #include <interfaceStack.h>
+#include <set>
+#include <unordered_set>
 #include <plugin.h>
 #include <random>
 
@@ -145,6 +147,8 @@ public:
     void registerPluginFunctions();
     bool registerPluginVariables(bool onlyRequireStatements);
 
+    bool containsLastUsedPlugin(const char* pluginNamespace) const;
+
     int getAddOnUiMenuHandle() const;
     void setAddOnFilePath(const char* p);
     std::string getAddOnFilePath() const;
@@ -156,9 +160,9 @@ public:
     void setFuncAndHookCnt(int sysCall,size_t what,int cnt);
     int registerFunctionHook(const char* sysFunc,const char* userFunc,bool before);
 
-    static void getMatchingFunctions(const char* txt,std::vector<std::string>& v);
-    static void getMatchingConstants(const char* txt,std::vector<std::string>& v);
-    static std::string getFunctionCalltip(const char* txt);
+    static void getMatchingFunctions(const char* txt,std::set<std::string>& v,const CScriptObject* requestOrigin);
+    static void getMatchingConstants(const char* txt,std::set<std::string>& v,const CScriptObject* requestOrigin);
+    static std::string getFunctionCalltip(const char* txt,const CScriptObject* requestOrigin);
     static int isFunctionOrConstDeprecated(const char* txt);
     static bool canCallSystemCallback(int scriptType,bool threadedOld,int callType);
     static bool isSystemCallbackInReverseOrder(int callType);
@@ -264,6 +268,7 @@ protected:
     bool _externalScriptText;
 
     COutsideCommandQueueForScript* _outsideCommandQueue;
+    std::unordered_set<std::string> _lastUsedPlugins; // needed for the code editor syntax and calltips
 
     void* _interpreterState;  // !! _interpreterState is not the same for a script when in normal or inside a coroutine !!
 

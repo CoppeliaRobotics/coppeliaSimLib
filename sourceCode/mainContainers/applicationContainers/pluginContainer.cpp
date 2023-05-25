@@ -44,24 +44,47 @@ CPlugin* CPluginContainer::getCurrentPlugin()
     return(currentPluginStack[currentPluginStack.size()-1]);
 }
 
-CPlugin* CPluginContainer::loadAndInitPlugin(const char* filename,const char* namespaceAndVersion,int loadOrigin,std::string* errMsg/*=nullptr*/)
+CPlugin* CPluginContainer::loadAndInitPlugin(const char* filename,const char* namespaceAndVersion,int loadOrigin)
 { // namespaceAndVersion: e.g. simAssimp, simAssimp-2-78, etc.
     // loadOrigin: -1: c++, otherwise script handle
     TRACE_INTERNAL;
     CPlugin* plug=getPluginFromName(namespaceAndVersion);
     if (plug==nullptr)
     {
+        std::string errMsg;
+        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': loading...",namespaceAndVersion);
         plug=new CPlugin(filename,namespaceAndVersion,loadOrigin);
         plug->setHandle(_nextHandle);
         _allPlugins.push_back(plug);
-        int loadRes=plug->load(errMsg);
+        int loadRes=plug->load(&errMsg);
         if (loadRes==1)
         {
-            if (plug->init(errMsg))
+            if (plug->init(&errMsg))
             {
+                App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done.",namespaceAndVersion);
                 loadRes=2;
                 _nextHandle++;
+                plug->setStage(CPlugin::stage_siminitdone);
             }
+            else
+                App::logMsg(sim_verbosity_errors,"plugin '%s': init failed.",namespaceAndVersion);
+        }
+        else
+        {
+            if (loadRes==-2)
+            {
+                #ifdef WIN_SIM
+                    App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. Try rebuilding the plugin.",namespaceAndVersion);
+                #endif
+                #ifdef MAC_SIM
+                    App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. Try 'otool -L pluginName.dylib' for more infos, or simply rebuild the plugin.",namespaceAndVersion);
+                #endif
+                #ifdef LIN_SIM
+                    App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. For additional infos, modify the script 'libLoadErrorCheck.sh', run it and inspect the output.",namespaceAndVersion);
+                #endif
+            }
+            if (loadRes==-1)
+                App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (missing entry points).",namespaceAndVersion);
         }
         if (loadRes<2)
         { // failed
@@ -164,16 +187,57 @@ CPlugin* CPluginContainer::getPluginFromHandle(int handle)
     return(retVal);
 }
 
-void CPluginContainer::deinitAndUnloadPlugin(int handle,int unloadOrigin)
+void CPluginContainer::lockInterface()
 {
+    _pluginInterfaceMutex.lock();
+}
+
+void CPluginContainer::unlockInterface()
+{
+    _pluginInterfaceMutex.unlock();
+}
+
+bool CPluginContainer::deinitAndUnloadPlugin(int handle,int unloadOrigin)
+{ // not for legacy plugins
     TRACE_INTERNAL;
+    bool retVal=false;
     CPlugin* it=getPluginFromHandle(handle);
-    if (it!=nullptr)
+    if ( (it!=nullptr)&&(!it->isLegacyPlugin()) )
     {
-        it->removeDependency(unloadOrigin);
-        if (!it->hasAnyDependency())
+        if (it->getStage()<CPlugin::stage_simcleanupdone)
         {
-            it->cleanup();
+            it->removeDependency(unloadOrigin);
+            if (!it->hasAnyDependency())
+            {
+                std::string nm(it->getName());
+                App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': cleanup...",nm.c_str());
+                it->cleanup();
+                lockInterface();
+                if (it->getStage()==CPlugin::stage_siminitdone)
+                { // plugin didn't use UI entry points
+                    retVal=true;
+                    for (size_t i=0;i<_allPlugins.size();i++)
+                    {
+                        if (_allPlugins[i]==it)
+                        {
+                            delete _allPlugins[i];
+                            _allPlugins.erase(_allPlugins.begin()+i);
+                            break;
+                        }
+                    }
+                    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done.",nm.c_str());
+                }
+                else
+                {
+                    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done, but UI cleanup still ahead.",nm.c_str());
+                    it->setStage(CPlugin::stage_simcleanupdone); // still needs ui cleanup
+                }
+                unlockInterface();
+            }
+        }
+        if (it->getStage()==CPlugin::stage_uicleanupdone)
+        {
+            retVal=true;
             for (size_t i=0;i<_allPlugins.size();i++)
             {
                 if (_allPlugins[i]==it)
@@ -185,6 +249,88 @@ void CPluginContainer::deinitAndUnloadPlugin(int handle,int unloadOrigin)
             }
         }
     }
+    return(retVal);
+}
+
+void CPluginContainer::unloadNewPlugins()
+{
+    int i=0;
+    while (i<_allPlugins.size())
+    {
+        if (!_allPlugins[i]->isLegacyPlugin())
+        {
+            if (!deinitAndUnloadPlugin(_allPlugins[i]->getHandle(),-1))
+                i++;
+        }
+        else
+            i++;
+    }
+}
+
+void CPluginContainer::insertCodeEditorInfosThatStartSame(const char* txt,std::set<std::string>& v,int what,const CScriptObject* requestOrigin) const
+{
+    if (requestOrigin!=nullptr)
+    {
+        std::string ttxt(txt);
+        bool hasDot=(ttxt.find('.')!=std::string::npos);
+        for (size_t i=0;i<_allPlugins.size();i++)
+        {
+            CPlugin* plug=_allPlugins[i];
+            if (!plug->isLegacyPlugin())
+            {
+                std::string n(plug->getNamespace());
+                if (n.find(txt)==0)
+                {
+                    if (requestOrigin->containsLastUsedPlugin(plug->getName().c_str()))
+                    { // only if that plugin was previously loaded by that script
+                        if ( (!hasDot)&&(ttxt.size()>0) )
+                            v.insert(n); // only the namespace
+                        else
+                        {
+                            if (hasDot)
+                            { // remove that namespace first, which is a placeholder namespace
+                                size_t dp=ttxt.find('.');
+                                std::string ns(ttxt.begin(),ttxt.begin()+dp);
+                                for (auto it=v.begin();it!=v.end();)
+                                {
+                                    if ((*it).find(ns)==0)
+                                        it=v.erase(it);
+                                    else
+                                        ++it;
+                                }
+                            }
+                            if ((what&1)!=0)
+                                plug->getCodeEditorFunctions()->insertWhatStartsSame(txt,v);
+                            if ((what&2)!=0)
+                                plug->getCodeEditorVariables()->insertWhatStartsSame(txt,v);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+std::string CPluginContainer::getFunctionCalltip(const char* txt,const CScriptObject* requestOrigin) const
+{
+    std::string retVal;
+    if (requestOrigin!=nullptr)
+    {
+        for (size_t i=0;i<_allPlugins.size();i++)
+        {
+            CPlugin* plug=_allPlugins[i];
+            if (!plug->isLegacyPlugin())
+            {
+                if (requestOrigin->containsLastUsedPlugin(plug->getName().c_str()))
+                { // only if that plugin was previously loaded by that script
+                    retVal=plug->getCodeEditorFunctions()->getFunctionCalltip(txt);
+                    if (retVal.size()!=0)
+                        break;
+                }
+            }
+        }
+    }
+    return(retVal);
 }
 
 void CPluginContainer::_removePlugin_old(int handle)
@@ -226,12 +372,45 @@ int CPluginContainer::getPluginCount()
     return(int(_allPlugins.size()));
 }
 
+void CPluginContainer::uiCallAllPlugins(int msg)
+{
+    lockInterface();
+    size_t index=0;
+    while (index<_allPlugins.size())
+    {
+        CPlugin* plug=_allPlugins[index];
+        if (plug->isUiPlugin())
+        {
+            int stage=plug->getStage();
+            bool init=false;
+            if (stage==CPlugin::stage_siminitdone)
+            {
+                plug->setStage(CPlugin::stage_uiinitdone); // won't be destroyed be the SIM thread, before the UI thread switched to stage_uicleanupdone
+                init=true;
+            }
+            unlockInterface();
+            if ( init||(stage==CPlugin::stage_uiinitdone)||(stage==CPlugin::stage_allinitdone)||(stage==CPlugin::stage_simcleanupdone) )
+                plug->uiCall(msg,init);
+            lockInterface();
+        }
+        index++;
+    }
+    unlockInterface();
+}
+
 void CPluginContainer::sendEventCallbackMessageToAllPlugins(int msg,int* auxVals,int auxValCnt)
 {
-    for (size_t i=0;i<_allPlugins.size();i++)
+    for (int i=0;i<int(_allPlugins.size());i++)
     {
-        CPlugin* plug=_allPlugins[i];
-        plug->msg(msg,auxVals,auxValCnt);
+        CPlugin* plug=_allPlugins[size_t(i)];
+        if (plug->getStage()<CPlugin::stage_simcleanupdone)
+            plug->msg(msg,auxVals,auxValCnt);
+        if (plug->getStage()==CPlugin::stage_uicleanupdone)
+        { // UI plugin that is done
+            delete plug;
+            _allPlugins.erase(_allPlugins.begin()+i);
+            i--; // reprocess that position
+        }
     }
 }
 

@@ -1055,6 +1055,6 @@ void CUserSettings::loadUserSettings()
 
     std::string tmp("user settings file is ");
     tmp+=file;
-    App::logMsg(sim_verbosity_loadinfos,tmp.c_str());
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,tmp.c_str());
 }
 

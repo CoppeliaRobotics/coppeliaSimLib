@@ -11,6 +11,7 @@ CWorldContainer::CWorldContainer()
     TRACE_INTERNAL;
     _sessionId=utils::generateUniqueReadableString();
     pluginContainer=nullptr;
+    codeEditorInfos=nullptr;
     copyBuffer=nullptr;
     sandboxScript=nullptr;
     addOnScriptContainer=nullptr;
@@ -246,6 +247,7 @@ void CWorldContainer::initialize()
     scriptCustomFuncAndVarContainer=new CScriptCustomFuncAndVarContainer();
     customAppData_old=new CCustomData_old();
     calcInfo=new CCalculationInfo();
+    codeEditorInfos=new CCodeEditorInfos();
     pluginContainer=new CPluginContainer();
     addOnScriptContainer=new CAddOnScriptContainer();
 
@@ -272,6 +274,7 @@ void CWorldContainer::deinitialize()
 //    delete sandboxScript;
     delete addOnScriptContainer;
     delete pluginContainer;
+    delete codeEditorInfos;
     delete customAppData_old;
     delete scriptCustomFuncAndVarContainer;
     delete interfaceStackContainer;

@@ -2,6 +2,7 @@
 
 #include <pluginContainer.h>
 #include <scriptCustomFuncAndVarContainer.h>
+#include <codeEditorInfos.h>
 #include <persistentDataContainer.h>
 #include <copyBuffer.h>
 #include <addOnScriptContainer.h>
@@ -120,7 +121,9 @@ public:
     CCalculationInfo* calcInfo;
     CInterfaceStackContainer* interfaceStackContainer;
     CPluginContainer* pluginContainer;
-    CScriptCustomFuncAndVarContainer* scriptCustomFuncAndVarContainer;
+    CCodeEditorInfos* codeEditorInfos;
+    CScriptCustomFuncAndVarContainer* scriptCustomFuncAndVarContainer; // old
+
     CCustomData customAppData;
     CCustomData_old* customAppData_old;
     CAddOnScriptContainer* addOnScriptContainer;

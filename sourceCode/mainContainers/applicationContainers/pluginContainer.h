@@ -3,6 +3,10 @@
 #include <simMath/4X4Matrix.h>
 #include <simLib/simTypes.h>
 #include <plugin.h>
+#include <vMutex.h>
+#include <set>
+#include <string>
+#include <scriptObject.h>
 
 class CPluginContainer  
 {
@@ -11,11 +15,13 @@ public:
     virtual ~CPluginContainer();
 
     CPlugin* getCurrentPlugin();
-    CPlugin* loadAndInitPlugin(const char* filename,const char* namespaceAndVersion,int loadOrigin,std::string* errMsg=nullptr);
-    void deinitAndUnloadPlugin(int handle,int unloadOrigin);
+    CPlugin* loadAndInitPlugin(const char* filename,const char* namespaceAndVersion,int loadOrigin);
+    bool deinitAndUnloadPlugin(int handle,int unloadOrigin);
+    void unloadNewPlugins();
 
     void announceScriptStateWillBeErased(int scriptHandle);
 
+    void uiCallAllPlugins(int msg);
     void sendEventCallbackMessageToAllPlugins(int msg,int* auxVals,int auxValCnt);
     void sendEventCallbackMessageToAllPlugins_old(int msg,int* auxVals,void* data,int retVals[4]);
     int getPluginCount();
@@ -23,6 +29,11 @@ public:
     CPlugin* getPluginFromName_old(const char* pluginName,bool caseSensitive);
     CPlugin* getPluginFromName(const char* pluginNamespaceAndVersion);
     CPlugin* getPluginFromHandle(int handle);
+    void lockInterface();
+    void unlockInterface();
+
+    void insertCodeEditorInfosThatStartSame(const char* txt,std::set<std::string>& v,int what,const CScriptObject* requestOrigin) const;
+    std::string getFunctionCalltip(const char* txt,const CScriptObject* requestOrigin) const;
 
     int addAndInitPlugin_old(const char* filename,const char* pluginName);
     bool unloadPlugin_old(int handle);
@@ -275,6 +286,7 @@ public:
 
 private:
     int _nextHandle;
+    VMutex _pluginInterfaceMutex;
     std::vector<CPlugin*> _allPlugins;
 
 };

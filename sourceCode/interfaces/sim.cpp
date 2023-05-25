@@ -758,17 +758,17 @@ SIM_DLLEXPORT int simGetReferencedHandles(int objectHandle,int** referencedHandl
 {
     return(simGetReferencedHandles_internal(objectHandle,referencedHandles,reserved1,reserved2));
 }
-SIM_DLLEXPORT int simExecuteScriptString(int scriptHandleOrType,const char* stringAtScriptName,int stackHandle)
+SIM_DLLEXPORT int simExecuteScriptString(int scriptHandle,const char* stringToExecute,int stackHandle)
 {
-    return(simExecuteScriptString_internal(scriptHandleOrType,stringAtScriptName,stackHandle));
+    return(simExecuteScriptString_internal(scriptHandle,stringToExecute,stackHandle));
 }
-SIM_DLLEXPORT char* simGetApiFunc(int scriptHandleOrType,const char* apiWord)
+SIM_DLLEXPORT char* simGetApiFunc(int scriptHandle,const char* apiWord)
 {
-    return(simGetApiFunc_internal(scriptHandleOrType,apiWord));
+    return(simGetApiFunc_internal(scriptHandle,apiWord));
 }
-SIM_DLLEXPORT char* simGetApiInfo(int scriptHandleOrType,const char* apiWord)
+SIM_DLLEXPORT char* simGetApiInfo(int scriptHandle,const char* apiWord)
 {
-    return(simGetApiInfo_internal(scriptHandleOrType,apiWord));
+    return(simGetApiInfo_internal(scriptHandle,apiWord));
 }
 SIM_DLLEXPORT int simSetModuleInfo(const char* moduleName,int infoType,const char* stringInfo,int intInfo)
 {

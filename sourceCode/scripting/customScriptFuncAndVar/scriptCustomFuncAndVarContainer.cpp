@@ -234,7 +234,7 @@ void CScriptCustomFuncAndVarContainer::appendAllVariableNames_spaceSeparated_key
     }
 }
 
-void CScriptCustomFuncAndVarContainer::pushAllFunctionNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m)
+void CScriptCustomFuncAndVarContainer::insertAllFunctionNamesThatStartSame(const char* txt,std::set<std::string>& v)
 {
     std::string ttxt(txt);
     bool hasDot=(ttxt.find('.')!=std::string::npos);
@@ -252,18 +252,15 @@ void CScriptCustomFuncAndVarContainer::pushAllFunctionNamesThatStartSame_autoCom
                     if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
                         n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
-                std::map<std::string,bool>::iterator it=m.find(n);
-                if (it==m.end())
-                {
-                    m[n]=true;
-                    v.push_back(n);
-                }
+                auto it=v.find(n);
+                if (it==v.end())
+                    v.insert(n);
             }
         }
     }
 }
 
-void CScriptCustomFuncAndVarContainer::pushAllVariableNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m)
+void CScriptCustomFuncAndVarContainer::insertAllVariableNamesThatStartSame(const char* txt,std::set<std::string>& v)
 {
     std::string ttxt(txt);
     bool hasDot=(ttxt.find('.')!=std::string::npos);
@@ -280,12 +277,9 @@ void CScriptCustomFuncAndVarContainer::pushAllVariableNamesThatStartSame_autoCom
                     if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
                         n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
-                std::map<std::string,bool>::iterator it=m.find(n);
-                if (it==m.end())
-                {
-                    m[n]=true;
-                    v.push_back(n);
-                }
+                auto it=v.find(n);
+                if (it==v.end())
+                    v.insert(n);
             }
         }
     }

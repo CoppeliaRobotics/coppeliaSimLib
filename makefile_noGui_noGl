@@ -50,7 +50,6 @@ CFLAGS += -IsourceCode/variousFunctions
 CFLAGS += -IsourceCode/geometricAlgorithms
 CFLAGS += -IsourceCode/various
 CFLAGS += -IsourceCode/shared/various
-CFLAGS += -IsourceCode/libsAndPlugins
 CFLAGS += -IsourceCode/visual
 CFLAGS += -IsourceCode/displ
 CFLAGS += -IsourceCode/utils
@@ -178,6 +177,13 @@ all:
 	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/calculationInfo.cpp -o calculationInfo.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/interfaceStackContainer.cpp -o interfaceStackContainer.o
 	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/addOnScriptContainer.cpp -o addOnScriptContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/pluginContainer.cpp -o pluginContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/plugin.cpp -o plugin.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/pluginCallbackContainer.cpp -o pluginCallbackContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/pluginVariableContainer.cpp -o pluginVariableContainer.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/codeEditorInfos.cpp -o codeEditorInfos.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/codeEditorFunctions.cpp -o codeEditorFunctions.o
+	gcc $(CFLAGS) -c sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp -o codeEditorVariables.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.cpp -o simpleFilter.o
 	gcc $(CFLAGS) -c sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.cpp -o composedFilter.o
 	gcc $(CFLAGS) -c sourceCode/pathPlanning_old/pathPlanningTask_old.cpp -o pathPlanningTask_old.o
@@ -266,7 +272,6 @@ all:
 	gcc $(CFLAGS) -c sourceCode/rendering/environmentRendering.cpp -o environmentRendering.o
 	gcc $(CFLAGS) -c sourceCode/rendering/pageRendering.cpp -o pageRendering.o
 	gcc $(CFLAGS) -c sourceCode/rendering/viewRendering.cpp -o viewRendering.o
-	gcc $(CFLAGS) -c sourceCode/libsAndPlugins/pluginContainer.cpp -o pluginContainer.o
 	gcc $(CFLAGS) -c sourceCode/displ/colorObject.cpp -o colorObject.o
 	gcc $(CFLAGS) -c sourceCode/visual/thumbnail.cpp -o thumbnail.o
 	gcc $(CFLAGS) -c sourceCode/utils/threadPool_old.cpp -o threadPool_old.o

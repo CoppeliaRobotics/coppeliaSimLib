@@ -144,13 +144,23 @@ void App::simulationThreadDestroy()
     CScriptObject::destroy(App::worldContainer->sandboxScript,true);
     App::worldContainer->sandboxScript=nullptr;
 
+    App::worldContainer->pluginContainer->unloadNewPlugins(); // cleanup via SIM thread
+    // Cleanup via UI thread:
+    #ifdef SIM_WITH_GUI
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
+        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    #endif
+    App::worldContainer->pluginContainer->unloadNewPlugins(); // final destruction of UI plugins, via SIM thread
+
     App::setQuitLevel(1);
 
     #ifndef SIM_WITH_QT
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId=NO_SIGNAL_SLOT_EXIT_UITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        SUIThreadCommand cmdIn2;
+        SUIThreadCommand cmdOut2;
+        cmdIn2.cmdId=NO_SIGNAL_SLOT_EXIT_UITHREADCMD;
+        App::uiThread->executeCommandViaUiThread(&cmdIn2,&cmdOut2);
     #else
         App::qtApp->quit();
     #endif
@@ -308,7 +318,7 @@ App::App(bool headless)
     str+="n/a, ";
 #endif
     str+=SIM_PLATFORM;
-    logMsg(sim_verbosity_loadinfos,str.c_str());
+    logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,str.c_str());
 
 #ifdef SIM_WITH_OPENGL
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
@@ -323,12 +333,12 @@ App::App(bool headless)
         QScreen* scr=ta->primaryScreen();
         if (scr!=nullptr)
         {
-            App::logMsg(sim_verbosity_loadinfos,"primary screen physical dots per inch: %s",std::to_string(int(scr->physicalDotsPerInch()+0.5)).c_str());
+            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"primary screen physical dots per inch: %s",std::to_string(int(scr->physicalDotsPerInch()+0.5)).c_str());
             QDesktopWidget* dw=ta->desktop();
             if (dw!=nullptr)
             {
                 double val=(dw->logicalDpiX()/96.0)*100.0;
-                App::logMsg(sim_verbosity_loadinfos,"display scaling (guessed): %s",std::to_string(int(val+0.5)).c_str());
+                App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"display scaling (guessed): %s",std::to_string(int(val+0.5)).c_str());
 #ifndef MAC_SIM
                 if (val>=userSettings->guessedDisplayScalingThresholdFor2xOpenGl)
                     highResDisplayDefault=2;
@@ -413,7 +423,7 @@ App::App(bool headless)
     if (!headless)
     {
         if (CAuxLibVideo::loadLibrary())
-            App::logMsg(sim_verbosity_loadinfos,"loaded the video compression library.");
+            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"loaded the video compression library.");
         else
         {
             std::string msg("could not find or correctly load the video compression library.");

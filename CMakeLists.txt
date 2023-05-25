@@ -538,6 +538,9 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/applicationContainers/plugin.cpp
     sourceCode/mainContainers/applicationContainers/pluginCallbackContainer.cpp
     sourceCode/mainContainers/applicationContainers/pluginVariableContainer.cpp
+    sourceCode/mainContainers/applicationContainers/codeEditorInfos.cpp
+    sourceCode/mainContainers/applicationContainers/codeEditorFunctions.cpp
+    sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp
 
     sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.cpp
     sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.cpp

@@ -11,7 +11,6 @@
 #include <interfaceStackString.h>
 #include <interfaceStackTable.h>
 #include <simFlavor.h>
-#include <unordered_map>
 #include <luaScriptFunctions.h>
 #include <luaWrapper.h>
 #include <regex>
@@ -618,30 +617,29 @@ std::string CScriptObject::getSystemCallbackString(int calltype,int what)
     return("");
 }
 
-void CScriptObject::getMatchingFunctions(const char* txt,std::vector<std::string>& v)
+bool CScriptObject::containsLastUsedPlugin(const char* pluginNamespace) const
+{
+    return(_lastUsedPlugins.find(pluginNamespace)!=_lastUsedPlugins.end());
+}
+
+void CScriptObject::getMatchingFunctions(const char* txt,std::set<std::string>& v,const CScriptObject* requestOrigin)
 {
     std::string ttxt(txt);
-    std::map<std::string,bool> m;
     bool hasDot=(ttxt.find('.')!=std::string::npos);
     for (size_t i=0;simLuaCommands[i].name!="";i++)
     {
         if (simLuaCommands[i].autoComplete)
         {
             std::string n(simLuaCommands[i].name);
-            if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
+            if (n.find(txt)==0)
             {
-                if (!hasDot)
+                if ( (!hasDot)&&(ttxt.size()>0) )
                 {
                     size_t dp=n.find('.');
-                    if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
+                    if (dp!=std::string::npos)
                         n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
-                std::map<std::string,bool>::iterator it=m.find(n);
-                if (it==m.end())
-                {
-                    m[n]=true;
-                    v.push_back(n);
-                }
+                v.insert(n);
             }
         }
     }
@@ -650,87 +648,102 @@ void CScriptObject::getMatchingFunctions(const char* txt,std::vector<std::string
     for (size_t i=0;i<sysCb.size();i++)
     {
         std::string n(sysCb[i]);
-        if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
+        if (n.find(txt)==0)
         {
-            if (!hasDot)
+            if ( (!hasDot)&&(ttxt.size()>0) )
             {
                 size_t dp=n.find('.');
-                if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
+                if (dp!=std::string::npos)
                     n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
             }
-            std::map<std::string,bool>::iterator it=m.find(n);
-            if (it==m.end())
-            {
-                m[n]=true;
-                v.push_back(n);
-            }
+            v.insert(n);
         }
     }
 
-    App::worldContainer->scriptCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList(ttxt.c_str(),v,m);
-    std::sort(v.begin(),v.end());
+    App::worldContainer->scriptCustomFuncAndVarContainer->insertAllFunctionNamesThatStartSame(txt,v);
+
+    App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt,v,1);
+
+    App::worldContainer->pluginContainer->insertCodeEditorInfosThatStartSame(txt,v,1,requestOrigin);
 }
 
-void CScriptObject::getMatchingConstants(const char* txt,std::vector<std::string>& v)
+void CScriptObject::getMatchingConstants(const char* txt,std::set<std::string>& v,const CScriptObject* requestOrigin)
 {
     std::string ttxt(txt);
-    std::map<std::string,bool> m;
     bool hasDot=(ttxt.find('.')!=std::string::npos);
     for (size_t i=0;simLuaVariables[i].name!="";i++)
     {
         if (simLuaVariables[i].autoComplete)
         {
             std::string n(simLuaVariables[i].name);
-            if ((n.size()>=ttxt.size())&&(n.compare(0,ttxt.size(),ttxt)==0))
+            if (n.find(txt)==0)
             {
-                if (!hasDot)
+                if ( (!hasDot)&&(ttxt.size()>0) )
                 {
                     size_t dp=n.find('.');
-                    if ( (dp!=std::string::npos)&&(ttxt.size()>0) )
+                    if (dp!=std::string::npos)
                         n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
-                std::map<std::string,bool>::iterator it=m.find(n);
-                if (it==m.end())
-                {
-                    m[n]=true;
-                    v.push_back(n);
-                }
+                v.insert(n);
             }
         }
     }
 
-    App::worldContainer->scriptCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList(ttxt.c_str(),v,m);
-    std::sort(v.begin(),v.end());
+    App::worldContainer->scriptCustomFuncAndVarContainer->insertAllVariableNamesThatStartSame(txt,v);
+
+    App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt,v,2);
+
+    App::worldContainer->pluginContainer->insertCodeEditorInfosThatStartSame(txt,v,2,requestOrigin);
 }
 
-std::string CScriptObject::getFunctionCalltip(const char* txt)
+std::string CScriptObject::getFunctionCalltip(const char* txt,const CScriptObject* requestOrigin)
 {
-    std::string func(txt);
-    for (size_t i=0;simLuaCommands[i].name!="";i++)
+    std::string retVal=App::worldContainer->pluginContainer->getFunctionCalltip(txt,requestOrigin);
+
+    if (retVal.size()==0)
+        retVal=App::worldContainer->codeEditorInfos->getFunctionCalltip(txt);
+
+    if (retVal.size()==0)
     {
-        if (simLuaCommands[i].name.compare(func)==0)
-            return(simLuaCommands[i].callTip);
+        for (size_t i=0;simLuaCommands[i].name!="";i++)
+        {
+            if (simLuaCommands[i].name.compare(txt)==0)
+            {
+                retVal=simLuaCommands[i].callTip;
+                break;
+            }
+        }
     }
 
-    // Check system callback calltips:
-    std::vector<std::string> sysCb=getAllSystemCallbackStrings(-1,1);
-    std::vector<std::string> sysCbCt=getAllSystemCallbackStrings(-1,2);
-    for (size_t i=0;i<sysCb.size();i++)
-    {
-        if (sysCb[i].compare(func)==0)
-            return(sysCbCt[i]);
+    if (retVal.size()==0)
+    { // Check system callback calltips:
+        std::vector<std::string> sysCb=getAllSystemCallbackStrings(-1,1);
+        std::vector<std::string> sysCbCt=getAllSystemCallbackStrings(-1,2);
+        for (size_t i=0;i<sysCb.size();i++)
+        {
+            if (sysCb[i].compare(txt)==0)
+            {
+                retVal=sysCbCt[i];
+                break;
+            }
+        }
     }
 
-    // Check plugin functions' calltips:
-    for (size_t j=0;j<App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount();j++)
-    {
-        CScriptCustomFunction* it=App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
-        std::string n=it->getFunctionName();
-        if (n.compare(func)==0)
-            return(it->getCallTips());
+    if (retVal.size()==0)
+    { // Check old plugin functions' calltips:
+        for (size_t j=0;j<App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount();j++)
+        {
+            CScriptCustomFunction* it=App::worldContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
+            std::string n=it->getFunctionName();
+            if (n.compare(txt)==0)
+            {
+                retVal=it->getCallTips();
+                break;
+            }
+        }
     }
 
-    return("");
+    return(retVal);
 }
 
 int CScriptObject::isFunctionOrConstDeprecated(const char* txt)
@@ -2652,6 +2665,7 @@ int CScriptObject::getLanguage()
 
 bool CScriptObject::_initInterpreterState(std::string* errorMsg)
 {
+    _lastUsedPlugins.clear();
     _calledInThisSimulationStep=false;
     _randGen.seed(123456);
     _delayForAutoYielding=2;
@@ -3094,6 +3108,8 @@ void CScriptObject::loadPluginFuncsAndVars(CPlugin* plug)
     tmp+="[\"";
     tmp+=plug->getName()+"\"]=__tmploadPluginFuncsAndVars1 __tmploadPluginFuncsAndVars1=nil";
     _execSimpleString_safe_lua(L,tmp.c_str());
+
+    _lastUsedPlugins.insert(plug->getName());
 }
 
 void CScriptObject::registerPluginFunctions()

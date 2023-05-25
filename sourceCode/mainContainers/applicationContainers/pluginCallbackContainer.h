@@ -8,7 +8,6 @@
 struct SPluginCallback
 {
     std::string funcName;
-    std::string calltips;
     void(*callback)(struct SScriptCallBack* p);
 };
 
@@ -22,7 +21,7 @@ public:
     SPluginCallback* getCallbackFromIndex(size_t ind);
 
     void clear();
-    bool addCallback(const char* funcName,const char* calltips,void(*callback)(struct SScriptCallBack* cb));
+    bool addCallback(const char* funcName,void(*callback)(struct SScriptCallBack* cb));
 
 protected:
     std::vector<SPluginCallback> _allCallbacks_vect;

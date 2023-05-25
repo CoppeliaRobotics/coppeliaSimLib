@@ -2,7 +2,7 @@
 
 #include <scriptCustomFunction.h>
 #include <scriptCustomVariable.h>
-#include <map>
+#include <set>
 
 class CScriptCustomFuncAndVarContainer
 {
@@ -28,8 +28,8 @@ public:
     CScriptCustomVariable* getCustomVariableFromIndex(size_t index);
 
     void appendAllVariableNames_spaceSeparated_keywordHighlight(std::string& v);
-    void pushAllFunctionNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
-    void pushAllVariableNamesThatStartSame_autoCompletionList(const char* txt,std::vector<std::string>& v,std::map<std::string,bool>& m);
+    void insertAllFunctionNamesThatStartSame(const char* txt,std::set<std::string>& v);
+    void insertAllVariableNamesThatStartSame(const char* txt,std::set<std::string>& v);
 
     bool isVariableNamePresent(const char* name);
     int isFuncOrConstDeprecated(const char* name);

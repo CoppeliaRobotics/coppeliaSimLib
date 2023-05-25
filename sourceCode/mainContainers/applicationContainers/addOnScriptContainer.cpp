@@ -136,7 +136,7 @@ int CAddOnScriptContainer::_insertAddOns()
                 defScript->setAddOnName(nm.c_str());
                 if ( (at.compare(ADDON_SCRIPT_PREFIX1_NOAUTOSTART)==0)||(at.compare(ADDON_SCRIPT_PREFIX2_NOAUTOSTART)==0) )
                     defScript->setScriptState(CScriptObject::scriptState_ended);
-                App::logMsg(sim_verbosity_loadinfos,"add-on '%s' was loaded.",foundItem->name.c_str());
+                App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"add-on '%s' was loaded.",foundItem->name.c_str());
                 addOnsCount++;
             }
             else
@@ -193,7 +193,7 @@ int CAddOnScriptContainer::_insertAddOns()
                 file.close();
 
                 addOnsCount++;
-                App::logMsg(sim_verbosity_loadinfos,"add-on '%s' was loaded.",fileName_withExtension.c_str());
+                App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"add-on '%s' was loaded.",fileName_withExtension.c_str());
             }
             catch(VFILE_EXCEPTION_TYPE e)
             {

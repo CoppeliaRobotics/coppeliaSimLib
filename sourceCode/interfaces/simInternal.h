@@ -335,9 +335,9 @@ int simSetReferencedHandles_internal(int objectHandle,int count,const int* refer
 int simGetReferencedHandles_internal(int objectHandle,int** referencedHandles,int** reserved1,int** reserved2);
 int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info);
 int simGetShapeVizf_internal(int shapeHandle,int index,struct SShapeVizInfof* info);
-int simExecuteScriptString_internal(int scriptHandleOrType,const char* stringAtScriptName,int stackHandle);
-char* simGetApiFunc_internal(int scriptHandleOrType,const char* apiWord);
-char* simGetApiInfo_internal(int scriptHandleOrType,const char* apiWord);
+int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute,int stackHandle);
+char* simGetApiFunc_internal(int scriptHandle,const char* apiWord);
+char* simGetApiInfo_internal(int scriptHandle,const char* apiWord);
 int simSetModuleInfo_internal(const char* moduleName,int infoType,const char* stringInfo,int intInfo);
 int simGetModuleInfo_internal(const char* moduleName,int infoType,char** stringInfo,int* intInfo);
 int simIsDeprecated_internal(const char* funcOrConst);

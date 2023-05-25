@@ -96,6 +96,11 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L,const char* functionName,const cha
 
 const SLuaCommands simLuaCommands[]=
 {
+    {"loadPlugin",_loadPlugin,                                  "map pluginNamespace=loadPlugin(string pluginPathAndName",true},
+    {"unloadPlugin",_unloadPlugin,                              "unloadPlugin(map pluginNamespace)",true},
+    {"registerCodeEditorInfos",_registerCodeEditorInfos,        "registerCodeEditorInfos(string namespaceAndVersion,string infos)",true},
+    {"_auxFunc",__auxFunc,                                      "",false},
+
     {"sim.handleDynamics",_simHandleDynamics,                    "int result=sim.handleDynamics(float deltaTime)",true},
     {"sim.handleProximitySensor",_simHandleProximitySensor,      "int result,float distance,float[3] detectedPoint,int detectedObjectHandle,float[3] normalVector=sim.handleProximitySensor(int sensorHandle)",true},
     {"sim.readProximitySensor",_simReadProximitySensor,          "int result,float distance,float[3] detectedPoint,int detectedObjectHandle,float[3] normalVector=sim.readProximitySensor(int sensorHandle)",true},
@@ -362,8 +367,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.buildMatrixQ",_simBuildMatrixQ,                        "float[12] matrix=sim.buildMatrixQ(float[3] position,float[4] quaternion)",true},
     {"sim.getQuaternionFromMatrix",_simGetQuaternionFromMatrix,  "float[4] quaternion=sim.getQuaternionFromMatrix(float[12] matrix)",true},
     {"sim.loadModule",_simLoadModule,                            "int pluginHandle=sim.loadModule(string filenameAndPath,string pluginName)",true},
-    {"sim._loadPlugin",_sim_loadPlugin,                          "",false},
-    {"sim.unloadPlugin",_simUnloadPlugin,                        "sim.unloadPlugin(map pluginNamespace)",true},
     {"sim.unloadModule",_simUnloadModule,                        "int result=sim.unloadModule(int pluginHandle)",true},
     {"sim.callScriptFunction",_simCallScriptFunction,            "any outArg=sim.callScriptFunction(string functionName,int scriptHandle,any inArg=nil)",true},
     {"sim.getExtensionString",_simGetExtensionString,            "string theString=sim.getExtensionString(int objectHandle,int index,string key=nil)",true},
@@ -396,13 +399,11 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setReferencedHandles",_simSetReferencedHandles,        "sim.setReferencedHandles(int objectHandle,int[] referencedHandles)",true},
     {"sim.getReferencedHandles",_simGetReferencedHandles,        "int[] referencedHandles=sim.getReferencedHandles(int objectHandle)",true},
     {"sim.getShapeViz",_simGetShapeViz,                          "map data=sim.getShapeViz(int shapeHandle,int itemIndex)",true},
-    {"sim.executeScriptString",_simExecuteScriptString,          "int result,any value=sim.executeScriptString(string stringAtScriptName,int scriptHandleOrType)",true},
-    {"sim.getApiFunc",_simGetApiFunc,                            "string[] funcsAndVars=sim.getApiFunc(int scriptHandleOrType,string apiWord)",true},
-    {"sim.getApiInfo",_simGetApiInfo,                            "string info=sim.getApiInfo(int scriptHandleOrType,string apiWord)",true},
+    {"sim.executeScriptString",_simExecuteScriptString,          "int result,any value=sim.executeScriptString(string stringToExecute,int scriptHandle)",true},
+    {"sim.getApiFunc",_simGetApiFunc,                            "string[] funcsAndVars=sim.getApiFunc(int scriptHandle,string apiWord)",true},
+    {"sim.getApiInfo",_simGetApiInfo,                            "string info=sim.getApiInfo(int scriptHandle,string apiWord)",true},
     {"sim.getModuleInfo",_simGetModuleInfo,                      "string info=sim.getModuleInfo(string moduleName,int infoType)\nnumber info=sim.getModuleInfo(string moduleName,int infoType)",true},
     {"sim.setModuleInfo",_simSetModuleInfo,                      "sim.setModuleInfo(string moduleName,int infoType,string info)\nsim.setModuleInfo(string moduleName,int infoType,number info)",true},
-    {"sim.registerScriptFunction",_simRegisterScriptFunction,    "int result=sim.registerScriptFunction(string funcNameAtPluginName,string callTips)",true},
-    {"sim.registerScriptVariable",_simRegisterScriptVariable,    "int result=sim.registerScriptVariable(string varNameAtPluginName)",true},
     {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook,    "int result=sim.registerScriptFuncHook(string funcToHook,func userFunc,bool execBefore)",true},
     {"sim.isDeprecated",_simIsDeprecated,                        "int result=sim.isDeprecated(string funcOrConst)",true},
     {"sim.getPersistentDataTags",_simGetPersistentDataTags,      "string[] tags=sim.getPersistentDataTags()",true},
@@ -434,6 +435,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.test",_simTest,                                        "test function - do not use",true},
 
     // deprecated
+    {"sim.registerScriptFunction",_simRegisterScriptFunction,   "Deprecated.",false},
+    {"sim.registerScriptVariable",_simRegisterScriptVariable,   "Deprecated.",false},
     {"sim.getObjectSelection",_simGetObjectSel,                 "Deprecated. Use sim.getObjectSel instead",false},
     {"sim.setObjectSelection",_simSetObjectSel,                 "Deprecated. Use sim.setObjectSel instead",false},
     {"sim.rmlPos",_simRuckigPos,                                "Deprecated. Use sim.ruckigPos instead",false},
@@ -2389,7 +2392,7 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
             outputArgCount=_genericFunctionHandler(L,pcb->callback,errorString);
         }
         else
-            errorString="could not find plugin.";
+            errorString="plugin not loaded.";
     }
     else
     { // old plugin functions
@@ -2419,6 +2422,127 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(outputArgCount);
+}
+
+int _loadPlugin(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("loadPlugin");
+
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+        std::string namespaceAndVersion(luaWrap_lua_tostring(L,1));
+        std::string fileAndPath(App::folders->getExecutablePath()+"/");
+#ifndef WIN_SIM
+        fileAndPath+="lib";
+#endif
+        fileAndPath+=namespaceAndVersion;
+#ifdef WIN_SIM
+        fileAndPath+=".dll";
+#endif
+#ifdef LIN_SIM
+        fileAndPath+=".so";
+#endif
+#ifdef MAC_SIM
+        fileAndPath+=".dylib";
+#endif
+
+        CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromName(namespaceAndVersion.c_str());
+        if ( (plug!=nullptr)&&(plug->hasDependency(it->getScriptHandle())) )
+        { // that script already loaded that plugin. If the script state has been reset, we do not enter here
+            luaWrap_lua_getglobal(L,SIM_PLUGIN_NAMESPACES);
+            luaWrap_lua_getfield(L,-1,namespaceAndVersion.c_str());
+            LUA_END(1);
+        }
+
+        plug=App::worldContainer->pluginContainer->loadAndInitPlugin(fileAndPath.c_str(),namespaceAndVersion.c_str(),it->getScriptHandle());
+        if (plug!=nullptr)
+        { // success
+            it->loadPluginFuncsAndVars(plug);
+
+            luaWrap_lua_getglobal(L,SIM_PLUGIN_NAMESPACES);
+            luaWrap_lua_getfield(L,-1,namespaceAndVersion.c_str());
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _unloadPlugin(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("unloadPlugin");
+
+    errorString=SIM_ERROR_INVALID_PLUGIN;
+    if (luaWrap_lua_istable(L,1))
+    {
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+        int pluginHandle=-1;
+        luaWrap_lua_getfield(L,1,"pluginHandle");
+        if (luaWrap_lua_isinteger(L,-1))
+            pluginHandle=luaWrap_lua_tointeger(L,-1);
+        luaWrap_lua_pop(L,1);
+
+        if (pluginHandle>=0)
+        {
+            CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromHandle(pluginHandle);
+            if ( (plug!=nullptr)&&(plug->hasDependency(it->getScriptHandle())) )
+            {
+                errorString.clear();
+
+                luaWrap_lua_getglobal(L,SIM_PLUGIN_NAMESPACES);
+                luaWrap_lua_pushnil(L);
+                luaWrap_lua_setfield(L,-2,plug->getName().c_str());
+
+                App::worldContainer->pluginContainer->deinitAndUnloadPlugin(pluginHandle,it->getScriptHandle());
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+
+int _registerCodeEditorInfos(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("registerCodeEditorInfos");
+
+    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
+    {
+        App::worldContainer->codeEditorInfos->setInfo(luaWrap_lua_tostring(L,1),luaWrap_lua_tostring(L,2),&errorString);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int __auxFunc(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("_auxFunc");
+
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        std::string cmd(luaWrap_lua_tostring(L,1));
+        if (cmd.compare("frexp")==0)
+        {
+            if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
+            {
+                int e;
+                luaWrap_lua_pushnumber(L,frexp(luaWrap_lua_tonumber(L,2),&e));
+                luaWrap_lua_pushinteger(L,e);
+                LUA_END(2);
+            }
+            LUA_END(0);
+        }
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simHandleChildScripts(luaWrap_lua_State* L)
@@ -10846,88 +10970,6 @@ int _simLoadModule(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _sim_loadPlugin(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim._loadPlugin");
-
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    {
-        CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
-        std::string namespaceAndVersion(luaWrap_lua_tostring(L,1));
-        std::string fileAndPath(App::folders->getExecutablePath()+"/");
-#ifndef WIN_SIM
-        fileAndPath+="lib";
-#endif
-        fileAndPath+=namespaceAndVersion;
-#ifdef WIN_SIM
-        fileAndPath+=".dll";
-#endif
-#ifdef LIN_SIM
-        fileAndPath+=".so";
-#endif
-#ifdef MAC_SIM
-        fileAndPath+=".dylib";
-#endif
-
-        CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromName(namespaceAndVersion.c_str());
-        if ( (plug!=nullptr)&&(plug->hasDependency(it->getScriptHandle())) )
-        { // that script already loaded that plugin
-            luaWrap_lua_getglobal(L,SIM_PLUGIN_NAMESPACES);
-            luaWrap_lua_getfield(L,-1,namespaceAndVersion.c_str());
-            LUA_END(1);
-        }
-
-        plug=App::worldContainer->pluginContainer->loadAndInitPlugin(fileAndPath.c_str(),namespaceAndVersion.c_str(),it->getScriptHandle(),&errorString);
-        if (plug!=nullptr)
-        { // success
-            it->loadPluginFuncsAndVars(plug);
-
-            luaWrap_lua_getglobal(L,SIM_PLUGIN_NAMESPACES);
-            luaWrap_lua_getfield(L,-1,namespaceAndVersion.c_str());
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simUnloadPlugin(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.unloadPlugin");
-
-    errorString=SIM_ERROR_INVALID_PLUGIN;
-    if (luaWrap_lua_istable(L,1))
-    {
-        CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
-        int pluginHandle=-1;
-        luaWrap_lua_getfield(L,1,"pluginHandle");
-        if (luaWrap_lua_isinteger(L,-1))
-            pluginHandle=luaWrap_lua_tointeger(L,-1);
-        luaWrap_lua_pop(L,1);
-
-        if (pluginHandle>=0)
-        {
-            CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromHandle(pluginHandle);
-            if ( (plug!=nullptr)&&(plug->hasDependency(it->getScriptHandle())) )
-            {
-                errorString.clear();
-
-                luaWrap_lua_getglobal(L,SIM_PLUGIN_NAMESPACES);
-                luaWrap_lua_pushnil(L);
-                luaWrap_lua_setfield(L,-2,plug->getName().c_str());
-
-                App::worldContainer->pluginContainer->deinitAndUnloadPlugin(pluginHandle,it->getScriptHandle());
-            }
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simUnloadModule(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -13002,17 +13044,6 @@ int _simAuxFunc(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string cmd(luaWrap_lua_tostring(L,1));
-        if (cmd.compare("frexp")==0)
-        {
-            if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
-            {
-                int e;
-                luaWrap_lua_pushnumber(L,frexp(luaWrap_lua_tonumber(L,2),&e));
-                luaWrap_lua_pushinteger(L,e);
-                LUA_END(2);
-            }
-            LUA_END(0);
-        }
         if (cmd.compare("createMirror")==0)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,2))
@@ -13421,10 +13452,9 @@ int _simExecuteScriptString(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        std::string strAndScriptName(luaWrap_lua_tostring(L,1));
-        int scriptHandleOrType=luaToInt(L,2);
+        std::string stringToExecute(luaWrap_lua_tostring(L,1));
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-        int retVal=simExecuteScriptString_internal(scriptHandleOrType,strAndScriptName.c_str(),stack->getId());
+        int retVal=simExecuteScriptString_internal(luaToInt(L,2),stringToExecute.c_str(),stack->getId());
         if (retVal>=0)
         {
             luaWrap_lua_pushinteger(L,retVal);
@@ -13458,9 +13488,8 @@ int _simGetApiFunc(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
     {
-        int scriptHandleOrType=luaToInt(L,1);
         std::string apiWord(luaWrap_lua_tostring(L,2));
-        char* str=simGetApiFunc_internal(scriptHandleOrType,apiWord.c_str());
+        char* str=simGetApiFunc_internal(luaToInt(L,1),apiWord.c_str());
         std::vector<std::string> strTable;
         if (str!=nullptr)
         {
@@ -13491,9 +13520,8 @@ int _simGetApiInfo(luaWrap_lua_State* L)
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0))
     {
-        int scriptHandleOrType=luaToInt(L,1);
         std::string apiWord(luaWrap_lua_tostring(L,2));
-        char* str=simGetApiInfo_internal(scriptHandleOrType,apiWord.c_str());
+        char* str=simGetApiInfo_internal(luaToInt(L,1),apiWord.c_str());
         if (str!=nullptr)
         {
             luaWrap_lua_pushstring(L,str);
@@ -13566,89 +13594,6 @@ int _simSetModuleInfo(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simRegisterScriptFunction(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.registerScriptFunction");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
-    {
-        std::string funcNameAtPluginName(luaWrap_lua_tostring(L,1));
-        std::string ct(luaWrap_lua_tostring(L,2));
-
-        std::string funcName;
-        std::string pluginName;
-
-        size_t p=funcNameAtPluginName.find('@');
-        if (p!=std::string::npos)
-        {
-            pluginName.assign(funcNameAtPluginName.begin()+p+1,funcNameAtPluginName.end());
-            funcName.assign(funcNameAtPluginName.begin(),funcNameAtPluginName.begin()+p);
-        }
-        if (pluginName.size()>0)
-        {
-            if (funcName.find('.')==std::string::npos)
-            { // new way of doing: pluginName='simIK' or 'simIK.2.78', funcName='eraseDebugOverlay'
-
-            }
-            else
-            { // old way of doing: pluginName='IK' or 'simIK', funcName='simIK.eraseDebugOverlay'
-                retVal=1;
-                if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomFunction(funcNameAtPluginName.c_str()))
-                    retVal=0;// that function already existed. We remove it and replace it!
-                CScriptCustomFunction* newFunction=new CScriptCustomFunction(funcNameAtPluginName.c_str(),ct.c_str(),nullptr,false);
-                if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
-                {
-                    delete newFunction;
-                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
-                    retVal=-1;
-                }
-            }
-        }
-        else
-            errorString=SIM_ERROR_MISSING_PLUGIN_NAME;
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simRegisterScriptVariable(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.registerScriptVariable");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    {
-        std::string varNameAtPluginName(luaWrap_lua_tostring(L,1));
-        std::string varName;
-        std::string pluginName;
-
-        size_t p=varNameAtPluginName.find('@');
-        if (p!=std::string::npos)
-        {
-            pluginName.assign(varNameAtPluginName.begin()+p+1,varNameAtPluginName.end());
-            varName.assign(varNameAtPluginName.begin(),varNameAtPluginName.begin()+p);
-        }
-        if ( (varName.find('.')==std::string::npos)&&(pluginName.size()>0) )
-        { // new way of doing: pluginName='simIK' or 'simIK.2.78', varName='someVarName'
-
-        }
-        else
-        { // old way of doing: pluginName='IK' or 'simIK', varName='simIK.someVarName'
-            retVal=1;
-            App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomVariable(varNameAtPluginName.c_str(),nullptr,0);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
 }
 
 int _simRegisterScriptFuncHook(luaWrap_lua_State* L)
@@ -15612,7 +15557,7 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
                     std::string callbackFunction(luaWrap_lua_tostring(L,3));
 #ifdef SIM_WITH_GUI
                     if (App::mainWindow!=nullptr)
-                        handle=App::mainWindow->codeEditorContainer->openTextEditor(initText.c_str(),xml.c_str(),callbackFunction.c_str(),it->getScriptHandle(),it->isSimulationScript());
+                        handle=App::mainWindow->codeEditorContainer->openTextEditor_old(initText.c_str(),xml.c_str(),callbackFunction.c_str(),it);
 #endif
                 }
                 luaWrap_lua_pushinteger(L,handle);
@@ -21838,6 +21783,75 @@ int _simInvertPose(luaWrap_lua_State* L)
             luaWrap_lua_pushnumber(L,arr[i]);
             luaWrap_lua_rawseti(L,1,i+1);
         }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simRegisterScriptFunction(luaWrap_lua_State* L)
+{ // deprecated on 19.05.2023
+    TRACE_LUA_API;
+    LUA_START("sim.registerScriptFunction");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
+    {
+        std::string funcNameAtPluginName(luaWrap_lua_tostring(L,1));
+        std::string ct(luaWrap_lua_tostring(L,2));
+
+        std::string funcName;
+        std::string pluginName;
+
+        size_t p=funcNameAtPluginName.find('@');
+        if (p!=std::string::npos)
+        {
+            pluginName.assign(funcNameAtPluginName.begin()+p+1,funcNameAtPluginName.end());
+            funcName.assign(funcNameAtPluginName.begin(),funcNameAtPluginName.begin()+p);
+        }
+        if (pluginName.size()>0)
+        {
+            retVal=1;
+            if (App::worldContainer->scriptCustomFuncAndVarContainer->removeCustomFunction(funcNameAtPluginName.c_str()))
+                retVal=0;// that function already existed. We remove it and replace it!
+            CScriptCustomFunction* newFunction=new CScriptCustomFunction(funcNameAtPluginName.c_str(),ct.c_str(),nullptr,false);
+            if (!App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomFunction(newFunction))
+            {
+                delete newFunction;
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CUSTOM_LUA_FUNC_COULD_NOT_BE_REGISTERED);
+                retVal=-1;
+            }
+        }
+        else
+            errorString=SIM_ERROR_MISSING_PLUGIN_NAME;
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simRegisterScriptVariable(luaWrap_lua_State* L)
+{ // deprecated on 19.05.2023
+    TRACE_LUA_API;
+    LUA_START("sim.registerScriptVariable");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        std::string varNameAtPluginName(luaWrap_lua_tostring(L,1));
+        std::string varName;
+        std::string pluginName;
+
+        size_t p=varNameAtPluginName.find('@');
+        if (p!=std::string::npos)
+        {
+            pluginName.assign(varNameAtPluginName.begin()+p+1,varNameAtPluginName.end());
+            varName.assign(varNameAtPluginName.begin(),varNameAtPluginName.begin()+p);
+        }
+        retVal=1;
+        App::worldContainer->scriptCustomFuncAndVarContainer->insertCustomVariable(varNameAtPluginName.c_str(),nullptr,0);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

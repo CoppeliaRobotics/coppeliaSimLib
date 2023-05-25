@@ -10,8 +10,11 @@
 
 CPlugin::CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int loadOrigin)
 {
+    _initAddress=nullptr; // if null, indicates legacy plugin
     _filename=filename;
+    _stage=stage_none;
     _name=pluginnamespaceAndVersion;
+    _nameCleanup=_name;
     if (loadOrigin>=-1)
     { // new plugins
         size_t p=_name.find('-');
@@ -22,7 +25,6 @@ CPlugin::CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int 
     }
     else
         _namespace.clear(); // old plugins
-    _initAddress=nullptr; // used to detect old/new plugins
     extendedVersionInt=-1;
     _consoleVerbosity=sim_verbosity_useglobal;
     _statusbarVerbosity=sim_verbosity_useglobal;
@@ -79,6 +81,12 @@ CPlugin::~CPlugin()
         App::worldContainer->pluginContainer->currentMeshDecimation=nullptr;
     _pluginCallbackContainer.clear();
     _pluginVariableContainer.clear();
+    _codeEditorFunctions.clear();
+    _codeEditorVariables.clear();
+
+    if (_stage==stage_uicleanupdone)
+        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': UI cleanup done.",_nameCleanup.c_str());
+
 }
 
 void CPlugin::setConsoleVerbosity(int level)
@@ -156,6 +164,11 @@ bool CPlugin::isLegacyPlugin() const
     return(_initAddress==nullptr);
 }
 
+bool CPlugin::isUiPlugin() const
+{
+    return(_initAddress_ui!=nullptr);
+}
+
 void CPlugin::setHandle(int h)
 {
     handle=h;
@@ -181,6 +194,16 @@ CPluginVariableContainer* CPlugin::getPluginVariableContainer()
     return(&_pluginVariableContainer);
 }
 
+CCodeEditorFunctions* CPlugin::getCodeEditorFunctions()
+{
+    return(&_codeEditorFunctions);
+}
+
+CCodeEditorVariables* CPlugin::getCodeEditorVariables()
+{
+    return(&_codeEditorVariables);
+}
+
 void CPlugin::addDependency(int loadOrigin)
 {
     _dependencies.insert(loadOrigin);
@@ -201,6 +224,16 @@ bool CPlugin::hasAnyDependency() const
     return(!_dependencies.empty());
 }
 
+int CPlugin::getStage() const
+{
+    return(_stage);
+}
+
+void CPlugin::setStage(int s)
+{
+    _stage=s;
+}
+
 int CPlugin::load(std::string* errStr)
 { // retVal: -2 (could not open library), -1 (missing init entry point), 1=ok
     int retVal=-2; // could not open library
@@ -212,11 +245,10 @@ int CPlugin::load(std::string* errStr)
         _cleanupAddress=(ptrCleanup)(VVarious::resolveLibraryFuncName(lib,"simCleanup"));
         _msgAddress=(ptrMsg)(VVarious::resolveLibraryFuncName(lib,"simMsg"));
 
-/*        initAddress_ui=(ptrInit_ui)(VVarious::resolveLibraryFuncName(lib,"simInit_ui"));
-        cleanupAddress_ui=(ptrCleanup_ui)(VVarious::resolveLibraryFuncName(lib,"simCleanup_ui"));
-        msgAddress_ui=(ptrMsg_ui)(VVarious::resolveLibraryFuncName(lib,"simMsg_ui")); */
+        _initAddress_ui=(ptrInit_ui)(VVarious::resolveLibraryFuncName(lib,"simInit_ui"));
+        _cleanupAddress_ui=(ptrCleanup_ui)(VVarious::resolveLibraryFuncName(lib,"simCleanup_ui"));
+        _msgAddress_ui=(ptrMsg_ui)(VVarious::resolveLibraryFuncName(lib,"simMsg_ui"));
 
-//        if ( (initAddress!=nullptr)||(initAddress_ui!=nullptr) )
         if (_initAddress!=nullptr)
             retVal=1;
         else
@@ -264,8 +296,19 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,int auxDataCnt/*=0*/,void* 
 {
     bool retVal=false; // only used by legacy plugins
     pushCurrentPlugin();
-    if ( (_initAddress!=nullptr)&&(reserved1_legacy==nullptr)&&(reserved2_legacy==nullptr) )
-        _msgAddress(msgId,auxData,auxDataCnt);
+    if (_initAddress!=nullptr)
+    { // new plugin
+        if ( (reserved1_legacy==nullptr)&&(reserved2_legacy==nullptr) )
+        {
+            if (_stage<stage_simcleanupdone) // only if plugin still initialized
+                _msgAddress(msgId,auxData,auxDataCnt);
+        }
+        if (_stage==stage_uiinitdone)
+        {
+            _stage=stage_allinitdone;
+            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': UI init done.",_name.c_str());
+        }
+    }
     else
     { // legacy
         void* returnData=_messageAddress_legacy(msgId,auxData,reserved1_legacy,reserved2_legacy);
@@ -277,13 +320,38 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,int auxDataCnt/*=0*/,void* 
     return(retVal);
 }
 
+void CPlugin::uiCall(int msgId,int init)
+{
+    if (init)
+        _initAddress_ui();
+    else
+    {
+        if ( (_stage==stage_uiinitdone)||(_stage==stage_allinitdone) )
+            _msgAddress_ui(msgId);
+        if (_stage==stage_simcleanupdone)
+        {
+            _cleanupAddress_ui();
+            _stage=stage_uicleanupdone;
+        }
+    }
+}
+
 void CPlugin::cleanup()
 {
     pushCurrentPlugin();
     if (_initAddress!=nullptr)
+    {
         _cleanupAddress();
+
+        _name.clear();
+        _namespace.clear();
+        _pluginCallbackContainer.clear();
+        _pluginVariableContainer.clear();
+        _codeEditorFunctions.clear();
+        _codeEditorVariables.clear();
+    }
     else
-        _endAddress_legacy();
+        _endAddress_legacy(); // old plugin
     popCurrentPlugin();
 }
 

@@ -93,7 +93,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
             xml+="font-size=\"";
             xml+=std::to_string(fontSize)+"\" ";
             xml+="/>";
-            modifiedText=App::mainWindow->codeEditorContainer->openModalTextEditor(modifiedText.c_str(),xml.c_str(),nullptr);
+            modifiedText=App::mainWindow->codeEditorContainer->openModalTextEditor(modifiedText.c_str(),xml.c_str(),nullptr,false);
             //printf("Modified text:\n%s\n",modifiedText.c_str());
         }
 

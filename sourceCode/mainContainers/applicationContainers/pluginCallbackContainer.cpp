@@ -32,7 +32,7 @@ void CPluginCallbackContainer::clear()
     _allCallbacks_map.clear();
 }
 
-bool CPluginCallbackContainer::addCallback(const char* funcName,const char* calltips,void(*callback)(struct SScriptCallBack* cb))
+bool CPluginCallbackContainer::addCallback(const char* funcName,void(*callback)(struct SScriptCallBack* cb))
 {
     bool retVal=false;
     SPluginCallback* it=getCallbackFromName(funcName);
@@ -41,16 +41,11 @@ bool CPluginCallbackContainer::addCallback(const char* funcName,const char* call
         retVal=true;
         SPluginCallback s;
         s.funcName=funcName;
-        if (calltips!=nullptr)
-            s.calltips=calltips;
         s.callback=callback;
         _allCallbacks_vect.push_back(s);
         _allCallbacks_map[funcName]=&_allCallbacks_vect[_allCallbacks_vect.size()-1];
     }
     else
-    { // callback already exists. Replace it
-        it->calltips=calltips;
-        it->callback=callback;
-    }
+        it->callback=callback; // callback already exists. Replace it
     return(retVal);
 }

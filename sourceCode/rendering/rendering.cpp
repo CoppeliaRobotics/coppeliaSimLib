@@ -89,7 +89,7 @@ void initGl_ifNeeded()
     if (glGetString(GL_VERSION)!=nullptr)
         tmp=(char*)glGetString(GL_VERSION);
     glVer+=tmp.c_str();
-    App::logMsg(sim_verbosity_loadinfos,glVer.c_str());
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,glVer.c_str());
 }
 
 void deinitGl_ifNeeded()

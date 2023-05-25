@@ -6,10 +6,16 @@
 #include <simLib/simTypes.h>
 #include <pluginCallbackContainer.h>
 #include <pluginVariableContainer.h>
+#include <codeEditorFunctions.h>
+#include <codeEditorVariables.h>
 
 typedef  int (__cdecl *ptrInit)(void);
 typedef  void (__cdecl *ptrCleanup)(void);
 typedef  void (__cdecl *ptrMsg)(int msgId,int* auxData,int auxDataCnt);
+
+typedef  void (__cdecl *ptrInit_ui)(void);
+typedef  void (__cdecl *ptrCleanup_ui)(void);
+typedef  void (__cdecl *ptrMsg_ui)(int msgId);
 
 typedef  void (__cdecl *ptrExtRenderer)(int,void*);
 
@@ -208,11 +214,21 @@ typedef  void* (__cdecl *ptrMessage)(int,int*,void*,int*);
 class CPlugin
 {
 public:
+    enum {
+        stage_none=-1,
+        stage_siminitdone=0,
+        stage_uiinitdone=1,     // set by UI thread
+        stage_allinitdone=2,
+        stage_simcleanupdone=3,
+        stage_uicleanupdone=4,  // set by UI thread
+    };
+
     CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int loadOrigin);
     virtual ~CPlugin();
     int load(std::string* errStr);
     bool init(std::string* errStr);
     bool msg(int msgId,int* auxData=nullptr,int auxDataCnt=0,void* reserved1_legacy=nullptr,int reserved2_legacy[4]=nullptr);
+    void uiCall(int msgId,int init);
     void cleanup();
     int loadAndInit(std::string* errStr);
     void setConsoleVerbosity(int level);
@@ -230,15 +246,20 @@ public:
     void setExtendedVersionInt(int v);
     int getHandle() const;
     bool isLegacyPlugin() const;
+    bool isUiPlugin() const;
     void setHandle(int h);
     void pushCurrentPlugin();
     void popCurrentPlugin();
     CPluginCallbackContainer* getPluginCallbackContainer();
     CPluginVariableContainer* getPluginVariableContainer();
+    CCodeEditorFunctions* getCodeEditorFunctions();
+    CCodeEditorVariables* getCodeEditorVariables();
     void addDependency(int loadOrigin);
     void removeDependency(int loadOrigin);
     bool hasDependency(int loadOrigin) const;
     bool hasAnyDependency() const;
+    int getStage() const;
+    void setStage(int s);
 
     ptr_dynPlugin_startSimulation_D dynPlugin_startSimulation;
     ptr_dynPlugin_endSimulation dynPlugin_endSimulation;
@@ -434,10 +455,14 @@ private:
     void _loadAuxEntryPoints();
 
     std::string _name; // e.g. simAssimp, simAssimp-2-78, etc. (old plugins: Assimp, etc.)
+    std::string _nameCleanup; // same as _name, but persistent after cleanup
     std::string _namespace; // e.g. simBullet, simAssimp, etc. (old plugins: empty)
 
     CPluginCallbackContainer _pluginCallbackContainer;
     CPluginVariableContainer _pluginVariableContainer;
+    CCodeEditorFunctions _codeEditorFunctions;
+    CCodeEditorVariables _codeEditorVariables;
+
     std::unordered_set<int> _dependencies; // -1=c++, otherwise script handles
 
     std::string _filename;
@@ -448,11 +473,16 @@ private:
     int handle;
     int _consoleVerbosity;
     int _statusbarVerbosity;
+    int _stage; // not for legacy plugins. stage_none, stage_siminitdone, stage_uiinitdone, stage_allinitdone, stage_simcleanupdone, stage_uicleanupdone
     WLibrary instance;
 
     ptrInit _initAddress;
     ptrCleanup _cleanupAddress;
     ptrMsg _msgAddress;
+
+    ptrInit_ui _initAddress_ui;
+    ptrCleanup_ui _cleanupAddress_ui;
+    ptrMsg_ui _msgAddress_ui;
 
     ptrStart _startAddress_legacy;
     ptrEnd _endAddress_legacy;

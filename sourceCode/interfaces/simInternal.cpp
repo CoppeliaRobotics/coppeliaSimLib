@@ -26,7 +26,6 @@
 #include <tinyxml2.h>
 #include <simFlavor.h>
 #include <regex>
-#include <unordered_map>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <gm.h>
@@ -70,7 +69,7 @@ bool firstSimulationAutoQuit=false;
 
 void simulatorInit()
 {
-    App::logMsg(sim_verbosity_loadinfos,"simulator launched.");
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"simulator launched.");
     std::vector<std::string> theNames;
     std::vector<std::string> theDirAndNames;
 #ifndef SIM_WITH_QT
@@ -260,7 +259,7 @@ void simulatorDeinit()
         simUnloadModule_internal(pluginHandles[pluginHandles.size()-1]);
         pluginHandles.pop_back();
     }
-    App::logMsg(sim_verbosity_loadinfos,"simulator ended.");
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"simulator ended.");
 }
 
 void simulatorLoop()
@@ -1050,16 +1049,16 @@ int simRunSimulator_internal(const char* applicationName,int options,void(*initC
 #endif
 
     App::run(initCallBack,loopCallBack,deinitCallBack,launchSimThread); // We stay in here until we quit the application!
-    App::logMsg(sim_verbosity_loadinfos,"4");
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"4");
 #ifdef SIM_WITH_GUI
     App::deleteMainWindow();
 #endif
-    App::logMsg(sim_verbosity_loadinfos,"3");
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"3");
     App::deleteWorldsContainer();
-    App::logMsg(sim_verbosity_loadinfos,"2");
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"2");
     CSimFlavor::run(3);
     CThreadPool_old::cleanUp();
-    App::logMsg(sim_verbosity_loadinfos,"1");
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"1");
     delete applicationBasicInitialization;
     return(1);
 }
@@ -5582,7 +5581,7 @@ int simLoadModule_internal(const char* filenameAndPath,const char* pluginName)
     cmdIn.cmdId=PLUGIN_LOAD_AND_START_PLUGUITHREADCMD;
     cmdIn.stringParams.push_back(filenameAndPath);
     cmdIn.stringParams.push_back(pluginName);
-    App::logMsg(sim_verbosity_loadinfos,"plugin '%s': loading...",pluginName);
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': loading...",pluginName);
     if (VThread::isCurrentThreadTheUiThread())
         App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     else
@@ -5609,7 +5608,7 @@ int simLoadModule_internal(const char* filenameAndPath,const char* pluginName)
     if (handle==-1)
         App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (failed initialization).",pluginName);
     if (handle>=0)
-        App::logMsg(sim_verbosity_loadinfos,"plugin '%s': load succeeded.",pluginName);
+        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': load succeeded.",pluginName);
     return(handle);
 }
 
@@ -5625,7 +5624,7 @@ int simUnloadModule_internal(int pluginhandle)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=PLUGIN_STOP_AND_UNLOAD_PLUGUITHREADCMD;
         cmdIn.intParams.push_back(pluginhandle);
-        App::logMsg(sim_verbosity_loadinfos,"plugin '%s': unloading...",nm.c_str());
+        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': unloading...",nm.c_str());
         if (VThread::isCurrentThreadTheUiThread())
             App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         else
@@ -5633,7 +5632,7 @@ int simUnloadModule_internal(int pluginhandle)
             SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING; // Needed when a plugin is unloaded on-the-fly
             App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         }
-        App::logMsg(sim_verbosity_loadinfos,"plugin '%s': done.",nm.c_str());
+        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done.",nm.c_str());
         if (cmdOut.boolParams[0])
             retVal=1;
     }
@@ -5656,7 +5655,7 @@ int simRegisterScriptCallbackFunction_internal(const char* func,const char* rese
             size_t p=std::string(func).find('.');
             if (p==std::string::npos)
             {
-                if (plug->getPluginCallbackContainer()->addCallback(func,nullptr,callBack))
+                if (plug->getPluginCallbackContainer()->addCallback(func,callBack))
                     retVal=1;
                 else
                     retVal=0;
@@ -16177,7 +16176,7 @@ int simGetShapeVizf_internal(int shapeHandle,int index,struct SShapeVizInfof* in
     return(-1);
 }
 
-int simExecuteScriptString_internal(int scriptHandleOrType,const char* stringAtScriptName,int stackHandle)
+int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute,int stackHandle)
 {
     TRACE_C_API;
 
@@ -16185,20 +16184,20 @@ int simExecuteScriptString_internal(int scriptHandleOrType,const char* stringAtS
     {
         CScriptObject* script=nullptr;
         std::string stringToExecute;
-        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
+        if (scriptHandle>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
-            std::string strAtScriptName(stringAtScriptName);
+            std::string strAtScriptName(stringToExecute);
             size_t p=strAtScriptName.rfind('@');
             if (p!=std::string::npos)
                 stringToExecute.assign(strAtScriptName.begin(),strAtScriptName.begin()+p);
             else
                 stringToExecute=strAtScriptName;
-            script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
+            script=App::worldContainer->getScriptFromHandle(scriptHandle);
         }
         else
         { // script is identified by its type
             std::string scriptName;
-            std::string strAtScriptName(stringAtScriptName);
+            std::string strAtScriptName(stringToExecute);
             size_t p=strAtScriptName.rfind('@');
             if (p!=std::string::npos)
             {
@@ -16208,16 +16207,16 @@ int simExecuteScriptString_internal(int scriptHandleOrType,const char* stringAtS
             else
                 stringToExecute=strAtScriptName;
 
-            if (scriptHandleOrType==sim_scripttype_mainscript)
+            if (scriptHandle==sim_scripttype_mainscript)
                 script=App::currentWorld->embeddedScriptContainer->getMainScript();
-            if (scriptHandleOrType==sim_scripttype_addonscript)
+            if (scriptHandle==sim_scripttype_addonscript)
             {
                 if (scriptName.size()>0)
                     script=App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
             }
-            if (scriptHandleOrType==sim_scripttype_sandboxscript)
+            if (scriptHandle==sim_scripttype_sandboxscript)
                 script=App::worldContainer->sandboxScript;
-            if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==sim_scripttype_customizationscript) )
+            if ( (scriptHandle==sim_scripttype_childscript)||(scriptHandle==sim_scripttype_customizationscript) )
             {
                 if (scriptName.size()>0)
                 {
@@ -16228,7 +16227,7 @@ int simExecuteScriptString_internal(int scriptHandleOrType,const char* stringAtS
                     else
                         objId=App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                     script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
-                    if (scriptHandleOrType==sim_scripttype_customizationscript)
+                    if (scriptHandle==sim_scripttype_customizationscript)
                         script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objId);
                     else
                         script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,objId);
@@ -16286,25 +16285,15 @@ int simExecuteScriptString_internal(int scriptHandleOrType,const char* stringAtS
     return(-1);
 }
 
-char* simGetApiFunc_internal(int scriptHandleOrType,const char* apiWord)
+char* simGetApiFunc_internal(int scriptHandle,const char* apiWord)
 {
     TRACE_C_API;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int scriptType=-1;
-        bool threaded=false;
-        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
-        { // script is identified by its ID
-            CScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
-            if (script!=nullptr)
-            {
-                scriptType=script->getScriptType();
-                threaded=script->getThreadedExecution_oldThreads();
-            }
-        }
-        else
-            scriptType=scriptHandleOrType;
+        CScriptObject* script=nullptr;
+        if (scriptHandle>=SIM_IDSTART_LUASCRIPT)
+            script=App::worldContainer->getScriptFromHandle(scriptHandle);
         std::string apiW(apiWord);
         bool funcs=true;
         bool vars=true;
@@ -16317,21 +16306,21 @@ char* simGetApiFunc_internal(int scriptHandleOrType,const char* apiWord)
                 apiW.erase(0,1);
             }
         }
-        std::vector<std::string> t;
+        std::set<std::string> t;
         if (funcs)
-            CScriptObject::getMatchingFunctions(apiW.c_str(),t);
+            CScriptObject::getMatchingFunctions(apiW.c_str(),t,script);
         if (vars)
-            CScriptObject::getMatchingConstants(apiW.c_str(),t);
+            CScriptObject::getMatchingConstants(apiW.c_str(),t,script);
         std::string theWords;
-        for (size_t i=0;i<t.size();i++)
+        for (const auto& str : t)
         {
-            theWords+=t[i];
-            if (i!=t.size()-1)
-                theWords+=' ';
+            theWords+=str;
+            theWords+=' ';
         }
         char* buff=nullptr;
         if (theWords.size()>0)
         {
+            theWords.pop_back();
             buff=new char[theWords.size()+1];
             strcpy(buff,theWords.c_str());
         }
@@ -16342,28 +16331,18 @@ char* simGetApiFunc_internal(int scriptHandleOrType,const char* apiWord)
     return(nullptr);
 }
 
-char* simGetApiInfo_internal(int scriptHandleOrType,const char* apiWord)
+char* simGetApiInfo_internal(int scriptHandle,const char* apiWord)
 {
     TRACE_C_API;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int scriptType=-1;
-        bool threaded=false;
-        if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
-        { // script is identified by its ID
-            CScriptObject* script=App::worldContainer->getScriptFromHandle(scriptHandleOrType);
-            if (script!=nullptr)
-            {
-                scriptType=script->getScriptType();
-                threaded=script->getThreadedExecution_oldThreads();
-            }
-        }
-        else
-            scriptType=scriptHandleOrType;
+        CScriptObject* script=nullptr;
+        if (scriptHandle>=SIM_IDSTART_LUASCRIPT)
+            script=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (strlen(apiWord)>0)
         {
-            std::string tip(CScriptObject::getFunctionCalltip(apiWord));
+            std::string tip(CScriptObject::getFunctionCalltip(apiWord,script));
             char* buff=nullptr;
             if (tip.size()>0)
             {

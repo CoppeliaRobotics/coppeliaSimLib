@@ -67,6 +67,11 @@ int _genericFunctionHandler(luaWrap_lua_State* L,void(*callback)(struct SScriptC
 const extern SLuaCommands simLuaCommands[];
 const extern SLuaVariables simLuaVariables[];
 
+extern int _loadPlugin(luaWrap_lua_State* L);
+extern int _unloadPlugin(luaWrap_lua_State* L);
+extern int _registerCodeEditorInfos(luaWrap_lua_State* L);
+extern int __auxFunc(luaWrap_lua_State* L);
+
 extern int _simHandleChildScripts(luaWrap_lua_State* L);
 extern int _simHandleEmbeddedScripts(luaWrap_lua_State* L);
 extern int _simGenericFunctionHandler(luaWrap_lua_State* L);
@@ -338,8 +343,6 @@ extern int _simRelocateShapeFrame(luaWrap_lua_State* L);
 extern int _simBuildMatrixQ(luaWrap_lua_State* L);
 extern int _simGetQuaternionFromMatrix(luaWrap_lua_State* L);
 extern int _simLoadModule(luaWrap_lua_State* L);
-extern int _sim_loadPlugin(luaWrap_lua_State* L);
-extern int _simUnloadPlugin(luaWrap_lua_State* L);
 extern int _simUnloadModule(luaWrap_lua_State* L);
 extern int _simCallScriptFunction(luaWrap_lua_State* L);
 extern int _simGetExtensionString(luaWrap_lua_State* L);
@@ -379,8 +382,6 @@ extern int _simGetApiFunc(luaWrap_lua_State* L);
 extern int _simGetApiInfo(luaWrap_lua_State* L);
 extern int _simGetModuleInfo(luaWrap_lua_State* L);
 extern int _simSetModuleInfo(luaWrap_lua_State* L);
-extern int _simRegisterScriptFunction(luaWrap_lua_State* L);
-extern int _simRegisterScriptVariable(luaWrap_lua_State* L);
 extern int _simRegisterScriptFuncHook(luaWrap_lua_State* L);
 extern int _simIsDeprecated(luaWrap_lua_State* L);
 extern int _simGetPersistentDataTags(luaWrap_lua_State* L);
@@ -628,3 +629,5 @@ extern int _simReorientShapeBoundingBox(luaWrap_lua_State* L);
 extern int _simCreateMeshShape(luaWrap_lua_State* L);
 extern int _simInvertMatrix(luaWrap_lua_State* L);
 extern int _simInvertPose(luaWrap_lua_State* L);
+extern int _simRegisterScriptFunction(luaWrap_lua_State* L);
+extern int _simRegisterScriptVariable(luaWrap_lua_State* L);

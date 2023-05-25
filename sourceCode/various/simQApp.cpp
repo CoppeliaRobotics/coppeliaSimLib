@@ -8,7 +8,7 @@ CSimQApp::CSimQApp(int& argc ,char** argv) : QAPP(argc,argv)
 
 CSimQApp::~CSimQApp()
 {
-    App::logMsg(sim_verbosity_loadinfos,"0");
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"0");
 }
 
 bool CSimQApp::notify(QObject* object,QEvent* event)
