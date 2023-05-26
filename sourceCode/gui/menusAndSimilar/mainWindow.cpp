@@ -558,6 +558,12 @@ void CMainWindow::_setClientArea(int x,int y)
     simulationRecorder->setRecordingSizeChanged(x,y);
 }
 
+void CMainWindow::getClientArea(int& x,int& y) const
+{
+    x=_clientArea[0];
+    y=_clientArea[1];
+}
+
 void CMainWindow::windowResizeEvent(int x,int y)
 {
     _setClientArea(x,y);

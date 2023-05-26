@@ -56,7 +56,6 @@ protected:
     bool _recordDesktopInstead;
     int _resolution[2];
     int _resolutionInfo[2];
-    int _position[2];
     bool _recorderEnabled;
     bool _showCursor;
     bool _showButtonStates;

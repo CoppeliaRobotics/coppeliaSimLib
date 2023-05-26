@@ -55,10 +55,10 @@ WLibraryFunc CAuxLibVideo::_getProcAddress(const char* funcName)
 
 bool CAuxLibVideo::_getAuxLibProcAddresses()
 {
-    video_recorderGetEncoderString=(pVideo_recorderGetEncoderString)(_getProcAddress("videoCompressionPlugin_getAvailableEncoderName"));
-    video_recorderInitialize=(pVideo_recorderInitialize)(_getProcAddress("videoCompressionPlugin_recorderInitialize"));
-    video_recorderAddFrame=(pVideo_recorderAddFrame)(_getProcAddress("videoCompressionPlugin_recorderAddFrame"));
-    video_recorderEnd=(pVideo_recorderEnd)(_getProcAddress("videoCompressionPlugin_recorderEnd"));
+    video_recorderGetEncoderString=(pVideo_recorderGetEncoderString)(_getProcAddress("getAvailableEncoderName"));
+    video_recorderInitialize=(pVideo_recorderInitialize)(_getProcAddress("recorderInitialize"));
+    video_recorderAddFrame=(pVideo_recorderAddFrame)(_getProcAddress("recorderAddFrame"));
+    video_recorderEnd=(pVideo_recorderEnd)(_getProcAddress("recorderEnd"));
 
     if (video_recorderGetEncoderString==0) return false;
     if (video_recorderInitialize==0) return false;

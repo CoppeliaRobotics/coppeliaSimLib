@@ -20,6 +20,10 @@
 #include <cbor.h>
 #include <meshRoutines.h>
 #include <vFileFinder.h>
+#ifdef SIM_WITH_GUI
+#include <QScreen>
+#include <QDesktopWidget>
+#endif
 
 #define LUA_START(funcName) \
     CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
@@ -2547,6 +2551,66 @@ int _auxFunc(luaWrap_lua_State* L)
                 it->addUsedModule(luaWrap_lua_tostring(L,2));
             }
         }
+        /*
+        if (cmd.compare("fetchframe")==0)
+        {
+            if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_integer,0))
+            {
+                std::vector<unsigned char> buff;
+                int screenIndex=luaWrap_lua_tointeger(L,2);
+                int res[2]={0,0};
+#ifdef SIM_WITH_GUI
+                if (App::mainWindow!=nullptr)
+                {
+                    if (screenIndex>=0)
+                    { // desktop
+                        QList<QScreen*> screens=QGuiApplication::screens();
+                        QPixmap pixmap(screens[screenIndex]->grabWindow(0));
+                        QImage img(pixmap.toImage());
+                        buff.resize(img.height()*img.width()*3);
+                        for (int i=0;i<img.height();i++)
+                        {
+                            for (int j=0;j<img.width();j++)
+                            {
+                                QRgb pix(img.pixel(j,i));
+                                buff[3*(j+i*img.width())+0]=qRed(pix);
+                                buff[3*(j+i*img.width())+1]=qGreen(pix);
+                                buff[3*(j+i*img.width())+2]=qBlue(pix);
+                            }
+                        }
+                        res[0]=img.width();
+                        res[1]=img.height();
+                    }
+                    else
+                    { // openGL view only
+                        glPixelStorei(GL_PACK_ALIGNMENT,1);
+                        int resX,resY;
+                        App::mainWindow->getClientArea(resX,resY);
+                        res[0]=resX;
+                        res[1]=resY;
+                        std::vector<unsigned char> tbuff(resX*resY*3);
+                        buff.resize(resX*resY*3);
+                        glReadPixels(0,0,resX,resY,GL_RGB,GL_UNSIGNED_BYTE,tbuff.data());
+                        for (int j=0;j<resY;j++)
+                        {
+                            int yp=j*resX;
+                            int yq=(resY-j-1)*resX;
+                            for (int i=0;i<resX;i++)
+                            {
+                                buff[3*(yp+i)+0]=tbuff[3*(yq+i)+0];
+                                buff[3*(yp+i)+1]=tbuff[3*(yq+i)+1];
+                                buff[3*(yp+i)+2]=tbuff[3*(yq+i)+2];
+                            }
+                        }
+                    }
+                }
+#endif
+                luaWrap_lua_pushlstring(L,(const char*)buff.data(),res[0]*res[1]*3);
+                pushIntTableOntoStack(L,2,res);
+                LUA_END(2);
+            }
+        }
+        */
         if (cmd.compare("getfiles")==0)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0))

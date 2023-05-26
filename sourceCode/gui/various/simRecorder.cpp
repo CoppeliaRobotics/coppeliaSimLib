@@ -28,8 +28,6 @@ CSimRecorder::CSimRecorder(const char* initialPath)
     _tempBuffer=nullptr;
     _resolution[0]=640;
     _resolution[1]=480;
-    _position[0]=0;
-    _position[1]=0;
     _showSavedMessage=true;
     _path=initialPath;
     _pathAndFilename="";
@@ -169,9 +167,6 @@ bool CSimRecorder::recordFrameIfNeeded(int resX,int resY,int posX,int posY)
                         _resolution[0]=resX;//&0x0ffc; // must be multiple of 4!
                         _resolution[1]=resY;//&0x0ffc; // must be multiple of 4!
                     }
-                    _position[0]=0;
-                    _position[1]=0;
-
                     char txt[201];
                     CAuxLibVideo::video_recorderGetEncoderString(_encoderIndex,txt);
                     char userSet;
@@ -255,7 +250,7 @@ bool CSimRecorder::recordFrameIfNeeded(int resX,int resY,int posX,int posY)
                     else
                     {
                         glPixelStorei(GL_PACK_ALIGNMENT,1);
-                        glReadPixels(_position[0]+posX,_position[1]+posY,_resolution[0],_resolution[1],GL_RGB,GL_UNSIGNED_BYTE,_tempBuffer);
+                        glReadPixels(posX,posY,_resolution[0],_resolution[1],GL_RGB,GL_UNSIGNED_BYTE,_tempBuffer);
                         glPixelStorei(GL_PACK_ALIGNMENT,4); // important to restore! Really?
                         for (int j=0;j<_resolution[1];j++)
                         {

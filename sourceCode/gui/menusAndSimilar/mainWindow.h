@@ -162,6 +162,8 @@ public:
     bool getMouseRay(C3Vector& orig,C3Vector& dir);
     void mouseClickAction(bool down);
     int getMouseClickActionCounter(bool down);
+    void getClientArea(int& x,int& y) const;
+
 
 private:
     int _renderOpenGlContent_callFromRenderingThreadOnly();
