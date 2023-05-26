@@ -6,8 +6,6 @@
 #include <simLib/simTypes.h>
 #include <pluginCallbackContainer.h>
 #include <pluginVariableContainer.h>
-#include <codeEditorFunctions.h>
-#include <codeEditorVariables.h>
 
 typedef  int (__cdecl *ptrInit)(void);
 typedef  void (__cdecl *ptrCleanup)(void);
@@ -252,8 +250,6 @@ public:
     void popCurrentPlugin();
     CPluginCallbackContainer* getPluginCallbackContainer();
     CPluginVariableContainer* getPluginVariableContainer();
-    CCodeEditorFunctions* getCodeEditorFunctions();
-    CCodeEditorVariables* getCodeEditorVariables();
     void addDependency(int loadOrigin);
     void removeDependency(int loadOrigin);
     bool hasDependency(int loadOrigin) const;
@@ -460,8 +456,6 @@ private:
 
     CPluginCallbackContainer _pluginCallbackContainer;
     CPluginVariableContainer _pluginVariableContainer;
-    CCodeEditorFunctions _codeEditorFunctions;
-    CCodeEditorVariables _codeEditorVariables;
 
     std::unordered_set<int> _dependencies; // -1=c++, otherwise script handles
 

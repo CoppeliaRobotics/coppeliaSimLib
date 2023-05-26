@@ -17,7 +17,7 @@ public:
     VFileFinder();
     virtual ~VFileFinder();
 
-    int searchFilesWithExtension(const char* pathWithoutTerminalSlash,const char* extension);
+    int searchFilesWithExtension(const char* pathWithoutTerminalSlash,const char* extension,const char* filter);
     int searchFolders(const char* pathWithoutTerminalSlash);
     int searchFilesOrFolders(const char* pathWithoutTerminalSlash);
     static int countFiles(const char* pathWithoutTerminalSlash);
@@ -27,7 +27,7 @@ public:
     SFileOrFolder* getFoundItem(int index);
 
 private:
-    int _searchFilesOrFolders(const char* pathWithoutTerminalSlash,const char* extension,int mode); // mode=0 --> file, mode=1 --> folder, mode=2 --> file and folder
+    int _searchFilesOrFolders(const char* pathWithoutTerminalSlash,const char* extension,int mode,const char* filter); // mode=0 --> file, mode=1 --> folder, mode=2 --> file and folder
 
     std::vector<SFileOrFolder> _searchResult;
 };

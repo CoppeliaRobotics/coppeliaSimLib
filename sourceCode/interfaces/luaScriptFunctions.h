@@ -70,7 +70,7 @@ const extern SLuaVariables simLuaVariables[];
 extern int _loadPlugin(luaWrap_lua_State* L);
 extern int _unloadPlugin(luaWrap_lua_State* L);
 extern int _registerCodeEditorInfos(luaWrap_lua_State* L);
-extern int __auxFunc(luaWrap_lua_State* L);
+extern int _auxFunc(luaWrap_lua_State* L);
 
 extern int _simHandleChildScripts(luaWrap_lua_State* L);
 extern int _simHandleEmbeddedScripts(luaWrap_lua_State* L);

@@ -81,8 +81,6 @@ CPlugin::~CPlugin()
         App::worldContainer->pluginContainer->currentMeshDecimation=nullptr;
     _pluginCallbackContainer.clear();
     _pluginVariableContainer.clear();
-    _codeEditorFunctions.clear();
-    _codeEditorVariables.clear();
 
     if (_stage==stage_uicleanupdone)
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': UI cleanup done.",_nameCleanup.c_str());
@@ -192,16 +190,6 @@ CPluginCallbackContainer* CPlugin::getPluginCallbackContainer()
 CPluginVariableContainer* CPlugin::getPluginVariableContainer()
 {
     return(&_pluginVariableContainer);
-}
-
-CCodeEditorFunctions* CPlugin::getCodeEditorFunctions()
-{
-    return(&_codeEditorFunctions);
-}
-
-CCodeEditorVariables* CPlugin::getCodeEditorVariables()
-{
-    return(&_codeEditorVariables);
 }
 
 void CPlugin::addDependency(int loadOrigin)
@@ -347,8 +335,6 @@ void CPlugin::cleanup()
         _namespace.clear();
         _pluginCallbackContainer.clear();
         _pluginVariableContainer.clear();
-        _codeEditorFunctions.clear();
-        _codeEditorVariables.clear();
     }
     else
         _endAddress_legacy(); // old plugin

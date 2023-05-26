@@ -83,6 +83,7 @@ public:
     int callCustomScriptFunction(const char* functionName,CInterfaceStack* inOutStack);
     bool shouldTemporarilySuspendMainScript();
 
+    void initSandbox();
     int executeScriptString(const char* scriptString,CInterfaceStack* outStack);
 
     void terminateScriptExecutionExternally(bool generateErrorMsg);
@@ -147,7 +148,8 @@ public:
     void registerPluginFunctions();
     bool registerPluginVariables(bool onlyRequireStatements);
 
-    bool containsLastUsedPlugin(const char* pluginNamespace) const;
+    bool wasModulePreviouslyUsed(const char* moduleName) const;
+    void addUsedModule(const char* moduleName);
 
     int getAddOnUiMenuHandle() const;
     void setAddOnFilePath(const char* p);
@@ -268,7 +270,7 @@ protected:
     bool _externalScriptText;
 
     COutsideCommandQueueForScript* _outsideCommandQueue;
-    std::unordered_set<std::string> _lastUsedPlugins; // needed for the code editor syntax and calltips
+    std::unordered_set<std::string> _previouslyUsedModules; // needed for the code editor syntax and calltips
 
     void* _interpreterState;  // !! _interpreterState is not the same for a script when in normal or inside a coroutine !!
 

@@ -99,7 +99,7 @@ int CAddOnScriptContainer::_insertAddOns()
 {
     int addOnsCount=0;
     VFileFinder finder;
-    finder.searchFilesWithExtension(App::folders->getAddOnPath().c_str(),ADDON_EXTENTION);
+    finder.searchFilesWithExtension(App::folders->getAddOnPath().c_str(),ADDON_EXTENTION,nullptr);
     int cnt=0;
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
     while (foundItem!=nullptr)
@@ -211,7 +211,7 @@ int CAddOnScriptContainer::_prepareAddOnFunctionNames_old()
 {
     int addOnsCount=0;
     VFileFinder finder;
-    finder.searchFilesWithExtension(App::folders->getAddOnPath().c_str(),ADDON_EXTENTION);
+    finder.searchFilesWithExtension(App::folders->getAddOnPath().c_str(),ADDON_EXTENTION,nullptr);
     int cnt=0;
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
     while (foundItem!=nullptr)

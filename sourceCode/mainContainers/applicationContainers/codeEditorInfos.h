@@ -5,6 +5,7 @@
 #include <set>
 #include <codeEditorFunctions.h>
 #include <codeEditorVariables.h>
+#include <scriptObject.h>
 
 struct SCodeEditorInfo
 {
@@ -22,8 +23,8 @@ public:
     void setInfo(const char* namespaceAndVersion,const char* info,std::string* errorString=nullptr);
     void removeInfo(const char* ns);
 
-    void insertWhatStartsSame(const char* txt,std::set<std::string>& v,int what) const;
-    std::string getFunctionCalltip(const char* txt) const;
+    void insertWhatStartsSame(const char* txt,std::set<std::string>& v,int what,const CScriptObject* requestOrigin) const;
+    std::string getFunctionCalltip(const char* txt,const CScriptObject* requestOrigin) const;
 
     void clear();
 

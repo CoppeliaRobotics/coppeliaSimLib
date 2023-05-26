@@ -85,12 +85,6 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
         _nextIdForExternalScriptEditor=(VDateTime::getOSTimeInMs()&0xffff)*1000;
     }
     _filenameForExternalScriptEditor="embScript_"+std::to_string(_nextIdForExternalScriptEditor++)+".lua";
-
-    if (_scriptType==sim_scripttype_sandboxscript)
-    {
-        if (_initInterpreterState(nullptr))
-            _raiseErrors_backCompatibility=true; // Old
-    }
 }
 
 CScriptObject::~CScriptObject()
@@ -103,6 +97,17 @@ CScriptObject::~CScriptObject()
     delete _scriptParameters_backCompatibility;
     delete _customObjectData_old;
     delete _customObjectData_tempData_old;
+}
+
+void CScriptObject::initSandbox()
+{
+    if (_scriptType==sim_scripttype_sandboxscript)
+    {
+        if (_initInterpreterState(nullptr))
+            _raiseErrors_backCompatibility=true; // Old
+        setScriptTextFromFile((App::folders->getSystemPath()+"/"+"sandboxScript.lua").c_str());
+        systemCallScript(sim_syscb_init,nullptr,nullptr);
+    }
 }
 
 void CScriptObject::destroy(CScriptObject* obj,bool registeredObject)
@@ -617,9 +622,14 @@ std::string CScriptObject::getSystemCallbackString(int calltype,int what)
     return("");
 }
 
-bool CScriptObject::containsLastUsedPlugin(const char* pluginNamespace) const
+bool CScriptObject::wasModulePreviouslyUsed(const char* moduleName) const
 {
-    return(_lastUsedPlugins.find(pluginNamespace)!=_lastUsedPlugins.end());
+    return(_previouslyUsedModules.find(moduleName)!=_previouslyUsedModules.end());
+}
+
+void CScriptObject::addUsedModule(const char* module)
+{
+    _previouslyUsedModules.insert(module);
 }
 
 void CScriptObject::getMatchingFunctions(const char* txt,std::set<std::string>& v,const CScriptObject* requestOrigin)
@@ -662,9 +672,7 @@ void CScriptObject::getMatchingFunctions(const char* txt,std::set<std::string>& 
 
     App::worldContainer->scriptCustomFuncAndVarContainer->insertAllFunctionNamesThatStartSame(txt,v);
 
-    App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt,v,1);
-
-    App::worldContainer->pluginContainer->insertCodeEditorInfosThatStartSame(txt,v,1,requestOrigin);
+    App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt,v,1,requestOrigin);
 }
 
 void CScriptObject::getMatchingConstants(const char* txt,std::set<std::string>& v,const CScriptObject* requestOrigin)
@@ -691,17 +699,12 @@ void CScriptObject::getMatchingConstants(const char* txt,std::set<std::string>& 
 
     App::worldContainer->scriptCustomFuncAndVarContainer->insertAllVariableNamesThatStartSame(txt,v);
 
-    App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt,v,2);
-
-    App::worldContainer->pluginContainer->insertCodeEditorInfosThatStartSame(txt,v,2,requestOrigin);
+    App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt,v,2,requestOrigin);
 }
 
 std::string CScriptObject::getFunctionCalltip(const char* txt,const CScriptObject* requestOrigin)
 {
-    std::string retVal=App::worldContainer->pluginContainer->getFunctionCalltip(txt,requestOrigin);
-
-    if (retVal.size()==0)
-        retVal=App::worldContainer->codeEditorInfos->getFunctionCalltip(txt);
+    std::string retVal=App::worldContainer->codeEditorInfos->getFunctionCalltip(txt,requestOrigin);
 
     if (retVal.size()==0)
     {
@@ -2665,7 +2668,7 @@ int CScriptObject::getLanguage()
 
 bool CScriptObject::_initInterpreterState(std::string* errorMsg)
 {
-    _lastUsedPlugins.clear();
+    _previouslyUsedModules.clear();
     _calledInThisSimulationStep=false;
     _randGen.seed(123456);
     _delayForAutoYielding=2;
@@ -3108,8 +3111,6 @@ void CScriptObject::loadPluginFuncsAndVars(CPlugin* plug)
     tmp+="[\"";
     tmp+=plug->getName()+"\"]=__tmploadPluginFuncsAndVars1 __tmploadPluginFuncsAndVars1=nil";
     _execSimpleString_safe_lua(L,tmp.c_str());
-
-    _lastUsedPlugins.insert(plug->getName());
 }
 
 void CScriptObject::registerPluginFunctions()
@@ -3272,6 +3273,12 @@ void CScriptObject::serialize(CSer& ar)
                 ar << stt[i];
             ar.flush();
 
+            ar.storeDataName("Pum");
+            ar << int(_previouslyUsedModules.size());
+            for (auto it=_previouslyUsedModules.begin();it!=_previouslyUsedModules.end();it++)
+                ar << *it;
+            ar.flush();
+
             // keep a while so that older versions can read this. 11.06.2019, V3.6.1 is current
             ar.storeDataName("Coc");
             ar << _objectHandleAttachedTo;
@@ -3342,6 +3349,21 @@ void CScriptObject::serialize(CSer& ar)
                         }
                         justLoadedCustomScriptBuffer=true;
                     }
+
+                    if (theName.compare("Pum")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt;
+                        std::string val;
+                        ar >> cnt;
+                        for (int i=0;i<cnt;i++)
+                        {
+                            ar >> val;
+                            _previouslyUsedModules.insert(val);
+                        }
+                    }
+
                     if (justLoadedCustomScriptBuffer&&(_scriptType==sim_scripttype_mainscript)&&_mainScriptIsDefaultMainScript_old) // old, keep for backward compatibility. 16.11.2020
                         _scriptText=DEFAULT_MAINSCRIPT_CODE;
                     if (theName=="Va2")

@@ -16183,15 +16183,15 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CScriptObject* script=nullptr;
-        std::string stringToExecute;
+        std::string stringToExec;
         if (scriptHandle>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
             std::string strAtScriptName(stringToExecute);
             size_t p=strAtScriptName.rfind('@');
             if (p!=std::string::npos)
-                stringToExecute.assign(strAtScriptName.begin(),strAtScriptName.begin()+p);
+                stringToExec.assign(strAtScriptName.begin(),strAtScriptName.begin()+p);
             else
-                stringToExecute=strAtScriptName;
+                stringToExec=strAtScriptName;
             script=App::worldContainer->getScriptFromHandle(scriptHandle);
         }
         else
@@ -16202,10 +16202,10 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
             if (p!=std::string::npos)
             {
                 scriptName.assign(strAtScriptName.begin()+p+1,strAtScriptName.end());
-                stringToExecute.assign(strAtScriptName.begin(),strAtScriptName.begin()+p);
+                stringToExec.assign(strAtScriptName.begin(),strAtScriptName.begin()+p);
             }
             else
-                stringToExecute=strAtScriptName;
+                stringToExec=strAtScriptName;
 
             if (scriptHandle==sim_scripttype_mainscript)
                 script=App::currentWorld->embeddedScriptContainer->getMainScript();
@@ -16248,14 +16248,14 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
             if (script->getThreadedExecutionIsUnderWay_oldThreads())
             { // OLD, very special handling here!
                 if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
-                    retVal=script->executeScriptString(stringToExecute.c_str(),stack);
+                    retVal=script->executeScriptString(stringToExec.c_str(),stack);
                 else
                 { // we have to execute that function via another thread!
                     void* d[4];
                     int callType=3;
                     d[0]=&callType;
                     d[1]=script;
-                    d[2]=(void*)stringToExecute.c_str();
+                    d[2]=(void*)stringToExec.c_str();
                     d[3]=stack;
 
                     retVal=CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(),d);
@@ -16265,7 +16265,7 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
             {
                 if (VThread::isCurrentThreadTheMainSimulationThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
-                    retVal=script->executeScriptString(stringToExecute.c_str(),stack);
+                    retVal=script->executeScriptString(stringToExec.c_str(),stack);
                 }
             }
 

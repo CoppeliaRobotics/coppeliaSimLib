@@ -21,23 +21,23 @@ VFileFinder::~VFileFinder()
 {
 }
 
-int VFileFinder::searchFilesWithExtension(const char* pathWithoutTerminalSlash,const char* extension)
+int VFileFinder::searchFilesWithExtension(const char* pathWithoutTerminalSlash,const char* extension,const char* filter)
 {
-    return(_searchFilesOrFolders(pathWithoutTerminalSlash,extension,0));
+    return(_searchFilesOrFolders(pathWithoutTerminalSlash,extension,0,filter));
 }
 
 int VFileFinder::searchFolders(const char* pathWithoutTerminalSlash)
 {
-    return(_searchFilesOrFolders(pathWithoutTerminalSlash,"",1));
+    return(_searchFilesOrFolders(pathWithoutTerminalSlash,"",1,nullptr));
 }
 
 int VFileFinder::searchFilesOrFolders(const char* pathWithoutTerminalSlash)
 {
-    return(_searchFilesOrFolders(pathWithoutTerminalSlash,"",2));
+    return(_searchFilesOrFolders(pathWithoutTerminalSlash,"",2,nullptr));
 }
 
 
-int VFileFinder::_searchFilesOrFolders(const char* pathWithoutTerminalSlash,const char* extension,int mode)
+int VFileFinder::_searchFilesOrFolders(const char* pathWithoutTerminalSlash,const char* extension,int mode,const char* filter)
 { // mode=0 --> file, mode=1 --> folder, mode=2 --> file and folder
     std::string theExtension(extension);
 #ifndef SIM_WITH_QT
@@ -93,6 +93,8 @@ int VFileFinder::_searchFilesOrFolders(const char* pathWithoutTerminalSlash,cons
         {
             QStringList filters;
             std::string tmp("*.");
+            if (filter!=nullptr)
+                tmp=filter+std::string(".");
             tmp+=theExtension;
             filters << tmp.c_str();
             dir.setNameFilters(filters);

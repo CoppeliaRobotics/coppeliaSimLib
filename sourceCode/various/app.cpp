@@ -122,8 +122,7 @@ void App::simulationThreadInit()
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
     App::worldContainer->sandboxScript=new CScriptObject(sim_scripttype_sandboxscript);
-    App::worldContainer->sandboxScript->setScriptTextFromFile((App::folders->getSystemPath()+"/"+"sandboxScript.lua").c_str());
-    App::worldContainer->sandboxScript->systemCallScript(sim_syscb_init,nullptr,nullptr);
+    App::worldContainer->sandboxScript->initSandbox();
     if (_startupScriptString.size()>0)
     {
         App::worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(),nullptr);

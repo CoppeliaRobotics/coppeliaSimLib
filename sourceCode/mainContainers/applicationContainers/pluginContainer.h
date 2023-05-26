@@ -32,9 +32,6 @@ public:
     void lockInterface();
     void unlockInterface();
 
-    void insertCodeEditorInfosThatStartSame(const char* txt,std::set<std::string>& v,int what,const CScriptObject* requestOrigin) const;
-    std::string getFunctionCalltip(const char* txt,const CScriptObject* requestOrigin) const;
-
     int addAndInitPlugin_old(const char* filename,const char* pluginName);
     bool unloadPlugin_old(int handle);
     void _removePlugin_old(int handle);

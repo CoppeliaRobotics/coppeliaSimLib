@@ -19,6 +19,7 @@
 #include <distanceRoutines.h>
 #include <cbor.h>
 #include <meshRoutines.h>
+#include <vFileFinder.h>
 
 #define LUA_START(funcName) \
     CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old(); \
@@ -99,7 +100,7 @@ const SLuaCommands simLuaCommands[]=
     {"loadPlugin",_loadPlugin,                                  "map pluginNamespace=loadPlugin(string pluginPathAndName",true},
     {"unloadPlugin",_unloadPlugin,                              "unloadPlugin(map pluginNamespace)",true},
     {"registerCodeEditorInfos",_registerCodeEditorInfos,        "registerCodeEditorInfos(string namespaceAndVersion,string infos)",true},
-    {"_auxFunc",__auxFunc,                                      "",false},
+    {"auxFunc",_auxFunc,                                        "",false},
 
     {"sim.handleDynamics",_simHandleDynamics,                    "int result=sim.handleDynamics(float deltaTime)",true},
     {"sim.handleProximitySensor",_simHandleProximitySensor,      "int result,float distance,float[3] detectedPoint,int detectedObjectHandle,float[3] normalVector=sim.handleProximitySensor(int sensorHandle)",true},
@@ -2513,18 +2514,16 @@ int _registerCodeEditorInfos(luaWrap_lua_State* L)
     LUA_START("registerCodeEditorInfos");
 
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
-    {
         App::worldContainer->codeEditorInfos->setInfo(luaWrap_lua_tostring(L,1),luaWrap_lua_tostring(L,2),&errorString);
-    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
-int __auxFunc(luaWrap_lua_State* L)
+int _auxFunc(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("_auxFunc");
+    LUA_START("auxFunc");
 
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
@@ -2539,6 +2538,39 @@ int __auxFunc(luaWrap_lua_State* L)
                 LUA_END(2);
             }
             LUA_END(0);
+        }
+        if (cmd.compare("usedmodule")==0)
+        {
+            if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
+            {
+                CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+                it->addUsedModule(luaWrap_lua_tostring(L,2));
+            }
+        }
+        if (cmd.compare("getfiles")==0)
+        {
+            if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0))
+            {
+                std::string path(luaWrap_lua_tostring(L,2));
+                std::string filter(luaWrap_lua_tostring(L,3));
+                std::string ext(luaWrap_lua_tostring(L,4));
+                VFileFinder finder;
+                finder.searchFilesWithExtension(path.c_str(),ext.c_str(),filter.c_str());
+                int cnt=0;
+                SFileOrFolder* foundItem=finder.getFoundItem(cnt);
+                std::vector<std::string> nstrs;
+                std::vector<std::string> pstrs;
+                while (foundItem!=nullptr)
+                {
+                    pstrs.push_back(foundItem->path);
+                    nstrs.push_back(foundItem->name);
+                    cnt++;
+                    foundItem=finder.getFoundItem(cnt);
+                }
+                pushStringTableOntoStack(L,nstrs);
+                pushStringTableOntoStack(L,pstrs);
+                LUA_END(2);
+            }
         }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
