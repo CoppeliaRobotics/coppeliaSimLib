@@ -5652,16 +5652,10 @@ int simRegisterScriptCallbackFunction_internal(const char* func,const char* rese
         CPlugin* plug=App::worldContainer->pluginContainer->getCurrentPlugin();
         if ( (plug!=nullptr)&&(!plug->isLegacyPlugin()) )
         { // new plugins. e.g. 'createGroup', and not 'simIK.createGroup'
-            size_t p=std::string(func).find('.');
-            if (p==std::string::npos)
-            {
-                if (plug->getPluginCallbackContainer()->addCallback(func,callBack))
-                    retVal=1;
-                else
-                    retVal=0;
-            }
+            if (plug->getPluginCallbackContainer()->addCallback(func,callBack))
+                retVal=1;
             else
-                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_FUNCTION_NAME);
+                retVal=0;
         }
         else
         { // old plugins
@@ -5711,16 +5705,10 @@ int simRegisterScriptVariable_internal(const char* var,const char* val,int stack
         CPlugin* plug=App::worldContainer->pluginContainer->getCurrentPlugin();
         if ( (plug!=nullptr)&&(!plug->isLegacyPlugin()) )
         { // new plugins. e.g. 'method_jacobian_transpose', not 'simIK.method_jacobian_transpose'
-            size_t p=std::string(var).find('.');
-            if (p==std::string::npos)
-            {
-                if (plug->getPluginVariableContainer()->addVariable(var,val,stackHandle))
-                    retVal=1;
-                else
-                    retVal=0;
-            }
+            if (plug->getPluginVariableContainer()->addVariable(var,val,stackHandle))
+                retVal=1;
             else
-                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_VARIABLE_NAME);
+                retVal=0;
         }
         else
         { // old plugins
