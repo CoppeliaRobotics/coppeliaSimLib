@@ -5652,10 +5652,15 @@ int simRegisterScriptCallbackFunction_internal(const char* func,const char* rese
         CPlugin* plug=App::worldContainer->pluginContainer->getCurrentPlugin();
         if ( (plug!=nullptr)&&(!plug->isLegacyPlugin()) )
         { // new plugins. e.g. 'createGroup', and not 'simIK.createGroup'
-            if (plug->getPluginCallbackContainer()->addCallback(func,callBack))
-                retVal=1;
+            if (callBack!=nullptr)
+            {
+                if (plug->getPluginCallbackContainer()->addCallback(func,callBack))
+                    retVal=1;
+                else
+                    retVal=0;
+            }
             else
-                retVal=0;
+                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CALLBACK_IS_NULL);
         }
         else
         { // old plugins
