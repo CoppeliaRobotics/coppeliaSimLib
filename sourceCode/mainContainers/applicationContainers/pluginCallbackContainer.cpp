@@ -14,7 +14,7 @@ SPluginCallback* CPluginCallbackContainer::getCallbackFromName(const char* name)
     SPluginCallback* retVal=nullptr;
     auto it=_allCallbacks_map.find(name);
     if (it!=_allCallbacks_map.end())
-        retVal=it->second;
+        retVal=&_allCallbacks_vect[it->second];
     return(retVal);
 }
 
@@ -42,8 +42,8 @@ bool CPluginCallbackContainer::addCallback(const char* funcName,void(*callback)(
         SPluginCallback s;
         s.funcName=funcName;
         s.callback=callback;
+        _allCallbacks_map[funcName]=_allCallbacks_vect.size();
         _allCallbacks_vect.push_back(s);
-        _allCallbacks_map[funcName]=&_allCallbacks_vect[_allCallbacks_vect.size()-1];
     }
     else
         it->callback=callback; // callback already exists. Replace it
