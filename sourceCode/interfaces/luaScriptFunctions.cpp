@@ -2394,7 +2394,15 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
             CPluginCallbackContainer* cont=plug->getPluginCallbackContainer();
             SPluginCallback* pcb=cont->getCallbackFromName(funcName.c_str());
             App::logMsg(sim_verbosity_debug,(std::string("sim.genericFunctionHandler: ")+functionName).c_str());
-            outputArgCount=_genericFunctionHandler(L,pcb->callback,errorString);
+            if (pcb!=nullptr)
+            {
+                if (pcb->callback!=nullptr)
+                    outputArgCount=_genericFunctionHandler(L,pcb->callback,errorString);
+                else
+                    errorString=std::string("sim.genericFunctionHandler: pcb->callback is NULL (")+functionName+", funcN: "+funcN+")";
+            }
+            else
+                errorString=std::string("sim.genericFunctionHandler: pcb is NULL (")+functionName+", funcN: "+funcN+")";
         }
         else
             errorString="plugin not loaded.";
