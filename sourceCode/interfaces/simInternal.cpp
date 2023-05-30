@@ -6358,7 +6358,7 @@ char* simGetModuleName_internal(int index,unsigned char* moduleVersion)
 int simAddLog_internal(const char* pluginName,int verbosityLevel,const char* logMsg)
 { // keep this as simple as possible (no trace, no thread checking). For now
     int retVal=0;
-    if ( (pluginName==nullptr)||(logMsg==nullptr) )
+    if (logMsg==nullptr)
     {
         App::clearStatusbar();
         retVal=1;

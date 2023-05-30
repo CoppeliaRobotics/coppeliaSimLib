@@ -1400,17 +1400,10 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
     CPlugin* it=nullptr;
     if (App::worldContainer!=nullptr)
     {
-        it=App::worldContainer->pluginContainer->getCurrentPlugin();
-        /*
         if (pluginName==nullptr)
-        {
             it=App::worldContainer->pluginContainer->getCurrentPlugin();
-            if ( (it!=nullptr)&&(it->isLegacyPlugin()) )
-                it=nullptr;
-        }
         else
             it=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
-            */
     }
     if ( (it!=nullptr)||(strcmp(pluginName,"CoppeliaSimClient")==0) )
     {
@@ -1425,8 +1418,14 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
                 statusbarV=_statusbarVerbosity;
             if ( (consoleV>=realVerbosityLevel)||(statusbarV>=realVerbosityLevel) )
             {
-                std::string plugN("simExt");
-                plugN+=pluginName;
+                std::string plugN;
+                if (it->isLegacyPlugin())
+                {
+                    plugN="simExt";
+                    plugN+=pluginName;
+                }
+                else
+                    plugN=it->getName();
                 __logMsg(plugN.c_str(),verbosityLevel,logMsg,consoleV,statusbarV);
             }
         }
@@ -1438,7 +1437,7 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
     { // let's just print a naked message. The plugin maybe wasn't registered yet? (e.g. in plugin start function)
         std::string msg("[");
         msg+=pluginName;
-        msg+="(unknown plugin)]   ";
+        msg+=" (unknown plugin)]   ";
         msg+=logMsg;
         msg+="\n";
         printf(msg.c_str());
