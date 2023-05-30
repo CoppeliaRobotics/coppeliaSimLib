@@ -15,7 +15,7 @@ public:
     virtual ~CPluginContainer();
 
     CPlugin* getCurrentPlugin();
-    CPlugin* loadAndInitPlugin(const char* filename,const char* namespaceAndVersion,int loadOrigin);
+    CPlugin* loadAndInitPlugin(const char* namespaceAndVersion,int loadOrigin);
     bool deinitAndUnloadPlugin(int handle,int unloadOrigin);
     void unloadNewPlugins();
 

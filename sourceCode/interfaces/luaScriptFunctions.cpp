@@ -2446,21 +2446,6 @@ int _loadPlugin(luaWrap_lua_State* L)
     {
         CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         std::string namespaceAndVersion(luaWrap_lua_tostring(L,1));
-        std::string fileAndPath(App::folders->getExecutablePath()+"/");
-#ifndef WIN_SIM
-        fileAndPath+="lib";
-#endif
-        fileAndPath+=namespaceAndVersion;
-#ifdef WIN_SIM
-        fileAndPath+=".dll";
-#endif
-#ifdef LIN_SIM
-        fileAndPath+=".so";
-#endif
-#ifdef MAC_SIM
-        fileAndPath+=".dylib";
-#endif
-
         CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromName(namespaceAndVersion.c_str());
         if ( (plug!=nullptr)&&(plug->hasDependency(it->getScriptHandle())) )
         { // that script already loaded that plugin. If the script state has been reset, we do not enter here
@@ -2469,7 +2454,7 @@ int _loadPlugin(luaWrap_lua_State* L)
             LUA_END(1);
         }
 
-        plug=App::worldContainer->pluginContainer->loadAndInitPlugin(fileAndPath.c_str(),namespaceAndVersion.c_str(),it->getScriptHandle());
+        plug=App::worldContainer->pluginContainer->loadAndInitPlugin(namespaceAndVersion.c_str(),it->getScriptHandle());
         if (plug!=nullptr)
         { // success
             it->loadPluginFuncsAndVars(plug);

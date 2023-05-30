@@ -33,6 +33,7 @@ void CApiErrors::setLastWarningOrError(const char* functionName,const char* errM
         msg+=" ("+funcName+")";
 
     _lastWarningOrError=msg;
+    //printf("Last error: %s\n",_lastWarningOrError);
 
     // Old:
     setThreadBasedFirstCapiError_old(errMsg);

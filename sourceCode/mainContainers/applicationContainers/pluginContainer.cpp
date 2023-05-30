@@ -10,6 +10,8 @@
 #include <volInt.h>
 #include <algorithm>
 
+#define SIMIK_DEFAULT "simIK2"
+
 CPluginContainer::CPluginContainer()
 {
     _nextHandle=0;
@@ -44,16 +46,30 @@ CPlugin* CPluginContainer::getCurrentPlugin()
     return(currentPluginStack[currentPluginStack.size()-1]);
 }
 
-CPlugin* CPluginContainer::loadAndInitPlugin(const char* filename,const char* namespaceAndVersion,int loadOrigin)
+CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int loadOrigin)
 { // namespaceAndVersion: e.g. simAssimp, simAssimp-2-78, etc.
     // loadOrigin: -1: c++, otherwise script handle
     TRACE_INTERNAL;
     CPlugin* plug=getPluginFromName(namespaceAndVersion);
     if (plug==nullptr)
     {
+        std::string fileAndPath(App::folders->getExecutablePath()+"/");
+#ifndef WIN_SIM
+        fileAndPath+="lib";
+#endif
+        fileAndPath+=namespaceAndVersion;
+#ifdef WIN_SIM
+        fileAndPath+=".dll";
+#endif
+#ifdef LIN_SIM
+        fileAndPath+=".so";
+#endif
+#ifdef MAC_SIM
+        fileAndPath+=".dylib";
+#endif
         std::string errMsg;
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': loading...",namespaceAndVersion);
-        plug=new CPlugin(filename,namespaceAndVersion,loadOrigin);
+        plug=new CPlugin(fileAndPath.c_str(),namespaceAndVersion,loadOrigin);
         plug->setHandle(_nextHandle);
         _allPlugins.push_back(plug);
         int loadRes=plug->load(&errMsg);
@@ -786,6 +802,8 @@ bool CPluginContainer::isGeomPluginAvailable()
 
 bool CPluginContainer::isIkPluginAvailable()
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
     return(currentIkPlugin!=nullptr);
 }
 
@@ -2464,6 +2482,9 @@ bool CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(const std::vecto
 
 void CPluginContainer::ikPlugin_emptyEnvironment()
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2476,6 +2497,9 @@ void CPluginContainer::ikPlugin_emptyEnvironment()
 
 void CPluginContainer::ikPlugin_eraseObject(int objectHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2485,6 +2509,9 @@ void CPluginContainer::ikPlugin_eraseObject(int objectHandle)
 }
 void CPluginContainer::ikPlugin_setObjectParent(int objectHandle,int parentObjectHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2494,6 +2521,9 @@ void CPluginContainer::ikPlugin_setObjectParent(int objectHandle,int parentObjec
 }
 int CPluginContainer::ikPlugin_createDummy()
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     int retVal=-1;
     if (currentIkPlugin!=nullptr)
     {
@@ -2505,6 +2535,9 @@ int CPluginContainer::ikPlugin_createDummy()
 }
 void CPluginContainer::ikPlugin_setLinkedDummy(int dummyHandle,int linkedDummyHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2514,6 +2547,9 @@ void CPluginContainer::ikPlugin_setLinkedDummy(int dummyHandle,int linkedDummyHa
 }
 int CPluginContainer::ikPlugin_createJoint(int jointType)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     int retVal=-1;
     if (currentIkPlugin!=nullptr)
     {
@@ -2525,6 +2561,9 @@ int CPluginContainer::ikPlugin_createJoint(int jointType)
 }
 void CPluginContainer::ikPlugin_setJointMode(int jointHandle,int jointMode)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2534,6 +2573,9 @@ void CPluginContainer::ikPlugin_setJointMode(int jointHandle,int jointMode)
 }
 void CPluginContainer::ikPlugin_setJointInterval(int jointHandle,bool cyclic,double jMin,double jRange)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     double mr[2]={jMin,jRange};
     if (currentIkPlugin!=nullptr)
     {
@@ -2544,6 +2586,9 @@ void CPluginContainer::ikPlugin_setJointInterval(int jointHandle,bool cyclic,dou
 }
 void CPluginContainer::ikPlugin_setJointScrewPitch(int jointHandle,double pitch)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2553,6 +2598,9 @@ void CPluginContainer::ikPlugin_setJointScrewPitch(int jointHandle,double pitch)
 }
 void CPluginContainer::ikPlugin_setJointIkWeight(int jointHandle,double ikWeight)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2562,6 +2610,9 @@ void CPluginContainer::ikPlugin_setJointIkWeight(int jointHandle,double ikWeight
 }
 void CPluginContainer::ikPlugin_setJointMaxStepSize(int jointHandle,double maxStepSize)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2571,6 +2622,9 @@ void CPluginContainer::ikPlugin_setJointMaxStepSize(int jointHandle,double maxSt
 }
 void CPluginContainer::ikPlugin_setJointDependency(int jointHandle,int dependencyJointHandle,double offset,double mult)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2580,6 +2634,9 @@ void CPluginContainer::ikPlugin_setJointDependency(int jointHandle,int dependenc
 }
 double CPluginContainer::ikPlugin_getJointPosition(int jointHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     double retVal=0.0;
     if (currentIkPlugin!=nullptr)
     {
@@ -2591,6 +2648,9 @@ double CPluginContainer::ikPlugin_getJointPosition(int jointHandle)
 }
 void CPluginContainer::ikPlugin_setJointPosition(int jointHandle,double position)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2600,6 +2660,9 @@ void CPluginContainer::ikPlugin_setJointPosition(int jointHandle,double position
 }
 C4Vector CPluginContainer::ikPlugin_getSphericalJointQuaternion(int jointHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     C4Vector retVal;
     if (currentIkPlugin!=nullptr)
     {
@@ -2611,6 +2674,9 @@ C4Vector CPluginContainer::ikPlugin_getSphericalJointQuaternion(int jointHandle)
 }
 void CPluginContainer::ikPlugin_setSphericalJointQuaternion(int jointHandle,const C4Vector& quaternion)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2620,6 +2686,9 @@ void CPluginContainer::ikPlugin_setSphericalJointQuaternion(int jointHandle,cons
 }
 int CPluginContainer::ikPlugin_createIkGroup()
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     int retVal=-1;
     if (currentIkPlugin!=nullptr)
     {
@@ -2631,6 +2700,9 @@ int CPluginContainer::ikPlugin_createIkGroup()
 }
 void CPluginContainer::ikPlugin_eraseIkGroup(int ikGroupHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2640,6 +2712,9 @@ void CPluginContainer::ikPlugin_eraseIkGroup(int ikGroupHandle)
 }
 void CPluginContainer::ikPlugin_setIkGroupFlags(int ikGroupHandle,int flags)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2649,6 +2724,9 @@ void CPluginContainer::ikPlugin_setIkGroupFlags(int ikGroupHandle,int flags)
 }
 void CPluginContainer::ikPlugin_setIkGroupCalculation(int ikGroupHandle,int method,double damping,int maxIterations)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2658,6 +2736,9 @@ void CPluginContainer::ikPlugin_setIkGroupCalculation(int ikGroupHandle,int meth
 }
 int CPluginContainer::ikPlugin_addIkElement(int ikGroupHandle,int tipHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     int retVal=-1;
     if (currentIkPlugin!=nullptr)
     {
@@ -2669,6 +2750,9 @@ int CPluginContainer::ikPlugin_addIkElement(int ikGroupHandle,int tipHandle)
 }
 void CPluginContainer::ikPlugin_eraseIkElement(int ikGroupHandle,int ikElementIndex)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2678,6 +2762,9 @@ void CPluginContainer::ikPlugin_eraseIkElement(int ikGroupHandle,int ikElementIn
 }
 void CPluginContainer::ikPlugin_setIkElementFlags(int ikGroupHandle,int ikElementIndex,int flags)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2687,6 +2774,9 @@ void CPluginContainer::ikPlugin_setIkElementFlags(int ikGroupHandle,int ikElemen
 }
 void CPluginContainer::ikPlugin_setIkElementBase(int ikGroupHandle,int ikElementIndex,int baseHandle,int constraintsBaseHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2696,6 +2786,9 @@ void CPluginContainer::ikPlugin_setIkElementBase(int ikGroupHandle,int ikElement
 }
 void CPluginContainer::ikPlugin_setIkElementConstraints(int ikGroupHandle,int ikElementIndex,int constraints)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2705,6 +2798,9 @@ void CPluginContainer::ikPlugin_setIkElementConstraints(int ikGroupHandle,int ik
 }
 void CPluginContainer::ikPlugin_setIkElementPrecision(int ikGroupHandle,int ikElementIndex,double linearPrecision,double angularPrecision)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2714,6 +2810,9 @@ void CPluginContainer::ikPlugin_setIkElementPrecision(int ikGroupHandle,int ikEl
 }
 void CPluginContainer::ikPlugin_setIkElementWeights(int ikGroupHandle,int ikElementIndex,double linearWeight,double angularWeight)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();
@@ -2723,6 +2822,9 @@ void CPluginContainer::ikPlugin_setIkElementWeights(int ikGroupHandle,int ikElem
 }
 int CPluginContainer::ikPlugin_handleIkGroup(int ikGroupHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     int retVal=sim_ikresult_not_performed;
     if (currentIkPlugin!=nullptr)
     {
@@ -2734,6 +2836,9 @@ int CPluginContainer::ikPlugin_handleIkGroup(int ikGroupHandle)
 }
 bool CPluginContainer::ikPlugin_computeJacobian(int ikGroupHandle,int options)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     bool retVal=false;
     if (currentIkPlugin!=nullptr)
     {
@@ -2745,6 +2850,9 @@ bool CPluginContainer::ikPlugin_computeJacobian(int ikGroupHandle,int options)
 }
 CMatrix* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     CMatrix* retVal=nullptr;
     if (currentIkPlugin!=nullptr)
     {
@@ -2767,6 +2875,9 @@ CMatrix* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle)
 }
 double CPluginContainer::ikPlugin_getManipulability(int ikGroupHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     double retVal=0.0;
     if (currentIkPlugin!=nullptr)
     {
@@ -2778,6 +2889,9 @@ double CPluginContainer::ikPlugin_getManipulability(int ikGroupHandle)
 }
 int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,double thresholdDist,int maxIterationsOrTimeInMs,double* retConfig,const double* metric,bool(*validationCallback)(double*),const int* jointOptions,const double* lowLimits,const double* ranges,std::string& errString)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     int retVal=-1;
     if (currentIkPlugin!=nullptr)
     {
@@ -2835,6 +2949,9 @@ bool _validationCallback(double* conf)
 
 int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,double thresholdDist,int maxIterationsOrTimeInMs,double* retConfig,const double* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const double* lowLimits,const double* ranges,std::string& errString)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     int retVal=-1;
     if (currentIkPlugin!=nullptr)
     {
@@ -2871,6 +2988,9 @@ int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCn
 }
 C7Vector CPluginContainer::ikPlugin_getObjectLocalTransformation(int objectHandle)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     C7Vector tr;
     if (currentIkPlugin!=nullptr)
     {
@@ -2882,6 +3002,9 @@ C7Vector CPluginContainer::ikPlugin_getObjectLocalTransformation(int objectHandl
 }
 void CPluginContainer::ikPlugin_setObjectLocalTransformation(int objectHandle,const C7Vector& tr)
 {
+    if (currentIkPlugin==nullptr)
+        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+
     if (currentIkPlugin!=nullptr)
     {
         currentIkPlugin->pushCurrentPlugin();

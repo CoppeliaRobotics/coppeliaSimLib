@@ -25,5 +25,5 @@ public:
 
 protected:
     std::vector<SPluginCallback> _allCallbacks_vect;
-    std::map<std::string,uint16_t> _allCallbacks_map;
+    std::map<std::string,size_t> _allCallbacks_map;
 };

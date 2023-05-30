@@ -25,5 +25,5 @@ public:
 
 protected:
     std::vector<SPluginVariable> _allVariables_vect;
-    std::map<std::string,SPluginVariable*> _allVariables_map;
+    std::map<std::string,size_t> _allVariables_map;
 };
