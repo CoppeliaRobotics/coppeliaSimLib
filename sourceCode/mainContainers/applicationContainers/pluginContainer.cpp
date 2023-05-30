@@ -11,7 +11,7 @@
 #include <algorithm>
 
 #define SIMIK_DEFAULT "simIK"
-//#define SIMUI_DEFAULT "simUI"
+#define SIMUI_DEFAULT "simUI"
 
 CPluginContainer::CPluginContainer()
 {
@@ -808,23 +808,9 @@ bool CPluginContainer::isGeomPluginAvailable()
     return(currentGeomPlugin!=nullptr);
 }
 
-bool CPluginContainer::isIkPluginAvailable()
-{
-    if (currentIKPlugin==nullptr)
-        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
-    return(currentIKPlugin!=nullptr);
-}
-
 bool CPluginContainer::isCodeEditorPluginAvailable()
 {
     return(currentCodeEditorPlugin!=nullptr);
-}
-
-bool CPluginContainer::isCustomUiPluginAvailable()
-{
-//    if (currentUIPlugin==nullptr)
-//        currentUIPlugin=_tryToLoadPluginOnce(SIMUI_DEFAULT);
-    return(currentUIPlugin!=nullptr);
 }
 
 bool CPluginContainer::isAssimpPluginAvailable()
@@ -3168,9 +3154,9 @@ int CPluginContainer::ruckigPlugin_dofs(int objHandle)
 }
 
 int CPluginContainer::customUi_msgBox(int type, int buttons, const char *title, const char *message,int defaultAnswer)
-{
-//    if (currentUIPlugin==nullptr)
-//        currentUIPlugin=_tryToLoadPluginOnce(SIMUI_DEFAULT);
+{ // only used with deprecated API function
+    if (currentUIPlugin==nullptr)
+        currentUIPlugin=_tryToLoadPluginOnce(SIMUI_DEFAULT);
     int retVal=-1;
     if (currentUIPlugin!=nullptr)
     {
@@ -3195,9 +3181,9 @@ int CPluginContainer::customUi_msgBox(int type, int buttons, const char *title, 
 }
 
 bool CPluginContainer::customUi_fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files)
-{
-//    if (currentUIPlugin==nullptr)
-//        currentUIPlugin=_tryToLoadPluginOnce(SIMUI_DEFAULT);
+{ // only used with deprecated API function
+    if (currentUIPlugin==nullptr)
+        currentUIPlugin=_tryToLoadPluginOnce(SIMUI_DEFAULT);
     bool retVal=false;
     if (currentUIPlugin!=nullptr)
     {

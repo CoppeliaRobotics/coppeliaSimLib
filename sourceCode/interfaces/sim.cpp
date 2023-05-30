@@ -790,9 +790,9 @@ SIM_DLLEXPORT int simEventNotification(const char* event)
 {
     return(simEventNotification_internal(event));
 }
-SIM_DLLEXPORT int simAddLog(const char* pluginName,int verbosityLevel,const char* logMsg)
+SIM_DLLEXPORT int simAddLog(const char* setToNull,int verbosityLevel,const char* logMsg)
 {
-    return(simAddLog_internal(pluginName,verbosityLevel,logMsg));
+    return(simAddLog_internal(setToNull,verbosityLevel,logMsg));
 }
 SIM_DLLEXPORT int simIsDynamicallyEnabled(int objectHandle)
 {

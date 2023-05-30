@@ -204,7 +204,7 @@ SIM_DLLEXPORT int simGetModuleInfo(const char* moduleName,int infoType,char** st
 SIM_DLLEXPORT int simIsDeprecated(const char* funcOrConst);
 SIM_DLLEXPORT char* simGetPersistentDataTags(int* tagCount);
 SIM_DLLEXPORT int simEventNotification(const char* event);
-SIM_DLLEXPORT int simAddLog(const char* pluginName,int verbosityLevel,const char* logMsg);
+SIM_DLLEXPORT int simAddLog(const char* setToNull,int verbosityLevel,const char* logMsg);
 SIM_DLLEXPORT int simIsDynamicallyEnabled(int objectHandle);
 SIM_DLLEXPORT int simInitScript(int scriptHandle);
 SIM_DLLEXPORT int simModuleEntry(int handle,const char* label,int state);

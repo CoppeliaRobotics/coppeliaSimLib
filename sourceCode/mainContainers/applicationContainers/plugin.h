@@ -196,6 +196,7 @@ typedef int (__cdecl *ptrRuckigPlugin_step)(int objHandle,double timeStep,double
 typedef int (__cdecl *ptrRuckigPlugin_remove)(int objHandle);
 typedef int (__cdecl *ptrRuckigPlugin_dofs)(int objHandle);
 
+// Following 2 only used with deprecated API functions:
 typedef int (__cdecl *ptrCustomUi_msgBox)(int type, int buttons, const char *title, const char *message);
 typedef char* (__cdecl *ptrCustomUi_fileDialog)(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native);
 
@@ -428,6 +429,7 @@ public:
     ptrCodeEditor_show _codeEditor_show;
     ptrCodeEditor_close _codeEditor_close;
 
+    // Following 2 only used with deprecated API functions:
     ptrCustomUi_msgBox _customUi_msgBox;
     ptrCustomUi_fileDialog _customUi_fileDialog;
 

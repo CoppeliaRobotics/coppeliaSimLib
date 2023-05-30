@@ -613,6 +613,7 @@ void CPlugin::_loadAuxEntryPoints()
     if (_codeEditor_openModal!=nullptr)
         App::worldContainer->pluginContainer->currentCodeEditorPlugin=this;
 
+    // Following 2 only used with deprecated API functions:
     _customUi_msgBox=(ptrCustomUi_msgBox)(VVarious::resolveLibraryFuncName(instance,"customUi_msgBox"));
     _customUi_fileDialog=(ptrCustomUi_fileDialog)(VVarious::resolveLibraryFuncName(instance,"customUi_fileDialog"));
     if (_customUi_msgBox!=nullptr)

@@ -1393,21 +1393,21 @@ void App::setConsoleLogFilter(const char* filter)
     _consoleLogFilterStr=filter;
 }
 
-bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* logMsg)
+bool App::logPluginMsg(const char* setToNull,int verbosityLevel,const char* logMsg)
 {
     bool retVal=false;
 
     CPlugin* it=nullptr;
     if (App::worldContainer!=nullptr)
     {
-        if (pluginName==nullptr)
+        if (setToNull==nullptr)
             it=App::worldContainer->pluginContainer->getCurrentPlugin();
         else
-            it=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
+            it=App::worldContainer->pluginContainer->getPluginFromName_old(setToNull,true);
     }
-    if ( (it!=nullptr)||(strcmp(pluginName,"CoppeliaSimClient")==0) )
+    int realVerbosityLevel=verbosityLevel&0x0fff;
+    if ( (it!=nullptr)||((setToNull!=nullptr)&&(strcmp(setToNull,"CoppeliaSimClient")==0)) )
     {
-        int realVerbosityLevel=verbosityLevel&0x0fff;
         if (it!=nullptr)
         {
             int consoleV=it->getConsoleVerbosity();
@@ -1422,7 +1422,7 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
                 if (it->isLegacyPlugin())
                 {
                     plugN="simExt";
-                    plugN+=pluginName;
+                    plugN+=setToNull;
                 }
                 else
                     plugN=it->getName();
@@ -1430,17 +1430,23 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
             }
         }
         else
-            __logMsg(pluginName,verbosityLevel,logMsg);
+            __logMsg(setToNull,verbosityLevel,logMsg);
         retVal=true;
     }
     else
-    { // let's just print a naked message. The plugin maybe wasn't registered yet? (e.g. in plugin start function)
-        std::string msg("[");
-        msg+=pluginName;
-        msg+=" (unknown plugin)]   ";
-        msg+=logMsg;
-        msg+="\n";
-        printf(msg.c_str());
+    { // let's just print a naked message.
+        if (_consoleVerbosity>=realVerbosityLevel)
+        {
+            std::string msg("[");
+            if (setToNull==nullptr)
+                msg+="unknown plugin";
+            else
+                msg+=setToNull;
+            msg+="]   ";
+            msg+=logMsg;
+            msg+="\n";
+            printf(msg.c_str());
+        }
         retVal=true;
     }
     return(retVal);

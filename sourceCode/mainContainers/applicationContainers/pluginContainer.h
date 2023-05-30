@@ -200,7 +200,6 @@ public:
     // IK plugin:
     CPlugin* currentIKPlugin;
     int ikEnvironment;
-    bool isIkPluginAvailable();
     void ikPlugin_emptyEnvironment();
     void ikPlugin_eraseObject(int objectHandle);
     void ikPlugin_setObjectParent(int objectHandle,int parentObjectHandle);
@@ -257,7 +256,6 @@ public:
 
     // Custom UI plugin:
     CPlugin* currentUIPlugin;
-    bool isCustomUiPluginAvailable();
     int customUi_msgBox(int type, int buttons, const char *title, const char *message,int defaultAnswer);
     bool customUi_fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files);
 
