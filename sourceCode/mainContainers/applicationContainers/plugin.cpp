@@ -58,27 +58,27 @@ CPlugin::~CPlugin()
         App::worldContainer->pluginContainer->currentGeomPlugin=nullptr;
     if (ikPlugin_createEnv!=nullptr) // also check constructor above
     {
-        App::worldContainer->pluginContainer->currentIkPlugin=nullptr;
+        App::worldContainer->pluginContainer->currentIKPlugin=nullptr;
         App::worldContainer->pluginContainer->ikEnvironment=-1;
     }
     if (ruckigPlugin_pos!=nullptr) // also check constructor above
         App::worldContainer->pluginContainer->currentRuckigPlugin=nullptr;
     if (_codeEditor_openModal!=nullptr) // also check constructor above
-        App::worldContainer->pluginContainer->currentCodeEditor=nullptr;
+        App::worldContainer->pluginContainer->currentCodeEditorPlugin=nullptr;
     if (_customUi_msgBox!=nullptr) // also check constructor above
-        App::worldContainer->pluginContainer->currentCustomUi=nullptr;
+        App::worldContainer->pluginContainer->currentUIPlugin=nullptr;
     if (_assimp_importShapes!=nullptr) // also check constructor above
-        App::worldContainer->pluginContainer->currentAssimp=nullptr;
+        App::worldContainer->pluginContainer->currentAssimpPlugin=nullptr;
     if (povRayAddr!=nullptr) // also check constructor above
-        App::worldContainer->pluginContainer->currentPovRay=nullptr;
+        App::worldContainer->pluginContainer->currentPovRayPlugin=nullptr;
     if (openGl3Addr!=nullptr) // also check constructor above
-        App::worldContainer->pluginContainer->currentOpenGl3=nullptr;
+        App::worldContainer->pluginContainer->currentOpenGl3Plugin=nullptr;
     if (qhullAddr!=nullptr) // also check constructor above
-        App::worldContainer->pluginContainer->currentQHull=nullptr;
+        App::worldContainer->pluginContainer->currentQHullPlugin=nullptr;
     if (hacdAddr!=nullptr) // also check constructor above
-        App::worldContainer->pluginContainer->currentConvexDecompose=nullptr;
+        App::worldContainer->pluginContainer->currentConvexDecomposePlugin=nullptr;
     if (decimatorAddr!=nullptr) // also check constructor above
-        App::worldContainer->pluginContainer->currentMeshDecimation=nullptr;
+        App::worldContainer->pluginContainer->currentMeshDecimationPlugin=nullptr;
     _pluginCallbackContainer.clear();
     _pluginVariableContainer.clear();
 
@@ -395,19 +395,19 @@ void CPlugin::_loadAuxEntryPoints()
     if (povRayAddr==nullptr)
         povRayAddr=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(instance,"v_repPovRay")); // for backward compatibility
     if (povRayAddr!=nullptr)
-        App::worldContainer->pluginContainer->currentPovRay=this;
+        App::worldContainer->pluginContainer->currentPovRayPlugin=this;
 
     openGl3Addr=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(instance,"simOpenGL3Renderer"));
     if (openGl3Addr==nullptr)
         openGl3Addr=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(instance,"v_repOpenGL3Renderer")); // for backward compatibility
     if (openGl3Addr!=nullptr)
-        App::worldContainer->pluginContainer->currentOpenGl3=this;
+        App::worldContainer->pluginContainer->currentOpenGl3Plugin=this;
 
     qhullAddr=(ptrQhull)(VVarious::resolveLibraryFuncName(instance,"simQhull"));
     if (qhullAddr==nullptr)
         qhullAddr=(ptrQhull)(VVarious::resolveLibraryFuncName(instance,"v_repQhull")); // for backward compatibility
     if (qhullAddr!=nullptr)
-        App::worldContainer->pluginContainer->currentQHull=this;
+        App::worldContainer->pluginContainer->currentQHullPlugin=this;
 
     hacdAddr=(ptrHACD)(VVarious::resolveLibraryFuncName(instance,"simHACD"));
     if (hacdAddr==nullptr)
@@ -416,13 +416,13 @@ void CPlugin::_loadAuxEntryPoints()
     if (vhacdAddr==nullptr)
         vhacdAddr=(ptrVHACD)(VVarious::resolveLibraryFuncName(instance,"v_repVHACD")); // for backward compatibility
     if ( (hacdAddr!=nullptr)&&(vhacdAddr!=nullptr) )
-        App::worldContainer->pluginContainer->currentConvexDecompose=this;
+        App::worldContainer->pluginContainer->currentConvexDecomposePlugin=this;
 
     decimatorAddr=(ptrMeshDecimator)(VVarious::resolveLibraryFuncName(instance,"simDecimateMesh"));
     if (decimatorAddr==nullptr)
         decimatorAddr=(ptrMeshDecimator)(VVarious::resolveLibraryFuncName(instance,"v_repDecimateMesh")); // for backward compatibility
     if (decimatorAddr!=nullptr)
-        App::worldContainer->pluginContainer->currentMeshDecimation=this;
+        App::worldContainer->pluginContainer->currentMeshDecimationPlugin=this;
 
     // For the dynamic plugins:
     dynPlugin_startSimulation=(ptr_dynPlugin_startSimulation_D)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_startSimulation_D"));
@@ -588,9 +588,9 @@ void CPlugin::_loadAuxEntryPoints()
     ikPlugin_setObjectLocalTransformation=(ptr_ikPlugin_setObjectLocalTransformation)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setObjectLocalTransformation"));
     if (ikPlugin_createEnv!=nullptr)
     {
-        App::worldContainer->pluginContainer->currentIkPlugin=this;
+        App::worldContainer->pluginContainer->currentIKPlugin=this;
         pushCurrentPlugin();
-        App::worldContainer->pluginContainer->ikEnvironment=App::worldContainer->pluginContainer->currentIkPlugin->ikPlugin_createEnv();
+        App::worldContainer->pluginContainer->ikEnvironment=App::worldContainer->pluginContainer->currentIKPlugin->ikPlugin_createEnv();
         popCurrentPlugin();
     }
 
@@ -611,18 +611,18 @@ void CPlugin::_loadAuxEntryPoints()
     _codeEditor_show=(ptrCodeEditor_show)(VVarious::resolveLibraryFuncName(instance,"codeEditor_show"));
     _codeEditor_close=(ptrCodeEditor_close)(VVarious::resolveLibraryFuncName(instance,"codeEditor_close"));
     if (_codeEditor_openModal!=nullptr)
-        App::worldContainer->pluginContainer->currentCodeEditor=this;
+        App::worldContainer->pluginContainer->currentCodeEditorPlugin=this;
 
     _customUi_msgBox=(ptrCustomUi_msgBox)(VVarious::resolveLibraryFuncName(instance,"customUi_msgBox"));
     _customUi_fileDialog=(ptrCustomUi_fileDialog)(VVarious::resolveLibraryFuncName(instance,"customUi_fileDialog"));
     if (_customUi_msgBox!=nullptr)
-        App::worldContainer->pluginContainer->currentCustomUi=this;
+        App::worldContainer->pluginContainer->currentUIPlugin=this;
 
     _assimp_importShapes=(ptrassimp_importShapes)(VVarious::resolveLibraryFuncName(instance,"assimp_importShapes"));
     _assimp_exportShapes=(ptrassimp_exportShapes)(VVarious::resolveLibraryFuncName(instance,"assimp_exportShapes"));
     _assimp_importMeshes=(ptrassimp_importMeshes)(VVarious::resolveLibraryFuncName(instance,"assimp_importMeshes"));
     _assimp_exportMeshes=(ptrassimp_exportMeshes)(VVarious::resolveLibraryFuncName(instance,"assimp_exportMeshes"));
     if (_assimp_importShapes!=nullptr)
-        App::worldContainer->pluginContainer->currentAssimp=this;
+        App::worldContainer->pluginContainer->currentAssimpPlugin=this;
 }
 

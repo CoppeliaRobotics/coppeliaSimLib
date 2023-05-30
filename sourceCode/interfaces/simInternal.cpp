@@ -1134,13 +1134,15 @@ char* simGetLastError_internal()
     return(nullptr);
 }
 
-int simSetLastError_internal(const char* funcName,const char* errorMessage)
+int simSetLastError_internal(const char* setToNullptr,const char* errorMessage)
 {
     TRACE_C_API;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        std::string func(funcName);
+        std::string func;
+        if (setToNullptr!=nullptr)
+            func=setToNullptr;
         if (func.compare(0,8,"warning@")==0)
             CApiErrors::setThreadBasedFirstCapiWarning_old(errorMessage);
         else

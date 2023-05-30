@@ -329,12 +329,7 @@ WLibrary VVarious::openLibrary(const char* filename,std::string* errMsg)
     if (!lib->load())
     {
         if (errMsg!=nullptr)
-        {
-            errMsg[0]="library (";
-            errMsg[0]+=filename;
-            errMsg[0]+=") load: ";
             errMsg[0]+=lib->errorString().toStdString();
-        }
         delete lib;
         lib=nullptr;
     }

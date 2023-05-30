@@ -234,9 +234,9 @@ SIM_DLLEXPORT int simAdjustView(int viewHandleOrIndex,int associatedViewableObje
 {
     return(simAdjustView_internal(viewHandleOrIndex,associatedViewableObjectHandle,options,viewLabel));
 }
-SIM_DLLEXPORT int simSetLastError(const char* funcName,const char* errorMessage)
+SIM_DLLEXPORT int simSetLastError(const char* setToNullptr,const char* errorMessage)
 {
-    return(simSetLastError_internal(funcName,errorMessage));
+    return(simSetLastError_internal(setToNullptr,errorMessage));
 }
 SIM_DLLEXPORT int simResetGraph(int graphHandle)
 {

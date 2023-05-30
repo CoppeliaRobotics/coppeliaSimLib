@@ -10,7 +10,8 @@
 #include <volInt.h>
 #include <algorithm>
 
-#define SIMIK_DEFAULT "simIK2"
+#define SIMIK_DEFAULT "simIK"
+//#define SIMUI_DEFAULT "simUI"
 
 CPluginContainer::CPluginContainer()
 {
@@ -20,17 +21,17 @@ CPluginContainer::CPluginContainer()
     currentDynEngine=nullptr;
     mujocoEngine=nullptr;
     currentGeomPlugin=nullptr;
-    currentIkPlugin=nullptr;
-    currentCodeEditor=nullptr;
+    currentIKPlugin=nullptr;
+    currentCodeEditorPlugin=nullptr;
     currentRuckigPlugin=nullptr;
-    currentCustomUi=nullptr;
-    currentAssimp=nullptr;
-    currentExternalRenderer=nullptr;
-    currentPovRay=nullptr;
-    currentOpenGl3=nullptr;
-    currentQHull=nullptr;
-    currentConvexDecompose=nullptr;
-    currentMeshDecimation=nullptr;
+    currentUIPlugin=nullptr;
+    currentAssimpPlugin=nullptr;
+    currentExternalRendererPlugin=nullptr;
+    currentPovRayPlugin=nullptr;
+    currentOpenGl3Plugin=nullptr;
+    currentQHullPlugin=nullptr;
+    currentConvexDecomposePlugin=nullptr;
+    currentMeshDecimationPlugin=nullptr;
 
     ikEnvironment=-1;
 }
@@ -44,6 +45,17 @@ CPlugin* CPluginContainer::getCurrentPlugin()
     if (currentPluginStack.size()==0)
         return(nullptr);
     return(currentPluginStack[currentPluginStack.size()-1]);
+}
+
+CPlugin* CPluginContainer::_tryToLoadPluginOnce(const char* namespaceAndVersion)
+{
+    CPlugin* retVal=nullptr;
+    if (_autoLoadPluginsTrials.find(namespaceAndVersion)==_autoLoadPluginsTrials.end())
+    {
+        retVal=loadAndInitPlugin(namespaceAndVersion,-1);
+        _autoLoadPluginsTrials.insert(namespaceAndVersion);
+    }
+    return(retVal);
 }
 
 CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int loadOrigin)
@@ -86,22 +98,7 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int
                 App::logMsg(sim_verbosity_errors,"plugin '%s': init failed.",namespaceAndVersion);
         }
         else
-        {
-            if (loadRes==-2)
-            {
-                #ifdef WIN_SIM
-                    App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. Try rebuilding the plugin.",namespaceAndVersion);
-                #endif
-                #ifdef MAC_SIM
-                    App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. Try 'otool -L pluginName.dylib' for more infos, or simply rebuild the plugin.",namespaceAndVersion);
-                #endif
-                #ifdef LIN_SIM
-                    App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. For additional infos, modify the script 'libLoadErrorCheck.sh', run it and inspect the output.",namespaceAndVersion);
-                #endif
-            }
-            if (loadRes==-1)
-                App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (missing entry points).",namespaceAndVersion);
-        }
+            App::logMsg(sim_verbosity_errors,(std::string("plugin '%s': ")+errMsg).c_str(),namespaceAndVersion);
         if (loadRes<2)
         { // failed
             _allPlugins.pop_back();
@@ -110,7 +107,18 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int
         }
     }
     if (plug!=nullptr)
+    {
         plug->addDependency(loadOrigin);
+#ifdef SIM_WITH_GUI
+        if ( (App::mainWindow!=nullptr)&&plug->isUiPlugin() )
+        { // trigger the UI thread that will init simInit_ui if needed:
+            SUIThreadCommand cmdIn;
+            SUIThreadCommand cmdOut;
+            cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
+            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        }
+#endif
+    }
     return(plug);
 }
 
@@ -404,25 +412,25 @@ void CPluginContainer::sendEventCallbackMessageToAllPlugins_old(int msg,int* aux
 
 bool CPluginContainer::selectExtRenderer(int index)
 {
-    currentExternalRenderer=nullptr;
+    currentExternalRendererPlugin=nullptr;
     if (index==sim_rendermode_povray-sim_rendermode_povray)
-        currentExternalRenderer=currentPovRay;
+        currentExternalRendererPlugin=currentPovRayPlugin;
     if (index==sim_rendermode_opengl3-sim_rendermode_povray)
-        currentExternalRenderer=currentOpenGl3;
-    return(currentExternalRenderer!=nullptr);
+        currentExternalRendererPlugin=currentOpenGl3Plugin;
+    return(currentExternalRendererPlugin!=nullptr);
 }
 
 bool CPluginContainer::extRenderer(int msg,void* data)
 {
     bool retVal=false;
-    if (currentExternalRenderer!=nullptr)
+    if (currentExternalRendererPlugin!=nullptr)
     {
-        currentExternalRenderer->pushCurrentPlugin();
-        if (currentExternalRenderer==currentPovRay)
-            currentPovRay->povRayAddr(msg,data);
-        if (currentExternalRenderer==currentOpenGl3)
-            currentOpenGl3->openGl3Addr(msg,data);
-        currentExternalRenderer->popCurrentPlugin();
+        currentExternalRendererPlugin->pushCurrentPlugin();
+        if (currentExternalRendererPlugin==currentPovRayPlugin)
+            currentPovRayPlugin->povRayAddr(msg,data);
+        if (currentExternalRendererPlugin==currentOpenGl3Plugin)
+            currentOpenGl3Plugin->openGl3Addr(msg,data);
+        currentExternalRendererPlugin->popCurrentPlugin();
         retVal=true;
     }
     return(retVal);
@@ -431,11 +439,11 @@ bool CPluginContainer::extRenderer(int msg,void* data)
 bool CPluginContainer::qhull(void* data)
 {
     bool retVal=false;
-    if (currentQHull!=nullptr)
+    if (currentQHullPlugin!=nullptr)
     {
-        currentQHull->pushCurrentPlugin();
-        currentQHull->qhullAddr(data);
-        currentQHull->popCurrentPlugin();
+        currentQHullPlugin->pushCurrentPlugin();
+        currentQHullPlugin->qhullAddr(data);
+        currentQHullPlugin->popCurrentPlugin();
         retVal=true;
     }
     else
@@ -446,11 +454,11 @@ bool CPluginContainer::qhull(void* data)
 bool CPluginContainer::hacd(void* data)
 {
     bool retVal=false;
-    if (currentConvexDecompose!=nullptr)
+    if (currentConvexDecomposePlugin!=nullptr)
     {
-        currentConvexDecompose->pushCurrentPlugin();
-        currentConvexDecompose->hacdAddr(data);
-        currentConvexDecompose->popCurrentPlugin();
+        currentConvexDecomposePlugin->pushCurrentPlugin();
+        currentConvexDecomposePlugin->hacdAddr(data);
+        currentConvexDecomposePlugin->popCurrentPlugin();
         retVal=true;
     }
     return(retVal);
@@ -459,11 +467,11 @@ bool CPluginContainer::hacd(void* data)
 bool CPluginContainer::vhacd(void* data)
 {
     bool retVal=false;
-    if (currentConvexDecompose!=nullptr)
+    if (currentConvexDecomposePlugin!=nullptr)
     {
-        currentConvexDecompose->pushCurrentPlugin();
-        currentConvexDecompose->vhacdAddr(data);
-        currentConvexDecompose->popCurrentPlugin();
+        currentConvexDecomposePlugin->pushCurrentPlugin();
+        currentConvexDecomposePlugin->vhacdAddr(data);
+        currentConvexDecomposePlugin->popCurrentPlugin();
         retVal=true;
     }
     return(retVal);
@@ -472,11 +480,11 @@ bool CPluginContainer::vhacd(void* data)
 bool CPluginContainer::meshDecimator(void* data)
 {
     bool retVal=false;
-    if (currentMeshDecimation!=nullptr)
+    if (currentMeshDecimationPlugin!=nullptr)
     {
-        currentMeshDecimation->pushCurrentPlugin();
-        currentMeshDecimation->decimatorAddr(data);
-        currentMeshDecimation->popCurrentPlugin();
+        currentMeshDecimationPlugin->pushCurrentPlugin();
+        currentMeshDecimationPlugin->decimatorAddr(data);
+        currentMeshDecimationPlugin->popCurrentPlugin();
         retVal=true;
     }
     return(retVal);
@@ -802,24 +810,26 @@ bool CPluginContainer::isGeomPluginAvailable()
 
 bool CPluginContainer::isIkPluginAvailable()
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
-    return(currentIkPlugin!=nullptr);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
+    return(currentIKPlugin!=nullptr);
 }
 
 bool CPluginContainer::isCodeEditorPluginAvailable()
 {
-    return(currentCodeEditor!=nullptr);
+    return(currentCodeEditorPlugin!=nullptr);
 }
 
 bool CPluginContainer::isCustomUiPluginAvailable()
 {
-    return(currentCustomUi!=nullptr);
+//    if (currentUIPlugin==nullptr)
+//        currentUIPlugin=_tryToLoadPluginOnce(SIMUI_DEFAULT);
+    return(currentUIPlugin!=nullptr);
 }
 
 bool CPluginContainer::isAssimpPluginAvailable()
 {
-    return(currentAssimp!=nullptr);
+    return(currentAssimpPlugin!=nullptr);
 }
 
 void CPluginContainer::geomPlugin_releaseBuffer(void* buffer)
@@ -2482,384 +2492,384 @@ bool CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(const std::vecto
 
 void CPluginContainer::ikPlugin_emptyEnvironment()
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
         //currentIkPlugin->ikPlugin_switchEnvironment(ikEnvironment);
-        currentIkPlugin->ikPlugin_eraseEnvironment(ikEnvironment);
-        ikEnvironment=currentIkPlugin->ikPlugin_createEnv();
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->ikPlugin_eraseEnvironment(ikEnvironment);
+        ikEnvironment=currentIKPlugin->ikPlugin_createEnv();
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 
 void CPluginContainer::ikPlugin_eraseObject(int objectHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_eraseObject(ikEnvironment,objectHandle);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_eraseObject(ikEnvironment,objectHandle);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setObjectParent(int objectHandle,int parentObjectHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setObjectParent(ikEnvironment,objectHandle,parentObjectHandle);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setObjectParent(ikEnvironment,objectHandle,parentObjectHandle);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 int CPluginContainer::ikPlugin_createDummy()
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     int retVal=-1;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        retVal=currentIkPlugin->ikPlugin_createDummy(ikEnvironment);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        retVal=currentIKPlugin->ikPlugin_createDummy(ikEnvironment);
+        currentIKPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
 void CPluginContainer::ikPlugin_setLinkedDummy(int dummyHandle,int linkedDummyHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setLinkedDummy(ikEnvironment,dummyHandle,linkedDummyHandle);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setLinkedDummy(ikEnvironment,dummyHandle,linkedDummyHandle);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 int CPluginContainer::ikPlugin_createJoint(int jointType)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     int retVal=-1;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        retVal=currentIkPlugin->ikPlugin_createJoint(ikEnvironment,jointType);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        retVal=currentIKPlugin->ikPlugin_createJoint(ikEnvironment,jointType);
+        currentIKPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
 void CPluginContainer::ikPlugin_setJointMode(int jointHandle,int jointMode)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setJointMode(ikEnvironment,jointHandle,jointMode);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setJointMode(ikEnvironment,jointHandle,jointMode);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setJointInterval(int jointHandle,bool cyclic,double jMin,double jRange)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     double mr[2]={jMin,jRange};
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setJointInterval(ikEnvironment,jointHandle,cyclic,mr);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setJointInterval(ikEnvironment,jointHandle,cyclic,mr);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setJointScrewPitch(int jointHandle,double pitch)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setJointScrewPitch(ikEnvironment,jointHandle,pitch);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setJointScrewPitch(ikEnvironment,jointHandle,pitch);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setJointIkWeight(int jointHandle,double ikWeight)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setJointIkWeight(ikEnvironment,jointHandle,ikWeight);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setJointIkWeight(ikEnvironment,jointHandle,ikWeight);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setJointMaxStepSize(int jointHandle,double maxStepSize)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setJointMaxStepSize(ikEnvironment,jointHandle,maxStepSize);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setJointMaxStepSize(ikEnvironment,jointHandle,maxStepSize);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setJointDependency(int jointHandle,int dependencyJointHandle,double offset,double mult)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setJointDependency(ikEnvironment,jointHandle,dependencyJointHandle,offset,mult);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setJointDependency(ikEnvironment,jointHandle,dependencyJointHandle,offset,mult);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 double CPluginContainer::ikPlugin_getJointPosition(int jointHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     double retVal=0.0;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        retVal=currentIkPlugin->ikPlugin_getJointPosition(ikEnvironment,jointHandle);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        retVal=currentIKPlugin->ikPlugin_getJointPosition(ikEnvironment,jointHandle);
+        currentIKPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
 void CPluginContainer::ikPlugin_setJointPosition(int jointHandle,double position)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setJointPosition(ikEnvironment,jointHandle,position);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setJointPosition(ikEnvironment,jointHandle,position);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 C4Vector CPluginContainer::ikPlugin_getSphericalJointQuaternion(int jointHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     C4Vector retVal;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_getSphericalJointQuaternion(ikEnvironment,jointHandle,retVal.data);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_getSphericalJointQuaternion(ikEnvironment,jointHandle,retVal.data);
+        currentIKPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
 void CPluginContainer::ikPlugin_setSphericalJointQuaternion(int jointHandle,const C4Vector& quaternion)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setSphericalJointQuaternion(ikEnvironment,jointHandle,quaternion.data);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setSphericalJointQuaternion(ikEnvironment,jointHandle,quaternion.data);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 int CPluginContainer::ikPlugin_createIkGroup()
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     int retVal=-1;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        retVal=currentIkPlugin->ikPlugin_createIkGroup(ikEnvironment);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        retVal=currentIKPlugin->ikPlugin_createIkGroup(ikEnvironment);
+        currentIKPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
 void CPluginContainer::ikPlugin_eraseIkGroup(int ikGroupHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_eraseIkGroup(ikEnvironment,ikGroupHandle);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_eraseIkGroup(ikEnvironment,ikGroupHandle);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setIkGroupFlags(int ikGroupHandle,int flags)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setIkGroupFlags(ikEnvironment,ikGroupHandle,flags);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setIkGroupFlags(ikEnvironment,ikGroupHandle,flags);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setIkGroupCalculation(int ikGroupHandle,int method,double damping,int maxIterations)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setIkGroupCalculation(ikEnvironment,ikGroupHandle,method,damping,maxIterations);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setIkGroupCalculation(ikEnvironment,ikGroupHandle,method,damping,maxIterations);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 int CPluginContainer::ikPlugin_addIkElement(int ikGroupHandle,int tipHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     int retVal=-1;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        retVal=currentIkPlugin->ikPlugin_addIkElement(ikEnvironment,ikGroupHandle,tipHandle);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        retVal=currentIKPlugin->ikPlugin_addIkElement(ikEnvironment,ikGroupHandle,tipHandle);
+        currentIKPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
 void CPluginContainer::ikPlugin_eraseIkElement(int ikGroupHandle,int ikElementIndex)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_eraseIkElement(ikEnvironment,ikGroupHandle,ikElementIndex);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_eraseIkElement(ikEnvironment,ikGroupHandle,ikElementIndex);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setIkElementFlags(int ikGroupHandle,int ikElementIndex,int flags)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setIkElementFlags(ikEnvironment,ikGroupHandle,ikElementIndex,flags);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setIkElementFlags(ikEnvironment,ikGroupHandle,ikElementIndex,flags);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setIkElementBase(int ikGroupHandle,int ikElementIndex,int baseHandle,int constraintsBaseHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setIkElementBase(ikEnvironment,ikGroupHandle,ikElementIndex,baseHandle,constraintsBaseHandle);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setIkElementBase(ikEnvironment,ikGroupHandle,ikElementIndex,baseHandle,constraintsBaseHandle);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setIkElementConstraints(int ikGroupHandle,int ikElementIndex,int constraints)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setIkElementConstraints(ikEnvironment,ikGroupHandle,ikElementIndex,constraints);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setIkElementConstraints(ikEnvironment,ikGroupHandle,ikElementIndex,constraints);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setIkElementPrecision(int ikGroupHandle,int ikElementIndex,double linearPrecision,double angularPrecision)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setIkElementPrecision(ikEnvironment,ikGroupHandle,ikElementIndex,linearPrecision,angularPrecision);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setIkElementPrecision(ikEnvironment,ikGroupHandle,ikElementIndex,linearPrecision,angularPrecision);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 void CPluginContainer::ikPlugin_setIkElementWeights(int ikGroupHandle,int ikElementIndex,double linearWeight,double angularWeight)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setIkElementWeights(ikEnvironment,ikGroupHandle,ikElementIndex,linearWeight,angularWeight);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setIkElementWeights(ikEnvironment,ikGroupHandle,ikElementIndex,linearWeight,angularWeight);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 int CPluginContainer::ikPlugin_handleIkGroup(int ikGroupHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     int retVal=sim_ikresult_not_performed;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        retVal=currentIkPlugin->ikPlugin_handleIkGroup(ikEnvironment,ikGroupHandle);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        retVal=currentIKPlugin->ikPlugin_handleIkGroup(ikEnvironment,ikGroupHandle);
+        currentIKPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
 bool CPluginContainer::ikPlugin_computeJacobian(int ikGroupHandle,int options)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     bool retVal=false;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        retVal=currentIkPlugin->ikPlugin_computeJacobian(ikEnvironment,ikGroupHandle,options);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        retVal=currentIKPlugin->ikPlugin_computeJacobian(ikEnvironment,ikGroupHandle,options);
+        currentIKPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
 CMatrix* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     CMatrix* retVal=nullptr;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
         int matrixSize[2];
-        currentIkPlugin->pushCurrentPlugin();
-        double* jc=currentIkPlugin->ikPlugin_getJacobian(ikEnvironment,ikGroupHandle,matrixSize);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        double* jc=currentIKPlugin->ikPlugin_getJacobian(ikEnvironment,ikGroupHandle,matrixSize);
+        currentIKPlugin->popCurrentPlugin();
         if (jc!=nullptr)
         {
             retVal=new CMatrix(matrixSize[1],matrixSize[0]);
@@ -2875,29 +2885,29 @@ CMatrix* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle)
 }
 double CPluginContainer::ikPlugin_getManipulability(int ikGroupHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     double retVal=0.0;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        retVal=currentIkPlugin->ikPlugin_getManipulability(ikEnvironment,ikGroupHandle);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        retVal=currentIKPlugin->ikPlugin_getManipulability(ikEnvironment,ikGroupHandle);
+        currentIKPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
 int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,double thresholdDist,int maxIterationsOrTimeInMs,double* retConfig,const double* metric,bool(*validationCallback)(double*),const int* jointOptions,const double* lowLimits,const double* ranges,std::string& errString)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     int retVal=-1;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        char* errS=currentIkPlugin->ikPlugin_getConfigForTipPose(ikEnvironment,ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxIterationsOrTimeInMs,&retVal,retConfig,metric,validationCallback,jointOptions,lowLimits,ranges);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        char* errS=currentIKPlugin->ikPlugin_getConfigForTipPose(ikEnvironment,ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxIterationsOrTimeInMs,&retVal,retConfig,metric,validationCallback,jointOptions,lowLimits,ranges);
+        currentIKPlugin->popCurrentPlugin();
         if ( (retVal<0)&&(errS!=nullptr) )
         {
             errString=errS;
@@ -2949,11 +2959,11 @@ bool _validationCallback(double* conf)
 
 int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCnt,const int* jointHandles,double thresholdDist,int maxIterationsOrTimeInMs,double* retConfig,const double* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const double* lowLimits,const double* ranges,std::string& errString)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     int retVal=-1;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
         bool(*_validationCB)(double*)=nullptr;
         bool err=false;
@@ -2977,9 +2987,9 @@ int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCn
         }
         if (!err)
         {
-            currentIkPlugin->pushCurrentPlugin();
+            currentIKPlugin->pushCurrentPlugin();
             retVal=ikPlugin_getConfigForTipPose(ikGroupHandle,jointCnt,jointHandles,thresholdDist,maxIterationsOrTimeInMs,retConfig,metric,_validationCB,jointOptions,lowLimits,ranges,errString);
-            currentIkPlugin->popCurrentPlugin();
+            currentIKPlugin->popCurrentPlugin();
         }
     }
     else
@@ -2988,39 +2998,39 @@ int CPluginContainer::ikPlugin_getConfigForTipPose(int ikGroupHandle,int jointCn
 }
 C7Vector CPluginContainer::ikPlugin_getObjectLocalTransformation(int objectHandle)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
     C7Vector tr;
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_getObjectLocalTransformation(ikEnvironment,objectHandle,tr.X.data,tr.Q.data);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_getObjectLocalTransformation(ikEnvironment,objectHandle,tr.X.data,tr.Q.data);
+        currentIKPlugin->popCurrentPlugin();
     }
     return(tr);
 }
 void CPluginContainer::ikPlugin_setObjectLocalTransformation(int objectHandle,const C7Vector& tr)
 {
-    if (currentIkPlugin==nullptr)
-        currentIkPlugin=loadAndInitPlugin(SIMIK_DEFAULT,-1);
+    if (currentIKPlugin==nullptr)
+        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
 
-    if (currentIkPlugin!=nullptr)
+    if (currentIKPlugin!=nullptr)
     {
-        currentIkPlugin->pushCurrentPlugin();
-        currentIkPlugin->ikPlugin_setObjectLocalTransformation(ikEnvironment,objectHandle,tr.X.data,tr.Q.data);
-        currentIkPlugin->popCurrentPlugin();
+        currentIKPlugin->pushCurrentPlugin();
+        currentIKPlugin->ikPlugin_setObjectLocalTransformation(ikEnvironment,objectHandle,tr.X.data,tr.Q.data);
+        currentIKPlugin->popCurrentPlugin();
     }
 }
 
 bool CPluginContainer::codeEditor_openModal(const char* initText,const char* properties,std::string& modifiedText,int* positionAndSize)
 {
     bool retVal=false;
-    if (currentCodeEditor!=nullptr)
+    if (currentCodeEditorPlugin!=nullptr)
     {
-        currentCodeEditor->pushCurrentPlugin();
-        char* buffer=currentCodeEditor->_codeEditor_openModal(initText,properties,positionAndSize);
-        currentCodeEditor->popCurrentPlugin();
+        currentCodeEditorPlugin->pushCurrentPlugin();
+        char* buffer=currentCodeEditorPlugin->_codeEditor_openModal(initText,properties,positionAndSize);
+        currentCodeEditorPlugin->popCurrentPlugin();
         if (buffer!=nullptr)
         {
             modifiedText=buffer;
@@ -3034,11 +3044,11 @@ bool CPluginContainer::codeEditor_openModal(const char* initText,const char* pro
 int CPluginContainer::codeEditor_open(const char* initText,const char* properties)
 {
     int retVal=-1;
-    if (currentCodeEditor!=nullptr)
+    if (currentCodeEditorPlugin!=nullptr)
     {
-        currentCodeEditor->pushCurrentPlugin();
-        retVal=currentCodeEditor->_codeEditor_open(initText,properties);
-        currentCodeEditor->popCurrentPlugin();
+        currentCodeEditorPlugin->pushCurrentPlugin();
+        retVal=currentCodeEditorPlugin->_codeEditor_open(initText,properties);
+        currentCodeEditorPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
@@ -3046,11 +3056,11 @@ int CPluginContainer::codeEditor_open(const char* initText,const char* propertie
 int CPluginContainer::codeEditor_setText(int handle,const char* text,int insertMode)
 {
     int retVal=-1;
-    if (currentCodeEditor!=nullptr)
+    if (currentCodeEditorPlugin!=nullptr)
     {
-        currentCodeEditor->pushCurrentPlugin();
-        retVal=currentCodeEditor->_codeEditor_setText(handle,text,insertMode);
-        currentCodeEditor->popCurrentPlugin();
+        currentCodeEditorPlugin->pushCurrentPlugin();
+        retVal=currentCodeEditorPlugin->_codeEditor_setText(handle,text,insertMode);
+        currentCodeEditorPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
@@ -3058,11 +3068,11 @@ int CPluginContainer::codeEditor_setText(int handle,const char* text,int insertM
 bool CPluginContainer::codeEditor_getText(int handle,std::string& text,int* positionAndSize)
 {
     bool retVal=false;
-    if (currentCodeEditor!=nullptr)
+    if (currentCodeEditorPlugin!=nullptr)
     {
-        currentCodeEditor->pushCurrentPlugin();
-        char* buffer=currentCodeEditor->_codeEditor_getText(handle,positionAndSize);
-        currentCodeEditor->popCurrentPlugin();
+        currentCodeEditorPlugin->pushCurrentPlugin();
+        char* buffer=currentCodeEditorPlugin->_codeEditor_getText(handle,positionAndSize);
+        currentCodeEditorPlugin->popCurrentPlugin();
         if (buffer!=nullptr)
         {
             text=buffer;
@@ -3076,11 +3086,11 @@ bool CPluginContainer::codeEditor_getText(int handle,std::string& text,int* posi
 int CPluginContainer::codeEditor_show(int handle,int showState)
 {
     int retVal=-1;
-    if (currentCodeEditor!=nullptr)
+    if (currentCodeEditorPlugin!=nullptr)
     {
-        currentCodeEditor->pushCurrentPlugin();
-        retVal=currentCodeEditor->_codeEditor_show(handle,showState);
-        currentCodeEditor->popCurrentPlugin();
+        currentCodeEditorPlugin->pushCurrentPlugin();
+        retVal=currentCodeEditorPlugin->_codeEditor_show(handle,showState);
+        currentCodeEditorPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
@@ -3088,11 +3098,11 @@ int CPluginContainer::codeEditor_show(int handle,int showState)
 int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
 {
     int retVal=-1;
-    if (currentCodeEditor!=nullptr)
+    if (currentCodeEditorPlugin!=nullptr)
     {
-        currentCodeEditor->pushCurrentPlugin();
-        retVal=currentCodeEditor->_codeEditor_close(handle,positionAndSize);
-        currentCodeEditor->popCurrentPlugin();
+        currentCodeEditorPlugin->pushCurrentPlugin();
+        retVal=currentCodeEditorPlugin->_codeEditor_close(handle,positionAndSize);
+        currentCodeEditorPlugin->popCurrentPlugin();
     }
     return(retVal);
 }
@@ -3159,8 +3169,10 @@ int CPluginContainer::ruckigPlugin_dofs(int objHandle)
 
 int CPluginContainer::customUi_msgBox(int type, int buttons, const char *title, const char *message,int defaultAnswer)
 {
+//    if (currentUIPlugin==nullptr)
+//        currentUIPlugin=_tryToLoadPluginOnce(SIMUI_DEFAULT);
     int retVal=-1;
-    if (currentCustomUi!=nullptr)
+    if (currentUIPlugin!=nullptr)
     {
         retVal=defaultAnswer;
         bool doIt=false;
@@ -3174,9 +3186,9 @@ int CPluginContainer::customUi_msgBox(int type, int buttons, const char *title, 
             doIt=(App::getDlgVerbosity()>=sim_verbosity_errors);
         if (doIt)
         {
-            currentCustomUi->pushCurrentPlugin();
-            retVal=currentCustomUi->_customUi_msgBox(type,buttons,title,message);
-            currentCustomUi->popCurrentPlugin();
+            currentUIPlugin->pushCurrentPlugin();
+            retVal=currentUIPlugin->_customUi_msgBox(type,buttons,title,message);
+            currentUIPlugin->popCurrentPlugin();
         }
     }
     return(retVal);
@@ -3184,12 +3196,14 @@ int CPluginContainer::customUi_msgBox(int type, int buttons, const char *title, 
 
 bool CPluginContainer::customUi_fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files)
 {
+//    if (currentUIPlugin==nullptr)
+//        currentUIPlugin=_tryToLoadPluginOnce(SIMUI_DEFAULT);
     bool retVal=false;
-    if (currentCustomUi!=nullptr)
+    if (currentUIPlugin!=nullptr)
     {
-        currentCustomUi->pushCurrentPlugin();
-        char* res=currentCustomUi->_customUi_fileDialog(type,title,startPath,initName,extName,ext,native);
-        currentCustomUi->popCurrentPlugin();
+        currentUIPlugin->pushCurrentPlugin();
+        char* res=currentUIPlugin->_customUi_fileDialog(type,title,startPath,initName,extName,ext,native);
+        currentUIPlugin->popCurrentPlugin();
         if (res!=nullptr)
         {
             if (strlen(res)>0)
@@ -3206,11 +3220,11 @@ bool CPluginContainer::customUi_fileDialog(int type, const char *title, const ch
 int* CPluginContainer::assimp_importShapes(const char* fileNames,int maxTextures,double scaling,int upVector,int options,int* shapeCount)
 {
     int* retVal=nullptr;
-    if (currentAssimp!=nullptr)
+    if (currentAssimpPlugin!=nullptr)
     {
-        currentAssimp->pushCurrentPlugin();
-        retVal=currentAssimp->_assimp_importShapes(fileNames,maxTextures,scaling,upVector,options,shapeCount);
-        currentAssimp->popCurrentPlugin();
+        currentAssimpPlugin->pushCurrentPlugin();
+        retVal=currentAssimpPlugin->_assimp_importShapes(fileNames,maxTextures,scaling,upVector,options,shapeCount);
+        currentAssimpPlugin->popCurrentPlugin();
     }
     else
         App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
@@ -3219,11 +3233,11 @@ int* CPluginContainer::assimp_importShapes(const char* fileNames,int maxTextures
 
 void CPluginContainer::assimp_exportShapes(const int* shapeHandles,int shapeCount,const char* filename,const char* format,double scaling,int upVector,int options)
 {
-    if (currentAssimp!=nullptr)
+    if (currentAssimpPlugin!=nullptr)
     {
-        currentAssimp->pushCurrentPlugin();
-        currentAssimp->_assimp_exportShapes(shapeHandles,shapeCount,filename,format,scaling,upVector,options);
-        currentAssimp->popCurrentPlugin();
+        currentAssimpPlugin->pushCurrentPlugin();
+        currentAssimpPlugin->_assimp_exportShapes(shapeHandles,shapeCount,filename,format,scaling,upVector,options);
+        currentAssimpPlugin->popCurrentPlugin();
     }
     else
         App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
@@ -3232,11 +3246,11 @@ void CPluginContainer::assimp_exportShapes(const int* shapeHandles,int shapeCoun
 int CPluginContainer::assimp_importMeshes(const char* fileNames,double scaling,int upVector,int options,double*** allVertices,int** verticesSizes,int*** allIndices,int** indicesSizes)
 {
     int retVal=0;
-    if (currentAssimp!=nullptr)
+    if (currentAssimpPlugin!=nullptr)
     {
-        currentAssimp->pushCurrentPlugin();
-        retVal=currentAssimp->_assimp_importMeshes(fileNames,scaling,upVector,options,allVertices,verticesSizes,allIndices,indicesSizes);
-        currentAssimp->popCurrentPlugin();
+        currentAssimpPlugin->pushCurrentPlugin();
+        retVal=currentAssimpPlugin->_assimp_importMeshes(fileNames,scaling,upVector,options,allVertices,verticesSizes,allIndices,indicesSizes);
+        currentAssimpPlugin->popCurrentPlugin();
     }
     else
         App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
@@ -3245,11 +3259,11 @@ int CPluginContainer::assimp_importMeshes(const char* fileNames,double scaling,i
 
 void CPluginContainer::assimp_exportMeshes(int meshCnt,const double** allVertices,const int* verticesSizes,const int** allIndices,const int* indicesSizes,const char* filename,const char* format,double scaling,int upVector,int options)
 {
-    if (currentAssimp!=nullptr)
+    if (currentAssimpPlugin!=nullptr)
     {
-        currentAssimp->pushCurrentPlugin();
-        currentAssimp->_assimp_exportMeshes(meshCnt,allVertices,verticesSizes,allIndices,indicesSizes,filename,format,scaling,upVector,options);
-        currentAssimp->popCurrentPlugin();
+        currentAssimpPlugin->pushCurrentPlugin();
+        currentAssimpPlugin->_assimp_exportMeshes(meshCnt,allVertices,verticesSizes,allIndices,indicesSizes,filename,format,scaling,upVector,options);
+        currentAssimpPlugin->popCurrentPlugin();
     }
     else
         App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");

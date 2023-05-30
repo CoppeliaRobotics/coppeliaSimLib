@@ -2397,7 +2397,11 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
             if (pcb!=nullptr)
             {
                 if (pcb->callback!=nullptr)
+                {
+                    plug->pushCurrentPlugin();
                     outputArgCount=_genericFunctionHandler(L,pcb->callback,errorString);
+                    plug->popCurrentPlugin();
+                }
                 else
                     errorString=std::string("sim.genericFunctionHandler: pcb->callback is NULL (")+functionName+", funcN: "+funcN+")";
             }

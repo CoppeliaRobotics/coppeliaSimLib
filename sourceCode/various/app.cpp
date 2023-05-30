@@ -1399,7 +1399,19 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
 
     CPlugin* it=nullptr;
     if (App::worldContainer!=nullptr)
-        it=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
+    {
+        it=App::worldContainer->pluginContainer->getCurrentPlugin();
+        /*
+        if (pluginName==nullptr)
+        {
+            it=App::worldContainer->pluginContainer->getCurrentPlugin();
+            if ( (it!=nullptr)&&(it->isLegacyPlugin()) )
+                it=nullptr;
+        }
+        else
+            it=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
+            */
+    }
     if ( (it!=nullptr)||(strcmp(pluginName,"CoppeliaSimClient")==0) )
     {
         int realVerbosityLevel=verbosityLevel&0x0fff;

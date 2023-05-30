@@ -63,7 +63,7 @@ SIM_DLLEXPORT int simLoadModule(const char* filenameAndPath,const char* pluginNa
 SIM_DLLEXPORT int simUnloadModule(int pluginhandle);
 SIM_DLLEXPORT char* simGetModuleName(int index,unsigned char* moduleVersion);
 SIM_DLLEXPORT int simAdjustView(int viewHandleOrIndex,int associatedViewableObjectHandle,int options,const char* viewLabel);
-SIM_DLLEXPORT int simSetLastError(const char* funcName,const char* errorMessage);
+SIM_DLLEXPORT int simSetLastError(const char* setToNullptr,const char* errorMessage);
 SIM_DLLEXPORT int simResetGraph(int graphHandle);
 SIM_DLLEXPORT int simDestroyGraphCurve(int graphHandle,int curveId);
 SIM_DLLEXPORT int simDuplicateGraphCurveToStatic(int graphHandle,int curveId,const char* curveName);

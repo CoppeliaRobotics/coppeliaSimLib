@@ -118,7 +118,7 @@ char* simGetModuleName_internal(int index,unsigned char* moduleVersion);
 int simFloatingViewAdd_internal(double posX,double posY,double sizeX,double sizeY,int options);
 int simFloatingViewRemove_internal(int floatingViewHandle);
 int simAdjustView_internal(int viewHandleOrIndex,int associatedViewableObjectHandle,int options,const char* viewLabel);
-int simSetLastError_internal(const char* funcName,const char* errorMessage);
+int simSetLastError_internal(const char* setToNullptr,const char* errorMessage);
 int simHandleGraph_internal(int graphHandle,double simulationTime);
 int simResetGraph_internal(int graphHandle);
 int simAddGraphStream_internal(int graphHandle,const char* streamName,const char* unitStr,int options,const float* color,double cyclicRange);

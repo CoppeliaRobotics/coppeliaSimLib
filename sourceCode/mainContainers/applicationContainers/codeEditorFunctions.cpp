@@ -32,7 +32,7 @@ bool CCodeEditorFunctions::set(const char* info)
         {
             std::string funcName(line.begin(),line.begin()+openP);
             size_t equal=line.find('=');
-            if (equal!=std::string::npos)
+            if ( (equal!=std::string::npos)&&(equal<openP) )
                 funcName.assign(line.begin()+equal+1,line.begin()+openP);
             utils::removeSpacesAtBeginningAndEnd(funcName);
             auto it=_allFuncs.find(funcName);

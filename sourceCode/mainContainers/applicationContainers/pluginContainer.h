@@ -198,7 +198,7 @@ public:
     bool geomPlugin_isPointInVolume1AndOutVolume2(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const C3Vector& point);
 
     // IK plugin:
-    CPlugin* currentIkPlugin;
+    CPlugin* currentIKPlugin;
     int ikEnvironment;
     bool isIkPluginAvailable();
     void ikPlugin_emptyEnvironment();
@@ -238,7 +238,7 @@ public:
     void ikPlugin_setObjectLocalTransformation(int objectHandle,const C7Vector& tr);
 
     // code editor plugin:
-    CPlugin* currentCodeEditor;
+    CPlugin* currentCodeEditorPlugin;
     bool isCodeEditorPluginAvailable();
     bool codeEditor_openModal(const char* initText,const char* properties,std::string& modifiedText,int* positionAndSize);
     int codeEditor_open(const char* initText,const char* properties);
@@ -256,34 +256,37 @@ public:
     int ruckigPlugin_dofs(int objHandle);
 
     // Custom UI plugin:
-    CPlugin* currentCustomUi;
+    CPlugin* currentUIPlugin;
     bool isCustomUiPluginAvailable();
     int customUi_msgBox(int type, int buttons, const char *title, const char *message,int defaultAnswer);
     bool customUi_fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files);
 
     // Assimp plugin:
-    CPlugin* currentAssimp;
+    CPlugin* currentAssimpPlugin;
     bool isAssimpPluginAvailable();
     int* assimp_importShapes(const char* fileNames,int maxTextures,double scaling,int upVector,int options,int* shapeCount);
     void assimp_exportShapes(const int* shapeHandles,int shapeCount,const char* filename,const char* format,double scaling,int upVector,int options);
     int assimp_importMeshes(const char* fileNames,double scaling,int upVector,int options,double*** allVertices,int** verticesSizes,int*** allIndices,int** indicesSizes);
     void assimp_exportMeshes(int meshCnt,const double** allVertices,const int* verticesSizes,const int** allIndices,const int* indicesSizes,const char* filename,const char* format,double scaling,int upVector,int options);
 
-    CPlugin* currentExternalRenderer;
+    CPlugin* currentExternalRendererPlugin;
 
-    CPlugin* currentPovRay;
+    CPlugin* currentPovRayPlugin;
 
-    CPlugin* currentOpenGl3;
+    CPlugin* currentOpenGl3Plugin;
 
-    CPlugin* currentQHull;
+    CPlugin* currentQHullPlugin;
 
-    CPlugin* currentConvexDecompose;
+    CPlugin* currentConvexDecomposePlugin;
 
-    CPlugin* currentMeshDecimation;
+    CPlugin* currentMeshDecimationPlugin;
 
 private:
+    CPlugin* _tryToLoadPluginOnce(const char* namespaceAndVersion);
+
     int _nextHandle;
     VMutex _pluginInterfaceMutex;
     std::vector<CPlugin*> _allPlugins;
+    std::set<std::string> _autoLoadPluginsTrials;
 
 };
