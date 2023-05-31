@@ -16456,20 +16456,6 @@ int simGetModuleInfo_internal(const char* moduleName,int infoType,char** stringI
     return(-1);
 }
 
-int simIsDeprecated_internal(const char* funcOrConst)
-{
-    TRACE_C_API;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal=CScriptObject::isFunctionOrConstDeprecated(funcOrConst);
-        if (retVal<0)
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_STRING_NOT_RECOGNIZED_AS_FUNC_OR_CONST);
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
 char* simGetPersistentDataTags_internal(int* tagCount)
 {
     TRACE_C_API;

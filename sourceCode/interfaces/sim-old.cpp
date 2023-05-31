@@ -3245,3 +3245,7 @@ SIM_DLLEXPORT const void* _simGetGeomProxyFromShape(const void* shape)
 {
     return(_simGetGeomProxyFromShape_internal(shape));
 }
+SIM_DLLEXPORT int simIsDeprecated(const char* funcOrConst)
+{
+    return(0);
+}

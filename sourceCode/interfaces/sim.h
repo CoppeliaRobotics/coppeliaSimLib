@@ -201,7 +201,6 @@ SIM_DLLEXPORT char* simGetApiFunc(int scriptHandle,const char* apiWord);
 SIM_DLLEXPORT char* simGetApiInfo(int scriptHandleOrType,const char* apiWord);
 SIM_DLLEXPORT int simSetModuleInfo(const char* moduleName,int infoType,const char* stringInfo,int intInfo);
 SIM_DLLEXPORT int simGetModuleInfo(const char* moduleName,int infoType,char** stringInfo,int* intInfo);
-SIM_DLLEXPORT int simIsDeprecated(const char* funcOrConst);
 SIM_DLLEXPORT char* simGetPersistentDataTags(int* tagCount);
 SIM_DLLEXPORT int simEventNotification(const char* event);
 SIM_DLLEXPORT int simAddLog(const char* setToNull,int verbosityLevel,const char* logMsg);

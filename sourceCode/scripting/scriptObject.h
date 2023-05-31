@@ -165,7 +165,6 @@ public:
     static void getMatchingFunctions(const char* txt,std::set<std::string>& v,const CScriptObject* requestOrigin);
     static void getMatchingConstants(const char* txt,std::set<std::string>& v,const CScriptObject* requestOrigin);
     static std::string getFunctionCalltip(const char* txt,const CScriptObject* requestOrigin);
-    static int isFunctionOrConstDeprecated(const char* txt);
     static bool canCallSystemCallback(int scriptType,bool threadedOld,int callType);
     static bool isSystemCallbackInReverseOrder(int callType);
     static bool isSystemCallbackInterruptible(int callType);

@@ -778,10 +778,6 @@ SIM_DLLEXPORT int simGetModuleInfo(const char* moduleName,int infoType,char** st
 {
     return(simGetModuleInfo_internal(moduleName,infoType,stringInfo,intInfo));
 }
-SIM_DLLEXPORT int simIsDeprecated(const char* funcOrConst)
-{
-    return(simIsDeprecated_internal(funcOrConst));
-}
 SIM_DLLEXPORT char* simGetPersistentDataTags(int* tagCount)
 {
     return(simGetPersistentDataTags_internal(tagCount));

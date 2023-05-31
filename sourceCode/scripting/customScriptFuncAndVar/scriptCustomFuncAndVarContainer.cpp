@@ -148,29 +148,6 @@ bool CScriptCustomFuncAndVarContainer::isVariableNamePresent(const char* name)
     return(false);
 }
 
-int CScriptCustomFuncAndVarContainer::isFuncOrConstDeprecated(const char* name)
-{
-    for (size_t i=0;i<_allCustomFunctions.size();i++)
-    {
-        if (_allCustomFunctions[i]->getFunctionName().compare(name)==0)
-        {
-            if (_allCustomFunctions[i]->isDeprecated())
-                return(1);
-            return(0);
-        }
-    }
-    for (size_t i=0;i<_allCustomVariables.size();i++)
-    {
-        if (_allCustomVariables[i]->getVariableName().compare(name)==0)
-        {
-            if (_allCustomVariables[i]->isDeprecated())
-                return(1);
-            return(0);
-        }
-    }
-    return(-1);
-}
-
 bool CScriptCustomFuncAndVarContainer::removeCustomVariable(const char* fullVariableName)
 {
     for (size_t i=0;i<_allCustomVariables.size();i++)

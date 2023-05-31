@@ -556,3 +556,4 @@ SIM_DLLEXPORT void _simGetMotorPid(const void* joint,float* pParam,float* iParam
 SIM_DLLEXPORT void _simGetPrincipalMomentOfInertia(const void* geomInfo,float* inertia);
 SIM_DLLEXPORT void _simGetLocalInertiaFrame(const void* geomInfo,float* pos,float* quat);
 SIM_DLLEXPORT const void* _simGetGeomProxyFromShape(const void* shape);
+SIM_DLLEXPORT int simIsDeprecated(const char* funcOrConst);

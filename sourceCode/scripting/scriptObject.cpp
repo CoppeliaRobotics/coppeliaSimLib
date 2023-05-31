@@ -634,70 +634,14 @@ void CScriptObject::addUsedModule(const char* module)
 
 void CScriptObject::getMatchingFunctions(const char* txt,std::set<std::string>& v,const CScriptObject* requestOrigin)
 {
-    std::string ttxt(txt);
-    bool hasDot=(ttxt.find('.')!=std::string::npos);
-    for (size_t i=0;simLuaCommands[i].name!="";i++)
-    {
-        if (simLuaCommands[i].autoComplete)
-        {
-            std::string n(simLuaCommands[i].name);
-            if (n.find(txt)==0)
-            {
-                if ( (!hasDot)&&(ttxt.size()>0) )
-                {
-                    size_t dp=n.find('.');
-                    if (dp!=std::string::npos)
-                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
-                }
-                v.insert(n);
-            }
-        }
-    }
-
-    std::vector<std::string> sysCb=getAllSystemCallbackStrings(-1,1);
-    for (size_t i=0;i<sysCb.size();i++)
-    {
-        std::string n(sysCb[i]);
-        if (n.find(txt)==0)
-        {
-            if ( (!hasDot)&&(ttxt.size()>0) )
-            {
-                size_t dp=n.find('.');
-                if (dp!=std::string::npos)
-                    n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
-            }
-            v.insert(n);
-        }
-    }
-
-    App::worldContainer->scriptCustomFuncAndVarContainer->insertAllFunctionNamesThatStartSame(txt,v);
+    App::worldContainer->scriptCustomFuncAndVarContainer->insertAllFunctionNamesThatStartSame(txt,v); // old plugins
 
     App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt,v,1,requestOrigin);
 }
 
 void CScriptObject::getMatchingConstants(const char* txt,std::set<std::string>& v,const CScriptObject* requestOrigin)
 {
-    std::string ttxt(txt);
-    bool hasDot=(ttxt.find('.')!=std::string::npos);
-    for (size_t i=0;simLuaVariables[i].name!="";i++)
-    {
-        if (simLuaVariables[i].autoComplete)
-        {
-            std::string n(simLuaVariables[i].name);
-            if (n.find(txt)==0)
-            {
-                if ( (!hasDot)&&(ttxt.size()>0) )
-                {
-                    size_t dp=n.find('.');
-                    if (dp!=std::string::npos)
-                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
-                }
-                v.insert(n);
-            }
-        }
-    }
-
-    App::worldContainer->scriptCustomFuncAndVarContainer->insertAllVariableNamesThatStartSame(txt,v);
+    App::worldContainer->scriptCustomFuncAndVarContainer->insertAllVariableNamesThatStartSame(txt,v); // old plugins
 
     App::worldContainer->codeEditorInfos->insertWhatStartsSame(txt,v,2,requestOrigin);
 }
@@ -705,32 +649,6 @@ void CScriptObject::getMatchingConstants(const char* txt,std::set<std::string>& 
 std::string CScriptObject::getFunctionCalltip(const char* txt,const CScriptObject* requestOrigin)
 {
     std::string retVal=App::worldContainer->codeEditorInfos->getFunctionCalltip(txt,requestOrigin);
-
-    if (retVal.size()==0)
-    {
-        for (size_t i=0;simLuaCommands[i].name!="";i++)
-        {
-            if (simLuaCommands[i].name.compare(txt)==0)
-            {
-                retVal=simLuaCommands[i].callTip;
-                break;
-            }
-        }
-    }
-
-    if (retVal.size()==0)
-    { // Check system callback calltips:
-        std::vector<std::string> sysCb=getAllSystemCallbackStrings(-1,1);
-        std::vector<std::string> sysCbCt=getAllSystemCallbackStrings(-1,2);
-        for (size_t i=0;i<sysCb.size();i++)
-        {
-            if (sysCb[i].compare(txt)==0)
-            {
-                retVal=sysCbCt[i];
-                break;
-            }
-        }
-    }
 
     if (retVal.size()==0)
     { // Check old plugin functions' calltips:
@@ -747,48 +665,6 @@ std::string CScriptObject::getFunctionCalltip(const char* txt,const CScriptObjec
     }
 
     return(retVal);
-}
-
-int CScriptObject::isFunctionOrConstDeprecated(const char* txt)
-{
-    std::string func(txt);
-    // Functions:
-    for (size_t i=0;simLuaCommands[i].name!="";i++)
-    {
-        std::string n(simLuaCommands[i].name);
-        if (n.compare(func)==0)
-        {
-            if (simLuaCommands[i].autoComplete)
-                return(0);
-            return(1);
-        }
-    }
-    for (size_t i=0;simLuaCommandsOldApi[i].name!="";i++)
-    {
-        std::string n(simLuaCommandsOldApi[i].name);
-        if (n.compare(func)==0)
-            return(1);
-    }
-    // Variables/Constants:
-    for (size_t i=0;simLuaVariables[i].name!="";i++)
-    {
-        std::string n(simLuaVariables[i].name);
-        if (n.compare(func)==0)
-        {
-            if (simLuaVariables[i].autoComplete)
-                return(0);
-            return(1);
-        }
-    }
-    for (size_t i=0;simLuaVariablesOldApi[i].name!="";i++)
-    {
-        std::string n(simLuaVariablesOldApi[i].name);
-        if (n.compare(func)==0)
-            return(1);
-    }
-
-    // Check plugin functions and variables:
-    return(App::worldContainer->scriptCustomFuncAndVarContainer->isFuncOrConstDeprecated(func.c_str()));
 }
 
 bool CScriptObject::isSystemCallbackInReverseOrder(int callType)
@@ -2709,10 +2585,11 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     luaWrap_lua_pop(L,1);
     // --------------------------------------------
 
-    _execSimpleString_safe_lua(L,"sim={}");
+    _execSimpleString_safe_lua(L,"sim={} sim_2_0={}");
     registerNewFunctions_lua();
     _registerNewVariables_lua();
-    if (0!=_execSimpleString_safe_lua(L,"require('sim')"))
+    _execSimpleString_safe_lua(L,"_S={sim=sim, sim_2_0=sim_2_0} sim=nil sim_2_0=nil");
+    if (0!=_execSimpleString_safe_lua(L,"require('base')"))
     {
         if (errorMsg!=nullptr)
             errorMsg[0]=luaWrap_lua_tostring(L,-1);
@@ -2721,9 +2598,11 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
     }
     else
     {
+        // Following 3 for the old plugins:
         registerPluginVariables(true); // for now we do not react to a failed require("file"), for backward compatibility's sake. We report a warning, and only to the console and for the sandbox script
         registerPluginFunctions();
         registerPluginVariables(false);
+
         luaWrap_lua_sethook(L,_hookFunction_lua,luaWrapGet_LUA_MASKCOUNT(),100); // This instruction gets also called in luaHookFunction!!!!
         _initFunctionHookCount=int(_functionHooks_before.size()+_functionHooks_after.size());
     }
@@ -2842,28 +2721,31 @@ void CScriptObject::registerNewFunctions_lua()
     luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
     // CoppeliaSim API functions:
     for (int i=0;simLuaCommands[i].name!="";i++)
-    {
+    { // i.e. loadPlugin, sim.getObject, sim_2_0.getObject, etc.
         std::string name(simLuaCommands[i].name);
-        if (name.find("sim.")!=std::string::npos)
+        size_t p=name.find('.');
+        if (p!=std::string::npos)
         {
-            name.erase(name.begin(),name.begin()+4);
-            _registerTableFunction(L,"sim",name.c_str(),simLuaCommands[i].func);
+            std::string prefix(name.begin(),name.begin()+p);
+            name.erase(name.begin(),name.begin()+p+1);
+            _registerTableFunction(L,prefix.c_str(),name.c_str(),simLuaCommands[i].func);
         }
         else
             luaWrap_lua_register(L,simLuaCommands[i].name.c_str(),simLuaCommands[i].func);
     }
     if (App::userSettings->getSupportOldApiNotation())
-    {
+    { // i.e. sim_old.simGetObjectHandle, etc. We need to put this in the global namespace, since we do not have a lazy load option
         for (int i=0;simLuaCommandsOldApi[i].name!="";i++)
         {
             std::string name(simLuaCommandsOldApi[i].name);
-            if (name.find("sim.")!=std::string::npos)
+            size_t p=name.find('.');
+            if (p!=std::string::npos)
             {
-                name.erase(name.begin(),name.begin()+4);
-                _registerTableFunction(L,"sim",name.c_str(),simLuaCommandsOldApi[i].func);
+                std::string prefix(name.begin(),name.begin()+p);
+                name.erase(name.begin(),name.begin()+p+1);
+                luaWrap_lua_register(L,name.c_str(),simLuaCommandsOldApi[i].func);
+                //_registerTableFunction(L,prefix.c_str(),name.c_str(),simLuaCommandsOldApi[i].func);
             }
-            else
-                luaWrap_lua_register(L,simLuaCommandsOldApi[i].name.c_str(),simLuaCommandsOldApi[i].func);
         }
     }
 }
@@ -3165,12 +3047,17 @@ void CScriptObject::_registerNewVariables_lua()
         _execSimpleString_safe_lua(L,tmp.c_str());
     }
     if (App::userSettings->getSupportOldApiNotation())
-    {
+    { // i.e. sim_old.sim_handle_all, etc. We need to put this in the global namespace, since we do not have a lazy load option
         for (size_t i=0;simLuaVariablesOldApi[i].name!="";i++)
         {
             std::string tmp(simLuaVariablesOldApi[i].name.c_str());
-            tmp+="="+std::to_string(simLuaVariablesOldApi[i].val);
-            _execSimpleString_safe_lua(L,tmp.c_str());
+            size_t p=tmp.find('.');
+            if (p!=std::string::npos)
+            {
+                tmp.erase(tmp.begin(),tmp.begin()+p+1);
+                tmp+="="+std::to_string(simLuaVariablesOldApi[i].val);
+                _execSimpleString_safe_lua(L,tmp.c_str());
+            }
         }
     }
 }

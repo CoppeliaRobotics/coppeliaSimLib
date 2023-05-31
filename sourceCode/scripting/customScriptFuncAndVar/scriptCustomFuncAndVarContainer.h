@@ -32,7 +32,6 @@ public:
     void insertAllVariableNamesThatStartSame(const char* txt,std::set<std::string>& v);
 
     bool isVariableNamePresent(const char* name);
-    int isFuncOrConstDeprecated(const char* name);
 
 protected:
     std::vector<CScriptCustomFunction*> _allCustomFunctions;

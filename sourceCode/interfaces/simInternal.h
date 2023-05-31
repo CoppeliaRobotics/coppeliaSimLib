@@ -340,7 +340,6 @@ char* simGetApiFunc_internal(int scriptHandle,const char* apiWord);
 char* simGetApiInfo_internal(int scriptHandle,const char* apiWord);
 int simSetModuleInfo_internal(const char* moduleName,int infoType,const char* stringInfo,int intInfo);
 int simGetModuleInfo_internal(const char* moduleName,int infoType,char** stringInfo,int* intInfo);
-int simIsDeprecated_internal(const char* funcOrConst);
 char* simGetPersistentDataTags_internal(int* tagCount);
 int simEventNotification_internal(const char* event);
 int simApplyTexture_internal(int shapeHandle,const double* textureCoordinates,int textCoordSize,const unsigned char* texture,const int* textureResolution,int options);

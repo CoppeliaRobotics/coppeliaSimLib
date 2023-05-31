@@ -12,15 +12,12 @@ struct SLuaCommands
 {
     std::string name;
     luaWrap_lua_CFunction func;
-    std::string callTip;
-    bool autoComplete;
 };
 
 struct SLuaVariables
 {
     std::string name;
     int val;
-    bool autoComplete;
 };
 
 void _registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback);
@@ -70,7 +67,14 @@ const extern SLuaVariables simLuaVariables[];
 extern int _loadPlugin(luaWrap_lua_State* L);
 extern int _unloadPlugin(luaWrap_lua_State* L);
 extern int _registerCodeEditorInfos(luaWrap_lua_State* L);
+extern int _registerScriptFuncHook(luaWrap_lua_State* L);
 extern int _auxFunc(luaWrap_lua_State* L);
+extern int _setThreadAutomaticSwitch(luaWrap_lua_State* L);
+extern int _getThreadAutomaticSwitch(luaWrap_lua_State* L);
+extern int _getThreadSwitchAllowed(luaWrap_lua_State* L);
+extern int _setThreadSwitchAllowed(luaWrap_lua_State* L);
+extern int _addLog(luaWrap_lua_State* L);
+extern int _quitSimulator(luaWrap_lua_State* L);
 
 extern int _simHandleChildScripts(luaWrap_lua_State* L);
 extern int _simHandleEmbeddedScripts(luaWrap_lua_State* L);
@@ -178,12 +182,8 @@ extern int _simGetPage(luaWrap_lua_State* L);
 extern int _simReleaseScriptRawBuffer(luaWrap_lua_State* L);
 extern int _simCopyPasteObjects(luaWrap_lua_State* L);
 extern int _simScaleObjects(luaWrap_lua_State* L);
-extern int _simSetThreadAutomaticSwitch(luaWrap_lua_State* L);
-extern int _simGetThreadAutomaticSwitch(luaWrap_lua_State* L);
 extern int _simSetThreadSwitchTiming(luaWrap_lua_State* L);
 extern int _simGetThreadSwitchTiming(luaWrap_lua_State* L);
-extern int _simGetThreadSwitchAllowed(luaWrap_lua_State* L);
-extern int _simSetThreadSwitchAllowed(luaWrap_lua_State* L);
 extern int _simSaveImage(luaWrap_lua_State* L);
 extern int _simLoadImage(luaWrap_lua_State* L);
 extern int _simGetScaledImage(luaWrap_lua_State* L);
@@ -317,7 +317,6 @@ extern int _simGroupShapes(luaWrap_lua_State* L);
 extern int _simUngroupShape(luaWrap_lua_State* L);
 extern int _simConvexDecompose(luaWrap_lua_State* L);
 extern int _simFindIkPath(luaWrap_lua_State* L);
-extern int _simQuitSimulator(luaWrap_lua_State* L);
 extern int _simSetShapeMaterial(luaWrap_lua_State* L);
 extern int _simGetTextureId(luaWrap_lua_State* L);
 extern int _simReadTexture(luaWrap_lua_State* L);
@@ -382,8 +381,6 @@ extern int _simGetApiFunc(luaWrap_lua_State* L);
 extern int _simGetApiInfo(luaWrap_lua_State* L);
 extern int _simGetModuleInfo(luaWrap_lua_State* L);
 extern int _simSetModuleInfo(luaWrap_lua_State* L);
-extern int _simRegisterScriptFuncHook(luaWrap_lua_State* L);
-extern int _simIsDeprecated(luaWrap_lua_State* L);
 extern int _simGetPersistentDataTags(luaWrap_lua_State* L);
 extern int _simGetRandom(luaWrap_lua_State* L);
 extern int _simTest(luaWrap_lua_State* L);
@@ -394,7 +391,6 @@ extern int _simTextEditorGetInfo(luaWrap_lua_State* L);
 extern int _simSetJointDependency(luaWrap_lua_State* L);
 extern int _simGetJointDependency(luaWrap_lua_State* L);
 extern int _simGetStackTraceback(luaWrap_lua_State* L);
-extern int _simAddLog(luaWrap_lua_State* L);
 extern int _simGetShapeMass(luaWrap_lua_State* L);
 extern int _simSetShapeMass(luaWrap_lua_State* L);
 extern int _simGetShapeInertia(luaWrap_lua_State* L);
@@ -435,6 +431,7 @@ void writeCustomFunctionDataOntoStack_old(luaWrap_lua_State* L,int dataType,int 
                                       char* charData,int& charDataPos);
 const extern SLuaCommands simLuaCommandsOldApi[];
 const extern SLuaVariables simLuaVariablesOldApi[];
+extern int _simIsDeprecated(luaWrap_lua_State* L);
 extern int _simAddStatusbarMessage(luaWrap_lua_State* L);
 extern int _simGetNameSuffix(luaWrap_lua_State* L);
 extern int _simSetNameSuffix(luaWrap_lua_State* L);

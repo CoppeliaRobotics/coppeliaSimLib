@@ -26,6 +26,7 @@ bool CCodeEditorFunctions::set(const char* info)
     {
         utils::removeSpacesAtBeginningAndEnd(line);
         utils::removeComments(line);
+        utils::replaceSubstring(line,"\\n","\n");
         size_t openP=line.find('(');
         size_t closeP=line.find(')');
         if ( (openP!=std::string::npos)&&(closeP!=std::string::npos)&&(openP<closeP) )

@@ -79,7 +79,7 @@ void CCodeEditorInfos::insertWhatStartsSame(const char* txt,std::set<std::string
 {
     for (auto it=_allInfos.begin();it!=_allInfos.end();it++)
     {
-        if ( (requestOrigin==nullptr)||(requestOrigin->wasModulePreviouslyUsed(it->first.c_str())) )
+        if ( (requestOrigin==nullptr)||(requestOrigin->wasModulePreviouslyUsed(it->first.c_str()))||(it->first=="") )
         { // only if that item was previously required by that script
             if ((what&1)!=0)
                 it->second.funcs->insertWhatStartsSame(txt,v);
