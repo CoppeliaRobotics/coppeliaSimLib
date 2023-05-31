@@ -76,7 +76,7 @@ public:
 
     static std::string getConsoleLogFilter();
     static void setConsoleLogFilter(const char* filter);
-    static bool logPluginMsg(const char* setToNull,int verbosityLevel,const char* logMsg);
+    static bool logPluginMsg(const char* pluginName,int verbosityLevel,const char* logMsg);
     static void logMsg(int verbosityLevel,const char* msg);
     static void logMsg(int verbosityLevel,const char* msg,const char* subStr1,const char* subStr2=nullptr,const char* subStr3=nullptr);
     static void logMsg(int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);

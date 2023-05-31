@@ -1393,20 +1393,25 @@ void App::setConsoleLogFilter(const char* filter)
     _consoleLogFilterStr=filter;
 }
 
-bool App::logPluginMsg(const char* setToNull,int verbosityLevel,const char* logMsg)
+bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* logMsg)
 {
     bool retVal=false;
 
     CPlugin* it=nullptr;
+
     if (App::worldContainer!=nullptr)
     {
-        if (setToNull==nullptr)
+        if (pluginName==nullptr)
             it=App::worldContainer->pluginContainer->getCurrentPlugin();
         else
-            it=App::worldContainer->pluginContainer->getPluginFromName_old(setToNull,true);
+        {
+            it=App::worldContainer->pluginContainer->getPluginFromName(pluginName);
+            if (it==nullptr)
+                it=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
+        }
     }
     int realVerbosityLevel=verbosityLevel&0x0fff;
-    if ( (it!=nullptr)||((setToNull!=nullptr)&&(strcmp(setToNull,"CoppeliaSimClient")==0)) )
+    if ( (it!=nullptr)||((pluginName!=nullptr)&&(strcmp(pluginName,"CoppeliaSimClient")==0)) )
     {
         if (it!=nullptr)
         {
@@ -1420,17 +1425,13 @@ bool App::logPluginMsg(const char* setToNull,int verbosityLevel,const char* logM
             {
                 std::string plugN;
                 if (it->isLegacyPlugin())
-                {
                     plugN="simExt";
-                    plugN+=setToNull;
-                }
-                else
-                    plugN=it->getName();
+                plugN+=pluginName;
                 __logMsg(plugN.c_str(),verbosityLevel,logMsg,consoleV,statusbarV);
             }
         }
         else
-            __logMsg(setToNull,verbosityLevel,logMsg);
+            __logMsg(pluginName,verbosityLevel,logMsg);
         retVal=true;
     }
     else
@@ -1438,10 +1439,10 @@ bool App::logPluginMsg(const char* setToNull,int verbosityLevel,const char* logM
         if (_consoleVerbosity>=realVerbosityLevel)
         {
             std::string msg("[");
-            if (setToNull==nullptr)
+            if (pluginName==nullptr)
                 msg+="unknown plugin";
             else
-                msg+=setToNull;
+                msg+=pluginName;
             msg+="]   ";
             msg+=logMsg;
             msg+="\n";

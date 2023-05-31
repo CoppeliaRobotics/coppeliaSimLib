@@ -6355,7 +6355,7 @@ char* simGetModuleName_internal(int index,unsigned char* moduleVersion)
     return(nullptr);
 }
 
-int simAddLog_internal(const char* setToNull,int verbosityLevel,const char* logMsg)
+int simAddLog_internal(const char* pluginName,int verbosityLevel,const char* logMsg)
 { // keep this as simple as possible (no trace, no thread checking). For now
     int retVal=0;
     if (logMsg==nullptr)
@@ -6365,7 +6365,7 @@ int simAddLog_internal(const char* setToNull,int verbosityLevel,const char* logM
     }
     else
     {
-        if (App::logPluginMsg(setToNull,verbosityLevel,logMsg))
+        if (App::logPluginMsg(pluginName,verbosityLevel,logMsg))
             retVal=1;
     }
     return(retVal);
