@@ -56,7 +56,7 @@ void CSimThread::executeMessages()
     { // we need to render. Send the appropriate signal
         if (triggerType==2)
         {
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_beforerendering,nullptr,0);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_beforerendering);
             App::uiThread->requestSceneRender_wait(); // non-threaded rendering
         }
     }
@@ -310,7 +310,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 script->systemCallScript(sim_syscb_moduleentry,inStack,nullptr);
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
                 int data[4]={cmd.intParams[1],0,0,0};
-                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_moduleentry,data,4);
+                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_moduleentry,data);
             }
         }
 

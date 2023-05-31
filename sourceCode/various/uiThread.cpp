@@ -272,7 +272,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
 
             // Old:
             int auxData[4]={0,0,0,0};
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_uipass,auxData,nullptr,nullptr);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_uipass,auxData);
         }
         if (cmdIn->cmdId==INSTANCE_ABOUT_TO_BE_CREATED_UITHREADCMD)
             App::mainWindow->newInstanceAboutToBeCreated();

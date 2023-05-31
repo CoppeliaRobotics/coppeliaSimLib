@@ -280,16 +280,16 @@ bool CPlugin::init(std::string* errStr)
     return(retVal);
 }
 
-bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,int auxDataCnt/*=0*/,void* reserved1_legacy/*=nullptr*/,int reserved2_legacy[4]/*=nullptr*/)
+bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*/,int* reserved_legacy/*=nullptr*/)
 {
     bool retVal=false; // only used by legacy plugins
     pushCurrentPlugin();
     if (_initAddress!=nullptr)
     { // new plugin
-        if ( (reserved1_legacy==nullptr)&&(reserved2_legacy==nullptr) )
+        if (reserved_legacy==nullptr)
         {
             if (_stage<stage_simcleanupdone) // only if plugin still initialized
-                _msgAddress(msgId,auxData,auxDataCnt);
+                _msgAddress(msgId,auxData,auxPointer);
         }
         if (_stage==stage_uiinitdone)
         {
@@ -299,7 +299,7 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,int auxDataCnt/*=0*/,void* 
     }
     else
     { // legacy
-        void* returnData=_messageAddress_legacy(msgId,auxData,reserved1_legacy,reserved2_legacy);
+        void* returnData=_messageAddress_legacy(msgId,auxData,auxPointer,reserved_legacy);
         retVal=(returnData!=nullptr);
         if (returnData!=nullptr)
             delete[] (char*)returnData;
@@ -308,19 +308,19 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,int auxDataCnt/*=0*/,void* 
     return(retVal);
 }
 
-void CPlugin::uiCall(int msgId,int init)
+void CPlugin::uiInit()
 {
-    if (init)
-        _initAddress_ui();
-    else
+    _initAddress_ui();
+}
+
+void CPlugin::uiCall(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*/)
+{
+    if ( (_stage==stage_uiinitdone)||(_stage==stage_allinitdone) )
+        _msgAddress_ui(msgId,auxData,auxPointer);
+    if (_stage==stage_simcleanupdone)
     {
-        if ( (_stage==stage_uiinitdone)||(_stage==stage_allinitdone) )
-            _msgAddress_ui(msgId);
-        if (_stage==stage_simcleanupdone)
-        {
-            _cleanupAddress_ui();
-            _stage=stage_uicleanupdone;
-        }
+        _cleanupAddress_ui();
+        _stage=stage_uicleanupdone;
     }
 }
 

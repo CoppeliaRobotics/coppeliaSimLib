@@ -114,7 +114,7 @@ void App::simulationThreadInit()
 
     // Send the "instancePass" message to all plugins already here (needed for some plugins to properly finish initialization):
     int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,4);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData);
 #ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
@@ -136,7 +136,7 @@ void App::simulationThreadDestroy()
 {
     // Send the last "instancePass" message to all plugins:
     int auxData[4]={0,0,0,0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_lastinstancepass,auxData,4);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_lastinstancepass,auxData);
 
     App::worldContainer->addOnScriptContainer->removeAllAddOns();
     App::worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup,nullptr,nullptr);
@@ -187,7 +187,7 @@ void App::simulationThreadLoop()
 {
     // Send the "instancePass" message to all plugins:
     int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,4);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData);
 #ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;

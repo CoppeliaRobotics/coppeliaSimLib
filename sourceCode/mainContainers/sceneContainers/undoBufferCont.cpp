@@ -326,7 +326,7 @@ void CUndoBufferCont::undo()
     CUndoBufferCameras* cameraBuffers=_getFullBuffer(_currentStateIndex,theBuff);
     // 3. Load the buffer:
 
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoundo,nullptr,0);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoundo);
 
     _rememberSelectionState();
     cameraBuffers->preRestoreCameras();
@@ -356,7 +356,7 @@ void CUndoBufferCont::undo()
 
     _inUndoRoutineNow=false;
     
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_undoperformed,nullptr,0);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_undoperformed);
     App::worldContainer->setModificationFlag(16); // undo called
 
     // 5. Dialog refresh:
@@ -385,7 +385,7 @@ void CUndoBufferCont::redo()
 
     // 3. Load the buffer:
 
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoredo,nullptr,0);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoredo);
 
     _rememberSelectionState();
     cameraBuffers->preRestoreCameras();
@@ -414,7 +414,7 @@ void CUndoBufferCont::redo()
     // 4. We select previously selected objects:
     _restoreSelectionState();
 
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_redoperformed,nullptr,0);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_redoperformed);
     App::worldContainer->setModificationFlag(32); // redo called
 
     // 5. Dialog refresh:

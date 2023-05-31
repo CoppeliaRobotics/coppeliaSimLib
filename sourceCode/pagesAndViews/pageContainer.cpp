@@ -642,10 +642,10 @@ void CPageContainer::keyPress(int key,QWidget* mainWindow)
             flags|=2;
     }
     int data[4]={key,flags,0,0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_keypress,data,4);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_keypress,data);
     data[0]=key;
     data[1]=flags;
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_keypress,data,4); // for backward compatibility
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_keypress,data); // for backward compatibility
     App::currentWorld->outsideCommandQueue->addCommand(sim_message_keypress,key,flags,0,0,nullptr,0);
 
     App::worldContainer->setModificationFlag(1024); // key was pressed

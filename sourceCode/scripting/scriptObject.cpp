@@ -1839,13 +1839,13 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     { // corresponding calls for plugins:
         int data[4]={0,int(App::currentWorld->simulation->getSimulationTime()*1000.0),0,0};
         if (callType==sim_syscb_init)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data,4);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data);
         if (callType==sim_syscb_actuation)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationactuation,data,4);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationactuation,data);
         if (callType==sim_syscb_sensing)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationsensing,data,4);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationsensing,data);
         if (callType==sim_syscb_cleanup)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationcleanup,data,4);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationcleanup,data);
     }
 
     // Following to make sure we get updates on the presence of sim_syscb_userconfig:
@@ -1877,13 +1877,13 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     { // corresponding calls for plugins:
         int data[4]={1,int(App::currentWorld->simulation->getSimulationTime()*1000.0),0,0};
         if (callType==sim_syscb_init)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data,4);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationinit,data);
         if (callType==sim_syscb_actuation)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationactuation,data,4);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationactuation,data);
         if (callType==sim_syscb_sensing)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationsensing,data,4);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationsensing,data);
         if (callType==sim_syscb_cleanup)
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationcleanup,data,4);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationcleanup,data);
     }
     // ---------------------------------
 

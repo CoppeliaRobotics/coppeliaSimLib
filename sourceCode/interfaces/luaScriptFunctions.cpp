@@ -20614,7 +20614,7 @@ void moduleCommonPart_old(luaWrap_lua_State* L,int action,std::string* errorStri
             if (luaToInt(L,1)==sim_handle_all)
             {
                 handleAll=true;
-                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(action,nullptr,0);
+                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(action);
                 luaWrap_lua_pushinteger(L,1);
             }
         }

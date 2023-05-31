@@ -3150,7 +3150,7 @@ int CCamera::handleHits(int hits,unsigned int selectBuff[])
 
             // OLD:
             int data[4]={hitThatIgnoresTheSelectableFlag,0,0,0};
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_pickselectdown,data,4);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_pickselectdown,data);
             App::currentWorld->outsideCommandQueue->addCommand(sim_message_pick_select_down,hitThatIgnoresTheSelectableFlag,0,0,0,nullptr,0);
 
             return(hitId);

@@ -111,7 +111,9 @@ bool CModuleMenuItemContainer::processCommand(int commandID)
             if (it->getHandle()==commandID)
             {
                 int data[4]={commandID,it->getState(),0,0};
-                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_menuitemselected,data,4);
+                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_menuitemselected,data);
+
+                App::worldContainer->pluginContainer->uiCallAllPlugins(sim_message_eventcallback_menuitemselected,data);
                 return(true);
             }
         }

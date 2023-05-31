@@ -125,7 +125,7 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int
 void CPluginContainer::announceScriptStateWillBeErased(int scriptHandle)
 {
     int pluginData[4]={scriptHandle,0,0,0};
-    sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstatedestroyed,pluginData,4);
+    sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstatedestroyed,pluginData);
 
     for (size_t i=0;i<_allPlugins.size();i++)
         _allPlugins[i]->removeDependency(scriptHandle);
@@ -330,7 +330,7 @@ int CPluginContainer::getPluginCount()
     return(int(_allPlugins.size()));
 }
 
-void CPluginContainer::uiCallAllPlugins(int msg)
+void CPluginContainer::uiCallAllPlugins(int msg,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*/)
 {
     lockInterface();
     size_t index=0;
@@ -348,7 +348,12 @@ void CPluginContainer::uiCallAllPlugins(int msg)
             }
             unlockInterface();
             if ( init||(stage==CPlugin::stage_uiinitdone)||(stage==CPlugin::stage_allinitdone)||(stage==CPlugin::stage_simcleanupdone) )
-                plug->uiCall(msg,init);
+            {
+                if (init)
+                    plug->uiInit();
+                else
+                    plug->uiCall(msg,auxData,auxPointer);
+            }
             lockInterface();
         }
         index++;
@@ -356,13 +361,13 @@ void CPluginContainer::uiCallAllPlugins(int msg)
     unlockInterface();
 }
 
-void CPluginContainer::sendEventCallbackMessageToAllPlugins(int msg,int* auxVals,int auxValCnt)
+void CPluginContainer::sendEventCallbackMessageToAllPlugins(int msg,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*/)
 {
     for (int i=0;i<int(_allPlugins.size());i++)
     {
         CPlugin* plug=_allPlugins[size_t(i)];
         if (plug->getStage()<CPlugin::stage_simcleanupdone)
-            plug->msg(msg,auxVals,auxValCnt);
+            plug->msg(msg,auxData,auxPointer);
         if (plug->getStage()==CPlugin::stage_uicleanupdone)
         { // UI plugin that is done
             delete plug;
@@ -372,7 +377,7 @@ void CPluginContainer::sendEventCallbackMessageToAllPlugins(int msg,int* auxVals
     }
 }
 
-void CPluginContainer::sendEventCallbackMessageToAllPlugins_old(int msg,int* auxVals,void* data,int retVals[4])
+void CPluginContainer::sendEventCallbackMessageToAllPlugins_old(int msg,int* auxVals/*=nullptr*/,void* data/*=nullptr*/,int retVals[4]/*=nullptr*/)
 {
     bool special=false;
     int memorized[4]={0,0,0,0};
@@ -388,7 +393,7 @@ void CPluginContainer::sendEventCallbackMessageToAllPlugins_old(int msg,int* aux
                 retVals[2]=-1;
                 retVals[3]=-1;
             }
-            bool retData=plug->msg(msg,auxVals,4,data,retVals);
+            bool retData=plug->msg(msg,auxVals,data,retVals);
             if ( retData||((retVals!=nullptr)&&((retVals[0]!=-1)||(retVals[1]!=-1)||(retVals[2]!=-1)||(retVals[3]!=-1))) )
             {
                 if (msg!=sim_message_eventcallback_mainscriptabouttobecalled) // this message is handled in a special fashion, because the remoteApi and ROS might interfere otherwise!

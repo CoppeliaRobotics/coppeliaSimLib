@@ -649,7 +649,7 @@ void CMainWindow::refreshDialogs_uiThread()
         scenePath=p;
         setWindowFilePath(scenePath.c_str());
     }
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_guipass,nullptr,0);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_guipass);
 
     // We refresh dialogs and the toolbar here:
     //----------------------------------------------------------------------------------
@@ -671,7 +671,7 @@ void CMainWindow::refreshDialogs_uiThread()
         if (!_dialogRefreshDontPublishFlag)
         {
             int data[4]={_fullDialogRefreshFlag?2:0,0,0,0};
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_refreshdialogs,data,4);
+            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_refreshdialogs,data);
         }
         _dialogRefreshDontPublishFlag=false;
         dlgCont->refresh();

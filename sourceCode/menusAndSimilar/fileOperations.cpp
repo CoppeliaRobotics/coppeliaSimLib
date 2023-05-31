@@ -1028,7 +1028,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
             App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 #endif
 
-        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scenesave,nullptr,0);
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scenesave);
 
         if (pathAndFilename!=nullptr)
         { // saving to file...
@@ -1130,7 +1130,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
 #endif
 
         App::currentWorld->sceneObjects->addModelObjects(sel);
-        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelsave,nullptr,0);
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelsave);
 
         std::string infoPrintOut(IDSNS_SAVING_MODEL);
         if (pathAndFilename!=nullptr)

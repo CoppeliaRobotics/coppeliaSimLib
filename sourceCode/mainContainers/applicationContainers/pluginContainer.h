@@ -21,9 +21,9 @@ public:
 
     void announceScriptStateWillBeErased(int scriptHandle);
 
-    void uiCallAllPlugins(int msg);
-    void sendEventCallbackMessageToAllPlugins(int msg,int* auxVals,int auxValCnt);
-    void sendEventCallbackMessageToAllPlugins_old(int msg,int* auxVals,void* data,int retVals[4]);
+    void uiCallAllPlugins(int msg,int* auxData=nullptr,void* auxPointer=nullptr);
+    void sendEventCallbackMessageToAllPlugins(int msg,int* auxData=nullptr,void* auxPointer=nullptr);
+    void sendEventCallbackMessageToAllPlugins_old(int msg,int* auxVals=nullptr,void* data=nullptr,int retVals[4]=nullptr);
     int getPluginCount();
     CPlugin* getPluginFromIndex(size_t index);
     CPlugin* getPluginFromName_old(const char* pluginName,bool caseSensitive);

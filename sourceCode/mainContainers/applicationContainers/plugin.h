@@ -9,11 +9,11 @@
 
 typedef  int (__cdecl *ptrInit)(void);
 typedef  void (__cdecl *ptrCleanup)(void);
-typedef  void (__cdecl *ptrMsg)(int msgId,int* auxData,int auxDataCnt);
+typedef  void (__cdecl *ptrMsg)(int msgId,int* auxData,void* auxpointer);
 
 typedef  void (__cdecl *ptrInit_ui)(void);
 typedef  void (__cdecl *ptrCleanup_ui)(void);
-typedef  void (__cdecl *ptrMsg_ui)(int msgId);
+typedef  void (__cdecl *ptrMsg_ui)(int msgId,int* auxData,void* auxpointer);
 
 typedef  void (__cdecl *ptrExtRenderer)(int,void*);
 
@@ -226,8 +226,9 @@ public:
     virtual ~CPlugin();
     int load(std::string* errStr);
     bool init(std::string* errStr);
-    bool msg(int msgId,int* auxData=nullptr,int auxDataCnt=0,void* reserved1_legacy=nullptr,int reserved2_legacy[4]=nullptr);
-    void uiCall(int msgId,int init);
+    bool msg(int msgId,int* auxData=nullptr,void* auxPointer=nullptr,int* reserved_legacy=nullptr);
+    void uiInit();
+    void uiCall(int msgId,int* auxData=nullptr,void* auxPointer=nullptr);
     void cleanup();
     int loadAndInit(std::string* errStr);
     void setConsoleVerbosity(int level);
