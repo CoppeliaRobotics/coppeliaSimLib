@@ -16360,8 +16360,12 @@ int simSetModuleInfo_internal(const char* moduleName,int infoType,const char* st
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CPlugin* plug=App::worldContainer->pluginContainer->getCurrentPlugin();
-        if ( (plug==nullptr)||plug->isLegacyPlugin() )
-            plug=App::worldContainer->pluginContainer->getPluginFromName_old(moduleName,true);
+        if ( (plug==nullptr)&&(moduleName!=nullptr) )
+        {
+            plug=App::worldContainer->pluginContainer->getPluginFromName(moduleName);
+            if (plug==nullptr)
+                plug=App::worldContainer->pluginContainer->getPluginFromName_old(moduleName,true);
+        }
         if (plug!=nullptr)
         {
             if (infoType==sim_moduleinfo_extversionstr)
@@ -16405,7 +16409,13 @@ int simGetModuleInfo_internal(const char* moduleName,int infoType,char** stringI
     TRACE_C_API;
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromName_old(moduleName,true);
+        CPlugin* plug=App::worldContainer->pluginContainer->getCurrentPlugin();
+        if ( (plug==nullptr)&&(moduleName!=nullptr) )
+        {
+            plug=App::worldContainer->pluginContainer->getPluginFromName(moduleName);
+            if (plug==nullptr)
+                plug=App::worldContainer->pluginContainer->getPluginFromName_old(moduleName,true);
+        }
         if (plug!=nullptr)
         {
             if (infoType==sim_moduleinfo_extversionstr)

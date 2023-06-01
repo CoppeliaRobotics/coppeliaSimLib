@@ -7,7 +7,7 @@
 #include <pluginCallbackContainer.h>
 #include <pluginVariableContainer.h>
 
-typedef  int (__cdecl *ptrInit)(void);
+typedef  int (__cdecl *ptrInit)(const char*);
 typedef  void (__cdecl *ptrCleanup)(void);
 typedef  void (__cdecl *ptrMsg)(int msgId,int* auxData,void* auxpointer);
 
@@ -24,7 +24,7 @@ typedef  void (__cdecl *ptrVHACD)(void*);
 
 typedef  void (__cdecl *ptrMeshDecimator)(void*);
 
-typedef char (__cdecl *ptr_dynPlugin_startSimulation_D)(int,int,const double*,const int*);
+typedef char (__cdecl *ptr_dynPlugin_startSimulation_D)(const double*,const int*);
 typedef void (__cdecl *ptr_dynPlugin_endSimulation)(void);
 typedef void (__cdecl *ptr_dynPlugin_step_D)(double,double);
 typedef char (__cdecl *ptr_dynPlugin_isInitialized)(void);
@@ -41,14 +41,8 @@ typedef char (__cdecl *ptr_dynPlugin_getContactForce_D)(int,int,int,int*,double*
 typedef int (__cdecl *ptr_dynPlugin_getDynamicStepDivider)(void);
 typedef double (__cdecl *ptr_mujocoPlugin_computeInertia)(int,double*,double*,double*);
 typedef double (__cdecl *ptr_mujocoPlugin_computePMI)(const double*,int,const int*,int,double*,double*,double*);
-// For backcompatibility with old Newton engine (still in single precision):
-typedef char (__cdecl *ptr_dynPlugin_startSimulation)(int,int,const float*,const int*);
-typedef void (__cdecl *ptr_dynPlugin_step)(float,float);
-typedef int (__cdecl *ptr_dynPlugin_addParticleObject)(int,float,float,const void*,float,int,const float*,const float*,const float*,const float*);
-typedef char (__cdecl *ptr_dynPlugin_addParticleObjectItem)(int,const float*,float);
-typedef float* (__cdecl *ptr_dynPlugin_getContactPoints)(int*);
-typedef char (__cdecl *ptr_dynPlugin_getParticleData)(const void*,float*,float*,int*,float**);
-typedef char (__cdecl *ptr_dynPlugin_getContactForce)(int,int,int,int*,float*);
+typedef void (__cdecl *ptr_dynPlugin_engine)(void);
+
 
 typedef void (__cdecl *ptr_geomPlugin_releaseBuffer)(void* buff);
 typedef void* (__cdecl *ptr_geomPlugin_createMesh)(const double* vertices,int verticesSize,const int* indices,int indicesSize,const double meshOrigin[7],double triangleEdgeMaxLength,int maxTrianglesInBoundingBox);
@@ -217,9 +211,8 @@ public:
         stage_none=-1,
         stage_siminitdone=0,
         stage_uiinitdone=1,     // set by UI thread
-        stage_allinitdone=2,
-        stage_simcleanupdone=3,
-        stage_uicleanupdone=4,  // set by UI thread
+        stage_docleanup=2,
+        stage_uicleanupdone=3,  // set by UI thread
     };
 
     CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int loadOrigin);
@@ -227,7 +220,6 @@ public:
     int load(std::string* errStr);
     bool init(std::string* errStr);
     bool msg(int msgId,int* auxData=nullptr,void* auxPointer=nullptr,int* reserved_legacy=nullptr);
-    void uiInit();
     void uiCall(int msgId,int* auxData=nullptr,void* auxPointer=nullptr);
     void cleanup();
     int loadAndInit(std::string* errStr);
@@ -256,8 +248,6 @@ public:
     void removeDependency(int loadOrigin);
     bool hasDependency(int loadOrigin) const;
     bool hasAnyDependency() const;
-    int getStage() const;
-    void setStage(int s);
 
     ptr_dynPlugin_startSimulation_D dynPlugin_startSimulation;
     ptr_dynPlugin_endSimulation dynPlugin_endSimulation;
@@ -275,14 +265,12 @@ public:
     ptr_dynPlugin_getDynamicStepDivider dynPlugin_getDynamicStepDivider;
     ptr_mujocoPlugin_computePMI mujocoPlugin_computePMI;
     ptr_mujocoPlugin_computeInertia mujocoPlugin_computeInertia;
-    // For backcompatibility with old Newton engine (still in single precision):
-    ptr_dynPlugin_startSimulation dynPlugin_startSimulationNewton;
-    ptr_dynPlugin_step dynPlugin_stepNewton;
-    ptr_dynPlugin_addParticleObject dynPlugin_addParticleObjectNewton;
-    ptr_dynPlugin_addParticleObjectItem dynPlugin_addParticleObjectItemNewton;
-    ptr_dynPlugin_getContactPoints dynPlugin_getContactPointsNewton;
-    ptr_dynPlugin_getParticleData dynPlugin_getParticleDataNewton;
-    ptr_dynPlugin_getContactForce dynPlugin_getContactForceNewton;
+    ptr_dynPlugin_engine bullet278_engine;
+    ptr_dynPlugin_engine bullet283_engine;
+    ptr_dynPlugin_engine ode_engine;
+    ptr_dynPlugin_engine vortex_engine;
+    ptr_dynPlugin_engine newton_engine;
+    ptr_dynPlugin_engine mujoco_engine;
 
     ptr_geomPlugin_releaseBuffer geomPlugin_releaseBuffer;
     ptr_geomPlugin_createMesh geomPlugin_createMesh;
@@ -470,7 +458,7 @@ private:
     int handle;
     int _consoleVerbosity;
     int _statusbarVerbosity;
-    int _stage; // not for legacy plugins. stage_none, stage_siminitdone, stage_uiinitdone, stage_allinitdone, stage_simcleanupdone, stage_uicleanupdone
+    volatile int _stage; // not for legacy plugins
     WLibrary instance;
 
     ptrInit _initAddress;

@@ -271,7 +271,7 @@ void CWorldContainer::deinitialize()
     while (_worlds.size()!=0)
         destroyCurrentWorld();
 
-//    delete sandboxScript;
+//    delete sandboxScript; // done elsewhere!
     delete addOnScriptContainer;
     delete pluginContainer;
     delete codeEditorInfos;

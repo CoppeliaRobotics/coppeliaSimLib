@@ -274,6 +274,12 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             int auxData[4]={0,0,0,0};
             App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_uipass,auxData);
         }
+        if (cmdIn->cmdId==CALL_PLUGIN_FROM_UITHREAD_UITHREADCMD)
+        {
+            CPlugin* it=App::worldContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
+            if (it!=nullptr)
+                it->uiCall(cmdIn->intParams[1]);
+        }
         if (cmdIn->cmdId==INSTANCE_ABOUT_TO_BE_CREATED_UITHREADCMD)
             App::mainWindow->newInstanceAboutToBeCreated();
         if (cmdIn->cmdId==INSTANCE_WAS_JUST_CREATED_UITHREADCMD)

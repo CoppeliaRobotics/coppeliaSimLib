@@ -25,6 +25,7 @@ CPlugin::CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int 
     }
     else
         _namespace.clear(); // old plugins
+    _dependencies.insert(loadOrigin);
     extendedVersionInt=-1;
     _consoleVerbosity=sim_verbosity_useglobal;
     _statusbarVerbosity=sim_verbosity_useglobal;
@@ -43,6 +44,12 @@ CPlugin::CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int 
     hacdAddr=nullptr;
     vhacdAddr=nullptr;
     decimatorAddr=nullptr;
+    bullet278_engine=nullptr;
+    bullet283_engine=nullptr;
+    ode_engine=nullptr;
+    vortex_engine=nullptr;
+    newton_engine=nullptr;
+    mujoco_engine=nullptr;
 }
 
 CPlugin::~CPlugin()
@@ -56,6 +63,18 @@ CPlugin::~CPlugin()
     }
     if (geomPlugin_createMesh!=nullptr) // also check constructor above
         App::worldContainer->pluginContainer->currentGeomPlugin=nullptr;
+    if (bullet278_engine!=nullptr) // also check constructor above
+        App::worldContainer->pluginContainer->bullet278Engine=nullptr;
+    if (bullet283_engine!=nullptr) // also check constructor above
+        App::worldContainer->pluginContainer->bullet283Engine=nullptr;
+    if (ode_engine!=nullptr) // also check constructor above
+        App::worldContainer->pluginContainer->odeEngine=nullptr;
+    if (vortex_engine!=nullptr) // also check constructor above
+        App::worldContainer->pluginContainer->vortexEngine=nullptr;
+    if (newton_engine!=nullptr) // also check constructor above
+        App::worldContainer->pluginContainer->newtonEngine=nullptr;
+    if (mujoco_engine!=nullptr) // also check constructor above
+        App::worldContainer->pluginContainer->mujocoEngine=nullptr;
     if (ikPlugin_createEnv!=nullptr) // also check constructor above
     {
         App::worldContainer->pluginContainer->currentIKPlugin=nullptr;
@@ -81,10 +100,6 @@ CPlugin::~CPlugin()
         App::worldContainer->pluginContainer->currentMeshDecimationPlugin=nullptr;
     _pluginCallbackContainer.clear();
     _pluginVariableContainer.clear();
-
-    if (_stage==stage_uicleanupdone)
-        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': UI cleanup done.",_nameCleanup.c_str());
-
 }
 
 void CPlugin::setConsoleVerbosity(int level)
@@ -212,16 +227,6 @@ bool CPlugin::hasAnyDependency() const
     return(!_dependencies.empty());
 }
 
-int CPlugin::getStage() const
-{
-    return(_stage);
-}
-
-void CPlugin::setStage(int s)
-{
-    _stage=s;
-}
-
 int CPlugin::load(std::string* errStr)
 { // retVal: -2 (could not open library), -1 (missing init entry point), 1=ok
     int retVal=-2; // could not open library
@@ -257,12 +262,26 @@ bool CPlugin::init(std::string* errStr)
     if (_initAddress!=nullptr)
     {
         pushCurrentPlugin();
-        pluginVersion=_initAddress();
+        pluginVersion=_initAddress(_name.c_str());
         popCurrentPlugin();
         if (pluginVersion!=0)
         {
             retVal=true;
             _loadAuxEntryPoints();
+            _stage=stage_siminitdone;
+            if (_initAddress_ui!=nullptr)
+            {
+#ifdef SIM_WITH_GUI
+                SUIThreadCommand cmdIn;
+                SUIThreadCommand cmdOut;
+                cmdIn.cmdId=CALL_PLUGIN_FROM_UITHREAD_UITHREADCMD;
+                cmdIn.intParams.push_back(handle);
+                cmdIn.intParams.push_back(0); // dummy message
+                App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+#endif
+                while (_stage!=stage_uiinitdone)
+                    VThread::sleep(1);
+            }
         }
         else
         { // could not properly initialize
@@ -285,20 +304,9 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*
     bool retVal=false; // only used by legacy plugins
     pushCurrentPlugin();
     if (_initAddress!=nullptr)
-    { // new plugin
-        if (reserved_legacy==nullptr)
-        {
-            if (_stage<stage_simcleanupdone) // only if plugin still initialized
-                _msgAddress(msgId,auxData,auxPointer);
-        }
-        if (_stage==stage_uiinitdone)
-        {
-            _stage=stage_allinitdone;
-            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': UI init done.",_name.c_str());
-        }
-    }
+        _msgAddress(msgId,auxData,auxPointer); // new plugin
     else
-    { // legacy
+    { // legacy plugin
         void* returnData=_messageAddress_legacy(msgId,auxData,auxPointer,reserved_legacy);
         retVal=(returnData!=nullptr);
         if (returnData!=nullptr)
@@ -308,37 +316,53 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*
     return(retVal);
 }
 
-void CPlugin::uiInit()
-{
-    _initAddress_ui();
-}
-
 void CPlugin::uiCall(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*/)
 {
-    if ( (_stage==stage_uiinitdone)||(_stage==stage_allinitdone) )
-        _msgAddress_ui(msgId,auxData,auxPointer);
-    if (_stage==stage_simcleanupdone)
+    if (_initAddress_ui!=nullptr)
     {
-        _cleanupAddress_ui();
-        _stage=stage_uicleanupdone;
+        if (_stage==stage_siminitdone)
+        {
+            _initAddress_ui();
+            _stage=stage_uiinitdone;
+        }
+        else if (_stage==stage_uiinitdone)
+            _msgAddress_ui(msgId,auxData,auxPointer);
+        else if (_stage==stage_docleanup)
+        {
+            _cleanupAddress_ui();
+            _stage=stage_uicleanupdone;
+        }
     }
 }
 
 void CPlugin::cleanup()
 {
-    pushCurrentPlugin();
     if (_initAddress!=nullptr)
     {
+        if (_stage==stage_uiinitdone)
+        {
+            _stage=stage_docleanup;
+#ifdef SIM_WITH_GUI
+            SUIThreadCommand cmdIn;
+            SUIThreadCommand cmdOut;
+            cmdIn.cmdId=CALL_PLUGIN_FROM_UITHREAD_UITHREADCMD;
+            cmdIn.intParams.push_back(handle);
+            cmdIn.intParams.push_back(0); // dummy message
+            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+#endif
+            while (_stage!=stage_uicleanupdone)
+                VThread::sleep(1);
+        }
+        pushCurrentPlugin();
         _cleanupAddress();
-
-        _name.clear();
-        _namespace.clear();
-        _pluginCallbackContainer.clear();
-        _pluginVariableContainer.clear();
+        popCurrentPlugin();
     }
     else
-        _endAddress_legacy(); // old plugin
-    popCurrentPlugin();
+    { // old plugin
+        pushCurrentPlugin();
+        _endAddress_legacy();
+        popCurrentPlugin();
+    }
 }
 
 int CPlugin::loadAndInit(std::string* errStr)
@@ -426,29 +450,38 @@ void CPlugin::_loadAuxEntryPoints()
 
     // For the dynamic plugins:
     dynPlugin_startSimulation=(ptr_dynPlugin_startSimulation_D)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_startSimulation_D"));
-    dynPlugin_startSimulationNewton=(ptr_dynPlugin_startSimulation)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_startSimulation"));
     dynPlugin_endSimulation=(ptr_dynPlugin_endSimulation)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_endSimulation"));
     dynPlugin_step=(ptr_dynPlugin_step_D)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_step_D"));
-    dynPlugin_stepNewton=(ptr_dynPlugin_step)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_step"));
     dynPlugin_isDynamicContentAvailable=(ptr_dynPlugin_isDynamicContentAvailable)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_isDynamicContentAvailable"));
     dynPlugin_serializeDynamicContent=(ptr_dynPlugin_serializeDynamicContent)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_serializeDynamicContent"));
     dynPlugin_addParticleObject=(ptr_dynPlugin_addParticleObject_D)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_addParticleObject_D"));
-    dynPlugin_addParticleObjectNewton=(ptr_dynPlugin_addParticleObject)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_addParticleObject"));
     dynPlugin_removeParticleObject=(ptr_dynPlugin_removeParticleObject)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_removeParticleObject"));
     dynPlugin_addParticleObjectItem=(ptr_dynPlugin_addParticleObjectItem_D)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_addParticleObjectItem_D"));
-    dynPlugin_addParticleObjectItemNewton=(ptr_dynPlugin_addParticleObjectItem)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_addParticleObjectItem"));
     dynPlugin_getParticleObjectOtherFloatsPerItem=(ptr_dynPlugin_getParticleObjectOtherFloatsPerItem)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_getParticleObjectOtherFloatsPerItem"));
     dynPlugin_getContactPoints=(ptr_dynPlugin_getContactPoints_D)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_getContactPoints_D"));
-    dynPlugin_getContactPointsNewton=(ptr_dynPlugin_getContactPoints)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_getContactPoints"));
     dynPlugin_getParticles=(ptr_dynPlugin_getParticles)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_getParticles"));
     dynPlugin_getParticleData=(ptr_dynPlugin_getParticleData_D)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_getParticleData_D"));
-    dynPlugin_getParticleDataNewton=(ptr_dynPlugin_getParticleData)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_getParticleData"));
     dynPlugin_getContactForce=(ptr_dynPlugin_getContactForce_D)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_getContactForce_D"));
-    dynPlugin_getContactForceNewton=(ptr_dynPlugin_getContactForce)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_getContactForce"));
     dynPlugin_getDynamicStepDivider=(ptr_dynPlugin_getDynamicStepDivider)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_getDynamicStepDivider"));
     mujocoPlugin_computeInertia=(ptr_mujocoPlugin_computeInertia)(VVarious::resolveLibraryFuncName(instance,"mujocoPlugin_computeInertia"));
     mujocoPlugin_computePMI=(ptr_mujocoPlugin_computePMI)(VVarious::resolveLibraryFuncName(instance,"mujocoPlugin_computePMI"));
-    if ( (mujocoPlugin_computeInertia!=nullptr)||(mujocoPlugin_computePMI!=nullptr) )
+    bullet278_engine=(ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_bullet278"));
+    bullet283_engine=(ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_bullet283"));
+    ode_engine=(ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_ode"));
+    vortex_engine=(ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_vortex"));
+    newton_engine=(ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_newton"));
+    mujoco_engine=(ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance,"dynPlugin_mujoco"));
+    if (bullet278_engine!=nullptr)
+        App::worldContainer->pluginContainer->bullet278Engine=this;
+    if (bullet283_engine!=nullptr)
+        App::worldContainer->pluginContainer->bullet283Engine=this;
+    if (ode_engine!=nullptr)
+        App::worldContainer->pluginContainer->odeEngine=this;
+    if (vortex_engine!=nullptr)
+        App::worldContainer->pluginContainer->vortexEngine=this;
+    if (newton_engine!=nullptr)
+        App::worldContainer->pluginContainer->newtonEngine=this;
+    if (mujoco_engine!=nullptr)
         App::worldContainer->pluginContainer->mujocoEngine=this;
 
     // For the geom plugin:

@@ -12,13 +12,30 @@
 
 #define SIMIK_DEFAULT "simIK"
 #define SIMUI_DEFAULT "simUI"
+#define SIMBULLET278_DEFAULT "simBullet-2-78"
+#define SIMBULLET283_DEFAULT "simBullet-2-83"
+#define SIMODE_DEFAULT "simODE"
+#define SIMVORTEX_DEFAULT "simVortex"
+#define SIMNEWTON_DEFAULT "simNewton"
+#define SIMMUJOCO_DEFAULT "simMujoco"
+#define SIMGEOM_DEFAULT "simGeom"
+#define SIMCODEEDITOR_DEFAULT "simCodeEditor"
+#define SIMRUCKIG_DEFAULT "simRuckig"
+#define SIMASSIMP_DEFAULT "simAssimp"
+#define SIMQHULL_DEFAULT "simQHull"
+#define SIMCONVEXDECOMPOSE_DEFAULT "simConvexDecompose"
+#define SIMMESHDECIMATION_DEFAULT "simMeshDecimation"
 
 CPluginContainer::CPluginContainer()
 {
     _nextHandle=0;
 
-    currentEngineIsNewton=false;
     currentDynEngine=nullptr;
+    bullet278Engine=nullptr;
+    bullet283Engine=nullptr;
+    odeEngine=nullptr;
+    vortexEngine=nullptr;
+    newtonEngine=nullptr;
     mujocoEngine=nullptr;
     currentGeomPlugin=nullptr;
     currentIKPlugin=nullptr;
@@ -92,7 +109,6 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int
                 App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done.",namespaceAndVersion);
                 loadRes=2;
                 _nextHandle++;
-                plug->setStage(CPlugin::stage_siminitdone);
             }
             else
                 App::logMsg(sim_verbosity_errors,"plugin '%s': init failed.",namespaceAndVersion);
@@ -105,19 +121,6 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int
             delete plug;
             plug=nullptr;
         }
-    }
-    if (plug!=nullptr)
-    {
-        plug->addDependency(loadOrigin);
-#ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=nullptr)&&plug->isUiPlugin() )
-        { // trigger the UI thread that will init simInit_ui if needed:
-            SUIThreadCommand cmdIn;
-            SUIThreadCommand cmdOut;
-            cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-        }
-#endif
     }
     return(plug);
 }
@@ -228,39 +231,13 @@ bool CPluginContainer::deinitAndUnloadPlugin(int handle,int unloadOrigin)
     CPlugin* it=getPluginFromHandle(handle);
     if ( (it!=nullptr)&&(!it->isLegacyPlugin()) )
     {
-        if (it->getStage()<CPlugin::stage_simcleanupdone)
+        it->removeDependency(unloadOrigin);
+        if (!it->hasAnyDependency())
         {
-            it->removeDependency(unloadOrigin);
-            if (!it->hasAnyDependency())
-            {
-                std::string nm(it->getName());
-                App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': cleanup...",nm.c_str());
-                it->cleanup();
-                lockInterface();
-                if (it->getStage()==CPlugin::stage_siminitdone)
-                { // plugin didn't use UI entry points
-                    retVal=true;
-                    for (size_t i=0;i<_allPlugins.size();i++)
-                    {
-                        if (_allPlugins[i]==it)
-                        {
-                            delete _allPlugins[i];
-                            _allPlugins.erase(_allPlugins.begin()+i);
-                            break;
-                        }
-                    }
-                    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done.",nm.c_str());
-                }
-                else
-                {
-                    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done, but UI cleanup still ahead.",nm.c_str());
-                    it->setStage(CPlugin::stage_simcleanupdone); // still needs ui cleanup
-                }
-                unlockInterface();
-            }
-        }
-        if (it->getStage()==CPlugin::stage_uicleanupdone)
-        {
+            std::string nm(it->getName());
+            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': cleanup...",nm.c_str());
+            lockInterface();
+            it->cleanup();
             retVal=true;
             for (size_t i=0;i<_allPlugins.size();i++)
             {
@@ -271,6 +248,8 @@ bool CPluginContainer::deinitAndUnloadPlugin(int handle,int unloadOrigin)
                     break;
                 }
             }
+            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done.",nm.c_str());
+            unlockInterface();
         }
     }
     return(retVal);
@@ -337,25 +316,7 @@ void CPluginContainer::uiCallAllPlugins(int msg,int* auxData/*=nullptr*/,void* a
     while (index<_allPlugins.size())
     {
         CPlugin* plug=_allPlugins[index];
-        if (plug->isUiPlugin())
-        {
-            int stage=plug->getStage();
-            bool init=false;
-            if (stage==CPlugin::stage_siminitdone)
-            {
-                plug->setStage(CPlugin::stage_uiinitdone); // won't be destroyed be the SIM thread, before the UI thread switched to stage_uicleanupdone
-                init=true;
-            }
-            unlockInterface();
-            if ( init||(stage==CPlugin::stage_uiinitdone)||(stage==CPlugin::stage_allinitdone)||(stage==CPlugin::stage_simcleanupdone) )
-            {
-                if (init)
-                    plug->uiInit();
-                else
-                    plug->uiCall(msg,auxData,auxPointer);
-            }
-            lockInterface();
-        }
+        plug->uiCall(msg,auxData,auxPointer);
         index++;
     }
     unlockInterface();
@@ -363,17 +324,10 @@ void CPluginContainer::uiCallAllPlugins(int msg,int* auxData/*=nullptr*/,void* a
 
 void CPluginContainer::sendEventCallbackMessageToAllPlugins(int msg,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*/)
 {
-    for (int i=0;i<int(_allPlugins.size());i++)
+    for (size_t i=0;i<_allPlugins.size();i++)
     {
         CPlugin* plug=_allPlugins[size_t(i)];
-        if (plug->getStage()<CPlugin::stage_simcleanupdone)
-            plug->msg(msg,auxData,auxPointer);
-        if (plug->getStage()==CPlugin::stage_uicleanupdone)
-        { // UI plugin that is done
-            delete plug;
-            _allPlugins.erase(_allPlugins.begin()+i);
-            i--; // reprocess that position
-        }
+        plug->msg(msg,auxData,auxPointer);
     }
 }
 
@@ -443,6 +397,9 @@ bool CPluginContainer::extRenderer(int msg,void* data)
 
 bool CPluginContainer::qhull(void* data)
 {
+    if (currentQHullPlugin==nullptr)
+        currentQHullPlugin=_tryToLoadPluginOnce(SIMQHULL_DEFAULT);
+
     bool retVal=false;
     if (currentQHullPlugin!=nullptr)
     {
@@ -458,6 +415,9 @@ bool CPluginContainer::qhull(void* data)
 
 bool CPluginContainer::hacd(void* data)
 {
+    if (currentConvexDecomposePlugin==nullptr)
+        currentConvexDecomposePlugin=_tryToLoadPluginOnce(SIMCONVEXDECOMPOSE_DEFAULT);
+
     bool retVal=false;
     if (currentConvexDecomposePlugin!=nullptr)
     {
@@ -471,6 +431,9 @@ bool CPluginContainer::hacd(void* data)
 
 bool CPluginContainer::vhacd(void* data)
 {
+    if (currentConvexDecomposePlugin==nullptr)
+        currentConvexDecomposePlugin=_tryToLoadPluginOnce(SIMCONVEXDECOMPOSE_DEFAULT);
+
     bool retVal=false;
     if (currentConvexDecomposePlugin!=nullptr)
     {
@@ -484,6 +447,9 @@ bool CPluginContainer::vhacd(void* data)
 
 bool CPluginContainer::meshDecimator(void* data)
 {
+    if (currentMeshDecimationPlugin==nullptr)
+        currentMeshDecimationPlugin=_tryToLoadPluginOnce(SIMMESHDECIMATION_DEFAULT);
+
     bool retVal=false;
     if (currentMeshDecimationPlugin!=nullptr)
     {
@@ -497,38 +463,54 @@ bool CPluginContainer::meshDecimator(void* data)
 
 bool CPluginContainer::dyn_startSimulation(int engine,int version,const double floatParams[20],const int intParams[20])
 {
-    bool retVal=false;
-    for (size_t i=0;i<_allPlugins.size();i++)
+    currentDynEngine=nullptr;
+    if (engine==sim_physics_bullet)
     {
-        if (_allPlugins[i]->dynPlugin_startSimulation!=nullptr)
+        if (version!=283)
         {
-            _allPlugins[i]->pushCurrentPlugin();
-            int res=_allPlugins[i]->dynPlugin_startSimulation(engine,version,floatParams,intParams);
-            _allPlugins[i]->popCurrentPlugin();
-            if (res!=0)
-            { // success with this plugin!
-                currentEngineIsNewton=false;
-                currentDynEngine=_allPlugins[i];
-                retVal=true;
-                break;
-            }
+            if (bullet278Engine==nullptr)
+                _tryToLoadPluginOnce(SIMBULLET278_DEFAULT);
+            currentDynEngine=bullet278Engine;
         }
-        else if (_allPlugins[i]->dynPlugin_startSimulationNewton!=nullptr)
+        else
         {
-            float fp[20];
-            for (size_t j=0;j<20;j++)
-                fp[j]=(float)floatParams[j];
-            _allPlugins[i]->pushCurrentPlugin();
-            int res=_allPlugins[i]->dynPlugin_startSimulationNewton(engine,version,fp,intParams);
-            _allPlugins[i]->popCurrentPlugin();
-            if (res!=0)
-            {
-                currentEngineIsNewton=true;
-                currentDynEngine=_allPlugins[i];
-                retVal=true;
-                break;
-            }
+            if (bullet283Engine==nullptr)
+                _tryToLoadPluginOnce(SIMBULLET283_DEFAULT);
+            currentDynEngine=bullet283Engine;
         }
+    }
+    if (engine==sim_physics_ode)
+    {
+        if (odeEngine==nullptr)
+            _tryToLoadPluginOnce(SIMODE_DEFAULT);
+        currentDynEngine=odeEngine;
+    }
+    if (engine==sim_physics_vortex)
+    {
+        if (vortexEngine==nullptr)
+            _tryToLoadPluginOnce(SIMVORTEX_DEFAULT);
+        currentDynEngine=vortexEngine;
+    }
+    if (engine==sim_physics_newton)
+    {
+        if (newtonEngine==nullptr)
+            _tryToLoadPluginOnce(SIMNEWTON_DEFAULT);
+        currentDynEngine=newtonEngine;
+    }
+    if (engine==sim_physics_mujoco)
+    {
+        if (mujocoEngine==nullptr)
+            _tryToLoadPluginOnce(SIMMUJOCO_DEFAULT);
+        currentDynEngine=mujocoEngine;
+    }
+
+    bool retVal=false;
+    if (currentDynEngine!=nullptr)
+    {
+        currentDynEngine->pushCurrentPlugin();
+        int res=currentDynEngine->dynPlugin_startSimulation(floatParams,intParams);
+        currentDynEngine->popCurrentPlugin();
+        retVal=(res!=0);
     }
     return(retVal);
 }
@@ -549,10 +531,7 @@ void CPluginContainer::dyn_step(double timeStep,double simulationTime)
     if (currentDynEngine!=nullptr)
     {
         currentDynEngine->pushCurrentPlugin();
-        if (!currentEngineIsNewton)
-            currentDynEngine->dynPlugin_step(timeStep,simulationTime);
-        else
-            currentDynEngine->dynPlugin_stepNewton((float)timeStep,(float)simulationTime);
+        currentDynEngine->dynPlugin_step(timeStep,simulationTime);
         currentDynEngine->popCurrentPlugin();
     }
 }
@@ -590,36 +569,7 @@ int CPluginContainer::dyn_addParticleObject(int objectType,double size,double ma
     if (currentDynEngine!=nullptr)
     {
         currentDynEngine->pushCurrentPlugin();
-        if (!currentEngineIsNewton)
-            retVal=currentDynEngine->dynPlugin_addParticleObject(objectType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,diffuse,specular,emission);
-        else
-        {
-            float a1[3];
-            float a3[3];
-            float a4[4];
-            float* a1_=nullptr;
-            float* a3_=nullptr;
-            float* a4_=nullptr;
-            if (ambient!=nullptr)
-            {
-                for (size_t i=0;i<3;i++)
-                    a1[i]=(float)ambient[i];
-                a1_=a1;
-            }
-            if (specular!=nullptr)
-            {
-                for (size_t i=0;i<3;i++)
-                    a3[i]=(float)specular[i];
-                a3_=a3;
-            }
-            if (emission!=nullptr)
-            {
-                for (size_t i=0;i<3;i++)
-                    a4[i]=(float)emission[i];
-                a4_=a4;
-            }
-            retVal=currentDynEngine->dynPlugin_addParticleObjectNewton(objectType,(float)size,(float)massOverVolume,params,(float)lifeTime,maxItemCount,a1_,nullptr,a3_,a4_);
-        }
+        retVal=currentDynEngine->dynPlugin_addParticleObject(objectType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,diffuse,specular,emission);
         currentDynEngine->popCurrentPlugin();
     }
     return(retVal);
@@ -643,20 +593,7 @@ bool CPluginContainer::dyn_addParticleObjectItem(int objectHandle,const double* 
     if (currentDynEngine!=nullptr)
     {
         currentDynEngine->pushCurrentPlugin();
-        if (!currentEngineIsNewton)
-            res=currentDynEngine->dynPlugin_addParticleObjectItem(objectHandle,itemData,simulationTime);
-        else
-        {
-            float v[20];
-            float* v_=nullptr;
-            if (itemData!=nullptr)
-            {
-                for (size_t i=0;i<20;i++)
-                    v[i]=(float)itemData[i];
-                v_=v;
-            }
-            res=currentDynEngine->dynPlugin_addParticleObjectItemNewton(objectHandle,v_,(float)simulationTime);
-        }
+        res=currentDynEngine->dynPlugin_addParticleObjectItem(objectHandle,itemData,simulationTime);
         currentDynEngine->popCurrentPlugin();
     }
     return(res!=0);
@@ -681,17 +618,7 @@ double* CPluginContainer::dyn_getContactPoints(int* count)
     if (currentDynEngine!=nullptr)
     {
         currentDynEngine->pushCurrentPlugin();
-        if (!currentEngineIsNewton)
-            retVal=currentDynEngine->dynPlugin_getContactPoints(count);
-        else
-        {
-            float* p=currentDynEngine->dynPlugin_getContactPointsNewton(count);
-            static std::vector<double> pp;
-            pp.resize(count[0]*3);
-            for (int i=0;i<count[0]*3;i++)
-                pp[i]=(double)p[i];
-            retVal=pp.data();
-        }
+        retVal=currentDynEngine->dynPlugin_getContactPoints(count);
         currentDynEngine->popCurrentPlugin();
     }
     return(retVal);
@@ -715,18 +642,7 @@ bool CPluginContainer::dyn_getParticleData(const void* particle,double* pos,doub
     if (currentDynEngine!=nullptr)
     {
         currentDynEngine->pushCurrentPlugin();
-        if (!currentEngineIsNewton)
-            res=currentDynEngine->dynPlugin_getParticleData(particle,pos,size,objectType,additionalColor);
-        else
-        {
-            float p[3];
-            float s;
-            res=currentDynEngine->dynPlugin_getParticleDataNewton(particle,p,&s,objectType,additionalColor);
-            pos[0]=(double)p[0];
-            pos[1]=(double)p[1];
-            pos[2]=(double)p[2];
-            size[0]=(double)s;
-        }
+        res=currentDynEngine->dynPlugin_getParticleData(particle,pos,size,objectType,additionalColor);
         currentDynEngine->popCurrentPlugin();
     }
     return(res!=0);
@@ -738,18 +654,7 @@ bool CPluginContainer::dyn_getContactForce(int dynamicPass,int objectHandle,int 
     if (currentDynEngine!=nullptr)
     {
         currentDynEngine->pushCurrentPlugin();
-        if (!currentEngineIsNewton)
-            res=currentDynEngine->dynPlugin_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo);
-        else
-        {
-            float ci[9];
-            res=currentDynEngine->dynPlugin_getContactForceNewton(dynamicPass,objectHandle,index,objectHandles,ci);
-            size_t cnt=6;
-            if ((index&sim_handleflag_extended)!=0)
-                cnt=9;
-            for (size_t i=0;i<cnt;i++)
-                contactInfo[i]=(double)ci[i];
-        }
+        res=currentDynEngine->dynPlugin_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo);
         currentDynEngine->popCurrentPlugin();
     }
     return(res!=0);
@@ -769,8 +674,10 @@ int CPluginContainer::dyn_getDynamicStepDivider()
 
 double CPluginContainer::dyn_computePMI(const std::vector<double>& vertices,const std::vector<int>& indices,C7Vector& tr,C3Vector& diagI)
 { // returns the mass-less diagonal inertia. Returned mass is for a density of 1000
+    if (mujocoEngine==nullptr)
+        mujocoEngine=_tryToLoadPluginOnce(SIMMUJOCO_DEFAULT);
     double mass=0.0;
-    if ( (mujocoEngine!=nullptr)&&(mujocoEngine->mujocoPlugin_computePMI!=nullptr) )
+    if (mujocoEngine!=nullptr)
     {
         mujocoEngine->pushCurrentPlugin();
         mass=mujocoEngine->mujocoPlugin_computePMI(vertices.data(),int(vertices.size()),indices.data(),int(indices.size()),tr.X.data,tr.Q.data,diagI.data);
@@ -781,8 +688,10 @@ double CPluginContainer::dyn_computePMI(const std::vector<double>& vertices,cons
 
 double CPluginContainer::dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vector& diagI)
 { // returns the mass-less diagonal inertia, relative to the shape's ref frame. Returned mass is for a density of 1000
+    if (mujocoEngine==nullptr)
+        mujocoEngine=_tryToLoadPluginOnce(SIMMUJOCO_DEFAULT);
     double mass=0.0;
-    if ( (mujocoEngine!=nullptr)&&(mujocoEngine->mujocoPlugin_computeInertia!=nullptr) )
+    if (mujocoEngine!=nullptr)
     {
         mujocoEngine->pushCurrentPlugin();
         mass=mujocoEngine->mujocoPlugin_computeInertia(shapeHandle,tr.X.data,tr.Q.data,diagI.data);
@@ -810,21 +719,33 @@ double CPluginContainer::dyn_computeInertia(int shapeHandle,C7Vector& tr,C3Vecto
 
 bool CPluginContainer::isGeomPluginAvailable()
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     return(currentGeomPlugin!=nullptr);
 }
 
 bool CPluginContainer::isCodeEditorPluginAvailable()
 {
+    if (currentCodeEditorPlugin==nullptr)
+        currentCodeEditorPlugin=_tryToLoadPluginOnce(SIMCODEEDITOR_DEFAULT);
+
     return(currentCodeEditorPlugin!=nullptr);
 }
 
 bool CPluginContainer::isAssimpPluginAvailable()
 {
+    if (currentAssimpPlugin==nullptr)
+        currentAssimpPlugin=_tryToLoadPluginOnce(SIMASSIMP_DEFAULT);
+
     return(currentAssimpPlugin!=nullptr);
 }
 
 void CPluginContainer::geomPlugin_releaseBuffer(void* buffer)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         currentGeomPlugin->pushCurrentPlugin();
@@ -835,6 +756,9 @@ void CPluginContainer::geomPlugin_releaseBuffer(void* buffer)
 
 void* CPluginContainer::geomPlugin_createMesh(const double* vertices,int verticesSize,const int* indices,int indicesSize,const C7Vector* meshOrigin/*=nullptr*/,double triangleEdgeMaxLength/*=0.3*/,int maxTrianglesInBoundingBox/*=8*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -853,6 +777,9 @@ void* CPluginContainer::geomPlugin_createMesh(const double* vertices,int vertice
 }
 void* CPluginContainer::geomPlugin_copyMesh(const void* meshObbStruct)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -864,6 +791,9 @@ void* CPluginContainer::geomPlugin_copyMesh(const void* meshObbStruct)
 }
 void* CPluginContainer::geomPlugin_getMeshFromSerializationData(const unsigned char* serializationData)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -875,6 +805,9 @@ void* CPluginContainer::geomPlugin_getMeshFromSerializationData(const unsigned c
 }
 void CPluginContainer::geomPlugin_getMeshSerializationData(const void* meshObbStruct,std::vector<unsigned char>& serializationData)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         int l;
@@ -890,6 +823,9 @@ void CPluginContainer::geomPlugin_getMeshSerializationData(const void* meshObbSt
 }
 void CPluginContainer::geomPlugin_scaleMesh(void* meshObbStruct,double scalingFactor)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         currentGeomPlugin->pushCurrentPlugin();
@@ -899,6 +835,9 @@ void CPluginContainer::geomPlugin_scaleMesh(void* meshObbStruct,double scalingFa
 }
 void CPluginContainer::geomPlugin_destroyMesh(void* meshObbStruct)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         currentGeomPlugin->pushCurrentPlugin();
@@ -908,6 +847,9 @@ void CPluginContainer::geomPlugin_destroyMesh(void* meshObbStruct)
 }
 double CPluginContainer::geomPlugin_getMeshRootObbVolume(const void* meshObbStruct)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     double retVal=0.0;
     if (currentGeomPlugin!=nullptr)
     {
@@ -919,6 +861,9 @@ double CPluginContainer::geomPlugin_getMeshRootObbVolume(const void* meshObbStru
 }
 void* CPluginContainer::geomPlugin_createOctreeFromPoints(const double* points,int pointCnt,const C7Vector* octreeOrigin/*=nullptr*/,double cellS/*=0.05*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -937,6 +882,9 @@ void* CPluginContainer::geomPlugin_createOctreeFromPoints(const double* points,i
 }
 void* CPluginContainer::geomPlugin_createOctreeFromColorPoints(const double* points,int pointCnt,const C7Vector* octreeOrigin/*=nullptr*/,double cellS/*=0.05*/,const unsigned char* rgbData/*=nullptr*/,const unsigned int* usrData/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -955,6 +903,9 @@ void* CPluginContainer::geomPlugin_createOctreeFromColorPoints(const double* poi
 }
 void* CPluginContainer::geomPlugin_createOctreeFromMesh(const void* meshObbStruct,const C7Vector& meshTransformation,const C7Vector* octreeOrigin/*=nullptr*/,double cellS/*=0.05*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -975,6 +926,9 @@ void* CPluginContainer::geomPlugin_createOctreeFromMesh(const void* meshObbStruc
 }
 void* CPluginContainer::geomPlugin_createOctreeFromOctree(const void* otherOctreeStruct,const C7Vector& otherOctreeTransformation,const C7Vector* newOctreeOrigin/*=nullptr*/,double newOctreeCellS/*=0.05*/,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -995,6 +949,9 @@ void* CPluginContainer::geomPlugin_createOctreeFromOctree(const void* otherOctre
 }
 void* CPluginContainer::geomPlugin_copyOctree(const void* ocStruct)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1006,6 +963,9 @@ void* CPluginContainer::geomPlugin_copyOctree(const void* ocStruct)
 }
 void* CPluginContainer::geomPlugin_getOctreeFromSerializationData(const unsigned char* serializationData)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1017,6 +977,9 @@ void* CPluginContainer::geomPlugin_getOctreeFromSerializationData(const unsigned
 }
 void CPluginContainer::geomPlugin_getOctreeSerializationData(const void* ocStruct,std::vector<unsigned char>& serializationData)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         int l;
@@ -1032,6 +995,9 @@ void CPluginContainer::geomPlugin_getOctreeSerializationData(const void* ocStruc
 }
 void* CPluginContainer::geomPlugin_getOctreeFromSerializationData_float(const unsigned char* serializationData)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1043,6 +1009,9 @@ void* CPluginContainer::geomPlugin_getOctreeFromSerializationData_float(const un
 }
 void CPluginContainer::geomPlugin_getOctreeSerializationData_float(const void* ocStruct,std::vector<unsigned char>& serializationData)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         int l;
@@ -1058,6 +1027,9 @@ void CPluginContainer::geomPlugin_getOctreeSerializationData_float(const void* o
 }
 void CPluginContainer::geomPlugin_scaleOctree(void* ocStruct,double f)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         currentGeomPlugin->pushCurrentPlugin();
@@ -1067,6 +1039,9 @@ void CPluginContainer::geomPlugin_scaleOctree(void* ocStruct,double f)
 }
 void CPluginContainer::geomPlugin_destroyOctree(void* ocStruct)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         currentGeomPlugin->pushCurrentPlugin();
@@ -1076,6 +1051,9 @@ void CPluginContainer::geomPlugin_destroyOctree(void* ocStruct)
 }
 void CPluginContainer::geomPlugin_getOctreeVoxelPositions(const void* ocStruct,std::vector<double>& voxelPositions)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         int l;
@@ -1097,6 +1075,9 @@ void CPluginContainer::geomPlugin_getOctreeVoxelPositions(const void* ocStruct,s
 }
 void CPluginContainer::geomPlugin_getOctreeVoxelColors(const void* ocStruct,std::vector<float>& voxelColors)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         int l;
@@ -1119,6 +1100,9 @@ void CPluginContainer::geomPlugin_getOctreeVoxelColors(const void* ocStruct,std:
 }
 void CPluginContainer::geomPlugin_getOctreeUserData(const void* ocStruct,std::vector<unsigned int>& userData)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         int l;
@@ -1134,6 +1118,9 @@ void CPluginContainer::geomPlugin_getOctreeUserData(const void* ocStruct,std::ve
 }
 void CPluginContainer::geomPlugin_getOctreeCornersFromOctree(const void* ocStruct,std::vector<double>& points)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         int l;
@@ -1149,6 +1136,9 @@ void CPluginContainer::geomPlugin_getOctreeCornersFromOctree(const void* ocStruc
 }
 void CPluginContainer::geomPlugin_insertPointsIntoOctree(void* ocStruct,const C7Vector& octreeTransformation,const double* points,int pointCnt,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         double _tr[7];
@@ -1160,6 +1150,9 @@ void CPluginContainer::geomPlugin_insertPointsIntoOctree(void* ocStruct,const C7
 }
 void CPluginContainer::geomPlugin_insertColorPointsIntoOctree(void* ocStruct,const C7Vector& octreeTransformation,const double* points,int pointCnt,const unsigned char* rgbData/*=nullptr*/,const unsigned int* usrData/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         double _tr[7];
@@ -1171,6 +1164,9 @@ void CPluginContainer::geomPlugin_insertColorPointsIntoOctree(void* ocStruct,con
 }
 void CPluginContainer::geomPlugin_insertMeshIntoOctree(void* ocStruct,const C7Vector& octreeTransformation,const void* obbStruct,const C7Vector& meshTransformation,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         double _tr1[7];
@@ -1184,6 +1180,9 @@ void CPluginContainer::geomPlugin_insertMeshIntoOctree(void* ocStruct,const C7Ve
 }
 void CPluginContainer::geomPlugin_insertOctreeIntoOctree(void* oc1Struct,const C7Vector& octree1Transformation,const void* oc2Struct,const C7Vector& octree2Transformation,const unsigned char rgbData[3]/*=nullptr*/,unsigned int usrData/*=0*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         double _tr1[7];
@@ -1197,6 +1196,9 @@ void CPluginContainer::geomPlugin_insertOctreeIntoOctree(void* oc1Struct,const C
 }
 bool CPluginContainer::geomPlugin_removePointsFromOctree(void* ocStruct,const C7Vector& octreeTransformation,const double* points,int pointCnt)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1210,6 +1212,9 @@ bool CPluginContainer::geomPlugin_removePointsFromOctree(void* ocStruct,const C7
 }
 bool CPluginContainer::geomPlugin_removeMeshFromOctree(void* ocStruct,const C7Vector& octreeTransformation,const void* obbStruct,const C7Vector& meshTransformation)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1225,6 +1230,9 @@ bool CPluginContainer::geomPlugin_removeMeshFromOctree(void* ocStruct,const C7Ve
 }
 bool CPluginContainer::geomPlugin_removeOctreeFromOctree(void* oc1Struct,const C7Vector& octree1Transformation,const void* oc2Struct,const C7Vector& octree2Transformation)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1240,6 +1248,9 @@ bool CPluginContainer::geomPlugin_removeOctreeFromOctree(void* oc1Struct,const C
 }
 void* CPluginContainer::geomPlugin_createPtcloudFromPoints(const double* points,int pointCnt,const C7Vector* ptcloudOrigin/*=nullptr*/,double cellS/*=0.05*/,int maxPointCnt/*=20*/,const unsigned char rgbData[3]/*=nullptr*/,double proximityTol/*=0.005*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1258,6 +1269,9 @@ void* CPluginContainer::geomPlugin_createPtcloudFromPoints(const double* points,
 }
 void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints(const double* points,int pointCnt,const C7Vector* ptcloudOrigin/*=nullptr*/,double cellS/*=0.05*/,int maxPointCnt/*=20*/,const unsigned char* rgbData/*=nullptr*/,double proximityTol/*=0.005*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1276,6 +1290,9 @@ void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints(const double* po
 }
 void* CPluginContainer::geomPlugin_copyPtcloud(const void* pcStruct)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1287,6 +1304,9 @@ void* CPluginContainer::geomPlugin_copyPtcloud(const void* pcStruct)
 }
 void* CPluginContainer::geomPlugin_getPtcloudFromSerializationData(const unsigned char* serializationData)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1298,6 +1318,9 @@ void* CPluginContainer::geomPlugin_getPtcloudFromSerializationData(const unsigne
 }
 void CPluginContainer::geomPlugin_getPtcloudSerializationData(const void* pcStruct,std::vector<unsigned char>& serializationData)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         int l;
@@ -1313,6 +1336,9 @@ void CPluginContainer::geomPlugin_getPtcloudSerializationData(const void* pcStru
 }
 void* CPluginContainer::geomPlugin_getPtcloudFromSerializationData_float(const unsigned char* serializationData)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     void* retVal=nullptr;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1324,6 +1350,9 @@ void* CPluginContainer::geomPlugin_getPtcloudFromSerializationData_float(const u
 }
 void CPluginContainer::geomPlugin_getPtcloudSerializationData_float(const void* pcStruct,std::vector<unsigned char>& serializationData)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         int l;
@@ -1339,6 +1368,9 @@ void CPluginContainer::geomPlugin_getPtcloudSerializationData_float(const void* 
 }
 void CPluginContainer::geomPlugin_scalePtcloud(void* pcStruct,double f)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         currentGeomPlugin->pushCurrentPlugin();
@@ -1348,6 +1380,9 @@ void CPluginContainer::geomPlugin_scalePtcloud(void* pcStruct,double f)
 }
 void CPluginContainer::geomPlugin_destroyPtcloud(void* pcStruct)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         currentGeomPlugin->pushCurrentPlugin();
@@ -1357,6 +1392,9 @@ void CPluginContainer::geomPlugin_destroyPtcloud(void* pcStruct)
 }
 void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct,std::vector<double>& pointData,std::vector<double>* colorData/*=nullptr*/,double prop/*=1.0*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     pointData.clear();
     if (colorData!=nullptr)
         colorData->clear();
@@ -1388,6 +1426,9 @@ void CPluginContainer::geomPlugin_getPtcloudPoints(const void* pcStruct,std::vec
 
 void CPluginContainer::geomPlugin_getPtcloudOctreeCorners(const void* pcStruct,std::vector<double>& points)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         int l;
@@ -1403,6 +1444,9 @@ void CPluginContainer::geomPlugin_getPtcloudOctreeCorners(const void* pcStruct,s
 }
 int CPluginContainer::geomPlugin_getPtcloudNonEmptyCellCount(const void* pcStruct)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     int retVal=0;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1414,6 +1458,9 @@ int CPluginContainer::geomPlugin_getPtcloudNonEmptyCellCount(const void* pcStruc
 }
 void CPluginContainer::geomPlugin_insertPointsIntoPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const double* points,int pointCnt,const unsigned char rgbData[3]/*=nullptr*/,double proximityTol/*=0.001*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         double _tr[7];
@@ -1425,6 +1472,9 @@ void CPluginContainer::geomPlugin_insertPointsIntoPtcloud(void* pcStruct,const C
 }
 void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const double* points,int pointCnt,const unsigned char* rgbData/*=nullptr*/,double proximityTol/*=0.001*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     if (currentGeomPlugin!=nullptr)
     {
         double _tr[7];
@@ -1436,6 +1486,9 @@ void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud(void* pcStruct,co
 }
 bool CPluginContainer::geomPlugin_removePointsFromPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const double* points,int pointCnt,double proximityTol,int* countRemoved/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1449,6 +1502,9 @@ bool CPluginContainer::geomPlugin_removePointsFromPtcloud(void* pcStruct,const C
 }
 bool CPluginContainer::geomPlugin_removeOctreeFromPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const void* ocStruct,const C7Vector& octreeTransformation,int* countRemoved/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1464,6 +1520,9 @@ bool CPluginContainer::geomPlugin_removeOctreeFromPtcloud(void* pcStruct,const C
 }
 bool CPluginContainer::geomPlugin_intersectPointsWithPtcloud(void* pcStruct,const C7Vector& ptcloudTransformation,const double* points,int pointCnt,double proximityTol/*=0.001*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1477,6 +1536,9 @@ bool CPluginContainer::geomPlugin_intersectPointsWithPtcloud(void* pcStruct,cons
 }
 bool CPluginContainer::geomPlugin_getMeshMeshCollision(const void* mesh1ObbStruct,const C7Vector& mesh1Transformation,const void* mesh2ObbStruct,const C7Vector& mesh2Transformation,std::vector<double>* intersections/*=nullptr*/,int* mesh1Caching/*=nullptr*/,int* mesh2Caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1502,6 +1564,9 @@ bool CPluginContainer::geomPlugin_getMeshMeshCollision(const void* mesh1ObbStruc
 }
 bool CPluginContainer::geomPlugin_getMeshOctreeCollision(const void* meshObbStruct,const C7Vector& meshTransformation,const void* ocStruct,const C7Vector& octreeTransformation,int* meshCaching/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1517,6 +1582,9 @@ bool CPluginContainer::geomPlugin_getMeshOctreeCollision(const void* meshObbStru
 }
 bool CPluginContainer::geomPlugin_getMeshTriangleCollision(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,std::vector<double>* intersections/*=nullptr*/,int* caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1540,6 +1608,9 @@ bool CPluginContainer::geomPlugin_getMeshTriangleCollision(const void* meshObbSt
 }
 bool CPluginContainer::geomPlugin_getMeshSegmentCollision(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& segmentExtremity,const C3Vector& segmentVector,std::vector<double>* intersections/*=nullptr*/,int* caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1563,6 +1634,9 @@ bool CPluginContainer::geomPlugin_getMeshSegmentCollision(const void* meshObbStr
 }
 bool CPluginContainer::geomPlugin_getOctreeOctreeCollision(const void* oc1Struct,const C7Vector& octree1Transformation,const void* oc2Struct,const C7Vector& octree2Transformation,unsigned long long int* oc1Caching/*=nullptr*/,unsigned long long int* oc2Caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1578,6 +1652,9 @@ bool CPluginContainer::geomPlugin_getOctreeOctreeCollision(const void* oc1Struct
 }
 bool CPluginContainer::geomPlugin_getOctreePtcloudCollision(const void* ocStruct,const C7Vector& octreeTransformation,const void* pcStruct,const C7Vector& ptcloudTransformation,unsigned long long int* ocCaching/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1593,6 +1670,9 @@ bool CPluginContainer::geomPlugin_getOctreePtcloudCollision(const void* ocStruct
 }
 bool CPluginContainer::geomPlugin_getOctreeTriangleCollision(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,unsigned long long int* caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1606,6 +1686,9 @@ bool CPluginContainer::geomPlugin_getOctreeTriangleCollision(const void* ocStruc
 }
 bool CPluginContainer::geomPlugin_getOctreeSegmentCollision(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& segmentExtremity,const C3Vector& segmentVector,unsigned long long int* caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1619,6 +1702,9 @@ bool CPluginContainer::geomPlugin_getOctreeSegmentCollision(const void* ocStruct
 }
 bool CPluginContainer::geomPlugin_getOctreePointsCollision(const void* ocStruct,const C7Vector& octreeTransformation,const double* points,int pointCount)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1632,6 +1718,9 @@ bool CPluginContainer::geomPlugin_getOctreePointsCollision(const void* ocStruct,
 }
 bool CPluginContainer::geomPlugin_getOctreePointCollision(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& point,unsigned int* usrData/*=nullptr*/,unsigned long long int* caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1645,6 +1734,9 @@ bool CPluginContainer::geomPlugin_getOctreePointCollision(const void* ocStruct,c
 }
 bool CPluginContainer::geomPlugin_getBoxBoxCollision(const C7Vector& box1Transformation,const C3Vector& box1HalfSize,const C7Vector& box2Transformation,const C3Vector& box2HalfSize,bool boxesAreSolid)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1660,6 +1752,9 @@ bool CPluginContainer::geomPlugin_getBoxBoxCollision(const C7Vector& box1Transfo
 }
 bool CPluginContainer::geomPlugin_getBoxTriangleCollision(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& p,const C3Vector& v,const C3Vector& w)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1673,6 +1768,9 @@ bool CPluginContainer::geomPlugin_getBoxTriangleCollision(const C7Vector& boxTra
 }
 bool CPluginContainer::geomPlugin_getBoxSegmentCollision(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& segmentEndPoint,const C3Vector& segmentVector)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1686,6 +1784,9 @@ bool CPluginContainer::geomPlugin_getBoxSegmentCollision(const C7Vector& boxTran
 }
 bool CPluginContainer::geomPlugin_getBoxPointCollision(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,const C3Vector& point)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1699,6 +1800,9 @@ bool CPluginContainer::geomPlugin_getBoxPointCollision(const C7Vector& boxTransf
 }
 bool CPluginContainer::geomPlugin_getTriangleTriangleCollision(const C3Vector& p1,const C3Vector& v1,const C3Vector& w1,const C3Vector& p2,const C3Vector& v2,const C3Vector& w2,std::vector<double>* intersections/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1720,6 +1824,9 @@ bool CPluginContainer::geomPlugin_getTriangleTriangleCollision(const C3Vector& p
 }
 bool CPluginContainer::geomPlugin_getTriangleSegmentCollision(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,std::vector<double>* intersections/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1741,6 +1848,9 @@ bool CPluginContainer::geomPlugin_getTriangleSegmentCollision(const C3Vector& p,
 }
 bool CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(const void* mesh1ObbStruct,const C7Vector& mesh1Transformation,const void* mesh2ObbStruct,const C7Vector& mesh2Transformation,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* mesh1Caching/*=nullptr*/,int* mesh2Caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1765,6 +1875,9 @@ bool CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(const void* mesh1
 }
 bool CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const void* ocStruct,const C7Vector& octreeTransformation,double& dist,C3Vector* meshMinDistPt/*=nullptr*/,C3Vector* ocMinDistPt/*=nullptr*/,int* meshCaching/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1789,6 +1902,9 @@ bool CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(const void* mes
 }
 bool CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const void* pcStruct,const C7Vector& pcTransformation,double& dist,C3Vector* meshMinDistPt/*=nullptr*/,C3Vector* pcMinDistPt/*=nullptr*/,int* meshCaching/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1813,6 +1929,9 @@ bool CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(const void* me
 }
 bool CPluginContainer::geomPlugin_getMeshTriangleDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1835,6 +1954,9 @@ bool CPluginContainer::geomPlugin_getMeshTriangleDistanceIfSmaller(const void* m
 }
 bool CPluginContainer::geomPlugin_getMeshSegmentDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/,int* caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1857,6 +1979,9 @@ bool CPluginContainer::geomPlugin_getMeshSegmentDistanceIfSmaller(const void* me
 }
 bool CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(const void* meshObbStruct,const C7Vector& meshTransformation,const C3Vector& point,double& dist,C3Vector* minDistSegPt/*=nullptr*/,int* caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1876,6 +2001,9 @@ bool CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(const void* mesh
 }
 bool CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(const void* oc1Struct,const C7Vector& octree1Transformation,const void* oc2Struct,const C7Vector& octree2Transformation,double& dist,C3Vector* oc1MinDistPt/*=nullptr*/,C3Vector* oc2MinDistPt/*=nullptr*/,unsigned long long int* oc1Caching/*=nullptr*/,unsigned long long int* oc2Caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1900,6 +2028,9 @@ bool CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(const void* o
 }
 bool CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const void* pcStruct,const C7Vector& pcTransformation,double& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* pcMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1924,6 +2055,9 @@ bool CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(const void* 
 }
 bool CPluginContainer::geomPlugin_getOctreeTriangleDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,double& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* triMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1946,6 +2080,9 @@ bool CPluginContainer::geomPlugin_getOctreeTriangleDistanceIfSmaller(const void*
 }
 bool CPluginContainer::geomPlugin_getOctreeSegmentDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,C3Vector* ocMinDistPt/*=nullptr*/,C3Vector* segMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1968,6 +2105,9 @@ bool CPluginContainer::geomPlugin_getOctreeSegmentDistanceIfSmaller(const void* 
 }
 bool CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(const void* ocStruct,const C7Vector& octreeTransformation,const C3Vector& point,double& dist,C3Vector* ocMinDistPt/*=nullptr*/,unsigned long long int* ocCaching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -1987,6 +2127,9 @@ bool CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(const void* oc
 }
 bool CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(const void* pc1Struct,const C7Vector& pc1Transformation,const void* pc2Struct,const C7Vector& pc2Transformation,double& dist,C3Vector* pc1MinDistPt/*=nullptr*/,C3Vector* pc2MinDistPt/*=nullptr*/,unsigned long long int* pc1Caching/*=nullptr*/,unsigned long long int* pc2Caching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2011,6 +2154,9 @@ bool CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(const void*
 }
 bool CPluginContainer::geomPlugin_getPtcloudTriangleDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& p,const C3Vector& v,const C3Vector& w,double& dist,C3Vector* pcMinDistPt/*=nullptr*/,C3Vector* triMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2033,6 +2179,9 @@ bool CPluginContainer::geomPlugin_getPtcloudTriangleDistanceIfSmaller(const void
 }
 bool CPluginContainer::geomPlugin_getPtcloudSegmentDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,C3Vector* pcMinDistPt/*=nullptr*/,C3Vector* segMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2055,6 +2204,9 @@ bool CPluginContainer::geomPlugin_getPtcloudSegmentDistanceIfSmaller(const void*
 }
 bool CPluginContainer::geomPlugin_getPtcloudPointDistanceIfSmaller(const void* pcStruct,const C7Vector& pcTransformation,const C3Vector& point,double& dist,C3Vector* pcMinDistPt/*=nullptr*/,unsigned long long int* pcCaching/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2074,6 +2226,9 @@ bool CPluginContainer::geomPlugin_getPtcloudPointDistanceIfSmaller(const void* p
 }
 double CPluginContainer::geomPlugin_getApproxBoxBoxDistance(const C7Vector& box1Transformation,const C3Vector& box1HalfSize,const C7Vector& box2Transformation,const C3Vector& box2HalfSize)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     double retVal=0.0;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2089,6 +2244,9 @@ double CPluginContainer::geomPlugin_getApproxBoxBoxDistance(const C7Vector& box1
 }
 bool CPluginContainer::geomPlugin_getBoxBoxDistanceIfSmaller(const C7Vector& box1Transformation,const C3Vector& box1HalfSize,const C7Vector& box2Transformation,const C3Vector& box2HalfSize,bool boxesAreSolid,double& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2113,6 +2271,9 @@ bool CPluginContainer::geomPlugin_getBoxBoxDistanceIfSmaller(const C7Vector& box
 }
 bool CPluginContainer::geomPlugin_getBoxTriangleDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& p,const C3Vector& v,const C3Vector& w,double& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2135,6 +2296,9 @@ bool CPluginContainer::geomPlugin_getBoxTriangleDistanceIfSmaller(const C7Vector
 }
 bool CPluginContainer::geomPlugin_getBoxSegmentDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,C3Vector* distSegPt1/*=nullptr*/,C3Vector* distSegPt2/*=nullptr*/,bool altRoutine/*=false*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2157,6 +2321,9 @@ bool CPluginContainer::geomPlugin_getBoxSegmentDistanceIfSmaller(const C7Vector&
 }
 bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& point,double& dist,C3Vector* distSegPt1/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2177,13 +2344,14 @@ bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const C7Vector& b
 double CPluginContainer::geomPlugin_getBoxPointDistance(const C7Vector& boxTransformation,const C3Vector& boxHalfSize,bool boxIsSolid,const C3Vector& point,C3Vector* distSegPt1/*=nullptr*/)
 {
     double dist=DBL_MAX;
-    currentGeomPlugin->pushCurrentPlugin();
     geomPlugin_getBoxPointDistanceIfSmaller(boxTransformation,boxHalfSize,boxIsSolid,point,dist,distSegPt1);
-    currentGeomPlugin->popCurrentPlugin();
     return(dist);
 }
 bool CPluginContainer::geomPlugin_getTriangleTriangleDistanceIfSmaller(const C3Vector& p1,const C3Vector& v1,const C3Vector& w1,const C3Vector& p2,const C3Vector& v2,const C3Vector& w2,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2204,6 +2372,9 @@ bool CPluginContainer::geomPlugin_getTriangleTriangleDistanceIfSmaller(const C3V
 }
 bool CPluginContainer::geomPlugin_getTriangleSegmentDistanceIfSmaller(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2224,6 +2395,9 @@ bool CPluginContainer::geomPlugin_getTriangleSegmentDistanceIfSmaller(const C3Ve
 }
 bool CPluginContainer::geomPlugin_getTrianglePointDistanceIfSmaller(const C3Vector& p,const C3Vector& v,const C3Vector& w,const C3Vector& point,double& dist,C3Vector* minDistSegPt/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2241,6 +2415,9 @@ bool CPluginContainer::geomPlugin_getTrianglePointDistanceIfSmaller(const C3Vect
 }
 bool CPluginContainer::geomPlugin_getSegmentSegmentDistanceIfSmaller(const C3Vector& segment1EndPoint,const C3Vector& segment1Vector,const C3Vector& segment2EndPoint,const C3Vector& segment2Vector,double& dist,C3Vector* minDistSegPt1/*=nullptr*/,C3Vector* minDistSegPt2/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2261,6 +2438,9 @@ bool CPluginContainer::geomPlugin_getSegmentSegmentDistanceIfSmaller(const C3Vec
 }
 bool CPluginContainer::geomPlugin_getSegmentPointDistanceIfSmaller(const C3Vector& segmentEndPoint,const C3Vector& segmentVector,const C3Vector& point,double& dist,C3Vector* minDistSegPt/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2278,6 +2458,9 @@ bool CPluginContainer::geomPlugin_getSegmentPointDistanceIfSmaller(const C3Vecto
 }
 bool CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const void* obbStruct,const C7Vector& meshTransformation,double& dist,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     const double* _planesIn=nullptr;
     if (planesIn.size()>0)
@@ -2306,6 +2489,9 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(const std::vec
 }
 bool CPluginContainer::geomPlugin_volumeSensorDetectOctreeIfSmaller(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const void* ocStruct,const C7Vector& octreeTransformation,double& dist,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     const double* _planesIn=nullptr;
     if (planesIn.size()>0)
@@ -2334,6 +2520,9 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectOctreeIfSmaller(const std::v
 }
 bool CPluginContainer::geomPlugin_volumeSensorDetectPtcloudIfSmaller(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const void* pcStruct,const C7Vector& ptcloudTransformation,double& dist,bool fast/*=false*/,C3Vector* detectPt/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     const double* _planesIn=nullptr;
     if (planesIn.size()>0)
@@ -2359,6 +2548,9 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectPtcloudIfSmaller(const std::
 }
 bool CPluginContainer::geomPlugin_volumeSensorDetectTriangleIfSmaller(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const C3Vector& p,const C3Vector& v,const C3Vector& w,double& dist,bool frontDetection/*=true*/,bool backDetection/*=true*/,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     const double* _planesIn=nullptr;
     if (planesIn.size()>0)
@@ -2385,6 +2577,9 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectTriangleIfSmaller(const std:
 }
 bool CPluginContainer::geomPlugin_volumeSensorDetectSegmentIfSmaller(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const C3Vector& segmentEndPoint,const C3Vector& segmentVector,double& dist,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     const double* _planesIn=nullptr;
     if (planesIn.size()>0)
@@ -2408,6 +2603,9 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectSegmentIfSmaller(const std::
 }
 bool CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(const C3Vector& rayStart,const C3Vector& rayVect,const void* obbStruct,const C7Vector& meshTransformation,double& dist,double forbiddenDist/*=0.0*/,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/,bool* forbiddenDistTouched/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2430,6 +2628,9 @@ bool CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(const C3Vector& r
 }
 bool CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(const C3Vector& rayStart,const C3Vector& rayVect,const void* ocStruct,const C7Vector& octreeTransformation,double& dist,double forbiddenDist/*=0.0*/,bool fast/*=false*/,bool frontDetection/*=true*/,bool backDetection/*=true*/,double maxAngle/*=0.0*/,C3Vector* detectPt/*=nullptr*/,C3Vector* triN/*=nullptr*/,bool* forbiddenDistTouched/*=nullptr*/)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2452,6 +2653,9 @@ bool CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(const C3Vector&
 }
 bool CPluginContainer::geomPlugin_isPointInVolume(const std::vector<double>& planesIn,const C3Vector& point)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     const double* _planesIn=nullptr;
     if (planesIn.size()>0)
@@ -2466,6 +2670,9 @@ bool CPluginContainer::geomPlugin_isPointInVolume(const std::vector<double>& pla
 }
 bool CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(const std::vector<double>& planesIn,const std::vector<double>& planesOut,const C3Vector& point)
 {
+    if (currentGeomPlugin==nullptr)
+        currentGeomPlugin=_tryToLoadPluginOnce(SIMGEOM_DEFAULT);
+
     bool retVal=false;
     if (currentGeomPlugin!=nullptr)
     {
@@ -2483,9 +2690,6 @@ bool CPluginContainer::geomPlugin_isPointInVolume1AndOutVolume2(const std::vecto
 
 void CPluginContainer::ikPlugin_emptyEnvironment()
 {
-    if (currentIKPlugin==nullptr)
-        currentIKPlugin=_tryToLoadPluginOnce(SIMIK_DEFAULT);
-
     if (currentIKPlugin!=nullptr)
     {
         currentIKPlugin->pushCurrentPlugin();
@@ -3016,6 +3220,9 @@ void CPluginContainer::ikPlugin_setObjectLocalTransformation(int objectHandle,co
 
 bool CPluginContainer::codeEditor_openModal(const char* initText,const char* properties,std::string& modifiedText,int* positionAndSize)
 {
+    if (currentCodeEditorPlugin==nullptr)
+        currentCodeEditorPlugin=_tryToLoadPluginOnce(SIMCODEEDITOR_DEFAULT);
+
     bool retVal=false;
     if (currentCodeEditorPlugin!=nullptr)
     {
@@ -3034,6 +3241,9 @@ bool CPluginContainer::codeEditor_openModal(const char* initText,const char* pro
 
 int CPluginContainer::codeEditor_open(const char* initText,const char* properties)
 {
+    if (currentCodeEditorPlugin==nullptr)
+        currentCodeEditorPlugin=_tryToLoadPluginOnce(SIMCODEEDITOR_DEFAULT);
+
     int retVal=-1;
     if (currentCodeEditorPlugin!=nullptr)
     {
@@ -3046,6 +3256,9 @@ int CPluginContainer::codeEditor_open(const char* initText,const char* propertie
 
 int CPluginContainer::codeEditor_setText(int handle,const char* text,int insertMode)
 {
+    if (currentCodeEditorPlugin==nullptr)
+        currentCodeEditorPlugin=_tryToLoadPluginOnce(SIMCODEEDITOR_DEFAULT);
+
     int retVal=-1;
     if (currentCodeEditorPlugin!=nullptr)
     {
@@ -3058,6 +3271,9 @@ int CPluginContainer::codeEditor_setText(int handle,const char* text,int insertM
 
 bool CPluginContainer::codeEditor_getText(int handle,std::string& text,int* positionAndSize)
 {
+    if (currentCodeEditorPlugin==nullptr)
+        currentCodeEditorPlugin=_tryToLoadPluginOnce(SIMCODEEDITOR_DEFAULT);
+
     bool retVal=false;
     if (currentCodeEditorPlugin!=nullptr)
     {
@@ -3076,6 +3292,9 @@ bool CPluginContainer::codeEditor_getText(int handle,std::string& text,int* posi
 
 int CPluginContainer::codeEditor_show(int handle,int showState)
 {
+    if (currentCodeEditorPlugin==nullptr)
+        currentCodeEditorPlugin=_tryToLoadPluginOnce(SIMCODEEDITOR_DEFAULT);
+
     int retVal=-1;
     if (currentCodeEditorPlugin!=nullptr)
     {
@@ -3088,6 +3307,9 @@ int CPluginContainer::codeEditor_show(int handle,int showState)
 
 int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
 {
+    if (currentCodeEditorPlugin==nullptr)
+        currentCodeEditorPlugin=_tryToLoadPluginOnce(SIMCODEEDITOR_DEFAULT);
+
     int retVal=-1;
     if (currentCodeEditorPlugin!=nullptr)
     {
@@ -3100,6 +3322,9 @@ int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
 
 int CPluginContainer::ruckigPlugin_pos(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxVel,const double* maxAccel,const double* maxJerk,const bool* selection,const double* targetPos,const double* targetVel)
 {
+    if (currentRuckigPlugin==nullptr)
+        currentRuckigPlugin=_tryToLoadPluginOnce(SIMRUCKIG_DEFAULT);
+
     int retVal=-2;
     if (currentRuckigPlugin!=nullptr)
     {
@@ -3112,6 +3337,9 @@ int CPluginContainer::ruckigPlugin_pos(int scriptHandle,int dofs,double smallest
 
 int CPluginContainer::ruckigPlugin_vel(int scriptHandle,int dofs,double smallestTimeStep,int flags,const double* currentPos,const double* currentVel,const double* currentAccel,const double* maxAccel,const double* maxJerk,const bool* selection,const double* targetVel)
 {
+    if (currentRuckigPlugin==nullptr)
+        currentRuckigPlugin=_tryToLoadPluginOnce(SIMRUCKIG_DEFAULT);
+
     int retVal=-2;
     if (currentRuckigPlugin!=nullptr)
     {
@@ -3124,6 +3352,9 @@ int CPluginContainer::ruckigPlugin_vel(int scriptHandle,int dofs,double smallest
 
 int CPluginContainer::ruckigPlugin_step(int objHandle,double timeStep,double* newPos,double* newVel,double* newAccel,double* syncTime)
 {
+    if (currentRuckigPlugin==nullptr)
+        currentRuckigPlugin=_tryToLoadPluginOnce(SIMRUCKIG_DEFAULT);
+
     int retVal=-2;
     if (currentRuckigPlugin!=nullptr)
     {
@@ -3136,6 +3367,9 @@ int CPluginContainer::ruckigPlugin_step(int objHandle,double timeStep,double* ne
 
 int CPluginContainer::ruckigPlugin_remove(int objHandle)
 {
+    if (currentRuckigPlugin==nullptr)
+        currentRuckigPlugin=_tryToLoadPluginOnce(SIMRUCKIG_DEFAULT);
+
     int retVal=-2;
     if (currentRuckigPlugin!=nullptr)
     {
@@ -3148,6 +3382,9 @@ int CPluginContainer::ruckigPlugin_remove(int objHandle)
 
 int CPluginContainer::ruckigPlugin_dofs(int objHandle)
 {
+    if (currentRuckigPlugin==nullptr)
+        currentRuckigPlugin=_tryToLoadPluginOnce(SIMRUCKIG_DEFAULT);
+
     int retVal=-2;
     if (currentRuckigPlugin!=nullptr)
     {
@@ -3210,6 +3447,9 @@ bool CPluginContainer::customUi_fileDialog(int type, const char *title, const ch
 
 int* CPluginContainer::assimp_importShapes(const char* fileNames,int maxTextures,double scaling,int upVector,int options,int* shapeCount)
 {
+    if (currentAssimpPlugin==nullptr)
+        currentAssimpPlugin=_tryToLoadPluginOnce(SIMASSIMP_DEFAULT);
+
     int* retVal=nullptr;
     if (currentAssimpPlugin!=nullptr)
     {
@@ -3218,12 +3458,15 @@ int* CPluginContainer::assimp_importShapes(const char* fileNames,int maxTextures
         currentAssimpPlugin->popCurrentPlugin();
     }
     else
-        App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
+        App::logMsg(sim_verbosity_errors,"simAssimp plugin was not found.");
     return(retVal);
 }
 
 void CPluginContainer::assimp_exportShapes(const int* shapeHandles,int shapeCount,const char* filename,const char* format,double scaling,int upVector,int options)
 {
+    if (currentAssimpPlugin==nullptr)
+        currentAssimpPlugin=_tryToLoadPluginOnce(SIMASSIMP_DEFAULT);
+
     if (currentAssimpPlugin!=nullptr)
     {
         currentAssimpPlugin->pushCurrentPlugin();
@@ -3231,11 +3474,14 @@ void CPluginContainer::assimp_exportShapes(const int* shapeHandles,int shapeCoun
         currentAssimpPlugin->popCurrentPlugin();
     }
     else
-        App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
+        App::logMsg(sim_verbosity_errors,"simAssimp plugin was not found.");
 }
 
 int CPluginContainer::assimp_importMeshes(const char* fileNames,double scaling,int upVector,int options,double*** allVertices,int** verticesSizes,int*** allIndices,int** indicesSizes)
 {
+    if (currentAssimpPlugin==nullptr)
+        currentAssimpPlugin=_tryToLoadPluginOnce(SIMASSIMP_DEFAULT);
+
     int retVal=0;
     if (currentAssimpPlugin!=nullptr)
     {
@@ -3244,12 +3490,15 @@ int CPluginContainer::assimp_importMeshes(const char* fileNames,double scaling,i
         currentAssimpPlugin->popCurrentPlugin();
     }
     else
-        App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
+        App::logMsg(sim_verbosity_errors,"simAssimp plugin was not found.");
     return(retVal);
 }
 
 void CPluginContainer::assimp_exportMeshes(int meshCnt,const double** allVertices,const int* verticesSizes,const int** allIndices,const int* indicesSizes,const char* filename,const char* format,double scaling,int upVector,int options)
 {
+    if (currentAssimpPlugin==nullptr)
+        currentAssimpPlugin=_tryToLoadPluginOnce(SIMASSIMP_DEFAULT);
+
     if (currentAssimpPlugin!=nullptr)
     {
         currentAssimpPlugin->pushCurrentPlugin();
@@ -3257,5 +3506,5 @@ void CPluginContainer::assimp_exportMeshes(int meshCnt,const double** allVertice
         currentAssimpPlugin->popCurrentPlugin();
     }
     else
-        App::logMsg(sim_verbosity_errors,"simExtAssimp plugin was not found.");
+        App::logMsg(sim_verbosity_errors,"simAssimp plugin was not found.");
 }
