@@ -16502,7 +16502,6 @@ char* simGetPersistentDataTags_internal(int* tagCount)
 
 int simEventNotification_internal(const char* event)
 {
-    //printf("event: %s\n",event);
     TRACE_C_API;
     int retVal=-1;
 

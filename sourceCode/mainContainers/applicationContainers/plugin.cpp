@@ -303,13 +303,19 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*
     bool retVal=false; // only used by legacy plugins
     pushCurrentPlugin();
     if (_initAddress!=nullptr)
-        _msgAddress(msgId,auxData,auxPointer); // new plugin
+    {
+        if (_msgAddress!=nullptr)
+            _msgAddress(msgId,auxData,auxPointer); // new plugin
+    }
     else
     { // legacy plugin
-        void* returnData=_messageAddress_legacy(msgId,auxData,auxPointer,reserved_legacy);
-        retVal=(returnData!=nullptr);
-        if (returnData!=nullptr)
-            delete[] (char*)returnData;
+        if (_messageAddress_legacy!=nullptr)
+        {
+            void* returnData=_messageAddress_legacy(msgId,auxData,auxPointer,reserved_legacy);
+            retVal=(returnData!=nullptr);
+            if (returnData!=nullptr)
+                delete[] (char*)returnData;
+        }
     }
     popCurrentPlugin();
     return(retVal);
@@ -343,28 +349,34 @@ void CPlugin::cleanup()
 {
     if (_initAddress!=nullptr)
     {
-        if (_stage==stage_uiinitdone)
+        if (_cleanupAddress!=nullptr)
         {
-            _stage=stage_docleanup;
+            if (_stage==stage_uiinitdone)
+            {
+                _stage=stage_docleanup;
 #ifdef SIM_WITH_GUI
-            SUIThreadCommand cmdIn;
-            SUIThreadCommand cmdOut;
-            cmdIn.cmdId=CALL_PLUGIN_CLEANUPUI_FROM_UITHREAD_UITHREADCMD;
-            cmdIn.intParams.push_back(handle);
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                SUIThreadCommand cmdIn;
+                SUIThreadCommand cmdOut;
+                cmdIn.cmdId=CALL_PLUGIN_CLEANUPUI_FROM_UITHREAD_UITHREADCMD;
+                cmdIn.intParams.push_back(handle);
+                App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
-            while (_stage!=stage_uicleanupdone)
-                VThread::sleep(1);
+                while (_stage!=stage_uicleanupdone)
+                    VThread::sleep(1);
+            }
+            pushCurrentPlugin();
+            _cleanupAddress();
+            popCurrentPlugin();
         }
-        pushCurrentPlugin();
-        _cleanupAddress();
-        popCurrentPlugin();
     }
     else
     { // old plugin
-        pushCurrentPlugin();
-        _endAddress_legacy();
-        popCurrentPlugin();
+        if (_endAddress_legacy!=nullptr)
+        {
+            pushCurrentPlugin();
+            _endAddress_legacy();
+            popCurrentPlugin();
+        }
     }
 }
 

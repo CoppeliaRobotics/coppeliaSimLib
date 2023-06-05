@@ -142,9 +142,7 @@ void App::simulationThreadDestroy()
     App::worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup,nullptr,nullptr);
     CScriptObject::destroy(App::worldContainer->sandboxScript,true);
     App::worldContainer->sandboxScript=nullptr;
-
     App::worldContainer->pluginContainer->unloadNewPlugins(); // cleanup via (UI thread) and SIM thread
-
     App::setQuitLevel(1);
 
     #ifndef SIM_WITH_QT
@@ -683,9 +681,11 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
         cmd.stringParams.push_back(msg);
         appendSimulationThreadCommand(cmd,3000);
     }
+    printf("UI: Event loop processing...\n");
 
     // The UI thread sits here during the whole application:
     _processGuiEventsUntilQuit();
+    printf("UI: Finished with event loop processing.\n");
 
     CSimFlavor::run(8);
 

@@ -24,7 +24,7 @@
 #define SIMASSIMP_DEFAULT "simAssimp"
 #define SIMQHULL_DEFAULT "simQHull"
 #define SIMCONVEXDECOMPOSE_DEFAULT "simConvexDecompose"
-#define SIMMESHDECIMATION_DEFAULT "simMeshDecimation"
+#define SIMOPENMESH_DEFAULT "simOpenMesh"
 #define SIMPOVRAY_DEFAULT "simPovRay"
 
 CPluginContainer::CPluginContainer()
@@ -258,16 +258,10 @@ bool CPluginContainer::deinitAndUnloadPlugin(int handle,int unloadOrigin)
 
 void CPluginContainer::unloadNewPlugins()
 {
-    int i=0;
-    while (i<_allPlugins.size())
+    for (int i=int(_allPlugins.size())-1;i>=0;i--)
     {
         if (!_allPlugins[i]->isLegacyPlugin())
-        {
-            if (!deinitAndUnloadPlugin(_allPlugins[i]->getHandle(),-1))
-                i++;
-        }
-        else
-            i++;
+            deinitAndUnloadPlugin(_allPlugins[i]->getHandle(),-1);
     }
 }
 
@@ -453,7 +447,7 @@ bool CPluginContainer::vhacd(void* data)
 bool CPluginContainer::meshDecimator(void* data)
 {
     if (currentMeshDecimationPlugin==nullptr)
-        currentMeshDecimationPlugin=_tryToLoadPluginOnce(SIMMESHDECIMATION_DEFAULT);
+        currentMeshDecimationPlugin=_tryToLoadPluginOnce(SIMOPENMESH_DEFAULT);
 
     bool retVal=false;
     if (currentMeshDecimationPlugin!=nullptr)
