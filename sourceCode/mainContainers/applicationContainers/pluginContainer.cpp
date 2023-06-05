@@ -25,6 +25,7 @@
 #define SIMQHULL_DEFAULT "simQHull"
 #define SIMCONVEXDECOMPOSE_DEFAULT "simConvexDecompose"
 #define SIMMESHDECIMATION_DEFAULT "simMeshDecimation"
+#define SIMPOVRAY_DEFAULT "simPovRay"
 
 CPluginContainer::CPluginContainer()
 {
@@ -316,7 +317,7 @@ void CPluginContainer::uiCallAllPlugins(int msg,int* auxData/*=nullptr*/,void* a
     while (index<_allPlugins.size())
     {
         CPlugin* plug=_allPlugins[index];
-        plug->uiCall(msg,auxData,auxPointer);
+        plug->msg_ui(msg,auxData,auxPointer);
         index++;
     }
     unlockInterface();
@@ -373,7 +374,11 @@ bool CPluginContainer::selectExtRenderer(int index)
 {
     currentExternalRendererPlugin=nullptr;
     if (index==sim_rendermode_povray-sim_rendermode_povray)
+    {
+        if (currentPovRayPlugin==nullptr)
+            currentPovRayPlugin=_tryToLoadPluginOnce(SIMPOVRAY_DEFAULT);
         currentExternalRendererPlugin=currentPovRayPlugin;
+    }
     if (index==sim_rendermode_opengl3-sim_rendermode_povray)
         currentExternalRendererPlugin=currentOpenGl3Plugin;
     return(currentExternalRendererPlugin!=nullptr);

@@ -473,7 +473,6 @@
 
 #define IDS_SAVING_MODEL___ "Saving model..."
 #define IDS_IMPORT_MESH___MENU_ITEM "Mesh..."
-#define IDS_IMPORTING_MESH___ "Importing mesh..."
 #define IDS_EXPORT_SELECTION_SHAPES_MENU_ITEM "Selection (shapes)..."
 #define IDS_EXPORT_SELECTION_GRAPHS_MENU_ITEM "Selection (graphs)..."
 #define IDS_SAVING_GRAPHS___ "Saving graphs..."

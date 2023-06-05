@@ -369,12 +369,12 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         { // we are NOT in the UI thread. We execute the command now:
             if (App::worldContainer->pluginContainer->isAssimpPluginAvailable())
             {
-                App::logMsg(sim_verbosity_msgs,IDS_IMPORTING_MESH___);
+                App::logMsg(sim_verbosity_msgs,"Importing mesh...");
                 App::currentWorld->sceneObjects->deselectObjects();
                 std::string tst(App::folders->getImportExportPath());
 
                 std::vector<std::string> filenamesAndPaths;
-                if (App::uiThread->getOpenFileNames(filenamesAndPaths,App::mainWindow,0,IDS_IMPORTING_MESH___,tst.c_str(),"",false,"Mesh files","obj","dxf","ply","stl","dae"))
+                if (App::uiThread->getOpenFileNames(filenamesAndPaths,App::mainWindow,0,"Importing mesh...",tst.c_str(),"",false,"Mesh files","obj","dxf","ply","stl","dae"))
                 {
                     std::string files;
                     for (size_t i=0;i<filenamesAndPaths.size();i++)

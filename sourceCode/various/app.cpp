@@ -134,24 +134,16 @@ void App::simulationThreadInit()
 // Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
 void App::simulationThreadDestroy()
 {
-    // Send the last "instancePass" message to all plugins:
+    // Send the last "instancePass" message to all old plugins:
     int auxData[4]={0,0,0,0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_lastinstancepass,auxData);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_lastinstancepass,auxData);
 
     App::worldContainer->addOnScriptContainer->removeAllAddOns();
     App::worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup,nullptr,nullptr);
     CScriptObject::destroy(App::worldContainer->sandboxScript,true);
     App::worldContainer->sandboxScript=nullptr;
 
-    App::worldContainer->pluginContainer->unloadNewPlugins(); // cleanup via SIM thread
-    // Cleanup via UI thread:
-    #ifdef SIM_WITH_GUI
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-    #endif
-    App::worldContainer->pluginContainer->unloadNewPlugins(); // final destruction of UI plugins, via SIM thread
+    App::worldContainer->pluginContainer->unloadNewPlugins(); // cleanup via (UI thread) and SIM thread
 
     App::setQuitLevel(1);
 
@@ -163,6 +155,7 @@ void App::simulationThreadDestroy()
     #else
         App::qtApp->quit();
     #endif
+
     while (App::getQuitLevel()==1)
         VThread::sleep(1);
 

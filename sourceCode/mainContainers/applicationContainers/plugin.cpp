@@ -274,9 +274,8 @@ bool CPlugin::init(std::string* errStr)
 #ifdef SIM_WITH_GUI
                 SUIThreadCommand cmdIn;
                 SUIThreadCommand cmdOut;
-                cmdIn.cmdId=CALL_PLUGIN_FROM_UITHREAD_UITHREADCMD;
+                cmdIn.cmdId=CALL_PLUGIN_INITUI_FROM_UITHREAD_UITHREADCMD;
                 cmdIn.intParams.push_back(handle);
-                cmdIn.intParams.push_back(0); // dummy message
                 App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
                 while (_stage!=stage_uiinitdone)
@@ -316,23 +315,28 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*
     return(retVal);
 }
 
-void CPlugin::uiCall(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*/)
+void CPlugin::init_ui()
 {
-    if (_initAddress_ui!=nullptr)
+    if ( (_initAddress_ui!=nullptr)&&(_stage==stage_siminitdone) )
     {
-        if (_stage==stage_siminitdone)
-        {
-            _initAddress_ui();
-            _stage=stage_uiinitdone;
-        }
-        else if (_stage==stage_uiinitdone)
-            _msgAddress_ui(msgId,auxData,auxPointer);
-        else if (_stage==stage_docleanup)
-        {
-            _cleanupAddress_ui();
-            _stage=stage_uicleanupdone;
-        }
+        _initAddress_ui();
+        _stage=stage_uiinitdone;
     }
+}
+
+void CPlugin::cleanup_ui()
+{
+    if ( (_cleanupAddress_ui!=nullptr)&&(_stage==stage_docleanup) )
+    {
+        _cleanupAddress_ui();
+        _stage=stage_uicleanupdone;
+    }
+}
+
+void CPlugin::msg_ui(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*/)
+{
+    if ( (_msgAddress_ui!=nullptr)&&(_stage==stage_uiinitdone) )
+        _msgAddress_ui(msgId,auxData,auxPointer);
 }
 
 void CPlugin::cleanup()
@@ -345,9 +349,8 @@ void CPlugin::cleanup()
 #ifdef SIM_WITH_GUI
             SUIThreadCommand cmdIn;
             SUIThreadCommand cmdOut;
-            cmdIn.cmdId=CALL_PLUGIN_FROM_UITHREAD_UITHREADCMD;
+            cmdIn.cmdId=CALL_PLUGIN_CLEANUPUI_FROM_UITHREAD_UITHREADCMD;
             cmdIn.intParams.push_back(handle);
-            cmdIn.intParams.push_back(0); // dummy message
             App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
             while (_stage!=stage_uicleanupdone)

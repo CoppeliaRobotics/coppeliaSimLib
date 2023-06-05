@@ -104,7 +104,6 @@ bool CUiThread::executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadComma
 
 void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 { // called by the UI thread.
-
 #ifdef SIM_WITH_GUI
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen())&&(cmdIn->cmdId==PLUS_HVUD_CMD_UITHREADCMD) )
     {
@@ -274,11 +273,17 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             int auxData[4]={0,0,0,0};
             App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_uipass,auxData);
         }
-        if (cmdIn->cmdId==CALL_PLUGIN_FROM_UITHREAD_UITHREADCMD)
+        if (cmdIn->cmdId==CALL_PLUGIN_INITUI_FROM_UITHREAD_UITHREADCMD)
         {
             CPlugin* it=App::worldContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
             if (it!=nullptr)
-                it->uiCall(cmdIn->intParams[1]);
+                it->init_ui();
+        }
+        if (cmdIn->cmdId==CALL_PLUGIN_CLEANUPUI_FROM_UITHREAD_UITHREADCMD)
+        {
+            CPlugin* it=App::worldContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
+            if (it!=nullptr)
+                it->cleanup_ui();
         }
         if (cmdIn->cmdId==INSTANCE_ABOUT_TO_BE_CREATED_UITHREADCMD)
             App::mainWindow->newInstanceAboutToBeCreated();

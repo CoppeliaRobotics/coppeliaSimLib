@@ -218,10 +218,15 @@ public:
     CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int loadOrigin);
     virtual ~CPlugin();
     int load(std::string* errStr);
+
     bool init(std::string* errStr);
     bool msg(int msgId,int* auxData=nullptr,void* auxPointer=nullptr,int* reserved_legacy=nullptr);
-    void uiCall(int msgId,int* auxData=nullptr,void* auxPointer=nullptr);
     void cleanup();
+
+    void init_ui();
+    void msg_ui(int msgId,int* auxData=nullptr,void* auxPointer=nullptr);
+    void cleanup_ui();
+
     int loadAndInit(std::string* errStr);
     void setConsoleVerbosity(int level);
     int getConsoleVerbosity() const;
