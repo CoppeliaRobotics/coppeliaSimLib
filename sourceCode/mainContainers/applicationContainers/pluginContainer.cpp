@@ -26,6 +26,7 @@
 #define SIMCONVEXDECOMPOSE_DEFAULT "simConvexDecompose"
 #define SIMOPENMESH_DEFAULT "simOpenMesh"
 #define SIMPOVRAY_DEFAULT "simPovRay"
+#define SIMOPENGL3_DEFAULT "simOpenGL3"
 
 CPluginContainer::CPluginContainer()
 {
@@ -374,7 +375,11 @@ bool CPluginContainer::selectExtRenderer(int index)
         currentExternalRendererPlugin=currentPovRayPlugin;
     }
     if (index==sim_rendermode_opengl3-sim_rendermode_povray)
+    {
+        if (currentOpenGl3Plugin==nullptr)
+            currentOpenGl3Plugin=_tryToLoadPluginOnce(SIMOPENGL3_DEFAULT);
         currentExternalRendererPlugin=currentOpenGl3Plugin;
+    }
     return(currentExternalRendererPlugin!=nullptr);
 }
 
