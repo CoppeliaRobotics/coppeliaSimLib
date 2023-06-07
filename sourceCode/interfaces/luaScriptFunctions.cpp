@@ -104,7 +104,6 @@ const SLuaCommands simLuaCommands[]=
     {"loadPlugin",_loadPlugin},
     {"unloadPlugin",_unloadPlugin},
     {"registerCodeEditorInfos",_registerCodeEditorInfos},
-    {"registerScriptFuncHook",_registerScriptFuncHook},
     {"auxFunc",_auxFunc},
     {"setThreadAutomaticSwitch",_setThreadAutomaticSwitch},
     {"getThreadAutomaticSwitch",_getThreadAutomaticSwitch},
@@ -112,10 +111,11 @@ const SLuaCommands simLuaCommands[]=
     {"setThreadSwitchAllowed",_setThreadSwitchAllowed},
     {"addLog",_addLog},
     {"quitSimulator",_quitSimulator},
-    {"isHandle",_isHandle},
 
 
 // testing    {"sim_2_0.handleDynamics",_simGetScript},
+    {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook},
+    {"sim.isHandle",_simIsHandle},
     {"sim.handleDynamics",_simHandleDynamics},
     {"sim.handleProximitySensor",_simHandleProximitySensor},
     {"sim.readProximitySensor",_simReadProximitySensor},
@@ -10794,10 +10794,10 @@ int _simPersistentDataRead(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _isHandle(luaWrap_lua_State* L)
+int _simIsHandle(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("isHandle");
+    LUA_START("sim.isHandle");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
@@ -13721,10 +13721,10 @@ int _simSetModuleInfo(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _registerScriptFuncHook(luaWrap_lua_State* L)
+int _simRegisterScriptFuncHook(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("registerScriptFuncHook");
+    LUA_START("sim.registerScriptFuncHook");
 
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0,lua_arg_bool,0))

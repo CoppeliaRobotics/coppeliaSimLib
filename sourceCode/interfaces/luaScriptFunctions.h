@@ -67,7 +67,6 @@ const extern SLuaVariables simLuaVariables[];
 extern int _loadPlugin(luaWrap_lua_State* L);
 extern int _unloadPlugin(luaWrap_lua_State* L);
 extern int _registerCodeEditorInfos(luaWrap_lua_State* L);
-extern int _registerScriptFuncHook(luaWrap_lua_State* L);
 extern int _auxFunc(luaWrap_lua_State* L);
 extern int _setThreadAutomaticSwitch(luaWrap_lua_State* L);
 extern int _getThreadAutomaticSwitch(luaWrap_lua_State* L);
@@ -75,8 +74,9 @@ extern int _getThreadSwitchAllowed(luaWrap_lua_State* L);
 extern int _setThreadSwitchAllowed(luaWrap_lua_State* L);
 extern int _addLog(luaWrap_lua_State* L);
 extern int _quitSimulator(luaWrap_lua_State* L);
-extern int _isHandle(luaWrap_lua_State* L);
 
+extern int _simRegisterScriptFuncHook(luaWrap_lua_State* L);
+extern int _simIsHandle(luaWrap_lua_State* L);
 extern int _simHandleChildScripts(luaWrap_lua_State* L);
 extern int _simHandleEmbeddedScripts(luaWrap_lua_State* L);
 extern int _simGenericFunctionHandler(luaWrap_lua_State* L);
