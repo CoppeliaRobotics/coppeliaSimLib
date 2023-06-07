@@ -112,6 +112,7 @@ const SLuaCommands simLuaCommands[]=
     {"setThreadSwitchAllowed",_setThreadSwitchAllowed},
     {"addLog",_addLog},
     {"quitSimulator",_quitSimulator},
+    {"isHandle",_isHandle},
 
 
 // testing    {"sim_2_0.handleDynamics",_simGetScript},
@@ -331,7 +332,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getJointForce",_simGetJointForce},
     {"sim.getJointTargetForce",_simGetJointTargetForce},
     {"sim.setJointTargetForce",_simSetJointTargetForce},
-    {"sim.isHandle",_simIsHandle},
     {"sim.getObjectQuaternion",_simGetObjectQuaternion},
     {"sim.setObjectQuaternion",_simSetObjectQuaternion},
     {"sim.groupShapes",_simGroupShapes},
@@ -10794,10 +10794,10 @@ int _simPersistentDataRead(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simIsHandle(luaWrap_lua_State* L)
+int _isHandle(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.isHandle");
+    LUA_START("isHandle");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {

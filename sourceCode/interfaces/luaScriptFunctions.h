@@ -75,6 +75,7 @@ extern int _getThreadSwitchAllowed(luaWrap_lua_State* L);
 extern int _setThreadSwitchAllowed(luaWrap_lua_State* L);
 extern int _addLog(luaWrap_lua_State* L);
 extern int _quitSimulator(luaWrap_lua_State* L);
+extern int _isHandle(luaWrap_lua_State* L);
 
 extern int _simHandleChildScripts(luaWrap_lua_State* L);
 extern int _simHandleEmbeddedScripts(luaWrap_lua_State* L);
@@ -298,7 +299,6 @@ extern int _simGetJointForce(luaWrap_lua_State* L);
 extern int _simGetJointTargetForce(luaWrap_lua_State* L);
 extern int _simSetJointTargetForce(luaWrap_lua_State* L);
 extern int _simJointGetForce(luaWrap_lua_State* L);
-extern int _simIsHandle(luaWrap_lua_State* L);
 extern int _simHandleVisionSensor(luaWrap_lua_State* L);
 extern int _simReadVisionSensor(luaWrap_lua_State* L);
 extern int _simResetVisionSensor(luaWrap_lua_State* L);
