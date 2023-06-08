@@ -216,4 +216,6 @@ int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexI
 int simGetShapeTriangle_internal(int shapeHandle,int groupElementIndex,int triangleIndex,int* vertexIndices,double* triangleNormals);
 const void* _simGetGeomProxyFromShape_internal(const void* shape);
 int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,int reservedSetToZero);
+int simLoadModule_internal(const char* filenameAndPath,const char* pluginName);
+int simUnloadModule_internal(int pluginhandle);
 

@@ -160,7 +160,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.addGraphCurve",_simAddGraphCurve},
     {"sim.setGraphStreamValue",_simSetGraphStreamValue},
     {"sim.refreshDialogs",_simRefreshDialogs},
-    {"sim.getModuleName",_simGetModuleName},
     {"sim.removeScript",_simRemoveScript},
     {"sim.stopSimulation",_simStopSimulation},
     {"sim.pauseSimulation",_simPauseSimulation},
@@ -375,8 +374,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.ruckigRemove",_simRuckigRemove},
     {"sim.buildMatrixQ",_simBuildMatrixQ},
     {"sim.getQuaternionFromMatrix",_simGetQuaternionFromMatrix},
-    {"sim.loadModule",_simLoadModule},
-    {"sim.unloadModule",_simUnloadModule},
     {"sim.callScriptFunction",_simCallScriptFunction},
     {"sim.getExtensionString",_simGetExtensionString},
     {"sim.computeMassAndInertia",_simComputeMassAndInertia},
@@ -411,8 +408,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.executeScriptString",_simExecuteScriptString},
     {"sim.getApiFunc",_simGetApiFunc},
     {"sim.getApiInfo",_simGetApiInfo},
-    {"sim.getModuleInfo",_simGetModuleInfo},
-    {"sim.setModuleInfo",_simSetModuleInfo},
+    {"sim.getPluginName",_simGetPluginName},
+    {"sim.getPluginInfo",_simGetPluginInfo},
+    {"sim.setPluginInfo",_simSetPluginInfo},
     {"sim.getPersistentDataTags",_simGetPersistentDataTags},
     {"sim.getRandom",_simGetRandom},
     {"sim.textEditorOpen",_simTextEditorOpen},
@@ -441,6 +439,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.test",_simTest},
 
     // deprecated
+    {"sim.loadModule",_simLoadModule},
+    {"sim.unloadModule",_simUnloadModule},
     {"sim.isDeprecated",_simIsDeprecated},
     {"sim.registerScriptFunction",_simRegisterScriptFunction},
     {"sim.registerScriptVariable",_simRegisterScriptVariable},
@@ -957,12 +957,12 @@ const SLuaVariables simLuaVariables[]=
     {"sim.verbosity_undecorated",sim_verbosity_undecorated},
     {"sim.verbosity_onlyterminal",sim_verbosity_onlyterminal},
 
-    // module info:
-    {"sim.moduleinfo_extversionstr",sim_moduleinfo_extversionstr},
-    {"sim.moduleinfo_builddatestr",sim_moduleinfo_builddatestr},
-    {"sim.moduleinfo_extversionint",sim_moduleinfo_extversionint},
-    {"sim.moduleinfo_verbosity",sim_moduleinfo_verbosity},
-    {"sim.moduleinfo_statusbarverbosity",sim_moduleinfo_statusbarverbosity},
+    // plugin info:
+    {"sim.plugininfo_extversionstr",sim_plugininfo_extversionstr},
+    {"sim.plugininfo_builddatestr",sim_plugininfo_builddatestr},
+    {"sim.plugininfo_extversionint",sim_plugininfo_extversionint},
+    {"sim.plugininfo_verbosity",sim_plugininfo_verbosity},
+    {"sim.plugininfo_statusbarverbosity",sim_plugininfo_statusbarverbosity},
 
     // Rendering attributes:
     {"sim.displayattribute_renderpass",sim_displayattribute_renderpass},
@@ -3788,28 +3788,6 @@ int _simRefreshDialogs(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
-}
-
-int _simGetModuleName(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getModuleName");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        unsigned char version;
-        char* name=simGetModuleName_internal(luaToInt(L,1),&version);
-        if (name!=nullptr)
-        {
-            luaWrap_lua_pushstring(L,name);
-            simReleaseBuffer_internal(name);
-            luaWrap_lua_pushinteger(L,(int)version);
-            LUA_END(2);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
 }
 
 int _simGetSimulationTime(luaWrap_lua_State* L)
@@ -11082,44 +11060,6 @@ int _simGetQuaternionFromMatrix(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simLoadModule(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.loadModule");
-
-    int retVal=-3; // means plugin could not be loaded
-    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
-    {
-        std::string fileAndPath(luaWrap_lua_tostring(L,1));
-        std::string pluginName(luaWrap_lua_tostring(L,2));
-        retVal=simLoadModule_internal(fileAndPath.c_str(),pluginName.c_str());
-        if (retVal>=0)
-        {
-            CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
-            it->registerNewFunctions_lua(); // otherwise we can only use the custom Lua functions that the plugin registers after this script has re-initialized!
-            it->registerPluginFunctions();
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
-int _simUnloadModule(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.unloadModule");
-
-    int retVal=0; // error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simUnloadModule_internal(luaToInt(L,1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-
 int _simCallScriptFunction(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
@@ -13660,27 +13600,49 @@ int _simGetApiInfo(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simGetModuleInfo(luaWrap_lua_State* L)
+int _simGetPluginName(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getModuleInfo");
+    LUA_START("sim.getPluginName");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        unsigned char version;
+        char* name=simGetPluginName_internal(luaToInt(L,1),&version);
+        if (name!=nullptr)
+        {
+            luaWrap_lua_pushstring(L,name);
+            simReleaseBuffer_internal(name);
+            luaWrap_lua_pushinteger(L,(int)version);
+            LUA_END(2);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetPluginInfo(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getPluginInfo");
 
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
         char* stringInfo;
         int intInfo;
-        std::string moduleName(luaWrap_lua_tostring(L,1));
+        std::string pluginName(luaWrap_lua_tostring(L,1));
         int infoType=luaToInt(L,2);
-        int res=simGetModuleInfo_internal(moduleName.c_str(),infoType,&stringInfo,&intInfo);
+        int res=simGetPluginInfo_internal(pluginName.c_str(),infoType,&stringInfo,&intInfo);
         if (res>=0)
         {
-            if ( (infoType==sim_moduleinfo_extversionstr)||(infoType==sim_moduleinfo_builddatestr) )
+            if ( (infoType==sim_plugininfo_extversionstr)||(infoType==sim_plugininfo_builddatestr) )
             {
                 luaWrap_lua_pushstring(L,stringInfo);
                 delete[] stringInfo;
                 LUA_END(1);
             }
-            if ( (infoType==sim_moduleinfo_extversionint)||(infoType==sim_moduleinfo_verbosity)||(infoType==sim_moduleinfo_statusbarverbosity) )
+            if ( (infoType==sim_plugininfo_extversionint)||(infoType==sim_plugininfo_verbosity)||(infoType==sim_plugininfo_statusbarverbosity) )
             {
                 luaWrap_lua_pushinteger(L,intInfo);
                 LUA_END(1);
@@ -13693,28 +13655,28 @@ int _simGetModuleInfo(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simSetModuleInfo(luaWrap_lua_State* L)
+int _simSetPluginInfo(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setModuleInfo");
+    LUA_START("sim.setPluginInfo");
 
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
-        std::string moduleName(luaWrap_lua_tostring(L,1));
+        std::string pluginName(luaWrap_lua_tostring(L,1));
         int infoType=luaToInt(L,2);
-        if ( (infoType==sim_moduleinfo_verbosity)||(infoType==sim_moduleinfo_statusbarverbosity) )
+        if ( (infoType==sim_plugininfo_verbosity)||(infoType==sim_plugininfo_statusbarverbosity) )
         {
             int res=checkOneGeneralInputArgument(L,3,lua_arg_number,0,false,false,&errorString);
             if (res==2)
             {
                 int verbosity=luaToInt(L,3);
-                simSetModuleInfo_internal(moduleName.c_str(),infoType,nullptr,verbosity);
+                simSetPluginInfo_internal(pluginName.c_str(),infoType,nullptr,verbosity);
             }
             else
                 errorString=SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG;
         }
         else
-            errorString=SIM_ERROR_INVALID_MODULE_INFO_TYPE;
+            errorString=SIM_ERROR_INVALID_PLUGIN_INFO_TYPE;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -13852,7 +13814,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
   {"sim_old.simGetLastError",_simGetLastError},
   {"sim_old.simGetObjects",_simGetObjects},
   {"sim_old.simRefreshDialogs",_simRefreshDialogs},
-  {"sim_old.simGetModuleName",_simGetModuleName},
+  {"sim_old.simGetModuleName",_simGetPluginName},
   {"sim_old.simRemoveScript",_simRemoveScript},
   {"sim_old.simStopSimulation",_simStopSimulation},
   {"sim_old.simPauseSimulation",_simPauseSimulation},
@@ -21945,6 +21907,44 @@ int _simIsDeprecated(luaWrap_lua_State* L)
     LUA_START("sim.isDeprecated");
 
     int retVal=0;
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simLoadModule(luaWrap_lua_State* L)
+{ // deprecated on 07.06.2023
+    TRACE_LUA_API;
+    LUA_START("sim.loadModule");
+
+    int retVal=-3; // means plugin could not be loaded
+    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
+    {
+        std::string fileAndPath(luaWrap_lua_tostring(L,1));
+        std::string pluginName(luaWrap_lua_tostring(L,2));
+        retVal=simLoadModule_internal(fileAndPath.c_str(),pluginName.c_str());
+        if (retVal>=0)
+        {
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+            it->registerNewFunctions_lua(); // otherwise we can only use the custom Lua functions that the plugin registers after this script has re-initialized!
+            it->registerPluginFunctions();
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simUnloadModule(luaWrap_lua_State* L)
+{ // deprecated on 07.06.2023
+    TRACE_LUA_API;
+    LUA_START("sim.unloadModule");
+
+    int retVal=0; // error
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        retVal=simUnloadModule_internal(luaToInt(L,1));
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);

@@ -6143,3 +6143,72 @@ int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,in
     return(-1);
 }
 
+int simLoadModule_internal(const char* filenameAndPath,const char* pluginName)
+{ // deprecated on 07.06.2023
+    // -3: could not load, -2: missing entry points, -1: could not initialize. 0=< : handle of the plugin
+  // we cannot lock/unlock, because this function might trigger another thread (GUI) that itself will initialize the plugin and call sim-functions --> forever locked!!
+    TRACE_C_API;
+    SUIThreadCommand cmdIn;
+    SUIThreadCommand cmdOut;
+    cmdIn.cmdId=PLUGIN_LOAD_AND_START_PLUGUITHREADCMD;
+    cmdIn.stringParams.push_back(filenameAndPath);
+    cmdIn.stringParams.push_back(pluginName);
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': loading...",pluginName);
+    if (VThread::isCurrentThreadTheUiThread())
+        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    else
+    {
+        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING; // Needed when a plugin is loaded on-the-fly
+        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    }
+    int handle=cmdOut.intParams[0];
+    if (handle==-3)
+    {
+    #ifdef WIN_SIM
+        App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. Try rebuilding the plugin.",pluginName);
+    #endif
+    #ifdef MAC_SIM
+        App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. Try 'otool -L pluginName.dylib' for more infos, or simply rebuild the plugin.",pluginName);
+    #endif
+    #ifdef LIN_SIM
+        App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. For additional infos, modify the script 'libLoadErrorCheck.sh', run it and inspect the output.",pluginName);
+    #endif
+    }
+
+    if (handle==-2)
+        App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (missing entry points).",pluginName);
+    if (handle==-1)
+        App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (failed initialization).",pluginName);
+    if (handle>=0)
+        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': load succeeded.",pluginName);
+    return(handle);
+}
+
+int simUnloadModule_internal(int pluginhandle)
+{ // deprecated on 07.06.2023
+    // we cannot lock/unlock, because this function might trigger another thread (GUI) that itself will initialize the plugin and call sim-functions --> forever locked!!
+    TRACE_C_API;
+    int retVal=0;
+    CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromHandle(pluginhandle);
+    if (pl!=nullptr)
+    {
+        std::string nm(pl->getName());
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=PLUGIN_STOP_AND_UNLOAD_PLUGUITHREADCMD;
+        cmdIn.intParams.push_back(pluginhandle);
+        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': unloading...",nm.c_str());
+        if (VThread::isCurrentThreadTheUiThread())
+            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        else
+        {
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING; // Needed when a plugin is unloaded on-the-fly
+            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        }
+        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done.",nm.c_str());
+        if (cmdOut.boolParams[0])
+            retVal=1;
+    }
+    return(retVal);
+}
+

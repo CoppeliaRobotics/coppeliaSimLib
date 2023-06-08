@@ -227,7 +227,7 @@ public:
     void msg_ui(int msgId,int* auxData=nullptr,void* auxPointer=nullptr);
     void cleanup_ui();
 
-    int loadAndInit(std::string* errStr);
+    int loadAndInit_old(std::string* errStr);
     void setConsoleVerbosity(int level);
     int getConsoleVerbosity() const;
     void setStatusbarVerbosity(int level);

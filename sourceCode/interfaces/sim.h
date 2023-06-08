@@ -5,8 +5,8 @@
 #include <simLib/simTypes.h>
 #include <simLib/simExp.h>
 
-SIM_DLLEXPORT int simRunSimulator(const char* applicationName,int options,void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)());
-SIM_DLLEXPORT int simRunSimulatorEx(const char* applicationName,int options,void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(),int stopDelay,const char* sceneOrModelToLoad);
+SIM_DLLEXPORT int simRunSimulator(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)());
+SIM_DLLEXPORT int simRunSimulatorEx(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)(),int stopDelay,const char* sceneOrModelToLoad);
 SIM_DLLEXPORT void* simGetMainWindow(int type);
 SIM_DLLEXPORT char* simGetLastError();
 SIM_DLLEXPORT int simSetBoolParam(int parameter,bool boolState);
@@ -59,9 +59,6 @@ SIM_DLLEXPORT int simAdvanceSimulationByOneStep();
 SIM_DLLEXPORT int simStartSimulation();
 SIM_DLLEXPORT int simStopSimulation();
 SIM_DLLEXPORT int simPauseSimulation();
-SIM_DLLEXPORT int simLoadModule(const char* filenameAndPath,const char* pluginName);
-SIM_DLLEXPORT int simUnloadModule(int pluginhandle);
-SIM_DLLEXPORT char* simGetModuleName(int index,unsigned char* moduleVersion);
 SIM_DLLEXPORT int simAdjustView(int viewHandleOrIndex,int associatedViewableObjectHandle,int options,const char* viewLabel);
 SIM_DLLEXPORT int simSetLastError(const char* setToNullptr,const char* errorMessage);
 SIM_DLLEXPORT int simResetGraph(int graphHandle);
@@ -199,8 +196,9 @@ SIM_DLLEXPORT int simGetReferencedHandles(int objectHandle,int** referencedHandl
 SIM_DLLEXPORT int simExecuteScriptString(int scriptHandle,const char* stringToExecute,int stackHandle);
 SIM_DLLEXPORT char* simGetApiFunc(int scriptHandle,const char* apiWord);
 SIM_DLLEXPORT char* simGetApiInfo(int scriptHandleOrType,const char* apiWord);
-SIM_DLLEXPORT int simSetModuleInfo(const char* moduleName,int infoType,const char* stringInfo,int intInfo);
-SIM_DLLEXPORT int simGetModuleInfo(const char* moduleName,int infoType,char** stringInfo,int* intInfo);
+SIM_DLLEXPORT char* simGetPluginName(int index);
+SIM_DLLEXPORT int simSetPluginInfo(const char* pluginName,int infoType,const char* stringInfo,int intInfo);
+SIM_DLLEXPORT int simGetPluginInfo(const char* pluginName,int infoType,char** stringInfo,int* intInfo);
 SIM_DLLEXPORT char* simGetPersistentDataTags(int* tagCount);
 SIM_DLLEXPORT int simEventNotification(const char* event);
 SIM_DLLEXPORT int simAddLog(const char* pluginName,int verbosityLevel,const char* logMsg);

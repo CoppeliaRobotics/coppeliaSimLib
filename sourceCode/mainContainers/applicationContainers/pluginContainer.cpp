@@ -148,7 +148,7 @@ int CPluginContainer::addAndInitPlugin_old(const char* filename,const char* plug
     plug->setHandle(_nextHandle);
     _allPlugins.push_back(plug);
     std::string errStr;
-    int loadRes=plug->loadAndInit(&errStr);
+    int loadRes=plug->loadAndInit_old(&errStr);
     if (loadRes<=0)
     { // failed
         if (errStr.size()>0)
@@ -263,6 +263,15 @@ void CPluginContainer::unloadNewPlugins()
     {
         if (!_allPlugins[i]->isLegacyPlugin())
             deinitAndUnloadPlugin(_allPlugins[i]->getHandle(),-1);
+    }
+}
+
+void CPluginContainer::unloadLegacyPlugins()
+{
+    for (int i=int(_allPlugins.size())-1;i>=0;i--)
+    {
+        if (_allPlugins[i]->isLegacyPlugin())
+            simUnloadModule_internal(_allPlugins[i]->getHandle());
     }
 }
 

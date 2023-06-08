@@ -15,6 +15,7 @@
 #include <sstream>
 #include <iomanip>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <chrono>
 #ifdef SIM_WITH_GUI
     #include <auxLibVideo.h>
@@ -32,7 +33,6 @@
     #include <QHostInfo>
     #include <QTextDocument>
 #endif
-void (*_workThreadLoopCallback)();
 
 CUiThread* App::uiThread=nullptr;
 CSimThread* App::simThread=nullptr;
@@ -54,6 +54,11 @@ std::string App::_consoleLogFilterStr;
 std::string App::_startupScriptString;
 long long int App::_nextUniqueId=0;
 bool App::_showInertias=false;
+
+std::string App::_applicationDir;
+bool App::_firstSimulationAutoStart=false;
+int App::_firstSimulationStopDelay=0;
+bool App::_firstSimulationAutoQuit=false;
 
 bool App::_simulatorIsRunning=false;
 std::vector<std::string> App::_applicationArguments;
@@ -93,7 +98,7 @@ SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
 {
     App::simulationThreadInit();
     while (!App::getExitRequest())
-        App::simulationThreadLoop();
+        App::simulationThreadLoop(true);
     App::simulationThreadDestroy();
     return(SIMPLE_VTHREAD_RETURN_VAL);
 }
@@ -143,6 +148,7 @@ void App::simulationThreadDestroy()
     CScriptObject::destroy(App::worldContainer->sandboxScript,true);
     App::worldContainer->sandboxScript=nullptr;
     App::worldContainer->pluginContainer->unloadNewPlugins(); // cleanup via (UI thread) and SIM thread
+
     App::setQuitLevel(1);
 
     #ifndef SIM_WITH_QT
@@ -174,7 +180,7 @@ void App::simulationThreadDestroy()
 }
 
 // Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
-void App::simulationThreadLoop()
+void App::simulationThreadLoop(bool stepIfRunning/*=true*/)
 {
     // Send the "instancePass" message to all plugins:
     int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
@@ -202,9 +208,55 @@ void App::simulationThreadLoop()
         }
     }
 
-    // Handle the main loop (one pass):
-    if (_workThreadLoopCallback!=nullptr)
-        _workThreadLoopCallback();
+    //*******************************
+    static bool wasRunning=false;
+    int auxValues[4];
+    int messageID=0;
+    int dataSize;
+    if (_firstSimulationAutoStart)
+    {
+        simStartSimulation_internal();
+        _firstSimulationAutoStart=false;
+    }
+    while (messageID!=-1)
+    {
+        char* data=simGetSimulatorMessage_internal(&messageID,auxValues,&dataSize);
+        if (messageID!=-1)
+        {
+            if (messageID==sim_message_simulation_start_resume_request)
+                simStartSimulation_internal();
+            if (messageID==sim_message_simulation_pause_request)
+                simPauseSimulation_internal();
+            if (messageID==sim_message_simulation_stop_request)
+                simStopSimulation_internal();
+            if (data!=NULL)
+                simReleaseBuffer_internal(data);
+        }
+    }
+
+     // Handle a running simulation:
+    if ( stepIfRunning && (simGetSimulationState_internal()&sim_simulation_advancing)!=0 )
+    {
+        wasRunning=true;
+        if ( (simGetRealTimeSimulation_internal()!=1)||(simIsRealTimeSimulationStepNeeded_internal()==1) )
+        {
+            if ((simHandleMainScript_internal()&sim_script_main_script_not_called)==0)
+                simAdvanceSimulationByOneStep_internal();
+            if ((_firstSimulationStopDelay>0)&&(simGetSimulationTime_internal()>=double(_firstSimulationStopDelay)/1000.0))
+            {
+                _firstSimulationStopDelay=0;
+                simStopSimulation_internal();
+            }
+        }
+        else
+            App::worldContainer->callScripts(sim_syscb_realtimeidle,nullptr,nullptr);
+    }
+    if ( (simGetSimulationState_internal()==sim_simulation_stopped)&&wasRunning&&_firstSimulationAutoQuit )
+    {
+        wasRunning=false;
+        simQuitSimulator_internal(true); // will post the quit command
+    }
+    //*******************************
 
     App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
     App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
@@ -601,10 +653,17 @@ void App::deleteWorldsContainer()
     worldContainer=nullptr;
 }
 
-void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(),bool launchSimThread)
+void App::run(int options,int stopDelay,const char* sceneOrModelToLoad,bool launchSimThread,const char* applicationDir)
 { // We arrive here with a single thread: the UI thread!
     TRACE_INTERNAL;
     _exitRequest=false;
+    _firstSimulationStopDelay=stopDelay;
+    if ( (options&sim_autostart)!=0 )
+        _firstSimulationAutoStart=true;
+    if ( (options&sim_autoquit)!=0 )
+        _firstSimulationAutoQuit=true;
+    _applicationDir=applicationDir;
+
 #ifdef SIM_WITH_GUI
     if (mainWindow!=nullptr)
         mainWindow->setFocus(Qt::MouseFocusReason); // needed because at first Qt behaves strangely (really??)
@@ -613,12 +672,23 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
 
     _simulatorIsRunning=true;
 
-    if (initCallBack!=nullptr)
-        initCallBack(); // this will load all plugins (from the UI thread)
+    _loadLegacyPlugins();
+
+    if ( (sceneOrModelToLoad!=nullptr)&&(std::string(sceneOrModelToLoad).size()!=0) )
+    { // Here we double-clicked a CoppeliaSim file or dragged-and-dropped it onto this application
+        if ( boost::algorithm::ends_with(sceneOrModelToLoad,".ttt")||boost::algorithm::ends_with(sceneOrModelToLoad,".simscene.xml") )
+        {
+            if (simLoadScene_internal(sceneOrModelToLoad)==-1)
+                logMsg(sim_verbosity_errors,"scene could not be opened.");
+        }
+        if ( boost::algorithm::ends_with(sceneOrModelToLoad,".ttm")||boost::algorithm::ends_with(sceneOrModelToLoad,".simmodel.xml"))
+        {
+            if (simLoadModel_internal(sceneOrModelToLoad)==-1)
+                logMsg(sim_verbosity_errors,"model could not be opened.");
+        }
+    }
 
     // Now start the main simulation thread (i.e. the "SIM thread", the one that handles a simulation):
-    _workThreadLoopCallback=loopCallBack;
-
     if (launchSimThread)
     {
         #ifndef SIM_WITH_QT
@@ -681,11 +751,9 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
         cmd.stringParams.push_back(msg);
         appendSimulationThreadCommand(cmd,3000);
     }
-    printf("UI: Event loop processing...\n");
 
     // The UI thread sits here during the whole application:
     _processGuiEventsUntilQuit();
-    printf("UI: Finished with event loop processing.\n");
 
     CSimFlavor::run(8);
 
@@ -701,8 +769,8 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     while (_quitLevel==2)
         VThread::sleep(1);
 
-    if (deinitCallBack!=nullptr)
-        deinitCallBack(); // this will unload all plugins (from the UI thread)
+    worldContainer->pluginContainer->unloadLegacyPlugins();
+    logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"simulator ended.");
 
     deinitGl_ifNeeded();
     _simulatorIsRunning=false;
@@ -1918,6 +1986,159 @@ bool App::getConsoleOrStatusbarVerbosityTriggered(int verbosityLevel)
 {
     return( (_consoleVerbosity>=verbosityLevel)||(_statusbarVerbosity>=verbosityLevel) );
 }
+
+void App::_loadLegacyPlugins()
+{ // from UI thread
+    logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"simulator launched.");
+    std::vector<std::string> theNames;
+    std::vector<std::string> theDirAndNames;
+#ifndef SIM_WITH_QT
+    char curDirAndFile[2048];
+    #ifdef WIN_SIM
+        GetModuleFileNameA(NULL,curDirAndFile,2000);
+        int i=0;
+        while (true)
+        {
+            if (curDirAndFile[i]==0)
+                break;
+            if (curDirAndFile[i]=='\\')
+                curDirAndFile[i]='/';
+            i++;
+        }
+        std::string theDir(curDirAndFile);
+        while ( (theDir.size()>0)&&(theDir[theDir.size()-1]!='/') )
+            theDir.erase(theDir.end()-1);
+        if (theDir.size()>0)
+            theDir.erase(theDir.end()-1);
+    #else
+        getcwd(curDirAndFile,2000);
+        std::string theDir(curDirAndFile);
+    #endif
+
+    DIR* dir;
+    struct dirent* ent;
+    if ( (dir=opendir(theDir.c_str()))!=NULL )
+    {
+        while ( (ent=readdir(dir))!=NULL )
+        {
+            if ( (ent->d_type==DT_LNK)||(ent->d_type==DT_REG) )
+            {
+                std::string nm(ent->d_name);
+                std::transform(nm.begin(),nm.end(),nm.begin(),::tolower);
+                int pre=0;
+                int po=0;
+                #ifdef WIN_SIM
+                if ( boost::algorithm::starts_with(nm,"v_repext")&&boost::algorithm::ends_with(nm,".dll") )
+                    pre=8;po=4;
+                if ( boost::algorithm::starts_with(nm,"simext")&&boost::algorithm::ends_with(nm,".dll") )
+                    pre=6;po=4;
+                #endif
+                #ifdef LIN_SIM
+                if ( boost::algorithm::starts_with(nm,"libv_repext")&&boost::algorithm::ends_with(nm,".so") )
+                    pre=11;po=3;
+                if ( boost::algorithm::starts_with(nm,"libsimext")&&boost::algorithm::ends_with(nm,".so") )
+                    pre=9;po=3;
+                #endif
+                #ifdef MAC_SIM
+                if ( boost::algorithm::starts_with(nm,"libv_repext")&&boost::algorithm::ends_with(nm,".dylib") )
+                    pre=11;po=6;
+                if ( boost::algorithm::starts_with(nm,"libsimext")&&boost::algorithm::ends_with(nm,".dylib") )
+                    pre=9;po=6;
+                #endif
+                if (pre!=0)
+                {
+                    if (nm.find('_',6)==std::string::npos)
+                    {
+                        nm=ent->d_name;
+                        nm.assign(nm.begin()+pre,nm.end()-po);
+                        theNames.push_back(nm);
+                        theDirAndNames.push_back(theDir+'/'+ent->d_name);
+                    }
+                }
+            }
+        }
+        closedir(dir);
+    }
+#else
+
+    {
+        QDir dir(_applicationDir.c_str());
+        dir.setFilter(QDir::Files|QDir::Hidden);
+        dir.setSorting(QDir::Name);
+        QStringList filters;
+        int bnl=8;
+        #ifdef WIN_SIM
+            std::string tmp("v_repExt*.dll");
+        #endif
+        #ifdef MAC_SIM
+            std::string tmp("libv_repExt*.dylib");
+            bnl=11;
+        #endif
+        #ifdef LIN_SIM
+            std::string tmp("libv_repExt*.so");
+            bnl=11;
+        #endif
+        filters << tmp.c_str();
+        dir.setNameFilters(filters);
+        QFileInfoList list=dir.entryInfoList();
+        for (int i=0;i<list.size();++i)
+        {
+            QFileInfo fileInfo=list.at(i);
+            std::string bla(fileInfo.baseName().toLocal8Bit());
+            std::string tmp;
+            tmp.assign(bla.begin()+bnl,bla.end());
+            if (tmp.find('_')==std::string::npos)
+            {
+                theNames.push_back(tmp);
+                theDirAndNames.push_back(fileInfo.absoluteFilePath().toLocal8Bit().data());
+            }
+        }
+    }
+
+    {
+        QDir dir(_applicationDir.c_str());
+        dir.setFilter(QDir::Files|QDir::Hidden);
+        dir.setSorting(QDir::Name);
+        QStringList filters;
+        int bnl=6;
+        #ifdef WIN_SIM
+            std::string tmp("simExt*.dll");
+        #endif
+        #ifdef MAC_SIM
+            std::string tmp("libsimExt*.dylib");
+            bnl=9;
+        #endif
+        #ifdef LIN_SIM
+            std::string tmp("libsimExt*.so");
+            bnl=9;
+        #endif
+        filters << tmp.c_str();
+        dir.setNameFilters(filters);
+        QFileInfoList list=dir.entryInfoList();
+        for (int i=0;i<list.size();++i)
+        {
+            QFileInfo fileInfo=list.at(i);
+            std::string bla(fileInfo.baseName().toLocal8Bit());
+            std::string tmp;
+            tmp.assign(bla.begin()+bnl,bla.end());
+            if (tmp.find('_')==std::string::npos)
+            {
+                theNames.push_back(tmp);
+                theDirAndNames.push_back(fileInfo.absoluteFilePath().toLocal8Bit().data());
+            }
+        }
+    }
+
+#endif
+
+    for (size_t i=0;userSettings->preloadAllPlugins&&i<theNames.size();i++)
+    {
+        if (theDirAndNames[i].compare("")!=0)
+            simLoadModule_internal(theDirAndNames[i].c_str(),theNames[i].c_str()); // not yet loaded
+    }
+}
+
+
 
 #ifdef SIM_WITH_GUI
 void App::showSplashScreen()

@@ -261,6 +261,9 @@ bool CPlugin::init(std::string* errStr)
     bool retVal=false;
     if (_initAddress!=nullptr)
     {
+        if (!VThread::isCurrentThreadTheMainSimulationThread())
+            printf("Error: wrong thread in CPlugin::init\n");
+
         pushCurrentPlugin();
         pluginVersion=_initAddress(_name.c_str());
         popCurrentPlugin();
@@ -304,6 +307,9 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*
     pushCurrentPlugin();
     if (_initAddress!=nullptr)
     {
+        if (!VThread::isCurrentThreadTheMainSimulationThread())
+            printf("Error: wrong thread in CPlugin::msg\n");
+
         if (_msgAddress!=nullptr)
             _msgAddress(msgId,auxData,auxPointer); // new plugin
     }
@@ -325,6 +331,9 @@ void CPlugin::init_ui()
 {
     if ( (_initAddress_ui!=nullptr)&&(_stage==stage_siminitdone) )
     {
+        if (!VThread::isCurrentThreadTheUiThread())
+            printf("Error: wrong thread in CPlugin::init_ui\n");
+
         _initAddress_ui();
         _stage=stage_uiinitdone;
     }
@@ -334,6 +343,9 @@ void CPlugin::cleanup_ui()
 {
     if ( (_cleanupAddress_ui!=nullptr)&&(_stage==stage_docleanup) )
     {
+        if (!VThread::isCurrentThreadTheUiThread())
+            printf("Error: wrong thread in CPlugin::cleanup_ui\n");
+
         _cleanupAddress_ui();
         _stage=stage_uicleanupdone;
     }
@@ -342,13 +354,21 @@ void CPlugin::cleanup_ui()
 void CPlugin::msg_ui(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*/)
 {
     if ( (_msgAddress_ui!=nullptr)&&(_stage==stage_uiinitdone) )
+    {
+        if (!VThread::isCurrentThreadTheUiThread())
+            printf("Error: wrong thread in CPlugin::msg_ui\n");
+
         _msgAddress_ui(msgId,auxData,auxPointer);
+    }
 }
 
 void CPlugin::cleanup()
 {
     if (_initAddress!=nullptr)
     {
+        if (!VThread::isCurrentThreadTheMainSimulationThread())
+            printf("Error: wrong thread in CPlugin::cleanup\n");
+
         if (_cleanupAddress!=nullptr)
         {
             if (_stage==stage_uiinitdone)
@@ -380,7 +400,7 @@ void CPlugin::cleanup()
     }
 }
 
-int CPlugin::loadAndInit(std::string* errStr)
+int CPlugin::loadAndInit_old(std::string* errStr)
 { // retVal: -2 (could not open library), -1 (missing init entry point), 0 (could not properly initialize), otherwise plugin version
     WLibrary lib=VVarious::openLibrary(_filename.c_str(),errStr); // here we have the extension in the filename (.dll, .so or .dylib)
     if (lib!=nullptr)

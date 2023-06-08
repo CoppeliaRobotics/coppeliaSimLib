@@ -178,7 +178,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_BAD_TEXTURE_COORD_SIZE "bad texture coordinates size."
 #define SIM_ERROR_CANNOT_BE_COMPOUND_SHAPE "shape cannot be a compound shape."
 #define SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND "assimp plugin was not found."
-#define SIM_ERROR_INVALID_MODULE_INFO_TYPE "invalid module info type."
+#define SIM_ERROR_INVALID_PLUGIN_INFO_TYPE "invalid module info type."
 #define SIM_ERROR_COULD_NOT_SET_PARAMETER "could not set parameter."
 #define SIM_ERROR_COULD_NOT_FIND_RUCKIG "could not find the Ruckig plugin."
 #define SIM_ERROR_RUCKIG_OBJECT_INEXISTANT "Ruckig object does not exist."

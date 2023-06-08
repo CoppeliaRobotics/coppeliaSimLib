@@ -3249,3 +3249,23 @@ SIM_DLLEXPORT int simIsDeprecated(const char* funcOrConst)
 {
     return(0);
 }
+SIM_DLLEXPORT int simLoadModule(const char* filenameAndPath,const char* pluginName)
+{
+    return(simLoadModule_internal(filenameAndPath,pluginName));
+}
+SIM_DLLEXPORT int simUnloadModule(int pluginhandle)
+{
+    return(simUnloadModule_internal(pluginhandle));
+}
+SIM_DLLEXPORT int simSetModuleInfo(const char* moduleName,int infoType,const char* stringInfo,int intInfo)
+{
+    return(simSetPluginInfo_internal(moduleName,infoType,stringInfo,intInfo));
+}
+SIM_DLLEXPORT int simGetModuleInfo(const char* moduleName,int infoType,char** stringInfo,int* intInfo)
+{
+    return(simGetPluginInfo_internal(moduleName,infoType,stringInfo,intInfo));
+}
+SIM_DLLEXPORT char* simGetModuleName(int index,unsigned char* setToNull)
+{
+    return(simGetPluginName_internal(index,setToNull));
+}

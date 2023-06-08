@@ -11,7 +11,7 @@ int getCurrentScriptNameIndex_cSide();
 std::string getIndexAdjustedObjectName(const char* nm);
 
 
-int simRunSimulator_internal(const char* applicationName,int options,void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(),int stopDelay,const char* sceneOrModelToLoad,bool launchSimThread);
+int simRunSimulator_internal(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)(),int stopDelay,const char* sceneOrModelToLoad,bool launchSimThread);
 void* simGetMainWindow_internal(int type);
 char* simGetLastError_internal();
 int simSetBoolParam_internal(int parameter,bool boolState);
@@ -112,9 +112,9 @@ int simAdvanceSimulationByOneStep_internal();
 int simStartSimulation_internal();
 int simStopSimulation_internal();
 int simPauseSimulation_internal();
-int simLoadModule_internal(const char* filenameAndPath,const char* pluginName);
-int simUnloadModule_internal(int pluginhandle);
-char* simGetModuleName_internal(int index,unsigned char* moduleVersion);
+char* simGetPluginName_internal(int index,unsigned char* setToNull);
+int simSetPluginInfo_internal(const char* pluginName,int infoType,const char* stringInfo,int intInfo);
+int simGetPluginInfo_internal(const char* pluginName,int infoType,char** stringInfo,int* intInfo);
 int simFloatingViewAdd_internal(double posX,double posY,double sizeX,double sizeY,int options);
 int simFloatingViewRemove_internal(int floatingViewHandle);
 int simAdjustView_internal(int viewHandleOrIndex,int associatedViewableObjectHandle,int options,const char* viewLabel);
@@ -338,8 +338,6 @@ int simGetShapeVizf_internal(int shapeHandle,int index,struct SShapeVizInfof* in
 int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute,int stackHandle);
 char* simGetApiFunc_internal(int scriptHandle,const char* apiWord);
 char* simGetApiInfo_internal(int scriptHandle,const char* apiWord);
-int simSetModuleInfo_internal(const char* moduleName,int infoType,const char* stringInfo,int intInfo);
-int simGetModuleInfo_internal(const char* moduleName,int infoType,char** stringInfo,int* intInfo);
 char* simGetPersistentDataTags_internal(int* tagCount);
 int simEventNotification_internal(const char* event);
 int simApplyTexture_internal(int shapeHandle,const double* textureCoordinates,int textCoordSize,const unsigned char* texture,const int* textureResolution,int options);

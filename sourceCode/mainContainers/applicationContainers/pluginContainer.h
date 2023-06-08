@@ -18,6 +18,7 @@ public:
     CPlugin* loadAndInitPlugin(const char* namespaceAndVersion,int loadOrigin);
     bool deinitAndUnloadPlugin(int handle,int unloadOrigin);
     void unloadNewPlugins();
+    void unloadLegacyPlugins();
 
     void announceScriptStateWillBeErased(int scriptHandle);
 

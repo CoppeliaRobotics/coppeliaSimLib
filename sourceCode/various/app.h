@@ -32,14 +32,14 @@ public:
     static void createWorldsContainer();
     static void deleteWorldsContainer();
 
-    static void run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(),bool launchSimThread);
+    static void run(int options,int stopDelay,const char* sceneOrModelToLoad,bool launchSimThread,const char* applicationDir);
     static void postExitRequest();
     static bool getExitRequest();
     static bool isSimulatorRunning();
 
     static void simulationThreadInit();
     static void simulationThreadDestroy();
-    static void simulationThreadLoop();
+    static void simulationThreadLoop(bool stepIfRunning=true);
     static bool canInitSimThread();
 
     static void setQuitLevel(int l);
@@ -124,6 +124,8 @@ public:
     static void _logMsgToStatusbar(const char* msg,bool html);
 
 private:
+    static void _simulatorLoop(bool stepIfRunning=true);
+    static void _loadLegacyPlugins();
     static void _logMsg(const char* originName,int verbosityLevel,const char* msg,const char* subStr1,const char* subStr2=nullptr,const char* subStr3=nullptr);
     static void _logMsg(const char* originName,int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
     static void __logMsg(const char* originName,int verbosityLevel,const char* msg,int consoleVerbosity=-1,int statusbarVerbosity=-1);
@@ -159,6 +161,12 @@ private:
     static std::string _startupScriptString;
 
     static volatile int _quitLevel;
+
+    static std::string _applicationDir;
+
+    static bool _firstSimulationAutoStart;
+    static int _firstSimulationStopDelay;
+    static bool _firstSimulationAutoQuit;
 
 #ifdef SIM_WITH_QT
 public:

@@ -557,3 +557,8 @@ SIM_DLLEXPORT void _simGetPrincipalMomentOfInertia(const void* geomInfo,float* i
 SIM_DLLEXPORT void _simGetLocalInertiaFrame(const void* geomInfo,float* pos,float* quat);
 SIM_DLLEXPORT const void* _simGetGeomProxyFromShape(const void* shape);
 SIM_DLLEXPORT int simIsDeprecated(const char* funcOrConst);
+SIM_DLLEXPORT int simLoadModule(const char* filenameAndPath,const char* pluginName);
+SIM_DLLEXPORT int simUnloadModule(int pluginhandle);
+SIM_DLLEXPORT char* simGetModuleName(int index,unsigned char* setToNull);
+SIM_DLLEXPORT int simSetModuleInfo(const char* moduleName,int infoType,const char* stringInfo,int intInfo);
+SIM_DLLEXPORT int simGetModuleInfo(const char* moduleName,int infoType,char** stringInfo,int* intInfo);

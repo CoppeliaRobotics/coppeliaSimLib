@@ -27,7 +27,6 @@
 #include <simFlavor.h>
 #include <regex>
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 #include <gm.h>
 #ifdef SIM_WITH_GUI
     #include <QSplashScreen>
@@ -59,267 +58,15 @@ bool fullModelCopyFromApi=true;
 bool waitingForTrigger=false;
 bool doNotRunMainScriptFromRosInterface=false;
 
-std::vector<int> pluginHandles;
-std::string initialSceneOrModelToLoad;
 std::string applicationDir;
-bool stepSimIfRunning=true;
-bool firstSimulationAutoStart=false;
-int firstSimulationStopDelay=0;
-bool firstSimulationAutoQuit=false;
-
-void simulatorInit()
-{
-    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"simulator launched.");
-    std::vector<std::string> theNames;
-    std::vector<std::string> theDirAndNames;
-#ifndef SIM_WITH_QT
-    char curDirAndFile[2048];
-    #ifdef WIN_SIM
-        GetModuleFileNameA(NULL,curDirAndFile,2000);
-        int i=0;
-        while (true)
-        {
-            if (curDirAndFile[i]==0)
-                break;
-            if (curDirAndFile[i]=='\\')
-                curDirAndFile[i]='/';
-            i++;
-        }
-        std::string theDir(curDirAndFile);
-        while ( (theDir.size()>0)&&(theDir[theDir.size()-1]!='/') )
-            theDir.erase(theDir.end()-1);
-        if (theDir.size()>0)
-            theDir.erase(theDir.end()-1);
-    #else
-        getcwd(curDirAndFile,2000);
-        std::string theDir(curDirAndFile);
-    #endif
-
-    DIR* dir;
-    struct dirent* ent;
-    if ( (dir=opendir(theDir.c_str()))!=NULL )
-    {
-        while ( (ent=readdir(dir))!=NULL )
-        {
-            if ( (ent->d_type==DT_LNK)||(ent->d_type==DT_REG) )
-            {
-                std::string nm(ent->d_name);
-                std::transform(nm.begin(),nm.end(),nm.begin(),::tolower);
-                int pre=0;
-                int po=0;
-                #ifdef WIN_SIM
-                if ( boost::algorithm::starts_with(nm,"v_repext")&&boost::algorithm::ends_with(nm,".dll") )
-                    pre=8;po=4;
-                if ( boost::algorithm::starts_with(nm,"simext")&&boost::algorithm::ends_with(nm,".dll") )
-                    pre=6;po=4;
-                #endif
-                #ifdef LIN_SIM
-                if ( boost::algorithm::starts_with(nm,"libv_repext")&&boost::algorithm::ends_with(nm,".so") )
-                    pre=11;po=3;
-                if ( boost::algorithm::starts_with(nm,"libsimext")&&boost::algorithm::ends_with(nm,".so") )
-                    pre=9;po=3;
-                #endif
-                #ifdef MAC_SIM
-                if ( boost::algorithm::starts_with(nm,"libv_repext")&&boost::algorithm::ends_with(nm,".dylib") )
-                    pre=11;po=6;
-                if ( boost::algorithm::starts_with(nm,"libsimext")&&boost::algorithm::ends_with(nm,".dylib") )
-                    pre=9;po=6;
-                #endif
-                if (pre!=0)
-                {
-                    if (nm.find('_',6)==std::string::npos)
-                    {
-                        nm=ent->d_name;
-                        nm.assign(nm.begin()+pre,nm.end()-po);
-                        theNames.push_back(nm);
-                        theDirAndNames.push_back(theDir+'/'+ent->d_name);
-                    }
-                }
-            }
-        }
-        closedir(dir);
-    }
-#else
-
-    {
-        QDir dir(applicationDir.c_str());
-        dir.setFilter(QDir::Files|QDir::Hidden);
-        dir.setSorting(QDir::Name);
-        QStringList filters;
-        int bnl=8;
-        #ifdef WIN_SIM
-            std::string tmp("v_repExt*.dll");
-        #endif
-        #ifdef MAC_SIM
-            std::string tmp("libv_repExt*.dylib");
-            bnl=11;
-        #endif
-        #ifdef LIN_SIM
-            std::string tmp("libv_repExt*.so");
-            bnl=11;
-        #endif
-        filters << tmp.c_str();
-        dir.setNameFilters(filters);
-        QFileInfoList list=dir.entryInfoList();
-        for (int i=0;i<list.size();++i)
-        {
-            QFileInfo fileInfo=list.at(i);
-            std::string bla(fileInfo.baseName().toLocal8Bit());
-            std::string tmp;
-            tmp.assign(bla.begin()+bnl,bla.end());
-            if (tmp.find('_')==std::string::npos)
-            {
-                theNames.push_back(tmp);
-                theDirAndNames.push_back(fileInfo.absoluteFilePath().toLocal8Bit().data());
-            }
-        }
-    }
-
-    {
-        QDir dir(applicationDir.c_str());
-        dir.setFilter(QDir::Files|QDir::Hidden);
-        dir.setSorting(QDir::Name);
-        QStringList filters;
-        int bnl=6;
-        #ifdef WIN_SIM
-            std::string tmp("simExt*.dll");
-        #endif
-        #ifdef MAC_SIM
-            std::string tmp("libsimExt*.dylib");
-            bnl=9;
-        #endif
-        #ifdef LIN_SIM
-            std::string tmp("libsimExt*.so");
-            bnl=9;
-        #endif
-        filters << tmp.c_str();
-        dir.setNameFilters(filters);
-        QFileInfoList list=dir.entryInfoList();
-        for (int i=0;i<list.size();++i)
-        {
-            QFileInfo fileInfo=list.at(i);
-            std::string bla(fileInfo.baseName().toLocal8Bit());
-            std::string tmp;
-            tmp.assign(bla.begin()+bnl,bla.end());
-            if (tmp.find('_')==std::string::npos)
-            {
-                theNames.push_back(tmp);
-                theDirAndNames.push_back(fileInfo.absoluteFilePath().toLocal8Bit().data());
-            }
-        }
-    }
-
-#endif
-
-     // Load the system plugins first:
-    /*
-    for (size_t i=0;i<theNames.size();i++)
-    {
-        if ( (theNames[i].compare("Geometric")==0)||boost::algorithm::starts_with(theNames[i],"Dynamics") )
-        {
-            int pluginHandle=simLoadModule_internal(theDirAndNames[i].c_str(),theNames[i].c_str());
-            if (pluginHandle>=0)
-                pluginHandles.push_back(pluginHandle);
-            theDirAndNames[i]=""; // mark as 'already loaded'
-        }
-    }
-    */
-
-     // Now load the other plugins too:
-    for (size_t i=0;App::userSettings->preloadAllPlugins&&i<theNames.size();i++)
-    {
-        if (theDirAndNames[i].compare("")!=0)
-        { // not yet loaded
-            int pluginHandle=simLoadModule_internal(theDirAndNames[i].c_str(),theNames[i].c_str());
-            if (pluginHandle>=0)
-                pluginHandles.push_back(pluginHandle);
-        }
-    }
-
-    if (initialSceneOrModelToLoad.length()!=0)
-    { // Here we double-clicked a CoppeliaSim file or dragged-and-dropped it onto this application
-        if ( boost::algorithm::ends_with(initialSceneOrModelToLoad.c_str(),".ttt")||boost::algorithm::ends_with(initialSceneOrModelToLoad.c_str(),".simscene.xml") )
-        {
-            if (simLoadScene_internal(initialSceneOrModelToLoad.c_str())==-1)
-                App::logMsg(sim_verbosity_errors,"scene could not be opened.");
-        }
-        if ( boost::algorithm::ends_with(initialSceneOrModelToLoad.c_str(),".ttm")||boost::algorithm::ends_with(initialSceneOrModelToLoad.c_str(),".simmodel.xml"))
-        {
-            if (simLoadModel_internal(initialSceneOrModelToLoad.c_str())==-1)
-                App::logMsg(sim_verbosity_errors,"model could not be opened.");
-        }
-    }
-}
-
-void simulatorDeinit()
-{
-    // Unload all plugins:
-    while (pluginHandles.size()>0)
-    {
-        simUnloadModule_internal(pluginHandles[pluginHandles.size()-1]);
-        pluginHandles.pop_back();
-    }
-    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"simulator ended.");
-}
-
-void simulatorLoop()
-{   // The main simulation loop
-    static bool wasRunning=false;
-    int auxValues[4];
-    int messageID=0;
-    int dataSize;
-    if (firstSimulationAutoStart)
-    {
-        simStartSimulation_internal();
-        firstSimulationAutoStart=false;
-    }
-    while (messageID!=-1)
-    {
-        char* data=simGetSimulatorMessage_internal(&messageID,auxValues,&dataSize);
-        if (messageID!=-1)
-        {
-            if (messageID==sim_message_simulation_start_resume_request)
-                simStartSimulation_internal();
-            if (messageID==sim_message_simulation_pause_request)
-                simPauseSimulation_internal();
-            if (messageID==sim_message_simulation_stop_request)
-                simStopSimulation_internal();
-            if (data!=NULL)
-                simReleaseBuffer_internal(data);
-        }
-    }
-
-     // Handle a running simulation:
-    if ( stepSimIfRunning && (simGetSimulationState_internal()&sim_simulation_advancing)!=0 )
-    {
-        wasRunning=true;
-        if ( (simGetRealTimeSimulation_internal()!=1)||(simIsRealTimeSimulationStepNeeded_internal()==1) )
-        {
-            if ((simHandleMainScript_internal()&sim_script_main_script_not_called)==0)
-                simAdvanceSimulationByOneStep_internal();
-            if ((firstSimulationStopDelay>0)&&(simGetSimulationTime_internal()>=double(firstSimulationStopDelay)/1000.0))
-            {
-                firstSimulationStopDelay=0;
-                simStopSimulation_internal();
-            }
-        }
-        else
-            App::worldContainer->callScripts(sim_syscb_realtimeidle,nullptr,nullptr);
-    }
-    if ( (simGetSimulationState_internal()==sim_simulation_stopped)&&wasRunning&&firstSimulationAutoQuit )
-    {
-        wasRunning=false;
-        simQuitSimulator_internal(true); // will post the quit command
-    }
-}
 
 //********************************************
 // Following courtesy of Stephen James:
 int simExtLaunchUIThread_internal(const char* applicationName,int options,const char* sceneOrModelToLoad_,const char* applicationDir_)
 {
-    std::string applicationDir__(applicationDir_);
-    applicationDir = applicationDir__;
-    return(simRunSimulator_internal(applicationName,options,simulatorInit,simulatorLoop,simulatorDeinit,0,sceneOrModelToLoad_,false));
+    if (applicationDir_!=nullptr)
+        applicationDir=applicationDir_;
+    return(simRunSimulator_internal(applicationName,options,nullptr,nullptr,nullptr,0,sceneOrModelToLoad_,false));
 }
 
 int simExtGetExitRequest_internal()
@@ -329,8 +76,7 @@ int simExtGetExitRequest_internal()
 
 int simExtStep_internal(bool stepIfRunning)
 {
-    stepSimIfRunning = stepIfRunning;
-    App::simulationThreadLoop();
+    App::simulationThreadLoop(stepIfRunning);
     return(1);
 }
 
@@ -962,22 +708,10 @@ void _segHandler(int sig)
     exit(1);
 }
 #endif
-int simRunSimulator_internal(const char* applicationName,int options,void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(),int stopDelay,const char* sceneOrModelToLoad,bool launchSimThread)
+int simRunSimulator_internal(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)(),int stopDelay,const char* sceneOrModelToLoad,bool launchSimThread)
 {
     CGm gm;
     App::gm=&gm;
-    firstSimulationStopDelay=stopDelay;
-    initialSceneOrModelToLoad=sceneOrModelToLoad;
-    if ( (options&sim_autostart)!=0 )
-        firstSimulationAutoStart=true;
-    if ( (options&sim_autoquit)!=0 )
-        firstSimulationAutoQuit=true;
-    if (initCallBack==nullptr)
-        initCallBack=simulatorInit;
-    if (loopCallBack==nullptr)
-        loopCallBack=simulatorLoop;
-    if (deinitCallBack==nullptr)
-        deinitCallBack=simulatorDeinit;
 
 #ifdef WIN_SIM
     SetUnhandledExceptionFilter(_winExceptionHandler);
@@ -1048,7 +782,7 @@ int simRunSimulator_internal(const char* applicationName,int options,void(*initC
     }
 #endif
 
-    App::run(initCallBack,loopCallBack,deinitCallBack,launchSimThread); // We stay in here until we quit the application!
+    App::run(options,stopDelay,sceneOrModelToLoad,launchSimThread,applicationDir.c_str()); // We stay in here until we quit the application!
     App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"4");
 #ifdef SIM_WITH_GUI
     App::deleteMainWindow();
@@ -5574,73 +5308,6 @@ int simCheckProximitySensorEx2_internal(int sensorHandle,double* vertexPointer,i
     return(-1);
 }
 
-int simLoadModule_internal(const char* filenameAndPath,const char* pluginName)
-{ // -3: could not load, -2: missing entry points, -1: could not initialize. 0=< : handle of the plugin
-  // we cannot lock/unlock, because this function might trigger another thread (GUI) that itself will initialize the plugin and call sim-functions --> forever locked!!
-    TRACE_C_API;
-    SUIThreadCommand cmdIn;
-    SUIThreadCommand cmdOut;
-    cmdIn.cmdId=PLUGIN_LOAD_AND_START_PLUGUITHREADCMD;
-    cmdIn.stringParams.push_back(filenameAndPath);
-    cmdIn.stringParams.push_back(pluginName);
-    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': loading...",pluginName);
-    if (VThread::isCurrentThreadTheUiThread())
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-    else
-    {
-        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING; // Needed when a plugin is loaded on-the-fly
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-    }
-    int handle=cmdOut.intParams[0];
-    if (handle==-3)
-    {
-    #ifdef WIN_SIM
-        App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. Try rebuilding the plugin.",pluginName);
-    #endif
-    #ifdef MAC_SIM
-        App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. Try 'otool -L pluginName.dylib' for more infos, or simply rebuild the plugin.",pluginName);
-    #endif
-    #ifdef LIN_SIM
-        App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (could not load). The plugin probably couldn't load dependency libraries. For additional infos, modify the script 'libLoadErrorCheck.sh', run it and inspect the output.",pluginName);
-    #endif
-    }
-
-    if (handle==-2)
-        App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (missing entry points).",pluginName);
-    if (handle==-1)
-        App::logMsg(sim_verbosity_errors,"plugin '%s': load failed (failed initialization).",pluginName);
-    if (handle>=0)
-        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': load succeeded.",pluginName);
-    return(handle);
-}
-
-int simUnloadModule_internal(int pluginhandle)
-{ // we cannot lock/unlock, because this function might trigger another thread (GUI) that itself will initialize the plugin and call sim-functions --> forever locked!!
-    TRACE_C_API;
-    int retVal=0;
-    CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromHandle(pluginhandle);
-    if (pl!=nullptr)
-    {
-        std::string nm(pl->getName());
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId=PLUGIN_STOP_AND_UNLOAD_PLUGUITHREADCMD;
-        cmdIn.intParams.push_back(pluginhandle);
-        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': unloading...",nm.c_str());
-        if (VThread::isCurrentThreadTheUiThread())
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-        else
-        {
-            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING; // Needed when a plugin is unloaded on-the-fly
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-        }
-        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done.",nm.c_str());
-        if (cmdOut.boolParams[0])
-            retVal=1;
-    }
-    return(retVal);
-}
-
 int simRegisterScriptCallbackFunction_internal(const char* func,const char* reserved_setToNull,void(*callBack)(struct SScriptCallBack* cb))
 {
     TRACE_C_API;
@@ -6331,7 +5998,7 @@ int simSetGraphStreamValue_internal(int graphHandle,int streamId,double value)
     return(-1);
 }
 
-char* simGetModuleName_internal(int index,unsigned char* moduleVersion)
+char* simGetPluginName_internal(int index,unsigned char* setToNull)
 {
     TRACE_C_API;
 
@@ -6347,8 +6014,8 @@ char* simGetModuleName_internal(int index,unsigned char* moduleVersion)
         for (size_t i=0;i<plug->getName().length();i++)
             name[i]=plug->getName()[i];
         name[plug->getName().length()]=0;
-        if (moduleVersion!=nullptr)
-            moduleVersion[0]=(unsigned char)plug->getPluginVersion();
+        if (setToNull!=nullptr)
+            setToNull[0]=(unsigned char)plug->getPluginVersion();
         return(name);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -16354,17 +16021,23 @@ char* simGetApiInfo_internal(int scriptHandle,const char* apiWord)
     return(nullptr);
 }
 
-int simSetModuleInfo_internal(const char* moduleName,int infoType,const char* stringInfo,int intInfo)
+int simSetPluginInfo_internal(const char* pluginName,int infoType,const char* stringInfo,int intInfo)
 {
+    if (pluginName==nullptr)
+        printf("************\n");
+    else
+        printf("************ %s\n",pluginName);
     TRACE_C_API;
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CPlugin* plug=App::worldContainer->pluginContainer->getCurrentPlugin();
-        if ( (plug==nullptr)&&(moduleName!=nullptr) )
+        CPlugin* plug=nullptr;
+        if (pluginName==nullptr)
+            plug=App::worldContainer->pluginContainer->getCurrentPlugin();
+        else
         {
-            plug=App::worldContainer->pluginContainer->getPluginFromName(moduleName);
+            plug=App::worldContainer->pluginContainer->getPluginFromName(pluginName);
             if (plug==nullptr)
-                plug=App::worldContainer->pluginContainer->getPluginFromName_old(moduleName,true);
+                plug=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
         }
         if (plug!=nullptr)
         {
@@ -16385,12 +16058,12 @@ int simSetModuleInfo_internal(const char* moduleName,int infoType,const char* st
             }
             if (infoType==sim_moduleinfo_verbosity)
             {
-                App::setConsoleVerbosity(intInfo,moduleName);
+                App::setConsoleVerbosity(intInfo,pluginName);
                 return(1);
             }
             if (infoType==sim_moduleinfo_statusbarverbosity)
             {
-                App::setStatusbarVerbosity(intInfo,moduleName);
+                App::setStatusbarVerbosity(intInfo,pluginName);
                 return(1);
             }
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);
@@ -16404,17 +16077,19 @@ int simSetModuleInfo_internal(const char* moduleName,int infoType,const char* st
     return(-1);
 }
 
-int simGetModuleInfo_internal(const char* moduleName,int infoType,char** stringInfo,int* intInfo)
+int simGetPluginInfo_internal(const char* pluginName,int infoType,char** stringInfo,int* intInfo)
 {
     TRACE_C_API;
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CPlugin* plug=App::worldContainer->pluginContainer->getCurrentPlugin();
-        if ( (plug==nullptr)&&(moduleName!=nullptr) )
+        CPlugin* plug=nullptr;
+        if (pluginName==nullptr)
+            plug=App::worldContainer->pluginContainer->getCurrentPlugin();
+        else
         {
-            plug=App::worldContainer->pluginContainer->getPluginFromName(moduleName);
+            plug=App::worldContainer->pluginContainer->getPluginFromName(pluginName);
             if (plug==nullptr)
-                plug=App::worldContainer->pluginContainer->getPluginFromName_old(moduleName,true);
+                plug=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
         }
         if (plug!=nullptr)
         {
@@ -16447,12 +16122,12 @@ int simGetModuleInfo_internal(const char* moduleName,int infoType,char** stringI
             }
             if (infoType==sim_moduleinfo_verbosity)
             {
-                intInfo[0]=App::getConsoleVerbosity(moduleName);
+                intInfo[0]=App::getConsoleVerbosity(pluginName);
                 return(1);
             }
             if (infoType==sim_moduleinfo_statusbarverbosity)
             {
-                intInfo[0]=App::getStatusbarVerbosity(moduleName);
+                intInfo[0]=App::getStatusbarVerbosity(pluginName);
                 return(1);
             }
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENT);

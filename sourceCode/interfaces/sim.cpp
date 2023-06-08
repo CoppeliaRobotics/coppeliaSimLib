@@ -2,13 +2,13 @@
 #include <simInternal.h>
 #include <app.h>
 
-SIM_DLLEXPORT int simRunSimulator(const char* applicationName,int options,void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)())
+SIM_DLLEXPORT int simRunSimulator(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)())
 {
-    return(simRunSimulator_internal(applicationName,options,initCallBack,loopCallBack,deinitCallBack,0,"",true));
+    return(simRunSimulator_internal(applicationName,options,nullptr,nullptr,nullptr,0,"",true));
 }
-SIM_DLLEXPORT int simRunSimulatorEx(const char* applicationName,int options,void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(),int stopDelay,const char* sceneOrModelToLoad)
+SIM_DLLEXPORT int simRunSimulatorEx(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)(),int stopDelay,const char* sceneOrModelToLoad)
 {
-    return(simRunSimulator_internal(applicationName,options,initCallBack,loopCallBack,deinitCallBack,stopDelay,sceneOrModelToLoad,true));
+    return(simRunSimulator_internal(applicationName,options,nullptr,nullptr,nullptr,stopDelay,sceneOrModelToLoad,true));
 }
 SIM_DLLEXPORT void* simGetMainWindow(int type)
 {
@@ -217,18 +217,6 @@ SIM_DLLEXPORT int simStopSimulation()
 SIM_DLLEXPORT int simPauseSimulation()
 {
     return(simPauseSimulation_internal());
-}
-SIM_DLLEXPORT int simLoadModule(const char* filenameAndPath,const char* pluginName)
-{
-    return(simLoadModule_internal(filenameAndPath,pluginName));
-}
-SIM_DLLEXPORT int simUnloadModule(int pluginhandle)
-{
-    return(simUnloadModule_internal(pluginhandle));
-}
-SIM_DLLEXPORT char* simGetModuleName(int index,unsigned char* moduleVersion)
-{
-    return(simGetModuleName_internal(index,moduleVersion));
 }
 SIM_DLLEXPORT int simAdjustView(int viewHandleOrIndex,int associatedViewableObjectHandle,int options,const char* viewLabel)
 {
@@ -770,13 +758,17 @@ SIM_DLLEXPORT char* simGetApiInfo(int scriptHandle,const char* apiWord)
 {
     return(simGetApiInfo_internal(scriptHandle,apiWord));
 }
-SIM_DLLEXPORT int simSetModuleInfo(const char* moduleName,int infoType,const char* stringInfo,int intInfo)
+SIM_DLLEXPORT int simSetPluginInfo(const char* pluginName,int infoType,const char* stringInfo,int intInfo)
 {
-    return(simSetModuleInfo_internal(moduleName,infoType,stringInfo,intInfo));
+    return(simSetPluginInfo_internal(pluginName,infoType,stringInfo,intInfo));
 }
-SIM_DLLEXPORT int simGetModuleInfo(const char* moduleName,int infoType,char** stringInfo,int* intInfo)
+SIM_DLLEXPORT int simGetPluginInfo(const char* pluginName,int infoType,char** stringInfo,int* intInfo)
 {
-    return(simGetModuleInfo_internal(moduleName,infoType,stringInfo,intInfo));
+    return(simGetPluginInfo_internal(pluginName,infoType,stringInfo,intInfo));
+}
+SIM_DLLEXPORT char* simGetPluginName(int index)
+{
+    return(simGetPluginName_internal(index,nullptr));
 }
 SIM_DLLEXPORT char* simGetPersistentDataTags(int* tagCount)
 {
