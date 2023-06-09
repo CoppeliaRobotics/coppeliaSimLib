@@ -2580,7 +2580,7 @@ int _auxFunc(luaWrap_lua_State* L)
                 it->addUsedModule(luaWrap_lua_tostring(L,2));
             }
         }
-        /*
+        //*
         if (cmd.compare("fetchframe")==0)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_integer,0))
@@ -2639,7 +2639,7 @@ int _auxFunc(luaWrap_lua_State* L)
                 LUA_END(2);
             }
         }
-        */
+       // */
         if (cmd.compare("getfiles")==0)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0,lua_arg_string,0))

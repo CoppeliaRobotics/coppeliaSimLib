@@ -748,7 +748,7 @@ int simRunSimulator_internal(const char* applicationName,int options,void(*setTo
         return(0);
     }
 #ifdef SIM_WITH_QT
-    if (launchSimThread)
+    if (applicationDir.size()==0)
     {
         QFileInfo pathInfo(QCoreApplication::applicationFilePath());
         applicationDir=pathInfo.path().toStdString();
@@ -16023,10 +16023,6 @@ char* simGetApiInfo_internal(int scriptHandle,const char* apiWord)
 
 int simSetPluginInfo_internal(const char* pluginName,int infoType,const char* stringInfo,int intInfo)
 {
-    if (pluginName==nullptr)
-        printf("************\n");
-    else
-        printf("************ %s\n",pluginName);
     TRACE_C_API;
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
