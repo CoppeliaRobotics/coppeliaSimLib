@@ -16,7 +16,7 @@ public:
 
     CPlugin* getCurrentPlugin();
     CPlugin* loadAndInitPlugin(const char* namespaceAndVersion,int loadOrigin);
-    bool deinitAndUnloadPlugin(int handle,int unloadOrigin);
+    bool deinitAndUnloadPlugin(int handle,int unloadOrigin,bool force=false);
     void unloadNewPlugins();
     void unloadLegacyPlugins();
 

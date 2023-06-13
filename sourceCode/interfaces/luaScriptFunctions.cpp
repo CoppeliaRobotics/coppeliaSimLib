@@ -2514,6 +2514,9 @@ int _unloadPlugin(luaWrap_lua_State* L)
     errorString=SIM_ERROR_INVALID_PLUGIN;
     if (luaWrap_lua_istable(L,1))
     {
+        int options=0;
+        if (luaWrap_lua_isinteger(L,2))
+            options=luaWrap_lua_tointeger(L,2);
         CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         int pluginHandle=-1;
         luaWrap_lua_getfield(L,1,"pluginHandle");
@@ -2532,7 +2535,7 @@ int _unloadPlugin(luaWrap_lua_State* L)
                 luaWrap_lua_pushnil(L);
                 luaWrap_lua_setfield(L,-2,plug->getName().c_str());
 
-                App::worldContainer->pluginContainer->deinitAndUnloadPlugin(pluginHandle,it->getScriptHandle());
+                App::worldContainer->pluginContainer->deinitAndUnloadPlugin(pluginHandle,it->getScriptHandle(),(options&1)!=0);
             }
         }
     }

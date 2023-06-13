@@ -252,7 +252,7 @@ void CPluginContainer::unlockInterface()
     _pluginInterfaceMutex.unlock();
 }
 
-bool CPluginContainer::deinitAndUnloadPlugin(int handle,int unloadOrigin)
+bool CPluginContainer::deinitAndUnloadPlugin(int handle,int unloadOrigin,bool force/*=false*/)
 { // not for legacy plugins
     TRACE_INTERNAL;
     bool retVal=false;
@@ -260,7 +260,7 @@ bool CPluginContainer::deinitAndUnloadPlugin(int handle,int unloadOrigin)
     if ( (it!=nullptr)&&(!it->isLegacyPlugin()) )
     {
         it->removeDependency(unloadOrigin);
-        if (!it->hasAnyDependency())
+        if ( force||(!it->hasAnyDependency()) )
         {
             std::string msgB("plugin ");
             msgB+=it->getName()+": ";
