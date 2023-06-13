@@ -208,7 +208,8 @@ quint64 VFile::getLength()
 
 void VFile::close()
 {
-    _theFile->close();
+    if (_theFile!=nullptr)
+        _theFile->close();
 }
 
 WFile* VFile::getFile()

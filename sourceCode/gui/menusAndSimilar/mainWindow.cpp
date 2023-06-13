@@ -56,6 +56,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     _mouseMode=DEFAULT_MOUSE_MODE;
     _proxSensorClickSelectDown=0;
     _proxSensorClickSelectUp=0;
+    _mouseWheelEventTime=0;
 
     lastInstance=-1;
     timeCounter=(int)VDateTime::getTimeInMs();

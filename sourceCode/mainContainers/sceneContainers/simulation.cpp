@@ -48,6 +48,7 @@ void CSimulation::setUpDefaultValues()
     _realTimeSimulation=false;
     _fullscreenAtSimulationStart=false;
     _speedModifierCount=0;
+    _requestToStop=false;
 }
 
 int CSimulation::getSpeedModifierCount() const

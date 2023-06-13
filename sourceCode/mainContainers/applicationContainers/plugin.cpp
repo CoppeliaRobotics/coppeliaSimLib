@@ -10,7 +10,13 @@
 
 CPlugin::CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int loadOrigin)
 {
-    _initAddress=nullptr; // if null, indicates legacy plugin
+    _initAddress=nullptr;
+    _cleanupAddress=nullptr;
+    _msgAddress=nullptr;
+    _initAddress_ui=nullptr;
+    _cleanupAddress_ui=nullptr;
+    _msgAddress_ui=nullptr;
+
     _filename=filename;
     _stage=stage_none;
     _name=pluginnamespaceAndVersion;

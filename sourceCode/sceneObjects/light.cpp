@@ -10,6 +10,7 @@ int CLight::_maximumOpenGlLights=8;
 
 CLight::CLight()
 {
+    _lightType=sim_light_omnidirectional_subtype;
     _commonInit();
 }
 

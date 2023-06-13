@@ -7196,6 +7196,64 @@ void CScriptObject::_adjustScriptText16_old(CScriptObject* scriptObject,bool doI
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
+    //* Explicit requires:
+    std::string tmp;
+    _scriptText.insert(0,"\n");
+    if (_containsScriptText_old(scriptObject,"simROS2"))
+        tmp.insert(0,"simROS2=require'simROS2'\n");
+    if (_containsScriptText_old(scriptObject,"simROS"))
+        tmp.insert(0,"simROS=require'simROS'\n");
+    if (_containsScriptText_old(scriptObject,"simICP"))
+        tmp.insert(0,"simICP=require'simICP'\n");
+    if (_containsScriptText_old(scriptObject,"simIGL"))
+        tmp.insert(0,"simIGL=require'simIGL'\n");
+    if (_containsScriptText_old(scriptObject,"simEigen"))
+        tmp.insert(0,"simEigen=require'simEigen'\n");
+    if (_containsScriptText_old(scriptObject,"simIM"))
+        tmp.insert(0,"simIM=require'simIM'\n");
+    if (_containsScriptText_old(scriptObject,"simZMQ"))
+        tmp.insert(0,"simZMQ=require'simZMQ'\n");
+    if (_containsScriptText_old(scriptObject,"simWS"))
+        tmp.insert(0,"simWS=require'simWS'\n");
+    if (_containsScriptText_old(scriptObject,"simVision"))
+        tmp.insert(0,"simVision=require'simVision'\n");
+    if (_containsScriptText_old(scriptObject,"simURDF"))
+        tmp.insert(0,"simURDF=require'simURDF'\n");
+    if (_containsScriptText_old(scriptObject,"simSurfRec"))
+        tmp.insert(0,"simSurfRec=require'simSurfRec'\n");
+    if (_containsScriptText_old(scriptObject,"simSubprocess"))
+        tmp.insert(0,"simSubprocess=require'simSubprocess'\n");
+    if (_containsScriptText_old(scriptObject,"simSDF"))
+        tmp.insert(0,"simSDF=require'simSDF'\n");
+    if (_containsScriptText_old(scriptObject,"simRRS1"))
+        tmp.insert(0,"simRRS1=require'simRRS1'\n");
+    if (_containsScriptText_old(scriptObject,"simQHull"))
+        tmp.insert(0,"simQHull=require'simQHull'\n");
+    if (_containsScriptText_old(scriptObject,"simOpenMesh"))
+        tmp.insert(0,"simOpenMesh=require'simOpenMesh'\n");
+    if (_containsScriptText_old(scriptObject,"simOMPL"))
+        tmp.insert(0,"simOMPL=require'simOMPL'\n");
+    if (_containsScriptText_old(scriptObject,"simMTB"))
+        tmp.insert(0,"simMTB=require'simMTB'\n");
+    if (_containsScriptText_old(scriptObject,"simCHAI3D"))
+        tmp.insert(0,"simCHAI3D=require'simCHAI3D'\n");
+    if (_containsScriptText_old(scriptObject,"simBubble"))
+        tmp.insert(0,"simBubble=require'simBubble'\n");
+    if (_containsScriptText_old(scriptObject,"simGeom"))
+        tmp.insert(0,"simGeom=require'simGeom'\n");
+    if (_containsScriptText_old(scriptObject,"simAssimp"))
+        tmp.insert(0,"simAssimp=require'simAssimp'\n");
+    if (_containsScriptText_old(scriptObject,"simMujoco"))
+        tmp.insert(0,"simMujoco=require'simMujoco'\n");
+    if (_containsScriptText_old(scriptObject,"simUI"))
+        tmp.insert(0,"simUI=require'simUI'\n");
+    if (_containsScriptText_old(scriptObject,"simIK"))
+        tmp.insert(0,"simIK=require'simIK'\n");
+    tmp.insert(0,"sim=require'sim'\n");
+    printf("********************\n%s\n*********************\n",tmp.c_str());
+    _scriptText.insert(0,tmp);
+     // */
+
     /*
     std::smatch match;
     std::regex regEx("sim.getObjectMatrix\\((.+),( *-1 *)\\)");

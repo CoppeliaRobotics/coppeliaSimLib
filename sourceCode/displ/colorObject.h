@@ -19,7 +19,6 @@ public:
     void getNewColors(float cols[9]) const;
     void copyYourselfInto(CColorObject* it) const;
     void serialize(CSer& ar,int objType); // 0=3d mesh, 1=3d lines, 2=3d points, 3=3d light, 4=2d thing
-    void setConvexColors();
 
     void getColor(float col[3],unsigned char colorMode) const;
     void getColors(float col[15]) const;

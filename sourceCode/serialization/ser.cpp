@@ -59,7 +59,7 @@ CSer::~CSer()
     }
     if (theFile!=nullptr)
     {
-        theFile->close();
+      //  theFile->close();
         delete theFile;
     }
 }

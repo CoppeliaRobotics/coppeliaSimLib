@@ -6,6 +6,18 @@
 
 CColorObject::CColorObject()
 {
+    for (size_t i=0;i<15;i++)
+        _colors[i]=0.0f;
+    _opacity=0.5;
+    _translucid=false;
+    _shininess=48;
+    setColorName("");
+    setExtensionString("povray { pattern {default}}");
+    _flash=false;
+    _useSimulationTime=false;
+    _flashFrequency=2.0;
+    _flashRatio=0.5;
+    _flashPhase=0.0;
     setDefaultValues();
 }
 
@@ -186,17 +198,6 @@ void CColorObject::setColor(float r,float g,float b,unsigned char colorMode)
 {
     float col[3]={r,g,b};
     setColor(col,colorMode);
-}
-
-void CColorObject::setConvexColors()
-{
-    setDefaultValues();
-    float col[15];
-    getColors(col);
-    col[0]=0.72f;
-    col[1]=0.88f;
-    col[2]=0.35f;
-    setColors(col);
 }
 
 void CColorObject::copyYourselfInto(CColorObject* it) const
