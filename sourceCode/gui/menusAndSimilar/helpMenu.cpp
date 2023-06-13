@@ -44,7 +44,7 @@ void CHelpMenu::addMenu(VMenu* menu)
     debugMenu->appendMenuItem(true,!CViewableBase::getFrustumCullingEnabled(),DISABLE_FRUSTUM_CULLING_DEBUG_CMD,"Disable frustum culling",true);
     debugMenu->appendMenuItem(true,!CDistanceRoutine::getDistanceCachingEnabled(),DISABLE_DISTANCE_CACHING_DEBUG_CMD,"Disable distance caching",true);
     menu->appendMenuAndDetach(debugMenu,true,"Debug");
-    if (CSimFlavor::getBoolVal(19))
+    if (CSimFlavor::getBoolVal(13))
     {
         menu->appendMenuSeparator();
         menu->appendMenuItem(true,false,EK_CMD,CSimFlavor::getStringVal(8).c_str());

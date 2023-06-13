@@ -150,6 +150,7 @@ public:
 
     bool wasModulePreviouslyUsed(const char* moduleName) const;
     void addUsedModule(const char* moduleName);
+    void addModulesDetectedInCode();
 
     int getAddOnUiMenuHandle() const;
     void setAddOnFilePath(const char* p);

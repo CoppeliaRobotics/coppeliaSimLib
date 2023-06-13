@@ -64,7 +64,7 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L,const char* functionName,const
             msg+=functionName;
             msg+="' ";
             msg+=warnStr;
-            App::logScriptMsg(it->getShortDescriptiveName().c_str(),verb,msg.c_str());
+            App::logScriptMsg(it,verb,msg.c_str());
         }
     }
 }
@@ -2483,6 +2483,7 @@ int _loadPlugin(luaWrap_lua_State* L)
         CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         std::string namespaceAndVersion(luaWrap_lua_tostring(L,1));
         CPlugin* plug=App::worldContainer->pluginContainer->getPluginFromName(namespaceAndVersion.c_str());
+
         if ( (plug!=nullptr)&&(plug->hasDependency(it->getScriptHandle())) )
         { // that script already loaded that plugin. If the script state has been reset, we do not enter here
             luaWrap_lua_getglobal(L,SIM_PLUGIN_NAMESPACES);
@@ -4211,10 +4212,7 @@ int _addLog(luaWrap_lua_State* L)
             {
                 std::string msg(luaWrap_lua_tostring(L,2));
                 CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
-                std::string nm("???");
-                if (it!=nullptr)
-                    nm=it->getShortDescriptiveName();
-                App::logScriptMsg(nm.c_str(),v,msg.c_str());
+                App::logScriptMsg(it,v,msg.c_str());
             }
         }
     }
@@ -17718,7 +17716,7 @@ int _simAddStatusbarMessage(luaWrap_lua_State* L)
                 CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 if (it!=nullptr)
                 {
-                    App::logScriptMsg(it->getShortDescriptiveName().c_str(),sim_verbosity_msgs,luaWrap_lua_tostring(L,1));
+                    App::logScriptMsg(it,sim_verbosity_msgs,luaWrap_lua_tostring(L,1));
                     retVal=1;
                 }
             }

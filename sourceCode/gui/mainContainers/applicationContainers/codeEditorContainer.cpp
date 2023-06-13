@@ -346,6 +346,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 {
                     int posAndSize[4];
                     it->getPreviousEditionWindowPosAndSize(posAndSize);
+                    it->addModulesDetectedInCode();
 
                     sim::tinyxml2::XMLDocument xmlDoc;
                     sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
@@ -475,6 +476,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                 {
                     int posAndSize[4];
                     it->getPreviousEditionWindowPosAndSize(posAndSize);
+                    it->addModulesDetectedInCode();
 
                     sim::tinyxml2::XMLDocument xmlDoc;
                     sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");

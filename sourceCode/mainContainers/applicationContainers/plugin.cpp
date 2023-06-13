@@ -14,7 +14,6 @@ CPlugin::CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int 
     _filename=filename;
     _stage=stage_none;
     _name=pluginnamespaceAndVersion;
-    _nameCleanup=_name;
     if (loadOrigin>=-1)
     { // new plugins
         size_t p=_name.find('-');
@@ -25,7 +24,8 @@ CPlugin::CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int 
     }
     else
         _namespace.clear(); // old plugins
-    _dependencies.insert(loadOrigin);
+    if (loadOrigin!=-1) // plugins auto loaded by the system have no direct dependency: they simply can be loaded again on demand
+        _dependencies.insert(loadOrigin);
     extendedVersionInt=-1;
     _consoleVerbosity=sim_verbosity_useglobal;
     _statusbarVerbosity=sim_verbosity_useglobal;
@@ -220,6 +220,16 @@ void CPlugin::removeDependency(int loadOrigin)
 bool CPlugin::hasDependency(int loadOrigin) const
 {
     return(_dependencies.find(loadOrigin)!=_dependencies.end());
+}
+
+std::string CPlugin::getDependencies() const
+{
+    std::string retVal;
+    for (auto it=_dependencies.begin();it!=_dependencies.end();it++)
+        retVal+=std::to_string(*it)+" ";
+    if (retVal.size()>0)
+        retVal.pop_back();
+    return(retVal);
 }
 
 bool CPlugin::hasAnyDependency() const

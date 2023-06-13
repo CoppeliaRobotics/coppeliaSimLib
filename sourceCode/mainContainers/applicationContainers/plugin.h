@@ -252,6 +252,7 @@ public:
     void addDependency(int loadOrigin);
     void removeDependency(int loadOrigin);
     bool hasDependency(int loadOrigin) const;
+    std::string getDependencies() const;
     bool hasAnyDependency() const;
 
     ptr_dynPlugin_startSimulation_D dynPlugin_startSimulation;
@@ -447,7 +448,6 @@ private:
     void _loadAuxEntryPoints();
 
     std::string _name; // e.g. simAssimp, simAssimp-2-78, etc. (old plugins: Assimp, etc.)
-    std::string _nameCleanup; // same as _name, but persistent after cleanup
     std::string _namespace; // e.g. simBullet, simAssimp, etc. (old plugins: empty)
 
     CPluginCallbackContainer _pluginCallbackContainer;

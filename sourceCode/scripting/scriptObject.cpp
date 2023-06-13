@@ -632,6 +632,36 @@ void CScriptObject::addUsedModule(const char* module)
     _previouslyUsedModules.insert(module);
 }
 
+void CScriptObject::addModulesDetectedInCode()
+{ // try to guess required modules. If such a similar module is already in _previouslyUsedModules, ignore it
+    QRegularExpression re("\\brequire\\b\\s*\\(?\\s*[\\'\"]([^\\'\"]*)[\\'\"]\\s*\\)?");
+    QRegularExpressionMatchIterator it = re.globalMatch(_scriptText.c_str());
+    while (it.hasNext())
+    {
+        QRegularExpressionMatch m=it.next();
+        std::string ns(m.captured(1).toStdString());
+        std::string ns1(ns);
+        size_t p=ns1.find("-");
+        if (p!=std::string::npos)
+            ns1.assign(ns1.begin(),ns1.begin()+p);
+        bool found=false;
+        for (auto it2=_previouslyUsedModules.begin();it2!=_previouslyUsedModules.end();it2++)
+        {
+            std::string ns2(*it2);
+            p=ns2.find("-");
+            if (p!=std::string::npos)
+                ns2.assign(ns2.begin(),ns2.begin()+p);
+            if (ns1==ns2)
+            {
+                found=true;
+                break;
+            }
+        }
+        if (!found)
+            _previouslyUsedModules.insert(ns.c_str());
+    }
+}
+
 void CScriptObject::getMatchingFunctions(const char* txt,std::set<std::string>& v,const CScriptObject* requestOrigin)
 {
     App::worldContainer->scriptCustomFuncAndVarContainer->insertAllFunctionNamesThatStartSame(txt,v); // old plugins
@@ -2391,7 +2421,7 @@ void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char
     { // silent error when breaking out of a threaded child script at simulation end
         if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
             App::currentWorld->simulation->pauseOnErrorRequested();
-        App::logScriptMsg(getShortDescriptiveName().c_str(),sim_verbosity_scripterrors,errM.c_str());
+        App::logScriptMsg(this,sim_verbosity_scripterrors,errM.c_str());
         _lastStackTraceback=errM;
     }
     App::setRefreshHierarchyViewFlag();
@@ -2969,7 +2999,7 @@ void CScriptObject::loadPluginFuncsAndVars(CPlugin* plug)
                 if ( (0!=_execSimpleString_safe_lua(L,tmp.c_str()))&&(_scriptType==sim_scripttype_sandboxscript) )
                 { // warning only with sandbox scripts
                     tmp="failed executing '"+tmp+"'";
-                    App::logScriptMsg(getShortDescriptiveName().c_str(),sim_verbosity_scriptwarnings,tmp.c_str());
+                    App::logScriptMsg(this,sim_verbosity_scriptwarnings,tmp.c_str());
                 }
             }
             else
@@ -3089,7 +3119,7 @@ bool CScriptObject::registerPluginVariables(bool onlyRequireStatements)
                     { // ignore 2 files (old plugins)
                         tmp="failed executing '"+tmp;
                         tmp+="'";
-                        App::logScriptMsg(getShortDescriptiveName().c_str(),sim_verbosity_scriptwarnings,tmp.c_str());
+                        App::logScriptMsg(this,sim_verbosity_scriptwarnings,tmp.c_str());
                     }
                 }
             }

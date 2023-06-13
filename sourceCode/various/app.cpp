@@ -1521,11 +1521,16 @@ void App::logMsg(int verbosityLevel,const char* msg,int int1,int int2/*=0*/,int 
         _logMsg(nullptr,verbosityLevel,msg,int1,int2,int3);
 }
 
-void App::logScriptMsg(const char* scriptName,int verbosityLevel,const char* msg)
+void App::logScriptMsg(const CScriptObject* script,int verbosityLevel,const char* msg)
 {
     int realVerbosityLevel=verbosityLevel&0x0fff;
     if ( (_consoleVerbosity>=realVerbosityLevel)||(_statusbarVerbosity>=realVerbosityLevel) )
-        __logMsg(scriptName,verbosityLevel,msg);
+    {
+        if (script!=nullptr)
+            __logMsg(script->getShortDescriptiveName().c_str(),verbosityLevel,msg);
+        else
+            __logMsg(nullptr,verbosityLevel,msg);
+    }
 }
 
 int App::getVerbosityLevelFromString(const char* verbosityStr)

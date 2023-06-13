@@ -72,7 +72,8 @@ CPlugin* CPluginContainer::_tryToLoadPluginOnce(const char* namespaceAndVersion)
     if (_autoLoadPluginsTrials.find(namespaceAndVersion)==_autoLoadPluginsTrials.end())
     {
         retVal=loadAndInitPlugin(namespaceAndVersion,-1);
-        _autoLoadPluginsTrials.insert(namespaceAndVersion);
+        if (retVal==nullptr)
+            _autoLoadPluginsTrials.insert(namespaceAndVersion); // memorize that we failed
     }
     return(retVal);
 }
@@ -98,25 +99,48 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int
 #ifdef MAC_SIM
         fileAndPath+=".dylib";
 #endif
-        std::string errMsg;
-        App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': loading...",namespaceAndVersion);
+        std::string msgB("plugin ");
+        msgB+=std::string(namespaceAndVersion)+": ";
+        std::string msg(msgB+"loading...");
+        CScriptObject* scr=App::worldContainer->getScriptFromHandle(loadOrigin);
+        if (scr!=nullptr)
+            App::logScriptMsg(scr,sim_verbosity_loadinfos|sim_verbosity_onlyterminal,msg.c_str());
+        else
+            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,msg.c_str());
         plug=new CPlugin(fileAndPath.c_str(),namespaceAndVersion,loadOrigin);
         plug->setHandle(_nextHandle);
         _allPlugins.push_back(plug);
+        std::string errMsg;
         int loadRes=plug->load(&errMsg);
         if (loadRes==1)
         {
             if (plug->init(&errMsg))
             {
-                App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done.",namespaceAndVersion);
+                msg=msgB+"done.";
+                if (scr!=nullptr)
+                    App::logScriptMsg(scr,sim_verbosity_loadinfos|sim_verbosity_onlyterminal,msg.c_str());
+                else
+                    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,msg.c_str());
                 loadRes=2;
                 _nextHandle++;
             }
             else
-                App::logMsg(sim_verbosity_errors,"plugin '%s': init failed.",namespaceAndVersion);
+            {
+                msg=msgB+"init failed.";
+                if (scr!=nullptr)
+                    App::logScriptMsg(scr,sim_verbosity_errors,msg.c_str());
+                else
+                    App::logMsg(sim_verbosity_errors,msg.c_str());
+            }
         }
         else
-            App::logMsg(sim_verbosity_errors,(std::string("plugin '%s': ")+errMsg).c_str(),namespaceAndVersion);
+        {
+            msg=msgB+errMsg;
+            if (scr!=nullptr)
+                App::logScriptMsg(scr,sim_verbosity_errors,msg.c_str());
+            else
+                App::logMsg(sim_verbosity_errors,msg.c_str());
+        }
         if (loadRes<2)
         { // failed
             _allPlugins.pop_back();
@@ -124,6 +148,8 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int
             plug=nullptr;
         }
     }
+    else
+        plug->addDependency(loadOrigin);
     return(plug);
 }
 
@@ -236,8 +262,14 @@ bool CPluginContainer::deinitAndUnloadPlugin(int handle,int unloadOrigin)
         it->removeDependency(unloadOrigin);
         if (!it->hasAnyDependency())
         {
-            std::string nm(it->getName());
-            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': cleanup...",nm.c_str());
+            std::string msgB("plugin ");
+            msgB+=it->getName()+": ";
+            std::string msg(msgB+"cleanup...");
+            CScriptObject* scr=App::worldContainer->getScriptFromHandle(unloadOrigin);
+            if (scr!=nullptr)
+                App::logScriptMsg(scr,sim_verbosity_loadinfos|sim_verbosity_onlyterminal,msg.c_str());
+            else
+                App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,msg.c_str());
             lockInterface();
             it->cleanup();
             retVal=true;
@@ -250,7 +282,11 @@ bool CPluginContainer::deinitAndUnloadPlugin(int handle,int unloadOrigin)
                     break;
                 }
             }
-            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done.",nm.c_str());
+            msg=msgB+"done.";
+            if (scr!=nullptr)
+                App::logScriptMsg(scr,sim_verbosity_loadinfos|sim_verbosity_onlyterminal,msg.c_str());
+            else
+                App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,msg.c_str());
             unlockInterface();
         }
     }

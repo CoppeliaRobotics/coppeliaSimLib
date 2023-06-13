@@ -80,7 +80,7 @@ public:
     static void logMsg(int verbosityLevel,const char* msg);
     static void logMsg(int verbosityLevel,const char* msg,const char* subStr1,const char* subStr2=nullptr,const char* subStr3=nullptr);
     static void logMsg(int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
-    static void logScriptMsg(const char* scriptName,int verbosityLevel,const char* msg);
+    static void logScriptMsg(const CScriptObject* script,int verbosityLevel,const char* msg);
     static int getConsoleVerbosity(const char* pluginName=nullptr);
     static void setConsoleVerbosity(int v,const char* pluginName=nullptr);
     static int getStatusbarVerbosity(const char* pluginName=nullptr);
