@@ -7196,7 +7196,7 @@ void CScriptObject::_adjustScriptText16_old(CScriptObject* scriptObject,bool doI
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
-    //* Explicit requires:
+    /* Explicit requires:
     std::string tmp;
     _scriptText.insert(0,"\n");
     if (_containsScriptText_old(scriptObject,"simROS2"))

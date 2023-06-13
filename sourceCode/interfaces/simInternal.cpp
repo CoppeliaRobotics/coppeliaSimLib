@@ -5431,7 +5431,7 @@ int simReleaseBuffer_internal(const void* buffer)
 {
     TRACE_C_API;
 
-    delete[] buffer;
+    delete[] (char*)buffer;
     return(1);
 }
 

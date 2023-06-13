@@ -26,6 +26,8 @@ CHierarchy::CHierarchy()
 {
     renderingSize[0]=0;
     renderingSize[1]=0;
+    minRenderedPosition[0]=0;
+    minRenderedPosition[1]=0;
     maxRenderedPosition[0]=0;
     maxRenderedPosition[1]=0;
     setUpDefaultValues();
