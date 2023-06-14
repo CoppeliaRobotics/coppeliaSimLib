@@ -768,7 +768,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.handleflag_codedstring",sim_handleflag_codedstring},
     {"sim.handleflag_wxyzquat",sim_handleflag_wxyzquat},
     {"sim.handleflag_reljointbaseframe",sim_handleflag_reljointbaseframe},
-    {"sim.handleflag_setmultiple",sim_handleflag_setmultiple},
     {"sim.handleflag_addmultiple",sim_handleflag_addmultiple},
     {"sim.handleflag_abscoords",sim_handleflag_abscoords},
     {"sim.handleflag_model",sim_handleflag_model},
@@ -1664,6 +1663,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.ruckig_minaccel",sim_ruckig_minaccel},
 
     // deprecated!
+    {"sim.handleflag_setmultiple",sim_handleflag_setmultiple},
     {"sim.mainscriptcall_initialization",sim_syscb_init},
     {"sim.mainscriptcall_cleanup",sim_syscb_cleanup},
     {"sim.mainscriptcall_regular",sim_syscb_actuation},
@@ -8492,38 +8492,83 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
         int h=luaToInt(L,1);
         int handleFlags=h&0xff00000;
         h=h&0xfffff;
-
         CDrawingObject* it=App::currentWorld->drawingCont->getObject(h);
         size_t d=3;
         if (it!=nullptr)
-            d=size_t(it->getExpectedFloatsPerItem());
-        int res=checkOneGeneralInputArgument(L,2,lua_arg_number,int(d),true,true,&errorString);
-        if (res==2)
         {
-            std::vector<double> vertices;
-            if ( (((handleFlags&sim_handleflag_setmultiple)!=0)||((handleFlags&sim_handleflag_addmultiple)!=0))&&(it!=nullptr) )
-            {
-                size_t itemCnt=luaWrap_lua_rawlen(L,2)/d;
-                vertices.resize(itemCnt*d);
-                getDoublesFromTable(L,2,int(itemCnt*d),&vertices[0]);
-                if ((handleFlags&sim_handleflag_setmultiple)!=0)
-                    it->setItems(&vertices[0],itemCnt);
+            d=size_t(it->getExpectedFloatsPerItem());
+            if ( (handleFlags&(sim_handleflag_addmultiple|sim_handleflag_codedstring))==(sim_handleflag_addmultiple|sim_handleflag_codedstring) )
+            { // data provided as coded string
+                int res=checkOneGeneralInputArgument(L,2,lua_arg_string,0,true,true,&errorString);
+                if (res==2)
+                { // append data from string
+                    size_t dataLength;
+                    const char* data=luaWrap_lua_tolstring(L,2,&dataLength);
+                    size_t itemCnt=(dataLength/sizeof(float))/d;
+                    if (itemCnt>0)
+                    {
+                        std::vector<double> vertices;
+                        vertices.resize(itemCnt*d);
+                        for (size_t i=0;i<itemCnt*d;i++)
+                            vertices[i]=double(((float*)data)[i]);
+                        it->addItems(vertices.data(),itemCnt);
+                        retVal=1;
+                    }
+                    else
+                        errorString=SIM_ERROR_INVALID_BUFFER_SIZE;
+                }
                 else
-                    it->addItems(&vertices[0],itemCnt);
-                retVal=1;
+                { // clear the drawing object
+                    if (res>=0)
+                    {
+                        if (it->addItem(nullptr))
+                            retVal=1;
+                        else
+                            retVal=0;
+                    }
+                }
             }
             else
-            {
-                vertices.resize(d);
-                getDoublesFromTable(L,2,int(d),&vertices[0]);
-                retVal=simAddDrawingObjectItem_internal(h,&vertices[0]);
+            { // data provided as table (or nil arg)
+                int res=checkOneGeneralInputArgument(L,2,lua_arg_number,int(d),true,true,&errorString);
+                if (res==2)
+                { // append data from table
+                    std::vector<double> vertices;
+                    if ( (((handleFlags&sim_handleflag_setmultiple)!=0)||((handleFlags&sim_handleflag_addmultiple)!=0)) )
+                    { // append multiple
+                        size_t itemCnt=luaWrap_lua_rawlen(L,2)/d;
+                        vertices.resize(itemCnt*d);
+                        getDoublesFromTable(L,2,int(itemCnt*d),&vertices[0]);
+                        if ((handleFlags&sim_handleflag_addmultiple)!=0)
+                            it->addItems(&vertices[0],itemCnt);
+                        else
+                            it->setItems(&vertices[0],itemCnt); // old. Previously setmultiple, which is now deprecated
+                        retVal=1;
+                    }
+                    else
+                    { // append single
+                        vertices.resize(d);
+                        getDoublesFromTable(L,2,int(d),&vertices[0]);
+                        if (it->addItem(vertices.data()))
+                            retVal=1;
+                        else
+                            retVal=0;
+                    }
+                }
+                else
+                { // clear the drawing object
+                    if (res>=0)
+                    {
+                        if (it->addItem(nullptr))
+                            retVal=1;
+                        else
+                            retVal=0;
+                    }
+                }
             }
         }
         else
-        {
-            if (res>=0)
-                retVal=simAddDrawingObjectItem_internal(h,nullptr);
-        }
+            errorString=SIM_ERROR_OBJECT_INEXISTANT;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -12591,44 +12636,98 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State* L)
     LUA_START("sim.insertVoxelsIntoOctree");
 
     int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int handle=luaToInt(L,1);
+        int handleFlags=handle&0xff00000;
+        handle=handle&0xfffff;
         int options=luaToInt(L,2);
-        int ptCnt=int(luaWrap_lua_rawlen(L,3))/3;
-        std::vector<double> pts;
-        pts.resize(ptCnt*3);
         unsigned char* cols=nullptr;
         std::vector<unsigned char> _cols;
         int v=3;
-        if (options&2)
-            v=ptCnt*3;
-        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,v,true,true,&errorString);
-        if (res>=0)
-        {
-            getDoublesFromTable(L,3,ptCnt*3,&pts[0]);
-            if (res==2)
+        std::vector<double> pts;
+        if ((handleFlags&sim_handleflag_codedstring)!=0)
+        { // provided data is in buffers
+            if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0))
             {
-                _cols.resize(v);
-                getUCharsFromTable(L,4,v,&_cols[0]);
-                cols=&_cols[0];
-            }
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,v/3,true,true,&errorString);
-            if (res>=0)
-            {
-                if (cols==nullptr)
-                    retVal=simInsertVoxelsIntoOctree_internal(handle,options,&pts[0],ptCnt,nullptr,nullptr,nullptr);
-                else
+                size_t dataLength;
+                const char* data=luaWrap_lua_tolstring(L,3,&dataLength);
+                int ptCnt=(dataLength/sizeof(float))/3;
+                pts.resize(ptCnt*3);
+                if (options&2)
+                    v=ptCnt*3;
+                int res=checkOneGeneralInputArgument(L,4,lua_arg_string,0,true,true,&errorString);
+                if (res>=0)
                 {
-                    unsigned int* tags=nullptr;
-                    std::vector<unsigned int> _tags;
+                    for (int i=0;i<ptCnt*3;i++)
+                        pts[i]=double(((float*)data)[i]);
                     if (res==2)
                     {
-                        _tags.resize(v/3);
-                        getUIntsFromTable(L,5,v/3,&_tags[0]);
-                        tags=&_tags[0];
+                        data=luaWrap_lua_tolstring(L,4,&dataLength);
+                        _cols.resize(v);
+                        for (int i=0;i<std::min<int>(v,int(dataLength));i++)
+                            _cols[i]=((unsigned char*)data)[i];
+                        cols=&_cols[0];
                     }
-                    retVal=simInsertVoxelsIntoOctree_internal(handle,options,&pts[0],ptCnt,cols,tags,nullptr);
+                    res=checkOneGeneralInputArgument(L,5,lua_arg_string,0,true,true,&errorString);
+                    if (res>=0)
+                    {
+                        if (cols==nullptr)
+                            retVal=simInsertVoxelsIntoOctree_internal(handle,options,&pts[0],ptCnt,nullptr,nullptr,nullptr);
+                        else
+                        {
+                            unsigned int* tags=nullptr;
+                            std::vector<unsigned int> _tags;
+                            if (res==2)
+                            {
+                                data=luaWrap_lua_tolstring(L,5,&dataLength);
+                                _tags.resize(v/3);
+                                for (int i=0;i<std::min<int>(v/3,int(dataLength/sizeof(int)));i++)
+                                    _tags[i]=((unsigned int*)data)[i];
+                                tags=&_tags[0];
+                            }
+                            retVal=simInsertVoxelsIntoOctree_internal(handle,options,&pts[0],ptCnt,cols,tags,nullptr);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        { // provided data is in tables
+            if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
+            {
+                int ptCnt=int(luaWrap_lua_rawlen(L,3))/3;
+                pts.resize(ptCnt*3);
+                if (options&2)
+                    v=ptCnt*3;
+                int res=checkOneGeneralInputArgument(L,4,lua_arg_number,v,true,true,&errorString);
+                if (res>=0)
+                {
+                    getDoublesFromTable(L,3,ptCnt*3,&pts[0]);
+                    if (res==2)
+                    {
+                        _cols.resize(v);
+                        getUCharsFromTable(L,4,v,&_cols[0]);
+                        cols=&_cols[0];
+                    }
+                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,v/3,true,true,&errorString);
+                    if (res>=0)
+                    {
+                        if (cols==nullptr)
+                            retVal=simInsertVoxelsIntoOctree_internal(handle,options,&pts[0],ptCnt,nullptr,nullptr,nullptr);
+                        else
+                        {
+                            unsigned int* tags=nullptr;
+                            std::vector<unsigned int> _tags;
+                            if (res==2)
+                            {
+                                _tags.resize(v/3);
+                                getUIntsFromTable(L,5,v/3,&_tags[0]);
+                                tags=&_tags[0];
+                            }
+                            retVal=simInsertVoxelsIntoOctree_internal(handle,options,&pts[0],ptCnt,cols,tags,nullptr);
+                        }
+                    }
                 }
             }
         }
@@ -12676,41 +12775,86 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State* L)
     LUA_START("sim.insertPointsIntoPointCloud");
 
     int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         int handle=luaToInt(L,1);
+        int handleFlags=handle&0xff00000;
+        handle=handle&0xfffff;
         int options=luaToInt(L,2);
-        int ptCnt=int(luaWrap_lua_rawlen(L,3))/3;
         float optionalValues[2];
         ((int*)optionalValues)[0]=1; // duplicate tolerance bit
         optionalValues[1]=0.0; // duplicate tolerance
-        std::vector<double> pts;
-        pts.resize(ptCnt*3);
         unsigned char* cols=nullptr;
         std::vector<unsigned char> _cols;
         int v=3;
-        if (options&2)
-            v=ptCnt*3;
-        int res=checkOneGeneralInputArgument(L,4,lua_arg_number,v,true,true,&errorString);
-        if (res>=0)
-        {
-            getDoublesFromTable(L,3,ptCnt*3,&pts[0]);
-            if (res==2)
+        std::vector<double> pts;
+        if ((handleFlags&sim_handleflag_codedstring)!=0)
+        { // provided data is in buffers
+            if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0))
             {
-                _cols.resize(v);
-                getUCharsFromTable(L,4,v,&_cols[0]);
-                cols=&_cols[0];
-            }
-            res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,true,&errorString);
-            if (res>=0)
-            {
-                if (res==2)
+                size_t dataLength;
+                const char* data=luaWrap_lua_tolstring(L,3,&dataLength);
+                int ptCnt=int((dataLength/sizeof(float)))/3;
+                pts.resize(ptCnt*3);
+                if (options&2)
+                    v=ptCnt*3;
+                int res=checkOneGeneralInputArgument(L,4,lua_arg_string,0,true,true,&errorString);
+                if (res>=0)
                 {
-                    optionalValues[1]=(float)luaToDouble(L,5); // duplicate tolerance
-                    retVal=simInsertPointsIntoPointCloud_internal(handle,options,&pts[0],ptCnt,cols,optionalValues);
+                    for (int i=0;i<ptCnt*3;i++)
+                        pts[i]=double(((float*)data)[i]);
+                    if (res==2)
+                    {
+                        data=luaWrap_lua_tolstring(L,4,&dataLength);
+                        _cols.resize(v);
+                        for (int i=0;i<std::min<int>(v,int(dataLength));i++)
+                            _cols[i]=((unsigned char*)data)[i];
+                        cols=&_cols[0];
+                    }
+                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,true,&errorString);
+                    if (res>=0)
+                    {
+                        if (res==2)
+                        {
+                            optionalValues[1]=(float)luaToDouble(L,5); // duplicate tolerance
+                            retVal=simInsertPointsIntoPointCloud_internal(handle,options,&pts[0],ptCnt,cols,optionalValues);
+                        }
+                        else
+                            retVal=simInsertPointsIntoPointCloud_internal(handle,options,&pts[0],ptCnt,cols,nullptr);
+                    }
                 }
-                else
-                    retVal=simInsertPointsIntoPointCloud_internal(handle,options,&pts[0],ptCnt,cols,nullptr);
+            }
+        }
+        else
+        { // provided data is in tables
+            if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
+            {
+                int ptCnt=int(luaWrap_lua_rawlen(L,3))/3;
+                pts.resize(ptCnt*3);
+                if (options&2)
+                    v=ptCnt*3;
+                int res=checkOneGeneralInputArgument(L,4,lua_arg_number,v,true,true,&errorString);
+                if (res>=0)
+                {
+                    getDoublesFromTable(L,3,ptCnt*3,&pts[0]);
+                    if (res==2)
+                    {
+                        _cols.resize(v);
+                        getUCharsFromTable(L,4,v,&_cols[0]);
+                        cols=&_cols[0];
+                    }
+                    res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,true,&errorString);
+                    if (res>=0)
+                    {
+                        if (res==2)
+                        {
+                            optionalValues[1]=(float)luaToDouble(L,5); // duplicate tolerance
+                            retVal=simInsertPointsIntoPointCloud_internal(handle,options,&pts[0],ptCnt,cols,optionalValues);
+                        }
+                        else
+                            retVal=simInsertPointsIntoPointCloud_internal(handle,options,&pts[0],ptCnt,cols,nullptr);
+                    }
+                }
             }
         }
     }

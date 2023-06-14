@@ -7,11 +7,19 @@ CGraphDataStream::CGraphDataStream()
 {
     _nextValueToInsertIsValid=false;
     _scriptHandle=-1;
+    _transformationType=sim_stream_transf_raw;
+    _transformationMult=1.0;
+    _transformationOff=0.0;
+    _movingAveragePeriod=1;
 }
 
 CGraphDataStream::CGraphDataStream(const char* streamName,const char* unitStr,int options,const float* color,double cyclicRange,int scriptHandle)
 {
     _streamName=streamName;
+    _transformationType=sim_stream_transf_raw;
+    _transformationMult=1.0;
+    _transformationOff=0.0;
+    _movingAveragePeriod=1;
     setBasics(unitStr,options,color,cyclicRange,scriptHandle);
     setTransformation(sim_stream_transf_raw,1.0,0.0,1);
     _nextValueToInsertIsValid=false;

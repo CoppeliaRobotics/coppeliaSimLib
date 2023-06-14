@@ -44,6 +44,7 @@ CSceneObject::CSceneObject()
     _assemblingLocalTransformationIsUsed=false;
     _userScriptParameters=nullptr;
     _dynamicsTemporarilyDisabled=false;
+    _calculatedModelProperty=0;
 
     _authorizedViewableObjects=-1; // all
     _assemblyMatchValuesChild.push_back("default");

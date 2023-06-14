@@ -6311,7 +6311,7 @@ int simAddDrawingObjectItem_internal(int objectHandle,const double* itemData)
        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    { // protected with an additional mutex in CDrawingObject
+    {
         CDrawingObject* it=App::currentWorld->drawingCont->getObject(objectHandle);
         if (it==nullptr)
         {

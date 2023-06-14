@@ -169,6 +169,7 @@ void CProxSensor::commonInit()
 
     _sensableObject=-1;
     _sensableType=sim_objectspecialproperty_detectable_ultrasonic;
+    _sensorResultValid=false;
     _detectedPointValid=false;
     _calcTimeInMs=0;
 

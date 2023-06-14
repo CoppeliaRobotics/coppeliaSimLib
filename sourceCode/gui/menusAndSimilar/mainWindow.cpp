@@ -844,7 +844,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
     if (simulationRecorder->getIsRecording())
         simulationRecorder->recordFrameIfNeeded(_clientArea[0],_clientArea[1],0,0);
 
-    if (swapTheBuffers) // condition added on 31/1/2012... might help because some VMWare installations crash when disabling the rendering
+    if ( swapTheBuffers&&(openglWidget!=nullptr) ) // condition added on 31/1/2012... might help because some VMWare installations crash when disabling the rendering
     {
         int oglDebugTime=(int)VDateTime::getTimeInMs();
         // the only time in the whole application (except for COpenglWidget::paintGL() ) where we can call
