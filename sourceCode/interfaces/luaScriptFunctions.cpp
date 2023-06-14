@@ -2266,35 +2266,44 @@ bool checkInputArguments(luaWrap_lua_State* L,std::string* errStr,
     // CAREFUL!!! if typeXCnt_zeroIfNotTable is 0, it means it is a simple value (not table)
     // if typeXCnt_zeroIfNotTable is >=1 then we are expecting a table with at least typeXCnt_zeroIfNotTable elements!!
     // if typeXCnt_zeroIfNotTable is =-1 then we are expecting a table that can have any number of elements
+    bool retVal=true;
     int inArgs[11]={type1,type2,type3,type4,type5,type6,type7,type8,type9,type10,type11};
     int inArgsCnt_zeroIfNotTable[11]={type1Cnt_zeroIfNotTable,type2Cnt_zeroIfNotTable,type3Cnt_zeroIfNotTable,type4Cnt_zeroIfNotTable,type5Cnt_zeroIfNotTable,type6Cnt_zeroIfNotTable,type7Cnt_zeroIfNotTable,type8Cnt_zeroIfNotTable,type9Cnt_zeroIfNotTable,type10Cnt_zeroIfNotTable,type11Cnt_zeroIfNotTable};
     int totArgs=0;
+    int totReqArgs=0;
+    bool opt=false;
     for (int i=0;i<11;i++)
     {
         if (inArgs[i]==lua_arg_empty)
             break;
-        if (inArgsCnt_zeroIfNotTable[i]<-1)
+        if ((inArgs[i]&lua_arg_optional)!=0)
         {
-            App::logMsg(sim_verbosity_errors,"error in call to 'checkInputArguments' routine.");
-            App::beep();
-            while (true);
+            inArgs[i]-=lua_arg_optional;
+            opt=true;
         }
+        if (!opt)
+            totReqArgs++;
         totArgs++;
     }
-    int numberOfArguments=luaWrap_lua_gettop(L);
-    if (numberOfArguments<totArgs)
-    { // we don't have enough arguments!
+    int actualArgs=luaWrap_lua_gettop(L);
+    if (actualArgs>=totReqArgs)
+    { // enough args
+        for (int i=0;i<std::min<int>(actualArgs,totArgs);i++)
+        {
+            if (checkOneGeneralInputArgument(L,i+1,inArgs[i],inArgsCnt_zeroIfNotTable[i],false,false,errStr)!=2)
+            {
+                retVal=false;
+                break;
+            }
+        }
+    }
+    else
+    { // not enough args
         if (errStr!=nullptr)
             errStr->assign(SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS);
-        return(false); // error
+        retVal=false;
     }
-    for (int i=0;i<totArgs;i++)
-    {
-//        if (checkOneGeneralInputArgument(L,i+1,inArgs[i],inArgsCnt_zeroIfNotTable[i],false,false,errStr)==-1)
-        if (checkOneGeneralInputArgument(L,i+1,inArgs[i],inArgsCnt_zeroIfNotTable[i],false,false,errStr)!=2)
-            return(false); // error
-    }
-    return(true);
+    return(retVal);
 }
 
 bool doesEntityExist(std::string* errStr,int identifier)
@@ -3515,10 +3524,13 @@ int _simGetObjectPosition(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getObjectPosition");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number|lua_arg_optional,0))
     {
         double coord[3];
-        if (simGetObjectPosition_internal(luaToInt(L,1),luaToInt(L,2),coord)==1)
+        int rel=sim_handle_world;
+        if (luaWrap_lua_isinteger(L,2))
+            rel=luaToInt(L,2);
+        if (simGetObjectPosition_internal(luaToInt(L,1),rel,coord)==1)
         {
             pushDoubleTableOntoStack(L,3,coord);
             LUA_END(1);
@@ -3534,10 +3546,13 @@ int _simGetObjectOrientation(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getObjectOrientation");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_integer|lua_arg_optional,0))
     {
+        int rel=sim_handle_world;
+        if (luaWrap_lua_isinteger(L,2))
+            rel=luaToInt(L,2);
         double coord[3];
-        if (simGetObjectOrientation_internal(luaToInt(L,1),luaToInt(L,2),coord)==1)
+        if (simGetObjectOrientation_internal(luaToInt(L,1),rel,coord)==1)
         {
             pushDoubleTableOntoStack(L,3,coord);
             LUA_END(1);
@@ -3553,17 +3568,30 @@ int _simSetObjectPosition(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.setObjectPosition");
 
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
+    if (luaWrap_lua_istable(L,2))
     {
-        double coord[3];
-        getDoublesFromTable(L,3,3,coord);
-        retVal=simSetObjectPosition_internal(luaToInt(L,1),luaToInt(L,2),coord);
+        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,3,lua_arg_integer|lua_arg_optional,0))
+        {
+            double coord[3];
+            getDoublesFromTable(L,2,3,coord);
+            int rel=sim_handle_world;
+            if (luaWrap_lua_isinteger(L,3))
+                rel=luaToInt(L,3);
+            simSetObjectPosition_internal(luaToInt(L,1),rel,coord);
+        }
+    }
+    else
+    { // old
+        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
+        {
+            double coord[3];
+            getDoublesFromTable(L,3,3,coord);
+            simSetObjectPosition_internal(luaToInt(L,1),luaToInt(L,2),coord);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simSetObjectOrientation(luaWrap_lua_State* L)
@@ -3571,17 +3599,30 @@ int _simSetObjectOrientation(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.setObjectOrientation");
 
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
+    if (luaWrap_lua_istable(L,2))
     {
-        double coord[3];
-        getDoublesFromTable(L,3,3,coord);
-        retVal=simSetObjectOrientation_internal(luaToInt(L,1),luaToInt(L,2),coord);
+        if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_number,3,lua_arg_integer|lua_arg_optional,0))
+        {
+            double coord[3];
+            getDoublesFromTable(L,2,3,coord);
+            int rel=sim_handle_world;
+            if (luaWrap_lua_isinteger(L,3))
+                rel=luaToInt(L,3);
+            simSetObjectOrientation_internal(luaToInt(L,1),rel,coord);
+        }
+    }
+    else
+    { // old
+        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,3))
+        {
+            double coord[3];
+            getDoublesFromTable(L,3,3,coord);
+            simSetObjectOrientation_internal(luaToInt(L,1),luaToInt(L,2),coord);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simGetJointPosition(luaWrap_lua_State* L)
@@ -4279,10 +4320,13 @@ int _simGetObjectMatrix(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getObjectMatrix");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_integer|lua_arg_optional,0))
     {
         double arr[12];
-        if (simGetObjectMatrix_internal(luaToInt(L,1),luaToInt(L,2),arr)==1)
+        int rel=sim_handle_world;
+        if (luaWrap_lua_isinteger(L,2))
+            rel=luaToInt(L,2);
+        if (simGetObjectMatrix_internal(luaToInt(L,1),rel,arr)==1)
         {
             pushDoubleTableOntoStack(L,12,arr); // Success
             LUA_END(1);
@@ -4298,17 +4342,30 @@ int _simSetObjectMatrix(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.setObjectMatrix");
 
-    int retVal=-1; // error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,12))
+    if (luaWrap_lua_istable(L,2))
     {
-        double arr[12];
-        getDoublesFromTable(L,3,12,arr);
-        retVal=simSetObjectMatrix_internal(luaToInt(L,1),luaToInt(L,2),arr);
+        if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_number,12,lua_arg_integer|lua_arg_optional,0))
+        {
+            double arr[12];
+            getDoublesFromTable(L,2,12,arr);
+            int rel=sim_handle_world;
+            if (luaWrap_lua_isinteger(L,3))
+                rel=luaToInt(L,3);
+            simSetObjectMatrix_internal(luaToInt(L,1),rel,arr);
+        }
+    }
+    else
+    { // old
+        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,12))
+        {
+            double arr[12];
+            getDoublesFromTable(L,3,12,arr);
+            simSetObjectMatrix_internal(luaToInt(L,1),luaToInt(L,2),arr);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simGetObjectPose(luaWrap_lua_State* L)
@@ -4316,10 +4373,13 @@ int _simGetObjectPose(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getObjectPose");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_integer|lua_arg_optional,0))
     {
         double arr[7];
-        if (simGetObjectPose_internal(luaToInt(L,1),luaToInt(L,2),arr)==1)
+        int rel=sim_handle_world;
+        if (luaWrap_lua_isinteger(L,2))
+            rel=luaToInt(L,2);
+        if (simGetObjectPose_internal(luaToInt(L,1),rel,arr)==1)
         {
             pushDoubleTableOntoStack(L,7,arr); // Success
             LUA_END(1);
@@ -4335,17 +4395,30 @@ int _simSetObjectPose(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.setObjectPose");
 
-    int retVal=-1; // error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,7))
+    if (luaWrap_lua_istable(L,2))
     {
-        double arr[7];
-        getDoublesFromTable(L,3,7,arr);
-        retVal=simSetObjectPose_internal(luaToInt(L,1),luaToInt(L,2),arr);
+        if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_number,7,lua_arg_integer|lua_arg_optional,0))
+        {
+            double coord[7];
+            getDoublesFromTable(L,2,7,coord);
+            int rel=sim_handle_world;
+            if (luaWrap_lua_isinteger(L,3))
+                rel=luaToInt(L,3);
+            simSetObjectPose_internal(luaToInt(L,1),rel,coord);
+        }
+    }
+    else
+    { // old
+        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,7))
+        {
+            double arr[7];
+            getDoublesFromTable(L,3,7,arr);
+            simSetObjectPose_internal(luaToInt(L,1),luaToInt(L,2),arr);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simGetObjectChildPose(luaWrap_lua_State* L)
@@ -11030,10 +11103,13 @@ int _simGetObjectQuaternion(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getObjectQuaternion");
 
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_integer|lua_arg_optional,0))
     {
         double coord[4];
-        if (simGetObjectQuaternion_internal(luaToInt(L,1),luaToInt(L,2),coord)==1)
+        int rel=sim_handle_world;
+        if (luaWrap_lua_isinteger(L,2))
+            rel=luaToInt(L,2);
+        if (simGetObjectQuaternion_internal(luaToInt(L,1),rel,coord)==1)
         {
             pushDoubleTableOntoStack(L,4,coord);
             LUA_END(1);
@@ -11049,17 +11125,30 @@ int _simSetObjectQuaternion(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.setObjectQuaternion");
 
-    int retVal=-1; // means error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,4))
+    if (luaWrap_lua_istable(L,2))
     {
-        double coord[4];
-        getDoublesFromTable(L,3,4,coord);
-        retVal=simSetObjectQuaternion_internal(luaToInt(L,1),luaToInt(L,2),coord);
+        if (checkInputArguments(L,&errorString,lua_arg_integer,0,lua_arg_number,4,lua_arg_integer|lua_arg_optional,0))
+        {
+            double coord[4];
+            getDoublesFromTable(L,2,4,coord);
+            int rel=sim_handle_world;
+            if (luaWrap_lua_isinteger(L,3))
+                rel=luaToInt(L,3);
+            simSetObjectQuaternion_internal(luaToInt(L,1),rel,coord);
+        }
+    }
+    else
+    { // old
+        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,4))
+        {
+            double coord[4];
+            getDoublesFromTable(L,3,4,coord);
+            simSetObjectQuaternion_internal(luaToInt(L,1),luaToInt(L,2),coord);
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simBuildMatrixQ(luaWrap_lua_State* L)

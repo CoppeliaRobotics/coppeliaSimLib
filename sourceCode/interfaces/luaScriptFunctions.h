@@ -6,7 +6,19 @@
 
 class CScriptCustomFunction;
 
-enum {lua_arg_empty,lua_arg_nil,lua_arg_number,lua_arg_integer,lua_arg_bool,lua_arg_string,lua_arg_function,lua_arg_userdata,lua_arg_table};
+enum
+{
+    lua_arg_empty=0,
+    lua_arg_nil,
+    lua_arg_number,
+    lua_arg_integer,
+    lua_arg_bool,
+    lua_arg_string,
+    lua_arg_function,
+    lua_arg_userdata,
+    lua_arg_table,
+    lua_arg_optional=64
+};
 
 struct SLuaCommands
 {

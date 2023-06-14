@@ -636,7 +636,7 @@ void CScriptObject::addUsedModule(const char* module)
 
 void CScriptObject::addModulesDetectedInCode()
 { // try to guess required modules. If such a similar module is already in _previouslyUsedModules, ignore it
-    QRegularExpression re("\\brequire\\b\\s*\\(?\\s*[\\'\"]([^\\'\"]*)[\\'\"]\\s*\\)?");
+    QRegularExpression re("\\brequire\\b\\s*\\(?\\s*['\"]([^'\"]*)['\"]\\s*\\)?");
     QRegularExpressionMatchIterator it = re.globalMatch(_scriptText.c_str());
     while (it.hasNext())
     {
