@@ -725,12 +725,12 @@ bool CInterfaceStack::pushTableFromBuffer(const char* data,unsigned int l)
 {
     if ( (data!=nullptr)&&(l>0) )
     {
-        //unsigned char version=data[0]; // the version of the pack format
+        unsigned char version=data[0]; // the version of the pack format
         unsigned int w=0;
         if (CInterfaceStackTable::checkCreateFromData(data+1,w,l-1))
         {
             CInterfaceStackTable* table=new CInterfaceStackTable();
-            table->createFromData(data+1);
+            table->createFromData(data+1,version);
             _stackObjects.push_back(table);
             return(true);
         }
@@ -748,7 +748,8 @@ std::string CInterfaceStack::getBufferFromTable() const
         {
             CInterfaceStackTable* table=(CInterfaceStackTable*)it;
             retVal='m'+table->getObjectData();
-            retVal[0]=0; // this is the version of the pack format
+            retVal[0]=5; // this is the version of the pack format. 0 was when all numbers would be packed as double (Lua5.1)
+                         // 1-4 are reserved in order to detect other non-CoppeliaSim formats, check sim.lua for details
         }
     }
     return(retVal);

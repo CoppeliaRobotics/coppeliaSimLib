@@ -994,7 +994,7 @@ void CInterfaceStackTable::addCborObjectData(CCbor* cborObj) const
 }
 
 
-unsigned int CInterfaceStackTable::createFromData(const char* data)
+unsigned int CInterfaceStackTable::createFromData(const char* data,const unsigned char version)
 {
     unsigned int retVal=0;
     _isTableArray=((data[retVal]&1)!=0);
@@ -1008,7 +1008,7 @@ unsigned int CInterfaceStackTable::createFromData(const char* data)
     for (size_t i=0;i<l;i++)
     {
         unsigned int r=0;
-        CInterfaceStackObject* obj=CInterfaceStackObject::createFromDataStatic(data+retVal,r);
+        CInterfaceStackObject* obj=CInterfaceStackObject::createFromDataStatic(data+retVal,r,version);
         _tableObjects.push_back(obj);
         retVal+=r;
     }

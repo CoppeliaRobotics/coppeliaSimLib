@@ -47,7 +47,7 @@ void CInterfaceStackBool::addCborObjectData(CCbor* cborObj) const
     cborObj->appendBool(_value);
 }
 
-unsigned int CInterfaceStackBool::createFromData(const char* data)
+unsigned int CInterfaceStackBool::createFromData(const char* data,const unsigned char /*version*/)
 {
     _value=(data[0]!=0);
     return(1);

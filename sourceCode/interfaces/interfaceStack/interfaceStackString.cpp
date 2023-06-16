@@ -69,7 +69,7 @@ void CInterfaceStackString::addCborObjectData(CCbor* cborObj) const
         cborObj->appendLuaString(_value);
 }
 
-unsigned int CInterfaceStackString::createFromData(const char* data)
+unsigned int CInterfaceStackString::createFromData(const char* data,const unsigned char /*version*/)
 {
     unsigned int l;
     char* tmp=(char*)(&l);

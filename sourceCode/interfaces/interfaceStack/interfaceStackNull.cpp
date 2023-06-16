@@ -33,7 +33,7 @@ void CInterfaceStackNull::addCborObjectData(CCbor* cborObj) const
     cborObj->appendNull();
 }
 
-unsigned int CInterfaceStackNull::createFromData(const char* data)
+unsigned int CInterfaceStackNull::createFromData(const char* /*data*/,const unsigned char /*version*/)
 {
     return(0);
 }

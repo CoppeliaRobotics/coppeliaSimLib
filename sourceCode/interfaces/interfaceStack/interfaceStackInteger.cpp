@@ -56,7 +56,7 @@ void CInterfaceStackInteger::addCborObjectData(CCbor* cborObj) const
     cborObj->appendInt(_value);
 }
 
-unsigned int CInterfaceStackInteger::createFromData(const char* data)
+unsigned int CInterfaceStackInteger::createFromData(const char* data,const unsigned char /*version*/)
 {
     char* tmp=(char*)(&_value);
     for (size_t i=0;i<sizeof(_value);i++)

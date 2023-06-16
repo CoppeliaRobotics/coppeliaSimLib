@@ -14,7 +14,7 @@ public:
     std::string getObjectData() const;
     void setCborCoded(bool coded);
     void addCborObjectData(CCbor* cborObj) const;
-    unsigned int createFromData(const char* data);
+    unsigned int createFromData(const char* data,const unsigned char version);
     static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
 
     const char* getValue(size_t* l) const;
