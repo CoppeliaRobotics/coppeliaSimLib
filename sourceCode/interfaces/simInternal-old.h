@@ -218,4 +218,5 @@ const void* _simGetGeomProxyFromShape_internal(const void* shape);
 int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,int reservedSetToZero);
 int simLoadModule_internal(const char* filenameAndPath,const char* pluginName);
 int simUnloadModule_internal(int pluginhandle);
+int simIsStackValueNull_internal(int stackHandle);
 

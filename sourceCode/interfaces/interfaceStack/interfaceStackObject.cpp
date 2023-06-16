@@ -47,29 +47,29 @@ CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* d
     CInterfaceStackObject* obj=nullptr;
     char t=data[0];
     retOffset=1;
-    if (t==STACK_OBJECT_NULL)
+    if (t==sim_stackitem_null)
         obj=new CInterfaceStackNull();
-    if (t==STACK_OBJECT_NUMBER)
+    if (t==sim_stackitem_double)
     {
         obj=new CInterfaceStackNumber(0.0);
         retOffset+=obj->createFromData(data+retOffset);
     }
-    if (t==STACK_OBJECT_INTEGER)
+    if (t==sim_stackitem_integer)
     {
         obj=new CInterfaceStackInteger(0);
         retOffset+=obj->createFromData(data+retOffset);
     }
-    if (t==STACK_OBJECT_BOOL)
+    if (t==sim_stackitem_bool)
     {
         obj=new CInterfaceStackBool(false);
         retOffset+=obj->createFromData(data+retOffset);
     }
-    if (t==STACK_OBJECT_STRING)
+    if (t==sim_stackitem_string)
     {
         obj=new CInterfaceStackString(nullptr,0);
         retOffset+=obj->createFromData(data+retOffset);
     }
-    if (t==STACK_OBJECT_TABLE)
+    if (t==sim_stackitem_table)
     {
         obj=new CInterfaceStackTable();
         retOffset+=obj->createFromData(data+retOffset);

@@ -164,7 +164,7 @@ SIM_DLLEXPORT int simInsertDataIntoStackTable(int stackHandle);
 SIM_DLLEXPORT int simGetStackSize(int stackHandle);
 SIM_DLLEXPORT int simPopStackItem(int stackHandle,int count);
 SIM_DLLEXPORT int simMoveStackItemToTop(int stackHandle,int cIndex);
-SIM_DLLEXPORT int simIsStackValueNull(int stackHandle);
+SIM_DLLEXPORT int simGetStackItemType(int stackHandle,int cIndex);
 SIM_DLLEXPORT int simGetStackBoolValue(int stackHandle,bool* boolValue);
 SIM_DLLEXPORT int simGetStackInt32Value(int stackHandle,int* numberValue);
 SIM_DLLEXPORT int simGetStackInt64Value(int stackHandle,long long int* numberValue);

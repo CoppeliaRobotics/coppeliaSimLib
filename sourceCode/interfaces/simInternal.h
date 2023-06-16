@@ -271,6 +271,7 @@ int simGetDecimatedMesh_internal(const double* inVertices,int inVerticesL,const 
 int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* functionNameAtScriptName,int stackId);
 char* simGetExtensionString_internal(int objectHandle,int index,const char* key);
 int simComputeMassAndInertia_internal(int shapeHandle,double density);
+
 int simCreateStack_internal();
 int simReleaseStack_internal(int stackHandle);
 int simCopyStack_internal(int stackHandle);
@@ -291,7 +292,7 @@ int simInsertDataIntoStackTable_internal(int stackHandle);
 int simGetStackSize_internal(int stackHandle);
 int simPopStackItem_internal(int stackHandle,int count);
 int simMoveStackItemToTop_internal(int stackHandle,int cIndex);
-int simIsStackValueNull_internal(int stackHandle);
+int simGetStackItemType_internal(int stackHandle,int cIndex);
 int simGetStackBoolValue_internal(int stackHandle,bool* boolValue);
 int simGetStackInt32Value_internal(int stackHandle,int* numberValue);
 int simGetStackInt64Value_internal(int stackHandle,long long int* numberValue);

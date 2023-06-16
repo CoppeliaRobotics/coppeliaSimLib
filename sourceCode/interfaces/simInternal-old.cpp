@@ -6212,3 +6212,32 @@ int simUnloadModule_internal(int pluginhandle)
     return(retVal);
 }
 
+int simIsStackValueNull_internal(int stackHandle)
+{ // deprecated on 16.06.2023
+    TRACE_C_API;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack!=nullptr)
+        {
+            if (stack->getStackSize()>0)
+            {
+                if (stack->isStackValueNull())
+                    return(1);
+                return(0);
+            }
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            return(-1);
+        }
+        CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);
+        return(-1);
+    }
+
+    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+

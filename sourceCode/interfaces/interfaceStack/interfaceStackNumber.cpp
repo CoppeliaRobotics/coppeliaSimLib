@@ -2,7 +2,7 @@
 
 CInterfaceStackNumber::CInterfaceStackNumber(double theValue)
 {
-    _objectType=STACK_OBJECT_NUMBER;
+    _objectType=sim_stackitem_double;
     _value=theValue;
 }
 

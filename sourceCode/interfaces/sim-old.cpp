@@ -3269,3 +3269,7 @@ SIM_DLLEXPORT char* simGetModuleName(int index,unsigned char* setToNull)
 {
     return(simGetPluginName_internal(index,setToNull));
 }
+SIM_DLLEXPORT int simIsStackValueNull(int stackHandle)
+{
+    return(simIsStackValueNull_internal(stackHandle));
+}

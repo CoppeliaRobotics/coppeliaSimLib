@@ -1,5 +1,5 @@
 #include <luaWrapper.h>
-#include <interfaceStackObject.h>
+#include <simLib/simConst.h>
 
 int luaWrapGet_LUA_MULTRET()
 {
@@ -341,29 +341,29 @@ int luaWrap_lua_stype(luaWrap_lua_State* L,int idx)
 {
     int t=lua_type((lua_State*)L,idx);
     if (t==LUA_TNIL)
-        return(STACK_OBJECT_NULL);
+        return(sim_stackitem_null);
     if (t==LUA_TNUMBER)
     {
         int intT=lua_isinteger((lua_State*)L,idx);
         if (intT==0)
-            return(STACK_OBJECT_NUMBER);
-        return(STACK_OBJECT_INTEGER);
+            return(sim_stackitem_double);
+        return(sim_stackitem_integer);
     }
     if (t==LUA_TBOOLEAN)
-        return(STACK_OBJECT_BOOL);
+        return(sim_stackitem_bool);
     if (t==LUA_TSTRING)
-        return(STACK_OBJECT_STRING);
+        return(sim_stackitem_string);
     if (t==LUA_TTABLE)
-        return(STACK_OBJECT_TABLE);
+        return(sim_stackitem_table);
     if (t==LUA_TFUNCTION)
-        return(STACK_OBJECT_FUNC);
+        return(sim_stackitem_func);
     if (t==LUA_TUSERDATA)
-        return(STACK_OBJECT_USERDAT);
+        return(sim_stackitem_userdat);
     if (t==LUA_TTHREAD)
-        return(STACK_OBJECT_THREAD);
+        return(sim_stackitem_thread);
     if (t==LUA_TLIGHTUSERDATA)
-        return(STACK_OBJECT_LIGHTUSERDAT);
-    return(STACK_OBJECT_NULL);
+        return(sim_stackitem_lightuserdat);
+    return(sim_stackitem_null);
 }
 
 int luaWrap_lua_error(luaWrap_lua_State* L)

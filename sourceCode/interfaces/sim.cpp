@@ -642,9 +642,9 @@ SIM_DLLEXPORT int simMoveStackItemToTop(int stackHandle,int cIndex)
 {
     return(simMoveStackItemToTop_internal(stackHandle,cIndex));
 }
-SIM_DLLEXPORT int simIsStackValueNull(int stackHandle)
+SIM_DLLEXPORT int simGetStackItemType(int stackHandle,int cIndex)
 {
-    return(simIsStackValueNull_internal(stackHandle));
+    return(simGetStackItemType_internal(stackHandle,cIndex));
 }
 SIM_DLLEXPORT int simGetStackBoolValue(int stackHandle,bool* boolValue)
 {

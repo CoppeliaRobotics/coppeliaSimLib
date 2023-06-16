@@ -14155,7 +14155,7 @@ int simMoveStackItemToTop_internal(int stackHandle,int cIndex)
     return(-1);
 }
 
-int simIsStackValueNull_internal(int stackHandle)
+int simGetStackItemType_internal(int stackHandle,int cIndex)
 {
     TRACE_C_API;
 
@@ -14167,13 +14167,9 @@ int simIsStackValueNull_internal(int stackHandle)
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
-            if (stack->getStackSize()>0)
-            {
-                if (stack->isStackValueNull())
-                    return(1);
-                return(0);
-            }
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_STACK_CONTENT);
+            if ( (cIndex>=0)&&(stack->getStackSize()>cIndex) )
+                return(stack->getStackItemType(cIndex));
+            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_INDEX);
             return(-1);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_HANDLE);

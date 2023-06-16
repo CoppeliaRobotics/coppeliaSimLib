@@ -2195,7 +2195,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                 if (outStack->getStackMapBoolValue("trigger",trig))
                     trigger=trig;
                 CInterfaceStackObject* obj=outStack->getStackMapObject("packedPackets");
-                if ( (obj!=nullptr)&&(obj->getObjectType()==STACK_OBJECT_TABLE) )
+                if ( (obj!=nullptr)&&(obj->getObjectType()==sim_stackitem_table) )
                 {
                     CInterfaceStackTable* table=(CInterfaceStackTable*)obj;
                     if (table->isTableArray())
@@ -2203,7 +2203,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                         for (size_t i=0;i<table->getArraySize();i++)
                         {
                             CInterfaceStackObject* obj2=table->getArrayItemAtIndex(i);
-                            if ( (obj2!=nullptr)&&(obj2->getObjectType()==STACK_OBJECT_STRING) )
+                            if ( (obj2!=nullptr)&&(obj2->getObjectType()==sim_stackitem_string) )
                             { // the packed values are float, for backward compatibility
                                 CInterfaceStackString* buff=(CInterfaceStackString*)obj2;
                                 std::vector<float> data;

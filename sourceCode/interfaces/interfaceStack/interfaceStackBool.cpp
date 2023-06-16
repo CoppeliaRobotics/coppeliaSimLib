@@ -3,7 +3,7 @@
 
 CInterfaceStackBool::CInterfaceStackBool(bool theValue)
 {
-    _objectType=STACK_OBJECT_BOOL;
+    _objectType=sim_stackitem_bool;
     _value=theValue;
 }
 

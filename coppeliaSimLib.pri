@@ -22,7 +22,7 @@ QT += printsupport
 QT += network
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
-DEFINES += LUA_STACK_COMPATIBILITY_MODE # 06.11.2020, will avoid using Lua INTEGER values at interfaces (using DOUBLE type instead)
+#commented on 16.06.2023 DEFINES += LUA_STACK_COMPATIBILITY_MODE # 06.11.2020, will avoid using Lua INTEGER values at interfaces (using DOUBLE type instead)
 
 WITH_GUI {
     QT      += widgets

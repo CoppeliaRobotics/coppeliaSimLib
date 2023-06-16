@@ -3531,25 +3531,25 @@ CInterfaceStackTable* CScriptObject::_generateTableMapFromInterpreterStack_lua(v
         luaWrap_lua_pushvalue(L,-2);
         // stack now contains at -1 the key, at -2 the value, at -3 the key, and at -4 the table
         int t=luaWrap_lua_stype(L,-1);
-        if (t==STACK_OBJECT_NUMBER)
+        if (t==sim_stackitem_double)
         { // the key is a number
             double key=luaWrap_lua_tonumber(L,-1);
             CInterfaceStackObject* obj=_generateObjectFromInterpreterStack_lua(L,-2,visitedTables);
             table->appendMapObject(key,obj);
         }
-        else if (t==STACK_OBJECT_INTEGER)
+        else if (t==sim_stackitem_integer)
         { // the key is an integer
             long long int key=luaWrap_lua_tointeger(L,-1);
             CInterfaceStackObject* obj=_generateObjectFromInterpreterStack_lua(L,-2,visitedTables);
             table->appendMapObject(key,obj);
         }
-        else if (t==STACK_OBJECT_BOOL)
+        else if (t==sim_stackitem_bool)
         { // the key is a bool
             bool key=luaWrap_lua_toboolean(L,-1)!=0;
             CInterfaceStackObject* obj=_generateObjectFromInterpreterStack_lua(L,-2,visitedTables);
             table->appendMapObject(key,obj);
         }
-        else if (t==STACK_OBJECT_STRING)
+        else if (t==sim_stackitem_string)
         { // the key is a string
             size_t l;
             std::string key=luaWrap_lua_tolstring(L,-1,&l);
@@ -3562,15 +3562,15 @@ CInterfaceStackTable* CScriptObject::_generateTableMapFromInterpreterStack_lua(v
             char num[21];
             snprintf(num,20,"%p",p);
             std::string str;
-            if (t==STACK_OBJECT_TABLE)
+            if (t==sim_stackitem_table)
                 str="<TABLE ";
-            else if (t==STACK_OBJECT_USERDAT)
+            else if (t==sim_stackitem_userdat)
                 str="<USERDATA ";
-            else if (t==STACK_OBJECT_FUNC)
+            else if (t==sim_stackitem_func)
                 str="<FUNCTION ";
-            else if (t==STACK_OBJECT_THREAD)
+            else if (t==sim_stackitem_thread)
                 str="<THREAD ";
-            else if (t==STACK_OBJECT_LIGHTUSERDAT)
+            else if (t==sim_stackitem_lightuserdat)
                 str="<LIGHTUSERDATA ";
             else
                 str="<UNKNOWNTYPE ";
@@ -3609,21 +3609,21 @@ CInterfaceStackObject* CScriptObject::_generateObjectFromInterpreterStack_lua(vo
     // !! LL is not the same for a script when in normal or inside a coroutine !!
     luaWrap_lua_State* L=(luaWrap_lua_State*)LL;
     int t=luaWrap_lua_stype(L,index);
-    if (t==STACK_OBJECT_NULL)
+    if (t==sim_stackitem_null)
         return(new CInterfaceStackNull());
-    else if (t==STACK_OBJECT_BOOL)
+    else if (t==sim_stackitem_bool)
         return(new CInterfaceStackBool(luaWrap_lua_toboolean(L,index)!=0));
-    else if (t==STACK_OBJECT_NUMBER)
+    else if (t==sim_stackitem_double)
         return(new CInterfaceStackNumber(luaWrap_lua_tonumber(L,index)));
-    else if (t==STACK_OBJECT_INTEGER)
+    else if (t==sim_stackitem_integer)
         return(new CInterfaceStackInteger(luaWrap_lua_tointeger(L,index)));
-    else if (t==STACK_OBJECT_STRING)
+    else if (t==sim_stackitem_string)
     {
         size_t l;
         const char* c=luaWrap_lua_tolstring(L,index,&l);
         return(new CInterfaceStackString(c,l));
     }
-    else if (t==STACK_OBJECT_TABLE)
+    else if (t==sim_stackitem_table)
     { // this part is more tricky:
         // Following to avoid getting trapped in circular references:
         void* p=(void*)luaWrap_lua_topointer(L,index);
@@ -3658,13 +3658,13 @@ CInterfaceStackObject* CScriptObject::_generateObjectFromInterpreterStack_lua(vo
         char num[21];
         snprintf(num,20,"%p",p);
         std::string str;
-        if (t==STACK_OBJECT_USERDAT)
+        if (t==sim_stackitem_userdat)
             str="<USERDATA ";
-        else if (t==STACK_OBJECT_FUNC)
+        else if (t==sim_stackitem_func)
             str="<FUNCTION ";
-        else if (t==STACK_OBJECT_THREAD)
+        else if (t==sim_stackitem_thread)
             str="<THREAD ";
-        else if (t==STACK_OBJECT_LIGHTUSERDAT)
+        else if (t==sim_stackitem_lightuserdat)
             str="<LIGHTUSERDATA ";
         else
             str="<UNKNOWNTYPE ";
@@ -3678,11 +3678,11 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void* LL,CInterfaceStackObject
 { // !! LL is not the same for a script when in normal or inside a coroutine !!
     luaWrap_lua_State* L=(luaWrap_lua_State*)LL;
     int t=obj->getObjectType();
-    if (t==STACK_OBJECT_NULL)
+    if (t==sim_stackitem_null)
         luaWrap_lua_pushnil(L);
-    else if (t==STACK_OBJECT_BOOL)
+    else if (t==sim_stackitem_bool)
         luaWrap_lua_pushboolean(L,((CInterfaceStackBool*)obj)->getValue());
-    else if (t==STACK_OBJECT_NUMBER)
+    else if (t==sim_stackitem_double)
     {
 #ifdef LUA_STACK_COMPATIBILITY_MODE
         double v=((CInterfaceStackNumber*)obj)->getValue();
@@ -3695,15 +3695,15 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void* LL,CInterfaceStackObject
         luaWrap_lua_pushnumber(L,((CInterfaceStackNumber*)obj)->getValue());
 #endif
     }
-    else if (t==STACK_OBJECT_INTEGER)
+    else if (t==sim_stackitem_integer)
         luaWrap_lua_pushinteger(L,((CInterfaceStackInteger*)obj)->getValue());
-    else if (t==STACK_OBJECT_STRING)
+    else if (t==sim_stackitem_string)
     {
         size_t l;
         const char* str=((CInterfaceStackString*)obj)->getValue(&l);
         luaWrap_lua_pushlstring(L,str,l);
     }
-    else if (t==STACK_OBJECT_TABLE)
+    else if (t==sim_stackitem_table)
     {
         luaWrap_lua_newtable(L);
         CInterfaceStackTable* table=(CInterfaceStackTable*)obj;
@@ -3726,13 +3726,13 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void* LL,CInterfaceStackObject
                 bool boolKey;
                 int keyType;
                 CInterfaceStackObject* tobj=table->getMapItemAtIndex(i,stringKey,numberKey,integerKey,boolKey,keyType);
-                if (keyType==STACK_OBJECT_STRING)
+                if (keyType==sim_stackitem_string)
                     luaWrap_lua_pushlstring(L,stringKey.c_str(),stringKey.size());
-                if (keyType==STACK_OBJECT_NUMBER)
+                if (keyType==sim_stackitem_double)
                     luaWrap_lua_pushnumber(L,numberKey);
-                if (keyType==STACK_OBJECT_INTEGER)
+                if (keyType==sim_stackitem_integer)
                     luaWrap_lua_pushinteger(L,integerKey);
-                if (keyType==STACK_OBJECT_BOOL)
+                if (keyType==sim_stackitem_bool)
                     luaWrap_lua_pushboolean(L,boolKey);
                 _pushOntoInterpreterStack_lua(L,tobj);
                 luaWrap_lua_settable(L,-3);

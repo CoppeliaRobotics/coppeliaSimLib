@@ -2,7 +2,7 @@
 
 CInterfaceStackString::CInterfaceStackString(const char* str,size_t l)
 {
-    _objectType=STACK_OBJECT_STRING;
+    _objectType=sim_stackitem_string;
     _cborCoded=false;
     if (str!=nullptr)
     {

@@ -1,20 +1,8 @@
 #pragma once
 
-#include <simLib/simTypes.h>
+#include <simLib/simConst.h>
 #include <string>
 #include <cbor.h>
-
-enum {  STACK_OBJECT_NULL=0,
-        STACK_OBJECT_NUMBER,
-        STACK_OBJECT_BOOL,
-        STACK_OBJECT_STRING,
-        STACK_OBJECT_TABLE,
-        STACK_OBJECT_FUNC,
-        STACK_OBJECT_USERDAT,
-        STACK_OBJECT_THREAD,
-        STACK_OBJECT_LIGHTUSERDAT,
-        STACK_OBJECT_INTEGER
-};
 
 class CInterfaceStackObject
 {

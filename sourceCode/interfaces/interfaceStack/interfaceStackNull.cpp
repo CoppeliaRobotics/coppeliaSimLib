@@ -3,7 +3,7 @@
 
 CInterfaceStackNull::CInterfaceStackNull()
 {
-    _objectType=STACK_OBJECT_NULL;
+    _objectType=sim_stackitem_null;
 }
 
 CInterfaceStackNull::~CInterfaceStackNull()

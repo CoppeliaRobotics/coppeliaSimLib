@@ -2,7 +2,7 @@
 
 CInterfaceStackInteger::CInterfaceStackInteger(long long int theValue)
 {
-    _objectType=STACK_OBJECT_INTEGER;
+    _objectType=sim_stackitem_integer;
     _value=theValue;
 }
 
