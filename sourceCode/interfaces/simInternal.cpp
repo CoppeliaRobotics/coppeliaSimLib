@@ -14142,6 +14142,8 @@ int simMoveStackItemToTop_internal(int stackHandle,int cIndex)
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
+            if (cIndex<0)
+                cIndex=stack->getStackSize()+cIndex;
             if (stack->moveStackItemToTop(cIndex))
                 return(1);
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_INDEX);
@@ -14167,6 +14169,8 @@ int simGetStackItemType_internal(int stackHandle,int cIndex)
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack!=nullptr)
         {
+            if (cIndex<0)
+                cIndex=stack->getStackSize()+cIndex;
             if ( (cIndex>=0)&&(stack->getStackSize()>cIndex) )
                 return(stack->getStackItemType(cIndex));
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_INDEX);
