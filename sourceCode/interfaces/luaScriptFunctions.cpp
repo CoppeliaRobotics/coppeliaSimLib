@@ -2181,6 +2181,21 @@ bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* 
         return(true);
     }
     if (type==lua_arg_integer)
+    { // tolerant integer, e.g. 12345.0 is also tolerated as int. Important for backw. compatibility (e.g. unpacked data that 'identifies' as double)
+        if (luaWrap_lua_isinteger(L,index))
+            return(true);
+        if (luaWrap_lua_isnumber(L,index))
+        {
+            double v=luaWrap_lua_tonumber(L,index);
+            long long int w=(long long int)v;
+            if (v==(double)w)
+                return(true);
+        }
+        if (errStr!=nullptr)
+            errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
+        return(false); // error
+    }
+    if (type==lua_arg_strictinteger)
     {
         if (!luaWrap_lua_isinteger(L,index))
         {
