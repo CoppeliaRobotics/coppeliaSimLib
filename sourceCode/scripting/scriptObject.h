@@ -129,6 +129,7 @@ public:
     bool hasSystemFunction(int callType,bool returnTrueIfNotInitialized=true) const;
     bool hasSystemFunctionOrHook(int callType) const;
     bool getOldCallMode() const;
+    void setOldCallMode();
 
     std::string getFilenameForExternalScriptEditor() const;
     void fromFileToBuffer(); // when using an external editor

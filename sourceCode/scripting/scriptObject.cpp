@@ -933,6 +933,11 @@ bool CScriptObject::getOldCallMode() const
     return(_compatibilityMode_oldLua);
 }
 
+void CScriptObject::setOldCallMode()
+{
+    _compatibilityMode_oldLua=true;
+}
+
 std::string CScriptObject::getAndClearLastStackTraceback()
 {
     std::string retVal=_lastStackTraceback;
@@ -1684,32 +1689,35 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,std:
         { // here we check if we can enable the new calling method:
             retVal=1;
 
-            // Remember that function hooks will also be installed with old scripts, so we can't use imply with their presence
-            // that we have new scripts!
-            // So we simply check if any of the system callback function is present:
-            _compatibilityMode_oldLua=true;
+            // base.lua already checked for usage of "sim.syscb_init" and similar consts, and possibly set
+            // _compatibilityMode_oldLua to true in the chunk execution)
+
+            // We check if any of the system callback function is present to rule out compatibility mode:
+            bool foundCallbackMech=false;
             std::vector<int> sysCb=getAllSystemCallbacks(-1,false);
             for (size_t i=0;i<sysCb.size();i++)
             {
                 std::string str=getSystemCallbackString(sysCb[i],0);
                 luaWrap_lua_getglobal(L,str.c_str());
-                _compatibilityMode_oldLua=!luaWrap_lua_isfunction(L,-1);
+                foundCallbackMech=luaWrap_lua_isfunction(L,-1);
                 luaWrap_lua_pop(L,1);
-                if (!_compatibilityMode_oldLua)
+                if (foundCallbackMech)
                     break;
             }
-            if ( _compatibilityMode_oldLua&&(_functionHooks_before.size()+_functionHooks_after.size()>_initFunctionHookCount) )
+            if (foundCallbackMech)
                 _compatibilityMode_oldLua=false;
+
+            // Remember that function hooks will also be installed with old scripts, so we can't imply
+            // with their presence that we have new scripts:
+//            if ( _compatibilityMode_oldLua&&(_functionHooks_before.size()+_functionHooks_after.size()>_initFunctionHookCount) )
+//                _compatibilityMode_oldLua=false;
 
             if (_compatibilityMode_oldLua)
             {
-                /* No warning here, since an empty script will also trigger that
-                std::string msg(getShortDescriptiveName().c_str());
-                msg+=": the script is running in compatibility mode. It is highly recommended to switch to the new calling method, e.g.:";
-                msg+="\nwith the old method: if sim_call_type==sim_childscriptcall_initialization then ... end";
+                std::string msg("the script is running in compatibility mode. It is highly recommended to switch to the new calling method, e.g.:");
+                msg+="\nwith the old method: if sim_call_type==sim.syscb_init then ... end";
                 msg+="\nwith the new method: function sysCall_init() ... end";
-                App::logMsg(sim_verbosity_warnings,msg.c_str());
-                */
+                App::logScriptMsg(this,sim_verbosity_scriptwarnings,msg.c_str());
             }
             else
                 _execSimpleString_safe_lua(L,"sim_call_type=nil");
@@ -6918,7 +6926,7 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.getObjectOrientation");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectOrientation with __getObjectOrientation__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+//        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectOrientation with __getObjectOrientation__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __getObjectOrientation__(a,b)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -6940,7 +6948,7 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.setObjectOrientation");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectOrientation with __setObjectOrientation__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+//        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectOrientation with __setObjectOrientation__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __setObjectOrientation__(a,b,c)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -6963,7 +6971,7 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.getObjectQuaternion");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectQuaternion with __getObjectQuaternion__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+//        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectQuaternion with __getObjectQuaternion__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __getObjectQuaternion__(a,b)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -6986,7 +6994,7 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.setObjectQuaternion");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectQuaternion with __setObjectQuaternion__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+//        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectQuaternion with __setObjectQuaternion__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __setObjectQuaternion__(a,b,c)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -7009,7 +7017,7 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.getObjectPosition");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectPosition with __getObjectPosition__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+//        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.getObjectPosition with __getObjectPosition__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __getObjectPosition__(a,b)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";
@@ -7032,7 +7040,7 @@ void CScriptObject::_adjustScriptText11_old(CScriptObject* scriptObject,bool doI
     _replaceScriptText_old(scriptObject,"blabliblotemp","sim.setObjectPosition");
     if (addFunc)
     {
-        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectPosition with __setObjectPosition__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
+//        CWorld::appendLoadOperationIssue(sim_verbosity_warnings,"compatibility fix in script @@REPLACE@@:\n    replaced some occurrence of sim.setObjectPosition with __setObjectPosition__, to fix a possible bug in versions prior to CoppeliaSim V4.0.1.",scriptObject->getScriptHandle());
         std::string txt;
         txt+="function __setObjectPosition__(a,b,c)\n";
         txt+="    -- compatibility routine, wrong results could be returned in some situations, in CoppeliaSim <4.0.1\n";

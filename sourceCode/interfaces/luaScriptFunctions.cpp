@@ -2574,6 +2574,13 @@ int _auxFunc(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string cmd(luaWrap_lua_tostring(L,1));
+        if (cmd.compare("deprecatedScriptMode")==0)
+        {
+            int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(currentScriptID);
+            it->setOldCallMode();
+            LUA_END(0);
+        }
         if (cmd.compare("frexp")==0)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
