@@ -31,8 +31,6 @@ public:
     void insertAllFunctionNamesThatStartSame(const char* txt,std::set<std::string>& v);
     void insertAllVariableNamesThatStartSame(const char* txt,std::set<std::string>& v);
 
-    bool isVariableNamePresent(const char* name);
-
 protected:
     std::vector<CScriptCustomFunction*> _allCustomFunctions;
     std::vector<CScriptCustomVariable*> _allCustomVariables;

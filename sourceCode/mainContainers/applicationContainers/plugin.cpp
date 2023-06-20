@@ -62,10 +62,12 @@ CPlugin::~CPlugin()
 {
     if (instance!=nullptr)
     {
+        /* We let the app unload all libraries when the app ends. Otherwise we get tricky crashes with Federico's plugins
         std::string errStr;
         VVarious::closeLibrary(instance,&errStr);
         if (errStr.size()>0)
             App::logMsg(sim_verbosity_errors,errStr.c_str());
+            */
     }
     if (geomPlugin_createMesh!=nullptr) // also check constructor above
         App::worldContainer->pluginContainer->currentGeomPlugin=nullptr;

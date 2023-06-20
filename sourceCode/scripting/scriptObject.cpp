@@ -6471,48 +6471,27 @@ void CScriptObject::_performNewApiAdjustments_old(CScriptObject* scriptObject,bo
     std::vector<const SNewApiMapping*> all;
     if (_newApiMap_old.begin()==_newApiMap_old.end())
         all.push_back(_simApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simBubble"))
-        all.push_back(_simBubbleApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simK3"))
-        all.push_back(_simK3ApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simMTB"))
-        all.push_back(_simMTBApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simOpenMesh"))
-        all.push_back(_simOpenMeshApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simSkeleton"))
-        all.push_back(_simSkeletonApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simQHull"))
-        all.push_back(_simQHullApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simRemoteApi"))
-        all.push_back(_simRemoteApiApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simRRS1"))
-        all.push_back(_simRRS1ApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simVision"))
-        all.push_back(_simVisionApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simCam"))
-        all.push_back(_simCamApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simJoy"))
-        all.push_back(_simJoyApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simWii"))
-        all.push_back(_simWiiApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simURDF"))
-        all.push_back(_simURDFApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simBWF"))
-        all.push_back(_simBWFApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simUI"))
-        all.push_back(_simUIApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simROS"))
-        all.push_back(_simROSApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simICP"))
-        all.push_back(_simICPApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simOMPL"))
-        all.push_back(_simOMPLApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simSDF"))
-        all.push_back(_simSDFApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simSurfRec"))
-        all.push_back(_simSurfRecApiMapping);
-    if (App::worldContainer->scriptCustomFuncAndVarContainer->isVariableNamePresent("simx"))
-        all.push_back(_simxApiMapping);
+    all.push_back(_simBubbleApiMapping);
+    all.push_back(_simK3ApiMapping);
+    all.push_back(_simMTBApiMapping);
+    all.push_back(_simOpenMeshApiMapping);
+    all.push_back(_simSkeletonApiMapping);
+    all.push_back(_simQHullApiMapping);
+    all.push_back(_simRemoteApiApiMapping);
+    all.push_back(_simRRS1ApiMapping);
+    all.push_back(_simVisionApiMapping);
+    all.push_back(_simCamApiMapping);
+    all.push_back(_simJoyApiMapping);
+    all.push_back(_simWiiApiMapping);
+    all.push_back(_simURDFApiMapping);
+    all.push_back(_simBWFApiMapping);
+    all.push_back(_simUIApiMapping);
+    all.push_back(_simROSApiMapping);
+    all.push_back(_simICPApiMapping);
+    all.push_back(_simOMPLApiMapping);
+    all.push_back(_simSDFApiMapping);
+    all.push_back(_simSurfRecApiMapping);
+    all.push_back(_simxApiMapping);
 
     for (size_t j=0;j<all.size();j++)
     {

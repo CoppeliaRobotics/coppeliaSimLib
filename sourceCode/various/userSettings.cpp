@@ -717,6 +717,7 @@ void CUserSettings::saveUserSettings()
         c.addBoolean(_USR_SHOW_old_DLGS,showOldDlgs,"");
         c.addBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour,"");
         c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts,"");
+        c.addBoolean(_USR_SUPPORT_old_API_NOTATION,_supportOldApiNotation,"");
         c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
         c.addBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal,"");
         c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");

@@ -138,16 +138,6 @@ void CScriptCustomFuncAndVarContainer::removeAllCustomVariables()
     _allCustomVariables.clear();
 }
 
-bool CScriptCustomFuncAndVarContainer::isVariableNamePresent(const char* name)
-{
-    for (size_t i=0;i<_allCustomVariables.size();i++)
-    {
-        if (_allCustomVariables[i]->getVariableName().compare(name)==0)
-            return(true);
-    }
-    return(false);
-}
-
 bool CScriptCustomFuncAndVarContainer::removeCustomVariable(const char* fullVariableName)
 {
     for (size_t i=0;i<_allCustomVariables.size();i++)

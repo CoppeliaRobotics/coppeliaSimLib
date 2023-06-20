@@ -581,40 +581,88 @@ void COpenglWidget::dragEnterEvent(QDragEnterEvent* dEvent)
 {
     if (dEvent->mimeData()->hasText())
     {
-        const SModelThumbnailInfo* thumbnail=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
+        _mimeText=dEvent->mimeData()->text().toStdString();
+        const SModelThumbnailInfo* thumbnail=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(_mimeText.c_str(),nullptr);
+        dEvent->accept();
         if (thumbnail!=nullptr)
-            dEvent->accept();
+            _mimeText.clear();
+        else
+        {
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+            stack->pushTableOntoStack();
+            stack->insertKeyStringIntoStackTable("id","dragEnterEvent",14);
+            stack->pushStringOntoStack("data",4);
+            stack->pushTableOntoStack();
+            stack->insertKeyStringIntoStackTable("mimeText",_mimeText.c_str(),_mimeText.size());
+            stack->insertDataIntoStackTable();
+            stack->pushInt32OntoStack(-1,false);
+            App::worldContainer->broadcastMsg(stack,-1,0);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
     }
 }
 
 void COpenglWidget::dragLeaveEvent(QDragLeaveEvent* dEvent)
 {
     _modelDragAndDropInfo=nullptr;
+    if (_mimeText.size()!=0)
+    {
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+        stack->pushTableOntoStack();
+        stack->insertKeyStringIntoStackTable("id","dragLeaveEvent",14);
+        stack->pushStringOntoStack("data",4);
+        stack->pushTableOntoStack();
+        stack->insertKeyStringIntoStackTable("mimeText",_mimeText.c_str(),_mimeText.size());
+        stack->insertDataIntoStackTable();
+        stack->pushInt32OntoStack(-1,false);
+        App::worldContainer->broadcastMsg(stack,-1,0);
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+    }
+    _mimeText.clear();
 }
 
 void COpenglWidget::dropEvent(QDropEvent* dEvent)
 {
-    if (dEvent->mimeData()->hasText())
+    if (_mimeText.size()!=0)
     {
-        int x,y;
-        _computeMousePos(dEvent->pos().x(),dEvent->pos().y(),x,y);
-        _modelDragAndDropInfo=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
-        if (_modelDragAndDropInfo!=nullptr)
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+        stack->pushTableOntoStack();
+        stack->insertKeyStringIntoStackTable("id","dragDropEvent",9);
+        stack->pushStringOntoStack("data",4);
+        stack->pushTableOntoStack();
+        stack->insertKeyStringIntoStackTable("mimeText",_mimeText.c_str(),_mimeText.size());
+        stack->insertDataIntoStackTable();
+        stack->pushInt32OntoStack(-1,false);
+        App::worldContainer->broadcastMsg(stack,-1,0);
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+    }
+    else
+    {
+        if (dEvent->mimeData()->hasText())
         {
-            C3Vector desiredModelPosition;
-            int okToDrop=App::mainWindow->modelDragMoveEvent(x,y,&desiredModelPosition);
-            if (okToDrop>0)
+            _mimeText=dEvent->mimeData()->text().toStdString();
+            int x,y;
+            _computeMousePos(dEvent->pos().x(),dEvent->pos().y(),x,y);
+            _modelDragAndDropInfo=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(_mimeText.c_str(),nullptr);
+            if (_modelDragAndDropInfo!=nullptr)
             {
-                std::string pathAndName=_modelDragAndDropInfo->modelPathAndNameWithExtension;
-                if (pathAndName.length()!=0)
+                C3Vector desiredModelPosition;
+                int okToDrop=App::mainWindow->modelDragMoveEvent(x,y,&desiredModelPosition);
+                if (okToDrop>0)
                 {
-                    SSimulationThreadCommand cmd;
-                    cmd.cmdId=MODEL_BROWSER_DRAG_AND_DROP_CMD;
-                    cmd.stringParams.push_back(pathAndName);
-                    cmd.doubleParams.push_back(desiredModelPosition(0));
-                    cmd.doubleParams.push_back(desiredModelPosition(1));
-                    cmd.doubleParams.push_back(desiredModelPosition(2));
-                    App::appendSimulationThreadCommand(cmd); // that command will clear _modelDragAndDropInfo once the model was loaded
+                    std::string pathAndName=_modelDragAndDropInfo->modelPathAndNameWithExtension;
+                    if (pathAndName.length()!=0)
+                    {
+                        SSimulationThreadCommand cmd;
+                        cmd.cmdId=MODEL_BROWSER_DRAG_AND_DROP_CMD;
+                        cmd.stringParams.push_back(pathAndName);
+                        cmd.doubleParams.push_back(desiredModelPosition(0));
+                        cmd.doubleParams.push_back(desiredModelPosition(1));
+                        cmd.doubleParams.push_back(desiredModelPosition(2));
+                        App::appendSimulationThreadCommand(cmd); // that command will clear _modelDragAndDropInfo once the model was loaded
+                    }
+                    else
+                        _modelDragAndDropInfo=nullptr;
                 }
                 else
                     _modelDragAndDropInfo=nullptr;
@@ -625,26 +673,37 @@ void COpenglWidget::dropEvent(QDropEvent* dEvent)
         else
             _modelDragAndDropInfo=nullptr;
     }
-    else
-        _modelDragAndDropInfo=nullptr;
+    _mimeText.clear();
 }
 
 void COpenglWidget::dragMoveEvent(QDragMoveEvent* dEvent)
 {
-    if (dEvent->mimeData()->hasText())
+    if (_mimeText.size()!=0)
     {
-        int x,y;
-        _computeMousePos(dEvent->pos().x(),dEvent->pos().y(),x,y);
-        SModelThumbnailInfo* info=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
-        if (info!=nullptr)
+
+    }
+    else
+    {
+        if (dEvent->mimeData()->hasText())
         {
-            C3Vector desiredModelPosition;
-            int okToDrop=App::mainWindow->modelDragMoveEvent(x,y,&desiredModelPosition);
-            if (okToDrop>0)
+            int x,y;
+            _computeMousePos(dEvent->pos().x(),dEvent->pos().y(),x,y);
+            SModelThumbnailInfo* info=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
+            if (info!=nullptr)
             {
-                dEvent->accept();
-                _modelDragAndDropInfo=info;
-                _modelDragAndDropInfo->desiredDropPos=desiredModelPosition;
+                C3Vector desiredModelPosition;
+                int okToDrop=App::mainWindow->modelDragMoveEvent(x,y,&desiredModelPosition);
+                if (okToDrop>0)
+                {
+                    dEvent->accept();
+                    _modelDragAndDropInfo=info;
+                    _modelDragAndDropInfo->desiredDropPos=desiredModelPosition;
+                }
+                else
+                {
+                    dEvent->ignore();
+                    _modelDragAndDropInfo=nullptr;
+                }
             }
             else
             {
@@ -653,13 +712,8 @@ void COpenglWidget::dragMoveEvent(QDragMoveEvent* dEvent)
             }
         }
         else
-        {
-            dEvent->ignore();
             _modelDragAndDropInfo=nullptr;
-        }
     }
-    else
-        _modelDragAndDropInfo=nullptr;
 }
 
 SModelThumbnailInfo* COpenglWidget::getModelDragAndDropInfo()
