@@ -83,7 +83,6 @@ protected:
 
     int _lastGlobalMousePos[2];
     SModelThumbnailInfo* _modelDragAndDropInfo;
-    std::string _mimeText;
 signals:
 
 private slots:

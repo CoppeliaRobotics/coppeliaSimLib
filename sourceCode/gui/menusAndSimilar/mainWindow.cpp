@@ -1231,6 +1231,17 @@ void CMainWindow::dragEnterEvent(QDragEnterEvent* dEvent)
 {
     if (dEvent->mimeData()->hasUrls())
     {
+        _mimeText=dEvent->mimeData()->text().toStdString();
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=DRAGENTER_GUITRIGGEREDCMD;
+        cmd.stringParams.push_back(_mimeText);
+        App::appendSimulationThreadCommand(cmd);
+        dEvent->acceptProposedAction();
+    }
+/*
+    if (dEvent->mimeData()->hasUrls())
+    {
+        printf("Enter: %s\n",dEvent->mimeData()->text().toStdString().c_str());
         QStringList pathList;
         QList<QUrl> urlList=dEvent->mimeData()->urls();
         if (urlList.size()>0)
@@ -1259,10 +1270,33 @@ void CMainWindow::dragEnterEvent(QDragEnterEvent* dEvent)
                 dEvent->acceptProposedAction();
         }
     }
+    */
+}
+
+void CMainWindow::dragLeaveEvent(QDragLeaveEvent* dEvent)
+{
+    if (_mimeText.size()!=0)
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=DRAGLEAVE_GUITRIGGEREDCMD;
+        cmd.stringParams.push_back(_mimeText);
+        App::appendSimulationThreadCommand(cmd);
+        _mimeText.clear();
+    }
 }
 
 void CMainWindow::dropEvent(QDropEvent* dEvent)
 {
+    if (_mimeText.size()!=0)
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=DRAGDROP_GUITRIGGEREDCMD;
+        cmd.stringParams.push_back(_mimeText);
+        App::appendSimulationThreadCommand(cmd);
+        _mimeText.clear();
+    }
+
+    /*
     if (dEvent->mimeData()->hasUrls())
     {
         QStringList pathList;
@@ -1290,6 +1324,7 @@ void CMainWindow::dropEvent(QDropEvent* dEvent)
                 _dropFilesIntoScene(scenes,models);
         }
     }
+    */
 }
 
 

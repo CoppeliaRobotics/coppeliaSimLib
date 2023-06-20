@@ -525,6 +525,46 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             }
         }
 
+        if (cmd.cmdId==DRAGENTER_GUITRIGGEREDCMD)
+        {
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+            stack->pushTableOntoStack();
+            stack->insertKeyStringIntoStackTable("id","dragEnterEvent");
+            stack->pushStringOntoStack("data");
+            stack->pushTableOntoStack();
+            stack->insertKeyStringIntoStackTable("mimeText",cmd.stringParams[0].c_str());
+            stack->insertDataIntoStackTable();
+            stack->pushInt32OntoStack(-1,false);
+            App::worldContainer->broadcastMsg(stack,-1,0);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
+        if (cmd.cmdId==DRAGLEAVE_GUITRIGGEREDCMD)
+        {
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+            stack->pushTableOntoStack();
+            stack->insertKeyStringIntoStackTable("id","dragLeaveEvent");
+            stack->pushStringOntoStack("data");
+            stack->pushTableOntoStack();
+            stack->insertKeyStringIntoStackTable("mimeText",cmd.stringParams[0].c_str());
+            stack->insertDataIntoStackTable();
+            stack->pushInt32OntoStack(-1,false);
+            App::worldContainer->broadcastMsg(stack,-1,0);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
+        if (cmd.cmdId==DRAGDROP_GUITRIGGEREDCMD)
+        {
+            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+            stack->pushTableOntoStack();
+            stack->insertKeyStringIntoStackTable("id","dragDropEvent");
+            stack->pushStringOntoStack("data");
+            stack->pushTableOntoStack();
+            stack->insertKeyStringIntoStackTable("mimeText",cmd.stringParams[0].c_str());
+            stack->insertDataIntoStackTable();
+            stack->pushInt32OntoStack(-1,false);
+            App::worldContainer->broadcastMsg(stack,-1,0);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
+
         if (cmd.cmdId==SET_VIEW_ANGLE_CAMERAGUITRIGGEREDCMD)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);

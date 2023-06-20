@@ -39,6 +39,7 @@ public:
 
     bool event(QEvent* event);
     void dragEnterEvent(QDragEnterEvent* dEvent);
+    void dragLeaveEvent(QDragLeaveEvent* dEvent);
     void dropEvent(QDropEvent* dEvent);
     QMenu* createPopupMenu() { return nullptr; } // required to avoid having a popup when over the toolbar (and other situations). 4/12/2011
 
@@ -256,6 +257,7 @@ private:
     C3Vector _mouseRayDirection;
     int _mouseClickActionCounter_down;
     int _mouseClickActionCounter_up;
+    std::string _mimeText;
 
 
 

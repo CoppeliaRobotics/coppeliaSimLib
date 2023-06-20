@@ -563,7 +563,7 @@ void CInterfaceStack::pushInt64OntoStack(long long int v,bool toFront/*=false*/)
         _stackObjects.push_back(new CInterfaceStackInteger(v));
 }
 
-void CInterfaceStack::pushStringOntoStack(const char* str,size_t l,bool toFront/*=false*/)
+void CInterfaceStack::pushStringOntoStack(const char* str,size_t l/*=0*/,bool toFront/*=false*/)
 {
     if (toFront)
         _stackObjects.insert(_stackObjects.begin(),new CInterfaceStackString(str,l));
@@ -663,7 +663,7 @@ void CInterfaceStack::insertKeyInt64IntoStackTable(const char* key,long long int
     insertDataIntoStackTable();
 }
 
-void CInterfaceStack::insertKeyStringIntoStackTable(const char* key,const char* value,size_t l)
+void CInterfaceStack::insertKeyStringIntoStackTable(const char* key,const char* value,size_t l/*=0*/)
 {
     pushStringOntoStack(key,0);
     pushStringOntoStack(value,l);
