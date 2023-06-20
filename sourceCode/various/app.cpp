@@ -1483,13 +1483,7 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
             if (statusbarV==sim_verbosity_useglobal)
                 statusbarV=_statusbarVerbosity;
             if ( (consoleV>=realVerbosityLevel)||(statusbarV>=realVerbosityLevel) )
-            {
-                std::string plugN;
-                if (it->isLegacyPlugin())
-                    plugN="simExt";
-                plugN+=pluginName;
-                __logMsg(plugN.c_str(),verbosityLevel,logMsg,consoleV,statusbarV);
-            }
+                __logMsg(it->getName().c_str(),verbosityLevel,logMsg,consoleV,statusbarV);
         }
         else
             __logMsg(pluginName,verbosityLevel,logMsg);
