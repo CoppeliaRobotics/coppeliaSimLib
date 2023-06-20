@@ -16005,12 +16005,8 @@ char* simGetApiInfo_internal(int scriptHandle,const char* apiWord)
         if (strlen(apiWord)>0)
         {
             std::string tip(CScriptObject::getFunctionCalltip(apiWord,script));
-            char* buff=nullptr;
-            if (tip.size()>0)
-            {
-                buff=new char[tip.size()+1];
-                strcpy(buff,tip.c_str());
-            }
+            char* buff=new char[tip.size()+1];
+            strcpy(buff,tip.c_str());
             return(buff);
         }
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_ARGUMENTS);
