@@ -14,6 +14,9 @@
 #include <luaScriptFunctions.h>
 #include <luaWrapper.h>
 #include <regex>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include <QRegularExpressionMatchIterator>
 
 // Old:
 #include <threadPool_old.h>
@@ -2748,7 +2751,7 @@ void CScriptObject::buildOntoInterpreterStack_lua(void* LL,const CInterfaceStack
     }
     else
     {
-        for (size_t i=0;i<stack->getStackSize();i++)
+        for (size_t i=0;i<int(stack->getStackSize());i++)
         {
             CInterfaceStackObject* obj=stack->getStackObjectFromIndex(i);
             _pushOntoInterpreterStack_lua(L,obj);
@@ -5806,7 +5809,6 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
             _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState,"_S.sysCallEx_init()");
     }
     luaWrap_lua_State* L=(luaWrap_lua_State*)_interpreterState;
-    int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
     _execSimpleString_safe_lua(L,"sim_call_type=-1"); // for backward compatibility
 
     if (_loadBuffer_lua(_scriptTextExec.c_str(),_scriptTextExec.size(),getShortDescriptiveName().c_str()))

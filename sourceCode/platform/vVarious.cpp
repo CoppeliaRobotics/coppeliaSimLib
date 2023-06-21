@@ -145,7 +145,7 @@ std::string VVarious::getModulePath()
         }
         retVal=splitPath_path(curDirAndFile);
 #else
-        getcwd(curDirAndFile, 2000);
+        char* dummy=getcwd(curDirAndFile, 2000);
         retVal=curDirAndFile;
 #endif
     }

@@ -218,7 +218,7 @@ void CCustomData::serializeData(CSer &ar,const char* objectName)
             {
                 int s;
                 serObj[0] >> s;
-                for (size_t i=0;i<s;i++)
+                for (size_t i=0;i<size_t(s);i++)
                 {
                     SCustomData dat;
                     serObj[0] >> dat.tag;

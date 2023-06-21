@@ -3117,9 +3117,9 @@ CMatrix* CPluginContainer::ikPlugin_getJacobian(int ikGroupHandle)
         if (jc!=nullptr)
         {
             retVal=new CMatrix(matrixSize[1],matrixSize[0]);
-            for (size_t r=0;r<matrixSize[1];r++)
+            for (size_t r=0;r<size_t(matrixSize[1]);r++)
             {
-                for (size_t c=0;c<matrixSize[0];c++)
+                for (size_t c=0;c<size_t(matrixSize[0]);c++)
                     (retVal[0])(r,c)=jc[r*matrixSize[0]+c];
             }
             delete[] jc;

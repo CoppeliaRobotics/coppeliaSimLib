@@ -413,7 +413,7 @@ void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,
 void CDrawingObject::_initBufferedEventData()
 {
     _bufferedEventData.resize(_data.size());
-    size_t index=_startItem;
+    int index=_startItem;
     for (size_t itemCnt=0;itemCnt<_data.size()/size_t(floatsPerItem);itemCnt++)
     {
         for (size_t i=0;i<size_t(floatsPerItem);i++)
@@ -442,14 +442,14 @@ void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<floa
     {
         size_t t=itemCnt*floatsPerItem;
 
-        for (size_t i=0;i<verticesPerItem;i++)
+        for (int i=0;i<verticesPerItem;i++)
         {
             vertices.push_back((float)_bufferedEventData[t+0]);
             vertices.push_back((float)_bufferedEventData[t+1]);
             vertices.push_back((float)_bufferedEventData[t+2]);
             t+=3;
         }
-        for (size_t i=0;i<quaternionsPerItem;i++)
+        for (int i=0;i<quaternionsPerItem;i++)
         {
             quaternions.push_back((float)_bufferedEventData[t+1]);
             quaternions.push_back((float)_bufferedEventData[t+2]);
@@ -459,7 +459,7 @@ void CDrawingObject::_getEventData(std::vector<float>& vertices,std::vector<floa
         }
         if (w==0)
         {
-            for (size_t i=0;i<colorsPerItem;i++)
+            for (int i=0;i<colorsPerItem;i++)
             {
                 colors.push_back(_bufferedEventData[t+0]);
                 colors.push_back(_bufferedEventData[t+1]);

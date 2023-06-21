@@ -599,10 +599,10 @@ double CIkGroup_old::_getDeterminant(const CMatrix& m,const std::vector<int>* ac
     { // First call goes here:
         std::vector<int> actR;
         std::vector<int> actC;
-        for (int i=0;i<m.cols;i++)
+        for (size_t i=0;i<m.cols;i++)
         {
-            actR.push_back(i);
-            actC.push_back(i);
+            actR.push_back(int(i));
+            actC.push_back(int(i));
         }
         return(_getDeterminant(m,&actR,&actC));
     }
