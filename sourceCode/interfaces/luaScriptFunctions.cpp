@@ -2434,7 +2434,7 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
         {
             CPluginCallbackContainer* cont=plug->getPluginCallbackContainer();
             SPluginCallback* pcb=cont->getCallbackFromName(funcName.c_str());
-            App::logMsg(sim_verbosity_debug,(std::string("sim.genericFunctionHandler: ")+functionName).c_str());
+            App::logMsg(sim_verbosity_trace,(std::string("sim.genericFunctionHandler: ")+functionName).c_str());
             if (pcb!=nullptr)
             {
                 if (pcb->callback!=nullptr)
@@ -2460,7 +2460,7 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
             if (it->getFunctionID()==id_old)
             { // we have the right one! Now we need to prepare the input and output argument arrays:
                 functionName=it->getFunctionName();
-                App::logMsg(sim_verbosity_debug,(std::string("sim.genericFunctionHandler: ")+functionName).c_str());
+                App::logMsg(sim_verbosity_trace,(std::string("sim.genericFunctionHandler: ")+functionName).c_str());
                 if (it->getPluginName().size()!=0)
                 {
                     functionName+="@simExt";

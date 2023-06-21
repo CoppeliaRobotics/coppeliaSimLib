@@ -767,7 +767,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         if (App::userSettings->debugOpenGl)
         {
             int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
-            App::logMsg(sim_verbosity_debug,"openGl debug --> doneCurrent + makeCurrent: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
+            App::logMsg(sim_verbosity_trace,"openGl debug --> doneCurrent + makeCurrent: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
             oglDebugTime=oglDebugTimeNow;
         }
 
@@ -788,7 +788,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         if (App::userSettings->debugOpenGl)
         {
             int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
-            App::logMsg(sim_verbosity_debug,"openGl debug --> sendEventCallbackMessageToAllPlugins + render: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
+            App::logMsg(sim_verbosity_trace,"openGl debug --> sendEventCallbackMessageToAllPlugins + render: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
             oglDebugTime=oglDebugTimeNow;
         }
 
@@ -802,7 +802,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         if (App::userSettings->debugOpenGl)
         {
             int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
-            App::logMsg(sim_verbosity_debug,"openGl debug --> glFinish (%i, %i): %i",App::userSettings->useGlFinish,App::userSettings->vsync,VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
+            App::logMsg(sim_verbosity_trace,"openGl debug --> glFinish (%i, %i): %i",App::userSettings->useGlFinish,App::userSettings->vsync,VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
             std::string tmp="(none given)";
             if (glGetString(GL_VENDOR)!=nullptr)
                 tmp=(char*)glGetString(GL_VENDOR);
@@ -857,7 +857,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         if (App::userSettings->debugOpenGl)
         {
             int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
-            App::logMsg(sim_verbosity_debug,"openGl debug --> swapBuffers: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
+            App::logMsg(sim_verbosity_trace,"openGl debug --> swapBuffers: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
             oglDebugTime=oglDebugTimeNow;
         }
 
@@ -866,7 +866,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         if (App::userSettings->debugOpenGl)
         {
             int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
-            App::logMsg(sim_verbosity_debug,"openGl debug --> doneCurrent: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
+            App::logMsg(sim_verbosity_trace,"openGl debug --> doneCurrent: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
             oglDebugTime=oglDebugTimeNow;
         }
     }

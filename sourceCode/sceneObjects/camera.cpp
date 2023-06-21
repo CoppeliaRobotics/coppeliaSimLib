@@ -1017,7 +1017,7 @@ void CCamera::performDynMaterialObjectLoadingMapping(const std::map<int,int>* ma
 }
 
 void CCamera::setRemoteCameraMode(int m)
-{
+{ // 0: free, 1: slave, 2: master
     bool diff=(_remoteCameraMode!=m);
     if (diff)
     {
