@@ -13,7 +13,7 @@ bool CCbor::isText(const char* v,size_t l)
    return true;
 }
 
-CCbor::CCbor(const std::string* initBuff,int options)
+CCbor::CCbor(const std::string* initBuff,int options/*=0*/)
 {
     _options=options;
     if (initBuff!=nullptr)
@@ -38,7 +38,7 @@ void CCbor::appendInt(long long int v)
 
 void CCbor::appendIntArray(const int* v,size_t cnt)
 {
-    appendArray(cnt);
+    openArray();
 
     unsigned char* w=(unsigned char*)v;
     for (size_t i=0;i<cnt;i++)
@@ -64,12 +64,12 @@ void CCbor::appendIntArray(const int* v,size_t cnt)
         w+=4;
     }
 
-    appendBreakIfApplicable();
+    closeArrayOrMap();
 }
 
 void CCbor::appendIntArray(const long long int* v,size_t cnt)
 {
-    appendArray(cnt);
+    openArray();
 
     unsigned char* w=(unsigned char*)v;
     for (size_t i=0;i<cnt;i++)
@@ -103,7 +103,7 @@ void CCbor::appendIntArray(const long long int* v,size_t cnt)
         w+=8;
     }
 
-    appendBreakIfApplicable();
+    closeArrayOrMap();
 }
 
 void CCbor::appendFloat(float v)
@@ -117,7 +117,7 @@ void CCbor::appendFloat(float v)
 
 void CCbor::appendFloatArray(const float* v,size_t cnt)
 {
-    appendArray(cnt);
+    openArray();
 
     const unsigned char* w=(const unsigned char*)v;
     for (size_t i=0;i<cnt;i++)
@@ -130,7 +130,7 @@ void CCbor::appendFloatArray(const float* v,size_t cnt)
         w+=4;
     }
 
-    appendBreakIfApplicable();
+    closeArrayOrMap();
 }
 
 void CCbor::appendDouble(double v)
@@ -153,7 +153,7 @@ void CCbor::appendDouble(double v)
 
 void CCbor::appendDoubleArray(const double* v,size_t cnt)
 {
-    appendArray(cnt);
+    openArray();
 
     if ((_options&1)==0)
     { // treat doubles as floats
@@ -186,7 +186,7 @@ void CCbor::appendDoubleArray(const double* v,size_t cnt)
         }
     }
 
-    appendBreakIfApplicable();
+    closeArrayOrMap();
 }
 
 void CCbor::appendNull()
@@ -275,26 +275,19 @@ void CCbor::appendLuaString(const std::string& v)
     }
 }
 
-void CCbor::appendArray(size_t cnt)
+void CCbor::openArray()
 {
-    if ((_options&2)==0)
-        _buff.push_back(128+31); // use a break char
-    else
-        _appendItemTypeAndLength(128,cnt);
+    _buff.push_back(128+31); // array + use a break char
 }
 
-void CCbor::appendMap(size_t cnt)
+void CCbor::openMap()
 {
-    if ((_options&2)==0)
-        _buff.push_back(128+32+31); // use a break char
-    else
-        _appendItemTypeAndLength(128+32,cnt);
+    _buff.push_back(128+32+31); // map + use a break char
 }
 
-void CCbor::appendBreakIfApplicable()
+void CCbor::closeArrayOrMap()
 {
-    if ((_options&2)==0)
-        _buff.push_back(255); // break char
+    _buff.push_back(255); // break char
 }
 
 void CCbor::clear()
@@ -313,5 +306,152 @@ const unsigned char* CCbor::getBuff(size_t& l) const
 {
     l=_buff.size();
     return(_buff.data());
+}
+
+void CCbor::eventBegin(const std::string& eventId,bool mergeable)
+{
+    if ( mergeable&&(_lastEventId==eventId) )
+        _buff.resize(_eventBeginPtrs[_eventBeginPtrs.size()-1]); // previous event is removed first
+    else
+    {
+        _lastEventId=eventId;
+        _eventBeginPtrs.push_back(_buff.size());
+    }
+    openMap();
+}
+
+void CCbor::eventEnd()
+{
+    appendString("seq");
+    _buff.push_back(27);
+    _buff.push_back(0);
+    _buff.push_back(0);
+    _buff.push_back(0);
+    _buff.push_back(0);
+    _buff.push_back(0);
+    _buff.push_back(0);
+    _buff.push_back(0);
+    _buff.push_back(0);
+    closeArrayOrMap();
+}
+
+void CCbor::_adjustEventSeq(size_t pos,long long int endSeq)
+{
+    if (endSeq<0)
+    {
+        long long int x=-endSeq-1;
+        _buff[pos++]=27+32;
+        unsigned char* y=(unsigned char*)&x;
+        _buff[pos++]=y[7];
+        _buff[pos++]=y[6];
+        _buff[pos++]=y[5];
+        _buff[pos++]=y[4];
+        _buff[pos++]=y[3];
+        _buff[pos++]=y[2];
+        _buff[pos++]=y[1];
+        _buff[pos++]=y[0];
+    }
+    else
+    {
+        _buff[pos++]=27;
+        unsigned char* w=(unsigned char*)&endSeq;
+        _buff[pos++]=w[7];
+        _buff[pos++]=w[6];
+        _buff[pos++]=w[5];
+        _buff[pos++]=w[4];
+        _buff[pos++]=w[3];
+        _buff[pos++]=w[2];
+        _buff[pos++]=w[1];
+        _buff[pos++]=w[0];
+    }
+
+}
+
+size_t CCbor::getEventCnt() const
+{
+    return(_eventBeginPtrs.size());
+}
+
+void CCbor::adjustEventSeqs(long long int endSeq)
+{
+    size_t p=_buff.size()-1;
+    if (p>11)
+    {
+        while (_buff[p]==255) // break char
+            p--;
+        p-=8;
+        _adjustEventSeq(p,endSeq--);
+        for (size_t i=_eventBeginPtrs.size()-1;i>0;i--)
+        {
+            p=_eventBeginPtrs[i]-10;
+            _adjustEventSeq(p,endSeq--);
+        }
+    }
+}
+
+void CCbor::appendKeyInt(const char* key,long long int v)
+{
+    appendString(key);
+    appendInt(v);
+}
+
+void CCbor::appendKeyIntArray(const char* key,const int* v,size_t cnt)
+{
+    appendString(key);
+    appendIntArray(v,cnt);
+}
+
+void CCbor::appendKeyIntArray(const char* key,const long long int* v,size_t cnt)
+{
+    appendString(key);
+    appendIntArray(v,cnt);
+}
+
+void CCbor::appendKeyFloat(const char* key,float v)
+{
+    appendString(key);
+    appendFloat(v);
+}
+
+void CCbor::appendKeyFloatArray(const char* key,const float* v,size_t cnt)
+{
+    appendString(key);
+    appendFloatArray(v,cnt);
+}
+
+void CCbor::appendKeyDouble(const char* key,double v)
+{
+    appendString(key);
+    appendDouble(v);
+}
+
+void CCbor::appendKeyDoubleArray(const char* key,const double* v,size_t cnt)
+{
+    appendString(key);
+    appendDoubleArray(v,cnt);
+}
+
+void CCbor::appendKeyNull(const char* key)
+{
+    appendString(key);
+    appendNull();
+}
+
+void CCbor::appendKeyBool(const char* key,bool v)
+{
+    appendString(key);
+    appendBool(v);
+}
+
+void CCbor::appendKeyBuff(const char* key,const unsigned char* v,size_t l)
+{
+    appendString(key);
+    appendBuff(v,l);
+}
+
+void CCbor::appendKeyString(const char* key,const char* v,int l/*=-1*/)
+{
+    appendString(key);
+    appendString(v,l);
 }
 

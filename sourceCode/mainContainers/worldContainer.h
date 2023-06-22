@@ -85,11 +85,11 @@ public:
 
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareNakedEvent(const char* event,int handle,long long int uid,bool mergeable);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareEvent(const char* event,long long int uid,const char* fieldName,bool mergeable);
-    void pushSceneObjectRemoveEvent(const CSceneObject* object);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectAddEvent(const CSceneObject* object);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(const CSceneObject* object,bool isCommonObjectData,const char* fieldName,bool mergeable);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(int sceneObjectHandle,bool isCommonObjectData,const char* fieldName,bool mergeable);
     std::tuple<SEventInfo,CInterfaceStackTable*> _prepareGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable);
+    void pushSceneObjectRemoveEvent(const CSceneObject* object);
     void _combineDuplicateEvents(SBufferedEvents* events) const;
     void _mergeEvents(SBufferedEvents* events) const;
     void _prepareEventsForDispatch(SBufferedEvents* events,bool genesisEvents) const;

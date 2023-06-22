@@ -56,8 +56,7 @@ public:
     void commonInit();
     void setRemoteCameraMode(int m);
     int getRemoteCameraMode() const;
-    void setPerspectiveOperation(bool p);
-    int getPerspectiveOperation() const;
+    int getPerspectiveOperation_old() const;
     int getViewOrientation() const;
     void setViewOrientation(int ori,bool setPositionAlso=false);
     void setCameraSize(double size);
@@ -88,7 +87,7 @@ protected:
     // Variables which need to be serialized & copied (don't forget the vars from the CViewableBase class!)
     double _cameraSize;
     int _renderMode;
-    int _perspectiveOperation; // -1: undefined, 0=false, 1=true
+    bool _viewModeSet_old; // with old cameras, the view mode (perspect./ortho) is decided by the view, not the camera. With old cameras, this is false
     int _remoteCameraMode; // 0: free, 1: slave, 2: master
     bool _useParentObjectAsManipulationProxy;
     bool _allowPicking;

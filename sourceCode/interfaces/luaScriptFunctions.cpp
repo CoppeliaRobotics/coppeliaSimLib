@@ -915,6 +915,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_scene_unique_id",sim_stringparam_scene_unique_id},
     {"sim.stringparam_machine_id",sim_stringparam_machine_id},
     {"sim.stringparam_machine_id_legacy",sim_stringparam_machine_id_legacy},
+    {"sim.stringparam_legacymachinetag",sim_stringparam_legacymachinetag},
     {"sim.stringparam_verbosity",sim_stringparam_verbosity},
     {"sim.stringparam_statusbarverbosity",sim_stringparam_statusbarverbosity},
     {"sim.stringparam_dlgverbosity",sim_stringparam_dlgverbosity},

@@ -121,7 +121,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_CAMERA);
                 myNewCamera=new CCamera();
-                myNewCamera->setPerspectiveOperation(commandID==ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD);
+                myNewCamera->setPerspective(commandID==ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD);
                 App::currentWorld->sceneObjects->addObjectToScene(myNewCamera,false,true);
                 App::logMsg(sim_verbosity_msgs,"done.");
             }

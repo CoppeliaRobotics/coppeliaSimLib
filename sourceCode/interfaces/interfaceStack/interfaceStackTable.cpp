@@ -901,18 +901,18 @@ std::string CInterfaceStackTable::getObjectData() const
 void CInterfaceStackTable::addCborObjectData(CCbor* cborObj) const
 {
     if (_isCircularRef)
-        cborObj->appendMap(0);
+        cborObj->openMap();
     else
     {
         if (_isTableArray)
         {
             if (_tableObjects.size()==0)
-                cborObj->appendMap(0);
+                cborObj->openMap();
             else
-                cborObj->appendArray(_tableObjects.size());
+                cborObj->openArray();
         }
         else
-            cborObj->appendMap(_tableObjects.size()/2);
+            cborObj->openMap();
     }
     if (_isTableArray)
     {
@@ -990,7 +990,7 @@ void CInterfaceStackTable::addCborObjectData(CCbor* cborObj) const
             _tableObjects[2*ind+1]->addCborObjectData(cborObj);
         }
     }
-    cborObj->appendBreakIfApplicable();
+    cborObj->closeArrayOrMap();
 }
 
 

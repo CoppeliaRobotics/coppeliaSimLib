@@ -9242,9 +9242,9 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
             if (parameterID==sim_cameraintparam_perspective_operation)
             {
                 if (parameter!=0)
-                    camera->setPerspectiveOperation(true);
+                    camera->setPerspective(true);
                 else
-                    camera->setPerspectiveOperation(false);
+                    camera->setPerspective(false);
                 retVal=1;
             }
             if (parameterID==sim_cameraintparam_trackedobject)

@@ -645,7 +645,6 @@ void CCamera::commonInit()
     _nearClippingPlane=0.05;
     _farClippingPlane=30.0;
     _cameraSize=0.05;
-    _perspectiveOperation=-1; // undefined
     _remoteCameraMode=0; // free
     _renderMode=sim_rendermode_opengl;
     _renderModeDuringSimulation=false;
@@ -664,6 +663,7 @@ void CCamera::commonInit()
     _attributesForRendering=sim_displayattribute_renderpass;
     _textureNameForExtGeneratedView=(unsigned int)-1;
 
+    _viewModeSet_old=true;
     _allowTranslation=true;
     _allowRotation=true;
 
@@ -897,8 +897,7 @@ void CCamera::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     data->appendMapObject_stringObject("camera",subC);
     data=subC;
 
-    if (_perspectiveOperation!=-1)
-        data->appendMapObject_stringBool("perspectiveMode",_perspectiveOperation!=0);
+    data->appendMapObject_stringBool("perspectiveMode",_perspective);
     data->appendMapObject_stringBool("allowTranslation",_allowTranslation);
     data->appendMapObject_stringBool("allowRotation",_allowRotation);
     data->appendMapObject_stringFloat("nearClippingPlane",_nearClippingPlane);
@@ -938,7 +937,8 @@ CSceneObject* CCamera::copyYourself()
     newCamera->_renderModeDuringSimulation=_renderModeDuringSimulation;
     newCamera->_renderModeDuringRecording=_renderModeDuringRecording;
     newCamera->_viewAngle=_viewAngle;
-    newCamera->_perspectiveOperation=_perspectiveOperation;
+    newCamera->_viewModeSet_old=_viewModeSet_old;
+    newCamera->_perspective=_perspective;
     newCamera->_orthoViewSize=_orthoViewSize;
     newCamera->_nearClippingPlane=_nearClippingPlane;
     newCamera->_farClippingPlane=_farClippingPlane;
@@ -1016,6 +1016,19 @@ void CCamera::performDynMaterialObjectLoadingMapping(const std::map<int,int>* ma
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
 
+int CCamera::getPerspectiveOperation_old() const
+{ // normally, use get/setPerspective instead
+    int retVal=-1;
+    if (_viewModeSet_old)
+    {
+        if (_perspective)
+            retVal=1;
+        else
+            retVal=0;
+    }
+    return(retVal);
+}
+
 void CCamera::setRemoteCameraMode(int m)
 { // 0: free, 1: slave, 2: master
     bool diff=(_remoteCameraMode!=m);
@@ -1035,35 +1048,6 @@ void CCamera::setRemoteCameraMode(int m)
 int CCamera::getRemoteCameraMode() const
 {
     return(_remoteCameraMode);
-}
-
-int CCamera::getPerspectiveOperation() const
-{
-    return(_perspectiveOperation);
-}
-
-void CCamera::setPerspectiveOperation(bool p)
-{
-    int v=_perspectiveOperation;
-    if (p)
-        v=1;
-    else
-        v=0;
-
-    bool diff=(_perspectiveOperation!=v);
-    if (diff)
-    {
-        _perspectiveOperation=v;
-        _perspective=(v!=0);
-        computeVolumeVectors();
-        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
-        {
-            const char* cmd="perspectiveMode";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringBool(cmd,_perspective);
-            App::worldContainer->pushEvent(event);
-        }
-    }
 }
 
 int CCamera::getViewOrientation() const
@@ -1266,21 +1250,29 @@ void CCamera::serialize(CSer& ar)
             ar << _remoteCameraMode;
             ar.flush();
 
-            ar.storeDataName("Cpm");
-            ar << _perspectiveOperation;
-            ar.flush();
-
             ar.storeDataName("Ca2");
             unsigned char nothing=0;
             SIM_SET_CLEAR_BIT(nothing,0,_useParentObjectAsManipulationProxy);
             SIM_SET_CLEAR_BIT(nothing,1,!_showFogIfAvailable);
             SIM_SET_CLEAR_BIT(nothing,2,_useLocalLights);
             SIM_SET_CLEAR_BIT(nothing,3,!_allowPicking);
-            // RESERVED SIM_SET_CLEAR_BIT(nothing,4,_povFocalBlurEnabled);
+            SIM_SET_CLEAR_BIT(nothing,4,!_perspective);
             SIM_SET_CLEAR_BIT(nothing,5,_renderModeDuringSimulation);
             SIM_SET_CLEAR_BIT(nothing,6,_renderModeDuringRecording);
             SIM_SET_CLEAR_BIT(nothing,7,_showVolume);
             ar << nothing;
+            ar.flush();
+
+            ar.storeDataName("Cpm"); // keep for backward compatibility. Keep after Ca2 (22.06.2023)
+            int po=-1;
+            if (_viewModeSet_old)
+            {
+                if (_perspective)
+                    po=1;
+                else
+                    po=0;
+            }
+            ar << po;
             ar.flush();
 
             ar.storeDataName("Cl1");
@@ -1372,7 +1364,7 @@ void CCamera::serialize(CSer& ar)
                         _showFogIfAvailable=!SIM_IS_BIT_SET(nothing,1);
                         _useLocalLights=SIM_IS_BIT_SET(nothing,2);
                         _allowPicking=!SIM_IS_BIT_SET(nothing,3);
-                        povFocalBlurEnabled_backwardCompatibility_3_2_2016=SIM_IS_BIT_SET(nothing,4);
+                        _perspective=!SIM_IS_BIT_SET(nothing,4);
                         _renderModeDuringSimulation=SIM_IS_BIT_SET(nothing,5);
                         _renderModeDuringRecording=SIM_IS_BIT_SET(nothing,6);
                         _showVolume=SIM_IS_BIT_SET(nothing,7);
@@ -1390,10 +1382,13 @@ void CCamera::serialize(CSer& ar)
                         ar >> _remoteCameraMode;
                     }
                     if (theName.compare("Cpm")==0)
-                    {
+                    { // keep for backward compatibility (22.06.2023)
                         noHit=false;
                         ar >> byteQuantity;
-                        ar >> _perspectiveOperation;
+                        int po;
+                        ar >> po;
+                        _perspective=(po!=0);
+                        _viewModeSet_old=(po>=0);
                     }
                     if (theName.compare("Rmd")==0)
                     { // keep for backward compatibility 28/06/2019
@@ -1534,8 +1529,7 @@ void CCamera::serialize(CSer& ar)
                 ar.xmlAddNode_bool("renderModeOnlyDuringSimulation",_renderModeDuringSimulation);
             if (exhaustiveXml)
                 ar.xmlAddNode_bool("renderModeOnlyDuringRecording",_renderModeDuringRecording);
-            if (_perspectiveOperation!=-1)
-                ar.xmlAddNode_bool("perspectiveMode",_perspectiveOperation!=0);
+            ar.xmlAddNode_bool("perspectiveMode",_perspective);
             ar.xmlPopNode();
 
             if (exhaustiveXml)
@@ -1582,14 +1576,7 @@ void CCamera::serialize(CSer& ar)
 
             if (ar.xmlPushChildNode("switches",exhaustiveXml))
             {
-                bool p;
-                if (ar.xmlGetNode_bool("perspectiveMode",p,false))
-                {
-                    if (p)
-                        _perspectiveOperation=1;
-                    else
-                        _perspectiveOperation=0;
-                }
+                ar.xmlGetNode_bool("perspectiveMode",_perspective,false);
                 ar.xmlGetNode_bool("allowTranslation",_allowTranslation,exhaustiveXml);
                 ar.xmlGetNode_bool("allowRotation",_allowRotation,exhaustiveXml);
                 ar.xmlGetNode_bool("useParentAsManipulationProxy",_useParentObjectAsManipulationProxy,exhaustiveXml);
@@ -1679,18 +1666,12 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
     if (subView!=nullptr)
     {
         isPerspective=subView->getPerspectiveDisplay();
-        if (_perspectiveOperation!=-1)
+        if (!_viewModeSet_old)
         {
-            isPerspective=_perspectiveOperation;
-            subView->setPerspectiveDisplay(isPerspective);
+            setPerspective(isPerspective);
+            _viewModeSet_old=true;
         }
-        else
-        {
-            if (isPerspective)
-                _perspectiveOperation=1;
-            else
-                _perspectiveOperation=0;
-        }
+        isPerspective=_perspective;
         renderingMode=subView->getRenderingMode();
         displ_ref=true;
         subView->getViewSize(currentWinSize);

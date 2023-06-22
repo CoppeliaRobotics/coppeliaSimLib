@@ -59,9 +59,9 @@ void CQDlgCameras::refresh()
 
     if (it!=nullptr)
     {
-        if (it->getPerspectiveOperation()==0)
+        if (it->getPerspectiveOperation_old()==0)
             ui->qqCameraType->setText("Orthographic projection mode camera");
-        if (it->getPerspectiveOperation()==1)
+        if (it->getPerspectiveOperation_old()==1)
             ui->qqCameraType->setText("Perspective projection mode camera");
         ui->qqManipProxy->setChecked(it->getUseParentObjectAsManipulationProxy());
         ui->qqShowVolume->setChecked(it->getShowVolume());
