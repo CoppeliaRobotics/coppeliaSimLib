@@ -255,7 +255,7 @@ void CWorldContainer::initialize()
     _bufferedEvents->eventsStack=interfaceStackContainer->createStack();
     _bufferedEvents->eventsStack->pushTableOntoStack();
     _cborEvents=false;
-    _mergeTheEvents=false;
+    _events=new CCbor();
 
     initializeRendering();
     createNewWorld();
@@ -266,6 +266,7 @@ void CWorldContainer::deinitialize()
     TRACE_INTERNAL;
     interfaceStackContainer->destroyStack(_bufferedEvents->eventsStack);
     delete _bufferedEvents;
+    delete _events;
 
     copyBuffer->clearBuffer();
     while (_worlds.size()!=0)
@@ -450,6 +451,8 @@ void CWorldContainer::pushSceneObjectRemoveEvent(const CSceneObject* object)
     {
          auto [event,data]=_prepareGeneralEvent(EVENTTYPE_OBJECTREMOVED,object->getObjectHandle(),object->getObjectUid(),nullptr,nullptr,false);
         pushEvent(event);
+
+        _createGeneralEvent(EVENTTYPE_OBJECTREMOVED,object->getObjectHandle(),object->getObjectUid(),nullptr,nullptr,false);
     }
 }
 
@@ -464,6 +467,11 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObject
     return {d,nullptr};
 }
 
+CCbor* CWorldContainer::createSceneObjectAddEvent(const CSceneObject* object)
+{
+    return(_createGeneralEvent(EVENTTYPE_OBJECTADDED,object->getObjectHandle(),object->getObjectUid(),nullptr,nullptr,false));
+}
+
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObjectChangedEvent(int sceneObjectHandle,bool isCommonObjectData,const char* fieldName,bool mergeable)
 {
     if (getEventsEnabled())
@@ -474,6 +482,12 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObject
     }
     SEventInfo d;
     return {d,nullptr};
+}
+
+CCbor* CWorldContainer::createSceneObjectChangedEvent(int sceneObjectHandle,bool isCommonObjectData,const char* fieldName,bool mergeable)
+{
+    CSceneObject* object=currentWorld->sceneObjects->getObjectFromHandle(sceneObjectHandle);
+    return(createSceneObjectChangedEvent(object,isCommonObjectData,fieldName,mergeable));
 }
 
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObjectChangedEvent(const CSceneObject* object,bool isCommonObjectData,const char* fieldName,bool mergeable)
@@ -524,6 +538,48 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareSceneObject
     return {d,nullptr};
 }
 
+CCbor* CWorldContainer::createSceneObjectChangedEvent(const CSceneObject* object,bool isCommonObjectData,const char* fieldName,bool mergeable)
+{
+    const char* ot=nullptr;
+    std::string objType;
+    if (!isCommonObjectData)
+    {
+        switch(object->getObjectType())
+        {
+            case sim_object_shape_type : objType="shape";
+                break;
+            case sim_object_joint_type : objType="joint";
+                break;
+            case sim_object_graph_type : objType="graph";
+                break;
+            case sim_object_camera_type : objType="camera";
+                break;
+            case sim_object_dummy_type : objType="dummy";
+                break;
+            case sim_object_proximitysensor_type : objType="proxSensor";
+                break;
+            case sim_object_path_type : objType="path";
+                break;
+            case sim_object_visionsensor_type : objType="visionSensor";
+                break;
+            case sim_object_mill_type : objType="mill";
+                break;
+            case sim_object_forcesensor_type : objType="forceSensor";
+                break;
+            case sim_object_light_type : objType="light";
+                break;
+            case sim_object_mirror_type : objType="mirror";
+                break;
+            case sim_object_octree_type : objType="octree";
+                break;
+            case sim_object_pointcloud_type : objType="pointCloud";
+                break;
+        }
+        ot=objType.c_str();
+    }
+    return(_createGeneralEvent(EVENTTYPE_OBJECTCHANGED,object->getObjectHandle(),object->getObjectUid(),ot,fieldName,mergeable));
+}
+
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareNakedEvent(const char* event,int handle,long long int uid,bool mergeable)
 {
     if (getEventsEnabled())
@@ -535,6 +591,11 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareNakedEvent(
     return {d,nullptr};
 }
 
+CCbor* CWorldContainer::createNakedEvent(const char* event,int handle,long long int uid,bool mergeable)
+{
+    return(_createGeneralEvent(event,handle,uid,nullptr,nullptr,mergeable));
+}
+
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareEvent(const char* event,long long int uid,const char* fieldName,bool mergeable)
 {
     if (getEventsEnabled())
@@ -544,6 +605,11 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::prepareEvent(const
     }
     SEventInfo d;
     return {d,nullptr};
+}
+
+CCbor* CWorldContainer::createEvent(const char* event,long long int uid,const char* fieldName,bool mergeable)
+{
+    return(_createGeneralEvent(event,-1,uid,nullptr,fieldName,mergeable));
 }
 
 std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::_prepareGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable)
@@ -560,7 +626,7 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::_prepareGeneralEve
 
     eventInfo.eventTable=new CInterfaceStackTable();
     eventInfo.eventTable->appendMapObject_stringString("event",event,0);
-    eventInfo.eventTable->appendMapObject_stringInt64("seq",_eventSeq++);
+    eventInfo.eventTable->appendMapObject_stringInt64("seq",0); // they are set afterwards
     if (objectHandle!=-1)
         eventInfo.eventTable->appendMapObject_stringInt32("handle",objectHandle);
     if (uid!=-1)
@@ -575,6 +641,19 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::_prepareGeneralEve
     }
     _eventMutex.unlock();
     return {eventInfo,data};
+}
+
+CCbor* CWorldContainer::_createGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable)
+{
+    CCbor* retVal=nullptr;
+    if (getEventsEnabled())
+    {
+        _eventMutex.lock();
+        _events->createEvent(event,fieldName,objType,uid,objectHandle,mergeable);
+        _eventMutex.unlock();
+        retVal=_events;
+    }
+    return(retVal);
 }
 
 void CWorldContainer::pushEvent(SEventInfo& event)
@@ -598,11 +677,6 @@ bool CWorldContainer::getCborEvents() const
 void CWorldContainer::setCborEvents(bool b)
 {
     _cborEvents=b;
-}
-
-void CWorldContainer::setMergeEvents(bool b)
-{
-    _mergeTheEvents=b;
 }
 
 bool CWorldContainer::getEventsEnabled() const
@@ -644,6 +718,11 @@ void CWorldContainer::pushGenesisEvents()
         {
             auto [event,data]=_prepareGeneralEvent(EVENTTYPE_APPSESSION,-1,-1,nullptr,nullptr,false);
             data->appendMapObject_stringString("sessionId",_sessionId.c_str(),0);
+            data->appendMapObject_stringInt32("protocolVersion",2);
+            std::string prod(SIM_PROGRAM_VERSION);
+            prod+=".";
+            prod+=std::to_string(SIM_PROGRAM_REVISION_NB);
+            data->appendMapObject_stringString("productVersion",prod.c_str(),0);
             pushEvent(event);
         }
 
@@ -788,33 +867,34 @@ void CWorldContainer::_mergeEvents(SBufferedEvents* events) const
 
 void CWorldContainer::_prepareEventsForDispatch(SBufferedEvents* events,bool genesisEvents) const
 {
-    if (_mergeTheEvents)
-    {
-        _combineDuplicateEvents(events);
-        _mergeEvents(events);
+    if (_events->getEventCnt()>0)
+        _eventSeq=_events->finalizeEvents(_eventSeq,!genesisEvents);
 
-        // adjust the seq number:
-        CInterfaceStackTable* buff=(CInterfaceStackTable*)events->eventsStack->getStackObjectFromIndex(0);
-        if (!buff->isEmpty())
+    _combineDuplicateEvents(events);
+    _mergeEvents(events);
+
+
+    // adjust the seq number:
+    CInterfaceStackTable* buff=(CInterfaceStackTable*)events->eventsStack->getStackObjectFromIndex(0);
+    if (!buff->isEmpty())
+    {
+        bool negOffset=( genesisEvents&&(_mergedEventSeq>0) );
+        for (size_t i=0;i<buff->getArraySize();i++)
         {
-            bool negOffset=( genesisEvents&&(_mergedEventSeq>0) );
-            for (size_t i=0;i<buff->getArraySize();i++)
-            {
-                CInterfaceStackTable* s=(CInterfaceStackTable*)buff->getArrayItemAtIndex(i);
-                CInterfaceStackInteger* n=(CInterfaceStackInteger*)s->getMapObject("seq");
-                long long int ev;
-                if (negOffset)
-                    ev=_mergedEventSeq-buff->getArraySize()+i;
-                else
-                    ev=_mergedEventSeq++;
-                n->setValue(ev);
-                /*
-                if (genesisEvents)
-                    printf("EventSeq: %i *\n",ev);
-                else
-                    printf("EventSeq: %i\n",ev);
-                    */
-            }
+            CInterfaceStackTable* s=(CInterfaceStackTable*)buff->getArrayItemAtIndex(i);
+            CInterfaceStackInteger* n=(CInterfaceStackInteger*)s->getMapObject("seq");
+            long long int ev;
+            if (negOffset)
+                ev=_mergedEventSeq-buff->getArraySize()+i;
+            else
+                ev=_mergedEventSeq++;
+            n->setValue(ev);
+            /*
+            if (genesisEvents)
+                printf("EventSeq: %i *\n",ev);
+            else
+                printf("EventSeq: %i\n",ev);
+                */
         }
     }
 

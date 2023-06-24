@@ -148,6 +148,7 @@ void COcTree::_updateOctreeEvent() const
 {
     if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
+        {//canBeRemoved
         const char* cmd="voxels";
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
         data->appendMapObject_stringFloat("voxelSize",_cellSize);
@@ -170,6 +171,13 @@ void COcTree::_updateOctreeEvent() const
         buff=(const char*)obj.getBuff(l);
         data->appendMapObject_stringString("colors",buff,l,true);
         App::worldContainer->pushEvent(event);
+        }//canBeRemoved
+        const char* cmd="voxels";
+        CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+        ev->appendKeyDouble("voxelSize",_cellSize);
+        ev->openKeyMap(cmd);
+        ev->appendKeyDoubleArray("positions",_voxelPositions.data(),_voxelPositions.size());
+        ev->appendKeyUCharArray("colors",_colorsByte.data(),_colorsByte.size());
     }
 }
 

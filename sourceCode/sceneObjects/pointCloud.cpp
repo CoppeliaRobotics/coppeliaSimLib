@@ -203,6 +203,7 @@ void CPointCloud::_updatePointCloudEvent() const
 {
     if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
+        {//canBeRemoved
         const char* cmd="points";
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
 
@@ -225,6 +226,12 @@ void CPointCloud::_updatePointCloudEvent() const
         buff=(const char*)obj.getBuff(l);
         data->appendMapObject_stringString("colors",buff,l,true);
         App::worldContainer->pushEvent(event);
+        }//canBeRemoved
+        const char* cmd="points";
+        CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+        ev->openKeyMap(cmd);
+        ev->appendKeyDoubleArray("points",_displayPoints.data(),_displayPoints.size());
+        ev->appendKeyUCharArray("colors",_displayColorsByte.data(),_displayColorsByte.size());
     }
 }
 
@@ -796,10 +803,15 @@ void CPointCloud::setPointSize(int s)
         _pointSize=s;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            {//canBeRemoved
             const char* cmd="pointSize";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringInt32(cmd,_pointSize);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="pointSize";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+            ev->appendKeyInt(cmd,_pointSize);
         }
     }
 }

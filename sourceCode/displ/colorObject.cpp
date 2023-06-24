@@ -156,6 +156,7 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle,int colorIndex)
 {
     if ( (objectHandle!=-1)&&App::worldContainer->getEventsEnabled() )
     {
+        {//canBeRemoved
         const char* cmd="color";
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(objectHandle,false,cmd,false);
         CInterfaceStackTable* sdata=new CInterfaceStackTable();
@@ -172,6 +173,21 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle,int colorIndex)
         sdata->appendMapObject_stringFloat("transparency",transp);
         sdata->appendMapObject_stringInt32("index",colorIndex);
         App::worldContainer->pushEvent(event);
+        }//canBeRemoved
+        const char* cmd="color";
+        CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(objectHandle,false,cmd,false);
+        ev->openKeyMap(cmd);
+        float c[9];
+        int w=sim_colorcomponent_ambient_diffuse;
+        getColor(c+0,w);
+        getColor(c+3,sim_colorcomponent_specular);
+        getColor(c+6,sim_colorcomponent_emission);
+        ev->appendKeyFloatArray("color",c,9);
+        ev->appendKeyInt("index",colorIndex);
+        float transp=0.0;
+        if (_translucid)
+            transp=1.0-_opacity;
+        ev->appendKeyFloat("transparency",transp);
     }
 }
 
@@ -179,6 +195,7 @@ void CColorObject::pushColorChangeEvent(int objectHandle,float col1[9],float col
 {
     if ( (objectHandle!=-1)&&App::worldContainer->getEventsEnabled() )
     {
+        {//canBeRemoved
         const char* cmd="colors";
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(objectHandle,false,cmd,false);
         CInterfaceStackTable* sdata=new CInterfaceStackTable();
@@ -191,6 +208,17 @@ void CColorObject::pushColorChangeEvent(int objectHandle,float col1[9],float col
         if (col4!=nullptr)
             sdata->appendArrayObject_floatArray(col4,9);
         App::worldContainer->pushEvent(event);
+        }//canBeRemoved
+        const char* cmd="colors";
+        CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(objectHandle,false,cmd,false);
+        ev->openKeyArray(cmd);
+        ev->appendFloatArray(col1,9);
+        if (col2!=nullptr)
+            ev->appendFloatArray(col2,9);
+        if (col3!=nullptr)
+            ev->appendFloatArray(col3,9);
+        if (col4!=nullptr)
+            ev->appendFloatArray(col4,9);
     }
 }
 

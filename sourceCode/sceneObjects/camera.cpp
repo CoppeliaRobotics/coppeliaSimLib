@@ -693,10 +693,15 @@ void CCamera::setAllowTranslation(bool allow)
         _allowTranslation=allow;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            {//canBeRemoved
             const char* cmd="allowTranslation";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringBool(cmd,_allowTranslation);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="allowTranslation";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+            ev->appendKeyBool(cmd,_allowTranslation);
         }
     }
 }
@@ -713,10 +718,15 @@ void CCamera::setAllowRotation(bool allow)
         _allowRotation=allow;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            {//canBeRemoved
             const char* cmd="allowRotation";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringBool(cmd,_allowRotation);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="allowRotation";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+            ev->appendKeyBool(cmd,_allowRotation);
         }
     }
 }
@@ -842,10 +852,15 @@ void CCamera::setCameraSize(double size)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            {//canBeRemoved
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,size);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="size";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+            ev->appendKeyDouble(cmd,size);
         }
     }
 }
@@ -1037,10 +1052,15 @@ void CCamera::setRemoteCameraMode(int m)
         _remoteCameraMode=m;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            {//canBeRemoved
             const char* cmd="remoteCameraMode";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringInt32(cmd,_remoteCameraMode);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="remoteCameraMode";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+            ev->appendKeyInt(cmd,_remoteCameraMode);
         }
     }
 }

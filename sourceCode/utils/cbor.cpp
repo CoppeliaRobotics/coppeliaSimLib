@@ -1,4 +1,5 @@
 #include <cbor.h>
+#include <app.h>
 #include <string.h>
 
 bool CCbor::isText(const char* v,size_t l)
@@ -13,7 +14,7 @@ bool CCbor::isText(const char* v,size_t l)
    return true;
 }
 
-CCbor::CCbor(const std::string* initBuff,int options/*=0*/)
+CCbor::CCbor(const std::string* initBuff/*=nullptr*/,int options/*=0*/)
 {
     _options=options;
     if (initBuff!=nullptr)
@@ -34,6 +35,24 @@ void CCbor::appendInt(long long int v)
         add=32;
     }
     _appendItemTypeAndLength(add,v);
+}
+
+void CCbor::appendUCharArray(const unsigned char* v,size_t cnt)
+{
+    openArray();
+
+    for (size_t i=0;i<cnt;i++)
+    {
+        if (v[i]<=23)
+            _buff.push_back(v[i]);
+        else
+        {
+            _buff.push_back(24);
+            _buff.push_back(v[i]);
+        }
+    }
+
+    closeArrayOrMap();
 }
 
 void CCbor::appendIntArray(const int* v,size_t cnt)
@@ -277,22 +296,29 @@ void CCbor::appendLuaString(const std::string& v)
 
 void CCbor::openArray()
 {
+    _eventDepth++;
     _buff.push_back(128+31); // array + use a break char
 }
 
 void CCbor::openMap()
 {
+    _eventDepth++;
     _buff.push_back(128+32+31); // map + use a break char
 }
 
 void CCbor::closeArrayOrMap()
 {
+    _eventDepth--;
     _buff.push_back(255); // break char
 }
 
 void CCbor::clear()
 {
     _buff.clear();
+    _eventInfos.clear();
+    _mergeableEventIds.clear();
+    _discardableEventCnt=0;
+    _eventDepth=0;
 }
 
 std::string CCbor::getBuff() const
@@ -308,91 +334,92 @@ const unsigned char* CCbor::getBuff(size_t& l) const
     return(_buff.data());
 }
 
-void CCbor::eventBegin(const std::string& eventId,bool mergeable)
+size_t CCbor::getEventDepth() const
 {
-    if ( mergeable&&(_lastEventId==eventId) )
-        _buff.resize(_eventBeginPtrs[_eventBeginPtrs.size()-1]); // previous event is removed first
-    else
-    {
-        _lastEventId=eventId;
-        _eventBeginPtrs.push_back(_buff.size());
-    }
-    openMap();
+    return(_eventDepth);
 }
 
-void CCbor::eventEnd()
+void CCbor::createEvent(const char* event,const char* fieldName,const char* objType,long long int uid,int handle,bool mergeable)
 {
-    appendString("seq");
-    _buff.push_back(27);
-    _buff.push_back(0);
-    _buff.push_back(0);
-    _buff.push_back(0);
-    _buff.push_back(0);
-    _buff.push_back(0);
-    _buff.push_back(0);
-    _buff.push_back(0);
-    _buff.push_back(0);
-    closeArrayOrMap();
+    while (_eventDepth>1)
+        closeArrayOrMap(); // make sure to close all previous event's arrays/maps, except for the one holding the event
+    SEventInf inf;
+    inf.pos=_buff.size();
+    if (mergeable)
+    {
+        std::string eventId(event);
+        if (fieldName!=nullptr)
+            eventId+=fieldName;
+        if (objType!=nullptr)
+            eventId+=objType;
+        if (uid!=-1)
+            eventId+=std::to_string(uid);
+        inf.eventId=eventId;
+        if (_mergeableEventIds.find(eventId)!=_mergeableEventIds.end())
+            _discardableEventCnt++;
+        _mergeableEventIds[eventId]=_eventInfos.size();
+    }
+    _eventInfos.push_back(inf);
+
+    openMap(); // holding the event
+    appendKeyString("event",event);
+    if (uid!=-1)
+        appendKeyInt("uid",uid);
+    if (handle!=-1)
+        appendKeyInt("handle",handle);
+    appendString("data");
+    openMap(); // holding the data
+    if (objType!=nullptr)
+    {
+        appendString(objType);
+        openMap(); // holding the scene object's data specific to the object type
+    }
 }
 
-void CCbor::_adjustEventSeq(size_t pos,long long int endSeq)
+long long int CCbor::finalizeEvents(long long int nextSeq,bool seqChanges)
 {
-    if (endSeq<0)
+    while (_eventDepth>1)
+        closeArrayOrMap(); // make sure to close all previous event's arrays/maps, except for the one holding the event
+    if (!seqChanges)
+        nextSeq=nextSeq-_eventInfos.size()+_discardableEventCnt;
+    std::vector<unsigned char> events;
+    _buff.swap(events);
+    openArray(); // holding all events
+    for (size_t i=0;i<_eventInfos.size();i++)
     {
-        long long int x=-endSeq-1;
-        _buff[pos++]=27+32;
-        unsigned char* y=(unsigned char*)&x;
-        _buff[pos++]=y[7];
-        _buff[pos++]=y[6];
-        _buff[pos++]=y[5];
-        _buff[pos++]=y[4];
-        _buff[pos++]=y[3];
-        _buff[pos++]=y[2];
-        _buff[pos++]=y[1];
-        _buff[pos++]=y[0];
+        if ( (_eventInfos[i].eventId.size()==0)||(_mergeableEventIds.find(_eventInfos[i].eventId)->second==i) )
+        {
+            if (i<_eventInfos.size()-1)
+                _buff.insert(_buff.end(),events.begin()+_eventInfos[i].pos,events.begin()+_eventInfos[i+1].pos);
+            else
+                _buff.insert(_buff.end(),events.begin()+_eventInfos[i].pos,events.end());
+            appendKeyInt("seq",nextSeq++);
+            closeArrayOrMap(); // to close the event
+        }
     }
-    else
-    {
-        _buff[pos++]=27;
-        unsigned char* w=(unsigned char*)&endSeq;
-        _buff[pos++]=w[7];
-        _buff[pos++]=w[6];
-        _buff[pos++]=w[5];
-        _buff[pos++]=w[4];
-        _buff[pos++]=w[3];
-        _buff[pos++]=w[2];
-        _buff[pos++]=w[1];
-        _buff[pos++]=w[0];
-    }
-
+    closeArrayOrMap(); // to close the array holding all events
+    _eventInfos.clear();
+    _mergeableEventIds.clear();
+    _discardableEventCnt=0;
+    _eventDepth=0;
+    return(nextSeq);
 }
 
 size_t CCbor::getEventCnt() const
 {
-    return(_eventBeginPtrs.size());
-}
-
-void CCbor::adjustEventSeqs(long long int endSeq)
-{
-    size_t p=_buff.size()-1;
-    if (p>11)
-    {
-        while (_buff[p]==255) // break char
-            p--;
-        p-=8;
-        _adjustEventSeq(p,endSeq--);
-        for (size_t i=_eventBeginPtrs.size()-1;i>0;i--)
-        {
-            p=_eventBeginPtrs[i]-10;
-            _adjustEventSeq(p,endSeq--);
-        }
-    }
+    return(_eventInfos.size());
 }
 
 void CCbor::appendKeyInt(const char* key,long long int v)
 {
     appendString(key);
     appendInt(v);
+}
+
+void CCbor::appendKeyUCharArray(const char* key,const unsigned char* v,size_t cnt)
+{
+    appendString(key);
+    appendUCharArray(v,cnt);
 }
 
 void CCbor::appendKeyIntArray(const char* key,const int* v,size_t cnt)
@@ -453,5 +480,17 @@ void CCbor::appendKeyString(const char* key,const char* v,int l/*=-1*/)
 {
     appendString(key);
     appendString(v,l);
+}
+
+void CCbor::openKeyArray(const char* key)
+{
+    appendString(key);
+    openArray();
+}
+
+void CCbor::openKeyMap(const char* key)
+{
+    appendString(key);
+    openMap();
 }
 

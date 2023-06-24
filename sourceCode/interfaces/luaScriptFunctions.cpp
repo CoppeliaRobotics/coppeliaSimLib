@@ -5681,7 +5681,8 @@ int _simTest(luaWrap_lua_State* L)
         }
         if (cmd.compare("sim.mergeEvents")==0)
         {
-            App::worldContainer->setMergeEvents(luaToBool(L,2));
+            CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+            App::logScriptMsg(it,sim_verbosity_scriptwarnings,"sim.test('sim.mergeEvents',bool) does not have any effect. Events are merged by default.");
             LUA_END(0);
         }
         if (cmd.compare("sim.fetchCreationEvents")==0)

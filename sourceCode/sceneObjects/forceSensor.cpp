@@ -326,11 +326,17 @@ void CForceSensor::setIntrinsicTransformationError(const C7Vector& tr)
         _intrinsicTransformationError=tr;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            {//canBeRemoved
             const char* cmd="intrinsicPose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             double p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
             data->appendMapObject_stringDoubleArray(cmd,p,7);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="intrinsicPose";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+            double p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+            ev->appendKeyDoubleArray(cmd,p,7);
         }
     }
 }
@@ -430,10 +436,15 @@ void CForceSensor::setForceSensorSize(double s)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            {//canBeRemoved
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,_forceSensorSize);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="size";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+            ev->appendKeyDouble(cmd,_forceSensorSize);
         }
     }
 }

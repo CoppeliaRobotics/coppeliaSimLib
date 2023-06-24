@@ -2,17 +2,25 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include <simLib/simTypes.h>
+
+struct SEventInf
+{
+    size_t pos;
+    std::string eventId;
+};
 
 class CCbor
 {
 public:
-    CCbor(const std::string* initBuff,int options=0);
+    CCbor(const std::string* initBuff=nullptr,int options=0);
     virtual ~CCbor();
 
     bool isText(const char* v,size_t l);
 
     void appendInt(long long int v);
+    void appendUCharArray(const unsigned char* v,size_t cnt);
     void appendIntArray(const int* v,size_t cnt);
     void appendIntArray(const long long int* v,size_t cnt);
     void appendFloat(float v);
@@ -25,6 +33,7 @@ public:
     void appendString(const char* v,int l=-1);
 
     void appendKeyInt(const char* key,long long int v);
+    void appendKeyUCharArray(const char* key,const unsigned char* v,size_t cnt);
     void appendKeyIntArray(const char* key,const int* v,size_t cnt);
     void appendKeyIntArray(const char* key,const long long int* v,size_t cnt);
     void appendKeyFloat(const char* key,float v);
@@ -37,16 +46,18 @@ public:
     void appendKeyString(const char* key,const char* v,int l=-1);
 
     void openArray();
+    void openKeyArray(const char* key);
     void openMap();
+    void openKeyMap(const char* key);
     void closeArrayOrMap();
 
     void appendLuaString(const std::string& v);
     void appendRaw(const unsigned char* v,size_t l);
 
-    void eventBegin(const std::string& eventFootprint,bool mergeable);
-    void eventEnd();
+    void createEvent(const char* event,const char* fieldName,const char* objType,long long int uid,int handle,bool mergeable);
+    long long int finalizeEvents(long long int nextSeq,bool seqChanges);
     size_t getEventCnt() const;
-    void adjustEventSeqs(long long int endSeq);
+    size_t getEventDepth() const;
 
     void clear();
 
@@ -60,6 +71,8 @@ protected:
     std::vector<unsigned char> _buff;
     int _options; // bit0: treat doubles as float
 
-    std::string _lastEventId;
-    std::vector<size_t> _eventBeginPtrs;
+    size_t _eventDepth; // nb of array/map closes needed
+    size_t _discardableEventCnt;
+    std::vector<SEventInf> _eventInfos;
+    std::map<std::string,size_t> _mergeableEventIds;
 };

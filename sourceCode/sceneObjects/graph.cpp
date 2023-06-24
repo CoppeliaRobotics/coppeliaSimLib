@@ -858,10 +858,15 @@ void CGraph::setGraphSize(double theNewSize)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            {//canBeRemoved
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,_graphSize);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="size";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+            ev->appendKeyDouble(cmd,_graphSize);
         }
     }
 }
