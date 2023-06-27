@@ -150,6 +150,7 @@ void CViewableBase::setNearClippingPlane(double nearPlane)
             const char* cmd="nearClippingPlane";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_nearClippingPlane);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -178,6 +179,7 @@ void CViewableBase::setFarClippingPlane(double farPlane)
             const char* cmd="farClippingPlane";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_farClippingPlane);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -206,6 +208,7 @@ void CViewableBase::setViewAngle(double angle)
             const char* cmd="viewAngle";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_viewAngle);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -234,6 +237,7 @@ void CViewableBase::setOrthoViewSize(double theSize)
             const char* cmd="orthoSize";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_orthoViewSize);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -506,6 +510,7 @@ void CViewableBase::setPerspective(bool p)
             const char* cmd="perspectiveMode";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyBool(cmd,_perspective);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -591,6 +596,7 @@ void CViewableBase::computeVolumeVectors()
             ev->openKeyMap(cmd);
             ev->appendKeyDoubleArray("near",_volumeVectorNear.data,3);
             ev->appendKeyDoubleArray("far",_volumeVectorFar.data,3);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -612,6 +618,7 @@ void CViewableBase::setShowVolume(bool s)
             const char* cmd="showFrustum";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyBool(cmd,_showVolume);
+            App::worldContainer->pushEvent();
         }
     }
 }

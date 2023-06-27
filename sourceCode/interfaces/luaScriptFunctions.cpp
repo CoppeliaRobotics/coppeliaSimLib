@@ -11327,7 +11327,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                 }
                 else
                 {
-                    if (VThread::isCurrentThreadTheMainSimulationThread())
+                    if (VThread::isSimThread())
                     { // For now we don't allow non-main threads to call non-threaded scripts!
                         int rr=script->callCustomScriptFunction(funcName.c_str(),stack);
                         if (rr==1)
@@ -11634,6 +11634,7 @@ int _simPushUserEvent(luaWrap_lua_State* L)
                     CScriptObject::buildFromInterpreterStack_lua(L,stack,4,0); // skip the 3 first args
                     std::string buff=stack->getCborEncodedBufferFromTable(0);
                     ev->appendRaw((unsigned char*)buff.data(),buff.size());
+                    App::worldContainer->pushEvent();
                 }
             }
         }
@@ -16875,7 +16876,7 @@ int _simSearchPath(luaWrap_lua_State* L)
             else
             {
                 retVal=0;
-                //if (VThread::isCurrentThreadTheMainSimulationThread())
+                //if (VThread::isSimThread())
                 { // non-threaded
                     if (it->performSearch(false,maximumSearchTime))
                         retVal=1;
@@ -18725,7 +18726,7 @@ int _simSetThreadIsFree(luaWrap_lua_State* L)
     int retVal=0;
     /*
     int retVal=-1;
-    if (!VThread::isCurrentThreadTheMainSimulationThread())
+    if (!VThread::isSimThread())
     {
         bool result=false;
         if (checkInputArguments(L,nullptr,lua_arg_bool,0))
@@ -19507,7 +19508,7 @@ int _simIsScriptRunningInThread(luaWrap_lua_State* L)
     LUA_START("sim.isScriptRunningInThread");
 
     int retVal=1;
-    if (VThread::isCurrentThreadTheMainSimulationThread())
+    if (VThread::isSimThread())
         retVal=0;
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

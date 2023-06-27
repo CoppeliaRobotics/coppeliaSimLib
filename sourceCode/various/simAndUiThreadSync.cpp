@@ -107,7 +107,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
 { // called by the UI thread only!
     _lockType=0; // UI READ
 
-    if (!VThread::isCurrentThreadTheUiThread())
+    if (!VThread::isUiThread())
     { // we are NOT in the UI thread. This is a bug!
 //        CDebugLogFile::addDebugText(true,"$$$ERROR in uiThread_tryToLockForUiEventRead (",_functionName.c_str(),"): not called from the UI thread.\n");
         App::beep();
@@ -172,7 +172,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
 bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int maxTime)
 { // called by the UI thread only!
     _lockType=1; // UI WRITE
-    if (!VThread::isCurrentThreadTheUiThread())
+    if (!VThread::isUiThread())
     { // we are NOT in the UI thread. This is a bug!
 //        CDebugLogFile::addDebugText(true,"$$$ERROR in uiThread_tryToLockForUiEventWrite (",_functionName.c_str(),"): not called from the UI thread.\n");
         App::beep();
@@ -245,7 +245,7 @@ void CSimAndUiThreadSync::simThread_lockForSimThreadWrite()
 { // called by the SIM thread only!
     _lockType=2; // SIM THREAD WRITE
 
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are NOT in the UI thread. This is a bug!
 //        CDebugLogFile::addDebugText(true,"$$SERROR in simThread_lockForSimThreadWrite (",_functionName.c_str(),"): called from a the UI thread.\n");
         App::beep();
@@ -279,7 +279,7 @@ void CSimAndUiThreadSync::simThread_lockForSimThreadWrite()
 
 bool CSimAndUiThreadSync::simOrUiThread_tryToLockForWrite_cApi()
 { // called by the SIM or UI thread, from the C API!
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     {
         return(uiThread_tryToLockForUiEventWrite(800));
     }
@@ -294,7 +294,7 @@ bool CSimAndUiThreadSync::simOrUiThread_tryToLockForWrite_cApi()
 
 bool CSimAndUiThreadSync::simOrUiThread_tryToLockForRead_cApi()
 { // called by the SIM or UI thread, from the C API!
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     {
         return(uiThread_tryToLockForUiEventRead(5));
     }
@@ -356,7 +356,7 @@ void CSimAndUiThreadSync::simThread_allowUiThreadToWrite()
 void CSimAndUiThreadSync::simThread_temporarilyAllowUiThreadToReadAndWrite()
 {   _lockType=3; // SIM THREAD TEMPORARILY ALLOWS THE UI THREAD TO READ AND WRITE
 
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are NOT in the UI thread. This is a bug!
 //        CDebugLogFile::addDebugText(true,"$$T ERROR in simThread_temporarilyAllowUiThreadToReadAndWrite (",_functionName.c_str(),"): called from a the UI thread.\n");
         App::beep();

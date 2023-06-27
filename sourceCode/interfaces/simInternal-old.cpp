@@ -1832,7 +1832,7 @@ int simCallScriptFunction_internal(int scriptHandleOrType,const char* functionNa
         }
         else
         {
-            if (VThread::isCurrentThreadTheMainSimulationThread())
+            if (VThread::isSimThread())
             { // For now we don't allow non-main threads to call non-threaded scripts!
                 retVal=script->callScriptFunction_DEPRECATED(funcName.c_str(),data);
             }
@@ -2606,7 +2606,7 @@ int simSetThreadIsFree_internal(bool freeMode)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
-    if (VThread::isCurrentThreadTheMainSimulationThread())
+    if (VThread::isSimThread())
     {
 
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_CANNOT_BE_CALLED_FROM_MAIN_THREAD);
@@ -4435,7 +4435,7 @@ int simSetScriptVariable_internal(int scriptHandleOrType,const char* variableNam
             }
             else
             {
-                if (VThread::isCurrentThreadTheMainSimulationThread())
+                if (VThread::isSimThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
                     retVal=script->setScriptVariable_old(variableName.c_str(),stack);
                 }
@@ -6154,7 +6154,7 @@ int simLoadModule_internal(const char* filenameAndPath,const char* pluginName)
     cmdIn.stringParams.push_back(filenameAndPath);
     cmdIn.stringParams.push_back(pluginName);
     App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': loading...",pluginName);
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
         App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     else
     {
@@ -6198,7 +6198,7 @@ int simUnloadModule_internal(int pluginhandle)
         cmdIn.cmdId=PLUGIN_STOP_AND_UNLOAD_PLUGUITHREADCMD;
         cmdIn.intParams.push_back(pluginhandle);
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': unloading...",nm.c_str());
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
             App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         else
         {

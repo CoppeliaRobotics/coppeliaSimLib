@@ -1,8 +1,10 @@
 #include <vMutex.h>
+#include <vThread.h>
 
 #ifndef SIM_WITH_QT
 VMutex::VMutex()
 {
+    _silent=true;
     _lockLevel=0;
 #ifdef WIN_SIM
     InitializeCriticalSection(&_simpleMutex);
@@ -34,14 +36,33 @@ VMutex::~VMutex()
 #endif
 }
 
+void VMutex::setName(const char* name)
+{
+    _name=name;
+}
+
+void VMutex::_msg(const char* location,const char* info) const
+{
+    std::string loc("unknown");
+    if (location!=nullptr)
+        loc=location;
+    if (VThread::isSimThread())
+        printf("SIM thread: VMutex '%s', location '%s': %s\n",_name.c_str(),loc.c_str(),info);
+    else
+        printf("GUI thread: VMutex '%s', location '%s': %s\n",_name.c_str(),loc.c_str(),info);
+}
+
 // Recursive here:
 void VMutex::lock(const char* location/*=nullptr*/)
 {
-    if (location!=nullptr)
+    if (_name.size()>0)
     {
-//        _location=location;
-//        printf("VMutex: %s\n",location);
+        _msg(location,"locking...");
+        if (location!=nullptr)
+            _location=location;
     }
+    else
+        _location.clear();
 #ifndef SIM_WITH_QT
 #ifdef WIN_SIM
     EnterCriticalSection(&_recursiveMutex);
@@ -51,19 +72,22 @@ void VMutex::lock(const char* location/*=nullptr*/)
     { // Already locked by this thread
         _lockLevel++;
         __su(_simpleMutex);
-        return;
     }
-    // first level lock
-    __su(_simpleMutex);
-    __sl(_recursiveMutex);
-    __sl(_simpleMutex);
-    _lockThreadId=_getCurrentThreadId();
-    _lockLevel=1;
-    __su(_simpleMutex);
+    else
+    { // first level lock
+        __su(_simpleMutex);
+        __sl(_recursiveMutex);
+        __sl(_simpleMutex);
+        _lockThreadId=_getCurrentThreadId();
+        _lockLevel=1;
+        __su(_simpleMutex);
+    }
 #endif // WIN_SIM
 #else
     _recursiveMutex.lock();
 #endif
+    if (_name.size()>0)
+        _msg(location,"locked.");
 }
 
 bool VMutex::tryLock()
@@ -101,11 +125,6 @@ bool VMutex::tryLock()
 
 void VMutex::unlock()
 {
-    if (_location.size()>0)
-    {
-        printf("VMutex::unlock: %s\n",_location.c_str());
-        _location.clear();
-    }
 #ifndef SIM_WITH_QT
 #ifdef WIN_SIM
     LeaveCriticalSection(&_recursiveMutex);
@@ -123,17 +142,17 @@ void VMutex::unlock()
 #else
     _recursiveMutex.unlock();
 #endif
+    if (_name.size()>0)
+    {
+        _msg(_location.c_str(),"unlocked.");
+        _location.clear();
+    }
 }
 
 
 // Non-recursive here:
 void VMutex::lock_simple(const char* location)
 {
-    if (location!=nullptr)
-    {
-//        _location=location;
-//        printf("VMutex: %s\n",location);
-    }
 #ifndef SIM_WITH_QT
     __sl(_simpleMutex);
 #else
@@ -157,11 +176,6 @@ bool VMutex::tryLock_simple()
 
 void VMutex::unlock_simple()
 {
-    if (_location.size()>0)
-    {
-        printf("VMutex::unlock_simple: %s\n",_location.c_str());
-        _location.clear();
-    }
 #ifndef SIM_WITH_QT
     __su(_simpleMutex);
 #else
@@ -171,8 +185,6 @@ void VMutex::unlock_simple()
 
 void VMutex::wait_simple()
 { // make sure lock_simple was called before!
-    if (_location.size()>0)
-        printf("VMutex::wait_simple (start): %s\n",_location.c_str());
 #ifndef SIM_WITH_QT
 #ifdef WIN_SIM
     // TODO_SIM_WITH_QT
@@ -208,8 +220,6 @@ void VMutex::wait_simple()
 #else
     _simpleWaitCondition.wait(&_simpleMutex);
 #endif
-    if (_location.size()>0)
-        printf("VMutex::wait_simple (end): %s\n",_location.c_str());
 }
 
 void VMutex::wakeAll_simple()

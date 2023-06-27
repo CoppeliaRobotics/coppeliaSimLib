@@ -232,6 +232,7 @@ void CPointCloud::_updatePointCloudEvent() const
         ev->openKeyMap(cmd);
         ev->appendKeyDoubleArray("points",_displayPoints.data(),_displayPoints.size());
         ev->appendKeyUCharArray("colors",_displayColorsByte.data(),_displayColorsByte.size());
+        App::worldContainer->pushEvent();
     }
 }
 
@@ -821,6 +822,7 @@ void CPointCloud::setPointSize(int s)
             const char* cmd="pointSize";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyInt(cmd,_pointSize);
+            App::worldContainer->pushEvent();
         }
     }
 }

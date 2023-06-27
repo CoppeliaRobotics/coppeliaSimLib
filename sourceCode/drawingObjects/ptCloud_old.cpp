@@ -209,11 +209,13 @@ void CPtCloud_old::pushAddEvent()
         ev->appendKeyBool("cyclic",false);
         ev->appendKeyBool("overlay",false);
         ev->appendKeyBool("clearPoints",true);
+        App::worldContainer->pushEvent();
 
         ev=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_uniqueId,nullptr,false);
         ev->appendKeyDoubleArray("points",_vertices.data(),_vertices.size());
         ev->appendKeyFloatArray("quaternions",quaternions.data(),quaternions.size());
         ev->appendKeyFloatArray("colors",_colors.data(),_colors.size());
         ev->appendKeyBool("clearPoints",true);
+        App::worldContainer->pushEvent();
     }
 }

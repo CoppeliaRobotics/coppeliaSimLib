@@ -1466,7 +1466,7 @@ bool CHierarchy::processCommand(int commandID)
 { // Return value is true if the command belonged to Add menu and was executed
     if ( (commandID==EXPAND_HIERARCHY_CMD)||(commandID==COLLAPSE_HIERARCHY_CMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
             {
@@ -1491,7 +1491,7 @@ bool CHierarchy::processCommand(int commandID)
     }
     if ( (commandID==EXPAND_SELECTED_HIERARCHY_CMD)||(commandID==COLLAPSE_SELECTED_HIERARCHY_CMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             {
@@ -1525,7 +1525,7 @@ bool CHierarchy::processCommand(int commandID)
     }
     if ( (commandID>=HIERARCHY_COLORING_NONE_CMD)&&(commandID<=HIERARCHY_COLORING_BLUE_CMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             {

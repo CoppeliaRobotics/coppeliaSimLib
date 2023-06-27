@@ -1247,6 +1247,7 @@ void CShape::setCulling(bool culState)
                 ev->openKeyMap(cmd);
                 ev->appendKeyBool("culling",culState);
                 ev->appendKeyInt("index",0);
+                App::worldContainer->pushEvent();
             }
         }
     }
@@ -1284,6 +1285,7 @@ void CShape::setVisibleEdges(bool v)
                 ev->openKeyMap(cmd);
                 ev->appendKeyBool("showEdges",v);
                 ev->appendKeyInt("index",0);
+                App::worldContainer->pushEvent();
             }
         }
     }

@@ -178,6 +178,7 @@ void COcTree::_updateOctreeEvent() const
         ev->openKeyMap(cmd);
         ev->appendKeyDoubleArray("positions",_voxelPositions.data(),_voxelPositions.size());
         ev->appendKeyUCharArray("colors",_colorsByte.data(),_colorsByte.size());
+        App::worldContainer->pushEvent();
     }
 }
 

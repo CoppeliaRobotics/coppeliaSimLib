@@ -188,6 +188,7 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle,int colorIndex)
         if (_translucid)
             transp=1.0-_opacity;
         ev->appendKeyFloat("transparency",transp);
+        App::worldContainer->pushEvent();
     }
 }
 
@@ -219,6 +220,7 @@ void CColorObject::pushColorChangeEvent(int objectHandle,float col1[9],float col
             ev->appendFloatArray(col3,9);
         if (col4!=nullptr)
             ev->appendFloatArray(col4,9);
+        App::worldContainer->pushEvent();
     }
 }
 

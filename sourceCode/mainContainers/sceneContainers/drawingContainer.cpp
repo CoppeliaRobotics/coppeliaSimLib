@@ -57,6 +57,7 @@ void CDrawingContainer::removeObject(int objectId)
                 App::worldContainer->pushEvent(event);
                 }//canBeRemoved
                 App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTREMOVED,_allObjects[i]->getObjectUid(),nullptr,false);
+                App::worldContainer->pushEvent();
             }
 
             delete _allObjects[i];

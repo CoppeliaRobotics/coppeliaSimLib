@@ -506,6 +506,7 @@ void CVisionSensor::setVisionSensorSize(const double s)
             const char* cmd="size";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_visionSensorSize);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -886,8 +887,8 @@ bool CVisionSensor::detectEntity(int entityID,bool detectAll,bool entityIsModelA
         onlyGuiThread=false;
 #endif
 
-    bool ui=VThread::isCurrentThreadTheUiThread();
-    bool noAuxThread=VThread::isCurrentThreadTheUiThread()||VThread::isCurrentThreadTheMainSimulationThread();
+    bool ui=VThread::isUiThread();
+    bool noAuxThread=VThread::isUiThread()||VThread::isSimThread();
     bool offscreen=(App::userSettings->offscreenContextType<1);
 
     if ( ui || ((noAuxThread&&offscreen)&&(!onlyGuiThread)) )
@@ -2187,7 +2188,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         CInterfaceStack* outStack2=App::worldContainer->interfaceStackContainer->createStack();
         CInterfaceStack* outSt1=outStack1;
         CInterfaceStack* outSt2=outStack2;
-        if (VThread::isCurrentThreadTheMainSimulationThread())
+        if (VThread::isSimThread())
         { // we are in the main simulation thread. Call only scripts that live in the same thread
             if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
                 script->systemCallScript(sim_syscb_vision,inStack,outStack1);
@@ -2279,7 +2280,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             CInterfaceStack* outStack2=App::worldContainer->interfaceStackContainer->createStack();
             CInterfaceStack* outSt1=outStack1;
             CInterfaceStack* outSt2=outStack2;
-            if (VThread::isCurrentThreadTheMainSimulationThread())
+            if (VThread::isSimThread())
             { // we are in the main simulation thread. Call only scripts that live in the same thread
                 if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
                     script->systemCallScript(sim_syscb_trigger,inStack,outStack1);
@@ -2762,7 +2763,7 @@ void CVisionSensor::serialize(CSer& ar)
 void CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
 {
     TRACE_INTERNAL;
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         detectEntity2(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
     }
@@ -2790,7 +2791,7 @@ void CVisionSensor::display(CViewableBase* renderingObject,int displayAttrib)
 void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(bool useStencilBuffer)
 {
     TRACE_INTERNAL;
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         createGlContextAndFboAndTextureObjectIfNeeded(useStencilBuffer);
     }

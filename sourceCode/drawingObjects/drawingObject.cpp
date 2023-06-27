@@ -162,6 +162,7 @@ bool CDrawingObject::addItem(const double* itemData)
             }//canBeRemoved
             CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_objectUid,nullptr,false);
             ev->appendKeyBool("clearPoints",true);
+            App::worldContainer->pushEvent();
         }
 
         return(false);
@@ -578,6 +579,7 @@ void CDrawingObject::pushAddEvent()
         ev->appendKeyBool("cyclic",(_objectType&sim_drawing_cyclic)!=0);
         ev->appendKeyBool("clearPoints",true);
         ev->appendKeyBool("overlay",_objectType&sim_drawing_overlay);
+        App::worldContainer->pushEvent();
 
         _initBufferedEventData();
     }
@@ -618,6 +620,7 @@ void CDrawingObject::pushAppendNewPointEvent()
         ev->appendKeyFloatArray("quaternions",quaternions.data(),quaternions.size());
         ev->appendKeyFloatArray("colors",colors.data(),colors.size());
         ev->appendKeyBool("clearPoints",_rebuildRemoteItems);
+        App::worldContainer->pushEvent();
 
         _bufferedEventData.clear();
         _rebuildRemoteItems=false;

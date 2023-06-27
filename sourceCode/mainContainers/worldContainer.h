@@ -100,6 +100,7 @@ public:
     CCbor* createSceneObjectAddEvent(const CSceneObject* object);
     CCbor* createSceneObjectChangedEvent(const CSceneObject* object,bool isCommonObjectData,const char* fieldName,bool mergeable);
     CCbor* createSceneObjectChangedEvent(int sceneObjectHandle,bool isCommonObjectData,const char* fieldName,bool mergeable);
+    void pushEvent();
     //---------
 
     void dispatchEvents();
@@ -149,12 +150,12 @@ private:
     int _currentWorldIndex;
     std::string _sessionId;
 
-    static long long int _eventSeq;
     static long long int _mergedEventSeq;
     SBufferedEvents* _bufferedEvents;
-    VMutex _eventMutex; // just needed while we are still using the old GUI, since it will also generate events
     bool _cborEvents;
     //---------
+    static long long int _eventSeq;
+    VMutex _eventMutex; // just needed while we are still using the old GUI, since it will also generate events
     CCbor* _events;
     //---------
 

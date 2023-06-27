@@ -1089,6 +1089,7 @@ void CDummy::setDummySize(double s)
             const char* cmd="size";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_dummySize);
+            App::worldContainer->pushEvent();
         }
     }
 }

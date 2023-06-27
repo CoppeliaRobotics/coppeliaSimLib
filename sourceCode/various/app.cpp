@@ -994,7 +994,7 @@ void App::setShowInertias(bool show)
 
 void App::_logMsgToStatusbar(const char* msg,bool html)
 {
-    if (!VThread::isCurrentThreadTheUiThread())
+    if (!VThread::isUiThread())
     { // we are NOT in the UI thread. We execute the command in a delayed manner:
         SUIThreadCommand cmdIn;
         cmdIn.cmdId=LOG_MSG_TO_STATUSBAR_UITHREADCMD;
@@ -1030,7 +1030,7 @@ void App::_logMsgToStatusbar(const char* msg,bool html)
 
 void App::clearStatusbar()
 {
-    if (!VThread::isCurrentThreadTheUiThread())
+    if (!VThread::isUiThread())
     { // we are NOT in the UI thread. We execute the command in a delayed manner:
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
@@ -1579,9 +1579,9 @@ void App::setConsoleMsgFile(const char* f)
     _consoleMsgsFilename=f;
 }
 
-bool App::isCurrentThreadTheUiThread()
+bool App::isUiThread()
 {
-    return(VThread::isCurrentThreadTheUiThread());
+    return(VThread::isUiThread());
 }
 
 void App::logMsg(int verbosityLevel,const char* msg,const char* subStr1,const char* subStr2/*=nullptr*/,const char* subStr3/*=nullptr*/)
@@ -1877,7 +1877,7 @@ bool App::isOnline()
 
 void App::undoRedo_sceneChanged(const char* txt)
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=999999;
@@ -1890,7 +1890,7 @@ void App::undoRedo_sceneChanged(const char* txt)
 
 void App::undoRedo_sceneChangedGradual(const char* txt)
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=999996;
@@ -1903,7 +1903,7 @@ void App::undoRedo_sceneChangedGradual(const char* txt)
 
 void App::undoRedo_sceneChangeStart(const char* txt)
 {
-    if  (VThread::isCurrentThreadTheUiThread())
+    if  (VThread::isUiThread())
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=999997;
@@ -1916,7 +1916,7 @@ void App::undoRedo_sceneChangeStart(const char* txt)
 
 void App::undoRedo_sceneChangeEnd()
 {
-    if  (VThread::isCurrentThreadTheUiThread())
+    if  (VThread::isUiThread())
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=999998;

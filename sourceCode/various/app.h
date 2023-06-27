@@ -91,7 +91,7 @@ public:
     static void setConsoleMsgToFile(bool f);
     static std::string getConsoleMsgFile();
     static void setConsoleMsgFile(const char* f);
-    static bool isCurrentThreadTheUiThread();
+    static bool isUiThread();
     static void clearStatusbar();
     static int getDlgVerbosity();
     static void setDlgVerbosity(int v);

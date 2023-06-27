@@ -702,6 +702,7 @@ void CCamera::setAllowTranslation(bool allow)
             const char* cmd="allowTranslation";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyBool(cmd,_allowTranslation);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -727,6 +728,7 @@ void CCamera::setAllowRotation(bool allow)
             const char* cmd="allowRotation";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyBool(cmd,_allowRotation);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -861,6 +863,7 @@ void CCamera::setCameraSize(double size)
             const char* cmd="size";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,size);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -1090,6 +1093,7 @@ void CCamera::setRemoteCameraMode(int m)
             const char* cmd="remoteCameraMode";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyInt(cmd,_remoteCameraMode);
+            App::worldContainer->pushEvent();
         }
     }
 }

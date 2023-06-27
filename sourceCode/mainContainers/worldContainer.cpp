@@ -30,6 +30,7 @@ CWorldContainer::CWorldContainer()
 #endif
     _currentWorldIndex=-1;
     App::currentWorld=nullptr;
+    //_eventMutex.setName("eventMutex");
 }
 
 CWorldContainer::~CWorldContainer()
@@ -455,6 +456,7 @@ void CWorldContainer::pushSceneObjectRemoveEvent(const CSceneObject* object)
         }//canBeRemoved
 
         _createGeneralEvent(EVENTTYPE_OBJECTREMOVED,object->getObjectHandle(),object->getObjectUid(),nullptr,nullptr,false);
+        pushEvent();
     }
 }
 
@@ -645,14 +647,19 @@ std::tuple<SEventInfo,CInterfaceStackTable*> CWorldContainer::_prepareGeneralEve
     return {eventInfo,data};
 }
 
+void CWorldContainer::pushEvent()
+{
+    _events->pushEvent();
+    _eventMutex.unlock();
+}
+
 CCbor* CWorldContainer::_createGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable,bool openDataField/*=true*/)
 {
     CCbor* retVal=nullptr;
     if (getEventsEnabled())
     {
-        _eventMutex.lock();
+        _eventMutex.lock("CWorldContainer::_createGeneralEvent");
         _events->createEvent(event,fieldName,objType,uid,objectHandle,mergeable,openDataField);
-        _eventMutex.unlock();
         retVal=_events;
     }
     return(retVal);
@@ -688,7 +695,7 @@ bool CWorldContainer::getEventsEnabled() const
 
 void CWorldContainer::getGenesisEvents(std::vector<unsigned char>* genesisEvents,CInterfaceStack* stack)
 {
-    _eventMutex.lock();
+    _eventMutex.lock("CWorldContainer::getGenesisEvents");
     if (App::userSettings->oldEvents)
     {
         // Dispatch events in the pipeline:
@@ -729,6 +736,7 @@ void CWorldContainer::pushGenesisEvents()
             pushEvent(event);
         }//canBeRemoved
         CCbor* ev=_createGeneralEvent(EVENTTYPE_GENESISBEGIN,-1,-1,nullptr,nullptr,false);
+        pushEvent();
 
         if (App::userSettings->oldEvents) {//-canBeRemoved
             auto [event,data]=_prepareGeneralEvent(EVENTTYPE_APPSESSION,-1,-1,nullptr,nullptr,false);
@@ -747,7 +755,7 @@ void CWorldContainer::pushGenesisEvents()
         prod+=".";
         prod+=std::to_string(SIM_PROGRAM_REVISION_NB);
         ev->appendKeyString("productVersion",prod.c_str());
-
+        pushEvent();
 
         if (App::userSettings->oldEvents) {//-canBeRemoved
             auto [event,data]=_prepareGeneralEvent(EVENTTYPE_APPSETTINGSCHANGED,-1,-1,nullptr,nullptr,false);
@@ -758,6 +766,7 @@ void CWorldContainer::pushGenesisEvents()
         ev=_createGeneralEvent(EVENTTYPE_APPSETTINGSCHANGED,-1,-1,nullptr,nullptr,false);
         ev->appendKeyDouble("defaultTranslationStepSize",App::userSettings->getTranslationStepSize());
         ev->appendKeyDouble("defaultRotationStepSize",App::userSettings->getRotationStepSize());
+        pushEvent();
 
         currentWorld->pushGenesisEvents();
 
@@ -766,6 +775,7 @@ void CWorldContainer::pushGenesisEvents()
             pushEvent(event);
         }//canBeRemoved
         ev=_createGeneralEvent(EVENTTYPE_GENESISEND,-1,-1,nullptr,nullptr,false);
+        pushEvent();
     }
 }
 
@@ -780,49 +790,46 @@ SBufferedEvents* CWorldContainer::swapBufferedEvents(SBufferedEvents* newBuffer)
 
 void CWorldContainer::dispatchEvents()
 {
-    if (!VThread::isCurrentThreadTheUiThread())
+    if (!VThread::isUiThread())
     {
         // Push the last changes that are not immediate:
         currentWorld->drawingCont->pushAppendNewPointEvents();
 
         if (App::userSettings->oldEvents)
         {
+            _eventMutex.lock("CWorldContainer::dispatchEvents");
             // Swap the event buffer:
-            _eventMutex.lock();
             CInterfaceStackTable* buff=(CInterfaceStackTable*)_bufferedEvents->eventsStack->getStackObjectFromIndex(0);
             if (buff->isEmpty())
-            {
-                _eventMutex.unlock();
                 return;
-            }
             SBufferedEvents* tmpEvents=_bufferedEvents;
             _bufferedEvents=new SBufferedEvents;
             _bufferedEvents->eventsStack=interfaceStackContainer->createStack();
             _bufferedEvents->eventsStack->pushTableOntoStack();
-            _eventMutex.unlock();
 
             _prepareEventsForDispatch(tmpEvents,false);
+            _eventMutex.unlock();
 
             // Dispatch events:
-            callScripts(sim_syscb_event,tmpEvents->eventsStack,nullptr);
+            callScripts(sim_syscb_event,tmpEvents->eventsStack,nullptr); // might lead to a deadlock if _eventMutex locked
 
             interfaceStackContainer->destroyStack(tmpEvents->eventsStack);
             delete tmpEvents;
         }
         else
         {
-            _eventMutex.lock();
             if (_events->getEventCnt()>0)
             {
+                _eventMutex.lock("CWorldContainer::dispatchEvents");
                 _eventSeq=_events->finalizeEvents(_eventSeq,true);
                 std::vector<unsigned char> ev;
                 _events->swapWithEmptyBuffer(&ev);
                 CInterfaceStack* stack=interfaceStackContainer->createStack();
                 stack->pushStringOntoStack((char*)ev.data(),ev.size());
-                callScripts(sim_syscb_event,stack,nullptr);
+                _eventMutex.unlock();
+                callScripts(sim_syscb_event,stack,nullptr); // might lead to a deadlock if _eventMutex locked
                 interfaceStackContainer->destroyStack(stack);
             }
-            _eventMutex.unlock();
         }
     }
 }

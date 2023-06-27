@@ -87,7 +87,7 @@ void CSerialPortContainer::executeCommand(SUIThreadCommand* cmdIn,SUIThreadComma
 
 int CSerialPortContainer::serialPortOpen_alternativeRoutine(bool fromScript,const char* name,int baudrate)
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         CSerialPort* port=new CSerialPort(fromScript,true);
         int result;
@@ -115,7 +115,7 @@ int CSerialPortContainer::serialPortOpen_alternativeRoutine(bool fromScript,cons
 
 bool CSerialPortContainer::serialPortClose_alternativeRoutine(int portHandle)
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         CSerialPort* port=_getPortFromHandle(portHandle);
         if (port!=nullptr)
@@ -145,7 +145,7 @@ bool CSerialPortContainer::serialPortClose_alternativeRoutine(int portHandle)
 
 int CSerialPortContainer::serialPortCheck_alternativeRoutine(int portHandle)
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         CSerialPort* port=_getPortFromHandle(portHandle);
         int result=-1;
@@ -166,7 +166,7 @@ int CSerialPortContainer::serialPortCheck_alternativeRoutine(int portHandle)
 
 int CSerialPortContainer::serialPortSend_alternativeRoutine(int portHandle,const std::string& data)
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         CSerialPort* port=_getPortFromHandle(portHandle);
         int result=-1;
@@ -192,7 +192,7 @@ int CSerialPortContainer::serialPortSend_alternativeRoutine(int portHandle,const
 
 int CSerialPortContainer::serialPortReceive_alternativeRoutine(int portHandle,std::string& data,int dataLengthToRead)
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         data.clear();
         CSerialPort* port=_getPortFromHandle(portHandle);

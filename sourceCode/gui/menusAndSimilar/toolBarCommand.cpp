@@ -13,7 +13,7 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if ( (App::mainWindow!=nullptr)&&(!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive()) )
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 int pageIndex=App::currentWorld->pageContainer->getActivePageIndex();
                 CSPage* page=App::currentWorld->pageContainer->getPage(pageIndex);
@@ -51,7 +51,7 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if (!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive())
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_camerashift);
             }
@@ -68,7 +68,7 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if (!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive())
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_camerarotate);
             }
@@ -85,7 +85,7 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if (!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive())
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_camerazoom);
             }
@@ -102,7 +102,7 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if (!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive())
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_cameraangle);
             }
@@ -119,7 +119,7 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if (!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive())
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_objectshift);
             }
@@ -139,7 +139,7 @@ bool CToolBarCommand::processCommand(int commandID)
             rot=App::mainWindow->editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()==0;
         if ( (App::mainWindow!=nullptr)&&rot&&(!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive()) )
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_objectrotate);
             }
@@ -157,7 +157,7 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if (App::mainWindow!=nullptr)
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 if (App::mainWindow->oglSurface->isPageSelectionActive())
                     App::mainWindow->oglSurface->setPageSelectionActive(false);
@@ -178,7 +178,7 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if ( (App::mainWindow!=nullptr)&&(!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive()) )
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 if ( (App::getMouseMode()&0x0300)&sim_navigation_clickselection )
                     App::setMouseMode(App::getMouseMode()&0xfcff);
@@ -198,7 +198,7 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if ( (App::mainWindow!=nullptr)&&(!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive()) )
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 if ( (App::getMouseMode()&0x0300)&sim_navigation_createpathpoint )
                     App::setMouseMode(App::getMouseMode()&0xfcff);
@@ -219,7 +219,7 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if ( (App::mainWindow!=nullptr)&&(!App::mainWindow->oglSurface->isScenePageOrViewSelectionActive()) )
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::currentWorld->sceneObjects->deselectObjects();
                 App::mainWindow->editModeContainer->deselectEditModeBuffer();
@@ -242,7 +242,7 @@ bool CToolBarCommand::processCommand(int commandID)
 
     if ( (commandID>=VIEW_1_CMD)&&(commandID<=VIEW_8_CMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (App::currentWorld->pageContainer->getActivePageIndex()!=(commandID-VIEW_1_CMD))
             {

@@ -395,7 +395,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
 { // Return value is true if the command belonged to hierarchy menu and was executed
     if (commandID==VIEW_FUNCTIONS_XY_GRAPH_AUTO_MODE_DURING_SIMULATION_VFCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _xyGraphInAutoModeDuringSimulation=!_xyGraphInAutoModeDuringSimulation;
             App::undoRedo_sceneChanged(""); 
@@ -415,7 +415,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
     }
     if (commandID==VIEW_FUNCTIONS_TIME_GRAPH_X_AUTO_MODE_DURING_SIMULATION_VFCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _timeGraphXInAutoModeDuringSimulation=!_timeGraphXInAutoModeDuringSimulation;
             App::undoRedo_sceneChanged(""); 
@@ -435,7 +435,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
     }
     if (commandID==VIEW_FUNCTIONS_TIME_GRAPH_Y_AUTO_MODE_DURING_SIMULATION_VFCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _timeGraphYInAutoModeDuringSimulation=!_timeGraphYInAutoModeDuringSimulation;
             App::undoRedo_sceneChanged(""); 
@@ -455,7 +455,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
     }
     if (commandID==VIEW_FUNCTIONS_XY_GRAPH_KEEP_PROPORTIONS_AT_ONE_ONE_VFCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _xyGraphIsOneOneProportional=!_xyGraphIsOneOneProportional;
             App::undoRedo_sceneChanged(""); 
@@ -475,7 +475,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
     }
     if (commandID==VIEW_FUNCTIONS_XY_GRAPH_DISPLAY_VFCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             graphIsTimeGraph=!graphIsTimeGraph;
             App::undoRedo_sceneChanged(""); 
@@ -496,7 +496,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
 
     if (commandID==VIEW_FUNCTIONS_LOOK_THROUGH_CAMERA_VFCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
@@ -521,7 +521,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
     /*
     if (commandID==VIEW_FUNCTIONS_LOOK_AT_GRAPH_VFCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             for (int i=0;i<App::currentWorld->objCont->getSelSize();i++)
@@ -546,7 +546,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
     */
     if (commandID==VIEW_FUNCTIONS_LOOK_AT_VISION_SENSOR_VFCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
@@ -570,7 +570,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
     }
     if (commandID==VIEW_FUNCTIONS_TRACK_OBJECT_VFCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
@@ -594,7 +594,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
     }
     if (commandID==VIEW_FUNCTIONS_DONT_TRACK_OBJECT_VFCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
             if (camera!=nullptr)

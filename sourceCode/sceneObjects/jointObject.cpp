@@ -818,6 +818,7 @@ void CJoint::_sendDependencyChange() const
         ev->appendKeyInt("masterUid",mast);
         ev->appendKeyDouble("mult",_dependencyJointMult);
         ev->appendKeyDouble("off",_dependencyJointOffset);
+        App::worldContainer->pushEvent();
     }
 }
 
@@ -1325,6 +1326,7 @@ void CJoint::setPositionMin(double min)
                 const char* cmd="min";
                 CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
                 ev->appendKeyDouble(cmd,min);
+                App::worldContainer->pushEvent();
             }
             if (getObjectCanSync())
                 _setPositionIntervalMin_sendOldIk(min);
@@ -1368,6 +1370,7 @@ void CJoint::setPositionRange(double range)
             const char* cmd="range";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,range);
+            App::worldContainer->pushEvent();
         }
         if (getObjectCanSync())
             _setPositionIntervalRange_sendOldIk(range);
@@ -1402,6 +1405,7 @@ void CJoint::setLength(double l)
             const char* cmd="length";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,l);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -1425,6 +1429,7 @@ void CJoint::setDiameter(double d)
             const char* cmd="diameter";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,d);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -2025,6 +2030,7 @@ void CJoint::setIsCyclic(bool isCyclic)
             const char* cmd="cyclic";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyBool(cmd,isCyclic);
+            App::worldContainer->pushEvent();
         }
         if (getObjectCanSync())
             _setPositionIsCyclic_sendOldIk(isCyclic);
@@ -4149,6 +4155,7 @@ void CJoint::setSphericalTransformation(const C4Vector& tr)
             C7Vector trr(getIntrinsicTransformation(true));
             double p[7]={trr.X(0),trr.X(1),trr.X(2),trr.Q(1),trr.Q(2),trr.Q(3),trr.Q(0)};
             ev->appendKeyDoubleArray("intrinsicPose",p,7);
+            App::worldContainer->pushEvent();
         }
         if (getObjectCanSync())
             _setSphericalTransformation_sendOldIk(_sphericalTransf);
@@ -4254,6 +4261,7 @@ void CJoint::setPosition(double pos,const CJoint* masterJoint/*=nullptr*/,bool s
             C7Vector tr(getIntrinsicTransformation(true));
             double p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
             ev->appendKeyDoubleArray("intrinsicPose",p,7);
+            App::worldContainer->pushEvent();
         }
         if (getObjectCanSync())
             _setPosition_sendOldIk(pos);
@@ -4456,6 +4464,7 @@ void CJoint::setMaxVelAccelJerk(const double maxVelAccelJerk[3])
             const char* cmd="maxVelAccelJerk";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDoubleArray(cmd,_maxVelAccelJerk,3);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -4957,6 +4966,7 @@ void CJoint::setIntrinsicTransformationError(const C7Vector& tr)
             C7Vector tr2(getIntrinsicTransformation(true));
             double p[7]={tr2.X(0),tr2.X(1),tr2.X(2),tr2.Q(1),tr2.Q(2),tr2.Q(3),tr2.Q(0)};
             ev->appendKeyDoubleArray("intrinsicPose",p,7);
+            App::worldContainer->pushEvent();
         }
     }
 }

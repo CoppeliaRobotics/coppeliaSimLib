@@ -194,6 +194,7 @@ void CLight::setLightSize(double size)
             const char* cmd="size";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_lightSize);
+            App::worldContainer->pushEvent();
         }
     }
 }

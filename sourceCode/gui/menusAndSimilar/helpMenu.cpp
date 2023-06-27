@@ -71,7 +71,7 @@ bool CHelpMenu::processCommand(int commandID)
     }
     if (commandID==ABOUT_CMD)
     {
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // We are in the UI thread. Execute the command via the main thread:
             IF_UI_EVENT_CAN_WRITE_DATA
             {
@@ -83,7 +83,7 @@ bool CHelpMenu::processCommand(int commandID)
     }
     if (commandID==CREDITS_CMD)
     {
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // We are in the UI thread. Execute the command via the main thread:
             std::string tmp(App::folders->getResourcesPath()+"/credits.txt");
             if (VFile::doesFileExist(tmp.c_str()))

@@ -41,7 +41,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     if (commandID==SCENE_OBJECT_OPERATION_ASSEMBLE_SOOCMD)
     {
         // There is another such routine!! XXBFVGA
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             bool assembleEnabled=false;
             bool disassembleEnabled=false;
@@ -128,7 +128,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_TRANSFER_DNA_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             size_t selS=App::currentWorld->sceneObjects->getSelectionCount();
             CSceneObject* it=App::currentWorld->sceneObjects->getLastSelectionObject();
@@ -216,7 +216,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if ( (commandID==SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_MAKE_PARENT_AND_MOVE_SOOCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
@@ -249,7 +249,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_MAKE_ORPHANS_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
@@ -274,7 +274,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     }
     if (commandID==SCENE_OBJECT_OPERATION_MORPH_INTO_CONVEX_SHAPES_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
@@ -336,7 +336,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_DECIMATE_SHAPE_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
@@ -437,7 +437,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_MORPH_INTO_CONVEX_DECOMPOSITION_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
@@ -505,7 +505,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,false);
@@ -546,7 +546,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_SCALE_MASS_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,false);
@@ -585,7 +585,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_SCALE_INERTIA_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,false);
@@ -624,7 +624,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_SELECT_ALL_OBJECTS_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_SELECTING_ALL_OBJECTS);
             for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
@@ -642,7 +642,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CHILD_SCRIPT_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id=App::currentWorld->sceneObjects->getLastSelectionHandle();
             CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,id);
@@ -668,7 +668,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CUSTOMIZATION_SCRIPT_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id=App::currentWorld->sceneObjects->getLastSelectionHandle();
             CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,id);
@@ -699,7 +699,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_OBJECT_FULL_COPY_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
@@ -718,7 +718,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     }
     if (commandID==SCENE_OBJECT_OPERATION_OBJECT_FULL_CUT_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
@@ -749,7 +749,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     }
     if (commandID==SCENE_OBJECT_OPERATION_PASTE_OBJECTS_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
@@ -770,7 +770,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_DELETE_OBJECTS_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
@@ -801,7 +801,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     }
     if ( (commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_PARENT_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_CENTER_SOOCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
@@ -845,7 +845,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if ((commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)||(commandID==SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_WORLD_SOOCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,sim_object_shape_type,true,true);
@@ -885,7 +885,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_GROUP_SHAPES_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
@@ -905,7 +905,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_UNGROUP_SHAPES_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
@@ -925,7 +925,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_MERGE_SHAPES_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
@@ -944,7 +944,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     }
     if (commandID==SCENE_OBJECT_OPERATION_DIVIDE_SHAPES_SOOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_shape_type,true,true);
@@ -967,7 +967,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (App::getEditModeType()==NO_EDIT_MODE)
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::logMsg(sim_verbosity_msgs,IDSNS_EXECUTING_UNDO);
                 App::currentWorld->undoBufferContainer->undo();
@@ -987,7 +987,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (App::getEditModeType()==NO_EDIT_MODE)
         {
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::logMsg(sim_verbosity_msgs,IDSNS_EXECUTING_REDO);
                 App::currentWorld->undoBufferContainer->redo();

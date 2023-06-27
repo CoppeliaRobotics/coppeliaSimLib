@@ -318,7 +318,7 @@ bool CPageContainer::processCommand(int commandID,int viewIndex)
          (commandID==PAGE_CONT_FUNCTIONS_CREATE_HORIZONTAL_3_VIEW_TYPE_PCCMD)||(commandID==PAGE_CONT_FUNCTIONS_CREATE_VERTICAL_3_VIEW_TYPE_PCCMD)||(commandID==PAGE_CONT_FUNCTIONS_CREATE_HORIZONTAL_1_PLUS_3_VIEW_TYPE_PCCMD)||
          (commandID==PAGE_CONT_FUNCTIONS_CREATE_VERTICAL_1_PLUS_3_VIEW_TYPE_PCCMD)||(commandID==PAGE_CONT_FUNCTIONS_CREATE_HORIZONTAL_1_PLUS_4_VIEW_TYPE_PCCMD)||(commandID==PAGE_CONT_FUNCTIONS_CREATE_VERTICAL_1_PLUS_4_VIEW_TYPE_PCCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CSPage* it=nullptr;
             if (commandID==PAGE_CONT_FUNCTIONS_CREATE_SINGLE_VIEW_TYPE_PCCMD)

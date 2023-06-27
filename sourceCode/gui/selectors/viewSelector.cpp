@@ -354,7 +354,7 @@ bool CViewSelector::processCommand(int commandID,int subViewIndex)
 { // Return value is true if the command belonged to hierarchy menu and was executed
     if (commandID==VIEW_SELECTOR_SELECT_ANY_VSCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CSPage* view=App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
             if (view==nullptr)

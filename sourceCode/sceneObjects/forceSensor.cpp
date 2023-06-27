@@ -337,6 +337,7 @@ void CForceSensor::setIntrinsicTransformationError(const C7Vector& tr)
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             double p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
             ev->appendKeyDoubleArray(cmd,p,7);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -445,6 +446,7 @@ void CForceSensor::setForceSensorSize(double s)
             const char* cmd="size";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_forceSensorSize);
+            App::worldContainer->pushEvent();
         }
     }
 }

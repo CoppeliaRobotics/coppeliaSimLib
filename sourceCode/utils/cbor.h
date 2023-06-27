@@ -56,6 +56,7 @@ public:
     void appendRaw(const unsigned char* v,size_t l);
 
     void createEvent(const char* event,const char* fieldName,const char* objType,long long int uid,int handle,bool mergeable,bool openDataField=true);
+    void pushEvent();
     long long int finalizeEvents(long long int nextSeq,bool seqChanges);
     size_t getEventCnt() const;
     size_t getEventDepth() const;
@@ -73,6 +74,7 @@ protected:
     int _options; // bit0: treat doubles as float
 
     size_t _eventDepth; // nb of array/map closes needed
+    bool _eventOpen; // true when not yet pushed
     size_t _discardableEventCnt;
     std::vector<SEventInf> _eventInfos;
     std::map<std::string,size_t> _mergeableEventIds;

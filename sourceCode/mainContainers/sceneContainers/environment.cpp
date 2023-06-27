@@ -154,6 +154,7 @@ void CEnvironment::pushGenesisEvents() const
     CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED,-1,nullptr,false);
     ev->appendKeyInt("sceneUid",getSceneUniqueID());
     ev->appendKeyInt("visibilityLayers",getActiveLayers());
+    App::worldContainer->pushEvent();
 }
 
 void CEnvironment::setActiveLayers(unsigned short l)
@@ -173,6 +174,7 @@ void CEnvironment::setActiveLayers(unsigned short l)
             const char* cmd="visibilityLayers";
             CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED,-1,cmd,true);
             ev->appendKeyInt(cmd,_activeLayers);
+            App::worldContainer->pushEvent();
         }
     }
     App::setRefreshHierarchyViewFlag();

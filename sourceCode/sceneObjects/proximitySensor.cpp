@@ -881,7 +881,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
             CInterfaceStack* outStack2=App::worldContainer->interfaceStackContainer->createStack();
             CInterfaceStack* outSt1=outStack1;
             CInterfaceStack* outSt2=outStack2;
-            if (VThread::isCurrentThreadTheMainSimulationThread())
+            if (VThread::isSimThread())
             { // we are in the main simulation thread. Call only scripts that live in the same thread
                 if ( (script!=nullptr)&&(!script->getThreadedExecution_oldThreads()) )
                     script->systemCallScript(sim_syscb_trigger,inStack,outStack1);
@@ -1005,6 +1005,7 @@ void CProxSensor::setProxSensorSize(double newSize)
             const char* cmd="size";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_proxSensorSize);
+            App::worldContainer->pushEvent();
         }
     }
 }

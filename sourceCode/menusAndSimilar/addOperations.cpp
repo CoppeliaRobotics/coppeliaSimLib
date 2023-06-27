@@ -30,7 +30,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         (commandID==ADD_COMMANDS_ADD_PRIMITIVE_CYLINDER_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRIMITIVE_CONE_ACCMD)||
          (commandID==ADD_COMMANDS_ADD_PRIMITIVE_CAPSULE_ACCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PRIMITIVE_SHAPE);
 
@@ -60,7 +60,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 
     if (commandID==ADD_COMMANDS_ADD_FLOATING_VIEW_ACCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_FLOATING_VIEW);
 #ifdef SIM_WITH_GUI
@@ -80,7 +80,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     if ( (commandID==ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRISMATIC_JOINT_ACCMD)||
         (commandID==ADD_COMMANDS_ADD_SPHERICAL_JOINT_ACCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_JOINT);
             CJoint* newObject=nullptr;
@@ -106,7 +106,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     if ( (commandID==ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD)||(commandID==ADD_COMMANDS_ADD_ORTHOGONAL_CAMERA_ACCMD)||(commandID==ADD_COMMANDS_ADD_OMNI_LIGHT_ACCMD)||
         (commandID==ADD_COMMANDS_ADD_SPOT_LIGHT_ACCMD)||(commandID==ADD_COMMANDS_ADD_DIR_LIGHT_ACCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int lo=-1;
             if (subView!=nullptr)
@@ -185,7 +185,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     }
     if (commandID==ADD_COMMANDS_ADD_MIRROR_ACCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_MIRROR);
             CMirror* newObject=new CMirror();
@@ -206,7 +206,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     }
     if (commandID==ADD_COMMANDS_ADD_DUMMY_ACCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_DUMMY);
             CDummy* newObject=new CDummy();
@@ -225,7 +225,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     }
     if (commandID==ADD_COMMANDS_ADD_OCTREE_ACCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_AN_OCTREE);
             COcTree* newObject=new COcTree();
@@ -244,7 +244,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     }
     if (commandID==ADD_COMMANDS_ADD_POINTCLOUD_ACCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_POINTCLOUD);
             CPointCloud* newObject=new CPointCloud();
@@ -276,7 +276,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     }
     if ( (commandID>=ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_LUA_ACCMD)&&(commandID<=ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (App::currentWorld->sceneObjects->getSelectionCount()==1)
             {
@@ -301,7 +301,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 
     if ( (commandID>=ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD)&&(commandID<=ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (App::currentWorld->sceneObjects->getSelectionCount()==1)
             {
@@ -326,7 +326,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 
     if ( (commandID==ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD)||(commandID==ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PATH);
             std::string txt;
@@ -353,7 +353,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     }
     if (commandID==ADD_COMMANDS_ADD_GRAPH_ACCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_GRAPH);
             CGraph* newObject=new CGraph();
@@ -380,7 +380,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     }
     if ( (commandID==ADD_COMMANDS_ADD_VISION_SENSOR_PERSPECTIVE_ACCMD)||(commandID==ADD_COMMANDS_ADD_VISION_SENSOR_ORTHOGONAL_ACCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_VISION_SENSOR);
             CVisionSensor* newObject=new CVisionSensor();
@@ -429,7 +429,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     }
     if (commandID==ADD_COMMANDS_ADD_FORCE_SENSOR_ACCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_FORCE_SENSOR);
             CForceSensor* newObject=new CForceSensor();
@@ -449,7 +449,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     if ( (commandID==ADD_COMMANDS_ADD_RAY_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_PYRAMID_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_CYLINDER_PROXSENSOR_ACCMD)||
         (commandID==ADD_COMMANDS_ADD_DISC_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_CONE_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_RANDOMIZED_RAY_PROXSENSOR_ACCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PROXIMITY_SENSOR);
             CProxSensor* newObject=nullptr;
@@ -475,7 +475,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     }
     if (commandID==ADD_COMMANDS_ADD_CONVEX_HULL_ACCMD)
     { 
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
@@ -506,7 +506,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 
     if (commandID==ADD_COMMANDS_ADD_GROWN_CONVEX_HULL_ACCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);

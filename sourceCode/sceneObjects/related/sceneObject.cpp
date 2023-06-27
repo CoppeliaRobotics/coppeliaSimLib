@@ -221,6 +221,7 @@ void CSceneObject::setDynamicFlag(int flag)
             const char* cmd="dynamicFlag";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
             ev->appendKeyInt(cmd,_dynamicFlag);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -577,6 +578,7 @@ void CSceneObject::_setModelInvisible(bool inv)
             const char* cmd="modelInvisible";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
             ev->appendKeyBool(cmd,inv);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -774,6 +776,7 @@ void CSceneObject::setModelBase(bool m)
             const char* cmd="modelBase";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
             ev->appendKeyBool(cmd,m);
+            App::worldContainer->pushEvent();
         }
        _modelProperty=0; // Nothing is overridden!
         _modelAcknowledgement="";
@@ -798,6 +801,7 @@ void CSceneObject::setObjectProperty(int p)
             const char* cmd="objectProperty";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
             ev->appendKeyInt(cmd,_objectProperty);
+            App::worldContainer->pushEvent();
         }
         recomputeModelInfluencedValues();
     }
@@ -868,6 +872,7 @@ void CSceneObject::setModelProperty(int prop)
             const char* cmd="modelProperty";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
             ev->appendKeyInt(cmd,_modelProperty);
+            App::worldContainer->pushEvent();
         }
         recomputeModelInfluencedValues();
     }
@@ -1278,6 +1283,7 @@ void CSceneObject::pushObjectCreationEvent() const
             CCbor* ev=App::worldContainer->createSceneObjectAddEvent(this);
             CSceneObject::_addCommonObjectEventData(ev,data);
             addSpecializedObjectEventData(ev,data);
+            App::worldContainer->pushEvent();
             App::worldContainer->pushEvent(event);
         }//canBeRemoved
         else
@@ -1285,6 +1291,7 @@ void CSceneObject::pushObjectCreationEvent() const
             CCbor* ev=App::worldContainer->createSceneObjectAddEvent(this);
             CSceneObject::_addCommonObjectEventData(ev,nullptr);
             addSpecializedObjectEventData(ev,nullptr);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -1299,6 +1306,7 @@ void CSceneObject::pushObjectRefreshEvent() const
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,false);
             CSceneObject::_addCommonObjectEventData(ev,data);
             addSpecializedObjectEventData(ev,data);
+            App::worldContainer->pushEvent();
             App::worldContainer->pushEvent(event);
         }//canBeRemoved
         else
@@ -1306,6 +1314,7 @@ void CSceneObject::pushObjectRefreshEvent() const
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,false);
             CSceneObject::_addCommonObjectEventData(ev,nullptr);
             addSpecializedObjectEventData(ev,nullptr);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -1508,6 +1517,7 @@ void CSceneObject::writeCustomDataBlock(bool tmpData,const char* dataName,const 
             ev->openKeyMap(cmd);
             _customObjectData.appendEventData(ev,subC);
             _customObjectData_tempData.appendEventData(ev,subC);
+            App::worldContainer->pushEvent();
             App::worldContainer->pushEvent(event);
         }//canBeRemoved
         else
@@ -1516,6 +1526,7 @@ void CSceneObject::writeCustomDataBlock(bool tmpData,const char* dataName,const 
             ev->openKeyMap(cmd);
             _customObjectData.appendEventData(ev,nullptr);
             _customObjectData_tempData.appendEventData(ev,nullptr);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -1575,12 +1586,14 @@ void CSceneObject::setObjectMovementPreferredAxes(int p)
                 auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
                 CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
                 _appendObjectMovementEventData(ev,data);
+                App::worldContainer->pushEvent();
                 App::worldContainer->pushEvent(event);
             }//canBeRemoved
             else
             {
                 CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
                 _appendObjectMovementEventData(ev,nullptr);
+                App::worldContainer->pushEvent();
             }
         }
     }
@@ -1605,12 +1618,14 @@ void CSceneObject::setObjectMovementOptions(int p)
                 auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
                 CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
                 _appendObjectMovementEventData(ev,data);
+                App::worldContainer->pushEvent();
                 App::worldContainer->pushEvent(event);
             }//canBeRemoved
             else
             {
                 CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
                 _appendObjectMovementEventData(ev,nullptr);
+                App::worldContainer->pushEvent();
             }
         }
     }
@@ -1634,12 +1649,14 @@ void CSceneObject::setObjectMovementRelativity(int index,int p)
                 auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
                 CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
                 _appendObjectMovementEventData(ev,data);
+                App::worldContainer->pushEvent();
                 App::worldContainer->pushEvent(event);
             }//canBeRemoved
             else
             {
                 CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
                 _appendObjectMovementEventData(ev,nullptr);
+                App::worldContainer->pushEvent();
             }
         }
     }
@@ -1706,12 +1723,14 @@ void CSceneObject::setObjectMovementStepSize(int index,double s)
                 auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
                 CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
                 _appendObjectMovementEventData(ev,data);
+                App::worldContainer->pushEvent();
                 App::worldContainer->pushEvent(event);
             }//canBeRemoved
             else
             {
                 CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
                 _appendObjectMovementEventData(ev,nullptr);
+                App::worldContainer->pushEvent();
             }
         }
     }
@@ -1844,6 +1863,7 @@ void CSceneObject::_setBB(const C7Vector& bbFrame,const C3Vector& bbHalfSize)
             double p[7]={_bbFrame.X(0),_bbFrame.X(1),_bbFrame.X(2),_bbFrame.Q(1),_bbFrame.Q(2),_bbFrame.Q(3),_bbFrame.Q(0)};
             ev->appendKeyDoubleArray("pose",p,7);
             ev->appendKeyDoubleArray("hsize",_bbHalfSize.data,3);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -2209,6 +2229,7 @@ bool CSceneObject::setParent(CSceneObject* parent)
             if (_parentObject!=nullptr)
                 pUid=_parentObject->getObjectUid();
             ev->appendKeyInt(cmd,pUid);
+            App::worldContainer->pushEvent();
         }
         if (getObjectCanSync())
         {
@@ -4662,6 +4683,7 @@ void CSceneObject::setVisibilityLayer(unsigned short l)
             const char* cmd="layer";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
             ev->appendKeyInt(cmd,l);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -4683,6 +4705,7 @@ void CSceneObject::setChildOrder(int order)
             const char* cmd="childOrder";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
             ev->appendKeyInt(cmd,order);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -4710,6 +4733,7 @@ void CSceneObject::setObjectAlias_direct(const char* newName)
             const char* cmd="alias";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
             ev->appendKeyString(cmd,newName);
+            App::worldContainer->pushEvent();
         }
     }
 }
@@ -4743,6 +4767,7 @@ void CSceneObject::setLocalTransformation(const C7Vector& tr)
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
             double p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
             ev->appendKeyDoubleArray(cmd,p,7);
+            App::worldContainer->pushEvent();
         }
         if (getObjectCanSync())
             _setLocalTransformation_send(_localTransformation);
@@ -4768,6 +4793,7 @@ void CSceneObject::setLocalTransformation(const C4Vector& q)
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
             double p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
             ev->appendKeyDoubleArray(cmd,p,7);
+            App::worldContainer->pushEvent();
         }
         if (getObjectCanSync())
         {
@@ -4797,6 +4823,7 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
             double p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
             ev->appendKeyDoubleArray(cmd,p,7);
+            App::worldContainer->pushEvent();
         }
         if (getObjectCanSync())
         {

@@ -353,7 +353,7 @@ void CDlgCont::addMenu(VMenu* menu)
 bool CDlgCont::processCommand(int commandID)
 { // Return value is true if the command belonged to dlg menu and was executed
 
-    if (!VThread::isCurrentThreadTheUiThread())
+    if (!VThread::isUiThread())
     { // we are NOT in the UI thread.
         // We execute the other commands via the UI thread:
         SUIThreadCommand cmdIn;

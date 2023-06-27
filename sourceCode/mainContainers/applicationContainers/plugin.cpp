@@ -279,7 +279,7 @@ bool CPlugin::init(std::string* errStr)
     bool retVal=false;
     if (_initAddress!=nullptr)
     {
-        if (!VThread::isCurrentThreadTheMainSimulationThread())
+        if (!VThread::isSimThread())
             printf("Error: wrong thread in CPlugin::init\n");
 
         pushCurrentPlugin();
@@ -325,7 +325,7 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*
     pushCurrentPlugin();
     if (_initAddress!=nullptr)
     {
-        if (!VThread::isCurrentThreadTheMainSimulationThread())
+        if (!VThread::isSimThread())
             printf("Error: wrong thread in CPlugin::msg\n");
 
         if (_msgAddress!=nullptr)
@@ -349,7 +349,7 @@ void CPlugin::init_ui()
 {
     if ( (_initAddress_ui!=nullptr)&&(_stage==stage_siminitdone) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
             printf("Error: wrong thread in CPlugin::init_ui\n");
 
         _initAddress_ui();
@@ -361,7 +361,7 @@ void CPlugin::cleanup_ui()
 {
     if ( (_cleanupAddress_ui!=nullptr)&&(_stage==stage_docleanup) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
             printf("Error: wrong thread in CPlugin::cleanup_ui\n");
 
         _cleanupAddress_ui();
@@ -373,7 +373,7 @@ void CPlugin::msg_ui(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullp
 {
     if ( (_msgAddress_ui!=nullptr)&&(_stage==stage_uiinitdone) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
             printf("Error: wrong thread in CPlugin::msg_ui\n");
 
         _msgAddress_ui(msgId,auxData,auxPointer);
@@ -384,7 +384,7 @@ void CPlugin::cleanup()
 {
     if (_initAddress!=nullptr)
     {
-        if (!VThread::isCurrentThreadTheMainSimulationThread())
+        if (!VThread::isSimThread())
             printf("Error: wrong thread in CPlugin::cleanup\n");
 
         if (_cleanupAddress!=nullptr)

@@ -165,22 +165,14 @@ void VThread::unsetUiThreadId()
     _uiThreadIdSet=false;
 }
 
-bool VThread::isCurrentThreadTheUiThread()
+bool VThread::isUiThread()
 {
     if (!_uiThreadIdSet)
         return(true); // the main thread is the UI thread
     return(areThreadIDsSame(_uiThreadId,getCurrentThreadId()));
 }
 
-bool VThread::isCurrentThreadNotTheUiThreadOrUiThreadNotYetSet()
-{
-    bool retVal=true;
-    if (_uiThreadIdSet)
-        retVal=!areThreadIDsSame(_uiThreadId,getCurrentThreadId());
-    return(retVal);
-}
-
-bool VThread::isCurrentThreadTheMainSimulationThread()
+bool VThread::isSimThread()
 {
     if (!_simulationMainThreadIdSet)
         return(false); // the initial thread is the one that will become the UI thread

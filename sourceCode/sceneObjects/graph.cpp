@@ -870,6 +870,7 @@ void CGraph::setGraphSize(double theNewSize)
             const char* cmd="size";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_graphSize);
+            App::worldContainer->pushEvent();
         }
     }
 }

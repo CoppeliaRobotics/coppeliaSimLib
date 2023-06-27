@@ -317,7 +317,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
 { // Return value is true if the command belonged to hierarchy menu and was executed
     if ( (commandID>=UI_MODULE_MENU_CMDS_START)&&(commandID<=UI_MODULE_MENU_CMDS_END) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CScriptObject* it=nullptr;
             for (size_t i=0;i<_addOns.size();i++)

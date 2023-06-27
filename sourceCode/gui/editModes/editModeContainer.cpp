@@ -430,7 +430,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
 
     if (commandID==ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             deselectEditModeBuffer();
         }
@@ -445,7 +445,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
 
     if ( (commandID==SHAPE_EDIT_MODE_START_EMCMD)||( (getEditModeType()==NO_EDIT_MODE)&&(commandID==SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) ) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CShape* it=nullptr;
             if (App::currentWorld->sceneObjects->getSelectionCount()>=1)
@@ -525,7 +525,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
 
     if ( (commandID==PATH_EDIT_MODE_OLD_START_EMCMD)||( (getEditModeType()==NO_EDIT_MODE)&&(commandID==PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD) ) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CPath_old* it=nullptr;
             if (App::currentWorld->sceneObjects->getSelectionCount()>=1)
@@ -581,7 +581,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
     TRACE_INTERNAL;
     if (commandID==SHAPE_EDIT_MODE_SWAP_TO_VERTEX_EDIT_MODE_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_SWAPPING_TO_VERTEX_EDIT_MODE);
             _shapeEditMode->processCommand(commandID);
@@ -604,7 +604,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 
     if (commandID==SHAPE_EDIT_MODE_SWAP_TO_TRIANGLE_EDIT_MODE_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_SWAPPING_TO_TRIANGLE_EDIT_MODE);
             _shapeEditMode->processCommand(commandID);
@@ -627,7 +627,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 
     if (commandID==SHAPE_EDIT_MODE_SWAP_TO_EDGE_EDIT_MODE_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_SWAPPING_TO_EDGE_EDIT_MODE);
             _shapeEditMode->processCommand(commandID);
@@ -650,7 +650,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 
     if (commandID==SHAPE_EDIT_MODE_TRIANGLE_VERTEX_COPY_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (_shapeEditMode->getEditModeType()&EDGE_EDIT_MODE)
                 App::logMsg(sim_verbosity_msgs,IDSNS_EDGES_CANNOT_BE_COPIED_CUR_OR_PASTED);
@@ -673,7 +673,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 
     if (commandID==SHAPE_EDIT_MODE_PASTE_TRIANGLE_VERTEX_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // We are in the main thread. We execute the command here:
             if (_shapeEditMode->getEditModeType()&EDGE_EDIT_MODE)
                 App::logMsg(sim_verbosity_msgs,IDSNS_EDGES_CANNOT_BE_COPIED_CUR_OR_PASTED);
@@ -696,7 +696,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 
     if (commandID==SHAPE_EDIT_MODE_EMPTY_TRIANGLE_VERTEX_COPY_BUFFER_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_CLEARING_BUFFER);
             _shapeEditMode->processCommand(commandID);
@@ -714,7 +714,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 
     if (commandID==SHAPE_EDIT_MODE_DELETE_TRIANGLE_VERTEX_EDGE_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTION);
             _shapeEditMode->processCommand(commandID);
@@ -732,7 +732,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 
     if (commandID==SHAPE_EDIT_MODE_SELECT_ALL_ITEMS_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (_shapeEditMode->getEditModeType()&TRIANGLE_EDIT_MODE)
                 App::logMsg(sim_verbosity_msgs,IDSNS_SELECTING_ALL_TRIANGLES);
@@ -755,7 +755,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 
     if (commandID==SHAPE_EDIT_MODE_TOGGLE_HIDDEN_VERTICE_EDGE_SHOW_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _shapeEditMode->processCommand(commandID);
             App::setFullDialogRefreshFlag();
@@ -772,7 +772,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 
     if (commandID==SHAPE_EDIT_MODE_TOGGLE_AUTOMATIC_EDGE_FOLLOWING_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _shapeEditMode->processCommand(commandID);
             App::setFullDialogRefreshFlag();
@@ -789,7 +789,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 
     if (commandID==SHAPE_EDIT_MODE_TRIANGLE_VERTEX_CUT_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (_shapeEditMode->getEditModeType()&EDGE_EDIT_MODE)
                 App::logMsg(sim_verbosity_msgs,IDSNS_EDGES_CANNOT_BE_COPIED_CUR_OR_PASTED);
@@ -897,7 +897,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 
     if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)||(commandID==SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             unsigned short res=0;
             if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) )
@@ -936,7 +936,7 @@ bool CEditModeContainer::_processMultishapeEditModeCommand(int commandID)
     TRACE_INTERNAL;
     if ( (commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)||(commandID==SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_ENDING_EDIT_MODE_AND_APPLYING_CHANGES);
             endEditMode(false);
@@ -960,7 +960,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
     TRACE_INTERNAL;
     if (commandID==PATH_EDIT_MODE_OLD_SELECT_ALL_PATH_POINTS_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
@@ -980,7 +980,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
 
     if (commandID==PATH_EDIT_MODE_OLD_PATH_POINT_COPY_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
@@ -1000,7 +1000,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
 
     if (commandID==PATH_EDIT_MODE_OLD_PASTE_PATH_POINT_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
@@ -1020,7 +1020,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
 
     if (commandID==PATH_EDIT_MODE_OLD_INSERT_NEW_PATH_POINT_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
@@ -1040,7 +1040,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
 
     if (commandID==PATH_EDIT_MODE_OLD_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if ((viewableObject!=nullptr)&&(viewableObject->getObjectType()==sim_object_camera_type))
             {
@@ -1064,7 +1064,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
 
     if (commandID==PATH_EDIT_MODE_OLD_DELETE_PATH_POINT_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
@@ -1084,7 +1084,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
 
     if (commandID==PATH_EDIT_MODE_OLD_PATH_POINT_CUT_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
@@ -1104,7 +1104,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
 
     if (commandID==PATH_EDIT_MODE_OLD_KEEP_ALL_X_AND_ALIGN_Z_FOR_PATH_POINTS_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
@@ -1131,7 +1131,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
 
     if (commandID==PATH_EDIT_MODE_OLD_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_INVERTING_CONTROL_POINT_ORDER);
             if (_pathEditMode->processCommand(commandID,viewableObject))
@@ -1151,7 +1151,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
 
     if (commandID==PATH_EDIT_MODE_OLD_MAKE_PATH_FROM_BEZIER_EMCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             bool proceed=true;
             if (_pathEditMode->getBezierPathPointCount()>50)
@@ -1177,7 +1177,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
 
     if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)||(commandID==PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD) )
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             unsigned short res=0;
             if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD) )

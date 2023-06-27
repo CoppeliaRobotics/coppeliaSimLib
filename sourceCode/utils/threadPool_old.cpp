@@ -374,7 +374,7 @@ bool CThreadPool_old::switchBackToPreviousThread()
     int fql=int(_threadQueue.size());
     if (fql>1)
     { // Switch back only if not main thread, and not external thread
-        if (!VThread::isCurrentThreadTheMainSimulationThread()) // new since 10/11/2014. Now thread switch can also be called from the C API
+        if (!VThread::isSimThread()) // new since 10/11/2014. Now thread switch can also be called from the C API
         {
             if (VThread::areThreadIDsSame(VThread::getCurrentThreadId(),_threadQueue[fql-1])) // new since 10/11/2014. Now thread switch can also be called from the C API
             {
@@ -872,7 +872,7 @@ bool CThreadPool_old::isThreadInFreeMode()
 {
     if (_inInterceptRoutine>0)
         return(false);
-    if ( VThread::isCurrentThreadTheMainSimulationThread()||(!VThread::isSimulationMainThreadIdSet()) )
+    if ( VThread::isSimThread()||(!VThread::isSimulationMainThreadIdSet()) )
         return(false);
     bool retVal=false;
     _lock(18);

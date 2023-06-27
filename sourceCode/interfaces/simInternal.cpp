@@ -2526,7 +2526,7 @@ int simSetBoolParam_internal(int parameter,bool boolState)
 #ifdef SIM_WITH_GUI
             if (App::mainWindow!=nullptr)
             {
-                if (VThread::isCurrentThreadTheUiThread())
+                if (VThread::isUiThread())
                 { // We are in the UI thread. We execute the command now:
                     App::mainWindow->setOpenGlDisplayEnabled(boolState!=0);
                 }
@@ -10208,7 +10208,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
             {
                 if (shape->getMesh()->isMesh())
                 {
-                    if (!VThread::isCurrentThreadTheUiThread())
+                    if (!VThread::isUiThread())
                     { // we are NOT in the UI thread. We execute the command now:
                         shape->getSingleMesh()->setShadingAngle(parameter);
                     }
@@ -10229,7 +10229,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
             {
                 if (shape->getMesh()->isMesh())
                 {
-                    if (!VThread::isCurrentThreadTheUiThread())
+                    if (!VThread::isUiThread())
                     { // we are NOT in the UI thread. We execute the command now:
                         shape->getSingleMesh()->setEdgeThresholdAngle(parameter);
                     }
@@ -13592,7 +13592,7 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
             }
             else
             {
-                if (VThread::isCurrentThreadTheMainSimulationThread())
+                if (VThread::isSimThread())
                     retVal=script->callCustomScriptFunction(funcName.c_str(),stack);
             }
             if (retVal==-1)
@@ -15925,7 +15925,7 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
             }
             else
             {
-                if (VThread::isCurrentThreadTheMainSimulationThread())
+                if (VThread::isSimThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
                     retVal=script->executeScriptString(stringToExec.c_str(),stack);
                 }

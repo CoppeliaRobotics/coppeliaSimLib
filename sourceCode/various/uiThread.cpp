@@ -75,7 +75,7 @@ void CUiThread::processGuiEventsUntilQuit_noSignalSlots()
 
 bool CUiThread::executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 { // Called by any thread
-    if (!VThread::isCurrentThreadTheUiThread())
+    if (!VThread::isUiThread())
     {
 #ifndef SIM_WITH_QT
         _noSigSlotMutex.lock_simple("CUiThread::executeCommandViaUiThread");
@@ -493,7 +493,7 @@ void CUiThread::showOrHideProgressBar(bool show,double pos,const char* txt)
         t=txt;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
             static CQDlgProgress* theDialog=nullptr;
             if (show)
@@ -539,7 +539,7 @@ bool CUiThread::showOrHideEmergencyStop(bool show,const char* txt)
         {
             if (_emergencyStopDlg==nullptr)
             { // need to show it
-                if (VThread::isCurrentThreadTheUiThread())
+                if (VThread::isUiThread())
                 {
                     CQDlgStopScripts::stopScriptNow=false;
                     _emergencyStopDlg=new CQDlgStopScripts(App::mainWindow);
@@ -561,7 +561,7 @@ bool CUiThread::showOrHideEmergencyStop(bool show,const char* txt)
                 retVal=CQDlgStopScripts::stopScriptNow;
                 if (retVal)
                 { // hide the dlg
-                    if (VThread::isCurrentThreadTheUiThread())
+                    if (VThread::isUiThread())
                     {
                         delete _emergencyStopDlg;
                         _emergencyStopDlg=nullptr;
@@ -583,7 +583,7 @@ bool CUiThread::showOrHideEmergencyStop(bool show,const char* txt)
         {
             if (_emergencyStopDlg!=nullptr)
             {
-                if (VThread::isCurrentThreadTheUiThread())
+                if (VThread::isUiThread())
                 {
                     delete _emergencyStopDlg;
                     _emergencyStopDlg=nullptr;
@@ -648,7 +648,7 @@ std::string CUiThread::getOpenOrSaveFileName_api(int mode,const char* title,cons
     std::string retVal;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     {
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
             if (mode==sim_filedlg_type_save)
                 retVal=VFileDialog::getSaveFileName(App::mainWindow,0,title,startPath,initName,false,extName,ext);
@@ -729,7 +729,7 @@ unsigned short CUiThread::_messageBox(int type,void* parentWidget,const char* ti
     unsigned short retVal=VMESSAGEBOX_REPLY_ERROR;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
             if (type==0)
                 retVal=VMessageBox::information((QWidget*)parentWidget,title,message,flags,defaultAnswer);
@@ -767,7 +767,7 @@ bool CUiThread::messageBox_checkbox(void* parentWidget,const char* title,const c
     bool retVal=false;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
             int v=sim_verbosity_infos;
             if (isWarning)
@@ -833,7 +833,7 @@ bool CUiThread::getOpenFileNames(std::vector<std::string>& files,void* parentWid
     bool retVal=false;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
             retVal=VFileDialog::getOpenFileNames(files,(QWidget*)parentWidget,option,title,startPath,initFilename,allowAnyFile,extensionName,extension1,extension2,extension3,extension4,extension5,extension6,extension7,extension8,extension9,extension10);
         }
@@ -872,7 +872,7 @@ bool CUiThread::getOpenFileNames(std::vector<std::string>& files,void* parentWid
 void CUiThread::setFileDialogsNative(int n)
 {
     TRACE_INTERNAL;
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         VFileDialog::setFileDialogNative(n);
     }
@@ -892,7 +892,7 @@ std::string CUiThread::getOpenFileName(void* parentWidget,unsigned short option,
     std::string retVal;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
             retVal=VFileDialog::getOpenFileName((QWidget*)parentWidget,option,title,startPath,initFilename,allowAnyFile,extensionName,extension1,extension2,extension3,extension4,extension5,extension6,extension7,extension8,extension9,extension10);
         }
@@ -932,7 +932,7 @@ std::string CUiThread::getSaveFileName(void* parentWidget,unsigned short option,
     std::string retVal;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
             retVal=VFileDialog::getSaveFileName((QWidget*)parentWidget,option,title,startPath,initFilename,allowAnyFile,extensionName,extension1,extension2,extension3,extension4,extension5,extension6,extension7,extension8,extension9,extension10);
         }
@@ -972,7 +972,7 @@ bool CUiThread::dialogInputGetFloat(void* parentWidget,const char* title,const c
     bool retVal=false;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
             outFloat[0]=(double)QInputDialog::getDouble((QWidget*)parentWidget,title,msg,def,minV,maxV,decimals,&retVal);
         }
@@ -1006,7 +1006,7 @@ bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesI
     bool retVal=false;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
             CQDlgPrimitives theDialog(App::mainWindow);
             theDialog.initialize(type,optionalSizesIn);

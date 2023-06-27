@@ -18,6 +18,7 @@ CCbor::CCbor(const std::string* initBuff/*=nullptr*/,int options/*=0*/)
 {
     _options=options;
     _eventDepth=0;
+    _eventOpen=false;
     _discardableEventCnt=0;
     if (initBuff!=nullptr)
         _buff.assign(initBuff->begin(),initBuff->end());
@@ -327,6 +328,7 @@ void CCbor::clear()
     _mergeableEventIds.clear();
     _discardableEventCnt=0;
     _eventDepth=0;
+    _eventOpen=false;
 }
 
 std::string CCbor::getBuff() const
@@ -349,9 +351,10 @@ size_t CCbor::getEventDepth() const
 
 void CCbor::createEvent(const char* event,const char* fieldName,const char* objType,long long int uid,int handle,bool mergeable,bool openDataField/*=true*/)
 {
-    while (_eventDepth>1)
-        closeArrayOrMap(); // make sure to close all previous event's arrays/maps, except for the one holding the event
-    _eventDepth=0; // yes, we intentionally forgot to close the last array/map, but we anyways reset the depth to zero
+    if (_eventOpen)
+        App::logMsg(sim_verbosity_errors,"creating an event where an event push is expected.");
+    _eventOpen=true;
+
     SEventInf inf;
     inf.pos=_buff.size();
     if (mergeable)
@@ -388,10 +391,24 @@ void CCbor::createEvent(const char* event,const char* fieldName,const char* objT
     }
 }
 
+void CCbor::pushEvent()
+{
+    if (_eventOpen)
+    {
+        while (_eventDepth>1)
+            closeArrayOrMap(); // make sure to close the current event's arrays/maps, except for the one holding the event
+        _eventDepth=0; // yes, we intentionally forget to close the last array/map, but we anyways reset the depth to zero
+        _eventOpen=false;
+    }
+    else
+        App::logMsg(sim_verbosity_errors,"pushing an event unexisting event.");
+}
+
 long long int CCbor::finalizeEvents(long long int nextSeq,bool seqChanges)
 {
-    while (_eventDepth>1)
-        closeArrayOrMap(); // make sure to close all previous event's arrays/maps, except for the one holding the event
+    if (_eventOpen)
+        App::logMsg(sim_verbosity_errors,"finalizing events where an event push is expected.");
+
     if (!seqChanges)
         nextSeq=nextSeq-_eventInfos.size()+_discardableEventCnt;
     std::vector<unsigned char> events;
@@ -414,6 +431,7 @@ long long int CCbor::finalizeEvents(long long int nextSeq,bool seqChanges)
     _mergeableEventIds.clear();
     _discardableEventCnt=0;
     _eventDepth=0;
+    _eventOpen=false;
     return(nextSeq);
 }
 

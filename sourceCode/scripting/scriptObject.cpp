@@ -2695,7 +2695,7 @@ void CScriptObject::_hookFunction_lua(void* LL,void* arr)
                 App::currentWorld->simulation->showAndHandleEmergencyStopButton(false,"");
         }
 #endif
-        if (!VThread::isCurrentThreadTheMainSimulationThread())
+        if (!VThread::isSimThread())
         { // Old, for backward compatibility with old threads
             if (CThreadPool_old::getSimulationStopRequestedAndActivated())
             {

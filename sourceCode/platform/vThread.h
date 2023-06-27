@@ -29,9 +29,8 @@ public:
     static bool isUiThreadIdSet();
     static void setUiThreadId();
     static void unsetUiThreadId();
-    static bool isCurrentThreadTheMainSimulationThread();
-    static bool isCurrentThreadTheUiThread();
-    static bool isCurrentThreadNotTheUiThreadOrUiThreadNotYetSet();
+    static bool isSimThread();
+    static bool isUiThread();
     static bool areThreadIDsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB);
     static VTHREAD_ID_TYPE getCurrentThreadId();
     static void switchThread();

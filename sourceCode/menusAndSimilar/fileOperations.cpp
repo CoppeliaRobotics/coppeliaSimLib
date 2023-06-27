@@ -41,7 +41,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     { // Cannot undo this command
         if ( App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 createNewScene(true,true);
             }
@@ -56,7 +56,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     { // Cannot undo this command
         if (App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
                 closeScene(true);
             else
                 App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -70,7 +70,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if ( App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::logMsg(sim_verbosity_msgs,tt::decorateString("",IDSNS_LOADING_SCENE,"...").c_str());
                 CSimFlavor::run(2);
@@ -113,7 +113,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 CSimFlavor::run(2);
                 CPersistentDataContainer cont;
@@ -157,7 +157,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
 
     if (cmd.cmdId==FILE_OPERATION_LOAD_MODEL_FOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CSimFlavor::run(2);
             std::string ext[4];
@@ -178,7 +178,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 _saveSceneWithDialogAndEverything(); // will call save as if needed!
             }
@@ -191,7 +191,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 int filetype=CSer::filetype_unspecified_file;
                 if (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD)
@@ -211,7 +211,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
-            if (!VThread::isCurrentThreadTheUiThread())
+            if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 std::vector<int> sel;
                 for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
@@ -365,7 +365,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     }
     if (cmd.cmdId==FILE_OPERATION_IMPORT_MESH_FOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (App::worldContainer->pluginContainer->isAssimpPluginAvailable())
             {
@@ -404,7 +404,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
 
     if (cmd.cmdId==FILE_OPERATION_IMPORT_HEIGHTFIELD_FOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_IMPORTING_HEIGHTFIELD_SHAPE);
             App::currentWorld->sceneObjects->deselectObjects();
@@ -435,7 +435,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
 
     if (cmd.cmdId==FILE_OPERATION_EXPORT_SHAPE_FOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (App::worldContainer->pluginContainer->isAssimpPluginAvailable())
             {
@@ -485,7 +485,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     }
     if (cmd.cmdId==FILE_OPERATION_EXPORT_GRAPHS_FOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
             App::currentWorld->sceneObjects->getSelectedObjectHandles(sel,sim_object_graph_type,true,false);
@@ -521,7 +521,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
 
     if (cmd.cmdId==FILE_OPERATION_EXPORT_DYNAMIC_CONTENT_FOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             if (!App::currentWorld->environment->getSceneLocked())
             {
@@ -596,7 +596,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
 
     if (cmd.cmdId==FILE_OPERATION_EXIT_SIMULATOR_FOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             bool displayed=false;
 #ifdef SIM_WITH_GUI
@@ -691,7 +691,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
 
     if (cmd.cmdId==FILE_OPERATION_OPEN_DRAG_AND_DROP_MODEL_FOCMD)
     {
-        if (!VThread::isCurrentThreadTheUiThread())
+        if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             loadModel(cmd.stringParams[0].c_str(),true,false,cmd.boolParams[1],nullptr,false,false);
         }

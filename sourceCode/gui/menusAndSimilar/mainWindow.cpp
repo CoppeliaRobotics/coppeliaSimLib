@@ -461,7 +461,7 @@ void CMainWindow::setFullScreen(bool f)
 {
     if (_fullscreen!=f)
     {
-        if (VThread::isCurrentThreadTheUiThread())
+        if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
             if (f)
             {
@@ -2180,7 +2180,7 @@ void CMainWindow::_closeDialogTemporarilyIfOpened(int dlgID,std::vector<int>& ve
 
 void CMainWindow::closeTemporarilyDialogsForPageSelector()
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(false);
@@ -2211,7 +2211,7 @@ void CMainWindow::closeTemporarilyDialogsForPageSelector()
 
 void CMainWindow::reopenTemporarilyClosedDialogsForPageSelector()
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         for (int i=0;i<int(_dialogsClosedTemporarily_pageSelector.size());i++)
             dlgCont->openOrBringToFront(_dialogsClosedTemporarily_pageSelector[i]);
@@ -2231,7 +2231,7 @@ void CMainWindow::reopenTemporarilyClosedDialogsForPageSelector()
 
 void CMainWindow::closeTemporarilyDialogsForViewSelector()
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(false);
@@ -2262,7 +2262,7 @@ void CMainWindow::closeTemporarilyDialogsForViewSelector()
 
 void CMainWindow::reopenTemporarilyClosedDialogsForViewSelector()
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         for (int i=0;i<int(_dialogsClosedTemporarily_viewSelector.size());i++)
             dlgCont->openOrBringToFront(_dialogsClosedTemporarily_viewSelector[i]);
@@ -2281,7 +2281,7 @@ void CMainWindow::reopenTemporarilyClosedDialogsForViewSelector()
 
 void CMainWindow::reopenTemporarilyClosedNonEditModeDialogs()
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         for (int i=0;i<int(_dialogsClosedTemporarily_editModes.size());i++)
             dlgCont->openOrBringToFront(_dialogsClosedTemporarily_editModes[i]);
@@ -2300,7 +2300,7 @@ void CMainWindow::reopenTemporarilyClosedNonEditModeDialogs()
 
 void CMainWindow::closeTemporarilyNonEditModeDialogs()
 {
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(false);
@@ -2331,7 +2331,7 @@ void CMainWindow::closeTemporarilyNonEditModeDialogs()
 void CMainWindow::openOrBringDlgToFront(int dlgId)
 {
     TRACE_INTERNAL;
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         dlgCont->openOrBringToFront(dlgId);
     }
@@ -2348,7 +2348,7 @@ void CMainWindow::openOrBringDlgToFront(int dlgId)
 void CMainWindow::closeDlg(int dlgId)
 {
     TRACE_INTERNAL;
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         dlgCont->close(dlgId);
     }
@@ -2365,7 +2365,7 @@ void CMainWindow::closeDlg(int dlgId)
 void CMainWindow::activateMainWindow()
 {
     TRACE_INTERNAL;
-    if (VThread::isCurrentThreadTheUiThread())
+    if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
         activateWindow();
     }

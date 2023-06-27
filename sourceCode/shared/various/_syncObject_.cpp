@@ -47,13 +47,6 @@ bool _CSyncObject_::isRoutingSet() const
 
 bool _CSyncObject_::getObjectCanSync() const
 {
-    /*
-    if (_objectCanSync)
-    {
-        if (!VThread::isCurrentThreadNotTheUiThreadOrUiThreadNotYetSet())
-            App::logMsg(sim_verbosity_errors,"getObjectCanSync() was called from the UI thread.");
-    }
-    */
     return(_objectCanSync); // slave can sync when not incoming msg underway
 }
 
