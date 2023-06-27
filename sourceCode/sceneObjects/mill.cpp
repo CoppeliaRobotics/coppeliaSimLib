@@ -109,13 +109,15 @@ void CMill::removeSceneDependencies()
     _millableObject=-1;
 }
 
-void CMill::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void CMill::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("mill",subC);
     data=subC;
-
-    // todo
+    }//canBeRemoved
+    ev->openKeyMap("mill");
+    ev->closeArrayOrMap(); // mill
 }
 
 CSceneObject* CMill::copyYourself()

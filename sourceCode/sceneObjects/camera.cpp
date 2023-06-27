@@ -693,7 +693,7 @@ void CCamera::setAllowTranslation(bool allow)
         _allowTranslation=allow;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="allowTranslation";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringBool(cmd,_allowTranslation);
@@ -718,7 +718,7 @@ void CCamera::setAllowRotation(bool allow)
         _allowRotation=allow;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="allowRotation";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringBool(cmd,_allowRotation);
@@ -852,7 +852,7 @@ void CCamera::setCameraSize(double size)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,size);
@@ -906,8 +906,9 @@ void CCamera::removeSceneDependencies()
     _trackedObjectHandle=-1;
 }
 
-void CCamera::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void CCamera::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("camera",subC);
     data=subC;
@@ -939,6 +940,34 @@ void CCamera::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     _color_removeSoon.getColor(c+3,sim_colorcomponent_specular);
     _color_removeSoon.getColor(c+6,sim_colorcomponent_emission);
     colors->appendArrayObject_floatArray(c,9);
+    }//canBeRemoved
+    ev->openKeyMap("camera");
+    ev->appendKeyBool("perspectiveMode",_perspective);
+    ev->appendKeyBool("allowTranslation",_allowTranslation);
+    ev->appendKeyBool("allowRotation",_allowRotation);
+    ev->appendKeyDouble("nearClippingPlane",_nearClippingPlane);
+    ev->appendKeyDouble("farClippingPlane",_farClippingPlane);
+    ev->appendKeyDouble("viewAngle",_viewAngle);
+    ev->appendKeyDouble("orthoSize",_orthoViewSize);
+    ev->appendKeyDouble("size",_cameraSize);
+    ev->appendKeyBool("showFrustum",_showVolume);
+    ev->appendKeyInt("remoteCameraMode",_remoteCameraMode);
+    ev->openKeyMap("frustumVectors");
+    ev->appendKeyDoubleArray("near",_volumeVectorNear.data,3);
+    ev->appendKeyDoubleArray("far",_volumeVectorFar.data,3);
+    ev->closeArrayOrMap(); // "frustumVectors"
+    ev->openKeyArray("colors");
+    float c[9];
+    _color.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _color.getColor(c+3,sim_colorcomponent_specular);
+    _color.getColor(c+6,sim_colorcomponent_emission);
+    ev->appendFloatArray(c,9);
+    _color_removeSoon.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.getColor(c+3,sim_colorcomponent_specular);
+    _color_removeSoon.getColor(c+6,sim_colorcomponent_emission);
+    ev->appendFloatArray(c,9);
+    ev->closeArrayOrMap(); // "colors"
+    ev->closeArrayOrMap(); //"camera"
 }
 
 CSceneObject* CCamera::copyYourself()
@@ -1052,7 +1081,7 @@ void CCamera::setRemoteCameraMode(int m)
         _remoteCameraMode=m;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="remoteCameraMode";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringInt32(cmd,_remoteCameraMode);

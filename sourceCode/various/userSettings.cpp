@@ -82,6 +82,7 @@
 #define _USR_ENABLE_old_MIRROR_OBJECTS "enableOldMirrorObjects"
 #define _USR_ENABLE_OLD_SCRIPT_TRAVERSAL "enableOldScriptTraversal"
 #define _USR_ALLOW_old_EDU_RELEASE "allowOldEduRelease"
+#define _USR_USE_OLD_EVENTS "oldEvents"
 #define _USR_THREADED_SCRIPTS_GRACE_TIME "threadedScriptsStoppingGraceTime"
 
 #define _USR_ABORT_SCRIPT_EXECUTION_BUTTON "abortScriptExecutionButton"
@@ -344,6 +345,7 @@ CUserSettings::CUserSettings()
     _supportOldApiNotation=true;
     enableOldScriptTraversal=false;
     enableOldMirrorObjects=false;
+    oldEvents=false;
     allowOldEduRelease=-1;
     threadedScriptsStoppingGraceTime=0;
     bugFix1=1000;
@@ -719,6 +721,7 @@ void CUserSettings::saveUserSettings()
         c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts,"");
         c.addBoolean(_USR_SUPPORT_old_API_NOTATION,_supportOldApiNotation,"");
         c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
+        c.addBoolean(_USR_USE_OLD_EVENTS,oldEvents);
         c.addBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal,"");
         c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
 
@@ -991,6 +994,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_SUPPORT_old_API_NOTATION,_supportOldApiNotation);
     c.getBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal);
     c.getBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects);
+    c.getBoolean(_USR_USE_OLD_EVENTS,oldEvents);
     c.getInteger(_USR_ALLOW_old_EDU_RELEASE,allowOldEduRelease);
     c.getInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime);
     c.getInteger(_USR_BUGFIX1,bugFix1);

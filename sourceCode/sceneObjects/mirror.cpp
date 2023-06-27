@@ -164,12 +164,15 @@ void CMirror::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CMirror::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void CMirror::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("mirror",subC);
     data=subC;
-
+    }//canBeRemoved
+    ev->openKeyMap("mirror");
+    ev->closeArrayOrMap(); // mirror
     // todo
 }
 

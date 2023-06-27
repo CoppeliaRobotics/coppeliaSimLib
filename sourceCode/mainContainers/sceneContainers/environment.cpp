@@ -145,10 +145,15 @@ void CEnvironment::setUpDefaultValues()
 
 void CEnvironment::pushGenesisEvents() const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_ENVIRONMENTCHANGED,-1,nullptr,false);
     data->appendMapObject_stringInt32("sceneUid",getSceneUniqueID());
     data->appendMapObject_stringInt32("visibilityLayers",getActiveLayers());
     App::worldContainer->pushEvent(event);
+    }//canBeRemoved
+    CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED,-1,nullptr,false);
+    ev->appendKeyInt("sceneUid",getSceneUniqueID());
+    ev->appendKeyInt("visibilityLayers",getActiveLayers());
 }
 
 void CEnvironment::setActiveLayers(unsigned short l)
@@ -159,10 +164,15 @@ void CEnvironment::setActiveLayers(unsigned short l)
         _activeLayers=l;
         if (App::worldContainer->getEventsEnabled())
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="visibilityLayers";
             auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_ENVIRONMENTCHANGED,-1,cmd,true);
             data->appendMapObject_stringInt32(cmd,_activeLayers);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="visibilityLayers";
+            CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED,-1,cmd,true);
+            ev->appendKeyInt(cmd,_activeLayers);
         }
     }
     App::setRefreshHierarchyViewFlag();

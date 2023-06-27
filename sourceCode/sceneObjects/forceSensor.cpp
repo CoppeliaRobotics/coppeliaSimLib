@@ -326,7 +326,7 @@ void CForceSensor::setIntrinsicTransformationError(const C7Vector& tr)
         _intrinsicTransformationError=tr;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="intrinsicPose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             double p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
@@ -436,7 +436,7 @@ void CForceSensor::setForceSensorSize(double s)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,_forceSensorSize);
@@ -470,8 +470,9 @@ void CForceSensor::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CForceSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void CForceSensor::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("forceSensor",subC);
     data=subC;
@@ -492,6 +493,24 @@ void CForceSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) con
     C7Vector tr(getIntrinsicTransformation(true));
     double p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
     data->appendMapObject_stringDoubleArray("intrinsicPose",p,7);
+    }//canBeRemoved
+    ev->openKeyMap("forceSensor");
+    ev->appendKeyDouble("size",_forceSensorSize);
+    ev->openKeyArray("colors");
+    float c[9];
+    _color.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _color.getColor(c+3,sim_colorcomponent_specular);
+    _color.getColor(c+6,sim_colorcomponent_emission);
+    ev->appendFloatArray(c,9);
+    _color_removeSoon.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.getColor(c+3,sim_colorcomponent_specular);
+    _color_removeSoon.getColor(c+6,sim_colorcomponent_emission);
+    ev->appendFloatArray(c,9);
+    ev->closeArrayOrMap(); // colors
+    C7Vector tr(getIntrinsicTransformation(true));
+    double p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+    ev->appendKeyDoubleArray("intrinsicPose",p,7);
+    ev->closeArrayOrMap(); // forceSensor
     // todo
 }
 

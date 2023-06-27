@@ -89,10 +89,9 @@ public:
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectAddEvent(const CSceneObject* object);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(const CSceneObject* object,bool isCommonObjectData,const char* fieldName,bool mergeable);
     std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(int sceneObjectHandle,bool isCommonObjectData,const char* fieldName,bool mergeable);
-    void _combineDuplicateEvents(SBufferedEvents* events) const;
-    void _mergeEvents(SBufferedEvents* events) const;
-    void _prepareEventsForDispatch(SBufferedEvents* events,bool genesisEvents) const;
     void pushEvent(SEventInfo& event);
+    SBufferedEvents* swapBufferedEvents(SBufferedEvents* newBuffer);
+    void _prepareEventsForDispatch(SBufferedEvents* events,bool genesisEvents) const;
     bool getCborEvents() const;
     void setCborEvents(bool b);
     //---------
@@ -106,8 +105,7 @@ public:
     void dispatchEvents();
     bool getEventsEnabled() const;
     void pushGenesisEvents();
-    void getGenesisEvents(CInterfaceStack* stack);
-    SBufferedEvents* swapBufferedEvents(SBufferedEvents* newBuffer);
+    void getGenesisEvents(std::vector<unsigned char>* genesisEvents,CInterfaceStack* stack);
 
     void simulationAboutToStart();
     void simulationPaused();
@@ -141,10 +139,10 @@ public:
 #endif
 
 private:
+    void _combineDuplicateEvents(SBufferedEvents* events) const;
+    void _mergeEvents(SBufferedEvents* events) const;
     std::tuple<SEventInfo,CInterfaceStackTable*> _prepareGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable);
-    //---------
-    CCbor* _createGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable);
-    //---------
+    CCbor* _createGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable,bool openDataField=true);
     bool _switchToWorld(int newWorldIndex);
 
     std::vector<CWorld*> _worlds;
@@ -154,7 +152,7 @@ private:
     static long long int _eventSeq;
     static long long int _mergedEventSeq;
     SBufferedEvents* _bufferedEvents;
-    VMutex _eventMutex;
+    VMutex _eventMutex; // just needed while we are still using the old GUI, since it will also generate events
     bool _cborEvents;
     //---------
     CCbor* _events;

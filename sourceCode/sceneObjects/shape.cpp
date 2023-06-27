@@ -1233,6 +1233,7 @@ void CShape::setCulling(bool culState)
 
             if ( _isInScene&&App::worldContainer->getEventsEnabled() )
             {
+                if (App::userSettings->oldEvents) {//canBeRemoved
                 const char* cmd="color";
                 auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
                 CInterfaceStackTable* sdata=new CInterfaceStackTable();
@@ -1240,6 +1241,12 @@ void CShape::setCulling(bool culState)
                 sdata->appendMapObject_stringBool("culling",culState);
                 sdata->appendMapObject_stringInt32("index",0);
                 App::worldContainer->pushEvent(event);
+                }//canBeRemoved
+                const char* cmd="color";
+                CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+                ev->openKeyMap(cmd);
+                ev->appendKeyBool("culling",culState);
+                ev->appendKeyInt("index",0);
             }
         }
     }
@@ -1263,6 +1270,7 @@ void CShape::setVisibleEdges(bool v)
 
             if ( _isInScene&&App::worldContainer->getEventsEnabled() )
             {
+                if (App::userSettings->oldEvents) {//canBeRemoved
                 const char* cmd="color";
                 auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,false);
                 CInterfaceStackTable* sdata=new CInterfaceStackTable();
@@ -1270,6 +1278,12 @@ void CShape::setVisibleEdges(bool v)
                 sdata->appendMapObject_stringBool("showEdges",v);
                 sdata->appendMapObject_stringInt32("index",0);
                 App::worldContainer->pushEvent(event);
+                }//canBeRemoved
+                const char* cmd="color";
+                CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,false);
+                ev->openKeyMap(cmd);
+                ev->appendKeyBool("showEdges",v);
+                ev->appendKeyInt("index",0);
             }
         }
     }
@@ -1405,8 +1419,9 @@ void CShape::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void CShape::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("shape",subC);
     data=subC;
@@ -1566,6 +1581,140 @@ void CShape::addSpecializedObjectEventData(CInterfaceStackTable* data) const
             }
         }
     }
+    }//canBeRemoved
+
+
+    ev->openKeyMap("shape");
+    ev->openKeyArray("meshes");
+    std::vector<CMesh*> all;
+    std::vector<C7Vector> allTr;
+    getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
+    for (size_t i=0;i<all.size();i++)
+    {
+        CMesh* geom=all[i];
+        C7Vector tr(allTr[i]);
+        ev->openMap();
+
+        const std::vector<float>* wvert=geom->getVerticesForDisplayAndDisk();
+        const std::vector<int>* wind=geom->getIndices();
+        const std::vector<float>* wnorm=geom->getNormalsForDisplayAndDisk();
+        std::vector<float> vertices;
+        vertices.resize(wvert->size());
+        for (size_t j=0;j<wvert->size()/3;j++)
+        {
+            C3Vector v;
+            v.setData(wvert->data()+j*3);
+            v=tr*v;
+            vertices[3*j+0]=(float)v(0);
+            vertices[3*j+1]=(float)v(1);
+            vertices[3*j+2]=(float)v(2);
+        }
+        ev->appendKeyFloatArray("vertices",vertices.data(),vertices.size());
+        ev->appendKeyIntArray("indices",wind->data(),wind->size());
+
+        std::vector<float> normals;
+        normals.resize(wind->size()*3);
+        for (size_t j=0;j<wind->size();j++)
+        {
+            C3Vector n;
+            n.setData(&(wnorm[0])[0]+j*3);
+            n=tr.Q*n; // only orientation
+            normals[3*j+0]=(float)n(0);
+            normals[3*j+1]=(float)n(1);
+            normals[3*j+2]=(float)n(2);
+        }
+        ev->appendKeyFloatArray("normals",normals.data(),normals.size());
+
+        float c[9];
+        geom->color.getColor(c+0,sim_colorcomponent_ambient_diffuse);
+        geom->color.getColor(c+3,sim_colorcomponent_specular);
+        geom->color.getColor(c+6,sim_colorcomponent_emission);
+        ev->appendKeyFloatArray("color",c,9);
+
+//        ev->appendKeyDouble("edgeAngle",geom->);
+        ev->appendKeyDouble("shadingAngle",geom->getShadingAngle());
+        ev->appendKeyBool("showEdges",geom->getVisibleEdges());
+        ev->appendKeyBool("culling",geom->getCulling());
+        double transp=0.0;
+        if (geom->color.getTranslucid())
+            transp=1.0-geom->color.getOpacity();
+        ev->appendKeyDouble("transparency",transp);
+
+
+        int options=0;
+        if (geom->getCulling())
+            options|=1;
+        if (geom->getWireframe_OLD())
+            options|=2;
+        ev->appendKeyInt("options",options);
+
+        CTextureProperty* tp=geom->getTextureProperty();
+        CTextureObject* to=nullptr;
+        const std::vector<float>* tc=nullptr;
+        if (tp!=nullptr)
+        {
+            to=tp->getTextureObject();
+            tc=tp->getTextureCoordinates(-1,wvert[0],wind[0]);
+        }
+
+        if ( (to!=nullptr)&&(tc!=nullptr) )
+        {
+            if (true)
+            { // sending raw texture
+                int tRes[2];
+                to->getTextureSize(tRes[0],tRes[1]);
+                ev->openKeyMap("texture");
+                ev->appendKeyBuff("rawTexture",to->getTextureBufferPointer(),tRes[1]*tRes[0]*4);
+                ev->appendKeyIntArray("resolution",tRes,2);
+                ev->appendKeyFloatArray("coordinates",tc->data(),tc->size());
+                ev->appendKeyInt("applyMode",tp->getApplyMode());
+
+                int options=0;
+                if (tp->getRepeatU())
+                    options|=1;
+                if (tp->getRepeatV())
+                    options|=2;
+                if (tp->getInterpolateColors())
+                    options|=4;
+                ev->appendKeyInt("options",options);
+
+                ev->appendKeyInt("id",tp->getTextureObjectID());
+
+                ev->closeArrayOrMap(); // texture
+            }
+            else
+            { // sending PNG texture
+                std::string buffer;
+                int tRes[2];
+                to->getTextureSize(tRes[0],tRes[1]);
+                bool res=CImageLoaderSaver::save((unsigned char*)to->getTextureBufferPointer(),tRes,1,".png",-1,&buffer);
+                if (res)
+                {
+                    ev->openKeyMap("texture");
+                    buffer=utils::encode64(buffer);
+                    ev->appendKeyString("texture",buffer.c_str(),buffer.size());
+                    ev->appendKeyIntArray("resolution",tRes,2);
+                    ev->appendKeyFloatArray("coordinates",tc->data(),tc->size());
+                    ev->appendKeyInt("applyMode",tp->getApplyMode());
+
+                    int options=0;
+                    if (tp->getRepeatU())
+                        options|=1;
+                    if (tp->getRepeatV())
+                        options|=2;
+                    if (tp->getInterpolateColors())
+                        options|=4;
+                    ev->appendKeyInt("options",options);
+
+                    ev->appendKeyInt("id",tp->getTextureObjectID());
+                    ev->closeArrayOrMap(); // texture
+                }
+            }
+        }
+        ev->closeArrayOrMap(); // one mesh
+    }
+    ev->closeArrayOrMap(); // meshes
+    ev->closeArrayOrMap(); // shape
 }
 
 void CShape::copyAttributesTo(CShape* target)

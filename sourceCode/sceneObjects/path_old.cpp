@@ -208,13 +208,15 @@ void CPath_old::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CPath_old::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void CPath_old::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("path",subC);
     data=subC;
-
-    // todo
+    }//canBeRemoved
+    ev->openKeyMap("path");
+    ev->closeArrayOrMap(); // path
 }
 
 CSceneObject* CPath_old::copyYourself()

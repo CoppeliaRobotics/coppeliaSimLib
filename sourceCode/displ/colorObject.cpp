@@ -156,7 +156,7 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle,int colorIndex)
 {
     if ( (objectHandle!=-1)&&App::worldContainer->getEventsEnabled() )
     {
-        {//canBeRemoved
+        if (App::userSettings->oldEvents) {//canBeRemoved
         const char* cmd="color";
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(objectHandle,false,cmd,false);
         CInterfaceStackTable* sdata=new CInterfaceStackTable();
@@ -195,7 +195,7 @@ void CColorObject::pushColorChangeEvent(int objectHandle,float col1[9],float col
 {
     if ( (objectHandle!=-1)&&App::worldContainer->getEventsEnabled() )
     {
-        {//canBeRemoved
+        if (App::userSettings->oldEvents) {//canBeRemoved
         const char* cmd="colors";
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(objectHandle,false,cmd,false);
         CInterfaceStackTable* sdata=new CInterfaceStackTable();

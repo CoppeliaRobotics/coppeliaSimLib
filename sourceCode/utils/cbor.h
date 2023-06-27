@@ -17,6 +17,7 @@ public:
     CCbor(const std::string* initBuff=nullptr,int options=0);
     virtual ~CCbor();
 
+    void swapWithEmptyBuffer(std::vector<unsigned char>* emptyBuff);
     bool isText(const char* v,size_t l);
 
     void appendInt(long long int v);
@@ -54,7 +55,7 @@ public:
     void appendLuaString(const std::string& v);
     void appendRaw(const unsigned char* v,size_t l);
 
-    void createEvent(const char* event,const char* fieldName,const char* objType,long long int uid,int handle,bool mergeable);
+    void createEvent(const char* event,const char* fieldName,const char* objType,long long int uid,int handle,bool mergeable,bool openDataField=true);
     long long int finalizeEvents(long long int nextSeq,bool seqChanges);
     size_t getEventCnt() const;
     size_t getEventDepth() const;

@@ -148,7 +148,7 @@ void COcTree::_updateOctreeEvent() const
 {
     if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
-        {//canBeRemoved
+        if (App::userSettings->oldEvents) {//canBeRemoved
         const char* cmd="voxels";
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
         data->appendMapObject_stringFloat("voxelSize",_cellSize);
@@ -586,8 +586,9 @@ void COcTree::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void COcTree::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void COcTree::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("octree",subC);
     data=subC;
@@ -612,6 +613,14 @@ void COcTree::addSpecializedObjectEventData(CInterfaceStackTable* data) const
     obj.appendBuff(_colorsByte.data(),_colorsByte.size());
     buff=(const char*)obj.getBuff(l);
     data->appendMapObject_stringString("colors",buff,l,true);
+    }//canBeRemoved
+    ev->openKeyMap("octree");
+    ev->appendKeyDouble("voxelSize",_cellSize);
+    ev->openKeyMap("voxels");
+    ev->appendKeyDoubleArray("positions",_voxelPositions.data(),_voxelPositions.size());
+    ev->appendKeyUCharArray("colors",_colorsByte.data(),_colorsByte.size());
+    ev->closeArrayOrMap(); // voxels
+    ev->closeArrayOrMap(); // octree
 }
 
 CSceneObject* COcTree::copyYourself()

@@ -29,7 +29,7 @@ public:
     // Following functions are inherited from CSceneObject
     void display(CViewableBase* renderingObject,int displayAttrib);
     void displayInertia(CViewableBase* renderingObject,double size,bool persp);
-    void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
+    void addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const;
     CSceneObject* copyYourself();
     void copyAttributesTo(CShape* target);
     void removeSceneDependencies();

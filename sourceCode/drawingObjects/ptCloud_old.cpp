@@ -137,10 +137,6 @@ void CPtCloud_old::pushAddEvent()
 {
     if (App::worldContainer->getEventsEnabled())
     {
-        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTADDED,_uniqueId,nullptr,false);
-
-        data->appendMapObject_stringString("type","point",0);
-
         float c[9];
         c[0]=_defaultColors[0];
         c[1]=_defaultColors[1];
@@ -151,6 +147,27 @@ void CPtCloud_old::pushAddEvent()
         c[6]=_defaultColors[12];
         c[7]=_defaultColors[13];
         c[8]=_defaultColors[14];
+
+        std::vector<float> pts;
+        pts.resize(_vertices.size());
+        for (size_t i=0;i<_vertices.size();i++)
+            pts[i]=(float)_vertices[i];
+
+        std::vector<float> quaternions;
+        quaternions.resize(4*_vertices.size()/3);
+        for (size_t i=0;i<quaternions.size()/4;i++)
+        {
+            quaternions[4*i+0]=0.0f;
+            quaternions[4*i+1]=0.0f;
+            quaternions[4*i+2]=0.0f;
+            quaternions[4*i+3]=1.0f;
+        }
+
+        if (App::userSettings->oldEvents) {//canBeRemoved
+        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTADDED,_uniqueId,nullptr,false);
+
+        data->appendMapObject_stringString("type","point",0);
+
         data->appendMapObject_stringFloatArray("color",c,9);
 
         data->appendMapObject_stringInt32("maxCnt",int(_vertices.size()/3));
@@ -169,11 +186,7 @@ void CPtCloud_old::pushAddEvent()
 
         CCbor obj(nullptr,0);
         size_t l;
-        std::vector<float> bla;
-        bla.resize(_vertices.size());
-        for (size_t i=0;i<_vertices.size();i++)
-            bla[i]=(float)_vertices[i];
-        obj.appendFloatArray(bla.data(),bla.size());
+        obj.appendFloatArray(pts.data(),pts.size());
         const char* buff=(const char*)obj.getBuff(l);
         data->appendMapObject_stringString("points",buff,l,true);
 
@@ -186,5 +199,21 @@ void CPtCloud_old::pushAddEvent()
         data->appendMapObject_stringBool("clearPoints",true);
 
         App::worldContainer->pushEvent(event);
+        }//canBeRemoved
+        CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED,_uniqueId,nullptr,false);
+        ev->appendKeyString("type","point");
+        ev->appendKeyFloatArray("color",c,9);
+        ev->appendKeyInt("maxCnt",int(_vertices.size()/3));
+        ev->appendKeyDouble("size",_pointSize);
+        ev->appendKeyInt("parentUid",_parentUniqueId);
+        ev->appendKeyBool("cyclic",false);
+        ev->appendKeyBool("overlay",false);
+        ev->appendKeyBool("clearPoints",true);
+
+        ev=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_uniqueId,nullptr,false);
+        ev->appendKeyDoubleArray("points",_vertices.data(),_vertices.size());
+        ev->appendKeyFloatArray("quaternions",quaternions.data(),quaternions.size());
+        ev->appendKeyFloatArray("colors",_colors.data(),_colors.size());
+        ev->appendKeyBool("clearPoints",true);
     }
 }

@@ -230,14 +230,17 @@ void CProxSensor::removeSceneDependencies()
     _sensableObject=-1;
 }
 
-void CProxSensor::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void CProxSensor::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("proxSensor",subC);
     data=subC;
-
     data->appendMapObject_stringFloat("size",_proxSensorSize);
-
+    }//canBeRemoved
+    ev->openKeyMap("proxSensor");
+    ev->appendKeyDouble("size",_proxSensorSize);
+    ev->closeArrayOrMap(); // proxSensor
     // todo
 }
 
@@ -993,10 +996,15 @@ void CProxSensor::setProxSensorSize(double newSize)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,_proxSensorSize);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="size";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
+            ev->appendKeyDouble(cmd,_proxSensorSize);
         }
     }
 }

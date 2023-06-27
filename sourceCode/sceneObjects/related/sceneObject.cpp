@@ -212,10 +212,15 @@ void CSceneObject::setDynamicFlag(int flag)
         _dynamicFlag=flag;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="dynamicFlag";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringInt32(cmd,_dynamicFlag);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="dynamicFlag";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            ev->appendKeyInt(cmd,_dynamicFlag);
         }
     }
 }
@@ -563,10 +568,15 @@ void CSceneObject::_setModelInvisible(bool inv)
         _modelInvisible=inv;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="modelInvisible";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringBool(cmd,inv);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="modelInvisible";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            ev->appendKeyBool(cmd,inv);
         }
     }
 }
@@ -755,10 +765,15 @@ void CSceneObject::setModelBase(bool m)
         _modelBase=m;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="modelBase";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringBool(cmd,m);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="modelBase";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            ev->appendKeyBool(cmd,m);
         }
        _modelProperty=0; // Nothing is overridden!
         _modelAcknowledgement="";
@@ -774,10 +789,15 @@ void CSceneObject::setObjectProperty(int p)
         _objectProperty=p;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="objectProperty";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringInt32(cmd,_objectProperty);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="objectProperty";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            ev->appendKeyInt(cmd,_objectProperty);
         }
         recomputeModelInfluencedValues();
     }
@@ -839,10 +859,15 @@ void CSceneObject::setModelProperty(int prop)
         _modelProperty=prop;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="modelProperty";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringInt32(cmd,_modelProperty);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="modelProperty";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            ev->appendKeyInt(cmd,_modelProperty);
         }
         recomputeModelInfluencedValues();
     }
@@ -1239,7 +1264,7 @@ void CSceneObject::removeSceneDependencies()
     _customReferencedOriginalHandles.clear();
 }
 
-void CSceneObject::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void CSceneObject::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
 }
 
@@ -1247,10 +1272,20 @@ void CSceneObject::pushObjectCreationEvent() const
 {
     if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
-        auto [event,data]=App::worldContainer->prepareSceneObjectAddEvent(this);
-        CSceneObject::_addCommonObjectEventData(data);
-        addSpecializedObjectEventData(data);
-        App::worldContainer->pushEvent(event);
+        if (App::userSettings->oldEvents)
+        {//-canBeRemoved
+            auto [event,data]=App::worldContainer->prepareSceneObjectAddEvent(this);
+            CCbor* ev=App::worldContainer->createSceneObjectAddEvent(this);
+            CSceneObject::_addCommonObjectEventData(ev,data);
+            addSpecializedObjectEventData(ev,data);
+            App::worldContainer->pushEvent(event);
+        }//canBeRemoved
+        else
+        {
+            CCbor* ev=App::worldContainer->createSceneObjectAddEvent(this);
+            CSceneObject::_addCommonObjectEventData(ev,nullptr);
+            addSpecializedObjectEventData(ev,nullptr);
+        }
     }
 }
 
@@ -1258,47 +1293,94 @@ void CSceneObject::pushObjectRefreshEvent() const
 {
     if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
-        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,false);
-        CSceneObject::_addCommonObjectEventData(data);
-        addSpecializedObjectEventData(data);
-        App::worldContainer->pushEvent(event);
+        if (App::userSettings->oldEvents)
+        {//-canBeRemoved
+            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,false);
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,false);
+            CSceneObject::_addCommonObjectEventData(ev,data);
+            addSpecializedObjectEventData(ev,data);
+            App::worldContainer->pushEvent(event);
+        }//canBeRemoved
+        else
+        {
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,false);
+            CSceneObject::_addCommonObjectEventData(ev,nullptr);
+            addSpecializedObjectEventData(ev,nullptr);
+        }
     }
 }
 
-void CSceneObject::_addCommonObjectEventData(CInterfaceStackTable* data) const
+void CSceneObject::_addCommonObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents)
+    {//-canBeRemoved
     data->appendMapObject_stringInt32("layer",_visibilityLayer);
     data->appendMapObject_stringInt32("childOrder",_childOrder);
-    double p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
-    data->appendMapObject_stringDoubleArray("pose",p,7);
+    double p_[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
+    data->appendMapObject_stringDoubleArray("pose",p_,7);
     data->appendMapObject_stringString("alias",_objectAlias.c_str(),0);
     data->appendMapObject_stringString("oldName",_objectName_old.c_str(),0);
     data->appendMapObject_stringBool("modelInvisible",_modelInvisible);
     data->appendMapObject_stringBool("modelBase",_modelBase);
     data->appendMapObject_stringInt32("objectProperty",_objectProperty);
     data->appendMapObject_stringInt32("modelProperty",_modelProperty);
-    long long int pUid=-1;
+    long long int pUid_=-1;
     if (_parentObject!=nullptr)
-        pUid=_parentObject->getObjectUid();
-    data->appendMapObject_stringInt64("parentUid",pUid);
+        pUid_=_parentObject->getObjectUid();
+    data->appendMapObject_stringInt64("parentUid",pUid_);
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("boundingBox",subC);
-    _bbFrame.getData(p,true);
-    subC->appendMapObject_stringDoubleArray("pose",p,7);
+    _bbFrame.getData(p_,true);
+    subC->appendMapObject_stringDoubleArray("pose",p_,7);
     subC->appendMapObject_stringDoubleArray("hsize",_bbHalfSize.data,3);
-    _appendObjectMovementEventData(data);
     subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("customData",subC);
-    _customObjectData.appendEventData(subC);
-    _customObjectData_tempData.appendEventData(subC);
+    _customObjectData.appendEventData(ev,subC);
+    _customObjectData_tempData.appendEventData(ev,subC);
+    _appendObjectMovementEventData(ev,data);
+    }//canBeRemoved
+    else
+    {
+        ev->appendKeyInt("layer",_visibilityLayer);
+        ev->appendKeyInt("childOrder",_childOrder);
+        double p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
+        ev->appendKeyDoubleArray("pose",p,7);
+        ev->appendKeyString("alias",_objectAlias.c_str());
+        ev->appendKeyString("oldName",_objectName_old.c_str());
+        ev->appendKeyBool("modelInvisible",_modelInvisible);
+        ev->appendKeyBool("modelBase",_modelBase);
+        ev->appendKeyInt("objectProperty",_objectProperty);
+        ev->appendKeyInt("modelProperty",_modelProperty);
+        long long int pUid=-1;
+        if (_parentObject!=nullptr)
+            pUid=_parentObject->getObjectUid();
+        ev->appendKeyInt("parentUid",pUid);
+        ev->openKeyMap("boundingBox");
+        _bbFrame.getData(p,true);
+        ev->appendKeyDoubleArray("pose",p,7);
+        ev->appendKeyDoubleArray("hsize",_bbHalfSize.data,3);
+        ev->closeArrayOrMap();
+        ev->openKeyMap("customData");
+        _customObjectData.appendEventData(ev,nullptr);
+        _customObjectData_tempData.appendEventData(ev,nullptr);
+        ev->closeArrayOrMap(); //customData
+        _appendObjectMovementEventData(ev,nullptr);
+    }
 }
 
-void CSceneObject::_appendObjectMovementEventData(CInterfaceStackTable* data) const
+void CSceneObject::_appendObjectMovementEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents)
+    {//-canBeRemoved
     data->appendMapObject_stringInt32("movementOptions",_objectMovementOptions);
     data->appendMapObject_stringInt32("movementPreferredAxes",_objectMovementPreferredAxes);
     data->appendMapObject_stringDoubleArray("movementStepSize",_objectMovementStepSize,2);
     data->appendMapObject_stringInt32Array("movementRelativity",_objectMovementRelativity,2);
+    }//canBeRemoved
+    ev->appendKeyInt("movementOptions",_objectMovementOptions);
+    ev->appendKeyInt("movementPreferredAxes",_objectMovementPreferredAxes);
+    ev->appendKeyDoubleArray("movementStepSize",_objectMovementStepSize,2);
+    ev->appendKeyIntArray("movementRelativity",_objectMovementRelativity,2);
 }
 
 CSceneObject* CSceneObject::copyYourself()
@@ -1417,12 +1499,24 @@ void CSceneObject::writeCustomDataBlock(bool tmpData,const char* dataName,const 
     if ( diff&&_isInScene&&App::worldContainer->getEventsEnabled() )
     {
         const char* cmd="customData";
-        auto [event,dat]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,false);
-        CInterfaceStackTable* subC=new CInterfaceStackTable();
-        dat->appendMapObject_stringObject(cmd,subC);
-        _customObjectData.appendEventData(subC);
-        _customObjectData_tempData.appendEventData(subC);
-        App::worldContainer->pushEvent(event);
+        if (App::userSettings->oldEvents)
+        {//-canBeRemoved
+            auto [event,dat]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,false);
+            CInterfaceStackTable* subC=new CInterfaceStackTable();
+            dat->appendMapObject_stringObject(cmd,subC);
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,false);
+            ev->openKeyMap(cmd);
+            _customObjectData.appendEventData(ev,subC);
+            _customObjectData_tempData.appendEventData(ev,subC);
+            App::worldContainer->pushEvent(event);
+        }//canBeRemoved
+        else
+        {
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,false);
+            ev->openKeyMap(cmd);
+            _customObjectData.appendEventData(ev,nullptr);
+            _customObjectData_tempData.appendEventData(ev,nullptr);
+        }
     }
 }
 
@@ -1476,9 +1570,18 @@ void CSceneObject::setObjectMovementPreferredAxes(int p)
         _objectMovementPreferredAxes=p;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
-            _appendObjectMovementEventData(data);
-            App::worldContainer->pushEvent(event);
+            if (App::userSettings->oldEvents)
+            {//-canBeRemoved
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
+                CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
+                _appendObjectMovementEventData(ev,data);
+                App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            else
+            {
+                CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
+                _appendObjectMovementEventData(ev,nullptr);
+            }
         }
     }
 }
@@ -1497,9 +1600,18 @@ void CSceneObject::setObjectMovementOptions(int p)
         _objectMovementOptions=p;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
-            _appendObjectMovementEventData(data);
-            App::worldContainer->pushEvent(event);
+            if (App::userSettings->oldEvents)
+            {//-canBeRemoved
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
+                CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
+                _appendObjectMovementEventData(ev,data);
+                App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            else
+            {
+                CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
+                _appendObjectMovementEventData(ev,nullptr);
+            }
         }
     }
 }
@@ -1517,9 +1629,18 @@ void CSceneObject::setObjectMovementRelativity(int index,int p)
         _objectMovementRelativity[index]=p;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
-            _appendObjectMovementEventData(data);
-            App::worldContainer->pushEvent(event);
+            if (App::userSettings->oldEvents)
+            {//-canBeRemoved
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
+                CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
+                _appendObjectMovementEventData(ev,data);
+                App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            else
+            {
+                CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
+                _appendObjectMovementEventData(ev,nullptr);
+            }
         }
     }
 }
@@ -1580,9 +1701,18 @@ void CSceneObject::setObjectMovementStepSize(int index,double s)
         _objectMovementStepSize[index]=s;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
-            _appendObjectMovementEventData(data);
-            App::worldContainer->pushEvent(event);
+            if (App::userSettings->oldEvents)
+            {//-canBeRemoved
+                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,nullptr,true);
+                CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
+                _appendObjectMovementEventData(ev,data);
+                App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            else
+            {
+                CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,nullptr,true);
+                _appendObjectMovementEventData(ev,nullptr);
+            }
         }
     }
 }
@@ -1698,6 +1828,7 @@ void CSceneObject::_setBB(const C7Vector& bbFrame,const C3Vector& bbHalfSize)
         _bbHalfSize=bbHalfSize;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="boundingBox";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             CInterfaceStackTable* subC=new CInterfaceStackTable();
@@ -1706,6 +1837,13 @@ void CSceneObject::_setBB(const C7Vector& bbFrame,const C3Vector& bbHalfSize)
             subC->appendMapObject_stringDoubleArray("pose",p,7);
             subC->appendMapObject_stringDoubleArray("hsize",_bbHalfSize.data,3);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="boundingBox";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            ev->openKeyMap(cmd);
+            double p[7]={_bbFrame.X(0),_bbFrame.X(1),_bbFrame.X(2),_bbFrame.Q(1),_bbFrame.Q(2),_bbFrame.Q(3),_bbFrame.Q(0)};
+            ev->appendKeyDoubleArray("pose",p,7);
+            ev->appendKeyDoubleArray("hsize",_bbHalfSize.data,3);
         }
     }
 }
@@ -2056,6 +2194,7 @@ bool CSceneObject::setParent(CSceneObject* parent)
         _parentObject=parent;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="parentUid";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             long long int pUid=-1;
@@ -2063,6 +2202,13 @@ bool CSceneObject::setParent(CSceneObject* parent)
                 pUid=_parentObject->getObjectUid();
             data->appendMapObject_stringInt64(cmd,pUid);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="parentUid";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            long long int pUid=-1;
+            if (_parentObject!=nullptr)
+                pUid=_parentObject->getObjectUid();
+            ev->appendKeyInt(cmd,pUid);
         }
         if (getObjectCanSync())
         {
@@ -4507,10 +4653,15 @@ void CSceneObject::setVisibilityLayer(unsigned short l)
         _visibilityLayer=l;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="layer";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringInt32(cmd,l);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="layer";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            ev->appendKeyInt(cmd,l);
         }
     }
 }
@@ -4523,10 +4674,15 @@ void CSceneObject::setChildOrder(int order)
         _childOrder=order;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="childOrder";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringInt32(cmd,order);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="childOrder";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            ev->appendKeyInt(cmd,order);
         }
     }
 }
@@ -4545,10 +4701,15 @@ void CSceneObject::setObjectAlias_direct(const char* newName)
         _objectAlias=newName;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="alias";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             data->appendMapObject_stringString(cmd,newName,0);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="alias";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            ev->appendKeyString(cmd,newName);
         }
     }
 }
@@ -4571,11 +4732,17 @@ void CSceneObject::setLocalTransformation(const C7Vector& tr)
         _localTransformation=tr;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="pose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             double p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
             data->appendMapObject_stringDoubleArray(cmd,p,7);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="pose";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            double p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+            ev->appendKeyDoubleArray(cmd,p,7);
         }
         if (getObjectCanSync())
             _setLocalTransformation_send(_localTransformation);
@@ -4590,11 +4757,17 @@ void CSceneObject::setLocalTransformation(const C4Vector& q)
         _localTransformation.Q=q;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="pose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             double p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
             data->appendMapObject_stringDoubleArray(cmd,p,7);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="pose";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            double p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
+            ev->appendKeyDoubleArray(cmd,p,7);
         }
         if (getObjectCanSync())
         {
@@ -4613,11 +4786,17 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
         _localTransformation.X=x;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="pose";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,true,cmd,true);
             double p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
             data->appendMapObject_stringDoubleArray(cmd,p,7);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="pose";
+            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,true,cmd,true);
+            double p[7]={_localTransformation.X(0),_localTransformation.X(1),_localTransformation.X(2),_localTransformation.Q(1),_localTransformation.Q(2),_localTransformation.Q(3),_localTransformation.Q(0)};
+            ev->appendKeyDoubleArray(cmd,p,7);
         }
         if (getObjectCanSync())
         {

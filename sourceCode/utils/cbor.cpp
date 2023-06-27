@@ -17,12 +17,20 @@ bool CCbor::isText(const char* v,size_t l)
 CCbor::CCbor(const std::string* initBuff/*=nullptr*/,int options/*=0*/)
 {
     _options=options;
+    _eventDepth=0;
+    _discardableEventCnt=0;
     if (initBuff!=nullptr)
         _buff.assign(initBuff->begin(),initBuff->end());
 }
 
 CCbor::~CCbor()
 {
+}
+
+void CCbor::swapWithEmptyBuffer(std::vector<unsigned char>* emptyBuff)
+{
+    _buff.swap(emptyBuff[0]);
+    clear();
 }
 
 void CCbor::appendInt(long long int v)
@@ -339,10 +347,11 @@ size_t CCbor::getEventDepth() const
     return(_eventDepth);
 }
 
-void CCbor::createEvent(const char* event,const char* fieldName,const char* objType,long long int uid,int handle,bool mergeable)
+void CCbor::createEvent(const char* event,const char* fieldName,const char* objType,long long int uid,int handle,bool mergeable,bool openDataField/*=true*/)
 {
     while (_eventDepth>1)
         closeArrayOrMap(); // make sure to close all previous event's arrays/maps, except for the one holding the event
+    _eventDepth=0; // yes, we intentionally forgot to close the last array/map, but we anyways reset the depth to zero
     SEventInf inf;
     inf.pos=_buff.size();
     if (mergeable)
@@ -367,12 +376,15 @@ void CCbor::createEvent(const char* event,const char* fieldName,const char* objT
         appendKeyInt("uid",uid);
     if (handle!=-1)
         appendKeyInt("handle",handle);
-    appendString("data");
-    openMap(); // holding the data
-    if (objType!=nullptr)
+    if (openDataField)
     {
-        appendString(objType);
-        openMap(); // holding the scene object's data specific to the object type
+        appendString("data");
+        openMap(); // holding the data
+        if (objType!=nullptr)
+        {
+            appendString(objType);
+            openMap(); // holding the scene object's data specific to the object type
+        }
     }
 }
 

@@ -470,11 +470,15 @@ void CSimulation::setPassesPerRendering(int n)
 
 void CSimulation::pushGenesisEvents() const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,nullptr,false);
     data->appendMapObject_stringInt32("state",getSimulationState());
     data->appendMapObject_stringInt32("time",int(getSimulationTime()*1000.0));
-
     App::worldContainer->pushEvent(event);
+    }//canBeRemoved
+    CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED,-1,nullptr,false);
+    ev->appendKeyInt("state",getSimulationState());
+    ev->appendKeyInt("time",int(getSimulationTime()*1000.0));
 }
 
 void CSimulation::setSimulationState(int state)
@@ -485,10 +489,15 @@ void CSimulation::setSimulationState(int state)
         _simulationState=state;
         if (App::worldContainer->getEventsEnabled())
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="state";
             auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,cmd,true);
             data->appendMapObject_stringInt32(cmd,_simulationState);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="state";
+            CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED,-1,cmd,true);
+            ev->appendKeyInt(cmd,_simulationState);
         }
     }
 }
@@ -583,10 +592,15 @@ void CSimulation::_setSimulationTime(double t)
         _simulationTime=t;
         if (App::worldContainer->getEventsEnabled())
         {
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="time";
             auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_SIMULATIONCHANGED,-1,cmd,true);
             data->appendMapObject_stringInt32(cmd,int(_simulationTime)*1000);
             App::worldContainer->pushEvent(event);
+            }//canBeRemoved
+            const char* cmd="time";
+            CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED,-1,cmd,true);
+            ev->appendKeyInt(cmd,int(_simulationTime)*1000);
         }
     }
 }

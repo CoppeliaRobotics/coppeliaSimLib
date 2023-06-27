@@ -790,7 +790,7 @@ void CJoint::_sendDependencyChange() const
 {
     if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
-        {//canBeRemoved
+        if (App::userSettings->oldEvents) {//canBeRemoved
         const char* cmd="dependency"; // buggy I think
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
         if (_dependencyMasterJointHandle!=-1)
@@ -1316,7 +1316,7 @@ void CJoint::setPositionMin(double min)
             _posMin=min;
             if ( _isInScene&&App::worldContainer->getEventsEnabled() )
             {
-                {//canBeRemoved
+                if (App::userSettings->oldEvents) {//canBeRemoved
                 const char* cmd="min";
                 auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
                 data->appendMapObject_stringFloat(cmd,min);
@@ -1359,7 +1359,7 @@ void CJoint::setPositionRange(double range)
         _posRange=range;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="range";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,range);
@@ -1393,7 +1393,7 @@ void CJoint::setLength(double l)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="length";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,l);
@@ -1416,7 +1416,7 @@ void CJoint::setDiameter(double d)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="diameter";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,d);
@@ -2016,7 +2016,7 @@ void CJoint::setIsCyclic(bool isCyclic)
         _isCyclic=isCyclic;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="cyclic";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringBool(cmd,isCyclic);
@@ -2045,8 +2045,9 @@ void CJoint::removeSceneDependencies()
     setDependencyMasterJointHandle(-1);
 }
 
-void CJoint::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void CJoint::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("joint",subC);
     data=subC;
@@ -2099,6 +2100,55 @@ void CJoint::addSpecializedObjectEventData(CInterfaceStackTable* data) const
             dependency->appendMapObject_stringFloat("off",_dependencyJointOffset);
         }
     }
+    }//canBeRemoved
+    ev->openKeyMap("joint");
+    std::string tmp;
+    switch(_jointType)
+    {
+        case sim_joint_revolute_subtype : tmp="revolute";
+            break;
+        case sim_joint_prismatic_subtype : tmp="prismatic";
+            break;
+        case sim_joint_spherical_subtype : tmp="spherical";
+            break;
+    }
+    ev->appendKeyString("type",tmp.c_str());
+    double q[4]={_sphericalTransf(1),_sphericalTransf(2),_sphericalTransf(3),_sphericalTransf(0)};
+    ev->appendKeyDoubleArray("quaternion",q,4);
+    ev->appendKeyDouble("position",_pos);
+    C7Vector tr(getIntrinsicTransformation(true));
+    double p[7]={tr.X(0),tr.X(1),tr.X(2),tr.Q(1),tr.Q(2),tr.Q(3),tr.Q(0)};
+    ev->appendKeyDoubleArray("intrinsicPose",p,7);
+    ev->appendKeyDoubleArray("maxVelAccelJerk",_maxVelAccelJerk,3);
+    ev->appendKeyBool("cyclic",_isCyclic);
+    ev->appendKeyDouble("min",_posMin);
+    ev->appendKeyDouble("range",_posRange);
+    ev->appendKeyDouble("diameter",_diameter);
+    ev->appendKeyDouble("length",_length);
+    ev->openKeyArray("colors");
+    float c[9];
+    _color.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _color.getColor(c+3,sim_colorcomponent_specular);
+    _color.getColor(c+6,sim_colorcomponent_emission);
+    ev->appendFloatArray(c,9);
+    _color_removeSoon.getColor(c,sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.getColor(c+3,sim_colorcomponent_specular);
+    _color_removeSoon.getColor(c+6,sim_colorcomponent_emission);
+    ev->appendFloatArray(c,9);
+    ev->closeArrayOrMap(); // colors
+    ev->openKeyMap("dependency");
+    if (_dependencyMasterJointHandle!=-1)
+    {
+        CSceneObject* master=App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
+        if (master!=nullptr)
+        {
+            ev->appendKeyInt("masterUid",master->getObjectUid());
+            ev->appendKeyDouble("mult",_dependencyJointMult);
+            ev->appendKeyDouble("off",_dependencyJointOffset);
+        }
+    }
+    ev->closeArrayOrMap(); // dependency
+    ev->closeArrayOrMap(); // joint
 }
 
 CSceneObject* CJoint::copyYourself()
@@ -4082,7 +4132,7 @@ void CJoint::setSphericalTransformation(const C4Vector& tr)
         _sphericalTransf=tr;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="quaternion";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             double q[4]={_sphericalTransf(1),_sphericalTransf(2),_sphericalTransf(3),_sphericalTransf(0)};
@@ -4187,7 +4237,7 @@ void CJoint::setPosition(double pos,const CJoint* masterJoint/*=nullptr*/,bool s
         _pos=pos;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="position";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,_pos);
@@ -4397,7 +4447,7 @@ void CJoint::setMaxVelAccelJerk(const double maxVelAccelJerk[3])
         _maxVelAccelJerk[2]=maxVelAccelJerk[2];
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="maxVelAccelJerk";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringDoubleArray(cmd,_maxVelAccelJerk,3);
@@ -4892,7 +4942,7 @@ void CJoint::setIntrinsicTransformationError(const C7Vector& tr)
         _intrinsicTransformationError=tr;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="position";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,_pos);

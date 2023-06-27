@@ -203,7 +203,7 @@ void CPointCloud::_updatePointCloudEvent() const
 {
     if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
-        {//canBeRemoved
+        if (App::userSettings->oldEvents) {//canBeRemoved
         const char* cmd="points";
         auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
 
@@ -674,8 +674,9 @@ void CPointCloud::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CPointCloud::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void CPointCloud::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("pointCloud",subC);
     data=subC;
@@ -700,6 +701,14 @@ void CPointCloud::addSpecializedObjectEventData(CInterfaceStackTable* data) cons
     obj.appendBuff(_displayColorsByte.data(),_displayColorsByte.size());
     buff=(const char*)obj.getBuff(l);
     data->appendMapObject_stringString("colors",buff,l,true);
+    }//canBeRemoved
+    ev->openKeyMap("pointCloud");
+    ev->appendKeyInt("pointSize",_pointSize);
+    ev->openKeyMap("points");
+    ev->appendKeyDoubleArray("points",_displayPoints.data(),_displayPoints.size());
+    ev->appendKeyUCharArray("colors",_displayColorsByte.data(),_displayColorsByte.size());
+    ev->closeArrayOrMap(); // points
+    ev->closeArrayOrMap(); // pointCloud
 }
 
 CSceneObject* CPointCloud::copyYourself()
@@ -803,7 +812,7 @@ void CPointCloud::setPointSize(int s)
         _pointSize=s;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="pointSize";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringInt32(cmd,_pointSize);

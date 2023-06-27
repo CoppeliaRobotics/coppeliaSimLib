@@ -43,7 +43,7 @@ public:
     virtual void displayFrames(CViewableBase* renderingObject,double size,bool persp);
     virtual void displayBoundingBox(CViewableBase* renderingObject,bool mainSelection);
     virtual void display(CViewableBase* renderingObject,int displayAttrib);
-    virtual void addSpecializedObjectEventData(CInterfaceStackTable* data) const;
+    virtual void addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const;
     virtual CSceneObject* copyYourself();
     virtual void removeSceneDependencies();
     virtual void scaleObject(double scalingFactor);
@@ -306,8 +306,8 @@ public:
 protected:
     void _setModelInvisible(bool inv);
     void _setBB(const C7Vector& bbFrame,const C3Vector& bbHalfSize);
-    void _addCommonObjectEventData(CInterfaceStackTable* data) const;
-    void _appendObjectMovementEventData(CInterfaceStackTable* data) const;
+    void _addCommonObjectEventData(CCbor* ev,CInterfaceStackTable* data) const;
+    void _appendObjectMovementEventData(CCbor* ev,CInterfaceStackTable* data) const;
 
     int _objectHandle;
     long long int _objectUid; // valid for a given session (non-persistent)

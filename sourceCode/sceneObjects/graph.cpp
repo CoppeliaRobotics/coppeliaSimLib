@@ -565,14 +565,17 @@ void CGraph::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CGraph::addSpecializedObjectEventData(CInterfaceStackTable* data) const
+void CGraph::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
 {
+    if (App::userSettings->oldEvents) {//canBeRemoved
     CInterfaceStackTable* subC=new CInterfaceStackTable();
     data->appendMapObject_stringObject("graph",subC);
     data=subC;
-
     data->appendMapObject_stringFloat("size",_graphSize);
-
+    }//canBeRemoved
+    ev->openKeyMap("graph");
+    ev->appendKeyDouble("size",_graphSize);
+    ev->closeArrayOrMap(); // graph
     // todo
 }
 
@@ -858,7 +861,7 @@ void CGraph::setGraphSize(double theNewSize)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            {//canBeRemoved
+            if (App::userSettings->oldEvents) {//canBeRemoved
             const char* cmd="size";
             auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
             data->appendMapObject_stringFloat(cmd,_graphSize);
