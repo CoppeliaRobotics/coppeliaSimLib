@@ -54,8 +54,6 @@ public:
 
     void handleCameraTracking();
     void commonInit();
-    void setRemoteCameraMode(int m);
-    int getRemoteCameraMode() const;
     int getPerspectiveOperation_old() const;
     int getViewOrientation() const;
     void setViewOrientation(int ori,bool setPositionAlso=false);
@@ -88,7 +86,6 @@ protected:
     double _cameraSize;
     int _renderMode;
     bool _viewModeSet_old; // with old cameras, the view mode (perspect./ortho) is decided by the view, not the camera. With old cameras, this is false
-    int _remoteCameraMode; // 0: free, 1: slave, 2: master
     bool _useParentObjectAsManipulationProxy;
     bool _allowPicking;
     bool _renderModeDuringSimulation;

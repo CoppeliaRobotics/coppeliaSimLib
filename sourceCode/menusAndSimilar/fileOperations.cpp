@@ -387,7 +387,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
                     stack->pushStringOntoStack(files.c_str(),0);
-                    App::worldContainer->sandboxScript->executeScriptString("simUI=require('simUI') simAssimp=require('simAssimp')",nullptr);
+                    App::worldContainer->sandboxScript->executeScriptString("simAssimp=require('simAssimp')",nullptr);
                     App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.importShapesDlg",stack);
                     App::worldContainer->interfaceStackContainer->destroyStack(stack);
                 }
@@ -466,7 +466,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                 stack->insertDataIntoStackTable();
                             }
                         }
-                        App::worldContainer->sandboxScript->executeScriptString("simUI=require('simUI') simAssimp=require('simAssimp')",nullptr);
+                        App::worldContainer->sandboxScript->executeScriptString("simAssimp=require('simAssimp')",nullptr);
                         App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.exportShapesDlg",stack);
                         App::worldContainer->interfaceStackContainer->destroyStack(stack);
                     }

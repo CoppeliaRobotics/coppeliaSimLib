@@ -645,7 +645,6 @@ void CCamera::commonInit()
     _nearClippingPlane=0.05;
     _farClippingPlane=30.0;
     _cameraSize=0.05;
-    _remoteCameraMode=0; // free
     _renderMode=sim_rendermode_opengl;
     _renderModeDuringSimulation=false;
     _renderModeDuringRecording=false;
@@ -925,7 +924,6 @@ void CCamera::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data
     data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
     data->appendMapObject_stringFloat("size",_cameraSize);
     data->appendMapObject_stringBool("showFrustum",_showVolume);
-    data->appendMapObject_stringInt32("remoteCameraMode",_remoteCameraMode);
 
     CInterfaceStackTable* fr=new CInterfaceStackTable();
     data->appendMapObject_stringObject("frustumVectors",fr);
@@ -954,7 +952,6 @@ void CCamera::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data
     ev->appendKeyDouble("orthoSize",_orthoViewSize);
     ev->appendKeyDouble("size",_cameraSize);
     ev->appendKeyBool("showFrustum",_showVolume);
-    ev->appendKeyInt("remoteCameraMode",_remoteCameraMode);
     ev->openKeyMap("frustumVectors");
     ev->appendKeyDoubleArray("near",_volumeVectorNear.data,3);
     ev->appendKeyDoubleArray("far",_volumeVectorFar.data,3);
@@ -980,7 +977,6 @@ CSceneObject* CCamera::copyYourself()
     // Various
     newCamera->_cameraSize=_cameraSize;
     newCamera->_renderMode=_renderMode;
-    newCamera->_remoteCameraMode=_remoteCameraMode;
     newCamera->_renderModeDuringSimulation=_renderModeDuringSimulation;
     newCamera->_renderModeDuringRecording=_renderModeDuringRecording;
     newCamera->_viewAngle=_viewAngle;
@@ -1074,33 +1070,6 @@ int CCamera::getPerspectiveOperation_old() const
             retVal=0;
     }
     return(retVal);
-}
-
-void CCamera::setRemoteCameraMode(int m)
-{ // 0: free, 1: slave, 2: master
-    bool diff=(_remoteCameraMode!=m);
-    if (diff)
-    {
-        _remoteCameraMode=m;
-        if ( _isInScene&&App::worldContainer->getEventsEnabled() )
-        {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="remoteCameraMode";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringInt32(cmd,_remoteCameraMode);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
-            const char* cmd="remoteCameraMode";
-            CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
-            ev->appendKeyInt(cmd,_remoteCameraMode);
-            App::worldContainer->pushEvent();
-        }
-    }
-}
-
-int CCamera::getRemoteCameraMode() const
-{
-    return(_remoteCameraMode);
 }
 
 int CCamera::getViewOrientation() const
@@ -1299,9 +1268,7 @@ void CCamera::serialize(CSer& ar)
             ar << _renderMode;
             ar.flush();
 
-            ar.storeDataName("Rcm");
-            ar << _remoteCameraMode;
-            ar.flush();
+            // reserved ar.storeDataName("Rcm");
 
             ar.storeDataName("Ca2");
             unsigned char nothing=0;
@@ -1427,12 +1394,6 @@ void CCamera::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _renderMode;
-                    }
-                    if (theName.compare("Rcm")==0)
-                    {
-                        noHit=false;
-                        ar >> byteQuantity;
-                        ar >> _remoteCameraMode;
                     }
                     if (theName.compare("Cpm")==0)
                     { // keep for backward compatibility (22.06.2023)
@@ -1562,9 +1523,6 @@ void CCamera::serialize(CSer& ar)
             if (exhaustiveXml)
                 ar.xmlAddNode_int("renderMode",_renderMode);
 
-            if (exhaustiveXml)
-                ar.xmlAddNode_int("remoteCameraMode",_remoteCameraMode);
-
             ar.xmlPushNewNode("switches");
             if (exhaustiveXml)
                 ar.xmlAddNode_bool("allowTranslation",_allowTranslation);
@@ -1623,9 +1581,6 @@ void CCamera::serialize(CSer& ar)
 
             if (exhaustiveXml)
                 ar.xmlGetNode_int("renderMode",_renderMode);
-
-            if (exhaustiveXml)
-                ar.xmlGetNode_int("remoteCameraMode",_remoteCameraMode);
 
             if (ar.xmlPushChildNode("switches",exhaustiveXml))
             {

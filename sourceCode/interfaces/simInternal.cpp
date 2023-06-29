@@ -8849,11 +8849,6 @@ int simGetObjectInt32Param_internal(int objectHandle,int parameterID,int* parame
                     parameter[0]=1;
                 retVal=1;
             }
-            if (parameterID==sim_cameraintparam_remotecameramode)
-            {
-                parameter[0]=camera->getRemoteCameraMode();
-                retVal=1;
-            }
             if (parameterID==sim_cameraintparam_trackedobject)
             {
                 parameter[0]=camera->getTrackedObjectHandle();
@@ -9234,11 +9229,6 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
         }
         if (camera!=nullptr)
         {
-            if (parameterID==sim_cameraintparam_remotecameramode)
-            {
-                camera->setRemoteCameraMode(parameter);
-                retVal=1;
-            }
             if (parameterID==sim_cameraintparam_perspective_operation)
             {
                 if (parameter!=0)
