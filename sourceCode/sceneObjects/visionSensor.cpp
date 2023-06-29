@@ -497,12 +497,6 @@ void CVisionSensor::setVisionSensorSize(const double s)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="size";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringFloat(cmd,_visionSensorSize);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="size";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_visionSensorSize);
@@ -1829,26 +1823,8 @@ void CVisionSensor::removeSceneDependencies()
     _detectableEntityHandle=-1;
 }
 
-void CVisionSensor::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
+void CVisionSensor::addSpecializedObjectEventData(CCbor* ev) const
 {
-    if (App::userSettings->oldEvents) {//canBeRemoved
-    CInterfaceStackTable* subC=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("visionSensor",subC);
-    data=subC;
-
-    data->appendMapObject_stringBool("perspectiveMode",_perspective);
-    data->appendMapObject_stringFloat("nearClippingPlane",_nearClippingPlane);
-    data->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
-    data->appendMapObject_stringFloat("viewAngle",_viewAngle);
-    data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
-    data->appendMapObject_stringFloat("size",_visionSensorSize);
-    data->appendMapObject_stringBool("showFrustum",_showVolume);
-
-    CInterfaceStackTable* fr=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("frustumVectors",fr);
-    fr->appendMapObject_stringDoubleArray("near",_volumeVectorNear.data,3);
-    fr->appendMapObject_stringDoubleArray("far",_volumeVectorFar.data,3);
-    }//canBeRemoved
     ev->openKeyMap("visionSensor");
     ev->appendKeyBool("perspectiveMode",_perspective);
     ev->appendKeyDouble("nearClippingPlane",_nearClippingPlane);

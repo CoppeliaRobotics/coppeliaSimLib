@@ -156,24 +156,6 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle,int colorIndex)
 {
     if ( (objectHandle!=-1)&&App::worldContainer->getEventsEnabled() )
     {
-        if (App::userSettings->oldEvents) {//canBeRemoved
-        const char* cmd="color";
-        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(objectHandle,false,cmd,false);
-        CInterfaceStackTable* sdata=new CInterfaceStackTable();
-        data->appendMapObject_stringObject(cmd,sdata);
-        float c[9];
-        int w=sim_colorcomponent_ambient_diffuse;
-        getColor(c+0,w);
-        getColor(c+3,sim_colorcomponent_specular);
-        getColor(c+6,sim_colorcomponent_emission);
-        sdata->appendMapObject_stringFloatArray("color",c,9);
-        float transp=0.0;
-        if (_translucid)
-            transp=1.0-_opacity;
-        sdata->appendMapObject_stringFloat("transparency",transp);
-        sdata->appendMapObject_stringInt32("index",colorIndex);
-        App::worldContainer->pushEvent(event);
-        }//canBeRemoved
         const char* cmd="color";
         CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(objectHandle,false,cmd,false);
         ev->openKeyMap(cmd);
@@ -196,20 +178,6 @@ void CColorObject::pushColorChangeEvent(int objectHandle,float col1[9],float col
 {
     if ( (objectHandle!=-1)&&App::worldContainer->getEventsEnabled() )
     {
-        if (App::userSettings->oldEvents) {//canBeRemoved
-        const char* cmd="colors";
-        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(objectHandle,false,cmd,false);
-        CInterfaceStackTable* sdata=new CInterfaceStackTable();
-        data->appendMapObject_stringObject(cmd,sdata);
-        sdata->appendArrayObject_floatArray(col1,9);
-        if (col2!=nullptr)
-            sdata->appendArrayObject_floatArray(col2,9);
-        if (col3!=nullptr)
-            sdata->appendArrayObject_floatArray(col3,9);
-        if (col4!=nullptr)
-            sdata->appendArrayObject_floatArray(col4,9);
-        App::worldContainer->pushEvent(event);
-        }//canBeRemoved
         const char* cmd="colors";
         CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(objectHandle,false,cmd,false);
         ev->openKeyArray(cmd);

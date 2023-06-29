@@ -187,7 +187,6 @@ public:
     std::string floatingLicenseServer;
     int floatingLicensePort;
     bool keepDongleOpen;
-    bool oldEvents;
 
 private:
     bool _supportOldApiNotation;

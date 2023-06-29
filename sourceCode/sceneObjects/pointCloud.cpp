@@ -203,30 +203,6 @@ void CPointCloud::_updatePointCloudEvent() const
 {
     if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
-        if (App::userSettings->oldEvents) {//canBeRemoved
-        const char* cmd="points";
-        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-
-        CInterfaceStackTable* subC=new CInterfaceStackTable();
-        data->appendMapObject_stringObject(cmd,subC);
-        data=subC;
-
-        CCbor obj(nullptr,0);
-        size_t l;
-        std::vector<float> bla;
-        bla.resize(_displayPoints.size());
-        for (size_t i=0;i<_displayPoints.size();i++)
-            bla[i]=(float)_displayPoints[i];
-        obj.appendFloatArray(bla.data(),bla.size());
-        const char* buff=(const char*)obj.getBuff(l);
-        data->appendMapObject_stringString("points",buff,l,true);
-
-        obj.clear();
-        obj.appendBuff(_displayColorsByte.data(),_displayColorsByte.size());
-        buff=(const char*)obj.getBuff(l);
-        data->appendMapObject_stringString("colors",buff,l,true);
-        App::worldContainer->pushEvent(event);
-        }//canBeRemoved
         const char* cmd="points";
         CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
         ev->openKeyMap(cmd);
@@ -675,34 +651,8 @@ void CPointCloud::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CPointCloud::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
+void CPointCloud::addSpecializedObjectEventData(CCbor* ev) const
 {
-    if (App::userSettings->oldEvents) {//canBeRemoved
-    CInterfaceStackTable* subC=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("pointCloud",subC);
-    data=subC;
-
-    data->appendMapObject_stringInt32("pointSize",_pointSize);
-
-    subC=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("points",subC);
-    data=subC;
-
-    CCbor obj(nullptr,0);
-    size_t l;
-    std::vector<float> bla;
-    bla.resize(_displayPoints.size());
-    for (size_t i=0;i<_displayPoints.size();i++)
-        bla[i]=(float)_displayPoints[i];
-    obj.appendFloatArray(bla.data(),bla.size());
-    const char* buff=(const char*)obj.getBuff(l);
-    data->appendMapObject_stringString("points",buff,l,true);
-
-    obj.clear();
-    obj.appendBuff(_displayColorsByte.data(),_displayColorsByte.size());
-    buff=(const char*)obj.getBuff(l);
-    data->appendMapObject_stringString("colors",buff,l,true);
-    }//canBeRemoved
     ev->openKeyMap("pointCloud");
     ev->appendKeyInt("pointSize",_pointSize);
     ev->openKeyMap("points");
@@ -813,12 +763,6 @@ void CPointCloud::setPointSize(int s)
         _pointSize=s;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="pointSize";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringInt32(cmd,_pointSize);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="pointSize";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyInt(cmd,_pointSize);

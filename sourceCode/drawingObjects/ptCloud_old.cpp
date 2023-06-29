@@ -163,43 +163,6 @@ void CPtCloud_old::pushAddEvent()
             quaternions[4*i+3]=1.0f;
         }
 
-        if (App::userSettings->oldEvents) {//canBeRemoved
-        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTADDED,_uniqueId,nullptr,false);
-
-        data->appendMapObject_stringString("type","point",0);
-
-        data->appendMapObject_stringFloatArray("color",c,9);
-
-        data->appendMapObject_stringInt32("maxCnt",int(_vertices.size()/3));
-
-        data->appendMapObject_stringFloat("size",_pointSize);
-
-        data->appendMapObject_stringInt64("parentUid",_parentUniqueId);
-
-        data->appendMapObject_stringBool("cyclic",false);
-
-        data->appendMapObject_stringBool("clearPoints",true);
-
-        App::worldContainer->pushEvent(event);
-
-        std::tie(event,data)=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_uniqueId,nullptr,false);
-
-        CCbor obj(nullptr,0);
-        size_t l;
-        obj.appendFloatArray(pts.data(),pts.size());
-        const char* buff=(const char*)obj.getBuff(l);
-        data->appendMapObject_stringString("points",buff,l,true);
-
-        obj.clear();
-        obj.appendFloatArray(_colors.data(),_colors.size());
-        buff=(const char*)obj.getBuff(l);
-        data->appendMapObject_stringString("colors",buff,l,true);
-
-
-        data->appendMapObject_stringBool("clearPoints",true);
-
-        App::worldContainer->pushEvent(event);
-        }//canBeRemoved
         CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED,_uniqueId,nullptr,false);
         ev->appendKeyString("type","point");
         ev->appendKeyFloatArray("color",c,9);

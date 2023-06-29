@@ -238,12 +238,8 @@ void CCustomData::serializeData(CSer &ar,const char* objectName)
     }
 }
 
-void CCustomData::appendEventData(CCbor* ev,CInterfaceStackTable* table) const
+void CCustomData::appendEventData(CCbor* ev) const
 {
-    if (App::userSettings->oldEvents) {//canBeRemoved
-    for (size_t i=0;i<_data.size();i++)
-        table->appendMapObject_stringString(_data[i].tag.c_str(),_data[i].data.c_str(),_data[i].data.size());
-    }//canBeRemoved
     for (size_t i=0;i<_data.size();i++)
         ev->appendKeyBuff(_data[i].tag.c_str(),(unsigned char*)_data[i].data.c_str(),_data[i].data.size());
 }

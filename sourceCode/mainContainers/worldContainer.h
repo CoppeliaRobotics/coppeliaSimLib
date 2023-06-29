@@ -40,23 +40,6 @@
 #define EVENTTYPE_GENESISBEGIN "genesisBegin"
 #define EVENTTYPE_GENESISEND "genesisEnd"
 
-struct SEventInfo
-{
-    CInterfaceStackTable* eventTable;
-    std::string event;
-    std::string subEvent;
-    std::string dataSubtype;
-    long long int uid;
-    bool mergeable;
-};
-
-struct SBufferedEvents
-{
-    CInterfaceStack* eventsStack;
-    std::vector<SEventInfo> eventDescriptions;
-};
-
-
 class CWorldContainer : public _CWorldContainer_
 {
 public:
@@ -84,29 +67,17 @@ public:
     void broadcastMsg(CInterfaceStack* inStack,int emittingScriptHandle,int options);
     void pushSceneObjectRemoveEvent(const CSceneObject* object);
 
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareNakedEvent(const char* event,int handle,long long int uid,bool mergeable);
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareEvent(const char* event,long long int uid,const char* fieldName,bool mergeable);
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectAddEvent(const CSceneObject* object);
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(const CSceneObject* object,bool isCommonObjectData,const char* fieldName,bool mergeable);
-    std::tuple<SEventInfo,CInterfaceStackTable*> prepareSceneObjectChangedEvent(int sceneObjectHandle,bool isCommonObjectData,const char* fieldName,bool mergeable);
-    void pushEvent(SEventInfo& event);
-    SBufferedEvents* swapBufferedEvents(SBufferedEvents* newBuffer);
-    void _prepareEventsForDispatch(SBufferedEvents* events,bool genesisEvents) const;
-    bool getCborEvents() const;
-    void setCborEvents(bool b);
-    //---------
+    bool getEventsEnabled() const;
     CCbor* createNakedEvent(const char* event,int handle,long long int uid,bool mergeable);
     CCbor* createEvent(const char* event,long long int uid,const char* fieldName,bool mergeable);
     CCbor* createSceneObjectAddEvent(const CSceneObject* object);
     CCbor* createSceneObjectChangedEvent(const CSceneObject* object,bool isCommonObjectData,const char* fieldName,bool mergeable);
     CCbor* createSceneObjectChangedEvent(int sceneObjectHandle,bool isCommonObjectData,const char* fieldName,bool mergeable);
     void pushEvent();
-    //---------
 
-    void dispatchEvents();
-    bool getEventsEnabled() const;
     void pushGenesisEvents();
     void getGenesisEvents(std::vector<unsigned char>* genesisEvents,CInterfaceStack* stack);
+    void dispatchEvents();
 
     void simulationAboutToStart();
     void simulationPaused();
@@ -140,9 +111,6 @@ public:
 #endif
 
 private:
-    void _combineDuplicateEvents(SBufferedEvents* events) const;
-    void _mergeEvents(SBufferedEvents* events) const;
-    std::tuple<SEventInfo,CInterfaceStackTable*> _prepareGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable);
     CCbor* _createGeneralEvent(const char* event,int objectHandle,long long int uid,const char* objType,const char* fieldName,bool mergeable,bool openDataField=true);
     bool _switchToWorld(int newWorldIndex);
 
@@ -150,14 +118,10 @@ private:
     int _currentWorldIndex;
     std::string _sessionId;
 
-    static long long int _mergedEventSeq;
-    SBufferedEvents* _bufferedEvents;
-    bool _cborEvents;
-    //---------
     static long long int _eventSeq;
     VMutex _eventMutex; // just needed while we are still using the old GUI, since it will also generate events
     CCbor* _events;
-    //---------
+    bool _eventsEnabled;
 
     std::vector<long long int> _uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled;
     int _modificationFlags;

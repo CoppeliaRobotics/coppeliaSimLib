@@ -148,30 +148,6 @@ void COcTree::_updateOctreeEvent() const
 {
     if ( _isInScene&&App::worldContainer->getEventsEnabled() )
     {
-        if (App::userSettings->oldEvents) {//canBeRemoved
-        const char* cmd="voxels";
-        auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-        data->appendMapObject_stringFloat("voxelSize",_cellSize);
-        CInterfaceStackTable* subC=new CInterfaceStackTable();
-        data->appendMapObject_stringObject(cmd,subC);
-        data=subC;
-
-        CCbor obj(nullptr,0);
-        size_t l;
-        std::vector<float> bla;
-        bla.resize(_voxelPositions.size());
-        for (size_t i=0;i<_voxelPositions.size();i++)
-            bla[i]=(float)_voxelPositions[i];
-        obj.appendFloatArray(bla.data(),bla.size());
-        const char* buff=(const char*)obj.getBuff(l);
-        data->appendMapObject_stringString("positions",buff,l,true);
-
-        obj.clear();
-        obj.appendBuff(_colorsByte.data(),_colorsByte.size());
-        buff=(const char*)obj.getBuff(l);
-        data->appendMapObject_stringString("colors",buff,l,true);
-        App::worldContainer->pushEvent(event);
-        }//canBeRemoved
         const char* cmd="voxels";
         CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
         ev->appendKeyDouble("voxelSize",_cellSize);
@@ -587,34 +563,8 @@ void COcTree::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void COcTree::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
+void COcTree::addSpecializedObjectEventData(CCbor* ev) const
 {
-    if (App::userSettings->oldEvents) {//canBeRemoved
-    CInterfaceStackTable* subC=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("octree",subC);
-    data=subC;
-
-    data->appendMapObject_stringFloat("voxelSize",_cellSize);
-
-    subC=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("voxels",subC);
-    data=subC;
-
-    CCbor obj(nullptr,0);
-    size_t l;
-    std::vector<float> bla;
-    bla.resize(_voxelPositions.size());
-    for (size_t i=0;i<_voxelPositions.size();i++)
-        bla[i]=(float)_voxelPositions[i];
-    obj.appendFloatArray(bla.data(),bla.size());
-    const char* buff=(const char*)obj.getBuff(l);
-    data->appendMapObject_stringString("positions",buff,l,true);
-
-    obj.clear();
-    obj.appendBuff(_colorsByte.data(),_colorsByte.size());
-    buff=(const char*)obj.getBuff(l);
-    data->appendMapObject_stringString("colors",buff,l,true);
-    }//canBeRemoved
     ev->openKeyMap("octree");
     ev->appendKeyDouble("voxelSize",_cellSize);
     ev->openKeyMap("voxels");

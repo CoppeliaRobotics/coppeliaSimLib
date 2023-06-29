@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ser.h>
-#include <interfaceStackTable.h>
+#include <cbor.h>
 
 struct SCustomData
 {
@@ -21,7 +21,7 @@ public:
     size_t getDataCount() const;
     void copyYourselfInto(CCustomData& theCopy) const;
     void serializeData(CSer &ar,const char* objectName);
-    void appendEventData(CCbor* ev,CInterfaceStackTable* table) const;
+    void appendEventData(CCbor* ev) const;
 
 protected:
     std::vector<SCustomData> _data;

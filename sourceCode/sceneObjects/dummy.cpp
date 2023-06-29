@@ -269,23 +269,8 @@ void CDummy::removeSceneDependencies()
     setLinkedDummyHandle(-1,false);
 }
 
-void CDummy::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
+void CDummy::addSpecializedObjectEventData(CCbor* ev) const
 {
-    if (App::userSettings->oldEvents) {//canBeRemoved
-    CInterfaceStackTable* subC=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("dummy",subC);
-    data=subC;
-
-    data->appendMapObject_stringFloat("size",_dummySize);
-
-    CInterfaceStackTable* colors=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("colors",colors);
-    float c[9];
-    _dummyColor.getColor(c,sim_colorcomponent_ambient_diffuse);
-    _dummyColor.getColor(c+3,sim_colorcomponent_specular);
-    _dummyColor.getColor(c+6,sim_colorcomponent_emission);
-    colors->appendArrayObject_floatArray(c,9);
-    }//canBeRemoved
     ev->openKeyMap("dummy");
     ev->appendKeyDouble("size",_dummySize);
     ev->openKeyArray("colors");
@@ -1080,12 +1065,6 @@ void CDummy::setDummySize(double s)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="size";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringFloat(cmd,_dummySize);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="size";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_dummySize);

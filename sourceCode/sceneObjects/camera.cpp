@@ -692,12 +692,6 @@ void CCamera::setAllowTranslation(bool allow)
         _allowTranslation=allow;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="allowTranslation";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringBool(cmd,_allowTranslation);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="allowTranslation";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyBool(cmd,_allowTranslation);
@@ -718,12 +712,6 @@ void CCamera::setAllowRotation(bool allow)
         _allowRotation=allow;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="allowRotation";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringBool(cmd,_allowRotation);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="allowRotation";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyBool(cmd,_allowRotation);
@@ -853,12 +841,6 @@ void CCamera::setCameraSize(double size)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="size";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringFloat(cmd,size);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="size";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,size);
@@ -908,40 +890,8 @@ void CCamera::removeSceneDependencies()
     _trackedObjectHandle=-1;
 }
 
-void CCamera::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
+void CCamera::addSpecializedObjectEventData(CCbor* ev) const
 {
-    if (App::userSettings->oldEvents) {//canBeRemoved
-    CInterfaceStackTable* subC=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("camera",subC);
-    data=subC;
-
-    data->appendMapObject_stringBool("perspectiveMode",_perspective);
-    data->appendMapObject_stringBool("allowTranslation",_allowTranslation);
-    data->appendMapObject_stringBool("allowRotation",_allowRotation);
-    data->appendMapObject_stringFloat("nearClippingPlane",_nearClippingPlane);
-    data->appendMapObject_stringFloat("farClippingPlane",_farClippingPlane);
-    data->appendMapObject_stringFloat("viewAngle",_viewAngle);
-    data->appendMapObject_stringFloat("orthoSize",_orthoViewSize);
-    data->appendMapObject_stringFloat("size",_cameraSize);
-    data->appendMapObject_stringBool("showFrustum",_showVolume);
-
-    CInterfaceStackTable* fr=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("frustumVectors",fr);
-    fr->appendMapObject_stringDoubleArray("near",_volumeVectorNear.data,3);
-    fr->appendMapObject_stringDoubleArray("far",_volumeVectorFar.data,3);
-
-    CInterfaceStackTable* colors=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("colors",colors);
-    float c[9];
-    _color.getColor(c,sim_colorcomponent_ambient_diffuse);
-    _color.getColor(c+3,sim_colorcomponent_specular);
-    _color.getColor(c+6,sim_colorcomponent_emission);
-    colors->appendArrayObject_floatArray(c,9);
-    _color_removeSoon.getColor(c,sim_colorcomponent_ambient_diffuse);
-    _color_removeSoon.getColor(c+3,sim_colorcomponent_specular);
-    _color_removeSoon.getColor(c+6,sim_colorcomponent_emission);
-    colors->appendArrayObject_floatArray(c,9);
-    }//canBeRemoved
     ev->openKeyMap("camera");
     ev->appendKeyBool("perspectiveMode",_perspective);
     ev->appendKeyBool("allowTranslation",_allowTranslation);

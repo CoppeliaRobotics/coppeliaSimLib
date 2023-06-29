@@ -155,11 +155,6 @@ bool CDrawingObject::addItem(const double* itemData)
 
         if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_objectUid,nullptr,false);
-            data->appendMapObject_stringBool("clearPoints",true);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_objectUid,nullptr,false);
             ev->appendKeyBool("clearPoints",true);
             App::worldContainer->pushEvent();
@@ -510,45 +505,6 @@ void CDrawingObject::pushAddEvent()
 {
     if ( (otherFloatsPerItem==0)&&App::worldContainer->getEventsEnabled() )
     {
-        if (App::userSettings->oldEvents) {//canBeRemoved
-        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTADDED,_objectUid,nullptr,false);
-        std::string tp;
-        switch(_objectType&0x001f)
-        {
-            case sim_drawing_points : tp="point";
-                break;
-            case sim_drawing_lines : tp="line";
-                break;
-            case sim_drawing_linestrip : tp="lineStrip";
-                break;
-            case sim_drawing_triangles : tp="triangle";
-                break;
-            case sim_drawing_trianglepts : tp="trianglePoint";
-                break;
-            case sim_drawing_quadpts : tp="quadPoint";
-                break;
-            case sim_drawing_discpts : tp="discPoint";
-                break;
-            case sim_drawing_cubepts : tp="cubePoint";
-                break;
-            case sim_drawing_spherepts : tp="spherePoint";
-                break;
-        }
-        data->appendMapObject_stringString("type",tp.c_str(),0);
-
-        data->appendMapObject_stringInt32("maxCnt",_maxItemCount);
-
-        data->appendMapObject_stringFloat("size",_size);
-
-        data->appendMapObject_stringInt64("parentUid",_sceneObjectUid);
-
-        data->appendMapObject_stringBool("cyclic",(_objectType&sim_drawing_cyclic)!=0);
-
-        data->appendMapObject_stringBool("clearPoints",true);
-
-        data->appendMapObject_stringBool("overlay",_objectType&sim_drawing_overlay);
-        App::worldContainer->pushEvent(event);
-        }//canBeRemoved
         CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED,_objectUid,nullptr,false);
         std::string tp;
         switch(_objectType&0x001f)
@@ -594,27 +550,6 @@ void CDrawingObject::pushAppendNewPointEvent()
         std::vector<float> colors;
         _getEventData(points,quaternions,colors);
 
-        if (App::userSettings->oldEvents) {//canBeRemoved
-        auto [event,data]=App::worldContainer->prepareEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_objectUid,nullptr,false);
-        CCbor obj(nullptr,0);
-        size_t l;
-        obj.appendFloatArray(points.data(),points.size());
-        const char* buff=(const char*)obj.getBuff(l);
-        data->appendMapObject_stringString("points",buff,l,true);
-
-        obj.clear();
-        obj.appendFloatArray(quaternions.data(),quaternions.size());
-        buff=(const char*)obj.getBuff(l);
-        data->appendMapObject_stringString("quaternions",buff,l,true);
-
-        obj.clear();
-        obj.appendFloatArray(colors.data(),colors.size());
-        buff=(const char*)obj.getBuff(l);
-        data->appendMapObject_stringString("colors",buff,l,true);
-
-        data->appendMapObject_stringBool("clearPoints",_rebuildRemoteItems);
-        App::worldContainer->pushEvent(event);
-        }//canBeRemoved
         CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED,_objectUid,nullptr,false);
         ev->appendKeyFloatArray("points",points.data(),points.size());
         ev->appendKeyFloatArray("quaternions",quaternions.data(),quaternions.size());

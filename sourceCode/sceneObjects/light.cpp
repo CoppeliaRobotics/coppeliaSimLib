@@ -185,12 +185,6 @@ void CLight::setLightSize(double size)
         computeBoundingBox();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="size";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringFloat(cmd,_lightSize);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="size";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_lightSize);
@@ -270,27 +264,8 @@ void CLight::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CLight::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
+void CLight::addSpecializedObjectEventData(CCbor* ev) const
 {
-    if (App::userSettings->oldEvents) {//canBeRemoved
-    CInterfaceStackTable* subC=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("light",subC);
-    data=subC;
-
-    data->appendMapObject_stringFloat("size",_lightSize);
-
-    CInterfaceStackTable* colors=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("colors",colors);
-    float c[9];
-    objectColor.getColor(c,sim_colorcomponent_ambient_diffuse);
-    objectColor.getColor(c+3,sim_colorcomponent_specular);
-    objectColor.getColor(c+6,sim_colorcomponent_emission);
-    colors->appendArrayObject_floatArray(c,9);
-    lightColor.getColor(c,sim_colorcomponent_diffuse);
-    lightColor.getColor(c+3,sim_colorcomponent_specular);
-    lightColor.getColor(c+6,sim_colorcomponent_emission);
-    colors->appendArrayObject_floatArray(c,9);
-    }//canBeRemoved
     ev->openKeyMap("light");
     ev->appendKeyDouble("size",_lightSize);
     ev->openKeyArray("colors");

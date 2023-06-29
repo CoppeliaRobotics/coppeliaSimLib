@@ -11,7 +11,7 @@ public:
 
     // Following functions are inherited from CSceneObject
     void display(CViewableBase* renderingObject,int displayAttrib);
-    void addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const;
+    void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);

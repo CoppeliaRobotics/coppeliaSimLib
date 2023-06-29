@@ -141,12 +141,6 @@ void CViewableBase::setNearClippingPlane(double nearPlane)
         computeVolumeVectors();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="nearClippingPlane";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringFloat(cmd,_nearClippingPlane);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="nearClippingPlane";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_nearClippingPlane);
@@ -170,12 +164,6 @@ void CViewableBase::setFarClippingPlane(double farPlane)
         computeVolumeVectors();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="farClippingPlane";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringFloat(cmd,_farClippingPlane);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="farClippingPlane";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_farClippingPlane);
@@ -199,12 +187,6 @@ void CViewableBase::setViewAngle(double angle)
         computeVolumeVectors();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="viewAngle";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringFloat(cmd,_viewAngle);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="viewAngle";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_viewAngle);
@@ -228,12 +210,6 @@ void CViewableBase::setOrthoViewSize(double theSize)
         computeVolumeVectors();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="orthoSize";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringFloat(cmd,_orthoViewSize);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="orthoSize";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyDouble(cmd,_orthoViewSize);
@@ -501,12 +477,6 @@ void CViewableBase::setPerspective(bool p)
         computeVolumeVectors();
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="perspectiveMode";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringBool(cmd,_perspective);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="perspectiveMode";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyBool(cmd,_perspective);
@@ -582,15 +552,6 @@ void CViewableBase::computeVolumeVectors()
         _volumeVectorFar=farV;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="frustumVectors";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            CInterfaceStackTable* fr=new CInterfaceStackTable();
-            data->appendMapObject_stringObject(cmd,fr);
-            fr->appendMapObject_stringDoubleArray("near",_volumeVectorNear.data,3);
-            fr->appendMapObject_stringDoubleArray("far",_volumeVectorFar.data,3);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="frustumVectors";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->openKeyMap(cmd);
@@ -609,12 +570,6 @@ void CViewableBase::setShowVolume(bool s)
         _showVolume=s;
         if ( _isInScene&&App::worldContainer->getEventsEnabled() )
         {
-            if (App::userSettings->oldEvents) {//canBeRemoved
-            const char* cmd="showFrustum";
-            auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-            data->appendMapObject_stringBool(cmd,_showVolume);
-            App::worldContainer->pushEvent(event);
-            }//canBeRemoved
             const char* cmd="showFrustum";
             CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
             ev->appendKeyBool(cmd,_showVolume);

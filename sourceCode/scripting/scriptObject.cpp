@@ -1397,7 +1397,7 @@ int CScriptObject::systemCallMainScript(int optionalCallType,const CInterfaceSta
                 retVal=systemCallScript(sim_syscb_init,inStack,outStack);
 
             retVal=systemCallScript(sim_syscb_actuation,inStack,outStack);
-            App::worldContainer->dispatchEvents();
+            App::worldContainer->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
             retVal=systemCallScript(sim_syscb_sensing,inStack,outStack);
 
             if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_lastbeforestop)

@@ -1233,15 +1233,6 @@ void CShape::setCulling(bool culState)
 
             if ( _isInScene&&App::worldContainer->getEventsEnabled() )
             {
-                if (App::userSettings->oldEvents) {//canBeRemoved
-                const char* cmd="color";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,true);
-                CInterfaceStackTable* sdata=new CInterfaceStackTable();
-                data->appendMapObject_stringObject(cmd,sdata);
-                sdata->appendMapObject_stringBool("culling",culState);
-                sdata->appendMapObject_stringInt32("index",0);
-                App::worldContainer->pushEvent(event);
-                }//canBeRemoved
                 const char* cmd="color";
                 CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,true);
                 ev->openKeyMap(cmd);
@@ -1271,15 +1262,6 @@ void CShape::setVisibleEdges(bool v)
 
             if ( _isInScene&&App::worldContainer->getEventsEnabled() )
             {
-                if (App::userSettings->oldEvents) {//canBeRemoved
-                const char* cmd="color";
-                auto [event,data]=App::worldContainer->prepareSceneObjectChangedEvent(this,false,cmd,false);
-                CInterfaceStackTable* sdata=new CInterfaceStackTable();
-                data->appendMapObject_stringObject(cmd,sdata);
-                sdata->appendMapObject_stringBool("showEdges",v);
-                sdata->appendMapObject_stringInt32("index",0);
-                App::worldContainer->pushEvent(event);
-                }//canBeRemoved
                 const char* cmd="color";
                 CCbor* ev=App::worldContainer->createSceneObjectChangedEvent(this,false,cmd,false);
                 ev->openKeyMap(cmd);
@@ -1421,171 +1403,8 @@ void CShape::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CShape::addSpecializedObjectEventData(CCbor* ev,CInterfaceStackTable* data) const
+void CShape::addSpecializedObjectEventData(CCbor* ev) const
 {
-    if (App::userSettings->oldEvents) {//canBeRemoved
-    CInterfaceStackTable* subC=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("shape",subC);
-    data=subC;
-
-    CInterfaceStackTable* meshData=new CInterfaceStackTable();
-    data->appendMapObject_stringObject("meshes",meshData);
-
-    std::vector<CMesh*> all;
-    std::vector<C7Vector> allTr;
-    getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
-    for (size_t i=0;i<all.size();i++)
-    {
-        CMesh* geom=all[i];
-        C7Vector tr(allTr[i]);
-
-        CInterfaceStackTable* mesh=new CInterfaceStackTable();
-        meshData->appendArrayObject(mesh);
-
-        const std::vector<float>* wvert=geom->getVerticesForDisplayAndDisk();
-        const std::vector<int>* wind=geom->getIndices();
-        const std::vector<float>* wnorm=geom->getNormalsForDisplayAndDisk();
-        std::vector<float> vertices;
-        vertices.resize(wvert->size());
-        for (size_t j=0;j<wvert->size()/3;j++)
-        {
-            C3Vector v;
-            v.setData(wvert->data()+j*3);
-            v=tr*v;
-            vertices[3*j+0]=(float)v(0);
-            vertices[3*j+1]=(float)v(1);
-            vertices[3*j+2]=(float)v(2);
-        }
-        CCbor obj(nullptr,0);
-        size_t l;
-        obj.appendFloatArray(vertices.data(),vertices.size());
-        const char* buff=(const char*)obj.getBuff(l);
-        mesh->appendMapObject_stringString("vertices",buff,l,true);
-
-        obj.clear();
-        obj.appendIntArray(wind->data(),wind->size());
-        buff=(const char*)obj.getBuff(l);
-        mesh->appendMapObject_stringString("indices",buff,l,true);
-
-        std::vector<float> normals;
-        normals.resize(wind->size()*3);
-        for (size_t j=0;j<wind->size();j++)
-        {
-            C3Vector n;
-            n.setData(&(wnorm[0])[0]+j*3);
-            n=tr.Q*n; // only orientation
-            normals[3*j+0]=(float)n(0);
-            normals[3*j+1]=(float)n(1);
-            normals[3*j+2]=(float)n(2);
-        }
-        obj.clear();
-        obj.appendFloatArray(normals.data(),normals.size());
-        buff=(const char*)obj.getBuff(l);
-        mesh->appendMapObject_stringString("normals",buff,l,true);
-
-        float c[9];
-        geom->color.getColor(c+0,sim_colorcomponent_ambient_diffuse);
-        geom->color.getColor(c+3,sim_colorcomponent_specular);
-        geom->color.getColor(c+6,sim_colorcomponent_emission);
-        mesh->appendMapObject_stringFloatArray("color",c,9);
-
-//        mesh->appendMapObject_stringFloat("edgeAngle",geom->);
-        mesh->appendMapObject_stringFloat("shadingAngle",geom->getShadingAngle());
-        mesh->appendMapObject_stringBool("showEdges",geom->getVisibleEdges());
-        mesh->appendMapObject_stringBool("culling",geom->getCulling());
-        double transp=0.0;
-        if (geom->color.getTranslucid())
-            transp=1.0-geom->color.getOpacity();
-        mesh->appendMapObject_stringFloat("transparency",transp);
-
-
-        int options=0;
-        if (geom->getCulling())
-            options|=1;
-        if (geom->getWireframe_OLD())
-            options|=2;
-        mesh->appendMapObject_stringInt32("options",options);
-
-        CTextureProperty* tp=geom->getTextureProperty();
-        CTextureObject* to=nullptr;
-        const std::vector<float>* tc=nullptr;
-        if (tp!=nullptr)
-        {
-            to=tp->getTextureObject();
-            tc=tp->getTextureCoordinates(-1,wvert[0],wind[0]);
-        }
-
-        if ( (to!=nullptr)&&(tc!=nullptr) )
-        {
-            if (true)
-            { // sending raw texture
-                int tRes[2];
-                to->getTextureSize(tRes[0],tRes[1]);
-                CInterfaceStackTable* texture=new CInterfaceStackTable();
-                mesh->appendMapObject_stringObject("texture",texture);
-
-                texture->appendMapObject_stringString("rawTexture",(char*)to->getTextureBufferPointer(),tRes[1]*tRes[0]*4);
-
-                texture->appendMapObject_stringInt32Array("resolution",tRes,2);
-
-                obj.clear();
-                obj.appendFloatArray(tc->data(),tc->size());
-                buff=(const char*)obj.getBuff(l);
-                texture->appendMapObject_stringString("coordinates",buff,l,true);
-
-                texture->appendMapObject_stringInt32("applyMode",tp->getApplyMode());
-
-                int options=0;
-                if (tp->getRepeatU())
-                    options|=1;
-                if (tp->getRepeatV())
-                    options|=2;
-                if (tp->getInterpolateColors())
-                    options|=4;
-                texture->appendMapObject_stringInt32("options",options);
-
-                texture->appendMapObject_stringInt32("id",tp->getTextureObjectID());
-            }
-            else
-            { // sending PNG texture
-                std::string buffer;
-                int tRes[2];
-                to->getTextureSize(tRes[0],tRes[1]);
-                bool res=CImageLoaderSaver::save((unsigned char*)to->getTextureBufferPointer(),tRes,1,".png",-1,&buffer);
-                if (res)
-                {
-                    CInterfaceStackTable* texture=new CInterfaceStackTable();
-                    mesh->appendMapObject_stringObject("texture",texture);
-
-                    buffer=utils::encode64(buffer);
-                    texture->appendMapObject_stringString("texture",buffer.c_str(),buffer.size());
-
-                    texture->appendMapObject_stringInt32Array("resolution",tRes,2);
-
-                    obj.clear();
-                    obj.appendFloatArray(tc->data(),tc->size());
-                    buff=(const char*)obj.getBuff(l);
-                    texture->appendMapObject_stringString("coordinates",buff,l,true);
-
-                    texture->appendMapObject_stringInt32("applyMode",tp->getApplyMode());
-
-                    int options=0;
-                    if (tp->getRepeatU())
-                        options|=1;
-                    if (tp->getRepeatV())
-                        options|=2;
-                    if (tp->getInterpolateColors())
-                        options|=4;
-                    texture->appendMapObject_stringInt32("options",options);
-
-                    texture->appendMapObject_stringInt32("id",tp->getTextureObjectID());
-                }
-            }
-        }
-    }
-    }//canBeRemoved
-
-
     ev->openKeyMap("shape");
     ev->openKeyArray("meshes");
     std::vector<CMesh*> all;

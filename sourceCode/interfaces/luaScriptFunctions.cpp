@@ -5673,36 +5673,6 @@ int _simTest(luaWrap_lua_State* L)
     if (checkInputArguments(L,nullptr,lua_arg_string,0))
     {
         std::string cmd=luaWrap_lua_tostring(L,1);
-        if (cmd.compare("sim.cborEvents")==0)
-        {
-            App::worldContainer->setCborEvents(luaToBool(L,2));
-            LUA_END(0);
-        }
-        if (cmd.compare("sim.mergeEvents")==0)
-        {
-            CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
-            App::logScriptMsg(it,sim_verbosity_scriptwarnings,"sim.test('sim.mergeEvents',bool) does not have any effect. Events are merged by default.");
-            LUA_END(0);
-        }
-        if (cmd.compare("sim.fetchCreationEvents")==0)
-        { // probably not used anymore. See sim.getGenesisEvents
-            std::vector<unsigned char> genesisEvents;
-            if (App::userSettings->oldEvents)
-            {
-                CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-                App::worldContainer->getGenesisEvents(&genesisEvents,stack);
-                CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
-                int s=stack->getStackSize();
-                App::worldContainer->interfaceStackContainer->destroyStack(stack);
-                LUA_END(s);
-            }
-            else
-            {
-                App::worldContainer->getGenesisEvents(&genesisEvents,nullptr);
-                luaWrap_lua_pushlstring(L,(char*)genesisEvents.data(),genesisEvents.size());
-                LUA_END(1);
-            }
-        }
         if (cmd.compare("sim.getGeodesicInfo")==0)
         { // pt1,pt2,vertices,indices(can be {}),maxEdge,debugShape
             C3Vector pt1,pt2;
@@ -11618,15 +11588,6 @@ int _simPushUserEvent(luaWrap_lua_State* L)
                     options=luaToInt(L,5);
                 if (App::worldContainer->getEventsEnabled())
                 {
-                    if (App::userSettings->oldEvents) {//canBeRemoved
-                    auto [event,data]=App::worldContainer->prepareNakedEvent(eventStr.c_str(),handle,uid,(options&1)!=0);
-                    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-                    CScriptObject::buildFromInterpreterStack_lua(L,stack,4,0); // skip the 3 first args
-                    CInterfaceStackTable* t=(CInterfaceStackTable*)stack->detachStackObjectFromIndex(0);
-                    App::worldContainer->interfaceStackContainer->destroyStack(stack);
-                    event.eventTable->appendMapObject_stringObject("data",t);
-                    App::worldContainer->pushEvent(event);
-                    }//canBeRemoved
                     CCbor* ev=App::worldContainer->createNakedEvent(eventStr.c_str(),handle,uid,(options&1)!=0);
                     ev->appendString("data");
                     CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
@@ -11724,21 +11685,9 @@ int _simGetGenesisEvents(luaWrap_lua_State* L)
     // no args for now
 
     std::vector<unsigned char> genesisEvents;
-    if (App::userSettings->oldEvents)
-    {
-        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-        App::worldContainer->getGenesisEvents(&genesisEvents,stack);
-        CScriptObject::buildOntoInterpreterStack_lua(L,stack,false);
-        int s=stack->getStackSize();
-        App::worldContainer->interfaceStackContainer->destroyStack(stack);
-        LUA_END(s);
-    }
-    else
-    {
-        App::worldContainer->getGenesisEvents(&genesisEvents,nullptr);
-        luaWrap_lua_pushlstring(L,(char*)genesisEvents.data(),genesisEvents.size());
-        LUA_END(1);
-    }
+    App::worldContainer->getGenesisEvents(&genesisEvents,nullptr);
+    luaWrap_lua_pushlstring(L,(char*)genesisEvents.data(),genesisEvents.size());
+    LUA_END(1);
 
 //    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
 //    LUA_END(0);
