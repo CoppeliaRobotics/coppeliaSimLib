@@ -121,7 +121,7 @@ int CAddOnScriptContainer::_insertAddOns()
             at=ADDON_PREFIX;
             oldAddOn=false;
         }
-        if (at.size()>1)
+        if ( (at.size()>1)&&(foundItem->name.find("simAddOnHibot Visualization")==std::string::npos) ) // second part is temp
         {
             std::string fp(App::folders->getAddOnPath()+"/");
             fp+=foundItem->name;
