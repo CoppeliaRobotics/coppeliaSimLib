@@ -153,7 +153,7 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int
         plug->addDependency(loadOrigin);
 
     if (plug!=nullptr)
-        CSimFlavor::getIntVal_str(3,plug->getNamespace().c_str());
+        CSimFlavor::getIntVal_str(3,plug->getName().c_str());
 
     return(plug);
 }

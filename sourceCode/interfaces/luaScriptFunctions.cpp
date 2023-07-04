@@ -2686,6 +2686,14 @@ int _auxFunc(luaWrap_lua_State* L)
                 LUA_END(2);
             }
         }
+        if (cmd.compare("getKnownPlugin")==0)
+        {
+            if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_integer,0))
+            {
+                luaWrap_lua_pushstring(L,CSimFlavor::getStringVal_int(3,luaWrap_lua_tointeger(L,2)).c_str());
+                LUA_END(1);
+            }
+        }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
