@@ -329,7 +329,7 @@ CUserSettings::CUserSettings()
     doNotShowVideoCompressionLibraryLoadError=false;
     suppressStartupDialogs=false;
     suppressXmlOverwriteMsg=false;
-    noVersionCheck=false;
+    noVersionCheck=0;
 
 
     // Compatibility section:
@@ -977,7 +977,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError);
     c.getBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs);
     c.getBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG,suppressXmlOverwriteMsg);
-    c.getBoolean(_USR_NO_VERSION_CHECK,noVersionCheck);
+    c.getInteger(_USR_NO_VERSION_CHECK,noVersionCheck);
 
 
     // Compatibility section:
