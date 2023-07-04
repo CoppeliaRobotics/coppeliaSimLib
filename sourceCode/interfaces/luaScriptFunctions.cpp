@@ -20,6 +20,7 @@
 #include <cbor.h>
 #include <meshRoutines.h>
 #include <vFileFinder.h>
+#include <simFlavor.h>
 #ifdef SIM_WITH_GUI
 #include <QScreen>
 #include <QDesktopWidget>

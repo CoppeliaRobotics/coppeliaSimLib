@@ -106,6 +106,7 @@ public:
     bool suppressStartupDialogs;
     bool suppressXmlOverwriteMsg;
     bool allowSettingsWrite;
+    bool noVersionCheck;
 
     std::string scriptEditorFont;
     bool scriptEditorBoldFont;

@@ -172,6 +172,7 @@
 #define _USR_SUPPRESS_STARTUP_DIALOG "suppressStartupDialogs"
 #define _USR_SUPPRESS_XML_OVERWRITE_MSG "suppressXmlOverwriteMsg"
 #define _USR_ALLOW_SETTINGS_WRITE "allowSettingsWrite"
+#define _USR_NO_VERSION_CHECK "noVersionCheck"
 
 #define _USR_SCRIPT_EDITOR_FONT "scriptEditorFont"
 #define _USR_SCRIPT_EDITOR_FONT_SIZE "scriptEditorFontSize"
@@ -328,6 +329,7 @@ CUserSettings::CUserSettings()
     doNotShowVideoCompressionLibraryLoadError=false;
     suppressStartupDialogs=false;
     suppressXmlOverwriteMsg=false;
+    noVersionCheck=false;
 
 
     // Compatibility section:
@@ -975,6 +977,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError);
     c.getBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs);
     c.getBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG,suppressXmlOverwriteMsg);
+    c.getBoolean(_USR_NO_VERSION_CHECK,noVersionCheck);
 
 
     // Compatibility section:

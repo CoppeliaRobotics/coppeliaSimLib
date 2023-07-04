@@ -6,12 +6,14 @@
 
 CPersistentDataContainer::CPersistentDataContainer()
 {
+    _eventMutex.lock();
     _filename="settings.dat";
     initializeWithDataFromFile();
 }
 
 CPersistentDataContainer::CPersistentDataContainer(const char* filename)
 {
+    _eventMutex.lock();
     _filename=filename;
     initializeWithDataFromFile();
 }
@@ -19,6 +21,7 @@ CPersistentDataContainer::CPersistentDataContainer(const char* filename)
 CPersistentDataContainer::~CPersistentDataContainer()
 {
     removeAllData();
+    _eventMutex.unlock();
 }
 
 int CPersistentDataContainer::removeAllData()

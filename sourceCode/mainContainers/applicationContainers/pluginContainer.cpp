@@ -9,6 +9,7 @@
 #include <collisionRoutines.h>
 #include <volInt.h>
 #include <algorithm>
+#include <simFlavor.h>
 
 #define SIMIK_DEFAULT "simIK"
 #define SIMUI_DEFAULT "simUI"
@@ -150,6 +151,10 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int
     }
     else
         plug->addDependency(loadOrigin);
+
+    if (plug!=nullptr)
+        CSimFlavor::getIntVal_str(3,plug->getNamespace().c_str());
+
     return(plug);
 }
 

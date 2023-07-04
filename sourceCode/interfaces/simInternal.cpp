@@ -783,16 +783,12 @@ int simRunSimulator_internal(const char* applicationName,int options,void(*setTo
 #endif
 
     App::run(options,stopDelay,sceneOrModelToLoad,launchSimThread,applicationDir.c_str()); // We stay in here until we quit the application!
-    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"4");
 #ifdef SIM_WITH_GUI
     App::deleteMainWindow();
 #endif
-    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"3");
     App::deleteWorldsContainer();
-    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"2");
     CSimFlavor::run(3);
     CThreadPool_old::cleanUp();
-    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"1");
     delete applicationBasicInitialization;
     return(1);
 }

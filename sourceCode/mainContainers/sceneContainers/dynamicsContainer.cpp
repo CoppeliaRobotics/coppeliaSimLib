@@ -225,16 +225,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
         }
         if ( (_physicsEngineNotSupportedWarning==1)&&((_tempDisabledWarnings&8)==0) )
         {
-            if (_dynamicEngineToUse==sim_physics_vortex)
-            {
-#ifndef MAC_SIM
-                App::logMsg(sim_verbosity_warnings,"The Vortex plugin was not found. Copy files from CoppeliaSim/vortexPlugin/ to CoppeliaSim/ to enable the plugin.");
-#else
-                App::logMsg(sim_verbosity_warnings,"The Vortex engine is not yet supported on this platform.");
-#endif
-            }
-            else
-                App::logMsg(sim_verbosity_warnings,"The physics engine currently selected is not supported (you might be missing a required plugin). Simulation will not run correctly.");
+            App::logMsg(sim_verbosity_warnings,"The physics engine currently selected is not supported (you might be missing a required plugin). Simulation will not run correctly.");
             _physicsEngineNotSupportedWarning++;
         }
     }

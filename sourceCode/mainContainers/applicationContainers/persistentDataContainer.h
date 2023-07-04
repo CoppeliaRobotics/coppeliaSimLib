@@ -1,7 +1,7 @@
-
 #pragma once
 
 #include <vArchive.h>
+#include <vMutex.h>
 
 class CPersistentDataContainer 
 {
@@ -29,4 +29,5 @@ protected:
     std::string _filename;
     std::vector<std::string> _dataNames;
     std::vector<std::string> _dataValues;
+    VMutex _eventMutex;
 };

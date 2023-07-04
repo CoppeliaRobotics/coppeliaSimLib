@@ -1426,6 +1426,9 @@ int CScriptObject::systemCallScript(int callType,const CInterfaceStack* inStack,
             return(0);
     }
 
+    if ( (callType==sim_syscb_init)&&(_scriptType==sim_scripttype_addonscript) )
+        CSimFlavor::getIntVal_str(3,_addOnName.c_str());
+
     int retVal=0;
 
     bool scriptDisabled=_scriptIsDisabled;
