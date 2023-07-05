@@ -179,6 +179,8 @@ SIM_DLLEXPORT void _simGetCumulativeMeshes(const void* shape,const void* geomInf
 SIM_DLLEXPORT bool _simGetDistanceBetweenEntitiesIfSmaller(int entity1ID,int entity2ID,float* distance,float* ray,int* cacheBuffer,bool overrideMeasurableFlagIfNonCollection1,bool overrideMeasurableFlagIfNonCollection2,bool pathPlanningRoutineCalling);
 
 // Deprecated begin
+SIM_DLLEXPORT int simRunSimulator(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)());
+SIM_DLLEXPORT int simRunSimulatorEx(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)(),int stopDelay,const char* sceneOrModelToLoad);
 SIM_DLLEXPORT int simGetMaterialId(const char* materialName);
 SIM_DLLEXPORT int simGetShapeMaterial(int shapeHandle);
 SIM_DLLEXPORT int simHandleVarious();
@@ -461,7 +463,22 @@ SIM_DLLEXPORT void _simGetDynamicForceSensorLocalTransformationPart2_D(const voi
 SIM_DLLEXPORT void _simGetMotorPid_D(const void* joint,double* pParam,double* iParam,double* dParam);
 SIM_DLLEXPORT void _simGetPrincipalMomentOfInertia_D(const void* geomInfo,double* inertia);
 SIM_DLLEXPORT void _simGetLocalInertiaFrame_D(const void* geomInfo,double* pos,double* quat);
-
+SIM_DLLEXPORT int simExtLaunchUIThread(const char* applicationName,int options,const char* sceneOrModelOrUiToLoad,const char* applicationDir_);
+SIM_DLLEXPORT int simExtCanInitSimThread();
+SIM_DLLEXPORT int simExtSimThreadInit();
+SIM_DLLEXPORT int simExtSimThreadDestroy();
+SIM_DLLEXPORT int simExtPostExitRequest();
+SIM_DLLEXPORT int simExtGetExitRequest();
+SIM_DLLEXPORT int simExtStep(bool stepIfRunning);
+SIM_DLLEXPORT int simExtCallScriptFunction_D(int scriptHandleOrType, const char* functionNameAtScriptName,
+                                               const int* inIntData, int inIntCnt,
+                                               const double* inFloatData, int inFloatCnt,
+                                               const char** inStringData, int inStringCnt,
+                                               const char* inBufferData, int inBufferCnt,
+                                               int** outIntData, int* outIntCnt,
+                                               double** outFloatData, int* outFloatCnt,
+                                               char*** outStringData, int* outStringCnt,
+                                               char** outBufferData, int* outBufferSize);
 SIM_DLLEXPORT int simCreateMotionPlanning(int jointCnt,const int* jointHandles,const int* jointRangeSubdivisions,const float* jointMetricWeights,int options,const int* intParams,const float* floatParams,const void* reserved);
 SIM_DLLEXPORT int simAddParticleObject(int objectType,float size,float density,const void* params,float lifeTime,int maxItemCount,const float* color,const float* setToNULL,const float* setToNULL2,const float* setToNULL3);
 SIM_DLLEXPORT int simAddParticleObjectItem(int objectHandle,const float* itemData);

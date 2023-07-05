@@ -5,8 +5,7 @@
 #include <simLib/simTypes.h>
 #include <simLib/simExp.h>
 
-SIM_DLLEXPORT int simRunSimulator(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)());
-SIM_DLLEXPORT int simRunSimulatorEx(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)(),int stopDelay,const char* sceneOrModelToLoad);
+SIM_DLLEXPORT int simTest(int mode,void* ptr1,void* ptr2,void* ptr3);
 SIM_DLLEXPORT void* simGetMainWindow(int type);
 SIM_DLLEXPORT char* simGetLastError();
 SIM_DLLEXPORT int simSetBoolParam(int parameter,bool boolState);
@@ -208,15 +207,15 @@ SIM_DLLEXPORT int simModuleEntry(int handle,const char* label,int state);
 SIM_DLLEXPORT int simCheckExecAuthorization(const char* what,const char* args);
 SIM_DLLEXPORT int simGetVisionSensorRes(int sensorHandle,int* resolution);
 SIM_DLLEXPORT int simCreateShape(int options,double shadingAngle,const double* vertices,int verticesSize,const int* indices,int indicesSize,const double* normals,const float* textureCoords,const unsigned char* texture,const int* textureRes);
-// Following courtesy of Stephen James:
-SIM_DLLEXPORT int simExtLaunchUIThread(const char* applicationName,int options,const char* sceneOrModelOrUiToLoad,const char* applicationDir_);
-SIM_DLLEXPORT int simExtCanInitSimThread();
-SIM_DLLEXPORT int simExtSimThreadInit();
-SIM_DLLEXPORT int simExtSimThreadDestroy();
-SIM_DLLEXPORT int simExtPostExitRequest();
-SIM_DLLEXPORT int simExtGetExitRequest();
-SIM_DLLEXPORT int simExtStep(bool stepIfRunning);
+
 // non documented functions, mainly for the dynamics plugins:
+SIM_DLLEXPORT int simRunGui(const char* applicationName,int options,int stopDelay,const char* sceneOrModelToLoad,const char* appDir);
+SIM_DLLEXPORT int simCanInitSimThread();
+SIM_DLLEXPORT int simInitSimThread();
+SIM_DLLEXPORT int simCleanupSimThread();
+SIM_DLLEXPORT int simPostExitRequest();
+SIM_DLLEXPORT int simGetExitRequest();
+SIM_DLLEXPORT int simLoop(int options);
 SIM_DLLEXPORT void _simSetDynamicSimulationIconCode(void* object,int code);
 SIM_DLLEXPORT void _simSetDynamicObjectFlagForVisualization(void* object,int flag);
 SIM_DLLEXPORT int _simGetObjectListSize(int objType);
@@ -394,15 +393,6 @@ SIM_DLLEXPORT int simGetShapeInertia_D(int shapeHandle,double* inertiaMatrix,dou
 SIM_DLLEXPORT int simSetShapeInertia_D(int shapeHandle,const double* inertiaMatrix,const double* transformationMatrix);
 SIM_DLLEXPORT int simGenerateShapeFromPath_D(const double* path,int pathSize,const double* section,int sectionSize,int options,const double* upVector,double reserved);
 SIM_DLLEXPORT double simGetClosestPosOnPath_D(const double* path,int pathSize,const double* pathLengths,const double* absPt);
-SIM_DLLEXPORT int simExtCallScriptFunction_D(int scriptHandleOrType, const char* functionNameAtScriptName,
-                                               const int* inIntData, int inIntCnt,
-                                               const double* inFloatData, int inFloatCnt,
-                                               const char** inStringData, int inStringCnt,
-                                               const char* inBufferData, int inBufferCnt,
-                                               int** outIntData, int* outIntCnt,
-                                               double** outFloatData, int* outFloatCnt,
-                                               char*** outStringData, int* outStringCnt,
-                                               char** outBufferData, int* outBufferSize);
 SIM_DLLEXPORT void _simGetObjectLocalTransformation_D(const void* object,double* pos,double* quat,bool excludeFirstJointTransformation);
 SIM_DLLEXPORT void _simSetObjectLocalTransformation_D(void* object,const double* pos,const double* quat,double simTime);
 SIM_DLLEXPORT void _simDynReportObjectCumulativeTransformation_D(void* object,const double* pos,const double* quat,double simTime);

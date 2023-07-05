@@ -11,7 +11,14 @@ int getCurrentScriptNameIndex_cSide();
 std::string getIndexAdjustedObjectName(const char* nm);
 
 
-int simRunSimulator_internal(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)(),int stopDelay,const char* sceneOrModelToLoad,bool launchSimThread);
+int simRunGui_internal(const char* applicationName,int options,int stopDelay,const char* sceneOrModel,const char* appDir);
+int simCanInitSimThread_internal();
+int simInitSimThread_internal();
+int simCleanupSimThread_internal();
+int simPostExitRequest_internal();
+int simGetExitRequest_internal();
+int simLoop_internal(int options);
+int simTest_internal(int mode,void* ptr1,void* ptr2,void* ptr3);
 void* simGetMainWindow_internal(int type);
 char* simGetLastError_internal();
 int simSetBoolParam_internal(int parameter,bool boolState);
@@ -429,26 +436,7 @@ const void* _simGetIkGroupObject_internal(int ikGroupID);
 int _simMpHandleIkGroupObject_internal(const void* ikGroup);
 double _simGetPureHollowScaling_internal(const void* geometric);
 void _simDynCallback_internal(const int* intData,const double* floatData);
-
-
-// Following courtesy of Stephen James:
-int simExtLaunchUIThread_internal(const char* applicationName,int options,const char* sceneOrModelToLoad_,const char* applicationDir_);
-int simExtCanInitSimThread_internal();
-int simExtSimThreadInit_internal();
-int simExtSimThreadDestroy_internal();
-int simExtPostExitRequest_internal();
-int simExtGetExitRequest_internal();
-int simExtStep_internal(bool stepIfRunning);
 int simGetVisionSensorRes_internal(int visionSensorHandle,int* resolution);
-int simExtCallScriptFunction_internal(int scriptHandleOrType, const char* functionNameAtScriptName,
-                                         const int* inIntData, int inIntCnt,
-                                         const double* inFloatData, int inFloatCnt,
-                                         const char** inStringData, int inStringCnt,
-                                         const char* inBufferData, int inBufferCnt,
-                                         int** outIntData, int* outIntCnt,
-                                         double** outFloatData, int* outFloatCnt,
-                                         char*** outStringData, int* outStringCnt,
-                                         char** outBufferData, int* outBufferSize);
 
 #include <simInternal-old.h>
 

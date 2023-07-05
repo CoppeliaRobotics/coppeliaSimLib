@@ -2,13 +2,38 @@
 #include <simInternal.h>
 #include <app.h>
 
-SIM_DLLEXPORT int simRunSimulator(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)())
+SIM_DLLEXPORT int simRunGui(const char* applicationName,int options,int stopDelay,const char* sceneOrModelToLoad, const char* appDir)
 {
-    return(simRunSimulator_internal(applicationName,options,nullptr,nullptr,nullptr,0,"",true));
+    return(simRunGui_internal(applicationName,options,stopDelay,sceneOrModelToLoad,appDir));
 }
-SIM_DLLEXPORT int simRunSimulatorEx(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)(),int stopDelay,const char* sceneOrModelToLoad)
+SIM_DLLEXPORT int simPostExitRequest()
 {
-    return(simRunSimulator_internal(applicationName,options,nullptr,nullptr,nullptr,stopDelay,sceneOrModelToLoad,true));
+    return(simPostExitRequest_internal());
+}
+SIM_DLLEXPORT int simGetExitRequest()
+{
+    return(simGetExitRequest_internal());
+}
+SIM_DLLEXPORT int simLoop(int options)
+{
+    return(simLoop_internal(options));
+}
+SIM_DLLEXPORT int simCanInitSimThread()
+{
+    return(simCanInitSimThread_internal());
+}
+SIM_DLLEXPORT int simInitSimThread()
+{
+    return(simInitSimThread_internal());
+}
+SIM_DLLEXPORT int simCleanupSimThread()
+{
+    return(simCleanupSimThread_internal());
+}
+
+SIM_DLLEXPORT int simTest(int mode,void* ptr1,void* ptr2,void* ptr3)
+{
+    return(simTest_internal(mode,ptr1,ptr2,ptr3));
 }
 SIM_DLLEXPORT void* simGetMainWindow(int type)
 {
@@ -950,36 +975,6 @@ SIM_DLLEXPORT int _simMpHandleIkGroupObject(const void* ikGroup)
 {
     return(_simMpHandleIkGroupObject_internal(ikGroup));
 }
-// Following courtesy of Stephen James:
-// Functions to allow an external application to have control of CoppeliaSim's thread loop
-SIM_DLLEXPORT int simExtLaunchUIThread(const char* applicationName,int options,const char* sceneOrModelOrUiToLoad, const char* applicationDir_)
-{
-    return(simExtLaunchUIThread_internal(applicationName,options,sceneOrModelOrUiToLoad,applicationDir_));
-}
-SIM_DLLEXPORT int simExtPostExitRequest()
-{
-    return(simExtPostExitRequest_internal());
-}
-SIM_DLLEXPORT int simExtGetExitRequest()
-{
-    return(simExtGetExitRequest_internal());
-}
-SIM_DLLEXPORT int simExtStep(bool stepIfRunning)
-{
-    return(simExtStep_internal(stepIfRunning));
-}
-SIM_DLLEXPORT int simExtCanInitSimThread()
-{
-    return(simExtCanInitSimThread_internal());
-}
-SIM_DLLEXPORT int simExtSimThreadInit()
-{
-    return(simExtSimThreadInit_internal());
-}
-SIM_DLLEXPORT int simExtSimThreadDestroy()
-{
-    return(simExtSimThreadDestroy_internal());
-}
 SIM_DLLEXPORT float* simGetVisionSensorDepth(int sensorHandle,int options,const int* pos,const int* size,int* resolution)
 {
     return(simGetVisionSensorDepth_internal(sensorHandle,options,pos,size,resolution));
@@ -1548,22 +1543,6 @@ SIM_DLLEXPORT int simGenerateShapeFromPath_D(const double* path,int pathSize,con
 SIM_DLLEXPORT double simGetClosestPosOnPath_D(const double* path,int pathSize,const double* pathLengths,const double* absPt)
 {
     return(simGetClosestPosOnPath_internal(path,pathSize,pathLengths,absPt));
-}
-SIM_DLLEXPORT int simExtCallScriptFunction_D(int scriptHandleOrType, const char* functionNameAtScriptName,
-                                               const int* inIntData, int inIntCnt,
-                                               const double* inFloatData, int inFloatCnt,
-                                               const char** inStringData, int inStringCnt,
-                                               const char* inBufferData, int inBufferCnt,
-                                               int** outIntData, int* outIntCnt,
-                                               double** outFloatData, int* outFloatCnt,
-                                               char*** outStringData, int* outStringCnt,
-                                               char** outBufferData, int* outBufferSize)
-{
-    return(simExtCallScriptFunction_internal(scriptHandleOrType, functionNameAtScriptName,
-                                             inIntData, inIntCnt, inFloatData, inFloatCnt,
-                                             inStringData, inStringCnt, inBufferData, inBufferCnt,
-                                             outIntData, outIntCnt, outFloatData, outFloatCnt,
-                                             outStringData, outStringCnt, outBufferData, outBufferSize));
 }
 SIM_DLLEXPORT void _simGetObjectLocalTransformation_D(const void* object,double* pos,double* quat,bool excludeFirstJointTransformation)
 {

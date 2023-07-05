@@ -1,3 +1,12 @@
+int simExtCallScriptFunction_internal(int scriptHandleOrType, const char* functionNameAtScriptName,
+                                         const int* inIntData, int inIntCnt,
+                                         const double* inFloatData, int inFloatCnt,
+                                         const char** inStringData, int inStringCnt,
+                                         const char* inBufferData, int inBufferCnt,
+                                         int** outIntData, int* outIntCnt,
+                                         double** outFloatData, int* outFloatCnt,
+                                         char*** outStringData, int* outStringCnt,
+                                         char** outBufferData, int* outBufferSize);
 int simGetMaterialId_internal(const char* materialName);
 int simGetShapeMaterial_internal(int shapeHandle);
 int simHandleVarious_internal();

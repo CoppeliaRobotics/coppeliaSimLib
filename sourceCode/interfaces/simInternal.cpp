@@ -58,42 +58,31 @@ bool fullModelCopyFromApi=true;
 bool waitingForTrigger=false;
 bool doNotRunMainScriptFromRosInterface=false;
 
-std::string applicationDir;
-
-//********************************************
-// Following courtesy of Stephen James:
-int simExtLaunchUIThread_internal(const char* applicationName,int options,const char* sceneOrModelToLoad_,const char* applicationDir_)
-{
-    if (applicationDir_!=nullptr)
-        applicationDir=applicationDir_;
-    return(simRunSimulator_internal(applicationName,options,nullptr,nullptr,nullptr,0,sceneOrModelToLoad_,false));
-}
-
-int simExtGetExitRequest_internal()
+int simGetExitRequest_internal()
 {
     return(App::getExitRequest());
 }
 
-int simExtStep_internal(bool stepIfRunning)
+int simLoop_internal(int options)
 {
-    App::simulationThreadLoop(stepIfRunning);
+    App::simulationThreadLoop((options&1)==0);
     return(1);
 }
 
-int simExtCanInitSimThread_internal()
+int simCanInitSimThread_internal()
 {
     if (App::canInitSimThread())
         return(1);
     return(0);
 }
 
-int simExtSimThreadInit_internal()
+int simInitSimThread_internal()
 {
     App::simulationThreadInit();
     return(1);
 }
 
-int simExtSimThreadDestroy_internal()
+int simCleanupSimThread_internal()
 {
     // If already called, then means we closed from the UI and dont need to post another request
     if(!App::getExitRequest())
@@ -102,7 +91,7 @@ int simExtSimThreadDestroy_internal()
     return(1);
 }
 
-int simExtPostExitRequest_internal()
+int simPostExitRequest_internal()
 {
     // If already called, then means we closed from the UI and dont need to post another request
     if(!App::getExitRequest())
@@ -110,125 +99,12 @@ int simExtPostExitRequest_internal()
     return (1);
 }
 
-int simExtCallScriptFunction_internal(int scriptHandleOrType, const char* functionNameAtScriptName,
-                                         const int* inIntData, int inIntCnt,
-                                         const double* inFloatData, int inFloatCnt,
-                                         const char** inStringData, int inStringCnt,
-                                         const char* inBufferData, int inBufferCnt,
-                                         int** outIntData, int* outIntCnt,
-                                         double** outFloatData, int* outFloatCnt,
-                                         char*** outStringData, int* outStringCnt,
-                                         char** outBufferData, int* outBufferSize)
+int simTest_internal(int mode,void* ptr1,void* ptr2,void* ptr3)
 {
-    int stack=simCreateStack_internal();
-    simPushInt32TableOntoStack_internal(stack,inIntData,inIntCnt);
-    simPushDoubleTableOntoStack_internal(stack,inFloatData,inFloatCnt);
-    simPushTableOntoStack_internal(stack);
-    for (int i=0;i<inStringCnt;i++)
-    {
-        simPushInt32OntoStack_internal(stack,i+1);
-        simPushStringOntoStack_internal(stack,inStringData[i],0);
-        simInsertDataIntoStackTable_internal(stack);
-    }
-    simPushStringOntoStack_internal(stack,inBufferData,inBufferCnt);
-
-    int ret = simCallScriptFunctionEx_internal(scriptHandleOrType,functionNameAtScriptName,stack);
-    if (ret!=-1)
-    { // success!
-        // Get the return arguments. Make sure we have 4 or less:
-        while (simGetStackSize_internal(stack)>4)
-            simPopStackItem_internal(stack,1);
-        // at pos 4 we are expecting a string (i.e. a buffer):
-        outBufferSize[0]=-1;
-        if (simGetStackSize_internal(stack)==4)
-        {
-            int bs;
-            char* buffer=simGetStackStringValue_internal(stack,&bs);
-            if ( (buffer!=nullptr)&&(bs>0) )
-            {
-                outBufferSize[0]=bs;
-                outBufferData[0]=buffer;
-            }
-            simPopStackItem_internal(stack,1);
-        }
-        if (outBufferSize[0]==-1)
-        {
-            outBufferSize[0]=0;
-            outBufferData[0]=new char[0];
-        }
-        // at pos 3 we are expecting a string table:
-        outStringCnt[0]=-1;
-        if (simGetStackSize_internal(stack)==3)
-        {
-            int tableSize=simGetStackTableInfo_internal(stack,0);
-            if (tableSize>0)
-            {
-                int info=simGetStackTableInfo_internal(stack,4);
-                if (info==1)
-                {
-                    outStringCnt[0]=tableSize;
-                    outStringData[0]=new char*[tableSize];
-                    simUnfoldStackTable_internal(stack);
-                    for (int i=0;i<tableSize;i++)
-                    {
-                        int l;
-                        char* str=simGetStackStringValue_internal(stack,&l);
-                        outStringData[0][i]=str;
-                        simPopStackItem_internal(stack,2);
-                    }
-                }
-                else
-                    simPopStackItem_internal(stack,1);
-            }
-            else
-                simPopStackItem_internal(stack,1);
-        }
-        if (outStringCnt[0]==-1)
-        {
-            outStringCnt[0]=0;
-            outStringData[0]=new char*[0];
-        }
-        // at pos 2 we are expecting a double table:
-        outFloatCnt[0]=-1;
-        if (simGetStackSize_internal(stack)==2)
-        {
-            int tableSize=simGetStackTableInfo_internal(stack,0);
-            if (tableSize>0)
-            {
-                outFloatCnt[0]=tableSize;
-                outFloatData[0]=new double[tableSize];
-                simGetStackDoubleTable_internal(stack,outFloatData[0],tableSize);
-            }
-            simPopStackItem_internal(stack,1);
-        }
-        if (outFloatCnt[0]==-1)
-        {
-            outFloatCnt[0]=0;
-            outFloatData[0]=new double[0];
-        }
-        // at pos 1 we are expecting an int32 table:
-        outIntCnt[0]=-1;
-        if (simGetStackSize_internal(stack)==1)
-        {
-            int tableSize=simGetStackTableInfo_internal(stack,0);
-            if (tableSize>0)
-            {
-                outIntCnt[0]=tableSize;
-                outIntData[0]=new int[tableSize];
-                simGetStackInt32Table_internal(stack,outIntData[0],tableSize);
-            }
-            simPopStackItem_internal(stack,1);
-        }
-        if (outIntCnt[0]==-1)
-        {
-            outIntCnt[0]=0;
-            outIntData[0]=new int[0];
-        }
-    }
-    simReleaseStack_internal(stack);
-    return ret;
+    if (mode==0)
+        VThread::launchSimpleThread((SIMPLE_VTHREAD_START_ADDRESS)ptr1);
+    return(0);
 }
-//********************************************
 
 std::string getIndexAdjustedObjectName(const char* nm)
 {
@@ -708,7 +584,10 @@ void _segHandler(int sig)
     exit(1);
 }
 #endif
-int simRunSimulator_internal(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)(),int stopDelay,const char* sceneOrModelToLoad,bool launchSimThread)
+
+
+
+int simRunGui_internal(const char* applicationName,int options,int stopDelay,const char* sceneOrModelToLoad,const char* appDir)
 {
     CGm gm;
     App::gm=&gm;
@@ -747,6 +626,11 @@ int simRunSimulator_internal(const char* applicationName,int options,void(*setTo
         delete applicationBasicInitialization;
         return(0);
     }
+
+    std::string applicationDir;
+    if (appDir!=nullptr)
+        applicationDir=appDir;
+
 #ifdef SIM_WITH_QT
     if (applicationDir.size()==0)
     {
@@ -782,7 +666,7 @@ int simRunSimulator_internal(const char* applicationName,int options,void(*setTo
     }
 #endif
 
-    App::run(options,stopDelay,sceneOrModelToLoad,launchSimThread,applicationDir.c_str()); // We stay in here until we quit the application!
+    App::run(options,stopDelay,sceneOrModelToLoad,applicationDir.c_str()); // We stay in here until we quit the application!
 #ifdef SIM_WITH_GUI
     App::deleteMainWindow();
 #endif

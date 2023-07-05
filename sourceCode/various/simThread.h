@@ -5,6 +5,7 @@
 #include <simMath/7Vector.h>
 #include <vMutex.h>
 #include <vThread.h>
+#include <QEventLoop>
 
 struct SSimulationThreadCommand
 {
@@ -44,6 +45,7 @@ public:
     void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
 
 private:
+    QEventLoop _eventLoop;
     bool _renderingAllowed;
     void _handleSimulationThreadCommands();
     void _executeSimulationThreadCommand(SSimulationThreadCommand cmd);

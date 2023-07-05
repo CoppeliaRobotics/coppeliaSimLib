@@ -93,16 +93,6 @@ bool App::isQtAppBuilt()
     return(App::qtApp!=nullptr);
 }
 
-// Following simulation thread split into 'simThreadInit', 'simThreadDestroy' and 'simStep' is courtesy of Stephen James:
-SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
-{
-    App::simulationThreadInit();
-    while (!App::getExitRequest())
-        App::simulationThreadLoop(true);
-    App::simulationThreadDestroy();
-    return(SIMPLE_VTHREAD_RETURN_VAL);
-}
-
 // Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
 void App::simulationThreadInit()
 {
@@ -653,7 +643,7 @@ void App::deleteWorldsContainer()
     worldContainer=nullptr;
 }
 
-void App::run(int options,int stopDelay,const char* sceneOrModelToLoad,bool launchSimThread,const char* applicationDir)
+void App::run(int options,int stopDelay,const char* sceneOrModelToLoad,const char* applicationDir)
 { // We arrive here with a single thread: the UI thread!
     TRACE_INTERNAL;
     _exitRequest=false;
@@ -688,19 +678,8 @@ void App::run(int options,int stopDelay,const char* sceneOrModelToLoad,bool laun
         }
     }
 
-    // Now start the main simulation thread (i.e. the "SIM thread", the one that handles a simulation):
-    if (launchSimThread)
-    {
-        #ifndef SIM_WITH_QT
-            VThread::launchThread(_workThread,false);
-        #else
-            VThread::launchSimpleThread(_workThread);
-        #endif
-    }
-    else
-        _canInitSimThread=true;
-
-    // Wait for the simulation thread to be running:
+    // now let the SIM thread run:
+    _canInitSimThread=true;
     while (simThread==nullptr)
         VThread::sleep(1);
     _canInitSimThread=false;

@@ -32,7 +32,7 @@ public:
     static void createWorldsContainer();
     static void deleteWorldsContainer();
 
-    static void run(int options,int stopDelay,const char* sceneOrModelToLoad,bool launchSimThread,const char* applicationDir);
+    static void run(int options,int stopDelay,const char* sceneOrModelToLoad,const char* applicationDir);
     static void postExitRequest();
     static bool getExitRequest();
     static bool isSimulatorRunning();

@@ -1,3 +1,43 @@
+SIM_DLLEXPORT int simRunSimulator(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)())
+{
+    return(simRunGui_internal(applicationName,options,0,"",nullptr));
+}
+SIM_DLLEXPORT int simRunSimulatorEx(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)(),int stopDelay,const char* sceneOrModelToLoad)
+{
+    return(simRunGui_internal(applicationName,options,stopDelay,sceneOrModelToLoad,nullptr));
+}
+SIM_DLLEXPORT int simExtLaunchUIThread(const char* applicationName,int options,const char* sceneOrModelOrUiToLoad, const char* applicationDir_)
+{
+    return(simRunGui(applicationName,options,0,sceneOrModelOrUiToLoad,applicationDir_));
+}
+SIM_DLLEXPORT int simExtPostExitRequest()
+{
+    return(simPostExitRequest_internal());
+}
+SIM_DLLEXPORT int simExtGetExitRequest()
+{
+    return(simGetExitRequest_internal());
+}
+SIM_DLLEXPORT int simExtStep(bool stepIfRunning)
+{
+    int options=0;
+    if (stepIfRunning)
+        options=1;
+    return(simLoop_internal(options));
+}
+SIM_DLLEXPORT int simExtCanInitSimThread()
+{
+    return(simCanInitSimThread_internal());
+}
+SIM_DLLEXPORT int simExtSimThreadInit()
+{
+    return(simInitSimThread_internal());
+}
+SIM_DLLEXPORT int simExtSimThreadDestroy()
+{
+    return(simCleanupSimThread_internal());
+}
+
 // single precision, non-deprecated:
 SIM_DLLEXPORT int simGetShapeViz(int shapeHandle,int index,struct SShapeVizInfof* info)
 {
@@ -2674,6 +2714,22 @@ SIM_DLLEXPORT void _simGetPrincipalMomentOfInertia_D(const void* geomInfo,double
 SIM_DLLEXPORT void _simGetLocalInertiaFrame_D(const void* geomInfo,double* pos,double* quat)
 {
     return(_simGetLocalInertiaFrame_internal(geomInfo,pos,quat));
+}
+SIM_DLLEXPORT int simExtCallScriptFunction_D(int scriptHandleOrType, const char* functionNameAtScriptName,
+                                               const int* inIntData, int inIntCnt,
+                                               const double* inFloatData, int inFloatCnt,
+                                               const char** inStringData, int inStringCnt,
+                                               const char* inBufferData, int inBufferCnt,
+                                               int** outIntData, int* outIntCnt,
+                                               double** outFloatData, int* outFloatCnt,
+                                               char*** outStringData, int* outStringCnt,
+                                               char** outBufferData, int* outBufferSize)
+{
+    return(simExtCallScriptFunction_internal(scriptHandleOrType, functionNameAtScriptName,
+                                             inIntData, inIntCnt, inFloatData, inFloatCnt,
+                                             inStringData, inStringCnt, inBufferData, inBufferCnt,
+                                             outIntData, outIntCnt, outFloatData, outFloatCnt,
+                                             outStringData, outStringCnt, outBufferData, outBufferSize));
 }
 //************************
 SIM_DLLEXPORT int simAddParticleObject(int objectType,float size,float density,const void* params,float lifeTime,int maxItemCount,const float* color,const float* setToNULL,const float* setToNULL2,const float* setToNULL3)

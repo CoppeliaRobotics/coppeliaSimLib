@@ -40,17 +40,12 @@ void CSimThread::setRenderingAllowed(bool a)
 void CSimThread::executeMessages()
 {
     TRACE_INTERNAL;
+
 #ifdef SIM_WITH_QT
 #ifdef SIM_WITH_GUI
     int triggerType=_prepareSceneForRenderIfNeeded();
 #endif
-
     CSimAndUiThreadSync::simThread_allowUiThreadToWrite();
-    CSimAndUiThreadSync::outputNakedDebugMessage("$$W\n");
-    CSimAndUiThreadSync::outputNakedDebugMessage("$$W *******************************************************\n");
-    CSimAndUiThreadSync::outputNakedDebugMessage("$$W *******************************************************\n");
-    CSimAndUiThreadSync::outputDebugMessage(__func__,"SIM thread waiting (safe)");
-
 #ifdef SIM_WITH_GUI
     if ((triggerType>0)&&_renderingAllowed)
     { // we need to render. Send the appropriate signal
@@ -60,24 +55,16 @@ void CSimThread::executeMessages()
             App::uiThread->requestSceneRender_wait(); // non-threaded rendering
         }
     }
-
 #endif
-
     int pass=0;
     while ((pass==0)||(!CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(false)))
     {
+        _eventLoop.processEvents();
         pass++;
-        // Following very important: here the custom UI plugin triggers script callbacks. Also important for offscreen openGl contexts that can be the cause for strange UI locks
-        App::qtApp->processEvents();
     }
-
-    CSimAndUiThreadSync::outputDebugMessage(__func__,"SIM thread NOT waiting anymore");
-    CSimAndUiThreadSync::outputNakedDebugMessage("$$W *******************************************************\n");
-    CSimAndUiThreadSync::outputNakedDebugMessage("$$W *******************************************************\n");
-    CSimAndUiThreadSync::outputNakedDebugMessage("$$W\n");
 #endif
-    // Handle delayed commands:
-    _handleSimulationThreadCommands();
+
+    _handleSimulationThreadCommands(); // Handle delayed SIM commands
 }
 
 void CSimThread::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay/*=0*/)
