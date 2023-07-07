@@ -361,8 +361,8 @@ void App::beep(int frequ,int duration)
         #ifdef WIN_SIM
             Beep(frequ,duration);
         #else
-            if (qtApp!=nullptr)
-                qtApp->beep();
+            if (GuiApp::qtApp!=nullptr)
+                GuiApp::qtApp->beep();
         #endif
         VThread::sleep(500);
     }
@@ -934,7 +934,7 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
             msg+="]   ";
             msg+=logMsg;
             msg+="\n";
-            printf(msg.c_str());
+            printf("%s",msg.c_str());
         }
         retVal=true;
     }
