@@ -21,6 +21,7 @@ See the GNU General Public License for more details.
 #include <lightRendering.h>
 
 #ifdef SIM_WITH_GUI
+#include <guiApp.h>
 
 void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib)
 {
@@ -30,7 +31,7 @@ void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib
     // Object display:
     if (light->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (light->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(light->getModelSelectionHandle());

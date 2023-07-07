@@ -3,6 +3,9 @@
 #include <tt.h>
 #include <utils.h>
 #include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CSerialPortContainer::CSerialPortContainer()
 {
@@ -108,7 +111,7 @@ int CSerialPortContainer::serialPortOpen_alternativeRoutine(bool fromScript,cons
         cmdIn.boolParams.push_back(fromScript);
         cmdIn.stringParams.push_back(name);
         cmdIn.intParams.push_back(baudrate);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         return(cmdOut.intParams[0]);
     }
 }
@@ -138,7 +141,7 @@ bool CSerialPortContainer::serialPortClose_alternativeRoutine(int portHandle)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=SERIAL_PORT_ALT_CLOSE_SPUITHREADCMD;
         cmdIn.intParams.push_back(portHandle);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         return(cmdOut.boolParams[0]);
     }
 }
@@ -159,7 +162,7 @@ int CSerialPortContainer::serialPortCheck_alternativeRoutine(int portHandle)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=SERIAL_PORT_ALT_CHECK_SPUITHREADCMD;
         cmdIn.intParams.push_back(portHandle);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         return(cmdOut.intParams[0]);
     }
 }
@@ -185,7 +188,7 @@ int CSerialPortContainer::serialPortSend_alternativeRoutine(int portHandle,const
         cmdIn.cmdId=SERIAL_PORT_ALT_SEND_SPUITHREADCMD;
         cmdIn.intParams.push_back(portHandle);
         cmdIn.stringParams.push_back(data);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         return(cmdOut.intParams[0]);
     }
 }
@@ -216,7 +219,7 @@ int CSerialPortContainer::serialPortReceive_alternativeRoutine(int portHandle,st
         cmdIn.cmdId=SERIAL_PORT_ALT_RECEIVE_SPUITHREADCMD;
         cmdIn.intParams.push_back(portHandle);
         cmdIn.intParams.push_back(dataLengthToRead);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         data=cmdOut.stringParams[0];
         return(cmdOut.intParams[0]);
     }

@@ -5,6 +5,7 @@
 #include <QShortcut>
 #include <app.h>
 #include <simStrings.h>
+#include <guiApp.h>
 
 bool CQDlgIkElements::_invalid=false;
 int CQDlgIkElements::_ikGroupHandle=-1;
@@ -23,8 +24,8 @@ CQDlgIkElements::CQDlgIkElements(QWidget *parent) :
     QShortcut* shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
     connect(shortcut2,SIGNAL(activated()), this, SLOT(onDeletePressed()));
     _ikGroupHandle=-1;
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->dlgCont->close(IKELEMENT_DLG);
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
 }
 
 CQDlgIkElements::~CQDlgIkElements()
@@ -112,7 +113,7 @@ bool CQDlgIkElements::isLinkedDataValid()
 {
     if (!App::currentWorld->simulation->isSimulationStopped())
         return(false);
-    if (App::getEditModeType()!=NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
         return(false);
     if (App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle)!=nullptr)
         return(!_invalid);
@@ -121,12 +122,12 @@ bool CQDlgIkElements::isLinkedDataValid()
 
 void CQDlgIkElements::display(int ikGroupHandle,QWidget* theParentWindow)
 {
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return;
-    App::mainWindow->dlgCont->close(IKELEMENT_DLG);
-    if (App::mainWindow->dlgCont->openOrBringToFront(IKELEMENT_DLG))
+    GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
+    if (GuiApp::mainWindow->dlgCont->openOrBringToFront(IKELEMENT_DLG))
     {
-        CQDlgIkElements* dlg=(CQDlgIkElements*)App::mainWindow->dlgCont->getDialog(IKELEMENT_DLG);
+        CQDlgIkElements* dlg=(CQDlgIkElements*)GuiApp::mainWindow->dlgCont->getDialog(IKELEMENT_DLG);
         if (dlg!=nullptr)
             dlg->_initialize(ikGroupHandle);
     }
@@ -153,7 +154,7 @@ void CQDlgIkElements::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     if (!isLinkedDataValid())
         return;
     CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);

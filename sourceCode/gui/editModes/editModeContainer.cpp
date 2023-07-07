@@ -2,6 +2,9 @@
 #include <app.h>
 #include <simStringTable.h>
 #include <vMessageBox.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CEditModeContainer::CEditModeContainer()
 {
@@ -58,28 +61,28 @@ bool CEditModeContainer::enterEditMode(int objID,int modeType)
     }
 
     // UI and Multishape edit modes don't support item shift/rotate:
-    App::setMouseMode((App::getMouseMode()&0xfff0)|sim_navigation_camerashift);
+    GuiApp::setMouseMode((GuiApp::getMouseMode()&0xfff0)|sim_navigation_camerashift);
 
     _editModeObject=objID;
 
-    _editMode_hierarchyWasEnabledBeforeEditMode=App::mainWindow->oglSurface->isHierarchyEnabled();
+    _editMode_hierarchyWasEnabledBeforeEditMode=GuiApp::mainWindow->oglSurface->isHierarchyEnabled();
     if (!_editMode_hierarchyWasEnabledBeforeEditMode)
     {
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=OPEN_HIERARCHY_UITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 
     if (modeType&SHAPE_EDIT_MODE)
     {
-        _shapeEditMode=new CShapeEditMode(App::currentWorld->sceneObjects->getShapeFromHandle(objID),modeType,App::currentWorld->sceneObjects,App::currentWorld->textureContainer,App::uiThread);
+        _shapeEditMode=new CShapeEditMode(App::currentWorld->sceneObjects->getShapeFromHandle(objID),modeType,App::currentWorld->sceneObjects,App::currentWorld->textureContainer,GuiApp::uiThread);
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(OPEN_SHAPE_EDITION_DLG_CMD);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
     else if (modeType&PATH_EDIT_MODE_OLD)
     {
@@ -89,7 +92,7 @@ bool CEditModeContainer::enterEditMode(int objID,int modeType)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(OPEN_PATH_EDITION_DLG_CMD);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
     else if (modeType&MULTISHAPE_EDIT_MODE)
     {
@@ -99,24 +102,24 @@ bool CEditModeContainer::enterEditMode(int objID,int modeType)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(OPEN_MULTISHAPE_EDITION_DLG_CMD);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 
-    App::mainWindow->closeTemporarilyNonEditModeDialogs();
+    GuiApp::mainWindow->closeTemporarilyNonEditModeDialogs();
 
-    App::setRebuildHierarchyFlag();
-    App::setResetHierarchyViewFlag();
-    App::setToolbarRefreshFlag();
+    GuiApp::setRebuildHierarchyFlag();
+    GuiApp::setResetHierarchyViewFlag();
+    GuiApp::setToolbarRefreshFlag();
 
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 
     cmdIn.cmdId=EDIT_MODE_ABOUT_TO_START_UITHREADCMD;
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     return(true);
 }
 
@@ -140,7 +143,7 @@ void CEditModeContainer::endEditMode(bool cancelChanges)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(CLOSE_SHAPE_EDITION_DLG_CMD);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
     if (_pathEditMode!=nullptr)
     {
@@ -153,7 +156,7 @@ void CEditModeContainer::endEditMode(bool cancelChanges)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(CLOSE_PATH_EDITION_DLG_CMD);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
     if (_multishapeEditMode!=nullptr)
     {
@@ -164,7 +167,7 @@ void CEditModeContainer::endEditMode(bool cancelChanges)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(CLOSE_MULTISHAPE_EDITION_DLG_CMD);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 
     _editModeObject=-1;
@@ -176,23 +179,23 @@ void CEditModeContainer::endEditMode(bool cancelChanges)
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=CLOSE_HIERARCHY_UITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 
-    App::mainWindow->reopenTemporarilyClosedNonEditModeDialogs();
+    GuiApp::mainWindow->reopenTemporarilyClosedNonEditModeDialogs();
 
-    App::setRebuildHierarchyFlag();
-    App::setResetHierarchyViewFlag();
-    App::setToolbarRefreshFlag();
-    App::setFullDialogRefreshFlag();
+    GuiApp::setRebuildHierarchyFlag();
+    GuiApp::setResetHierarchyViewFlag();
+    GuiApp::setToolbarRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 
     cmdIn.cmdId=EDIT_MODE_JUST_ENDED_UITHREADCMD;
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 }
 
 int CEditModeContainer::getEditModeObjectID()
@@ -270,7 +273,7 @@ void CEditModeContainer::deselectEditModeBuffer()
     if (_multishapeEditMode!=nullptr)
         _multishapeEditMode->setMultishapeGeometricComponentIndex(-1);
     pathPointManipulation->clearPathPointIndices_nonEditMode();
-    App::setLightDialogRefreshFlag();
+    GuiApp::setLightDialogRefreshFlag();
 }
 
 void CEditModeContainer::removeItemFromEditModeBuffer(int item)
@@ -280,7 +283,7 @@ void CEditModeContainer::removeItemFromEditModeBuffer(int item)
         _shapeEditMode->removeItemFromEditModeBuffer(item);
     if (_pathEditMode!=nullptr)
         _pathEditMode->removeItemFromEditModeBuffer(item);
-    App::setLightDialogRefreshFlag();
+    GuiApp::setLightDialogRefreshFlag();
 }
 
 void CEditModeContainer::xorAddItemToEditModeBuffer(int item,bool disableEdgeFollowing)
@@ -290,7 +293,7 @@ void CEditModeContainer::xorAddItemToEditModeBuffer(int item,bool disableEdgeFol
         _shapeEditMode->xorAddItemToEditModeBuffer(item,disableEdgeFollowing);
     if (_pathEditMode!=nullptr)
         _pathEditMode->xorAddItemToEditModeBuffer(item);
-    App::setLightDialogRefreshFlag();
+    GuiApp::setLightDialogRefreshFlag();
 }
 
 void CEditModeContainer::addItemToEditModeBuffer(int item,bool disableEdgeFollowing)
@@ -300,7 +303,7 @@ void CEditModeContainer::addItemToEditModeBuffer(int item,bool disableEdgeFollow
         _shapeEditMode->addItemToEditModeBuffer(item,disableEdgeFollowing);
     if (_pathEditMode!=nullptr)
         _pathEditMode->addItemToEditModeBuffer(item);
-    App::setLightDialogRefreshFlag();
+    GuiApp::setLightDialogRefreshFlag();
 }
 
 CShapeEditMode* CEditModeContainer::getShapeEditMode()
@@ -483,7 +486,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
                 { // simple shape
                     bool goOn=(getEditModeType()==NO_EDIT_MODE);
                     if (goOn&&(it->getMesh()->isPure()))
-                        goOn=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_SHAPE_EDIT_MODE,IDS_SHAPE_IS_PURE_PRIMITIVE_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
+                        goOn=(VMESSAGEBOX_REPLY_YES==GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_SHAPE_EDIT_MODE,IDS_SHAPE_IS_PURE_PRIMITIVE_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
                     if (goOn)
                     {
                         App::undoRedo_sceneChanged(""); 
@@ -589,8 +592,8 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             SUIThreadCommand cmdOut;
             cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
             cmdIn.intParams.push_back(OPEN_SHAPE_EDIT_MODE_VERTEX_PART_CMD);
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-            App::setFullDialogRefreshFlag();
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::setFullDialogRefreshFlag();
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -612,8 +615,8 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             SUIThreadCommand cmdOut;
             cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
             cmdIn.intParams.push_back(OPEN_SHAPE_EDIT_MODE_TRIANGLE_PART_CMD);
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-            App::setFullDialogRefreshFlag();
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::setFullDialogRefreshFlag();
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -635,8 +638,8 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             SUIThreadCommand cmdOut;
             cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
             cmdIn.intParams.push_back(OPEN_SHAPE_EDIT_MODE_EDGE_PART_CMD);
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-            App::setFullDialogRefreshFlag();
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::setFullDialogRefreshFlag();
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -658,7 +661,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_COPYING_SELECTION);
                 _shapeEditMode->processCommand(commandID);
-                App::setLightDialogRefreshFlag();
+                GuiApp::setLightDialogRefreshFlag();
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -681,7 +684,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_PASTING_BUFFER);
                 _shapeEditMode->processCommand(commandID);
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -718,7 +721,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTION);
             _shapeEditMode->processCommand(commandID);
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -741,7 +744,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             if (_shapeEditMode->getEditModeType()&EDGE_EDIT_MODE)
                 App::logMsg(sim_verbosity_msgs,IDSNS_SELECTING_ALL_EDGES);
             _shapeEditMode->processCommand(commandID);
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -758,7 +761,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _shapeEditMode->processCommand(commandID);
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
             App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_HIDDEN_VERTICES_EDGES_SHOW_STATE);
         }
         else
@@ -775,7 +778,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _shapeEditMode->processCommand(commandID);
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
             App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_AUTOMATIC_EDGE_FOLLOWING);
         }
         else
@@ -797,7 +800,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_CUTTING_SELECTION);
                 _shapeEditMode->processCommand(commandID);
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -901,7 +904,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             unsigned short res=0;
             if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) )
-                res=App::uiThread->messageBox_information(App::mainWindow,IDSN_SHAPE_EDIT_MODE,IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_YES);
+                res=GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_SHAPE_EDIT_MODE,IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_YES);
             if (commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)
                 res=VMESSAGEBOX_REPLY_NO;
             if (commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)
@@ -965,7 +968,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_SELECTING_ALL_PATH_POINTS);
-                App::setLightDialogRefreshFlag();
+                GuiApp::setLightDialogRefreshFlag();
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -985,7 +988,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_COPYING_SELECTION);
-                App::setLightDialogRefreshFlag();
+                GuiApp::setLightDialogRefreshFlag();
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -1005,7 +1008,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_PASTING_BUFFER);
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -1025,7 +1028,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_INSERTING_NEW_PATH_POINT);
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -1047,7 +1050,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
                 if (_pathEditMode->processCommand(commandID,viewableObject))
                 {
                     App::logMsg(sim_verbosity_msgs,IDSNS_APPENDING_NEW_PATH_POINT_FROM_CAMERA_CONFIGURATION);
-                    App::setFullDialogRefreshFlag();
+                    GuiApp::setFullDialogRefreshFlag();
                     App::logMsg(sim_verbosity_msgs,"done.");
                 }
             }
@@ -1069,7 +1072,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTION);
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -1089,7 +1092,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_CUTTING_SELECTION);
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -1109,7 +1112,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             if (_pathEditMode->processCommand(commandID,viewableObject))
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_KEEPING_CONTROL_POINT_X_AXIS_AND_ALIGNING_CONTROL_POINT_Z_AXIS_WITH_LAST_SELECTION);
-                App::setLightDialogRefreshFlag();
+                GuiApp::setLightDialogRefreshFlag();
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -1138,7 +1141,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
                 App::logMsg(sim_verbosity_msgs,"done.");
             else
                 App::logMsg(sim_verbosity_msgs,IDSNS_FAILED_SELECTED_CONTROL_POINTS_ARE_NOT_CONSECUTIVE);
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1155,14 +1158,14 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // we are NOT in the UI thread. We execute the command now:
             bool proceed=true;
             if (_pathEditMode->getBezierPathPointCount()>50)
-                proceed=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_PATH,IDS_LARGE_QUANTITY_OF_PATH_POINTS_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
+                proceed=(VMESSAGEBOX_REPLY_YES==GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_PATH,IDS_LARGE_QUANTITY_OF_PATH_POINTS_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
             if (_pathEditMode->getBezierPathPointCount()<2)
                 proceed=false;
             if (proceed)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_GENERATING_NEW_PATH);
                 _pathEditMode->processCommand(commandID,viewableObject);
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -1181,7 +1184,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // we are NOT in the UI thread. We execute the command now:
             unsigned short res=0;
             if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD) )
-                res=App::uiThread->messageBox_information(App::mainWindow,IDSN_PATH_EDIT_MODE_OLD,IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_YES);
+                res=GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_PATH_EDIT_MODE_OLD,IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_YES);
             if (commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)
                 res=VMESSAGEBOX_REPLY_NO;
             if (commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)

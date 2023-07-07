@@ -1,9 +1,10 @@
-
 #include <simInternal.h>
 #include <textureContainer.h>
 #include <tt.h>
-
 #include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CTextureContainer::CTextureContainer()
 {
@@ -149,7 +150,7 @@ void CTextureContainer::removeObject(int objectID)
         {
             delete _allTextureObjects[i];
             _allTextureObjects.erase(_allTextureObjects.begin()+i);
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
             return;
         }
     }

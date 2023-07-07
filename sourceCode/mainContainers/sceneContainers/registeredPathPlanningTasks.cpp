@@ -1,9 +1,11 @@
-
 #include <simInternal.h>
 #include <registeredPathPlanningTasks.h>
 #include <tt.h>
 #include <sceneObjectContainer.h>
 #include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CRegisteredPathPlanningTasks::CRegisteredPathPlanningTasks()
 {
@@ -213,7 +215,7 @@ void CRegisteredPathPlanningTasks::addObjectWithSuffixOffset(CPathPlanningTask* 
         objID++;
     aTask->setObjectID(objID);
     allObjects.push_back(aTask);
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 bool CRegisteredPathPlanningTasks::removeObject(int objID)
 {
@@ -223,7 +225,7 @@ bool CRegisteredPathPlanningTasks::removeObject(int objID)
         {
             delete allObjects[i];
             allObjects.erase(allObjects.begin()+i);
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
             return(true);
         }
     }

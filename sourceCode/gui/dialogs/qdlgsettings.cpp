@@ -7,6 +7,9 @@
 #include <qdlgopenglsettings.h>
 #include <app.h>
 #include <vMessageBox.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CQDlgSettings::CQDlgSettings(QWidget *parent) :
     CDlgEx(parent),
@@ -23,7 +26,7 @@ CQDlgSettings::~CQDlgSettings()
 
 void CQDlgSettings::refresh()
 {
-    bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
+    bool noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
     bool noSim=App::currentWorld->simulation->isSimulationStopped();
     bool noEditModeAndNoSim=noEditMode&&noSim;
 

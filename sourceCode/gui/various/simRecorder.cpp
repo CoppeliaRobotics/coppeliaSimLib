@@ -9,6 +9,9 @@
 #include <simStrings.h>
 #include <vDateTime.h>
 #include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CSimRecorder::CSimRecorder(const char* initialPath)
 {
@@ -204,7 +207,7 @@ bool CSimRecorder::recordFrameIfNeeded(int resX,int resY,int posX,int posY)
                     else
                     {
                         App::logMsg(sim_verbosity_errors,IDSNS_VIDEO_COMPRESSOR_FAILED_TO_INITIALIZE);
-                        App::uiThread->messageBox_warning(App::mainWindow,"Video Recorder",IDSN_VIDEO_COMPRESSOR_FAILED_INITIALIZING_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                        GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Video Recorder",IDSN_VIDEO_COMPRESSOR_FAILED_INITIALIZING_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     }
                     _initFailed=(!_aviGenInitialized);
                     if (!_initFailed)
@@ -228,7 +231,7 @@ bool CSimRecorder::recordFrameIfNeeded(int resX,int resY,int posX,int posY)
                         {
                             QPixmap pixmapM(":/targaFiles/cur_arrow.tga");
                             QPainter painter(&pixmap);
-                            painter.drawPixmap(App::mainWindow->cursor().pos(),pixmapM);
+                            painter.drawPixmap(GuiApp::mainWindow->cursor().pos(),pixmapM);
                         }
                         */
                         QImage img(pixmap.toImage());
@@ -346,9 +349,9 @@ void CSimRecorder::stopRecording(bool manualStop)
 
             App::logMsg(sim_verbosity_msgs,tmp.c_str());
             if (_showSavedMessage)
-                App::uiThread->messageBox_information(App::mainWindow,IDSN_AVI_RECORDER,tmp.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_AVI_RECORDER,tmp.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             _showSavedMessage=true; // reset this flag
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
         }
     }
 }

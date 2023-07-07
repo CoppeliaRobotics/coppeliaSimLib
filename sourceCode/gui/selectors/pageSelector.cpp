@@ -6,6 +6,9 @@
 #include <app.h>
 #include <tt.h>
 #include <utils.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CPageSelector::CPageSelector()
 {
@@ -69,7 +72,7 @@ void CPageSelector::render()
         pageCnt=8;
     if (pageCnt<2)
     {
-        App::mainWindow->oglSurface->setPageSelectionActive(false);
+        GuiApp::mainWindow->oglSurface->setPageSelectionActive(false);
         return; // nothing to see here!!
     }
 
@@ -195,9 +198,9 @@ void CPageSelector::render()
                 txxt+=utils::getIntString(false,pIndex+1);
 
                 ogl::setTextColor(0.1f,0.1f,0.1f);
-                ogl::drawText(2,tns[1]-12*App::sc,0,txxt.c_str());
+                ogl::drawText(2,tns[1]-12*GuiApp::sc,0,txxt.c_str());
                 ogl::setTextColor(0.9f,0.9f,0.9f);
-                ogl::drawText(1,tns[1]-11*App::sc,0,txxt.c_str());
+                ogl::drawText(1,tns[1]-11*GuiApp::sc,0,txxt.c_str());
                 glEnable(GL_DEPTH_TEST);
                 glDisable(GL_SCISSOR_TEST);
             }
@@ -276,7 +279,7 @@ void CPageSelector::leftMouseButtonUp(int x,int y)
         { // Mouse went down and up on the same item:
             App::appendSimulationThreadCommand(SET_ACTIVEPAGE_GUITRIGGEREDCMD,bufferInd1);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::mainWindow->oglSurface->setPageSelectionActive(false);
+            GuiApp::mainWindow->oglSurface->setPageSelectionActive(false);
         }
     }
 }

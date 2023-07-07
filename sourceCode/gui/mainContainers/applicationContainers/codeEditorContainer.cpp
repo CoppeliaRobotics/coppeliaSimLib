@@ -4,6 +4,9 @@
 #include <vVarious.h>
 #include <app.h>
 #include <utils.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 int CCodeEditorContainer::_nextUniqueId=0;
 
@@ -286,7 +289,7 @@ int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
             retVal=scriptHandle;
         }
         else
-            App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+            GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     }
     return(retVal);
 }
@@ -318,7 +321,7 @@ int CCodeEditorContainer::open(const char* initText,const char* xml,int callingS
                 _allEditors.push_back(inf);
             }
             else
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         }
     }
     else
@@ -451,7 +454,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                 retVal=openScriptWithExternalEditor(scriptHandle);
         }
         else
-            App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+            GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     }
     return(retVal);
 }
@@ -557,7 +560,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     _allEditors.push_back(inf);
                 }
                 else
-                    App::uiThread->messageBox_warning(App::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_SCENE,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
         }
         else

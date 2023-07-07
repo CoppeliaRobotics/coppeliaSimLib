@@ -3,6 +3,9 @@
 #include <vDateTime.h>
 #include <app.h>
 #include <simStrings.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CUndoBufferCont::CUndoBufferCont()
 {
@@ -51,7 +54,7 @@ bool CUndoBufferCont::isSceneSaveMaybeNeededFlagSet()
 {
     bool codeEditorChange=false;
 #ifdef SIM_WITH_GUI
-    codeEditorChange=( (App::mainWindow!=nullptr)&&App::mainWindow->codeEditorContainer->hasSomethingBeenModifiedInCurrentScene());
+    codeEditorChange=( (GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->codeEditorContainer->hasSomethingBeenModifiedInCurrentScene());
 #endif
     return(_sceneSaveMightBeNeeded||codeEditorChange);
 }
@@ -127,7 +130,7 @@ void CUndoBufferCont::emptyRedoBuffer()
         undoBufferArrays.removeDependenciesFromUndoBufferId(_buffers[_buffers.size()-1]->getBufferId());
         delete _buffers[_buffers.size()-1];
         _buffers.pop_back();
-        App::setToolbarRefreshFlag();
+        GuiApp::setToolbarRefreshFlag();
     }
 }
 
@@ -139,7 +142,7 @@ bool CUndoBufferCont::memorizeState()
         return(false);
     if (!App::currentWorld->simulation->isSimulationStopped())
         return(false);
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return(false); // we are in headless mode
 
     // If we arrived here, we might have something to save:
@@ -156,8 +159,8 @@ bool CUndoBufferCont::memorizeState()
     static int tooLongExecutionCount=0;
     int startTime=(int)VDateTime::getTimeInMs();
 
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 
     std::vector<char> newBuff;
     CSer serObj(newBuff,CSer::filetype_csim_bin_scene_buff);
@@ -226,14 +229,14 @@ bool CUndoBufferCont::memorizeState()
         {
             std::string tmp("It seems that the undo/redo functionality takes too long to execute and slows down CoppeliaSim. You might have a large scene loaded. Do you wish to disable the undo/redo functionality for current session? (in future, you can disable the undo/redo functionality manually in the user settings dialog, or you can change the threshold level for this warning in ");
             tmp+=App::folders->getUserSettingsPath()+"/usrset.txt";
-            if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,"Undo / redo",tmp.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO))
+            if (VMESSAGEBOX_REPLY_YES==GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Undo / redo",tmp.c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO))
                 App::userSettings->setUndoRedoEnabled(false);
             displayedMessage=true;
         }
         tooLongExecutionCount=0;
     }
 
-    App::setToolbarRefreshFlag();
+    GuiApp::setToolbarRefreshFlag();
 
     _sceneSaveMightBeNeeded=_sceneSaveMightBeNeeded||retVal;
     App::currentWorld->setEnableRemoteWorldsSync(true);
@@ -249,13 +252,13 @@ bool CUndoBufferCont::_isGoodToMemorizeUndoOrRedo()
 #ifdef SIM_WITH_GUI
     if (!App::currentWorld->simulation->isSimulationStopped())
         return(false);
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return(false);
-    if (App::getEditModeType()!=NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
         return(false);
-    if (App::mainWindow->oglSurface->isPageSelectionActive())
+    if (GuiApp::mainWindow->oglSurface->isPageSelectionActive())
         return(false);
-    if (App::mainWindow->oglSurface->isViewSelectionActive())
+    if (GuiApp::mainWindow->oglSurface->isViewSelectionActive())
         return(false);
     if (!App::userSettings->getUndoRedoEnabled())
         return(false);
@@ -269,7 +272,7 @@ bool CUndoBufferCont::canUndo()
 {
     TRACE_INTERNAL;
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return(false); // we are in headless mode
     if (!_isGoodToMemorizeUndoOrRedo())
         return(false);
@@ -283,7 +286,7 @@ bool CUndoBufferCont::canRedo()
 {
     TRACE_INTERNAL;
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return(false); // we are in headless mode
     if (!_isGoodToMemorizeUndoOrRedo())
         return(false);
@@ -299,12 +302,12 @@ void CUndoBufferCont::undo()
 #ifdef SIM_WITH_GUI
     if (_inUndoRoutineNow)
         return;
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return; // we are in headless mode
 
-    if (App::mainWindow->codeEditorContainer->areSceneEditorsOpen())
+    if (GuiApp::mainWindow->codeEditorContainer->areSceneEditorsOpen())
     {
-        App::uiThread->messageBox_information(App::mainWindow,IDSN_UNDO_REDO,IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+        GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_UNDO_REDO,IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         return;
     }
     _inUndoRoutineNow=true;
@@ -348,8 +351,8 @@ void CUndoBufferCont::undo()
 
     _undoPointSavingOrRestoringUnderWay=false;
     serObj.readClose();
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
 
     // 4. We select previously selected objects:
     _restoreSelectionState();
@@ -360,8 +363,8 @@ void CUndoBufferCont::undo()
     App::worldContainer->setModificationFlag(16); // undo called
 
     // 5. Dialog refresh:
-    App::setFullDialogRefreshFlag();
-    App::setToolbarRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
+    GuiApp::setToolbarRefreshFlag();
 #endif
 }
 
@@ -371,11 +374,11 @@ void CUndoBufferCont::redo()
 #ifdef SIM_WITH_GUI
     if (_currentStateIndex>(int(_buffers.size())-2))
         return; // nothing to redo
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return; // we are in headless mode
-    if (App::mainWindow->codeEditorContainer->areSceneEditorsOpen())
+    if (GuiApp::mainWindow->codeEditorContainer->areSceneEditorsOpen())
     {
-        App::uiThread->messageBox_information(App::mainWindow,IDSN_UNDO_REDO,IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+        GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_UNDO_REDO,IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         return;
     }
     // 2. We go forward:
@@ -407,8 +410,8 @@ void CUndoBufferCont::redo()
 
     _undoPointSavingOrRestoringUnderWay=false;
     serObj.readClose();
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
 
 
     // 4. We select previously selected objects:
@@ -418,8 +421,8 @@ void CUndoBufferCont::redo()
     App::worldContainer->setModificationFlag(32); // redo called
 
     // 5. Dialog refresh:
-    App::setFullDialogRefreshFlag();
-    App::setToolbarRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
+    GuiApp::setToolbarRefreshFlag();
 #endif
 }
 

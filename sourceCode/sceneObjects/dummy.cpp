@@ -6,6 +6,9 @@
 #include <app.h>
 #include <tt.h>
 #include <dummyRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CDummy::CDummy()
 {
@@ -885,8 +888,8 @@ void CDummy::setLinkedDummyHandle(int handle,bool check)
         _reflectPropToLinkedDummy();
         if (getObjectCanSync())
             _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);
-        App::setRefreshHierarchyViewFlag();
-        App::setFullDialogRefreshFlag();
+        GuiApp::setRefreshHierarchyViewFlag();
+        GuiApp::setFullDialogRefreshFlag();
     }
 }
 
@@ -913,8 +916,8 @@ bool CDummy::setLinkType(int lt,bool check)
                 it->setLinkType(lt,false);
         }
         _reflectPropToLinkedDummy();
-        App::setRefreshHierarchyViewFlag();
-        App::setFullDialogRefreshFlag();
+        GuiApp::setRefreshHierarchyViewFlag();
+        GuiApp::setFullDialogRefreshFlag();
     }
     return(diff);
 }

@@ -5,6 +5,7 @@
 #include <qdlgmaterial.h>
 #include <app.h>
 #include <simStrings.h>
+#include <guiApp.h>
 
 CQDlgDummies::CQDlgDummies(QWidget *parent) :
     CDlgEx(parent),
@@ -23,14 +24,14 @@ CQDlgDummies::~CQDlgDummies()
 void CQDlgDummies::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgDummies::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     bool sel=App::currentWorld->sceneObjects->isLastSelectionADummy();
     bool bigSel=(App::currentWorld->sceneObjects->getDummyCountInSelection()>1);
@@ -164,7 +165,7 @@ void CQDlgDummies::on_qqColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_DUMMY,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_DUMMY,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }
 

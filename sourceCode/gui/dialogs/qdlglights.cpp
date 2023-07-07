@@ -5,6 +5,7 @@
 #include <qdlgmaterial.h>
 #include <qdlglightmaterial.h>
 #include <app.h>
+#include <guiApp.h>
 
 CQDlgLights::CQDlgLights(QWidget *parent) :
     CDlgEx(parent),
@@ -22,13 +23,13 @@ CQDlgLights::~CQDlgLights()
 void CQDlgLights::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgLights::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     CLight* it=App::currentWorld->sceneObjects->getLastSelectionLight();
 
@@ -222,7 +223,7 @@ void CQDlgLights::on_qqLightColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgLightMaterial::displayMaterialDlg(COLOR_ID_LIGHT_LIGHT,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgLightMaterial::displayMaterialDlg(COLOR_ID_LIGHT_LIGHT,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }
 
@@ -230,6 +231,6 @@ void CQDlgLights::on_qqCasingColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_LIGHT_CASING,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_LIGHT_CASING,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }

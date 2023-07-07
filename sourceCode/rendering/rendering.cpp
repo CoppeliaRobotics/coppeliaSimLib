@@ -25,6 +25,7 @@ See the GNU General Public License for more details.
 #include <vDateTime.h>
 #include <glBufferObjects.h>
 #include <oglExt.h>
+#include <guiApp.h>
 
 CGlBufferObjects* _glBufferObjects=nullptr;
 bool _glInitialized=false;
@@ -61,7 +62,7 @@ void initGl_ifNeeded()
     glGetIntegerv(GL_MAX_LIGHTS,&lights);
     CLight::setMaxAvailableOglLights(lights);
 
-    if (App::sc>1)// (userSettings->highResDisplay==1)||(highResDisplay&&(userSettings->highResDisplay==-1)) )
+    if (GuiApp::sc>1)// (userSettings->highResDisplay==1)||(highResDisplay&&(userSettings->highResDisplay==-1)) )
     {
         ogl::loadBitmapFont(SIMFONT_MS_SANS_SERIF_30,32,0);
         ogl::loadBitmapFont(SIMFONT_LUCIDA_CONSOLE_26,32,1);

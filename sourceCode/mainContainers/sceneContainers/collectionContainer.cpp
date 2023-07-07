@@ -1,6 +1,9 @@
 #include <collectionContainer.h>
 #include <app.h>
 #include <tt.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CCollectionContainer::CCollectionContainer()
 {
@@ -150,7 +153,7 @@ void CCollectionContainer::removeCollection(int collectionHandle)
 {
     App::currentWorld->announceCollectionWillBeErased(collectionHandle);
     _removeCollection(collectionHandle);
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 void CCollectionContainer::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const
@@ -234,7 +237,7 @@ void CCollectionContainer::addCollectionWithSuffixOffset(CCollection* collection
 
     _addCollection(collection);
 
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 void CCollectionContainer::addCollectionToSelection(int collectionHandle) const

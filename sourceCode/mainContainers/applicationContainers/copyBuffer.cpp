@@ -4,6 +4,9 @@
 #include <mesh.h>
 #include <simStrings.h>
 #include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CCopyBuffer::CCopyBuffer()
 {
@@ -270,8 +273,8 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         return;
 
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-            App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
+        if (GuiApp::mainWindow!=nullptr)
+            GuiApp::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 #endif
     clearBuffer();
     _bufferIsFromLockedScene=fromLockedScene;

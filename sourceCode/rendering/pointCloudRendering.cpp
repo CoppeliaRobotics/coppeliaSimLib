@@ -21,6 +21,7 @@ See the GNU General Public License for more details.
 #include <pointCloudRendering.h>
 
 #ifdef SIM_WITH_GUI
+#include <guiApp.h>
 
 void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,int displayAttrib)
 {
@@ -32,7 +33,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
     // Object display:
     if (pointCloud->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (pointCloud->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(pointCloud->getModelSelectionHandle());

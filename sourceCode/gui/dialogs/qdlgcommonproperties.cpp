@@ -10,6 +10,7 @@
 #include <simStrings.h>
 #include <app.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 CQDlgCommonProperties::CQDlgCommonProperties(QWidget *parent) :
       CDlgEx(parent),
@@ -30,7 +31,7 @@ CQDlgCommonProperties::~CQDlgCommonProperties()
 void CQDlgCommonProperties::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgCommonProperties::refresh()
@@ -38,7 +39,7 @@ void CQDlgCommonProperties::refresh()
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
 
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     CSceneObject* ls=App::currentWorld->sceneObjects->getLastSelectionObject();
     bool objIsSelected=(ls!=nullptr);
     bool isDummy=false;

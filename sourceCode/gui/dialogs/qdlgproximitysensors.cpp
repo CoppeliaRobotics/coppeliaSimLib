@@ -8,6 +8,7 @@
 #include <simStrings.h>
 #include <app.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 CQDlgProximitySensors::CQDlgProximitySensors(QWidget *parent) :
     CDlgEx(parent),
@@ -26,7 +27,7 @@ CQDlgProximitySensors::~CQDlgProximitySensors()
 void CQDlgProximitySensors::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgProximitySensors::refresh()
@@ -38,7 +39,7 @@ void CQDlgProximitySensors::refresh()
 
     bool isSensor=App::currentWorld->sceneObjects->isLastSelectionAProxSensor();
     bool manySensors=App::currentWorld->sceneObjects->getProxSensorCountInSelection()>1;
-    bool noEditMode=App::getEditModeType()==NO_EDIT_MODE;
+    bool noEditMode=GuiApp::getEditModeType()==NO_EDIT_MODE;
     bool noEditModeAndNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 //  bool noSim=App::currentWorld->simulation->isSimulationStopped();
 
@@ -164,8 +165,8 @@ void CQDlgProximitySensors::on_qqAdjustVolume_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgDetectionVolume::showVolumeWindow=!CQDlgDetectionVolume::showVolumeWindow;
-        if (App::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG)!=CQDlgDetectionVolume::showVolumeWindow)
-            App::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
+        if (GuiApp::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG)!=CQDlgDetectionVolume::showVolumeWindow)
+            GuiApp::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
     }
 }
 
@@ -217,7 +218,7 @@ void CQDlgProximitySensors::on_qqVolumeColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PROXSENSOR_VOLUME,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PROXSENSOR_VOLUME,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }
 
@@ -225,7 +226,7 @@ void CQDlgProximitySensors::on_qqRayColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PROXSENSOR_RAY,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PROXSENSOR_RAY,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }
 

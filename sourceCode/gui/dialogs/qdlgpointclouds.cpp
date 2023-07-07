@@ -6,6 +6,7 @@
 #include <app.h>
 #include <simStrings.h>
 #include <sceneObjectOperations.h>
+#include <guiApp.h>
 
 CQDlgPointclouds::CQDlgPointclouds(QWidget *parent) :
     CDlgEx(parent),
@@ -22,13 +23,13 @@ CQDlgPointclouds::~CQDlgPointclouds()
 void CQDlgPointclouds::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgPointclouds::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditMode=App::getEditModeType()==NO_EDIT_MODE;
+    bool noEditMode=GuiApp::getEditModeType()==NO_EDIT_MODE;
     bool noEditModeAndNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 
     bool sel=App::currentWorld->sceneObjects->isLastSelectionAPointCloud();
@@ -113,7 +114,7 @@ void CQDlgPointclouds::on_qqColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgColor::displayDlg(COLOR_ID_POINTCLOUD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,0,App::mainWindow);
+        CQDlgColor::displayDlg(COLOR_ID_POINTCLOUD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,0,GuiApp::mainWindow);
     }
 }
 
@@ -221,7 +222,7 @@ void CQDlgPointclouds::on_qqNoOctreeStructure_clicked()
         if (it!=nullptr)
         {
             if (!it->getDoNotUseCalculationStructure())
-                App::uiThread->messageBox_warning(App::mainWindow,"Point cloud octree calculation structure","Be aware that when disabling the octree calculation structure, your point cloud will not be collidable, measurable nor detectable anymore. Also, some functionality might be limited in that case.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Point cloud octree calculation structure","Be aware that when disabling the octree calculation structure, your point cloud will not be collidable, measurable nor detectable anymore. Also, some functionality might be limited in that case.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             App::appendSimulationThreadCommand(TOGGLE_USEOCTREE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

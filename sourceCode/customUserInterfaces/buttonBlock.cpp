@@ -10,7 +10,8 @@
 #include <boost/lexical_cast.hpp>
 #include <vDateTime.h>
 #ifdef SIM_WITH_GUI
-#include <oGL.h>
+    #include <oGL.h>
+    #include <guiApp.h>
 #endif
 
 CButtonBlock::CButtonBlock(int theBlockWidth,int theBlockHeight,
@@ -223,8 +224,8 @@ void CButtonBlock::getButtonSizeOriginal(VPoint& theSize)
 
 void CButtonBlock::getButtonSizeRetina(VPoint& theSize)
 {
-    theSize.x=_buttonWidth*App::sc;
-    theSize.y=_buttonHeight*App::sc;
+    theSize.x=_buttonWidth*GuiApp::sc;
+    theSize.y=_buttonHeight*GuiApp::sc;
 }
 
 int CButtonBlock::getButtonWidthOriginal()
@@ -239,12 +240,12 @@ int CButtonBlock::getButtonHeightOriginal()
 
 int CButtonBlock::getButtonWidthRetina()
 {
-    return(_buttonWidth*App::sc);
+    return(_buttonWidth*GuiApp::sc);
 }
 
 int CButtonBlock::getButtonHeightRetina()
 {
-    return(_buttonHeight*App::sc);
+    return(_buttonHeight*GuiApp::sc);
 }
 
 CSoftButton* CButtonBlock::getButtonWithID(int id)

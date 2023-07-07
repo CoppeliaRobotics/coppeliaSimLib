@@ -6,6 +6,7 @@
 #include <app.h>
 #include <simStringTable.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 CQDlgJointDyn::CQDlgJointDyn(QWidget *parent) :
     CDlgEx(parent),
@@ -25,14 +26,14 @@ void CQDlgJointDyn::cancelEvent()
 { // no cancel event allowed
     CQDlgJoints::showDynamicWindow=false;
     CDlgEx::cancelEvent();
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 void CQDlgJointDyn::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     bool sel=App::currentWorld->sceneObjects->isLastSelectionAJoint();
     bool bigSel=(App::currentWorld->sceneObjects->isLastSelectionAJoint()&&(App::currentWorld->sceneObjects->getJointCountInSelection()>1));

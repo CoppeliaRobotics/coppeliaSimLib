@@ -4,6 +4,9 @@
 #include <tt.h>
 #include <utils.h>
 #include <simStrings.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CQDlgSimulation::CQDlgSimulation(QWidget *parent) :
     CDlgEx(parent),
@@ -23,7 +26,7 @@ void CQDlgSimulation::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditMode=App::getEditModeType()==NO_EDIT_MODE;
+    bool noEditMode=GuiApp::getEditModeType()==NO_EDIT_MODE;
     bool noEditModeNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqTimeStep->setEnabled(noEditModeNoSim);

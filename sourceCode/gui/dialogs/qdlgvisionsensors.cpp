@@ -7,6 +7,7 @@
 #include <simStrings.h>
 #include <app.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 CQDlgVisionSensors::CQDlgVisionSensors(QWidget *parent) :
     CDlgEx(parent),
@@ -25,7 +26,7 @@ CQDlgVisionSensors::~CQDlgVisionSensors()
 void CQDlgVisionSensors::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgVisionSensors::refresh()
@@ -37,7 +38,7 @@ void CQDlgVisionSensors::refresh()
 
     bool isSensor=App::currentWorld->sceneObjects->isLastSelectionAVisionSensor();
     bool manySensors=App::currentWorld->sceneObjects->getVisionSensorCountInSelection()>1;
-    bool noEditModeAndNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqNearPlane->setEnabled(isSensor&&noEditModeAndNoSim);
     ui->qqFarPlane->setEnabled(isSensor&&noEditModeAndNoSim);
@@ -405,7 +406,7 @@ void CQDlgVisionSensors::on_qqCasingColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_VISIONSENSOR,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_VISIONSENSOR,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }
 

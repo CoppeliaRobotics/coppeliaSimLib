@@ -1,6 +1,3 @@
-
-// This file requires some serious refactoring!
-
 #include <simInternal.h>
 #include <pageContainer.h>
 #include <tt.h>
@@ -14,6 +11,7 @@
 #include <simFlavor.h>
 #ifdef SIM_WITH_GUI
     #include <toolBarCommand.h>
+    #include <guiApp.h>
 #endif
 
 CPageContainer::CPageContainer()
@@ -226,7 +224,7 @@ void CPageContainer::serialize(CSer& ar)
                         ar >> _activePageIndex;
                         if (_activePageIndex>=PAGES_COUNT)
                             _activePageIndex=0;
-                        App::setToolbarRefreshFlag();
+                        GuiApp::setToolbarRefreshFlag();
                     }
                     if (theName.compare("Vwo")==0)
                     {
@@ -384,7 +382,7 @@ void CPageContainer::renderCurrentPage(bool hideWatermark)
     displayContainerPageOverlay(_pagePosition,_pageSize,_activePageIndex,focusObject);
 
     if (getenv("_HWM"))*tmp=1;
-    if ( (!hideWatermark)&&(App::mainWindow!=nullptr)&&(!App::mainWindow->simulationRecorder->getIsRecording()) )
+    if ( (!hideWatermark)&&(GuiApp::mainWindow!=nullptr)&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording()) )
     {
         int tagId=CSimFlavor::getIntVal(0);
         if (tagId>=0)
@@ -403,7 +401,7 @@ void CPageContainer::setActivePage(int pageIndex)
     {
         _activePageIndex=pageIndex;
         clearAllLastMouseDownViewIndex(); // foc
-        App::setToolbarRefreshFlag();
+        GuiApp::setToolbarRefreshFlag();
     }
 }
 
@@ -605,7 +603,7 @@ void CPageContainer::keyPress(int key,QWidget* mainWindow)
 
     if ( (key==CTRL_V_KEY)||(key==DELETE_KEY)||(key==BACKSPACE_KEY)||(key==CTRL_X_KEY)||(key==CTRL_C_KEY)||(key==ESC_KEY)||(key==CTRL_A_KEY)||(key==CTRL_Y_KEY)||(key==CTRL_Z_KEY) )
     {
-        if ( (App::mainWindow!=nullptr)&&(!App::mainWindow->editModeContainer->keyPress(key)) )
+        if ( (GuiApp::mainWindow!=nullptr)&&(!GuiApp::mainWindow->editModeContainer->keyPress(key)) )
             CSceneObjectOperations::keyPress(key); // the key press was not for the edit mode
         return;
     }
@@ -629,16 +627,16 @@ void CPageContainer::keyPress(int key,QWidget* mainWindow)
     }
     if ( (key==CTRL_D_KEY)||(key==CTRL_G_KEY) )
     {
-        App::mainWindow->dlgCont->keyPress(key);
+        GuiApp::mainWindow->dlgCont->keyPress(key);
         return;
     }
 
     int flags=0;
-    if (App::mainWindow!=nullptr)
+    if (GuiApp::mainWindow!=nullptr)
     {
-        if (App::mainWindow->getKeyDownState()&1)
+        if (GuiApp::mainWindow->getKeyDownState()&1)
             flags|=1;
-        if (App::mainWindow->getKeyDownState()&2)
+        if (GuiApp::mainWindow->getKeyDownState()&2)
             flags|=2;
     }
     int data[4]={key,flags,0,0};
@@ -724,7 +722,7 @@ void CPageContainer::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* m
                 // Did the mouse go up in this zone?
                 if ( (x>=0)&&(y>=0)&&(x<=_pageSize[0])&&(y<=_pageSize[1]) )
                 { // Yes! We display a popup menu to allow the user to create a new view at that index:
-                    if (App::operationalUIParts&sim_gui_popups)
+                    if (GuiApp::operationalUIParts&sim_gui_popups)
                     { // Default popups
                         VMenu mainMenu=VMenu();
                         addPageMenu(&mainMenu);

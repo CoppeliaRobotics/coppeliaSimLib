@@ -1,6 +1,7 @@
-
 #include <simQApp.h>
-#include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CSimQApp::CSimQApp(int& argc ,char** argv) : QAPP(argc,argv)
 {
@@ -18,7 +19,7 @@ bool CSimQApp::notify(QObject* object,QEvent* event)
         QKeyEvent* keyEvent=static_cast<QKeyEvent*>(event);
         int key=keyEvent->key();
         if (key==Qt::Key_Escape)
-            App::setFullScreen(false);
+            GuiApp::setFullScreen(false);
     }
 #endif
     return(QAPP::notify(object,event));

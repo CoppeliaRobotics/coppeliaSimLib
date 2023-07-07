@@ -280,13 +280,13 @@ bool oglExt::_isFboAvailable(bool& viaExt)
 /*
     printf("glVersion: %s\n",gl_version);
 
-    if (App::mainWindow->openglWidget->context()->isOpenGLES())
+    if (GuiApp::mainWindow->openglWidget->context()->isOpenGLES())
         printf("Is ES\n");
     else
         printf("Is NOT ES\n");
     //*/
 /*
-    QOpenGLFunctions* f=App::mainWindow->openglWidget->context()->functions();
+    QOpenGLFunctions* f=GuiApp::mainWindow->openglWidget->context()->functions();
     gl_version=(const char*)(f->glGetString(GL_VERSION));
     printf("glVersion2: %s\n",gl_version);
 */

@@ -11,9 +11,10 @@
 #include <app.h>
 #include <cameraRendering.h>
 #ifdef SIM_WITH_GUI
-#include <rendering.h>
-#include <oGL.h>
-#include <glShader.h>
+    #include <guiApp.h>
+    #include <rendering.h>
+    #include <oGL.h>
+    #include <glShader.h>
 #endif
 
 unsigned int CCamera::selectBuff[SELECTION_BUFFER_SIZE*4];
@@ -66,24 +67,24 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
         displAttributes=sim_displayattribute_dynamiccontentonly;
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=nullptr)
+    if (GuiApp::mainWindow!=nullptr)
     {
-        editMode=App::getEditModeType();
+        editMode=GuiApp::getEditModeType();
         if ((editMode&SHAPE_EDIT_MODE)!=0)
         { // just take the vertices
-            if (App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVerticesSize()==0)
+            if (GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVerticesSize()==0)
                 editMode=NO_EDIT_MODE;
             else
             {
-                CSceneObject* parentObj=App::mainWindow->editModeContainer->getEditModeShape();
+                CSceneObject* parentObj=GuiApp::mainWindow->editModeContainer->getEditModeShape();
                 if (parentObj!=nullptr)
                 {
                     C7Vector parentTr(parentObj->getFullCumulativeTransformation());
                     if (editMode==VERTEX_EDIT_MODE)
                     {
-                        for (int i=0;i<App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVerticesSize()/3;i++)
+                        for (int i=0;i<GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVerticesSize()/3;i++)
                         {
-                            C3Vector v(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(i));
+                            C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(i));
                             v=camTrInv*parentTr*v;
                             pts.push_back(v(0));
                             pts.push_back(v(1));
@@ -93,15 +94,15 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
                     }
                     else
                     { // Triangle or edge edit mode:
-                        if (App::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()!=0)
+                        if (GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()!=0)
                         {
-                            for (int i=0;i<App::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()/3;i++)
+                            for (int i=0;i<GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()/3;i++)
                             { // here we will get every vertex many times, but it doesn't really matter
                                 int ind[3];
-                                App::mainWindow->editModeContainer->getShapeEditMode()->getEditionTriangle(i,ind);
+                                GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionTriangle(i,ind);
                                 for (int j=0;j<3;j++)
                                 {
-                                    C3Vector v(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind[j]));
+                                    C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind[j]));
                                     v=camTrInv*parentTr*v;
                                     pts.push_back(v(0));
                                     pts.push_back(v(1));
@@ -120,18 +121,18 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
         }
         if ((editMode&PATH_EDIT_MODE_OLD)!=0)
         { // just take the path points
-            if (App::mainWindow->editModeContainer->getEditModePathContainer_old()==nullptr)
+            if (GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()==nullptr)
                 editMode=NO_EDIT_MODE;
             else
             {
-                int cnt=App::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPointCount();
-                CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
+                int cnt=GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPointCount();
+                CPath_old* path=GuiApp::mainWindow->editModeContainer->getEditModePath_old();
                 if ((cnt!=0)&&(path!=nullptr))
                 {
                     C7Vector parentTr(path->getFullCumulativeTransformation());
                     for (int i=0;i<cnt;i++)
                     {
-                        CSimplePathPoint_old* pp=App::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPoint(i);
+                        CSimplePathPoint_old* pp=GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPoint(i);
                         C3Vector v(camTrInv*parentTr*pp->getTransformation().X);
                         pts.push_back(v(0));
                         pts.push_back(v(1));
@@ -217,11 +218,11 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight,bool forPer
         }
 
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
+        if (GuiApp::mainWindow!=nullptr)
         {
             if ((editMode&MULTISHAPE_EDIT_MODE)!=0)
             {
-                CShape* sh=App::mainWindow->editModeContainer->getEditModeShape();
+                CShape* sh=GuiApp::mainWindow->editModeContainer->getEditModeShape();
                 if (sh!=nullptr)
                     sel.push_back(sh);
             }
@@ -774,7 +775,7 @@ CCamera::~CCamera()
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=DESTROY_GL_TEXTURE_UITHREADCMD;
         cmdIn.uintParams.push_back(_textureNameForExtGeneratedView);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         _textureNameForExtGeneratedView=(unsigned int)-1;
     }
 }
@@ -880,7 +881,7 @@ void CCamera::setTrackedObjectHandle(int trackedObjHandle)
         }
         else
             _trackedObjectHandle=-1;
-        App::setLightDialogRefreshFlag();
+        GuiApp::setLightDialogRefreshFlag();
     }
 }
 
@@ -1642,7 +1643,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             mouseJustWentDown=subView->didMouseJustGoDown();
             mouseJustWentUp=subView->didMouseJustGoUp();
             mouseMovedWhileDown=subView->didMouseMoveWhileDown();
-            navigationMode=App::getMouseMode()&0x00ff;
+            navigationMode=GuiApp::getMouseMode()&0x00ff;
         }
     }
 
@@ -1706,7 +1707,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
 //                  passes[0]=DEPTHPASS;
 //                  passes[1]=PICKPASS;
 //                  passes[2]=RENDERPASS;
-                    if ((App::getMouseMode()&sim_navigation_clickselection)==0)
+                    if ((GuiApp::getMouseMode()&sim_navigation_clickselection)==0)
                         regularObjectsCannotBeSelected=true;
                     else
                         specialSelectionAndNavigationPass=true;
@@ -1728,7 +1729,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             processHitForMouseUpProcessing=true;
             if (selectionStatus==SHIFTSELECTION)
             {
-                if (((App::getEditModeType()&SHAPE_EDIT_MODE)!=0)&&(App::mainWindow->getKeyDownState()&1))
+                if (((GuiApp::getEditModeType()&SHAPE_EDIT_MODE)!=0)&&(GuiApp::mainWindow->getKeyDownState()&1))
                     passes[0]=COLORCODEDPICKPASS;
                 else
                     passes[0]=PICKPASS;
@@ -1737,7 +1738,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             else
             {
                 // New since 3.2.2:
-                if (App::mainWindow->getMouseButtonState()&16)
+                if (GuiApp::mainWindow->getMouseButtonState()&16)
                 { // last mouse down was left and no ctrl key was pressed
                     int mousePos[2];
                     int mouseDownPos[2];
@@ -1833,14 +1834,14 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
 
             C4X4Matrix m4(getFullCumulativeTransformation().getMatrix());
 
-            if (App::mainWindow->getHasStereo())
+            if (GuiApp::mainWindow->getHasStereo())
             { // handle stereo cameras correctly
                 C4X4Matrix displ;
                 displ.setIdentity();
-                if (App::mainWindow->getLeftEye())
-                    displ.X(0)=App::mainWindow->getStereoDistance()/2;
+                if (GuiApp::mainWindow->getLeftEye())
+                    displ.X(0)=GuiApp::mainWindow->getStereoDistance()/2;
                 else
-                    displ.X(0)=-App::mainWindow->getStereoDistance()/2;
+                    displ.X(0)=-GuiApp::mainWindow->getStereoDistance()/2;
                 m4=m4*displ;
             }
 
@@ -1994,7 +1995,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                 for (int i=1;i<1000000;i++)
                 {
                     if (sel[i])
-                        App::mainWindow->editModeContainer->addItemToEditModeBuffer(i-1,true);
+                        GuiApp::mainWindow->editModeContainer->addItemToEditModeBuffer(i-1,true);
                 }
 
                 delete[] bf;
@@ -2002,7 +2003,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
 
             if (processHitForMouseUpProcessing)
             {
-                if ( ((App::getMouseMode()&0x0300)&sim_navigation_clickselection) && ((App::mainWindow->getKeyDownState()&3)==0) && (hitForMouseUpProcessing_minus2MeansIgnore!=-2) )
+                if ( ((GuiApp::getMouseMode()&0x0300)&sim_navigation_clickselection) && ((GuiApp::mainWindow->getKeyDownState()&3)==0) && (hitForMouseUpProcessing_minus2MeansIgnore!=-2) )
                     handleMouseUpHit(hitForMouseUpProcessing_minus2MeansIgnore);
                 hitForMouseUpProcessing_minus2MeansIgnore=-2;
                 processHitForMouseUpProcessing=false;
@@ -2023,12 +2024,12 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
         int rendererIndex=_renderMode-sim_rendermode_povray;
 
         bool renderView=true;
-        if (App::mainWindow->simulationRecorder->getIsRecording()&&(rendererIndex<2))
-            renderView=App::mainWindow->simulationRecorder->willNextFrameBeRecorded();
+        if (GuiApp::mainWindow->simulationRecorder->getIsRecording()&&(rendererIndex<2))
+            renderView=GuiApp::mainWindow->simulationRecorder->willNextFrameBeRecorded();
 
         if (renderView)
         { // When using a ray-tracer during video recording, and we want to record not every frame, don't render those frames!!
-            App::mainWindow->openglWidget->doneCurrent();
+            GuiApp::mainWindow->openglWidget->doneCurrent();
 
 #ifdef SIM_WITH_GUI
             if (!_extRenderer_prepareView(rendererIndex,_currentViewSize,isPerspective))
@@ -2037,7 +2038,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                 {
                     static bool alreadyShown=false;
                     if (!alreadyShown)
-                        App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin","The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                        GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,"POV-Ray plugin","The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     alreadyShown=true;
                 }
             }
@@ -2055,7 +2056,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
 
             _extRenderer_retrieveImage(buff);
 
-            App::mainWindow->openglWidget->makeCurrent();
+            GuiApp::mainWindow->openglWidget->makeCurrent();
         }
 
         // we want to apply a new image!
@@ -2406,8 +2407,8 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
         viewIndex=int(subView->getViewIndex());
     }
 
-    bool shapeEditMode=((App::getEditModeType()&SHAPE_EDIT_MODE)!=0);
-    bool multiShapeEditMode=((App::getEditModeType()&MULTISHAPE_EDIT_MODE)!=0);
+    bool shapeEditMode=((GuiApp::getEditModeType()&SHAPE_EDIT_MODE)!=0);
+    bool multiShapeEditMode=((GuiApp::getEditModeType()&MULTISHAPE_EDIT_MODE)!=0);
     bool shapeEditModeAndPicking=( shapeEditMode&&((pass==PICKPASS)||(pass==COLORCODEDPICKPASS)) );
 
     // If selection size is bigger than 10, we set up a fast index:
@@ -2521,7 +2522,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                     // Draw everything except for the camera you look through (unless we look through the mirror) and the object which is being edited!
                     if  ( (it->getObjectHandle()!=getObjectHandle())||mirrored )
                     {
-                        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+                        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
                         {
                             if (getInternalRendering())
                                 it->display(this,atr);
@@ -2531,7 +2532,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                                     ((CShape*)it)->display_extRenderer(this,atr);
                             }
                         }
-                        else if (it->getObjectHandle()!=App::mainWindow->editModeContainer->getEditModeObjectID())
+                        else if (it->getObjectHandle()!=GuiApp::mainWindow->editModeContainer->getEditModeObjectID())
                             it->display(this,atr);
                     }
                 }
@@ -2542,7 +2543,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                 val=2.0*tan(_viewAngle*0.5);
 
             // Display inertia box overlays:
-            if ( App::getShowInertias()&&((displayAttrib&sim_displayattribute_renderpass)!=0)&&((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)&&getInternalRendering() )
+            if ( GuiApp::getShowInertias()&&((displayAttrib&sim_displayattribute_renderpass)!=0)&&((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)&&getInternalRendering() )
             {
                 for (size_t rp=0;rp<toRender.size();rp++)
                 {
@@ -2556,7 +2557,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             }
 
             // Display frames and bounding boxes of selected items:
-            if ( ((displayAttrib&sim_displayattribute_renderpass)!=0)&&((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)&&getInternalRendering() )
+            if ( ((displayAttrib&sim_displayattribute_renderpass)!=0)&&((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)&&getInternalRendering() )
             {
                 for (size_t rp=0;rp<toRender.size();rp++)
                 {
@@ -2606,9 +2607,9 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
         // We render the object being edited last (the vertices appear above everything)
         if (getInternalRendering())
         {
-            if (App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)
+            if (GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)
             {
-                CSceneObject* it=App::mainWindow->editModeContainer->getEditModeObject();
+                CSceneObject* it=GuiApp::mainWindow->editModeContainer->getEditModeObject();
                 if (it!=nullptr)
                     it->display(this,displayAttrib);
             }
@@ -2628,12 +2629,12 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
     }
     else
     { // Multishape edit mode:
-        CShape* it=App::mainWindow->editModeContainer->getEditModeShape();
+        CShape* it=GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (it!=nullptr)
             it->display(this,displayAttrib);
     }
 
-    SModelThumbnailInfo* info=App::mainWindow->openglWidget->getModelDragAndDropInfo();
+    SModelThumbnailInfo* info=GuiApp::mainWindow->openglWidget->getModelDragAndDropInfo();
     if ((pass==RENDERPASS)&&(info!=nullptr))
     {
         double ss=info->modelNonDefaultTranslationStepSize;
@@ -2725,7 +2726,7 @@ void CCamera::performDepthPerception(CSView* subView,bool isPerspective)
     TRACE_INTERNAL;
     if (subView==nullptr)
         return;
-    int mouseMode=App::getMouseMode();
+    int mouseMode=GuiApp::getMouseMode();
     int windowSize[2];
     subView->getViewSize(windowSize);
     GLint viewport[4];
@@ -2817,7 +2818,7 @@ void CCamera::_drawOverlay(bool passiveView,bool drawText,bool displ_ref,int win
     int selectionMode=NOSELECTION;
     if (subView!=nullptr)
     {
-        navigationMode=App::getMouseMode()&0x00ff;
+        navigationMode=GuiApp::getMouseMode()&0x00ff;
         selectionMode=subView->getSelectionStatus();
     }
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
@@ -2869,13 +2870,13 @@ void CCamera::_drawOverlay(bool passiveView,bool drawText,bool displ_ref,int win
 
     if (App::userSettings->displayWorldReference&&displ_ref)
     {
-        glTranslated(double(windowSize[0]-60.0*App::sc),40.0*App::sc,0.0);
+        glTranslated(double(windowSize[0]-60.0*GuiApp::sc),40.0*GuiApp::sc,0.0);
         C7Vector tr2(getFullCumulativeTransformation());
         tr2.inverse();
         C4X4Matrix m1;
         m1.buildYRotation(piValue);
         C7Vector tr0(m1.getTransformation()*tr2);
-        double refSize=30.0*App::sc;
+        double refSize=30.0*GuiApp::sc;
 
         C3Vector euler(tr0.Q.getEulerAngles());
         glPushMatrix();
@@ -2883,7 +2884,7 @@ void CCamera::_drawOverlay(bool passiveView,bool drawText,bool displ_ref,int win
         glRotated(euler(1)*radToDeg,0.0,1.0,0.0);
         glRotated(euler(2)*radToDeg,0.0,0.0,1.0);
 
-        glLineWidth((float)App::sc);
+        glLineWidth((float)GuiApp::sc);
         ogl::drawReference(refSize);
         glLineWidth(1.0);
 
@@ -2913,7 +2914,7 @@ int CCamera::getSingleHit(int hits,unsigned int selectBuff[],bool ignoreDepthBuf
                 distance=selectBuff[4*i+1];
                 nearestObj=selectBuff[4*i+3];
                 hitThatIgnoresTheSelectableFlag=nearestObj;
-                if ((nearestObj<=SIM_IDEND_SCENEOBJECT)&&(App::getEditModeType()==NO_EDIT_MODE))
+                if ((nearestObj<=SIM_IDEND_SCENEOBJECT)&&(GuiApp::getEditModeType()==NO_EDIT_MODE))
                 { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
                     CSceneObject* theObj=App::currentWorld->sceneObjects->getObjectFromHandle(nearestObj);
                     if ((theObj!=nullptr)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
@@ -2924,13 +2925,13 @@ int CCamera::getSingleHit(int hits,unsigned int selectBuff[],bool ignoreDepthBuf
             {
                 if (!ignoreDepthBuffer)
                 {
-                    bool shapeEditAndNoHitYet=((App::getEditModeType()&SHAPE_EDIT_MODE)&&(nearestObj==(unsigned int)-1));
+                    bool shapeEditAndNoHitYet=((GuiApp::getEditModeType()&SHAPE_EDIT_MODE)&&(nearestObj==(unsigned int)-1));
                     if ((selectBuff[4*i+1]<=distance)||shapeEditAndNoHitYet)
                     { // this hit is closer
                         distance=selectBuff[4*i+1];
                         nearestObj=selectBuff[4*i+3];
                         hitThatIgnoresTheSelectableFlag=nearestObj;
-                        if ((nearestObj<=SIM_IDEND_SCENEOBJECT)&&(App::getEditModeType()==NO_EDIT_MODE))
+                        if ((nearestObj<=SIM_IDEND_SCENEOBJECT)&&(GuiApp::getEditModeType()==NO_EDIT_MODE))
                         { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
                             CSceneObject* theObj=App::currentWorld->sceneObjects->getObjectFromHandle(nearestObj);
                             if ((theObj!=nullptr)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
@@ -2945,7 +2946,7 @@ int CCamera::getSingleHit(int hits,unsigned int selectBuff[],bool ignoreDepthBuf
                         distance=selectBuff[4*i+1];
                         nearestObj=selectBuff[4*i+3];
                         hitThatIgnoresTheSelectableFlag=nearestObj;
-                        if ((nearestObj<=SIM_IDEND_SCENEOBJECT)&&(App::getEditModeType()==NO_EDIT_MODE))
+                        if ((nearestObj<=SIM_IDEND_SCENEOBJECT)&&(GuiApp::getEditModeType()==NO_EDIT_MODE))
                         { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
                             CSceneObject* theObj=App::currentWorld->sceneObjects->getObjectFromHandle(nearestObj);
                             if ((theObj!=nullptr)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
@@ -2977,7 +2978,7 @@ int CCamera::getSeveralHits(int hits,unsigned int selectBuff[],std::vector<int>&
             unsigned int theHit=selectBuff[4*i+3];
             if (theHit!=((unsigned int)-1))
             {
-                if ((theHit<=SIM_IDEND_SCENEOBJECT)&&(App::getEditModeType()==NO_EDIT_MODE))
+                if ((theHit<=SIM_IDEND_SCENEOBJECT)&&(GuiApp::getEditModeType()==NO_EDIT_MODE))
                 { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
                     CSceneObject* theObj=App::currentWorld->sceneObjects->getObjectFromHandle(theHit);
                     if ((theObj!=nullptr)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
@@ -3001,24 +3002,24 @@ void CCamera::handleMouseUpHit(int hitId)
     TRACE_INTERNAL;
     if (hitId==-1)
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
             App::currentWorld->sceneObjects->deselectObjects();
         else
-            App::mainWindow->editModeContainer->deselectEditModeBuffer();
+            GuiApp::mainWindow->editModeContainer->deselectEditModeBuffer();
     }
     else
     {
         if ( (hitId<SIM_IDEND_SCENEOBJECT)||(hitId>=NON_OBJECT_PICKING_ID_PATH_PTS_START) ) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start here to select individual path points when not in path edit mode!!!!!!!
         {
-            if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+            if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
             {
                 App::currentWorld->sceneObjects->deselectObjects();
                 App::currentWorld->sceneObjects->addObjectToSelection(hitId);
             }
             else
             {
-                App::mainWindow->editModeContainer->deselectEditModeBuffer();
-                App::mainWindow->editModeContainer->addItemToEditModeBuffer(hitId,false);
+                GuiApp::mainWindow->editModeContainer->deselectEditModeBuffer();
+                GuiApp::mainWindow->editModeContainer->addItemToEditModeBuffer(hitId,false);
             }
         }
         if ( (hitId>=NON_OBJECT_PICKING_ID_BANNER_START)&&(hitId<NON_OBJECT_PICKING_ID_BANNER_END) )
@@ -3029,11 +3030,11 @@ void CCamera::handleMouseUpHit(int hitId)
 int CCamera::handleHits(int hits,unsigned int selectBuff[])
 { // -2 means: handle no mouse up hits. Otherwise, handle mouse up hits!
     TRACE_INTERNAL;
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return(-2);
-    if (App::mainWindow->getMouseButtonState()&4) // added on 2011/01/12 because this routine is now also called when not in click-select mode, etc. We need to make sure we don't have a "virtual" left mouse button clicked triggered by the right mouse button
+    if (GuiApp::mainWindow->getMouseButtonState()&4) // added on 2011/01/12 because this routine is now also called when not in click-select mode, etc. We need to make sure we don't have a "virtual" left mouse button clicked triggered by the right mouse button
         return(-2);
-    if (App::mainWindow->getKeyDownState()&2)
+    if (GuiApp::mainWindow->getKeyDownState()&2)
     {
         std::vector<int> hitList;
         if (getSeveralHits(hits,selectBuff,hitList)>0)
@@ -3042,10 +3043,10 @@ int CCamera::handleHits(int hits,unsigned int selectBuff[])
             {
                 if ( (hitList[i]<SIM_IDEND_SCENEOBJECT)||(hitList[i]>=NON_OBJECT_PICKING_ID_PATH_PTS_START) ) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start here to select individual path points when not in path edit mode!!!!!!!
                 {
-                    if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+                    if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
                         App::currentWorld->sceneObjects->addObjectToSelection(hitList[i]);
                     else
-                        App::mainWindow->editModeContainer->addItemToEditModeBuffer(hitList[i],true);
+                        GuiApp::mainWindow->editModeContainer->addItemToEditModeBuffer(hitList[i],true);
                 }
                 if ( (hitList[i]>=NON_OBJECT_PICKING_ID_BANNER_START)&&(hitList[i]<NON_OBJECT_PICKING_ID_BANNER_END) )
                     _handleBannerClick(hitList[i]-NON_OBJECT_PICKING_ID_BANNER_START);
@@ -3055,26 +3056,26 @@ int CCamera::handleHits(int hits,unsigned int selectBuff[])
     }
     else
     {
-        if (App::mainWindow->getKeyDownState()&1)
+        if (GuiApp::mainWindow->getKeyDownState()&1)
         {
             int dummy;
-            bool ignoreDepth=((App::getEditModeType()&VERTEX_EDIT_MODE)||(App::getEditModeType()&EDGE_EDIT_MODE))&&App::mainWindow->editModeContainer->getShapeEditMode()->getShowHiddenVerticeAndEdges();
+            bool ignoreDepth=((GuiApp::getEditModeType()&VERTEX_EDIT_MODE)||(GuiApp::getEditModeType()&EDGE_EDIT_MODE))&&GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getShowHiddenVerticeAndEdges();
             int hitId=getSingleHit(hits,selectBuff,ignoreDepth,dummy);
             if (hitId==-1)
             {
-                if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+                if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
                     App::currentWorld->sceneObjects->deselectObjects();
                 else
-                    App::mainWindow->editModeContainer->deselectEditModeBuffer();
+                    GuiApp::mainWindow->editModeContainer->deselectEditModeBuffer();
             }
             else
             {
                 if ( (hitId<SIM_IDEND_SCENEOBJECT)||(hitId>=NON_OBJECT_PICKING_ID_PATH_PTS_START) ) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start here to select individual path points when not in path edit mode!!!!!!!
                 {
-                    if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+                    if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
                         App::currentWorld->sceneObjects->xorAddObjectToSelection(hitId);
                     else
-                        App::mainWindow->editModeContainer->xorAddItemToEditModeBuffer(hitId,false);
+                        GuiApp::mainWindow->editModeContainer->xorAddItemToEditModeBuffer(hitId,false);
                 }
                 if ( (hitId>=NON_OBJECT_PICKING_ID_BANNER_START)&&(hitId<NON_OBJECT_PICKING_ID_BANNER_END) )
                     _handleBannerClick(hitId-NON_OBJECT_PICKING_ID_BANNER_START);
@@ -3084,7 +3085,7 @@ int CCamera::handleHits(int hits,unsigned int selectBuff[])
         else
         { // no ctrl or shift key down here. We simply return the hit for processing at a later stage
             int hitThatIgnoresTheSelectableFlag;
-            bool ignoreDepth=((App::getEditModeType()&VERTEX_EDIT_MODE)||(App::getEditModeType()&EDGE_EDIT_MODE))&&App::mainWindow->editModeContainer->getShapeEditMode()->getShowHiddenVerticeAndEdges();
+            bool ignoreDepth=((GuiApp::getEditModeType()&VERTEX_EDIT_MODE)||(GuiApp::getEditModeType()&EDGE_EDIT_MODE))&&GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getShowHiddenVerticeAndEdges();
             int hitId=getSingleHit(hits,selectBuff,ignoreDepth,hitThatIgnoresTheSelectableFlag);
 
             // OLD:
@@ -3103,7 +3104,7 @@ int CCamera::handleHits(int hits,unsigned int selectBuff[])
 void CCamera::_handleBannerClick(int bannerID)
 {
     TRACE_INTERNAL;
-    if (App::getEditModeType()!=NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
         return;
     CBannerObject* it=App::currentWorld->bannerCont->getObject(bannerID);
     if ( (it!=nullptr)&&it->isVisible() )
@@ -3148,12 +3149,12 @@ bool CCamera::getInternalRendering() const
 {
     if (_renderMode!=sim_rendermode_opengl)
     {
-        if (App::getEditModeType()==NO_EDIT_MODE)
+        if (GuiApp::getEditModeType()==NO_EDIT_MODE)
         {
             if ( (_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_extrenderer)||(_renderMode==sim_rendermode_opengl3) )
             {
                 if ( App::currentWorld->simulation->isSimulationRunning()||(!_renderModeDuringSimulation) )
-                    return(App::mainWindow->simulationRecorder->getIsRecording()!=_renderModeDuringRecording);
+                    return(GuiApp::mainWindow->simulationRecorder->getIsRecording()!=_renderModeDuringRecording);
             }
         }
     }

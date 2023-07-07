@@ -4,6 +4,9 @@
 #include <tt.h>
 #include <app.h>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 std::vector<SLoadOperationIssue> CWorld::_loadOperationIssues;
 
@@ -73,8 +76,8 @@ void CWorld::initializeWorld()
 void CWorld::clearScene(bool notCalledFromUndoFunction)
 {
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->codeEditorContainer->sceneClosed(environment->getSceneUniqueID());
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->codeEditorContainer->sceneClosed(environment->getSceneUniqueID());
 #endif
 
     if (notCalledFromUndoFunction)
@@ -595,7 +598,7 @@ void CWorld::simulationAboutToStart()
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=SIMULATION_ABOUT_TO_START_UITHREADCMD;
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
     App::worldContainer->callScripts(sim_syscb_beforesimulation,nullptr,nullptr);
@@ -608,18 +611,18 @@ void CWorld::simulationAboutToStart()
     }
     App::undoRedo_sceneChanged("");
 
-    _savedMouseMode=App::getMouseMode();
+    _savedMouseMode=GuiApp::getMouseMode();
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->codeEditorContainer->simulationAboutToStart();
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->codeEditorContainer->simulationAboutToStart();
 #endif
 
     if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
     {
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-            App::uiThread->messageBox_warning(App::mainWindow,"Warning","The 'Geometric' plugin could not be initialized. Collision detection, distance calculation, and proximity sensor simulation will not work.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+        if (GuiApp::mainWindow!=nullptr)
+            GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Warning","The 'Geometric' plugin could not be initialized. Collision detection, distance calculation, and proximity sensor simulation will not work.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
         App::logMsg(sim_verbosity_errors,"the 'Geometric' plugin could not be initialized. Collision detection,\n       distance calculation, and proximity sensor simulation will not work.");
     }
@@ -635,27 +638,27 @@ void CWorld::simulationAboutToStart()
     cmd.cmdId=DISPLAY_VARIOUS_WARNING_MESSAGES_DURING_SIMULATION_CMD;
     App::appendSimulationThreadCommand(cmd,1000);
 
-    App::setToolbarRefreshFlag();
-    App::setFullDialogRefreshFlag();
+    GuiApp::setToolbarRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->simulationRecorder->startRecording(false);
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->simulationRecorder->startRecording(false);
 #endif
 }
 
 void CWorld::simulationPaused()
 {
     _simulationPaused();
-    App::setToolbarRefreshFlag();
-    App::setFullDialogRefreshFlag();
+    GuiApp::setToolbarRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 void CWorld::simulationAboutToResume()
 {
     _simulationAboutToResume();
-    App::setToolbarRefreshFlag();
-    App::setFullDialogRefreshFlag();
+    GuiApp::setToolbarRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 void CWorld::simulationAboutToStep()
@@ -672,8 +675,8 @@ void CWorld::simulationAboutToEnd()
     _simulationAboutToEnd();
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->codeEditorContainer->simulationAboutToEnd();
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->codeEditorContainer->simulationAboutToEnd();
 #endif
 }
 
@@ -719,12 +722,12 @@ void CWorld::simulationEnded(bool removeNewObjects)
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=SIMULATION_JUST_ENDED_UITHREADCMD;
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    App::setMouseMode(_savedMouseMode);
-    App::setToolbarRefreshFlag();
-    App::setFullDialogRefreshFlag();
+    GuiApp::setMouseMode(_savedMouseMode);
+    GuiApp::setToolbarRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 
     App::undoRedo_sceneChanged(""); // keeps this (additional objects were removed, and object positions were reset)
 

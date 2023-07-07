@@ -4,6 +4,9 @@
 #include <tt.h>
 #include <utils.h>
 #include <global.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CCollection::CCollection(int creatorHandle)
 {
@@ -55,7 +58,7 @@ void CCollection::addCollectionElement(CCollectionElement* collectionElement)
     collectionElement->setElementHandle(i);
     _addCollectionElement(collectionElement);
     actualizeCollection();
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 bool CCollection::actualizeCollection()
@@ -201,7 +204,7 @@ bool CCollection::setCollectionName(const char* newName,bool check)
     }
 
     if (diff)
-        App::setFullDialogRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
     return(diff);
 }
 

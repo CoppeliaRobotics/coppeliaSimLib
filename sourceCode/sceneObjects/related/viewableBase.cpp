@@ -5,6 +5,9 @@
 #include <vDateTime.h>
 #include <simMath/4X4Matrix.h>
 #include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 bool CViewableBase::fogWasActivated=false;
 bool CViewableBase::_frustumCulling=true;
@@ -283,14 +286,14 @@ void CViewableBase::computeViewFrustumIfNeeded()
         {
             viewableCumulTransf=getFullCumulativeTransformation();
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow->getHasStereo())
+            if (GuiApp::mainWindow->getHasStereo())
             { // handle stereo cameras correctly
                 C7Vector displ;
                 displ.setIdentity();
-                if (App::mainWindow->getLeftEye())
-                    displ.X(0)=App::mainWindow->getStereoDistance()/2;
+                if (GuiApp::mainWindow->getLeftEye())
+                    displ.X(0)=GuiApp::mainWindow->getStereoDistance()/2;
                 else
-                    displ.X(0)=-App::mainWindow->getStereoDistance()/2;
+                    displ.X(0)=-GuiApp::mainWindow->getStereoDistance()/2;
                 viewableCumulTransf=viewableCumulTransf*displ;
             }
 #endif

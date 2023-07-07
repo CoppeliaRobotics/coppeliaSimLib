@@ -4,6 +4,7 @@
 #include <utils.h>
 #include <app.h>
 #include <simStrings.h>
+#include <guiApp.h>
 
 bool CQDlgDetectionVolume::showVolumeWindow=false;
 
@@ -25,7 +26,7 @@ void CQDlgDetectionVolume::cancelEvent()
 { // no cancel event allowed
     showVolumeWindow=false;
     CDlgEx::cancelEvent();
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 void CQDlgDetectionVolume::refresh()
@@ -33,7 +34,7 @@ void CQDlgDetectionVolume::refresh()
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
 
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     bool prox=App::currentWorld->sceneObjects->isLastSelectionAProxSensor();
     bool mill=App::currentWorld->sceneObjects->isLastSelectionAMill();

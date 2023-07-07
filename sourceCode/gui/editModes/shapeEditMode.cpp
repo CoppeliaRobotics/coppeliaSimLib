@@ -1802,7 +1802,7 @@ void CShapeEditMode::makeDummies()
 {
 //    bool proceed=true;
 //    if (getEditModeBufferSize()>50)
-//        proceed=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,IDSN_VERTICES,IDS_LARGE_QUANTITY_OF_OBJECT_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
+//        proceed=(VMESSAGEBOX_REPLY_YES==GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_VERTICES,IDS_LARGE_QUANTITY_OF_OBJECT_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
 //    if (proceed)
 //    {
         CShape* it=_shape;

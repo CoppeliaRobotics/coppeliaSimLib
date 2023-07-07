@@ -6,6 +6,7 @@
 #include <simStrings.h>
 #include <jointObject.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 int CQDlgScripts::scriptViewMode=0;
 
@@ -41,7 +42,7 @@ void CQDlgScripts::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCom
 void CQDlgScripts::refresh()
 {
     inMainRefreshRoutine=true;
-    bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
+    bool noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
     bool noEditModeAndNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqCombo->setEnabled(noEditMode);

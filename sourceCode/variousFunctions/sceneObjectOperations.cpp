@@ -12,6 +12,7 @@
 #ifdef SIM_WITH_GUI
     #include <vMessageBox.h>
     #include <qdlgconvexdecomposition.h>
+    #include <guiApp.h>
 #endif
 
 void CSceneObjectOperations::keyPress(int key)
@@ -282,7 +283,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::currentWorld->sceneObjects->deselectObjects();
             std::vector<int> toSelect;
             App::logMsg(sim_verbosity_msgs,"Morphing into convex shape(s)...");
-            App::uiThread->showOrHideProgressBar(true,-1,"Morphing into convex shape(s)...");
+            GuiApp::uiThread->showOrHideProgressBar(true,-1,"Morphing into convex shape(s)...");
             for (size_t i=0;i<sel.size();i++)
             {
                 CShape* it=(CShape*)sel[i];
@@ -322,7 +323,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             }
             App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
             App::undoRedo_sceneChanged("");
-            App::uiThread->showOrHideProgressBar(false);
+            GuiApp::uiThread->showOrHideProgressBar(false);
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -354,14 +355,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
             cmdIn.cmdId=DISPLAY_MESH_DECIMATION_DIALOG_UITHREADCMD;
             cmdIn.intParams.push_back(totalTriangles);
             cmdIn.floatParams.push_back(0.2);
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
             if ( (cmdOut.boolParams.size()>0)&&cmdOut.boolParams[0] )
                 percentageToKeep=cmdOut.floatParams[0];
             App::currentWorld->sceneObjects->deselectObjects();
             if (percentageToKeep>0.0)
             {
                 App::logMsg(sim_verbosity_msgs,"Decimating shape(s)...");
-                App::uiThread->showOrHideProgressBar(true,-1,"Decimating shape(s)...");
+                GuiApp::uiThread->showOrHideProgressBar(true,-1,"Decimating shape(s)...");
                 std::vector<int> toSelect;
                 for (size_t i=0;i<sel.size();i++)
                 {
@@ -422,7 +423,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 }
                 App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
                 App::undoRedo_sceneChanged("");
-                App::uiThread->showOrHideProgressBar(false);
+                GuiApp::uiThread->showOrHideProgressBar(false);
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
         }
@@ -444,7 +445,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             SUIThreadCommand cmdIn;
             SUIThreadCommand cmdOut;
             cmdIn.cmdId=DISPLAY_CONVEX_DECOMPOSITION_DIALOG_UITHREADCMD;
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
             bool addExtraDistPoints=cmdOut.boolParams[0];
             bool addFacesPoints=cmdOut.boolParams[1];
             int nClusters=cmdOut.intParams[0];
@@ -471,7 +472,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (!cancel)
             {
                 App::logMsg(sim_verbosity_msgs,"Morphing into convex decomposed shape(s)...");
-                App::uiThread->showOrHideProgressBar(true,-1,"Morphing into convex decomposed shape(s)...");
+                GuiApp::uiThread->showOrHideProgressBar(true,-1,"Morphing into convex decomposed shape(s)...");
                 std::vector<int> toSelect;
                 for (size_t i=0;i<sel.size();i++)
                 {
@@ -490,7 +491,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 }
                 App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
                 App::logMsg(sim_verbosity_msgs,"done.");
-                App::uiThread->showOrHideProgressBar(false);
+                GuiApp::uiThread->showOrHideProgressBar(false);
                 App::undoRedo_sceneChanged("");
             }
         }
@@ -513,12 +514,12 @@ bool CSceneObjectOperations::processCommand(int commandID)
             bool ok;
             double density=0.0;
 #ifdef SIM_WITH_GUI
-            ok=App::uiThread->dialogInputGetFloat(App::mainWindow,"Body density","Uniform density",1000.05,0.1,30000,1,&density);
+            ok=GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow,"Body density","Uniform density",1000.05,0.1,30000,1,&density);
 #endif
             if (ok)
             {
                 App::logMsg(sim_verbosity_msgs,"Computing mass and inertia...");
-                App::uiThread->showOrHideProgressBar(true,-1,"Computing mass and inertia...");
+                GuiApp::uiThread->showOrHideProgressBar(true,-1,"Computing mass and inertia...");
                 std::vector<int> toSelect;
                 for (size_t i=0;i<sel.size();i++)
                 {
@@ -531,7 +532,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 }
                 App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
                 App::logMsg(sim_verbosity_msgs,"done.");
-                App::uiThread->showOrHideProgressBar(false);
+                GuiApp::uiThread->showOrHideProgressBar(false);
                 App::undoRedo_sceneChanged("");
             }
         }
@@ -554,7 +555,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             bool ok;
             double fact=0.0;
 #ifdef SIM_WITH_GUI
-            ok=App::uiThread->dialogInputGetFloat(App::mainWindow,"Mass scaling","Scaling factor",2.0,0.1,10.0,2,&fact);
+            ok=GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow,"Mass scaling","Scaling factor",2.0,0.1,10.0,2,&fact);
 #endif
             if (ok)
             {
@@ -593,7 +594,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             bool ok;
             double fact=0.0;
 #ifdef SIM_WITH_GUI
-            ok=App::uiThread->dialogInputGetFloat(App::mainWindow,"Inertia scaling","Scaling factor",2.0,0.1,10.0,2,&fact);
+            ok=GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow,"Inertia scaling","Scaling factor",2.0,0.1,10.0,2,&fact);
 #endif
             if (ok)
             {
@@ -649,12 +650,12 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (script!=nullptr)
             {
 #ifdef SIM_WITH_GUI
-                if (App::mainWindow!=nullptr)
-                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
+                if (GuiApp::mainWindow!=nullptr)
+                    GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
                 App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
                 App::undoRedo_sceneChanged("");
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
             }
         }
         else
@@ -675,12 +676,12 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (script!=nullptr)
             {
 #ifdef SIM_WITH_GUI
-                if (App::mainWindow!=nullptr)
-                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
+                if (GuiApp::mainWindow!=nullptr)
+                    GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
 #endif
                 App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
                 App::undoRedo_sceneChanged("");
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
             }
         }
         else
@@ -965,7 +966,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 #ifdef SIM_WITH_GUI
     if (commandID==SCENE_OBJECT_OPERATION_UNDO_SOOCMD)
     {
-        if (App::getEditModeType()==NO_EDIT_MODE)
+        if (GuiApp::getEditModeType()==NO_EDIT_MODE)
         {
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
@@ -985,7 +986,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID==SCENE_OBJECT_OPERATION_REDO_SOOCMD)
     {
-        if (App::getEditModeType()==NO_EDIT_MODE)
+        if (GuiApp::getEditModeType()==NO_EDIT_MODE)
         {
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
@@ -1010,7 +1011,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 void CSceneObjectOperations::copyObjects(std::vector<int>* selection,bool displayMessages)
 {
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0,"Copying objects...");
+        GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Copying objects...");
 
     // We first copy the selection:
     std::vector<int> sel(*selection);
@@ -1019,7 +1020,7 @@ void CSceneObjectOperations::copyObjects(std::vector<int>* selection,bool displa
     App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
 
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(false);
+        GuiApp::uiThread->showOrHideProgressBar(false);
 }
 
 void CSceneObjectOperations::pasteCopyBuffer(bool displayMessages)
@@ -1027,19 +1028,19 @@ void CSceneObjectOperations::pasteCopyBuffer(bool displayMessages)
     TRACE_INTERNAL;
 #ifdef SIM_WITH_GUI
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0,"Pasting objects...");
+        GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Pasting objects...");
 #endif
 
     bool failed=(App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3)==-1);
 
 #ifdef SIM_WITH_GUI
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(false);
+        GuiApp::uiThread->showOrHideProgressBar(false);
 
     if (failed) // Error: trying to copy locked buffer into unlocked scene!
     {
         if (displayMessages)
-            App::uiThread->messageBox_warning(App::mainWindow,"Paste",IDS_SCENE_IS_LOCKED_CANNOT_PASTE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+            GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Paste",IDS_SCENE_IS_LOCKED_CANNOT_PASTE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     }
 #endif
 }
@@ -1048,7 +1049,7 @@ void CSceneObjectOperations::cutObjects(std::vector<int>* selection,bool display
 {
     TRACE_INTERNAL;
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0,"Cutting objects...");
+        GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Cutting objects...");
 
     App::currentWorld->sceneObjects->addModelObjects(*selection);
     copyObjects(selection,false);
@@ -1056,21 +1057,21 @@ void CSceneObjectOperations::cutObjects(std::vector<int>* selection,bool display
     App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
 
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(false);
+        GuiApp::uiThread->showOrHideProgressBar(false);
 }
 
 void CSceneObjectOperations::deleteObjects(std::vector<int>* selection,bool displayMessages)
 { // There are a few other spots where objects get deleted (e.g. the C-interface)
     TRACE_INTERNAL;
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(true,-1.0,"Deleting objects...");
+        GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Deleting objects...");
 
     App::currentWorld->sceneObjects->addModelObjects(selection[0]);
     App::currentWorld->sceneObjects->eraseObjects(selection[0],true);
     App::currentWorld->sceneObjects->deselectObjects();
 
     if (displayMessages)
-        App::uiThread->showOrHideProgressBar(false);
+        GuiApp::uiThread->showOrHideProgressBar(false);
 }
 
 int CSceneObjectOperations::groupSelection(std::vector<int>* selection)
@@ -1472,7 +1473,7 @@ void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection,doub
         }
     }
 
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 CMesh* CSceneObjectOperations::generateConvexHull(int shapeHandle)
@@ -1624,7 +1625,7 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
     int retVal=-1;
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
 #endif
         options=(options|2)-2; // we are in headless mode: do not display the dialog!
 
@@ -1715,7 +1716,7 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
         cmdIn.intParams.push_back(maxVerticesPerCH);
         cmdIn.floatParams.push_back(minVolumePerCH);
 
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 
         // Retrieve the chosen settings:
         abortp=cmdOut.boolParams[4];
@@ -1835,7 +1836,7 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
         hasCustomizationScriptAttached=(App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0))!=nullptr);
     }
 
-    if (App::getEditModeType()==NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()==NO_EDIT_MODE)
     {
         menu->appendMenuItem(App::currentWorld->undoBufferContainer->canUndo(),false,SCENE_OBJECT_OPERATION_UNDO_SOOCMD,IDSN_UNDO);
         menu->appendMenuItem(App::currentWorld->undoBufferContainer->canRedo(),false,SCENE_OBJECT_OPERATION_REDO_SOOCMD,IDSN_REDO);

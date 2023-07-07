@@ -1,10 +1,10 @@
-
 #include <qdlgtranslationrotationcont.h>
 #include <ui_qdlgtranslationrotationcont.h>
 #include <app.h>
 #include <toolBarCommand.h>
 #include <qdlgtranslation.h>
 #include <qdlgrotation.h>
+#include <guiApp.h>
 
 CQDlgTranslationRotationCont::CQDlgTranslationRotationCont(QWidget *parent) :
     CDlgEx(parent),
@@ -40,9 +40,9 @@ void CQDlgTranslationRotationCont::cancelEvent()
 {
     SSimulationThreadCommand cmd;
     cmd.cmdId=SET_MOUSEMODE_GUITRIGGEREDCMD;
-    cmd.intParams.push_back((App::getMouseMode()&0xff00)|sim_navigation_camerashift);
+    cmd.intParams.push_back((GuiApp::getMouseMode()&0xff00)|sim_navigation_camerashift);
     App::appendSimulationThreadCommand(cmd);
-//    App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_camerashift);
+//    GuiApp::setMouseMode((GuiApp::getMouseMode()&0xff00)|sim_navigation_camerashift);
 }
 
 void CQDlgTranslationRotationCont::okEvent()
@@ -51,9 +51,9 @@ void CQDlgTranslationRotationCont::okEvent()
 
 void CQDlgTranslationRotationCont::refresh()
 {
-    if ((App::getMouseMode()&0x0f)==sim_navigation_objectshift)
+    if ((GuiApp::getMouseMode()&0x0f)==sim_navigation_objectshift)
         desiredPage=0;
-    if ((App::getMouseMode()&0x0f)==sim_navigation_objectrotate)
+    if ((GuiApp::getMouseMode()&0x0f)==sim_navigation_objectrotate)
         desiredPage=1;
 
     if (desiredPage==0)

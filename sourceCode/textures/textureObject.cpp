@@ -3,6 +3,9 @@
 #include <app.h>
 #include <boost/format.hpp>
 #include <base64.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 unsigned int CTextureObject::_textureContentUniqueId=0;
 
@@ -40,7 +43,7 @@ CTextureObject::~CTextureObject()
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=DESTROY_GL_TEXTURE_UITHREADCMD;
         cmdIn.uintParams.push_back(_oglTextureName);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 

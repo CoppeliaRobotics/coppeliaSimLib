@@ -3,6 +3,9 @@
 #include <tt.h>
 #include <simInternal.h>
 #include <vDateTime.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CIkGroupContainer::CIkGroupContainer()
 {
@@ -111,7 +114,7 @@ void CIkGroupContainer::removeIkGroup(int ikGroupHandle)
 {
     App::currentWorld->announceIkGroupWillBeErased(ikGroupHandle);
     _removeIkGroup(ikGroupHandle);
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 void CIkGroupContainer::removeAllIkGroups()

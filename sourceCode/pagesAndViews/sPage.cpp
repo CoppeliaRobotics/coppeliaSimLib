@@ -1,11 +1,12 @@
-// This file requires some serious refactoring!
-
 #include <simInternal.h>
 #include <sPage.h>
 #include <global.h>
 #include <tt.h>
 #include <app.h>
 #include <pageRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 #define FLOATING_VIEW_MIN_SIZE 80
 
@@ -1002,9 +1003,9 @@ int CSPage::getMousePosRelativeToFloatingViewBorders(int mouseX,int mouseY,size_
     getViewSizeAndPosition(ss,sp,index);
     int verticalBorder=-1;// -1 = outside, 0= left/bottom border, 1= middle, 2=right/top border
     int horizontalBorder=-1;
-    if ( (relX>=ss[0]-auxViewsBtSize*App::sc)&&(relX<=ss[0]) )
+    if ( (relX>=ss[0]-auxViewsBtSize*GuiApp::sc)&&(relX<=ss[0]) )
     {
-        if ( (relY<=ss[1])&&(relY>=ss[1]-auxViewsBtSize*App::sc) )
+        if ( (relY<=ss[1])&&(relY>=ss[1]-auxViewsBtSize*GuiApp::sc) )
         {
             if (_allViews[index]->getCanBeClosed())
                 return(AUX_VIEW_CLOSING_BUTTON);

@@ -24,6 +24,7 @@
     #include <rendering.h>
     #include <oGL.h>
     #include <oglSurface.h>
+    #include <guiApp.h>
 #endif
 
 CSceneObject::CSceneObject()
@@ -892,7 +893,7 @@ int CSceneObject::getModelSelectionHandle(bool firstObject)
 #ifdef SIM_WITH_GUI
     if (CSimFlavor::getBoolVal(9))
     {
-        if ( (App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1)&&(App::mainWindow->getKeyDownState()&2) )
+        if ( (GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getKeyDownState()&1)&&(GuiApp::mainWindow->getKeyDownState()&2) )
             return(getObjectHandle());
     }
 #endif
@@ -1730,7 +1731,7 @@ void CSceneObject::temporarilyDisableDynamicTree()
 void CSceneObject::setDynamicSimulationIconCode(int c)
 {
     if (c!=_dynamicSimulationIconCode)
-        App::setRefreshHierarchyViewFlag();
+        GuiApp::setRefreshHierarchyViewFlag();
     _dynamicSimulationIconCode=c;
 }
 
@@ -3407,10 +3408,10 @@ void CSceneObject::announceObjectWillBeErased(const CSceneObject* object,bool co
     // in the copy-buffer!!
 #ifdef SIM_WITH_GUI
     // if we are in edit mode, we leave edit mode:
-    if ( (App::getEditModeType()!=NO_EDIT_MODE)&&(!copyBuffer) )
+    if ( (GuiApp::getEditModeType()!=NO_EDIT_MODE)&&(!copyBuffer) )
     {
-        if (App::mainWindow->editModeContainer->getEditModeObjectID()==object->getObjectHandle())
-            App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr); // This is if we destroy the object being edited (shouldn't normally happen!)
+        if (GuiApp::mainWindow->editModeContainer->getEditModeObjectID()==object->getObjectHandle())
+            GuiApp::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr); // This is if we destroy the object being edited (shouldn't normally happen!)
     }
 #endif
 
@@ -3776,7 +3777,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase* renderingOb
     size*=0.05;
     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
     ogl::setAlpha(0.5);
-//    App::setLightDialogRefreshFlag(); // to actualize the position and orientation dialogs!
+//    GuiApp::setLightDialogRefreshFlag(); // to actualize the position and orientation dialogs!
     bool isPathPoints=false;
     C3Vector localPositionOnPath;
     localPositionOnPath.clear();
@@ -3784,19 +3785,19 @@ void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase* renderingOb
     {
         std::vector<int> pathPointsToTakeIntoAccount;
         CPathCont_old* pc;
-        if ( ( (App::getEditModeType()&PATH_EDIT_MODE_OLD)||(App::mainWindow->editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()!=0) )&&((_objectManipulationMode_flaggedForGridOverlay&8)==0) )
+        if ( ( (GuiApp::getEditModeType()&PATH_EDIT_MODE_OLD)||(GuiApp::mainWindow->editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()!=0) )&&((_objectManipulationMode_flaggedForGridOverlay&8)==0) )
 
         { // (path is in edition or path points are selected) and no rotation
             isPathPoints=true;
-            if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
+            if (GuiApp::getEditModeType()&PATH_EDIT_MODE_OLD)
             { // Path is in edition
-                pc=App::mainWindow->editModeContainer->getEditModePathContainer_old();
-                pathPointsToTakeIntoAccount.assign(App::mainWindow->editModeContainer->getEditModeBuffer()->begin(),App::mainWindow->editModeContainer->getEditModeBuffer()->end());
+                pc=GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+                pathPointsToTakeIntoAccount.assign(GuiApp::mainWindow->editModeContainer->getEditModeBuffer()->begin(),GuiApp::mainWindow->editModeContainer->getEditModeBuffer()->end());
             }
             else
             { // Path points are selected (but not in path edit mode)
                 pc=((CPath_old*)this)->pathContainer;
-                pathPointsToTakeIntoAccount.assign(App::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode()->begin(),App::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode()->end());
+                pathPointsToTakeIntoAccount.assign(GuiApp::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode()->begin(),GuiApp::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode()->end());
             }
         }
         else
@@ -4088,7 +4089,7 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
         return(false);
     }
     static int  otherAxisMemorized=0;
-    bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))&&((_objectMovementOptions&32)==0);
+    bool ctrlKeyDown=((GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getKeyDownState()&1))&&((_objectMovementOptions&32)==0);
     if ( (!ctrlKeyDown)&&((getObjectMovementPreferredAxes()&56)==0) )
     { // This is special so that, when no manip is allowed but we held down the ctrl key and released it, the green manip disc doesn't appear
         _objectManipulationModeAxisIndex=-1;
@@ -4166,7 +4167,7 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
     double ss=getObjectMovementStepSize(1);
     if (ss==0.0)
         ss=App::userSettings->getRotationStepSize();
-    if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
+    if ((GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getKeyDownState()&2))
     {
         ss=0.1*degToRad;
         rotationAmount/=5.0;
@@ -4227,7 +4228,7 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
     if (getObjectMovementRelativity(0)==2)
         objAbs.M=getCumulativeTransformation().getMatrix().M;
     static int  otherAxisMemorized=0;
-    bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))&&((_objectMovementOptions&16)==0);
+    bool ctrlKeyDown=((GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getKeyDownState()&1))&&((_objectMovementOptions&16)==0);
     if ( (!ctrlKeyDown)&&((getObjectMovementPreferredAxes()&7)==0) )
     { // This is special so that, when no manip is allowed but we held down the ctrl key and released it, the green manip bars don't appear
         _objectManipulationModeAxisIndex=-1;
@@ -4424,7 +4425,7 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
         double ss=getObjectMovementStepSize(0);
         if (ss==0.0)
             ss=App::userSettings->getTranslationStepSize();
-        if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
+        if ((GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getKeyDownState()&2))
             ss=0.001;
         double w=fmod(_objectManipulationModeSubTranslation(i),ss);
         v(i)=_objectManipulationModeSubTranslation(i)-w;

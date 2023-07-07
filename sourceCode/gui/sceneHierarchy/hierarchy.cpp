@@ -1,5 +1,3 @@
-// This file requires some serious refactoring!!
-
 #include <simInternal.h>
 #include <hierarchy.h>
 #include <oGL.h>
@@ -14,6 +12,9 @@
 #include <vVarious.h>
 #include <vDateTime.h>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 const int SAFETY_BORDER_SIZE=20;
 const int CONST_VAL_40=40;
@@ -85,10 +86,10 @@ void CHierarchy::clearCaughtElements(int keepMask)
 
 void CHierarchy::setRenderingSizeAndPosition(int xSize,int ySize,int xPos,int yPos)
 {
-    renderingSize[0]=xSize+SAFETY_BORDER_SIZE*App::sc;
-    renderingSize[1]=ySize+SAFETY_BORDER_SIZE*App::sc;
-    renderingPosition[0]=xPos-SAFETY_BORDER_SIZE*App::sc;
-    renderingPosition[1]=yPos-SAFETY_BORDER_SIZE*App::sc;
+    renderingSize[0]=xSize+SAFETY_BORDER_SIZE*GuiApp::sc;
+    renderingSize[1]=ySize+SAFETY_BORDER_SIZE*GuiApp::sc;
+    renderingPosition[0]=xPos-SAFETY_BORDER_SIZE*GuiApp::sc;
+    renderingPosition[1]=yPos-SAFETY_BORDER_SIZE*GuiApp::sc;
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt; // Important, even if the size and position didn't change!
 }
 
@@ -98,7 +99,7 @@ void CHierarchy::rebuildHierarchy()
         delete rootElements[i];
     rootElements.clear();
 
-    if (App::getEditModeType()==NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()==NO_EDIT_MODE)
     {
         CHierarchyElement* newEl=new CHierarchyElement(-App::worldContainer->getCurrentWorldIndex()-1);
         newEl->addYourChildren();
@@ -106,29 +107,29 @@ void CHierarchy::rebuildHierarchy()
         newEl->setSceneName(sceneName.c_str());
         rootElements.push_back(newEl);
     }
-    if (App::getEditModeType()&VERTEX_EDIT_MODE)
+    if (GuiApp::getEditModeType()&VERTEX_EDIT_MODE)
     {
-        for (int i=0;i<App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVerticesSize()/3;i++)
+        for (int i=0;i<GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVerticesSize()/3;i++)
             rootElements.push_back(new CHierarchyElement(i));
     }
-    if (App::getEditModeType()&TRIANGLE_EDIT_MODE)
+    if (GuiApp::getEditModeType()&TRIANGLE_EDIT_MODE)
     {
-        for (int i=0;i<App::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()/3;i++)
+        for (int i=0;i<GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()/3;i++)
             rootElements.push_back(new CHierarchyElement(i));
     }
-    if (App::getEditModeType()&EDGE_EDIT_MODE)
+    if (GuiApp::getEditModeType()&EDGE_EDIT_MODE)
     {
-        for (int i=0;i<App::mainWindow->editModeContainer->getShapeEditMode()->getEditionEdgesSize()/2;i++)
+        for (int i=0;i<GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionEdgesSize()/2;i++)
             rootElements.push_back(new CHierarchyElement(i));
     }
-    if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
+    if (GuiApp::getEditModeType()&PATH_EDIT_MODE_OLD)
     {
-        for (int i=0;i<int(App::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPointCount());i++)
+        for (int i=0;i<int(GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPointCount());i++)
             rootElements.push_back(new CHierarchyElement(i));
     }
-    if (App::getEditModeType()&MULTISHAPE_EDIT_MODE)
+    if (GuiApp::getEditModeType()&MULTISHAPE_EDIT_MODE)
     {
-        for (int i=0;i<App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentsSize();i++)
+        for (int i=0;i<GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentsSize();i++)
             rootElements.push_back(new CHierarchyElement(i));
     }
     rebuildHierarchyFlag=false;
@@ -152,19 +153,19 @@ void CHierarchy::keyPress(int key)
         if ( (key==UP_KEY)||(key==DOWN_KEY)||(key==LEFT_KEY)||(key==RIGHT_KEY) )
         {
             if (key==UP_KEY)
-                viewPosition[1]=viewPosition[1]+HIERARCHY_INTER_LINE_SPACE*App::sc;
+                viewPosition[1]=viewPosition[1]+HIERARCHY_INTER_LINE_SPACE*GuiApp::sc;
             if (key==DOWN_KEY)
-                viewPosition[1]=viewPosition[1]-HIERARCHY_INTER_LINE_SPACE*App::sc;
+                viewPosition[1]=viewPosition[1]-HIERARCHY_INTER_LINE_SPACE*GuiApp::sc;
             if (key==LEFT_KEY)
-                viewPosition[0]=viewPosition[0]+HIERARCHY_INTER_LINE_SPACE*App::sc;
+                viewPosition[0]=viewPosition[0]+HIERARCHY_INTER_LINE_SPACE*GuiApp::sc;
             if (key==RIGHT_KEY)
-                viewPosition[0]=viewPosition[0]-HIERARCHY_INTER_LINE_SPACE*App::sc;
+                viewPosition[0]=viewPosition[0]-HIERARCHY_INTER_LINE_SPACE*GuiApp::sc;
             return;
         }
 
         if ( (key==CTRL_V_KEY)||(key==ESC_KEY)||(key==DELETE_KEY)||(key==BACKSPACE_KEY)||(key==CTRL_X_KEY)||(key==CTRL_C_KEY)||(key==CTRL_A_KEY)||(key==CTRL_Y_KEY)||(key==CTRL_Z_KEY) )
         {
-            if (!App::mainWindow->editModeContainer->keyPress(key))
+            if (!GuiApp::mainWindow->editModeContainer->keyPress(key))
                 CSceneObjectOperations::keyPress(key); // the key press was not for the edit mode
             return;
         }
@@ -189,13 +190,13 @@ void CHierarchy::keyPress(int key)
 
         if ( (key==CTRL_D_KEY)||(key==CTRL_G_KEY) )
         {
-            App::mainWindow->dlgCont->keyPress(key);
+            GuiApp::mainWindow->dlgCont->keyPress(key);
             return;
         }
     }
     else
     { // Label edition mode
-        int em=App::getEditModeType();
+        int em=GuiApp::getEditModeType();
         if (em==NO_EDIT_MODE)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(labelEditObjectID);
@@ -216,7 +217,7 @@ void CHierarchy::keyPress(int key)
                         if (App::currentWorld->sceneObjects->setObjectAlias(it,editionText.c_str(),true))
                             App::undoRedo_sceneChanged(""); 
                     }
-                    App::setFullDialogRefreshFlag();
+                    GuiApp::setFullDialogRefreshFlag();
                 }
                 labelEditObjectID=-1;
             }
@@ -299,7 +300,7 @@ bool CHierarchy::render()
         refreshViewFlag--;
     }
 
-    int editModeType=App::getEditModeType();
+    int editModeType=GuiApp::getEditModeType();
     bool hierarchDragUnderway=false;
     int dx=0;
     int dy=0;
@@ -348,19 +349,19 @@ bool CHierarchy::render()
             {
                 if (ct-lastDragUnderwayTime>50)
                 {
-                    if (mouseRelativePosition[1]<renderingPosition[1]+(BROWSER_HIERARCHY_TITLE_BAR_HEIGHT+CONST_VAL_40+HIERARCHY_INTER_LINE_SPACE*4)*App::sc) // Bottom border
-                        viewPosition[1]=viewPosition[1]+HIERARCHY_INTER_LINE_SPACE*App::sc;
-                    if (mouseRelativePosition[1]<renderingPosition[1]+(BROWSER_HIERARCHY_TITLE_BAR_HEIGHT+CONST_VAL_40+HIERARCHY_INTER_LINE_SPACE*2)*App::sc) // Bottom border
-                        viewPosition[1]=viewPosition[1]+HIERARCHY_INTER_LINE_SPACE*App::sc;
-                    if (mouseRelativePosition[1]>renderingPosition[1]+BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc+renderingSize[1]-HIERARCHY_INTER_LINE_SPACE*4*App::sc) // top border
-                        viewPosition[1]=viewPosition[1]-HIERARCHY_INTER_LINE_SPACE*App::sc;
-                    if (mouseRelativePosition[1]>renderingPosition[1]+BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc+renderingSize[1]-HIERARCHY_INTER_LINE_SPACE*2*App::sc) // top border
-                        viewPosition[1]=viewPosition[1]-HIERARCHY_INTER_LINE_SPACE*App::sc;
+                    if (mouseRelativePosition[1]<renderingPosition[1]+(BROWSER_HIERARCHY_TITLE_BAR_HEIGHT+CONST_VAL_40+HIERARCHY_INTER_LINE_SPACE*4)*GuiApp::sc) // Bottom border
+                        viewPosition[1]=viewPosition[1]+HIERARCHY_INTER_LINE_SPACE*GuiApp::sc;
+                    if (mouseRelativePosition[1]<renderingPosition[1]+(BROWSER_HIERARCHY_TITLE_BAR_HEIGHT+CONST_VAL_40+HIERARCHY_INTER_LINE_SPACE*2)*GuiApp::sc) // Bottom border
+                        viewPosition[1]=viewPosition[1]+HIERARCHY_INTER_LINE_SPACE*GuiApp::sc;
+                    if (mouseRelativePosition[1]>renderingPosition[1]+BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*GuiApp::sc+renderingSize[1]-HIERARCHY_INTER_LINE_SPACE*4*GuiApp::sc) // top border
+                        viewPosition[1]=viewPosition[1]-HIERARCHY_INTER_LINE_SPACE*GuiApp::sc;
+                    if (mouseRelativePosition[1]>renderingPosition[1]+BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*GuiApp::sc+renderingSize[1]-HIERARCHY_INTER_LINE_SPACE*2*GuiApp::sc) // top border
+                        viewPosition[1]=viewPosition[1]-HIERARCHY_INTER_LINE_SPACE*GuiApp::sc;
 
-                    if (mouseRelativePosition[0]<HIERARCHY_INTER_LINE_SPACE*2*App::sc) // left border
-                        viewPosition[0]=viewPosition[0]+HIERARCHY_INTER_LINE_SPACE*App::sc;
-                    if (mouseRelativePosition[0]>renderingSize[0]-HIERARCHY_INTER_LINE_SPACE*2*App::sc) // right border
-                        viewPosition[0]=viewPosition[0]-HIERARCHY_INTER_LINE_SPACE*App::sc;
+                    if (mouseRelativePosition[0]<HIERARCHY_INTER_LINE_SPACE*2*GuiApp::sc) // left border
+                        viewPosition[0]=viewPosition[0]+HIERARCHY_INTER_LINE_SPACE*GuiApp::sc;
+                    if (mouseRelativePosition[0]>renderingSize[0]-HIERARCHY_INTER_LINE_SPACE*2*GuiApp::sc) // right border
+                        viewPosition[0]=viewPosition[0]-HIERARCHY_INTER_LINE_SPACE*GuiApp::sc;
                     objectIDWhereTheMouseCurrentlyIs_minus9999ForNone=getActionObjectID_icon(0,mouseRelativePosition[1],true);
                     lastDragUnderwayTime=ct;
                 }
@@ -373,7 +374,7 @@ bool CHierarchy::render()
     // We draw a black background so that the separation between the hierarchy and scene is rendered correctly on ALL graphic cards:
     glEnable(GL_SCISSOR_TEST);
     glDisable(GL_DEPTH_TEST);
-    glScissor(renderingPosition[0]+SAFETY_BORDER_SIZE*App::sc,renderingPosition[1]+BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc,renderingSize[0]-SAFETY_BORDER_SIZE*App::sc,renderingSize[1]);
+    glScissor(renderingPosition[0]+SAFETY_BORDER_SIZE*GuiApp::sc,renderingPosition[1]+BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*GuiApp::sc,renderingSize[0]-SAFETY_BORDER_SIZE*GuiApp::sc,renderingSize[1]);
     glClearColor(ogl::SEPARATION_LINE_COLOR[0],ogl::SEPARATION_LINE_COLOR[1],ogl::SEPARATION_LINE_COLOR[2],1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -386,7 +387,7 @@ bool CHierarchy::render()
     glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
     glDisable(GL_DEPTH_TEST);
-    glScissor(renderingPosition[0]+SAFETY_BORDER_SIZE*App::sc,renderingPosition[1],renderingSize[0]-SAFETY_BORDER_SIZE*App::sc,renderingSize[1]);
+    glScissor(renderingPosition[0]+SAFETY_BORDER_SIZE*GuiApp::sc,renderingPosition[1],renderingSize[0]-SAFETY_BORDER_SIZE*GuiApp::sc,renderingSize[1]);
     glClearColor(1.0,1.0,1.0,1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -423,17 +424,17 @@ bool CHierarchy::render()
     if ((editModeType&SHAPE_EDIT_MODE)||(editModeType&PATH_EDIT_MODE_OLD))
     {
         if (editModeType&VERTEX_EDIT_MODE)
-            editModeSelectionStateList.resize(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVerticesSize()/3,0);
+            editModeSelectionStateList.resize(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVerticesSize()/3,0);
         if (editModeType&TRIANGLE_EDIT_MODE)
-            editModeSelectionStateList.resize(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()/3,0);
+            editModeSelectionStateList.resize(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()/3,0);
         if (editModeType&EDGE_EDIT_MODE)
-            editModeSelectionStateList.resize(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionEdgesSize()/2,0);
+            editModeSelectionStateList.resize(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionEdgesSize()/2,0);
         if (editModeType&PATH_EDIT_MODE_OLD)
-            editModeSelectionStateList.resize(App::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPointCount(),0);
-        for (int i=0;i<App::mainWindow->editModeContainer->getEditModeBufferSize();i++)
+            editModeSelectionStateList.resize(GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPointCount(),0);
+        for (int i=0;i<GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();i++)
         {
-            int ind=App::mainWindow->editModeContainer->getEditModeBufferValue(i);
-            if (i==App::mainWindow->editModeContainer->getEditModeBufferSize()-1)
+            int ind=GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(i);
+            if (i==GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()-1)
                 editModeSelectionStateList[ind]=2; // last selection
             else
                 editModeSelectionStateList[ind]=1;
@@ -452,7 +453,7 @@ bool CHierarchy::render()
                 textPos,0,minRenderedPosition,maxRenderedPosition,0,editModeType);
         }
     }
-    maxRenderedPosition[0]+=8*App::sc;
+    maxRenderedPosition[0]+=8*GuiApp::sc;
     maxRenderedPosition[0]=maxRenderedPosition[0]-viewPosition[0];
     maxRenderedPosition[1]=maxRenderedPosition[1]-viewPosition[1];
     minRenderedPosition[0]=minRenderedPosition[0]-viewPosition[0];
@@ -538,7 +539,7 @@ bool CHierarchy::render()
         }
         while (CHierarchyElement::renderDummyElement(bright,renderingSize,textPos));
     }
-    maxRenderedPosition[0]+=8*App::sc;
+    maxRenderedPosition[0]+=8*GuiApp::sc;
     maxRenderedPosition[0]=maxRenderedPosition[0]-viewPosition[0];
     maxRenderedPosition[1]=maxRenderedPosition[1]-viewPosition[1];
     minRenderedPosition[0]=minRenderedPosition[0]-viewPosition[0];
@@ -552,10 +553,10 @@ bool CHierarchy::render()
             limitedPos[0]=renderingSize[0];
         if (limitedPos[1]>renderingSize[1])
             limitedPos[1]=renderingSize[1];
-        if (limitedPos[0]<SAFETY_BORDER_SIZE*App::sc)
-            limitedPos[0]=SAFETY_BORDER_SIZE*App::sc;
-        if (limitedPos[1]<SAFETY_BORDER_SIZE*App::sc)
-            limitedPos[1]=SAFETY_BORDER_SIZE*App::sc;
+        if (limitedPos[0]<SAFETY_BORDER_SIZE*GuiApp::sc)
+            limitedPos[0]=SAFETY_BORDER_SIZE*GuiApp::sc;
+        if (limitedPos[1]<SAFETY_BORDER_SIZE*GuiApp::sc)
+            limitedPos[1]=SAFETY_BORDER_SIZE*GuiApp::sc;
         ogl::setAlpha(0.2);
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorYellow);
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -608,7 +609,7 @@ bool CHierarchy::render()
     if (slidersEnable&2)
     { // here we draw the horizontal slider:
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::HIERARCHY_AND_BROWSER_SCROLLBAR_BACK_COLOR);
-        int leftTop[2]={0,horizontalScrollbarHeight+SAFETY_BORDER_SIZE*App::sc};
+        int leftTop[2]={0,horizontalScrollbarHeight+SAFETY_BORDER_SIZE*GuiApp::sc};
         int rightBottom[2]={renderingSize[0],0};
         glBegin(GL_QUADS);
         glVertex3i(leftTop[0],leftTop[1],0);
@@ -656,18 +657,18 @@ int CHierarchy::getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[
         viewPosition[0]=savedViewPosition[0];
         viewPosition[1]=savedViewPosition[1];
         if (minMaxViewPosition[0]!=0)
-            horizontalScrollbarHeight=HIERARCHY_SCROLLBAR_WIDTH*App::sc;
+            horizontalScrollbarHeight=HIERARCHY_SCROLLBAR_WIDTH*GuiApp::sc;
         if (minMaxViewPosition[1]!=0)
-            verticalScrollbarWidth=HIERARCHY_SCROLLBAR_WIDTH*App::sc;
+            verticalScrollbarWidth=HIERARCHY_SCROLLBAR_WIDTH*GuiApp::sc;
     }
     int retVal=0;
     if (verticalScrollbarWidth>0)
     { // here we compute the vertical slider:
         retVal|=1;
-        int effDr=renderingSize[1]-horizontalScrollbarHeight-SAFETY_BORDER_SIZE*App::sc;//-4;
+        int effDr=renderingSize[1]-horizontalScrollbarHeight-SAFETY_BORDER_SIZE*GuiApp::sc;//-4;
         int sliderS=effDr*effDr/(effDr+minMaxViewPosition[1]);
-        if (sliderS<HIERARCHY_SCROLLBAR_WIDTH*App::sc)
-            sliderS=HIERARCHY_SCROLLBAR_WIDTH*App::sc;
+        if (sliderS<HIERARCHY_SCROLLBAR_WIDTH*GuiApp::sc)
+            sliderS=HIERARCHY_SCROLLBAR_WIDTH*GuiApp::sc;
         int sliderP=int(double(effDr-sliderS)*double(viewPosition[1]-minViewPosition[1])/double(minMaxViewPosition[1]));
         vSliderTopLeft[0]=renderingSize[0]-verticalScrollbarWidth;
         vSliderBottomRight[0]=renderingSize[0];
@@ -679,14 +680,14 @@ int CHierarchy::getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[
     if (horizontalScrollbarHeight>0)
     { // here we compute the horizontal slider:
         retVal|=2;
-        int effDr=renderingSize[0]-verticalScrollbarWidth+(-SAFETY_BORDER_SIZE-CONST_VAL_4)*App::sc;
+        int effDr=renderingSize[0]-verticalScrollbarWidth+(-SAFETY_BORDER_SIZE-CONST_VAL_4)*GuiApp::sc;
         int sliderS=effDr*effDr/(effDr+minMaxViewPosition[0]);
-        if (sliderS<HIERARCHY_SCROLLBAR_WIDTH*App::sc)
-            sliderS=HIERARCHY_SCROLLBAR_WIDTH*App::sc;
+        if (sliderS<HIERARCHY_SCROLLBAR_WIDTH*GuiApp::sc)
+            sliderS=HIERARCHY_SCROLLBAR_WIDTH*GuiApp::sc;
         int sliderP=int(double(effDr-sliderS)*double(viewPosition[0]-minViewPosition[0])/double(minMaxViewPosition[0]));
-        hSliderTopLeft[1]=horizontalScrollbarHeight+SAFETY_BORDER_SIZE*App::sc;
+        hSliderTopLeft[1]=horizontalScrollbarHeight+SAFETY_BORDER_SIZE*GuiApp::sc;
         hSliderBottomRight[1]=0;
-        hSliderTopLeft[0]=effDr-sliderS-sliderP+SAFETY_BORDER_SIZE*App::sc;
+        hSliderTopLeft[0]=effDr-sliderS-sliderP+SAFETY_BORDER_SIZE*GuiApp::sc;
         hSliderBottomRight[0]=hSliderTopLeft[0]+sliderS;
         if (prop!=nullptr)
             prop[1]=double(minMaxViewPosition[0])/double(effDr-sliderS);
@@ -702,20 +703,20 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
         return(false);
     if (y<0)
         return(false);
-    if (x>renderingSize[0]-SAFETY_BORDER_SIZE*App::sc)
+    if (x>renderingSize[0]-SAFETY_BORDER_SIZE*GuiApp::sc)
         return(false);
-    if (y>renderingSize[1]-SAFETY_BORDER_SIZE*App::sc)
+    if (y>renderingSize[1]-SAFETY_BORDER_SIZE*GuiApp::sc)
         return(false);
     // The mouse went down on the hierarchy window!
     _caughtElements|=sim_left_button;
 
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
-    mouseDownRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    mouseDownRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
-    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
-    previousMouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    previousMouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
+    mouseDownRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseDownRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
+    previousMouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    previousMouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
     shiftSelectionStarted=false;
     labelEditObjectID=-1;
 
@@ -775,11 +776,11 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
             canSelect=false;
         }
     }
-    if ( (App::getEditModeType()==NO_EDIT_MODE)&&canSelect )
+    if ( (GuiApp::getEditModeType()==NO_EDIT_MODE)&&canSelect )
     { // NO EDIT MODE
         if ( (selectionStatus==CTRLSELECTION)||clickSelection )
         {
-            int objID=getActionObjectID(mouseDownRelativePosition[1],HIERARCHY_HALF_INTER_LINE_SPACE*App::sc);
+            int objID=getActionObjectID(mouseDownRelativePosition[1],HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc);
             if (objID>=0)
             {
                 CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(objID);
@@ -817,34 +818,34 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
         if (selectionStatus==SHIFTSELECTION)
             shiftSelectionStarted=true;
     }
-    if ( ((App::getEditModeType()&SHAPE_EDIT_MODE)||(App::getEditModeType()&PATH_EDIT_MODE_OLD))&&canSelect )
+    if ( ((GuiApp::getEditModeType()&SHAPE_EDIT_MODE)||(GuiApp::getEditModeType()&PATH_EDIT_MODE_OLD))&&canSelect )
     { // SHAPE OR PATH EDIT MODE
         if ( (selectionStatus==CTRLSELECTION)||clickSelection )
         {
-            int objID=getActionObjectID(mouseDownRelativePosition[1],HIERARCHY_HALF_INTER_LINE_SPACE*App::sc);
+            int objID=getActionObjectID(mouseDownRelativePosition[1],HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc);
             if (objID>=0)
             {
                 if (selectionStatus==CTRLSELECTION)
-                    App::mainWindow->editModeContainer->xorAddItemToEditModeBuffer(objID,true);
+                    GuiApp::mainWindow->editModeContainer->xorAddItemToEditModeBuffer(objID,true);
                 else
                 {
-                    App::mainWindow->editModeContainer->deselectEditModeBuffer();
-                    App::mainWindow->editModeContainer->addItemToEditModeBuffer(objID,true);
+                    GuiApp::mainWindow->editModeContainer->deselectEditModeBuffer();
+                    GuiApp::mainWindow->editModeContainer->addItemToEditModeBuffer(objID,true);
                 }
             }
             else
-                App::mainWindow->editModeContainer->deselectEditModeBuffer();
+                GuiApp::mainWindow->editModeContainer->deselectEditModeBuffer();
         }
         if (selectionStatus==SHIFTSELECTION)
             shiftSelectionStarted=true;
     }
-    if ( (App::getEditModeType()&MULTISHAPE_EDIT_MODE)&&canSelect )
+    if ( (GuiApp::getEditModeType()&MULTISHAPE_EDIT_MODE)&&canSelect )
     { // MULTISHAPE EDIT MODE
         if ( (selectionStatus==CTRLSELECTION)||clickSelection )
         {
-            int objID=getActionObjectID(mouseDownRelativePosition[1],HIERARCHY_HALF_INTER_LINE_SPACE*App::sc);
-            App::mainWindow->editModeContainer->getMultishapeEditMode()->setMultishapeGeometricComponentIndex(objID);
-            App::setLightDialogRefreshFlag();
+            int objID=getActionObjectID(mouseDownRelativePosition[1],HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc);
+            GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->setMultishapeGeometricComponentIndex(objID);
+            GuiApp::setLightDialogRefreshFlag();
         }
     }
     return(true);
@@ -852,8 +853,8 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
 
 void CHierarchy::leftMouseUp(int x,int y)
 {
-    int dx=(x+SAFETY_BORDER_SIZE*App::sc)-mouseDownRelativePosition[0];
-    int dy=(y+SAFETY_BORDER_SIZE*App::sc)-mouseDownRelativePosition[1];
+    int dx=(x+SAFETY_BORDER_SIZE*GuiApp::sc)-mouseDownRelativePosition[0];
+    int dy=(y+SAFETY_BORDER_SIZE*GuiApp::sc)-mouseDownRelativePosition[1];
     bool hierarchDragUnderway=((abs(dx)>8)||(abs(dy)>8));
     if ((_mouseDownDragObjectID!=-1)&&hierarchDragUnderway)
     {
@@ -885,8 +886,8 @@ void CHierarchy::leftMouseUp(int x,int y)
     _mouseDownDragObjectID=-1;
     sliderMoveMode=0;
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
-    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
+    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
 
 
     if (shiftSelectionStarted&&(_caughtElements&sim_left_button))
@@ -894,11 +895,11 @@ void CHierarchy::leftMouseUp(int x,int y)
         int limitedPos=mouseRelativePosition[1];
         if (limitedPos>renderingSize[1])
             limitedPos=renderingSize[1];
-        if (limitedPos<SAFETY_BORDER_SIZE*App::sc)
-            limitedPos=SAFETY_BORDER_SIZE*App::sc;
+        if (limitedPos<SAFETY_BORDER_SIZE*GuiApp::sc)
+            limitedPos=SAFETY_BORDER_SIZE*GuiApp::sc;
         std::vector<int> objToBeSelected;
-        getActionObjectIDs(mouseDownRelativePosition[1],limitedPos,HIERARCHY_HALF_INTER_LINE_SPACE*App::sc,&objToBeSelected);
-        if (App::getEditModeType()==NO_EDIT_MODE)
+        getActionObjectIDs(mouseDownRelativePosition[1],limitedPos,HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc,&objToBeSelected);
+        if (GuiApp::getEditModeType()==NO_EDIT_MODE)
         {
             for (int i=0;i<int(objToBeSelected.size());i++)
             {
@@ -909,10 +910,10 @@ void CHierarchy::leftMouseUp(int x,int y)
                 }
             }
         }
-        if ((App::getEditModeType()&SHAPE_EDIT_MODE)||(App::getEditModeType()&PATH_EDIT_MODE_OLD))
+        if ((GuiApp::getEditModeType()&SHAPE_EDIT_MODE)||(GuiApp::getEditModeType()&PATH_EDIT_MODE_OLD))
         {
             for (int i=0;i<int(objToBeSelected.size());i++)
-                App::mainWindow->editModeContainer->addItemToEditModeBuffer(objToBeSelected[i],true);
+                GuiApp::mainWindow->editModeContainer->addItemToEditModeBuffer(objToBeSelected[i],true);
         }
     }
     _caughtElements&=0xffff-sim_left_button;
@@ -920,7 +921,7 @@ void CHierarchy::leftMouseUp(int x,int y)
     shiftSelectionStarted=false;
 
     // We have to do this at the very end of the routine since we are switching instances:
-    if ((_worldSelectID_down!=-9999)&&(_worldSelectID_down==getActionObjectID(mouseRelativePosition[1],HIERARCHY_HALF_INTER_LINE_SPACE*App::sc)))
+    if ((_worldSelectID_down!=-9999)&&(_worldSelectID_down==getActionObjectID(mouseRelativePosition[1],HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc)))
     {
         int nii=(-_worldSelectID_down)-1;
         _worldSelectID_down=-9999;
@@ -934,19 +935,19 @@ bool CHierarchy::rightMouseDown(int x,int y)
         return(false);
     if (y<0)
         return(false);
-    if (x>renderingSize[0]-SAFETY_BORDER_SIZE*App::sc)
+    if (x>renderingSize[0]-SAFETY_BORDER_SIZE*GuiApp::sc)
         return(false);
-    if (y>renderingSize[1]-SAFETY_BORDER_SIZE*App::sc)
+    if (y>renderingSize[1]-SAFETY_BORDER_SIZE*GuiApp::sc)
         return(false);
     // The mouse went down on the hierarchy window
     _caughtElements|=sim_right_button;
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
-    mouseDownRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    mouseDownRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
-    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
-    previousMouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    previousMouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
+    mouseDownRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseDownRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
+    previousMouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    previousMouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
     objectIDWhereTheMouseCurrentlyIs_minus9999ForNone=getActionObjectID_icon(0,mouseRelativePosition[1],true);
     labelEditObjectID=-1;
     return(true); // We catch this event to display a popup-menu when the mouse comes up
@@ -954,17 +955,17 @@ bool CHierarchy::rightMouseDown(int x,int y)
 void CHierarchy::rightMouseUp(int x,int y,int absX,int absY,QWidget* mainWindow)
 { // Only caught if right button was caught by the hierarchy!
     _caughtElements&=0xffff-sim_right_button;
-    if ( (x<0)||(y<0)||(x>renderingSize[0]-SAFETY_BORDER_SIZE*App::sc)||(y>renderingSize[1]-SAFETY_BORDER_SIZE*App::sc) )
+    if ( (x<0)||(y<0)||(x>renderingSize[0]-SAFETY_BORDER_SIZE*GuiApp::sc)||(y>renderingSize[1]-SAFETY_BORDER_SIZE*GuiApp::sc) )
         return;
 
     // The mouse went up on the hierarchy window
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
-    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
+    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
 
-    if (App::operationalUIParts&sim_gui_popups)
+    if (GuiApp::operationalUIParts&sim_gui_popups)
     { // Default popups
-        if (App::getEditModeType()==NO_EDIT_MODE)
+        if (GuiApp::getEditModeType()==NO_EDIT_MODE)
         {
             VMenu mainMenu=VMenu();
             addMenu(&mainMenu);
@@ -1016,35 +1017,35 @@ void CHierarchy::rightMouseUp(int x,int y,int absX,int absY,QWidget* mainWindow)
         {
             VMenu mainMenu=VMenu();
 
-            if (App::getEditModeType()&SHAPE_EDIT_MODE)
-                App::mainWindow->editModeContainer->addMenu(&mainMenu,nullptr);
-            if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
-                App::mainWindow->editModeContainer->addMenu(&mainMenu,nullptr);
+            if (GuiApp::getEditModeType()&SHAPE_EDIT_MODE)
+                GuiApp::mainWindow->editModeContainer->addMenu(&mainMenu,nullptr);
+            if (GuiApp::getEditModeType()&PATH_EDIT_MODE_OLD)
+                GuiApp::mainWindow->editModeContainer->addMenu(&mainMenu,nullptr);
 
             int command=mainMenu.trackPopupMenu();
 
-            if (App::getEditModeType()&SHAPE_EDIT_MODE)
-                App::mainWindow->editModeContainer->processCommand(command,nullptr);
-            if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
-                App::mainWindow->editModeContainer->processCommand(command,nullptr);
+            if (GuiApp::getEditModeType()&SHAPE_EDIT_MODE)
+                GuiApp::mainWindow->editModeContainer->processCommand(command,nullptr);
+            if (GuiApp::getEditModeType()&PATH_EDIT_MODE_OLD)
+                GuiApp::mainWindow->editModeContainer->processCommand(command,nullptr);
         }
     }
 }
 
 bool CHierarchy::mouseWheel(int deltaZ,int x,int y)
 {
-    if ( (x<0)||(y<0)||(x>renderingSize[0]-SAFETY_BORDER_SIZE*App::sc)||(y>renderingSize[1]-SAFETY_BORDER_SIZE*App::sc) )
+    if ( (x<0)||(y<0)||(x>renderingSize[0]-SAFETY_BORDER_SIZE*GuiApp::sc)||(y>renderingSize[1]-SAFETY_BORDER_SIZE*GuiApp::sc) )
         return(false);
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
-    viewPosition[1]=viewPosition[1]-(deltaZ/120)*HIERARCHY_INTER_LINE_SPACE*App::sc;
+    viewPosition[1]=viewPosition[1]-(deltaZ/120)*HIERARCHY_INTER_LINE_SPACE*GuiApp::sc;
     return(true);
 }
 
 void CHierarchy::mouseMove(int x,int y,bool passiveAndFocused)
 { 
     _worldSelectID_moving=-9999;
-    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
+    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
     objectIDWhereTheMouseCurrentlyIs_minus9999ForNone=getActionObjectID_icon(0,mouseRelativePosition[1],true);
     if (!passiveAndFocused)
     {
@@ -1068,7 +1069,7 @@ void CHierarchy::mouseMove(int x,int y,bool passiveAndFocused)
         else if (shiftingAllowed)
         {
             refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
-            int objID=getActionObjectID(mouseRelativePosition[1],HIERARCHY_HALF_INTER_LINE_SPACE*App::sc);
+            int objID=getActionObjectID(mouseRelativePosition[1],HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc);
             if (objID<0)
                 _worldSelectID_moving=objID;
         }
@@ -1088,16 +1089,16 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
     _caughtElements&=0xffff-sim_left_button;
 
 
-    if ( (x<0)||(y<0)||(x>renderingSize[0]-SAFETY_BORDER_SIZE*App::sc)||(y>renderingSize[1]-SAFETY_BORDER_SIZE*App::sc) )
+    if ( (x<0)||(y<0)||(x>renderingSize[0]-SAFETY_BORDER_SIZE*GuiApp::sc)||(y>renderingSize[1]-SAFETY_BORDER_SIZE*GuiApp::sc) )
         return(false);
     // The mouse went down on the hierarchy window
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
-    mouseDownRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    mouseDownRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
-    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
-    previousMouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*App::sc;
-    previousMouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*App::sc;
+    mouseDownRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseDownRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    mouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
+    previousMouseRelativePosition[0]=x+SAFETY_BORDER_SIZE*GuiApp::sc;
+    previousMouseRelativePosition[1]=y+SAFETY_BORDER_SIZE*GuiApp::sc;
     shiftSelectionStarted=false;
     shiftingAllowed=false;
 
@@ -1119,7 +1120,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
     int objID=getScriptParameterActionObjectID(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
     if (objID!=-1)
     {
-        if ((App::operationalUIParts&sim_gui_scriptsimulationparameters)!=0)
+        if ((GuiApp::operationalUIParts&sim_gui_scriptsimulationparameters)!=0)
         {
             // Process the command via the simulation thread (delayed):
             SSimulationThreadCommand cmd;
@@ -1129,25 +1130,25 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         }
         return(true);
     }
-    if (App::getEditModeType()==NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()==NO_EDIT_MODE)
     {
         int objID=-1;
         // Do we need to open an object property dialog?
         objID=getActionObjectID_icon(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
         if (objID!=-9999) // minus numbers are for the world(s)
         { // yes!
-            if (App::mainWindow->getObjPropToggleViaGuiEnabled())
+            if (GuiApp::mainWindow->getObjPropToggleViaGuiEnabled())
             {
                 if (objID>=0)
                 { // Regular object
                     App::currentWorld->sceneObjects->deselectObjects();
                     App::currentWorld->sceneObjects->addObjectToSelection(objID);
-                    App::setFullDialogRefreshFlag();
-                    App::mainWindow->dlgCont->processCommand(OPEN_OBJECT_DLG_OBJECT_SPECIFIC_PART_CMD);
+                    GuiApp::setFullDialogRefreshFlag();
+                    GuiApp::mainWindow->dlgCont->processCommand(OPEN_OBJECT_DLG_OBJECT_SPECIFIC_PART_CMD);
                 }
                 else
                 { // World object!
-                    App::mainWindow->dlgCont->processCommand(OPEN_ENVIRONMENT_DLG_CMD);
+                    GuiApp::mainWindow->dlgCont->processCommand(OPEN_ENVIRONMENT_DLG_CMD);
                 }
             }
             return(true);
@@ -1224,7 +1225,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
                     }
                 }
                 if (txt!="")
-                    App::uiThread->messageBox_information(App::mainWindow,"Dynamic property",txt.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,"Dynamic property",txt.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
             return(true);
         }
@@ -1242,15 +1243,15 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         return(true);
     }
 
-    if ( CSimFlavor::getBoolVal(6)&&(App::getEditModeType()&(VERTEX_EDIT_MODE|PATH_EDIT_MODE_OLD)) )
+    if ( CSimFlavor::getBoolVal(6)&&(GuiApp::getEditModeType()&(VERTEX_EDIT_MODE|PATH_EDIT_MODE_OLD)) )
     {
         // Did we double-click the icon?
         int objID=getActionObjectID_icon(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
         if (objID!=-9999)
         { // yes!
-            App::mainWindow->editModeContainer->deselectEditModeBuffer();
-            App::mainWindow->editModeContainer->addItemToEditModeBuffer(objID,true);
-            App::setFullDialogRefreshFlag();
+            GuiApp::mainWindow->editModeContainer->deselectEditModeBuffer();
+            GuiApp::mainWindow->editModeContainer->addItemToEditModeBuffer(objID,true);
+            GuiApp::setFullDialogRefreshFlag();
             return(true);
         }
     }
@@ -1259,16 +1260,16 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
 
 void CHierarchy::validateViewPosition()
 { 
-    int tmp=renderingSize[0]-maxRenderedPosition[0]-viewPosition[0]-SAFETY_BORDER_SIZE*App::sc-verticalScrollbarWidth;
+    int tmp=renderingSize[0]-maxRenderedPosition[0]-viewPosition[0]-SAFETY_BORDER_SIZE*GuiApp::sc-verticalScrollbarWidth;
     if (tmp>0)
-        viewPosition[0]=renderingSize[0]-(maxRenderedPosition[0]-minRenderedPosition[0])-SAFETY_BORDER_SIZE*App::sc-verticalScrollbarWidth;
-    if (viewPosition[0]>SAFETY_BORDER_SIZE*App::sc)
-        viewPosition[0]=SAFETY_BORDER_SIZE*App::sc;
-    tmp=renderingSize[1]-(maxRenderedPosition[1]-minRenderedPosition[1])+viewPosition[1]+(-SAFETY_BORDER_SIZE-CONST_VAL_4)*App::sc-horizontalScrollbarHeight;
+        viewPosition[0]=renderingSize[0]-(maxRenderedPosition[0]-minRenderedPosition[0])-SAFETY_BORDER_SIZE*GuiApp::sc-verticalScrollbarWidth;
+    if (viewPosition[0]>SAFETY_BORDER_SIZE*GuiApp::sc)
+        viewPosition[0]=SAFETY_BORDER_SIZE*GuiApp::sc;
+    tmp=renderingSize[1]-(maxRenderedPosition[1]-minRenderedPosition[1])+viewPosition[1]+(-SAFETY_BORDER_SIZE-CONST_VAL_4)*GuiApp::sc-horizontalScrollbarHeight;
     if (tmp>0)
-        viewPosition[1]=maxRenderedPosition[1]-minRenderedPosition[1]-renderingSize[1]+(SAFETY_BORDER_SIZE+CONST_VAL_6)*App::sc+horizontalScrollbarHeight;
-    if (viewPosition[1]<(-SAFETY_BORDER_SIZE+CONST_VAL_8)*App::sc)
-        viewPosition[1]=(-SAFETY_BORDER_SIZE+CONST_VAL_8)*App::sc;
+        viewPosition[1]=maxRenderedPosition[1]-minRenderedPosition[1]-renderingSize[1]+(SAFETY_BORDER_SIZE+CONST_VAL_6)*GuiApp::sc+horizontalScrollbarHeight;
+    if (viewPosition[1]<(-SAFETY_BORDER_SIZE+CONST_VAL_8)*GuiApp::sc)
+        viewPosition[1]=(-SAFETY_BORDER_SIZE+CONST_VAL_8)*GuiApp::sc;
 }
 
 void CHierarchy::setRebuildHierarchyFlag()
@@ -1291,9 +1292,9 @@ int CHierarchy::getInflateActionObjectID(int mousePositionX,int mousePositionY)
 {
     for (int i=0;i<int(inflateIconPosition.size())/3;i++)
     {
-        if ((mousePositionX>=inflateIconPosition[3*i+0]-HIERARCHY_ICON_QUARTER_WIDTH*App::sc)&&(mousePositionX<=inflateIconPosition[3*i+0]+HIERARCHY_ICON_QUARTER_WIDTH*App::sc) )
+        if ((mousePositionX>=inflateIconPosition[3*i+0]-HIERARCHY_ICON_QUARTER_WIDTH*GuiApp::sc)&&(mousePositionX<=inflateIconPosition[3*i+0]+HIERARCHY_ICON_QUARTER_WIDTH*GuiApp::sc) )
         {
-            if ((mousePositionY>=inflateIconPosition[3*i+1]-HIERARCHY_ICON_QUARTER_HEIGHT*App::sc)&&(mousePositionY<=inflateIconPosition[3*i+1]+HIERARCHY_ICON_QUARTER_HEIGHT*App::sc) )
+            if ((mousePositionY>=inflateIconPosition[3*i+1]-HIERARCHY_ICON_QUARTER_HEIGHT*GuiApp::sc)&&(mousePositionY<=inflateIconPosition[3*i+1]+HIERARCHY_ICON_QUARTER_HEIGHT*GuiApp::sc) )
                 return(inflateIconPosition[3*i+2]);
         }
     }
@@ -1304,9 +1305,9 @@ int CHierarchy::getScriptActionObjectID(int mousePositionX,int mousePositionY)
 {
     for (int i=0;i<int(scriptIconPosition.size())/3;i++)
     {
-        if ((mousePositionX>=scriptIconPosition[3*i+0]-HIERARCHY_ICON_HALF_WIDTH*App::sc)&&(mousePositionX<=scriptIconPosition[3*i+0]+HIERARCHY_ICON_HALF_WIDTH*App::sc) )
+        if ((mousePositionX>=scriptIconPosition[3*i+0]-HIERARCHY_ICON_HALF_WIDTH*GuiApp::sc)&&(mousePositionX<=scriptIconPosition[3*i+0]+HIERARCHY_ICON_HALF_WIDTH*GuiApp::sc) )
         {
-            if ((mousePositionY>=scriptIconPosition[3*i+1]-HIERARCHY_ICON_HALF_HEIGHT*App::sc)&&(mousePositionY<=scriptIconPosition[3*i+1]+HIERARCHY_ICON_HALF_HEIGHT*App::sc) )
+            if ((mousePositionY>=scriptIconPosition[3*i+1]-HIERARCHY_ICON_HALF_HEIGHT*GuiApp::sc)&&(mousePositionY<=scriptIconPosition[3*i+1]+HIERARCHY_ICON_HALF_HEIGHT*GuiApp::sc) )
                 return(scriptIconPosition[3*i+2]);
         }
     }
@@ -1316,9 +1317,9 @@ int CHierarchy::getScriptParameterActionObjectID(int mousePositionX,int mousePos
 {
     for (int i=0;i<int(scriptParametersIconPosition.size())/3;i++)
     {
-        if ((mousePositionX>=scriptParametersIconPosition[3*i+0]-HIERARCHY_ICON_HALF_WIDTH*App::sc)&&(mousePositionX<=scriptParametersIconPosition[3*i+0]+HIERARCHY_ICON_HALF_WIDTH*App::sc) )
+        if ((mousePositionX>=scriptParametersIconPosition[3*i+0]-HIERARCHY_ICON_HALF_WIDTH*GuiApp::sc)&&(mousePositionX<=scriptParametersIconPosition[3*i+0]+HIERARCHY_ICON_HALF_WIDTH*GuiApp::sc) )
         {
-            if ((mousePositionY>=scriptParametersIconPosition[3*i+1]-HIERARCHY_ICON_HALF_HEIGHT*App::sc)&&(mousePositionY<=scriptParametersIconPosition[3*i+1]+HIERARCHY_ICON_HALF_HEIGHT*App::sc) )
+            if ((mousePositionY>=scriptParametersIconPosition[3*i+1]-HIERARCHY_ICON_HALF_HEIGHT*GuiApp::sc)&&(mousePositionY<=scriptParametersIconPosition[3*i+1]+HIERARCHY_ICON_HALF_HEIGHT*GuiApp::sc) )
                 return(scriptParametersIconPosition[3*i+2]);
         }
     }
@@ -1331,7 +1332,7 @@ int CHierarchy::getTextActionObjectID(int mousePositionX,int mousePositionY)
     {
         if ((mousePositionX>=textPosition[6*i+2])&&(mousePositionX<=textPosition[6*i+3]) )
         {
-            if ((mousePositionY>=textPosition[6*i+4]-HIERARCHY_HALF_INTER_LINE_SPACE*App::sc)&&(mousePositionY<=textPosition[6*i+4]+HIERARCHY_HALF_INTER_LINE_SPACE*App::sc) )
+            if ((mousePositionY>=textPosition[6*i+4]-HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc)&&(mousePositionY<=textPosition[6*i+4]+HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc) )
                 return(textPosition[6*i+5]);
         }
     }
@@ -1342,7 +1343,7 @@ int CHierarchy::getLineObjectID(int mousePositionY,int textPosStart[2])
 {
     for (int i=0;i<int(textPosition.size())/6;i++)
     {
-        if ((mousePositionY>=textPosition[6*i+4]-HIERARCHY_HALF_INTER_LINE_SPACE*App::sc)&&(mousePositionY<=textPosition[6*i+4]+HIERARCHY_HALF_INTER_LINE_SPACE*App::sc) )
+        if ((mousePositionY>=textPosition[6*i+4]-HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc)&&(mousePositionY<=textPosition[6*i+4]+HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc) )
         {
             if (textPosStart!=nullptr)
             {
@@ -1361,9 +1362,9 @@ int CHierarchy::getActionObjectID_icon(int mousePositionX,int mousePositionY,boo
     {
         for (int i=0;i<int(objectIconPosition.size())/3;i++)
         {
-            if ( (mousePositionX>=objectIconPosition[3*i+0]-HIERARCHY_ICON_HALF_WIDTH*App::sc)&&(mousePositionX<=objectIconPosition[3*i+0]+HIERARCHY_ICON_HALF_WIDTH*App::sc) )
+            if ( (mousePositionX>=objectIconPosition[3*i+0]-HIERARCHY_ICON_HALF_WIDTH*GuiApp::sc)&&(mousePositionX<=objectIconPosition[3*i+0]+HIERARCHY_ICON_HALF_WIDTH*GuiApp::sc) )
             {
-                if ((mousePositionY>=objectIconPosition[3*i+1]-HIERARCHY_ICON_HALF_HEIGHT*App::sc)&&(mousePositionY<=objectIconPosition[3*i+1]+HIERARCHY_ICON_HALF_HEIGHT*App::sc) )
+                if ((mousePositionY>=objectIconPosition[3*i+1]-HIERARCHY_ICON_HALF_HEIGHT*GuiApp::sc)&&(mousePositionY<=objectIconPosition[3*i+1]+HIERARCHY_ICON_HALF_HEIGHT*GuiApp::sc) )
                     return(objectIconPosition[3*i+2]);
             }
         }
@@ -1372,7 +1373,7 @@ int CHierarchy::getActionObjectID_icon(int mousePositionX,int mousePositionY,boo
     {
         for (int i=0;i<int(objectIconPosition.size())/3;i++)
         {
-            if ((mousePositionY>=objectIconPosition[3*i+1]-HIERARCHY_HALF_INTER_LINE_SPACE*App::sc)&&(mousePositionY<=objectIconPosition[3*i+1]+HIERARCHY_HALF_INTER_LINE_SPACE*App::sc) )
+            if ((mousePositionY>=objectIconPosition[3*i+1]-HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc)&&(mousePositionY<=objectIconPosition[3*i+1]+HIERARCHY_HALF_INTER_LINE_SPACE*GuiApp::sc) )
                 return(objectIconPosition[3*i+2]);
         }
     }
@@ -1383,9 +1384,9 @@ int CHierarchy::getActionModelID_icon(int mousePositionX,int mousePositionY)
 { 
     for (int i=0;i<int(modelIconPosition.size())/3;i++)
     {
-        if ((mousePositionX>=modelIconPosition[3*i+0]-HIERARCHY_ICON_QUARTER_WIDTH*App::sc)&&(mousePositionX<=modelIconPosition[3*i+0]+HIERARCHY_ICON_QUARTER_WIDTH*App::sc) )
+        if ((mousePositionX>=modelIconPosition[3*i+0]-HIERARCHY_ICON_QUARTER_WIDTH*GuiApp::sc)&&(mousePositionX<=modelIconPosition[3*i+0]+HIERARCHY_ICON_QUARTER_WIDTH*GuiApp::sc) )
         {
-            if ((mousePositionY>=modelIconPosition[3*i+1]-HIERARCHY_ICON_QUARTER_HEIGHT*App::sc)&&(mousePositionY<=modelIconPosition[3*i+1]+HIERARCHY_ICON_QUARTER_HEIGHT*App::sc) )
+            if ((mousePositionY>=modelIconPosition[3*i+1]-HIERARCHY_ICON_QUARTER_HEIGHT*GuiApp::sc)&&(mousePositionY<=modelIconPosition[3*i+1]+HIERARCHY_ICON_QUARTER_HEIGHT*GuiApp::sc) )
                 return(modelIconPosition[3*i+2]);
         }
     }
@@ -1396,9 +1397,9 @@ int CHierarchy::getSimulationActionObjectID(int mousePositionX,int mousePosition
 { 
     for (int i=0;i<int(simulationIconPosition.size())/3;i++)
     {
-        if ((mousePositionX>=simulationIconPosition[3*i+0]-HIERARCHY_ICON_HALF_WIDTH*App::sc)&&(mousePositionX<=simulationIconPosition[3*i+0]+HIERARCHY_ICON_HALF_WIDTH*App::sc) )
+        if ((mousePositionX>=simulationIconPosition[3*i+0]-HIERARCHY_ICON_HALF_WIDTH*GuiApp::sc)&&(mousePositionX<=simulationIconPosition[3*i+0]+HIERARCHY_ICON_HALF_WIDTH*GuiApp::sc) )
         {
-            if ((mousePositionY>=simulationIconPosition[3*i+1]-HIERARCHY_ICON_HALF_HEIGHT*App::sc)&&(mousePositionY<=simulationIconPosition[3*i+1]+HIERARCHY_ICON_HALF_HEIGHT*App::sc) )
+            if ((mousePositionY>=simulationIconPosition[3*i+1]-HIERARCHY_ICON_HALF_HEIGHT*GuiApp::sc)&&(mousePositionY<=simulationIconPosition[3*i+1]+HIERARCHY_ICON_HALF_HEIGHT*GuiApp::sc) )
                 return(simulationIconPosition[3*i+2]);
         }
     }
@@ -1444,8 +1445,8 @@ void CHierarchy::setEditionLabel(std::string txt)
 void CHierarchy::drawEditionLabel(int textPosX,int textPosY)
 {
     int buttonWidth=20+ogl::getTextLengthInPixels(editionText.c_str());
-    VPoint p(textPosX-2+buttonWidth/2,textPosY+HIERARCHY_TEXT_CENTER_OFFSET*App::sc);
-    VPoint s(buttonWidth,HIERARCHY_INTER_LINE_SPACE*App::sc);
+    VPoint p(textPosX-2+buttonWidth/2,textPosY+HIERARCHY_TEXT_CENTER_OFFSET*GuiApp::sc);
+    VPoint s(buttonWidth,HIERARCHY_INTER_LINE_SPACE*GuiApp::sc);
     float txtCol[3]={0.0,0.0,0.0};
     float backCol[3]={1.0,1.0,0.0};
     int buttonAttrib=sim_buttonproperty_editbox|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered;

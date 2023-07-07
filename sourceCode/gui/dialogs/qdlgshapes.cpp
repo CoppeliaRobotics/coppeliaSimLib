@@ -12,6 +12,7 @@
 #include <imgLoaderSaver.h>
 #include <simStrings.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 CQDlgShapes::CQDlgShapes(QWidget *parent) :
     CDlgEx(parent),
@@ -29,13 +30,13 @@ CQDlgShapes::~CQDlgShapes()
 void CQDlgShapes::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgShapes::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeAndNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     bool sel=App::currentWorld->sceneObjects->isLastSelectionAShape();
     bool ssel=App::currentWorld->sceneObjects->isLastSelectionASimpleShape();
@@ -167,8 +168,8 @@ void CQDlgShapes::on_qqEditDynamics_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgShapeDyn::showDynamicWindow=!CQDlgShapeDyn::showDynamicWindow;
-        if (App::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG)!=CQDlgShapeDyn::showDynamicWindow)
-            App::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
+        if (GuiApp::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG)!=CQDlgShapeDyn::showDynamicWindow)
+            GuiApp::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
     }
 }
 
@@ -176,7 +177,7 @@ void CQDlgShapes::on_qqAdjustOutsideColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_SHAPE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_SHAPE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }
 
@@ -198,7 +199,7 @@ void CQDlgShapes::on_qqTexture_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgTextures::displayDlg(TEXTURE_ID_SIMPLE_SHAPE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgTextures::displayDlg(TEXTURE_ID_SIMPLE_SHAPE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }
 
@@ -206,7 +207,7 @@ void CQDlgShapes::on_qqGeometry_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgGeometry::display(App::currentWorld->sceneObjects->getLastSelectionHandle(),App::mainWindow);
+        CQDlgGeometry::display(App::currentWorld->sceneObjects->getLastSelectionHandle(),GuiApp::mainWindow);
     }
 }
 
@@ -215,7 +216,7 @@ void CQDlgShapes::on_qqDirtTexture_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         std::string tst(App::folders->getTexturesPath());
-        std::string filenameAndPath=App::uiThread->getOpenFileName(this,0,"Loading texture...",tst.c_str(),"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
+        std::string filenameAndPath=GuiApp::uiThread->getOpenFileName(this,0,"Loading texture...",tst.c_str(),"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
         if (filenameAndPath.length()!=0)
         {
             if (VFile::doesFileExist(filenameAndPath.c_str()))
@@ -230,7 +231,7 @@ void CQDlgShapes::on_qqDirtTexture_clicked()
                     data=nullptr;
                 }
                 if (data==nullptr)
-                    App::uiThread->messageBox_critical(App::mainWindow,"Texture",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,"Texture",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 else
                 {
                     SSimulationThreadCommand cmd;

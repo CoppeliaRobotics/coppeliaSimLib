@@ -3,6 +3,9 @@
 #include <tt.h>
 #include <distanceRoutines.h>
 #include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CDistanceObjectContainer_old::CDistanceObjectContainer_old()
 {
@@ -107,7 +110,7 @@ void CDistanceObjectContainer_old::addObjectWithSuffixOffset(CDistanceObject_old
 
     _addObject(newDistObj);
 
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 int CDistanceObjectContainer_old::addNewObject(int entity1Handle,int entity2Handle,const char* objName)

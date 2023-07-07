@@ -17,6 +17,9 @@
 #include <collisionRoutines.h>
 #include <distanceRoutines.h>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CHelpMenu::CHelpMenu()
 {
@@ -56,7 +59,7 @@ bool CHelpMenu::processCommand(int commandID)
     if (commandID==HELP_TOPICS_CMD)
     {
 
-        if ( ((SIM_PROGRAM_REVISION_NB%2)>0) || (!App::isOnline()) )
+        if ( ((SIM_PROGRAM_REVISION_NB%2)>0) || (!GuiApp::isOnline()) )
         {
             std::string tmp(App::folders->getResourcesPath()+"/helpFiles/index.html");
             App::logMsg(sim_verbosity_msgs,"Opening the locally stored user manual...");
@@ -75,7 +78,7 @@ bool CHelpMenu::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             IF_UI_EVENT_CAN_WRITE_DATA
             {
-                CQDlgAbout aboutBox(App::mainWindow);
+                CQDlgAbout aboutBox(GuiApp::mainWindow);
                 aboutBox.makeDialogModal();
             }
         }
@@ -92,7 +95,7 @@ bool CHelpMenu::processCommand(int commandID)
             }
             else
             { // file doesn't exist.
-                App::uiThread->messageBox_warning(App::mainWindow,IDSN_CREDITS,IDS_FILE_COULD_NOT_BE_FOUND_,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_CREDITS,IDS_FILE_COULD_NOT_BE_FOUND_,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
         }
         return(true);
@@ -115,7 +118,7 @@ bool CHelpMenu::processCommand(int commandID)
     }
     if ( CSimFlavor::getBoolVal(13)&&(commandID==EK_CMD) )
     {
-        CSimFlavor::setHld(App::mainWindow);
+        CSimFlavor::setHld(GuiApp::mainWindow);
         CSimFlavor::ekd();
         return(true);
     }

@@ -10,6 +10,7 @@
 #ifdef SIM_WITH_GUI
 #include <oGL.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 #endif
 
 CPathCont_old::CPathCont_old()
@@ -210,7 +211,7 @@ bool CPathCont_old::_getBezierPointsForVirtualDistance(double& l,int& index0,int
         }
     }
 #ifdef SIM_WITH_GUI
-    App::uiThread->messageBox_critical(App::mainWindow,"Application error","Strange error in '_getBezierPointsForVirtualDistance'",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+    GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,"Application error","Strange error in '_getBezierPointsForVirtualDistance'",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
     return(false);
 }
@@ -1945,7 +1946,7 @@ bool CPathCont_old::invertSimplePathPointOrder(const std::vector<int>& selectedP
     }
 
     actualizePath();
-    App::setLightDialogRefreshFlag();
+    GuiApp::setLightDialogRefreshFlag();
     return(true);
 }
 
@@ -2351,14 +2352,14 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
         {
             std::vector<bool> selectedPts(ptCont.size(),false);
             int lastSel=-1;
-            for (int i=0;i<App::mainWindow->editModeContainer->getEditModeBufferSize();i++)
+            for (int i=0;i<GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();i++)
             {
-                int ind=App::mainWindow->editModeContainer->getEditModeBufferValue(i);
+                int ind=GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(i);
                 if ( (ind>=0)&&(ind<int(ptCont.size())) )
                     selectedPts[ind]=true;
             }
-            if (App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)
-                lastSel=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
+            if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0)
+                lastSel=GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
             ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
             for (int i=0;i<int(selectedPts.size());i++)
             { // display path points:
@@ -2409,9 +2410,9 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont,bool pathEditMode
         {
             std::vector<bool> selS(ptCont.size(),false);
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
-                std::vector<int>* selP=App::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode();
+                std::vector<int>* selP=GuiApp::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode();
                 for (int i=0;i<int(selP->size());i++)
                     selS[selP->at(i)]=true;
             }

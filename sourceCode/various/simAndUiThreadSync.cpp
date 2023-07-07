@@ -3,6 +3,9 @@
 #include <vDateTime.h>
 #include <tt.h>
 #include <utils.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 VSimUiMutex CSimAndUiThreadSync::_uiReadPermission;
 VSimUiMutex CSimAndUiThreadSync::_uiWritePermission;
@@ -110,7 +113,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
         // If we do not process all events, then the QFileDialog sometimes fails displaying and can
         // lead to application hang (on Linux, not on Windows. Mac?). We keep 2 tweaks here just in case!
 
-        App::qtApp->processEvents(); // default
+        GuiApp::qtApp->processEvents(); // default
     }
 
     return(_lockFunctionResult>0);
@@ -149,7 +152,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int maxTime)
 
         // If we do not process all events, then the QFileDialog sometimes fails displaying and can
         // lead to application hang (on Linux, not on Windows. Mac?). We keep 2 tweaks here just in case!
-        App::qtApp->processEvents(); // default
+        GuiApp::qtApp->processEvents(); // default
     }
 
     _ui_writeRequest=false; // reset the write request

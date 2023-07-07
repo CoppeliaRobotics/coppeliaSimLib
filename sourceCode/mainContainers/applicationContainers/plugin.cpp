@@ -7,6 +7,9 @@
 #include <collisionRoutines.h>
 #include <volInt.h>
 #include <algorithm>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CPlugin::CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int loadOrigin)
 {
@@ -297,7 +300,7 @@ bool CPlugin::init(std::string* errStr)
                 SUIThreadCommand cmdOut;
                 cmdIn.cmdId=CALL_PLUGIN_INITUI_FROM_UITHREAD_UITHREADCMD;
                 cmdIn.intParams.push_back(handle);
-                App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
                 while (_stage!=stage_uiinitdone)
                     VThread::sleep(1);
@@ -397,7 +400,7 @@ void CPlugin::cleanup()
                 SUIThreadCommand cmdOut;
                 cmdIn.cmdId=CALL_PLUGIN_CLEANUPUI_FROM_UITHREAD_UITHREADCMD;
                 cmdIn.intParams.push_back(handle);
-                App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
                 while (_stage!=stage_uicleanupdone)
                     VThread::sleep(1);

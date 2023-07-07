@@ -6,6 +6,7 @@
 #include <app.h>
 #include <QInputDialog>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 bool CQDlgShapeDyn::showDynamicWindow=false;
 bool CQDlgShapeDyn::masslessInertia=true;
@@ -28,14 +29,14 @@ void CQDlgShapeDyn::cancelEvent()
 { // no cancel event allowed
     showDynamicWindow=false;
     CDlgEx::cancelEvent();
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 void CQDlgShapeDyn::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeAndNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     bool sel=App::currentWorld->sceneObjects->isLastSelectionAShape();
     int sc=(int)App::currentWorld->sceneObjects->getShapeCountInSelection();
     bool notHeightfield=true;
@@ -207,7 +208,7 @@ void CQDlgShapeDyn::on_qqRespondable_clicked()
         if (it!=nullptr)
         {
             if ((!it->getRespondable())&&(!it->getMesh()->isPure())&&(!it->getMesh()->isConvex()))
-                App::uiThread->messageBox_warning(App::mainWindow,"Shape",IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Shape",IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             App::appendSimulationThreadCommand(TOGGLE_RESPONDABLE_SHAPEDYNGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }

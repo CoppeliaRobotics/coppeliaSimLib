@@ -6,6 +6,7 @@
 #include <app.h>
 #include <simStrings.h>
 #include <sceneObjectOperations.h>
+#include <guiApp.h>
 
 CQDlgOctrees::CQDlgOctrees(QWidget *parent) :
     CDlgEx(parent),
@@ -22,13 +23,13 @@ CQDlgOctrees::~CQDlgOctrees()
 void CQDlgOctrees::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgOctrees::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditMode=App::getEditModeType()==NO_EDIT_MODE;
+    bool noEditMode=GuiApp::getEditModeType()==NO_EDIT_MODE;
     bool noEditModeAndNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 
     bool sel=App::currentWorld->sceneObjects->isLastSelectionAnOctree();
@@ -90,7 +91,7 @@ void CQDlgOctrees::on_qqColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgColor::displayDlg(COLOR_ID_OCTREE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,0,App::mainWindow);
+        CQDlgColor::displayDlg(COLOR_ID_OCTREE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,0,GuiApp::mainWindow);
     }
 }
 

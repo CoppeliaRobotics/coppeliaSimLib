@@ -3,7 +3,9 @@
 #include <oGL.h>
 #include <oglSurface.h>
 #include <app.h>
-
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CViewSelector::CViewSelector()
 {
@@ -82,7 +84,7 @@ void CViewSelector::render()
     }
     if (viewSelectionBuffer.size()==0)
     {
-        App::mainWindow->oglSurface->setViewSelectionActive(false);
+        GuiApp::mainWindow->oglSurface->setViewSelectionActive(false);
         return; // nothing to see here!!
     }
     double smallWinRatio=1.33;
@@ -201,9 +203,9 @@ void CViewSelector::render()
                 if (it->getObjectType()==sim_object_camera_type)
                 {
                     ogl::setTextColor(0.1f,0.1f,0.1f);
-                    ogl::drawText(2,tns[1]-12*App::sc,0,it->getObjectAlias_printPath().append(" (Camera)"));
+                    ogl::drawText(2,tns[1]-12*GuiApp::sc,0,it->getObjectAlias_printPath().append(" (Camera)"));
                     ogl::setTextColor(0.9f,0.9f,0.9f);
-                    ogl::drawText(1,tns[1]-11*App::sc,0,it->getObjectAlias_printPath().append(" (Camera)"));
+                    ogl::drawText(1,tns[1]-11*GuiApp::sc,0,it->getObjectAlias_printPath().append(" (Camera)"));
                 }
 /*                if (it->getObjectType()==sim_object_graph_type)
                 {
@@ -211,17 +213,17 @@ void CViewSelector::render()
                     if (!timeGraph)
                         txt=" (XY Graph)";
                     ogl::setTextColor(0.1f,0.1f,0.1f);
-                    ogl::drawText(2,tns[1]-12*App::sc,0,it->getName().append(txt));
+                    ogl::drawText(2,tns[1]-12*GuiApp::sc,0,it->getName().append(txt));
                     ogl::setTextColor(0.9f,0.9f,0.9f);
-                    ogl::drawText(1,tns[1]-11*App::sc,0,it->getName().append(txt));
+                    ogl::drawText(1,tns[1]-11*GuiApp::sc,0,it->getName().append(txt));
                 }*/
                 if (it->getObjectType()==sim_object_visionsensor_type) 
                 {
                     std::string txt=" (Vision Sensor)";
                     ogl::setTextColor(0.1f,0.1f,0.1f);
-                    ogl::drawText(2,tns[1]-12*App::sc,0,it->getObjectAlias_printPath().append(txt));
+                    ogl::drawText(2,tns[1]-12*GuiApp::sc,0,it->getObjectAlias_printPath().append(txt));
                     ogl::setTextColor(0.9f,0.9f,0.9f);
-                    ogl::drawText(1,tns[1]-11*App::sc,0,it->getObjectAlias_printPath().append(txt));
+                    ogl::drawText(1,tns[1]-11*GuiApp::sc,0,it->getObjectAlias_printPath().append(txt));
                 }
                 glEnable(GL_DEPTH_TEST);
                 glDisable(GL_SCISSOR_TEST);
@@ -302,7 +304,7 @@ void CViewSelector::leftMouseButtonUp(int x,int y)
             cmd.boolParams.push_back(viewSelectionBufferType[bufferInd1]==0);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::mainWindow->oglSurface->setViewSelectionActive(false);
+            GuiApp::mainWindow->oglSurface->setViewSelectionActive(false);
         }
     }
 }
@@ -366,7 +368,7 @@ bool CViewSelector::processCommand(int commandID,int subViewIndex)
             int rendSensNb=(int)App::currentWorld->sceneObjects->getVisionSensorCount();
 
             if (cameraNb+rendSensNb>0)
-                App::mainWindow->oglSurface->startViewSelection(VIEWABLE_VIEW_SELECT_MODE,subViewIndex);
+                GuiApp::mainWindow->oglSurface->startViewSelection(VIEWABLE_VIEW_SELECT_MODE,subViewIndex);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:

@@ -22,6 +22,7 @@ See the GNU General Public License for more details.
 
 #ifdef SIM_WITH_GUI
 #include <graphingRoutines_old.h>
+#include <guiApp.h>
 
 void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib)
 { // This is a quite ugly routine which requires refactoring!
@@ -36,7 +37,7 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
     // Object display:
     if (graph->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (graph->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(graph->getModelSelectionHandle());

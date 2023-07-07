@@ -10,6 +10,9 @@
 #include <volInt.h>
 #include <algorithm>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 #define SIMIK_DEFAULT "simIK"
 #define SIMUI_DEFAULT "simUI"
@@ -338,8 +341,8 @@ bool CPluginContainer::unloadPlugin_old(int handle)
     {
         App::logMsg(sim_verbosity_debug,(std::string("unloadPlugin_old: ")+it->getName()).c_str());
 #ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=nullptr)&&(it->getName().compare("CodeEditor")==0) )
-            App::mainWindow->codeEditorContainer->closeAll();
+        if ( (GuiApp::mainWindow!=nullptr)&&(it->getName().compare("CodeEditor")==0) )
+            GuiApp::mainWindow->codeEditorContainer->closeAll();
 #endif
         it->cleanup();
         std::string nm(it->getName());

@@ -5,6 +5,7 @@
 #include <qdlgmaterial.h>
 #include <app.h>
 #include <simStrings.h>
+#include <guiApp.h>
 
 bool CQDlgPathShaping::showWindow=false;
 
@@ -33,7 +34,7 @@ void CQDlgPathShaping::refresh()
 {
     inMainRefreshRoutine=true;
     //QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     int sectionType=0;
     CPath_old* it=App::currentWorld->sceneObjects->getLastSelectionPath();
@@ -154,7 +155,7 @@ void CQDlgPathShaping::on_qqAdjustColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PATH_SHAPING,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PATH_SHAPING,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }
 

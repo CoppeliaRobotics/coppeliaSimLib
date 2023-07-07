@@ -22,8 +22,9 @@
 #include <vFileFinder.h>
 #include <simFlavor.h>
 #ifdef SIM_WITH_GUI
-#include <QScreen>
-#include <QDesktopWidget>
+    #include <QScreen>
+    #include <QDesktopWidget>
+    #include <guiApp.h>
 #endif
 
 #define LUA_START(funcName) \
@@ -2610,7 +2611,7 @@ int _auxFunc(luaWrap_lua_State* L)
                 int screenIndex=luaWrap_lua_tointeger(L,2);
                 int res[2]={0,0};
 #ifdef SIM_WITH_GUI
-                if (App::mainWindow!=nullptr)
+                if (GuiApp::mainWindow!=nullptr)
                 {
                     if (screenIndex>=0)
                     { // desktop
@@ -2635,7 +2636,7 @@ int _auxFunc(luaWrap_lua_State* L)
                     { // openGL view only
                         glPixelStorei(GL_PACK_ALIGNMENT,1);
                         int resX,resY;
-                        App::mainWindow->getClientArea(resX,resY);
+                        GuiApp::mainWindow->getClientArea(resX,resY);
                         res[0]=resX;
                         res[1]=resY;
                         std::vector<unsigned char> tbuff(resX*resY*3);
@@ -5767,13 +5768,13 @@ int _simTextEditorOpen(luaWrap_lua_State* L)
     int retVal=-1;
 
 #ifdef SIM_WITH_GUI
-    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(GuiApp::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
         {
             const char* arg1=luaWrap_lua_tostring(L,1);
             const char* arg2=luaWrap_lua_tostring(L,2);
-            retVal=App::mainWindow->codeEditorContainer->open(arg1,arg2,CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+            retVal=GuiApp::mainWindow->codeEditorContainer->open(arg1,arg2,CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         }
     }
     else
@@ -5791,14 +5792,14 @@ int _simTextEditorClose(luaWrap_lua_State* L)
     LUA_START("sim.textEditorClose");
 
 #ifdef SIM_WITH_GUI
-    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(GuiApp::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
             int handle=luaToInt(L,1);
             int posAndSize[4];
             std::string txt;
-            if (App::mainWindow->codeEditorContainer->close(handle,posAndSize,&txt,nullptr))
+            if (GuiApp::mainWindow->codeEditorContainer->close(handle,posAndSize,&txt,nullptr))
             {
                 luaWrap_lua_pushstring(L,txt.c_str());
                 pushIntTableOntoStack(L,2,posAndSize+0);
@@ -5822,13 +5823,13 @@ int _simTextEditorShow(luaWrap_lua_State* L)
     int retVal=-1;
 
 #ifdef SIM_WITH_GUI
-    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(GuiApp::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
             int handle=luaToInt(L,1);
             bool showState=luaToBool(L,2);
-            retVal=App::mainWindow->codeEditorContainer->showOrHide(handle,showState);
+            retVal=GuiApp::mainWindow->codeEditorContainer->showOrHide(handle,showState);
             luaWrap_lua_pushinteger(L,retVal);
             LUA_END(1);
         }
@@ -5848,16 +5849,16 @@ int _simTextEditorGetInfo(luaWrap_lua_State* L)
     LUA_START("sim.textEditorGetInfo");
 
 #ifdef SIM_WITH_GUI
-    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
+    if (App::worldContainer->pluginContainer->isCodeEditorPluginAvailable()&&(GuiApp::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
             int handle=luaToInt(L,1);
-            int state=App::mainWindow->codeEditorContainer->getShowState(handle);
+            int state=GuiApp::mainWindow->codeEditorContainer->getShowState(handle);
             if (state>=0)
             {
                 int posAndSize[4];
-                std::string txt=App::mainWindow->codeEditorContainer->getText(handle,posAndSize);
+                std::string txt=GuiApp::mainWindow->codeEditorContainer->getText(handle,posAndSize);
                 luaWrap_lua_pushstring(L,txt.c_str());
                 pushIntTableOntoStack(L,2,posAndSize+0);
                 pushIntTableOntoStack(L,2,posAndSize+2);
@@ -12432,7 +12433,7 @@ int _simHandleAddOnScripts(luaWrap_lua_State* L)
         {
             int callType=luaToInt(L,1);
             retVal=0;
-            if (App::getEditModeType()==NO_EDIT_MODE)
+            if (GuiApp::getEditModeType()==NO_EDIT_MODE)
                 retVal=App::worldContainer->addOnScriptContainer->callScripts(callType,nullptr,nullptr);
         }
     }
@@ -12456,7 +12457,7 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
             int callType=luaToInt(L,1);
-            if ( (App::getEditModeType()==NO_EDIT_MODE)&&(App::worldContainer->sandboxScript!=nullptr) )
+            if ( (GuiApp::getEditModeType()==NO_EDIT_MODE)&&(App::worldContainer->sandboxScript!=nullptr) )
                 App::worldContainer->sandboxScript->systemCallScript(callType,nullptr,nullptr);
         }
     }
@@ -13358,8 +13359,8 @@ int _simAuxFunc(luaWrap_lua_State* L)
         if (cmd.compare("activateMainWindow")==0)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->activateMainWindow();
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->activateMainWindow();
 #endif
             LUA_END(0);
         }
@@ -15828,8 +15829,8 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
                 {
                     std::string callbackFunction(luaWrap_lua_tostring(L,3));
 #ifdef SIM_WITH_GUI
-                    if (App::mainWindow!=nullptr)
-                        handle=App::mainWindow->codeEditorContainer->openTextEditor_old(initText.c_str(),xml.c_str(),callbackFunction.c_str(),it);
+                    if (GuiApp::mainWindow!=nullptr)
+                        handle=GuiApp::mainWindow->codeEditorContainer->openTextEditor_old(initText.c_str(),xml.c_str(),callbackFunction.c_str(),it);
 #endif
                 }
                 luaWrap_lua_pushinteger(L,handle);
@@ -15856,9 +15857,9 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
         std::string cb;
         int posAndSize[4];
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
+        if (GuiApp::mainWindow!=nullptr)
         {
-            if (App::mainWindow->codeEditorContainer->close(h,posAndSize,&txt,&cb))
+            if (GuiApp::mainWindow->codeEditorContainer->close(h,posAndSize,&txt,&cb))
                 res=1;
         }
 #endif
@@ -21888,7 +21889,7 @@ int _simHandleCustomizationScripts(luaWrap_lua_State* L)
         {
             int callType=luaToInt(L,1);
             retVal=0;
-            if (App::getEditModeType()==NO_EDIT_MODE)
+            if (GuiApp::getEditModeType()==NO_EDIT_MODE)
             {
                 retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_customizationscript,callType,nullptr,nullptr);
                 App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);

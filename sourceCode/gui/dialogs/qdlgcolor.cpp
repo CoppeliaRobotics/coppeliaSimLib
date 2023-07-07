@@ -3,6 +3,7 @@
 #include <tt.h>
 #include <utils.h>
 #include <app.h>
+#include <guiApp.h>
 
 CQDlgColor::CQDlgColor(QWidget *parent) :
     CDlgEx(parent),
@@ -73,16 +74,16 @@ void CQDlgColor::initializationEvent()
 
 void CQDlgColor::displayDlg(int objType,int objID1,int objID2,int colComponent,QWidget* theParentWindow,bool doNotCloseMaterialDlg,bool doNotCloseLightMaterialDlg,bool appendColorComponentInName)
 {
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return;
     if (!doNotCloseMaterialDlg)
-        App::mainWindow->dlgCont->close(MATERIAL_DLG);
+        GuiApp::mainWindow->dlgCont->close(MATERIAL_DLG);
     if (!doNotCloseLightMaterialDlg)
-        App::mainWindow->dlgCont->close(LIGHTMATERIAL_DLG);
-    App::mainWindow->dlgCont->close(COLOR_DLG);
-    if (App::mainWindow->dlgCont->openOrBringToFront(COLOR_DLG))
+        GuiApp::mainWindow->dlgCont->close(LIGHTMATERIAL_DLG);
+    GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
+    if (GuiApp::mainWindow->dlgCont->openOrBringToFront(COLOR_DLG))
     {
-        CQDlgColor* it=(CQDlgColor*)App::mainWindow->dlgCont->getDialog(COLOR_DLG);
+        CQDlgColor* it=(CQDlgColor*)GuiApp::mainWindow->dlgCont->getDialog(COLOR_DLG);
         if (it!=nullptr)
             it->initializeDlg(objType,objID1,objID2,colComponent,appendColorComponentInName);
     }
@@ -90,13 +91,13 @@ void CQDlgColor::displayDlg(int objType,int objID1,int objID2,int colComponent,Q
 
 void CQDlgColor::displayDlgModal(int objType,int objID1,int objID2,int colComponent,QWidget* theParentWindow,bool doNotCloseMaterialDlg,bool doNotCloseLightMaterialDlg,bool appendColorComponentInName)
 {
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return;
     if (!doNotCloseMaterialDlg)
-        App::mainWindow->dlgCont->close(MATERIAL_DLG);
+        GuiApp::mainWindow->dlgCont->close(MATERIAL_DLG);
     if (!doNotCloseLightMaterialDlg)
-        App::mainWindow->dlgCont->close(LIGHTMATERIAL_DLG);
-    App::mainWindow->dlgCont->close(COLOR_DLG);
+        GuiApp::mainWindow->dlgCont->close(LIGHTMATERIAL_DLG);
+    GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
     CQDlgColor it(theParentWindow);
     it.initializeDlg(objType,objID1,objID2,colComponent,appendColorComponentInName);
     it.makeDialogModal();

@@ -14,9 +14,10 @@
 #include <visionSensorRendering.h>
 #include <interfaceStackString.h>
 #ifdef SIM_WITH_GUI
-#include <rendering.h>
-#include <oGL.h>
-#include <QtOpenGL>
+    #include <rendering.h>
+    #include <oGL.h>
+    #include <QtOpenGL>
+    #include <guiApp.h>
 #endif
 
 #define DEFAULT_RENDERING_ATTRIBUTES (sim_displayattribute_renderpass|sim_displayattribute_forbidwireframe|sim_displayattribute_forbidedges|sim_displayattribute_originalcolors|sim_displayattribute_ignorelayer|sim_displayattribute_forvisionsensor)
@@ -412,7 +413,7 @@ CVisionSensor::~CVisionSensor()
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=DESTROY_GL_TEXTURE_UITHREADCMD;
         cmdIn.uintParams.push_back(_rayTracingTextureName);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         _rayTracingTextureName=(unsigned int)-1;
     }
 
@@ -866,7 +867,7 @@ bool CVisionSensor::detectEntity(int entityID,bool detectAll,bool entityIsModelA
     // vision sensors in the UI thread. So, we handle everything in the UI thread by default:
     bool onlyGuiThread=true;
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
     { // headless
         if (App::userSettings->visionSensorsUseGuiThread_headless==0)
             onlyGuiThread=false;
@@ -1218,7 +1219,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
             {
                 static bool alreadyShown=false;
                 if (!alreadyShown)
-                    App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin","The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,"POV-Ray plugin","The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 App::logMsg(sim_verbosity_errors,"the POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay");
                 alreadyShown=true;
             }
@@ -2734,7 +2735,7 @@ void CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bo
         cmdIn.boolParams.push_back(entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects);
         cmdIn.boolParams.push_back(hideEdgesIfModel);
         cmdIn.boolParams.push_back(overrideRenderableFlagsForNonCollections);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -2758,7 +2759,7 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiT
         cmdIn.cmdId=CREATE_GL_CONTEXT_FBO_TEXTURE_IF_NEEDED_UITHREADCMD;
         cmdIn.objectParams.push_back(this);
         cmdIn.boolParams.push_back(useStencilBuffer);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -2777,8 +2778,8 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded(bool useStenci
         QGLWidget* otherWidgetToShareResourcesWith=nullptr;
 #endif
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-            otherWidgetToShareResourcesWith=App::mainWindow->openglWidget;
+        if (GuiApp::mainWindow!=nullptr)
+            otherWidgetToShareResourcesWith=GuiApp::mainWindow->openglWidget;
 #endif
 
         // By default, we use QT_WINDOW_HIDE_TP, since
@@ -2789,7 +2790,7 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded(bool useStenci
         int offscreenContextType=COffscreenGlContext::QT_WINDOW_HIDE_TP;
 #ifdef LIN_SIM
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow==nullptr) // headless mode
+        if (GuiApp::mainWindow==nullptr) // headless mode
 #endif
             offscreenContextType=COffscreenGlContext::QT_OFFSCREEN_TP;
 #endif
@@ -3035,7 +3036,7 @@ void CVisionSensor::lookAt(CSView* viewObject,int viewPos[2],int viewSize[2])
                 SUIThreadCommand cmdOut;
                 cmdIn.cmdId=DESTROY_GL_TEXTURE_UITHREADCMD;
                 cmdIn.uintParams.push_back(_rayTracingTextureName);
-                App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 _rayTracingTextureName=(unsigned int)-1;
             }
         }

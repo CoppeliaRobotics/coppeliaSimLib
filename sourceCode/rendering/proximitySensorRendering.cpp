@@ -21,6 +21,7 @@ See the GNU General Public License for more details.
 #include <proximitySensorRendering.h>
 
 #ifdef SIM_WITH_GUI
+#include <guiApp.h>
 
 void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObject,int displayAttrib)
 {
@@ -33,7 +34,7 @@ void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObje
     if (proxSensor->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
         _enableAuxClippingPlanes(proxSensor->getObjectHandle());
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (proxSensor->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(proxSensor->getModelSelectionHandle());

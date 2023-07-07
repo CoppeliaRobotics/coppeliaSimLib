@@ -19,6 +19,7 @@
 #include <qdlgpaths.h>
 #include <qdlgpathshaping.h>
 #include <qdlgcommonproperties.h>
+#include <guiApp.h>
 
 #define TOP_BORDER_WIDTH 30
 
@@ -55,14 +56,14 @@ CQDlgObjectDialogContainer::CQDlgObjectDialogContainer(QWidget *parent) :
 
 CQDlgObjectDialogContainer::~CQDlgObjectDialogContainer()
 {
-    if (App::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
-        App::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
-    if (App::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
-        App::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
-    if (App::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))
-        App::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
-    if (App::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG))
-        App::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
+    if (GuiApp::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
+        GuiApp::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
+    if (GuiApp::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
+        GuiApp::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
+    if (GuiApp::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))
+        GuiApp::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
+    if (GuiApp::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG))
+        GuiApp::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
     delete ui;
 }
 
@@ -97,7 +98,7 @@ void CQDlgObjectDialogContainer::refresh()
     }
 
     CSceneObject* sel=App::currentWorld->sceneObjects->getLastSelectionObject();
-    int editMode=App::getEditModeType();
+    int editMode=GuiApp::getEditModeType();
     if (sel!=nullptr)
     {
         int t=sel->getObjectType();
@@ -208,55 +209,55 @@ void CQDlgObjectDialogContainer::refresh()
     {
         if (objTypeDlg==sim_object_path_type)
         {
-            if (CQDlgPathShaping::showWindow!=App::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG))
-                App::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
+            if (CQDlgPathShaping::showWindow!=GuiApp::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG))
+                GuiApp::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
         }
         else
         {
-            if (App::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG))
-                App::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
+            if (GuiApp::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG))
+                GuiApp::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
         }
         if (objTypeDlg==sim_object_shape_type)
         {
-            if (CQDlgShapeDyn::showDynamicWindow!=App::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))
-                App::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
+            if (CQDlgShapeDyn::showDynamicWindow!=GuiApp::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))
+                GuiApp::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
         }
         else
         {
-            if (App::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))
-                App::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
+            if (GuiApp::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))
+                GuiApp::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
         }
         if (objTypeDlg==sim_object_joint_type)
         {
-            if (CQDlgJoints::showDynamicWindow!=App::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
-                App::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
+            if (CQDlgJoints::showDynamicWindow!=GuiApp::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
+                GuiApp::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
         }
         else
         {
-            if (App::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
-                App::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
+            if (GuiApp::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
+                GuiApp::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
         }
         if ((objTypeDlg==sim_object_proximitysensor_type)||(objTypeDlg==sim_object_mill_type))
         {
-            if (CQDlgDetectionVolume::showVolumeWindow!=App::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
-                App::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
+            if (CQDlgDetectionVolume::showVolumeWindow!=GuiApp::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
+                GuiApp::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
         }
         else
         {
-            if (App::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
-                App::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
+            if (GuiApp::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
+                GuiApp::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
         }
     }
     else
     {
-        if (App::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
-            App::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
-        if (App::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
-            App::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
-        if (App::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))
-            App::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
-        if (App::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG))
-            App::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
+        if (GuiApp::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
+            GuiApp::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
+        if (GuiApp::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
+            GuiApp::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);
+        if (GuiApp::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))
+            GuiApp::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
+        if (GuiApp::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG))
+            GuiApp::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
     }
 
 

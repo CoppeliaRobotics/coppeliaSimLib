@@ -21,6 +21,7 @@ See the GNU General Public License for more details.
 #include <pageRendering.h>
 
 #ifdef SIM_WITH_GUI
+#include <guiApp.h>
 
 #define FLOATING_VIEW_MIN_SIZE 80
 const int auxViewsBtSize=12;
@@ -82,11 +83,11 @@ void displayContainerPageWatermark(const int* position,const int* size,int tagId
     glTexCoord2f(0.0,0.0);
     glVertex3i(0,0,0);
     glTexCoord2f(1.0,0.0);
-    glVertex3i(256*App::sc,0,0);
+    glVertex3i(256*GuiApp::sc,0,0);
     glTexCoord2f(1.0,1.0);
-    glVertex3i(256*App::sc,128*App::sc,0);
+    glVertex3i(256*GuiApp::sc,128*GuiApp::sc,0);
     glTexCoord2f(0.0,1.0);
-    glVertex3i(0,128*App::sc,0);
+    glVertex3i(0,128*GuiApp::sc,0);
     glEnd();
 
     glDisable(GL_TEXTURE_2D);
@@ -167,8 +168,8 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
         page->getBorderCorrectedFloatingViewPosition(avp[0],avp[1],avs[0],avs[1],avp[0],avp[1]);
 
 
-        VPoint pos(_pageSize[0]-avp[0]-avs[0]/2-auxViewsBtSize*App::sc/2,_pageSize[1]-avp[1]-auxViewsBtSize*App::sc/2);
-        VPoint size(avs[0]-auxViewsBtSize*App::sc,auxViewsBtSize*App::sc);
+        VPoint pos(_pageSize[0]-avp[0]-avs[0]/2-auxViewsBtSize*GuiApp::sc/2,_pageSize[1]-avp[1]-auxViewsBtSize*GuiApp::sc/2);
+        VPoint size(avs[0]-auxViewsBtSize*GuiApp::sc,auxViewsBtSize*GuiApp::sc);
 
         if (!page->getView(i)->getCanBeClosed())
         { // New since 17/02/2011 (so that we don't have a gap where the button was)
@@ -191,8 +192,8 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
         int buttonAttrib=sim_buttonproperty_label|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered;
         ogl::drawButton(pos,size,txtCol,bkgrndCol,bkgrndCol,name,buttonAttrib,false,0,0.0,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
 
-        pos.x=_pageSize[0]-avp[0]-auxViewsBtSize*App::sc/2;
-        size.x=auxViewsBtSize*App::sc;
+        pos.x=_pageSize[0]-avp[0]-auxViewsBtSize*GuiApp::sc/2;
+        size.x=auxViewsBtSize*GuiApp::sc;
         float* bkgrndCol2=ogl::TITLE_BAR_BUTTON_COLOR;
         buttonAttrib=sim_buttonproperty_button|sim_buttonproperty_enabled|sim_buttonproperty_horizontallycentered|sim_buttonproperty_verticallycentered;
         if ( (auxViewResizingAction==AUX_VIEW_CLOSING_BUTTON)&&(viewIndexOfResizingAction==i) )

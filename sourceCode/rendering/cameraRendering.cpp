@@ -21,6 +21,7 @@ See the GNU General Public License for more details.
 #include <cameraRendering.h>
 
 #ifdef SIM_WITH_GUI
+#include <guiApp.h>
 
 void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAttrib)
 {
@@ -32,7 +33,7 @@ void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAtt
     // Object display:
     if (camera->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (camera->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(camera->getModelSelectionHandle());

@@ -6,6 +6,7 @@
 #include <qdlgcolor.h>
 #include <app.h>
 #include <simStrings.h>
+#include <guiApp.h>
 
 CQDlgMirrors::CQDlgMirrors(QWidget *parent) :
     CDlgEx(parent),
@@ -24,14 +25,14 @@ CQDlgMirrors::~CQDlgMirrors()
 void CQDlgMirrors::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgMirrors::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditMode=App::getEditModeType()==NO_EDIT_MODE;
+    bool noEditMode=GuiApp::getEditModeType()==NO_EDIT_MODE;
     bool noEditModeAndNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 
     CMirror* it=App::currentWorld->sceneObjects->getLastSelectionMirror();
@@ -179,9 +180,9 @@ void CQDlgMirrors::on_qqColor_clicked()
         if (it!=nullptr)
         {
             if (it->getIsMirror())
-                CQDlgColor::displayDlg(COLOR_ID_MIRROR,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,0,App::mainWindow);
+                CQDlgColor::displayDlg(COLOR_ID_MIRROR,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,0,GuiApp::mainWindow);
             else
-                CQDlgMaterial::displayMaterialDlg(COLOR_ID_CLIPPINGPLANE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+                CQDlgMaterial::displayMaterialDlg(COLOR_ID_CLIPPINGPLANE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
         }
     }
 }

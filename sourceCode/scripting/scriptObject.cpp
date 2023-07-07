@@ -17,6 +17,9 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QRegularExpressionMatchIterator>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 // Old:
 #include <threadPool_old.h>
@@ -1314,8 +1317,8 @@ bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject* object,b
         if (closeCodeEditor)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->codeEditorContainer->closeFromScriptHandle(_scriptHandle,_previousEditionWindowPosAndSize,true);
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(_scriptHandle,_previousEditionWindowPosAndSize,true);
 #endif
         }
     }
@@ -1325,8 +1328,8 @@ bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject* object,b
 int CScriptObject::flagScriptForRemoval()
 { // retVal: 0--> cannot be removed, 1 --> will be removed in a delayed manner, 2--> can be removed now
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->codeEditorContainer->closeFromScriptHandle(_scriptHandle,_previousEditionWindowPosAndSize,true);
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(_scriptHandle,_previousEditionWindowPosAndSize,true);
 #endif
 
     if (App::currentWorld->simulation->isSimulationStopped())
@@ -1789,7 +1792,7 @@ bool CScriptObject::_loadCode()
                 }
                 else
                 { // success
-                    App::setRefreshHierarchyViewFlag();
+                    GuiApp::setRefreshHierarchyViewFlag();
                     if (_compatibilityMode_oldLua)
                     {
                         _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState,"_S.sysCallEx_init()");
@@ -1841,7 +1844,7 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     }
     else if (callType==sim_syscb_init)
     {
-        App::setRefreshHierarchyViewFlag();
+        GuiApp::setRefreshHierarchyViewFlag();
         if (_scriptState!=scriptState_uninitialized)
             return(0);
         _scriptState=scriptState_initialized;
@@ -2376,7 +2379,7 @@ bool CScriptObject::_killInterpreterState()
     _compatibilityMode_oldLua=false;
     if (!_threadedExecution_oldThreads) // those could run several times
         _numberOfPasses=0;
-    App::setRefreshHierarchyViewFlag();
+    GuiApp::setRefreshHierarchyViewFlag();
     return(retVal);
 }
 
@@ -2440,7 +2443,7 @@ void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char
         App::logScriptMsg(this,sim_verbosity_scripterrors,errM.c_str());
         _lastStackTraceback=errM;
     }
-    App::setRefreshHierarchyViewFlag();
+    GuiApp::setRefreshHierarchyViewFlag();
 }
 
 int CScriptObject::getScriptHandleFromInterpreterState_lua(void* LL)

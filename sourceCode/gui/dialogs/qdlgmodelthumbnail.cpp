@@ -6,6 +6,7 @@
 #include <simStrings.h>
 #include <vFileDialog.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 #define THUMBNAIL_THING_VIEW_ANGLE 45.0
 
@@ -299,7 +300,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
 void CQDlgModelThumbnail::on_qqFromFile_clicked()
 {
     std::string tst(App::folders->getTexturesPath());
-    std::string filenameAndPath=App::uiThread->getOpenFileName(this,0,"Loading texture...",tst.c_str(),"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
+    std::string filenameAndPath=GuiApp::uiThread->getOpenFileName(this,0,"Loading texture...",tst.c_str(),"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
     if (filenameAndPath.length()!=0)
     {
         if (VFile::doesFileExist(filenameAndPath.c_str()))
@@ -314,11 +315,11 @@ void CQDlgModelThumbnail::on_qqFromFile_clicked()
             }
 
             if (data==nullptr)
-                App::uiThread->messageBox_critical(App::mainWindow,"Thumbnail",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,"Thumbnail",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             else
             {
                 if ( (resX!=128)||(resY!=128) )
-                    App::uiThread->messageBox_critical(App::mainWindow,"Thumbnail",IDS_THUMBNAILS_REQUIRE_128X128_RESOLUTION,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,"Thumbnail",IDS_THUMBNAILS_REQUIRE_128X128_RESOLUTION,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 else
                 {
                     thumbnail.setUncompressedThumbnailImage((char*)data,n>3,true);

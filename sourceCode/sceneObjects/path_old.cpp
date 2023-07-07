@@ -7,6 +7,9 @@
 #include <utils.h>
 #include <app.h>
 #include <pathRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CPath_old::CPath_old()
 {
@@ -788,15 +791,15 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
     pointCenter.clear();
     CPathCont_old* pc;
     std::vector<int> selectedPathPoints;
-    if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
+    if (GuiApp::getEditModeType()&PATH_EDIT_MODE_OLD)
     {
-        pc=App::mainWindow->editModeContainer->getEditModePathContainer_old();
-        selectedPathPoints.assign(App::mainWindow->editModeContainer->getEditModeBuffer()->begin(),App::mainWindow->editModeContainer->getEditModeBuffer()->end());
+        pc=GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+        selectedPathPoints.assign(GuiApp::mainWindow->editModeContainer->getEditModeBuffer()->begin(),GuiApp::mainWindow->editModeContainer->getEditModeBuffer()->end());
     }
     else
     {
         pc=pathContainer;
-        selectedPathPoints.assign(App::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode()->begin(),App::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode()->end());
+        selectedPathPoints.assign(GuiApp::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode()->begin(),GuiApp::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode()->end());
     }
     for (int i=0;i<int(selectedPathPoints.size());i++)
     {
@@ -812,7 +815,7 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
     C4X4Matrix objAbs;
     objAbs.X=pointCenter;
         objAbs.M=getCumulativeTransformation().getMatrix().M;
-    bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1));
+    bool ctrlKeyDown=((GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getKeyDownState()&1));
     if (eventID!=_objectManipulationModeEventId)
         _objectManipulationModeRelativePositionOfClickedPoint=clicked3DPoint-objAbs.X;
     if ( (eventID!=_objectManipulationModeEventId)||(ctrlKeyDown!=_objectMovementPreferredAxesPreviousCtrlKeyDown) )
@@ -932,7 +935,7 @@ bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,cons
         double ss=getObjectMovementStepSize(0);
         if (ss==0.0)
             ss=App::userSettings->getTranslationStepSize();
-        if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
+        if ((GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getKeyDownState()&2))
             ss=0.001;
         double w=fmod(_objectManipulationModeSubTranslation(i),ss);
         v(i)=_objectManipulationModeSubTranslation(i)-w;

@@ -21,6 +21,7 @@ See the GNU General Public License for more details.
 #include <dummyRendering.h>
 
 #ifdef SIM_WITH_GUI
+#include <guiApp.h>
 
 void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib)
 {
@@ -32,7 +33,7 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
     // Object display:
     if (dummy->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (dummy->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(dummy->getModelSelectionHandle());

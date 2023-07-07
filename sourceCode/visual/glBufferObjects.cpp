@@ -2,6 +2,9 @@
 #include <glBufferObjects.h>
 #include <vDateTime.h>
 #include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CGlBufferObjects::CGlBufferObjects()
 { // Can only be called by the GUI thread!
@@ -85,7 +88,7 @@ void CGlBufferObjects::drawTriangles(const float* vertices,int verticesCnt,const
     int currentTimeInMs=(int)VDateTime::getTimeInMs();
     bool forceNotUsingBuffers=true;
 #ifdef SIM_WITH_GUI
-    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
+    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(GuiApp::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
 #endif
 
     static int lastTimeInMs=currentTimeInMs;
@@ -208,7 +211,7 @@ bool CGlBufferObjects::drawEdges(const float* vertices,int verticesCnt,const int
     int currentTimeInMs=(int)VDateTime::getTimeInMs();
     bool forceNotUsingBuffers=true;
 #ifdef SIM_WITH_GUI
-    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
+    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(GuiApp::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
 #endif
     static int lastTimeInMs=currentTimeInMs;
     static bool previousForceNotUsingBuffer=forceNotUsingBuffers;
@@ -334,7 +337,7 @@ int CGlBufferObjects::_buildVertexBuffer(const float* individualVertices,int ind
 
     bool forceNotUsingBuffers=true;
 #ifdef SIM_WITH_GUI
-    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
+    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(GuiApp::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
 #endif
     if (_buffersAreSupported&&(!forceNotUsingBuffers))
     {
@@ -380,7 +383,7 @@ int CGlBufferObjects::_buildNormalBuffer(const float* normals,int normalsCnt)
 
     bool forceNotUsingBuffers=true;
 #ifdef SIM_WITH_GUI
-    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
+    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(GuiApp::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
 #endif
     if (_buffersAreSupported&&(!forceNotUsingBuffers))
     {

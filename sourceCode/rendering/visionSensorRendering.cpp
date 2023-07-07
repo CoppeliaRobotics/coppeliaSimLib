@@ -21,6 +21,7 @@ See the GNU General Public License for more details.
 #include <visionSensorRendering.h>
 
 #ifdef SIM_WITH_GUI
+#include <guiApp.h>
 
 void displayVisionSensor(CVisionSensor* visionSensor,CViewableBase* renderingObject,int displayAttrib)
 {
@@ -32,7 +33,7 @@ void displayVisionSensor(CVisionSensor* visionSensor,CViewableBase* renderingObj
     // Object display:
     if (visionSensor->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (visionSensor->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(visionSensor->getModelSelectionHandle());

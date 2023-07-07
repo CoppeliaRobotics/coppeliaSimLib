@@ -4,6 +4,7 @@
 #include <utils.h>
 #include <qdlgcolor.h>
 #include <app.h>
+#include <guiApp.h>
 
 CQDlgFog::CQDlgFog(QWidget *parent) :
     CDlgEx(parent),
@@ -21,7 +22,7 @@ CQDlgFog::~CQDlgFog()
 void CQDlgFog::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqFogEnabled->setEnabled(noEditModeNoSim);
     ui->qqFogEnabled->setChecked(App::currentWorld->environment->getFogEnabled());
@@ -148,6 +149,6 @@ void CQDlgFog::on_qqAdjustColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgColor::displayDlg(COLOR_ID_FOG,-1,-1,0,App::mainWindow);
+        CQDlgColor::displayDlg(COLOR_ID_FOG,-1,-1,0,GuiApp::mainWindow);
     }
 }

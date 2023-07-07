@@ -12,6 +12,7 @@
 #include <vFileDialog.h>
 #include <app.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 CQDlgTextures::CQDlgTextures(QWidget *parent) :
     CDlgEx(parent),
@@ -19,8 +20,8 @@ CQDlgTextures::CQDlgTextures(QWidget *parent) :
 {
     _dlgType=TEXTURE_DLG;
     ui->setupUi(this);
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->dlgCont->close(TEXTURE_DLG);
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->dlgCont->close(TEXTURE_DLG);
     inMainRefreshRoutine=false;
 }
 
@@ -237,9 +238,9 @@ bool CQDlgTextures::isLinkedDataValid()
     }
     if (_objType==TEXTURE_ID_COMPOUND_SHAPE)
     {
-        if (App::mainWindow->editModeContainer->getEditModeObjectID()!=_objID1)
+        if (GuiApp::mainWindow->editModeContainer->getEditModeObjectID()!=_objID1)
             return(false);
-        if (App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex()!=_objID2)
+        if (GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex()!=_objID2)
             return(false);
     }
     if (_objType==TEXTURE_ID_OPENGL_GUI_BACKGROUND)
@@ -276,12 +277,12 @@ bool CQDlgTextures::isLinkedDataValid()
 
 void CQDlgTextures::displayDlg(int objType,int objID1,int objID2,QWidget* theParentWindow)
 {
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return;
-    App::mainWindow->dlgCont->close(TEXTURE_DLG);
-    if (App::mainWindow->dlgCont->openOrBringToFront(TEXTURE_DLG))
+    GuiApp::mainWindow->dlgCont->close(TEXTURE_DLG);
+    if (GuiApp::mainWindow->dlgCont->openOrBringToFront(TEXTURE_DLG))
     {
-        CQDlgTextures* tex=(CQDlgTextures*)App::mainWindow->dlgCont->getDialog(TEXTURE_DLG);
+        CQDlgTextures* tex=(CQDlgTextures*)GuiApp::mainWindow->dlgCont->getDialog(TEXTURE_DLG);
         if (tex!=nullptr)
             tex->_initializeDlg(objType,objID1,objID2);
     }
@@ -501,12 +502,12 @@ void CQDlgTextures::on_qqLoad_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         std::string tst(App::folders->getTexturesPath());
-        std::string filenameAndPath=App::uiThread->getOpenFileName(this,0,"Loading texture...",tst.c_str(),"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
+        std::string filenameAndPath=GuiApp::uiThread->getOpenFileName(this,0,"Loading texture...",tst.c_str(),"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
         if (filenameAndPath.length()!=0)
         {
             if (VFile::doesFileExist(filenameAndPath.c_str()))
             {
-                CQDlgTextureLoadOptions dlg(App::mainWindow);
+                CQDlgTextureLoadOptions dlg(GuiApp::mainWindow);
                 dlg.refresh();
                 dlg.makeDialogModal();
                 int scaleTo=0;
@@ -521,7 +522,7 @@ void CQDlgTextures::on_qqLoad_clicked()
                     data=nullptr;
                 }
                 if (data==nullptr)
-                    App::uiThread->messageBox_critical(App::mainWindow,"Texture",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,"Texture",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 else
                 {
                     // Check if the resolution is a power of 2:
@@ -539,7 +540,7 @@ void CQDlgTextures::on_qqLoad_clicked()
                         tmp/=2;
                     }
                     if ((oResX!=resX)||(oResY!=resY))
-                        App::uiThread->messageBox_warning(App::mainWindow,"Texture",IDS_TEXTURE_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                        GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Texture",IDS_TEXTURE_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=LOAD_ANDAPPLY_TEXTUREGUITRIGGEREDCMD;
                     cmd.intParams.push_back(_objType);

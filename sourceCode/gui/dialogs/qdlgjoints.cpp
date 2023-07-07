@@ -7,6 +7,7 @@
 #include <qdlgdependencyequation.h>
 #include <qdlgjointdyn.h>
 #include <simStrings.h>
+#include <guiApp.h>
 
 bool CQDlgJoints::showDynamicWindow=false;
 
@@ -27,14 +28,14 @@ CQDlgJoints::~CQDlgJoints()
 void CQDlgJoints::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgJoints::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     bool sel=App::currentWorld->sceneObjects->isLastSelectionAJoint();
     bool bigSel=(App::currentWorld->sceneObjects->isLastSelectionAJoint()&&(App::currentWorld->sceneObjects->getJointCountInSelection()>1));
     bool revolute=false;
@@ -197,7 +198,7 @@ void CQDlgJoints::refresh()
         ui->qqDiameter->setText("");
     }
 
-    VDialog* dlg=App::mainWindow->dlgCont->getDialog(JOINT_DYN_DLG);
+    VDialog* dlg=GuiApp::mainWindow->dlgCont->getDialog(JOINT_DYN_DLG);
     if (dlg!=nullptr)
         ((CQDlgJointDyn*)dlg)->refresh();
 
@@ -354,8 +355,8 @@ void CQDlgJoints::on_qqAdjustDynamicParameters_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         showDynamicWindow=!showDynamicWindow;
-        if (App::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG)!=showDynamicWindow)
-            App::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
+        if (GuiApp::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG)!=showDynamicWindow)
+            GuiApp::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
     }
 }
 
@@ -397,7 +398,7 @@ void CQDlgJoints::on_qqAdjustColorA_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_JOINT_A,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_JOINT_A,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }
 

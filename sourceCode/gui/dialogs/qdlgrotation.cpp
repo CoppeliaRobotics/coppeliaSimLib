@@ -4,6 +4,7 @@
 #include <utils.h>
 #include <app.h>
 #include <simStrings.h>
+#include <guiApp.h>
 
 int CQDlgRotation::coordMode=0; //0=abs,1=rel to parent
 double CQDlgRotation::rotAngles[3]={0.0,0.0,0.0};
@@ -31,13 +32,13 @@ CQDlgRotation::~CQDlgRotation()
 void CQDlgRotation::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgRotation::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    int editMode=App::getEditModeType();
+    int editMode=GuiApp::getEditModeType();
     int lastSelID=App::currentWorld->sceneObjects->getLastSelectionHandle();
     lastLastSelectionID=lastSelID;
 
@@ -161,7 +162,7 @@ void CQDlgRotation::refresh()
         { // Vertex or path edit mode
             if (editMode&VERTEX_EDIT_MODE)
             {
-                bool sel=(App::mainWindow->editModeContainer->getEditModeBufferSize()!=0);
+                bool sel=(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0);
                 if (transfMode==2)
                     transfMode=1;
 
@@ -171,12 +172,12 @@ void CQDlgRotation::refresh()
                 ui->qqTransfWorld->setEnabled(sel);
                 ui->qqTransfParent->setEnabled(sel);
                 ui->qqTransfOwn->setEnabled(false);
-                CShape* shape=App::mainWindow->editModeContainer->getEditModeShape();
+                CShape* shape=GuiApp::mainWindow->editModeContainer->getEditModeShape();
                 if (sel&&(shape!=nullptr))
                 {
                     // Coordinate part:
-                    int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
-                    C3Vector pos(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
+                    int ind=GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
+                    C3Vector pos(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
                     if (coordMode==0)
                         pos=shape->getFullCumulativeTransformation()*pos;
                     ui->qqCoordWorld->setChecked(coordMode==0);
@@ -189,16 +190,16 @@ void CQDlgRotation::refresh()
             }
             if (editMode&PATH_EDIT_MODE_OLD)
             {
-                bool sel=(App::mainWindow->editModeContainer->getEditModeBufferSize()!=0);
-                bool bigSel=(App::mainWindow->editModeContainer->getEditModeBufferSize()>1);
+                bool sel=(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0);
+                bool bigSel=(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()>1);
 
                 _enableCoordinatePart(sel,bigSel,true);
                 _enableTransformationPart(sel,sel,true);
                 if (sel)
                 {
-                    CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
-                    int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
-                    CSimplePathPoint_old* pp=App::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPoint(ind);
+                    CPath_old* path=GuiApp::mainWindow->editModeContainer->getEditModePath_old();
+                    int ind=GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
+                    CSimplePathPoint_old* pp=GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->getSimplePathPoint(ind);
                     if (sel&&(path!=nullptr)&&(pp!=nullptr))
                     {
                         // Coordinate part:
@@ -299,7 +300,7 @@ void CQDlgRotation::_setValuesTransformationPart(bool alsoRadioButtons)
 bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit,int index)
 {
     bool retVal=false;
-    int editMode=App::getEditModeType();
+    int editMode=GuiApp::getEditModeType();
     CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
     if ( (editMode==NO_EDIT_MODE)&&(object!=nullptr) )
     {
@@ -318,12 +319,12 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit,int index)
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
-    if ( (editMode&PATH_EDIT_MODE_OLD)&&(App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)&&(App::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
+    if ( (editMode&PATH_EDIT_MODE_OLD)&&(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0)&&(GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
     {
-        CPathCont_old* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer_old();
-        int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
+        CPathCont_old* pathCont=GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+        int ind=GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
         CSimplePathPoint_old* pp=pathCont->getSimplePathPoint(ind);
-        CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
+        CPath_old* path=GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         if ( (pp!=nullptr)&&(path!=nullptr) )
         {
             C7Vector tr(pp->getTransformation());
@@ -338,11 +339,11 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit,int index)
         }
         retVal=true;
     }
-    if ( (editMode&VERTEX_EDIT_MODE)&&(App::mainWindow->editModeContainer->getEditModeBufferSize()!=0) )
+    if ( (editMode&VERTEX_EDIT_MODE)&&(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0) )
     {
-        int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
-        C3Vector v(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
-        CShape* shape=App::mainWindow->editModeContainer->getEditModeShape();
+        int ind=GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
+        C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
+        CShape* shape=GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape!=nullptr)
         {
             C7Vector tr;
@@ -353,7 +354,7 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit,int index)
             tr=_getNewTransf(tr,newValueInUserUnit,index);
             if (coordMode==0)
                 tr=shape->getFullCumulativeTransformation().getInverse()*tr;
-            App::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(ind,tr.X);
+            GuiApp::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(ind,tr.X);
         }
         retVal=true;
     }
@@ -372,10 +373,10 @@ C7Vector CQDlgRotation::_getNewTransf(const C7Vector& transf,double newValueInUs
 bool CQDlgRotation::_applyCoord()
 {
     bool retVal=false;
-    int editMode=App::getEditModeType();
+    int editMode=GuiApp::getEditModeType();
     CSceneObject* object=App::currentWorld->sceneObjects->getLastSelectionObject();
     size_t objSelSize=App::currentWorld->sceneObjects->getSelectionCount();
-    int editObjSelSize=App::mainWindow->editModeContainer->getEditModeBufferSize();
+    int editObjSelSize=GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
     if ( (editMode==NO_EDIT_MODE)&&(object!=nullptr)&&(objSelSize>1) )
     {
         SSimulationThreadCommand cmd;
@@ -388,12 +389,12 @@ bool CQDlgRotation::_applyCoord()
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
-    if ( (editMode&PATH_EDIT_MODE_OLD)&&(editObjSelSize>1)&&(App::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
+    if ( (editMode&PATH_EDIT_MODE_OLD)&&(editObjSelSize>1)&&(GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
     {
-        CPathCont_old* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer_old();
-        int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
+        CPathCont_old* pathCont=GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+        int ind=GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
         CSimplePathPoint_old* pp=pathCont->getSimplePathPoint(ind);
-        CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
+        CPath_old* path=GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         if ( (pp!=nullptr)&&(path!=nullptr) )
         {
             C7Vector tr(pp->getTransformation());
@@ -401,7 +402,7 @@ bool CQDlgRotation::_applyCoord()
                 tr=path->getCumulativeTransformation()*tr;
             for (int i=0;i<editObjSelSize-1;i++)
             {
-                CSimplePathPoint_old* ppIt=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
+                CSimplePathPoint_old* ppIt=GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
                 if (ppIt!=nullptr)
                 {
                     C7Vector trIt(ppIt->getTransformation());
@@ -419,9 +420,9 @@ bool CQDlgRotation::_applyCoord()
     }
     if ( (editMode&VERTEX_EDIT_MODE)&&(editObjSelSize>1) )
     {
-        int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
-        C3Vector v(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
-        CShape* shape=App::mainWindow->editModeContainer->getEditModeShape();
+        int ind=GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
+        C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
+        CShape* shape=GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape!=nullptr)
         {
             C7Vector tr;
@@ -431,16 +432,16 @@ bool CQDlgRotation::_applyCoord()
                 tr=shape->getCumulativeTransformation()*tr;
             for (int i=0;i<editObjSelSize-1;i++)
             {
-                ind=App::mainWindow->editModeContainer->getEditModeBufferValue(i);
+                ind=GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(i);
                 C7Vector trIt;
                 trIt.setIdentity();
-                trIt.X=App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind);
+                trIt.X=GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind);
                 if (coordMode==0)
                     trIt=shape->getCumulativeTransformation()*trIt;
                 trIt.Q=tr.Q;
                 if (coordMode==0)
                     trIt=shape->getCumulativeTransformation().getInverse()*trIt;
-                App::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(ind,trIt.X);
+                GuiApp::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(ind,trIt.X);
             }
         }
         retVal=true;
@@ -451,9 +452,9 @@ bool CQDlgRotation::_applyCoord()
 bool CQDlgRotation::_applyTransformation(int axis)
 { // axis: 0-2, or -1 for all axes
     bool retVal=false;
-    int editMode=App::getEditModeType();
+    int editMode=GuiApp::getEditModeType();
     size_t objSelSize=App::currentWorld->sceneObjects->getSelectionCount();
-    int editObjSelSize=App::mainWindow->editModeContainer->getEditModeBufferSize();
+    int editObjSelSize=GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
     if ( (editMode==NO_EDIT_MODE)&&(objSelSize>0) )
     {
         double TX[3]={0.0,0.0,0.0};
@@ -477,13 +478,13 @@ bool CQDlgRotation::_applyTransformation(int axis)
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
-    if ( (editMode&PATH_EDIT_MODE_OLD)&&(editObjSelSize>0)&&(App::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
+    if ( (editMode&PATH_EDIT_MODE_OLD)&&(editObjSelSize>0)&&(GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
     {
-        CPathCont_old* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer_old();
-        CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
+        CPathCont_old* pathCont=GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+        CPath_old* path=GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         for (int i=0;i<editObjSelSize;i++)
         {
-            CSimplePathPoint_old* pp=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
+            CSimplePathPoint_old* pp=GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
             if ( (pp!=nullptr)&&(path!=nullptr) )
             {
                 C7Vector tr(pp->getTransformation());
@@ -500,21 +501,21 @@ bool CQDlgRotation::_applyTransformation(int axis)
     }
     if ( (editMode&VERTEX_EDIT_MODE)&&(editObjSelSize>0) )
     {
-        CShape* shape=App::mainWindow->editModeContainer->getEditModeShape();
+        CShape* shape=GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape!=nullptr)
         {
             for (int i=0;i<editObjSelSize;i++)
             {
                 C7Vector tr;
                 tr.setIdentity();
-                int ind=App::mainWindow->editModeContainer->getEditModeBufferValue(i);
-                tr.X=App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind);
+                int ind=GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(i);
+                tr.X=GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind);
                 if (transfMode==0)
                     tr=shape->getCumulativeTransformation()*tr;
                 _transform(tr,transfMode==2,axis);
                 if (transfMode==0)
                     tr=shape->getCumulativeTransformation().getInverse()*tr;
-                App::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(ind,tr.X);
+                GuiApp::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(ind,tr.X);
             }
         }
         retVal=true;

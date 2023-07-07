@@ -1,46 +1,42 @@
 #pragma once
 
-#include <uiThread.h>
 #include <simThread.h>
 #include <folderSystem.h>
 #include <userSettings.h>
-#include <vMutex.h>
 #include <worldContainer.h>
-#include <gm.h>
 #include <sigHandler.h>
-#include <simQApp.h>
 #include <simAndUiThreadSync.h>
-#ifdef SIM_WITH_GUI
-    #include <mainWindow.h>
-#endif
 
 class App
 {
 public:
+    enum {
+        appstage_none=0,
+        appstage_simInitDone,
+        appstage_guiInitDone, // set by UI thread
+        appstage_simRunning,
+        appstage_guiCleanupRequest,
+        appstage_guiCleanupDone, // set by UI thread
+        appstage_simCleanupDone,
+    };
+
     App();
     virtual ~App();
 
-    void initGui(int options);
-    void runGui();
-    void cleanupGui();
-
-    static void setBrowserEnabled(bool e);
-    static bool getBrowserEnabled();
     static long long int getFreshUniqueId();
 
     static void beep(int frequ=5000,int duration=1000);
     static void createWorldsContainer();
     static void deleteWorldsContainer();
 
-    static void postExitRequest();
-    static bool getExitRequest();
 
     static void init(const char* appDir,int options);
     static void cleanup();
     static void loop(void(*callback)(),bool stepIfRunning);
 
-    static void setQuitLevel(int l);
-    static int getQuitLevel();
+    static std::string getApplicationDir();
+    static void postExitRequest();
+    static bool getExitRequest();
 
     static std::string getApplicationArgument(int index);
     static void setApplicationArgument(int index,std::string arg);
@@ -51,25 +47,8 @@ public:
     static void setAdditionalAddOnScript2(const char* script);
     static std::string getAdditionalAddOnScript2();
 
-    static bool executeUiThreadCommand(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
     static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,double floatP1=0.0,double floatP2=0.0,const char* stringP1=nullptr,const char* stringP2=nullptr,int executionDelay=0);
     static void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
-
-    static int getEditModeType(); // helper
-    static void setRebuildHierarchyFlag(); // helper
-    static void setResetHierarchyViewFlag(); // helper
-    static void setRefreshHierarchyViewFlag(); // helper
-    static void setLightDialogRefreshFlag(); // helper
-    static void setFullDialogRefreshFlag(); // helper
-    static void setDialogRefreshDontPublishFlag(); // helper
-    static void setToolbarRefreshFlag(); // helper
-    static int getMouseMode(); // helper
-    static void setMouseMode(int mm); // helper
-    static void setDefaultMouseMode(); // helper
-    static bool isFullScreen(); // helper
-    static void setFullScreen(bool f); // helper
-    static bool getShowInertias();
-    static void setShowInertias(bool show);
 
     static std::string getConsoleLogFilter();
     static void setConsoleLogFilter(const char* filter);
@@ -88,15 +67,14 @@ public:
     static void setConsoleMsgToFile(bool f);
     static std::string getConsoleMsgFile();
     static void setConsoleMsgFile(const char* f);
-    static bool isUiThread();
     static void clearStatusbar();
     static int getDlgVerbosity();
     static void setDlgVerbosity(int v);
     static void setStartupScriptString(const char* str);
     static void setExitCode(int c);
     static int getExitCode();
-    static bool isOnline();
-    static bool isQtAppBuilt();
+    static int getAppStage();
+    static void setAppStage(int s);
 
     static void undoRedo_sceneChanged(const char* txt);
     static void undoRedo_sceneChangedGradual(const char* txt);
@@ -111,18 +89,10 @@ public:
     static CUserSettings* userSettings;
     static CWorldContainer* worldContainer;
     static CWorld* currentWorld; // actually worldContainer->currentWorld
-    static CUiThread* uiThread;
     static CSimThread* simThread;
-    static CGm* gm;
-
-    static int operationalUIParts;
-    static int sc;
-
-    static void _logMsgToStatusbar(const char* msg,bool html);
 
 private:
     static void _simulatorLoop(bool stepIfRunning=true);
-    static void _loadLegacyPlugins();
     static void _logMsg(const char* originName,int verbosityLevel,const char* msg,const char* subStr1,const char* subStr2=nullptr,const char* subStr3=nullptr);
     static void _logMsg(const char* originName,int verbosityLevel,const char* msg,int int1,int int2=0,int int3=0);
     static void __logMsg(const char* originName,int verbosityLevel,const char* msg,int consoleVerbosity=-1,int statusbarVerbosity=-1);
@@ -133,14 +103,9 @@ private:
     static VFile* _consoleMsgsFile;
     static VArchive* _consoleMsgsArchive;
 
-    static bool _browserEnabled;
-    static volatile bool _canInitSimThread;
     static long long int _nextUniqueId;
     static SignalHandler* _sigHandler;
 
-    static void _processGuiEventsUntilQuit();
-
-    static bool _exitRequest;
     static std::vector<std::string> _applicationArguments;
     static std::map<std::string,std::string> _applicationNamedParams;
     static std::string _additionalAddOnScript1;
@@ -149,32 +114,12 @@ private:
     static int _statusbarVerbosity;
     static int _dlgVerbosity;
     static int _exitCode;
-    static bool _online;
-    static bool _showInertias;
+    static bool _exitRequest;
+    static volatile int _appStage;
     static std::string _consoleLogFilterStr;
     static std::string _startupScriptString;
 
-    static volatile int _quitLevel;
-
     static std::string _applicationDir;
-
-public:
-    static CSimQApp* qtApp;
-
-private:
-    static int _qApp_argc;
-    static char _qApp_arg0[];
-    static char* _qApp_argv[1];
-
-#ifdef SIM_WITH_GUI
-public:
-    static void showSplashScreen();
-    static void setIcon();
-    static CMainWindow* mainWindow;
-    static void createMainWindow();
-    static void deleteMainWindow();
-    static void setShowConsole(bool s);
-#endif
 };
 
 class CFuncTrace

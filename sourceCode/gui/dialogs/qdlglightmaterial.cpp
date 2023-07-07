@@ -2,6 +2,7 @@
 #include <ui_qdlglightmaterial.h>
 #include <tt.h>
 #include <app.h>
+#include <guiApp.h>
 
 CQDlgLightMaterial::CQDlgLightMaterial(QWidget *parent) :
     CDlgEx(parent),
@@ -11,15 +12,15 @@ CQDlgLightMaterial::CQDlgLightMaterial(QWidget *parent) :
     ui->setupUi(this);
     _lastSelectedObjectID=App::currentWorld->sceneObjects->getLastSelectionHandle();
     _objectSelectionSize=App::currentWorld->sceneObjects->getSelectionCount();
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->dlgCont->close(COLOR_DLG);
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
 }
 
 CQDlgLightMaterial::~CQDlgLightMaterial()
 {
     delete ui;
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->dlgCont->close(COLOR_DLG);
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
 }
 
 void CQDlgLightMaterial::refresh()
@@ -52,14 +53,14 @@ bool CQDlgLightMaterial::isLinkedDataValid()
 
 void CQDlgLightMaterial::displayMaterialDlg(int objType,int objID1,int objID2,QWidget* theParentWindow)
 {
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return;
 
-    App::mainWindow->dlgCont->close(LIGHTMATERIAL_DLG);
-    App::mainWindow->dlgCont->close(COLOR_DLG);
-    if (App::mainWindow->dlgCont->openOrBringToFront(LIGHTMATERIAL_DLG))
+    GuiApp::mainWindow->dlgCont->close(LIGHTMATERIAL_DLG);
+    GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
+    if (GuiApp::mainWindow->dlgCont->openOrBringToFront(LIGHTMATERIAL_DLG))
     {
-        CQDlgLightMaterial* mat=(CQDlgLightMaterial*)App::mainWindow->dlgCont->getDialog(LIGHTMATERIAL_DLG);
+        CQDlgLightMaterial* mat=(CQDlgLightMaterial*)GuiApp::mainWindow->dlgCont->getDialog(LIGHTMATERIAL_DLG);
         if (mat!=nullptr)
             mat->_initializeDlg(objType,objID1,objID2);
     }
@@ -78,7 +79,7 @@ void CQDlgLightMaterial::_initializeDlg(int objType,int objID1,int objID2)
 
 void CQDlgLightMaterial::_adjustCol(int colComponent)
 {
-    CQDlgColor::displayDlg(_objType,_objID1,_objID2,colComponent,App::mainWindow,false,true,true);
+    CQDlgColor::displayDlg(_objType,_objID1,_objID2,colComponent,GuiApp::mainWindow,false,true,true);
 }
 
 void CQDlgLightMaterial::cancelEvent()

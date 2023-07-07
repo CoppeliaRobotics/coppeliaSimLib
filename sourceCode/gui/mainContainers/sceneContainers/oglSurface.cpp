@@ -9,6 +9,9 @@
 #include <vDateTime.h>
 #include <simStrings.h>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 enum {NO_ONE=0,HIERARCHY_PART,VIEW_SELECTION_PART,PAGE_PART,
         HIERARCHY_RESIZING_PART,HIERARCHY_CLOSING_PART,BROWSER_PART,
@@ -25,8 +28,8 @@ COglSurface::COglSurface()
 {
     TRACE_INTERNAL;
 
-    _hierarchyWidth=HIERARCHY_WIDTH*App::sc;
-    _hierarchyMinWidth=HIERARCHY_MIN_WIDTH*App::sc;
+    _hierarchyWidth=HIERARCHY_WIDTH*GuiApp::sc;
+    _hierarchyMinWidth=HIERARCHY_MIN_WIDTH*GuiApp::sc;
 
     viewSelector=new CViewSelector();
     pageSelector=new CPageSelector();
@@ -44,8 +47,8 @@ COglSurface::~COglSurface()
 
 void COglSurface::adjustBrowserAndHierarchySizesToDefault()
 {
-    _hierarchyWidth=HIERARCHY_WIDTH*App::sc;
-    _hierarchyMinWidth=HIERARCHY_MIN_WIDTH*App::sc;
+    _hierarchyWidth=HIERARCHY_WIDTH*GuiApp::sc;
+    _hierarchyMinWidth=HIERARCHY_MIN_WIDTH*GuiApp::sc;
 }
 
 void COglSurface::setSurfaceSizeAndPosition(int sizeX,int sizeY,int posX,int posY)
@@ -68,7 +71,7 @@ bool COglSurface::getMouseRelPosObjectAndViewSize(int x,int y,int relPos[2],int&
         return(false);
     if (_hierarchyEnabled)
     {
-        VPoint btl(offx+_hierarchyWidth-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*App::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc);
+        VPoint btl(offx+_hierarchyWidth-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*GuiApp::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*GuiApp::sc);
         VPoint btr(offx+_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]);
         if ( (mouseRelativePosition[0]>=btl.x)&&(mouseRelativePosition[0]<=btr.x)&&
             (mouseRelativePosition[1]>=btl.y)&&(mouseRelativePosition[1]<=btr.y) )
@@ -116,7 +119,7 @@ bool COglSurface::leftMouseButtonDown(int x,int y,int selectionStatus)
     }
     if (_hierarchyEnabled)
     {
-        VPoint btl(offx+_hierarchyWidth-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*App::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc);
+        VPoint btl(offx+_hierarchyWidth-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*GuiApp::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*GuiApp::sc);
         VPoint btr(offx+_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]);
         if ( (mouseRelativePosition[0]>=btl.x)&&(mouseRelativePosition[0]<=btr.x)&&
             (mouseRelativePosition[1]>=btl.y)&&(mouseRelativePosition[1]<=btr.y) )
@@ -174,14 +177,14 @@ void COglSurface::leftMouseButtonUp(int x,int y)
     {
         if (_caughtElements&sim_left_button)
         {
-            VPoint btl(offx+_hierarchyWidth-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*App::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc);
+            VPoint btl(offx+_hierarchyWidth-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*GuiApp::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*GuiApp::sc);
             VPoint btr(offx+_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]);
-            if ( hierarchyCloseCopy&&App::mainWindow->getHierarchyToggleViaGuiEnabled() )
+            if ( hierarchyCloseCopy&&GuiApp::mainWindow->getHierarchyToggleViaGuiEnabled() )
             {
                 if ( (mouseRelativePosition[0]>=btl.x)&&(mouseRelativePosition[0]<=btr.x)&&
                     (mouseRelativePosition[1]>=btl.y)&&(mouseRelativePosition[1]<=btr.y) )
                 { // We have to close the hierarchy!!
-                    if (App::getEditModeType()==NO_EDIT_MODE) // In edit mode, we disable the close button (needs to stay open)
+                    if (GuiApp::getEditModeType()==NO_EDIT_MODE) // In edit mode, we disable the close button (needs to stay open)
                         setHierarchyEnabled(false);
                 }
             }
@@ -247,7 +250,7 @@ void COglSurface::mouseMove(int x,int y,bool passiveAndFocused)
     if (_hierarchyEnabled)
     {
         int b=0;
-        VPoint btl(b+_hierarchyWidth-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*App::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc);
+        VPoint btl(b+_hierarchyWidth-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*GuiApp::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*GuiApp::sc);
         VPoint btr(b+_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]);
         if (!passiveAndFocused)
         {
@@ -503,11 +506,11 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
             glDisable(GL_DEPTH_TEST);
 
             std::string hierarchyTitle("  Scene hierarchy");
-            int t=App::getEditModeType();
+            int t=GuiApp::getEditModeType();
             if (t&SHAPE_EDIT_MODE)
             {
                 std::string objName("ERROR");
-                CShape* theShape=App::mainWindow->editModeContainer->getEditModeShape();
+                CShape* theShape=GuiApp::mainWindow->editModeContainer->getEditModeShape();
                 if (theShape!=nullptr)
                     objName=theShape->getObjectAlias_printPath();
                 if (t&VERTEX_EDIT_MODE)
@@ -521,7 +524,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
             if (t&PATH_EDIT_MODE_OLD)
             {
                 std::string objName("  ERROR");
-                CPath_old* thePath=App::mainWindow->editModeContainer->getEditModePath_old();
+                CPath_old* thePath=GuiApp::mainWindow->editModeContainer->getEditModePath_old();
                 if (thePath!=nullptr)
                     objName=thePath->getObjectAlias_printPath();
                 hierarchyTitle="  Control points (";
@@ -530,12 +533,12 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
 
             float txtCol[3]={0.2f,0.2f,0.2f};
             float* bkgrndCol=ogl::TITLE_BAR_COLOR;
-            VPoint size(_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc);
+            VPoint size(_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*GuiApp::sc);
             VPoint pos(b+size.x/2,surfaceSize[1]-size.y/2);
             int buttonAttrib=sim_buttonproperty_label|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered;
             ogl::drawButton(pos,size,txtCol,bkgrndCol,bkgrndCol,hierarchyTitle,buttonAttrib,false,0,0.0,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
-            pos.x=b+_hierarchyWidth+(-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH/2)*App::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH;
-            size.x=BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*App::sc;
+            pos.x=b+_hierarchyWidth+(-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH/2)*GuiApp::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH;
+            size.x=BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*GuiApp::sc;
             float* bkgrndCol2=ogl::TITLE_BAR_BUTTON_COLOR;
             buttonAttrib=sim_buttonproperty_button|sim_buttonproperty_enabled|sim_buttonproperty_horizontallycentered|sim_buttonproperty_verticallycentered;
             if (_hierarchyClosingButtonDown)
@@ -544,7 +547,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
 
             ogl::setMaterialColor(sim_colorcomponent_emission,ogl::SEPARATION_LINE_COLOR);
             glLineWidth(1.0);
-            ogl::drawSingle2dLine_i(b,surfaceSize[1]+(-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT-1)*App::sc,b+_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]+(-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT-1)*App::sc);
+            ogl::drawSingle2dLine_i(b,surfaceSize[1]+(-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT-1)*GuiApp::sc,b+_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,surfaceSize[1]+(-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT-1)*GuiApp::sc);
             glLineWidth(1.0);
 
             glEnable(GL_DEPTH_TEST);
@@ -568,7 +571,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
         }
     }
 
-    if ((App::mainWindow!=nullptr)&&App::mainWindow->simulationRecorder->getIsRecording()&&App::mainWindow->simulationRecorder->getShowCursor())
+    if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->simulationRecorder->getIsRecording()&&GuiApp::mainWindow->simulationRecorder->getShowCursor())
     { // OpenGL cursor:
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -621,7 +624,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
         glEnd();
         App::worldContainer->globalGuiTextureCont->endTextureDisplay();
 
-        if ((App::mainWindow!=nullptr)&&App::mainWindow->simulationRecorder->getShowButtonStates())
+        if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->simulationRecorder->getShowButtonStates())
         {       
             if (mouseButtonState&0x0f)
             {
@@ -660,7 +663,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
                 glEnd();
                 App::worldContainer->globalGuiTextureCont->endTextureDisplay();
 
-                if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
+                if ((GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getKeyDownState()&2))
                 {
                     App::worldContainer->globalGuiTextureCont->startTextureDisplay(CURSOR_SHIFT_BUTTON);
 
@@ -681,7 +684,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
                     glEnd();
                     App::worldContainer->globalGuiTextureCont->endTextureDisplay();
                 }
-                if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))
+                if ((GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getKeyDownState()&1))
                 {
                     App::worldContainer->globalGuiTextureCont->startTextureDisplay(CURSOR_CTRL_BUTTON);
 
@@ -711,7 +714,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
         glEnable(GL_DEPTH_TEST);
         int b=0;
         if ( (_hierarchyEnabled)&&(mousePos[0]<=b+_hierarchyWidth+6)&&(mousePos[0]>=b-36) ) // 36 because the cursor can be very wide (when the mouse button states are displayed)
-            App::setRefreshHierarchyViewFlag();
+            GuiApp::setRefreshHierarchyViewFlag();
     }
 
 //*************************************************
@@ -756,7 +759,7 @@ void COglSurface::setUpDefaultValues()
 
     actualizeAllSurfacesSizeAndPosition();  // Important because the newly created views
                                             // don't have their position/size set!
-    App::setToolbarRefreshFlag();
+    GuiApp::setToolbarRefreshFlag();
 }
 
 int COglSurface::getCaughtElements()
@@ -836,7 +839,7 @@ void COglSurface::setHierarchyEnabled(bool isEnabled)
     if (!isEnabled)
         setFocusObject(FOCUS_ON_PAGE);
     actualizeAllSurfacesSizeAndPosition();
-    App::setToolbarRefreshFlag();
+    GuiApp::setToolbarRefreshFlag();
 }
 
 void COglSurface::setPageSelectionActive(bool isActive)
@@ -846,19 +849,19 @@ void COglSurface::setPageSelectionActive(bool isActive)
         pageSelectionActive=isActive;
         if (isActive)
         {
-            App::mainWindow->closeTemporarilyDialogsForPageSelector();
+            GuiApp::mainWindow->closeTemporarilyDialogsForPageSelector();
             setFocusObject(FOCUS_ON_PAGE_SELECTION_WINDOW);
         }
         else
-            App::mainWindow->reopenTemporarilyClosedDialogsForPageSelector();
+            GuiApp::mainWindow->reopenTemporarilyClosedDialogsForPageSelector();
 
         actualizeAllSurfacesSizeAndPosition();
-        App::setToolbarRefreshFlag();
+        GuiApp::setToolbarRefreshFlag();
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -869,19 +872,19 @@ void COglSurface::setViewSelectionActive(bool isActive)
         viewSelectionActive=isActive;
         if (isActive)
         {
-            App::mainWindow->closeTemporarilyDialogsForViewSelector();
+            GuiApp::mainWindow->closeTemporarilyDialogsForViewSelector();
             setFocusObject(FOCUS_ON_VIEW_SELECTION_WINDOW);
         }
         else
-            App::mainWindow->reopenTemporarilyClosedDialogsForViewSelector();
+            GuiApp::mainWindow->reopenTemporarilyClosedDialogsForViewSelector();
 
         actualizeAllSurfacesSizeAndPosition();
-        App::setToolbarRefreshFlag();
+        GuiApp::setToolbarRefreshFlag();
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -895,7 +898,7 @@ void COglSurface::setHierarchySurfaceSizeAndPosition()
             _hierarchyWidth=surfaceSize[0]-b;
         if (_hierarchyWidth<_hierarchyMinWidth)
             _hierarchyWidth=_hierarchyMinWidth;
-        hierarchy->setRenderingSizeAndPosition(_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH+1,surfaceSize[1]+(-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT-1-1)*App::sc,surfacePosition[0]+b,surfacePosition[1]);
+        hierarchy->setRenderingSizeAndPosition(_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH+1,surfaceSize[1]+(-BROWSER_HIERARCHY_TITLE_BAR_HEIGHT-1-1)*GuiApp::sc,surfacePosition[0]+b,surfacePosition[1]);
     }
 }
 

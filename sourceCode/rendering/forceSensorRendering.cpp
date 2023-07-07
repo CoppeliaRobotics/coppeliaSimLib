@@ -21,6 +21,7 @@ See the GNU General Public License for more details.
 #include <forceSensorRendering.h>
 
 #ifdef SIM_WITH_GUI
+#include <guiApp.h>
 
 void displayForceSensor(CForceSensor* forceSensor,CViewableBase* renderingObject,int displayAttrib)
 {
@@ -50,7 +51,7 @@ void displayForceSensor(CForceSensor* forceSensor,CViewableBase* renderingObject
 
 void _displayForceSensor(CForceSensor* forceSensor,int displayAttrib,bool partOne,double sizeParam)
 {
-    if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+    if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
     {
         if (forceSensor->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
             glLoadName(forceSensor->getModelSelectionHandle());

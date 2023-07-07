@@ -21,6 +21,7 @@ See the GNU General Public License for more details.
 #include <jointRendering.h>
 
 #ifdef SIM_WITH_GUI
+#include <guiApp.h>
 
 void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib)
 {
@@ -68,7 +69,7 @@ void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib
 
 void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,double sizeParam)
 {
-    if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+    if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
     {
         if (joint->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
             glLoadName(joint->getModelSelectionHandle());

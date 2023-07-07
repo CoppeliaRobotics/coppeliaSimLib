@@ -21,6 +21,7 @@
     #include <toolBarCommand.h>
     #include <vMessageBox.h>
     #include <engineProperties.h>
+    #include <guiApp.h>
 #endif
 
 CSimThread::CSimThread()
@@ -51,7 +52,7 @@ void CSimThread::executeMessages()
         if (triggerType==2)
         {
             App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_beforerendering);
-            App::uiThread->requestSceneRender_wait(); // non-threaded rendering
+            GuiApp::uiThread->requestSceneRender_wait(); // non-threaded rendering
         }
     }
 #endif
@@ -177,7 +178,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=CHKFLTLIC_UITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         int dl=0;
         int res=cmdOut.intParams[0];
         if (res>0)
@@ -187,7 +188,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 while (true)
                 {
                     cmdOut.intParams.clear();
-                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                     if (cmdOut.intParams[0]!=2)
                         break;
                 }
@@ -202,7 +203,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         App::logMsg(sim_verbosity_errors,cmd.stringParams[0].c_str());
 #ifdef SIM_WITH_GUI
-        App::uiThread->messageBox_informationSystemModal(App::mainWindow,"New CoppeliaSim Release",cmd.stringParams[0].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+        GuiApp::uiThread->messageBox_informationSystemModal(GuiApp::mainWindow,"New CoppeliaSim Release",cmd.stringParams[0].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #endif
         App::postExitRequest();
     }
@@ -212,7 +213,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if ( (App::getConsoleVerbosity()>=sim_verbosity_trace)&&(!App::userSettings->suppressStartupDialogs) )
         {
 #ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_information(App::mainWindow,"Tracing","Tracing is turned on: this might lead to drastic performance loss.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+            GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,"Tracing","Tracing is turned on: this might lead to drastic performance loss.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #else
             App::logMsg(sim_verbosity_warnings,"tracing is turned on: this might lead to drastic performance loss.");
 #endif
@@ -228,7 +229,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
             SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         }
     }
     if (cmd.cmdId==PLUS_HVUD_CMD)
@@ -239,7 +240,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
             SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         }
     }
 
@@ -319,28 +320,28 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
                     SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 }
             }
         }
         if (cmd.cmdId==OPEN_SCRIPT_EDITOR_CMD)
         {
-            if (App::getEditModeType()==NO_EDIT_MODE)
+            if (GuiApp::getEditModeType()==NO_EDIT_MODE)
             {
                 CScriptObject* it=App::worldContainer->getScriptFromHandle(cmd.intParams[0]);
-                if ((it!=nullptr)&&(App::mainWindow!=nullptr))
+                if ((it!=nullptr)&&(GuiApp::mainWindow!=nullptr))
                 {
                     if (it->getScriptType()==sim_scripttype_customizationscript)
-                        App::mainWindow->codeEditorContainer->openCustomizationScript(cmd.intParams[0],-1);
+                        GuiApp::mainWindow->codeEditorContainer->openCustomizationScript(cmd.intParams[0],-1);
                     else
-                        App::mainWindow->codeEditorContainer->openSimulationScript(cmd.intParams[0],-1);
+                        GuiApp::mainWindow->codeEditorContainer->openSimulationScript(cmd.intParams[0],-1);
                 }
             }
         }
 
         if (cmd.cmdId==OPEN_MODAL_MODEL_PROPERTIES_CMD)
         {
-            if (App::getEditModeType()==NO_EDIT_MODE)
+            if (GuiApp::getEditModeType()==NO_EDIT_MODE)
             {
                 SUIThreadCommand cmdIn;
                 SUIThreadCommand cmdOut;
@@ -349,10 +350,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
                     SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 }
                 App::undoRedo_sceneChanged(""); // **************** UNDO THINGY ****************
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
             }
         }
 
@@ -381,7 +382,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
 
         // Edit mode commands:
-        if ( (App::mainWindow!=nullptr)&&(cmd.cmdId>EDIT_MODE_COMMANDS_START_EMCMD)&&(cmd.cmdId<EDIT_MODE_COMMANDS_END_EMCMD) )
+        if ( (GuiApp::mainWindow!=nullptr)&&(cmd.cmdId>EDIT_MODE_COMMANDS_START_EMCMD)&&(cmd.cmdId<EDIT_MODE_COMMANDS_END_EMCMD) )
         {
             CSceneObject* additionalSceneObject=nullptr;
             if (cmd.cmdId==PATH_EDIT_MODE_OLD_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD)
@@ -393,19 +394,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         additionalSceneObject=nullptr;
                 }
             }
-            App::mainWindow->editModeContainer->processCommand(cmd.cmdId,additionalSceneObject);
+            GuiApp::mainWindow->editModeContainer->processCommand(cmd.cmdId,additionalSceneObject);
         }
 
         if (cmd.cmdId==DISPLAY_MESSAGE_CMD)
         {
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
                 if (cmd.intParams[0]==sim_msgbox_type_info)
-                    App::uiThread->messageBox_information(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 if (cmd.intParams[0]==sim_msgbox_type_warning)
-                    App::uiThread->messageBox_warning(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 if (cmd.intParams[0]==sim_msgbox_type_critical)
-                    App::uiThread->messageBox_critical(App::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,cmd.stringParams[0].c_str(),cmd.stringParams[1].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
         }
 
@@ -450,14 +451,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if ( (cmd.cmdId>=VIEW_1_CMD)&&(cmd.cmdId<=VIEW_8_CMD) )
             CToolBarCommand::processCommand(cmd.cmdId);
 
-        if (App::mainWindow!=nullptr)
+        if (GuiApp::mainWindow!=nullptr)
         {
             if ( (cmd.cmdId==EXPAND_HIERARCHY_CMD)||(cmd.cmdId==COLLAPSE_HIERARCHY_CMD) )
-                App::mainWindow->oglSurface->hierarchy->processCommand(cmd.cmdId);
+                GuiApp::mainWindow->oglSurface->hierarchy->processCommand(cmd.cmdId);
             if ( (cmd.cmdId==EXPAND_SELECTED_HIERARCHY_CMD)||(cmd.cmdId==COLLAPSE_SELECTED_HIERARCHY_CMD) )
-                App::mainWindow->oglSurface->hierarchy->processCommand(cmd.cmdId);
+                GuiApp::mainWindow->oglSurface->hierarchy->processCommand(cmd.cmdId);
             if ( (cmd.cmdId>=HIERARCHY_COLORING_NONE_CMD)&&(cmd.cmdId<=HIERARCHY_COLORING_BLUE_CMD) )
-                App::mainWindow->oglSurface->hierarchy->processCommand(cmd.cmdId);
+                GuiApp::mainWindow->oglSurface->hierarchy->processCommand(cmd.cmdId);
         }
 
         if ( (cmd.cmdId>VIEW_FUNCTIONS_START_VFCMD)&&(cmd.cmdId<VIEW_FUNCTIONS_END_VFCMD) )
@@ -472,7 +473,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
 
         if ( (cmd.cmdId>VIEW_SELECTOR_START_VSCMD)&&(cmd.cmdId<VIEW_SELECTOR_END_VSCMD) )
-            App::mainWindow->oglSurface->viewSelector->processCommand(cmd.cmdId,cmd.intParams[0]);
+            GuiApp::mainWindow->oglSurface->viewSelector->processCommand(cmd.cmdId,cmd.intParams[0]);
 
 
         if (cmd.cmdId==MODEL_BROWSER_DRAG_AND_DROP_CMD)
@@ -497,13 +498,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 //                    }
                 }
             }
-            App::mainWindow->openglWidget->clearModelDragAndDropInfo();
+            GuiApp::mainWindow->openglWidget->clearModelDragAndDropInfo();
             App::undoRedo_sceneChanged("");
         }
 
         if (cmd.cmdId==DISPLAY_VARIOUS_WARNING_MESSAGES_DURING_SIMULATION_CMD)
         {
-            if ( (!App::currentWorld->simulation->isSimulationStopped())&&(!App::isFullScreen())&&(App::mainWindow!=nullptr) )
+            if ( (!App::currentWorld->simulation->isSimulationStopped())&&(!GuiApp::isFullScreen())&&(GuiApp::mainWindow!=nullptr) )
             {
                 App::currentWorld->dynamicsContainer->displayWarningsIfNeeded();
                 App::appendSimulationThreadCommand(cmd,500);
@@ -3169,8 +3170,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
             if (script!=nullptr)
             {
-                if (App::mainWindow!=nullptr)
-                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,nullptr,true);
+                if (GuiApp::mainWindow!=nullptr)
+                    GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,nullptr,true);
                 App::currentWorld->embeddedScriptContainer->removeScript(scriptID);
             }
         }
@@ -3388,7 +3389,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if ((grData!=nullptr)&&(grData->getDataLength()!=0))
                 {
                     it->makeCurveStatic(cmd.intParams[1],0);
-                    App::uiThread->messageBox_information(App::mainWindow,IDSN_GRAPH_CURVE,IDSN_CURVE_WAS_DUPLICATED_TO_STATIC,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_GRAPH_CURVE,IDSN_CURVE_WAS_DUPLICATED_TO_STATIC,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 }
             }
         }
@@ -3539,7 +3540,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (grDataComb!=nullptr)
                 {
                     it->makeCurveStatic(cmd.intParams[1],dim);
-                    App::uiThread->messageBox_information(App::mainWindow,IDSN_GRAPH_CURVE,IDSN_CURVE_WAS_DUPLICATED_TO_STATIC,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_GRAPH_CURVE,IDSN_CURVE_WAS_DUPLICATED_TO_STATIC,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                 }
             }
         }
@@ -4125,7 +4126,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==TOGGLE_HIDECONSOLE_USERSETTINGSGUITRIGGEREDCMD)
         {
             App::userSettings->alwaysShowConsole=!App::userSettings->alwaysShowConsole;
-            App::setShowConsole(App::userSettings->alwaysShowConsole);
+            GuiApp::setShowConsole(App::userSettings->alwaysShowConsole);
             App::userSettings->saveUserSettings();
         }
         if (cmd.cmdId==TOGGLE_AUTOSAVE_USERSETTINGSGUITRIGGEREDCMD)
@@ -4188,7 +4189,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
             App::logMsg(sim_verbosity_msgs,"done.");
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
         }
         if (cmd.cmdId==SHAPEEDIT_MAKEPRIMITIVE_GUITRIGGEREDCMD)
         {
@@ -4274,7 +4275,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 App::logMsg(sim_verbosity_msgs,"done.");
             else
                 App::logMsg(sim_verbosity_msgs,"Operation aborted.");
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
         }
 
         if (cmd.cmdId==SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD)
@@ -4287,7 +4288,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SET_MOUSEMODE_GUITRIGGEREDCMD)
         {
-            App::setMouseMode(cmd.intParams[0]);
+            GuiApp::setMouseMode(cmd.intParams[0]);
         }
         if (cmd.cmdId==SELECT_VIEW_GUITRIGGEREDCMD)
         {
@@ -4318,11 +4319,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==SHOW_PROGRESSDLGGUITRIGGEREDCMD)
         {
-            App::uiThread->showOrHideProgressBar(true,cmd.intParams[0],cmd.stringParams[0].c_str());
+            GuiApp::uiThread->showOrHideProgressBar(true,cmd.intParams[0],cmd.stringParams[0].c_str());
         }
         if (cmd.cmdId==HIDE_PROGRESSDLGGUITRIGGEREDCMD)
         {
-            App::uiThread->showOrHideProgressBar(false);
+            GuiApp::uiThread->showOrHideProgressBar(false);
         }
         if (cmd.cmdId==SET_THUMBNAIL_GUITRIGGEREDCMD)
         {
@@ -4354,14 +4355,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (cmd.cmdId==FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD)
         {   // delay later this call until the resources have been actualized on the UI SIDE!!
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
             SUIThreadCommand cmdIn;
             SUIThreadCommand cmdOut;
             cmdIn.cmdId=REFRESH_DIALOGS_UITHREADCMD;
             {
                 // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
                 SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-                App::executeUiThreadCommand(&cmdIn,&cmdOut);
+                GuiApp::executeUiThreadCommand(&cmdIn,&cmdOut);
             }
         }
         if (cmd.cmdId==CALL_DIALOG_FUNCTION_GUITRIGGEREDCMD)
@@ -4375,17 +4376,17 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
                 SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-                App::executeUiThreadCommand(&cmdIn,&cmdOut);
+                GuiApp::executeUiThreadCommand(&cmdIn,&cmdOut);
             }
         }
 
         if (cmd.cmdId==FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD)
         {   // delay later this call until the resources have been actualized on the UI SIDE!!
-            App::setRefreshHierarchyViewFlag();
+            GuiApp::setRefreshHierarchyViewFlag();
         }
         if (cmd.cmdId==REFRESH_TOOLBARS_GUITRIGGEREDCMD)
         {   // delay later this call until the resources have been actualized on the UI SIDE!!
-            App::setToolbarRefreshFlag();
+            GuiApp::setToolbarRefreshFlag();
         }
 
         // UNDO/REDO:
@@ -4433,7 +4434,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
     #ifdef SIM_WITH_GUI
                 App::logMsg(sim_verbosity_errors,v.c_str());
-                App::uiThread->messageBox_critical(App::mainWindow,CSimFlavor::getStringVal(20).c_str(),v.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,CSimFlavor::getStringVal(20).c_str(),v.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     #endif
             }
         }
@@ -4448,7 +4449,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
             SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         }
         appendSimulationThreadCommand(cmd,300);
     }
@@ -4471,12 +4472,12 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         int obj=-1;
 
         bool allObjectsAlsoNonDetectable=false;
-        if (App::mainWindow!=nullptr)
+        if (GuiApp::mainWindow!=nullptr)
         {
             if (mouseDown)
-                allObjectsAlsoNonDetectable=(App::mainWindow->getProxSensorClickSelectDown()<0);
+                allObjectsAlsoNonDetectable=(GuiApp::mainWindow->getProxSensorClickSelectDown()<0);
             else
-                allObjectsAlsoNonDetectable=(App::mainWindow->getProxSensorClickSelectUp()<0);
+                allObjectsAlsoNonDetectable=(GuiApp::mainWindow->getProxSensorClickSelectUp()<0);
         }
 
         int intParams[8]={0,0,0,0,0,0,0,0};
@@ -4521,7 +4522,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
 
 void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
 {
-    if ( (!CSimFlavor::getBoolVal(15))&&(App::mainWindow!=nullptr)&&App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
+    if ( (!CSimFlavor::getBoolVal(15))&&(GuiApp::mainWindow!=nullptr)&&App::currentWorld->simulation->isSimulationStopped()&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
     {
         if (cmd.intParams[0]==0)
         { // Here we maybe need to load auto-saved scenes:
@@ -4533,11 +4534,11 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
             cont.readData("SIMSETTINGS_SIM_CRASHED",val);
             if (val=="Yes")
             { // ask what to do:
-                if (!App::isFullScreen())
+                if (!GuiApp::isFullScreen())
                 {
                     if ( (!App::userSettings->doNotShowCrashRecoveryMessage)&&(!App::userSettings->suppressStartupDialogs) )
                     {
-                        if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_question(App::mainWindow,CSimFlavor::getStringVal(11).c_str(),CSimFlavor::getStringVal(12).c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO))
+                        if (VMESSAGEBOX_REPLY_YES==GuiApp::uiThread->messageBox_question(GuiApp::mainWindow,CSimFlavor::getStringVal(11).c_str(),CSimFlavor::getStringVal(12).c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO))
                         {
                             std::string testScene=App::folders->getAutoSavedScenesPath()+"/1.";
                             testScene+=SIM_SCENE_EXTENSION;
@@ -4629,7 +4630,7 @@ int CSimThread::_prepareSceneForRenderIfNeeded()
             int sleepTime=(1000/App::userSettings->getIdleFps())-(VDateTime::getTimeDiffInMs(lastRenderingTime));
             const int minSleepTime=20;//4; From 4 to 20 on 8/7/2014 (to avoid saturation)
             int effectiveSleepTime=sleepTime;
-            if ((App::mainWindow!=nullptr)&&(App::mainWindow->getMouseButtonState()&13))
+            if ((GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getMouseButtonState()&13))
                 effectiveSleepTime=minSleepTime;
             if (effectiveSleepTime<minSleepTime)
                 effectiveSleepTime=minSleepTime;
@@ -4640,9 +4641,9 @@ int CSimThread::_prepareSceneForRenderIfNeeded()
     if (render)
     {
         lastRenderingTime=(int)VDateTime::getTimeInMs();
-        if (App::mainWindow!=nullptr)
+        if (GuiApp::mainWindow!=nullptr)
         {
-            App::mainWindow->simThread_prepareToRenderScene();
+            GuiApp::mainWindow->simThread_prepareToRenderScene();
             return(2); // means: wait until rendering finished
         }
         return(0); // we do not want to render

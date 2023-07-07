@@ -3,6 +3,9 @@
 #include <tt.h>
 #include <collisionRoutines.h>
 #include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CCollisionObjectContainer_old::CCollisionObjectContainer_old()
 {
@@ -109,7 +112,7 @@ void CCollisionObjectContainer_old::addObjectWithSuffixOffset(CCollisionObject_o
 
     _addObject(newCollObj);
 
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 int CCollisionObjectContainer_old::addNewObject(int entity1Handle,int entity2Handle,const char* objName)

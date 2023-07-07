@@ -4,6 +4,7 @@
 #include <tt.h>
 #include <QShortcut>
 #include <simStrings.h>
+#include <guiApp.h>
 
 CQDlgCollections::CQDlgCollections(QWidget *parent) :
     CDlgEx(parent),
@@ -52,7 +53,7 @@ void CQDlgCollections::refresh()
 
 void CQDlgCollections::refreshButtons()
 {
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqNewCollection->setEnabled(noEditModeNoSim);
     ui->qqAllObjects->setEnabled((getAllowedOpType(0)==0)&&noEditModeNoSim);
@@ -77,7 +78,7 @@ void CQDlgCollections::refreshButtons()
 int CQDlgCollections::getAllowedOpType(int desiredOp)
 {
     int selGrp=getSelectedGroupID();
-    bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
+    bool noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
     if ((selGrp==-1)||(!noEditMode))
         return(-1);
     size_t selSize=App::currentWorld->sceneObjects->getSelectionCount();
@@ -125,7 +126,7 @@ int CQDlgCollections::getAllowedOpType(int desiredOp)
 
 void CQDlgCollections::refreshSubGroupList()
 {
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     CCollection* it=App::currentWorld->collections->getObjectFromHandle(getSelectedGroupID());
     ui->qqElementList->clear();
@@ -203,7 +204,7 @@ void CQDlgCollections::selectGroup(int groupID)
 void CQDlgCollections::refreshGroupList()
 { // It is not good to clear all, then add everything again, because the selection state gets lost
             //  // 1. Remove all items that are not valid anymore, and update the existing ones (REMOVED)
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     ui->qqCollectionList->clear();
     ui->qqCollectionList->setEnabled(noEditModeNoSim);
     for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)

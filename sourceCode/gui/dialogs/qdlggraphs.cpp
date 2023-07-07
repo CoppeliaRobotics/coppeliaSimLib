@@ -11,6 +11,7 @@
 #include <simStrings.h>
 #include <app.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 CQDlgGraphs::CQDlgGraphs(QWidget *parent) :
     CDlgEx(parent),
@@ -37,7 +38,7 @@ CQDlgGraphs::~CQDlgGraphs()
 void CQDlgGraphs::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgGraphs::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
@@ -53,7 +54,7 @@ void CQDlgGraphs::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeAndNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     bool sel=App::currentWorld->sceneObjects->isLastSelectionAGraph();
 
@@ -357,12 +358,12 @@ void CQDlgGraphs::on_qqRemoveAllStatics_clicked()
 
 void CQDlgGraphs::on_qqAdjustBackgroundColor_clicked()
 {
-    CQDlgColor::displayDlg(COLOR_ID_GRAPH_BACKGROUND,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,sim_colorcomponent_ambient_diffuse,App::mainWindow);
+    CQDlgColor::displayDlg(COLOR_ID_GRAPH_BACKGROUND,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,sim_colorcomponent_ambient_diffuse,GuiApp::mainWindow);
 }
 
 void CQDlgGraphs::on_qqAdjustGridColor_clicked()
 {
-    CQDlgColor::displayDlg(COLOR_ID_GRAPH_GRID,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,sim_colorcomponent_ambient_diffuse,App::mainWindow);
+    CQDlgColor::displayDlg(COLOR_ID_GRAPH_GRID,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,sim_colorcomponent_ambient_diffuse,GuiApp::mainWindow);
 }
 
 void CQDlgGraphs::on_qqTransformationCombo_currentIndexChanged(int index)
@@ -478,7 +479,7 @@ void CQDlgGraphs::on_qqAdjustCurveColor_clicked()
         {
             CGraphData_old* grData=it->getGraphData(getSelectedObjectID());
             if (grData!=nullptr)
-                CQDlgColor::displayDlg(COLOR_ID_GRAPH_TIMECURVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),grData->getIdentifier(),sim_colorcomponent_ambient_diffuse,App::mainWindow);
+                CQDlgColor::displayDlg(COLOR_ID_GRAPH_TIMECURVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),grData->getIdentifier(),sim_colorcomponent_ambient_diffuse,GuiApp::mainWindow);
         }
     }
 }
@@ -499,7 +500,7 @@ void CQDlgGraphs::on_qqEditXYGraphs_clicked()
     {
         CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
         if (it!=nullptr)
-            CQDlg2D3DGraphProperties::display(it->getObjectHandle(),true,App::mainWindow);
+            CQDlg2D3DGraphProperties::display(it->getObjectHandle(),true,GuiApp::mainWindow);
     }
 }
 
@@ -509,7 +510,7 @@ void CQDlgGraphs::on_qqEdit3DCurves_clicked()
     {
         CGraph* it=App::currentWorld->sceneObjects->getLastSelectionGraph();
         if (it!=nullptr)
-            CQDlg2D3DGraphProperties::display(it->getObjectHandle(),false,App::mainWindow);
+            CQDlg2D3DGraphProperties::display(it->getObjectHandle(),false,GuiApp::mainWindow);
     }
 }
 

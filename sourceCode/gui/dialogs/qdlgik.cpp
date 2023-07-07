@@ -7,6 +7,7 @@
 #include <qdlgikelements.h>
 #include <qdlgikconditional.h>
 #include <simStrings.h>
+#include <guiApp.h>
 
 CQDlgIk::CQDlgIk(QWidget *parent) :
     CDlgEx(parent),
@@ -28,15 +29,15 @@ CQDlgIk::CQDlgIk(QWidget *parent) :
 CQDlgIk::~CQDlgIk()
 {
     CQDlgIkElements::_invalid=true;
-    App::mainWindow->dlgCont->close(IKELEMENT_DLG);
+    GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
     delete ui;
 }
 
 void CQDlgIk::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(CALCULATION_DLG_OLD);
-    App::mainWindow->dlgCont->close(IKELEMENT_DLG);
+    GuiApp::mainWindow->dlgCont->close(CALCULATION_DLG_OLD);
+    GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
 }
 
 void CQDlgIk::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
@@ -52,7 +53,7 @@ void CQDlgIk::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     if (!App::currentWorld->mainSettings->ikCalculationEnabled)
         noEditModeNoSim=false;
@@ -171,7 +172,7 @@ void CQDlgIk::onDeletePressed()
         IF_UI_EVENT_CAN_READ_DATA
         {
             CQDlgIkElements::_invalid=true;
-            App::mainWindow->dlgCont->close(IKELEMENT_DLG);
+            GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
             App::appendSimulationThreadCommand(REMOVE_IKGROUP_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -194,7 +195,7 @@ void CQDlgIk::on_qqAddNewGroup_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         CQDlgIkElements::_invalid=true;
-        App::mainWindow->dlgCont->close(IKELEMENT_DLG);
+        GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
         App::appendSimulationThreadCommand(ADD_IKGROUP_IKGROUPGUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -208,7 +209,7 @@ void CQDlgIk::on_qqList_itemChanged(QListWidgetItem *item)
         IF_UI_EVENT_CAN_WRITE_DATA
         {
             CQDlgIkElements::_invalid=true;
-            App::mainWindow->dlgCont->close(IKELEMENT_DLG);
+            GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
             App::appendSimulationThreadCommand(RENAME_IKGROUP_IKGROUPGUITRIGGEREDCMD,item->data(Qt::UserRole).toInt(),-1,0.0,0.0,item->text().toStdString().c_str());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -223,7 +224,7 @@ void CQDlgIk::on_qqList_itemSelectionChanged()
         IF_UI_EVENT_CAN_WRITE_DATA
         {
             CQDlgIkElements::_invalid=true;
-            App::mainWindow->dlgCont->close(IKELEMENT_DLG);
+            GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
             int objID=getSelectedObjectID();
             CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(objID);
             if (it!=nullptr)
@@ -367,6 +368,6 @@ void CQDlgIk::on_qqEditIkElements_clicked()
     {
         CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
-            CQDlgIkElements::display(it->getObjectHandle(),App::mainWindow);
+            CQDlgIkElements::display(it->getObjectHandle(),GuiApp::mainWindow);
     }
 }

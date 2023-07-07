@@ -1,6 +1,9 @@
 #include <dlgEx.h>
 #include <app.h>
 #include <QLineEdit>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 int CDlgEx::doTransparencyCounter=0;
 
@@ -49,7 +52,7 @@ void CDlgEx::cancelEvent()
 //    showDialog(false); // on Linux it seems that once a window is hidden, its position becomes (0,0)!!! So we don't hide it on Linux, we just destroy it later!
 //#endif
     _markedForDestruction=true;
-    App::setToolbarRefreshFlag();
+    GuiApp::setToolbarRefreshFlag();
 }
 
 void CDlgEx::okEvent()

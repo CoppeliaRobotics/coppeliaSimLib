@@ -4,6 +4,7 @@
 #include <editboxdelegate.h>
 #include <app.h>
 #include <tt.h>
+#include <guiApp.h>
 
 CQDlgUserParameters::CQDlgUserParameters(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),
@@ -50,7 +51,7 @@ void CQDlgUserParameters::refresh()
 
 void CQDlgUserParameters::refreshPart2()
 {
-    bool noEditModeAndNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqAddNew->setEnabled(noEditModeAndNoSim);
     CUserParameters* it=object->getUserScriptParameterObject();

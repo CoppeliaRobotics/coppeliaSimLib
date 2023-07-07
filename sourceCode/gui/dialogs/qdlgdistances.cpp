@@ -7,6 +7,7 @@
 #include <editboxdelegate.h>
 #include <qdlgmaterial.h>
 #include <app.h>
+#include <guiApp.h>
 
 CQDlgDistances::CQDlgDistances(QWidget *parent) :
     CDlgEx(parent),
@@ -31,7 +32,7 @@ CQDlgDistances::~CQDlgDistances()
 void CQDlgDistances::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(CALCULATION_DLG_OLD);
+    GuiApp::mainWindow->dlgCont->close(CALCULATION_DLG_OLD);
 }
 
 void CQDlgDistances::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
@@ -46,7 +47,7 @@ void CQDlgDistances::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadC
 void CQDlgDistances::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqEnableAll->setChecked(App::currentWorld->mainSettings->distanceCalculationEnabled);
 
@@ -87,7 +88,7 @@ void CQDlgDistances::refresh()
 
 void CQDlgDistances::updateObjectsInList()
 {
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     ui->qqDistanceList->setEnabled(noEditModeNoSim);
     ui->qqDistanceList->clear();
     for (size_t i=0;i<App::currentWorld->distances->getObjectCount();i++)
@@ -298,6 +299,6 @@ void CQDlgDistances::on_qqAdjustSegmentColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_DISTANCESEGMENT,getSelectedObjectID(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_DISTANCESEGMENT,getSelectedObjectID(),-1,GuiApp::mainWindow);
     }
 }

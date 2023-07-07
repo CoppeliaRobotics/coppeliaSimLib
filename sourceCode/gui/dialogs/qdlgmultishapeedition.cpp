@@ -7,6 +7,7 @@
 #include <app.h>
 #include <simStrings.h>
 #include <qdlgmaterial.h>
+#include <guiApp.h>
 
 CMesh* theGeom=nullptr;
 
@@ -35,8 +36,8 @@ void CQDlgMultishapeEdition::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
     theGeom=nullptr;
-    if ( App::mainWindow->editModeContainer->getMultishapeEditMode()->isCurrentMultishapeGeometricComponentValid() )
-        theGeom=App::mainWindow->editModeContainer->getMultishapeEditMode()->getCurrentMultishapeGeometricComponent();
+    if ( GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->isCurrentMultishapeGeometricComponentValid() )
+        theGeom=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getCurrentMultishapeGeometricComponent();
 
     ui->qqShadingAngle->setEnabled(theGeom!=nullptr);
     ui->qqBackfaceCulling->setEnabled(theGeom!=nullptr);
@@ -65,8 +66,8 @@ void CQDlgMultishapeEdition::on_qqBackfaceCulling_clicked()
     {
         if (theGeom==nullptr)
             return;
-        CShape* shape=App::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
-        int index=App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
+        CShape* shape=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
+        int index=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
         if (shape!=nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_BACKFACECULLING_MULTISHAPEEDITIONGUITRIGGEREDCMD,shape->getObjectHandle(),index);
@@ -82,8 +83,8 @@ void CQDlgMultishapeEdition::on_qqShowEdges_clicked()
     {
         if (theGeom==nullptr)
             return;
-        CShape* shape=App::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
-        int index=App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
+        CShape* shape=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
+        int index=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
         if (shape!=nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_SHOWEDGES_MULTISHAPEEDITIONGUITRIGGEREDCMD,shape->getObjectHandle(),index);
@@ -103,8 +104,8 @@ void CQDlgMultishapeEdition::on_qqShadingAngle_editingFinished()
             return;
         bool ok;
         double newVal=ui->qqShadingAngle->text().toDouble(&ok);
-        CShape* shape=App::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
-        int index=App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
+        CShape* shape=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
+        int index=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
         if ((shape!=nullptr)&&ok)
         {
             App::appendSimulationThreadCommand(SET_SHADINGANGLE_MULTISHAPEEDITIONGUITRIGGEREDCMD,shape->getObjectHandle(),index,degToRad*newVal);
@@ -120,7 +121,7 @@ void CQDlgMultishapeEdition::on_qqAdjustColor_clicked()
     {
         if (theGeom==nullptr)
             return;
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_SHAPE_GEOMETRY,App::mainWindow->editModeContainer->getEditModeObjectID(),App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex(),App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_SHAPE_GEOMETRY,GuiApp::mainWindow->editModeContainer->getEditModeObjectID(),GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex(),GuiApp::mainWindow);
     }
 }
 
@@ -130,7 +131,7 @@ void CQDlgMultishapeEdition::on_qqTexture_clicked()
     {
         if (theGeom==nullptr)
             return;
-        CQDlgTextures::displayDlg(TEXTURE_ID_COMPOUND_SHAPE,App::mainWindow->editModeContainer->getEditModeObjectID(),App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex(),App::mainWindow);
+        CQDlgTextures::displayDlg(TEXTURE_ID_COMPOUND_SHAPE,GuiApp::mainWindow->editModeContainer->getEditModeObjectID(),GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex(),GuiApp::mainWindow);
     }
 }
 

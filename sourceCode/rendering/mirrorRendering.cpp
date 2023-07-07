@@ -21,6 +21,7 @@ See the GNU General Public License for more details.
 #include <mirrorRendering.h>
 
 #ifdef SIM_WITH_GUI
+#include <guiApp.h>
 
 void displayMirror(CMirror* mirror,CViewableBase* renderingObject,int displayAttrib)
 {
@@ -30,7 +31,7 @@ void displayMirror(CMirror* mirror,CViewableBase* renderingObject,int displayAtt
     // Object display:
     if (mirror->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (mirror->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(mirror->getModelSelectionHandle());

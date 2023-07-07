@@ -5,30 +5,17 @@
 #include <vDateTime.h>
 #include <pathPlanningInterface.h>
 #include <vVarious.h>
-#include <tt.h>
 #include <persistentDataContainer.h>
 #include <apiErrors.h>
 #include <mesh.h>
-#include <rendering.h>
-#include <simFlavor.h>
 #include <threadPool_old.h>
 #include <sstream>
 #include <iomanip>
 #include <fileOperations.h>
-#ifdef SIM_WITH_GUI
-    #include <auxLibVideo.h>
-    #include <vMessageBox.h>
-    #include <QSplashScreen>
-    #include <QBitmap>
-    #include <QTextStream>
-    #include <QScreen>
-    #include <QDesktopWidget>
-    #ifdef WIN_SIM
-        #include <QStyleFactory>
-    #endif
-#endif
-#include <QHostInfo>
 #include <QTextDocument>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 #ifdef WIN_SIM
     #include <windows.h>
@@ -38,48 +25,30 @@
     #include <signal.h>
 #endif
 
-CUiThread* App::uiThread=nullptr;
 CSimThread* App::simThread=nullptr;
 CUserSettings* App::userSettings=nullptr;
 CFolderSystem* App::folders=nullptr;
-int App::operationalUIParts=0; // sim_gui_menubar,sim_gui_popupmenus,sim_gui_toolbar1,sim_gui_toolbar2, etc.
 CWorldContainer* App::worldContainer=nullptr;
 CWorld* App::currentWorld=nullptr;
-bool App::_exitRequest=false;
-bool App::_browserEnabled=true;
-volatile bool App::_canInitSimThread=false;
 int App::_consoleVerbosity=sim_verbosity_default;
 int App::_statusbarVerbosity=sim_verbosity_msgs;
 int App::_dlgVerbosity=sim_verbosity_infos;
 int App::_exitCode=0;
-bool App::_online=false;
+bool App::_exitRequest=false;
+volatile int App::_appStage=App::appstage_none;
 std::string App::_consoleLogFilterStr;
 std::string App::_startupScriptString;
 long long int App::_nextUniqueId=0;
-bool App::_showInertias=false;
-
 std::string App::_applicationDir;
 std::vector<std::string> App::_applicationArguments;
 std::map<std::string,std::string> App::_applicationNamedParams;
 std::string App::_additionalAddOnScript1;
 std::string App::_additionalAddOnScript2;
-volatile int App::_quitLevel=0;
 bool App::_consoleMsgsToFile=false;
 std::string App::_consoleMsgsFilename="debugLog.txt";
 VFile* App::_consoleMsgsFile=nullptr;
 VArchive* App::_consoleMsgsArchive=nullptr;
-CGm* App::gm=nullptr;
 SignalHandler* App::_sigHandler=nullptr;
-
-
-int App::sc=1;
-CSimQApp* App::qtApp=nullptr;
-int App::_qApp_argc=1;
-char App::_qApp_arg0[]={"CoppeliaSim"};
-char* App::_qApp_argv[1]={_qApp_arg0};
-#ifdef SIM_WITH_GUI
-    CMainWindow* App::mainWindow=nullptr;
-#endif
 
 #ifdef WIN_SIM
     LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
@@ -110,13 +79,19 @@ char* App::_qApp_argv[1]={_qApp_arg0};
     }
 #endif
 
-bool App::isQtAppBuilt()
+int App::getAppStage()
 {
-    return(App::qtApp!=nullptr);
+    return(_appStage);
+}
+
+void App::setAppStage(int s)
+{
+    _appStage=s;
 }
 
 void App::init(const char* appDir,int)
 {
+    _exitRequest=false;
     if (appDir)
         _applicationDir=appDir;
     else
@@ -133,30 +108,50 @@ void App::init(const char* appDir,int)
     #endif
     _sigHandler=new SignalHandler(SignalHandler::SIG_INT|SignalHandler::SIG_TERM|SignalHandler::SIG_CLOSE);
 
-    App::createWorldsContainer();
+    userSettings=new CUserSettings();
+    folders=new CFolderSystem();
+
+    std::string str("CoppeliaSim v");
+    str+=SIM_PROGRAM_VERSION;
+    str+=" ";
+    str+=SIM_PROGRAM_REVISION;
+    str+=", flavor: ";
+#ifdef SIM_FL
+    str+=std::to_string(SIM_FL);
+    str+=", ";
+#else
+    str+="n/a, ";
+#endif
+    str+=SIM_PLATFORM;
+    logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,str.c_str());
+
+
+    createWorldsContainer();
     CFileOperations::createNewScene(true,false);
 
-
-    while (!_canInitSimThread)
-        VThread::sleep(1);
-    _canInitSimThread=false;
-    TRACE_INTERNAL;
     CThreadPool_old::init();
     VThread::setSimThread();
     srand((int)VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
                                         // Remember that each thread starts with a same seed!!!
+
+    setAppStage(appstage_simInitDone);
+    #ifdef SIM_WITH_GUI
+        while (getAppStage()==appstage_simInitDone)
+            VThread::sleep(1);
+    #endif
+
     App::simThread=new CSimThread();
     CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(true); // lock initially...
 
-    // Send the "instancePass" message to all plugins already here (needed for some plugins to properly finish initialization):
+    // Send the "instancePass" message to all plugins already here (needed for some old plugins to properly finish initialization):
     int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
     App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData);
-#ifdef SIM_WITH_GUI
-    SUIThreadCommand cmdIn;
-    SUIThreadCommand cmdOut;
-    cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-#endif
+    #ifdef SIM_WITH_GUI
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    #endif
     App::worldContainer->sandboxScript=new CScriptObject(sim_scripttype_sandboxscript);
     App::worldContainer->sandboxScript->initSandbox();
     if (_startupScriptString.size()>0)
@@ -165,13 +160,15 @@ void App::init(const char* appDir,int)
         _startupScriptString.clear();
     }
     App::worldContainer->addOnScriptContainer->loadAllAddOns();
+
+    setAppStage(appstage_simRunning);
 }
 
 void App::cleanup()
 {
-    // Send the last "instancePass" message to all old plugins:
-    int auxData[4]={0,0,0,0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_lastinstancepass,auxData);
+    while (App::worldContainer->getWorldCount()>1)
+        App::worldContainer->destroyCurrentWorld();
+    App::currentWorld->clearScene(true);
 
     App::worldContainer->addOnScriptContainer->removeAllAddOns();
     App::worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup,nullptr,nullptr);
@@ -179,28 +176,53 @@ void App::cleanup()
     App::worldContainer->sandboxScript=nullptr;
     App::worldContainer->pluginContainer->unloadNewPlugins(); // cleanup via (UI thread) and SIM thread
 
-    App::setQuitLevel(1);
 
-    App::qtApp->quit();
-
-    while (App::getQuitLevel()==1)
-        VThread::sleep(1);
-
-    // Ok, the UI thread has left its exec and is waiting for us
+    CSimAndUiThreadSync::simThread_allowUiThreadToWrite(); // ...finally unlock
     delete App::simThread;
     App::simThread=nullptr;
 
-    App::worldContainer->copyBuffer->clearBuffer(); // important, some objects in the buffer might still call the mesh plugin or similar
-
-    CSimAndUiThreadSync::simThread_allowUiThreadToWrite(); // ...finally unlock
-
-    App::setQuitLevel(3); // tell the UI thread that we are done here
+#ifdef SIM_WITH_GUI
+    GuiApp::qtApp->quit();
+    if (getAppStage()==appstage_simRunning)
+        setAppStage(appstage_guiCleanupRequest);
+    while (getAppStage()!=appstage_guiCleanupDone)
+        VThread::sleep(1);
+#endif
 
     App::deleteWorldsContainer();
     CThreadPool_old::cleanUp();
 
+    delete folders;
+    folders=nullptr;
+    delete userSettings;
+    userSettings=nullptr;
+
+    _applicationArguments.clear();
+    _applicationNamedParams.clear();
+    _additionalAddOnScript1.clear();
+    _additionalAddOnScript2.clear();
+    if (_consoleMsgsFile!=nullptr)
+    {
+        _consoleMsgsArchive->close();
+        delete _consoleMsgsArchive;
+        _consoleMsgsArchive=nullptr;
+        _consoleMsgsFile->close();
+        delete _consoleMsgsFile;
+        _consoleMsgsFile=nullptr;
+    }
+    _consoleMsgsToFile=false;
+    _consoleMsgsFilename="debugLog.txt";
+    _startupScriptString.clear();
+    _consoleLogFilterStr.clear();
+    _consoleVerbosity=sim_verbosity_default;
+    _statusbarVerbosity=sim_verbosity_msgs;
+    _dlgVerbosity=sim_verbosity_infos;
+
     VThread::unsetSimThread();
     delete _sigHandler;
+    _exitCode=0;
+    setAppStage(appstage_simCleanupDone);
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"CoppeliaSim ended.");
 }
 
 void App::loop(void(*callback)(),bool stepIfRunning)
@@ -212,10 +234,10 @@ void App::loop(void(*callback)(),bool stepIfRunning)
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    if ( App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
+    if ( App::currentWorld->simulation->isSimulationStopped()&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
     {
         App::worldContainer->dispatchEvents();
         App::worldContainer->callScripts(sim_syscb_nonsimulation,nullptr,nullptr);
@@ -277,11 +299,6 @@ void App::loop(void(*callback)(),bool stepIfRunning)
     App::simThread->executeMessages(); // rendering, queued command execution, etc.
 }
 
-bool App::executeUiThreadCommand(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
-{
-    return(uiThread->executeCommandViaUiThread(cmdIn,cmdOut));
-}
-
 void App::appendSimulationThreadCommand(int cmdId,int intP1,int intP2,double floatP1,double floatP2,const char* stringP1,const char* stringP2,int executionDelay)
 { // convenience function. All args have default values except for the first
     SSimulationThreadCommand cmd;
@@ -323,21 +340,6 @@ void App::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executi
     }
 }
 
-void App::setBrowserEnabled(bool e)
-{
-    _browserEnabled=e;
-    setToolbarRefreshFlag();
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->setBrowserVisible(_browserEnabled);
-#endif
-}
-
-bool App::getBrowserEnabled()
-{
-    return(_browserEnabled);
-}
-
 long long int App::getFreshUniqueId()
 {
     return(_nextUniqueId++);
@@ -347,292 +349,8 @@ App::App()
 {
 }
 
-void App::cleanupGui()
-{
-    TRACE_INTERNAL;
-#ifdef SIM_WITH_GUI
-    deleteMainWindow();
-#endif
-    delete gm;
-
-    VThread::unsetUiThread();
-    delete uiThread;
-    uiThread=nullptr;
-
-    // Clear the TAG that CoppeliaSim crashed! (because if we arrived here, we didn't crash!)
-    CPersistentDataContainer cont;
-    cont.writeData("SIMSETTINGS_SIM_CRASHED","No",!App::userSettings->doNotWritePersistentData);
-
-    // Remove any remaining auto-saved file:
-    for (int i=1;i<30;i++)
-    {
-        std::string testScene(App::folders->getAutoSavedScenesPath()+"/");
-        testScene+=utils::getIntString(false,i);
-        testScene+=".";
-        testScene+=SIM_SCENE_EXTENSION;
-        if (VFile::doesFileExist(testScene.c_str()))
-            VFile::eraseFile(testScene.c_str());
-    }
-
-    delete folders;
-    folders=nullptr;
-    delete userSettings;
-    userSettings=nullptr;
-
-#ifdef SIM_WITH_GUI
-    CAuxLibVideo::unloadLibrary();
-#endif
-
-    if (qtApp!=nullptr)
-    {
-        #ifdef SIM_WITH_GUI
-            Q_CLEANUP_RESOURCE(imageFiles);
-            Q_CLEANUP_RESOURCE(variousImageFiles);
-            Q_CLEANUP_RESOURCE(toolbarFiles);
-            Q_CLEANUP_RESOURCE(targaFiles);
-        #endif // SIM_WITH_GUI
-        qtApp->disconnect();
-        delete qtApp;
-        qtApp=nullptr;
-    }
-    _applicationArguments.clear();
-    _applicationNamedParams.clear();
-    _additionalAddOnScript1.clear();
-    _additionalAddOnScript2.clear();
-    if (_consoleMsgsFile!=nullptr)
-    {
-        _consoleMsgsArchive->close();
-        delete _consoleMsgsArchive;
-        _consoleMsgsArchive=nullptr;
-        _consoleMsgsFile->close();
-        delete _consoleMsgsFile;
-        _consoleMsgsFile=nullptr;
-    }
-    _consoleMsgsToFile=false;
-    _consoleMsgsFilename="debugLog.txt";
-    _startupScriptString.clear();
-    _consoleLogFilterStr.clear();
-    _consoleVerbosity=sim_verbosity_default;
-    _statusbarVerbosity=sim_verbosity_msgs;
-    _dlgVerbosity=sim_verbosity_infos;
-}
-
-void App::initGui(int options)
-{
-    TRACE_INTERNAL;
-
-    uiThread=nullptr;
-    _browserEnabled=true;
-    gm=new CGm();
-
-    CSimFlavor::run(0);
-
-    for (int i=0;i<9;i++)
-    {
-        std::string str(App::getApplicationArgument(i));
-        if ( (str.compare(0,9,"GUIITEMS_")==0)&&(str.length()>9) )
-        {
-            str.erase(str.begin(),str.begin()+9);
-            int val=0;
-            if (tt::stringToInt(str.c_str(),val))
-            {
-                options=val;
-                break;
-            }
-        }
-    }
-
-    operationalUIParts=options;
-    if (operationalUIParts&sim_gui_headless)
-        operationalUIParts=sim_gui_headless;
-
-    userSettings=new CUserSettings();
-    folders=new CFolderSystem();
-
-    std::string str("CoppeliaSim v");
-    str+=SIM_PROGRAM_VERSION;
-    str+=" ";
-    str+=SIM_PROGRAM_REVISION;
-    str+=", flavor: ";
-#ifdef SIM_FL
-    str+=std::to_string(SIM_FL);
-    str+=", ";
-#else
-    str+="n/a, ";
-#endif
-    str+=SIM_PLATFORM;
-    logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,str.c_str());
-
-#ifdef SIM_WITH_GUI
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
-    int highResDisplayDefault=userSettings->highResDisplay;
-    if (highResDisplayDefault==-1)
-    {
-        QApplication* ta=new QApplication(_qApp_argc,_qApp_argv);
-        QScreen* scr=ta->primaryScreen();
-        if (scr!=nullptr)
-        {
-            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"primary screen physical dots per inch: %s",std::to_string(int(scr->physicalDotsPerInch()+0.5)).c_str());
-            QDesktopWidget* dw=ta->desktop();
-            if (dw!=nullptr)
-            {
-                double val=(dw->logicalDpiX()/96.0)*100.0;
-                App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"display scaling (guessed): %s",std::to_string(int(val+0.5)).c_str());
-#ifndef MAC_SIM
-                if (val>=userSettings->guessedDisplayScalingThresholdFor2xOpenGl)
-                    highResDisplayDefault=2;
-#endif
-            }
-        }
-        delete ta;
-    }
-    if (highResDisplayDefault==1)
-    {
-        qputenv("QT_SCALE_FACTOR","1.0");
-        App::sc=2;
-    }
-    if (highResDisplayDefault==2)
-    {
-        qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
-        App::sc=2;
-#ifdef WIN_SIM
-        // To address a bug with qscintilla on hdpi display:
-        if (userSettings->scriptEditorFont=="")
-            userSettings->scriptEditorFont="Consolas";
-#endif
-    }
-    if (highResDisplayDefault==3)
-    {
-        if (userSettings->guiScaling>1.01)
-            qputenv("QT_SCALE_FACTOR",std::to_string(userSettings->guiScaling).c_str());
-        if (userSettings->oglScaling!=1)
-            App::sc=userSettings->oglScaling;
-    }
-#endif
-    qtApp=new CSimQApp(_qApp_argc,_qApp_argv);
-
-    QHostInfo::lookupHost("www.coppeliarobotics.com",
-        [=] (const QHostInfo &info)
-        {
-            if(info.error() == QHostInfo::NoError)
-                App::_online = true;
-        }
-    );
-
-#ifdef USING_QOPENGLWIDGET
-    // Following mandatory on some platforms (e.g. OSX), call just after a QApplication was constructed:
-    QSurfaceFormat format;
-    format.setRenderableType(QSurfaceFormat::OpenGL);
-    QSurfaceFormat::setDefaultFormat(format);
-#endif
-
-    qRegisterMetaType<std::string>("std::string");
-#ifdef SIM_WITH_GUI
-    Q_INIT_RESOURCE(targaFiles);
-    Q_INIT_RESOURCE(toolbarFiles);
-    Q_INIT_RESOURCE(variousImageFiles);
-    Q_INIT_RESOURCE(imageFiles);
-    if (userSettings->darkMode)
-    {
-        QFile ff(":qdarkstyle/style.qss");
-        if (!ff.exists())
-            App::logMsg(sim_verbosity_warnings,"unable to set dark mode.");
-        else
-        {
-            ff.open(QFile::ReadOnly | QFile::Text);
-            QTextStream ts(&ff);
-            qApp->setStyleSheet(ts.readAll());
-        }
-    }
-#endif
-
-#ifdef WIN_SIM
-    #ifdef SIM_WITH_GUI
-        CSimQApp::setStyle(QStyleFactory::create("Fusion")); // Probably most compatible. Other platforms: best in native (other styles have problems)!
-    #endif
-#endif
-
-#ifdef SIM_WITH_GUI
-    if ( (options&sim_gui_headless)==0 )
-    {
-        if (CAuxLibVideo::loadLibrary())
-            App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"loaded the video compression library.");
-        else
-        {
-            std::string msg("could not find or correctly load the video compression library.");
-#ifdef LIN_SIM
-            msg+="\nTry following:";
-            msg+="\n";
-            msg+="\n$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev";
-            msg+="\nif above fails, try first:";
-            msg+="\n$ sudo apt-get -f install";
-            msg+="\n";
-#endif
-            App::logMsg(sim_verbosity_errors,msg.c_str());
-        }
-    }
-
-    QFont f=QApplication::font();
-    #ifdef WIN_SIM
-        if (userSettings->guiFontSize_Win!=-1)
-            f.setPixelSize(userSettings->guiFontSize_Win);
-    #endif
-    #ifdef MAC_SIM
-        if (userSettings->guiFontSize_Mac!=-1)
-            f.setPixelSize(userSettings->guiFontSize_Mac);
-    #endif
-    #ifdef LIN_SIM
-        if (userSettings->guiFontSize_Linux!=-1)
-            f.setPixelSize(userSettings->guiFontSize_Linux);
-    #endif
-    QApplication::setFont(f);
-    #ifdef LIN_SIM // make the groupbox frame visible on Linux
-        qtApp->setStyleSheet("QGroupBox {  border: 1px solid lightgray;} QGroupBox::title {  background-color: transparent; subcontrol-position: top left; padding:2 13px;}");
-    #endif
-#endif
-
-    uiThread=new CUiThread();
-    VThread::setUiThread();
-    srand((int)VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
-                                        // Remember that each thread starts with a same seed!!!
-
-#ifdef SIM_WITH_GUI
-    // Browser and hierarchy visibility is set in userset.txt. We can override it here:
-    if ((operationalUIParts&sim_gui_hierarchy)==0)
-        COglSurface::_hierarchyEnabled=false;
-    if ((operationalUIParts&sim_gui_browser)==0)
-        setBrowserEnabled(false);
-    setIcon();
-    if ( (operationalUIParts&sim_gui_headless)==0 )
-    {
-        showSplashScreen();
-        createMainWindow();
-        mainWindow->oglSurface->adjustBrowserAndHierarchySizesToDefault();
-    }
-#endif
-    _exitCode=0;
-}
-
 App::~App()
 {
-}
-
-void App::postExitRequest()
-{ // call only from sim thread!
-    // Important to remove all objects before we destroy the main window,
-    // since some of them might be linked it:
-    uiThread->showOrHideEmergencyStop(false,"");
-    uiThread->showOrHideProgressBar(true,-1,"Leaving...");
-    while (worldContainer->getWorldCount()>1)
-        worldContainer->destroyCurrentWorld();
-    currentWorld->clearScene(true);
-    uiThread->showOrHideProgressBar(false);
-    _exitRequest=true;
-}
-
-bool App::getExitRequest()
-{
-    return(_exitRequest);
 }
 
 void App::beep(int frequ,int duration)
@@ -664,100 +382,6 @@ void App::deleteWorldsContainer()
     worldContainer->deinitialize();
     delete worldContainer;
     worldContainer=nullptr;
-}
-
-void App::runGui()
-{
-    TRACE_INTERNAL;
-    _exitRequest=false;
-
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->setFocus(Qt::MouseFocusReason); // needed because at first Qt behaves strangely (really??)
-    uiThread->setFileDialogsNative(userSettings->fileDialogs);
-#endif
-
-    _loadLegacyPlugins();
-
-    _canInitSimThread=true; // let the SIM thread run
-
-#ifdef SIM_WITH_GUI
-    // Prepare a few initial triggers:
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=AUTO_SAVE_SCENE_CMD;
-        cmd.intParams.push_back(0); // load autosaved scenes, if crashed
-        App::appendSimulationThreadCommand(cmd,2000); // was 1000
-
-        cmd.cmdId=MEMORIZE_UNDO_STATE_IF_NEEDED_CMD;
-        cmd.intParams.clear();
-        App::appendSimulationThreadCommand(cmd,2200); // was 200
-    }
-
-    if (CSimFlavor::getBoolVal(17))
-    {
-        SSimulationThreadCommand cmd;
-        CSimFlavor::run(4);
-        cmd.cmdId=PLUS_CVU_CMD;
-        App::appendSimulationThreadCommand(cmd,1500);
-        cmd.cmdId=PLUS_HVUD_CMD;
-        App::appendSimulationThreadCommand(cmd,20000);
-    }
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=REFRESH_DIALOGS_CMD;
-        appendSimulationThreadCommand(cmd,1000);
-        cmd.cmdId=DISPLAY_WARNING_IF_DEBUGGING_CMD;
-        appendSimulationThreadCommand(cmd,3000);
-    }
-
-    CSimFlavor::run(7);
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=CHKLICM_CMD;
-        appendSimulationThreadCommand(cmd,5000);
-    }
-#endif
-
-    std::string msg=CSimFlavor::getStringVal(18);
-    if (msg.size()>0)
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=EDU_EXPIRED_CMD;
-        cmd.stringParams.push_back(msg);
-        appendSimulationThreadCommand(cmd,3000);
-    }
-
-    // The UI thread sits here during the whole application:
-    _processGuiEventsUntilQuit();
-
-    CSimFlavor::run(8);
-    CSimFlavor::run(5);
-
-    worldContainer->pluginContainer->unloadLegacyPlugins();
-
-    // Wait for the SIM thread to end:
-    _quitLevel=2;
-    while (_quitLevel==2)
-        VThread::sleep(1);
-
-    deinitGl_ifNeeded();
-    logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"CoppeliaSim ended.");
-}
-
-void App::_processGuiEventsUntilQuit()
-{
-    qtApp->exec();
-}
-
-void App::setQuitLevel(int l)
-{
-    _quitLevel=l;
-}
-
-int App::getQuitLevel()
-{
-    return(_quitLevel);
 }
 
 std::string App::getApplicationArgument(int index)
@@ -837,162 +461,6 @@ int App::setApplicationNamedParam(const char* paramName,const char* param,int pa
     return(retVal);
 }
 
-int App::getEditModeType()
-{ // helper
-    int retVal=NO_EDIT_MODE;
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        retVal=mainWindow->editModeContainer->getEditModeType();
-#endif
-    return(retVal);
-}
-
-void App::setRebuildHierarchyFlag()
-{ // helper
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->oglSurface->hierarchy->setRebuildHierarchyFlag();
-#endif
-}
-
-void App::setResetHierarchyViewFlag()
-{ // helper
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->oglSurface->hierarchy->setResetViewFlag();
-#endif
-}
-
-void App::setRefreshHierarchyViewFlag()
-{ // helper
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->oglSurface->hierarchy->setRefreshViewFlag();
-#endif
-}
-
-void App::setLightDialogRefreshFlag()
-{ // helper
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->setLightDialogRefreshFlag();
-#endif
-}
-
-void App::setFullDialogRefreshFlag()
-{ // helper
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->setFullDialogRefreshFlag();
-#endif
-}
-
-void App::setDialogRefreshDontPublishFlag()
-{ // helper
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->setDialogRefreshDontPublishFlag();
-#endif
-}
-
-void App::setToolbarRefreshFlag()
-{ // helper
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->setToolbarRefreshFlag();
-#endif
-}
-
-int App::getMouseMode()
-{ // helper
-    int retVal=0;
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        retVal=mainWindow->getMouseMode();
-#endif
-    return(retVal);
-}
-
-void App::setMouseMode(int mm)
-{ // helper
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->setMouseMode(mm);
-#endif
-}
-
-void App::setDefaultMouseMode()
-{ // helper
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->setDefaultMouseMode();
-#endif
-}
-
-bool App::isFullScreen()
-{ // helper
-    bool retVal=false;
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        retVal=mainWindow->isFullScreen();
-#endif
-    return(retVal);
-}
-
-void App::setFullScreen(bool f)
-{ // helper
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->setFullScreen(f);
-#endif
-}
-
-bool App::getShowInertias()
-{
-    return(_showInertias);
-}
-
-void App::setShowInertias(bool show)
-{
-    _showInertias=show;
-}
-
-void App::_logMsgToStatusbar(const char* msg,bool html)
-{
-    if (!VThread::isUiThread())
-    { // we are NOT in the UI thread. We execute the command in a delayed manner:
-        SUIThreadCommand cmdIn;
-        cmdIn.cmdId=LOG_MSG_TO_STATUSBAR_UITHREADCMD;
-        cmdIn.stringParams.push_back(msg);
-        cmdIn.boolParams.push_back(html);
-        uiThread->executeCommandViaUiThread(&cmdIn,nullptr);
-    }
-#ifdef SIM_WITH_GUI
-    else
-    {
-        std::string str(msg);
-
-        if (mainWindow!=nullptr)
-        {
-            std::string txtCol(mainWindow->palette().windowText().color().name().toStdString());
-            if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=nullptr) )
-            {
-                if (html)
-//                {
-//                    str+="<font color="+txtCol+">"+" </font>"; // color is otherwise not reset
-                    mainWindow->statusBar->appendHtml(str.c_str());
-//                }
-                else
-                    mainWindow->statusBar->appendPlainText(str.c_str());
-                mainWindow->statusBar->moveCursor(QTextCursor::End);
-                mainWindow->statusBar->verticalScrollBar()->setValue(mainWindow->statusBar->verticalScrollBar()->maximum());
-                mainWindow->statusBar->ensureCursorVisible();
-            }
-        }
-    }
-#endif
-}
-
 void App::clearStatusbar()
 {
     if (!VThread::isUiThread())
@@ -1000,15 +468,15 @@ void App::clearStatusbar()
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=CLEAR_STATUSBAR_UITHREADCMD;
-        uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
     else
     {
     #ifdef SIM_WITH_GUI
-        if (mainWindow!=nullptr)
+        if (GuiApp::mainWindow!=nullptr)
         {
-            if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=nullptr) )
-                mainWindow->statusBar->clear();
+            if ((GuiApp::operationalUIParts&sim_gui_statusbar)&&(GuiApp::mainWindow->statusBar!=nullptr) )
+                GuiApp::mainWindow->statusBar->clear();
         }
     #endif
     }
@@ -1310,7 +778,7 @@ CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
     if (objType==COLOR_ID_SHAPE_GEOMETRY)
     {
 #ifdef SIM_WITH_GUI
-        if ((App::mainWindow->editModeContainer->getEditModeObjectID()==objID1)&&(App::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex()==objID2))
+        if ((GuiApp::mainWindow->editModeContainer->getEditModeObjectID()==objID1)&&(GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex()==objID2))
         {
             _auxDlgTitle->assign("Shape component");
             _allowedParts[0]=1+4+8+16+32+64+128+256+512;
@@ -1544,11 +1012,6 @@ void App::setConsoleMsgFile(const char* f)
     _consoleMsgsFilename=f;
 }
 
-bool App::isUiThread()
-{
-    return(VThread::isUiThread());
-}
-
 void App::logMsg(int verbosityLevel,const char* msg,const char* subStr1,const char* subStr2/*=nullptr*/,const char* subStr3/*=nullptr*/)
 {
     int realVerbosityLevel=verbosityLevel&0x0fff;
@@ -1700,9 +1163,9 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         vars["origin"]=originName?originName:"CoppeliaSim";
         vars["verbosity"]="unknown";
 #ifdef SIM_WITH_GUI
-        if (qtApp!=nullptr)
+        if (GuiApp::qtApp!=nullptr)
         {
-            QColor col=qtApp->style()->standardPalette().windowText().color();
+            QColor col=GuiApp::qtApp->style()->standardPalette().windowText().color();
             int rgb[3];
             col.getRgb(rgb+0,rgb+1,rgb+2);
             int incr=56;
@@ -1794,11 +1257,11 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         }
         if (statusbarVerbosity==-1)
             statusbarVerbosity=_statusbarVerbosity;
-        if ( (statusbarVerbosity>=realVerbosityLevel)&&(uiThread!=nullptr)&&(simThread!=nullptr)&&((verbosityLevel&sim_verbosity_onlyterminal)==0) )
+        if ( (statusbarVerbosity>=realVerbosityLevel)&&(GuiApp::uiThread!=nullptr)&&(simThread!=nullptr)&&((verbosityLevel&sim_verbosity_onlyterminal)==0) )
         {
             vars["message"]=_getHtmlEscapedString(vars["message"].c_str());
             std::string statusbarTxt=replaceVars(decorateMsg?statusbarLogFormat:statusbarLogFormatUndecorated,vars);
-            _logMsgToStatusbar(statusbarTxt.c_str(),true);
+            GuiApp::logMsgToStatusbar(statusbarTxt.c_str(),true);
         }
         inside=false;
     }
@@ -1827,11 +1290,6 @@ void App::setExitCode(int c)
 int App::getExitCode()
 {
     return(_exitCode);
-}
-
-bool App::isOnline()
-{
-    return(_online);
 }
 
 void App::undoRedo_sceneChanged(const char* txt)
@@ -1945,142 +1403,19 @@ bool App::getConsoleOrStatusbarVerbosityTriggered(int verbosityLevel)
     return( (_consoleVerbosity>=verbosityLevel)||(_statusbarVerbosity>=verbosityLevel) );
 }
 
-void App::_loadLegacyPlugins()
-{ // from UI thread
-    logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"simulator launched.");
-    std::vector<std::string> theNames;
-    std::vector<std::string> theDirAndNames;
-    {
-        QDir dir(_applicationDir.c_str());
-        dir.setFilter(QDir::Files|QDir::Hidden);
-        dir.setSorting(QDir::Name);
-        QStringList filters;
-        int bnl=8;
-        #ifdef WIN_SIM
-            std::string tmp("v_repExt*.dll");
-        #endif
-        #ifdef MAC_SIM
-            std::string tmp("libv_repExt*.dylib");
-            bnl=11;
-        #endif
-        #ifdef LIN_SIM
-            std::string tmp("libv_repExt*.so");
-            bnl=11;
-        #endif
-        filters << tmp.c_str();
-        dir.setNameFilters(filters);
-        QFileInfoList list=dir.entryInfoList();
-        for (int i=0;i<list.size();++i)
-        {
-            QFileInfo fileInfo=list.at(i);
-            std::string bla(fileInfo.baseName().toLocal8Bit());
-            std::string tmp;
-            tmp.assign(bla.begin()+bnl,bla.end());
-            if (tmp.find('_')==std::string::npos)
-            {
-                theNames.push_back(tmp);
-                theDirAndNames.push_back(fileInfo.absoluteFilePath().toLocal8Bit().data());
-            }
-        }
-    }
-
-    {
-        QDir dir(_applicationDir.c_str());
-        dir.setFilter(QDir::Files|QDir::Hidden);
-        dir.setSorting(QDir::Name);
-        QStringList filters;
-        int bnl=6;
-        #ifdef WIN_SIM
-            std::string tmp("simExt*.dll");
-        #endif
-        #ifdef MAC_SIM
-            std::string tmp("libsimExt*.dylib");
-            bnl=9;
-        #endif
-        #ifdef LIN_SIM
-            std::string tmp("libsimExt*.so");
-            bnl=9;
-        #endif
-        filters << tmp.c_str();
-        dir.setNameFilters(filters);
-        QFileInfoList list=dir.entryInfoList();
-        for (int i=0;i<list.size();++i)
-        {
-            QFileInfo fileInfo=list.at(i);
-            std::string bla(fileInfo.baseName().toLocal8Bit());
-            std::string tmp;
-            tmp.assign(bla.begin()+bnl,bla.end());
-            if (tmp.find('_')==std::string::npos)
-            {
-                theNames.push_back(tmp);
-                theDirAndNames.push_back(fileInfo.absoluteFilePath().toLocal8Bit().data());
-            }
-        }
-    }
-
-    for (size_t i=0;userSettings->preloadAllPlugins&&i<theNames.size();i++)
-    {
-        if (theDirAndNames[i].compare("")!=0)
-            simLoadModule_internal(theDirAndNames[i].c_str(),theNames[i].c_str()); // not yet loaded
-    }
-}
-
-
-
-#ifdef SIM_WITH_GUI
-void App::showSplashScreen()
+std::string App::getApplicationDir()
 {
-    QPixmap pixmap;
-
-    pixmap.load(CSimFlavor::getStringVal(1).c_str());
-
-    QSplashScreen splash(pixmap,Qt::WindowStaysOnTopHint);
-    splash.setMask(pixmap.mask());
-    QString txt("Version ");
-    txt+=SIM_PROGRAM_VERSION;
-    txt+=" ";
-    txt+=SIM_PROGRAM_REVISION;
-    txt+=", Built ";
-    txt+=__DATE__;
-    splash.showMessage(txt,Qt::AlignLeft|Qt::AlignBottom);
-    splash.show();
-    int ct=(int)VDateTime::getTimeInMs();
-    while (VDateTime::getTimeDiffInMs(ct)<2000)
-    {
-        splash.raise();
-        App::qtApp->processEvents();
-        VThread::sleep(1);
-    }
-    splash.hide();
+    return(_applicationDir);
 }
 
-void App::setIcon()
+void App::postExitRequest()
 {
-    App::qtApp->setWindowIcon(QIcon(CSimFlavor::getStringVal(4).c_str()));
+    _exitRequest=true;
 }
 
-void App::createMainWindow()
+bool App::getExitRequest()
 {
-    TRACE_INTERNAL;
-    mainWindow=new CMainWindow();
-    mainWindow->initializeWindow();
-    setShowConsole(userSettings->alwaysShowConsole);
+    return(_exitRequest);
 }
 
-void App::deleteMainWindow()
-{
-    TRACE_INTERNAL;
-    delete mainWindow;
-    mainWindow=nullptr;
-}
 
-void App::setShowConsole(bool s)
-{
-#ifdef WIN_SIM
-    if (s)
-        ShowWindow(GetConsoleWindow(),SW_SHOW);
-    else
-        ShowWindow(GetConsoleWindow(),SW_HIDE);
-#endif
-}
-#endif

@@ -5,6 +5,7 @@
 #include <qdlgmaterial.h>
 #include <app.h>
 #include <simStrings.h>
+#include <guiApp.h>
 
 CQDlgCameras::CQDlgCameras(QWidget *parent) :
     CDlgEx(parent),
@@ -23,7 +24,7 @@ CQDlgCameras::~CQDlgCameras()
 void CQDlgCameras::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgCameras::refresh()
@@ -31,7 +32,7 @@ void CQDlgCameras::refresh()
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
 
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     CCamera* it=App::currentWorld->sceneObjects->getLastSelectionCamera();
 
     ui->qqAllowRotation->setEnabled((it!=nullptr)&&noEditModeNoSim);
@@ -289,7 +290,7 @@ void CQDlgCameras::on_qqColorA_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_CAMERA_A,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_CAMERA_A,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }
 

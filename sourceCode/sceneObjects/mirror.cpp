@@ -5,6 +5,9 @@
 #include <utils.h>
 #include <app.h>
 #include <mirrorRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 int CMirror::currentMirrorContentBeingRendered=-1;
 
@@ -140,7 +143,7 @@ bool CMirror::getActive()
 void CMirror::setIsMirror(bool m)
 {
     if (m!=_isMirror)
-        App::setRefreshHierarchyViewFlag();
+        GuiApp::setRefreshHierarchyViewFlag();
     _isMirror=m;
 }
 

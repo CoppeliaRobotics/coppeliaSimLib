@@ -5,6 +5,9 @@
 #include <utils.h>
 #include <interfaceStackString.h>
 #include <interfaceStackInteger.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 long long int CWorldContainer::_eventSeq=0;
 
@@ -58,7 +61,7 @@ void CWorldContainer::setModificationFlag(int bitMask)
 
 int CWorldContainer::getModificationFlags(bool clearTheFlagsAfter)
 {
-    if (App::getEditModeType()!=NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
         _modificationFlags|=128;
     std::vector<long long int> currentUniqueIdsOfSel;
     for (size_t i=0;i<currentWorld->sceneObjects->getSelectionCount();i++)
@@ -109,7 +112,7 @@ int CWorldContainer::createNewWorld()
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=INSTANCE_ABOUT_TO_BE_CREATED_UITHREADCMD;
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
     // Empty remote worlds:
@@ -139,7 +142,7 @@ int CWorldContainer::createNewWorld()
 #ifdef SIM_WITH_GUI
     // Inform UI about performed switch to new world:
     cmdIn.cmdId=INSTANCE_WAS_JUST_CREATED_UITHREADCMD;
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
     currentWorld->rebuildRemoteWorlds();
 
@@ -184,7 +187,7 @@ int CWorldContainer::destroyCurrentWorld()
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=INSTANCE_ABOUT_TO_BE_DESTROYED_UITHREADCMD;
     cmdIn.intParams.push_back(_currentWorldIndex);
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
     // Empty remote worlds:
@@ -220,7 +223,7 @@ int CWorldContainer::destroyCurrentWorld()
         cmdIn.cmdId=INSTANCE_HAS_CHANGE_UITHREADCMD;
         cmdIn.intParams.clear();
         cmdIn.intParams.push_back(_currentWorldIndex);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
         currentWorld->rebuildRemoteWorlds();
     }
@@ -315,7 +318,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=INSTANCE_ABOUT_TO_CHANGE_UITHREADCMD;
     cmdIn.intParams.push_back(newWorldIndex);
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 
     currentWorld->pageContainer->clearAllLastMouseDownViewIndex();
 #endif
@@ -346,7 +349,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     cmdIn.cmdId=INSTANCE_HAS_CHANGE_UITHREADCMD;
     cmdIn.intParams.clear();
     cmdIn.intParams.push_back(_currentWorldIndex);
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
     currentWorld->rebuildRemoteWorlds();
@@ -360,12 +363,12 @@ bool CWorldContainer::isWorldSwitchingLocked() const
         return(false);
     if (!currentWorld->simulation->isSimulationStopped())
         return(true);
-    if (App::getEditModeType()!=NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
         return(true);
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=nullptr)
+    if (GuiApp::mainWindow!=nullptr)
     {
-        if (App::mainWindow->oglSurface->isViewSelectionActive()||App::mainWindow->oglSurface->isPageSelectionActive())
+        if (GuiApp::mainWindow->oglSurface->isViewSelectionActive()||GuiApp::mainWindow->oglSurface->isPageSelectionActive())
             return(true);
     }
 #endif
@@ -605,7 +608,7 @@ void CWorldContainer::dispatchEvents()
 void CWorldContainer::addMenu(VMenu* menu)
 { // GUI THREAD only
     TRACE_INTERNAL;
-    bool enabled=(!isWorldSwitchingLocked())&&currentWorld->simulation->isSimulationStopped()&&(!App::mainWindow->oglSurface->isPageSelectionActive())&&(!App::mainWindow->oglSurface->isViewSelectionActive())&&(App::getEditModeType()==NO_EDIT_MODE);
+    bool enabled=(!isWorldSwitchingLocked())&&currentWorld->simulation->isSimulationStopped()&&(!GuiApp::mainWindow->oglSurface->isPageSelectionActive())&&(!GuiApp::mainWindow->oglSurface->isViewSelectionActive())&&(GuiApp::getEditModeType()==NO_EDIT_MODE);
 
     for (size_t i=0;i<_worlds.size();i++)
     {
@@ -620,16 +623,16 @@ void CWorldContainer::addMenu(VMenu* menu)
 void CWorldContainer::keyPress(int key)
 {
     TRACE_INTERNAL;
-    if ( (App::mainWindow!=nullptr)&&(key==CTRL_E_KEY) )
+    if ( (GuiApp::mainWindow!=nullptr)&&(key==CTRL_E_KEY) )
     {
-        if ((App::getMouseMode()&0x00ff)==sim_navigation_camerashift)
-            App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_objectshift);
+        if ((GuiApp::getMouseMode()&0x00ff)==sim_navigation_camerashift)
+            GuiApp::setMouseMode((GuiApp::getMouseMode()&0xff00)|sim_navigation_objectshift);
         else
         {
-            if ((App::getMouseMode()&0x00ff)==sim_navigation_objectshift)
-                App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_objectrotate);
+            if ((GuiApp::getMouseMode()&0x00ff)==sim_navigation_objectshift)
+                GuiApp::setMouseMode((GuiApp::getMouseMode()&0xff00)|sim_navigation_objectrotate);
             else
-                App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_camerashift);
+                GuiApp::setMouseMode((GuiApp::getMouseMode()&0xff00)|sim_navigation_camerashift);
         }
     }
 }
@@ -715,8 +718,8 @@ void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle,bool simu
     moduleMenuItemContainer->announceScriptStateWillBeErased(scriptHandle);
     currentWorld->announceScriptStateWillBeErased(scriptHandle,simulationScript,sceneSwitchPersistentScript);
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->announceScriptStateWillBeErased(scriptHandle);
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->announceScriptStateWillBeErased(scriptHandle);
 #endif
 
 }

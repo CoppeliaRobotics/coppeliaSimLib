@@ -4,6 +4,7 @@
 #include <utils.h>
 #include <app.h>
 #include <qdlgcolorpulsation.h>
+#include <guiApp.h>
 
 CQDlgMaterial::CQDlgMaterial(QWidget *parent) :
     CDlgEx(parent),
@@ -15,15 +16,15 @@ CQDlgMaterial::CQDlgMaterial(QWidget *parent) :
     _lastSelectedObjectID=App::currentWorld->sceneObjects->getLastSelectionHandle();
     _objectSelectionSize=App::currentWorld->sceneObjects->getSelectionCount();
 
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->dlgCont->close(COLOR_DLG);
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
 }
 
 CQDlgMaterial::~CQDlgMaterial()
 {
     delete ui;
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->dlgCont->close(COLOR_DLG);
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
 }
 
 void CQDlgMaterial::refresh()
@@ -93,13 +94,13 @@ bool CQDlgMaterial::isLinkedDataValid()
 
 void CQDlgMaterial::displayMaterialDlg(int objType,int objID1,int objID2,QWidget* theParentWindow)
 {
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return;
-    App::mainWindow->dlgCont->close(MATERIAL_DLG);
-    App::mainWindow->dlgCont->close(COLOR_DLG);
-    if (App::mainWindow->dlgCont->openOrBringToFront(MATERIAL_DLG))
+    GuiApp::mainWindow->dlgCont->close(MATERIAL_DLG);
+    GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
+    if (GuiApp::mainWindow->dlgCont->openOrBringToFront(MATERIAL_DLG))
     {
-        CQDlgMaterial* mat=(CQDlgMaterial*)App::mainWindow->dlgCont->getDialog(MATERIAL_DLG);
+        CQDlgMaterial* mat=(CQDlgMaterial*)GuiApp::mainWindow->dlgCont->getDialog(MATERIAL_DLG);
         if (mat!=nullptr)
             mat->_initializeDlg(objType,objID1,objID2);
     }
@@ -107,10 +108,10 @@ void CQDlgMaterial::displayMaterialDlg(int objType,int objID1,int objID2,QWidget
 
 void CQDlgMaterial::displayMaterialDlgModal(int objType,int objID1,int objID2,QWidget* theParentWindow)
 {
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return;
-    App::mainWindow->dlgCont->close(MATERIAL_DLG);
-    App::mainWindow->dlgCont->close(COLOR_DLG);
+    GuiApp::mainWindow->dlgCont->close(MATERIAL_DLG);
+    GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
 
     CQDlgMaterial it(theParentWindow);
     it._initializeDlg(objType,objID1,objID2);
@@ -131,7 +132,7 @@ void CQDlgMaterial::_initializeDlg(int objType,int objID1,int objID2)
 void CQDlgMaterial::_adjustCol(int colComponent)
 {
     if (!isModal())
-        CQDlgColor::displayDlg(_objType,_objID1,_objID2,colComponent,App::mainWindow,true,false,true);
+        CQDlgColor::displayDlg(_objType,_objID1,_objID2,colComponent,GuiApp::mainWindow,true,false,true);
     else
     {
         CQDlgColor::displayDlgModal(_objType,_objID1,_objID2,colComponent,this,true,false,true);

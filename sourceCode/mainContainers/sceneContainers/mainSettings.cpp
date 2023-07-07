@@ -4,6 +4,9 @@
 #include <tt.h>
 #include <app.h>
 #include <vVarious.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CMainSettings::CMainSettings()
 {
@@ -49,7 +52,7 @@ void CMainSettings::setScenePathAndName(const char* pathAndName)
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=NEW_SCENE_NAME_UITHREADCMD;
     cmdIn.stringParams.push_back(getSceneNameForUi());
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
 }

@@ -5,6 +5,7 @@
 #include <simStrings.h>
 #include <app.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 CQDlgPrimitives::CQDlgPrimitives(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),
@@ -318,7 +319,7 @@ void CQDlgPrimitives::on_qqDynamic_clicked()
     {
         openEnds=false;
         if (sides<32)
-            App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+            GuiApp::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     }
 
     refresh();
@@ -440,7 +441,7 @@ void CQDlgPrimitives::on_qqSides_editingFinished()
     {
         tt::limitValue(3,100,newVal);
         if ( dynamic&&(newVal<32)&&(newVal<sides) )
-            App::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+            GuiApp::uiThread->messageBox_warning(this,"Primitives",IDS_WARNING_WHEN_PURE_SHAPES_HAVE_LOW_POLYCOUNT,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         sides=newVal;
         _correctDependentValues();
     }

@@ -23,6 +23,7 @@ See the GNU General Public License for more details.
 #ifdef SIM_WITH_GUI
 #include <meshWrapper.h>
 #include <mesh.h>
+#include <guiApp.h>
 
 void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib)
 {
@@ -38,19 +39,19 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
     bool editEdges=false;
     bool editMultishape=false;
 #ifdef SIM_WITH_GUI
-    if ( (App::mainWindow!=nullptr)&&(App::mainWindow->editModeContainer->getEditModeObject()==shape) )
+    if ( (GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->editModeContainer->getEditModeObject()==shape) )
     {
-        editNormals=( (!shape->isCompound())&&(App::getEditModeType()&TRIANGLE_EDIT_MODE));
-        editVertices=( (!shape->isCompound())&&(App::getEditModeType()&VERTEX_EDIT_MODE));
-        editEdges=( (!shape->isCompound())&&(App::getEditModeType()&EDGE_EDIT_MODE));
-        editMultishape=( shape->isCompound()&&(App::getEditModeType()==MULTISHAPE_EDIT_MODE));
+        editNormals=( (!shape->isCompound())&&(GuiApp::getEditModeType()&TRIANGLE_EDIT_MODE));
+        editVertices=( (!shape->isCompound())&&(GuiApp::getEditModeType()&VERTEX_EDIT_MODE));
+        editEdges=( (!shape->isCompound())&&(GuiApp::getEditModeType()&EDGE_EDIT_MODE));
+        editMultishape=( shape->isCompound()&&(GuiApp::getEditModeType()==MULTISHAPE_EDIT_MODE));
     }
 #endif
     bool editMode=editNormals||editVertices||editEdges||editMultishape;
 
     if (shape->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib)||editMode)
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (shape->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(shape->getModelSelectionHandle());
@@ -67,19 +68,19 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
         {
             if ((displayAttrib&sim_displayattribute_renderpass)!=0)
                 ogl::drawReference(refSize);
-            App::mainWindow->editModeContainer->getShapeEditMode()->displayFaceOrientation(displayAttrib);
+            GuiApp::mainWindow->editModeContainer->getShapeEditMode()->displayFaceOrientation(displayAttrib);
         }
         else if (editVertices)
         {
             if ((displayAttrib&sim_displayattribute_renderpass)!=0)
                 ogl::drawReference(refSize);
-            App::mainWindow->editModeContainer->getShapeEditMode()->displayVertices(displayAttrib);
+            GuiApp::mainWindow->editModeContainer->getShapeEditMode()->displayVertices(displayAttrib);
         }
         else if (editEdges)
         {
             if ((displayAttrib&sim_displayattribute_renderpass)!=0)
                 ogl::drawReference(refSize);
-            App::mainWindow->editModeContainer->getShapeEditMode()->displayEdgeEditMode(displayAttrib);
+            GuiApp::mainWindow->editModeContainer->getShapeEditMode()->displayEdgeEditMode(displayAttrib);
         }
         else if (editMultishape)
         {
@@ -91,11 +92,11 @@ void displayShape(CShape* shape,CViewableBase* renderingObject,int displayAttrib
             App::currentWorld->environment->setShapeTexturesEnabled(true);
             if (shape->getContainsTransparentComponent())
             {
-                App::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape,displayAttrib,nullptr,0,2);
-                App::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape,displayAttrib,nullptr,0,1);
+                GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape,displayAttrib,nullptr,0,2);
+                GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape,displayAttrib,nullptr,0,1);
             }
             else
-                App::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape,displayAttrib,nullptr,0,0);
+                GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(shape,displayAttrib,nullptr,0,0);
             App::currentWorld->environment->setShapeTexturesEnabled(textEnabledSaved);
         }
         else

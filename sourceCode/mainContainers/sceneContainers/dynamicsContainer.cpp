@@ -5,7 +5,8 @@
 #include <tt.h>
 #include <dynamicsRendering.h>
 #ifdef SIM_WITH_GUI
-#include <vMessageBox.h>
+    #include <vMessageBox.h>
+    #include <guiApp.h>
 #endif
 
 CDynamicsContainer::CDynamicsContainer()
@@ -275,7 +276,7 @@ void CDynamicsContainer::setDynamicEngineType(int t,int version)
 {
     _dynamicEngineToUse=t;
     _dynamicEngineVersionToUse=version;
-    App::setLightDialogRefreshFlag(); // will trigger a refresh
+    GuiApp::setLightDialogRefreshFlag(); // will trigger a refresh
 }
 
 int CDynamicsContainer::getDynamicEngineType(int* version) const

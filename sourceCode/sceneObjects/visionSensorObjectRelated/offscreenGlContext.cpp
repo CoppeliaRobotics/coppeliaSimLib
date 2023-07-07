@@ -2,6 +2,9 @@
 #include <app.h>
 #include <rendering.h>
 #include <oglExt.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 std::vector<QOpenGLContext*> COffscreenGlContext::_allQtContexts;
 #ifdef USING_QOPENGLWIDGET
@@ -137,10 +140,10 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
             }
 
             if (_offscreenType==QT_WINDOW_HIDE_TP)
-                _hiddenWindow=new QOpenGLWidget(App::mainWindow);
+                _hiddenWindow=new QOpenGLWidget(GuiApp::mainWindow);
             else
 #ifdef WIN_SIM
-                _hiddenWindow=new QOpenGLWidget(App::mainWindow,Qt::Tool|Qt::CustomizeWindowHint);
+                _hiddenWindow=new QOpenGLWidget(GuiApp::mainWindow,Qt::Tool|Qt::CustomizeWindowHint);
 #else
                 _hiddenWindow=new QOpenGLWidget(nullptr);
 #endif
@@ -172,7 +175,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
                     minorOpenGl=0;
                 fmt.setVersion(majorOpenGl,minorOpenGl);
             }
-            _hiddenWindow=new QGLWidget(fmt,App::mainWindow,otherWidgetToShareResourcesWith,Qt::Tool);
+            _hiddenWindow=new QGLWidget(fmt,GuiApp::mainWindow,otherWidgetToShareResourcesWith,Qt::Tool);
 #endif
         }
         else
@@ -180,10 +183,10 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
 #ifdef USING_QOPENGLWIDGET
 
             if (_offscreenType==QT_WINDOW_HIDE_TP)
-                _hiddenWindow=new QOpenGLWidget(App::mainWindow);
+                _hiddenWindow=new QOpenGLWidget(GuiApp::mainWindow);
             else
 #ifdef WIN_SIM
-                _hiddenWindow=new QOpenGLWidget(App::mainWindow,Qt::Tool|Qt::CustomizeWindowHint);
+                _hiddenWindow=new QOpenGLWidget(GuiApp::mainWindow,Qt::Tool|Qt::CustomizeWindowHint);
 #else
                 _hiddenWindow=new QOpenGLWidget(nullptr);
 #endif
@@ -197,7 +200,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
                 _hiddenWindow->context()->setShareContext(otherWidgetToShareResourcesWith->context());
             _hiddenWindow->context()->create(); // if create is not called, the contexts are not shared!
 #else
-            _hiddenWindow=new QGLWidget(App::mainWindow,otherWidgetToShareResourcesWith,Qt::Tool);
+            _hiddenWindow=new QGLWidget(GuiApp::mainWindow,otherWidgetToShareResourcesWith,Qt::Tool);
             _hiddenWindow->setFixedWidth(resX);
             _hiddenWindow->setFixedHeight(resY);
 

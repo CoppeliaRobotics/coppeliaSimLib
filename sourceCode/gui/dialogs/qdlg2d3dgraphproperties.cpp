@@ -11,6 +11,7 @@
 #include <simStrings.h>
 #include <app.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 CQDlg2D3DGraphProperties::CQDlg2D3DGraphProperties(QWidget *parent) :
     CDlgEx(parent),
@@ -26,8 +27,8 @@ CQDlg2D3DGraphProperties::CQDlg2D3DGraphProperties(QWidget *parent) :
     CEditBoxDelegate* delegate=new CEditBoxDelegate();
     ui->qqList->setItemDelegate(delegate);
     _graphHandle=-1;
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->dlgCont->close(GRAPH2DAND3DCURVES_DLG);
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->dlgCont->close(GRAPH2DAND3DCURVES_DLG);
 }
 
 CQDlg2D3DGraphProperties::~CQDlg2D3DGraphProperties()
@@ -93,7 +94,7 @@ bool CQDlg2D3DGraphProperties::isLinkedDataValid()
 {
     if (!App::currentWorld->simulation->isSimulationStopped())
         return(false);
-    if (App::getEditModeType()!=NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
         return(false);
     if (App::currentWorld->sceneObjects->getGraphFromHandle(_graphHandle)!=nullptr)
         return(App::currentWorld->sceneObjects->getLastSelectionHandle()==_graphHandle);
@@ -102,12 +103,12 @@ bool CQDlg2D3DGraphProperties::isLinkedDataValid()
 
 void CQDlg2D3DGraphProperties::display(int graphHandle,bool xyGraph,QWidget* theParentWindow)
 {
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return;
-    App::mainWindow->dlgCont->close(GRAPH2DAND3DCURVES_DLG);
-    if (App::mainWindow->dlgCont->openOrBringToFront(GRAPH2DAND3DCURVES_DLG))
+    GuiApp::mainWindow->dlgCont->close(GRAPH2DAND3DCURVES_DLG);
+    if (GuiApp::mainWindow->dlgCont->openOrBringToFront(GRAPH2DAND3DCURVES_DLG))
     {
-        CQDlg2D3DGraphProperties* dlg=(CQDlg2D3DGraphProperties*)App::mainWindow->dlgCont->getDialog(GRAPH2DAND3DCURVES_DLG);
+        CQDlg2D3DGraphProperties* dlg=(CQDlg2D3DGraphProperties*)GuiApp::mainWindow->dlgCont->getDialog(GRAPH2DAND3DCURVES_DLG);
         if (dlg!=nullptr)
             dlg->_initialize(graphHandle,xyGraph);
     }
@@ -374,9 +375,9 @@ void CQDlg2D3DGraphProperties::on_qqAdjustColor_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         if (_xyGraph)
-            CQDlgColor::displayDlg(COLOR_ID_GRAPH_2DCURVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),sim_colorcomponent_ambient_diffuse,App::mainWindow);
+            CQDlgColor::displayDlg(COLOR_ID_GRAPH_2DCURVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),sim_colorcomponent_ambient_diffuse,GuiApp::mainWindow);
         else
-            CQDlgMaterial::displayMaterialDlg(COLOR_ID_GRAPH_3DCURVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),App::mainWindow);
+            CQDlgMaterial::displayMaterialDlg(COLOR_ID_GRAPH_3DCURVE,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),GuiApp::mainWindow);
     }
 }
 

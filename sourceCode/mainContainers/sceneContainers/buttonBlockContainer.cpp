@@ -5,6 +5,9 @@
 #include <app.h>
 #include <simStrings.h>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CButtonBlockContainer::CButtonBlockContainer(bool mainContainer)
 {
@@ -57,7 +60,7 @@ void CButtonBlockContainer::emptySceneProcedure(bool mainContainer)
     {
         if (mainContainer)
         {
-            if (App::operationalUIParts&sim_gui_infobar)
+            if (true)//GuiApp::operationalUIParts&sim_gui_infobar)
             {
                 // System block creation:
                 std::string fullPathAndFilename=App::folders->getSystemPath()+"/";
@@ -311,7 +314,7 @@ void CButtonBlockContainer::insertBlockWithSuffixOffset(CButtonBlock* theNewBloc
     theNewBlock->setBlockName(name);
     // We finally add the block:
     allBlocks.push_back(theNewBlock);
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
 }
 
 
@@ -335,7 +338,7 @@ bool CButtonBlockContainer::removeBlockFromID(int id)
         {
             delete allBlocks[i];
             allBlocks.erase(allBlocks.begin()+i);
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
             return(true);
         }
     }
@@ -350,7 +353,7 @@ void CButtonBlockContainer::addToSelection(int pos)
 {
     if (!isInSelection(pos))
         selectedButtons.push_back(pos);
-    App::setLightDialogRefreshFlag();
+    GuiApp::setLightDialogRefreshFlag();
 }
 void CButtonBlockContainer::removeFromSelection(int pos)
 {
@@ -362,7 +365,7 @@ void CButtonBlockContainer::removeFromSelection(int pos)
             return;
         }
     }
-    App::setLightDialogRefreshFlag();
+    GuiApp::setLightDialogRefreshFlag();
 }
 void CButtonBlockContainer::xorAddToSelection(int pos)
 {
@@ -370,7 +373,7 @@ void CButtonBlockContainer::xorAddToSelection(int pos)
         selectedButtons.push_back(pos);
     else
         removeFromSelection(pos);
-    App::setLightDialogRefreshFlag();
+    GuiApp::setLightDialogRefreshFlag();
 }
 bool CButtonBlockContainer::isInSelection(int pos)
 {
@@ -511,8 +514,8 @@ void CButtonBlockContainer::displayAllBlocks(int currentView,bool dialogsHaveFoc
             }
         }
     }
-    bool showInfoAndStatusBox= ((App::mainWindow==nullptr)||(!App::mainWindow->simulationRecorder->getIsRecording())||(!App::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar()) );
-    bool editModeButNotButtonEditMode=(App::getEditModeType()!=NO_EDIT_MODE);
+    bool showInfoAndStatusBox= ((GuiApp::mainWindow==nullptr)||(!GuiApp::mainWindow->simulationRecorder->getIsRecording())||(!GuiApp::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar()) );
+    bool editModeButNotButtonEditMode=(GuiApp::getEditModeType()!=NO_EDIT_MODE);
 
 
     for (int i=0;i<int(allBlocks.size());i++)
@@ -527,8 +530,8 @@ void CButtonBlockContainer::displayAllBlocks(int currentView,bool dialogsHaveFoc
 
 bool CButtonBlockContainer::mouseDown(int xCoord,int yCoord,int currentView,int selectionStatus)
 {
-    bool showInfoAndStatusBox= ((App::mainWindow==nullptr)||(!App::mainWindow->simulationRecorder->getIsRecording())||(!App::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar()) );
-    bool editModeButNotButtonEditMode=(App::getEditModeType()!=NO_EDIT_MODE);
+    bool showInfoAndStatusBox= ((GuiApp::mainWindow==nullptr)||(!GuiApp::mainWindow->simulationRecorder->getIsRecording())||(!GuiApp::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar()) );
+    bool editModeButNotButtonEditMode=(GuiApp::getEditModeType()!=NO_EDIT_MODE);
 
     mousePos.x=xCoord;
     mousePos.y=yCoord;
@@ -592,7 +595,7 @@ bool CButtonBlockContainer::mouseDown(int xCoord,int yCoord,int currentView,int 
             allBlocks.erase(allBlocks.begin()+found);
             allBlocks.push_back(itBlock);
 
-            App::setLightDialogRefreshFlag();
+            GuiApp::setLightDialogRefreshFlag();
             if (selectionStatus==CTRLSELECTION)
                 xorAddToSelection(buttID);
             else if (selectionStatus==SHIFTSELECTION)
@@ -622,7 +625,7 @@ bool CButtonBlockContainer::mouseDown(int xCoord,int yCoord,int currentView,int 
                 int buttID=itBlock->mouseDownCatch(xCoord,yCoord,cursorCatch,false);
                 if (buttID!=-1)
                 {
-                    if ( (itBlock->getAttributes()&sim_ui_property_selectassociatedobject)&&(App::getEditModeType()==NO_EDIT_MODE) )
+                    if ( (itBlock->getAttributes()&sim_ui_property_selectassociatedobject)&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
                     {
                         CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(itBlock->getObjectIDAttachedTo());
                         if (obj!=nullptr)
@@ -739,7 +742,7 @@ bool CButtonBlockContainer::mouseDown(int xCoord,int yCoord,int currentView,int 
 
 bool CButtonBlockContainer::leftMouseButtonDoubleClick(int xCoord,int yCoord,int currentView)
 {
-    bool editModeButNotButtonEditMode=(App::getEditModeType()!=NO_EDIT_MODE);
+    bool editModeButNotButtonEditMode=(GuiApp::getEditModeType()!=NO_EDIT_MODE);
     if (editModeButNotButtonEditMode)
         return(false);
 
@@ -778,7 +781,7 @@ bool CButtonBlockContainer::mouseDownTest(int xCoord,int yCoord,int currentView)
 
 void CButtonBlockContainer::onKeyDown(unsigned int key)
 {
-    if (App::getEditModeType()==NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()==NO_EDIT_MODE)
     {
         if ( (key==ENTER_KEY)||(key==TAB_KEY) ) // Enter or tab-key pressed
         {

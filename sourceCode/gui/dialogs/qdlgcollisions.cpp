@@ -7,6 +7,7 @@
 #include <editboxdelegate.h>
 #include <qdlgmaterial.h>
 #include <app.h>
+#include <guiApp.h>
 
 CQDlgCollisions::CQDlgCollisions(QWidget *parent) :
     CDlgEx(parent),
@@ -31,7 +32,7 @@ CQDlgCollisions::~CQDlgCollisions()
 void CQDlgCollisions::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(CALCULATION_DLG_OLD);
+    GuiApp::mainWindow->dlgCont->close(CALCULATION_DLG_OLD);
 }
 
 void CQDlgCollisions::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
@@ -46,7 +47,7 @@ void CQDlgCollisions::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThread
 void CQDlgCollisions::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqEnableAll->setChecked(App::currentWorld->mainSettings->collisionDetectionEnabled);
 
@@ -88,7 +89,7 @@ void CQDlgCollisions::refresh()
 
 void CQDlgCollisions::updateObjectsInList()
 {
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     ui->qqCollisionList->setEnabled(noEditModeNoSim);
     ui->qqCollisionList->clear();
     for (size_t i=0;i<App::currentWorld->collisions->getObjectCount();i++)
@@ -215,7 +216,7 @@ void CQDlgCollisions::on_qqCollisionColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_COLLISION,-1,-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_COLLISION,-1,-1,GuiApp::mainWindow);
     }
 }
 
@@ -279,7 +280,7 @@ void CQDlgCollisions::on_qqAdjustContourColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_COLLISIONCONTOUR,getSelectedObjectID(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_COLLISIONCONTOUR,getSelectedObjectID(),-1,GuiApp::mainWindow);
     }
 }
 

@@ -112,7 +112,6 @@ else()
     message(FATAL_ERROR "The specified QSCINTILLA_LIBRARY (${QSCINTILLA_LIBRARY}) does not exist")
 endif()
 
-target_compile_definitions(coppeliaSim PRIVATE SIM_LIB)
 target_compile_definitions(coppeliaSim PRIVATE SIM_MATH_DOUBLE)
 target_compile_definitions(coppeliaSim PRIVATE TMPOPERATION) # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats)
 

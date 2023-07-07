@@ -6,6 +6,9 @@
 #include <simStrings.h>
 #include <app.h>
 #include <vDateTime.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CAddOnScriptContainer::CAddOnScriptContainer()
 {
@@ -298,7 +301,7 @@ bool CAddOnScriptContainer::_removeAddOn(int scriptID)
             break;
         }
     }
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
     return(true);
 }
 

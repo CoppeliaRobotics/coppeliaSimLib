@@ -7,6 +7,9 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <imgLoaderSaver.h>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 int CSer::SER_SERIALIZATION_VERSION=24; // 9 since 2008/09/01,
                                         // 10 since 2009/02/14,
@@ -710,7 +713,7 @@ int CSer::readOpenBinary(int& serializationVersion,unsigned short& coppeliaSimVe
         if (serializationVersion>SER_SERIALIZATION_VERSION)
         { // we might have problems reading this (even if it should be supported). Some functions might not be available.
 #ifdef SIM_WITH_GUI
-            App::uiThread->messageBox_warning(App::mainWindow,"Serialization",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+            GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Serialization",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
 #else
             App::logMsg(sim_verbosity_warnings,"%s.",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING);
 #endif

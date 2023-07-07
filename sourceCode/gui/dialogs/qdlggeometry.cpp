@@ -6,6 +6,7 @@
 #include <simStringTable.h>
 #include <app.h>
 #include <vMessageBox.h>
+#include <guiApp.h>
 
 CQDlgGeometry::CQDlgGeometry(QWidget *parent) :
     CDlgEx(parent),
@@ -14,8 +15,8 @@ CQDlgGeometry::CQDlgGeometry(QWidget *parent) :
     _dlgType=GEOMETRY_DLG;
     ui->setupUi(this);
     _shapeHandle=-1;
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->dlgCont->close(GEOMETRY_DLG);
+    if (GuiApp::mainWindow!=nullptr)
+        GuiApp::mainWindow->dlgCont->close(GEOMETRY_DLG);
 }
 
 CQDlgGeometry::~CQDlgGeometry()
@@ -26,7 +27,7 @@ CQDlgGeometry::~CQDlgGeometry()
 void CQDlgGeometry::refresh()
 {
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
 
     if (!isLinkedDataValid())
         return;
@@ -161,7 +162,7 @@ bool CQDlgGeometry::isLinkedDataValid()
 {
     if (!App::currentWorld->simulation->isSimulationStopped())
         return(false);
-    if (App::getEditModeType()!=NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
         return(false);
     if (App::currentWorld->sceneObjects->getShapeFromHandle(_shapeHandle)!=nullptr)
         return(App::currentWorld->sceneObjects->getLastSelectionHandle()==_shapeHandle);
@@ -170,12 +171,12 @@ bool CQDlgGeometry::isLinkedDataValid()
 
 void CQDlgGeometry::display(int shapeHandle,QWidget* theParentWindow)
 {
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         return;
-    App::mainWindow->dlgCont->close(GEOMETRY_DLG);
-    if (App::mainWindow->dlgCont->openOrBringToFront(GEOMETRY_DLG))
+    GuiApp::mainWindow->dlgCont->close(GEOMETRY_DLG);
+    if (GuiApp::mainWindow->dlgCont->openOrBringToFront(GEOMETRY_DLG))
     {
-        CQDlgGeometry* geom=(CQDlgGeometry*)App::mainWindow->dlgCont->getDialog(GEOMETRY_DLG);
+        CQDlgGeometry* geom=(CQDlgGeometry*)GuiApp::mainWindow->dlgCont->getDialog(GEOMETRY_DLG);
         if (geom!=nullptr)
             geom->_initialize(shapeHandle);
     }

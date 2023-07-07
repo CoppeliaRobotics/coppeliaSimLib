@@ -6,6 +6,7 @@
 #include <app.h>
 #include <qdlgpathshaping.h>
 #include <simStrings.h>
+#include <guiApp.h>
 
 CQDlgPaths::CQDlgPaths(QWidget *parent) :
     CDlgEx(parent),
@@ -24,14 +25,14 @@ CQDlgPaths::~CQDlgPaths()
 void CQDlgPaths::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
-    App::mainWindow->dlgCont->close(OBJECT_DLG);
+    GuiApp::mainWindow->dlgCont->close(OBJECT_DLG);
 }
 
 void CQDlgPaths::refresh()
 {
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
     bool sel=App::currentWorld->sceneObjects->isLastSelectionAPath();
 
     CPath_old* path=App::currentWorld->sceneObjects->getLastSelectionPath();
@@ -160,7 +161,7 @@ void CQDlgPaths::on_qqAdjustColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PATH,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,App::mainWindow);
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_PATH,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
     }
 }
 
@@ -218,8 +219,8 @@ void CQDlgPaths::on_qqShowShapingDialog_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgPathShaping::showWindow=!CQDlgPathShaping::showWindow;
-        if (App::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG)!=CQDlgPathShaping::showWindow)
-            App::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
+        if (GuiApp::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG)!=CQDlgPathShaping::showWindow)
+            GuiApp::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
     }
 }
 

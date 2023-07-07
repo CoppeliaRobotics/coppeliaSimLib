@@ -10,6 +10,9 @@
 #include <sceneObjectOperations.h>
 #include <qdlgopenglsettings.h>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CDlgCont::CDlgCont(QWidget* pWindow)
 {
@@ -131,18 +134,18 @@ bool CDlgCont::openOrBringToFront(int dlgID)
     if (!_destroyingContainerNow)
     {
         if (dlgID==HIERARCHY_DLG)
-            App::mainWindow->oglSurface->setHierarchyEnabled(true);
+            GuiApp::mainWindow->oglSurface->setHierarchyEnabled(true);
         else if (dlgID==BROWSER_DLG)
-            App::setBrowserEnabled(true);
+            GuiApp::setBrowserEnabled(true);
         else
         {   // Here we check if we can open the dialog: (check also "toggle" function!)
-            if ((App::operationalUIParts&sim_gui_dialogs)==0)
+            if ((GuiApp::operationalUIParts&sim_gui_dialogs)==0)
                 return(false);
             CToolDlgWrapper* it=_getDialogWrapper(dlgID);
             if (it!=nullptr)
                 it->setVisible(true,parentWindow);
         }
-        App::setToolbarRefreshFlag();
+        GuiApp::setToolbarRefreshFlag();
         return(true);
     }
     return(false);
@@ -153,16 +156,16 @@ void CDlgCont::close(int dlgID)
     if (!_destroyingContainerNow)
     {
         if (dlgID==HIERARCHY_DLG)
-            App::mainWindow->oglSurface->setHierarchyEnabled(false);
+            GuiApp::mainWindow->oglSurface->setHierarchyEnabled(false);
         else if (dlgID==BROWSER_DLG)
-            App::setBrowserEnabled(false);
+            GuiApp::setBrowserEnabled(false);
         else
         {
             CToolDlgWrapper* it=_getDialogWrapper(dlgID);
             if (it!=nullptr)
                 it->setVisible(false,parentWindow);
         }
-        App::setToolbarRefreshFlag();
+        GuiApp::setToolbarRefreshFlag();
     }
 }
 
@@ -171,19 +174,19 @@ bool CDlgCont::toggle(int dlgID)
     if (!_destroyingContainerNow)
     {
         if (dlgID==HIERARCHY_DLG)
-            App::mainWindow->oglSurface->setHierarchyEnabled(!App::mainWindow->oglSurface->isHierarchyEnabled());
+            GuiApp::mainWindow->oglSurface->setHierarchyEnabled(!GuiApp::mainWindow->oglSurface->isHierarchyEnabled());
         else if (dlgID==BROWSER_DLG)
-            App::setBrowserEnabled(!App::getBrowserEnabled());
+            GuiApp::setBrowserEnabled(!GuiApp::getBrowserEnabled());
         else
         {
         // Here we check if we can open the dialog: (check also "openOrBringToFront" function!)
-            if ((App::operationalUIParts&sim_gui_dialogs)==0)
+            if ((GuiApp::operationalUIParts&sim_gui_dialogs)==0)
                 return(false);
             CToolDlgWrapper* it=_getDialogWrapper(dlgID);
             if (it!=nullptr)
                 it->setVisible(!it->getVisible(),parentWindow);
         }
-        App::setToolbarRefreshFlag();
+        GuiApp::setToolbarRefreshFlag();
         return(true);
     }
     return(false);
@@ -220,9 +223,9 @@ bool CDlgCont::isVisible(int dlgID)
     if (!_destroyingContainerNow)
     {
         if (dlgID==HIERARCHY_DLG)
-            return(App::mainWindow->oglSurface->isHierarchyEnabled());
+            return(GuiApp::mainWindow->oglSurface->isHierarchyEnabled());
         else if (dlgID==BROWSER_DLG)
-            return(App::getBrowserEnabled());
+            return(GuiApp::getBrowserEnabled());
         else
         {
             CToolDlgWrapper* it=_getDialogWrapper(dlgID);
@@ -247,9 +250,9 @@ void CDlgCont::getWindowPos(int dlgID,int pos[2],bool& visible)
     {
         if (dlgID==HIERARCHY_DLG)
         {
-            pos[0]=App::mainWindow->oglSurface->getHierarchyWidth();
+            pos[0]=GuiApp::mainWindow->oglSurface->getHierarchyWidth();
             pos[1]=0;
-            visible=App::mainWindow->oglSurface->isHierarchyEnabled();
+            visible=GuiApp::mainWindow->oglSurface->isHierarchyEnabled();
         }
         else if (dlgID==BROWSER_DLG)
         {
@@ -272,8 +275,8 @@ void CDlgCont::setWindowPos(int dlgID,int pos[2],bool visible)
     {
         if (dlgID==HIERARCHY_DLG)
         {
-            App::mainWindow->oglSurface->setHierarchyWidth(pos[0]);
-            App::mainWindow->oglSurface->setHierarchyEnabled(visible);
+            GuiApp::mainWindow->oglSurface->setHierarchyWidth(pos[0]);
+            GuiApp::mainWindow->oglSurface->setHierarchyEnabled(visible);
         }
         else if (dlgID==BROWSER_DLG)
         {
@@ -301,49 +304,49 @@ void CDlgCont::keyPress(int key)
 void CDlgCont::addMenu(VMenu* menu)
 { 
     bool noShapePathEditModeNoSelector=true;
-    if ((App::getEditModeType()&SHAPE_EDIT_MODE)||(App::getEditModeType()==PATH_EDIT_MODE_OLD))
+    if ((GuiApp::getEditModeType()&SHAPE_EDIT_MODE)||(GuiApp::getEditModeType()==PATH_EDIT_MODE_OLD))
         noShapePathEditModeNoSelector=false;
-    if (App::mainWindow->oglSurface->isPageSelectionActive())
+    if (GuiApp::mainWindow->oglSurface->isPageSelectionActive())
         noShapePathEditModeNoSelector=false;
 
     if ( (CSimFlavor::getIntVal(2)==-1)||(CSimFlavor::getIntVal(2)==1)||(CSimFlavor::getIntVal(2)==2) )
     {
-        menu->appendMenuItem(App::mainWindow->getObjPropToggleViaGuiEnabled()&&noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(OBJECT_DLG),TOGGLE_OBJECT_DLG_CMD,IDSN_OBJECT_PROPERTIES_MENU_ITEM,true);
+        menu->appendMenuItem(GuiApp::mainWindow->getObjPropToggleViaGuiEnabled()&&noShapePathEditModeNoSelector,GuiApp::mainWindow->dlgCont->isVisible(OBJECT_DLG),TOGGLE_OBJECT_DLG_CMD,IDSN_OBJECT_PROPERTIES_MENU_ITEM,true);
         if (App::userSettings->showOldDlgs)
-            menu->appendMenuItem(App::mainWindow->getCalcModulesToggleViaGuiEnabled_OLD()&&noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(CALCULATION_DLG_OLD),TOGGLE_CALCULATION_DLG_CMD_OLD,"Old dialogs",true);
+            menu->appendMenuItem(GuiApp::mainWindow->getCalcModulesToggleViaGuiEnabled_OLD()&&noShapePathEditModeNoSelector,GuiApp::mainWindow->dlgCont->isVisible(CALCULATION_DLG_OLD),TOGGLE_CALCULATION_DLG_CMD_OLD,"Old dialogs",true);
         menu->appendMenuSeparator();
-        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(LUA_SCRIPT_DLG),TOGGLE_LUA_SCRIPT_DLG_CMD,IDSN_SCRIPTS,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,GuiApp::mainWindow->dlgCont->isVisible(LUA_SCRIPT_DLG),TOGGLE_LUA_SCRIPT_DLG_CMD,IDSN_SCRIPTS,true);
         if (App::userSettings->showOldDlgs)
-            menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(COLLECTION_DLG),TOGGLE_COLLECTION_DLG_CMD,IDSN_COLLECTIONS,true);
-        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(ENVIRONMENT_DLG),TOGGLE_ENVIRONMENT_DLG_CMD,IDSN_ENVIRONMENT,true);
-        menu->appendMenuItem(noShapePathEditModeNoSelector&&App::mainWindow->getBrowserToggleViaGuiEnabled(),App::getBrowserEnabled(),TOGGLE_BROWSER_DLG_CMD,IDSN_MODEL_BROWSER,true);
-        menu->appendMenuItem(App::mainWindow->getHierarchyToggleViaGuiEnabled(),App::mainWindow->oglSurface->isHierarchyEnabled(),TOGGLE_HIERARCHY_DLG_CMD,IDSN_SCENE_HIERARCHY,true);
+            menu->appendMenuItem(noShapePathEditModeNoSelector,GuiApp::mainWindow->dlgCont->isVisible(COLLECTION_DLG),TOGGLE_COLLECTION_DLG_CMD,IDSN_COLLECTIONS,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,GuiApp::mainWindow->dlgCont->isVisible(ENVIRONMENT_DLG),TOGGLE_ENVIRONMENT_DLG_CMD,IDSN_ENVIRONMENT,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector&&GuiApp::mainWindow->getBrowserToggleViaGuiEnabled(),GuiApp::getBrowserEnabled(),TOGGLE_BROWSER_DLG_CMD,IDSN_MODEL_BROWSER,true);
+        menu->appendMenuItem(GuiApp::mainWindow->getHierarchyToggleViaGuiEnabled(),GuiApp::mainWindow->oglSurface->isHierarchyEnabled(),TOGGLE_HIERARCHY_DLG_CMD,IDSN_SCENE_HIERARCHY,true);
     }
     if (CSimFlavor::getIntVal(2)==0)
     {
-        menu->appendMenuItem(noShapePathEditModeNoSelector,App::getBrowserEnabled(),TOGGLE_BROWSER_DLG_CMD,IDSN_MODEL_BROWSER,true);
-        menu->appendMenuItem(true,App::mainWindow->oglSurface->isHierarchyEnabled(),TOGGLE_HIERARCHY_DLG_CMD,IDSN_SCENE_HIERARCHY,true);
-        menu->appendMenuItem(true,App::mainWindow->dlgCont->isVisible(LAYERS_DLG),TOGGLE_LAYERS_DLG_CMD,IDS_LAYERS,true);
-        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=nullptr,App::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
-        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(SETTINGS_DLG),TOGGLE_SETTINGS_DLG_CMD,IDSN_USER_SETTINGS,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,GuiApp::getBrowserEnabled(),TOGGLE_BROWSER_DLG_CMD,IDSN_MODEL_BROWSER,true);
+        menu->appendMenuItem(true,GuiApp::mainWindow->oglSurface->isHierarchyEnabled(),TOGGLE_HIERARCHY_DLG_CMD,IDSN_SCENE_HIERARCHY,true);
+        menu->appendMenuItem(true,GuiApp::mainWindow->dlgCont->isVisible(LAYERS_DLG),TOGGLE_LAYERS_DLG_CMD,IDS_LAYERS,true);
+        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=nullptr,GuiApp::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,GuiApp::mainWindow->dlgCont->isVisible(SETTINGS_DLG),TOGGLE_SETTINGS_DLG_CMD,IDSN_USER_SETTINGS,true);
     }
     if ( (CSimFlavor::getIntVal(2)==-1)||(CSimFlavor::getIntVal(2)==0)||(CSimFlavor::getIntVal(2)==1)||(CSimFlavor::getIntVal(2)==2) )
     {
-        menu->appendMenuItem(true,App::mainWindow->dlgCont->isVisible(LAYERS_DLG),TOGGLE_LAYERS_DLG_CMD,IDS_LAYERS,true);
-        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=nullptr,App::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
-        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(SETTINGS_DLG),TOGGLE_SETTINGS_DLG_CMD,IDSN_USER_SETTINGS,true);
+        menu->appendMenuItem(true,GuiApp::mainWindow->dlgCont->isVisible(LAYERS_DLG),TOGGLE_LAYERS_DLG_CMD,IDS_LAYERS,true);
+        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=nullptr,GuiApp::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,GuiApp::mainWindow->dlgCont->isVisible(SETTINGS_DLG),TOGGLE_SETTINGS_DLG_CMD,IDSN_USER_SETTINGS,true);
     }
     if (CSimFlavor::getIntVal(2)==0)
     {
-        menu->appendMenuItem(noShapePathEditModeNoSelector,App::getBrowserEnabled(),TOGGLE_BROWSER_DLG_CMD,IDSN_MODEL_BROWSER,true);
-        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=nullptr,App::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
-        menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(SETTINGS_DLG),TOGGLE_SETTINGS_DLG_CMD,IDSN_USER_SETTINGS,false);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,GuiApp::getBrowserEnabled(),TOGGLE_BROWSER_DLG_CMD,IDSN_MODEL_BROWSER,true);
+        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=nullptr,GuiApp::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
+        menu->appendMenuItem(noShapePathEditModeNoSelector,GuiApp::mainWindow->dlgCont->isVisible(SETTINGS_DLG),TOGGLE_SETTINGS_DLG_CMD,IDSN_USER_SETTINGS,false);
     }
 
     if (!CSimFlavor::getBoolVal(15))
     {
         menu->appendMenuSeparator();
-        menu->appendMenuItem(true,App::getShowInertias(),TOGGLE_SHOW_INERTIA_DLG_CMD,"Visualize inertias",true);
+        menu->appendMenuItem(true,GuiApp::getShowInertias(),TOGGLE_SHOW_INERTIA_DLG_CMD,"Visualize inertias",true);
         std::string w(App::getApplicationNamedParam("simIK.debug_world"));
         menu->appendMenuItem(true,(w=="1")||(w=="3"),TOGGLE_SHOW_IKWORLDS_DLG_CMD,"Visualize IK worlds",true);
         menu->appendMenuItem(true,(w=="2")||(w=="3"),TOGGLE_SHOW_IKWORLDJACOBIANS_DLG_CMD,"Display IK world Jacobians",true);
@@ -360,7 +363,7 @@ bool CDlgCont::processCommand(int commandID)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(commandID);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
     else
     { // We are in the UI thread.
@@ -441,7 +444,7 @@ bool CDlgCont::processCommand(int commandID)
         }
         if (commandID==OPEN_OBJECT_DLG_OBJECT_SPECIFIC_PART_CMD)
         {
-            if (App::getEditModeType()==NO_EDIT_MODE)
+            if (GuiApp::getEditModeType()==NO_EDIT_MODE)
             {
                 openOrBringToFront(OBJECT_DLG);
                 VDialog* dlg=getDialog(OBJECT_DLG);
@@ -656,14 +659,14 @@ bool CDlgCont::processCommand(int commandID)
         }
         if (commandID==OPEN_CALCULATION_DLG_CMD_OLD)
         {
-            if (App::getEditModeType()==NO_EDIT_MODE)
+            if (GuiApp::getEditModeType()==NO_EDIT_MODE)
                 openOrBringToFront(CALCULATION_DLG_OLD);
             return(true);
         }
         if (commandID==TOGGLE_SHOW_INERTIA_DLG_CMD)
         {
-            App::setShowInertias(!App::getShowInertias());
-            if (App::getShowInertias())
+            GuiApp::setShowInertias(!GuiApp::getShowInertias());
+            if (GuiApp::getShowInertias())
                 App::logMsg(sim_verbosity_msgs,"Visualizing inertias");
             else
                 App::logMsg(sim_verbosity_msgs,"Hiding inertias");

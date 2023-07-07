@@ -4,6 +4,9 @@
 #include <annJson.h>
 #include <tt.h>
 #include <utils.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CEngineProperties::CEngineProperties()
 {
@@ -93,7 +96,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
             xml+="font-size=\"";
             xml+=std::to_string(fontSize)+"\" ";
             xml+="/>";
-            modifiedText=App::mainWindow->codeEditorContainer->openModalTextEditor(modifiedText.c_str(),xml.c_str(),nullptr,false);
+            modifiedText=GuiApp::mainWindow->codeEditorContainer->openModalTextEditor(modifiedText.c_str(),xml.c_str(),nullptr,false);
             //printf("Modified text:\n%s\n",modifiedText.c_str());
         }
 
@@ -111,7 +114,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
         std::string msg("Invalid JSON data:\n\n");
         msg+=parseError.errorString().toStdString()+"\nat line ";
         msg+=std::to_string(utils::lineCountAtOffset(modifiedText_noComments.c_str(),parseError.offset))+"\n\nDiscard changes?";
-        if (VMESSAGEBOX_REPLY_CANCEL!=App::uiThread->messageBox_warning(App::mainWindow,title.c_str(),msg.c_str(),VMESSAGEBOX_OK_CANCEL,VMESSAGEBOX_REPLY_CANCEL))
+        if (VMESSAGEBOX_REPLY_CANCEL!=GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,title.c_str(),msg.c_str(),VMESSAGEBOX_OK_CANCEL,VMESSAGEBOX_REPLY_CANCEL))
             return;
     }
     std::string allErrors;
@@ -144,7 +147,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
     {
         allErrors=std::string("The JSON parser found following error(s):\n")+allErrors;
         App::logMsg(sim_verbosity_scripterrors,allErrors.c_str());
-        App::uiThread->messageBox_warning(App::mainWindow,title.c_str(),allErrors.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+        GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,title.c_str(),allErrors.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
     }
 }
 

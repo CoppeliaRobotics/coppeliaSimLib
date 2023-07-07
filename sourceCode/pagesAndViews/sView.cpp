@@ -1,5 +1,3 @@
-// This file requires some serious refactoring!
-
 #include <simInternal.h>
 #include <sView.h>
 #include <tt.h>
@@ -13,7 +11,8 @@
 #include <app.h>
 #include <viewRendering.h>
 #ifdef SIM_WITH_GUI
-#include <oglSurface.h>
+    #include <oglSurface.h>
+    #include <guiApp.h>
 #endif
 
 CSView::CSView(int theLinkedObjectID)
@@ -1077,7 +1076,7 @@ bool CSView::getMouseRelPosObjectAndViewSize(int x,int y,int relPos[2],int& objT
 
 void CSView::_handleClickRayIntersection_old(int x,int y,bool mouseDown)
 {
-    if (App::mainWindow->getKeyDownState()&3)
+    if (GuiApp::mainWindow->getKeyDownState()&3)
         return; // doesn't generate any message when the ctrl or shift key is pressed
     CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
     if (cam==nullptr)
@@ -1085,14 +1084,14 @@ void CSView::_handleClickRayIntersection_old(int x,int y,bool mouseDown)
 
     if (mouseDown)
     {
-        if (App::mainWindow->getProxSensorClickSelectDown()==0)
+        if (GuiApp::mainWindow->getProxSensorClickSelectDown()==0)
             return;
-        if ((App::mainWindow->getMouseButtonState()&1)==0)
+        if ((GuiApp::mainWindow->getMouseButtonState()&1)==0)
             return; // happens when right-clicking for rotation
     }
     else
     {
-        if (App::mainWindow->getProxSensorClickSelectUp()==0)
+        if (GuiApp::mainWindow->getProxSensorClickSelectUp()==0)
             return;
     }
 
@@ -1151,13 +1150,13 @@ int CSView::getCursor(int x,int y) const
 {
     if ( (x<0)||(y<0)||(x>_viewSize[0])||(y>_viewSize[1]) )
         return(-1);
-    int navigationMode=App::getMouseMode()&0x00ff;
+    int navigationMode=GuiApp::getMouseMode()&0x00ff;
     if ( (navigationMode==sim_navigation_objectshift)||(navigationMode==sim_navigation_objectrotate) )
     {
         CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
         if (cam!=nullptr)
         {
-            if ((App::mainWindow->getMouseButtonState()&1)==0)
+            if ((GuiApp::mainWindow->getMouseButtonState()&1)==0)
                 return(sim_cursor_open_hand);
             return(sim_cursor_closed_hand);
 //            return(sim_cursor_cross);
@@ -1236,7 +1235,7 @@ void CSView::mouseMove(int x,int y,bool passiveAndFocused)
             if (_caughtElements&sim_right_button)
             {
                 if ( ((abs(rightMouseDownRelativePosition[1]-mouseRelativePosition[1])>1)||
-                    (abs(rightMouseDownRelativePosition[0]-mouseRelativePosition[0])>1) ) &&(!dontActivatePopup)&&(App::mainWindow->getMouseButtonState()&4))
+                    (abs(rightMouseDownRelativePosition[0]-mouseRelativePosition[0])>1) ) &&(!dontActivatePopup)&&(GuiApp::mainWindow->getMouseButtonState()&4))
                 { // we are zooming with the right button!
                     dontActivatePopup=true;
                     if (!subviewIsPassive) // we do that only on an active view
@@ -1294,7 +1293,7 @@ void CSView::mouseMove(int x,int y,bool passiveAndFocused)
                 }
                 tr=cam->getFullCumulativeTransformation().getMatrix()*tr;
                 tr.X+=tr.M.axis[2]*cam->getNearClippingPlane();
-                App::mainWindow->setMouseRay(&tr.X,&tr.M.axis[2]);
+                GuiApp::mainWindow->setMouseRay(&tr.X,&tr.M.axis[2]);
             }
         }
         if (!passiveAndFocused)
@@ -1467,7 +1466,7 @@ bool CSView::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* mainWindo
 
     if (caughtSave&&(!dontActivatePopup))
     { // We have to activate a popup-menu:
-        if (App::operationalUIParts&sim_gui_popups)
+        if (GuiApp::operationalUIParts&sim_gui_popups)
         { // Default popups
             VMenu mainMenu=VMenu();
 
@@ -1475,7 +1474,7 @@ bool CSView::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* mainWindo
             VMenu* viewMenu=new VMenu();
             addMenu(viewMenu);
             mainMenu.appendMenuAndDetach(viewMenu,true,IDS_VIEW_MENU_ITEM);
-            if ( (App::getEditModeType()==NO_EDIT_MODE) )
+            if ( (GuiApp::getEditModeType()==NO_EDIT_MODE) )
             {
                 if (linkedObj==0)
                 {
@@ -1490,22 +1489,22 @@ bool CSView::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* mainWindo
             }
             else
             {
-                int t=App::getEditModeType();
+                int t=GuiApp::getEditModeType();
                 if (t&SHAPE_EDIT_MODE)
                 {
                     VMenu* triangleVertexEditMenu=new VMenu();
-                    App::mainWindow->editModeContainer->addMenu(triangleVertexEditMenu,nullptr);
+                    GuiApp::mainWindow->editModeContainer->addMenu(triangleVertexEditMenu,nullptr);
                     mainMenu.appendMenuAndDetach(triangleVertexEditMenu,true,IDS_EDIT_MENU_ITEM);
                 }
                 if (t&PATH_EDIT_MODE_OLD)
                 {
                     VMenu* pathEditMenu=new VMenu();
-                    App::mainWindow->editModeContainer->addMenu(pathEditMenu,App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID));
+                    GuiApp::mainWindow->editModeContainer->addMenu(pathEditMenu,App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID));
                     mainMenu.appendMenuAndDetach(pathEditMenu,true,IDS_EDIT_MENU_ITEM);
                 }
             }
 
-            if (App::getEditModeType()==NO_EDIT_MODE)
+            if (GuiApp::getEditModeType()==NO_EDIT_MODE)
             {
                 if (linkedObj!=-1)
                 {
@@ -1520,24 +1519,24 @@ bool CSView::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* mainWindo
             bool processed=false;
             if (!processed)
                 processed=processCommand(command,subViewIndex);
-            if ( (!processed)&&(App::mainWindow!=nullptr) )
-                processed=App::mainWindow->oglSurface->viewSelector->processCommand(command,subViewIndex);
+            if ( (!processed)&&(GuiApp::mainWindow!=nullptr) )
+                processed=GuiApp::mainWindow->oglSurface->viewSelector->processCommand(command,subViewIndex);
             if (!processed)
                 processed=CAddOperations::processCommand(command,this);
-            if (App::getEditModeType()==NO_EDIT_MODE)
+            if (GuiApp::getEditModeType()==NO_EDIT_MODE)
             {
                 if (!processed)
                     processed=CSceneObjectOperations::processCommand(command);
             }
-            if (App::getEditModeType()&SHAPE_EDIT_MODE)
+            if (GuiApp::getEditModeType()&SHAPE_EDIT_MODE)
             {
                 if (!processed)
-                    processed=App::mainWindow->editModeContainer->processCommand(command,nullptr);
+                    processed=GuiApp::mainWindow->editModeContainer->processCommand(command,nullptr);
             }
-            if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
+            if (GuiApp::getEditModeType()&PATH_EDIT_MODE_OLD)
             {
                 if (!processed)
-                    processed=App::mainWindow->editModeContainer->processCommand(command,App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID));
+                    processed=GuiApp::mainWindow->editModeContainer->processCommand(command,App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID));
             }
             if (!processed)
                 processed=App::currentWorld->simulation->processCommand(command);
@@ -1758,7 +1757,7 @@ void CSView::cameraAndObjectMotion()
     VPoint mousePosition(mouseRelativePosition[0],mouseRelativePosition[1]);
     VPoint mouseDownPosition(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
     VPoint previousMousePosition(mousePreviousRelativePosition[0],mousePreviousRelativePosition[1]);
-    int navigationMode=App::getMouseMode()&0x00ff;
+    int navigationMode=GuiApp::getMouseMode()&0x00ff;
     double zoomSensitivity=0.000005;
 
     // Needed later...
@@ -1784,17 +1783,17 @@ void CSView::cameraAndObjectMotion()
         restX=0;
     }
     std::vector<int> vertexSel;
-    if (App::getEditModeType()&SHAPE_EDIT_MODE)
+    if (GuiApp::getEditModeType()&SHAPE_EDIT_MODE)
     {
-        if (App::getEditModeType()&VERTEX_EDIT_MODE)
+        if (GuiApp::getEditModeType()&VERTEX_EDIT_MODE)
         { // We simply copy the selection buffer
             vertexSel.clear();
-            vertexSel.insert(vertexSel.begin(),App::mainWindow->editModeContainer->getEditModeBuffer()->begin(),App::mainWindow->editModeContainer->getEditModeBuffer()->end());
+            vertexSel.insert(vertexSel.begin(),GuiApp::mainWindow->editModeContainer->getEditModeBuffer()->begin(),GuiApp::mainWindow->editModeContainer->getEditModeBuffer()->end());
         }
-        if (App::getEditModeType()&TRIANGLE_EDIT_MODE)
-            App::mainWindow->editModeContainer->getShapeEditMode()->selectionFromTriangleToVertexEditMode(&vertexSel);
-        if (App::getEditModeType()&EDGE_EDIT_MODE)
-            App::mainWindow->editModeContainer->getShapeEditMode()->selectionFromEdgeToVertexEditMode(&vertexSel);
+        if (GuiApp::getEditModeType()&TRIANGLE_EDIT_MODE)
+            GuiApp::mainWindow->editModeContainer->getShapeEditMode()->selectionFromTriangleToVertexEditMode(&vertexSel);
+        if (GuiApp::getEditModeType()&EDGE_EDIT_MODE)
+            GuiApp::mainWindow->editModeContainer->getShapeEditMode()->selectionFromEdgeToVertexEditMode(&vertexSel);
     }
 
     // Camera/object 3D rotation..
@@ -1841,7 +1840,7 @@ void CSView::cameraAndObjectMotion()
 
             aroundX=-aroundX;
             aroundY=-aroundY;
-            if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+            if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
             { // We have object rotation here:
                 // Prepare the object that will be rotated, and all other objects in selection appropriately:
                 // There is one master object that acts as the rotation pivot. That object needs to be carefully selected
@@ -1953,7 +1952,7 @@ void CSView::cameraAndObjectMotion()
                 centerPosition[1]+=absoluteTransl(1);
                 centerPosition[2]+=absoluteTransl(2);
             }
-            if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+            if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
             { // Object shifting/zooming
                 // Prepare the object that will be shifted, and all other objects in selection appropriately:
                 // There is one master object that acts as the shift pivot. That object needs to be carefully selected
@@ -2033,7 +2032,7 @@ void CSView::cameraAndObjectMotion()
                         pos[1]-=screenHalfSizes[1];
                     }
                     C3Vector centerPos(centerPosition);
-                    if ( (masterObj->getObjectType()!=sim_object_path_type)||(allSelObjects.size()!=0)||(App::mainWindow->editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()==0) )
+                    if ( (masterObj->getObjectType()!=sim_object_path_type)||(allSelObjects.size()!=0)||(GuiApp::mainWindow->editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()==0) )
                     { // normal object shifting:
                         if (masterObj->setLocalTransformationFromObjectTranslationMode(camera->getFullCumulativeTransformation().getMatrix(),centerPos,prevPos,pos,screenHalfSizes,halfSizes,perspective,eventID))
                             shiftedMaster=true;
@@ -2057,20 +2056,20 @@ void CSView::cameraAndObjectMotion()
                     }
                 }
             }
-            if (App::getEditModeType()&SHAPE_EDIT_MODE)
+            if (GuiApp::getEditModeType()&SHAPE_EDIT_MODE)
             { // Vertice shifting/zooming
-                CShape* shape=App::mainWindow->editModeContainer->getEditModeShape();
+                CShape* shape=GuiApp::mainWindow->editModeContainer->getEditModeShape();
                 C7Vector objCTM(shape->getCumulativeTransformation());
                 C7Vector objCTMI(objCTM.getInverse());
                 objCTM.X+=absoluteTransl;
                 objCTM=objCTMI*objCTM;
                 for (int i=0;i<int(vertexSel.size());i++)
                 {
-                    C3Vector v(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(vertexSel[i]));
-                    App::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(vertexSel[i],objCTM*v);
+                    C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(vertexSel[i]));
+                    GuiApp::mainWindow->editModeContainer->getShapeEditMode()->setEditionVertex(vertexSel[i],objCTM*v);
                 }
             }
-            if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
+            if (GuiApp::getEditModeType()&PATH_EDIT_MODE_OLD)
             { // Path point shifting
                 double prevPos[2]={double(previousMousePosition.x),double(previousMousePosition.y)};
                 double pos[2]={double(mousePosition.x),double(mousePosition.y)};
@@ -2121,7 +2120,7 @@ void CSView::cameraAndObjectMotion()
                 }
                 C3Vector centerPos(centerPosition);
 
-                CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
+                CPath_old* path=GuiApp::mainWindow->editModeContainer->getEditModePath_old();
                 path->transformSelectedPathPoints(camera->getFullCumulativeTransformation().getMatrix(),centerPos,prevPos,pos,screenHalfSizes,halfSizes,perspective,eventID);
             }
         }

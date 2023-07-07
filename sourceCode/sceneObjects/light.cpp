@@ -5,6 +5,9 @@
 #include <utils.h>
 #include <app.h>
 #include <lightRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 int CLight::_maximumOpenGlLights=8;
 
@@ -223,7 +226,7 @@ void CLight::setAttenuationFactor(int type,double value)
 void CLight::setLightActive(bool active)
 {
     if (active!=lightActive)
-        App::setRefreshHierarchyViewFlag();
+        GuiApp::setRefreshHierarchyViewFlag();
     lightActive=active;
 }
 

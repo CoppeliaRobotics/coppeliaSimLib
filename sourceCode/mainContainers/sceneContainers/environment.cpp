@@ -11,6 +11,9 @@
 #include <base64.h>
 #include <boost/algorithm/string.hpp>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 int CEnvironment::_nextSceneUniqueID=0;
 bool CEnvironment::_shapeTexturesTemporarilyDisabled=false;
@@ -165,8 +168,8 @@ void CEnvironment::setActiveLayers(unsigned short l)
             App::worldContainer->pushEvent();
         }
     }
-    App::setRefreshHierarchyViewFlag();
-    App::setLightDialogRefreshFlag();
+    GuiApp::setRefreshHierarchyViewFlag();
+    GuiApp::setLightDialogRefreshFlag();
 }
 
 unsigned short CEnvironment::getActiveLayers() const
@@ -926,7 +929,7 @@ void CEnvironment::activateAmbientLight(bool a)
 
 void CEnvironment::activateFogIfEnabled(CViewableBase* viewable,bool forDynamicContentOnly)
 {
-    if (fogEnabled&&viewable->getShowFogIfAvailable()&&(!forDynamicContentOnly)&&(App::getEditModeType()==NO_EDIT_MODE) )
+    if (fogEnabled&&viewable->getShowFogIfAvailable()&&(!forDynamicContentOnly)&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
     {
         activateFog(fogBackgroundColor,fogType,viewable->getFogStrength(),viewable->getFarClippingPlane(),fogStart,fogEnd,fogDensity);
         CViewableBase::fogWasActivated=true;

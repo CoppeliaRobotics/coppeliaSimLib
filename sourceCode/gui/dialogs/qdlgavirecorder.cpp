@@ -6,6 +6,9 @@
 #include <simStrings.h>
 #include <vVarious.h>
 #include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CQDlgAviRecorder::CQDlgAviRecorder(QWidget *parent) :
       CDlgEx(parent),
@@ -26,45 +29,45 @@ void CQDlgAviRecorder::refresh()
     inRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
 
-    bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
+    bool noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
     bool noEditModeNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
 
-    bool manualStarted=(App::mainWindow->simulationRecorder->getManualStart()&&App::mainWindow->simulationRecorder->getIsRecording());
-    ui->recordNow->setEnabled((((!App::mainWindow->simulationRecorder->getIsRecording())&&(!App::mainWindow->simulationRecorder->getRecorderEnabled()))||manualStarted)&&noEditMode);
+    bool manualStarted=(GuiApp::mainWindow->simulationRecorder->getManualStart()&&GuiApp::mainWindow->simulationRecorder->getIsRecording());
+    ui->recordNow->setEnabled((((!GuiApp::mainWindow->simulationRecorder->getIsRecording())&&(!GuiApp::mainWindow->simulationRecorder->getRecorderEnabled()))||manualStarted)&&noEditMode);
     if (!manualStarted)
         ui->recordNow->setText(IDS_RECORD_NOW);
     else
         ui->recordNow->setText(IDS_STOP_RECORDING);
 
-    ui->launchAtSimulationStart->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording()));
-    ui->launchAtSimulationStart->setChecked(App::mainWindow->simulationRecorder->getRecorderEnabled());
+    ui->launchAtSimulationStart->setEnabled(noEditModeNoSim&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording()));
+    ui->launchAtSimulationStart->setChecked(GuiApp::mainWindow->simulationRecorder->getRecorderEnabled());
 
-    ui->recordDesktopInstead->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording()));
-    ui->recordDesktopInstead->setChecked(App::mainWindow->simulationRecorder->getDesktopRecording());
+    ui->recordDesktopInstead->setEnabled(noEditModeNoSim&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording()));
+    ui->recordDesktopInstead->setChecked(GuiApp::mainWindow->simulationRecorder->getDesktopRecording());
 
-    ui->recordWindowInstead->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording()));
-    ui->recordWindowInstead->setChecked(!App::mainWindow->simulationRecorder->getDesktopRecording());
+    ui->recordWindowInstead->setEnabled(noEditModeNoSim&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording()));
+    ui->recordWindowInstead->setChecked(!GuiApp::mainWindow->simulationRecorder->getDesktopRecording());
 
-    ui->showCursor->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording())&&(!App::mainWindow->simulationRecorder->getDesktopRecording()));
-    ui->showCursor->setChecked(App::mainWindow->simulationRecorder->getShowCursor()&&(!App::mainWindow->simulationRecorder->getDesktopRecording()));
+    ui->showCursor->setEnabled(noEditModeNoSim&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording())&&(!GuiApp::mainWindow->simulationRecorder->getDesktopRecording()));
+    ui->showCursor->setChecked(GuiApp::mainWindow->simulationRecorder->getShowCursor()&&(!GuiApp::mainWindow->simulationRecorder->getDesktopRecording()));
 
-    ui->showButtons->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording())&&App::mainWindow->simulationRecorder->getShowCursor()&&(!App::mainWindow->simulationRecorder->getDesktopRecording()));
-    ui->showButtons->setChecked(App::mainWindow->simulationRecorder->getShowButtonStates()&&(!App::mainWindow->simulationRecorder->getDesktopRecording()));
+    ui->showButtons->setEnabled(noEditModeNoSim&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording())&&GuiApp::mainWindow->simulationRecorder->getShowCursor()&&(!GuiApp::mainWindow->simulationRecorder->getDesktopRecording()));
+    ui->showButtons->setChecked(GuiApp::mainWindow->simulationRecorder->getShowButtonStates()&&(!GuiApp::mainWindow->simulationRecorder->getDesktopRecording()));
 
-    ui->selectLocation->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording()));
-    ui->displayedFramesVsRecordedFrame->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording()));
-    ui->displayedFramesVsRecordedFrame->setText(utils::getIntString(false,App::mainWindow->simulationRecorder->getRecordEveryXRenderedFrame()).c_str());
+    ui->selectLocation->setEnabled(noEditModeNoSim&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording()));
+    ui->displayedFramesVsRecordedFrame->setEnabled(noEditModeNoSim&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording()));
+    ui->displayedFramesVsRecordedFrame->setText(utils::getIntString(false,GuiApp::mainWindow->simulationRecorder->getRecordEveryXRenderedFrame()).c_str());
 
-    ui->autoFrameRate->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording()));
-    ui->autoFrameRate->setChecked(App::mainWindow->simulationRecorder->getAutoFrameRate());
-    ui->frameRate->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording())&&(!App::mainWindow->simulationRecorder->getAutoFrameRate()));
-    ui->frameRate->setText(utils::getIntString(false,App::mainWindow->simulationRecorder->getFrameRate()).c_str());
+    ui->autoFrameRate->setEnabled(noEditModeNoSim&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording()));
+    ui->autoFrameRate->setChecked(GuiApp::mainWindow->simulationRecorder->getAutoFrameRate());
+    ui->frameRate->setEnabled(noEditModeNoSim&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording())&&(!GuiApp::mainWindow->simulationRecorder->getAutoFrameRate()));
+    ui->frameRate->setText(utils::getIntString(false,GuiApp::mainWindow->simulationRecorder->getFrameRate()).c_str());
 
-    ui->hideInfos->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording())&&(!App::mainWindow->simulationRecorder->getDesktopRecording()));
-    ui->hideInfos->setChecked(App::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar()&&(!App::mainWindow->simulationRecorder->getDesktopRecording()));
+    ui->hideInfos->setEnabled(noEditModeNoSim&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording())&&(!GuiApp::mainWindow->simulationRecorder->getDesktopRecording()));
+    ui->hideInfos->setChecked(GuiApp::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar()&&(!GuiApp::mainWindow->simulationRecorder->getDesktopRecording()));
 
     char userSet;
-    std::string path=App::mainWindow->simulationRecorder->getPath(&userSet);
+    std::string path=GuiApp::mainWindow->simulationRecorder->getPath(&userSet);
     if (userSet!=0)
         path+=".*";
     else
@@ -72,17 +75,17 @@ void CQDlgAviRecorder::refresh()
     ui->fileLocation->setText(path.c_str());
 
     ui->qqOutputTypeCombo->clear();
-    ui->qqOutputTypeCombo->setEnabled(noEditModeNoSim&&(!App::mainWindow->simulationRecorder->getIsRecording()));
+    ui->qqOutputTypeCombo->setEnabled(noEditModeNoSim&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording()));
     int cnt=0;
-    std::string txt(App::mainWindow->simulationRecorder->getEncoderString(cnt));
+    std::string txt(GuiApp::mainWindow->simulationRecorder->getEncoderString(cnt));
 
     while (txt.length()!=0)
     {
         ui->qqOutputTypeCombo->addItem(txt.c_str(),QVariant(cnt));
         cnt++;
-        txt=App::mainWindow->simulationRecorder->getEncoderString(cnt);
+        txt=GuiApp::mainWindow->simulationRecorder->getEncoderString(cnt);
     }
-    ui->qqOutputTypeCombo->setCurrentIndex(App::mainWindow->simulationRecorder->getEncoderIndex());
+    ui->qqOutputTypeCombo->setCurrentIndex(GuiApp::mainWindow->simulationRecorder->getEncoderIndex());
 
     selectLineEdit(lineEditToSelect);
     inRefreshRoutine=false;
@@ -92,8 +95,8 @@ void CQDlgAviRecorder::on_launchAtSimulationStart_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if ((!App::mainWindow->simulationRecorder->getIsRecording())&&App::currentWorld->simulation->isSimulationStopped() )
-            App::mainWindow->simulationRecorder->setRecorderEnabled(!App::mainWindow->simulationRecorder->getRecorderEnabled());
+        if ((!GuiApp::mainWindow->simulationRecorder->getIsRecording())&&App::currentWorld->simulation->isSimulationStopped() )
+            GuiApp::mainWindow->simulationRecorder->setRecorderEnabled(!GuiApp::mainWindow->simulationRecorder->getRecorderEnabled());
         refresh();
     }
 }
@@ -103,15 +106,15 @@ void CQDlgAviRecorder::on_recordNow_clicked()
     TRACE_INTERNAL;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::mainWindow->simulationRecorder->getIsRecording())
+        if (!GuiApp::mainWindow->simulationRecorder->getIsRecording())
         {
-            App::mainWindow->simulationRecorder->setRecorderEnabled(true);
-            App::mainWindow->simulationRecorder->startRecording(true);
+            GuiApp::mainWindow->simulationRecorder->setRecorderEnabled(true);
+            GuiApp::mainWindow->simulationRecorder->startRecording(true);
         }
         else
         {
-            if (App::mainWindow->simulationRecorder->getManualStart())
-                App::mainWindow->simulationRecorder->stopRecording(true);
+            if (GuiApp::mainWindow->simulationRecorder->getManualStart())
+                GuiApp::mainWindow->simulationRecorder->stopRecording(true);
         }
         refresh();
     }
@@ -121,8 +124,8 @@ void CQDlgAviRecorder::on_showCursor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::mainWindow->simulationRecorder->getIsRecording())
-            App::mainWindow->simulationRecorder->setShowCursor(!App::mainWindow->simulationRecorder->getShowCursor());
+        if (!GuiApp::mainWindow->simulationRecorder->getIsRecording())
+            GuiApp::mainWindow->simulationRecorder->setShowCursor(!GuiApp::mainWindow->simulationRecorder->getShowCursor());
         refresh();
     }
 }
@@ -131,8 +134,8 @@ void CQDlgAviRecorder::on_showButtons_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::mainWindow->simulationRecorder->getIsRecording())
-            App::mainWindow->simulationRecorder->setShowButtonStates(!App::mainWindow->simulationRecorder->getShowButtonStates());
+        if (!GuiApp::mainWindow->simulationRecorder->getIsRecording())
+            GuiApp::mainWindow->simulationRecorder->setShowButtonStates(!GuiApp::mainWindow->simulationRecorder->getShowButtonStates());
         refresh();
     }
 }
@@ -141,8 +144,8 @@ void CQDlgAviRecorder::on_hideInfos_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::mainWindow->simulationRecorder->getIsRecording())
-            App::mainWindow->simulationRecorder->setHideInfoTextAndStatusBar(!App::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar());
+        if (!GuiApp::mainWindow->simulationRecorder->getIsRecording())
+            GuiApp::mainWindow->simulationRecorder->setHideInfoTextAndStatusBar(!GuiApp::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar());
         refresh();
     }
 }
@@ -151,24 +154,24 @@ void CQDlgAviRecorder::on_selectLocation_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::mainWindow->simulationRecorder->getIsRecording())
+        if (!GuiApp::mainWindow->simulationRecorder->getIsRecording())
         {
 /*
-            std::string initPath=App::directories->getPathFromFull(App::mainWindow->simulationRecorder->getFilenameAndPath());
-            std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,IDSN_AVI_FILE_LOCATION,initPath,App::mainWindow->simulationRecorder->getFilenameAndPath(),false,"Various","*");
+            std::string initPath=App::directories->getPathFromFull(GuiApp::mainWindow->simulationRecorder->getFilenameAndPath());
+            std::string filenameAndPath=GuiApp::uiThread->getSaveFileName(GuiApp::mainWindow,0,IDSN_AVI_FILE_LOCATION,initPath,GuiApp::mainWindow->simulationRecorder->getFilenameAndPath(),false,"Various","*");
             if (filenameAndPath.length()!=0)
             {
                 // Make sure we don't include the extension
                 std::string _path=VVarious::splitPath_path(filenameAndPath);
                 std::string _name=VVarious::splitPath_fileBase(filenameAndPath);
                 filenameAndPath=_path+"/"+_name;
-                App::mainWindow->simulationRecorder->setFilenameAndPath(filenameAndPath.c_str());
+                GuiApp::mainWindow->simulationRecorder->setFilenameAndPath(filenameAndPath.c_str());
             }
 */
-            std::string initPath=App::mainWindow->simulationRecorder->getPath(nullptr);
-            std::string folder=App::uiThread->getOpenOrSaveFileName_api(sim_filedlg_type_folder,IDSN_AVI_FILE_LOCATION,initPath.c_str(),"","","");
+            std::string initPath=GuiApp::mainWindow->simulationRecorder->getPath(nullptr);
+            std::string folder=GuiApp::uiThread->getOpenOrSaveFileName_api(sim_filedlg_type_folder,IDSN_AVI_FILE_LOCATION,initPath.c_str(),"","","");
             if (folder.length()!=0)
-                App::mainWindow->simulationRecorder->setPath(folder.c_str());
+                GuiApp::mainWindow->simulationRecorder->setPath(folder.c_str());
         }
         refresh();
     }
@@ -178,13 +181,13 @@ void CQDlgAviRecorder::on_displayedFramesVsRecordedFrame_editingFinished()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::mainWindow->simulationRecorder->getIsRecording())
+        if (!GuiApp::mainWindow->simulationRecorder->getIsRecording())
         {
             int newVal;
             bool ok;
             newVal=ui->displayedFramesVsRecordedFrame->text().toInt(&ok);
             if (ok)
-                App::mainWindow->simulationRecorder->setRecordEveryXRenderedFrame(newVal);
+                GuiApp::mainWindow->simulationRecorder->setRecordEveryXRenderedFrame(newVal);
         }
         refresh();
     }
@@ -194,13 +197,13 @@ void CQDlgAviRecorder::on_frameRate_editingFinished()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::mainWindow->simulationRecorder->getIsRecording())
+        if (!GuiApp::mainWindow->simulationRecorder->getIsRecording())
         {
             int newVal;
             bool ok;
             newVal=ui->frameRate->text().toInt(&ok);
             if (ok)
-                App::mainWindow->simulationRecorder->setFrameRate(newVal);
+                GuiApp::mainWindow->simulationRecorder->setFrameRate(newVal);
         }
         refresh();
     }
@@ -212,7 +215,7 @@ void CQDlgAviRecorder::on_qqOutputTypeCombo_currentIndexChanged(int index)
     {
         if (!inRefreshRoutine)
         {
-            App::mainWindow->simulationRecorder->setEncoderIndex(index);
+            GuiApp::mainWindow->simulationRecorder->setEncoderIndex(index);
             refresh();
         }
     }
@@ -222,8 +225,8 @@ void CQDlgAviRecorder::on_autoFrameRate_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::mainWindow->simulationRecorder->getIsRecording())
-            App::mainWindow->simulationRecorder->setAutoFrameRate(!App::mainWindow->simulationRecorder->getAutoFrameRate());
+        if (!GuiApp::mainWindow->simulationRecorder->getIsRecording())
+            GuiApp::mainWindow->simulationRecorder->setAutoFrameRate(!GuiApp::mainWindow->simulationRecorder->getAutoFrameRate());
         refresh();
     }
 }
@@ -232,8 +235,8 @@ void CQDlgAviRecorder::on_recordDesktopInstead_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::mainWindow->simulationRecorder->getIsRecording())
-            App::mainWindow->simulationRecorder->setDesktopRecording(true);
+        if (!GuiApp::mainWindow->simulationRecorder->getIsRecording())
+            GuiApp::mainWindow->simulationRecorder->setDesktopRecording(true);
         refresh();
     }
 }
@@ -242,8 +245,8 @@ void CQDlgAviRecorder::on_recordWindowInstead_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::mainWindow->simulationRecorder->getIsRecording())
-            App::mainWindow->simulationRecorder->setDesktopRecording(false);
+        if (!GuiApp::mainWindow->simulationRecorder->getIsRecording())
+            GuiApp::mainWindow->simulationRecorder->setDesktopRecording(false);
         refresh();
     }
 }

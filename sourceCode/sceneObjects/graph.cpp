@@ -9,6 +9,9 @@
 #include <app.h>
 #include <graphRendering.h>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CGraph::CGraph()
 {
@@ -1361,7 +1364,7 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=COPY_TEXT_TO_CLIPBOARD_UITHREADCMD;
         cmdIn.stringParams.push_back(txt);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         return;
     }
 
@@ -1471,7 +1474,7 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=COPY_TEXT_TO_CLIPBOARD_UITHREADCMD;
     cmdIn.stringParams.push_back(txt);
-    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 }
 
 int CGraph::duplicateCurveToStatic(int curveId,const char* curveName)

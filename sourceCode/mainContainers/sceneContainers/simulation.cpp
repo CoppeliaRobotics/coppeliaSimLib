@@ -10,6 +10,9 @@
 #include <vDateTime.h>
 #include <persistentDataContainer.h>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CSimulation::CSimulation()
 {
@@ -126,10 +129,10 @@ void CSimulation::simulationAboutToStart()
     _desiredFasterOrSlowerSpeed=0;
     _stopRequestCounterAtSimulationStart=_stopRequestCounter;
     #ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=nullptr) && App::userSettings->sceneHierarchyHiddenDuringSimulation )
+        if ( (GuiApp::mainWindow!=nullptr) && App::userSettings->sceneHierarchyHiddenDuringSimulation )
         {
-            _hierarchyWasEnabledBeforeSimulation=App::mainWindow->oglSurface->isHierarchyEnabled();
-            App::mainWindow->dlgCont->processCommand(CLOSE_HIERARCHY_DLG_CMD);
+            _hierarchyWasEnabledBeforeSimulation=GuiApp::mainWindow->oglSurface->isHierarchyEnabled();
+            GuiApp::mainWindow->dlgCont->processCommand(CLOSE_HIERARCHY_DLG_CMD);
         }
     #endif
     if ( (!App::currentWorld->dynamicsContainer->getSettingsAreDefault())||(!getSettingsAreDefault()) )
@@ -145,8 +148,8 @@ void CSimulation::simulationEnded()
     #endif
     _dynamicContentVisualizationOnly=false;
     #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-            App::mainWindow->simulationRecorder->stopRecording(false);
+        if (GuiApp::mainWindow!=nullptr)
+            GuiApp::mainWindow->simulationRecorder->stopRecording(false);
     #endif
     if (_initialValuesInitialized)
     {
@@ -158,8 +161,8 @@ void CSimulation::simulationEnded()
     _desiredFasterOrSlowerSpeed=0;
 
     #ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=nullptr) && _hierarchyWasEnabledBeforeSimulation && App::userSettings->sceneHierarchyHiddenDuringSimulation)
-            App::mainWindow->dlgCont->processCommand(OPEN_HIERARCHY_DLG_CMD);
+        if ( (GuiApp::mainWindow!=nullptr) && _hierarchyWasEnabledBeforeSimulation && App::userSettings->sceneHierarchyHiddenDuringSimulation)
+            GuiApp::mainWindow->dlgCont->processCommand(OPEN_HIERARCHY_DLG_CMD);
     #endif
 }
 
@@ -172,8 +175,8 @@ void CSimulation::setDynamicContentVisualizationOnly(bool dynOnly)
 {
     if ((!isSimulationStopped())||(!dynOnly))
         _dynamicContentVisualizationOnly=dynOnly;
-    App::setFullDialogRefreshFlag(); // so we reflect the effect also to the toolbar button
-    App::setToolbarRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag(); // so we reflect the effect also to the toolbar button
+    GuiApp::setToolbarRefreshFlag();
 }
 
 bool CSimulation::canGoSlower() const
@@ -213,7 +216,7 @@ bool CSimulation::startOrResumeSimulation()
     TRACE_INTERNAL;
     if (isSimulationStopped())
     {
-        App::setFullScreen(_fullscreenAtSimulationStart);
+        GuiApp::setFullScreen(_fullscreenAtSimulationStart);
         CThreadPool_old::setSimulationEmergencyStop(false);
         CThreadPool_old::setRequestSimulationStop(false);
         App::worldContainer->simulationAboutToStart();
@@ -249,7 +252,7 @@ bool CSimulation::stopSimulation()
 {
     TRACE_INTERNAL;
     if (getSimulationState()!=sim_simulation_stopped)
-        App::setFullScreen(false);
+        GuiApp::setFullScreen(false);
 
     if ((getSimulationState()==sim_simulation_advancing_abouttostop)||
         (getSimulationState()==sim_simulation_advancing_lastbeforestop))
@@ -406,7 +409,7 @@ void CSimulation::setTimeStep(double dt)
         if (dt>10.0)
             dt=10.0;
         _simulationTimeStep=dt;
-        App::setFullDialogRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
     }
 }
 
@@ -650,8 +653,8 @@ bool CSimulation::_goFasterOrSlower(int action)
     }
     if (retVal)
     {
-        App::setLightDialogRefreshFlag();
-        App::setToolbarRefreshFlag();
+        GuiApp::setLightDialogRefreshFlag();
+        GuiApp::setToolbarRefreshFlag();
     }
     return(retVal);
 }
@@ -677,7 +680,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
+            bool noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
             if (App::currentWorld->simulation->isSimulationStopped()&&noEditMode )
             {
                 App::currentWorld->simulation->setIsRealTimeSimulation(!App::currentWorld->simulation->getIsRealTimeSimulation());
@@ -685,8 +688,8 @@ bool CSimulation::processCommand(int commandID)
                     App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_REAL_TIME_MODE);
                 else
                     App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE);
-                App::setLightDialogRefreshFlag();
-                App::setToolbarRefreshFlag(); // will trigger a refresh
+                GuiApp::setLightDialogRefreshFlag();
+                GuiApp::setToolbarRefreshFlag(); // will trigger a refresh
                 App::undoRedo_sceneChanged(""); 
             }
         }
@@ -714,14 +717,14 @@ bool CSimulation::processCommand(int commandID)
     {
         if (VThread::isUiThread())
         { // We are in the UI thread. We execute the command now:
-            App::mainWindow->setOpenGlDisplayEnabled(!App::mainWindow->getOpenGlDisplayEnabled());
+            GuiApp::mainWindow->setOpenGlDisplayEnabled(!GuiApp::mainWindow->getOpenGlDisplayEnabled());
         }
         else
         { // We are not in the UI thread. Execute the command via the UI thread:
             SUIThreadCommand cmdIn;
             SUIThreadCommand cmdOut;
             cmdIn.cmdId=TOGGLE_VISUALIZATION_UITHREADCMD;
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         }
         return(true);
     }
@@ -743,7 +746,7 @@ bool CSimulation::processCommand(int commandID)
 
     if (commandID==SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD)
     {
-        if (App::getEditModeType()==NO_EDIT_MODE)
+        if (GuiApp::getEditModeType()==NO_EDIT_MODE)
         {
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
@@ -892,8 +895,8 @@ bool CSimulation::processCommand(int commandID)
     {
         if (VThread::isUiThread())
         {
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->dlgCont->toggle(SIMULATION_DLG);
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->dlgCont->toggle(SIMULATION_DLG);
         }
         return(true);
     }
@@ -1275,9 +1278,9 @@ bool CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* sc
 {
     TRACE_INTERNAL;
     bool retVal=false;
-    if (App::mainWindow!=nullptr)
+    if (GuiApp::mainWindow!=nullptr)
     { // make sure we are not in headless mode
-        bool res=App::uiThread->showOrHideEmergencyStop(showState,scriptName);
+        bool res=GuiApp::uiThread->showOrHideEmergencyStop(showState,scriptName);
         if (showState&&res)
         { // stop button was pressed
             if (!isSimulationStopped())
@@ -1293,18 +1296,18 @@ bool CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* sc
 
 void CSimulation::addMenu(VMenu* menu)
 {
-    bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
+    bool noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
     bool simRunning=App::currentWorld->simulation->isSimulationRunning();
     bool simStopped=App::currentWorld->simulation->isSimulationStopped();
     bool simPaused=App::currentWorld->simulation->isSimulationPaused();
     bool canGoSlower=App::currentWorld->simulation->canGoSlower();
     bool canGoFaster=App::currentWorld->simulation->canGoFaster();
     if (simPaused)
-        menu->appendMenuItem(App::mainWindow->getPlayViaGuiEnabled()&&noEditMode,false,SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,IDS_RESUME_SIMULATION_MENU_ITEM);
+        menu->appendMenuItem(GuiApp::mainWindow->getPlayViaGuiEnabled()&&noEditMode,false,SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,IDS_RESUME_SIMULATION_MENU_ITEM);
     else
-        menu->appendMenuItem(App::mainWindow->getPlayViaGuiEnabled()&&noEditMode&&(!simRunning),false,SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,IDS_START_SIMULATION_MENU_ITEM);
-    menu->appendMenuItem(App::mainWindow->getPauseViaGuiEnabled()&&noEditMode&&simRunning,false,SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD,IDS_PAUSE_SIMULATION_MENU_ITEM);
-    menu->appendMenuItem(App::mainWindow->getStopViaGuiEnabled()&&noEditMode&&(!simStopped),false,SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD,IDS_STOP_SIMULATION_MENU_ITEM);
+        menu->appendMenuItem(GuiApp::mainWindow->getPlayViaGuiEnabled()&&noEditMode&&(!simRunning),false,SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,IDS_START_SIMULATION_MENU_ITEM);
+    menu->appendMenuItem(GuiApp::mainWindow->getPauseViaGuiEnabled()&&noEditMode&&simRunning,false,SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD,IDS_PAUSE_SIMULATION_MENU_ITEM);
+    menu->appendMenuItem(GuiApp::mainWindow->getStopViaGuiEnabled()&&noEditMode&&(!simStopped),false,SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD,IDS_STOP_SIMULATION_MENU_ITEM);
     menu->appendMenuSeparator();
     int version;
     int engine=App::currentWorld->dynamicsContainer->getDynamicEngineType(&version);
@@ -1321,10 +1324,10 @@ void CSimulation::addMenu(VMenu* menu)
     menu->appendMenuItem(noEditMode&&simStopped,App::currentWorld->simulation->getIsRealTimeSimulation(),SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD,IDSN_REAL_TIME_SIMULATION,true);
     menu->appendMenuItem(canGoSlower,false,SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD,IDSN_SLOW_DOWN_SIMULATION);
     menu->appendMenuItem(canGoFaster,false,SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD,IDSN_SPEED_UP_SIMULATION);
-    menu->appendMenuItem(simRunning&&(!(App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive())),!App::mainWindow->getOpenGlDisplayEnabled(),SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,"Toggle visualization",true);
+    menu->appendMenuItem(simRunning&&(!(GuiApp::mainWindow->oglSurface->isPageSelectionActive()||GuiApp::mainWindow->oglSurface->isViewSelectionActive())),!GuiApp::mainWindow->getOpenGlDisplayEnabled(),SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,"Toggle visualization",true);
     menu->appendMenuSeparator();
-    if (App::mainWindow!=nullptr)
-        menu->appendMenuItem(true,App::mainWindow->dlgCont->isVisible(SIMULATION_DLG),TOGGLE_SIMULATION_DLG_CMD,IDSN_SIMULATION_SETTINGS,true);
+    if (GuiApp::mainWindow!=nullptr)
+        menu->appendMenuItem(true,GuiApp::mainWindow->dlgCont->isVisible(SIMULATION_DLG),TOGGLE_SIMULATION_DLG_CMD,IDSN_SIMULATION_SETTINGS,true);
 }
 
 void CSimulation::keyPress(int key)
@@ -1333,12 +1336,12 @@ void CSimulation::keyPress(int key)
     {
         if (isSimulationRunning())
         {
-            if (App::mainWindow->getStopViaGuiEnabled())
+            if (GuiApp::mainWindow->getStopViaGuiEnabled())
                 processCommand(SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD);
         }
         else
         {
-            if (App::mainWindow->getPlayViaGuiEnabled())
+            if (GuiApp::mainWindow->getPlayViaGuiEnabled())
                 processCommand(SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD);
         }
     }

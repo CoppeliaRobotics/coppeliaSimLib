@@ -1,5 +1,3 @@
-// This file requires serious refactoring!!
-
 #include <simInternal.h>
 #include <mainWindow.h>
 #include <oGL.h>
@@ -34,6 +32,9 @@
 #include <Qsci/qsciscintilla.h> // put this before glx.h
 #ifdef LIN_SIM
     #include <GL/glx.h>
+#endif
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
 #endif
 
 const int DEFAULT_MOUSE_MODE=sim_navigation_camerashift|sim_navigation_clickselection|sim_navigation_ctrlselection|sim_navigation_shiftselection|sim_navigation_camerazoomwheel|sim_navigation_camerarotaterightbutton;
@@ -92,7 +93,7 @@ CMainWindow::CMainWindow() : QMainWindow()
 
     // Required for MacOS apparently:
     if ( (App::userSettings->highResDisplay==1)||((devicePixelRatio()>1.2)&&(App::userSettings->highResDisplay==-1)) )
-        App::sc=2;
+        GuiApp::sc=2;
 
     dlgCont=new CDlgCont(this);
 
@@ -135,7 +136,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     _modelBrowser=new QSplitter(Qt::Vertical);
     _modelBrowser->addWidget(modelFolderWidget);
     _modelBrowser->addWidget(modelListWidget);
-    if (!App::getBrowserEnabled())
+    if (!GuiApp::getBrowserEnabled())
         _modelBrowser->setVisible(false); // do not explicitely set to true (not nice artifacts during creation). Is true by default anyways
 // -----------
 
@@ -214,7 +215,7 @@ CMainWindow::CMainWindow() : QMainWindow()
     statusBar->setMinimumHeight(50);
     statusBar->setMaximumHeight(600);
     statusBar->setObjectName("statusBar");
-    if ((App::operationalUIParts&sim_gui_statusbar)==0)
+    if ((GuiApp::operationalUIParts&sim_gui_statusbar)==0)
         statusBar->setVisible(false); // do not explicitely set to true (not nice artifacts during creation). Is true by default anyways
 // ---------------
 
@@ -483,7 +484,7 @@ void CMainWindow::setFullScreen(bool f)
             SUIThreadCommand cmdOut;
             cmdIn.cmdId=MAIN_WINDOW_SET_FULLSCREEN_MWTHREADCMD;
             cmdIn.boolParams.push_back(f);
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         }
     }
     _fullscreen=f;
@@ -492,8 +493,8 @@ void CMainWindow::setFullScreen(bool f)
 void CMainWindow::setOpenGlDisplayEnabled(bool e)
 {
     _openGlDisplayEnabled=e;
-    App::setToolbarRefreshFlag();
-    App::setRefreshHierarchyViewFlag();
+    GuiApp::setToolbarRefreshFlag();
+    GuiApp::setRefreshHierarchyViewFlag();
 }
 
 bool CMainWindow::getOpenGlDisplayEnabled()
@@ -656,8 +657,8 @@ void CMainWindow::refreshDialogs_uiThread()
     //----------------------------------------------------------------------------------
     if (App::worldContainer->getCurrentWorldIndex()!=lastInstance)
     {
-        App::setFullDialogRefreshFlag();
-        App::setToolbarRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
+        GuiApp::setToolbarRefreshFlag();
         createDefaultMenuBar();
         lastInstance=App::worldContainer->getCurrentWorldIndex();
         refreshDimensions();
@@ -677,8 +678,8 @@ void CMainWindow::refreshDialogs_uiThread()
         _dialogRefreshDontPublishFlag=false;
         dlgCont->refresh();
         if (_fullDialogRefreshFlag)
-            App::setRebuildHierarchyFlag();
-        App::setRefreshHierarchyViewFlag();
+            GuiApp::setRebuildHierarchyFlag();
+        GuiApp::setRefreshHierarchyViewFlag();
         _lightDialogRefreshFlag=false;
         _fullDialogRefreshFlag=false;
     }
@@ -748,9 +749,9 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
     lastTimeRenderingStarted=startTime;
 
     if (_fullDialogRefreshFlag)
-        App::setRebuildHierarchyFlag();
+        GuiApp::setRebuildHierarchyFlag();
     if (_lightDialogRefreshFlag)
-        App::setRefreshHierarchyViewFlag();
+        GuiApp::setRefreshHierarchyViewFlag();
 
     bool swapTheBuffers=false;
     if (!windowHandle()->isExposed())
@@ -878,7 +879,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
 
 void CMainWindow::createDefaultMenuBar()
 {
-    if (App::operationalUIParts&sim_gui_menubar)
+    if (GuiApp::operationalUIParts&sim_gui_menubar)
     { // Default menu bar
         removeDefaultMenuBar();
         _menubar=new VMenubar();
@@ -950,7 +951,7 @@ void CMainWindow::createDefaultMenuBar()
 
 void CMainWindow::removeDefaultMenuBar()
 {
-    if (_menubar!=nullptr) //App::operationalUIParts&sim_gui_menubar)
+    if (_menubar!=nullptr) //GuiApp::operationalUIParts&sim_gui_menubar)
     {
         delete _menubar;
         _menubar=nullptr;
@@ -960,7 +961,7 @@ void CMainWindow::removeDefaultMenuBar()
 
 void CMainWindow::_createDefaultToolBars()
 {
-    if ((_toolbar1==nullptr)&&(App::operationalUIParts&sim_gui_toolbar1))
+    if ((_toolbar1==nullptr)&&(GuiApp::operationalUIParts&sim_gui_toolbar1))
     {
         _toolbar1=new QToolBar(tr("Navigation"));
         _toolbar1->setIconSize(QSize(28,28));
@@ -1118,7 +1119,7 @@ void CMainWindow::_createDefaultToolBars()
         _signalMapper->setMapping(_toolbarActionPageSelector,PAGE_SELECTOR_CMD);
 
     }
-    if ((_toolbar2==nullptr)&&(App::operationalUIParts&sim_gui_toolbar2))
+    if ((_toolbar2==nullptr)&&(GuiApp::operationalUIParts&sim_gui_toolbar2))
     {
         _toolbar2=new QToolBar(tr("Tools"));
         _toolbar2->setIconSize(QSize(28,28));
@@ -1211,7 +1212,7 @@ void CMainWindow::_createDefaultToolBars()
  
     }
     refreshDimensions();
-    App::setToolbarRefreshFlag();
+    GuiApp::setToolbarRefreshFlag();
 
 }
 
@@ -1387,7 +1388,7 @@ void CMainWindow::onRightMouseButtonDownTT(int xPos,int yPos)
     _mouseRenderingPos[0]=xPos;
     _mouseRenderingPos[1]=_clientArea[1]-yPos;
     if (App::userSettings->navigationBackwardCompatibility)
-        App::setLightDialogRefreshFlag();
+        GuiApp::setLightDialogRefreshFlag();
     oglSurface->clearCaughtElements(0xffff-sim_right_button);
     if (getOpenGlDisplayEnabled())
         oglSurface->rightMouseButtonDown(_mouseRenderingPos[0],_mouseRenderingPos[1]);
@@ -1398,7 +1399,7 @@ void CMainWindow::onLeftMouseButtonUpTT(int xPos,int yPos)
 {
     _mouseRenderingPos[0]=xPos;
     _mouseRenderingPos[1]=_clientArea[1]-yPos;
-    App::setLightDialogRefreshFlag(); // to refresh dlgs when an object has been dragged for instance
+    GuiApp::setLightDialogRefreshFlag(); // to refresh dlgs when an object has been dragged for instance
     if (oglSurface->getCaughtElements()&sim_left_button)
         oglSurface->leftMouseButtonUp(_mouseRenderingPos[0],_mouseRenderingPos[1]);
     oglSurface->clearCaughtElements(0xffff-sim_left_button);
@@ -1767,13 +1768,13 @@ void CMainWindow::_dropFilesIntoScene(const std::vector<std::string>& tttFiles,c
         if ( ((tttFiles.size()>0)&&(ttmFiles.size()==0))||((tttFiles.size()==0)&&(ttmFiles.size()>0)) )
         {
             if (editModeContainer->getEditModeType()!=NO_EDIT_MODE)
-                App::uiThread->messageBox_warning(this,"Drag and drop",IDS_END_EDIT_MODE_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                GuiApp::uiThread->messageBox_warning(this,"Drag and drop",IDS_END_EDIT_MODE_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             else
             {
                 if (tttFiles.size()>0)
                 { // loading (a) scene(s):
                     if (!App::currentWorld->simulation->isSimulationStopped())
-                        App::uiThread->messageBox_warning(this,"Drag and drop",IDS_STOP_SIMULATION_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                        GuiApp::uiThread->messageBox_warning(this,"Drag and drop",IDS_STOP_SIMULATION_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
                     else
                     {
                         for (size_t i=0;i<tttFiles.size();i++)
@@ -1858,7 +1859,7 @@ void CMainWindow::_simMessageHandler(int id)
         processed=App::worldContainer->processGuiCommand(id);
     if (!processed)
         processed=App::worldContainer->moduleMenuItemContainer->processCommand(id);
-    App::setToolbarRefreshFlag();
+    GuiApp::setToolbarRefreshFlag();
 }
 
 void CMainWindow::_aboutToShowFileSystemMenu()
@@ -2090,8 +2091,8 @@ void CMainWindow::setMouseMode(int mm)
         else
             closeDlg(TRANSLATION_ROTATION_DLG);
 
-        App::setToolbarRefreshFlag();
-        App::setFullDialogRefreshFlag();
+        GuiApp::setToolbarRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
     }
 }
 
@@ -2171,9 +2172,9 @@ void CMainWindow::tabBarIndexChanged(int newIndex)
 
 void CMainWindow::_closeDialogTemporarilyIfOpened(int dlgID,std::vector<int>& vect)
 {
-    if (App::mainWindow->dlgCont->isVisible(dlgID))
+    if (GuiApp::mainWindow->dlgCont->isVisible(dlgID))
     {
-        App::mainWindow->dlgCont->close(dlgID);
+        GuiApp::mainWindow->dlgCont->close(dlgID);
         vect.push_back(dlgID);
     }
 }
@@ -2205,7 +2206,7 @@ void CMainWindow::closeTemporarilyDialogsForPageSelector()
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=MAIN_WINDOW_PAGE_SELECTOR_DLG_CLOSE_MWUITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -2224,7 +2225,7 @@ void CMainWindow::reopenTemporarilyClosedDialogsForPageSelector()
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=MAIN_WINDOW_PAGE_SELECTOR_DLG_REOPEN_MWUITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -2256,7 +2257,7 @@ void CMainWindow::closeTemporarilyDialogsForViewSelector()
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=MAIN_WINDOW_VIEW_SELECTOR_DLG_CLOSE_MWUITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -2275,7 +2276,7 @@ void CMainWindow::reopenTemporarilyClosedDialogsForViewSelector()
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=MAIN_WINDOW_VIEW_SELECTOR_DLG_REOPEN_MWUITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -2294,7 +2295,7 @@ void CMainWindow::reopenTemporarilyClosedNonEditModeDialogs()
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=MAIN_WINDOW_NON_EDIT_MODE_DLG_REOPEN_MWUITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -2324,7 +2325,7 @@ void CMainWindow::closeTemporarilyNonEditModeDialogs()
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=MAIN_WINDOW_NON_EDIT_MODE_DLG_CLOSE_MWUITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -2341,7 +2342,7 @@ void CMainWindow::openOrBringDlgToFront(int dlgId)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=MAIN_WINDOW_OPEN_DLG_OR_BRING_TO_FRONT_MWUITHREADCMD;
         cmdIn.intParams.push_back(dlgId);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -2358,7 +2359,7 @@ void CMainWindow::closeDlg(int dlgId)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=MAIN_WINDOW_CLOSE_DLG_MWUITHREADCMD;
         cmdIn.intParams.push_back(dlgId);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 
@@ -2374,7 +2375,7 @@ void CMainWindow::activateMainWindow()
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=MAIN_WINDOW_ACTIVATE_MWUITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }
 

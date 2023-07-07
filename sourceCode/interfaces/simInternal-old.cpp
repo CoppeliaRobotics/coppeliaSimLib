@@ -1610,7 +1610,7 @@ int simHandleCustomizationScripts_internal(int callType)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=0;
-        if (App::getEditModeType()==NO_EDIT_MODE)
+        if (GuiApp::getEditModeType()==NO_EDIT_MODE)
         {
             retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_customizationscript,callType,nullptr,nullptr);
             App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
@@ -2958,7 +2958,7 @@ int simInsertPathCtrlPoints_internal(int pathHandle,int options,int startIndex,i
             path->pathContainer->setAttributes((path->pathContainer->getAttributes()|sim_pathproperty_closed_path)-sim_pathproperty_closed_path);
         path->pathContainer->enableActualization(true);
         path->pathContainer->actualizePath();
-        App::setFullDialogRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -2987,7 +2987,7 @@ int simCutPathCtrlPoints_internal(int pathHandle,int startIndex,int ptCnt)
             path->pathContainer->enableActualization(true);
             path->pathContainer->actualizePath();
         }
-        App::setFullDialogRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -3905,7 +3905,7 @@ int simSetObjectName_internal(int objectHandle,const char* objectName)
         else
         {
             App::currentWorld->sceneObjects->setObjectName_old(it,text.c_str(),true);
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
         }
         return(1);
     }
@@ -4367,7 +4367,7 @@ char* simFileDialog_internal(int mode,const char* title,const char* startPath,co
     std::string stPath(startPath);
     if (stPath.length()==0)
         stPath=App::directories->executableDirectory;
-    nameAndPath=App::uiThread->getOpenOrSaveFileName_api(mode,title,stPath.c_str(),initName,extName,ext);
+    nameAndPath=GuiApp::uiThread->getOpenOrSaveFileName_api(mode,title,stPath.c_str(),initName,extName,ext);
     */
     if (nameAndPath.length()!=0)
     {
@@ -5006,8 +5006,8 @@ int simSetScriptText_internal(int scriptHandle,const char* scriptText)
         }
 
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
+        if (GuiApp::mainWindow!=nullptr)
+            GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
 #endif
         it->setScriptText(scriptText);
         if ( (it->getScriptType()!=sim_scripttype_childscript)||(!it->getThreadedExecution_oldThreads())||App::currentWorld->simulation->isSimulationStopped() )
@@ -5038,8 +5038,8 @@ const char* simGetScriptText_internal(int scriptHandle)
         const char* retVal=nullptr;
 
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,false);
+        if (GuiApp::mainWindow!=nullptr)
+            GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,false);
         else
 #endif
             retVal=it->getScriptText();
@@ -5667,11 +5667,11 @@ int simLoadModule_internal(const char* filenameAndPath,const char* pluginName)
     cmdIn.stringParams.push_back(pluginName);
     App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': loading...",pluginName);
     if (VThread::isUiThread())
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     else
     {
         SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING; // Needed when a plugin is loaded on-the-fly
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
     int handle=cmdOut.intParams[0];
     if (handle==-3)
@@ -5711,11 +5711,11 @@ int simUnloadModule_internal(int pluginhandle)
         cmdIn.intParams.push_back(pluginhandle);
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': unloading...",nm.c_str());
         if (VThread::isUiThread())
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         else
         {
             SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING; // Needed when a plugin is unloaded on-the-fly
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         }
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': done.",nm.c_str());
         if (cmdOut.boolParams[0])

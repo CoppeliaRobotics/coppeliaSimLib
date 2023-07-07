@@ -6,6 +6,9 @@
 #include <boost/lexical_cast.hpp>
 #include <simStrings.h>
 #include <vDateTime.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CCalculationInfo::CCalculationInfo()
 {
@@ -260,7 +263,7 @@ void CCalculationInfo::printInformation()
         int pos=0;
         std::string tmp;
         std::string txt;
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             CSceneObject* it=App::currentWorld->sceneObjects->getLastSelectionObject();
             if (it!=nullptr)
@@ -304,31 +307,31 @@ void CCalculationInfo::printInformation()
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label="0";
             }
         }
-        if (App::getEditModeType()&VERTEX_EDIT_MODE)
+        if (GuiApp::getEditModeType()&VERTEX_EDIT_MODE)
         {
-            if (App::mainWindow->editModeContainer->getEditModeBufferSize()!=2)
+            if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=2)
             {
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected vertices:";
-                tmp=boost::lexical_cast<std::string>(App::mainWindow->editModeContainer->getEditModeBufferSize());
+                tmp=boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize());
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=tmp;
             }
             else
             {
-                C3Vector p1(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(App::mainWindow->editModeContainer->getEditModeBufferValue(0)));
-                C3Vector p2(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(App::mainWindow->editModeContainer->getEditModeBufferValue(1)));
+                C3Vector p1(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(0)));
+                C3Vector p2(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(1)));
                 double dist=(p2-p1).getLength();
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected vertices:";
                 txt="2 (distance="+utils::getSizeString(false,dist)+")";
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
             }
-            if (App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)
+            if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0)
             {
-                CSceneObject* it=App::mainWindow->editModeContainer->getEditModeObject();
+                CSceneObject* it=GuiApp::mainWindow->editModeContainer->getEditModeObject();
                 if (it!=nullptr)
                 {
                     C7Vector m(it->getCumulativeTransformation());
-                    int lastV=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
-                    C3Vector v(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(lastV));
+                    int lastV=GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
+                    C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(lastV));
                     v*=m;
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected vertex position:";
                     txt="x: "+utils::getPosString(true,v(0))+"    y: "+utils::getPosString(true,v(1))+"    z: "+utils::getPosString(true,v(2));
@@ -336,15 +339,15 @@ void CCalculationInfo::printInformation()
                 }
             }
         }
-        if (App::getEditModeType()&TRIANGLE_EDIT_MODE)
+        if (GuiApp::getEditModeType()&TRIANGLE_EDIT_MODE)
         {
             App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected triangles:";
-            tmp=boost::lexical_cast<std::string>(App::mainWindow->editModeContainer->getEditModeBufferSize());
+            tmp=boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize());
             App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=tmp;
         }
-        if (App::getEditModeType()&EDGE_EDIT_MODE)
+        if (GuiApp::getEditModeType()&EDGE_EDIT_MODE)
         {
-            if (App::mainWindow->editModeContainer->getEditModeBufferSize()==0)
+            if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()==0)
             {
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected edges:";
                 tmp="0";
@@ -353,49 +356,49 @@ void CCalculationInfo::printInformation()
             else
             {
                 double totLength=0.0;
-                for (int i=0;i<App::mainWindow->editModeContainer->getEditModeBufferSize();i++)
+                for (int i=0;i<GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();i++)
                 {
-                    int v=App::mainWindow->editModeContainer->getEditModeBufferValue(i);
+                    int v=GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(i);
                     int ind[2];
-                    App::mainWindow->editModeContainer->getShapeEditMode()->getEditionEdge(v,ind);
-                    C3Vector p1(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind[0]));
-                    C3Vector p2(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind[1]));
+                    GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionEdge(v,ind);
+                    C3Vector p1(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind[0]));
+                    C3Vector p2(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind[1]));
                     double dist=(p2-p1).getLength();
                     totLength+=dist;
                 }
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected edges:";
-                txt=boost::lexical_cast<std::string>(App::mainWindow->editModeContainer->getEditModeBufferSize())+" (total edge length="+utils::getSizeString(false,totLength)+")";
+                txt=boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize())+" (total edge length="+utils::getSizeString(false,totLength)+")";
                 App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
             }
         }
 
 
 
-        if (App::getEditModeType()&PATH_EDIT_MODE_OLD)
+        if (GuiApp::getEditModeType()&PATH_EDIT_MODE_OLD)
         { // OLD
-            CPathCont_old* pc=App::mainWindow->editModeContainer->getEditModePathContainer_old();
-            CPath_old* path=App::mainWindow->editModeContainer->getEditModePath_old();
+            CPathCont_old* pc=GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old();
+            CPath_old* path=GuiApp::mainWindow->editModeContainer->getEditModePath_old();
             if ( (pc!=nullptr)&&(path!=nullptr) )
             {
-                if (App::mainWindow->editModeContainer->getEditModeBufferSize()!=2)
+                if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=2)
                 {
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected path points:";
-                    txt=boost::lexical_cast<std::string>(App::mainWindow->editModeContainer->getEditModeBufferSize());
+                    txt=boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize());
                     txt+=" (Bezier path length="+utils::getSizeString(false,pc->getBezierNormalPathLength())+")";
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
                 }
                 else
                 {
-                    CSimplePathPoint_old* pt1(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(0));
-                    CSimplePathPoint_old* pt2(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(1));
+                    CSimplePathPoint_old* pt1(GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(0));
+                    CSimplePathPoint_old* pt2(GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(1));
                     double dist=(pt2->getTransformation().X-pt1->getTransformation().X).getLength();
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected path points:";
                     txt="2 (distance="+utils::getSizeString(false,dist)+")";
                     App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=txt;
                 }
-                if (App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)
+                if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0)
                 {
-                    CSimplePathPoint_old* pt(App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(App::mainWindow->editModeContainer->getEditModeBufferSize()-1));
+                    CSimplePathPoint_old* pt(GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()-1));
 //                  CSimplePathPoint_old* pt(pc->getSimplePathPoint(App::currentWorld->objCont->editModeBuffer[App::currentWorld->objCont->editModeBuffer.size()-1]));
                     C7Vector tr(path->getCumulativeTransformation());
                     C3Vector v(tr*pt->getTransformation().X);

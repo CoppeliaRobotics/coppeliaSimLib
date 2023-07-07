@@ -1,10 +1,12 @@
-
 #include <vMenubar.h>
 #include <app.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 VMenu::VMenu()
 {
-    _qMenu=new QMenu(App::mainWindow);
+    _qMenu=new QMenu(GuiApp::mainWindow);
 }
 
 VMenu::~VMenu()
@@ -26,8 +28,8 @@ void VMenu::appendMenuItem(bool enabled,bool checkMark,int commandID,const char*
     action->setEnabled(enabled);
     action->setCheckable(showCheckmarkSpot);
     action->setChecked(checkMark);
-    App::mainWindow->connect(action,SIGNAL(triggered()),App::mainWindow->getPopupSignalMapper(),SLOT(map()));
-    App::mainWindow->getPopupSignalMapper()->setMapping(action,commandID);
+    GuiApp::mainWindow->connect(action,SIGNAL(triggered()),GuiApp::mainWindow->getPopupSignalMapper(),SLOT(map()));
+    GuiApp::mainWindow->getPopupSignalMapper()->setMapping(action,commandID);
 }
 
 void VMenu::appendMenuSeparator()
@@ -65,7 +67,7 @@ bool VMenubar::doNotExecuteCommandButMemorizeIt=false;
 
 VMenubar::VMenubar()
 {
-    _qMenubar=App::mainWindow->menuBar();
+    _qMenubar=GuiApp::mainWindow->menuBar();
     #ifdef MAC_SIM
         _qMenubar->setNativeMenuBar(false); // otherwise we have plenty of crashes!!! The result with this instruction is that the menu bar is not in the Mac top bar, but in the main window as in Windows!
     #endif
@@ -90,8 +92,8 @@ void VMenubar::appendMenuItem(bool enabled,bool checkMark,int commandID,const ch
     action->setEnabled(enabled);
     action->setCheckable(showCheckmarkSpot);
     action->setChecked(checkMark);
-    App::mainWindow->connect(action,SIGNAL(triggered()),App::mainWindow->getPopupSignalMapper(),SLOT(map()));
-    App::mainWindow->getPopupSignalMapper()->setMapping(action,commandID);
+    GuiApp::mainWindow->connect(action,SIGNAL(triggered()),GuiApp::mainWindow->getPopupSignalMapper(),SLOT(map()));
+    GuiApp::mainWindow->getPopupSignalMapper()->setMapping(action,commandID);
 }
 
 void VMenubar::appendMenuSeparator()

@@ -26,9 +26,8 @@
 #include <simFlavor.h>
 #include <regex>
 #include <boost/lexical_cast.hpp>
-#include <gm.h>
 #ifdef SIM_WITH_GUI
-    #include <QSplashScreen>
+    #include <guiApp.h>
 #endif
 
 VMutex _lockForExtLockList;
@@ -76,7 +75,7 @@ int simPostExitRequest_internal()
 
 void simRunGui_internal(int options)
 {
-    App app;
+    GuiApp app;
     app.initGui(options);
     app.runGui();
     app.cleanupGui();
@@ -122,7 +121,7 @@ int getCurrentScriptNameIndex_cSide()
 
 bool ifEditModeActiveGenerateErrorAndReturnTrue(const char* functionName)
 {
-    if (App::getEditModeType()!=NO_EDIT_MODE)
+    if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
     {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERRROR_EDIT_MODE_ACTIVE);
         return(true);
@@ -135,7 +134,7 @@ bool canBoolIntOrFloatParameterBeSetOrGet(const char* functionName,int when)
     //bit3: mainWIndow present(8),bit4: sim not running(16), bit5: sim running(32)
     int st=2;
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow==nullptr)
+    if (GuiApp::mainWindow==nullptr)
         st|=4;
     else
         st|=8;
@@ -530,17 +529,17 @@ void* simGetMainWindow_internal(int type)
 //    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
+        if (GuiApp::mainWindow!=nullptr)
         {
             if (type==0)
             {
 #ifdef WIN_SIM
-                return((void*)App::mainWindow->winId());
+                return((void*)GuiApp::mainWindow->winId());
 #endif
             }
             if (type==1)
             {
-                return(App::mainWindow);
+                return(GuiApp::mainWindow);
             }
         }
 #endif
@@ -557,10 +556,10 @@ int simRefreshDialogs_internal(int refreshDegree)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (refreshDegree==0)
-            App::setLightDialogRefreshFlag();
+            GuiApp::setLightDialogRefreshFlag();
         if (refreshDegree==2)
-            App::setFullDialogRefreshFlag();
-        App::setDialogRefreshDontPublishFlag();
+            GuiApp::setFullDialogRefreshFlag();
+        GuiApp::setDialogRefreshDontPublishFlag();
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -1970,7 +1969,7 @@ int simSetBoolParam_internal(int parameter,bool boolState)
         couldNotLock=false;
         if (parameter==sim_boolparam_exit_request)
         {
-            if ( App::currentWorld->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
+            if ( App::currentWorld->simulation->isSimulationStopped()&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
             {
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=EXIT_REQUEST_CMD;
@@ -1984,10 +1983,10 @@ int simSetBoolParam_internal(int parameter,bool boolState)
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
                 return(-1);
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
-                if (App::mainWindow->dlgCont->isVisible(HIERARCHY_DLG)!=(boolState!=0))
-                    App::mainWindow->dlgCont->toggle(HIERARCHY_DLG);
+                if (GuiApp::mainWindow->dlgCont->isVisible(HIERARCHY_DLG)!=(boolState!=0))
+                    GuiApp::mainWindow->dlgCont->toggle(HIERARCHY_DLG);
             }
             else
 #endif
@@ -1999,8 +1998,8 @@ int simSetBoolParam_internal(int parameter,bool boolState)
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
                 return(-1);
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->setHierarchyToggleViaGuiEnabled(boolState!=0);
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->setHierarchyToggleViaGuiEnabled(boolState!=0);
             else
 #endif
                 return(-1);
@@ -2011,10 +2010,10 @@ int simSetBoolParam_internal(int parameter,bool boolState)
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
                 return(-1);
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
-                if (App::mainWindow->dlgCont->isVisible(BROWSER_DLG)!=(boolState!=0))
-                    App::mainWindow->dlgCont->toggle(BROWSER_DLG);
+                if (GuiApp::mainWindow->dlgCont->isVisible(BROWSER_DLG)!=(boolState!=0))
+                    GuiApp::mainWindow->dlgCont->toggle(BROWSER_DLG);
             }
             else
 #endif
@@ -2024,8 +2023,8 @@ int simSetBoolParam_internal(int parameter,bool boolState)
         if (parameter==sim_boolparam_browser_toolbarbutton_enabled)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->setBrowserToggleViaGuiEnabled(boolState!=0);
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->setBrowserToggleViaGuiEnabled(boolState!=0);
             else
 #endif
                 return(-1);
@@ -2034,8 +2033,8 @@ int simSetBoolParam_internal(int parameter,bool boolState)
         if (parameter==sim_boolparam_play_toolbarbutton_enabled)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->setPlayViaGuiEnabled(boolState!=0);
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->setPlayViaGuiEnabled(boolState!=0);
             else
 #endif
                 return(-1);
@@ -2044,8 +2043,8 @@ int simSetBoolParam_internal(int parameter,bool boolState)
         if (parameter==sim_boolparam_pause_toolbarbutton_enabled)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->setPauseViaGuiEnabled(boolState!=0);
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->setPauseViaGuiEnabled(boolState!=0);
             else
 #endif
                 return(-1);
@@ -2054,8 +2053,8 @@ int simSetBoolParam_internal(int parameter,bool boolState)
         if (parameter==sim_boolparam_stop_toolbarbutton_enabled)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->setStopViaGuiEnabled(boolState!=0);
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->setStopViaGuiEnabled(boolState!=0);
             else
 #endif
                 return(-1);
@@ -2064,8 +2063,8 @@ int simSetBoolParam_internal(int parameter,bool boolState)
         if (parameter==sim_boolparam_objproperties_toolbarbutton_enabled)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->setObjPropToggleViaGuiEnabled(boolState!=0);
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->setObjPropToggleViaGuiEnabled(boolState!=0);
             else
 #endif
                 return(-1);
@@ -2074,8 +2073,8 @@ int simSetBoolParam_internal(int parameter,bool boolState)
         if (parameter==sim_boolparam_calcmodules_toolbarbutton_enabled)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->setCalcModulesToggleViaGuiEnabled_OLD(boolState!=0);
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->setCalcModulesToggleViaGuiEnabled_OLD(boolState!=0);
             else
 #endif
                 return(-1);
@@ -2097,8 +2096,8 @@ int simSetBoolParam_internal(int parameter,bool boolState)
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
                 return(-1);
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->setObjectShiftToggleViaGuiEnabled(boolState!=0);
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->setObjectShiftToggleViaGuiEnabled(boolState!=0);
             else
 #endif
                 return(-1);
@@ -2109,8 +2108,8 @@ int simSetBoolParam_internal(int parameter,bool boolState)
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
                 return(-1);
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->setObjectRotateToggleViaGuiEnabled(boolState!=0);
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->setObjectRotateToggleViaGuiEnabled(boolState!=0);
             else
 #endif
                 return(-1);
@@ -2143,11 +2142,11 @@ int simSetBoolParam_internal(int parameter,bool boolState)
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
                 return(-1);
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
                 if (VThread::isUiThread())
                 { // We are in the UI thread. We execute the command now:
-                    App::mainWindow->setOpenGlDisplayEnabled(boolState!=0);
+                    GuiApp::mainWindow->setOpenGlDisplayEnabled(boolState!=0);
                 }
                 else
                 { // We are not in the UI thread. Execute the command via the UI thread:
@@ -2157,7 +2156,7 @@ int simSetBoolParam_internal(int parameter,bool boolState)
                         cmdIn.cmdId=VISUALIZATION_ON_UITHREADCMD;
                     else
                         cmdIn.cmdId=VISUALIZATION_OFF_UITHREADCMD;
-                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 }
                 return(1);
             }
@@ -2180,15 +2179,15 @@ int simSetBoolParam_internal(int parameter,bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+32))
                 return(-1);
-            if (App::isFullScreen())
+            if (GuiApp::isFullScreen())
             {
                 if (boolState==0)
-                    App::setFullScreen(false);
+                    GuiApp::setFullScreen(false);
             }
             else
             {
                 if (boolState!=0)
-                    App::setFullScreen(true);
+                    GuiApp::setFullScreen(true);
             }
             return(1);
         }
@@ -2227,7 +2226,7 @@ int simSetBoolParam_internal(int parameter,bool boolState)
                 return(-1);
             App::userSettings->alwaysShowConsole=(boolState!=0);
 #ifdef SIM_WITH_GUI
-            App::setShowConsole(App::userSettings->alwaysShowConsole);
+            GuiApp::setShowConsole(App::userSettings->alwaysShowConsole);
 #endif
             return(1);
         }
@@ -2384,10 +2383,10 @@ int simSetBoolParam_internal(int parameter,bool boolState)
         if (parameter==sim_boolparam_video_recording_triggered)
         {
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&(!App::mainWindow->simulationRecorder->getIsRecording())&&App::currentWorld->simulation->isSimulationStopped() )
+            if ((GuiApp::mainWindow!=nullptr)&&(!GuiApp::mainWindow->simulationRecorder->getIsRecording())&&App::currentWorld->simulation->isSimulationStopped() )
             {
-                App::mainWindow->simulationRecorder->setRecorderEnabled(boolState!=0);
-                App::mainWindow->simulationRecorder->setShowSavedMessage(boolState==0); // avoid displaying a message at simulation end in this case!
+                GuiApp::mainWindow->simulationRecorder->setRecorderEnabled(boolState!=0);
+                GuiApp::mainWindow->simulationRecorder->setShowSavedMessage(boolState==0); // avoid displaying a message at simulation end in this case!
                 return(1);
             }
 #endif
@@ -2477,7 +2476,7 @@ int simGetBoolParam_internal(int parameter)
                 return(-1);
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->dlgCont->isVisible(HIERARCHY_DLG))
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->dlgCont->isVisible(HIERARCHY_DLG))
                 retVal=1;
 #endif
             return(retVal);
@@ -2486,7 +2485,7 @@ int simGetBoolParam_internal(int parameter)
         {
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->getHierarchyToggleViaGuiEnabled())
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getHierarchyToggleViaGuiEnabled())
                 retVal=1;
 #endif
             return(retVal);
@@ -2495,7 +2494,7 @@ int simGetBoolParam_internal(int parameter)
         {
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->getPlayViaGuiEnabled())
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getPlayViaGuiEnabled())
                 retVal=1;
 #endif
             return(retVal);
@@ -2504,7 +2503,7 @@ int simGetBoolParam_internal(int parameter)
         {
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->getPauseViaGuiEnabled())
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getPauseViaGuiEnabled())
                 retVal=1;
 #endif
             return(retVal);
@@ -2513,7 +2512,7 @@ int simGetBoolParam_internal(int parameter)
         {
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->getStopViaGuiEnabled())
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getStopViaGuiEnabled())
                 retVal=1;
 #endif
             return(retVal);
@@ -2539,7 +2538,7 @@ int simGetBoolParam_internal(int parameter)
                 return(-1);
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->getObjectShiftToggleViaGuiEnabled())
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getObjectShiftToggleViaGuiEnabled())
                 retVal=1;
 #endif
             return(retVal);
@@ -2550,7 +2549,7 @@ int simGetBoolParam_internal(int parameter)
                 return(-1);
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->getObjectRotateToggleViaGuiEnabled())
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getObjectRotateToggleViaGuiEnabled())
                 retVal=1;
 #endif
             return(retVal);
@@ -2561,7 +2560,7 @@ int simGetBoolParam_internal(int parameter)
                 return(-1);
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->dlgCont->isVisible(BROWSER_DLG))
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->dlgCont->isVisible(BROWSER_DLG))
                 retVal=1;
 #endif
             return(retVal);
@@ -2572,7 +2571,7 @@ int simGetBoolParam_internal(int parameter)
                 return(-1);
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->getBrowserToggleViaGuiEnabled())
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getBrowserToggleViaGuiEnabled())
                 retVal=1;
 #endif
             return(retVal);
@@ -2583,7 +2582,7 @@ int simGetBoolParam_internal(int parameter)
                 return(-1);
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->getObjPropToggleViaGuiEnabled())
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getObjPropToggleViaGuiEnabled())
                 retVal=1;
 #endif
             return(retVal);
@@ -2594,7 +2593,7 @@ int simGetBoolParam_internal(int parameter)
                 return(-1);
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->getCalcModulesToggleViaGuiEnabled_OLD())
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getCalcModulesToggleViaGuiEnabled_OLD())
                 retVal=1;
 #endif
             return(retVal);
@@ -2632,7 +2631,7 @@ int simGetBoolParam_internal(int parameter)
         if (parameter==sim_boolparam_fullscreen)
         {
             int retVal=0;
-            if (App::isFullScreen())
+            if (GuiApp::isFullScreen())
                 retVal=1;
             return(retVal);
         }
@@ -2640,7 +2639,7 @@ int simGetBoolParam_internal(int parameter)
         {
 #ifdef SIM_WITH_GUI
             int retVal=0;
-            if (App::mainWindow==nullptr)
+            if (GuiApp::mainWindow==nullptr)
                 retVal=1;
             return(retVal);
 #else
@@ -2652,7 +2651,7 @@ int simGetBoolParam_internal(int parameter)
 #ifdef SIM_WITH_GUI
             int retVal=0;
             C3Vector orig,dir;
-            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->getMouseRay(orig,dir)) )
+            if ( (GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getMouseRay(orig,dir)) )
                 retVal=1;
             return(retVal);
 #endif
@@ -2664,7 +2663,7 @@ int simGetBoolParam_internal(int parameter)
                 return(-1);
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->getOpenGlDisplayEnabled())
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getOpenGlDisplayEnabled())
                 retVal=1;
 #endif
             return(retVal);
@@ -2880,7 +2879,7 @@ int simGetBoolParam_internal(int parameter)
         {
             int retVal=0;
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr)&&App::mainWindow->simulationRecorder->getRecorderEnabled())
+            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->simulationRecorder->getRecorderEnabled())
                 retVal=1;
 #endif
             return(retVal);
@@ -3089,10 +3088,10 @@ int simGetArrayParam_internal(int parameter,double* arrayOfValues)
             arrayOfValues[1]=0.0;
             arrayOfValues[2]=0.0;
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
                 C3Vector orig,dir;
-                if (App::mainWindow->getMouseRay(orig,dir))
+                if (GuiApp::mainWindow->getMouseRay(orig,dir))
                 {
                     orig.getData(arrayOfValues);
                     return(1);
@@ -3107,10 +3106,10 @@ int simGetArrayParam_internal(int parameter,double* arrayOfValues)
             arrayOfValues[1]=0.0;
             arrayOfValues[2]=1.0;
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
                 C3Vector orig,dir;
-                if (App::mainWindow->getMouseRay(orig,dir))
+                if (GuiApp::mainWindow->getMouseRay(orig,dir))
                 {
                     dir.getData(arrayOfValues);
                     return(1);
@@ -3165,9 +3164,9 @@ int simSetInt32Param_internal(int parameter,int intState)
         if (parameter==sim_intparam_videoencoder_index)
         {
 #ifdef SIM_WITH_GUI
-            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->simulationRecorder!=nullptr) )
+            if ( (GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->simulationRecorder!=nullptr) )
             {
-                App::mainWindow->simulationRecorder->setEncoderIndex(intState);
+                GuiApp::mainWindow->simulationRecorder->setEncoderIndex(intState);
                 return(1);
             }
 #endif
@@ -3269,12 +3268,12 @@ int simSetInt32Param_internal(int parameter,int intState)
         if ( (parameter==sim_intparam_prox_sensor_select_down)||(parameter==sim_intparam_prox_sensor_select_up) )
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
                 if (parameter==sim_intparam_prox_sensor_select_down)
-                    App::mainWindow->setProxSensorClickSelectDown(intState);
+                    GuiApp::mainWindow->setProxSensorClickSelectDown(intState);
                 else
-                    App::mainWindow->setProxSensorClickSelectUp(intState);
+                    GuiApp::mainWindow->setProxSensorClickSelectUp(intState);
             }
 #endif
             return(1);
@@ -3361,8 +3360,8 @@ int simGetInt32Param_internal(int parameter,int* intState)
             int retVal=0;
 #ifdef SIM_WITH_GUI
             int v=0;
-            if (App::mainWindow!=nullptr)
-                v=App::mainWindow->getMouseClickActionCounter(true);
+            if (GuiApp::mainWindow!=nullptr)
+                v=GuiApp::mainWindow->getMouseClickActionCounter(true);
             intState[0]=v;
             retVal=1;
 #endif
@@ -3373,8 +3372,8 @@ int simGetInt32Param_internal(int parameter,int* intState)
             int retVal=0;
 #ifdef SIM_WITH_GUI
             int v=0;
-            if (App::mainWindow!=nullptr)
-                v=App::mainWindow->getMouseClickActionCounter(false);
+            if (GuiApp::mainWindow!=nullptr)
+                v=GuiApp::mainWindow->getMouseClickActionCounter(false);
             intState[0]=v;
             retVal=1;
 #endif
@@ -3506,7 +3505,7 @@ int simGetInt32Param_internal(int parameter,int* intState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
                 return(-1);
-            int editMode=App::getEditModeType();
+            int editMode=GuiApp::getEditModeType();
             if (editMode==NO_EDIT_MODE)
                 intState[0]=0;
             if (editMode==TRIANGLE_EDIT_MODE)
@@ -3544,25 +3543,25 @@ int simGetInt32Param_internal(int parameter,int* intState)
         if (parameter==sim_intparam_prox_sensor_select_down)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                intState[0]=App::mainWindow->getProxSensorClickSelectDown();
+            if (GuiApp::mainWindow!=nullptr)
+                intState[0]=GuiApp::mainWindow->getProxSensorClickSelectDown();
 #endif
             return(1);
         }
         if (parameter==sim_intparam_prox_sensor_select_up)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                intState[0]=App::mainWindow->getProxSensorClickSelectUp();
+            if (GuiApp::mainWindow!=nullptr)
+                intState[0]=GuiApp::mainWindow->getProxSensorClickSelectUp();
 #endif
             return(1);
         }
         if (parameter==sim_intparam_mouse_buttons)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
-                intState[0]=App::mainWindow->getMouseButtonState();
+                intState[0]=GuiApp::mainWindow->getMouseButtonState();
                 return(1);
             }
             else
@@ -3585,10 +3584,10 @@ int simGetInt32Param_internal(int parameter,int* intState)
         if (parameter==sim_intparam_mouse_x)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
                 int p[2];
-                App::mainWindow->getMouseRenderingPos(p);
+                GuiApp::mainWindow->getMouseRenderingPos(p);
                 intState[0]=p[0];
                 return(1);
             }
@@ -3599,10 +3598,10 @@ int simGetInt32Param_internal(int parameter,int* intState)
         if (parameter==sim_intparam_mouse_y)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
                 int p[2];
-                App::mainWindow->getMouseRenderingPos(p);
+                GuiApp::mainWindow->getMouseRenderingPos(p);
                 intState[0]=p[1];
                 return(1);
             }
@@ -3646,7 +3645,7 @@ int simGetInt32Param_internal(int parameter,int* intState)
             return(1);
         }
 #ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=nullptr)&&(parameter==sim_intparam_flymode_camera_handle) )
+        if ( (GuiApp::mainWindow!=nullptr)&&(parameter==sim_intparam_flymode_camera_handle) )
         {
             intState[0]=-1;
             return(1);
@@ -3679,9 +3678,9 @@ int simGetInt32Param_internal(int parameter,int* intState)
         if (parameter==sim_intparam_videoencoder_index)
         {
 #ifdef SIM_WITH_GUI
-            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->simulationRecorder!=nullptr) )
+            if ( (GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->simulationRecorder!=nullptr) )
             {
-                intState[0]=App::mainWindow->simulationRecorder->getEncoderIndex();
+                intState[0]=GuiApp::mainWindow->simulationRecorder->getEncoderIndex();
                 return(1);
             }
 #endif
@@ -3756,9 +3755,9 @@ int simSetFloatParam_internal(int parameter,double floatState)
         if (parameter==sim_floatparam_stereo_distance)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
-                App::mainWindow->setStereoDistance(floatState);
+                GuiApp::mainWindow->setStereoDistance(floatState);
                 return(1);
             }
 #endif
@@ -3825,9 +3824,9 @@ int simGetFloatParam_internal(int parameter,double* floatState)
         if (parameter==sim_floatparam_stereo_distance)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
-                floatState[0]=App::mainWindow->getStereoDistance();
+                floatState[0]=GuiApp::mainWindow->getStereoDistance();
                 return(1);
             }
 #endif
@@ -3897,9 +3896,9 @@ int simSetStringParam_internal(int parameter,const char* str)
         if (parameter==sim_stringparam_video_filename)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
-                App::mainWindow->simulationRecorder->setPathAndFilename(str);
+                GuiApp::mainWindow->simulationRecorder->setPathAndFilename(str);
                 return(1);
             }
             else
@@ -4067,10 +4066,10 @@ char* simGetStringParam_internal(int parameter)
         {
             validParam=true;
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow==nullptr)
+            if (GuiApp::mainWindow==nullptr)
                 return(nullptr);
             char userSet;
-            retVal=App::mainWindow->simulationRecorder->getPath(&userSet);
+            retVal=GuiApp::mainWindow->simulationRecorder->getPath(&userSet);
             if (userSet==0)
                 retVal+="/";
 #else
@@ -4581,7 +4580,7 @@ int simAssociateScriptWithObject_internal(int scriptHandle,int associatedObjectH
                 if (associatedObjectHandle==-1)
                 { // remove association
                     it->setObjectHandleThatScriptIsAttachedTo(-1);
-                    App::setLightDialogRefreshFlag();
+                    GuiApp::setLightDialogRefreshFlag();
                     retVal=1;
                 }
                 else
@@ -4598,7 +4597,7 @@ int simAssociateScriptWithObject_internal(int scriptHandle,int associatedObjectH
                             if (currentSimilarObj==nullptr)
                             {
                                 it->setObjectHandleThatScriptIsAttachedTo(associatedObjectHandle);
-                                App::setLightDialogRefreshFlag();
+                                GuiApp::setLightDialogRefreshFlag();
                                 retVal=1;
                             }
                             else
@@ -4638,7 +4637,7 @@ int simAddScript_internal(int scriptProperty)
             }
         }
         int retVal=App::currentWorld->embeddedScriptContainer->insertScript(it);
-        App::setFullDialogRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -4659,7 +4658,7 @@ int simRemoveScript_internal(int scriptHandle)
                 return(-1);
             }
             App::currentWorld->embeddedScriptContainer->removeAllScripts();
-            App::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
             return(1);
         }
         CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
@@ -4669,11 +4668,11 @@ int simRemoveScript_internal(int scriptHandle)
             return(-1);
         }
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
+        if (GuiApp::mainWindow!=nullptr)
+            GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
 #endif
         App::currentWorld->embeddedScriptContainer->removeScript_safe(scriptHandle);
-        App::setFullDialogRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -5508,7 +5507,7 @@ int simSetNavigationMode_internal(int navigationMode)
 {
     TRACE_C_API;
 
-    App::setMouseMode(navigationMode);
+    GuiApp::setMouseMode(navigationMode);
     return(1);
 }
 
@@ -5516,7 +5515,7 @@ int simGetNavigationMode_internal()
 {
     TRACE_C_API;
 
-    int retVal=App::getMouseMode();
+    int retVal=GuiApp::getMouseMode();
     return(retVal);
 }
 
@@ -7004,7 +7003,7 @@ int simAuxiliaryConsoleOpen_internal(const char* title,int maxLines,int mode,con
     {
         int retVal=1; // in headless mode, we just return a random handle
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
+        if (GuiApp::mainWindow!=nullptr)
         {
             int tCol[3]={0,0,0};
             int bCol[3]={255,255,255};
@@ -7015,7 +7014,7 @@ int simAuxiliaryConsoleOpen_internal(const char* title,int maxLines,int mode,con
                 if (backgroundColor!=nullptr)
                     bCol[i]=int(backgroundColor[i]*255.1);
             }
-            retVal=App::mainWindow->codeEditorContainer->openConsole(title,maxLines,mode,position,size,tCol,bCol,_currentScriptHandle);
+            retVal=GuiApp::mainWindow->codeEditorContainer->openConsole(title,maxLines,mode,position,size,tCol,bCol,_currentScriptHandle);
         }
 #endif
         return(retVal);
@@ -7031,7 +7030,7 @@ int simAuxiliaryConsoleClose_internal(int consoleHandle)
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
 #ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=nullptr)&&(App::mainWindow->codeEditorContainer->close(consoleHandle,nullptr,nullptr,nullptr)) )
+        if ( (GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->codeEditorContainer->close(consoleHandle,nullptr,nullptr,nullptr)) )
             return(1);
 #endif
         return(0);
@@ -7051,13 +7050,13 @@ int simAuxiliaryConsoleShow_internal(int consoleHandle,bool showState)
         int handle=consoleHandle&0x000fffff;
         if ((handleFlags&sim_handleflag_extended)!=0)
         { // we just wanna now if the console is still open
-            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->codeEditorContainer->isHandleValid(handle)) )
+            if ( (GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->codeEditorContainer->isHandleValid(handle)) )
                 return(1);
         }
         else
         { // normal operation
-            if (App::mainWindow!=nullptr)
-                return(App::mainWindow->codeEditorContainer->showOrHide(handle,showState!=0));
+            if (GuiApp::mainWindow!=nullptr)
+                return(GuiApp::mainWindow->codeEditorContainer->showOrHide(handle,showState!=0));
         }
 #endif
         return(0);
@@ -7074,17 +7073,17 @@ int simAuxiliaryConsolePrint_internal(int consoleHandle,const char* text)
     {
         int retVal=1; // in headless mode we fake success
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
+        if (GuiApp::mainWindow!=nullptr)
         {
             retVal=0;
             if (text==nullptr)
             {
-                if (App::mainWindow->codeEditorContainer->setText(consoleHandle,""))
+                if (GuiApp::mainWindow->codeEditorContainer->setText(consoleHandle,""))
                     retVal=1;
             }
             else
             {
-                if (App::mainWindow->codeEditorContainer->appendText(consoleHandle,text))
+                if (GuiApp::mainWindow->codeEditorContainer->appendText(consoleHandle,text))
                     retVal=1;
             }
         }
@@ -7737,7 +7736,7 @@ int simCameraFitToView_internal(int viewHandleOrIndex,int objectCount,const int*
         if ((options&2)==0)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
+            if (GuiApp::mainWindow!=nullptr)
             {
                 int vs[2];
                 view->getViewSize(vs);
@@ -11163,9 +11162,9 @@ int simCheckExecAuthorization_internal(const char* what,const char* args,int scr
                 }
             }
 #ifdef SIM_WITH_GUI
-            if ( (!auth)&&(App::mainWindow!=nullptr) )
+            if ( (!auth)&&(GuiApp::mainWindow!=nullptr) )
             {
-                if (App::uiThread->checkExecuteUnsafeOk(what,args,x.c_str()))
+                if (GuiApp::uiThread->checkExecuteUnsafeOk(what,args,x.c_str()))
                 {
                     auth=true;
                     if (it!=nullptr)
@@ -14307,9 +14306,9 @@ char* simOpenTextEditor_internal(const char* initText,const char* xml,int* vario
 
     char* retVal=nullptr;
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=nullptr)
+    if (GuiApp::mainWindow!=nullptr)
     {
-        std::string txt=App::mainWindow->codeEditorContainer->openModalTextEditor(initText,xml,various,true);
+        std::string txt=GuiApp::mainWindow->codeEditorContainer->openModalTextEditor(initText,xml,various,true);
         retVal=new char[txt.size()+1];
         for (size_t i=0;i<txt.size();i++)
             retVal[i]=txt[i];
@@ -15009,7 +15008,7 @@ int simEventNotification_internal(const char* event)
                     const char* handle=rootElement->Attribute("handle");
                     const char* data=rootElement->Attribute("data");
 #ifdef SIM_WITH_GUI
-                    if ((msg!=nullptr)&&(handle!=nullptr)&&(data!=nullptr)&&(App::mainWindow!=nullptr))
+                    if ((msg!=nullptr)&&(handle!=nullptr)&&(data!=nullptr)&&(GuiApp::mainWindow!=nullptr))
                     {
                         if (strcmp(msg,"closeEditor")==0)
                         {
@@ -15018,18 +15017,18 @@ int simEventNotification_internal(const char* event)
                             {
                                 if (strlen(data)!=0)
                                 {
-                                    int callingScript=App::mainWindow->codeEditorContainer->getCallingScriptHandle(h);
+                                    int callingScript=GuiApp::mainWindow->codeEditorContainer->getCallingScriptHandle(h);
                                     CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
                                     int posAndSize[4];
-                                    std::string txt=App::mainWindow->codeEditorContainer->getText(h,posAndSize);
+                                    std::string txt=GuiApp::mainWindow->codeEditorContainer->getText(h,posAndSize);
                                     stack->pushStringOntoStack(txt.c_str(),0);
                                     stack->pushInt32ArrayOntoStack(posAndSize+0,2);
                                     stack->pushInt32ArrayOntoStack(posAndSize+2,2);
                                     simCallScriptFunctionEx_internal(callingScript,data,stack->getId());
                                     App::worldContainer->interfaceStackContainer->destroyStack(stack);
                                 }
-                                if ( (strlen(data)==0)||App::mainWindow->codeEditorContainer->getCloseAfterCallbackCalled(h) )
-                                    App::mainWindow->codeEditorContainer->close(h,nullptr,nullptr,nullptr);
+                                if ( (strlen(data)==0)||GuiApp::mainWindow->codeEditorContainer->getCloseAfterCallbackCalled(h) )
+                                    GuiApp::mainWindow->codeEditorContainer->close(h,nullptr,nullptr,nullptr);
                                 retVal=1;
                             }
                         }
@@ -15038,7 +15037,7 @@ int simEventNotification_internal(const char* event)
                             int h;
                             if (tt::stringToInt(handle,h))
                             {
-                                App::mainWindow->codeEditorContainer->restartScript(h);
+                                GuiApp::mainWindow->codeEditorContainer->restartScript(h);
                                 retVal=1;
                             }
                         }

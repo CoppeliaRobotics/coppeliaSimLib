@@ -21,6 +21,7 @@ See the GNU General Public License for more details.
 #include <octreeRendering.h>
 
 #ifdef SIM_WITH_GUI
+#include <guiApp.h>
 
 const int _cubeIndices[]={
     0,1,2,0,2,3,
@@ -80,7 +81,7 @@ void displayOctree(COcTree* octree,CViewableBase* renderingObject,int displayAtt
     // Object display:
     if (octree->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
         {
             if (octree->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(octree->getModelSelectionHandle());

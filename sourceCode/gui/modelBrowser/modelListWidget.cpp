@@ -7,6 +7,9 @@
 #include <sha256.h>
 #include <QMimeData>
 #include <QScrollBar>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CModelListWidget::CModelListWidget() : CModelListWidgetBase()
 {
@@ -567,6 +570,6 @@ void CModelListWidget::onItemClicked(QListWidgetItem* item)
     {
         _folderPath+="/";
         _folderPath+=_allThumbnailsInfo[index].nameWithExtension;
-        App::mainWindow->modelFolderWidget->selectFolder(_folderPath.c_str());
+        GuiApp::mainWindow->modelFolderWidget->selectFolder(_folderPath.c_str());
     }
 }

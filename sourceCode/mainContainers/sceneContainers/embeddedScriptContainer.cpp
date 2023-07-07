@@ -7,6 +7,9 @@
 #include <simStrings.h>
 #include <app.h>
 #include <vDateTime.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CEmbeddedScriptContainer::CEmbeddedScriptContainer()
 {
@@ -211,7 +214,7 @@ bool CEmbeddedScriptContainer::removeScript(int scriptHandle)
             break;
         }
     }
-    App::setFullDialogRefreshFlag();
+    GuiApp::setFullDialogRefreshFlag();
     return(true);
 }
 
@@ -373,7 +376,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,b
             }
         }
     }
-    App::setLightDialogRefreshFlag();
+    GuiApp::setLightDialogRefreshFlag();
     return(retVal);
 }
 

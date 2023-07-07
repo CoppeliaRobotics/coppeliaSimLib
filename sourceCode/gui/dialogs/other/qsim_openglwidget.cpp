@@ -9,6 +9,9 @@
 #include <toolBarCommand.h>
 #include <rendering.h>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 int disableWheelRotateForOne500ms=-1;
 int disableMouseMoveFor200ms=-1;
@@ -98,7 +101,7 @@ void COpenglWidget::_resizeEvent(SMouseOrKeyboardOrResizeEvent e)
     int x,y;
     _computeMousePos(e.x,e.y,x,y);
 
-    App::mainWindow->windowResizeEvent(x,y);
+    GuiApp::mainWindow->windowResizeEvent(x,y);
 }
 
 void COpenglWidget::paintGL()
@@ -108,12 +111,12 @@ void COpenglWidget::paintGL()
 
 void COpenglWidget::_setCtrlAndShiftKeyState(bool ctrlDown,bool shiftDown)
 {
-    int state=App::mainWindow->getKeyDownState()&(0xffff-1-2);
+    int state=GuiApp::mainWindow->getKeyDownState()&(0xffff-1-2);
     if (ctrlDown)
         state|=1;
     if (shiftDown)
         state|=2;
-    App::mainWindow->setKeyDownState(state);
+    GuiApp::mainWindow->setKeyDownState(state);
 }
 
 void COpenglWidget::mouseMoveEvent(QMouseEvent* mEvent)
@@ -132,7 +135,7 @@ void COpenglWidget::_mouseMoveEvent(SMouseOrKeyboardOrResizeEvent e)
     if ( (disableMouseMoveFor200ms==-1)||(VDateTime::getTimeDiffInMs(disableMouseMoveFor200ms)>200) )
     { // when a mouse button was released, sometimes the mouse moves involontarily
         disableMouseMoveFor200ms=-1;
-        App::mainWindow->onMouseMoveTT(x,y);
+        GuiApp::mainWindow->onMouseMoveTT(x,y);
     }
 }
 
@@ -150,37 +153,37 @@ void COpenglWidget::_mousePressEvent(SMouseOrKeyboardOrResizeEvent e)
     _computeMousePos(e.x,e.y,x,y);
     _setCtrlAndShiftKeyState(e.ctrlDown,e.shiftDown);
 
-    App::mainWindow->setMouseButtonState(App::mainWindow->getMouseButtonState()&(0xffff-16));
+    GuiApp::mainWindow->setMouseButtonState(GuiApp::mainWindow->getMouseButtonState()&(0xffff-16));
     if (e.button==0)
     { // Left button down
-        App::mainWindow->mouseClickAction(true);
+        GuiApp::mainWindow->mouseClickAction(true);
         if (!e.ctrlDown)
-            App::mainWindow->setMouseButtonState(App::mainWindow->getMouseButtonState()|16);
+            GuiApp::mainWindow->setMouseButtonState(GuiApp::mainWindow->getMouseButtonState()|16);
 
-        if ((App::mainWindow->getMouseButtonState()&12)==0)
+        if ((GuiApp::mainWindow->getMouseButtonState()&12)==0)
         { // registered only if left right and middle buttons are not down
-            App::mainWindow->onLeftMouseButtonDownTT(x,y);
+            GuiApp::mainWindow->onLeftMouseButtonDownTT(x,y);
             ignoreLeftMouseUp=false;
         }
         else
             ignoreLeftMouseUp=true;
     }
-    if (!(App::isFullScreen()))
+    if (!(GuiApp::isFullScreen()))
     {
         if (e.button==2)
         { // right button down
-            if ((App::mainWindow->getMouseButtonState()&9)==0)
+            if ((GuiApp::mainWindow->getMouseButtonState()&9)==0)
             { // registered only if left and middle buttons are not down
                 if (App::userSettings->navigationBackwardCompatibility)
                 {
-                    _savedMouseMode=App::getMouseMode();
-                    int upperMouseMode=((App::getMouseMode()&0xff00)|sim_navigation_clickselection)-sim_navigation_clickselection; // sim_navigation_clickselection because otherwise we have a problem (12/06/2011)
-                    if (App::getMouseMode()&sim_navigation_camerarotaterightbutton)
-                        App::setMouseMode(upperMouseMode|sim_navigation_camerarotate); // default
+                    _savedMouseMode=GuiApp::getMouseMode();
+                    int upperMouseMode=((GuiApp::getMouseMode()&0xff00)|sim_navigation_clickselection)-sim_navigation_clickselection; // sim_navigation_clickselection because otherwise we have a problem (12/06/2011)
+                    if (GuiApp::getMouseMode()&sim_navigation_camerarotaterightbutton)
+                        GuiApp::setMouseMode(upperMouseMode|sim_navigation_camerarotate); // default
                     else
-                        App::setMouseMode(upperMouseMode|sim_navigation_passive);
+                        GuiApp::setMouseMode(upperMouseMode|sim_navigation_passive);
                 }
-                App::mainWindow->onRightMouseButtonDownTT(x,y);
+                GuiApp::mainWindow->onRightMouseButtonDownTT(x,y);
                 ignoreRightMouseUp=false;
             }
             else
@@ -189,33 +192,33 @@ void COpenglWidget::_mousePressEvent(SMouseOrKeyboardOrResizeEvent e)
     }
     if (e.button==1)
     { // middle button down
-        if ((App::mainWindow->getMouseButtonState()&5)==0)
+        if ((GuiApp::mainWindow->getMouseButtonState()&5)==0)
         { // registered only if left and right buttons are not down
             if (!App::userSettings->navigationBackwardCompatibility)
             { // Regular routine
-                _savedMouseMode=App::getMouseMode();
-                App::mainWindow->onMiddleMouseButtonDownTT(x,y);
+                _savedMouseMode=GuiApp::getMouseMode();
+                GuiApp::mainWindow->onMiddleMouseButtonDownTT(x,y);
             }
             else
             { // Routine that supports the old navigation mode
-                if ( (App::userSettings->middleMouseButtonSwitchesModes)&&(!(App::isFullScreen())) )
+                if ( (App::userSettings->middleMouseButtonSwitchesModes)&&(!(GuiApp::isFullScreen())) )
                 {
                     bool noSelector=true;
-                    if (App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive())
+                    if (GuiApp::mainWindow->oglSurface->isPageSelectionActive()||GuiApp::mainWindow->oglSurface->isViewSelectionActive())
                         noSelector=false;
                     if (noSelector)
                     {
-                        if ((App::getMouseMode()&0x00ff)==sim_navigation_camerashift)
-                            App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_objectshift);
+                        if ((GuiApp::getMouseMode()&0x00ff)==sim_navigation_camerashift)
+                            GuiApp::setMouseMode((GuiApp::getMouseMode()&0xff00)|sim_navigation_objectshift);
                         else
                         {
-                            if ((App::getMouseMode()&0x00ff)==sim_navigation_objectshift)
-                                App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_objectrotate);
+                            if ((GuiApp::getMouseMode()&0x00ff)==sim_navigation_objectshift)
+                                GuiApp::setMouseMode((GuiApp::getMouseMode()&0xff00)|sim_navigation_objectrotate);
                             else
-                                App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_camerashift);
+                                GuiApp::setMouseMode((GuiApp::getMouseMode()&0xff00)|sim_navigation_camerashift);
                         }
                     }
-                    App::mainWindow->setMouseButtonState(App::mainWindow->getMouseButtonState()|8);
+                    GuiApp::mainWindow->setMouseButtonState(GuiApp::mainWindow->getMouseButtonState()|8);
                 }
             }
             ignoreMiddleMouseUp=false;
@@ -243,26 +246,26 @@ void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
 
     if (e.button==0)
     { // left button
-        App::mainWindow->mouseClickAction(false);
+        GuiApp::mainWindow->mouseClickAction(false);
         CEnvironment::setShapeTexturesTemporarilyDisabled(false);
         CEnvironment::setShapeEdgesTemporarilyDisabled(false);
         CEnvironment::setCustomUisTemporarilyDisabled(false);
         if (!ignoreLeftMouseUp)
         {
             disableMouseMoveFor200ms=(int)VDateTime::getTimeInMs(); // when the left mouse button was released, sometimes the mouse moves involontarily
-            App::mainWindow->onLeftMouseButtonUpTT(x,y);
+            GuiApp::mainWindow->onLeftMouseButtonUpTT(x,y);
         }
     }
-    if (!(App::isFullScreen()))
+    if (!(GuiApp::isFullScreen()))
     {
         if (!ignoreRightMouseUp)
         {
             if (e.button==2)
             { // right button
                 disableMouseMoveFor200ms=(int)VDateTime::getTimeInMs(); // when the right mouse button was released, sometimes the mouse moves involontarily
-                App::mainWindow->onRightMouseButtonUpTT(x,y);
-                if ( App::userSettings->navigationBackwardCompatibility&&(!(App::mainWindow->isFullScreen())) )
-                    App::setMouseMode(_savedMouseMode);
+                GuiApp::mainWindow->onRightMouseButtonUpTT(x,y);
+                if ( App::userSettings->navigationBackwardCompatibility&&(!(GuiApp::mainWindow->isFullScreen())) )
+                    GuiApp::setMouseMode(_savedMouseMode);
             }
         }
     }
@@ -277,10 +280,10 @@ void COpenglWidget::_mouseReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
             {
                 disableWheelRotateForOne500ms=(int)VDateTime::getTimeInMs(); // when the middle mouse button was released, sometimes the wheel rotates involontarily
                 disableMouseMoveFor200ms=(int)VDateTime::getTimeInMs(); // when the middle mouse button was released, sometimes the mouse moves involontarily
-                App::mainWindow->onMiddleMouseButtonUpTT(x,y);
-                App::setMouseMode(_savedMouseMode);
+                GuiApp::mainWindow->onMiddleMouseButtonUpTT(x,y);
+                GuiApp::setMouseMode(_savedMouseMode);
             }
-            App::mainWindow->setMouseButtonState(App::mainWindow->getMouseButtonState()&(0xffff-8));
+            GuiApp::mainWindow->setMouseButtonState(GuiApp::mainWindow->getMouseButtonState()&(0xffff-8));
         }
     }
 }
@@ -299,11 +302,11 @@ void COpenglWidget::_mouseDoubleClickEvent(SMouseOrKeyboardOrResizeEvent e)
     _computeMousePos(e.x,e.y,x,y);
     _setCtrlAndShiftKeyState(e.ctrlDown,e.shiftDown);
 
-    if (!(App::isFullScreen()))
+    if (!(GuiApp::isFullScreen()))
     {
         if (e.button==0)
         { // left button
-            App::mainWindow->onLeftMouseButtonDoubleClickTT(x,y);
+            GuiApp::mainWindow->onLeftMouseButtonDoubleClickTT(x,y);
         }
         if (e.button==1)
         { // Middle button. similar thing further up (in mouse press)
@@ -312,18 +315,18 @@ void COpenglWidget::_mouseDoubleClickEvent(SMouseOrKeyboardOrResizeEvent e)
                 if (App::userSettings->middleMouseButtonSwitchesModes)
                 {
                     bool noSelector=true;
-                    if (App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive())
+                    if (GuiApp::mainWindow->oglSurface->isPageSelectionActive()||GuiApp::mainWindow->oglSurface->isViewSelectionActive())
                         noSelector=false;
                     if (noSelector)
                     {
-                        if ((App::getMouseMode()&0x00ff)==sim_navigation_camerashift)
-                            App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_objectshift);
+                        if ((GuiApp::getMouseMode()&0x00ff)==sim_navigation_camerashift)
+                            GuiApp::setMouseMode((GuiApp::getMouseMode()&0xff00)|sim_navigation_objectshift);
                         else
                         {
-                            if ((App::getMouseMode()&0x00ff)==sim_navigation_objectshift)
-                                App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_objectrotate);
+                            if ((GuiApp::getMouseMode()&0x00ff)==sim_navigation_objectshift)
+                                GuiApp::setMouseMode((GuiApp::getMouseMode()&0xff00)|sim_navigation_objectrotate);
                             else
-                                App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_camerashift);
+                                GuiApp::setMouseMode((GuiApp::getMouseMode()&0xff00)|sim_navigation_camerashift);
                         }
                     }
                 }
@@ -345,15 +348,15 @@ void COpenglWidget::_wheelEvent(SMouseOrKeyboardOrResizeEvent e)
     int x,y;
     _computeMousePos(e.x,e.y,x,y);
 
-    if ((App::mainWindow->getMouseButtonState()&13)==0)
+    if ((GuiApp::mainWindow->getMouseButtonState()&13)==0)
     { // wheel only workes when no other button is down
         if ( (disableWheelRotateForOne500ms==-1)||(VDateTime::getTimeDiffInMs(disableWheelRotateForOne500ms)>300) )
         { // when the middle mouse button was released, sometimes the wheel rotates involontarily
             disableWheelRotateForOne500ms=-1;
-            if ((App::mainWindow->getMouseButtonState()&8)==0)
+            if ((GuiApp::mainWindow->getMouseButtonState()&8)==0)
             {
                 _setCtrlAndShiftKeyState(e.ctrlDown,e.shiftDown);
-                App::mainWindow->onWheelRotateTT(e.wheelDelta,x,y);
+                GuiApp::mainWindow->onWheelRotateTT(e.wheelDelta,x,y);
             }
         }
     }
@@ -374,7 +377,7 @@ void COpenglWidget::keyPressEvent(QKeyEvent* kEvent)
 void COpenglWidget::_keyPressEvent(SMouseOrKeyboardOrResizeEvent e)
 {
     TRACE_INTERNAL;
-    App::mainWindow->onKeyPress(e);
+    GuiApp::mainWindow->onKeyPress(e);
 }
 
 void COpenglWidget::keyReleaseEvent(QKeyEvent* kEvent)
@@ -386,7 +389,7 @@ void COpenglWidget::keyReleaseEvent(QKeyEvent* kEvent)
 void COpenglWidget::_keyReleaseEvent(SMouseOrKeyboardOrResizeEvent e)
 {
     TRACE_INTERNAL;
-    App::mainWindow->onKeyRelease(e);
+    GuiApp::mainWindow->onKeyRelease(e);
 }
 
 void COpenglWidget::_timer100ms_fire()
@@ -436,37 +439,37 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
                 e.specialKey=-1;
                 if (kEvent->matches(QKeySequence::Cut))
                 {
-                    if (App::mainWindow->getOpenGlDisplayEnabled())
+                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
                         e.specialKey=CTRL_X_KEY;
                     processed=true;
                 }
                 if (kEvent->matches(QKeySequence::Copy))
                 {
-                    if (App::mainWindow->getOpenGlDisplayEnabled())
+                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
                         e.specialKey=CTRL_C_KEY;
                     processed=true;
                 }
                 if (kEvent->matches(QKeySequence::Paste))
                 {
-                    if (App::mainWindow->getOpenGlDisplayEnabled())
+                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
                         e.specialKey=CTRL_V_KEY;
                     processed=true;
                 }
                 if (kEvent->matches(QKeySequence::Undo))
                 {
-                    if (App::mainWindow->getOpenGlDisplayEnabled())
+                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
                         e.specialKey=CTRL_Z_KEY;
                     processed=true;
                 }
                 if (kEvent->matches(QKeySequence::Redo))
                 {
-                    if (App::mainWindow->getOpenGlDisplayEnabled())
+                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
                         e.specialKey=CTRL_Y_KEY;
                     processed=true;
                 }
                 if (kEvent->matches(QKeySequence::Save))
                 {
-                    if (App::mainWindow->getOpenGlDisplayEnabled())
+                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
                         e.specialKey=CTRL_S_KEY;
                     processed=true;
                 }
@@ -474,26 +477,26 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
                 {
                     if (CSimFlavor::getBoolVal(2))
                     {
-                        if (App::mainWindow->getOpenGlDisplayEnabled())
+                        if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
                             e.specialKey=CTRL_A_KEY;
                         processed=true;
                     }
                 }
                 if (kEvent->matches(QKeySequence::Open))
                 {
-                    if (App::mainWindow->getOpenGlDisplayEnabled())
+                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
                         e.specialKey=CTRL_O_KEY;
                     processed=true;
                 }
                 if (kEvent->matches(QKeySequence::Close))
                 {
-                    if (App::mainWindow->getOpenGlDisplayEnabled())
+                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
                         e.specialKey=CTRL_W_KEY;
                     processed=true;
                 }
                 if (kEvent->matches(QKeySequence::New))
                 {
-                    if (App::mainWindow->getOpenGlDisplayEnabled())
+                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
                         e.specialKey=CTRL_N_KEY;
                     processed=true;
                 }
@@ -553,8 +556,8 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
                     {
                         _lastGlobalMousePos[0]=QCursor::pos().x();
                         _lastGlobalMousePos[1]=QCursor::pos().y();
-                        if ((App::mainWindow->getMouseButtonState()&1)==0)
-                            App::mainWindow->setCurrentCursor(sim_cursor_arrow);
+                        if ((GuiApp::mainWindow->getMouseButtonState()&1)==0)
+                            GuiApp::mainWindow->setCurrentCursor(sim_cursor_arrow);
                     }
                 }
             }
@@ -581,7 +584,7 @@ void COpenglWidget::dragEnterEvent(QDragEnterEvent* dEvent)
 {
     if (dEvent->mimeData()->hasText())
     {
-        const SModelThumbnailInfo* thumbnail=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
+        const SModelThumbnailInfo* thumbnail=GuiApp::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
         if (thumbnail!=nullptr)
             dEvent->accept();
     }
@@ -598,11 +601,11 @@ void COpenglWidget::dropEvent(QDropEvent* dEvent)
     {
         int x,y;
         _computeMousePos(dEvent->pos().x(),dEvent->pos().y(),x,y);
-        _modelDragAndDropInfo=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
+        _modelDragAndDropInfo=GuiApp::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
         if (_modelDragAndDropInfo!=nullptr)
         {
             C3Vector desiredModelPosition;
-            int okToDrop=App::mainWindow->modelDragMoveEvent(x,y,&desiredModelPosition);
+            int okToDrop=GuiApp::mainWindow->modelDragMoveEvent(x,y,&desiredModelPosition);
             if (okToDrop>0)
             {
                 std::string pathAndName=_modelDragAndDropInfo->modelPathAndNameWithExtension;
@@ -635,11 +638,11 @@ void COpenglWidget::dragMoveEvent(QDragMoveEvent* dEvent)
     {
         int x,y;
         _computeMousePos(dEvent->pos().x(),dEvent->pos().y(),x,y);
-        SModelThumbnailInfo* info=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
+        SModelThumbnailInfo* info=GuiApp::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
         if (info!=nullptr)
         {
             C3Vector desiredModelPosition;
-            int okToDrop=App::mainWindow->modelDragMoveEvent(x,y,&desiredModelPosition);
+            int okToDrop=GuiApp::mainWindow->modelDragMoveEvent(x,y,&desiredModelPosition);
             if (okToDrop>0)
             {
                 dEvent->accept();

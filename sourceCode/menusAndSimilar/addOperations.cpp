@@ -11,6 +11,9 @@
 #include <simStrings.h>
 #include <boost/lexical_cast.hpp>
 #include <set>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CAddOperations::CAddOperations()
 {
@@ -287,7 +290,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 if (script!=nullptr)
                     script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
                 App::undoRedo_sceneChanged("");
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
             }
         }
         else
@@ -312,7 +315,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 if (script!=nullptr)
                     script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
                 App::undoRedo_sceneChanged("");
-                App::setFullDialogRefreshFlag();
+                GuiApp::setFullDialogRefreshFlag();
             }
         }
         else
@@ -480,7 +483,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             std::vector<CSceneObject*> sel;
             App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
             App::logMsg(sim_verbosity_msgs,"Adding convex hull...");
-            App::uiThread->showOrHideProgressBar(true,-1,"Adding convex hull...");
+            GuiApp::uiThread->showOrHideProgressBar(true,-1,"Adding convex hull...");
             App::currentWorld->sceneObjects->deselectObjects();
 
             CShape* hull=addConvexHull(sel,0.0,true);
@@ -493,7 +496,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             }
             else
                 App::logMsg(sim_verbosity_errors,"Operation failed.");
-            App::uiThread->showOrHideProgressBar(false);
+            GuiApp::uiThread->showOrHideProgressBar(false);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -513,27 +516,27 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             double grow=0.03;
             bool doIt=true;
 #ifdef SIM_WITH_GUI
-            doIt=App::uiThread->dialogInputGetFloat(App::mainWindow,"Convex hull","Grow parameter",0.05,0.001,10.0,3,&grow);
+            doIt=GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow,"Convex hull","Grow parameter",0.05,0.001,10.0,3,&grow);
 #endif
             App::currentWorld->sceneObjects->deselectObjects();
 
             if (doIt)
             {
                 App::logMsg(sim_verbosity_msgs,"Adding inflated convex hull...");
-                App::uiThread->showOrHideProgressBar(true,-1,"Adding inflated convex hull...");
+                GuiApp::uiThread->showOrHideProgressBar(true,-1,"Adding inflated convex hull...");
 
                 CShape* hull=addConvexHull(sel,grow,true);
 
                 if (hull!=nullptr)
                 {
                     App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
-                    App::uiThread->showOrHideProgressBar(false);
+                    GuiApp::uiThread->showOrHideProgressBar(false);
                     App::undoRedo_sceneChanged("");
                     App::logMsg(sim_verbosity_msgs,"done.");
                 }
                 else
                     App::logMsg(sim_verbosity_errors,"Operation failed.");
-                App::uiThread->showOrHideProgressBar(false);
+                GuiApp::uiThread->showOrHideProgressBar(false);
             }
             else
                 App::logMsg(sim_verbosity_msgs,"Aborted.");
@@ -1193,7 +1196,7 @@ CShape* CAddOperations::addPrimitive_withDialog(int command,const C3Vector* optS
         int faceSubdiv,sides,discSubdiv;
         bool smooth,dynamic,openEnds;
         double density;
-        if (App::uiThread->showPrimitiveShapeDialog(pType,optSizes,sizes,subdiv,faceSubdiv,sides,discSubdiv,smooth,openEnds,dynamic,density))
+        if (GuiApp::uiThread->showPrimitiveShapeDialog(pType,optSizes,sizes,subdiv,faceSubdiv,sides,discSubdiv,smooth,openEnds,dynamic,density))
         {
             int options=0;
             if (!smooth)
