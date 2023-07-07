@@ -68,7 +68,7 @@ void VMutex::lock(const char* location/*=nullptr*/)
     EnterCriticalSection(&_recursiveMutex);
 #else // WIN_SIM
     __sl(_simpleMutex);
-    if ( _areThreadIDsSame(_lockThreadId,_getCurrentThreadId()) && (_lockLevel>0) )
+    if ( _areThreadIdsSame(_lockThreadId,_getCurrentThreadId()) && (_lockLevel>0) )
     { // Already locked by this thread
         _lockLevel++;
         __su(_simpleMutex);
@@ -97,7 +97,7 @@ bool VMutex::tryLock()
     return(TryEnterCriticalSection(&_recursiveMutex)!=0);
 #else // WIN_SIM
     __sl(_simpleMutex);
-    if ( _areThreadIDsSame(_lockThreadId,_getCurrentThreadId()) && (_lockLevel>0) )
+    if ( _areThreadIdsSame(_lockThreadId,_getCurrentThreadId()) && (_lockLevel>0) )
     { // Already locked by this thread
         _lockLevel++;
         __su(_simpleMutex);
@@ -239,7 +239,7 @@ void VMutex::wakeAll_simple()
 }
 
 #ifndef SIM_WITH_QT
-bool VMutex::_areThreadIDsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB)
+bool VMutex::_areThreadIdsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB)
 {
 #ifdef WIN_SIM
     return(threadA==threadB);

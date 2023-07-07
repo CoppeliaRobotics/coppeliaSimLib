@@ -1,14 +1,17 @@
 SIM_DLLEXPORT int simRunSimulator(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)())
 {
-    return(simRunGui_internal(applicationName,options,0,"",nullptr));
+    simRunGui_internal(options);
+    return(1);
 }
 SIM_DLLEXPORT int simRunSimulatorEx(const char* applicationName,int options,void(*setToNull1)(),void(*setToNull2)(),void(*setToNull3)(),int stopDelay,const char* sceneOrModelToLoad)
 {
-    return(simRunGui_internal(applicationName,options,stopDelay,sceneOrModelToLoad,nullptr));
+    simRunGui_internal(options);
+    return(1);
 }
 SIM_DLLEXPORT int simExtLaunchUIThread(const char* applicationName,int options,const char* sceneOrModelOrUiToLoad, const char* applicationDir_)
 {
-    return(simRunGui(applicationName,options,0,sceneOrModelOrUiToLoad,applicationDir_));
+    simRunGui_internal(options);
+    return(1);
 }
 SIM_DLLEXPORT int simExtPostExitRequest()
 {
@@ -23,19 +26,19 @@ SIM_DLLEXPORT int simExtStep(bool stepIfRunning)
     int options=0;
     if (stepIfRunning)
         options=1;
-    return(simLoop_internal(options));
+    return(simLoop_internal(nullptr,options));
 }
 SIM_DLLEXPORT int simExtCanInitSimThread()
 {
-    return(simCanInitSimThread_internal());
+    return(true);
 }
 SIM_DLLEXPORT int simExtSimThreadInit()
 {
-    return(simInitSimThread_internal());
+    return(simInit_internal(nullptr,0));
 }
 SIM_DLLEXPORT int simExtSimThreadDestroy()
 {
-    return(simCleanupSimThread_internal());
+    return(simCleanup_internal());
 }
 
 // single precision, non-deprecated:

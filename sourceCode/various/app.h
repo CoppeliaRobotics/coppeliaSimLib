@@ -7,6 +7,7 @@
 #include <vMutex.h>
 #include <worldContainer.h>
 #include <gm.h>
+#include <sigHandler.h>
 #ifdef SIM_WITH_QT
     #include <simQApp.h>
     #include <simAndUiThreadSync.h>
@@ -18,29 +19,27 @@
 class App
 {
 public:
-    App(bool headless);
+    App();
     virtual ~App();
 
-    bool wasInitSuccessful();
+    void initGui(int options);
+    void runGui();
+    void cleanupGui();
+
     static void setBrowserEnabled(bool e);
     static bool getBrowserEnabled();
     static long long int getFreshUniqueId();
 
     static void beep(int frequ=5000,int duration=1000);
-    static void setApplicationName(const char* name);
-    static std::string getApplicationName();
     static void createWorldsContainer();
     static void deleteWorldsContainer();
 
-    static void run(int options,int stopDelay,const char* sceneOrModelToLoad,const char* applicationDir);
     static void postExitRequest();
     static bool getExitRequest();
-    static bool isSimulatorRunning();
 
-    static void simulationThreadInit();
-    static void simulationThreadDestroy();
-    static void simulationThreadLoop(bool stepIfRunning=true);
-    static bool canInitSimThread();
+    static void init(const char* appDir,int options);
+    static void cleanup();
+    static void loop(void(*callback)(),bool stepIfRunning);
 
     static void setQuitLevel(int l);
     static int getQuitLevel();
@@ -131,22 +130,19 @@ private:
     static void __logMsg(const char* originName,int verbosityLevel,const char* msg,int consoleVerbosity=-1,int statusbarVerbosity=-1);
     static bool _consoleLogFilter(const char* msg);
     static std::string _getHtmlEscapedString(const char* str);
-    bool _initSuccessful;
     static bool _consoleMsgsToFile;
     static std::string _consoleMsgsFilename;
     static VFile* _consoleMsgsFile;
     static VArchive* _consoleMsgsArchive;
 
     static bool _browserEnabled;
-    static bool _canInitSimThread;
+    static volatile bool _canInitSimThread;
     static long long int _nextUniqueId;
+    static SignalHandler* _sigHandler;
 
     static void _processGuiEventsUntilQuit();
 
-//  static VTHREAD_ID_TYPE _guiThread;
     static bool _exitRequest;
-    static bool _simulatorIsRunning;
-    static std::string _applicationName;
     static std::vector<std::string> _applicationArguments;
     static std::map<std::string,std::string> _applicationNamedParams;
     static std::string _additionalAddOnScript1;
@@ -163,10 +159,6 @@ private:
     static volatile int _quitLevel;
 
     static std::string _applicationDir;
-
-    static bool _firstSimulationAutoStart;
-    static int _firstSimulationStopDelay;
-    static bool _firstSimulationAutoQuit;
 
 #ifdef SIM_WITH_QT
 public:

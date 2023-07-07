@@ -63,7 +63,6 @@
     #endif
     typedef void( __cdecl* VTHREAD_START_ADDRESS )( void* );
     typedef unsigned int VTHREAD_ID_TYPE;
-    typedef unsigned long VTHREAD_AFFINITY_MASK;
     #define VTHREAD_RETURN_TYPE void
     #define VTHREAD_RETURN_VAL void()
     #define QT_MODAL_DLG_STYLE (Qt::Tool|Qt::CustomizeWindowHint|Qt::WindowTitleHint)
@@ -73,7 +72,6 @@
 #else
     typedef void*(*VTHREAD_START_ADDRESS)(void *);
     #define VTHREAD_ID_TYPE pthread_t
-    typedef unsigned int VTHREAD_AFFINITY_MASK;
     #define VTHREAD_RETURN_TYPE void*
     #define VTHREAD_RETURN_VAL 0
     #define __stdcall __attribute__((stdcall))

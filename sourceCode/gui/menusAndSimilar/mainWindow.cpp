@@ -108,7 +108,7 @@ CMainWindow::CMainWindow() : QMainWindow()
 
     // setWindowTitle adds multiple app icons on Linux somehow..
 #ifndef LIN_SIM
-    setWindowTitle(App::getApplicationName().c_str()); // somehow it is important for Linux. Even if this title gets later overwritten, Linux keeps this text to display the app name when minimized
+    setWindowTitle(CSimFlavor::getStringVal(2).c_str()); // somehow it is important for Linux. Even if this title gets later overwritten, Linux keeps this text to display the app name when minimized
 #endif
 
 
@@ -731,7 +731,7 @@ void CMainWindow::refreshDialogs_uiThread()
             title=std::string(IDS_NEW_FILE)+title;
         else
             title=App::currentWorld->mainSettings->getSceneName()+title;
-        title=App::getApplicationName()+" - "+title;
+        title=CSimFlavor::getStringVal(2)+" - "+title;
         setWindowTitle(title.c_str());
     }
 #endif

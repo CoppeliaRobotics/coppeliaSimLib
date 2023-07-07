@@ -11,13 +11,12 @@ int getCurrentScriptNameIndex_cSide();
 std::string getIndexAdjustedObjectName(const char* nm);
 
 
-int simRunGui_internal(const char* applicationName,int options,int stopDelay,const char* sceneOrModel,const char* appDir);
-int simCanInitSimThread_internal();
-int simInitSimThread_internal();
-int simCleanupSimThread_internal();
+void simRunGui_internal(int options);
+int simInit_internal(const char* appDir,int options);
+int simCleanup_internal();
 int simPostExitRequest_internal();
 int simGetExitRequest_internal();
-int simLoop_internal(int options);
+int simLoop_internal(void(*callback)(),int options);
 int simTest_internal(int mode,void* ptr1,void* ptr2,void* ptr3);
 void* simGetMainWindow_internal(int type);
 char* simGetLastError_internal();

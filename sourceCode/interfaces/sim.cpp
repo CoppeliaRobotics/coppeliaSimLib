@@ -2,9 +2,9 @@
 #include <simInternal.h>
 #include <app.h>
 
-SIM_DLLEXPORT int simRunGui(const char* applicationName,int options,int stopDelay,const char* sceneOrModelToLoad, const char* appDir)
+SIM_DLLEXPORT void simRunGui(int options)
 {
-    return(simRunGui_internal(applicationName,options,stopDelay,sceneOrModelToLoad,appDir));
+    simRunGui_internal(options);
 }
 SIM_DLLEXPORT int simPostExitRequest()
 {
@@ -14,21 +14,17 @@ SIM_DLLEXPORT int simGetExitRequest()
 {
     return(simGetExitRequest_internal());
 }
-SIM_DLLEXPORT int simLoop(int options)
+SIM_DLLEXPORT int simLoop(void(*callback)(),int options)
 {
-    return(simLoop_internal(options));
+    return(simLoop_internal(callback,options));
 }
-SIM_DLLEXPORT int simCanInitSimThread()
+SIM_DLLEXPORT int simInit(const char* appDir,int options)
 {
-    return(simCanInitSimThread_internal());
+    return(simInit_internal(appDir,options));
 }
-SIM_DLLEXPORT int simInitSimThread()
+SIM_DLLEXPORT int simCleanup()
 {
-    return(simInitSimThread_internal());
-}
-SIM_DLLEXPORT int simCleanupSimThread()
-{
-    return(simCleanupSimThread_internal());
+    return(simCleanup_internal());
 }
 
 SIM_DLLEXPORT int simTest(int mode,void* ptr1,void* ptr2,void* ptr3)

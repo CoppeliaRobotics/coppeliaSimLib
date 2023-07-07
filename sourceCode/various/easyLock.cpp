@@ -36,7 +36,7 @@ void CEasyLock::_unlock()
     if (_showActivity)
     {
         std::string arrow("... ");
-        if (VThread::isUiThreadIdSet())
+        if (VThread::isUiThreadSet())
         {
             if (VThread::isUiThread())
                 arrow+="(GUI) (";
@@ -53,7 +53,7 @@ void CEasyLock::_unlock()
     if (_showActivity)
     {
         std::string arrow("... ");
-        if (VThread::isUiThreadIdSet())
+        if (VThread::isUiThreadSet())
         {
             if (VThread::isUiThread())
                 arrow+="(GUI) (";
@@ -71,7 +71,7 @@ void CEasyLock::_lock()
     if (_showActivity)
     {
         std::string arrow("... ");
-        if (VThread::isUiThreadIdSet())
+        if (VThread::isUiThreadSet())
         {
             if (VThread::isUiThread())
                 arrow+="(GUI) (";
@@ -88,7 +88,7 @@ void CEasyLock::_lock()
     if (_showActivity)
     {
         std::string arrow("... ");
-        if (VThread::isUiThreadIdSet())
+        if (VThread::isUiThreadSet())
         {
             if (VThread::isUiThread())
                 arrow+="(GUI) (";

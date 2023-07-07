@@ -24,7 +24,6 @@
 #define _USR_VSYNC "vsync"
 #define _USR_DEBUG_OPENGL "debugOpenGl"
 #define _USR_IDENTICAL_VERTICES_TOLERANCE "identicalVertexTolerance"
-#define _USR_PROCESSOR_CORE_AFFINITY "processorCoreAffinity"
 #define _USR_DYNAMIC_ACTIVITY_RANGE "dynamicActivityRange"
 #define _USR_FREE_SERVER_PORT_START "freeServerPortStart"
 #define _USR_FREE_SERVER_PORT_RANGE "freeServerPortRange"
@@ -736,8 +735,6 @@ void CUserSettings::saveUserSettings()
         c.addFloat(_USR_DYNAMIC_ACTIVITY_RANGE,dynamicActivityRange,"");
         c.addFloat(_USR_TRANSLATION_STEP_SIZE,_translationStepSize,"");
         c.addFloat(_USR_ROTATION_STEP_SIZE,_rotationStepSize*radToDeg,"");
-        if (CThreadPool_old::getProcessorCoreAffinity()!=0)
-            c.addInteger(_USR_PROCESSOR_CORE_AFFINITY,CThreadPool_old::getProcessorCoreAffinity(),"recommended to keep 0 (-1:os default, 0:all threads on same core, m: affinity mask (bit1=core1, bit2=core2, etc.))");
         c.addInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart,"");
         c.addInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange,"");
         c.addInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton,"in seconds. Zero to disable.");
@@ -1009,9 +1006,6 @@ void CUserSettings::loadUserSettings()
         setTranslationStepSize(_translationStepSize);
     if (c.getFloat(_USR_ROTATION_STEP_SIZE,_rotationStepSize))
         setRotationStepSize(_rotationStepSize*degToRad);
-    int processorCoreAffinity=0;
-    if (c.getInteger(_USR_PROCESSOR_CORE_AFFINITY,processorCoreAffinity))
-        CThreadPool_old::setProcessorCoreAffinity(processorCoreAffinity);
     c.getInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart);
     _nextfreeServerPortToUse=freeServerPortStart;
     c.getInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange);

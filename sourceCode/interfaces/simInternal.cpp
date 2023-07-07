@@ -19,7 +19,6 @@
 #include <vVarious.h>
 #include <imgLoaderSaver.h>
 #include <apiErrors.h>
-#include <sigHandler.h>
 #include <memorizedConf_old.h>
 #include <algorithm>
 #include <iostream>
@@ -30,13 +29,6 @@
 #include <gm.h>
 #ifdef SIM_WITH_GUI
     #include <QSplashScreen>
-#endif
-#ifdef WIN_SIM
-    #include <windows.h>
-    #include <dbghelp.h>
-#else
-    #include <execinfo.h>
-    #include <signal.h>
 #endif
 
 #ifndef SIM_WITH_QT
@@ -63,46 +55,45 @@ int simGetExitRequest_internal()
     return(App::getExitRequest());
 }
 
-int simLoop_internal(int options)
+int simLoop_internal(void(*callback)(),int options)
 {
-    App::simulationThreadLoop((options&1)==0);
+    App::loop(callback,(options&1)==0);
     return(1);
 }
 
-int simCanInitSimThread_internal()
+int simInit_internal(const char* appDir,int options)
 {
-    if (App::canInitSimThread())
-        return(1);
-    return(0);
-}
-
-int simInitSimThread_internal()
-{
-    App::simulationThreadInit();
+    App::init(appDir,options);
     return(1);
 }
 
-int simCleanupSimThread_internal()
-{
-    // If already called, then means we closed from the UI and dont need to post another request
+int simCleanup_internal()
+{ // If already called, then means we closed from the UI and dont need to post another request
     if(!App::getExitRequest())
         App::postExitRequest();
-    App::simulationThreadDestroy();
+    App::cleanup();
     return(1);
 }
 
 int simPostExitRequest_internal()
-{
-    // If already called, then means we closed from the UI and dont need to post another request
+{ // If already called, then means we closed from the UI and dont need to post another request
     if(!App::getExitRequest())
         App::postExitRequest();
     return (1);
 }
 
+void simRunGui_internal(int options)
+{
+    App app;
+    app.initGui(options);
+    app.runGui();
+    app.cleanupGui();
+}
+
 int simTest_internal(int mode,void* ptr1,void* ptr2,void* ptr3)
 {
     if (mode==0)
-        VThread::launchSimpleThread((SIMPLE_VTHREAD_START_ADDRESS)ptr1);
+        VThread::launchQtThread((SIMPLE_VTHREAD_START_ADDRESS)ptr1);
     return(0);
 }
 
@@ -137,16 +128,6 @@ int getCurrentScriptNameIndex_cSide()
     return(_currentScriptNameIndex);
 }
 
-bool isSimulatorInitialized(const char* functionName)
-{
-    if (!App::isSimulatorRunning())
-    {
-        CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_SIMULATOR_NOT_INITIALIZED);
-        return(false);
-    }
-    return(true);
-}
-
 bool ifEditModeActiveGenerateErrorAndReturnTrue(const char* functionName)
 {
     if (App::getEditModeType()!=NO_EDIT_MODE)
@@ -158,27 +139,21 @@ bool ifEditModeActiveGenerateErrorAndReturnTrue(const char* functionName)
 }
 
 bool canBoolIntOrFloatParameterBeSetOrGet(const char* functionName,int when)
-{ // 'when' coding: bit0: sim not launched(1), bit1: sim launched(2), bit2: mainWindow not present(4),
+{ // 'when' coding: bit1: sim launched(2), bit2: mainWindow not present(4),
     //bit3: mainWIndow present(8),bit4: sim not running(16), bit5: sim running(32)
-    int st=0;
-    if (App::isSimulatorRunning())
-    {
-        st|=2;
+    int st=2;
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow==nullptr)
-            st|=4;
-        else
-            st|=8;
-#else
+    if (App::mainWindow==nullptr)
         st|=4;
-#endif
-        if (App::currentWorld->simulation->isSimulationStopped())
-            st|=16;
-        else
-            st|=32;
-    }
     else
-        st|=1+4+16;
+        st|=8;
+#else
+    st|=4;
+#endif
+    if (App::currentWorld->simulation->isSimulationStopped())
+        st|=16;
+    else
+        st|=32;
     if (((st&3)&when)==0)
     {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_CANNOT_SET_GET_PARAM_LAUNCH);
@@ -272,7 +247,7 @@ bool isJoint(const char* functionName,int identifier)
         return(false);
     }
     else if (it->getObjectType()!=sim_object_joint_type)
-    { 
+    {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_JOINT);
         return(false);
     }
@@ -287,7 +262,7 @@ bool isShape(const char* functionName,int identifier)
         return(false);
     }
     else if (it->getObjectType()!=sim_object_shape_type)
-    { 
+    {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_SHAPE);
         return(false);
     }
@@ -302,7 +277,7 @@ bool isSensor(const char* functionName,int identifier)
         return(false);
     }
     else if (it->getObjectType()!=sim_object_proximitysensor_type)
-    { 
+    {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_PROX_SENSOR);
         return(false);
     }
@@ -317,7 +292,7 @@ bool isMill(const char* functionName,int identifier)
         return(false);
     }
     else if (it->getObjectType()!=sim_object_mill_type)
-    { 
+    {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_MILL);
         return(false);
     }
@@ -332,7 +307,7 @@ bool isForceSensor(const char* functionName,int identifier)
         return(false);
     }
     else if (it->getObjectType()!=sim_object_forcesensor_type)
-    { 
+    {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_FORCE_SENSOR);
         return(false);
     }
@@ -347,7 +322,7 @@ bool isVisionSensor(const char* functionName,int identifier)
         return(false);
     }
     else if (it->getObjectType()!=sim_object_visionsensor_type)
-    { 
+    {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_VISION_SENSOR);
         return(false);
     }
@@ -377,7 +352,7 @@ bool isGraph(const char* functionName,int identifier)
         return(false);
     }
     else if (it->getObjectType()!=sim_object_graph_type)
-    { 
+    {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_GRAPH);
         return(false);
     }
@@ -392,7 +367,7 @@ bool isPath(const char* functionName,int identifier)
         return(false);
     }
     else if (it->getObjectType()!=sim_object_path_type)
-    { 
+    {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_PATH);
         return(false);
     }
@@ -407,7 +382,7 @@ bool isLight(const char* functionName,int identifier)
         return(false);
     }
     else if (it->getObjectType()!=sim_object_light_type)
-    { 
+    {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_LIGHT);
         return(false);
     }
@@ -422,7 +397,7 @@ bool isDummy(const char* functionName,int identifier)
         return(false);
     }
     else if (it->getObjectType()!=sim_object_dummy_type)
-    { 
+    {
         CApiErrors::setLastWarningOrError(functionName,SIM_ERROR_OBJECT_NOT_DUMMY);
         return(false);
     }
@@ -556,133 +531,9 @@ void _appendCustomDataToBuffer(std::vector<char>& buffer,const char* dataName,co
     }
 }
 
-#ifdef WIN_SIM
-LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
-{
-    void* stack[62];
-    HANDLE process=GetCurrentProcess();
-    SymInitialize(process,0,TRUE);
-    unsigned short fr=CaptureStackBackTrace(0,62,stack,nullptr);
-    SYMBOL_INFO* symb=(SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO)+1024*sizeof(char),1);
-    symb->MaxNameLen=1023;
-    symb->SizeOfStruct=sizeof(SYMBOL_INFO);
-    for (size_t i=0;i<fr;i++)
-    {
-        SymFromAddr(process,(DWORD64)(stack[i]),0,symb);
-        printf("CoppeliaSim: debug: %zu: %s - 0x%0I64X\n",fr-i-1,symb->Name,symb->Address);
-    }
-    free(symb);
-    return EXCEPTION_EXECUTE_HANDLER;
-}
-#else
-void _segHandler(int sig)
-{
-    void* arr[10];
-    size_t s=backtrace(arr,10);
-    fprintf(stderr,"\n\nError: signal %d:\n\n",sig);
-    backtrace_symbols_fd(arr,s,STDERR_FILENO);
-    exit(1);
-}
-#endif
-
-
-
-int simRunGui_internal(const char* applicationName,int options,int stopDelay,const char* sceneOrModelToLoad,const char* appDir)
-{
-    CGm gm;
-    App::gm=&gm;
-
-#ifdef WIN_SIM
-    SetUnhandledExceptionFilter(_winExceptionHandler);
-#else
-    signal(SIGSEGV,_segHandler);
-#endif
-    SignalHandler sigH(SignalHandler::SIG_INT | SignalHandler::SIG_TERM | SignalHandler::SIG_CLOSE);
-
-    CSimFlavor::run(0);
-
-    TRACE_C_API;
-    for (int i=0;i<9;i++)
-    {
-        std::string str(App::getApplicationArgument(i));
-        if ( (str.compare(0,9,"GUIITEMS_")==0)&&(str.length()>9) )
-        {
-            str.erase(str.begin(),str.begin()+9);
-            int val=0;
-            if (tt::stringToInt(str.c_str(),val))
-            {
-                options=val;
-                break;
-            }
-        }
-    }
-
-    App::operationalUIParts=options;
-    if (App::operationalUIParts&sim_gui_headless)
-        App::operationalUIParts=sim_gui_headless;
-    App* applicationBasicInitialization=new App((App::operationalUIParts&sim_gui_headless)!=0);
-    if (!applicationBasicInitialization->wasInitSuccessful())
-    {
-        delete applicationBasicInitialization;
-        return(0);
-    }
-
-    std::string applicationDir;
-    if (appDir!=nullptr)
-        applicationDir=appDir;
-
-#ifdef SIM_WITH_QT
-    if (applicationDir.size()==0)
-    {
-        QFileInfo pathInfo(QCoreApplication::applicationFilePath());
-        applicationDir=pathInfo.path().toStdString();
-    }
-#endif
-
-#ifdef SIM_WITH_GUI
-    // Browser and hierarchy visibility is set in userset.txt. We can override it here:
-    if ((App::operationalUIParts&sim_gui_hierarchy)==0)
-        COglSurface::_hierarchyEnabled=false;
-    if ((App::operationalUIParts&sim_gui_browser)==0)
-        App::setBrowserEnabled(false);
-    App::setIcon();
-#endif
-
-    App::setApplicationName(CSimFlavor::getStringVal(2).c_str());
-
-#ifdef SIM_WITH_GUI
-    if ((App::operationalUIParts&sim_gui_headless)==0)
-        App::showSplashScreen();
-#endif
-
-    App::createWorldsContainer();
-    CFileOperations::createNewScene(true,false);
-
-#ifdef SIM_WITH_GUI
-    if ((App::operationalUIParts&sim_gui_headless)==0)
-    {
-        App::createMainWindow();
-        App::mainWindow->oglSurface->adjustBrowserAndHierarchySizesToDefault();
-    }
-#endif
-
-    App::run(options,stopDelay,sceneOrModelToLoad,applicationDir.c_str()); // We stay in here until we quit the application!
-#ifdef SIM_WITH_GUI
-    App::deleteMainWindow();
-#endif
-    App::deleteWorldsContainer();
-    CSimFlavor::run(3);
-    CThreadPool_old::cleanUp();
-    delete applicationBasicInitialization;
-    return(1);
-}
-
 void* simGetMainWindow_internal(int type)
-{ // 0=window handle , otherwise Qt pointer 
+{ // 0=window handle , otherwise Qt pointer
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
 //    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -710,11 +561,6 @@ void* simGetMainWindow_internal(int type)
 int simRefreshDialogs_internal(int refreshDegree)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -771,9 +617,6 @@ int simGetObject_internal(const char* objectPath,int index,int proxy,int options
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=-1;
@@ -815,9 +658,6 @@ long long int simGetObjectUid_internal(int objectHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -832,9 +672,6 @@ long long int simGetObjectUid_internal(int objectHandle)
 int simGetObjectFromUid_internal(long long int uid,int options)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -852,9 +689,6 @@ int simGetObjectFromUid_internal(long long int uid,int options)
 int simGetScriptHandleEx_internal(int scriptType,int objectHandle,const char* scriptName)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -889,9 +723,6 @@ int simRemoveObjects_internal(const int* objectHandles,int count)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         // Memorize the selection:
@@ -919,9 +750,6 @@ int simRemoveObjects_internal(const int* objectHandles,int count)
 int simRemoveModel_internal(int objectHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -962,9 +790,6 @@ int simRemoveModel_internal(int objectHandle)
 char* simGetObjectAlias_internal(int objectHandle,int options)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1017,9 +842,6 @@ int simSetObjectAlias_internal(int objectHandle,const char* objectAlias,int opti
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -1035,9 +857,6 @@ int simSetObjectAlias_internal(int objectHandle,const char* objectAlias,int opti
 int simGetObjectMatrix_internal(int objectHandle,int relativeToObjectHandle,double* matrix)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1089,9 +908,6 @@ int simGetObjectMatrix_internal(int objectHandle,int relativeToObjectHandle,doub
 int simSetObjectMatrix_internal(int objectHandle,int relativeToObjectHandle,const double* matrix)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1154,9 +970,6 @@ int simGetObjectPose_internal(int objectHandle,int relativeToObjectHandle,double
     // CoppeliaSim quaternion, internally: w x y z
     // CoppeliaSim quaternion, at interfaces (default): x y z w
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int handleFlags=objectHandle&0xff00000;
@@ -1207,9 +1020,6 @@ int simGetObjectPose_internal(int objectHandle,int relativeToObjectHandle,double
 int simSetObjectPose_internal(int objectHandle,int relativeToObjectHandle,const double* pose)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1270,9 +1080,6 @@ int simGetObjectPosition_internal(int objectHandle,int relativeToObjectHandle,do
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int handleFlags=objectHandle&0xff00000;
@@ -1324,9 +1131,6 @@ int simGetObjectPosition_internal(int objectHandle,int relativeToObjectHandle,do
 int simSetObjectPosition_internal(int objectHandle,int relativeToObjectHandle,const double* position)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1397,9 +1201,6 @@ int simGetObjectOrientation_internal(int objectHandle,int relativeToObjectHandle
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int handleFlags=objectHandle&0xff00000;
@@ -1446,9 +1247,6 @@ int simGetObjectOrientation_internal(int objectHandle,int relativeToObjectHandle
 int simSetObjectOrientation_internal(int objectHandle,int relativeToObjectHandle,const double* eulerAngles)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1502,9 +1300,6 @@ int simGetJointPosition_internal(int objectHandle,double* position)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -1527,9 +1322,6 @@ int simGetJointPosition_internal(int objectHandle,double* position)
 int simSetJointPosition_internal(int objectHandle,double position)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1555,9 +1347,6 @@ int simSetJointPosition_internal(int objectHandle,double position)
 int simSetJointTargetPosition_internal(int objectHandle,double targetPosition)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1597,9 +1386,6 @@ int simGetJointTargetPosition_internal(int objectHandle,double* targetPosition)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -1622,9 +1408,6 @@ int simGetJointTargetPosition_internal(int objectHandle,double* targetPosition)
 int simSetJointTargetVelocity_internal(int objectHandle,double targetVelocity)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1663,9 +1446,6 @@ int simGetJointTargetVelocity_internal(int objectHandle,double* targetVelocity)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -1689,9 +1469,6 @@ int simGetObjectChildPose_internal(int objectHandle,double* pose)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -1713,9 +1490,6 @@ int simGetObjectChildPose_internal(int objectHandle,double* pose)
 int simSetObjectChildPose_internal(int objectHandle,const double* pose)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1754,9 +1528,6 @@ int simGetJointInterval_internal(int objectHandle,bool* cyclic,double* interval)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -1778,9 +1549,6 @@ int simGetJointInterval_internal(int objectHandle,bool* cyclic,double* interval)
 int simSetJointInterval_internal(int objectHandle,bool cyclic,const double* interval)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1815,11 +1583,6 @@ int simGetObjectParent_internal(int objectHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -1840,11 +1603,6 @@ int simGetObjectChild_internal(int objectHandle,int index)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -1864,9 +1622,6 @@ int simGetObjectChild_internal(int objectHandle,int index)
 int simSetObjectParent_internal(int objectHandle,int parentObjectHandle,bool keepInPlace)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -1930,9 +1685,6 @@ int simGetObjectType_internal(int objectHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -1948,11 +1700,6 @@ int simGetObjectType_internal(int objectHandle)
 int simGetJointType_internal(int objectHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4370,9 +4117,6 @@ double simGetSimulationTime_internal()
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1.0);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
         return(App::currentWorld->simulation->getSimulationTime());
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -4382,9 +4126,6 @@ double simGetSimulationTime_internal()
 int simGetSimulationState_internal()
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4403,9 +4144,6 @@ double simGetSystemTime_internal()
 int simLoadScene_internal(const char* filename)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4449,9 +4187,6 @@ int simCloseScene_internal()
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!App::currentWorld->simulation->isSimulationStopped())
@@ -4469,9 +4204,6 @@ int simCloseScene_internal()
 int simLoadModel_internal(const char* filename)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4510,8 +4242,7 @@ int simSaveScene_internal(const char* filename)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
+
     if (App::currentWorld->environment->getSceneLocked())
     {
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
@@ -4540,8 +4271,7 @@ int simSaveModel_internal(int baseOfModelHandle,const char* filename)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
+
     if (App::currentWorld->environment->getSceneLocked())
     {
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_LOCKED);
@@ -4583,9 +4313,6 @@ int* simGetObjectSel_internal(int* cnt)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         const std::vector<int>* handles=App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
@@ -4602,9 +4329,6 @@ int* simGetObjectSel_internal(int* cnt)
 int simSetObjectSel_internal(const int* handles,int cnt)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4623,9 +4347,6 @@ int simSetObjectSel_internal(const int* handles,int cnt)
 int simHandleProximitySensor_internal(int sensorHandle,double* detectedPoint,int* detectedObjectHandle,double* normalVector)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4733,9 +4454,6 @@ int simReadProximitySensor_internal(int sensorHandle,double* detectedPoint,int* 
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isSensor(__func__,sensorHandle))
@@ -4768,9 +4486,6 @@ int simHandleDynamics_internal(double deltaTime)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         App::currentWorld->dynamicsContainer->handleDynamics(deltaTime);
@@ -4788,9 +4503,6 @@ int simHandleDynamics_internal(double deltaTime)
 int simHandleMainScript_internal()
 {
     TRACE_C_API;
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     int retVal=0;
 
     // Plugins:
@@ -4845,9 +4557,6 @@ int simResetScript_internal(int scriptHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (scriptHandle==sim_handle_all)
@@ -4871,9 +4580,6 @@ int simResetScript_internal(int scriptHandle)
 int simAssociateScriptWithObject_internal(int scriptHandle,int associatedObjectHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4928,9 +4634,6 @@ int simAddScript_internal(int scriptProperty)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int scriptType=scriptProperty;
@@ -4956,9 +4659,6 @@ int simAddScript_internal(int scriptProperty)
 int simRemoveScript_internal(int scriptHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4994,11 +4694,6 @@ int simRemoveScript_internal(int scriptHandle)
 int simResetProximitySensor_internal(int sensorHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5036,9 +4731,6 @@ int simCheckProximitySensor_internal(int sensorHandle,int entityHandle,double* d
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,sensorHandle))
@@ -5067,9 +4759,6 @@ int simCheckProximitySensor_internal(int sensorHandle,int entityHandle,double* d
 int simCheckProximitySensorEx_internal(int sensorHandle,int entityHandle,int detectionMode,double detectionThreshold,double maxAngle,double* detectedPoint,int* detectedObjectHandle,double* normalVector)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5132,11 +4821,6 @@ int simCheckProximitySensorEx2_internal(int sensorHandle,double* vertexPointer,i
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isSensor(__func__,sensorHandle))
@@ -5192,9 +4876,6 @@ int simRegisterScriptCallbackFunction_internal(const char* func,const char* rese
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=-1;
@@ -5249,9 +4930,6 @@ int simRegisterScriptCallbackFunction_internal(const char* func,const char* rese
 int simRegisterScriptVariable_internal(const char* var,const char* val,int stackHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5319,9 +4997,6 @@ int simCheckCollision_internal(int entity1Handle,int entity2Handle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if ( (!doesEntityExist(__func__,entity1Handle))||
@@ -5342,11 +5017,6 @@ int simCheckCollision_internal(int entity1Handle,int entity2Handle)
 int simCheckCollisionEx_internal(int entity1Handle,int entity2Handle,double** intersectionSegments)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5381,9 +5051,6 @@ int simCheckDistance_internal(int entity1Handle,int entity2Handle,double thresho
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if ( (!doesEntityExist(__func__,entity1Handle))||
@@ -5415,11 +5082,6 @@ int simAdvanceSimulationByOneStep_internal()
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!App::currentWorld->simulation->isSimulationRunning())
@@ -5437,9 +5099,6 @@ int simAdvanceSimulationByOneStep_internal()
 int simSetSimulationTimeStep_internal(double timeStep)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5459,9 +5118,6 @@ double simGetSimulationTimeStep_internal()
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1.0);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
         return(App::currentWorld->simulation->getTimeStep());
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5471,11 +5127,6 @@ double simGetSimulationTimeStep_internal()
 int simGetRealTimeSimulation_internal()
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5496,9 +5147,6 @@ int simAdjustRealTimeTimer_internal(int instanceIndex,double deltaTime)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         App::currentWorld->simulation->adjustRealTimeTimer(deltaTime);
@@ -5512,11 +5160,6 @@ int simAdjustRealTimeTimer_internal(int instanceIndex,double deltaTime)
 int simIsRealTimeSimulationStepNeeded_internal()
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5544,11 +5187,6 @@ int simGetSimulationPassesPerRenderingPass_internal()
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=App::currentWorld->simulation->getPassesPerRendering();
@@ -5561,9 +5199,6 @@ int simGetSimulationPassesPerRenderingPass_internal()
 int simSetSimulationPassesPerRenderingPass_internal(int p)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5579,11 +5214,6 @@ int simSetSimulationPassesPerRenderingPass_internal(int p)
 int simStartSimulation_internal()
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5601,9 +5231,6 @@ int simStartSimulation_internal()
 int simStopSimulation_internal()
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -5623,9 +5250,6 @@ int simPauseSimulation_internal()
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (App::currentWorld->simulation->isSimulationRunning())
@@ -5642,9 +5266,6 @@ int simPauseSimulation_internal()
 int simHandleGraph_internal(int graphHandle,double simulationTime)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5682,9 +5303,6 @@ int simResetGraph_internal(int graphHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if ( (graphHandle!=sim_handle_all)&&(graphHandle!=sim_handle_all_except_explicit) )
@@ -5721,9 +5339,6 @@ int simAddGraphStream_internal(int graphHandle,const char* streamName,const char
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isGraph(__func__,graphHandle))
@@ -5752,9 +5367,6 @@ int simAddGraphStream_internal(int graphHandle,const char* streamName,const char
 int simDestroyGraphCurve_internal(int graphHandle,int curveId)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5785,9 +5397,6 @@ int simSetGraphStreamTransformation_internal(int graphHandle,int streamId,int tr
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isGraph(__func__,graphHandle))
@@ -5805,9 +5414,6 @@ int simSetGraphStreamTransformation_internal(int graphHandle,int streamId,int tr
 int simDuplicateGraphCurveToStatic_internal(int graphHandle,int curveId,const char* curveName)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5828,9 +5434,6 @@ int simDuplicateGraphCurveToStatic_internal(int graphHandle,int curveId,const ch
 int simAddGraphCurve_internal(int graphHandle,const char* curveName,int dim,const int* streamIds,const double* defaultValues,const char* unitStr,int options,const float* color,int curveWidth)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5861,9 +5464,6 @@ int simSetGraphStreamValue_internal(int graphHandle,int streamId,double value)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isGraph(__func__,graphHandle))
@@ -5881,9 +5481,6 @@ int simSetGraphStreamValue_internal(int graphHandle,int streamId,double value)
 char* simGetPluginName_internal(int index,unsigned char* setToNull)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5922,9 +5519,6 @@ int simSetNavigationMode_internal(int navigationMode)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     App::setMouseMode(navigationMode);
     return(1);
 }
@@ -5933,11 +5527,6 @@ int simGetNavigationMode_internal()
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
     int retVal=App::getMouseMode();
     return(retVal);
 }
@@ -5945,11 +5534,6 @@ int simGetNavigationMode_internal()
 int simSetPage_internal(int index)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5965,11 +5549,6 @@ int simSetPage_internal(int index)
 int simGetPage_internal()
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5987,9 +5566,6 @@ int simGetPage_internal()
 int simCopyPasteObjects_internal(int* objectHandles,int objectCount,int options)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -6095,9 +5671,6 @@ int simScaleObjects_internal(const int* objectHandles,int objectCount,double sca
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
@@ -6114,9 +5687,6 @@ int simScaleObjects_internal(const int* objectHandles,int objectCount,double sca
 int simAddDrawingObject_internal(int objectType,double size,double duplicateTolerance,int parentObjectHandle,int maxItemCount,const float* color,const float* setToNULL,const float* setToNULL2,const float* setToNULL3)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -6149,9 +5719,6 @@ int simAddDrawingObject_internal(int objectType,double size,double duplicateTole
 int simRemoveDrawingObject_internal(int objectHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -6187,9 +5754,6 @@ int simAddDrawingObjectItem_internal(int objectHandle,const double* itemData)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-       return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CDrawingObject* it=App::currentWorld->drawingCont->getObject(objectHandle);
@@ -6210,9 +5774,6 @@ double simGetObjectSizeFactor_internal(int objectHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1.0);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -6230,9 +5791,6 @@ int simAnnounceSceneContentChange_internal()
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (App::currentWorld->undoBufferContainer->announceChange())
@@ -6247,9 +5805,6 @@ int simSetInt32Signal_internal(const char* signalName,int signalValue)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         App::currentWorld->signalContainer->setIntegerSignal(signalName,signalValue,_currentScriptHandle);
@@ -6262,9 +5817,6 @@ int simSetInt32Signal_internal(const char* signalName,int signalValue)
 int simGetInt32Signal_internal(const char* signalName,int* signalValue)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6282,9 +5834,6 @@ int simGetInt32Signal_internal(const char* signalName,int* signalValue)
 int simClearInt32Signal_internal(const char* signalName)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6305,9 +5854,6 @@ int simSetFloatSignal_internal(const char* signalName,double signalValue)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         App::currentWorld->signalContainer->setFloatSignal(signalName,signalValue,_currentScriptHandle);
@@ -6320,9 +5866,6 @@ int simSetFloatSignal_internal(const char* signalName,double signalValue)
 int simGetFloatSignal_internal(const char* signalName,double* signalValue)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6340,9 +5883,6 @@ int simGetFloatSignal_internal(const char* signalName,double* signalValue)
 int simClearFloatSignal_internal(const char* signalName)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6363,9 +5903,6 @@ int simSetStringSignal_internal(const char* signalName,const char* signalValue,i
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         App::currentWorld->signalContainer->setStringSignal(signalName,std::string(signalValue,stringLength),_currentScriptHandle);
@@ -6378,9 +5915,6 @@ int simSetStringSignal_internal(const char* signalName,const char* signalValue,i
 char* simGetStringSignal_internal(const char* signalName,int* stringLength)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6405,9 +5939,6 @@ int simClearStringSignal_internal(const char* signalName)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal;
@@ -6426,9 +5957,6 @@ int simClearStringSignal_internal(const char* signalName)
 char* simGetSignalName_internal(int signalIndex,int signalType)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6467,9 +5995,6 @@ int simSetObjectProperty_internal(int objectHandle,int prop)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -6485,9 +6010,6 @@ int simSetObjectProperty_internal(int objectHandle,int prop)
 int simGetObjectProperty_internal(int objectHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6507,9 +6029,6 @@ int simSetObjectSpecialProperty_internal(int objectHandle,int prop)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -6528,9 +6047,6 @@ int simGetObjectSpecialProperty_internal(int objectHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -6548,9 +6064,6 @@ int simGetObjectSpecialProperty_internal(int objectHandle)
 int simSetModelProperty_internal(int objectHandle,int modelProperty)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6577,9 +6090,6 @@ int simGetModelProperty_internal(int objectHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -6599,9 +6109,6 @@ int simGetModelProperty_internal(int objectHandle)
 int simReadForceSensor_internal(int objectHandle,double* forceVector,double* torqueVector)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6650,9 +6157,6 @@ int simGetLightParameters_internal(int objectHandle,double* setToNULL,double* di
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -6682,9 +6186,6 @@ int simSetLightParameters_internal(int objectHandle,int state,const float* setTo
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -6706,9 +6207,6 @@ int simSetLightParameters_internal(int objectHandle,int state,const float* setTo
 int simGetVelocity_internal(int shapeHandle,double* linearVelocity,double* angularVelocity)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6732,9 +6230,6 @@ int simGetVelocity_internal(int shapeHandle,double* linearVelocity,double* angul
 int simGetObjectVelocity_internal(int objectHandle,double* linearVelocity,double* angularVelocity)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6768,9 +6263,6 @@ int simGetJointVelocity_internal(int jointHandle,double* velocity)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isJoint(__func__,jointHandle))
@@ -6786,9 +6278,6 @@ int simGetJointVelocity_internal(int jointHandle,double* velocity)
 int simAddForceAndTorque_internal(int shapeHandle,const double* force,const double* torque)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6843,9 +6332,6 @@ int simAddForce_internal(int shapeHandle,const double* position,const double* fo
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int handle=shapeHandle;
@@ -6893,9 +6379,6 @@ int simAddForce_internal(int shapeHandle,const double* position,const double* fo
 int simSetExplicitHandling_internal(int objectHandle,int explicitFlags)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6981,9 +6464,6 @@ int simGetExplicitHandling_internal(int objectHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if ( (objectHandle>=SIM_IDSTART_SCENEOBJECT)&&(objectHandle<=SIM_IDEND_SCENEOBJECT) )
@@ -7066,11 +6546,6 @@ int simGetLinkDummy_internal(int dummyHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isDummy(__func__,dummyHandle))
@@ -7088,9 +6563,6 @@ int simGetLinkDummy_internal(int dummyHandle)
 int simSetLinkDummy_internal(int dummyHandle,int linkedDummyHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -7112,9 +6584,6 @@ int simSetLinkDummy_internal(int dummyHandle,int linkedDummyHandle)
 int simSetObjectColor_internal(int objectHandle,int index,int colorComponent,const float* rgbData)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -7237,9 +6706,6 @@ int simGetObjectColor_internal(int objectHandle,int index,int colorComponent,flo
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -7334,9 +6800,6 @@ int simSetShapeColor_internal(int shapeHandle,const char* colorName,int colorCom
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if ( (shapeHandle!=sim_handle_all)&&(!isShape(__func__,shapeHandle)) )
@@ -7364,9 +6827,6 @@ int simGetShapeColor_internal(int shapeHandle,const char* colorName,int colorCom
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isShape(__func__,shapeHandle))
@@ -7384,9 +6844,6 @@ int simGetShapeColor_internal(int shapeHandle,const char* colorName,int colorCom
 int simResetDynamicObject_internal(int objectHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -7420,9 +6877,6 @@ int simSetJointMode_internal(int jointHandle,int jointMode,int options)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isJoint(__func__,jointHandle))
@@ -7439,9 +6893,6 @@ int simSetJointMode_internal(int jointHandle,int jointMode,int options)
 int simGetJointMode_internal(int jointHandle,int* options)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -7462,11 +6913,6 @@ int simSerialOpen_internal(const char* portString,int baudRate,void* reserved1,v
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int handle=-1;
@@ -7483,10 +6929,6 @@ int simSerialClose_internal(int portHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=-1;
@@ -7506,10 +6948,6 @@ int simSerialSend_internal(int portHandle,const char* data,int dataLength)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
     int retVal=-1;
 #ifdef SIM_WITH_SERIAL
     std::string dat(data,data+dataLength);
@@ -7524,8 +6962,7 @@ int simSerialRead_internal(int portHandle,char* buffer,int dataLengthToRead)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
+
     int retVal=-1;
 #ifdef SIM_WITH_SERIAL
     std::string data;
@@ -7546,10 +6983,6 @@ int simSerialCheck_internal(int portHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
     int retVal=-1;
 #ifdef SIM_WITH_SERIAL
     retVal=App::worldContainer->serialPortContainer->serialPortCheck(portHandle);
@@ -7562,9 +6995,6 @@ int simSerialCheck_internal(int portHandle)
 int simGetContactInfo_internal(int dynamicPass,int objectHandle,int index,int* objectHandles,double* contactInfo)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -7580,9 +7010,6 @@ int simGetContactInfo_internal(int dynamicPass,int objectHandle,int index,int* o
 int simAuxiliaryConsoleOpen_internal(const char* title,int maxLines,int mode,const int* position,const int* size,const float* textColor,const float* backgroundColor)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -7612,9 +7039,6 @@ int simAuxiliaryConsoleClose_internal(int consoleHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
 #ifdef SIM_WITH_GUI
@@ -7630,9 +7054,6 @@ int simAuxiliaryConsoleClose_internal(int consoleHandle)
 int simAuxiliaryConsoleShow_internal(int consoleHandle,bool showState)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -7659,9 +7080,6 @@ int simAuxiliaryConsoleShow_internal(int consoleHandle,bool showState)
 int simAuxiliaryConsolePrint_internal(int consoleHandle,const char* text)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -7691,9 +7109,6 @@ int simAuxiliaryConsolePrint_internal(int consoleHandle,const char* text)
 int simImportShape_internal(int fileformat,const char* pathAndFilename,int options,double identicalVerticeTolerance,double scalingFactor)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -7737,9 +7152,6 @@ int simImportMesh_internal(int fileformat,const char* pathAndFilename,int option
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!VFile::doesFileExist(pathAndFilename))
@@ -7777,9 +7189,6 @@ int simImportMesh_internal(int fileformat,const char* pathAndFilename,int option
 int simExportMesh_internal(int fileformat,const char* pathAndFilename,int options,double scalingFactor,int elementCount,const double** vertices,const int* verticesSizes,const int** indices,const int* indicesSizes,double** reserved,const char** names)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -7846,9 +7255,6 @@ int simCreateShape_internal(int options,double shadingAngle,const double* vertic
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isFloatArrayOk(vertices,verticesSize))
@@ -7905,8 +7311,7 @@ int simCreateMeshShape_internal(int options,double shadingAngle,const double* ve
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
+
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isFloatArrayOk(vertices,verticesSize))
@@ -7956,9 +7361,6 @@ int simGetShapeMesh_internal(int shapeHandle,double** vertices,int* verticesSize
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isShape(__func__,shapeHandle))
@@ -7993,9 +7395,6 @@ int simCreatePrimitiveShape_internal(int primitiveType,const double* sizes,int o
 { // options: bit: 0=culling, 1=sharp edges, 2=open ends with cylinders, 3=force simple shape (i.e. not pure)
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isFloatArrayOk(sizes,3))
@@ -8024,9 +7423,6 @@ int simCreateDummy_internal(double size,const float* reserved)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CDummy* it=new CDummy();
@@ -8048,9 +7444,6 @@ int simCreateDummy_internal(double size,const float* reserved)
 int simCreateProximitySensor_internal(int sensorType,int subType,int options,const int* intParams,const double* floatParams,const double* reserved)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -8119,9 +7512,6 @@ int simCreateForceSensor_internal(int options,const int* intParams,const double*
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CForceSensor* it=new CForceSensor();
@@ -8148,9 +7538,6 @@ int simCreateForceSensor_internal(int options,const int* intParams,const double*
 int simCreateVisionSensor_internal(int options,const int* intParams,const double* floatParams,const double* reserved)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -8188,9 +7575,6 @@ int simCreateJoint_internal(int jointType,int jointMode,int options,const double
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CJoint* it=new CJoint(jointType);
@@ -8217,9 +7601,6 @@ int simCreateJoint_internal(int jointType,int jointMode,int options,const double
 int simFloatingViewAdd_internal(double posX,double posY,double sizeX,double sizeY,int options)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -8269,9 +7650,6 @@ int simFloatingViewRemove_internal(int floatingViewHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         for (int i=0;i<8;i++)
@@ -8300,9 +7678,6 @@ int simFloatingViewRemove_internal(int floatingViewHandle)
 int simCameraFitToView_internal(int viewHandleOrIndex,int objectCount,const int* objectHandles,int options,double scaling)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -8398,9 +7773,6 @@ int simAdjustView_internal(int viewHandleOrIndex,int associatedViewableObjectHan
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CSView* view=nullptr;
@@ -8478,9 +7850,6 @@ int simCreateHeightfieldShape_internal(int options,double shadingAngle,int xPoin
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if ( (xPointCount<2)||(xPointCount>2048)||(yPointCount<2)||(yPointCount>2048)||(xSize<0.00001) )
@@ -8508,9 +7877,6 @@ int simCreateHeightfieldShape_internal(int options,double shadingAngle,int xPoin
 int simGetObjectInt32Param_internal(int objectHandle,int parameterID,int* parameter)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     if (!doesObjectExist(__func__,objectHandle))
         return(-1);
@@ -8945,9 +8311,6 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     if (!doesObjectExist(__func__,objectHandle))
         return(-1);
 
@@ -9308,9 +8671,6 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
 int simGetObjectFloatParam_internal(int objectHandle,int parameterID,double* parameter)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     if (!doesObjectExist(__func__,objectHandle))
         return(-1);
@@ -9817,9 +9177,6 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     if (!doesObjectExist(__func__,objectHandle))
         return(-1);
 
@@ -10227,9 +9584,6 @@ double* simGetObjectFloatArrayParam_internal(int objectHandle,int parameterID,in
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
     if (!doesObjectExist(__func__,objectHandle))
         return(nullptr);
 
@@ -10308,9 +9662,6 @@ int simSetObjectFloatArrayParam_internal(int objectHandle,int parameterID,const 
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     if (!doesObjectExist(__func__,objectHandle))
         return(-1);
 
@@ -10359,9 +9710,6 @@ int simSetObjectFloatArrayParam_internal(int objectHandle,int parameterID,const 
 char* simGetObjectStringParam_internal(int objectHandle,int parameterID,int* parameterLength)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     if (!doesObjectExist(__func__,objectHandle))
         return(nullptr);
@@ -10424,9 +9772,6 @@ int simSetObjectStringParam_internal(int objectHandle,int parameterID,const char
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     if (!doesObjectExist(__func__,objectHandle))
         return(-1);
 
@@ -10468,9 +9813,6 @@ int simSetObjectStringParam_internal(int objectHandle,int parameterID,const char
 int simGetScriptInt32Param_internal(int scriptHandle,int parameterID,int* parameter)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -10519,9 +9861,6 @@ int simSetScriptInt32Param_internal(int scriptHandle,int parameterID,int paramet
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
@@ -10556,9 +9895,6 @@ int simSetScriptInt32Param_internal(int scriptHandle,int parameterID,int paramet
 char* simGetScriptStringParam_internal(int scriptHandle,int parameterID,int* parameterLength)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -10606,9 +9942,6 @@ char* simGetScriptStringParam_internal(int scriptHandle,int parameterID,int* par
 int simSetScriptStringParam_internal(int scriptHandle,int parameterID,const char* parameter,int parameterLength)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -10730,9 +10063,6 @@ int simGetJointForce_internal(int jointHandle,double* forceOrTorque)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int handle=jointHandle;
@@ -10769,9 +10099,6 @@ int simGetJointTargetForce_internal(int jointHandle,double* forceOrTorque)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,jointHandle))
@@ -10789,9 +10116,6 @@ int simGetJointTargetForce_internal(int jointHandle,double* forceOrTorque)
 int simSetJointTargetForce_internal(int objectHandle,double forceOrTorque,bool signedValue)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -10811,9 +10135,6 @@ int simPersistentDataWrite_internal(const char* dataTag,const char* dataValue,in
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         App::worldContainer->persistentDataContainer->writeData(dataTag,std::string(dataValue,dataLength),(options&1)!=0);
@@ -10826,9 +10147,6 @@ int simPersistentDataWrite_internal(const char* dataTag,const char* dataValue,in
 char* simPersistentDataRead_internal(const char* dataTag,int* dataLength)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -10850,9 +10168,6 @@ char* simPersistentDataRead_internal(const char* dataTag,int* dataLength)
 int simIsHandle_internal(int generalObjectHandle,int generalObjectType)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -10885,9 +10200,6 @@ int simIsHandle_internal(int generalObjectHandle,int generalObjectType)
 int simHandleVisionSensor_internal(int visionSensorHandle,double** auxValues,int** auxValuesCount)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -10948,9 +10260,6 @@ int simReadVisionSensor_internal(int visionSensorHandle,double** auxValues,int**
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isVisionSensor(__func__,visionSensorHandle))
@@ -10994,11 +10303,6 @@ int simResetVisionSensor_internal(int visionSensorHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if ( (visionSensorHandle!=sim_handle_all)&&(visionSensorHandle!=sim_handle_all_except_explicit) )
@@ -11038,9 +10342,6 @@ int simResetVisionSensor_internal(int visionSensorHandle)
 int simCheckVisionSensor_internal(int sensorHandle,int entityHandle,double** auxValues,int** auxValuesCount)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -11092,9 +10393,6 @@ float* simCheckVisionSensorEx_internal(int sensorHandle,int entityHandle,bool re
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,sensorHandle))
@@ -11121,9 +10419,6 @@ float* simCheckVisionSensorEx_internal(int sensorHandle,int entityHandle,bool re
 unsigned char* simGetVisionSensorImg_internal(int sensorHandle,int options,double rgbaCutOff,const int* pos,const int* size,int* resolution)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -11166,9 +10461,6 @@ int simSetVisionSensorImg_internal(int sensorHandle,const unsigned char* img,int
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!doesObjectExist(__func__,sensorHandle))
@@ -11206,9 +10498,6 @@ int simSetVisionSensorImg_internal(int sensorHandle,const unsigned char* img,int
 float* simGetVisionSensorDepth_internal(int sensorHandle,int options,const int* pos,const int* size,int* resolution)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -11257,9 +10546,6 @@ int _simSetVisionSensorDepth_internal(int sensorHandle,int options,const float* 
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,sensorHandle))
@@ -11278,9 +10564,6 @@ int simRuckigPos_internal(int dofs,double baseCycleTime,int flags,const double* 
 { // input floats are check on the plugin side
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=App::worldContainer->pluginContainer->ruckigPlugin_pos(_currentScriptHandle,dofs,baseCycleTime,flags,currentPos,currentVel,currentAccel,maxVel,maxAccel,maxJerk,selection,targetPos,targetVel);
@@ -11296,9 +10579,6 @@ int simRuckigVel_internal(int dofs,double baseCycleTime,int flags,const double* 
 { // input floats are check on the plugin side
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=App::worldContainer->pluginContainer->ruckigPlugin_vel(_currentScriptHandle,dofs,baseCycleTime,flags,currentPos,currentVel,currentAccel,maxAccel,maxJerk,selection,targetVel);
@@ -11313,9 +10593,6 @@ int simRuckigVel_internal(int dofs,double baseCycleTime,int flags,const double* 
 int simRuckigStep_internal(int objHandle,double cycleTime,double* newPos,double* newVel,double* newAccel,double* syncTime,double* reserved1,int* reserved2)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -11336,9 +10613,6 @@ int simRuckigRemove_internal(int objHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=App::worldContainer->pluginContainer->ruckigPlugin_remove(objHandle);
@@ -11353,13 +10627,10 @@ int simRuckigRemove_internal(int objHandle)
 }
 
 int simGetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,double* quaternion)
-{ 
+{
     TRACE_C_API;
     // CoppeliaSim quaternion, internally: w x y z
     // CoppeliaSim quaternion, at interfaces (default): x y z w
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -11415,9 +10686,6 @@ int simSetObjectQuaternion_internal(int objectHandle,int relativeToObjectHandle,
     TRACE_C_API;
     // CoppeliaSim quaternion, internally: w x y z
     // CoppeliaSim quaternion, at interfaces (default): x y z w
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -11488,9 +10756,6 @@ int simGetShapeMass_internal(int shapeHandle,double* mass)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isShape(__func__,shapeHandle))
@@ -11507,9 +10772,6 @@ int simGetShapeMass_internal(int shapeHandle,double* mass)
 int simSetShapeMass_internal(int shapeHandle,double mass)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -11530,9 +10792,6 @@ int simSetShapeMass_internal(int shapeHandle,double mass)
 int simGetShapeInertia_internal(int shapeHandle,double* inertiaMatrix,double* transformationMatrix)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -11556,9 +10815,6 @@ int simGetShapeInertia_internal(int shapeHandle,double* inertiaMatrix,double* tr
 int simSetShapeInertia_internal(int shapeHandle,const double* inertiaMatrix,const double* transformationMatrix)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -11601,9 +10857,6 @@ int simIsDynamicallyEnabled_internal(int objectHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
@@ -11625,9 +10878,6 @@ int simIsDynamicallyEnabled_internal(int objectHandle)
 int simGenerateShapeFromPath_internal(const double* pppath,int pathSize,const double* section,int sectionSize,int options,const double* upVector,double reserved)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -11827,9 +11077,6 @@ int simInitScript_internal(int scriptHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
@@ -11861,9 +11108,6 @@ int simInitScript_internal(int scriptHandle)
 int simModuleEntry_internal(int handle,const char* label,int state)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -11897,9 +11141,6 @@ int simModuleEntry_internal(int handle,const char* label,int state)
 int simCheckExecAuthorization_internal(const char* what,const char* args,int scriptHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -11965,9 +11206,6 @@ int simGroupShapes_internal(const int* shapeHandles,int shapeCount)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         std::vector<int> shapes;
@@ -12001,12 +11239,6 @@ int simGroupShapes_internal(const int* shapeHandles,int shapeCount)
 int* simUngroupShape_internal(int shapeHandle,int* shapeCount)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        shapeCount[0]=0;
-        return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -12103,9 +11335,6 @@ int simConvexDecompose_internal(int shapeHandle,int options,const int* intParams
 { // one shape at a time!
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     int retVal=CSceneObjectOperations::convexDecompose_apiVersion(shapeHandle,options,intParams,floatParams);
     return(retVal);
 }
@@ -12121,9 +11350,6 @@ void simQuitSimulator_internal(bool ignoredArgument)
 int simSetShapeMaterial_internal(int shapeHandle,int materialIdOrShapeHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -12162,11 +11388,6 @@ int simGetTextureId_internal(const char* textureName,int* resolution)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=-1; // means error
@@ -12188,9 +11409,6 @@ int simGetTextureId_internal(const char* textureName,int* resolution)
 unsigned char* simReadTexture_internal(int textureId,int options,int posX,int posY,int sizeX,int sizeY)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -12227,9 +11445,6 @@ unsigned char* simReadTexture_internal(int textureId,int options,int posX,int po
 int simWriteTexture_internal(int textureId,int options,const char* data,int posX,int posY,int sizeX,int sizeY,double interpol)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -12268,9 +11483,6 @@ int simWriteTexture_internal(int textureId,int options,const char* data,int posX
 int simCreateTexture_internal(const char* fileName,int options,const double* planeSizes,const double* scalingUV,const double* xy_g,int fixedResolution,int* textureId,int* resolution,const void* reserved)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -12404,9 +11616,6 @@ int simCreateTexture_internal(const char* fileName,int options,const double* pla
 int simWriteCustomDataBlock_internal(int objectHandle,const char* tagName,const char* data,int dataSize)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -12577,9 +11786,6 @@ char* simReadCustomDataBlock_internal(int objectHandle,const char* tagName,int* 
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         char* retBuffer=nullptr;
@@ -12665,9 +11871,6 @@ char* simReadCustomDataBlock_internal(int objectHandle,const char* tagName,int* 
 char* simReadCustomDataBlockTags_internal(int objectHandle,int* tagCount)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -12769,9 +11972,6 @@ int simGetShapeGeomInfo_internal(int shapeHandle,int* intData,double* floatData,
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=-1; // means error
@@ -12817,9 +12017,6 @@ int simGetObjects_internal(int index,int objectType)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int cnter=0;
@@ -12850,9 +12047,6 @@ int simGetObjects_internal(int index,int objectType)
 int* simGetObjectsInTree_internal(int treeBaseHandle,int objectType,int options,int* objectCount)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -12917,9 +12111,6 @@ int simScaleObject_internal(int objectHandle,double xScale,double yScale,double 
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (doesObjectExist(__func__,objectHandle))
@@ -12938,11 +12129,6 @@ int simScaleObject_internal(int objectHandle,double xScale,double yScale,double 
 int simGetShapeTextureId_internal(int shapeHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -12970,9 +12156,6 @@ int simGetShapeTextureId_internal(int shapeHandle)
 int simSetShapeTexture_internal(int shapeHandle,int textureId,int mappingMode,int options,const double* uvScaling,const double* position,const double* orientation)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13028,9 +12211,6 @@ int simCreateCollectionEx_internal(int options)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CCollection* it=new CCollection(_currentScriptHandle);
@@ -13046,9 +12226,6 @@ int simCreateCollectionEx_internal(int options)
 int simAddItemToCollection_internal(int collectionHandle,int what,int objectHandle,int options)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13095,9 +12272,6 @@ int simDestroyCollection_internal(int collectionHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CCollection* it=App::currentWorld->collections->getObjectFromHandle(collectionHandle);
@@ -13116,9 +12290,6 @@ int simDestroyCollection_internal(int collectionHandle)
 int* simGetCollectionObjects_internal(int collectionHandle,int* objectCount)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -13139,9 +12310,6 @@ int* simGetCollectionObjects_internal(int collectionHandle,int* objectCount)
 int simAlignShapeBB_internal(int shapeHandle,const double* pose)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13180,9 +12348,6 @@ int simAlignShapeBB_internal(int shapeHandle,const double* pose)
 int simRelocateShapeFrame_internal(int shapeHandle,const double* pose)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13225,9 +12390,6 @@ int simSaveImage_internal(const unsigned char* image,const int* resolution,int o
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=-1;
@@ -13243,9 +12405,6 @@ unsigned char* simLoadImage_internal(int* resolution,int options,const char* fil
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         unsigned char* retVal=CImageLoaderSaver::load(resolution,options,filename,reserved);
@@ -13258,11 +12417,6 @@ unsigned char* simLoadImage_internal(int* resolution,int options,const char* fil
 unsigned char* simGetScaledImage_internal(const unsigned char* imageIn,const int* resolutionIn,int* resolutionOut,int options,void* reserved)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -13277,9 +12431,6 @@ int simTransformImage_internal(unsigned char* image,const int* resolution,int op
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (CImageLoaderSaver::transformImage(image,resolution[0],resolution[1],options))
@@ -13293,9 +12444,6 @@ int simTransformImage_internal(unsigned char* image,const int* resolution,int op
 int simGetQHull_internal(const double* inVertices,int inVerticesL,double** verticesOut,int* verticesOutL,int** indicesOut,int* indicesOutL,int reserved1,const double* reserved2)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     if (!isFloatArrayOk(inVertices,inVerticesL))
     {
@@ -13344,8 +12492,7 @@ int simGetDecimatedMesh_internal(const double* inVertices,int inVerticesL,const 
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
+
     if (!isFloatArrayOk(inVertices,inVerticesL))
     {
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
@@ -13446,7 +12593,7 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
         {
             if (script->getThreadedExecutionIsUnderWay_oldThreads())
             { // very special handling here!
-                if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
+                if (VThread::areThreadIdsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
                     retVal=script->callCustomScriptFunction(funcName.c_str(),stack);
                 else
                 { // we have to execute that function via another thread!
@@ -13504,9 +12651,6 @@ char* simGetExtensionString_internal(int objectHandle,int index,const char* key)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         char* retVal=nullptr;
@@ -13554,9 +12698,6 @@ int simComputeMassAndInertia_internal(int shapeHandle,double density)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (isShape(__func__,shapeHandle))
@@ -13577,9 +12718,6 @@ int simCreateStack_internal()
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
@@ -13593,9 +12731,6 @@ int simCreateStack_internal()
 int simReleaseStack_internal(int stackHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13611,9 +12746,6 @@ int simReleaseStack_internal(int stackHandle)
 int simCopyStack_internal(int stackHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13631,9 +12763,6 @@ int simCopyStack_internal(int stackHandle)
 int simPushNullOntoStack_internal(int stackHandle)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13655,9 +12784,6 @@ int simPushBoolOntoStack_internal(int stackHandle,bool value)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -13677,9 +12803,6 @@ int simPushBoolOntoStack_internal(int stackHandle,bool value)
 int simPushInt32OntoStack_internal(int stackHandle,int value)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13701,9 +12824,6 @@ int simPushInt64OntoStack_internal(int stackHandle,long long int value)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -13723,9 +12843,6 @@ int simPushInt64OntoStack_internal(int stackHandle,long long int value)
 int simPushFloatOntoStack_internal(int stackHandle,float value)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13747,9 +12864,6 @@ int simPushDoubleOntoStack_internal(int stackHandle,double value)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -13769,9 +12883,6 @@ int simPushDoubleOntoStack_internal(int stackHandle,double value)
 int simPushStringOntoStack_internal(int stackHandle,const char* value,int stringSize)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13793,9 +12904,6 @@ int simPushUInt8TableOntoStack_internal(int stackHandle,const unsigned char* val
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -13815,9 +12923,6 @@ int simPushUInt8TableOntoStack_internal(int stackHandle,const unsigned char* val
 int simPushInt32TableOntoStack_internal(int stackHandle,const int* values,int valueCnt)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13839,9 +12944,6 @@ int simPushInt64TableOntoStack_internal(int stackHandle,const long long int* val
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -13861,9 +12963,6 @@ int simPushInt64TableOntoStack_internal(int stackHandle,const long long int* val
 int simPushFloatTableOntoStack_internal(int stackHandle,const float* values,int valueCnt)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13885,8 +12984,7 @@ int simPushDoubleTableOntoStack_internal(int stackHandle,const double* values,in
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
+
     if (!isFloatArrayOk(values,valueCnt))
     {
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_DATA);
@@ -13913,9 +13011,6 @@ int simPushTableOntoStack_internal(int stackHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -13935,9 +13030,6 @@ int simPushTableOntoStack_internal(int stackHandle)
 int simInsertDataIntoStackTable_internal(int stackHandle)
 { // stack should have at least: table,key,value (where value is on top of stack)
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -13961,9 +13053,6 @@ int simGetStackSize_internal(int stackHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -13980,9 +13069,6 @@ int simGetStackSize_internal(int stackHandle)
 int simPopStackItem_internal(int stackHandle,int count)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14003,9 +13089,6 @@ int simPopStackItem_internal(int stackHandle,int count)
 int simMoveStackItemToTop_internal(int stackHandle,int cIndex)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14031,9 +13114,6 @@ int simGetStackItemType_internal(int stackHandle,int cIndex)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -14057,9 +13137,6 @@ int simGetStackItemType_internal(int stackHandle,int cIndex)
 int simGetStackBoolValue_internal(int stackHandle,bool* boolValue)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14093,9 +13170,6 @@ int simGetStackInt32Value_internal(int stackHandle,int* numberValue)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -14125,9 +13199,6 @@ int simGetStackInt32Value_internal(int stackHandle,int* numberValue)
 int simGetStackInt64Value_internal(int stackHandle,long long int* numberValue)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14159,9 +13230,6 @@ int simGetStackFloatValue_internal(int stackHandle,float* numberValue)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -14192,9 +13260,6 @@ int simGetStackDoubleValue_internal(int stackHandle,double* numberValue)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -14224,13 +13289,6 @@ int simGetStackDoubleValue_internal(int stackHandle,double* numberValue)
 char* simGetStackStringValue_internal(int stackHandle,int* stringSize)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        if (stringSize!=nullptr)
-            stringSize[0]=-1;
-        return(nullptr);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14275,9 +13333,6 @@ int simGetStackTableInfo_internal(int stackHandle,int infoType)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -14302,9 +13357,6 @@ int simGetStackTableInfo_internal(int stackHandle,int infoType)
 int simGetStackUInt8Table_internal(int stackHandle,unsigned char* array,int count)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14332,9 +13384,6 @@ int simGetStackInt32Table_internal(int stackHandle,int* array,int count)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -14360,9 +13409,6 @@ int simGetStackInt32Table_internal(int stackHandle,int* array,int count)
 int simGetStackInt64Table_internal(int stackHandle,long long int* array,int count)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14390,9 +13436,6 @@ int simGetStackFloatTable_internal(int stackHandle,float* array,int count)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -14418,9 +13461,6 @@ int simGetStackFloatTable_internal(int stackHandle,float* array,int count)
 int simGetStackDoubleTable_internal(int stackHandle,double* array,int count)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14448,9 +13488,6 @@ int simUnfoldStackTable_internal(int stackHandle)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -14475,9 +13512,6 @@ int simUnfoldStackTable_internal(int stackHandle)
 int simDebugStack_internal(int stackHandle,int cIndex)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -14840,9 +13874,6 @@ int simCreateOctree_internal(double voxelSize,int options,double pointSize,void*
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         COcTree* it=new COcTree();
@@ -14863,9 +13894,6 @@ int simCreateOctree_internal(double voxelSize,int options,double pointSize,void*
 int simCreatePointCloud_internal(double maxVoxelSize,int maxPtCntPerVoxel,int options,double pointSize,void* reserved)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14889,9 +13917,6 @@ int simSetPointCloudOptions_internal(int pointCloudHandle,double maxVoxelSize,in
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isPointCloud(__func__,pointCloudHandle))
@@ -14913,9 +13938,6 @@ int simSetPointCloudOptions_internal(int pointCloudHandle,double maxVoxelSize,in
 int simGetPointCloudOptions_internal(int pointCloudHandle,double* maxVoxelSize,int* maxPtCntPerVoxel,int* options,double* pointSize,void* reserved)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -14943,9 +13965,6 @@ int simGetPointCloudOptions_internal(int pointCloudHandle,double* maxVoxelSize,i
 int simInsertVoxelsIntoOctree_internal(int octreeHandle,int options,const double* pts,int ptCnt,const unsigned char* color,const unsigned int* tag,void* reserved)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -14984,9 +14003,6 @@ int simRemoveVoxelsFromOctree_internal(int octreeHandle,int options,const double
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isOctree(__func__,octreeHandle))
@@ -15013,9 +14029,6 @@ int simRemoveVoxelsFromOctree_internal(int octreeHandle,int options,const double
 int simInsertPointsIntoPointCloud_internal(int pointCloudHandle,int options,const double* pts,int ptCnt,const unsigned char* color,void* optionalValues)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -15046,9 +14059,6 @@ int simRemovePointsFromPointCloud_internal(int pointCloudHandle,int options,cons
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isPointCloud(__func__,pointCloudHandle))
@@ -15075,9 +14085,6 @@ int simRemovePointsFromPointCloud_internal(int pointCloudHandle,int options,cons
 int simIntersectPointsWithPointCloud_internal(int pointCloudHandle,int options,const double* pts,int ptCnt,double tolerance,void* reserved)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -15106,9 +14113,6 @@ const double* simGetOctreeVoxels_internal(int octreeHandle,int* ptCnt,void* rese
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isOctree(__func__,octreeHandle))
@@ -15131,9 +14135,6 @@ const double* simGetPointCloudPoints_internal(int pointCloudHandle,int* ptCnt,vo
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!isPointCloud(__func__,pointCloudHandle))
@@ -15155,9 +14156,6 @@ const double* simGetPointCloudPoints_internal(int pointCloudHandle,int* ptCnt,vo
 int simInsertObjectIntoOctree_internal(int octreeHandle,int objectHandle,int options,const unsigned char* color,unsigned int tag,void* reserved)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -15191,9 +14189,6 @@ int simSubtractObjectFromOctree_internal(int octreeHandle,int objectHandle,int o
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isOctree(__func__,octreeHandle))
@@ -15212,9 +14207,6 @@ int simSubtractObjectFromOctree_internal(int octreeHandle,int objectHandle,int o
 int simInsertObjectIntoPointCloud_internal(int pointCloudHandle,int objectHandle,int options,double gridSize,const unsigned char* color,void* optionalValues)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -15256,9 +14248,6 @@ int simSubtractObjectFromPointCloud_internal(int pointCloudHandle,int objectHand
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!isOctree(__func__,pointCloudHandle))
@@ -15277,9 +14266,6 @@ int simSubtractObjectFromPointCloud_internal(int pointCloudHandle,int objectHand
 int simCheckOctreePointOccupancy_internal(int octreeHandle,int options,const double* points,int ptCnt,unsigned int* tag,unsigned long long int* location,void* reserved)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -15330,9 +14316,6 @@ char* simOpenTextEditor_internal(const char* initText,const char* xml,int* vario
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
     char* retVal=nullptr;
 #ifdef SIM_WITH_GUI
     if (App::mainWindow!=nullptr)
@@ -15350,9 +14333,6 @@ char* simOpenTextEditor_internal(const char* initText,const char* xml,int* vario
 char* simPackTable_internal(int stackHandle,int* bufferSize)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -15385,9 +14365,6 @@ int simUnpackTable_internal(int stackHandle,const char* buffer,int bufferSize)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->getStack(stackHandle);
@@ -15409,9 +14386,6 @@ int simSetReferencedHandles_internal(int objectHandle,int count,const int* refer
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int handleFlags=objectHandle&0xff00000;
@@ -15432,9 +14406,6 @@ int simSetReferencedHandles_internal(int objectHandle,int count,const int* refer
 int simGetReferencedHandles_internal(int objectHandle,int** referencedHandles,int** reserved1,int** reserved2)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -15473,9 +14444,6 @@ int simGetReferencedHandles_internal(int objectHandle,int** referencedHandles,in
 int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -15592,9 +14560,6 @@ int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info
 int simGetShapeVizf_internal(int shapeHandle,int index,struct SShapeVizInfof* info)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -15779,7 +14744,7 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
             int retVal=-1; // error
             if (script->getThreadedExecutionIsUnderWay_oldThreads())
             { // OLD, very special handling here!
-                if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
+                if (VThread::areThreadIdsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
                     retVal=script->executeScriptString(stringToExec.c_str(),stack);
                 else
                 { // we have to execute that function via another thread!
@@ -16007,9 +14972,6 @@ char* simGetPersistentDataTags_internal(int* tagCount)
 {
     TRACE_C_API;
 
-    if (!isSimulatorInitialized(__func__))
-        return(nullptr);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         std::vector<std::string> allTags;
@@ -16041,9 +15003,6 @@ int simEventNotification_internal(const char* event)
 {
     TRACE_C_API;
     int retVal=-1;
-
-    if (!isSimulatorInitialized(__func__))
-        return(retVal);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -16110,9 +15069,6 @@ int simApplyTexture_internal(int shapeHandle,const double* textureCoordinates,in
     TRACE_C_API;
     int retVal=-1;
 
-    if (!isSimulatorInitialized(__func__))
-        return(retVal);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (isShape(__func__,shapeHandle))
@@ -16166,9 +15122,6 @@ int simSetJointDependency_internal(int jointHandle,int masterJointHandle,double 
     TRACE_C_API;
     int retVal=-1;
 
-    if (!isSimulatorInitialized(__func__))
-        return(retVal);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (isJoint(__func__,jointHandle))
@@ -16195,9 +15148,6 @@ int simGetJointDependency_internal(int jointHandle,int* masterJointHandle,double
 {
     TRACE_C_API;
     int retVal=-1;
-
-    if (!isSimulatorInitialized(__func__))
-        return(retVal);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -16965,9 +15915,6 @@ void _simDynCallback_internal(const int* intData,const double* floatData)
 int simGetVisionSensorRes_internal(int sensorHandle,int* resolution)
 {
     TRACE_C_API;
-
-    if (!isSimulatorInitialized(__func__))
-        return(-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {

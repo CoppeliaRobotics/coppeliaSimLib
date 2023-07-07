@@ -11250,7 +11250,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
 
                 if (script->getThreadedExecutionIsUnderWay_oldThreads())
                 { // very special handling here!
-                    if (VThread::areThreadIDsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
+                    if (VThread::areThreadIdsSame(script->getThreadedScriptThreadId_old(),VThread::getCurrentThreadId()))
                     {
                         int rr=script->callCustomScriptFunction(funcName.c_str(),stack);
                         if (rr==1)

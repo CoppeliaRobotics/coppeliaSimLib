@@ -81,9 +81,6 @@ public:
 
     static void forceAutomaticThreadSwitch_simulationEnding();
 
-    static int getProcessorCoreAffinity();
-    static void setProcessorCoreAffinity(int affinity);
-
     static void cleanUp();
 
     static bool setThreadFreeMode(bool freeMode);
@@ -116,7 +113,6 @@ private:
 
     static VMutex _threadPoolMutex;
 
-    static int _processorCoreAffinity; // -1: os default, 0: all on same core, but any core, >0: affinity mask
     static int _lockStage;
     static bool _threadShouldNotSwitch_override;
 

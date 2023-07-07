@@ -14,35 +14,32 @@
 class VThread  
 {
 public:
-    static void launchThread(VTHREAD_START_ADDRESS startAddress,bool followMainThreadAffinity);
+    static void launchThread(VTHREAD_START_ADDRESS startAddress);
     static void endThread();
 #ifdef SIM_WITH_QT
-    static void launchSimpleThread(SIMPLE_VTHREAD_START_ADDRESS startAddress);
+    static void launchQtThread(SIMPLE_VTHREAD_START_ADDRESS startAddress);
+    static void endQtThread();
 #endif
-    static void endSimpleThread();
-    static void setProcessorCoreAffinity(int mode); // negative=multicore, 0=any single core, otherwise affinity mask (bit1=core1, bit2=core2, etc.)
     static int getThreadId_apiQueried();
     static int getCoreCount();
-    static bool isSimulationMainThreadIdSet();
-    static void setSimulationMainThreadId();
-    static void unsetSimulationMainThreadId();
-    static bool isUiThreadIdSet();
-    static void setUiThreadId();
-    static void unsetUiThreadId();
+    static void setSimThread();
+    static void unsetSimThread();
+    static bool isUiThreadSet();
+    static void setUiThread();
+    static void unsetUiThread();
     static bool isSimThread();
     static bool isUiThread();
-    static bool areThreadIDsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB);
+    static bool areThreadIdsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB);
     static VTHREAD_ID_TYPE getCurrentThreadId();
     static void switchThread();
     static void sleep(int ms);
 
 private:
-    static bool _simulationMainThreadIdSet;
-    static bool _uiThreadIdSet;
-    static VTHREAD_ID_TYPE _simulationMainThreadId;
+    static bool _simThreadSet;
+    static bool _uiThreadSet;
+    static VTHREAD_ID_TYPE _simThreadId;
     static VTHREAD_ID_TYPE _uiThreadId;
     static VMutex _lock;
     static std::vector<VTHREAD_ID_TYPE> _apiQueriedThreadIds;
-    static VTHREAD_AFFINITY_MASK _mainThreadAffinityMask;
 };
 

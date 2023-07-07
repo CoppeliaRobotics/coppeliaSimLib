@@ -209,13 +209,12 @@ SIM_DLLEXPORT int simGetVisionSensorRes(int sensorHandle,int* resolution);
 SIM_DLLEXPORT int simCreateShape(int options,double shadingAngle,const double* vertices,int verticesSize,const int* indices,int indicesSize,const double* normals,const float* textureCoords,const unsigned char* texture,const int* textureRes);
 
 // non documented functions, mainly for the dynamics plugins:
-SIM_DLLEXPORT int simRunGui(const char* applicationName,int options,int stopDelay,const char* sceneOrModelToLoad,const char* appDir);
-SIM_DLLEXPORT int simCanInitSimThread();
-SIM_DLLEXPORT int simInitSimThread();
-SIM_DLLEXPORT int simCleanupSimThread();
+SIM_DLLEXPORT void simRunGui(int options);
+SIM_DLLEXPORT int simInit(const char* appDir,int options);
+SIM_DLLEXPORT int simCleanup();
 SIM_DLLEXPORT int simPostExitRequest();
 SIM_DLLEXPORT int simGetExitRequest();
-SIM_DLLEXPORT int simLoop(int options);
+SIM_DLLEXPORT int simLoop(void(*callback)(),int options);
 SIM_DLLEXPORT void _simSetDynamicSimulationIconCode(void* object,int code);
 SIM_DLLEXPORT void _simSetDynamicObjectFlagForVisualization(void* object,int flag);
 SIM_DLLEXPORT int _simGetObjectListSize(int objType);

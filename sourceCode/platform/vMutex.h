@@ -46,7 +46,7 @@ private:
     void _msg(const char* location,const char* info) const;
 
 #ifndef SIM_WITH_QT
-    bool _areThreadIDsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB);
+    bool _areThreadIdsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB);
     VTHREAD_ID_TYPE _getCurrentThreadId();
     void _switchThread();
     void __sl(WMutex mutex);

@@ -6243,7 +6243,7 @@ int CScriptObject::clearScriptVariable_DEPRECATED(const char* variableName)
 
     if (_threadedExecution_oldThreads)
     {
-        if (!VThread::areThreadIDsSame(_threadedScript_associatedFiberOrThreadID_oldThreads,VThread::getCurrentThreadId()))
+        if (!VThread::areThreadIdsSame(_threadedScript_associatedFiberOrThreadID_oldThreads,VThread::getCurrentThreadId()))
             return(-1); // only from the same thread when threaded!!
     }
 
@@ -6297,7 +6297,7 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char* arrayName,const char*
 
     if (_threadedExecution_oldThreads)
     {
-        if (!VThread::areThreadIDsSame(_threadedScript_associatedFiberOrThreadID_oldThreads,VThread::getCurrentThreadId()))
+        if (!VThread::areThreadIdsSame(_threadedScript_associatedFiberOrThreadID_oldThreads,VThread::getCurrentThreadId()))
             return(-1); // only from the same thread when threaded!!
     }
 

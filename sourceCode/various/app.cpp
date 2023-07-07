@@ -14,9 +14,7 @@
 #include <threadPool_old.h>
 #include <sstream>
 #include <iomanip>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <chrono>
+#include <fileOperations.h>
 #ifdef SIM_WITH_GUI
     #include <auxLibVideo.h>
     #include <vMessageBox.h>
@@ -34,17 +32,24 @@
     #include <QTextDocument>
 #endif
 
+#ifdef WIN_SIM
+    #include <windows.h>
+    #include <dbghelp.h>
+#else
+    #include <execinfo.h>
+    #include <signal.h>
+#endif
+
 CUiThread* App::uiThread=nullptr;
 CSimThread* App::simThread=nullptr;
 CUserSettings* App::userSettings=nullptr;
 CFolderSystem* App::folders=nullptr;
 int App::operationalUIParts=0; // sim_gui_menubar,sim_gui_popupmenus,sim_gui_toolbar1,sim_gui_toolbar2, etc.
-std::string App::_applicationName="CoppeliaSim (Customized)";
 CWorldContainer* App::worldContainer=nullptr;
 CWorld* App::currentWorld=nullptr;
 bool App::_exitRequest=false;
 bool App::_browserEnabled=true;
-bool App::_canInitSimThread=false;
+volatile bool App::_canInitSimThread=false;
 int App::_consoleVerbosity=sim_verbosity_default;
 int App::_statusbarVerbosity=sim_verbosity_msgs;
 int App::_dlgVerbosity=sim_verbosity_infos;
@@ -56,11 +61,6 @@ long long int App::_nextUniqueId=0;
 bool App::_showInertias=false;
 
 std::string App::_applicationDir;
-bool App::_firstSimulationAutoStart=false;
-int App::_firstSimulationStopDelay=0;
-bool App::_firstSimulationAutoQuit=false;
-
-bool App::_simulatorIsRunning=false;
 std::vector<std::string> App::_applicationArguments;
 std::map<std::string,std::string> App::_applicationNamedParams;
 std::string App::_additionalAddOnScript1;
@@ -71,6 +71,8 @@ std::string App::_consoleMsgsFilename="debugLog.txt";
 VFile* App::_consoleMsgsFile=nullptr;
 VArchive* App::_consoleMsgsArchive=nullptr;
 CGm* App::gm=nullptr;
+SignalHandler* App::_sigHandler=nullptr;
+
 
 int App::sc=1;
 #ifdef SIM_WITH_QT
@@ -83,23 +85,70 @@ int App::sc=1;
     CMainWindow* App::mainWindow=nullptr;
 #endif
 
-bool App::canInitSimThread()
-{
-    return(_canInitSimThread);
-}
+#ifdef WIN_SIM
+    LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
+    {
+        void* stack[62];
+        HANDLE process=GetCurrentProcess();
+        SymInitialize(process,0,TRUE);
+        unsigned short fr=CaptureStackBackTrace(0,62,stack,nullptr);
+        SYMBOL_INFO* symb=(SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO)+1024*sizeof(char),1);
+        symb->MaxNameLen=1023;
+        symb->SizeOfStruct=sizeof(SYMBOL_INFO);
+        for (size_t i=0;i<fr;i++)
+        {
+            SymFromAddr(process,(DWORD64)(stack[i]),0,symb);
+            printf("CoppeliaSim: debug: %zu: %s - 0x%0I64X\n",fr-i-1,symb->Name,symb->Address);
+        }
+        free(symb);
+        return EXCEPTION_EXECUTE_HANDLER;
+    }
+#else
+    void _segHandler(int sig)
+    {
+        void* arr[10];
+        size_t s=backtrace(arr,10);
+        fprintf(stderr,"\n\nError: signal %d:\n\n",sig);
+        backtrace_symbols_fd(arr,s,STDERR_FILENO);
+        exit(1);
+    }
+#endif
 
 bool App::isQtAppBuilt()
 {
     return(App::qtApp!=nullptr);
 }
 
-// Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
-void App::simulationThreadInit()
+void App::init(const char* appDir,int)
 {
+    if (appDir)
+        _applicationDir=appDir;
+    else
+    {
+        _applicationDir.clear();
+        #ifdef SIM_WITH_QT
+            QFileInfo pathInfo(QCoreApplication::applicationFilePath());
+            _applicationDir=pathInfo.path().toStdString();
+        #endif
+    }
+
+    #ifdef WIN_SIM
+        SetUnhandledExceptionFilter(_winExceptionHandler);
+    #else
+        signal(SIGSEGV,_segHandler);
+    #endif
+    _sigHandler=new SignalHandler(SignalHandler::SIG_INT|SignalHandler::SIG_TERM|SignalHandler::SIG_CLOSE);
+
+    App::createWorldsContainer();
+    CFileOperations::createNewScene(true,false);
+
+
+    while (!_canInitSimThread)
+        VThread::sleep(1);
+    _canInitSimThread=false;
     TRACE_INTERNAL;
     CThreadPool_old::init();
-    _canInitSimThread=false;
-    VThread::setSimulationMainThreadId();
+    VThread::setSimThread();
     srand((int)VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
                                         // Remember that each thread starts with a same seed!!!
     App::simThread=new CSimThread();
@@ -126,8 +175,7 @@ void App::simulationThreadInit()
     App::worldContainer->addOnScriptContainer->loadAllAddOns();
 }
 
-// Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
-void App::simulationThreadDestroy()
+void App::cleanup()
 {
     // Send the last "instancePass" message to all old plugins:
     int auxData[4]={0,0,0,0};
@@ -165,12 +213,14 @@ void App::simulationThreadDestroy()
 
     App::setQuitLevel(3); // tell the UI thread that we are done here
 
-    VThread::unsetSimulationMainThreadId();
-    VThread::endSimpleThread();
+    App::deleteWorldsContainer();
+    CThreadPool_old::cleanUp();
+
+    VThread::unsetSimThread();
+    delete _sigHandler;
 }
 
-// Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
-void App::simulationThreadLoop(bool stepIfRunning/*=true*/)
+void App::loop(void(*callback)(),bool stepIfRunning)
 {
     // Send the "instancePass" message to all plugins:
     int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
@@ -199,15 +249,9 @@ void App::simulationThreadLoop(bool stepIfRunning/*=true*/)
     }
 
     //*******************************
-    static bool wasRunning=false;
     int auxValues[4];
     int messageID=0;
     int dataSize;
-    if (_firstSimulationAutoStart)
-    {
-        simStartSimulation_internal();
-        _firstSimulationAutoStart=false;
-    }
     while (messageID!=-1)
     {
         char* data=simGetSimulatorMessage_internal(&messageID,auxValues,&dataSize);
@@ -227,24 +271,13 @@ void App::simulationThreadLoop(bool stepIfRunning/*=true*/)
      // Handle a running simulation:
     if ( stepIfRunning && (simGetSimulationState_internal()&sim_simulation_advancing)!=0 )
     {
-        wasRunning=true;
         if ( (simGetRealTimeSimulation_internal()!=1)||(simIsRealTimeSimulationStepNeeded_internal()==1) )
         {
             if ((simHandleMainScript_internal()&sim_script_main_script_not_called)==0)
                 simAdvanceSimulationByOneStep_internal();
-            if ((_firstSimulationStopDelay>0)&&(simGetSimulationTime_internal()>=double(_firstSimulationStopDelay)/1000.0))
-            {
-                _firstSimulationStopDelay=0;
-                simStopSimulation_internal();
-            }
         }
         else
             App::worldContainer->callScripts(sim_syscb_realtimeidle,nullptr,nullptr);
-    }
-    if ( (simGetSimulationState_internal()==sim_simulation_stopped)&&wasRunning&&_firstSimulationAutoQuit )
-    {
-        wasRunning=false;
-        simQuitSimulator_internal(true); // will post the quit command
     }
     //*******************************
 
@@ -327,13 +360,119 @@ long long int App::getFreshUniqueId()
     return(_nextUniqueId++);
 }
 
-App::App(bool headless)
+App::App()
+{
+}
+
+void App::cleanupGui()
+{
+    TRACE_INTERNAL;
+#ifdef SIM_WITH_GUI
+    deleteMainWindow();
+#endif
+    delete gm;
+
+    VThread::unsetUiThread();
+    delete uiThread;
+    uiThread=nullptr;
+
+    // Clear the TAG that CoppeliaSim crashed! (because if we arrived here, we didn't crash!)
+    CPersistentDataContainer cont;
+    cont.writeData("SIMSETTINGS_SIM_CRASHED","No",!App::userSettings->doNotWritePersistentData);
+
+    // Remove any remaining auto-saved file:
+    for (int i=1;i<30;i++)
+    {
+        std::string testScene(App::folders->getAutoSavedScenesPath()+"/");
+        testScene+=utils::getIntString(false,i);
+        testScene+=".";
+        testScene+=SIM_SCENE_EXTENSION;
+        if (VFile::doesFileExist(testScene.c_str()))
+            VFile::eraseFile(testScene.c_str());
+    }
+
+    delete folders;
+    folders=nullptr;
+    delete userSettings;
+    userSettings=nullptr;
+
+#ifdef SIM_WITH_GUI
+    CAuxLibVideo::unloadLibrary();
+#endif
+
+#ifdef SIM_WITH_QT
+    if (qtApp!=nullptr)
+    {
+        #ifdef SIM_WITH_GUI
+            Q_CLEANUP_RESOURCE(imageFiles);
+            Q_CLEANUP_RESOURCE(variousImageFiles);
+            Q_CLEANUP_RESOURCE(toolbarFiles);
+            Q_CLEANUP_RESOURCE(targaFiles);
+        #endif // SIM_WITH_GUI
+        qtApp->disconnect();
+//        qtApp->deleteLater(); // this crashes when trying to run CoppeliaSim several times from the same client app
+        delete qtApp; // this crashes with some plugins, on MacOS
+
+        /*
+            QEventLoop destroyLoop;
+            QObject::connect(qtApp,&QObject::destroyed,&destroyLoop,&QEventLoop::quit);
+            qtApp->deleteLater();
+            destroyLoop.exec();
+            // crashes here above, just after qtApp destruction
+        */
+        qtApp=nullptr;
+    }
+#endif
+    _applicationArguments.clear();
+    _applicationNamedParams.clear();
+    _additionalAddOnScript1.clear();
+    _additionalAddOnScript2.clear();
+    if (_consoleMsgsFile!=nullptr)
+    {
+        _consoleMsgsArchive->close();
+        delete _consoleMsgsArchive;
+        _consoleMsgsArchive=nullptr;
+        _consoleMsgsFile->close();
+        delete _consoleMsgsFile;
+        _consoleMsgsFile=nullptr;
+    }
+    _consoleMsgsToFile=false;
+    _consoleMsgsFilename="debugLog.txt";
+    _startupScriptString.clear();
+    _consoleLogFilterStr.clear();
+    _consoleVerbosity=sim_verbosity_default;
+    _statusbarVerbosity=sim_verbosity_msgs;
+    _dlgVerbosity=sim_verbosity_infos;
+}
+
+void App::initGui(int options)
 {
     TRACE_INTERNAL;
 
     uiThread=nullptr;
-    _initSuccessful=false;
     _browserEnabled=true;
+    gm=new CGm();
+
+    CSimFlavor::run(0);
+
+    for (int i=0;i<9;i++)
+    {
+        std::string str(App::getApplicationArgument(i));
+        if ( (str.compare(0,9,"GUIITEMS_")==0)&&(str.length()>9) )
+        {
+            str.erase(str.begin(),str.begin()+9);
+            int val=0;
+            if (tt::stringToInt(str.c_str(),val))
+            {
+                options=val;
+                break;
+            }
+        }
+    }
+
+    operationalUIParts=options;
+    if (operationalUIParts&sim_gui_headless)
+        operationalUIParts=sim_gui_headless;
 
     userSettings=new CUserSettings();
     folders=new CFolderSystem();
@@ -422,9 +561,6 @@ App::App(bool headless)
 
 #ifdef SIM_WITH_QT
     qRegisterMetaType<std::string>("std::string");
-#endif
-
-#ifdef SIM_WITH_QT
 #ifdef SIM_WITH_GUI
     Q_INIT_RESOURCE(targaFiles);
     Q_INIT_RESOURCE(toolbarFiles);
@@ -452,7 +588,7 @@ App::App(bool headless)
 #endif
 
 #ifdef SIM_WITH_GUI
-    if (!headless)
+    if ( (options&sim_gui_headless)==0 )
     {
         if (CAuxLibVideo::loadLibrary())
             App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"loaded the video compression library.");
@@ -491,92 +627,29 @@ App::App(bool headless)
 #endif
 
     uiThread=new CUiThread();
-    VThread::setUiThreadId();
+    VThread::setUiThread();
     srand((int)VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
                                         // Remember that each thread starts with a same seed!!!
-    _initSuccessful=true;
+
+#ifdef SIM_WITH_GUI
+    // Browser and hierarchy visibility is set in userset.txt. We can override it here:
+    if ((operationalUIParts&sim_gui_hierarchy)==0)
+        COglSurface::_hierarchyEnabled=false;
+    if ((operationalUIParts&sim_gui_browser)==0)
+        setBrowserEnabled(false);
+    setIcon();
+    if ( (operationalUIParts&sim_gui_headless)==0 )
+    {
+        showSplashScreen();
+        createMainWindow();
+        mainWindow->oglSurface->adjustBrowserAndHierarchySizesToDefault();
+    }
+#endif
     _exitCode=0;
 }
 
 App::~App()
 {
-    TRACE_INTERNAL;
-    VThread::unsetUiThreadId();
-    delete uiThread;
-    uiThread=nullptr;
-
-    // Clear the TAG that CoppeliaSim crashed! (because if we arrived here, we didn't crash!)
-    CPersistentDataContainer cont;
-    cont.writeData("SIMSETTINGS_SIM_CRASHED","No",!App::userSettings->doNotWritePersistentData);
-
-    // Remove any remaining auto-saved file:
-    for (int i=1;i<30;i++)
-    {
-        std::string testScene(App::folders->getAutoSavedScenesPath()+"/");
-        testScene+=utils::getIntString(false,i);
-        testScene+=".";
-        testScene+=SIM_SCENE_EXTENSION;
-        if (VFile::doesFileExist(testScene.c_str()))
-            VFile::eraseFile(testScene.c_str());
-    }
-
-    delete folders;
-    folders=nullptr;
-    delete userSettings;
-    userSettings=nullptr;
-
-#ifdef SIM_WITH_GUI
-    CAuxLibVideo::unloadLibrary();
-#endif
-
-#ifdef SIM_WITH_QT
-    if (qtApp!=nullptr)
-    {
-        #ifdef SIM_WITH_GUI
-            Q_CLEANUP_RESOURCE(imageFiles);
-            Q_CLEANUP_RESOURCE(variousImageFiles);
-            Q_CLEANUP_RESOURCE(toolbarFiles);
-            Q_CLEANUP_RESOURCE(targaFiles);
-        #endif // SIM_WITH_GUI
-        qtApp->disconnect();
-//        qtApp->deleteLater(); // this crashes when trying to run CoppeliaSim several times from the same client app
-        delete qtApp; // this crashes with some plugins, on MacOS
-
-        /*
-            QEventLoop destroyLoop;
-            QObject::connect(qtApp,&QObject::destroyed,&destroyLoop,&QEventLoop::quit);
-            qtApp->deleteLater();
-            destroyLoop.exec();
-            // crashes here above, just after qtApp destruction
-        */
-        qtApp=nullptr;
-    }
-#endif
-    _applicationArguments.clear();
-    _applicationNamedParams.clear();
-    _additionalAddOnScript1.clear();
-    _additionalAddOnScript2.clear();
-    if (_consoleMsgsFile!=nullptr)
-    {
-        _consoleMsgsArchive->close();
-        delete _consoleMsgsArchive;
-        _consoleMsgsArchive=nullptr;
-        _consoleMsgsFile->close();
-        delete _consoleMsgsFile;
-        _consoleMsgsFile=nullptr;
-    }
-    _consoleMsgsToFile=false;
-    _consoleMsgsFilename="debugLog.txt";
-    _startupScriptString.clear();
-    _consoleLogFilterStr.clear();
-    _consoleVerbosity=sim_verbosity_default;
-    _statusbarVerbosity=sim_verbosity_msgs;
-    _dlgVerbosity=sim_verbosity_infos;
-}
-
-bool App::wasInitSuccessful()
-{
-    return(_initSuccessful);
 }
 
 void App::postExitRequest()
@@ -597,11 +670,6 @@ bool App::getExitRequest()
     return(_exitRequest);
 }
 
-bool App::isSimulatorRunning()
-{
-    return(_simulatorIsRunning);
-}
-
 void App::beep(int frequ,int duration)
 {
 #ifdef SIM_WITH_GUI
@@ -616,16 +684,6 @@ void App::beep(int frequ,int duration)
         VThread::sleep(500);
     }
 #endif
-}
-
-void App::setApplicationName(const char* name)
-{
-    _applicationName=CSimFlavor::getStringVal(2);
-}
-
-std::string App::getApplicationName()
-{
-    return(_applicationName);
 }
 
 void App::createWorldsContainer()
@@ -643,16 +701,10 @@ void App::deleteWorldsContainer()
     worldContainer=nullptr;
 }
 
-void App::run(int options,int stopDelay,const char* sceneOrModelToLoad,const char* applicationDir)
-{ // We arrive here with a single thread: the UI thread!
+void App::runGui()
+{
     TRACE_INTERNAL;
     _exitRequest=false;
-    _firstSimulationStopDelay=stopDelay;
-    if ( (options&sim_autostart)!=0 )
-        _firstSimulationAutoStart=true;
-    if ( (options&sim_autoquit)!=0 )
-        _firstSimulationAutoQuit=true;
-    _applicationDir=applicationDir;
 
 #ifdef SIM_WITH_GUI
     if (mainWindow!=nullptr)
@@ -660,29 +712,9 @@ void App::run(int options,int stopDelay,const char* sceneOrModelToLoad,const cha
     uiThread->setFileDialogsNative(userSettings->fileDialogs);
 #endif
 
-    _simulatorIsRunning=true;
-
     _loadLegacyPlugins();
 
-    if ( (sceneOrModelToLoad!=nullptr)&&(std::string(sceneOrModelToLoad).size()!=0) )
-    { // Here we double-clicked a CoppeliaSim file or dragged-and-dropped it onto this application
-        if ( boost::algorithm::ends_with(sceneOrModelToLoad,".ttt")||boost::algorithm::ends_with(sceneOrModelToLoad,".simscene.xml") )
-        {
-            if (simLoadScene_internal(sceneOrModelToLoad)==-1)
-                logMsg(sim_verbosity_errors,"scene could not be opened.");
-        }
-        if ( boost::algorithm::ends_with(sceneOrModelToLoad,".ttm")||boost::algorithm::ends_with(sceneOrModelToLoad,".simmodel.xml"))
-        {
-            if (simLoadModel_internal(sceneOrModelToLoad)==-1)
-                logMsg(sim_verbosity_errors,"model could not be opened.");
-        }
-    }
-
-    // now let the SIM thread run:
-    _canInitSimThread=true;
-    while (simThread==nullptr)
-        VThread::sleep(1);
-    _canInitSimThread=false;
+    _canInitSimThread=true; // let the SIM thread run
 
 #ifdef SIM_WITH_GUI
     // Prepare a few initial triggers:
@@ -735,24 +767,17 @@ void App::run(int options,int stopDelay,const char* sceneOrModelToLoad,const cha
     _processGuiEventsUntilQuit();
 
     CSimFlavor::run(8);
-
-#ifdef SIM_WITH_GUI
-    if (mainWindow!=nullptr)
-        mainWindow->codeEditorContainer->closeAll();
-#endif
-
     CSimFlavor::run(5);
 
-    // Wait until the SIM thread ended:
-    _quitLevel=2; // indicate to the SIM thread that the UI thread has left its exec
+    worldContainer->pluginContainer->unloadLegacyPlugins();
+
+    // Wait for the SIM thread to end:
+    _quitLevel=2;
     while (_quitLevel==2)
         VThread::sleep(1);
 
-    worldContainer->pluginContainer->unloadLegacyPlugins();
-    logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"simulator ended.");
-
     deinitGl_ifNeeded();
-    _simulatorIsRunning=false;
+    logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"CoppeliaSim ended.");
 }
 
 void App::_processGuiEventsUntilQuit()
