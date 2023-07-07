@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <dummyRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib)
 {

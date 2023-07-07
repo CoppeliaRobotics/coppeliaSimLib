@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM,const double normalVectorForLinesAndPoints[3]);
 void _drawTrianglePoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM);
 void _drawQuadPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matrix& cameraRTM);

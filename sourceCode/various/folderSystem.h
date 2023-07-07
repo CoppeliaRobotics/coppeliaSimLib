@@ -1,8 +1,6 @@
 #pragma once
 
-#ifdef SIM_WITH_QT
-    #include <QTemporaryDir>
-#endif
+#include <QTemporaryDir>
 
 class CFolderSystem
 {
@@ -43,9 +41,7 @@ public:
     std::string getMujocoPath() const;
 
 private:
-#ifdef SIM_WITH_QT
     QTemporaryDir* _tempDir;
-#endif
     std::string _executablePath;
     std::string _systemPath;
     std::string _addOnPath;

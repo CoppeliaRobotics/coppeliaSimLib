@@ -3741,7 +3741,7 @@ void CSceneObject::display(CViewableBase* renderingObject,int displayAttrib)
 
 void CSceneObject::displayFrames(CViewableBase* renderingObject,double size,bool persp)
 {
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     if (persp)
     {
         C7Vector x(renderingObject->getCumulativeTransformation().getInverse()*getCumulativeTransformation());
@@ -3758,7 +3758,7 @@ void CSceneObject::displayFrames(CViewableBase* renderingObject,double size,bool
 
 void CSceneObject::displayBoundingBox(CViewableBase* renderingObject,bool mainSelection)
 {
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     _displayBoundingBox(this,renderingObject,mainSelection);
 #endif
 }

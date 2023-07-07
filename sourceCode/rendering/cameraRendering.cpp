@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <cameraRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAttrib)
 {

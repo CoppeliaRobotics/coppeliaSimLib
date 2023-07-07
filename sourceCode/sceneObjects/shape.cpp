@@ -464,7 +464,7 @@ void CShape::display_extRenderer(CViewableBase* renderingObject,int displayAttri
 
 void CShape::displayFrames(CViewableBase* renderingObject,double size,bool persp)
 {
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     CSceneObject::displayFrames(renderingObject,size,persp);
     if (persp)
     {
@@ -1614,7 +1614,7 @@ int CShape::getComponentCount() const
 
 void CShape::displayInertia(CViewableBase* renderingObject,double size,bool persp)
 {
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     if (persp)
     {
         C7Vector x(renderingObject->getCumulativeTransformation().getInverse()*getCumulativeTransformation());

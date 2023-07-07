@@ -2,23 +2,10 @@
 
 #include <string>
 
-#ifdef SIM_WITH_QT
-    #include <QMutex>
-    #include <QWaitCondition>
-    typedef QMutex WMutex;
-    typedef QWaitCondition WWaitCondition;
-#else
-    #include <vector>
-    #ifdef WIN_SIM
-        #include <Windows.h>
-        typedef CRITICAL_SECTION WMutex;
-        typedef std::vector<int> WWaitCondition;
-    #else // WIN_SIM
-        #include <pthread.h>
-        typedef pthread_mutex_t WMutex;
-        typedef pthread_cond_t WWaitCondition;
-    #endif // WIN_SIM
-#endif
+#include <QMutex>
+#include <QWaitCondition>
+typedef QMutex WMutex;
+typedef QWaitCondition WWaitCondition;
 
 class VMutex
 {
@@ -44,20 +31,6 @@ public:
 
 private:
     void _msg(const char* location,const char* info) const;
-
-#ifndef SIM_WITH_QT
-    bool _areThreadIdsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB);
-    VTHREAD_ID_TYPE _getCurrentThreadId();
-    void _switchThread();
-    void __sl(WMutex mutex);
-    void __su(WMutex mutex);
-
-    int _lockLevel;
-    VTHREAD_ID_TYPE _lockThreadId;
-#ifdef WIN_SIM
-    int _nextWaitConditionId;
-#endif // WIN_SIM
-#endif
 
     WMutex _recursiveMutex;
     WMutex _simpleMutex;

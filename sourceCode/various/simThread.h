@@ -28,14 +28,10 @@ struct SSimulationThreadCommand
     std::vector<std::vector<double> > doubleVectorParams;
 };
 
-#ifndef SIM_WITH_QT
-class CSimThread
-{
-#else
 class CSimThread : public QObject
 {
     Q_OBJECT
-#endif
+
 public:
     CSimThread();
     virtual ~CSimThread();

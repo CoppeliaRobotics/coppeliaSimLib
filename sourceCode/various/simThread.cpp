@@ -41,7 +41,6 @@ void CSimThread::executeMessages()
 {
     TRACE_INTERNAL;
 
-#ifdef SIM_WITH_QT
 #ifdef SIM_WITH_GUI
     int triggerType=_prepareSceneForRenderIfNeeded();
 #endif
@@ -62,7 +61,6 @@ void CSimThread::executeMessages()
         _eventLoop.processEvents();
         pass++;
     }
-#endif
 
     _handleSimulationThreadCommands(); // Handle delayed SIM commands
 }

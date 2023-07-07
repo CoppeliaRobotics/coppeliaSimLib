@@ -6,11 +6,9 @@ DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to su
 #DEFINES += HAS_PHYSX
 
 CONFIG += shared plugin debug_and_release
-CONFIG += WITH_QT # can be compiled without Qt, but then it should be headless, and some functionality won't be there, check TODO_SIM_WITH_QT
 
 !HEADLESS {
     CONFIG += WITH_GUI
-    CONFIG += WITH_OPENGL # comment only if above line is commented
     CONFIG += WITH_SERIAL
 }
 
@@ -26,6 +24,8 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
 
 WITH_GUI {
     QT      += widgets
+    QT      += opengl
+    #QT      += 3dcore 3drender 3dinput 3dextras
     DEFINES += SIM_WITH_GUI
     RESOURCES += $$PWD/targaFiles.qrc
     RESOURCES += $$PWD/toolbarFiles.qrc
@@ -37,21 +37,9 @@ WITH_GUI {
     QT -= gui
 }
 
-WITH_OPENGL {
-    QT      += opengl
-    #QT      += 3dcore 3drender 3dinput 3dextras
-    DEFINES += SIM_WITH_OPENGL
-}
-
 WITH_SERIAL {
     QT      += serialport
     DEFINES += SIM_WITH_SERIAL
-}
-
-WITH_QT {
-    DEFINES += SIM_WITH_QT
-} else {
-    QT -= core
 }
 
 *-msvc* {
@@ -585,13 +573,11 @@ HEADERS += $$PWD/sourceCode/utils/threadPool_old.h \
 HEADERS += $$PWD/sourceCode/customUserInterfaces/buttonBlock.h \
     $$PWD/sourceCode/customUserInterfaces/softButton.h \
 
-WITH_QT {
-    HEADERS += $$PWD/sourceCode/platform/vSimUiMutex.h \
-        $$PWD/sourceCode/platform/wThread.h
+HEADERS += $$PWD/sourceCode/platform/vSimUiMutex.h \
+    $$PWD/sourceCode/platform/wThread.h
 
-    HEADERS += $$PWD/sourceCode/various/simAndUiThreadSync.h \
-        $$PWD/sourceCode/various/simQApp.h
-}
+HEADERS += $$PWD/sourceCode/various/simAndUiThreadSync.h \
+    $$PWD/sourceCode/various/simQApp.h
 
 WITH_SERIAL {
     HEADERS += $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.h
@@ -601,7 +587,7 @@ WITH_SERIAL {
         $$PWD/sourceCode/communication/serialPort/serialPortWin.h
 }
 
-WITH_OPENGL {
+WITH_GUI {
     HEADERS += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/offscreenGlContext.h \
         $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/frameBufferObject.h \
         $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/visionSensorGlStuff.h
@@ -610,9 +596,7 @@ WITH_OPENGL {
         $$PWD/sourceCode/visual/oglExt.h \
         $$PWD/sourceCode/visual/glShader.h \
         $$PWD/sourceCode/visual/glBufferObjects.h \
-}
 
-WITH_GUI {
     HEADERS += $$PWD/sourceCode/gui/dialogs/qdlglayers.h \
         $$PWD/sourceCode/gui/dialogs/qdlgavirecorder.h \
         $$PWD/sourceCode/gui/dialogs/qdlgabout.h \
@@ -728,6 +712,7 @@ WITH_GUI {
 
     HEADERS += $$PWD/sourceCode/gui/various/simRecorder.h \
         $$PWD/sourceCode/gui/various/engineProperties.h \
+        $$PWD/sourceCode/gui/various/guiApp.h \
 
     HEADERS += $$PWD/sourceCode/gui/libs/auxLibVideo.h \
 }
@@ -988,13 +973,11 @@ SOURCES += $$PWD/sourceCode/utils/threadPool_old.cpp \
 SOURCES += $$PWD/sourceCode/customUserInterfaces/buttonBlock.cpp \
     $$PWD/sourceCode/customUserInterfaces/softButton.cpp \
 
-WITH_QT {
-    SOURCES += $$PWD/sourceCode/platform/vSimUiMutex.cpp \
-        $$PWD/sourceCode/platform/wThread.cpp
+SOURCES += $$PWD/sourceCode/platform/vSimUiMutex.cpp \
+    $$PWD/sourceCode/platform/wThread.cpp
 
-    SOURCES += $$PWD/sourceCode/various/simAndUiThreadSync.cpp \
-        $$PWD/sourceCode/various/simQApp.cpp
-}
+SOURCES += $$PWD/sourceCode/various/simAndUiThreadSync.cpp \
+    $$PWD/sourceCode/various/simQApp.cpp
 
 WITH_SERIAL {
     SOURCES += $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp
@@ -1004,7 +987,7 @@ WITH_SERIAL {
         $$PWD/sourceCode/communication/serialPort/serialPortWin.cpp
 }
 
-WITH_OPENGL {
+WITH_GUI {
     SOURCES += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/offscreenGlContext.cpp \
         $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/frameBufferObject.cpp \
         $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/visionSensorGlStuff.cpp \
@@ -1013,9 +996,7 @@ WITH_OPENGL {
         $$PWD/sourceCode/visual/oglExt.cpp \
         $$PWD/sourceCode/visual/glShader.cpp \
         $$PWD/sourceCode/visual/glBufferObjects.cpp \
-}
 
-WITH_GUI {
     SOURCES += $$PWD/sourceCode/gui/dialogs/qdlgsettings.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlglayers.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgavirecorder.cpp \
@@ -1131,6 +1112,7 @@ WITH_GUI {
 
     SOURCES += $$PWD/sourceCode/gui/various/simRecorder.cpp \
         $$PWD/sourceCode/gui/various/engineProperties.cpp \
+        $$PWD/sourceCode/gui/various/guiApp.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/libs/auxLibVideo.cpp \
 }

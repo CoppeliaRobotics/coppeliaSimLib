@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <ptCloudRendering_old.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 void displayPtCloud_old(CPtCloud_old* ptCloud,CSceneObject* it)
 {
     glPushMatrix();

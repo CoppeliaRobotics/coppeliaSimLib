@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <drawingObjectRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 const double SPHEREVERTICES[24*3]={
 -0.4142,-1.0000,-0.4142,

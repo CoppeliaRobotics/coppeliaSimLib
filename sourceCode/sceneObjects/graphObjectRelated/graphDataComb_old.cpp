@@ -4,7 +4,7 @@
 #include <graph.h>
 #include <tt.h>
 #include <app.h>
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 #include <oGL.h>
 #endif
 

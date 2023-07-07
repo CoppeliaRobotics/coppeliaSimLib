@@ -3017,7 +3017,6 @@ int simLockResources_internal(int lockType,int reserved)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
-#ifdef SIM_WITH_QT
     CSimAndUiThreadSync* obj=new CSimAndUiThreadSync(__func__);
     bool res=false;
     int retVal=-1; // fail
@@ -3037,16 +3036,12 @@ int simLockResources_internal(int lockType,int reserved)
         _extLockList.push_back(obj);
     }
     return(retVal);
-#else
-    return(0);
-#endif
 }
 
 int simUnlockResources_internal(int lockHandle)
 { // deprecated on 01.10.2020
     TRACE_C_API;
 
-#ifdef SIM_WITH_QT
     int retVal=0;
     { // scope parenthesis are important here!
         CEasyLock easyLock(_lockForExtLockList,__func__);
@@ -3062,9 +3057,6 @@ int simUnlockResources_internal(int lockHandle)
         }
     }
     return(retVal);
-#else
-    return(1);
-#endif
 }
 
 char* simGetUserParameter_internal(int objectHandle,const char* parameterName,int* parameterLength)

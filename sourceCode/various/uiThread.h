@@ -101,7 +101,6 @@ enum {  OPEN_OR_CLOSE_UITHREADCMD=0,
 
         LOG_MSG_TO_STATUSBAR_UITHREADCMD,
         CLEAR_STATUSBAR_UITHREADCMD,
-        NO_SIGNAL_SLOT_EXIT_UITHREADCMD,
 
         INSTANCE_ABOUT_TO_BE_CREATED_UITHREADCMD,
         INSTANCE_WAS_JUST_CREATED_UITHREADCMD,
@@ -122,15 +121,11 @@ enum {  OPEN_OR_CLOSE_UITHREADCMD=0,
         MENUBAR_COLOR_UITHREADCMD,
      };
 
-#ifndef SIM_WITH_QT
-class CUiThread
-{
-#else
 #include <QObject>
 class CUiThread : public QObject
 {
     Q_OBJECT
-#endif
+
 public:
     CUiThread();
     virtual ~CUiThread();
@@ -139,27 +134,15 @@ public:
     void showOrHideProgressBar(bool show,double pos=999.0,const char* txt=nullptr);
     bool showOrHideEmergencyStop(bool show,const char* txt);
 
-#ifndef SIM_WITH_QT
-    void processGuiEventsUntilQuit_noSignalSlots();
-#endif
-
 private:
     int _frameId;
     int _lastFrameId;
 
-#ifdef SIM_WITH_QT
 signals:
     void _executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
 
 private slots:
     void __executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
-#else
-    void __executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
-    VMutex _noSigSlotMutex;
-    int _noSigSlot_cnter;
-    SUIThreadCommand* _noSigSlot_cmdIn;
-    SUIThreadCommand* _noSigSlot_cmdOut;
-#endif
 
 #ifdef SIM_WITH_GUI
 public:

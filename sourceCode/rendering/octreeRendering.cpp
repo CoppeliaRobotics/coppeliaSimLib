@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <octreeRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 const int _cubeIndices[]={
     0,1,2,0,2,3,

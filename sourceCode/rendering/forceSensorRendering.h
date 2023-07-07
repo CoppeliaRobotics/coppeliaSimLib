@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 void _displayForceSensor(CForceSensor* forceSensor,int displayAttrib,bool partOne,double sizeParam);
 #endif
 

@@ -4,11 +4,7 @@
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#ifdef SIM_WITH_QT
 #include <QString>
-#else
-#include <algorithm>
-#endif
 
 struct filestruct_A
 {
@@ -42,14 +38,10 @@ struct filestruct_C
 
 bool tt::stringToInt(const char* txt,int& a)
 {
-#ifndef SIM_WITH_QT
-    return(getValidInt(txt,a));
-#else
     QString str(txt);
     bool ok;
     a=str.toInt(&ok);
     return(ok);
-#endif
 }
 
 std::string tt::decorateString(const char* prefix,const std::string mainText,const char* suffix)

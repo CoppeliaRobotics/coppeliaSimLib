@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <viewRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayView(CSView* view,CSceneObject* it,int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText,bool passiveSubView)
 {

@@ -31,16 +31,8 @@
     #include <QSplashScreen>
 #endif
 
-#ifndef SIM_WITH_QT
-    #ifdef WIN_SIM
-        #include <_dirent.h>
-    #else
-        #include <dirent.h>
-    #endif
-#else
-    VMutex _lockForExtLockList;
-    std::vector<CSimAndUiThreadSync*> _extLockList;
-#endif
+VMutex _lockForExtLockList;
+std::vector<CSimAndUiThreadSync*> _extLockList;
 
 int _currentScriptNameIndex=-1;
 int _currentScriptHandle=-1;
@@ -61,13 +53,13 @@ int simLoop_internal(void(*callback)(),int options)
     return(1);
 }
 
-int simInit_internal(const char* appDir,int options)
+int simInitialize_internal(const char* appDir,int options)
 {
     App::init(appDir,options);
     return(1);
 }
 
-int simCleanup_internal()
+int simDeinitialize_internal()
 { // If already called, then means we closed from the UI and dont need to post another request
     if(!App::getExitRequest())
         App::postExitRequest();
@@ -3453,10 +3445,7 @@ int simGetInt32Param_internal(int parameter,int* intState)
 
         if (parameter==sim_intparam_qt_version)
         {
-            intState[0]=0;
-#ifdef SIM_WITH_QT
             intState[0]=(QT_VERSION>>16)*10000+((QT_VERSION>>8)&255)*100+(QT_VERSION&255)*1;
-#endif
             return(1);
         }
         if (parameter==sim_intparam_compilation_version)

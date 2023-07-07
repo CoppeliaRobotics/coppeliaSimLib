@@ -1,20 +1,8 @@
 #pragma once
 
-#ifdef SIM_WITH_QT
-    #include <QLibrary>
-    typedef QLibrary* WLibrary;
-    typedef void* WLibraryFunc;
-#else
-    #include <string>
-    #ifdef WIN_SIM
-        #include <Windows.h>
-        typedef HINSTANCE WLibrary;
-        typedef FARPROC WLibraryFunc;
-    #else
-        typedef void* WLibrary;
-        typedef void* WLibraryFunc;
-    #endif
-#endif
+#include <QLibrary>
+typedef QLibrary* WLibrary;
+typedef void* WLibraryFunc;
 
 #define VVARIOUS_SHOWNORMAL 0
 #define VVARIOUS_SHOWMAXIMIZED 1
@@ -38,10 +26,9 @@ public:
     static std::string splitPath_fileExtension(const char* fullPathAndName);
     static std::string splitPath_fileBaseAndExtension(const char* fullPathAndName);
     static bool isAbsolutePath(const char* pathAndOptionalFilename);
-    static bool copyTextToClipboard(const char* text);
 
 #ifdef SIM_WITH_GUI
-public:
+    static bool copyTextToClipboard(const char* text);
     static bool openOfflineUrl(const char* url);
     static bool openOnlineUrl(const char* url);
     static bool openTextFile(const char* file);

@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <pointCloudRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,int displayAttrib)
 {

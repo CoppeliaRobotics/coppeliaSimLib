@@ -7,47 +7,34 @@
 #include <stdio.h>
 
 
-#ifndef SIM_WITH_QT
-    #define IF_UI_EVENT_CAN_WRITE_DATA if(true)
-    #define IF_UI_EVENT_CAN_WRITE_DATA_CMD(funcName) if(true)
-    #define IF_UI_EVENT_CAN_READ_DATA if(true)
-    #define IF_UI_EVENT_CAN_READ_DATA_CMD(funcName) if(true)
-    #define IF_UI_EVENT_CAN_READ_DATA_NO_WAIT if(true)
-    #define SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING
-    #define IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA if(true)
-    #define IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA if(true)
-    typedef unsigned int quint32;
-    typedef unsigned long long int quint64;
-#else
-    // If the GUI wants to write to shared resources, use following:
-    // (there is no guarantee that the access to the resources will be obtained!)
-    #define IF_UI_EVENT_CAN_WRITE_DATA for(CSimAndUiThreadSync uiEventWriteData(__func__);uiEventWriteData.uiThread_tryToLockForUiEventWrite(800);)
-    #define IF_UI_EVENT_CAN_WRITE_DATA_CMD(funcName) for(CSimAndUiThreadSync uiEventWriteData(funcName);uiEventWriteData.uiThread_tryToLockForUiEventWrite(800);)
+// If the GUI wants to write to shared resources, use following:
+// (there is no guarantee that the access to the resources will be obtained!)
+#define IF_UI_EVENT_CAN_WRITE_DATA for(CSimAndUiThreadSync uiEventWriteData(__func__);uiEventWriteData.uiThread_tryToLockForUiEventWrite(800);)
+#define IF_UI_EVENT_CAN_WRITE_DATA_CMD(funcName) for(CSimAndUiThreadSync uiEventWriteData(funcName);uiEventWriteData.uiThread_tryToLockForUiEventWrite(800);)
 
-    // If the GUI wants to read shared resources, use following:
-    // (there is no guarantee that the access to the resources will be obtained!)
-    #define IF_UI_EVENT_CAN_READ_DATA for(CSimAndUiThreadSync uiEventReadData(__func__);uiEventReadData.uiThread_tryToLockForUiEventRead(5);)
-    #define IF_UI_EVENT_CAN_READ_DATA_CMD(funcName) for(CSimAndUiThreadSync uiEventReadData(funcName);uiEventReadData.uiThread_tryToLockForUiEventRead(5);)
-    #define IF_UI_EVENT_CAN_READ_DATA_NO_WAIT for(CSimAndUiThreadSync uiEventReadData(__func__);uiEventReadData.uiThread_tryToLockForUiEventRead(0);)
+// If the GUI wants to read shared resources, use following:
+// (there is no guarantee that the access to the resources will be obtained!)
+#define IF_UI_EVENT_CAN_READ_DATA for(CSimAndUiThreadSync uiEventReadData(__func__);uiEventReadData.uiThread_tryToLockForUiEventRead(5);)
+#define IF_UI_EVENT_CAN_READ_DATA_CMD(funcName) for(CSimAndUiThreadSync uiEventReadData(funcName);uiEventReadData.uiThread_tryToLockForUiEventRead(5);)
+#define IF_UI_EVENT_CAN_READ_DATA_NO_WAIT for(CSimAndUiThreadSync uiEventReadData(__func__);uiEventReadData.uiThread_tryToLockForUiEventRead(0);)
 
-    // If the SIM thread wants to give all rights to the GUI thread, use following:
-    #define SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING CSimAndUiThreadSync simThreadAllowAnythingForUiThread(__func__);simThreadAllowAnythingForUiThread.simThread_temporarilyAllowUiThreadToReadAndWrite()
+// If the SIM thread wants to give all rights to the GUI thread, use following:
+#define SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING CSimAndUiThreadSync simThreadAllowAnythingForUiThread(__func__);simThreadAllowAnythingForUiThread.simThread_temporarilyAllowUiThreadToReadAndWrite()
 
-    // If the SIM or GUI thread wants to write to shared resources, use following:
-    // (the API is accessible to both threads: SIM and GUI. Access via GUI should be avoided as much as possible,
-    // since there is never a guarantee that the GUI will obtain access to the shared resources (i.e. API
-    // function calls could unexpectedely return with a failure code). The SIM thread
-    // on the other hand will eventually always obtain access to the shared resources!)
-    #define IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA  for(CSimAndUiThreadSync writeData(__func__);writeData.simOrUiThread_tryToLockForWrite_cApi();)
+// If the SIM or GUI thread wants to write to shared resources, use following:
+// (the API is accessible to both threads: SIM and GUI. Access via GUI should be avoided as much as possible,
+// since there is never a guarantee that the GUI will obtain access to the shared resources (i.e. API
+// function calls could unexpectedely return with a failure code). The SIM thread
+// on the other hand will eventually always obtain access to the shared resources!)
+#define IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA  for(CSimAndUiThreadSync writeData(__func__);writeData.simOrUiThread_tryToLockForWrite_cApi();)
 
-    // If the SIM or GUI thread wants to read to shared resources, use following:
-    // (the API is accessible to both threads: SIM and GUI. Access via GUI should be avoided as much as possible,
-    // since there is never a guarantee that the GUI will obtain access to the shared resources (i.e. API
-    // function calls could unexpectedely return with a failure code). The SIM thread
-    // on the other hand doesn't need to obtain read access to the shared resources (by default)!)
+// If the SIM or GUI thread wants to read to shared resources, use following:
+// (the API is accessible to both threads: SIM and GUI. Access via GUI should be avoided as much as possible,
+// since there is never a guarantee that the GUI will obtain access to the shared resources (i.e. API
+// function calls could unexpectedely return with a failure code). The SIM thread
+// on the other hand doesn't need to obtain read access to the shared resources (by default)!)
 
-    #define IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA  for(CSimAndUiThreadSync readData(__func__);readData.simOrUiThread_tryToLockForRead_cApi();)
-#endif
+#define IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA  for(CSimAndUiThreadSync readData(__func__);readData.simOrUiThread_tryToLockForRead_cApi();)
 
 // Trace commands:
 #define TRACE_C_API CFuncTrace funcTrace(__func__,sim_verbosity_traceall)
@@ -98,18 +85,10 @@
 #define VTHREAD_ARGUMENT_TYPE void*
 #define VTHREAD_ID_DEAD 0
 
-#ifndef SIM_WITH_QT
-    typedef VTHREAD_START_ADDRESS SIMPLE_VTHREAD_START_ADDRESS;
-    #define SIMPLE_VTHREAD_RETURN_TYPE VTHREAD_RETURN_TYPE
-    #define SIMPLE_VTHREAD_RETURN_VAL VTHREAD_RETURN_VAL
-    #define SIMPLE_VTHREAD_ARGUMENT_TYPE VTHREAD_ARGUMENT_TYPE
-#else
-    typedef unsigned int(__cdecl* SIMPLE_VTHREAD_START_ADDRESS)(void*);
-    #define SIMPLE_VTHREAD_RETURN_TYPE unsigned int
-    #define SIMPLE_VTHREAD_RETURN_VAL 0
-    #define SIMPLE_VTHREAD_ARGUMENT_TYPE void*
-#endif
-
+typedef unsigned int(__cdecl* SIMPLE_VTHREAD_START_ADDRESS)(void*);
+#define SIMPLE_VTHREAD_RETURN_TYPE unsigned int
+#define SIMPLE_VTHREAD_RETURN_VAL 0
+#define SIMPLE_VTHREAD_ARGUMENT_TYPE void*
 
 #endif // __cplusplus
 #endif // SIM_MAINHEADER_INCLUDED

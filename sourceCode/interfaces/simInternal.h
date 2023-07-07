@@ -12,8 +12,8 @@ std::string getIndexAdjustedObjectName(const char* nm);
 
 
 void simRunGui_internal(int options);
-int simInit_internal(const char* appDir,int options);
-int simCleanup_internal();
+int simInitialize_internal(const char* appDir,int options);
+int simDeinitialize_internal();
 int simPostExitRequest_internal();
 int simGetExitRequest_internal();
 int simLoop_internal(void(*callback)(),int options);

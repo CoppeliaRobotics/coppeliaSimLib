@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <millRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayMill(CMill* mill,CViewableBase* renderingObject,int displayAttrib)
 {

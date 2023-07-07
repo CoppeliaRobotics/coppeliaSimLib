@@ -1,8 +1,6 @@
 #include <vDateTime.h>
-#ifdef SIM_WITH_QT
 #include <QDateTime>
 #include <QElapsedTimer>
-#endif
 #include <ctime>
 #ifdef WIN_SIM
 #include <Windows.h>
@@ -56,32 +54,12 @@ int VDateTime::getTimeDiffInMs(int oldTime,int newTime)
 
 quint64 VDateTime::getSecondsSince1970()
 {
-#ifndef SIM_WITH_QT
-    return(std::time(0));
-#else
     QDateTime now=QDateTime::currentDateTime();
     return(now.toTime_t());
-#endif
 }
 
 void VDateTime::getYearMonthDayHourMinuteSecond(int* year,int* month,int* day,int* hour,int* minute,int* second)
 {
-#ifndef SIM_WITH_QT
-    time_t now=std::time(0);
-    tm *ltm=std::localtime(&now);
-    if (year!=nullptr)
-        year[0]=1900+ltm->tm_year;
-    if (month!=nullptr)
-        month[0]=1+ltm->tm_mon;
-    if (day!=nullptr)
-        day[0]=ltm->tm_mday;
-    if (hour!=nullptr)
-        hour[0]=ltm->tm_hour;
-    if (minute!=nullptr)
-        minute[0]=ltm->tm_min;
-    if (second!=nullptr)
-        second[0]=ltm->tm_sec;
-#else
     QDate now=QDate::currentDate();
     QTime nowTime=QTime::currentTime();
     if (year!=nullptr)
@@ -96,29 +74,12 @@ void VDateTime::getYearMonthDayHourMinuteSecond(int* year,int* month,int* day,in
         minute[0]=nowTime.minute();
     if (second!=nullptr)
         second[0]=nowTime.second();
-#endif
 }
 
 int VDateTime::getDaysTo(int year_before,int month_before,int day_before,int year_after,int month_after,int day_after)
 {
-#ifndef SIM_WITH_QT
-    tm tmp;
-    tmp.tm_year=year_before-1900;
-    tmp.tm_mon=month_before-1;
-    tmp.tm_mday=day_before;
-    tmp.tm_hour=0;
-    tmp.tm_min=0;
-    tmp.tm_sec=0;
-    time_t tbefore=mktime(&tmp);
-    tmp.tm_year=year_after-1900;
-    tmp.tm_mon=month_after-1;
-    tmp.tm_mday=day_after;
-    time_t tafter=mktime(&tmp);
-    return(int(difftime(tafter,tbefore)/86400.0));
-#else
     QDate before(year_before,month_before,day_before);
     return(before.daysTo(QDate(year_after,month_after,day_after)));
-#endif
 }
 
 #ifdef WIN_SIM

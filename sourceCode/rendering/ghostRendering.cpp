@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <ghostRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayGhost(CShape* shape,const C7Vector& tr,int displayAttributes,int options,double transparencyFactor,const float* color)
 {

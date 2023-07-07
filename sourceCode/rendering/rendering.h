@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 #pragma once
 #include <app.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 #include <oGL.h>
 
 void _activateNonAmbientLights(int lightHandle,CViewableBase* viewable);

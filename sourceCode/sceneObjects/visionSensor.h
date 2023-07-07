@@ -4,7 +4,7 @@
 #include <sView.h>
 #include <composedFilter.h>
 #include <textureObject.h>
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 #include <visionSensorGlStuff.h>
 #endif
 
@@ -173,7 +173,7 @@ protected:
     std::string _detectableEntityLoadAlias;
     std::string _detectableEntityLoadName_old;
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 public:
     // Following function is inherited from CSceneObject
     void lookAt(CSView* viewObject,int viewPos[2]=nullptr,int viewSize[2]=nullptr);

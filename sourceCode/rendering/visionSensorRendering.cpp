@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <visionSensorRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayVisionSensor(CVisionSensor* visionSensor,CViewableBase* renderingObject,int displayAttrib)
 {

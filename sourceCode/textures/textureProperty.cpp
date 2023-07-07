@@ -173,7 +173,7 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
         it=App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
     else
     {
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
         CVisionSensor* rend=App::currentWorld->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
         if (rend!=nullptr)
             it=rend->getTextureObject();
@@ -439,7 +439,7 @@ CTextureObject* CTextureProperty::getTextureObject()
 {
     if (_textureOrVisionSensorObjectID>SIM_IDEND_SCENEOBJECT)
         return(App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID));
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_SCENEOBJECT)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_SCENEOBJECT))
     {
         CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);

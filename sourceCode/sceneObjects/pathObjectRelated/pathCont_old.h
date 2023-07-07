@@ -162,7 +162,7 @@ protected:
     unsigned short _pathModifID;
     int _lifeID;
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 public:
     void render(bool pathEditMode,int displayAttrib,bool pathIsOnlySelectedObject,int objectID);
 

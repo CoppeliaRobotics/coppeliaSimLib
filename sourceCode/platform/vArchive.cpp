@@ -5,24 +5,17 @@ unsigned short VArchive::STORE=1;
 
 VArchive::VArchive(VFile* file,unsigned short flag)
 {
-#ifndef SIM_WITH_QT
-    _theFile=file;
-    _loading=((flag&1)==0);
-#else
     _theFile=file;
     _loading=((flag&1)==0);
     _theArchive=new QDataStream(file->getFile());
     // Following 2 important to be compatible with the files written with first CoppeliaSim versions:
     _theArchive->setFloatingPointPrecision(QDataStream::SinglePrecision);
     _theArchive->setByteOrder(QDataStream::LittleEndian);
-#endif
 }
 
 VArchive::~VArchive()
 {
-#ifdef SIM_WITH_QT
     delete _theArchive;
-#endif
 }
 
 void VArchive::writeString(const std::string& str)

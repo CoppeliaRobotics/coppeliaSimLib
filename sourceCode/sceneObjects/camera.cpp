@@ -10,7 +10,7 @@
 #include <utils.h>
 #include <app.h>
 #include <cameraRendering.h>
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 #include <rendering.h>
 #include <oGL.h>
 #include <glShader.h>

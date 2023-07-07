@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <forceSensorRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayForceSensor(CForceSensor* forceSensor,CViewableBase* renderingObject,int displayAttrib)
 {

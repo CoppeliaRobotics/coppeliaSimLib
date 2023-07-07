@@ -1,17 +1,7 @@
 #include <vFileFinder.h>
 #include <vVarious.h>
-#ifdef SIM_WITH_QT
 #include <QDateTime>
 #include <QDir>
-#else
-#include <algorithm>
-#ifdef WIN_SIM
-#include <_dirent.h>
-#else
-#include <sys/stat.h>
-#include <dirent.h>
-#endif
-#endif
 
 VFileFinder::VFileFinder()
 {
@@ -40,48 +30,6 @@ int VFileFinder::searchFilesOrFolders(const char* pathWithoutTerminalSlash)
 int VFileFinder::_searchFilesOrFolders(const char* pathWithoutTerminalSlash,const char* extension,int mode,const char* filter)
 { // mode=0 --> file, mode=1 --> folder, mode=2 --> file and folder
     std::string theExtension(extension);
-#ifndef SIM_WITH_QT
-    _searchResult.clear();
-    DIR* dir;
-    struct dirent* ent;
-    if ((dir=opendir(pathWithoutTerminalSlash))!=nullptr)
-    {
-        std::transform(theExtension.begin(),theExtension.end(),theExtension.begin(),::tolower);
-        while ((ent=readdir(dir))!=nullptr)
-        {
-            SFileOrFolder f;
-            if ( ((ent->d_type==DT_DIR)&&(mode>0))||((ent->d_type==DT_REG)&&(mode!=1)) )
-            {
-                bool goOn=true;
-                if ((mode==0)&&((theExtension.compare("*")!=0)))
-                { // take into account the extension
-                    std::string ext(VVarious::splitPath_fileExtension(ent->d_name));
-                    std::transform(ext.begin(),ext.end(),ext.begin(),::tolower);
-                    goOn=(ext.compare(theExtension)==0);
-                }
-                if (goOn)
-                {
-                    f.isFile=(ent->d_type!=DT_DIR);
-                    f.name=ent->d_name;
-                    f.path=pathWithoutTerminalSlash;
-                    std::string fileAndPath(pathWithoutTerminalSlash);
-                    fileAndPath+='/';
-                    fileAndPath+=ent->d_name;
-#ifdef WIN_SIM
-                    f.lastWriteTime=0;
-#else // WIN_SIM
-                    struct stat attrib;
-                    stat(fileAndPath.c_str(),&attrib);
-                    f.lastWriteTime=attrib.st_ctime;
-#endif // WIN_SIM
-                    _searchResult.push_back(f);
-                }
-            }
-        }
-        closedir(dir);
-    }
-    return(int(_searchResult.size()));
-#else
     _searchResult.clear();
     QDir dir(QString::fromLocal8Bit(pathWithoutTerminalSlash));
 
@@ -123,7 +71,6 @@ int VFileFinder::_searchFilesOrFolders(const char* pathWithoutTerminalSlash,cons
         _searchResult.push_back(f);
     }
     return(int(_searchResult.size()));
-#endif
 }
 
 SFileOrFolder* VFileFinder::getFoundItem(int index)

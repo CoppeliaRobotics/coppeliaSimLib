@@ -2,7 +2,7 @@
 #include "app.h"
 #include "rendering.h"
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 void _renderPhase2data(CMotionPlanningTask* task,unsigned int what);
 #endif
 

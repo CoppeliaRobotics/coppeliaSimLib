@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <mirrorRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayMirror(CMirror* mirror,CViewableBase* renderingObject,int displayAttrib)
 {

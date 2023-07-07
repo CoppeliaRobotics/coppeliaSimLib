@@ -7,10 +7,8 @@
 #include <simStrings.h>
 #include <app.h>
 #include <vVarious.h>
-#ifdef SIM_WITH_OPENGL
-#include <oGL.h>
-#endif
 #ifdef SIM_WITH_GUI
+#include <oGL.h>
 #include <vMessageBox.h>
 #endif
 
@@ -2299,7 +2297,7 @@ void CPathCont_old::serialize(CSer& ar)
     }
 }
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 void CPathCont_old::render(bool pathEditMode,int displayAttrib,bool pathIsOnlySelectedObject,int objectID)
 {
     if (pathEditMode)

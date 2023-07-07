@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <jointRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib)
 {

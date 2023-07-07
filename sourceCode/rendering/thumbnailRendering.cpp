@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <thumbnailRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayThumbnail(CThumbnail* thumbnail,int posX,int posY,const char* name,int sc)
 {

@@ -2,14 +2,9 @@
 
 #include <exception>
 #define VFILE_EXCEPTION_TYPE std::exception&
-#ifdef SIM_WITH_QT
 #include <QFile>
 #include <QDir>
 typedef QFile WFile;
-#else
-#include <fstream>
-typedef std::fstream WFile;
-#endif
 
 class VFile  
 {
@@ -41,7 +36,4 @@ private:
 
     std::string _pathAndFilename;
     WFile* _theFile;
-#ifndef SIM_WITH_QT
-    quint64 _fileLength;
-#endif
 };

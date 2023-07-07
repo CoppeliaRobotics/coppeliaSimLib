@@ -4,9 +4,7 @@
     #include <Windows.h>
     #include <process.h>
 #endif
-#ifdef SIM_WITH_QT
-    #include <wThread.h>
-#endif
+#include <wThread.h>
 
 VMutex VThread::_lock;
 bool VThread::_simThreadSet=false;
@@ -32,7 +30,6 @@ void VThread::endThread()
 #endif
 }
 
-#ifdef SIM_WITH_QT
 void VThread::launchQtThread(SIMPLE_VTHREAD_START_ADDRESS startAddress)
 {
     _lock.lock_simple("VThread::launchQtThread");
@@ -48,7 +45,6 @@ void VThread::launchQtThread(SIMPLE_VTHREAD_START_ADDRESS startAddress)
 void VThread::endQtThread()
 {
 }
-#endif
 
 int VThread::getThreadId_apiQueried()
 { // this is an artificial ID, just needed externally. 0=GUI thread, 1=main sim thread.
@@ -71,12 +67,7 @@ int VThread::getThreadId_apiQueried()
 
 int VThread::getCoreCount()
 {
-    int retVal=0;
-#ifndef SIM_WITH_QT
-    retVal=1; // TODO_SIM_WITH_QT
-#else
-    retVal=QThread::idealThreadCount();
-#endif
+    int retVal=QThread::idealThreadCount();
     if (retVal<1)
         retVal=1;
     return(retVal);

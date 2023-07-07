@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <collisionContourRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayContour(CCollisionObject_old* coll,int countourWidth)
 {

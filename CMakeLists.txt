@@ -8,7 +8,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_MACOSX_RPATH 1)
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
-set(WITH_QT true CACHE BOOL "Enable Qt")
 set(INSTALL_DIR "" CACHE PATH "If specified, it will be used as install destination")
 if(INSTALL_DIR)
     if(NOT EXISTS "${INSTALL_DIR}")
@@ -62,19 +61,8 @@ endif()
 
 add_library(coppeliaSim SHARED "")
 
-if(WITH_QT)
-    set(WITH_GUI true CACHE BOOL "Enable gui")
-    set(WITH_OPENGL true CACHE BOOL "Enable OpenGL")
-    set(WITH_SERIAL false)
-    target_compile_definitions(coppeliaSim PRIVATE SIM_WITH_QT)
-else()
-    unset(WITH_GUI CACHE)
-    unset(WITH_OPENGL CACHE)
-    unset(WITH_SERIAL CACHE)
-    set(WITH_GUI false)
-    set(WITH_OPENGL false)
-    set(WITH_SERIAL false)
-endif()
+set(WITH_GUI true CACHE BOOL "Enable gui")
+set(WITH_SERIAL false)
 
 target_compile_features(coppeliaSim PRIVATE cxx_std_17)
 target_include_directories(coppeliaSim PRIVATE ${LUA_INCLUDE_DIR})
@@ -132,12 +120,8 @@ if(WITH_GUI)
     find_package(Qt5 COMPONENTS Widgets REQUIRED)
     target_compile_definitions(coppeliaSim PRIVATE SIM_WITH_GUI)
     target_compile_definitions(coppeliaSim PRIVATE QT_DISABLE_DEPRECATED_BEFORE=0)
-endif()
-
-if(WITH_OPENGL)
     find_package(OpenGL REQUIRED)
     find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
-    target_compile_definitions(coppeliaSim PRIVATE SIM_WITH_OPENGL)
 endif()
 
 if(WITH_SERIAL)
@@ -145,11 +129,7 @@ if(WITH_SERIAL)
     target_compile_definitions(coppeliaSim PRIVATE SIM_WITH_SERIAL)
 endif()
 
-if(WITH_QT)
-    find_package(Qt5 COMPONENTS Core PrintSupport Network REQUIRED)
-else()
-    target_compile_definitions(coppeliaSim PRIVATE SIM_WITHOUT_QT_AT_ALL)
-endif()
+find_package(Qt5 COMPONENTS Core PrintSupport Network REQUIRED)
 
 if(MSVC)
     target_compile_options(coppeliaSim PRIVATE /FI"simMainHeader.h")
@@ -403,6 +383,7 @@ if(WITH_GUI)
         sourceCode/gui/menusAndSimilar/statusBar.cpp
         sourceCode/gui/menusAndSimilar/helpMenu.cpp
 
+        sourceCode/gui/various/guiApp.cpp
         sourceCode/gui/various/simRecorder.cpp
         sourceCode/gui/various/engineProperties.cpp
 
@@ -667,15 +648,13 @@ if(NOT PLUS)
     )
 endif()
 
-if(WITH_QT)
-    target_sources(coppeliaSim PRIVATE
-        sourceCode/platform/vSimUiMutex.cpp
-        sourceCode/platform/wThread.cpp
+target_sources(coppeliaSim PRIVATE
+    sourceCode/platform/vSimUiMutex.cpp
+    sourceCode/platform/wThread.cpp
 
-        sourceCode/various/simAndUiThreadSync.cpp
-        sourceCode/various/simQApp.cpp
-    )
-endif()
+    sourceCode/various/simAndUiThreadSync.cpp
+    sourceCode/various/simQApp.cpp
+)
 
 if(WITH_SERIAL)
     target_sources(coppeliaSim PRIVATE
@@ -687,7 +666,7 @@ if(WITH_SERIAL)
     )
 endif()
 
-if(WITH_OPENGL)
+if(WITH_GUI)
     target_sources(coppeliaSim PRIVATE
         sourceCode/sceneObjects/visionSensorObjectRelated/offscreenGlContext.cpp
         sourceCode/sceneObjects/visionSensorObjectRelated/frameBufferObject.cpp
@@ -705,16 +684,11 @@ target_link_libraries(coppeliaSim Boost::boost)
 target_link_libraries(coppeliaSim ${LUA_LIBRARIES})
 target_link_libraries(coppeliaSim ${QSCINTILLA_LIBRARY})
 
-if(WITH_QT)
-    target_link_libraries(coppeliaSim Qt5::Core Qt5::PrintSupport Qt5::Network)
-endif()
+target_link_libraries(coppeliaSim Qt5::Core Qt5::PrintSupport Qt5::Network)
 if(WITH_GUI)
     target_link_libraries(coppeliaSim Qt5::Gui)
     target_link_libraries(coppeliaSim Qt5::Widgets)
-endif()
-if(WITH_OPENGL)
     target_link_libraries(coppeliaSim OpenGL::GL)
-    target_link_libraries(coppeliaSim Qt5::Gui)
     target_link_libraries(coppeliaSim Qt5::OpenGL)
 endif()
 if(WITH_SERIAL)

@@ -210,8 +210,8 @@ SIM_DLLEXPORT int simCreateShape(int options,double shadingAngle,const double* v
 
 // non documented functions, mainly for the dynamics plugins:
 SIM_DLLEXPORT void simRunGui(int options);
-SIM_DLLEXPORT int simInit(const char* appDir,int options);
-SIM_DLLEXPORT int simCleanup();
+SIM_DLLEXPORT int simInitialize(const char* appDir,int options);
+SIM_DLLEXPORT int simDeinitialize();
 SIM_DLLEXPORT int simPostExitRequest();
 SIM_DLLEXPORT int simGetExitRequest();
 SIM_DLLEXPORT int simLoop(void(*callback)(),int options);

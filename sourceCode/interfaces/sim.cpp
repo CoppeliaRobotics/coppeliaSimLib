@@ -18,13 +18,13 @@ SIM_DLLEXPORT int simLoop(void(*callback)(),int options)
 {
     return(simLoop_internal(callback,options));
 }
-SIM_DLLEXPORT int simInit(const char* appDir,int options)
+SIM_DLLEXPORT int simInitialize(const char* appDir,int options)
 {
-    return(simInit_internal(appDir,options));
+    return(simInitialize_internal(appDir,options));
 }
-SIM_DLLEXPORT int simCleanup()
+SIM_DLLEXPORT int simDeinitialize()
 {
-    return(simCleanup_internal());
+    return(simDeinitialize_internal());
 }
 
 SIM_DLLEXPORT int simTest(int mode,void* ptr1,void* ptr2,void* ptr3)

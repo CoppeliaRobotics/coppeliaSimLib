@@ -8,10 +8,8 @@
 #include <worldContainer.h>
 #include <gm.h>
 #include <sigHandler.h>
-#ifdef SIM_WITH_QT
-    #include <simQApp.h>
-    #include <simAndUiThreadSync.h>
-#endif
+#include <simQApp.h>
+#include <simAndUiThreadSync.h>
 #ifdef SIM_WITH_GUI
     #include <mainWindow.h>
 #endif
@@ -160,7 +158,6 @@ private:
 
     static std::string _applicationDir;
 
-#ifdef SIM_WITH_QT
 public:
     static CSimQApp* qtApp;
 
@@ -168,7 +165,6 @@ private:
     static int _qApp_argc;
     static char _qApp_arg0[];
     static char* _qApp_argv[1];
-#endif
 
 #ifdef SIM_WITH_GUI
 public:

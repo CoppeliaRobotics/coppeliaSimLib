@@ -1,7 +1,7 @@
 
 #include "motionPlanningTaskRendering_old.h"
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 #include "pathPlanningInterface.h"
 
 void displayMotionPlanningTask(CMotionPlanningTask* task)

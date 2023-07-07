@@ -21,7 +21,7 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 void _displayTriangles(CMesh* geometric,int geomModifCounter,CTextureProperty* tp);
 void _displayInertia(const C7Vector& tr,const C3Vector& pmi,double comFrameSize);
 #endif

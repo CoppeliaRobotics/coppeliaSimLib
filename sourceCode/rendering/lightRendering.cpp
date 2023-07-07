@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <lightRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib)
 {

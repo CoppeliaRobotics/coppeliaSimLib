@@ -27,10 +27,8 @@
         #include <QStyleFactory>
     #endif
 #endif
-#ifdef SIM_WITH_QT
-    #include <QHostInfo>
-    #include <QTextDocument>
-#endif
+#include <QHostInfo>
+#include <QTextDocument>
 
 #ifdef WIN_SIM
     #include <windows.h>
@@ -75,12 +73,10 @@ SignalHandler* App::_sigHandler=nullptr;
 
 
 int App::sc=1;
-#ifdef SIM_WITH_QT
-    CSimQApp* App::qtApp=nullptr;
-    int App::_qApp_argc=1;
-    char App::_qApp_arg0[]={"CoppeliaSim"};
-    char* App::_qApp_argv[1]={_qApp_arg0};
-#endif
+CSimQApp* App::qtApp=nullptr;
+int App::_qApp_argc=1;
+char App::_qApp_arg0[]={"CoppeliaSim"};
+char* App::_qApp_argv[1]={_qApp_arg0};
 #ifdef SIM_WITH_GUI
     CMainWindow* App::mainWindow=nullptr;
 #endif
@@ -126,10 +122,8 @@ void App::init(const char* appDir,int)
     else
     {
         _applicationDir.clear();
-        #ifdef SIM_WITH_QT
-            QFileInfo pathInfo(QCoreApplication::applicationFilePath());
-            _applicationDir=pathInfo.path().toStdString();
-        #endif
+        QFileInfo pathInfo(QCoreApplication::applicationFilePath());
+        _applicationDir=pathInfo.path().toStdString();
     }
 
     #ifdef WIN_SIM
@@ -152,9 +146,7 @@ void App::init(const char* appDir,int)
     srand((int)VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
                                         // Remember that each thread starts with a same seed!!!
     App::simThread=new CSimThread();
-    #ifdef SIM_WITH_QT
-        CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(true); // lock initially...
-    #endif
+    CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(true); // lock initially...
 
     // Send the "instancePass" message to all plugins already here (needed for some plugins to properly finish initialization):
     int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
@@ -189,14 +181,7 @@ void App::cleanup()
 
     App::setQuitLevel(1);
 
-    #ifndef SIM_WITH_QT
-        SUIThreadCommand cmdIn2;
-        SUIThreadCommand cmdOut2;
-        cmdIn2.cmdId=NO_SIGNAL_SLOT_EXIT_UITHREADCMD;
-        App::uiThread->executeCommandViaUiThread(&cmdIn2,&cmdOut2);
-    #else
-        App::qtApp->quit();
-    #endif
+    App::qtApp->quit();
 
     while (App::getQuitLevel()==1)
         VThread::sleep(1);
@@ -207,9 +192,7 @@ void App::cleanup()
 
     App::worldContainer->copyBuffer->clearBuffer(); // important, some objects in the buffer might still call the mesh plugin or similar
 
-    #ifdef SIM_WITH_QT
-        CSimAndUiThreadSync::simThread_allowUiThreadToWrite(); // ...finally unlock
-    #endif
+    CSimAndUiThreadSync::simThread_allowUiThreadToWrite(); // ...finally unlock
 
     App::setQuitLevel(3); // tell the UI thread that we are done here
 
@@ -400,7 +383,6 @@ void App::cleanupGui()
     CAuxLibVideo::unloadLibrary();
 #endif
 
-#ifdef SIM_WITH_QT
     if (qtApp!=nullptr)
     {
         #ifdef SIM_WITH_GUI
@@ -410,19 +392,9 @@ void App::cleanupGui()
             Q_CLEANUP_RESOURCE(targaFiles);
         #endif // SIM_WITH_GUI
         qtApp->disconnect();
-//        qtApp->deleteLater(); // this crashes when trying to run CoppeliaSim several times from the same client app
-        delete qtApp; // this crashes with some plugins, on MacOS
-
-        /*
-            QEventLoop destroyLoop;
-            QObject::connect(qtApp,&QObject::destroyed,&destroyLoop,&QEventLoop::quit);
-            qtApp->deleteLater();
-            destroyLoop.exec();
-            // crashes here above, just after qtApp destruction
-        */
+        delete qtApp;
         qtApp=nullptr;
     }
-#endif
     _applicationArguments.clear();
     _applicationNamedParams.clear();
     _additionalAddOnScript1.clear();
@@ -491,12 +463,8 @@ void App::initGui(int options)
     str+=SIM_PLATFORM;
     logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,str.c_str());
 
-#ifdef SIM_WITH_OPENGL
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
-#endif
-
-#ifdef SIM_WITH_QT
 #ifdef SIM_WITH_GUI
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
     int highResDisplayDefault=userSettings->highResDisplay;
     if (highResDisplayDefault==-1)
     {
@@ -550,7 +518,6 @@ void App::initGui(int options)
                 App::_online = true;
         }
     );
-#endif
 
 #ifdef USING_QOPENGLWIDGET
     // Following mandatory on some platforms (e.g. OSX), call just after a QApplication was constructed:
@@ -559,7 +526,6 @@ void App::initGui(int options)
     QSurfaceFormat::setDefaultFormat(format);
 #endif
 
-#ifdef SIM_WITH_QT
     qRegisterMetaType<std::string>("std::string");
 #ifdef SIM_WITH_GUI
     Q_INIT_RESOURCE(targaFiles);
@@ -578,7 +544,6 @@ void App::initGui(int options)
             qApp->setStyleSheet(ts.readAll());
         }
     }
-#endif
 #endif
 
 #ifdef WIN_SIM
@@ -782,11 +747,7 @@ void App::runGui()
 
 void App::_processGuiEventsUntilQuit()
 {
-#ifndef SIM_WITH_QT
-    uiThread->processGuiEventsUntilQuit_noSignalSlots();
-#else
     qtApp->exec();
-#endif
 }
 
 void App::setQuitLevel(int l)
@@ -1637,11 +1598,9 @@ std::string App::_getHtmlEscapedString(const char* str)
     utils::replaceSubstring(s," ","*+-%S%-+*");
     utils::replaceSubstring(s,"\t","*+-%T%-+*");
     utils::replaceSubstring(s,"/","*+-%FS%-+*");
-#ifdef SIM_WITH_QT
     QString qstr(s.c_str());
     qstr=qstr.toHtmlEscaped();
     s=qstr.toStdString();
-#endif
     utils::replaceSubstring(s,"*+-%NL%-+*","<br/>");
     utils::replaceSubstring(s,"*+-%S%-+*","&nbsp;");
     utils::replaceSubstring(s,"*+-%T%-+*","&nbsp;&nbsp;&nbsp;&nbsp;");
@@ -1799,13 +1758,9 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
             if ( (p!=std::string::npos)&&(p==message.size()-5) )
             { // strip HTML stuff off
                 message.assign(message.c_str(),message.c_str()+message.size()-5);
-#ifdef SIM_WITH_QT
                 QTextDocument doc;
                 doc.setHtml(message.c_str());
                 message=doc.toPlainText().toStdString();
-#else
-    // TODO_SIM_WITH_QT
-#endif
             }
             vars["message"]=message;
         }
@@ -1995,75 +1950,6 @@ void App::_loadLegacyPlugins()
     logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"simulator launched.");
     std::vector<std::string> theNames;
     std::vector<std::string> theDirAndNames;
-#ifndef SIM_WITH_QT
-    char curDirAndFile[2048];
-    #ifdef WIN_SIM
-        GetModuleFileNameA(NULL,curDirAndFile,2000);
-        int i=0;
-        while (true)
-        {
-            if (curDirAndFile[i]==0)
-                break;
-            if (curDirAndFile[i]=='\\')
-                curDirAndFile[i]='/';
-            i++;
-        }
-        std::string theDir(curDirAndFile);
-        while ( (theDir.size()>0)&&(theDir[theDir.size()-1]!='/') )
-            theDir.erase(theDir.end()-1);
-        if (theDir.size()>0)
-            theDir.erase(theDir.end()-1);
-    #else
-        getcwd(curDirAndFile,2000);
-        std::string theDir(curDirAndFile);
-    #endif
-
-    DIR* dir;
-    struct dirent* ent;
-    if ( (dir=opendir(theDir.c_str()))!=NULL )
-    {
-        while ( (ent=readdir(dir))!=NULL )
-        {
-            if ( (ent->d_type==DT_LNK)||(ent->d_type==DT_REG) )
-            {
-                std::string nm(ent->d_name);
-                std::transform(nm.begin(),nm.end(),nm.begin(),::tolower);
-                int pre=0;
-                int po=0;
-                #ifdef WIN_SIM
-                if ( boost::algorithm::starts_with(nm,"v_repext")&&boost::algorithm::ends_with(nm,".dll") )
-                    pre=8;po=4;
-                if ( boost::algorithm::starts_with(nm,"simext")&&boost::algorithm::ends_with(nm,".dll") )
-                    pre=6;po=4;
-                #endif
-                #ifdef LIN_SIM
-                if ( boost::algorithm::starts_with(nm,"libv_repext")&&boost::algorithm::ends_with(nm,".so") )
-                    pre=11;po=3;
-                if ( boost::algorithm::starts_with(nm,"libsimext")&&boost::algorithm::ends_with(nm,".so") )
-                    pre=9;po=3;
-                #endif
-                #ifdef MAC_SIM
-                if ( boost::algorithm::starts_with(nm,"libv_repext")&&boost::algorithm::ends_with(nm,".dylib") )
-                    pre=11;po=6;
-                if ( boost::algorithm::starts_with(nm,"libsimext")&&boost::algorithm::ends_with(nm,".dylib") )
-                    pre=9;po=6;
-                #endif
-                if (pre!=0)
-                {
-                    if (nm.find('_',6)==std::string::npos)
-                    {
-                        nm=ent->d_name;
-                        nm.assign(nm.begin()+pre,nm.end()-po);
-                        theNames.push_back(nm);
-                        theDirAndNames.push_back(theDir+'/'+ent->d_name);
-                    }
-                }
-            }
-        }
-        closedir(dir);
-    }
-#else
-
     {
         QDir dir(_applicationDir.c_str());
         dir.setFilter(QDir::Files|QDir::Hidden);
@@ -2131,8 +2017,6 @@ void App::_loadLegacyPlugins()
             }
         }
     }
-
-#endif
 
     for (size_t i=0;userSettings->preloadAllPlugins&&i<theNames.size();i++)
     {

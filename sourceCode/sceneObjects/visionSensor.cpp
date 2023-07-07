@@ -13,7 +13,7 @@
 #include <app.h>
 #include <visionSensorRendering.h>
 #include <interfaceStackString.h>
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 #include <rendering.h>
 #include <oGL.h>
 #include <QtOpenGL>
@@ -188,7 +188,7 @@ bool CVisionSensor::writePortionOfCharImage(const unsigned char* img,int posX,in
         }
         if ((option&4)==0)
             _computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
         if (_contextFboAndTexture==nullptr)
             createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(false);
 
@@ -334,7 +334,7 @@ void CVisionSensor::commonInit()
     _extWindowedViewPos[0]=0;
     _extWindowedViewPos[1]=0;
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     _contextFboAndTexture=nullptr;
 #endif
 
@@ -403,7 +403,7 @@ void CVisionSensor::getExtWindowSizeAndPos(int& sizeX,int& sizeY,int& posX,int& 
 
 CVisionSensor::~CVisionSensor()
 {
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     _removeGlContextAndFboAndTextureObjectIfNeeded();
 #endif
     if (_rayTracingTextureName!=(unsigned int)-1)
@@ -444,7 +444,7 @@ void CVisionSensor::_reserveBuffers()
     _depthBuffer=new float[_resolution[0]*_resolution[1]];
     _rgbBuffer=new unsigned char[3*_resolution[0]*_resolution[1]];
     _clearBuffers();
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     _removeGlContextAndFboAndTextureObjectIfNeeded();
 #endif
 }
@@ -639,7 +639,7 @@ bool CVisionSensor::setExternalImage_old(const float* img,bool imgIsGreyScale,bo
     if (!noProcessing)
         returnValue=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     if (_contextFboAndTexture==nullptr)
         createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(false);
 
@@ -671,7 +671,7 @@ bool CVisionSensor::setExternalCharImage_old(const unsigned char* img,bool imgIs
     if (!noProcessing)
         returnValue=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     if (_contextFboAndTexture==nullptr)
         createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(false);
 
@@ -709,7 +709,7 @@ bool CVisionSensor::handleSensor()
         return(false);
     int stTime=(int)VDateTime::getTimeInMs();
     detectEntity(_detectableEntityHandle,_detectableEntityHandle==-1,false,false,false);
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     if (_contextFboAndTexture!=nullptr)
         _contextFboAndTexture->textureObject->setImage(false,false,true,_rgbBuffer); // Update the texture
 #endif
@@ -903,7 +903,7 @@ void CVisionSensor::detectEntity2(int entityID,bool detectAll,bool entityIsModel
 
     std::vector<int> activeMirrors;
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     if (getInternalRendering())
     {
         int activeMirrorCnt=_getActiveMirrors(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,overrideRenderableFlagsForNonCollections,_attributesForRendering,activeMirrors);
@@ -924,7 +924,7 @@ void CVisionSensor::detectEntity2(int entityID,bool detectAll,bool entityIsModel
 
     if (getInternalRendering())
     {
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
         if (!_useExternalImage)
         {
             if (!_ignoreRGBInfo)
@@ -1127,7 +1127,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
 
     if (getInternalRendering())
     {
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
         int currentWinSize[2]={_resolution[0],_resolution[1]};
         glViewport(0,0,_resolution[0],_resolution[1]);
 
@@ -1246,7 +1246,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
     if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3)||(_renderMode==sim_rendermode_opengl3windowed))
         setFrustumCullingTemporarilyDisabled(false); // important with ray-tracers and similar
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     if (getInternalRendering())
     {
         if (_renderMode==sim_rendermode_colorcoded)
@@ -1300,15 +1300,12 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
     }
     //***************************************
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     if (getInternalRendering())
     {
         _prepareAuxClippingPlanes();
         _enableAuxClippingPlanes(-1);
     }
-#endif
-
-#ifdef SIM_WITH_OPENGL
     if (getInternalRendering()) // for now
     {
         // first non-transparent attached drawing objects:
@@ -1327,9 +1324,6 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
         // particles:
         App::currentWorld->dynamicsContainer->renderYour3DStuff(this,rendAttrib);
     }
-#endif
-
-#ifdef SIM_WITH_OPENGL
     if (getInternalRendering())
         _disableAuxClippingPlanes();
 #endif
@@ -1342,7 +1336,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
         { // attached non-transparent objects were rendered before
             if (getInternalRendering())
             {
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
                 toRender[i]->display(this,rendAttrib);
 #endif
             }
@@ -1352,7 +1346,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
                     ((CShape*)toRender[i])->display_extRenderer(this,rendAttrib);
             }
         }
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
         else
         { // we render the scene twice when we have edges, since antialiasing might not be beautiful otherwise
             int atr=sim_displayattribute_renderpass;
@@ -1364,12 +1358,9 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
         toRender[i]->setForceAlwaysVisible_tmp(false);
     }
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     if (getInternalRendering())
         _enableAuxClippingPlanes(-1);
-#endif
-
-#ifdef SIM_WITH_OPENGL
     if (getInternalRendering()) // for now
     {
         // Transparent attached drawing objects:
@@ -1382,9 +1373,6 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
         // Ghost objects:
         App::currentWorld->ghostObjectCont->renderYour3DStuff_transparent(this,rendAttrib);
     }
-#endif
-
-#ifdef SIM_WITH_OPENGL
     if (getInternalRendering()) // for now
     {
         // overlay attached drawing objects:
@@ -1397,9 +1385,6 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
         // Ghosts:
         App::currentWorld->ghostObjectCont->renderYour3DStuff_overlay(this,rendAttrib);
     }
-#endif
-
-#ifdef SIM_WITH_OPENGL
     if (getInternalRendering())
         _disableAuxClippingPlanes();
 #endif
@@ -1986,11 +1971,6 @@ void CVisionSensor::simulationAboutToStart()
 
 void CVisionSensor::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-/*
-#ifdef SIM_WITH_OPENGL
-    _removeGlContextAndFboAndTextureObjectIfNeeded();
-#endif
-*/
     if (_initialValuesInitialized)
     {
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd()&&((getCumulativeModelProperty()&sim_modelproperty_not_reset)==0))
@@ -2763,7 +2743,7 @@ void CVisionSensor::display(CViewableBase* renderingObject,int displayAttrib)
     displayVisionSensor(this,renderingObject,displayAttrib);
 }
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(bool useStencilBuffer)
 {
     TRACE_INTERNAL;

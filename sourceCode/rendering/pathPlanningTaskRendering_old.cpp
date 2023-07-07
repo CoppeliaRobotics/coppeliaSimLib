@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <pathPlanningTaskRendering_old.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayPathPlanningTask(const C3Vector* corners)
 {

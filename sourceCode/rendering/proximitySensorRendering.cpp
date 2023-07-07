@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <proximitySensorRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObject,int displayAttrib)
 {

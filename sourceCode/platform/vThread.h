@@ -1,10 +1,8 @@
 #pragma once
 
 #include <vMutex.h>
-#ifdef SIM_WITH_QT
-    #include <QTime>
-    #include <QThread>
-#endif
+#include <QTime>
+#include <QThread>
 #ifndef WIN_SIM
     #include <unistd.h>
     #include <pthread.h>
@@ -16,10 +14,8 @@ class VThread
 public:
     static void launchThread(VTHREAD_START_ADDRESS startAddress);
     static void endThread();
-#ifdef SIM_WITH_QT
     static void launchQtThread(SIMPLE_VTHREAD_START_ADDRESS startAddress);
     static void endQtThread();
-#endif
     static int getThreadId_apiQueried();
     static int getCoreCount();
     static void setSimThread();

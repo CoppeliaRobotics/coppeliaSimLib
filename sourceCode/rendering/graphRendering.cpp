@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <graphRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 #include <graphingRoutines_old.h>
 
 void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib)

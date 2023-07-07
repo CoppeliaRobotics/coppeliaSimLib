@@ -11,9 +11,7 @@
     #include <ftw.h>
     #include <unistd.h>
 #endif
-#ifdef SIM_WITH_QT
-    #include <QStandardPaths>
-#endif
+#include <QStandardPaths>
 
 CFolderSystem::CFolderSystem()
 {
@@ -42,7 +40,6 @@ CFolderSystem::CFolderSystem()
     if (App::userSettings->defaultDirectoryForMiscFiles.length()!=0)
         setOtherFilesPath(App::userSettings->defaultDirectoryForMiscFiles.c_str());
 
-#ifdef SIM_WITH_QT
     _tempDir=new QTemporaryDir();
     _tempDir->setAutoRemove(true);
     if (_tempDir->isValid())
@@ -54,7 +51,7 @@ CFolderSystem::CFolderSystem()
         QDir(wl).mkdir("CoppeliaSim");
     }
     _appDataPath=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/CoppeliaSim";
-#endif
+
     if (_tempDataPath.size()==0)
     {
         _tempDataPath=_executablePath+"/tmp";
@@ -84,11 +81,9 @@ int rmrf(const char* path)
 
 CFolderSystem::~CFolderSystem()
 {
-#ifdef SIM_WITH_QT
     if (_tempDir->isValid())
         delete _tempDir;
         _tempDataPath.clear();
-#endif
     if (_tempDataPath.size()>0)
     {
 #ifdef __cpp_lib_filesystem // macOS 10.13 does not support XCode >=11 which is required for that

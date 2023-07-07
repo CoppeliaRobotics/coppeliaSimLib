@@ -34,11 +34,11 @@ SIM_DLLEXPORT int simExtCanInitSimThread()
 }
 SIM_DLLEXPORT int simExtSimThreadInit()
 {
-    return(simInit_internal(nullptr,0));
+    return(simInitialize_internal(nullptr,0));
 }
 SIM_DLLEXPORT int simExtSimThreadDestroy()
 {
-    return(simCleanup_internal());
+    return(simDeinitialize_internal());
 }
 
 // single precision, non-deprecated:

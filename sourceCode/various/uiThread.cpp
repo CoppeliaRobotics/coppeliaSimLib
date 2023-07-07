@@ -38,13 +38,7 @@ CUiThread::CUiThread()
     _frameId=0;
     _lastFrameId=0;
 
-#ifdef SIM_WITH_QT
     connect(this,SIGNAL(_executeCommandViaUiThread(SUIThreadCommand*,SUIThreadCommand*)),this,SLOT(__executeCommandViaUiThread(SUIThreadCommand*,SUIThreadCommand*)),Qt::BlockingQueuedConnection);
-#else
-    _noSigSlot_cmdIn=nullptr;
-    _noSigSlot_cmdOut=nullptr;
-    _noSigSlot_cnter=0;
-#endif
 #ifdef SIM_WITH_GUI
     // Blocking:
     connect(this,SIGNAL(_requestSceneRender_wait()),this,SLOT(__requestSceneRender_wait()),Qt::QueuedConnection);
@@ -55,44 +49,12 @@ CUiThread::~CUiThread()
 {
 }
 
-#ifndef SIM_WITH_QT
-void CUiThread::processGuiEventsUntilQuit_noSignalSlots()
-{
-    _noSigSlotMutex.lock_simple("CUiThread::processGuiEventsUntilQuit_noSignalSlots");
-    while (true)
-    {
-        _noSigSlotMutex.wait_simple();
-        // something has arrived!
-        __executeCommandViaUiThread(_noSigSlot_cmdIn,_noSigSlot_cmdOut);
-        int cmdId=_noSigSlot_cmdIn->cmdId;
-        _noSigSlot_cnter++;
-        if (cmdId==NO_SIGNAL_SLOT_EXIT_UITHREADCMD)
-            break;
-    }
-    _noSigSlotMutex.unlock_simple();
-}
-#endif
-
 bool CUiThread::executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 { // Called by any thread
     if (!VThread::isUiThread())
     {
-#ifndef SIM_WITH_QT
-        _noSigSlotMutex.lock_simple("CUiThread::executeCommandViaUiThread");
-        _noSigSlot_cmdIn=cmdIn;
-        _noSigSlot_cmdOut=cmdOut;
-        int cnt=_noSigSlot_cnter;
-        _noSigSlotMutex.wakeAll_simple(); // let the UI thread handle the job!
-        _noSigSlotMutex.unlock_simple();
-        while (_noSigSlot_cnter==cnt)
-            VThread::switchThread();
-        _noSigSlot_cmdIn=nullptr;
-        _noSigSlot_cmdOut=nullptr;
-        return(true);
-#else
         _executeCommandViaUiThread(cmdIn,cmdOut);
         return(true);
-#endif
     }
     else
     {
@@ -134,7 +96,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     if (cmdIn->cmdId==DESTROY_GL_TEXTURE_UITHREADCMD)
         destroyGlTexture(cmdIn->uintParams[0]);
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
     if (cmdIn->cmdId==CREATE_GL_CONTEXT_FBO_TEXTURE_IF_NEEDED_UITHREADCMD)
         ((CVisionSensor*)cmdIn->objectParams[0])->createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(cmdIn->boolParams[0]);
 #endif

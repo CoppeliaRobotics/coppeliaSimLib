@@ -20,7 +20,7 @@ See the GNU General Public License for more details.
 
 #include <shapeRendering.h>
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 #include <meshWrapper.h>
 #include <mesh.h>
 
