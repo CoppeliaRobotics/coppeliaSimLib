@@ -22,6 +22,7 @@ if(NOT LUA_INCLUDE_DIR OR NOT LUA_LIBRARIES)
     find_package(Lua 5.3 EXACT REQUIRED)
 endif()
 
+find_package(TinyXML2 REQUIRED COMPONENTS shared)
 find_package(Eigen3)
 if(NOT EIGEN_FOUND)
     include(FetchContent)
@@ -368,7 +369,7 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgtranslation.cpp
         sourceCode/gui/dialogs/qdlgrotation.cpp
         sourceCode/gui/dialogs/qdlgtranslationrotationcont.cpp
-        
+
         sourceCode/gui/communication/wireless/broadcastDataVisual.cpp
 
         sourceCode/gui/dialogs/other/editboxdelegate.cpp
@@ -670,6 +671,7 @@ endif()
 
 
 target_link_libraries(coppeliaSim Boost::boost)
+target_link_libraries(coppeliaSim tinyxml2::tinyxml2)
 target_link_libraries(coppeliaSim ${LUA_LIBRARIES})
 target_link_libraries(coppeliaSim ${QSCINTILLA_LIBRARY})
 
