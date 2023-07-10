@@ -247,6 +247,7 @@ if(WITH_GUI)
         sourceCode/gui/sceneObjects
         sourceCode/gui/sceneObjects/visionSensorObjectRelated
         sourceCode/gui/rendering
+        sourceCode/gui/communication/wireless
     )
 endif()
 
