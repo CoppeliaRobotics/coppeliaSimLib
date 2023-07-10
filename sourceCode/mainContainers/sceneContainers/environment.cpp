@@ -7,11 +7,11 @@
 #include <vDateTime.h>
 #include <utils.h>
 #include <app.h>
-#include <environmentRendering.h>
 #include <base64.h>
 #include <boost/algorithm/string.hpp>
 #include <simFlavor.h>
 #ifdef SIM_WITH_GUI
+    #include <environmentRendering.h>
     #include <guiApp.h>
 #endif
 
@@ -168,8 +168,10 @@ void CEnvironment::setActiveLayers(unsigned short l)
             App::worldContainer->pushEvent();
         }
     }
-    GuiApp::setRefreshHierarchyViewFlag();
-    GuiApp::setLightDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setRefreshHierarchyViewFlag();
+        GuiApp::setLightDialogRefreshFlag();
+    #endif
 }
 
 unsigned short CEnvironment::getActiveLayers() const
@@ -917,6 +919,7 @@ void CEnvironment::serialize(CSer& ar)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CEnvironment::setBackgroundColor(int viewSize[2])
 {
     displayBackground(viewSize,fogEnabled,fogBackgroundColor,backGroundColorDown,backGroundColor);
@@ -929,7 +932,11 @@ void CEnvironment::activateAmbientLight(bool a)
 
 void CEnvironment::activateFogIfEnabled(CViewableBase* viewable,bool forDynamicContentOnly)
 {
-    if (fogEnabled&&viewable->getShowFogIfAvailable()&&(!forDynamicContentOnly)&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
+    int editMode=NO_EDIT_MODE;
+    #ifdef SIM_WITH_GUI
+        editMode=GuiApp::getEditModeType();
+    #endif
+    if (fogEnabled&&viewable->getShowFogIfAvailable()&&(!forDynamicContentOnly)&&(editMode==NO_EDIT_MODE) )
     {
         activateFog(fogBackgroundColor,fogType,viewable->getFogStrength(),viewable->getFarClippingPlane(),fogStart,fogEnd,fogDensity);
         CViewableBase::fogWasActivated=true;
@@ -955,4 +962,4 @@ void CEnvironment::reactivateFogThatWasTemporarilyDisabled()
     if (CViewableBase::fogWasActivated)
         enableFog(true);
 }
-
+#endif

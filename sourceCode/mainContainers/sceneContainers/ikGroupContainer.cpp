@@ -114,7 +114,9 @@ void CIkGroupContainer::removeIkGroup(int ikGroupHandle)
 {
     App::currentWorld->announceIkGroupWillBeErased(ikGroupHandle);
     _removeIkGroup(ikGroupHandle);
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
 }
 
 void CIkGroupContainer::removeAllIkGroups()

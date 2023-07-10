@@ -3,16 +3,13 @@
 #include <sceneObject.h>
 #include <mesh.h>
 #ifdef SIM_WITH_GUI
-#include <vMenubar.h>
+    #include <vMenubar.h>
 #endif
 
 //FULLY STATIC CLASS
 class CSceneObjectOperations
 {
 public:
-    static void keyPress(int key);
-    static bool processCommand(int commandID);
-
     static void copyObjects(std::vector<int>* selection,bool displayMessages);
     static void pasteCopyBuffer(bool displayMessages);
     static void cutObjects(std::vector<int>* selection,bool displayMessages);
@@ -42,6 +39,8 @@ public:
     static int convexDecompose_apiVersion(int shapeHandle,int options,const int* intParams,const double* floatParams);
 
 #ifdef SIM_WITH_GUI
+    static void keyPress(int key);
+    static bool processCommand(int commandID);
     static void addMenu(VMenu* menu);
 #endif
 };

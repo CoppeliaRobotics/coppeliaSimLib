@@ -28,7 +28,6 @@ public:
     void setPageSizeAndPosition(int sizeX,int sizeY,int posX,int posY);
     void removePage(int pageIndex);
     int getPageCount() const;
-    bool processCommand(int commandID,int viewIndex);
 
 private:
     CSPage* _allPages[PAGES_COUNT];
@@ -54,6 +53,7 @@ private:
 
 #ifdef SIM_WITH_GUI
 public:
+    bool processCommand(int commandID,int viewIndex);
     void renderCurrentPage(bool hideWatermark);
     void setActivePage(int pageIndex);
     int getActivePageIndex() const;

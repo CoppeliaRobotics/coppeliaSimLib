@@ -10,7 +10,6 @@ public:
     CCollisionObject_old(int entity1Handle,int entity2Handle);
     virtual ~CCollisionObject_old();
 
-    void displayCollisionContour();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationEnded();
@@ -58,6 +57,9 @@ public:
     bool setContourWidth(int w);
     bool setIntersections(const std::vector<double>* intersections=nullptr);
 
+    #ifdef SIM_WITH_GUI
+        void displayCollisionContour();
+    #endif
 private:
     void _commonInit();
 

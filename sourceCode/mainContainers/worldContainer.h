@@ -17,9 +17,6 @@
 
 #ifdef SIM_WITH_GUI
     #include <globalGuiTextureContainer.h>
-#endif
-
-#ifdef SIM_WITH_SERIAL
     #include <serialPortContainer.h>
 #endif
 
@@ -105,8 +102,6 @@ public:
     CModuleMenuItemContainer* moduleMenuItemContainer;
 #ifdef SIM_WITH_GUI
     CGlobalGuiTextureContainer* globalGuiTextureCont;
-#endif
-#ifdef SIM_WITH_SERIAL
     CSerialPortContainer* serialPortContainer;
 #endif
 

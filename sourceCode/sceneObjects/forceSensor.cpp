@@ -5,7 +5,9 @@
 #include <algorithm>
 #include <utils.h>
 #include <app.h>
-#include <forceSensorRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <forceSensorRendering.h>
+#endif
 
 CForceSensor::CForceSensor()
 {
@@ -816,7 +818,9 @@ void CForceSensor::serialize(CSer& ar)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CForceSensor::display(CViewableBase* renderingObject,int displayAttrib)
 {
     displayForceSensor(this,renderingObject,displayAttrib);
 }
+#endif

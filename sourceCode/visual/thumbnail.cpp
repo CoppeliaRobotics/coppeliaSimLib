@@ -1,8 +1,10 @@
 #include <thumbnail.h>
 #include <global.h>
 #include <simLib/simConst.h>
-#include <thumbnailRendering.h>
 #include <base64.h>
+#ifdef SIM_WITH_GUI
+    #include <thumbnailRendering.h>
+#endif
 
 CThumbnail::CThumbnail()
 {

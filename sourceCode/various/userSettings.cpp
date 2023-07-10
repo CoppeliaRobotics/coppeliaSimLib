@@ -70,7 +70,6 @@
 #define _USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE "navigationBackwardCompatibility"
 #define _USR_COLOR_ADJUST_BACK_COMPATIBILITY "colorAdjust_backCompatibility"
 #define _USR_SPECIFIC_GPU_TWEAK "specificGpuTweak"
-#define _USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES "useAlternateSerialPortRoutines"
 #define _USR_DISABLED_OPENGL_BASED_CUSTOM_UI "disableOpenGlBasedCustomUi"
 #define _USR_SHOW_old_DLGS "showOldDlgs"
 #define _USR_ENABLE_OLD_RENDERABLE "enableOldRenderableBehaviour"
@@ -336,7 +335,6 @@ CUserSettings::CUserSettings()
     navigationBackwardCompatibility=false;
     colorAdjust_backCompatibility=1.0; // default
     specificGpuTweak=false; // default
-    useAlternateSerialPortRoutines=false;
     disableOpenGlBasedCustomUi=false;
     showOldDlgs=false;
     enableOldRenderableBehaviour=false;
@@ -711,7 +709,6 @@ void CUserSettings::saveUserSettings()
         c.addBoolean(_USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE,navigationBackwardCompatibility,"recommended to keep false.");
         c.addFloat(_USR_COLOR_ADJUST_BACK_COMPATIBILITY,colorAdjust_backCompatibility,"recommended to keep 1.0");
         c.addBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak,"");
-        c.addBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines,"");
         c.addBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi,"");
         c.addBoolean(_USR_SHOW_old_DLGS,showOldDlgs,"");
         c.addBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour,"");
@@ -980,7 +977,6 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE,navigationBackwardCompatibility);
     c.getFloat(_USR_COLOR_ADJUST_BACK_COMPATIBILITY,colorAdjust_backCompatibility);
     c.getBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak);
-    c.getBoolean(_USR_USE_ALTERNATE_SERIAL_PORT_ROUTINES,useAlternateSerialPortRoutines);
     c.getBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi);
     c.getBoolean(_USR_SHOW_old_DLGS,showOldDlgs);
     c.getBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour);

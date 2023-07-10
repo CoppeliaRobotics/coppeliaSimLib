@@ -69,10 +69,6 @@ public:
 
     void cleanupHashNames_allObjects(int suffix);
 
-    void renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
-    void renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
-    void renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
-
     void announceObjectWillBeErased(const CSceneObject* object);
     void announceScriptWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
     void announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
@@ -143,4 +139,11 @@ private:
     std::vector<long long int> _initialObjectUniqueIdentifiersForRemovingNewObjects;
 
     static std::vector<SLoadOperationIssue> _loadOperationIssues;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
+        void renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
+        void renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
+    #endif
 };

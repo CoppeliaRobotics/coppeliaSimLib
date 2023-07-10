@@ -66,9 +66,9 @@ public:
     bool areSceneEditorsOpen() const;
     void sceneClosed(int sceneUniqueId);
     static std::string getColorStr(const int rgbCol[3]);
-    static void getKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin);
-    static void getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin);
-    static void getVarKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin);
+    static void getKeywords(tinyxml2::XMLDocument* doc,tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin);
+    static void getFuncKeywords(tinyxml2::XMLDocument* doc,tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin);
+    static void getVarKeywords(tinyxml2::XMLDocument* doc,tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin);
     static std::string translateXml(const char* oldXml,const char* callback,const CScriptObject* requestOrigin);
     static const char* toBoolStr(bool v);
 

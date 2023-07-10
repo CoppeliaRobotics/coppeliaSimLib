@@ -11,7 +11,6 @@ public:
     virtual ~CPath_old();
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
@@ -93,8 +92,9 @@ protected:
 
     bool _initialExplicitHandling;
 
-#ifdef SIM_WITH_GUI
-public:
-    bool transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,double prevPos[2],double pos[2],double screenHalfSizes[2],double halfSizes[2],bool perspective,int eventID);
-#endif
+    #ifdef SIM_WITH_GUI
+    public:
+        void display(CViewableBase* renderingObject,int displayAttrib);
+        bool transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,double prevPos[2],double pos[2],double screenHalfSizes[2],double halfSizes[2],bool perspective,int eventID);
+    #endif
 };

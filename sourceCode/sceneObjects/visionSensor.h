@@ -27,7 +27,6 @@ public:
     virtual ~CVisionSensor();
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
@@ -175,7 +174,7 @@ protected:
 
 #ifdef SIM_WITH_GUI
 public:
-    // Following function is inherited from CSceneObject
+    void display(CViewableBase* renderingObject,int displayAttrib);
     void lookAt(CSView* viewObject,int viewPos[2]=nullptr,int viewSize[2]=nullptr);
     CTextureObject* getTextureObject();
 

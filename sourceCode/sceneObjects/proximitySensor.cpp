@@ -5,7 +5,9 @@
 #include <vDateTime.h>
 #include <utils.h>
 #include <app.h>
-#include <proximitySensorRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <proximitySensorRendering.h>
+#endif
 
 CProxSensor::CProxSensor(int theType)
 {
@@ -1053,7 +1055,9 @@ int CProxSensor::getSensorType() const
     return(sensorType);
 }
 
+#ifdef SIM_WITH_GUI
 void CProxSensor::display(CViewableBase* renderingObject,int displayAttrib)
 {
     displayProximitySensor(this,renderingObject,displayAttrib);
 }
+#endif

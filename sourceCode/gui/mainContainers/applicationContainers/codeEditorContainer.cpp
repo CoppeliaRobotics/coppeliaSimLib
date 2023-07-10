@@ -25,24 +25,24 @@ std::string CCodeEditorContainer::getColorStr(const int rgbCol[3])
     return(retVal.toStdString());
 }
 
-void CCodeEditorContainer::getKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin)
+void CCodeEditorContainer::getKeywords(tinyxml2::XMLDocument* doc,tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin)
 {
-    sim::tinyxml2::XMLElement* keywords1Node=doc->NewElement("keywords1");
+    tinyxml2::XMLElement* keywords1Node=doc->NewElement("keywords1");
     parentNode->InsertEndChild(keywords1Node);
     getFuncKeywords(doc,keywords1Node,requestOrigin);
-    sim::tinyxml2::XMLElement* keywords2Node=doc->NewElement("keywords2");
+    tinyxml2::XMLElement* keywords2Node=doc->NewElement("keywords2");
     parentNode->InsertEndChild(keywords2Node);
     getVarKeywords(doc,keywords2Node,requestOrigin);
 }
 
-void CCodeEditorContainer::getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin)
+void CCodeEditorContainer::getFuncKeywords(tinyxml2::XMLDocument* doc,tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin)
 {
     std::set<std::string> t;
     CScriptObject::getMatchingFunctions("",t,requestOrigin); // basically all functions
     for (const auto& str : t)
     {
         std::string tip(CScriptObject::getFunctionCalltip(str.c_str(),requestOrigin));
-        sim::tinyxml2::XMLElement* itemNode=doc->NewElement("item");
+        tinyxml2::XMLElement* itemNode=doc->NewElement("item");
         parentNode->InsertEndChild(itemNode);
         itemNode->SetAttribute("word",str.c_str());
         itemNode->SetAttribute("autocomplete",toBoolStr(true));
@@ -50,13 +50,13 @@ void CCodeEditorContainer::getFuncKeywords(sim::tinyxml2::XMLDocument* doc,sim::
     }
 }
 
-void CCodeEditorContainer::getVarKeywords(sim::tinyxml2::XMLDocument* doc,sim::tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin)
+void CCodeEditorContainer::getVarKeywords(tinyxml2::XMLDocument* doc,tinyxml2::XMLElement* parentNode,const CScriptObject* requestOrigin)
 {
     std::set<std::string> t;
     CScriptObject::getMatchingConstants("",t,requestOrigin); // basically all constants
     for (const auto& str : t)
     {
-        sim::tinyxml2::XMLElement* itemNode=doc->NewElement("item");
+        tinyxml2::XMLElement* itemNode=doc->NewElement("item");
         parentNode->InsertEndChild(itemNode);
         itemNode->SetAttribute("word",str.c_str());
         itemNode->SetAttribute("autocomplete",toBoolStr(true));
@@ -65,19 +65,19 @@ void CCodeEditorContainer::getVarKeywords(sim::tinyxml2::XMLDocument* doc,sim::t
 
 std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* callback,const CScriptObject* requestOrigin)
 {
-    sim::tinyxml2::XMLDocument xmlNewDoc;
-    sim::tinyxml2::XMLElement* editorNode=xmlNewDoc.NewElement("editor");
+    tinyxml2::XMLDocument xmlNewDoc;
+    tinyxml2::XMLElement* editorNode=xmlNewDoc.NewElement("editor");
     xmlNewDoc.InsertFirstChild(editorNode);
 
     if (strlen(callback)>0)
         editorNode->SetAttribute("on-close",callback);
     if (oldXml!=nullptr)
     {
-        sim::tinyxml2::XMLDocument xmldoc;
-        sim::tinyxml2::XMLError error=xmldoc.Parse(oldXml);
-        if(error==sim::tinyxml2::XML_NO_ERROR)
+        tinyxml2::XMLDocument xmldoc;
+        tinyxml2::XMLError error=xmldoc.Parse(oldXml);
+        if(error==tinyxml2::XML_SUCCESS)
         {
-            sim::tinyxml2::XMLElement* rootElement=xmldoc.FirstChildElement();
+            tinyxml2::XMLElement* rootElement=xmldoc.FirstChildElement();
             const char* val=rootElement->Attribute("title");
             if (val!=nullptr)
                 editorNode->SetAttribute("title",val);
@@ -171,14 +171,14 @@ std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* ca
                 fontSize=App::userSettings->scriptEditorFontSize;
             editorNode->SetAttribute("font-size",fontSize);
 
-            sim::tinyxml2::XMLElement* keywords1=rootElement->FirstChildElement("keywords1");
+            tinyxml2::XMLElement* keywords1=rootElement->FirstChildElement("keywords1");
             if (keywords1!=nullptr)
             {
                 val=keywords1->Attribute("color");
                 if (val!=nullptr)
                     editorNode->SetAttribute("keyword1-col",val);
             }
-            sim::tinyxml2::XMLElement* keywords2=rootElement->FirstChildElement("keywords2");
+            tinyxml2::XMLElement* keywords2=rootElement->FirstChildElement("keywords2");
             if (keywords2!=nullptr)
             {
                 val=keywords2->Attribute("color");
@@ -186,15 +186,15 @@ std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* ca
                     editorNode->SetAttribute("keyword2-col",val);
             }
 
-            sim::tinyxml2::XMLElement* keywordsNode1=xmlNewDoc.NewElement("keywords1");
+            tinyxml2::XMLElement* keywordsNode1=xmlNewDoc.NewElement("keywords1");
             editorNode->InsertEndChild(keywordsNode1);
 
             if (keywords1!=nullptr)
             {
-                sim::tinyxml2::XMLElement* item=keywords1->FirstChildElement("item");
+                tinyxml2::XMLElement* item=keywords1->FirstChildElement("item");
                 while (item!=nullptr)
                 {
-                    sim::tinyxml2::XMLElement* itemNode=xmlNewDoc.NewElement("item");
+                    tinyxml2::XMLElement* itemNode=xmlNewDoc.NewElement("item");
                     keywordsNode1->InsertEndChild(itemNode);
 
                     val=item->Attribute("word");
@@ -212,15 +212,15 @@ std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* ca
                     getFuncKeywords(&xmlNewDoc,keywordsNode1,requestOrigin);
             }
 
-            sim::tinyxml2::XMLElement* keywordsNode2=xmlNewDoc.NewElement("keywords2");
+            tinyxml2::XMLElement* keywordsNode2=xmlNewDoc.NewElement("keywords2");
             editorNode->InsertEndChild(keywordsNode2);
 
             if (keywords2!=nullptr)
             {
-                sim::tinyxml2::XMLElement* item=keywords2->FirstChildElement("item");
+                tinyxml2::XMLElement* item=keywords2->FirstChildElement("item");
                 while (item!=nullptr)
                 {
-                    sim::tinyxml2::XMLElement* itemNode=xmlNewDoc.NewElement("item");
+                    tinyxml2::XMLElement* itemNode=xmlNewDoc.NewElement("item");
                     keywordsNode2->InsertEndChild(itemNode);
 
                     val=item->Attribute("word");
@@ -239,7 +239,7 @@ std::string CCodeEditorContainer::translateXml(const char* oldXml,const char* ca
             }
         }
     }
-    sim::tinyxml2::XMLPrinter printer;
+    tinyxml2::XMLPrinter printer;
     xmlNewDoc.Print(&printer);
 //  printf("%s\n",printer.CStr());
     return(std::string(printer.CStr()));
@@ -351,8 +351,8 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     it->getPreviousEditionWindowPosAndSize(posAndSize);
                     it->addModulesDetectedInCode();
 
-                    sim::tinyxml2::XMLDocument xmlDoc;
-                    sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
+                    tinyxml2::XMLDocument xmlDoc;
+                    tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
                     xmlDoc.InsertFirstChild(editorNode);
                     editorNode->SetAttribute("title",it->getDescriptiveName().c_str());
                     editorNode->SetAttribute("position",QString("%1 %2").arg(posAndSize[0]).arg(posAndSize[1]).toStdString().c_str());
@@ -427,7 +427,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
 
                     getKeywords(&xmlDoc,editorNode,it);
 
-                    sim::tinyxml2::XMLPrinter printer;
+                    tinyxml2::XMLPrinter printer;
                     xmlDoc.Print(&printer);
                     //printf("%s\n",printer.CStr());
 
@@ -481,8 +481,8 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     it->getPreviousEditionWindowPosAndSize(posAndSize);
                     it->addModulesDetectedInCode();
 
-                    sim::tinyxml2::XMLDocument xmlDoc;
-                    sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
+                    tinyxml2::XMLDocument xmlDoc;
+                    tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
                     xmlDoc.InsertFirstChild(editorNode);
                     editorNode->SetAttribute("title",it->getDescriptiveName().c_str());
                     editorNode->SetAttribute("position",QString("%1 %2").arg(posAndSize[0]).arg(posAndSize[1]).toStdString().c_str());
@@ -539,7 +539,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
 
                     getKeywords(&xmlDoc,editorNode,it);
 
-                    sim::tinyxml2::XMLPrinter printer;
+                    tinyxml2::XMLPrinter printer;
                     xmlDoc.Print(&printer);
                     //printf("%s\n",printer.CStr());
 
@@ -595,8 +595,8 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
                 _backColor[i]=backColor[i];
         }
 
-        sim::tinyxml2::XMLDocument xmlDoc;
-        sim::tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
+        tinyxml2::XMLDocument xmlDoc;
+        tinyxml2::XMLElement* editorNode=xmlDoc.NewElement("editor");
         xmlDoc.InsertFirstChild(editorNode);
         editorNode->SetAttribute("title",title);
         editorNode->SetAttribute("position",QString("%1 %2").arg(_position[0]).arg(_position[1]).toStdString().c_str());
@@ -629,7 +629,7 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         editorNode->SetAttribute("text-col",getColorStr(_textColor).c_str());
         editorNode->SetAttribute("background-col",getColorStr(_backColor).c_str());
 
-        sim::tinyxml2::XMLPrinter printer;
+        tinyxml2::XMLPrinter printer;
         xmlDoc.Print(&printer);
         //printf("%s\n",printer.CStr());
 

@@ -9,7 +9,6 @@ public:
     CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,double pointSize,int ptCnt,const double* vertices,const unsigned char* colors,const double* normals,const unsigned char* defaultColors);
     virtual ~CPtCloud_old();
 
-    void draw(int displayAttrib);
     bool isPersistent() const;
     void setObjectID(int id);
     int getObjectID() const;
@@ -18,6 +17,10 @@ public:
 
     void pushAddEvent();
     bool announceObjectWillBeErased(int objectHandleAttachedTo);
+
+    #ifdef SIM_WITH_GUI
+        void draw(int displayAttrib);
+    #endif
 
     int _id;
     long long int _uniqueId;

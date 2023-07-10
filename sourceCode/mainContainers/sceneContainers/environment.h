@@ -78,12 +78,6 @@ public:
     void setActiveLayers(unsigned short l);
     unsigned short getActiveLayers() const;
 
-    void setBackgroundColor(int viewSize[2]);
-    void activateAmbientLight(bool a);
-    void activateFogIfEnabled(CViewableBase* viewable,bool forDynamicContentOnly);
-    void deactivateFog();
-    void temporarilyDeactivateFog();
-    void reactivateFogThatWasTemporarilyDisabled();
     void generateNewUniquePersistentIdString();
     std::string getUniquePersistentIdString() const;
     bool getSceneIsClosingFlag() const;
@@ -133,4 +127,15 @@ protected:
     static bool _customUisTemporarilyDisabled;
 
     static int _nextSceneUniqueID;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void setBackgroundColor(int viewSize[2]);
+        void activateAmbientLight(bool a);
+        void activateFogIfEnabled(CViewableBase* viewable,bool forDynamicContentOnly);
+        void deactivateFog();
+        void temporarilyDeactivateFog();
+        void reactivateFogThatWasTemporarilyDisabled();
+    #endif
+
 };

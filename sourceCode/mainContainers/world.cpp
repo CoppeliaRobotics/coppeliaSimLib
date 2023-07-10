@@ -594,12 +594,12 @@ void CWorld::simulationAboutToStart()
 {
     TRACE_INTERNAL;
 
-#ifdef SIM_WITH_GUI
-    SUIThreadCommand cmdIn;
-    SUIThreadCommand cmdOut;
-    cmdIn.cmdId=SIMULATION_ABOUT_TO_START_UITHREADCMD;
-    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-#endif
+    #ifdef SIM_WITH_GUI
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=SIMULATION_ABOUT_TO_START_UITHREADCMD;
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    #endif
 
     App::worldContainer->callScripts(sim_syscb_beforesimulation,nullptr,nullptr);
 
@@ -611,19 +611,19 @@ void CWorld::simulationAboutToStart()
     }
     App::undoRedo_sceneChanged("");
 
-    _savedMouseMode=GuiApp::getMouseMode();
 
-#ifdef SIM_WITH_GUI
-    if (GuiApp::mainWindow!=nullptr)
-        GuiApp::mainWindow->codeEditorContainer->simulationAboutToStart();
-#endif
+    #ifdef SIM_WITH_GUI
+        _savedMouseMode=GuiApp::getMouseMode();
+        if (GuiApp::mainWindow!=nullptr)
+            GuiApp::mainWindow->codeEditorContainer->simulationAboutToStart();
+    #endif
 
     if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
     {
-#ifdef SIM_WITH_GUI
-        if (GuiApp::mainWindow!=nullptr)
-            GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Warning","The 'Geometric' plugin could not be initialized. Collision detection, distance calculation, and proximity sensor simulation will not work.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-#endif
+        #ifdef SIM_WITH_GUI
+                if (GuiApp::mainWindow!=nullptr)
+                    GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Warning","The 'Geometric' plugin could not be initialized. Collision detection, distance calculation, and proximity sensor simulation will not work.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+        #endif
         App::logMsg(sim_verbosity_errors,"the 'Geometric' plugin could not be initialized. Collision detection,\n       distance calculation, and proximity sensor simulation will not work.");
     }
 
@@ -634,31 +634,36 @@ void CWorld::simulationAboutToStart()
 
     App::worldContainer->setModificationFlag(2048); // simulation started
 
-    SSimulationThreadCommand cmd;
-    cmd.cmdId=DISPLAY_VARIOUS_WARNING_MESSAGES_DURING_SIMULATION_CMD;
-    App::appendSimulationThreadCommand(cmd,1000);
+    #ifdef SIM_WITH_GUI
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=DISPLAY_VARIOUS_WARNING_MESSAGES_DURING_SIMULATION_CMD;
+        GuiApp::appendSimulationThreadCommand(cmd,1000);
+    #endif
 
-    GuiApp::setToolbarRefreshFlag();
-    GuiApp::setFullDialogRefreshFlag();
-
-#ifdef SIM_WITH_GUI
-    if (GuiApp::mainWindow!=nullptr)
-        GuiApp::mainWindow->simulationRecorder->startRecording(false);
-#endif
+    #ifdef SIM_WITH_GUI
+        GuiApp::setToolbarRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
+        if (GuiApp::mainWindow!=nullptr)
+            GuiApp::mainWindow->simulationRecorder->startRecording(false);
+    #endif
 }
 
 void CWorld::simulationPaused()
 {
     _simulationPaused();
-    GuiApp::setToolbarRefreshFlag();
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setToolbarRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
 }
 
 void CWorld::simulationAboutToResume()
 {
     _simulationAboutToResume();
-    GuiApp::setToolbarRefreshFlag();
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setToolbarRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
 }
 
 void CWorld::simulationAboutToStep()
@@ -715,19 +720,17 @@ void CWorld::simulationEnded(bool removeNewObjects)
     _simulationEnded();
 
     App::worldContainer->calcInfo->simulationEnded();
-#ifdef SIM_WITH_SERIAL
-    App::worldContainer->serialPortContainer->simulationEnded();
-#endif
-#ifdef SIM_WITH_GUI
-    SUIThreadCommand cmdIn;
-    SUIThreadCommand cmdOut;
-    cmdIn.cmdId=SIMULATION_JUST_ENDED_UITHREADCMD;
-    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-#endif
+    #ifdef SIM_WITH_GUI
+        App::worldContainer->serialPortContainer->simulationEnded();
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=SIMULATION_JUST_ENDED_UITHREADCMD;
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::setMouseMode(_savedMouseMode);
+        GuiApp::setToolbarRefreshFlag();
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
 
-    GuiApp::setMouseMode(_savedMouseMode);
-    GuiApp::setToolbarRefreshFlag();
-    GuiApp::setFullDialogRefreshFlag();
 
     App::undoRedo_sceneChanged(""); // keeps this (additional objects were removed, and object positions were reset)
 
@@ -1079,34 +1082,6 @@ void CWorld::cleanupHashNames_allObjects(int suffix)
             }
         }
     }
-}
-
-void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
-{
-    distances->renderYour3DStuff(renderingObject,displayAttrib);
-    drawingCont->renderYour3DStuff_nonTransparent(renderingObject,displayAttrib);
-    pointCloudCont->renderYour3DStuff_nonTransparent(renderingObject,displayAttrib);
-    ghostObjectCont->renderYour3DStuff_nonTransparent(renderingObject,displayAttrib);
-    bannerCont->renderYour3DStuff_nonTransparent(renderingObject,displayAttrib,windowSize,verticalViewSizeOrAngle,perspective);
-    dynamicsContainer->renderYour3DStuff(renderingObject,displayAttrib);
-}
-
-void CWorld::renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
-{
-    drawingCont->renderYour3DStuff_transparent(renderingObject,displayAttrib);
-    pointCloudCont->renderYour3DStuff_transparent(renderingObject,displayAttrib);
-    ghostObjectCont->renderYour3DStuff_transparent(renderingObject,displayAttrib);
-    bannerCont->renderYour3DStuff_transparent(renderingObject,displayAttrib,windowSize,verticalViewSizeOrAngle,perspective);
-}
-
-void CWorld::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
-{
-    drawingCont->renderYour3DStuff_overlay(renderingObject,displayAttrib);
-    pointCloudCont->renderYour3DStuff_overlay(renderingObject,displayAttrib);
-    ghostObjectCont->renderYour3DStuff_overlay(renderingObject,displayAttrib);
-    bannerCont->renderYour3DStuff_overlay(renderingObject,displayAttrib,windowSize,verticalViewSizeOrAngle,perspective);
-    collisions->renderYour3DStuff(renderingObject,displayAttrib);
-    dynamicsContainer->renderYour3DStuff_overlay(renderingObject,displayAttrib);
 }
 
 void CWorld::announceObjectWillBeErased(const CSceneObject* object)
@@ -2347,3 +2322,33 @@ int CWorld::getLoadingMapping(const std::map<int,int>* map,int oldVal)
         retVal=it->second;
     return(retVal);
 }
+
+#ifdef SIM_WITH_GUI
+void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
+{
+    distances->renderYour3DStuff(renderingObject,displayAttrib);
+    drawingCont->renderYour3DStuff_nonTransparent(renderingObject,displayAttrib);
+    pointCloudCont->renderYour3DStuff_nonTransparent(renderingObject,displayAttrib);
+    ghostObjectCont->renderYour3DStuff_nonTransparent(renderingObject,displayAttrib);
+    bannerCont->renderYour3DStuff_nonTransparent(renderingObject,displayAttrib,windowSize,verticalViewSizeOrAngle,perspective);
+    dynamicsContainer->renderYour3DStuff(renderingObject,displayAttrib);
+}
+
+void CWorld::renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
+{
+    drawingCont->renderYour3DStuff_transparent(renderingObject,displayAttrib);
+    pointCloudCont->renderYour3DStuff_transparent(renderingObject,displayAttrib);
+    ghostObjectCont->renderYour3DStuff_transparent(renderingObject,displayAttrib);
+    bannerCont->renderYour3DStuff_transparent(renderingObject,displayAttrib,windowSize,verticalViewSizeOrAngle,perspective);
+}
+
+void CWorld::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
+{
+    drawingCont->renderYour3DStuff_overlay(renderingObject,displayAttrib);
+    pointCloudCont->renderYour3DStuff_overlay(renderingObject,displayAttrib);
+    ghostObjectCont->renderYour3DStuff_overlay(renderingObject,displayAttrib);
+    bannerCont->renderYour3DStuff_overlay(renderingObject,displayAttrib,windowSize,verticalViewSizeOrAngle,perspective);
+    collisions->renderYour3DStuff(renderingObject,displayAttrib);
+    dynamicsContainer->renderYour3DStuff_overlay(renderingObject,displayAttrib);
+}
+#endif

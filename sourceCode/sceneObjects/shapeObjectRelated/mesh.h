@@ -10,12 +10,7 @@ public:
     CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords,int options);
     virtual ~CMesh();
 
-    void display(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
-    void display_colorCoded(const C7Vector& cumulIFrameTr,CShape* geomData,int objectId,int displayAttrib);
-    void displayGhost(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors);
-
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();
-    void display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
     void performSceneObjectLoadingMapping(const std::map<int,int>* map);
     void performTextureObjectLoadingMapping(const std::map<int,int>* map);
     void announceSceneObjectWillBeErased(const CSceneObject* object);
@@ -84,9 +79,6 @@ public:
     std::vector<int>* getIndices();
     std::vector<double>* getNormals();
     std::vector<unsigned char>* getEdges();
-    int* getVertexBufferIdPtr();
-    int* getNormalBufferIdPtr();
-    int* getEdgeBufferIdPtr();
 
     std::vector<float>* getVerticesForDisplayAndDisk();
     std::vector<float>* getNormalsForDisplayAndDisk();
@@ -166,10 +158,6 @@ protected:
     int _tempNormalsIndexForSerialization;
     int _tempEdgesIndexForSerialization;
 
-    int _vertexBufferId;
-    int _normalBufferId;
-    int _edgeBufferId;
-
     unsigned int _extRendererObjectId;
     unsigned int _extRendererObject_lastMeshId;
     unsigned int _extRendererObject_lastTextureId;
@@ -194,7 +182,19 @@ protected:
 
 #ifdef SIM_WITH_GUI
 public:
-    bool getNonCalculatedTextureCoordinates(std::vector<float>& texCoords);
+    void display(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected);
+    void display_colorCoded(const C7Vector& cumulIFrameTr,CShape* geomData,int objectId,int displayAttrib);
+    void displayGhost(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,bool originalColors,bool backfaceCulling,double transparency,const float* newColors);
 
+    void display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex);
+    bool getNonCalculatedTextureCoordinates(std::vector<float>& texCoords);
+    int* getVertexBufferIdPtr();
+    int* getNormalBufferIdPtr();
+    int* getEdgeBufferIdPtr();
+
+protected:
+    int _vertexBufferId;
+    int _normalBufferId;
+    int _edgeBufferId;
 #endif
 };

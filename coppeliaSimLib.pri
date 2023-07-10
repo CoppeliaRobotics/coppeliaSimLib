@@ -1,14 +1,13 @@
 TARGET = coppeliaSim
 TEMPLATE = lib
 DEFINES += SIM_MATH_DOUBLE # math and vector classes
-DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats). Same for CMakeLists.txt
+#DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats). Same for CMakeLists.txt
 #DEFINES += HAS_PHYSX
 
 CONFIG += shared plugin debug_and_release
 
 !HEADLESS {
     CONFIG += WITH_GUI
-    CONFIG += WITH_SERIAL
 }
 
 CONFIG(debug,debug|release) {
@@ -34,11 +33,6 @@ WITH_GUI {
     RESOURCES += $$PWD/qdarkstyle/style.qrc
 } else {
     QT -= gui
-}
-
-WITH_SERIAL {
-    QT      += serialport
-    DEFINES += SIM_WITH_SERIAL
 }
 
 *-msvc* {
@@ -152,6 +146,7 @@ INCLUDEPATH += $$BOOST_INCLUDEPATH
 INCLUDEPATH += $$LUA_INCLUDEPATH
 INCLUDEPATH += $$EIGEN_INCLUDEPATH
 LIBS += $$LUA_LIBS
+LIBS += $$TINYXML2_LIBS
 INCLUDEPATH += $$QSCINTILLA_INCLUDEPATH # somehow required to avoid a crash on exit (Windows), when copy was used in the code editor...
 LIBS += $$QSCINTILLA_LIBS # somehow required to avoid a crash on exit (Windows), when copy was used in the code editor...
 
@@ -162,6 +157,7 @@ INCLUDEPATH += $$PWD/"sourceCode/shared/backwardCompatibility/kinematics"
 INCLUDEPATH += $$PWD/"sourceCode/communication"
 INCLUDEPATH += $$PWD/"sourceCode/communication/tubes"
 INCLUDEPATH += $$PWD/"sourceCode/communication/wireless"
+INCLUDEPATH += $$PWD/"sourceCode/communication/serialPort"
 INCLUDEPATH += $$PWD/"sourceCode/drawingObjects"
 INCLUDEPATH += $$PWD/"sourceCode/platform"
 INCLUDEPATH += $$PWD/"sourceCode/collections"
@@ -204,14 +200,10 @@ INCLUDEPATH += $$PWD/"sourceCode/backwardCompatibility/distances"
 INCLUDEPATH += $$PWD/"sourceCode/backwardCompatibility/kinematics"
 INCLUDEPATH += $$PWD/"sourceCode/customUserInterfaces"
 INCLUDEPATH += $$PWD/"sourceCode/undoRedo"
-INCLUDEPATH += $$PWD/"sourceCode/rendering"
 INCLUDEPATH += $$PWD/"../programming/include"
 
-WITH_SERIAL {
-    INCLUDEPATH += $$PWD/"sourceCode/communication/serialPort"
-}
-
 WITH_GUI {
+    INCLUDEPATH += $$PWD/"sourceCode/gui/rendering"
     INCLUDEPATH += $$PWD/"sourceCode/gui/dialogs"
     INCLUDEPATH += $$PWD/"sourceCode/gui/dialogs/other"
     INCLUDEPATH += $$PWD/"sourceCode/gui/platform"
@@ -225,6 +217,10 @@ WITH_GUI {
     INCLUDEPATH += $$PWD/"sourceCode/gui/menusAndSimilar"
     INCLUDEPATH += $$PWD/"sourceCode/gui/various"
     INCLUDEPATH += $$PWD/"sourceCode/gui/libs"
+    INCLUDEPATH += $$PWD/"sourceCode/gui/visual"
+    INCLUDEPATH += $$PWD/"sourceCode/gui/sceneObjects/visionSensorObjectRelated"
+    INCLUDEPATH += $$PWD/"sourceCode/gui/communication"
+    INCLUDEPATH += $$PWD/"sourceCode/gui/communication/wireless"
 }
 
 *-msvc* {
@@ -396,7 +392,9 @@ HEADERS += $$PWD/sourceCode/communication/tubes/commTube.h \
 
 HEADERS += $$PWD/sourceCode/communication/wireless/broadcastDataContainer.h \
     $$PWD/sourceCode/communication/wireless/broadcastData.h \
-    $$PWD/sourceCode/communication/wireless/broadcastDataVisual.h \
+    $$PWD/sourceCode/communication/serialPort/serialPort.h \
+    $$PWD/sourceCode/communication/serialPort/serial_win_mac_linux.h \
+    $$PWD/sourceCode/communication/serialPort/serialPortWin.h \
 
 HEADERS += $$PWD/sourceCode/mainContainers/worldContainer.h \
     $$PWD/sourceCode/shared/mainContainers/_worldContainer_.h \
@@ -444,6 +442,7 @@ HEADERS += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorInfos.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorFunctions.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorVariables.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.h \
 
 HEADERS += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.h \
     $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.h \
@@ -471,7 +470,6 @@ HEADERS += $$PWD/sourceCode/textures/textureObject.h \
 
 HEADERS += $$PWD/sourceCode/serialization/ser.h \
     $$PWD/sourceCode/serialization/huffman.h \
-    $$PWD/sourceCode/serialization/tinyxml2.cpp \
 
 HEADERS += $$PWD/sourceCode/strings/simStringTable.h \
     $$PWD/sourceCode/strings/simStringTable_openGl.h \
@@ -511,8 +509,6 @@ HEADERS += $$PWD/sourceCode/various/simConfig.h \
     $$PWD/sourceCode/various/embeddedFonts.h \
     $$PWD/sourceCode/various/userSettings.h \
     $$PWD/sourceCode/various/memorizedConf_old.h \
-    $$PWD/sourceCode/various/uiThread.h \
-    $$PWD/sourceCode/various/simThread.h \
     $$PWD/sourceCode/various/app.h \
     $$PWD/sourceCode/various/folderSystem.h \
     $$PWD/sourceCode/various/dynMaterialObject.h \
@@ -525,35 +521,6 @@ HEADERS += $$PWD/sourceCode/various/simConfig.h \
 HEADERS += $$PWD/sourceCode/undoRedo/undoBufferArrays.h \
     $$PWD/sourceCode/undoRedo/undoBuffer.h \
     $$PWD/sourceCode/undoRedo/undoBufferCameras.h \
-
-HEADERS += $$PWD/sourceCode/rendering/rendering.h \
-    $$PWD/sourceCode/rendering/cameraRendering.h \
-    $$PWD/sourceCode/rendering/visionSensorRendering.h \
-    $$PWD/sourceCode/rendering/forceSensorRendering.h \
-    $$PWD/sourceCode/rendering/proximitySensorRendering.h \
-    $$PWD/sourceCode/rendering/dummyRendering.h \
-    $$PWD/sourceCode/rendering/lightRendering.h \
-    $$PWD/sourceCode/rendering/pointCloudRendering.h \
-    $$PWD/sourceCode/rendering/octreeRendering.h \
-    $$PWD/sourceCode/rendering/jointRendering.h \
-    $$PWD/sourceCode/rendering/graphRendering.h \
-    $$PWD/sourceCode/rendering/millRendering.h \
-    $$PWD/sourceCode/rendering/mirrorRendering.h \
-    $$PWD/sourceCode/rendering/pathRendering.h \
-    $$PWD/sourceCode/rendering/shapeRendering.h \
-    $$PWD/sourceCode/rendering/ghostRendering.h \
-    $$PWD/sourceCode/rendering/drawingObjectRendering.h \
-    $$PWD/sourceCode/rendering/ptCloudRendering_old.h \
-    $$PWD/sourceCode/rendering/collisionContourRendering.h \
-    $$PWD/sourceCode/rendering/distanceRendering.h \
-    $$PWD/sourceCode/rendering/bannerRendering.h \
-    $$PWD/sourceCode/rendering/thumbnailRendering.h \
-    $$PWD/sourceCode/rendering/pathPlanningTaskRendering_old.h \
-    $$PWD/sourceCode/rendering/broadcastDataVisualRendering.h \
-    $$PWD/sourceCode/rendering/dynamicsRendering.h \
-    $$PWD/sourceCode/rendering/environmentRendering.h \
-    $$PWD/sourceCode/rendering/pageRendering.h \
-    $$PWD/sourceCode/rendering/viewRendering.h \
 
 HEADERS += $$PWD/sourceCode/visual/thumbnail.h \
 
@@ -578,23 +545,46 @@ HEADERS += $$PWD/sourceCode/platform/vSimUiMutex.h \
 HEADERS += $$PWD/sourceCode/various/simAndUiThreadSync.h \
     $$PWD/sourceCode/various/simQApp.h
 
-WITH_SERIAL {
-    HEADERS += $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.h
-
-    HEADERS += $$PWD/sourceCode/communication/serialPort/serialPort.h \
-        $$PWD/sourceCode/communication/serialPort/serial_win_mac_linux.h \
-        $$PWD/sourceCode/communication/serialPort/serialPortWin.h
-}
-
 WITH_GUI {
-    HEADERS += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/offscreenGlContext.h \
-        $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/frameBufferObject.h \
-        $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/visionSensorGlStuff.h
+    HEADERS += $$PWD/sourceCode/gui/rendering/rendering.h \
+        $$PWD/sourceCode/gui/rendering/cameraRendering.h \
+        $$PWD/sourceCode/gui/rendering/visionSensorRendering.h \
+        $$PWD/sourceCode/gui/rendering/forceSensorRendering.h \
+        $$PWD/sourceCode/gui/rendering/proximitySensorRendering.h \
+        $$PWD/sourceCode/gui/rendering/dummyRendering.h \
+        $$PWD/sourceCode/gui/rendering/lightRendering.h \
+        $$PWD/sourceCode/gui/rendering/pointCloudRendering.h \
+        $$PWD/sourceCode/gui/rendering/octreeRendering.h \
+        $$PWD/sourceCode/gui/rendering/jointRendering.h \
+        $$PWD/sourceCode/gui/rendering/graphRendering.h \
+        $$PWD/sourceCode/gui/rendering/millRendering.h \
+        $$PWD/sourceCode/gui/rendering/mirrorRendering.h \
+        $$PWD/sourceCode/gui/rendering/pathRendering.h \
+        $$PWD/sourceCode/gui/rendering/shapeRendering.h \
+        $$PWD/sourceCode/gui/rendering/ghostRendering.h \
+        $$PWD/sourceCode/gui/rendering/drawingObjectRendering.h \
+        $$PWD/sourceCode/gui/rendering/ptCloudRendering_old.h \
+        $$PWD/sourceCode/gui/rendering/collisionContourRendering.h \
+        $$PWD/sourceCode/gui/rendering/distanceRendering.h \
+        $$PWD/sourceCode/gui/rendering/bannerRendering.h \
+        $$PWD/sourceCode/gui/rendering/thumbnailRendering.h \
+        $$PWD/sourceCode/gui/rendering/pathPlanningTaskRendering_old.h \
+        $$PWD/sourceCode/gui/rendering/broadcastDataVisualRendering.h \
+        $$PWD/sourceCode/gui/rendering/dynamicsRendering.h \
+        $$PWD/sourceCode/gui/rendering/environmentRendering.h \
+        $$PWD/sourceCode/gui/rendering/pageRendering.h \
+        $$PWD/sourceCode/gui/rendering/viewRendering.h \
 
-    HEADERS += $$PWD/sourceCode/visual/oGL.h \
-        $$PWD/sourceCode/visual/oglExt.h \
-        $$PWD/sourceCode/visual/glShader.h \
-        $$PWD/sourceCode/visual/glBufferObjects.h \
+    HEADERS += $$PWD/sourceCode/gui/communication/wireless/broadcastDataVisual.h \
+
+    HEADERS += $$PWD/sourceCode/gui/sceneObjects/visionSensorObjectRelated/offscreenGlContext.h \
+        $$PWD/sourceCode/gui/sceneObjects/visionSensorObjectRelated/frameBufferObject.h \
+        $$PWD/sourceCode/gui/sceneObjects/visionSensorObjectRelated/visionSensorGlStuff.h
+
+    HEADERS += $$PWD/sourceCode/gui/visual/oGL.h \
+        $$PWD/sourceCode/gui/visual/oglExt.h \
+        $$PWD/sourceCode/gui/visual/glShader.h \
+        $$PWD/sourceCode/gui/visual/glBufferObjects.h \
 
     HEADERS += $$PWD/sourceCode/gui/dialogs/qdlglayers.h \
         $$PWD/sourceCode/gui/dialogs/qdlgavirecorder.h \
@@ -712,6 +702,8 @@ WITH_GUI {
     HEADERS += $$PWD/sourceCode/gui/various/simRecorder.h \
         $$PWD/sourceCode/gui/various/engineProperties.h \
         $$PWD/sourceCode/gui/various/guiApp.h \
+        $$PWD/sourceCode/gui/various/uiThread.h \
+        $$PWD/sourceCode/gui/various/simThread.h \
 
     HEADERS += $$PWD/sourceCode/gui/libs/auxLibVideo.h \
 }
@@ -798,7 +790,9 @@ SOURCES += $$PWD/sourceCode/communication/tubes/commTube.cpp \
 
 SOURCES += $$PWD/sourceCode/communication/wireless/broadcastDataContainer.cpp \
     $$PWD/sourceCode/communication/wireless/broadcastData.cpp \
-    $$PWD/sourceCode/communication/wireless/broadcastDataVisual.cpp \
+    $$PWD/sourceCode/communication/serialPort/serialPort.cpp \
+    $$PWD/sourceCode/communication/serialPort/serial_win_mac_linux.cpp \
+    $$PWD/sourceCode/communication/serialPort/serialPortWin.cpp \
 
 SOURCES += $$PWD/sourceCode/mainContainers/worldContainer.cpp \
     $$PWD/sourceCode/shared/mainContainers/_worldContainer_.cpp \
@@ -846,6 +840,7 @@ SOURCES += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.cpp 
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorInfos.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorFunctions.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp \
 
 SOURCES += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.cpp \
     $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.cpp \
@@ -873,7 +868,6 @@ SOURCES += $$PWD/sourceCode/textures/textureObject.cpp \
 
 SOURCES += $$PWD/sourceCode/serialization/ser.cpp \
     $$PWD/sourceCode/serialization/huffman.c \
-    $$PWD/sourceCode/serialization/tinyxml2.cpp \
 
 SOURCES += $$PWD/sourceCode/interfaces/sim.cpp \
     $$PWD/sourceCode/interfaces/simInternal.cpp \
@@ -912,8 +906,6 @@ SOURCES += $$PWD/sourceCode/geometricAlgorithms/linMotionRoutines.cpp \
 SOURCES += $$PWD/sourceCode/various/memorizedConf_old.cpp \
     $$PWD/sourceCode/various/userSettings.cpp \
     $$PWD/sourceCode/various/folderSystem.cpp \
-    $$PWD/sourceCode/various/uiThread.cpp \
-    $$PWD/sourceCode/various/simThread.cpp \
     $$PWD/sourceCode/various/app.cpp \
     $$PWD/sourceCode/various/dynMaterialObject.cpp \
     $$PWD/sourceCode/various/easyLock.cpp \
@@ -925,35 +917,6 @@ SOURCES += $$PWD/sourceCode/various/memorizedConf_old.cpp \
 SOURCES += $$PWD/sourceCode/undoRedo/undoBufferArrays.cpp \
     $$PWD/sourceCode/undoRedo/undoBuffer.cpp \
     $$PWD/sourceCode/undoRedo/undoBufferCameras.cpp \
-
-SOURCES += $$PWD/sourceCode/rendering/rendering.cpp \
-    $$PWD/sourceCode/rendering/cameraRendering.cpp \
-    $$PWD/sourceCode/rendering/visionSensorRendering.cpp \
-    $$PWD/sourceCode/rendering/forceSensorRendering.cpp \
-    $$PWD/sourceCode/rendering/proximitySensorRendering.cpp \
-    $$PWD/sourceCode/rendering/dummyRendering.cpp \
-    $$PWD/sourceCode/rendering/lightRendering.cpp \
-    $$PWD/sourceCode/rendering/pointCloudRendering.cpp \
-    $$PWD/sourceCode/rendering/octreeRendering.cpp \
-    $$PWD/sourceCode/rendering/jointRendering.cpp \
-    $$PWD/sourceCode/rendering/graphRendering.cpp \
-    $$PWD/sourceCode/rendering/millRendering.cpp \
-    $$PWD/sourceCode/rendering/mirrorRendering.cpp \
-    $$PWD/sourceCode/rendering/pathRendering.cpp \
-    $$PWD/sourceCode/rendering/shapeRendering.cpp \
-    $$PWD/sourceCode/rendering/ghostRendering.cpp \
-    $$PWD/sourceCode/rendering/drawingObjectRendering.cpp \
-    $$PWD/sourceCode/rendering/ptCloudRendering_old.cpp \
-    $$PWD/sourceCode/rendering/collisionContourRendering.cpp \
-    $$PWD/sourceCode/rendering/distanceRendering.cpp \
-    $$PWD/sourceCode/rendering/bannerRendering.cpp \
-    $$PWD/sourceCode/rendering/thumbnailRendering.cpp \
-    $$PWD/sourceCode/rendering/pathPlanningTaskRendering_old.cpp \
-    $$PWD/sourceCode/rendering/broadcastDataVisualRendering.cpp \
-    $$PWD/sourceCode/rendering/dynamicsRendering.cpp \
-    $$PWD/sourceCode/rendering/environmentRendering.cpp \
-    $$PWD/sourceCode/rendering/pageRendering.cpp \
-    $$PWD/sourceCode/rendering/viewRendering.cpp \
 
 SOURCES += $$PWD/sourceCode/displ/colorObject.cpp \
 
@@ -978,23 +941,46 @@ SOURCES += $$PWD/sourceCode/platform/vSimUiMutex.cpp \
 SOURCES += $$PWD/sourceCode/various/simAndUiThreadSync.cpp \
     $$PWD/sourceCode/various/simQApp.cpp
 
-WITH_SERIAL {
-    SOURCES += $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp
-
-    SOURCES += $$PWD/sourceCode/communication/serialPort/serialPort.cpp \
-        $$PWD/sourceCode/communication/serialPort/serial_win_mac_linux.cpp \
-        $$PWD/sourceCode/communication/serialPort/serialPortWin.cpp
-}
-
 WITH_GUI {
-    SOURCES += $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/offscreenGlContext.cpp \
-        $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/frameBufferObject.cpp \
-        $$PWD/sourceCode/sceneObjects/visionSensorObjectRelated/visionSensorGlStuff.cpp \
+    SOURCES += $$PWD/sourceCode/gui/rendering/rendering.cpp \
+        $$PWD/sourceCode/gui/rendering/cameraRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/visionSensorRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/forceSensorRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/proximitySensorRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/dummyRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/lightRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/pointCloudRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/octreeRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/jointRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/graphRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/millRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/mirrorRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/pathRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/shapeRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/ghostRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/drawingObjectRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/ptCloudRendering_old.cpp \
+        $$PWD/sourceCode/gui/rendering/collisionContourRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/distanceRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/bannerRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/thumbnailRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/pathPlanningTaskRendering_old.cpp \
+        $$PWD/sourceCode/gui/rendering/broadcastDataVisualRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/dynamicsRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/environmentRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/pageRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/viewRendering.cpp \
 
-    SOURCES += $$PWD/sourceCode/visual/oGL.cpp \
-        $$PWD/sourceCode/visual/oglExt.cpp \
-        $$PWD/sourceCode/visual/glShader.cpp \
-        $$PWD/sourceCode/visual/glBufferObjects.cpp \
+    SOURCES += $$PWD/sourceCode/gui/communication/wireless/broadcastDataVisual.cpp \
+
+    SOURCES += $$PWD/sourceCode/gui/sceneObjects/visionSensorObjectRelated/offscreenGlContext.cpp \
+        $$PWD/sourceCode/gui/sceneObjects/visionSensorObjectRelated/frameBufferObject.cpp \
+        $$PWD/sourceCode/gui/sceneObjects/visionSensorObjectRelated/visionSensorGlStuff.cpp \
+
+    SOURCES += $$PWD/sourceCode/gui/visual/oGL.cpp \
+        $$PWD/sourceCode/gui/visual/oglExt.cpp \
+        $$PWD/sourceCode/gui/visual/glShader.cpp \
+        $$PWD/sourceCode/gui/visual/glBufferObjects.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/dialogs/qdlgsettings.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlglayers.cpp \
@@ -1112,6 +1098,8 @@ WITH_GUI {
     SOURCES += $$PWD/sourceCode/gui/various/simRecorder.cpp \
         $$PWD/sourceCode/gui/various/engineProperties.cpp \
         $$PWD/sourceCode/gui/various/guiApp.cpp \
+        $$PWD/sourceCode/gui/various/uiThread.cpp \
+        $$PWD/sourceCode/gui/various/simThread.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/libs/auxLibVideo.cpp \
 }

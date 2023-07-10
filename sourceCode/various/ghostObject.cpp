@@ -1,6 +1,8 @@
 #include <ghostObject.h>
 #include <app.h>
-#include <ghostRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <ghostRendering.h>
+#endif
 
 CGhostObject::CGhostObject()
 { // only for serialization or copy

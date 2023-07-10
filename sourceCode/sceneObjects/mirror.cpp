@@ -4,8 +4,8 @@
 #include <simStrings.h>
 #include <utils.h>
 #include <app.h>
-#include <mirrorRendering.h>
 #ifdef SIM_WITH_GUI
+    #include <mirrorRendering.h>
     #include <guiApp.h>
 #endif
 
@@ -142,8 +142,10 @@ bool CMirror::getActive()
 
 void CMirror::setIsMirror(bool m)
 {
-    if (m!=_isMirror)
-        GuiApp::setRefreshHierarchyViewFlag();
+    #ifdef SIM_WITH_GUI
+        if (m!=_isMirror)
+            GuiApp::setRefreshHierarchyViewFlag();
+    #endif
     _isMirror=m;
 }
 
@@ -453,7 +455,9 @@ void CMirror::serialize(CSer& ar)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CMirror::display(CViewableBase* renderingObject,int displayAttrib)
 {
     displayMirror(this,renderingObject,displayAttrib);
 }
+#endif

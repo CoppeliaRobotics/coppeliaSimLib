@@ -1,11 +1,11 @@
 #include <worldContainer.h>
 #include <app.h>
-#include <rendering.h>
 #include <tt.h>
 #include <utils.h>
 #include <interfaceStackString.h>
 #include <interfaceStackInteger.h>
 #ifdef SIM_WITH_GUI
+    #include <rendering.h>
     #include <guiApp.h>
 #endif
 
@@ -29,8 +29,6 @@ CWorldContainer::CWorldContainer()
     moduleMenuItemContainer=nullptr;
 #ifdef SIM_WITH_GUI
     globalGuiTextureCont=nullptr;
-#endif
-#ifdef SIM_WITH_SERIAL
     serialPortContainer=nullptr;
 #endif
     _currentWorldIndex=-1;
@@ -61,8 +59,10 @@ void CWorldContainer::setModificationFlag(int bitMask)
 
 int CWorldContainer::getModificationFlags(bool clearTheFlagsAfter)
 {
-    if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
-        _modificationFlags|=128;
+    #ifdef SIM_WITH_GUI
+        if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
+            _modificationFlags|=128;
+    #endif
     std::vector<long long int> currentUniqueIdsOfSel;
     for (size_t i=0;i<currentWorld->sceneObjects->getSelectionCount();i++)
     {
@@ -245,8 +245,6 @@ void CWorldContainer::initialize()
     moduleMenuItemContainer=new CModuleMenuItemContainer();
 #ifdef SIM_WITH_GUI
     globalGuiTextureCont=new CGlobalGuiTextureContainer();
-#endif
-#ifdef SIM_WITH_SERIAL
     serialPortContainer=new CSerialPortContainer();
 #endif
 
@@ -261,7 +259,6 @@ void CWorldContainer::initialize()
 
     _events=new CCbor();
 
-    initializeRendering();
     createNewWorld();
 }
 
@@ -284,15 +281,12 @@ void CWorldContainer::deinitialize()
     delete persistentDataContainer;
 #ifdef SIM_WITH_GUI
     delete globalGuiTextureCont;
+    delete serialPortContainer;
 #endif
     delete moduleMenuItemContainer;
     delete copyBuffer;
-#ifdef SIM_WITH_SERIAL
-    delete serialPortContainer;
-#endif
     delete simulatorMessageQueue;
     delete calcInfo;
-    deinitializeRendering();
 }
 
 bool CWorldContainer::_switchToWorld(int newWorldIndex)
@@ -363,9 +357,9 @@ bool CWorldContainer::isWorldSwitchingLocked() const
         return(false);
     if (!currentWorld->simulation->isSimulationStopped())
         return(true);
+#ifdef SIM_WITH_GUI
     if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
         return(true);
-#ifdef SIM_WITH_GUI
     if (GuiApp::mainWindow!=nullptr)
     {
         if (GuiApp::mainWindow->oglSurface->isViewSelectionActive()||GuiApp::mainWindow->oglSurface->isPageSelectionActive())
@@ -653,7 +647,7 @@ int CWorldContainer::getInstanceIndexOfASceneNotYetSaved(bool doNotIncludeCurren
 void CWorldContainer::setInstanceIndexWithThumbnails(int index)
 { // GUI THREAD only
     TRACE_INTERNAL;
-    App::appendSimulationThreadCommand(SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD,index);
+    GuiApp::appendSimulationThreadCommand(SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD,index);
 }
 
 bool CWorldContainer::processGuiCommand(int commandID)

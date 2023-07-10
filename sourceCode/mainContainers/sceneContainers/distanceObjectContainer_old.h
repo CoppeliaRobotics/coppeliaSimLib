@@ -12,8 +12,6 @@ public:
 
     void simulationAboutToStart();
     void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
-    void displayDistanceSegments();
     int addNewObject(int entity1Handle,int entity2Handle,const char* objName);
     void addObject(CDistanceObject_old* newDistObj,bool objectIsACopy);
     void addObjectWithSuffixOffset(CDistanceObject_old* newDistObj,bool objectIsACopy,int suffixOffset);
@@ -38,5 +36,11 @@ protected:
     void _removeObject(int objectHandle);
 
     std::vector<CDistanceObject_old*> _distanceObjects;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
+        void displayDistanceSegments();
+    #endif
 };
 

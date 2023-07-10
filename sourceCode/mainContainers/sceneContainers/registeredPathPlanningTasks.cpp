@@ -215,7 +215,9 @@ void CRegisteredPathPlanningTasks::addObjectWithSuffixOffset(CPathPlanningTask* 
         objID++;
     aTask->setObjectID(objID);
     allObjects.push_back(aTask);
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
 }
 bool CRegisteredPathPlanningTasks::removeObject(int objID)
 {
@@ -225,7 +227,9 @@ bool CRegisteredPathPlanningTasks::removeObject(int objID)
         {
             delete allObjects[i];
             allObjects.erase(allObjects.begin()+i);
-            GuiApp::setFullDialogRefreshFlag();
+            #ifdef SIM_WITH_GUI
+                GuiApp::setFullDialogRefreshFlag();
+            #endif
             return(true);
         }
     }

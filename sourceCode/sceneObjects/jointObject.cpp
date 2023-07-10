@@ -5,8 +5,10 @@
 #include <simStrings.h>
 #include <utils.h>
 #include <app.h>
-#include <jointRendering.h>
 #include <simFlavor.h>
+#ifdef SIM_WITH_GUI
+    #include <jointRendering.h>
+#endif
 
 CJoint::CJoint()
 {
@@ -4201,11 +4203,6 @@ void CJoint::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID,copyBuffer);
 }
 
-void CJoint::display(CViewableBase* renderingObject,int displayAttrib)
-{
-    displayJoint(this,renderingObject,displayAttrib);
-}
-
 void CJoint::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
 { // Overridden from CSceneObject
     if (setObjectCanSync(true))
@@ -4853,3 +4850,11 @@ void CJoint::_fixVortexInfVals()
     }
     // values at index 47 and later are signed
 }
+
+#ifdef SIM_WITH_GUI
+void CJoint::display(CViewableBase* renderingObject,int displayAttrib)
+{
+    displayJoint(this,renderingObject,displayAttrib);
+}
+#endif
+

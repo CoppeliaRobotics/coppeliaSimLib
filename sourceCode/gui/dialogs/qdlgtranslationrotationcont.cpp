@@ -41,7 +41,7 @@ void CQDlgTranslationRotationCont::cancelEvent()
     SSimulationThreadCommand cmd;
     cmd.cmdId=SET_MOUSEMODE_GUITRIGGEREDCMD;
     cmd.intParams.push_back((GuiApp::getMouseMode()&0xff00)|sim_navigation_camerashift);
-    App::appendSimulationThreadCommand(cmd);
+    GuiApp::appendSimulationThreadCommand(cmd);
 //    GuiApp::setMouseMode((GuiApp::getMouseMode()&0xff00)|sim_navigation_camerashift);
 }
 

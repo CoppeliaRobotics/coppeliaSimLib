@@ -130,7 +130,9 @@ void CUndoBufferCont::emptyRedoBuffer()
         undoBufferArrays.removeDependenciesFromUndoBufferId(_buffers[_buffers.size()-1]->getBufferId());
         delete _buffers[_buffers.size()-1];
         _buffers.pop_back();
-        GuiApp::setToolbarRefreshFlag();
+        #ifdef SIM_WITH_GUI
+            GuiApp::setToolbarRefreshFlag();
+        #endif
     }
 }
 

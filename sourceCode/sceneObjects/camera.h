@@ -22,7 +22,6 @@ public:
     virtual ~CCamera();
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
@@ -108,6 +107,7 @@ protected:
 
 #ifdef SIM_WITH_GUI
 public:
+    void display(CViewableBase* renderingObject,int displayAttrib);
     void lookIn(int windowSize[2],CSView* subView,bool drawText=false,bool passiveSubView=true);
     void setAttributesForRendering(int attr);
     int getAttributesForRendering() const;

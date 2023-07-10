@@ -1,4 +1,3 @@
-
 #include <simInternal.h>
 #include <bannerContainer.h>
 #include <viewableBase.h>
@@ -83,6 +82,7 @@ void CBannerContainer::announceObjectWillBeErased(int objID)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CBannerContainer::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
 {
     drawAll3DStuff(false,false,displayAttrib,renderingObject->getFullCumulativeTransformation().getMatrix(),windowSize,verticalViewSizeOrAngle,perspective);
@@ -103,4 +103,4 @@ void CBannerContainer::drawAll3DStuff(bool overlay,bool transparentObject,int di
     for (size_t i=0;i<_allObjects.size();i++)
         _allObjects[i]->draw3DStuff(overlay,transparentObject,displayAttrib,cameraCTM,windowSize,verticalViewSizeOrAngle,perspective);
 }
-
+#endif

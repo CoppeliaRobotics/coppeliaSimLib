@@ -11,7 +11,9 @@
 #include <app.h>
 #include <simStrings.h>
 #include <vDateTime.h>
-#include <pathPlanningTaskRendering_old.h>
+#ifdef SIM_WITH_GUI
+    #include <pathPlanningTaskRendering_old.h>
+#endif
 
 CPathPlanningTask::CPathPlanningTask()
 {
@@ -1074,6 +1076,7 @@ int CPathPlanningTask::performSteppedSearch()
     return(retVal);
 }
 
+#ifdef SIM_WITH_GUI
 void CPathPlanningTask::renderYour3DStuff()
 {
     if ((_startDummyID==-1)||(!_visualizeSearchArea)||(!App::currentWorld->simulation->isSimulationStopped()))
@@ -1119,3 +1122,4 @@ void CPathPlanningTask::renderYour3DStuff()
         displayPathPlanningTask(corners);
     }
 }
+#endif

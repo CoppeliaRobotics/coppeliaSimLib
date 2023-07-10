@@ -16,7 +16,6 @@ public:
     virtual ~COcTree();
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
@@ -119,4 +118,9 @@ protected:
     double _cellSizeForDisplay;
     int _vertexBufferId;
     int _normalBufferId;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void display(CViewableBase* renderingObject,int displayAttrib);
+    #endif
 };

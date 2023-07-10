@@ -129,7 +129,7 @@ CMainWindow::CMainWindow() : QMainWindow()
             cmd.intParams.push_back(sim_msgbox_type_warning);
             cmd.stringParams.push_back("Model folder not found");
             cmd.stringParams.push_back(IDSNS_MAC_FILE_ATTRIBUTE_PROBLEM);
-            App::appendSimulationThreadCommand(cmd,5000);
+            GuiApp::appendSimulationThreadCommand(cmd,5000);
         }
     #endif
 
@@ -1236,7 +1236,7 @@ void CMainWindow::dragEnterEvent(QDragEnterEvent* dEvent)
         SSimulationThreadCommand cmd;
         cmd.cmdId=DRAGENTER_GUITRIGGEREDCMD;
         cmd.stringParams.push_back(_mimeText);
-        App::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
         dEvent->acceptProposedAction();
     }
 /*
@@ -1281,7 +1281,7 @@ void CMainWindow::dragLeaveEvent(QDragLeaveEvent* dEvent)
         SSimulationThreadCommand cmd;
         cmd.cmdId=DRAGLEAVE_GUITRIGGEREDCMD;
         cmd.stringParams.push_back(_mimeText);
-        App::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
         _mimeText.clear();
     }
 }
@@ -1293,7 +1293,7 @@ void CMainWindow::dropEvent(QDropEvent* dEvent)
         SSimulationThreadCommand cmd;
         cmd.cmdId=DRAGDROP_GUITRIGGEREDCMD;
         cmd.stringParams.push_back(_mimeText);
-        App::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
         _mimeText.clear();
     }
 
@@ -1783,7 +1783,7 @@ void CMainWindow::_dropFilesIntoScene(const std::vector<std::string>& tttFiles,c
                             cmd.cmdId=OPEN_DRAG_AND_DROP_SCENE_CMD;
                             cmd.stringParams.push_back(tttFiles[i]);
                             cmd.boolParams.push_back(tttFiles.size()<2);
-                            App::appendSimulationThreadCommand(cmd);
+                            GuiApp::appendSimulationThreadCommand(cmd);
                         }
                     }
                 }
@@ -1798,7 +1798,7 @@ void CMainWindow::_dropFilesIntoScene(const std::vector<std::string>& tttFiles,c
                             cmd.stringParams.push_back(ttmFiles[i]);
                             cmd.boolParams.push_back(ttmFiles.size()<2);
                             cmd.boolParams.push_back(i==int(ttmFiles.size()-1));
-                            App::appendSimulationThreadCommand(cmd);
+                            GuiApp::appendSimulationThreadCommand(cmd);
                         }
                     }
                 }

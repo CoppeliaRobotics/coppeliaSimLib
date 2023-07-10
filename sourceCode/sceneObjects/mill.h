@@ -12,7 +12,6 @@ public:
     virtual ~CMill();
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
@@ -89,4 +88,9 @@ protected:
     int _calcTimeInMs;
 
     bool _initialExplicitHandling;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void display(CViewableBase* renderingObject,int displayAttrib);
+    #endif
 };

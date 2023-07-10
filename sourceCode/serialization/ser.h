@@ -10,7 +10,7 @@
 #define SER_END_OF_OBJECT "EOO"
 #define SER_NEXT_STEP "NXT"
 #define SER_END_OF_FILE "EOF"
-typedef sim::tinyxml2::XMLElement xmlNode;
+typedef tinyxml2::XMLElement xmlNode;
 
 class CSer
 {
@@ -202,7 +202,7 @@ private:
     VArchive* theArchive;
     VFile* theFile;
     std::vector<char>* _bufferArchive;
-    sim::tinyxml2::XMLDocument _xmlDocument;
+    tinyxml2::XMLDocument _xmlDocument;
     xmlNode* _xmlCurrentNode;
     std::vector<xmlNode*> _xmlNodes;
     int _xmlMaxInlineBufferSize;

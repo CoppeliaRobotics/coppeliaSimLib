@@ -10,7 +10,6 @@ public:
     virtual ~CLight();
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
@@ -81,4 +80,9 @@ protected:
     // Variables which do not need to be serialized
     bool _initialLightActive;
     static int _maximumOpenGlLights;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void display(CViewableBase* renderingObject,int displayAttrib);
+    #endif
 };

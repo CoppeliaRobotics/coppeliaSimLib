@@ -37,6 +37,7 @@ CTextureObject::CTextureObject(int sizeX,int sizeY)
 
 CTextureObject::~CTextureObject()
 {
+#ifdef SIM_WITH_GUI
     if (_oglTextureName!=(unsigned int)-1)
     { // destroy the texture in the UI thread
         SUIThreadCommand cmdIn;
@@ -45,6 +46,7 @@ CTextureObject::~CTextureObject()
         cmdIn.uintParams.push_back(_oglTextureName);
         GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
+#endif
 }
 
 void CTextureObject::setObjectID(int newID)

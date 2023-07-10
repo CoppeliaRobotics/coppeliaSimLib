@@ -55,7 +55,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -76,7 +76,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -102,7 +102,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -182,7 +182,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.objectParams.push_back(subView);
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -203,7 +203,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -222,7 +222,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -241,7 +241,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -273,7 +273,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -297,7 +297,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -322,7 +322,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -350,7 +350,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -377,7 +377,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -426,7 +426,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.objectParams.push_back(subView);
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -445,7 +445,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -472,7 +472,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -502,7 +502,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -545,7 +545,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }

@@ -13,10 +13,6 @@ public:
     virtual ~CBannerContainer();
 
     void simulationEnded();
-    void renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
-    void renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
-    void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
-    void drawAll3DStuff(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
     int addObject(CBannerObject* it);
     CBannerObject* getObject(int objectID);
     void eraseAllObjects(bool onlyThoseCreatedFromScripts);
@@ -25,4 +21,12 @@ public:
 
 private:
     std::vector<CBannerObject*> _allObjects;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
+        void renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
+        void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
+        void drawAll3DStuff(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM,int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
+    #endif
 };

@@ -7,7 +7,9 @@
 #include <global.h>
 #include <vDateTime.h>
 #include <app.h>
-#include <pointCloudRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <pointCloudRendering.h>
+#endif
 
 CPointCloud::CPointCloud()
 {
@@ -1514,7 +1516,9 @@ void CPointCloud::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID,copyBuffer);
 }
 
+#ifdef SIM_WITH_GUI
 void CPointCloud::display(CViewableBase* renderingObject,int displayAttrib)
 {
     displayPointCloud(this,renderingObject,displayAttrib);
 }
+#endif

@@ -6,7 +6,9 @@
 #include <sceneObjectOperations.h>
 #include <global.h>
 #include <app.h>
-#include <octreeRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <octreeRendering.h>
+#endif
 
 COcTree::COcTree()
 {
@@ -1155,8 +1157,9 @@ void COcTree::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID,copyBuffer);
 }
 
+#ifdef SIM_WITH_GUI
 void COcTree::display(CViewableBase* renderingObject,int displayAttrib)
 {
     displayOctree(this,renderingObject,displayAttrib);
 }
-
+#endif

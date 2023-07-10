@@ -18,7 +18,6 @@ public:
     virtual ~CGraph();
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
@@ -160,6 +159,7 @@ protected:
     double squareDistFromTrackingValue;
 #ifdef SIM_WITH_GUI
 public:
+    void display(CViewableBase* renderingObject,int displayAttrib);
     void lookAt(int windowSize[2],CSView* subView,bool timeGraph,bool drawText,bool passiveSubView,bool oneOneProportionForXYGraph);
     void validateViewValues(int windowSize[2],double graphPosition[2],double graphSize[2],
                 bool timeGraph,bool shiftOnly=false,bool keepProp=false,bool autoModeForTimeGraphXaxis=true);

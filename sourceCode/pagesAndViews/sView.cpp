@@ -9,8 +9,8 @@
 #include <vDateTime.h>
 #include <proxSensorRoutine.h>
 #include <app.h>
-#include <viewRendering.h>
 #ifdef SIM_WITH_GUI
+    #include <viewRendering.h>
     #include <oglSurface.h>
     #include <guiApp.h>
 #endif
@@ -390,231 +390,6 @@ bool CSView::getFitViewToSelection() const
 }
 
 
-bool CSView::processCommand(int commandID,int subViewIndex)
-{ // Return value is true if the command belonged to hierarchy menu and was executed
-    if (commandID==VIEW_FUNCTIONS_XY_GRAPH_AUTO_MODE_DURING_SIMULATION_VFCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            _xyGraphInAutoModeDuringSimulation=!_xyGraphInAutoModeDuringSimulation;
-            App::undoRedo_sceneChanged(""); 
-            if (_xyGraphInAutoModeDuringSimulation)
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
-            else
-                App::logMsg(sim_verbosity_msgs,IDSNS_AUTO_MODE_DISABLED);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==VIEW_FUNCTIONS_TIME_GRAPH_X_AUTO_MODE_DURING_SIMULATION_VFCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            _timeGraphXInAutoModeDuringSimulation=!_timeGraphXInAutoModeDuringSimulation;
-            App::undoRedo_sceneChanged(""); 
-            if (_timeGraphXInAutoModeDuringSimulation)
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
-            else
-                App::logMsg(sim_verbosity_msgs,IDSNS_AUTO_MODE_DISABLED);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==VIEW_FUNCTIONS_TIME_GRAPH_Y_AUTO_MODE_DURING_SIMULATION_VFCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            _timeGraphYInAutoModeDuringSimulation=!_timeGraphYInAutoModeDuringSimulation;
-            App::undoRedo_sceneChanged(""); 
-            if (_timeGraphYInAutoModeDuringSimulation)
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
-            else
-                App::logMsg(sim_verbosity_msgs,IDSNS_AUTO_MODE_DISABLED);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==VIEW_FUNCTIONS_XY_GRAPH_KEEP_PROPORTIONS_AT_ONE_ONE_VFCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            _xyGraphIsOneOneProportional=!_xyGraphIsOneOneProportional;
-            App::undoRedo_sceneChanged(""); 
-            if (_xyGraphIsOneOneProportional)
-                App::logMsg(sim_verbosity_msgs,IDSNS_KEEPING_PROPORTIONS_AT_1_1);
-            else
-                App::logMsg(sim_verbosity_msgs,IDSNS_PROPORTIONS_NOT_CONSTRAINED_ANYMORE);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==VIEW_FUNCTIONS_XY_GRAPH_DISPLAY_VFCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            graphIsTimeGraph=!graphIsTimeGraph;
-            App::undoRedo_sceneChanged(""); 
-            if (graphIsTimeGraph)
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_TIME_GRAPH_MODE);
-            else
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_XY_GRAPH_MODE);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
-    if (commandID==VIEW_FUNCTIONS_LOOK_THROUGH_CAMERA_VFCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            if ((sel.size()==1)&&(App::currentWorld->sceneObjects->getCameraFromHandle(sel[0])!=nullptr))
-            {
-                setDefaultValues();
-                linkedObjectID=sel[0];
-                App::undoRedo_sceneChanged(""); 
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_THROUGH_SELECTED_CAMERA);
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    /*
-    if (commandID==VIEW_FUNCTIONS_LOOK_AT_GRAPH_VFCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (int i=0;i<App::currentWorld->objCont->getSelSize();i++)
-                sel.push_back(App::currentWorld->objCont->getSelID(i));
-            if ((sel.size()==1)&&(App::currentWorld->objCont->getGraph(sel[0])!=nullptr))
-            {
-                setDefaultValues();
-                linkedObjectID=sel[0];
-                App::undoRedo_sceneChanged(""); 
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_AT_SELECTED_GRAPH);
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    */
-    if (commandID==VIEW_FUNCTIONS_LOOK_AT_VISION_SENSOR_VFCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            if ((sel.size()==1)&&(App::currentWorld->sceneObjects->getVisionSensorFromHandle(sel[0])!=nullptr))
-            {
-                setDefaultValues();
-                linkedObjectID=sel[0];
-                App::undoRedo_sceneChanged(""); 
-                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_AT_SELECTED_VISION_SENSOR);
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==VIEW_FUNCTIONS_TRACK_OBJECT_VFCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
-                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
-            if ((camera!=nullptr)&&(sel.size()==1))
-            {
-                camera->setTrackedObjectHandle(sel[0]);
-                App::undoRedo_sceneChanged(""); 
-                App::logMsg(sim_verbosity_msgs,IDSNS_CAMERA_NOW_TRACKING_SELECTED_OBJECT);
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==VIEW_FUNCTIONS_DONT_TRACK_OBJECT_VFCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
-            if (camera!=nullptr)
-            {
-                camera->setTrackedObjectHandle(-1);
-                App::undoRedo_sceneChanged(""); 
-                App::logMsg(sim_verbosity_msgs,IDSNS_CAMERA_NOW_NOT_TRACKING_ANY_OBJECT);
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.intParams.push_back(subViewIndex);
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    return(false);
-}
-
 int CSView::getSelectionStatus() const
 {
     return(selectionStatus);
@@ -850,6 +625,7 @@ void CSView::serialize(CSer& ar)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CSView::render(int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText,bool passiveSubView)
 {
     TRACE_INTERNAL;
@@ -857,7 +633,231 @@ void CSView::render(int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText
     displayView(this,it,mainWindowXPos,clipWithMainWindowXPos,drawText,passiveSubView);
 }
 
-#ifdef SIM_WITH_GUI
+bool CSView::processCommand(int commandID,int subViewIndex)
+{ // Return value is true if the command belonged to hierarchy menu and was executed
+    if (commandID==VIEW_FUNCTIONS_XY_GRAPH_AUTO_MODE_DURING_SIMULATION_VFCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            _xyGraphInAutoModeDuringSimulation=!_xyGraphInAutoModeDuringSimulation;
+            App::undoRedo_sceneChanged("");
+            if (_xyGraphInAutoModeDuringSimulation)
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
+            else
+                App::logMsg(sim_verbosity_msgs,IDSNS_AUTO_MODE_DISABLED);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.intParams.push_back(subViewIndex);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==VIEW_FUNCTIONS_TIME_GRAPH_X_AUTO_MODE_DURING_SIMULATION_VFCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            _timeGraphXInAutoModeDuringSimulation=!_timeGraphXInAutoModeDuringSimulation;
+            App::undoRedo_sceneChanged("");
+            if (_timeGraphXInAutoModeDuringSimulation)
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
+            else
+                App::logMsg(sim_verbosity_msgs,IDSNS_AUTO_MODE_DISABLED);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.intParams.push_back(subViewIndex);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==VIEW_FUNCTIONS_TIME_GRAPH_Y_AUTO_MODE_DURING_SIMULATION_VFCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            _timeGraphYInAutoModeDuringSimulation=!_timeGraphYInAutoModeDuringSimulation;
+            App::undoRedo_sceneChanged("");
+            if (_timeGraphYInAutoModeDuringSimulation)
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_AUTO_MODE);
+            else
+                App::logMsg(sim_verbosity_msgs,IDSNS_AUTO_MODE_DISABLED);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.intParams.push_back(subViewIndex);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==VIEW_FUNCTIONS_XY_GRAPH_KEEP_PROPORTIONS_AT_ONE_ONE_VFCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            _xyGraphIsOneOneProportional=!_xyGraphIsOneOneProportional;
+            App::undoRedo_sceneChanged("");
+            if (_xyGraphIsOneOneProportional)
+                App::logMsg(sim_verbosity_msgs,IDSNS_KEEPING_PROPORTIONS_AT_1_1);
+            else
+                App::logMsg(sim_verbosity_msgs,IDSNS_PROPORTIONS_NOT_CONSTRAINED_ANYMORE);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.intParams.push_back(subViewIndex);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==VIEW_FUNCTIONS_XY_GRAPH_DISPLAY_VFCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            graphIsTimeGraph=!graphIsTimeGraph;
+            App::undoRedo_sceneChanged("");
+            if (graphIsTimeGraph)
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_TIME_GRAPH_MODE);
+            else
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_IN_XY_GRAPH_MODE);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.intParams.push_back(subViewIndex);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+
+    if (commandID==VIEW_FUNCTIONS_LOOK_THROUGH_CAMERA_VFCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            std::vector<int> sel;
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            if ((sel.size()==1)&&(App::currentWorld->sceneObjects->getCameraFromHandle(sel[0])!=nullptr))
+            {
+                setDefaultValues();
+                linkedObjectID=sel[0];
+                App::undoRedo_sceneChanged("");
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_THROUGH_SELECTED_CAMERA);
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.intParams.push_back(subViewIndex);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    /*
+    if (commandID==VIEW_FUNCTIONS_LOOK_AT_GRAPH_VFCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            std::vector<int> sel;
+            for (int i=0;i<App::currentWorld->objCont->getSelSize();i++)
+                sel.push_back(App::currentWorld->objCont->getSelID(i));
+            if ((sel.size()==1)&&(App::currentWorld->objCont->getGraph(sel[0])!=nullptr))
+            {
+                setDefaultValues();
+                linkedObjectID=sel[0];
+                App::undoRedo_sceneChanged("");
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_AT_SELECTED_GRAPH);
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.intParams.push_back(subViewIndex);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    */
+    if (commandID==VIEW_FUNCTIONS_LOOK_AT_VISION_SENSOR_VFCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            std::vector<int> sel;
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            if ((sel.size()==1)&&(App::currentWorld->sceneObjects->getVisionSensorFromHandle(sel[0])!=nullptr))
+            {
+                setDefaultValues();
+                linkedObjectID=sel[0];
+                App::undoRedo_sceneChanged("");
+                App::logMsg(sim_verbosity_msgs,IDSNS_NOW_LOOKING_AT_SELECTED_VISION_SENSOR);
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.intParams.push_back(subViewIndex);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==VIEW_FUNCTIONS_TRACK_OBJECT_VFCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            std::vector<int> sel;
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
+                sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+            if ((camera!=nullptr)&&(sel.size()==1))
+            {
+                camera->setTrackedObjectHandle(sel[0]);
+                App::undoRedo_sceneChanged("");
+                App::logMsg(sim_verbosity_msgs,IDSNS_CAMERA_NOW_TRACKING_SELECTED_OBJECT);
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.intParams.push_back(subViewIndex);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==VIEW_FUNCTIONS_DONT_TRACK_OBJECT_VFCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(linkedObjectID);
+            if (camera!=nullptr)
+            {
+                camera->setTrackedObjectHandle(-1);
+                App::undoRedo_sceneChanged("");
+                App::logMsg(sim_verbosity_msgs,IDSNS_CAMERA_NOW_NOT_TRACKING_ANY_OBJECT);
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.intParams.push_back(subViewIndex);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    return(false);
+}
+
 void CSView::addMenu(VMenu* menu)
 {
     //bool lastSelIsGraph=false;
@@ -1143,7 +1143,7 @@ void CSView::_handleClickRayIntersection_old(int x,int y,bool mouseDown)
     cmd.doubleParams.push_back(cam->getNearClippingPlane());
     cmd.intParams.push_back(cam->getObjectHandle());
     cmd.transfParams.push_back(tr);
-    App::appendSimulationThreadCommand(cmd);
+    GuiApp::appendSimulationThreadCommand(cmd);
 }
 
 int CSView::getCursor(int x,int y) const

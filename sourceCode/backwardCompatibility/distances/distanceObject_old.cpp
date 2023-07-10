@@ -8,8 +8,10 @@
 #include <app.h>
 #include <simStrings.h>
 #include <vDateTime.h>
-#include <distanceRendering.h>
 #include <base64.h>
+#ifdef SIM_WITH_GUI
+    #include <distanceRendering.h>
+#endif
 
 CDistanceObject_old::CDistanceObject_old()
 {
@@ -491,13 +493,6 @@ void CDistanceObject_old::serialize(CSer& ar)
     }
 }
 
-void CDistanceObject_old::displayDistanceSegment()
-{
-    if ( (!_distanceIsValid)||(!_displaySegment) )
-        return;
-    displayDistance(this,_segmentWidth,_distanceResult);
-}
-
 int CDistanceObject_old::getObjectHandle() const
 {
     return(_objectHandle);
@@ -579,4 +574,13 @@ bool CDistanceObject_old::setObjectHandle(int newHandle)
         _objectHandle=newHandle;
     return(diff);
 }
+
+#ifdef SIM_WITH_GUI
+void CDistanceObject_old::displayDistanceSegment()
+{
+    if ( (!_distanceIsValid)||(!_displaySegment) )
+        return;
+    displayDistance(this,_segmentWidth,_distanceResult);
+}
+#endif
 

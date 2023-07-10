@@ -46,8 +46,6 @@ public:
     void setTextureMapMode(int mode);
     int getTextureMapMode();
 
-    int* getTexCoordBufferIdPointer();
-
     void setStartedTextureObject(CTextureObject* it);
     CTextureObject* getStartedTextureObject();
 
@@ -66,10 +64,16 @@ private:
     C7Vector _textureRelativeConfig;
     double _textureScalingX;
     double _textureScalingY;
-    int _texCoordBufferId; // used for VBOs
     std::vector<float> _fixedTextureCoordinates;
 
     // do not copy nor serialize:
     int _objectStateId;
     std::vector<float> _calculatedTextureCoordinates;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        int* getTexCoordBufferIdPointer();
+    private:
+        int _texCoordBufferId; // used for VBOs
+    #endif
 };

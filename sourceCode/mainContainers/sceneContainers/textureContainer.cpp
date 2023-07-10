@@ -150,8 +150,10 @@ void CTextureContainer::removeObject(int objectID)
         {
             delete _allTextureObjects[i];
             _allTextureObjects.erase(_allTextureObjects.begin()+i);
-            GuiApp::setFullDialogRefreshFlag();
-            return;
+            #ifdef SIM_WITH_GUI
+                GuiApp::setFullDialogRefreshFlag();
+            #endif
+            break;
         }
     }
 }

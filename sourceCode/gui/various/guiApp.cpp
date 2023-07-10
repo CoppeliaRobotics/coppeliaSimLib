@@ -23,12 +23,12 @@ CSimQApp* GuiApp::qtApp=nullptr;
 int GuiApp::_qApp_argc=1;
 char GuiApp::_qApp_arg0[]={"CoppeliaSim"};
 char* GuiApp::_qApp_argv[1]={_qApp_arg0};
+CSimThread* GuiApp::simThread=nullptr;
 CUiThread* GuiApp::uiThread=nullptr;
 int GuiApp::operationalUIParts=0; // sim_gui_menubar,sim_gui_popupmenus,sim_gui_toolbar1,sim_gui_toolbar2, etc.
 bool GuiApp::_browserEnabled=true;
 bool GuiApp::_online=false;
 bool GuiApp::_showInertias=false;
-CGm* GuiApp::gm=nullptr;
 int GuiApp::sc=1;
 #ifdef SIM_WITH_GUI
     CMainWindow* GuiApp::mainWindow=nullptr;
@@ -36,6 +36,8 @@ int GuiApp::sc=1;
 
 GuiApp::GuiApp()
 {
+    uiThread=nullptr;
+    qtApp=nullptr;
 }
 
 GuiApp::~GuiApp()
@@ -46,10 +48,8 @@ void GuiApp::cleanupGui()
 {
     TRACE_INTERNAL;
 
-#ifdef SIM_WITH_GUI
     deleteMainWindow();
-#endif
-    delete gm;
+    deinitializeRendering();
 
     VThread::unsetUiThread();
     delete uiThread;
@@ -95,11 +95,7 @@ void GuiApp::initGui(int options)
     while (App::getAppStage()!=App::appstage_simInitDone) // wait until SIM thread finished first phase of initialization
         VThread::sleep(1);
 
-    uiThread=nullptr;
     _browserEnabled=true;
-    gm=new CGm();
-
-    CSimFlavor::run(0);
 
     for (int i=0;i<9;i++)
     {
@@ -146,13 +142,13 @@ void GuiApp::initGui(int options)
     if (highResDisplayDefault==1)
     {
         qputenv("QT_SCALE_FACTOR","1.0");
-        GuiApp::sc=2;
+        sc=2;
     }
 
     if (highResDisplayDefault==2)
     {
         qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
-        GuiApp::sc=2;
+        sc=2;
 #ifdef WIN_SIM
         // To address a bug with qscintilla on hdpi display:
         if (App::userSettings->scriptEditorFont=="")
@@ -164,10 +160,12 @@ void GuiApp::initGui(int options)
         if (App::userSettings->guiScaling>1.01)
             qputenv("QT_SCALE_FACTOR",std::to_string(App::userSettings->guiScaling).c_str());
         if (App::userSettings->oglScaling!=1)
-            GuiApp::sc=App::userSettings->oglScaling;
+            sc=App::userSettings->oglScaling;
     }
 #endif
     qtApp=new CSimQApp(_qApp_argc,_qApp_argv);
+    uiThread=new CUiThread();
+    VThread::setUiThread();
 
     QHostInfo::lookupHost("www.coppeliarobotics.com",
         [=] (const QHostInfo &info)
@@ -249,8 +247,6 @@ void GuiApp::initGui(int options)
     #endif
 #endif
 
-    uiThread=new CUiThread();
-    VThread::setUiThread();
     srand((int)VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
                                         // Remember that each thread starts with a same seed!!!
 
@@ -261,6 +257,7 @@ void GuiApp::initGui(int options)
     if ((operationalUIParts&sim_gui_browser)==0)
         setBrowserEnabled(false);
     setIcon();
+    initializeRendering();
     if ( (operationalUIParts&sim_gui_headless)==0 )
     {
         showSplashScreen();
@@ -290,11 +287,11 @@ void GuiApp::runGui()
         SSimulationThreadCommand cmd;
         cmd.cmdId=AUTO_SAVE_SCENE_CMD;
         cmd.intParams.push_back(0); // load autosaved scenes, if crashed
-        App::appendSimulationThreadCommand(cmd,2000); // was 1000
+        GuiApp::appendSimulationThreadCommand(cmd,2000); // was 1000
 
         cmd.cmdId=MEMORIZE_UNDO_STATE_IF_NEEDED_CMD;
         cmd.intParams.clear();
-        App::appendSimulationThreadCommand(cmd,2200); // was 200
+        GuiApp::appendSimulationThreadCommand(cmd,2200); // was 200
     }
 
     if (CSimFlavor::getBoolVal(17))
@@ -302,23 +299,23 @@ void GuiApp::runGui()
         SSimulationThreadCommand cmd;
         CSimFlavor::run(4);
         cmd.cmdId=PLUS_CVU_CMD;
-        App::appendSimulationThreadCommand(cmd,1500);
+        GuiApp::appendSimulationThreadCommand(cmd,1500);
         cmd.cmdId=PLUS_HVUD_CMD;
-        App::appendSimulationThreadCommand(cmd,20000);
+        GuiApp::appendSimulationThreadCommand(cmd,20000);
     }
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=REFRESH_DIALOGS_CMD;
-        App::appendSimulationThreadCommand(cmd,1000);
+        GuiApp::appendSimulationThreadCommand(cmd,1000);
         cmd.cmdId=DISPLAY_WARNING_IF_DEBUGGING_CMD;
-        App::appendSimulationThreadCommand(cmd,3000);
+        GuiApp::appendSimulationThreadCommand(cmd,3000);
     }
 
     CSimFlavor::run(7);
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=CHKLICM_CMD;
-        App::appendSimulationThreadCommand(cmd,5000);
+        GuiApp::appendSimulationThreadCommand(cmd,5000);
     }
 #endif
 
@@ -328,7 +325,7 @@ void GuiApp::runGui()
         SSimulationThreadCommand cmd;
         cmd.cmdId=EDU_EXPIRED_CMD;
         cmd.stringParams.push_back(msg);
-        App::appendSimulationThreadCommand(cmd,3000);
+        GuiApp::appendSimulationThreadCommand(cmd,3000);
     }
 
     qtApp->exec(); // sits here until quit
@@ -507,7 +504,7 @@ int GuiApp::getEditModeType()
     int retVal=NO_EDIT_MODE;
 #ifdef SIM_WITH_GUI
     if (mainWindow!=nullptr)
-        retVal=GuiApp::mainWindow->editModeContainer->getEditModeType();
+        retVal=mainWindow->editModeContainer->getEditModeType();
 #endif
     return(retVal);
 }
@@ -661,5 +658,462 @@ void GuiApp::logMsgToStatusbar(const char* msg,bool html)
 bool GuiApp::isOnline()
 {
     return(_online);
+}
+
+void GuiApp::clearStatusbar()
+{
+    if (!VThread::isUiThread())
+    { // we are NOT in the UI thread. We execute the command in a delayed manner:
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=CLEAR_STATUSBAR_UITHREADCMD;
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    }
+    else
+    {
+    #ifdef SIM_WITH_GUI
+        if (mainWindow!=nullptr)
+        {
+            if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=nullptr) )
+                mainWindow->statusBar->clear();
+        }
+    #endif
+    }
+}
+
+float* GuiApp::getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle)
+{ // auxDlgTitle can be nullptr
+    std::string __auxDlgTitle;
+    std::string* _auxDlgTitle=&__auxDlgTitle;
+    if (auxDlgTitle!=nullptr)
+        _auxDlgTitle=auxDlgTitle;
+
+    if (objType==COLOR_ID_AMBIENT_LIGHT)
+    {
+        _auxDlgTitle->assign("Ambient light");
+        return(App::currentWorld->environment->ambientLightColor);
+    }
+    if (objType==COLOR_ID_BACKGROUND_UP)
+    {
+        _auxDlgTitle->assign("Background (up)");
+        return(App::currentWorld->environment->backGroundColor);
+    }
+    if (objType==COLOR_ID_BACKGROUND_DOWN)
+    {
+        _auxDlgTitle->assign("Background (down)");
+        return(App::currentWorld->environment->backGroundColorDown);
+    }
+    if (objType==COLOR_ID_FOG)
+    {
+        _auxDlgTitle->assign("Fog");
+        return(App::currentWorld->environment->fogBackgroundColor);
+    }
+    if (objType==COLOR_ID_MIRROR)
+    {
+        _auxDlgTitle->assign("Mirror");
+        CMirror* it=App::currentWorld->sceneObjects->getMirrorFromHandle(objID1);
+        if ((it!=nullptr)&&it->getIsMirror())
+            return(it->mirrorColor);
+    }
+    if (objType==COLOR_ID_OCTREE)
+    {
+        _auxDlgTitle->assign("OC tree");
+        COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getColor()->getColorsPtr());
+    }
+    if (objType==COLOR_ID_POINTCLOUD)
+    {
+        _auxDlgTitle->assign("Point cloud");
+        CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getColor()->getColorsPtr());
+    }
+    if (objType==COLOR_ID_GRAPH_2DCURVE)
+    {
+        _auxDlgTitle->assign("Graph - 2D curve");
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
+        if (it!=nullptr)
+        {
+            CGraphDataComb_old* grDataComb=it->getGraphData2D(objID2);
+            if (grDataComb!=nullptr)
+                return(grDataComb->curveColor.getColorsPtr());
+        }
+    }
+    if (objType==COLOR_ID_GRAPH_BACKGROUND)
+    {
+        _auxDlgTitle->assign("Graph - background");
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->backgroundColor);
+    }
+    if (objType==COLOR_ID_GRAPH_GRID)
+    {
+        _auxDlgTitle->assign("Graph - grid");
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->textColor);
+    }
+    if (objType==COLOR_ID_GRAPH_TIMECURVE)
+    {
+        _auxDlgTitle->assign("Graph - data stream");
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
+        if (it!=nullptr)
+        {
+            CGraphData_old* grData=it->getGraphData(objID2);
+            if (grData!=nullptr)
+                return(grData->ambientColor);
+        }
+    }
+    if ((objType==COLOR_ID_OPENGLBUTTON_UP)||(objType==COLOR_ID_OPENGLBUTTON_DOWN)||(objType==COLOR_ID_OPENGLBUTTON_TEXT))
+    {
+        if (objType==COLOR_ID_OPENGLBUTTON_UP)
+            _auxDlgTitle->assign("Button - up");
+        if (objType==COLOR_ID_OPENGLBUTTON_DOWN)
+            _auxDlgTitle->assign("Button - down");
+        if (objType==COLOR_ID_OPENGLBUTTON_TEXT)
+            _auxDlgTitle->assign("Button - text");
+        CButtonBlock* block=App::currentWorld->buttonBlockContainer->getBlockWithID(objID1);
+        if (block!=nullptr)
+        {
+            CSoftButton* itButton=block->getButtonWithID(objID2);
+            if (itButton!=nullptr)
+            {
+                if (objType==COLOR_ID_OPENGLBUTTON_UP)
+                    return(itButton->backgroundColor);
+                if (objType==COLOR_ID_OPENGLBUTTON_DOWN)
+                    return(itButton->downBackgroundColor);
+                if (objType==COLOR_ID_OPENGLBUTTON_TEXT)
+                    return(itButton->textColor);
+            }
+        }
+    }
+
+
+    int allowedParts=0;
+    CColorObject* vp=getVisualParamPointerFromItem(objType,objID1,objID2,_auxDlgTitle,&allowedParts);
+    if (vp!=nullptr)
+    {
+        if ((colComponent==sim_colorcomponent_ambient_diffuse)&&(allowedParts&1))
+            return((vp->getColorsPtr()+0));
+        if ((colComponent==sim_colorcomponent_diffuse)&&(allowedParts&2))
+            return((vp->getColorsPtr()+3));
+        if ((colComponent==sim_colorcomponent_specular)&&(allowedParts&4))
+            return((vp->getColorsPtr()+6));
+        if ((colComponent==sim_colorcomponent_emission)&&(allowedParts&8))
+            return((vp->getColorsPtr()+9));
+        if ((colComponent==sim_colorcomponent_auxiliary)&&(allowedParts&16))
+            return((vp->getColorsPtr()+12));
+    }
+
+    return(nullptr);
+}
+
+CColorObject* GuiApp::getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts)
+{ // auxDlgTitle and allowedParts can be nullptr. Bit-coded: 1=ambient/diffuse, 2=diffuse(light only), 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
+    std::string __auxDlgTitle;
+    int __allowedParts;
+    std::string* _auxDlgTitle=&__auxDlgTitle;
+    int* _allowedParts=&__allowedParts;
+    if (auxDlgTitle!=nullptr)
+        _auxDlgTitle=auxDlgTitle;
+    if (allowedParts!=nullptr)
+        _allowedParts=allowedParts;
+
+    if (objType==COLOR_ID_CAMERA_A)
+    {
+        _auxDlgTitle->assign("Camera");
+        _allowedParts[0]=1+4+8+16+32+64;
+        CCamera* it=App::currentWorld->sceneObjects->getCameraFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getColor(false));
+    }
+    if (objType==COLOR_ID_FORCESENSOR_A)
+    {
+        _auxDlgTitle->assign("Force sensor");
+        _allowedParts[0]=1+4+8+16+32+64;
+        CForceSensor* it=App::currentWorld->sceneObjects->getForceSensorFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getColor(false));
+    }
+    if (objType==COLOR_ID_JOINT_A)
+    {
+        _auxDlgTitle->assign("Joint");
+        _allowedParts[0]=1+4+8+16+32+64;
+        CJoint* it=App::currentWorld->sceneObjects->getJointFromHandle(objID1);
+        if (it!=nullptr)
+            return((CColorObject*)it->getColor(false));
+    }
+    if (objType==COLOR_ID_PATH)
+    {
+        _auxDlgTitle->assign("Path");
+        _allowedParts[0]=1+4+8+16+32+64;
+        CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(objID1);
+        if ( (it!=nullptr)&&(it->pathContainer!=nullptr) )
+            return(&it->pathContainer->_lineColor);
+    }
+    if (objType==COLOR_ID_PATH_SHAPING)
+    {
+        _auxDlgTitle->assign("Path shaping");
+        _allowedParts[0]=1+4+8+16+32+64;
+        CPath_old* it=App::currentWorld->sceneObjects->getPathFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getShapingColor());
+    }
+    if (objType==COLOR_ID_GRAPH_3DCURVE)
+    {
+        _auxDlgTitle->assign("Graph - 3D curve");
+        _allowedParts[0]=1+8;
+        CGraph* it=App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
+        if (it!=nullptr)
+        {
+            CGraphDataComb_old* grDataComb=it->getGraphData3D(objID2);
+            if (grDataComb!=nullptr)
+                return(&grDataComb->curveColor);
+        }
+    }
+    if (objType==COLOR_ID_COLLISION)
+    {
+        _auxDlgTitle->assign("Collision");
+        _allowedParts[0]=1+4+8+16+32+64;
+        return(&App::currentWorld->mainSettings->collisionColor);
+    }
+    if (objType==COLOR_ID_COLLISIONCONTOUR)
+    {
+        _auxDlgTitle->assign("Collision contour");
+        _allowedParts[0]=1+4+8+16+32+64;
+        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getContourColor());
+    }
+    if (objType==COLOR_ID_DISTANCESEGMENT)
+    {
+        _auxDlgTitle->assign("Distance segment");
+        _allowedParts[0]=1+4+8+16+32+64;
+        CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getSegmentColor());
+    }
+    if (objType==COLOR_ID_CLIPPINGPLANE)
+    {
+        _auxDlgTitle->assign("Clipping plane");
+        _allowedParts[0]=1+4+8+16+32+64+128;
+        CMirror* it=App::currentWorld->sceneObjects->getMirrorFromHandle(objID1);
+        if ((it!=nullptr)&&(!it->getIsMirror()))
+            return(it->getClipPlaneColor());
+    }
+    if (objType==COLOR_ID_LIGHT_CASING)
+    {
+        _auxDlgTitle->assign("Light - casing");
+        _allowedParts[0]=1+4+8+16+64;
+        CLight* it=App::currentWorld->sceneObjects->getLightFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getColor(false));
+    }
+    if (objType==COLOR_ID_LIGHT_LIGHT)
+    {
+        _auxDlgTitle->assign("Light");
+        _allowedParts[0]=2+4;
+        CLight* it=App::currentWorld->sceneObjects->getLightFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getColor(true));
+    }
+    if (objType==COLOR_ID_DUMMY)
+    {
+        _auxDlgTitle->assign("Dummy");
+        _allowedParts[0]=1+4+8+16+32+64;
+        CDummy* it=App::currentWorld->sceneObjects->getDummyFromHandle(objID1);
+        if (it!=nullptr)
+            return((CColorObject*)it->getDummyColor());
+    }
+    if (objType==COLOR_ID_VISIONSENSOR)
+    {
+        _auxDlgTitle->assign("Vision sensor");
+        _allowedParts[0]=1+4+8+16+32;
+        CVisionSensor* it=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getColor());
+    }
+    if (objType==COLOR_ID_PROXSENSOR_VOLUME)
+    {
+        _auxDlgTitle->assign("Proximity sensor");
+        _allowedParts[0]=1+4+8+16+32;
+        CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getColor(0));
+    }
+    if (objType==COLOR_ID_PROXSENSOR_RAY)
+    {
+        _auxDlgTitle->assign("Proximity sensor - ray");
+        _allowedParts[0]=1+4+8+16+32;
+        CProxSensor* it=App::currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getColor(1));
+    }
+    if (objType==COLOR_ID_MILL_PASSIVE)
+    {
+        _auxDlgTitle->assign("Mill - passive");
+        _allowedParts[0]=1+4+8+16+32;
+        CMill* it=App::currentWorld->sceneObjects->getMillFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getColor(false));
+    }
+    if (objType==COLOR_ID_MILL_ACTIVE)
+    {
+        _auxDlgTitle->assign("Mill - active");
+        _allowedParts[0]=1+4+8+16+32;
+        CMill* it=App::currentWorld->sceneObjects->getMillFromHandle(objID1);
+        if (it!=nullptr)
+            return(it->getColor(true));
+    }
+    if (objType==COLOR_ID_SHAPE)
+    {
+        _auxDlgTitle->assign("Shape");
+        _allowedParts[0]=1+4+8+16+32+64+128+256+512;
+        CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
+        if ((it!=nullptr)&&(!it->isCompound()))
+            return(&it->getSingleMesh()->color);
+    }
+    if (objType==COLOR_ID_SHAPE_GEOMETRY)
+    {
+#ifdef SIM_WITH_GUI
+        if ((mainWindow->editModeContainer->getEditModeObjectID()==objID1)&&(mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex()==objID2))
+        {
+            _auxDlgTitle->assign("Shape component");
+            _allowedParts[0]=1+4+8+16+32+64+128+256+512;
+            CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
+            if ((it!=nullptr)&&it->isCompound())
+            {
+                std::vector<CMesh*> allGeometrics;
+                it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
+                if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
+                    return(&allGeometrics[objID2]->color);
+            }
+        }
+#endif
+    }
+
+    _allowedParts[0]=0;
+    return(nullptr);
+}
+
+CTextureProperty* GuiApp::getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CMesh** geom)
+{ // auxDlgTitle, is3D, isValid and geom can be nullptr.
+    std::string __auxDlgTitle;
+    bool __is3D=false;
+    bool __isValid=false;
+    CMesh* __geom=nullptr;
+    std::string* _auxDlgTitle=&__auxDlgTitle;
+    bool* _is3D=&__is3D;
+    bool* _isValid=&__isValid;
+    CMesh** _geom=&__geom;
+    if (auxDlgTitle!=nullptr)
+        _auxDlgTitle=auxDlgTitle;
+    if (is3D!=nullptr)
+        _is3D=is3D;
+    if (valid!=nullptr)
+        _isValid=valid;
+    if (geom!=nullptr)
+        _geom=geom;
+    _isValid[0]=false;
+    _geom[0]=nullptr;
+    if (objType==TEXTURE_ID_SIMPLE_SHAPE)
+    {
+        _auxDlgTitle->assign("Shape");
+        _is3D[0]=true;
+        CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
+        if ( (it!=nullptr)&&(!it->isCompound()) )
+        {
+            _isValid[0]=true;
+            _geom[0]=it->getSingleMesh();
+            return(_geom[0]->getTextureProperty());
+        }
+    }
+    if (objType==TEXTURE_ID_COMPOUND_SHAPE)
+    {
+        _auxDlgTitle->assign("Shape component");
+        _is3D[0]=true;
+        CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(objID1);
+        if (it!=nullptr)
+        {
+            std::vector<CMesh*> allGeometrics;
+            it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
+            if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
+            {
+                _isValid[0]=true;
+                _geom[0]=allGeometrics[objID2];
+                return(_geom[0]->getTextureProperty());
+            }
+        }
+    }
+    if (objType==TEXTURE_ID_OPENGL_GUI_BACKGROUND)
+    {
+        _auxDlgTitle->assign("OpenGl custom UI background");
+        _is3D[0]=false;
+        CButtonBlock* it=App::currentWorld->buttonBlockContainer->getBlockWithID(objID1);
+        if (it!=nullptr)
+        {
+            _isValid[0]=true;
+            return(it->getTextureProperty());
+        }
+    }
+    if (objType==TEXTURE_ID_OPENGL_GUI_BUTTON)
+    {
+        _auxDlgTitle->assign("OpenGl custom UI button");
+        _is3D[0]=false;
+        CButtonBlock* it=App::currentWorld->buttonBlockContainer->getBlockWithID(objID1);
+        if (it!=nullptr)
+        {
+            CSoftButton* butt=it->getButtonWithID(objID2);
+            if (butt!=nullptr)
+            {
+                _isValid[0]=true;
+                return(butt->getTextureProperty());
+            }
+        }
+    }
+
+    return(nullptr);
+}
+
+void GuiApp::appendSimulationThreadCommand(int cmdId,int intP1,int intP2,double floatP1,double floatP2,const char* stringP1,const char* stringP2,int executionDelay)
+{ // convenience function. All args have default values except for the first
+    SSimulationThreadCommand cmd;
+    cmd.cmdId=cmdId;
+    cmd.intParams.push_back(intP1);
+    cmd.intParams.push_back(intP2);
+    cmd.doubleParams.push_back(floatP1);
+    cmd.doubleParams.push_back(floatP2);
+    if (stringP1==nullptr)
+        cmd.stringParams.push_back("");
+    else
+        cmd.stringParams.push_back(stringP1);
+    if (stringP2==nullptr)
+        cmd.stringParams.push_back("");
+    else
+        cmd.stringParams.push_back(stringP2);
+    appendSimulationThreadCommand(cmd,executionDelay);
+}
+
+void GuiApp::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay/*=0*/)
+{
+    static std::vector<SSimulationThreadCommand> delayed_cmd;
+    static std::vector<int> delayed_delay;
+    if (simThread!=nullptr)
+    {
+        if (delayed_cmd.size()!=0)
+        {
+            for (unsigned int i=0;i<delayed_cmd.size();i++)
+                simThread->appendSimulationThreadCommand(delayed_cmd[i],delayed_delay[i]);
+            delayed_cmd.clear();
+            delayed_delay.clear();
+        }
+        simThread->appendSimulationThreadCommand(cmd,executionDelay);
+    }
+    else
+    { // can happen during the initialization phase, when the client loads a scene for instance
+        delayed_cmd.push_back(cmd);
+        delayed_delay.push_back(executionDelay);
+    }
 }
 

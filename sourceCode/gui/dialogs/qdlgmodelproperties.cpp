@@ -4,6 +4,7 @@
 #include <qdlgmodelthumbnailvisu.h>
 #include <qdlgmodelthumbnail.h>
 #include <app.h>
+#include <guiApp.h>
 #include <tt.h>
 
 CQDlgModelProperties::CQDlgModelProperties(QWidget *parent) :
@@ -73,7 +74,7 @@ void CQDlgModelProperties::on_qqSelectThumbnail_clicked()
                 unsigned char* img=(unsigned char*)dlg.thumbnail.getPointerToUncompressedImage();
                 for (size_t i=0;i<128*128*4;i++)
                     cmd.uint8Params.push_back(img[i]);
-                App::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(cmd);
                 if (!dlg.thumbnailIsFromFile)
                     break;
             }
@@ -150,8 +151,8 @@ void CQDlgModelProperties::on_qqClose_clicked(QAbstractButton *button)
     cmd.intParams.push_back(modelBaseObject->getObjectHandle());
     cmd.intParams.push_back(modelBaseObject->getModelProperty());
     cmd.stringParams.push_back(acknowledgment.c_str());
-    App::appendSimulationThreadCommand(cmd);
-    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    GuiApp::appendSimulationThreadCommand(cmd);
+    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     defaultModalDialogEndRoutine(true);
 }

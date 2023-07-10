@@ -110,7 +110,9 @@ void CDistanceObjectContainer_old::addObjectWithSuffixOffset(CDistanceObject_old
 
     _addObject(newDistObj);
 
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
 }
 
 int CDistanceObjectContainer_old::addNewObject(int entity1Handle,int entity2Handle,const char* objName)
@@ -254,18 +256,6 @@ double CDistanceObjectContainer_old::handleAllDistances(bool exceptExplicitHandl
     return(retVal);
 }
 
-void CDistanceObjectContainer_old::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{
-    if (displayAttrib&sim_displayattribute_renderpass)
-        displayDistanceSegments();
-}
-
-void CDistanceObjectContainer_old::displayDistanceSegments()
-{
-    for (size_t i=0;i<getObjectCount();i++)
-        getObjectFromIndex(i)->displayDistanceSegment();
-}
-
 void CDistanceObjectContainer_old::_addObject(CDistanceObject_old* newDistObj)
 {
     _distanceObjects.push_back(newDistObj);
@@ -317,3 +307,16 @@ CDistanceObject_old* CDistanceObjectContainer_old::getObjectFromName(const char*
     return(nullptr);
 }
 
+#ifdef SIM_WITH_GUI
+void CDistanceObjectContainer_old::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
+{
+    if (displayAttrib&sim_displayattribute_renderpass)
+        displayDistanceSegments();
+}
+
+void CDistanceObjectContainer_old::displayDistanceSegments()
+{
+    for (size_t i=0;i<getObjectCount();i++)
+        getObjectFromIndex(i)->displayDistanceSegment();
+}
+#endif

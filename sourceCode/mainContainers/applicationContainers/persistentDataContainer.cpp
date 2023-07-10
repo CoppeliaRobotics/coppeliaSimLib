@@ -1,4 +1,3 @@
-
 #include <simInternal.h>
 #include <persistentDataContainer.h>
 #include <app.h>

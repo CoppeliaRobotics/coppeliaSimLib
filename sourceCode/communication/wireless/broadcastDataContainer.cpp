@@ -64,11 +64,13 @@ void CBroadcastDataContainer::broadcastData(int emitterID,int targetID,int dataH
             else
                 err=true;
         }
-        if (!err)
-        {
-            CBroadcastDataVisual* itv=new CBroadcastDataVisual(timeOutSimulationTime,actionRadius,antennaConf,emissionAngle1,emissionAngle2);
-            _allVisualObjects.push_back(itv);
-        }
+        #ifdef SIM_WITH_GUI
+            if (!err)
+            {
+                CBroadcastDataVisual* itv=new CBroadcastDataVisual(timeOutSimulationTime,actionRadius,antennaConf,emissionAngle1,emissionAngle2);
+                _allVisualObjects.push_back(itv);
+            }
+        #endif
     }
 }
 
@@ -106,11 +108,13 @@ char* CBroadcastDataContainer::receiveData(int receiverID,double simulationTime,
                         else
                             err=true;
                     }
-                    if (!err)
-                    {
-                        CBroadcastDataVisual* itv=new CBroadcastDataVisual(antennaPos1,antennaPos2);
-                        _allVisualObjects.push_back(itv);
-                    }
+                    #ifdef SIM_WITH_GUI
+                        if (!err)
+                        {
+                            CBroadcastDataVisual* itv=new CBroadcastDataVisual(antennaPos1,antennaPos2);
+                            _allVisualObjects.push_back(itv);
+                        }
+                    #endif
                 }
                 return(retVal);
             }
@@ -128,9 +132,11 @@ void CBroadcastDataContainer::eraseAllObjects()
     for (size_t i=0;i<_allObjects.size();i++)
         delete _allObjects[i];
     _allObjects.clear();
-    for (size_t i=0;i<_allVisualObjects.size();i++)
-        delete _allVisualObjects[i];
-    _allVisualObjects.clear();
+    #ifdef SIM_WITH_GUI
+        for (size_t i=0;i<_allVisualObjects.size();i++)
+            delete _allVisualObjects[i];
+        _allVisualObjects.clear();
+    #endif
 }
 
 void CBroadcastDataContainer::removeObject(int index)
@@ -150,19 +156,23 @@ void CBroadcastDataContainer::removeTimedOutObjects(double simulationTime)
         }
     }
 
-    for (int i=0;i<int(_allVisualObjects.size());i++)
-    {
-        if (_allVisualObjects[i]->doesRequireDestruction(simulationTime))
+    #ifdef SIM_WITH_GUI
+        for (int i=0;i<int(_allVisualObjects.size());i++)
         {
-            delete _allVisualObjects[i];
-            _allVisualObjects.erase(_allVisualObjects.begin()+i);
-            i--;
+            if (_allVisualObjects[i]->doesRequireDestruction(simulationTime))
+            {
+                delete _allVisualObjects[i];
+                _allVisualObjects.erase(_allVisualObjects.begin()+i);
+                i--;
+            }
         }
-    }
+    #endif
 }
 
+#ifdef SIM_WITH_GUI
 void CBroadcastDataContainer::visualizeCommunications(int pcTimeInMs)
 {
     for (size_t i=0;i<_allVisualObjects.size();i++)
         _allVisualObjects[i]->visualize();
 }
+#endif

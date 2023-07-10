@@ -35,6 +35,7 @@ void CSceneObjectOperations::keyPress(int key)
         processCommand(SCENE_OBJECT_OPERATION_SELECT_ALL_OBJECTS_SOOCMD);
 }
 
+#ifdef SIM_WITH_GUI
 bool CSceneObjectOperations::processCommand(int commandID)
 { // Return value is true if the command belonged to object edition menu and was executed
  // Can be called by the UI and SIM thread!
@@ -122,7 +123,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -210,7 +211,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -243,7 +244,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -269,7 +270,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -330,7 +331,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -431,7 +432,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -499,7 +500,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -513,9 +514,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::currentWorld->sceneObjects->deselectObjects();
             bool ok;
             double density=0.0;
-#ifdef SIM_WITH_GUI
             ok=GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow,"Body density","Uniform density",1000.05,0.1,30000,1,&density);
-#endif
             if (ok)
             {
                 App::logMsg(sim_verbosity_msgs,"Computing mass and inertia...");
@@ -540,7 +539,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -554,9 +553,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::currentWorld->sceneObjects->deselectObjects();
             bool ok;
             double fact=0.0;
-#ifdef SIM_WITH_GUI
             ok=GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow,"Mass scaling","Scaling factor",2.0,0.1,10.0,2,&fact);
-#endif
             if (ok)
             {
                 App::logMsg(sim_verbosity_msgs,"Scaling mass...");
@@ -579,7 +576,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -593,9 +590,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             App::currentWorld->sceneObjects->deselectObjects();
             bool ok;
             double fact=0.0;
-#ifdef SIM_WITH_GUI
             ok=GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow,"Inertia scaling","Scaling factor",2.0,0.1,10.0,2,&fact);
-#endif
             if (ok)
             {
                 App::logMsg(sim_verbosity_msgs,"Scaling inertia...");
@@ -618,7 +613,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -636,7 +631,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -649,10 +644,8 @@ bool CSceneObjectOperations::processCommand(int commandID)
             CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,id);
             if (script!=nullptr)
             {
-#ifdef SIM_WITH_GUI
                 if (GuiApp::mainWindow!=nullptr)
                     GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
-#endif
                 App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
                 App::undoRedo_sceneChanged("");
                 GuiApp::setFullDialogRefreshFlag();
@@ -662,7 +655,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -675,10 +668,8 @@ bool CSceneObjectOperations::processCommand(int commandID)
             CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,id);
             if (script!=nullptr)
             {
-#ifdef SIM_WITH_GUI
                 if (GuiApp::mainWindow!=nullptr)
                     GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(),nullptr,true);
-#endif
                 App::currentWorld->embeddedScriptContainer->removeScript(script->getScriptHandle());
                 App::undoRedo_sceneChanged("");
                 GuiApp::setFullDialogRefreshFlag();
@@ -688,7 +679,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -713,7 +704,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -744,7 +735,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -764,7 +755,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -796,7 +787,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -839,7 +830,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -879,7 +870,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -899,7 +890,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -919,7 +910,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -939,7 +930,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -958,12 +949,11 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
 
-#ifdef SIM_WITH_GUI
     if (commandID==SCENE_OBJECT_OPERATION_UNDO_SOOCMD)
     {
         if (GuiApp::getEditModeType()==NO_EDIT_MODE)
@@ -978,7 +968,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                App::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -998,16 +988,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                App::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
     }
-#endif
-
     return(false);
 }
-
+#endif
 void CSceneObjectOperations::copyObjects(std::vector<int>* selection,bool displayMessages)
 {
     if (displayMessages)

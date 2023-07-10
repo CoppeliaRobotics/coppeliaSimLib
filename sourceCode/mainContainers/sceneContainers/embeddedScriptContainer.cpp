@@ -214,7 +214,9 @@ bool CEmbeddedScriptContainer::removeScript(int scriptHandle)
             break;
         }
     }
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
     return(true);
 }
 
@@ -376,7 +378,9 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,b
             }
         }
     }
-    GuiApp::setLightDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setLightDialogRefreshFlag();
+    #endif
     return(retVal);
 }
 

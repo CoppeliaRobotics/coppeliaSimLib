@@ -2,7 +2,9 @@
 #include <drawingObject.h>
 #include <app.h>
 #include <tt.h>
-#include <drawingObjectRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <drawingObjectRendering.h>
+#endif
 
 double CDrawingObject::getSize() const
 {
@@ -346,70 +348,6 @@ bool CDrawingObject::announceScriptStateWillBeErased(int scriptHandle,bool simul
     return( (!sceneSwitchPersistentScript)&&(_creatorHandle==scriptHandle) );
 }
 
-void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM)
-{
-    if (displayAttrib&sim_displayattribute_colorcoded)
-        return;
-
-    if (_objectType&sim_drawing_overlay)
-    {
-        if (!overlay)
-            return;
-    }
-    else
-    {
-        if (overlay)
-            return;
-    }
-
-    if (!overlay)
-    {
-        if (_objectType&(sim_drawing_50percenttransparency+sim_drawing_25percenttransparency+sim_drawing_12percenttransparency+sim_drawing_itemtransparency))
-        {
-            if (!transparentObject)
-                return;
-        }
-        else
-        {
-            if (transparentObject)
-                return;
-        }
-    }
-
-    C7Vector tr;
-    tr.setIdentity();
-
-    if (_sceneObjectId>=0)
-    {
-        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
-        if (it==nullptr)
-            _sceneObjectId=-2; // should normally never happen
-        else
-        {
-            tr=it->getCumulativeTransformation();
-            if (_objectType&sim_drawing_followparentvisibility)
-            {
-                if ( ((App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer())==0)&&((displayAttrib&sim_displayattribute_ignorelayer)==0) )
-                    return; // not visible
-                if (it->isObjectPartOfInvisibleModel())
-                    return; // not visible
-                if ( ((_objectType&sim_drawing_painttag)==0)&&(displayAttrib&sim_displayattribute_forvisionsensor) )
-                    return; // not visible
-            }
-            else
-            {
-                if ( ((_objectType&sim_drawing_painttag)==0)&&(displayAttrib&sim_displayattribute_forvisionsensor) )
-                    return; // not visible
-            }
-        }
-    }
-    if (_sceneObjectId==-2)
-        return;
-
-    displayDrawingObject(this,tr,overlay,transparentObject,displayAttrib,cameraCTM);
-
-}
-
 void CDrawingObject::_initBufferedEventData()
 {
     _bufferedEventData.resize(_data.size());
@@ -562,3 +500,68 @@ void CDrawingObject::pushAppendNewPointEvent()
     }
 }
 
+#ifdef SIM_WITH_GUI
+void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM)
+{
+    if (displayAttrib&sim_displayattribute_colorcoded)
+        return;
+
+    if (_objectType&sim_drawing_overlay)
+    {
+        if (!overlay)
+            return;
+    }
+    else
+    {
+        if (overlay)
+            return;
+    }
+
+    if (!overlay)
+    {
+        if (_objectType&(sim_drawing_50percenttransparency+sim_drawing_25percenttransparency+sim_drawing_12percenttransparency+sim_drawing_itemtransparency))
+        {
+            if (!transparentObject)
+                return;
+        }
+        else
+        {
+            if (transparentObject)
+                return;
+        }
+    }
+
+    C7Vector tr;
+    tr.setIdentity();
+
+    if (_sceneObjectId>=0)
+    {
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectId);
+        if (it==nullptr)
+            _sceneObjectId=-2; // should normally never happen
+        else
+        {
+            tr=it->getCumulativeTransformation();
+            if (_objectType&sim_drawing_followparentvisibility)
+            {
+                if ( ((App::currentWorld->environment->getActiveLayers()&it->getVisibilityLayer())==0)&&((displayAttrib&sim_displayattribute_ignorelayer)==0) )
+                    return; // not visible
+                if (it->isObjectPartOfInvisibleModel())
+                    return; // not visible
+                if ( ((_objectType&sim_drawing_painttag)==0)&&(displayAttrib&sim_displayattribute_forvisionsensor) )
+                    return; // not visible
+            }
+            else
+            {
+                if ( ((_objectType&sim_drawing_painttag)==0)&&(displayAttrib&sim_displayattribute_forvisionsensor) )
+                    return; // not visible
+            }
+        }
+    }
+    if (_sceneObjectId==-2)
+        return;
+
+    displayDrawingObject(this,tr,overlay,transparentObject,displayAttrib,cameraCTM);
+
+}
+#endif

@@ -94,6 +94,19 @@ void CDrawingContainer::announceScriptStateWillBeErased(int scriptHandle,bool si
     }
 }
 
+void CDrawingContainer::pushGenesisEvents()
+{
+    for (size_t i=0;i<_allObjects.size();i++)
+        _allObjects[i]->pushAddEvent();
+}
+
+void CDrawingContainer::pushAppendNewPointEvents()
+{
+    for (size_t i=0;i<_allObjects.size();i++)
+        _allObjects[i]->pushAppendNewPointEvent();
+}
+
+#ifdef SIM_WITH_GUI
 void CDrawingContainer::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib)
 {
     drawAll(false,false,displayAttrib,renderingObject->getFullCumulativeTransformation().getMatrix());
@@ -126,15 +139,4 @@ void CDrawingContainer::drawObjectsParentedWith(bool overlay,bool transparentObj
         }
     }
 }
-
-void CDrawingContainer::pushGenesisEvents()
-{
-    for (size_t i=0;i<_allObjects.size();i++)
-        _allObjects[i]->pushAddEvent();
-}
-
-void CDrawingContainer::pushAppendNewPointEvents()
-{
-    for (size_t i=0;i<_allObjects.size();i++)
-        _allObjects[i]->pushAppendNewPointEvent();
-}
+#endif

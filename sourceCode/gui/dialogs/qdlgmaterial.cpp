@@ -31,7 +31,7 @@ void CQDlgMaterial::refresh()
 {
     inMainRefreshRoutine=true;
     int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-    CColorObject* vc=App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+    CColorObject* vc=GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
     bool simStopped=App::currentWorld->simulation->isSimulationStopped();
     ui->qqAmbientAdjust->setEnabled(simStopped&&(allowedParts&1));
     ui->qqSpecularAdjust->setEnabled(simStopped&&(allowedParts&4));
@@ -89,7 +89,7 @@ bool CQDlgMaterial::isLinkedDataValid()
         return(false);
     if (!App::currentWorld->simulation->isSimulationStopped())
         return(false);
-    return(App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,nullptr)!=nullptr);
+    return(GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,nullptr)!=nullptr);
 }
 
 void CQDlgMaterial::displayMaterialDlg(int objType,int objID1,int objID2,QWidget* theParentWindow)
@@ -124,7 +124,7 @@ void CQDlgMaterial::_initializeDlg(int objType,int objID1,int objID2)
     _objID1=objID1;
     _objID2=objID2;
     std::string str;
-    App::getRGBPointerFromItem(_objType,_objID1,_objID2,-1,&str);
+    GuiApp::getRGBPointerFromItem(_objType,_objID1,_objID2,-1,&str);
     setWindowTitle(str.c_str());
     refresh();
 }
@@ -136,7 +136,7 @@ void CQDlgMaterial::_adjustCol(int colComponent)
     else
     {
         CQDlgColor::displayDlgModal(_objType,_objID1,_objID2,colComponent,this,true,false,true);
-        float* col=App::getRGBPointerFromItem(_objType,_objID1,_objID2,colComponent,nullptr);
+        float* col=GuiApp::getRGBPointerFromItem(_objType,_objID1,_objID2,colComponent,nullptr);
         if (col!=nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -148,8 +148,8 @@ void CQDlgMaterial::_adjustCol(int colComponent)
             cmd.doubleParams.push_back(col[0]);
             cmd.doubleParams.push_back(col[1]);
             cmd.doubleParams.push_back(col[2]);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
     }
 }
@@ -189,7 +189,7 @@ void CQDlgMaterial::on_qqPulsationAdjust_clicked()
         if (isLinkedDataValid())
         {
             int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            CColorObject* it=App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+            CColorObject* it=GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
             if (allowedParts&32)
             {
                 CQDlgColorPulsation theDialog(this);
@@ -211,10 +211,10 @@ void CQDlgMaterial::on_qqPulsationAdjust_clicked()
                     cmd.doubleParams.push_back(theDialog.pulsationFrequency);
                     cmd.doubleParams.push_back(theDialog.pulsationPhase);
                     cmd.doubleParams.push_back(theDialog.pulsationRatio);
-                    App::appendSimulationThreadCommand(cmd);
-                    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                    GuiApp::appendSimulationThreadCommand(cmd);
+                    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                 }
-                App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
             }
         }
     }
@@ -229,7 +229,7 @@ void CQDlgMaterial::on_qqShininess_editingFinished()
         if (isLinkedDataValid())
         {
             int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+            GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
             bool ok;
             int newVal=ui->qqShininess->text().toInt(&ok);
             if (ok&&(allowedParts&64))
@@ -241,10 +241,10 @@ void CQDlgMaterial::on_qqShininess_editingFinished()
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
                 cmd.intParams.push_back(s);
-                App::appendSimulationThreadCommand(cmd);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -256,7 +256,7 @@ void CQDlgMaterial::on_qqOpacityEnable_clicked()
         if (isLinkedDataValid())
         {
             int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+            GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
             if (allowedParts&128)
             {
                 SSimulationThreadCommand cmd;
@@ -264,10 +264,10 @@ void CQDlgMaterial::on_qqOpacityEnable_clicked()
                 cmd.intParams.push_back(_objType);
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
-                App::appendSimulationThreadCommand(cmd);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -281,7 +281,7 @@ void CQDlgMaterial::on_qqOpacity_editingFinished()
         if (isLinkedDataValid())
         {
             int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+            GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
             bool ok;
             double newVal=ui->qqOpacity->text().toDouble(&ok);
             if (ok&&(allowedParts&128))
@@ -293,10 +293,10 @@ void CQDlgMaterial::on_qqOpacity_editingFinished()
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
                 cmd.doubleParams.push_back(s);
-                App::appendSimulationThreadCommand(cmd);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -310,7 +310,7 @@ void CQDlgMaterial::on_qqColorName_editingFinished()
         if (isLinkedDataValid())
         {
             int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+            GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
             if (allowedParts&256)
             {
                 std::string nm(ui->qqColorName->text().toStdString());
@@ -321,10 +321,10 @@ void CQDlgMaterial::on_qqColorName_editingFinished()
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
                 cmd.stringParams.push_back(nm.c_str());
-                App::appendSimulationThreadCommand(cmd);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -344,7 +344,7 @@ void CQDlgMaterial::on_qqExtensionString_editingFinished()
         if (isLinkedDataValid())
         {
             int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+            GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
             if (allowedParts&512)
             {
                 std::string nm(ui->qqExtensionString->text().toStdString());
@@ -354,10 +354,10 @@ void CQDlgMaterial::on_qqExtensionString_editingFinished()
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
                 cmd.stringParams.push_back(nm.c_str());
-                App::appendSimulationThreadCommand(cmd);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }

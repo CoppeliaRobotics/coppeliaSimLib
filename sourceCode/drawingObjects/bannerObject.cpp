@@ -2,7 +2,9 @@
 #include <bannerObject.h>
 #include <app.h>
 #include <tt.h>
-#include <bannerRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <bannerRendering.h>
+#endif
 
 bool CBannerObject::getCreatedFromScript()
 {
@@ -96,6 +98,7 @@ bool CBannerObject::announceObjectWillBeErased(int objID)
     return(_sceneObjectID==objID);
 }
 
+#ifdef SIM_WITH_GUI
 void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM,const int windowSize[2],double verticalViewSizeOrAngle,bool perspective)
 {
     if (_visible)
@@ -156,3 +159,4 @@ void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayA
         displayBanner(_objectID,_options,bckColor,tr,_label.c_str(),color,_height,cameraCTM,windowSize,verticalViewSizeOrAngle,perspective);
     }
 }
+#endif

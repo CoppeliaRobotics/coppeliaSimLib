@@ -41,9 +41,6 @@ public:
     virtual void connectSynchronizationObject();
     virtual void removeSynchronizationObject(bool localReferencesToItOnly);
 
-    virtual void displayFrames(CViewableBase* renderingObject,double size,bool persp);
-    virtual void displayBoundingBox(CViewableBase* renderingObject,bool mainSelection);
-    virtual void display(CViewableBase* renderingObject,int displayAttrib);
     virtual void addSpecializedObjectEventData(CCbor* ev) const;
     virtual CSceneObject* copyYourself();
     virtual void removeSceneDependencies();
@@ -423,6 +420,9 @@ protected:
 
 #ifdef SIM_WITH_GUI
 public:
+    virtual void displayFrames(CViewableBase* renderingObject,double size,bool persp);
+    virtual void displayBoundingBox(CViewableBase* renderingObject,bool mainSelection);
+    virtual void display(CViewableBase* renderingObject,int displayAttrib);
     void displayManipulationModeOverlayGrid(CViewableBase* renderingObject,double size,bool persp);
     bool setLocalTransformationFromObjectRotationMode(const C4X4Matrix& cameraAbsConf,double rotationAmount,bool perspective,int eventID);
     bool setLocalTransformationFromObjectTranslationMode(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,double prevPos[2],double pos[2],double screenHalfSizes[2],double halfSizes[2],bool perspective,int eventID);

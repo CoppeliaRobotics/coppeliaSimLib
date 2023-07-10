@@ -4,7 +4,9 @@
 #include <vDateTime.h>
 #include <utils.h>
 #include <app.h>
-#include <millRendering.h>
+#ifdef SIM_WITH_GUI
+    #include <millRendering.h>
+#endif
 
 CMill::CMill(int theType)
 {
@@ -563,7 +565,9 @@ int CMill::getMillType() const
     return(_millType);
 }
 
+#ifdef SIM_WITH_GUI
 void CMill::display(CViewableBase* renderingObject,int displayAttrib)
 {
     displayMill(this,renderingObject,displayAttrib);
 }
+#endif

@@ -1,11 +1,10 @@
 #pragma once
 
-#include <simThread.h>
 #include <folderSystem.h>
 #include <userSettings.h>
 #include <worldContainer.h>
 #include <sigHandler.h>
-#include <simAndUiThreadSync.h>
+#include <gm.h>
 
 class App
 {
@@ -47,9 +46,6 @@ public:
     static void setAdditionalAddOnScript2(const char* script);
     static std::string getAdditionalAddOnScript2();
 
-    static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,double floatP1=0.0,double floatP2=0.0,const char* stringP1=nullptr,const char* stringP2=nullptr,int executionDelay=0);
-    static void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
-
     static std::string getConsoleLogFilter();
     static void setConsoleLogFilter(const char* filter);
     static bool logPluginMsg(const char* pluginName,int verbosityLevel,const char* logMsg);
@@ -67,7 +63,6 @@ public:
     static void setConsoleMsgToFile(bool f);
     static std::string getConsoleMsgFile();
     static void setConsoleMsgFile(const char* f);
-    static void clearStatusbar();
     static int getDlgVerbosity();
     static void setDlgVerbosity(int v);
     static void setStartupScriptString(const char* str);
@@ -81,15 +76,11 @@ public:
     static void undoRedo_sceneChangeStart(const char* txt);
     static void undoRedo_sceneChangeEnd();
 
-    static float* getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle);
-    static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
-    static CTextureProperty* getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CMesh** geom);
-
     static CFolderSystem* folders;
     static CUserSettings* userSettings;
     static CWorldContainer* worldContainer;
     static CWorld* currentWorld; // actually worldContainer->currentWorld
-    static CSimThread* simThread;
+    static CGm* gm;
 
 private:
     static void _simulatorLoop(bool stepIfRunning=true);

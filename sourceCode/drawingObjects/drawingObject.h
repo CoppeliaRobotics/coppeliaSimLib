@@ -11,7 +11,6 @@ public:
     CDrawingObject(int theObjectType,double size,double duplicateTolerance,int sceneObjId,int maxItemCount,int creatorHandle);
     virtual ~CDrawingObject();
 
-    void draw(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM);
     void setObjectId(int newId);
     void setObjectUniqueId();
     long long int getObjectUid() const;
@@ -34,6 +33,10 @@ public:
     int getExpectedFloatsPerItem() const;
 
     std::vector<double>* getDataPtr();
+
+    #ifdef SIM_WITH_GUI
+        void draw(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM);
+    #endif
 
     CColorObject color;
 

@@ -421,7 +421,7 @@ int simSerialPortOpen_internal(int portNumber,int baudRate,void* reserved1,void*
 { // deprecated (10/04/2012)
     TRACE_C_API;
 
-#ifdef SIM_WITH_SERIAL
+#ifdef SIM_WITH_GUI
     if (App::worldContainer->serialPortContainer->serialPortOpen_old(false,portNumber,baudRate))
         return(1);
 #endif
@@ -432,7 +432,7 @@ int simSerialPortClose_internal(int portNumber)
 { // deprecated (10/04/2012)
     TRACE_C_API;
 
-#ifdef SIM_WITH_SERIAL
+#ifdef SIM_WITH_GUI
     if (App::worldContainer->serialPortContainer->serialPortClose_old(portNumber))
         return(1);
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PORT_NOT_OPEN);
@@ -445,7 +445,7 @@ int simSerialPortSend_internal(int portNumber,const char* data,int dataLength)
     TRACE_C_API;
 
     int retVal=-1;
-#ifdef SIM_WITH_SERIAL
+#ifdef SIM_WITH_GUI
     retVal=App::worldContainer->serialPortContainer->serialPortSend_old(portNumber,data,dataLength);
     if (retVal==-1)
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PORT_NOT_OPEN);
@@ -458,7 +458,7 @@ int simSerialPortRead_internal(int portNumber,char* buffer,int dataLengthToRead)
     TRACE_C_API;
 
     int retVal=-1;
-#ifdef SIM_WITH_SERIAL
+#ifdef SIM_WITH_GUI
     retVal=App::worldContainer->serialPortContainer->serialPortReceive_old(portNumber,buffer,dataLengthToRead);
     if (retVal==-1)
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_PORT_NOT_OPEN);
@@ -1846,7 +1846,7 @@ int simAddStatusbarMessage_internal(const char* message)
             App::logScriptMsg(nullptr,v|sim_verbosity_undecorated,message);
         }
         else
-            App::clearStatusbar();
+            GuiApp::clearStatusbar();
 
         return(1);
     }
@@ -3015,48 +3015,12 @@ int simSwitchThread_internal()
 
 int simLockResources_internal(int lockType,int reserved)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
-
-    CSimAndUiThreadSync* obj=new CSimAndUiThreadSync(__func__);
-    bool res=false;
-    int retVal=-1; // fail
-    if (lockType==sim_lock_ui_wants_to_read)
-        res=obj->uiThread_tryToLockForUiEventRead(5);
-    if (lockType==sim_lock_ui_wants_to_write)
-        res=obj->uiThread_tryToLockForUiEventWrite(800);
-    if (lockType==sim_lock_nonui_wants_to_write)
-    {
-        obj->simThread_lockForSimThreadWrite();
-        res=true;
-    }
-    if (res)
-    {
-        CEasyLock easyLock(_lockForExtLockList,__func__);
-        retVal=obj->getObjectHandle();
-        _extLockList.push_back(obj);
-    }
-    return(retVal);
+    return(-1);
 }
 
 int simUnlockResources_internal(int lockHandle)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
-
-    int retVal=0;
-    { // scope parenthesis are important here!
-        CEasyLock easyLock(_lockForExtLockList,__func__);
-        for (int i=0;i<int(_extLockList.size());i++)
-        {
-            if (_extLockList[i]->getObjectHandle()==lockHandle)
-            {
-                delete _extLockList[i];
-                _extLockList.erase(_extLockList.begin()+i);
-                retVal=1;
-                break;
-            }
-        }
-    }
-    return(retVal);
+    return(0);
 }
 
 char* simGetUserParameter_internal(int objectHandle,const char* parameterName,int* parameterLength)

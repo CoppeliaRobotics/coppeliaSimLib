@@ -16,7 +16,6 @@ public:
     virtual ~CPointCloud();
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
@@ -127,4 +126,9 @@ protected:
     double _pointDisplayRatio;
     bool _doNotUseOctreeStructure;
     bool _colorIsEmissive;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void display(CViewableBase* renderingObject,int displayAttrib);
+    #endif
 };

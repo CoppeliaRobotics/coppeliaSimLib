@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <simStrings.h>
 #include <app.h>
+#include <guiApp.h>
 
 CQDlgDataStreamSelection::CQDlgDataStreamSelection(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),

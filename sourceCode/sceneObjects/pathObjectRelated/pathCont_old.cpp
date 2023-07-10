@@ -1946,7 +1946,9 @@ bool CPathCont_old::invertSimplePathPointOrder(const std::vector<int>& selectedP
     }
 
     actualizePath();
-    GuiApp::setLightDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setLightDialogRefreshFlag();
+    #endif
     return(true);
 }
 

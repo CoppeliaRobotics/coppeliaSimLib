@@ -27,13 +27,10 @@ public:
     int _meshModificationCounter;
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
-    void displayInertia(CViewableBase* renderingObject,double size,bool persp);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void copyAttributesTo(CShape* target);
     void removeSceneDependencies();
-    void displayFrames(CViewableBase* renderingObject,double size,bool persp);
     void scaleObject(double scalingFactor);
     bool scaleObjectNonIsometrically(double x,double y,double z);
     void serialize(CSer& ar);
@@ -181,4 +178,12 @@ protected:
 
     C3Vector _initialInitialDynamicLinearVelocity;
     C3Vector _initialInitialDynamicAngularVelocity;
+
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void display(CViewableBase* renderingObject,int displayAttrib);
+        void displayInertia(CViewableBase* renderingObject,double size,bool persp);
+        void displayFrames(CViewableBase* renderingObject,double size,bool persp);
+    #endif
 };

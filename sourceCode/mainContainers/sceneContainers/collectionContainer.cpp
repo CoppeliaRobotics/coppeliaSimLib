@@ -153,7 +153,9 @@ void CCollectionContainer::removeCollection(int collectionHandle)
 {
     App::currentWorld->announceCollectionWillBeErased(collectionHandle);
     _removeCollection(collectionHandle);
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
 }
 
 void CCollectionContainer::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const
@@ -237,7 +239,9 @@ void CCollectionContainer::addCollectionWithSuffixOffset(CCollection* collection
 
     _addCollection(collection);
 
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
 }
 
 void CCollectionContainer::addCollectionToSelection(int collectionHandle) const

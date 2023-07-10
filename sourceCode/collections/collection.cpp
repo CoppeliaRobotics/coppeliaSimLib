@@ -58,7 +58,9 @@ void CCollection::addCollectionElement(CCollectionElement* collectionElement)
     collectionElement->setElementHandle(i);
     _addCollectionElement(collectionElement);
     actualizeCollection();
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
 }
 
 bool CCollection::actualizeCollection()
@@ -203,8 +205,10 @@ bool CCollection::setCollectionName(const char* newName,bool check)
             _collectionName=nn;
     }
 
-    if (diff)
-        GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        if (diff)
+            GuiApp::setFullDialogRefreshFlag();
+    #endif
     return(diff);
 }
 

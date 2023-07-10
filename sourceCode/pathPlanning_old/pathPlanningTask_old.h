@@ -11,7 +11,6 @@ public:
     CPathPlanningTask(int theID,int thePathPlanningType);
     virtual ~CPathPlanningTask();
 
-    void renderYour3DStuff();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationEnded();
@@ -125,4 +124,9 @@ protected:
     bool _obstacleMaxDistanceEnabled;
     double minTurningCircleDiameter;
     std::string objectName;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void renderYour3DStuff();
+    #endif
 };

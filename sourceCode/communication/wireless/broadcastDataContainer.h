@@ -1,7 +1,9 @@
 #pragma once
 
 #include <broadcastData.h>
-#include <broadcastDataVisual.h>
+#ifdef SIM_WITH_GUI
+    #include <broadcastDataVisual.h>
+#endif
 
 class CBroadcastDataContainer
 {
@@ -9,7 +11,6 @@ public:
     CBroadcastDataContainer();
     virtual ~CBroadcastDataContainer();
 
-    void visualizeCommunications(int pcTimeInMs);
     void eraseAllObjects();
     void removeObject(int index);
     void simulationAboutToStart();
@@ -25,7 +26,13 @@ public:
 
 private:
     std::vector<CBroadcastData*> _allObjects;
-    std::vector<CBroadcastDataVisual*> _allVisualObjects;
     static bool _wirelessForceShow_emission;
     static bool _wirelessForceShow_reception;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void visualizeCommunications(int pcTimeInMs);
+    private:
+        std::vector<CBroadcastDataVisual*> _allVisualObjects;
+    #endif
 };

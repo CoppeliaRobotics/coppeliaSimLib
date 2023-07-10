@@ -1,6 +1,7 @@
 #include <qdlglayers.h>
 #include <ui_qdlglayers.h>
 #include <app.h>
+#include <guiApp.h>
 
 CQDlgLayers::CQDlgLayers(QWidget *parent) :
     CDlgEx(parent),
@@ -64,9 +65,9 @@ void CQDlgLayers::clickedLayer(int bit)
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_LAYER_LAYERGUITRIGGEREDCMD,bit);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(TOGGLE_LAYER_LAYERGUITRIGGEREDCMD,bit);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -159,7 +160,7 @@ void CQDlgLayers::on_qqDynamicContentOnly_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHOWDYNCONTENT_LAYERGUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(TOGGLE_SHOWDYNCONTENT_LAYERGUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

@@ -12,7 +12,6 @@ public:
     virtual ~CProxSensor();
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
@@ -141,4 +140,9 @@ protected:
     bool _hideDetectionRay;
     std::string _sensableObjectLoadAlias;
     std::string _sensableObjectLoadName_old;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void display(CViewableBase* renderingObject,int displayAttrib);
+    #endif
 };

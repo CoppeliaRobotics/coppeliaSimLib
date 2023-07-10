@@ -1,6 +1,9 @@
 #include <app.h>
 #include <moduleMenuItemContainer.h>
 #include <global.h>
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 CModuleMenuItemContainer::CModuleMenuItemContainer()
 {
@@ -85,6 +88,7 @@ void CModuleMenuItemContainer::_orderItems()
     }
 }
 
+#ifdef SIM_WITH_GUI
 bool CModuleMenuItemContainer::processCommand(int commandID)
 {
     for (size_t i=0;i<_allItems.size();i++)
@@ -96,7 +100,7 @@ bool CModuleMenuItemContainer::processCommand(int commandID)
             cmd.cmdId=CALL_MODULE_ENTRY_CMD;
             cmd.intParams.push_back(it->getScriptHandle());
             cmd.intParams.push_back(commandID);
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
             return(true);
         }
     }
@@ -121,7 +125,6 @@ bool CModuleMenuItemContainer::processCommand(int commandID)
     return(false);
 }
 
-#ifdef SIM_WITH_GUI
 bool CModuleMenuItemContainer::addMenus(VMenu* myMenu)
 {
     _orderItems();

@@ -84,6 +84,13 @@ void CPointCloudContainer_old::announceObjectWillBeErased(int objID)
     }
 }
 
+void CPointCloudContainer_old::pushGenesisEvents()
+{
+    for (size_t i=0;i<_allObjects.size();i++)
+        _allObjects[i]->pushAddEvent();
+}
+
+#ifdef SIM_WITH_GUI
 void CPointCloudContainer_old::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib)
 {
     if ((displayAttrib&sim_displayattribute_nopointclouds)==0)
@@ -103,9 +110,4 @@ void CPointCloudContainer_old::drawAll(int displayAttrib)
     for (size_t i=0;i<_allObjects.size();i++)
         _allObjects[i]->draw(displayAttrib);
 }
-
-void CPointCloudContainer_old::pushGenesisEvents()
-{
-    for (size_t i=0;i<_allObjects.size();i++)
-        _allObjects[i]->pushAddEvent();
-}
+#endif

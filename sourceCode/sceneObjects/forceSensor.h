@@ -9,7 +9,6 @@ public:
     virtual ~CForceSensor();
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
@@ -118,4 +117,9 @@ protected:
     C3Vector _filteredDynamicForces; // do not serialize! (but initialize appropriately)
     C3Vector _filteredDynamicTorques; // do not serialize! (but initialize appropriately)
     bool _filteredValuesAreValid;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void display(CViewableBase* renderingObject,int displayAttrib);
+    #endif
 };

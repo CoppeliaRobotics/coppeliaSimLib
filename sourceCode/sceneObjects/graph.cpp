@@ -7,9 +7,9 @@
 #include <vVarious.h>
 #include <utils.h>
 #include <app.h>
-#include <graphRendering.h>
 #include <simFlavor.h>
 #ifdef SIM_WITH_GUI
+    #include <graphRendering.h>
     #include <guiApp.h>
 #endif
 
@@ -1321,6 +1321,7 @@ bool CGraph::getGraphCurveData(int graphType,int index,std::string& label,std::v
 
 void CGraph::curveToClipboard(int graphType,const char* curveName) const
 {
+#ifdef SIM_WITH_GUI
     std::vector<double> xVals;
     std::vector<double> yVals;
     if (graphType==0)
@@ -1475,6 +1476,7 @@ void CGraph::curveToClipboard(int graphType,const char* curveName) const
     cmdIn.cmdId=COPY_TEXT_TO_CLIPBOARD_UITHREADCMD;
     cmdIn.stringParams.push_back(txt);
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+#endif
 }
 
 int CGraph::duplicateCurveToStatic(int curveId,const char* curveName)
@@ -2532,12 +2534,12 @@ void CGraph::serialize(CSer& ar)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CGraph::display(CViewableBase* renderingObject,int displayAttrib)
 { // This is a quite ugly routine which requires refactoring!
     displayGraph(this,renderingObject,displayAttrib);
 }
 
-#ifdef SIM_WITH_GUI
 void CGraph::lookAt(int windowSize[2],CSView* subView,bool timeGraph,bool drawText,bool passiveSubView,bool oneOneProportionForXYGraph)
 { // drawText is false and passiveSubView is true by default
     // Default values (used for instance in view selection mode)

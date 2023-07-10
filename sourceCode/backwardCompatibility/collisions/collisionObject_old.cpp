@@ -8,8 +8,10 @@
 #include <app.h>
 #include <simStrings.h>
 #include <vDateTime.h>
-#include <collisionContourRendering.h>
 #include <base64.h>
+#ifdef SIM_WITH_GUI
+    #include <collisionContourRendering.h>
+#endif
 
 CCollisionObject_old::CCollisionObject_old()
 {
@@ -485,11 +487,6 @@ void CCollisionObject_old::serialize(CSer& ar)
     }
 }
 
-void CCollisionObject_old::displayCollisionContour()
-{
-    displayContour(this,_countourWidth);
-}
-
 std::string CCollisionObject_old::getUniquePersistentIdString() const
 {
     return(_uniquePersistentIdString);
@@ -662,4 +659,11 @@ bool CCollisionObject_old::setIntersections(const std::vector<double>* intersect
     }
     return(diff);
 }
+
+#ifdef SIM_WITH_GUI
+void CCollisionObject_old::displayCollisionContour()
+{
+    displayContour(this,_countourWidth);
+}
+#endif
 

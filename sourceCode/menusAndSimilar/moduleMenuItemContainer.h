@@ -13,15 +13,15 @@ public:
     size_t getItemCount() const;
     void announceScriptStateWillBeErased(int scriptHandle);
 
-    bool processCommand(int commandID);
-
-#ifdef SIM_WITH_GUI
-    bool addMenus(VMenu* myMenu);
-    VMenu* _menuHandle;
-#endif
-
 private:
     void _orderItems();
 
     std::vector<CModuleMenuItem*> _allItems;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        bool processCommand(int commandID);
+        bool addMenus(VMenu* myMenu);
+        VMenu* _menuHandle;
+    #endif
 };

@@ -3,8 +3,8 @@
 #include <global.h>
 #include <tt.h>
 #include <app.h>
-#include <pageRendering.h>
 #ifdef SIM_WITH_GUI
+    #include <pageRendering.h>
     #include <guiApp.h>
 #endif
 
@@ -837,13 +837,13 @@ void CSPage::serialize(CSer& ar)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CSPage::render()
 {
     TRACE_INTERNAL;
     displayPage(this,auxViewResizingAction,viewIndexOfResizingAction);
 }
 
-#ifdef SIM_WITH_GUI
 bool CSPage::viewIsPassive(size_t viewIndex) const
 { 
     if (_pageType==SINGLE_VIEW)
@@ -909,7 +909,7 @@ bool CSPage::doubleClickActionForView(size_t viewIndex)
             cmd.intParams.push_back(int(viewIndex));
             cmd.intParams.push_back(0);
             cmd.boolParams.push_back(false);
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
             return(true);
         }
         // We can now also swap some of the regular views with the main view (since 1/11/2014):
@@ -923,7 +923,7 @@ bool CSPage::doubleClickActionForView(size_t viewIndex)
                 cmd.intParams.push_back(int(viewIndex));
                 cmd.intParams.push_back(0);
                 cmd.boolParams.push_back(false);
-                App::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(cmd);
                 return(true);
             }
         }
@@ -1126,7 +1126,7 @@ void CSPage::leftMouseButtonUp(int x,int y)
             SSimulationThreadCommand cmd;
             cmd.cmdId=CLOSE_FLOATING_VIEW_CMD;
             cmd.intParams.push_back(viewIndexOfResizingAction);
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         auxViewResizingAction=-1;
     }

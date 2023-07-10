@@ -2,7 +2,9 @@
 #include <app.h>
 #include <vDateTime.h>
 #include <tt.h>
-#include <rendering.h>
+#ifdef SIM_WITH_GUI
+    #include <rendering.h>
+#endif
 
 CColorObject::CColorObject()
 {

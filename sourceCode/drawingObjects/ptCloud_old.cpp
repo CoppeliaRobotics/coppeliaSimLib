@@ -1,6 +1,8 @@
 #include <ptCloud_old.h>
 #include <app.h>
-#include <ptCloudRendering_old.h>
+#ifdef SIM_WITH_GUI
+    #include <ptCloudRendering_old.h>
+#endif
 
 CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int parentHandle,int options,double pointSize,int ptCnt,const double* vertices,const unsigned char* colors,const double* normals,const unsigned char* defaultColors)
 {
@@ -113,26 +115,6 @@ bool CPtCloud_old::announceObjectWillBeErased(int objectHandleAttachedTo)
     return(_parentHandle==objectHandleAttachedTo);
 }
 
-void CPtCloud_old::draw(int displayAttrib)
-{
-    if ( ((displayAttrib&sim_displayattribute_forvisionsensor)==0)||((_options&2)==0) )
-    {
-#ifdef SIM_WITH_GUI
-        int currentPage=App::currentWorld->pageContainer->getActivePageIndex();
-        int p=1<<currentPage;
-        if ( (_pageMask==0) || ((_pageMask&p)!=0) )
-#endif
-        {
-            int currentLayers=App::currentWorld->environment->getActiveLayers();
-            if ( ((currentLayers&_layerMask)!=0)&&(_vertices.size()!=0) )
-            {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_parentHandle);
-                displayPtCloud_old(this,it);
-            }
-        }
-    }
-}
-
 void CPtCloud_old::pushAddEvent()
 {
     if (App::worldContainer->getEventsEnabled())
@@ -182,3 +164,23 @@ void CPtCloud_old::pushAddEvent()
         App::worldContainer->pushEvent();
     }
 }
+
+#ifdef SIM_WITH_GUI
+void CPtCloud_old::draw(int displayAttrib)
+{
+    if ( ((displayAttrib&sim_displayattribute_forvisionsensor)==0)||((_options&2)==0) )
+    {
+        int currentPage=App::currentWorld->pageContainer->getActivePageIndex();
+        int p=1<<currentPage;
+        if ( (_pageMask==0) || ((_pageMask&p)!=0) )
+        {
+            int currentLayers=App::currentWorld->environment->getActiveLayers();
+            if ( ((currentLayers&_layerMask)!=0)&&(_vertices.size()!=0) )
+            {
+                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_parentHandle);
+                displayPtCloud_old(this,it);
+            }
+        }
+    }
+}
+#endif

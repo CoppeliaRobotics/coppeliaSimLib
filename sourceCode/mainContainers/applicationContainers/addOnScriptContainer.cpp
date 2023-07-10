@@ -301,7 +301,9 @@ bool CAddOnScriptContainer::_removeAddOn(int scriptID)
             break;
         }
     }
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
     return(true);
 }
 
@@ -316,6 +318,7 @@ void CAddOnScriptContainer::removeAllAddOns()
     }
 }
 
+#ifdef SIM_WITH_GUI
 bool CAddOnScriptContainer::processCommand(int commandID)
 { // Return value is true if the command belonged to hierarchy menu and was executed
     if ( (commandID>=UI_MODULE_MENU_CMDS_START)&&(commandID<=UI_MODULE_MENU_CMDS_END) )
@@ -413,8 +416,9 @@ bool CAddOnScriptContainer::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
     }
     return(false);
 }
+#endif

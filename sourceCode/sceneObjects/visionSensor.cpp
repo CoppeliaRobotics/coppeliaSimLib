@@ -11,9 +11,9 @@
 #include <utils.h>
 #include <threadPool_old.h>
 #include <app.h>
-#include <visionSensorRendering.h>
 #include <interfaceStackString.h>
 #ifdef SIM_WITH_GUI
+    #include <visionSensorRendering.h>
     #include <rendering.h>
     #include <oGL.h>
     #include <QtOpenGL>
@@ -406,7 +406,6 @@ CVisionSensor::~CVisionSensor()
 {
 #ifdef SIM_WITH_GUI
     _removeGlContextAndFboAndTextureObjectIfNeeded();
-#endif
     if (_rayTracingTextureName!=(unsigned int)-1)
     {
         SUIThreadCommand cmdIn;
@@ -416,6 +415,7 @@ CVisionSensor::~CVisionSensor()
         GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         _rayTracingTextureName=(unsigned int)-1;
     }
+#endif
 
     delete[] _depthBuffer;
     delete[] _rgbBuffer;
@@ -2719,6 +2719,7 @@ void CVisionSensor::serialize(CSer& ar)
 
 void CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
 {
+#ifdef SIM_WITH_GUI
     TRACE_INTERNAL;
     if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
@@ -2737,14 +2738,15 @@ void CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bo
         cmdIn.boolParams.push_back(overrideRenderableFlagsForNonCollections);
         GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
+#endif
 }
 
+#ifdef SIM_WITH_GUI
 void CVisionSensor::display(CViewableBase* renderingObject,int displayAttrib)
 {
     displayVisionSensor(this,renderingObject,displayAttrib);
 }
 
-#ifdef SIM_WITH_GUI
 void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(bool useStencilBuffer)
 {
     TRACE_INTERNAL;

@@ -24,7 +24,6 @@ public:
     void simulationAboutToStart();
     void simulationEnded();
     void simulationAboutToEnd();
-    bool processCommand(int commandID);
     void loadAllAddOns();
     void removeAllAddOns();
     CScriptObject* getAddOnFromID(int scriptID) const;
@@ -36,6 +35,9 @@ public:
     bool shouldTemporarilySuspendMainScript();
     int callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,int scriptToExclude=-1);
 
+#ifdef SIM_WITH_GUI
+    bool processCommand(int commandID);
+#endif
 private:
     bool _removeAddOn(int scriptID);
     int _insertAddOn(CScriptObject* script);

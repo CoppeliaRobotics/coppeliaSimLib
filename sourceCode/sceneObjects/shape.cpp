@@ -5,12 +5,14 @@
 #include <app.h>
 #include <meshWrapper.h>
 #include <mesh.h>
-#include <shapeRendering.h>
 #include <meshManip.h>
 #include <base64.h>
 #include <imgLoaderSaver.h>
 #include <utils.h>
 #include <meshRoutines.h>
+#ifdef SIM_WITH_GUI
+    #include <shapeRendering.h>
+#endif
 
 CShape::CShape()
 {
@@ -460,20 +462,6 @@ void CShape::display_extRenderer(CViewableBase* renderingObject,int displayAttri
             getMesh()->display_extRenderer(C7Vector::identityTransformation,this,displayAttrib,tr,_objectHandle,componentIndex);
         }
     }
-}
-
-void CShape::displayFrames(CViewableBase* renderingObject,double size,bool persp)
-{
-#ifdef SIM_WITH_GUI
-    CSceneObject::displayFrames(renderingObject,size,persp);
-    if (persp)
-    {
-        C7Vector x(renderingObject->getCumulativeTransformation().getInverse()*getCumulativeTransformation());
-        size*=x(2);
-    }
-    C7Vector tr(getCumulativeTransformation());
-    _displayFrame(tr*_bbFrame,size*0.006,1); // frame of the bounding box
-#endif
 }
 
 void CShape::scaleObject(double scalingFactor)
@@ -1612,9 +1600,17 @@ int CShape::getComponentCount() const
     return(getMesh()->getComponentCount());
 }
 
+bool CShape::setParent(CSceneObject* newParent)
+{ // Overridden from CSceneObject
+    bool retVal=CSceneObject::setParent(newParent);
+    if (retVal&&getSetAutomaticallyToNonStaticIfGetsParent())
+        setStatic(false);
+    return(retVal);
+}
+
+#ifdef SIM_WITH_GUI
 void CShape::displayInertia(CViewableBase* renderingObject,double size,bool persp)
 {
-#ifdef SIM_WITH_GUI
     if (persp)
     {
         C7Vector x(renderingObject->getCumulativeTransformation().getInverse()*getCumulativeTransformation());
@@ -1623,7 +1619,6 @@ void CShape::displayInertia(CViewableBase* renderingObject,double size,bool pers
     C3Vector diag;
     C7Vector tr(getCumulativeTransformation()*getMesh()->getDiagonalInertiaInfo(diag));
     _displayInertia(tr,diag,size*0.008);
-#endif
 }
 
 void CShape::display(CViewableBase* renderingObject,int displayAttrib)
@@ -1631,10 +1626,15 @@ void CShape::display(CViewableBase* renderingObject,int displayAttrib)
     displayShape(this,renderingObject,displayAttrib);
 }
 
-bool CShape::setParent(CSceneObject* newParent)
-{ // Overridden from CSceneObject
-    bool retVal=CSceneObject::setParent(newParent);
-    if (retVal&&getSetAutomaticallyToNonStaticIfGetsParent())
-        setStatic(false);
-    return(retVal);
+void CShape::displayFrames(CViewableBase* renderingObject,double size,bool persp)
+{
+    CSceneObject::displayFrames(renderingObject,size,persp);
+    if (persp)
+    {
+        C7Vector x(renderingObject->getCumulativeTransformation().getInverse()*getCumulativeTransformation());
+        size*=x(2);
+    }
+    C7Vector tr(getCumulativeTransformation());
+    _displayFrame(tr*_bbFrame,size*0.006,1); // frame of the bounding box
 }
+#endif

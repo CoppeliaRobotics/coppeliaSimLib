@@ -6,8 +6,8 @@
 #include <simStrings.h>
 #include <utils.h>
 #include <app.h>
-#include <pathRendering.h>
 #ifdef SIM_WITH_GUI
+    #include <pathRendering.h>
     #include <guiApp.h>
 #endif
 
@@ -779,12 +779,12 @@ void CPath_old::serialize(CSer& ar)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CPath_old::display(CViewableBase* renderingObject,int displayAttrib)
 {
     displayPath(this,renderingObject,displayAttrib);
 }
 
-#ifdef SIM_WITH_GUI
 bool CPath_old::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,const C3Vector& clicked3DPoint,double prevPos[2],double pos[2],double screenHalfSizes[2],double halfSizes[2],bool perspective,int eventID)
 {
     C3Vector pointCenter;

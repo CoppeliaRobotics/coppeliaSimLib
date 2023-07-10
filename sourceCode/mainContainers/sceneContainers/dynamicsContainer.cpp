@@ -3,8 +3,8 @@
 #include <app.h>
 #include <simStringTable.h>
 #include <tt.h>
-#include <dynamicsRendering.h>
 #ifdef SIM_WITH_GUI
+    #include <dynamicsRendering.h>
     #include <vMessageBox.h>
     #include <guiApp.h>
 #endif
@@ -276,7 +276,9 @@ void CDynamicsContainer::setDynamicEngineType(int t,int version)
 {
     _dynamicEngineToUse=t;
     _dynamicEngineVersionToUse=version;
-    GuiApp::setLightDialogRefreshFlag(); // will trigger a refresh
+    #ifdef SIM_WITH_GUI
+        GuiApp::setLightDialogRefreshFlag(); // will trigger a refresh
+    #endif
 }
 
 int CDynamicsContainer::getDynamicEngineType(int* version) const
@@ -2097,51 +2099,6 @@ void CDynamicsContainer::serialize(CSer& ar)
     }
 }
 
-void CDynamicsContainer::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{ // Has to be displayed as overlay!
-    if (isWorldThere())
-    {
-        if ((displayAttrib&sim_displayattribute_noparticles)==0)
-        {
-            int index=0;
-            float* cols;
-            int objectType;
-            int particlesCount;
-            C4X4Matrix m(renderingObject->getFullCumulativeTransformation().getMatrix());
-            void** particlesPointer=App::worldContainer->pluginContainer->dyn_getParticles(index++,&particlesCount,&objectType,&cols);
-            while (particlesCount!=-1)
-            {
-                if ((particlesPointer!=nullptr)&&(particlesCount>0)&&((objectType&sim_particle_invisible)==0))
-                {
-                    if ( ((displayAttrib&sim_displayattribute_forvisionsensor)==0)||(objectType&sim_particle_painttag) )
-                        displayParticles(particlesPointer,particlesCount,displayAttrib,m,cols,objectType);
-                }
-                particlesPointer=App::worldContainer->pluginContainer->dyn_getParticles(index++,&particlesCount,&objectType,&cols);
-            }
-        }
-    }
-}
-
-void CDynamicsContainer::renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib)
-{ // Has to be displayed as overlay!
-    if (isWorldThere())
-    {
-        if ((displayAttrib&sim_displayattribute_noparticles)==0)
-        {
-            if ((displayAttrib&sim_displayattribute_renderpass)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0) )
-            {
-                if (getDisplayContactPoints())
-                {
-                    int cnt=0;
-                    double* pts=App::worldContainer->pluginContainer->dyn_getContactPoints(&cnt);
-
-                    displayContactPoints(displayAttrib,contactPointColor,pts,cnt);
-                }
-            }
-        }
-    }
-}
-
 void CDynamicsContainer::_fixVortexInfVals()
 { // to fix a past complication (i.e. neg. val. of unsigned would be inf)
     for (size_t i=3;i<9;i++)
@@ -2309,3 +2266,49 @@ void CDynamicsContainer::getMujocoDefaultIntParams(std::vector<int>& p,int defTy
     p.push_back(1+2+4+8+16+32); // simi_mujoco_global_rebuildtrigger
 }
 
+#ifdef SIM_WITH_GUI
+void CDynamicsContainer::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
+{ // Has to be displayed as overlay!
+    if (isWorldThere())
+    {
+        if ((displayAttrib&sim_displayattribute_noparticles)==0)
+        {
+            int index=0;
+            float* cols;
+            int objectType;
+            int particlesCount;
+            C4X4Matrix m(renderingObject->getFullCumulativeTransformation().getMatrix());
+            void** particlesPointer=App::worldContainer->pluginContainer->dyn_getParticles(index++,&particlesCount,&objectType,&cols);
+            while (particlesCount!=-1)
+            {
+                if ((particlesPointer!=nullptr)&&(particlesCount>0)&&((objectType&sim_particle_invisible)==0))
+                {
+                    if ( ((displayAttrib&sim_displayattribute_forvisionsensor)==0)||(objectType&sim_particle_painttag) )
+                        displayParticles(particlesPointer,particlesCount,displayAttrib,m,cols,objectType);
+                }
+                particlesPointer=App::worldContainer->pluginContainer->dyn_getParticles(index++,&particlesCount,&objectType,&cols);
+            }
+        }
+    }
+}
+
+void CDynamicsContainer::renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib)
+{ // Has to be displayed as overlay!
+    if (isWorldThere())
+    {
+        if ((displayAttrib&sim_displayattribute_noparticles)==0)
+        {
+            if ((displayAttrib&sim_displayattribute_renderpass)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0) )
+            {
+                if (getDisplayContactPoints())
+                {
+                    int cnt=0;
+                    double* pts=App::worldContainer->pluginContainer->dyn_getContactPoints(&cnt);
+
+                    displayContactPoints(displayAttrib,contactPointColor,pts,cnt);
+                }
+            }
+        }
+    }
+}
+#endif

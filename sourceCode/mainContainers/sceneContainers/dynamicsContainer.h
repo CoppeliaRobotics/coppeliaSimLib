@@ -132,8 +132,6 @@ public:
     void serialize(CSer& ar);
     void simulationAboutToStart();
     void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
-    void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib);
 
     void handleDynamics(double dt);
     bool getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],double* contactInfo) const;
@@ -277,4 +275,10 @@ protected:
 
     std::vector<double> _mujocoFloatParams;
     std::vector<int> _mujocoIntParams;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
+        void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib);
+    #endif
 };

@@ -3,7 +3,9 @@
 #include <tt.h>
 #include <simStrings.h>
 #include <app.h>
-#include <rendering.h>
+#ifdef SIM_WITH_GUI
+    #include <rendering.h>
+#endif
 
 CTextureProperty::CTextureProperty()
 {
@@ -18,7 +20,9 @@ CTextureProperty::CTextureProperty(int textureOrVisionSensorObjectID)
 
 CTextureProperty::~CTextureProperty()
 {
-    decreaseTexCoordBufferRefCnt(_texCoordBufferId);
+    #ifdef SIM_WITH_GUI
+        decreaseTexCoordBufferRefCnt(_texCoordBufferId);
+    #endif
 }
 
 void CTextureProperty::setTextureMapMode(int mode)
@@ -40,8 +44,10 @@ void CTextureProperty::setTextureMapMode(int mode)
             _repeatU=true;
             _repeatV=true;
         }
-        decreaseTexCoordBufferRefCnt(_texCoordBufferId);
-        _texCoordBufferId=-1;
+        #ifdef SIM_WITH_GUI
+            decreaseTexCoordBufferRefCnt(_texCoordBufferId);
+            _texCoordBufferId=-1;
+        #endif
     }
 }
 
@@ -65,7 +71,9 @@ void CTextureProperty::_commonInit()
     _textureScalingX=1.0;
     _textureScalingY=1.0;
 
-    _texCoordBufferId=-1;
+    #ifdef SIM_WITH_GUI
+        _texCoordBufferId=-1;
+    #endif
 }
 
 void CTextureProperty::setRepeatU(bool r)
@@ -101,8 +109,10 @@ void CTextureProperty::scaleObject(double scalingFactor)
 {
     _objectStateId=-1; // Force a new calculation of texture coordinates
 
-    decreaseTexCoordBufferRefCnt(_texCoordBufferId);
-    _texCoordBufferId=-1;
+    #ifdef SIM_WITH_GUI
+        decreaseTexCoordBufferRefCnt(_texCoordBufferId);
+        _texCoordBufferId=-1;
+    #endif
 
     _textureRelativeConfig.X*=scalingFactor;
     if ((_textureCoordinateMode==sim_texturemap_plane)||(_textureCoordinateMode==sim_texturemap_cube))
@@ -119,11 +129,6 @@ void CTextureProperty::scaleObject(double scalingFactor)
 void CTextureProperty::transformTexturePose(const C7Vector& mCorrection)
 {
     _textureRelativeConfig=mCorrection*_textureRelativeConfig;
-}
-
-int* CTextureProperty::getTexCoordBufferIdPointer()
-{
-    return(&_texCoordBufferId);
 }
 
 void CTextureProperty::setStartedTextureObject(CTextureObject* it)
@@ -162,9 +167,10 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
     }
 
     // we need to compute the texture coordinates!
-
-    decreaseTexCoordBufferRefCnt(_texCoordBufferId);
-    _texCoordBufferId=-1;
+    #ifdef SIM_WITH_GUI
+        decreaseTexCoordBufferRefCnt(_texCoordBufferId);
+        _texCoordBufferId=-1;
+    #endif
 
     _calculatedTextureCoordinates.clear();
     C7Vector tr(_textureRelativeConfig.getInverse());
@@ -478,8 +484,10 @@ void CTextureProperty::setTextureRelativeConfig(const C7Vector& c)
 {
     _textureRelativeConfig=c;
     _objectStateId=-1; // Force a new calculation of texture coordinates
-    decreaseTexCoordBufferRefCnt(_texCoordBufferId);
-    _texCoordBufferId=-1;
+    #ifdef SIM_WITH_GUI
+        decreaseTexCoordBufferRefCnt(_texCoordBufferId);
+        _texCoordBufferId=-1;
+    #endif
 }
 
 void CTextureProperty::setFixedCoordinates(const std::vector<float>* coords)
@@ -491,8 +499,10 @@ void CTextureProperty::setFixedCoordinates(const std::vector<float>* coords)
         _repeatU=true;
         _repeatV=true;
     }
-    decreaseTexCoordBufferRefCnt(_texCoordBufferId);
-    _texCoordBufferId=-1;
+    #ifdef SIM_WITH_GUI
+        decreaseTexCoordBufferRefCnt(_texCoordBufferId);
+        _texCoordBufferId=-1;
+    #endif
 }
 
 bool CTextureProperty::getFixedCoordinates()
@@ -734,3 +744,10 @@ void CTextureProperty::serialize(CSer& ar)
         }
     }
 }
+
+#ifdef SIM_WITH_GUI
+int* CTextureProperty::getTexCoordBufferIdPointer()
+{
+    return(&_texCoordBufferId);
+}
+#endif

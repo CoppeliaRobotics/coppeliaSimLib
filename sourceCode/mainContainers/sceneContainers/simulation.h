@@ -68,7 +68,6 @@ public:
 
     void setSimulationState(int state);
 
-    bool processCommand(int commandID);
     bool getInfo(std::string& txtLeft,std::string& txtRight,int& index) const;
 
     void setPauseAtError(bool br);
@@ -81,6 +80,7 @@ public:
     int getSimulationState() const;
 
 #ifdef SIM_WITH_GUI
+    bool processCommand(int commandID);
     bool showAndHandleEmergencyStopButton(bool showState,const char* scriptName);
     void keyPress(int key);
     void addMenu(VMenu* menu);

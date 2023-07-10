@@ -159,7 +159,6 @@ public:
     void connectSynchronizationObject();
 
     // Following functions are inherited from CSceneObject
-    void display(CViewableBase* renderingObject,int displayAttrib);
     void addSpecializedObjectEventData(CCbor* ev) const;
     CSceneObject* copyYourself();
     void removeSceneDependencies();
@@ -448,4 +447,9 @@ protected:
     int _jointCallbackCallOrder_backwardCompatibility;
     double _initialVelocity_DEPRECATED;
     bool _initialExplicitHandling_DEPRECATED;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void display(CViewableBase* renderingObject,int displayAttrib);
+    #endif
 };

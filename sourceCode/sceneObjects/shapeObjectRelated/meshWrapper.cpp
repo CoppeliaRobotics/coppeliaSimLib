@@ -626,6 +626,7 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
             ar.flush();
 
 #ifdef TMPOPERATION
+            {
             ar.storeDataName("Ine"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
             C7Vector w(parentCumulIFrame*_iFrame);
             w.X+=_com;
@@ -634,10 +635,11 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
             ar << (float)w(3) << (float)w(4) << (float)w(5) << (float)w(6);
             ar << (float)_pmi(0) << (float)_pmi(1) << (float)_pmi(2);
             ar.flush();
+            }
 #endif
 
             ar.storeDataName("_ne"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
-            w=parentCumulIFrame*_iFrame;
+            C7Vector w(parentCumulIFrame*_iFrame);
             w.X+=_com;
             w.Q=w.Q*_pmiRotFrame;
             ar << w(0) << w(1) << w(2);

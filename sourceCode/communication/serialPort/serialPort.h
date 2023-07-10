@@ -1,12 +1,10 @@
-
 #pragma once
-#include <QSerialPort>
 
 class CSerialPort
 {
 
 public:
-    CSerialPort(bool wasOpenedFromAScript,bool useQSerialPort);
+    CSerialPort(bool wasOpenedFromAScript);
     ~CSerialPort();
 
     bool open(const char* portString,int nBaud);
@@ -23,9 +21,6 @@ public:
     int getPortNumber_backwardCompatibility();
 
 protected:
-    bool _useQSerialPort;
-    static int _qserialPort_nextHandle;
-    QSerialPort* _qserialPort;
     int _portHandle;
     bool _wasOpenedFromAScript;
     int _portNumber_backwardCompatibility;

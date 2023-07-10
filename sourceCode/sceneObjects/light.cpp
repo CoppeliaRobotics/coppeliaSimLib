@@ -4,8 +4,8 @@
 #include <simStrings.h>
 #include <utils.h>
 #include <app.h>
-#include <lightRendering.h>
 #ifdef SIM_WITH_GUI
+    #include <lightRendering.h>
     #include <guiApp.h>
 #endif
 
@@ -225,8 +225,10 @@ void CLight::setAttenuationFactor(int type,double value)
 
 void CLight::setLightActive(bool active)
 {
-    if (active!=lightActive)
-        GuiApp::setRefreshHierarchyViewFlag();
+    #ifdef SIM_WITH_GUI
+        if (active!=lightActive)
+            GuiApp::setRefreshHierarchyViewFlag();
+    #endif
     lightActive=active;
 }
 
@@ -739,7 +741,9 @@ void CLight::serialize(CSer& ar)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CLight::display(CViewableBase* renderingObject,int displayAttrib)
 {
     displayLight(this,renderingObject,displayAttrib);
 }
+#endif

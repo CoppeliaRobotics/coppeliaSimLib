@@ -4,12 +4,14 @@
 #include <iostream>
 #include <set>
 #include <app.h>
-
 #ifndef _WIN32
     #include <signal.h>
 #else
     #include <windows.h>
 #endif //!_WIN32
+#ifdef SIM_WITH_GUI
+    #include <guiApp.h>
+#endif
 
 // There can be only ONE SignalHandler per process
 //SignalHandler* g_handler(nullptr);
@@ -169,6 +171,6 @@ bool handleSignal(int signal)
     App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"external exit request: %i",signal);
     SSimulationThreadCommand cmd;
     cmd.cmdId=EXIT_REQUEST_CMD;
-    App::appendSimulationThreadCommand(cmd);
+    GuiApp::appendSimulationThreadCommand(cmd);
     return true; // don't propagate the signal further
 }

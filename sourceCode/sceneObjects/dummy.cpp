@@ -5,8 +5,8 @@
 #include <global.h>
 #include <app.h>
 #include <tt.h>
-#include <dummyRendering.h>
 #ifdef SIM_WITH_GUI
+    #include <dummyRendering.h>
     #include <guiApp.h>
 #endif
 
@@ -888,8 +888,10 @@ void CDummy::setLinkedDummyHandle(int handle,bool check)
         _reflectPropToLinkedDummy();
         if (getObjectCanSync())
             _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);
-        GuiApp::setRefreshHierarchyViewFlag();
-        GuiApp::setFullDialogRefreshFlag();
+        #ifdef SIM_WITH_GUI
+            GuiApp::setRefreshHierarchyViewFlag();
+            GuiApp::setFullDialogRefreshFlag();
+        #endif
     }
 }
 
@@ -916,8 +918,10 @@ bool CDummy::setLinkType(int lt,bool check)
                 it->setLinkType(lt,false);
         }
         _reflectPropToLinkedDummy();
-        GuiApp::setRefreshHierarchyViewFlag();
-        GuiApp::setFullDialogRefreshFlag();
+        #ifdef SIM_WITH_GUI
+            GuiApp::setRefreshHierarchyViewFlag();
+            GuiApp::setFullDialogRefreshFlag();
+        #endif
     }
     return(diff);
 }
@@ -941,11 +945,6 @@ void CDummy::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID,copyBuffer);
-}
-
-void CDummy::display(CViewableBase* renderingObject,int displayAttrib)
-{
-    displayDummy(this,renderingObject,displayAttrib);
 }
 
 void CDummy::_setLinkedDummyHandle_sendOldIk(int h) const
@@ -1075,3 +1074,10 @@ void CDummy::setDummySize(double s)
         }
     }
 }
+
+#ifdef SIM_WITH_GUI
+void CDummy::display(CViewableBase* renderingObject,int displayAttrib)
+{
+    displayDummy(this,renderingObject,displayAttrib);
+}
+#endif

@@ -11,12 +11,7 @@
     #include <guiApp.h>
 #endif
 
-int CSer::SER_SERIALIZATION_VERSION=24; // 9 since 2008/09/01,
-                                        // 10 since 2009/02/14,
-                                        // 11 since 2009/05/15,
-                                        // 12 since 2009/07/03,
-                                        // 13 since 2009/07/21,
-                                        // 14 since 2010/02/26
+int CSer::SER_SERIALIZATION_VERSION=25; // 9 since 2008/09/01,
                                         // 15 since 2010/04/17 (after removal of CGeomCont and cloning option for geom resources)
                                         // 16 since 2012/11/10 (after rewritten shape and geometric classes. We do not support serialization version 14 and earlier anymore!)
                                         // 17 since 2013/08/29 (after correcting for light intensity and object colors)
@@ -26,9 +21,10 @@ int CSer::SER_SERIALIZATION_VERSION=24; // 9 since 2008/09/01,
                                         // 21 since 2017/05/26 (New API notation)
                                         // 22 since 2019/04/29 (Striped away some backward compatibility features)
                                         // 23 since 2021/03/08 (not a big diff. in format, more in content (e.g. Lua5.3, main script using require, etc.))
-                                        // 24 since 2022/12/02 (float --> double)
+                                        // 24 since 2022/12/02, V4.5.1 (float --> double)
+                                        // 25 since 2023/07/09, V4.5 (float no more supported)
 
-int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS=18; // means: files written with this can be read by older CoppeliaSim with serialization THE_NUMBER
+int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS=24; // means: files written with this can be read by older CoppeliaSim with serialization THE_NUMBER
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ=18; // means: this executable can read versions >=THE_NUMBER
 int CSer::XML_XSERIALIZATION_VERSION=2;
 int CSer::_serializationVersionThatWroteLastFile=-1;
@@ -418,10 +414,10 @@ std::string CSer::_getNodeText(const xmlNode* node) const
 std::string CSer::_getNodeCdataText(const xmlNode* node) const
 {
     std::string retVal;
-    const sim::tinyxml2::XMLNode* _node=node->FirstChild();
+    const tinyxml2::XMLNode* _node=node->FirstChild();
     while(_node!=nullptr)
     {
-        const sim::tinyxml2::XMLText* txt=_node->ToText();
+        const tinyxml2::XMLText* txt=_node->ToText();
         if (txt!=nullptr)
         {
             std::string tx(_node->Value());
@@ -454,7 +450,7 @@ std::string CSer::xmlGetStackString() const
 
 int CSer::_readXmlHeader(int& serializationVersion,unsigned short& coppeliaSimVersionThatWroteThis,char& revNumber)
 {
-    if (_xmlDocument.LoadFile(_filename.c_str())==sim::tinyxml2::XML_NO_ERROR)
+    if (_xmlDocument.LoadFile(_filename.c_str())==tinyxml2::XML_SUCCESS)
     {
         if (xmlPushChildNode("CoppeliaSim"))
         {
@@ -1197,7 +1193,7 @@ void CSer::xmlAddNode_bool(const char* name,bool val)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt;
+    tinyxml2::XMLText* txt;
     if (val)
         txt=_xmlDocument.NewText("true");
     else
@@ -1219,7 +1215,7 @@ void CSer::xmlAddNode_bools(const char* name,const std::vector<bool>& vals)
         else
             tmp+="false";
     }
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1346,7 +1342,7 @@ void CSer::xmlAddNode_string(const char* name,const char* str)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(str);
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(str);
     node->InsertEndChild(txt);
 }
 
@@ -1361,7 +1357,7 @@ void CSer::xmlAddNode_strings(const char* name,const std::vector<std::string>& v
             tmp+=" ";
         tmp+=boost::str(boost::format("%s") % vals[i].c_str());
     }
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1377,17 +1373,17 @@ void CSer::xmlAddNode_cdata(const char* name,const char* str)
     {
         std::string _s(s.begin()+p0,s.begin()+p1);
         _s="\n"+_s+"\n";
-        sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(_s.c_str());
+        tinyxml2::XMLText* txt=_xmlDocument.NewText(_s.c_str());
         txt->SetCData(true);
         node->InsertEndChild(txt);
-        sim::tinyxml2::XMLText* txt2=_xmlDocument.NewText("]]>");
+        tinyxml2::XMLText* txt2=_xmlDocument.NewText("]]>");
         node->InsertEndChild(txt2);
         p0=p1+3;
         p1=s.find("]]>",p0);
     }
     std::string _s(s.begin()+p0,s.end());
     _s="\n"+_s+"\n";
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(_s.c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(_s.c_str());
     txt->SetCData(true);
     node->InsertEndChild(txt);
 }
@@ -1437,7 +1433,7 @@ void CSer::xmlAddNode_int(const char* name,int val)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i") % val).c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i") % val).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1445,7 +1441,7 @@ void CSer::xmlAddNode_2int(const char* name,int val1,int val2)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i %i") % val1 % val2).c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i %i") % val1 % val2).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1453,7 +1449,7 @@ void CSer::xmlAddNode_3int(const char* name,int val1,int val2,int val3)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i %i %i") % val1 % val2 %val3).c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i %i %i") % val1 % val2 %val3).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1468,7 +1464,7 @@ void CSer::xmlAddNode_ints(const char* name,const int* vals,size_t cnt)
             tmp+=" ";
         tmp+=boost::str(boost::format("%i") % vals[i]);
     }
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1483,7 +1479,7 @@ void CSer::xmlAddNode_ints(const char* name,const std::vector<int>& vals)
             tmp+=" ";
         tmp+=boost::str(boost::format("%i") % vals[i]);
     }
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1491,7 +1487,7 @@ void CSer::xmlAddNode_uint(const char* name,unsigned int val)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%u") % val).c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%u") % val).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1499,7 +1495,7 @@ void CSer::xmlAddNode_ulonglong(const char* name,unsigned long long val)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%u") % val).c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%u") % val).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1514,7 +1510,7 @@ void CSer::xmlAddNode_uchars(const char* name,const std::vector<unsigned char>& 
             tmp+=" ";
         tmp+=boost::str(boost::format("%u") % (unsigned int)vals[i]);
     }
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1522,7 +1518,7 @@ void CSer::xmlAddNode_float(const char* name,double val)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e") % val).c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e") % val).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1530,7 +1526,7 @@ void CSer::xmlAddNode_2float(const char* name,double val1,double val2)
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e %.4e") % val1 % val2).c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e %.4e") % val1 % val2).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1538,7 +1534,7 @@ void CSer::xmlAddNode_3float(const char* name,double val1,double val2,double val
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e %.4e %.4e") % val1 % val2 %val3).c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e %.4e %.4e") % val1 % val2 %val3).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1546,7 +1542,7 @@ void CSer::xmlAddNode_4float(const char* name,double val1,double val2,double val
 {
     xmlNode* node=_xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e %.4e %.4e %.4e") % val1 % val2 %val3 %val4).c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%.4e %.4e %.4e %.4e") % val1 % val2 %val3 %val4).c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1561,7 +1557,7 @@ void CSer::xmlAddNode_floats(const char* name,const float* vals,size_t cnt)
             tmp+=" ";
         tmp+=boost::str(boost::format("%.4e") % vals[i]);
     }
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1576,7 +1572,7 @@ void CSer::xmlAddNode_floats(const char* name,const double* vals,size_t cnt)
             tmp+=" ";
         tmp+=boost::str(boost::format("%.4e") % vals[i]);
     }
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1591,7 +1587,7 @@ void CSer::xmlAddNode_floats(const char* name,const std::vector<float>& vals)
             tmp+=" ";
         tmp+=boost::str(boost::format("%.4e") % vals[i]);
     }
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
 }
 
@@ -1606,7 +1602,7 @@ void CSer::xmlAddNode_floats(const char* name,const std::vector<double>& vals)
             tmp+=" ";
         tmp+=boost::str(boost::format("%.4e") % vals[i]);
     }
-    sim::tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(tmp.c_str());
     node->InsertEndChild(txt);
 }
 

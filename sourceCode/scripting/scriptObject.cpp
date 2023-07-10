@@ -1792,7 +1792,9 @@ bool CScriptObject::_loadCode()
                 }
                 else
                 { // success
-                    GuiApp::setRefreshHierarchyViewFlag();
+                    #ifdef SIM_WITH_GUI
+                        GuiApp::setRefreshHierarchyViewFlag();
+                    #endif
                     if (_compatibilityMode_oldLua)
                     {
                         _execSimpleString_safe_lua((luaWrap_lua_State*)_interpreterState,"_S.sysCallEx_init()");
@@ -1844,7 +1846,9 @@ int CScriptObject::_callSystemScriptFunction(int callType,const CInterfaceStack*
     }
     else if (callType==sim_syscb_init)
     {
-        GuiApp::setRefreshHierarchyViewFlag();
+        #ifdef SIM_WITH_GUI
+            GuiApp::setRefreshHierarchyViewFlag();
+        #endif
         if (_scriptState!=scriptState_uninitialized)
             return(0);
         _scriptState=scriptState_initialized;
@@ -2379,7 +2383,9 @@ bool CScriptObject::_killInterpreterState()
     _compatibilityMode_oldLua=false;
     if (!_threadedExecution_oldThreads) // those could run several times
         _numberOfPasses=0;
-    GuiApp::setRefreshHierarchyViewFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setRefreshHierarchyViewFlag();
+    #endif
     return(retVal);
 }
 
@@ -2443,7 +2449,9 @@ void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char
         App::logScriptMsg(this,sim_verbosity_scripterrors,errM.c_str());
         _lastStackTraceback=errM;
     }
-    GuiApp::setRefreshHierarchyViewFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setRefreshHierarchyViewFlag();
+    #endif
 }
 
 int CScriptObject::getScriptHandleFromInterpreterState_lua(void* LL)

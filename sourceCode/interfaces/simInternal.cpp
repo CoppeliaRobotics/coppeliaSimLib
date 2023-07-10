@@ -30,9 +30,6 @@
     #include <guiApp.h>
 #endif
 
-VMutex _lockForExtLockList;
-std::vector<CSimAndUiThreadSync*> _extLockList;
-
 int _currentScriptNameIndex=-1;
 int _currentScriptHandle=-1;
 
@@ -75,10 +72,12 @@ int simPostExitRequest_internal()
 
 void simRunGui_internal(int options)
 {
+#ifdef SIM_WITH_GUI
     GuiApp app;
     app.initGui(options);
     app.runGui();
     app.cleanupGui();
+#endif
 }
 
 int simTest_internal(int mode,void* ptr1,void* ptr2,void* ptr3)
@@ -121,11 +120,13 @@ int getCurrentScriptNameIndex_cSide()
 
 bool ifEditModeActiveGenerateErrorAndReturnTrue(const char* functionName)
 {
-    if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
-    {
-        CApiErrors::setLastWarningOrError(functionName,SIM_ERRROR_EDIT_MODE_ACTIVE);
-        return(true);
-    }
+    #ifdef SIM_WITH_GUI
+        if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
+        {
+            CApiErrors::setLastWarningOrError(functionName,SIM_ERRROR_EDIT_MODE_ACTIVE);
+            return(true);
+        }
+    #endif
     return(false);
 }
 
@@ -555,11 +556,13 @@ int simRefreshDialogs_internal(int refreshDegree)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (refreshDegree==0)
-            GuiApp::setLightDialogRefreshFlag();
-        if (refreshDegree==2)
-            GuiApp::setFullDialogRefreshFlag();
-        GuiApp::setDialogRefreshDontPublishFlag();
+        #ifdef SIM_WITH_GUI
+            if (refreshDegree==0)
+                GuiApp::setLightDialogRefreshFlag();
+            if (refreshDegree==2)
+                GuiApp::setFullDialogRefreshFlag();
+            GuiApp::setDialogRefreshDontPublishFlag();
+        #endif
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -1969,27 +1972,33 @@ int simSetBoolParam_internal(int parameter,bool boolState)
         couldNotLock=false;
         if (parameter==sim_boolparam_exit_request)
         {
-            if ( App::currentWorld->simulation->isSimulationStopped()&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
-            {
-                SSimulationThreadCommand cmd;
-                cmd.cmdId=EXIT_REQUEST_CMD;
-                App::appendSimulationThreadCommand(cmd);
+            #ifdef SIM_WITH_GUI
+                int editMode=GuiApp::getEditModeType();
+                if ( App::currentWorld->simulation->isSimulationStopped()&&(editMode==NO_EDIT_MODE) )
+                {
+                    SSimulationThreadCommand cmd;
+                    cmd.cmdId=EXIT_REQUEST_CMD;
+                    GuiApp::appendSimulationThreadCommand(cmd);
+                    return(1);
+                }
+            #else
+                App::postExitRequest();
                 return(1);
-            }
+            #endif
             return(-1);
         }
         if (parameter==sim_boolparam_hierarchy_visible)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
                 return(-1);
-#ifdef SIM_WITH_GUI
-            if (GuiApp::mainWindow!=nullptr)
-            {
-                if (GuiApp::mainWindow->dlgCont->isVisible(HIERARCHY_DLG)!=(boolState!=0))
-                    GuiApp::mainWindow->dlgCont->toggle(HIERARCHY_DLG);
-            }
-            else
-#endif
+            #ifdef SIM_WITH_GUI
+                if (GuiApp::mainWindow!=nullptr)
+                {
+                    if (GuiApp::mainWindow->dlgCont->isVisible(HIERARCHY_DLG)!=(boolState!=0))
+                        GuiApp::mainWindow->dlgCont->toggle(HIERARCHY_DLG);
+                }
+                else
+            #endif
                 return(-1);
             return(1);
         }
@@ -2177,19 +2186,23 @@ int simSetBoolParam_internal(int parameter,bool boolState)
 
         if (parameter==sim_boolparam_fullscreen)
         {
-            if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+32))
+            #ifdef SIM_WITH_GUI
+                if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+32))
+                    return(-1);
+                if (GuiApp::isFullScreen())
+                {
+                    if (boolState==0)
+                        GuiApp::setFullScreen(false);
+                }
+                else
+                {
+                    if (boolState!=0)
+                        GuiApp::setFullScreen(true);
+                }
+                return(1);
+            #else
                 return(-1);
-            if (GuiApp::isFullScreen())
-            {
-                if (boolState==0)
-                    GuiApp::setFullScreen(false);
-            }
-            else
-            {
-                if (boolState!=0)
-                    GuiApp::setFullScreen(true);
-            }
-            return(1);
+            #endif
         }
 
         if (parameter==sim_boolparam_statustext_open)
@@ -2631,30 +2644,32 @@ int simGetBoolParam_internal(int parameter)
         if (parameter==sim_boolparam_fullscreen)
         {
             int retVal=0;
-            if (GuiApp::isFullScreen())
-                retVal=1;
+            #ifdef SIM_WITH_GUI
+                if (GuiApp::isFullScreen())
+                    retVal=1;
+            #endif
             return(retVal);
         }
         if (parameter==sim_boolparam_headless)
         {
-#ifdef SIM_WITH_GUI
-            int retVal=0;
-            if (GuiApp::mainWindow==nullptr)
-                retVal=1;
-            return(retVal);
-#else
-            return(1);
-#endif
+            #ifdef SIM_WITH_GUI
+                int retVal=0;
+                if (GuiApp::mainWindow==nullptr)
+                    retVal=1;
+                return(retVal);
+            #else
+                return(1);
+            #endif
         }
         if (parameter==sim_boolparam_rayvalid)
         {
-#ifdef SIM_WITH_GUI
-            int retVal=0;
-            C3Vector orig,dir;
-            if ( (GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getMouseRay(orig,dir)) )
-                retVal=1;
-            return(retVal);
-#endif
+            #ifdef SIM_WITH_GUI
+                int retVal=0;
+                C3Vector orig,dir;
+                if ( (GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->getMouseRay(orig,dir)) )
+                    retVal=1;
+                return(retVal);
+            #endif
             return(0);
         }
         if (parameter==sim_boolparam_display_enabled)
@@ -2662,10 +2677,10 @@ int simGetBoolParam_internal(int parameter)
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
                 return(-1);
             int retVal=0;
-#ifdef SIM_WITH_GUI
-            if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getOpenGlDisplayEnabled())
-                retVal=1;
-#endif
+            #ifdef SIM_WITH_GUI
+                if ((GuiApp::mainWindow!=nullptr)&&GuiApp::mainWindow->getOpenGlDisplayEnabled())
+                    retVal=1;
+            #endif
             return(retVal);
         }
         if (parameter==sim_boolparam_infotext_visible)
@@ -3234,7 +3249,7 @@ int simSetInt32Param_internal(int parameter,int intState)
         }
         if (parameter==sim_intparam_scene_index)
         {
-            App::appendSimulationThreadCommand(SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD,intState);
+            GuiApp::appendSimulationThreadCommand(SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD,intState);
             return(1);
         }
         if (parameter==sim_intparam_dynamic_engine)
@@ -5492,7 +5507,7 @@ int simAddLog_internal(const char* pluginName,int verbosityLevel,const char* log
     int retVal=0;
     if (logMsg==nullptr)
     {
-        App::clearStatusbar();
+        GuiApp::clearStatusbar();
         retVal=1;
     }
     else
@@ -6904,7 +6919,7 @@ int simSerialOpen_internal(const char* portString,int baudRate,void* reserved1,v
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int handle=-1;
-#ifdef SIM_WITH_SERIAL
+#ifdef SIM_WITH_GUI
         handle=App::worldContainer->serialPortContainer->serialPortOpen(false,portString,baudRate);
 #endif
         return(handle);
@@ -6920,7 +6935,7 @@ int simSerialClose_internal(int portHandle)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=-1;
-#ifdef SIM_WITH_SERIAL
+#ifdef SIM_WITH_GUI
         if (App::worldContainer->serialPortContainer->serialPortClose(portHandle))
             retVal=1;
         else
@@ -6937,7 +6952,7 @@ int simSerialSend_internal(int portHandle,const char* data,int dataLength)
     TRACE_C_API;
 
     int retVal=-1;
-#ifdef SIM_WITH_SERIAL
+#ifdef SIM_WITH_GUI
     std::string dat(data,data+dataLength);
     retVal=App::worldContainer->serialPortContainer->serialPortSend(portHandle,dat);
     if (retVal==-1)
@@ -6952,7 +6967,7 @@ int simSerialRead_internal(int portHandle,char* buffer,int dataLengthToRead)
 
 
     int retVal=-1;
-#ifdef SIM_WITH_SERIAL
+#ifdef SIM_WITH_GUI
     std::string data;
     data.resize(dataLengthToRead);
     retVal=App::worldContainer->serialPortContainer->serialPortReceive(portHandle,data,dataLengthToRead);
@@ -6972,7 +6987,7 @@ int simSerialCheck_internal(int portHandle)
     TRACE_C_API;
 
     int retVal=-1;
-#ifdef SIM_WITH_SERIAL
+#ifdef SIM_WITH_GUI
     retVal=App::worldContainer->serialPortContainer->serialPortCheck(portHandle);
     if (retVal==-1)
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PORT_HANDLE);
@@ -9433,7 +9448,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
                         cmd.cmdId=SET_SHAPE_SHADING_ANGLE_CMD;
                         cmd.intParams.push_back(shape->getObjectHandle());
                         cmd.doubleParams.push_back(parameter);
-                        App::appendSimulationThreadCommand(cmd);
+                        GuiApp::appendSimulationThreadCommand(cmd);
                     }
                     retVal=1;
                 }
@@ -9454,7 +9469,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
                         cmd.cmdId=SET_SHAPE_EDGE_ANGLE_CMD;
                         cmd.intParams.push_back(shape->getObjectHandle());
                         cmd.doubleParams.push_back(parameter);
-                        App::appendSimulationThreadCommand(cmd);
+                        GuiApp::appendSimulationThreadCommand(cmd);
                     }
                     retVal=1;
                 }
@@ -11332,7 +11347,7 @@ void simQuitSimulator_internal(bool ignoredArgument)
     TRACE_C_API;
     SSimulationThreadCommand cmd;
     cmd.cmdId=EXIT_REQUEST_CMD;
-    App::appendSimulationThreadCommand(cmd);
+    GuiApp::appendSimulationThreadCommand(cmd);
 }
 
 int simSetShapeMaterial_internal(int shapeHandle,int materialIdOrShapeHandle)
@@ -14994,11 +15009,11 @@ int simEventNotification_internal(const char* event)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        sim::tinyxml2::XMLDocument xmldoc;
-        sim::tinyxml2::XMLError error=xmldoc.Parse(event);
-        if(error==sim::tinyxml2::XML_NO_ERROR)
+        tinyxml2::XMLDocument xmldoc;
+        tinyxml2::XMLError error=xmldoc.Parse(event);
+        if(error==tinyxml2::XML_SUCCESS)
         {
-            sim::tinyxml2::XMLElement* rootElement=xmldoc.FirstChildElement();
+            tinyxml2::XMLElement* rootElement=xmldoc.FirstChildElement();
             const char* origin=rootElement->Attribute("origin");
             if (origin!=nullptr)
             {

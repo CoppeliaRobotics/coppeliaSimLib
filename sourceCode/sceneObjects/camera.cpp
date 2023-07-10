@@ -9,8 +9,8 @@
 #include <vDateTime.h>
 #include <utils.h>
 #include <app.h>
-#include <cameraRendering.h>
 #ifdef SIM_WITH_GUI
+    #include <cameraRendering.h>
     #include <guiApp.h>
     #include <rendering.h>
     #include <oGL.h>
@@ -769,15 +769,17 @@ void CCamera::computeBoundingBox()
 
 CCamera::~CCamera()
 {
-    if (_textureNameForExtGeneratedView!=(unsigned int)-1)
-    {
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId=DESTROY_GL_TEXTURE_UITHREADCMD;
-        cmdIn.uintParams.push_back(_textureNameForExtGeneratedView);
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-        _textureNameForExtGeneratedView=(unsigned int)-1;
-    }
+    #ifdef SIM_WITH_GUI
+        if (_textureNameForExtGeneratedView!=(unsigned int)-1)
+        {
+            SUIThreadCommand cmdIn;
+            SUIThreadCommand cmdOut;
+            cmdIn.cmdId=DESTROY_GL_TEXTURE_UITHREADCMD;
+            cmdIn.uintParams.push_back(_textureNameForExtGeneratedView);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            _textureNameForExtGeneratedView=(unsigned int)-1;
+        }
+    #endif
 }
 
 void CCamera::handleCameraTracking()
@@ -881,7 +883,9 @@ void CCamera::setTrackedObjectHandle(int trackedObjHandle)
         }
         else
             _trackedObjectHandle=-1;
-        GuiApp::setLightDialogRefreshFlag();
+        #ifdef SIM_WITH_GUI
+            GuiApp::setLightDialogRefreshFlag();
+        #endif
     }
 }
 
@@ -1593,12 +1597,12 @@ void CCamera::serialize(CSer& ar)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CCamera::display(CViewableBase* renderingObject,int displayAttrib)
 {
     displayCamera(this,renderingObject,displayAttrib);
 }
 
-#ifdef SIM_WITH_GUI
 void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiveSubView)
 { // drawText is false and passiveSubView is true by default
     TRACE_INTERNAL;

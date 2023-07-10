@@ -4267,14 +4267,16 @@ int _addLog(luaWrap_lua_State* L)
         int res=checkOneGeneralInputArgument(L,2,lua_arg_string,0,false,true,&errorString);
         if (res>0)
         {
-            if (res==1)
-                App::clearStatusbar();
-            else
+            if (res==2)
             {
                 std::string msg(luaWrap_lua_tostring(L,2));
                 CScriptObject* it=App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 App::logScriptMsg(it,v,msg.c_str());
             }
+            #ifdef SIM_WITH_GUI
+                else
+                    GuiApp::clearStatusbar();
+            #endif
         }
     }
 
@@ -9596,7 +9598,7 @@ int _simSerialOpen(luaWrap_lua_State* L)
     LUA_START("sim._serialOpen");
 
     int retVal=-1; // means error
-#ifdef SIM_WITH_SERIAL
+#ifdef SIM_WITH_GUI
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
     {
         size_t dataLength;
@@ -12433,7 +12435,11 @@ int _simHandleAddOnScripts(luaWrap_lua_State* L)
         {
             int callType=luaToInt(L,1);
             retVal=0;
-            if (GuiApp::getEditModeType()==NO_EDIT_MODE)
+            int editMode=NO_EDIT_MODE;
+            #ifdef SIM_WITH_GUI
+                editMode=GuiApp::getEditModeType();
+            #endif
+            if (editMode==NO_EDIT_MODE)
                 retVal=App::worldContainer->addOnScriptContainer->callScripts(callType,nullptr,nullptr);
         }
     }
@@ -12457,7 +12463,11 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
             int callType=luaToInt(L,1);
-            if ( (GuiApp::getEditModeType()==NO_EDIT_MODE)&&(App::worldContainer->sandboxScript!=nullptr) )
+            int editMode=NO_EDIT_MODE;
+            #ifdef SIM_WITH_GUI
+                editMode=GuiApp::getEditModeType();
+            #endif
+            if ( (editMode==NO_EDIT_MODE)&&(App::worldContainer->sandboxScript!=nullptr) )
                 App::worldContainer->sandboxScript->systemCallScript(callType,nullptr,nullptr);
         }
     }
@@ -13376,12 +13386,16 @@ int _simAuxFunc(luaWrap_lua_State* L)
         }
         if (cmd.compare("enableRendering")==0)
         {
-            App::simThread->setRenderingAllowed(true);
+            #ifdef SIM_WITH_GUI
+                GuiApp::simThread->setRenderingAllowed(true);
+            #endif
             LUA_END(0);
         }
         if (cmd.compare("disableRendering")==0)
         {
-            App::simThread->setRenderingAllowed(false);
+            #ifdef SIM_WITH_GUI
+                GuiApp::simThread->setRenderingAllowed(false);
+            #endif
             LUA_END(0);
         }
         if (cmd.compare("curveToClipboard")==0)
@@ -17931,14 +17945,18 @@ int _simAddStatusbarMessage(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (luaWrap_lua_gettop(L)==0)
     {
-        App::clearStatusbar();
+        #ifdef SIM_WITH_GUI
+            GuiApp::clearStatusbar();
+        #endif
         retVal=1;
     }
     else
     {
         if (checkInputArguments(L,nullptr,lua_arg_nil,0))
         {
-            App::clearStatusbar();
+            #ifdef SIM_WITH_GUI
+                GuiApp::clearStatusbar();
+            #endif
             retVal=1;
         }
         else
@@ -21889,7 +21907,11 @@ int _simHandleCustomizationScripts(luaWrap_lua_State* L)
         {
             int callType=luaToInt(L,1);
             retVal=0;
-            if (GuiApp::getEditModeType()==NO_EDIT_MODE)
+            int editMode=NO_EDIT_MODE;
+            #ifdef SIM_WITH_GUI
+                editMode=GuiApp::getEditModeType();
+            #endif
+            if (editMode==NO_EDIT_MODE)
             {
                 retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_customizationscript,callType,nullptr,nullptr);
                 App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);

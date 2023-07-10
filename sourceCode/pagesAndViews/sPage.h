@@ -10,7 +10,6 @@ class CSPage
 public:
     CSPage(int thePageType);
     virtual ~CSPage();
-    void render();
     void initializeInitialValues(bool simulationAlreadyRunning,int initializeOnlyForThisNewObject);
     void simulationEnded();
     void serialize(CSer& ar);
@@ -59,6 +58,7 @@ private:
 
 #ifdef SIM_WITH_GUI
 public:
+    void render();
     int getCaughtElements() const;
     void clearCaughtElements(int keepMask);
     bool viewIsPassive(size_t viewIndex) const;

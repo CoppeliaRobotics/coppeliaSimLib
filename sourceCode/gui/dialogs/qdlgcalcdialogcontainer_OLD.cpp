@@ -1,6 +1,7 @@
 #include <qdlgcalcdialogcontainer_OLD.h>
 #include <ui_qdlgcalcdialogcontainer_OLD.h>
 #include <app.h>
+#include <guiApp.h>
 #include <qdlgcollisions.h>
 #include <qdlgdistances.h>
 #include <qdlgik.h>

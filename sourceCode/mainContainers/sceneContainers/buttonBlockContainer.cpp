@@ -314,7 +314,9 @@ void CButtonBlockContainer::insertBlockWithSuffixOffset(CButtonBlock* theNewBloc
     theNewBlock->setBlockName(name);
     // We finally add the block:
     allBlocks.push_back(theNewBlock);
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
 }
 
 
@@ -338,7 +340,9 @@ bool CButtonBlockContainer::removeBlockFromID(int id)
         {
             delete allBlocks[i];
             allBlocks.erase(allBlocks.begin()+i);
-            GuiApp::setFullDialogRefreshFlag();
+            #ifdef SIM_WITH_GUI
+                GuiApp::setFullDialogRefreshFlag();
+            #endif
             return(true);
         }
     }
@@ -353,7 +357,9 @@ void CButtonBlockContainer::addToSelection(int pos)
 {
     if (!isInSelection(pos))
         selectedButtons.push_back(pos);
-    GuiApp::setLightDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setLightDialogRefreshFlag();
+    #endif
 }
 void CButtonBlockContainer::removeFromSelection(int pos)
 {
@@ -365,7 +371,9 @@ void CButtonBlockContainer::removeFromSelection(int pos)
             return;
         }
     }
-    GuiApp::setLightDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setLightDialogRefreshFlag();
+    #endif
 }
 void CButtonBlockContainer::xorAddToSelection(int pos)
 {
@@ -373,7 +381,9 @@ void CButtonBlockContainer::xorAddToSelection(int pos)
         selectedButtons.push_back(pos);
     else
         removeFromSelection(pos);
-    GuiApp::setLightDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setLightDialogRefreshFlag();
+    #endif
 }
 bool CButtonBlockContainer::isInSelection(int pos)
 {

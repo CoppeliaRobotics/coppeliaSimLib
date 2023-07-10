@@ -5,11 +5,13 @@
 #include <meshManip.h>
 #include <utils.h>
 #include <app.h>
-#include <shapeRendering.h>
 #include <tt.h>
 #include <base64.h>
 #include <simFlavor.h>
 #include <algos.h>
+#ifdef SIM_WITH_GUI
+    #include <shapeRendering.h>
+#endif
 
 int CMesh::_nextUniqueID=0;
 unsigned int CMesh::_extRendererUniqueObjectID=0;
@@ -76,20 +78,24 @@ CMesh::CMesh(const C7Vector& meshFrame,const std::vector<double>& vertices,const
     _computeVisibleEdges();
     checkIfConvex();
 
-    decreaseVertexBufferRefCnt(_vertexBufferId);
-    decreaseNormalBufferRefCnt(_normalBufferId);
-    decreaseEdgeBufferRefCnt(_edgeBufferId);
+    #ifdef SIM_WITH_GUI
+        decreaseVertexBufferRefCnt(_vertexBufferId);
+        decreaseNormalBufferRefCnt(_normalBufferId);
+        decreaseEdgeBufferRefCnt(_edgeBufferId);
 
-    _vertexBufferId=-1;
-    _normalBufferId=-1;
-    _edgeBufferId=-1;
+        _vertexBufferId=-1;
+        _normalBufferId=-1;
+        _edgeBufferId=-1;
+    #endif
 }
 
 CMesh::~CMesh()
 {
-    decreaseVertexBufferRefCnt(_vertexBufferId);
-    decreaseNormalBufferRefCnt(_normalBufferId);
-    decreaseEdgeBufferRefCnt(_edgeBufferId);
+    #ifdef SIM_WITH_GUI
+        decreaseVertexBufferRefCnt(_vertexBufferId);
+        decreaseNormalBufferRefCnt(_normalBufferId);
+        decreaseEdgeBufferRefCnt(_edgeBufferId);
+    #endif
     delete _textureProperty;
 }
 
@@ -111,9 +117,11 @@ void CMesh::_commonInit()
 
     _textureProperty=nullptr;
 
-    _vertexBufferId=-1;
-    _normalBufferId=-1;
-    _edgeBufferId=-1;
+    #ifdef SIM_WITH_GUI
+        _vertexBufferId=-1;
+        _normalBufferId=-1;
+        _edgeBufferId=-1;
+    #endif
 
     _edgeWidth_DEPRERCATED=1;
     _visibleEdges=false;
@@ -130,157 +138,6 @@ void CMesh::_commonInit()
     _extRendererObjectId=0;
     _extRendererMeshId=0;
     _extRendererTextureId=0;
-}
-
-void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
-{ // function has virtual/non-virtual counterpart!
-    if (!_wireframe_OLD)
-    {
-        // Mesh change:
-        if (_extRendererMeshId==0)
-        { // first time we render this item
-            _extRendererMeshId=_extRendererUniqueMeshID++;
-            _extRendererMesh_lastVertexBufferId=_vertexBufferId;
-        }
-        else
-        { // we already rendered this item. Did it change?
-            if (_extRendererMesh_lastVertexBufferId!=_vertexBufferId)
-            {
-                _extRendererMeshId=_extRendererUniqueMeshID++;
-                _extRendererMesh_lastVertexBufferId=_vertexBufferId;
-            }
-        }
-
-        // texture change:
-        if (_extRendererTextureId==0)
-        { // first time we render this item
-            _extRendererTexture_lastTextureId=(unsigned int)-1;
-            if (_textureProperty!=nullptr)
-            {
-                CTextureObject* to=_textureProperty->getTextureObject();
-                if (to!=nullptr)
-                    _extRendererTexture_lastTextureId=to->getCurrentTextureContentUniqueId();
-            }
-            _extRendererTextureId=_extRendererUniqueTextureID++;
-        }
-        else
-        { // we already rendered this item. Did it change?
-            unsigned int tex=(unsigned int)-1;
-            if (_textureProperty!=nullptr)
-            {
-                CTextureObject* to=_textureProperty->getTextureObject();
-                if (to!=nullptr)
-                    tex=to->getCurrentTextureContentUniqueId();
-            }
-            if (tex!=_extRendererTexture_lastTextureId)
-            {
-
-                _extRendererTexture_lastTextureId=tex;
-                _extRendererTextureId=_extRendererUniqueTextureID++;
-            }
-        }
-
-        // Object change:
-        if (_extRendererObjectId==0)
-        { // first time we render this item
-            _extRendererObjectId=_extRendererUniqueObjectID++;
-            _extRendererObject_lastMeshId=_extRendererMeshId;
-            _extRendererObject_lastTextureId=_extRendererTextureId;
-        }
-        else
-        { // we already rendered this item. Did it change?
-            if ((_extRendererObject_lastMeshId!=_extRendererMeshId)||(_extRendererObject_lastTextureId!=_extRendererTextureId))
-            {
-                _extRendererObjectId=_extRendererUniqueObjectID++;
-                _extRendererObject_lastMeshId=_extRendererMeshId;
-                _extRendererObject_lastTextureId=_extRendererTextureId;
-            }
-        }
-
-        C7Vector tr2(tr*cumulIFrameTr*_iFrame*_bbFrame);
-        static int a=0;
-        a++;
-        void* data[40];
-        data[0]=&_verticesForDisplayAndDisk[0];
-        int vs=(int)_verticesForDisplayAndDisk.size()/3;
-        data[1]=&vs;
-        data[2]=&_indices[0];
-        int is=(int)_indices.size()/3;
-        data[3]=&is;
-        data[4]=&_normalsForDisplayAndDisk[0];
-        int ns=(int)_normalsForDisplayAndDisk.size()/3;
-        data[5]=&ns;
-        float x[3]={(float)tr2.X(0),(float)tr2.X(1),(float)tr2.X(2)};
-        data[6]=x;
-        float q[4]={(float)tr2.Q(0),(float)tr2.Q(1),(float)tr2.Q(2),(float)tr2.Q(3)};
-        data[7]=q;
-        data[8]=color.getColorsPtr();
-        float sa=(float)_shadingAngle;
-        data[19]=&sa;
-        data[20]=&_extRendererObjectId;
-        bool translucid=color.getTranslucid();
-        data[21]=&translucid;
-        float transparencyF=color.getOpacity();
-        data[22]=&transparencyF;
-        data[23]=&_culling;
-        data[24]=&_extRendererMeshId;
-        data[25]=&_extRendererTextureId;
-        data[26]=&_edges[0];
-        bool visibleEdges=_visibleEdges;
-        if (displayAttrib&sim_displayattribute_forbidedges)
-            visibleEdges=false;
-        data[27]=&visibleEdges;
-        // FREE data[28]=edgeColor_DEPRECATED.colors;
-        data[30]=&displayAttrib;
-        data[31]=(void*)color.getColorName().c_str();
-        data[32]=&shapeHandle;
-        data[33]=&componentIndex;
-
-        // Following actually free since CoppeliaSim 3.3.0
-        // But the older PovRay plugin version crash without this:
-        int povMaterial=0;
-        data[29]=&povMaterial;
-
-        CTextureProperty* tp=_textureProperty;
-        if ((!App::currentWorld->environment->getShapeTexturesEnabled())||CEnvironment::getShapeTexturesTemporarilyDisabled())
-            tp=nullptr;
-        bool textured=false;
-        std::vector<float>* textureCoords=nullptr;
-        if (tp!=nullptr)
-        {
-            textured=true;
-            textureCoords=tp->getTextureCoordinates(geomData->getMeshModificationCounter(),_verticesForDisplayAndDisk,_indices);
-            if (textureCoords==nullptr)
-                return; // Should normally never happen
-            data[9]=&(textureCoords[0])[0];
-            int texCoordSize=(int)textureCoords->size()/2;
-            data[10]=&texCoordSize;
-            CTextureObject* to=tp->getTextureObject();
-            if (to==nullptr)
-                return; // should normally never happen
-            data[11]=(unsigned char*)to->getTextureBufferPointer();
-            int sx,sy;
-            to->getTextureSize(sx,sy);
-            data[12]=&sx;
-            data[13]=&sy;
-            bool repeatU=tp->getRepeatU();
-            bool repeatV=tp->getRepeatU();
-            bool interpolateColors=tp->getInterpolateColors();
-            int applyMode=tp->getApplyMode();
-            data[14]=&repeatU;
-            data[15]=&repeatV;
-            data[16]=&interpolateColors;
-            data[17]=&applyMode;
-            data[18]=&textured;
-            App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh,data);
-        }
-        else
-        {
-            data[18]=&textured;
-            App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh,data);
-        }
-    }
-    componentIndex++;
 }
 
 void CMesh::performSceneObjectLoadingMapping(const std::map<int,int>* map)
@@ -370,13 +227,15 @@ CMesh* CMesh::copyYourself()
     newIt->_verticesForDisplayAndDisk.assign(_verticesForDisplayAndDisk.begin(),_verticesForDisplayAndDisk.end());
     newIt->_normalsForDisplayAndDisk.assign(_normalsForDisplayAndDisk.begin(),_normalsForDisplayAndDisk.end());
 
-    newIt->_vertexBufferId=_vertexBufferId;
-    newIt->_normalBufferId=_normalBufferId;
-    newIt->_edgeBufferId=_edgeBufferId;
+    #ifdef SIM_WITH_GUI
+        newIt->_vertexBufferId=_vertexBufferId;
+        newIt->_normalBufferId=_normalBufferId;
+        newIt->_edgeBufferId=_edgeBufferId;
 
-    increaseVertexBufferRefCnt(_vertexBufferId);
-    increaseNormalBufferRefCnt(_normalBufferId);
-    increaseEdgeBufferRefCnt(_edgeBufferId);
+        increaseVertexBufferRefCnt(_vertexBufferId);
+        increaseNormalBufferRefCnt(_normalBufferId);
+        increaseEdgeBufferRefCnt(_edgeBufferId);
+    #endif
 
     if (_textureProperty!=nullptr)
         newIt->_textureProperty=_textureProperty->copyYourself();
@@ -414,13 +273,15 @@ void CMesh::scale(double isoVal)
     if (isoVal<0.0) // flip faces
         checkIfConvex();
 
-    decreaseVertexBufferRefCnt(_vertexBufferId);
-    decreaseNormalBufferRefCnt(_normalBufferId);
-    decreaseEdgeBufferRefCnt(_edgeBufferId);
+    #ifdef SIM_WITH_GUI
+        decreaseVertexBufferRefCnt(_vertexBufferId);
+        decreaseNormalBufferRefCnt(_normalBufferId);
+        decreaseEdgeBufferRefCnt(_edgeBufferId);
 
-    _vertexBufferId=-1;
-    _normalBufferId=-1;
-    _edgeBufferId=-1;
+        _vertexBufferId=-1;
+        _normalBufferId=-1;
+        _edgeBufferId=-1;
+    #endif
 }
 
 void CMesh::scale(double xVal,double yVal,double zVal)
@@ -482,13 +343,15 @@ void CMesh::scale(double xVal,double yVal,double zVal)
     if ((xVal<0.0)||(yVal<0.0)||(zVal<0.0)) // that effectively flips faces!
         checkIfConvex();
 
-    decreaseVertexBufferRefCnt(_vertexBufferId);
-    decreaseNormalBufferRefCnt(_normalBufferId);
-    decreaseEdgeBufferRefCnt(_edgeBufferId);
+    #ifdef SIM_WITH_GUI
+        decreaseVertexBufferRefCnt(_vertexBufferId);
+        decreaseNormalBufferRefCnt(_normalBufferId);
+        decreaseEdgeBufferRefCnt(_edgeBufferId);
 
-    _vertexBufferId=-1;
-    _normalBufferId=-1;
-    _edgeBufferId=-1;
+        _vertexBufferId=-1;
+        _normalBufferId=-1;
+        _edgeBufferId=-1;
+    #endif
 }
 
 void CMesh::_transformMesh(const C7Vector& tr)
@@ -514,12 +377,14 @@ void CMesh::_transformMesh(const C7Vector& tr)
     }
     _updateDisplayAndDiskValues();
 
-    decreaseVertexBufferRefCnt(_vertexBufferId);
-    decreaseNormalBufferRefCnt(_normalBufferId);
-    decreaseEdgeBufferRefCnt(_edgeBufferId);
-    _vertexBufferId=-1;
-    _normalBufferId=-1;
-    _edgeBufferId=-1;
+    #ifdef SIM_WITH_GUI
+        decreaseVertexBufferRefCnt(_vertexBufferId);
+        decreaseNormalBufferRefCnt(_normalBufferId);
+        decreaseEdgeBufferRefCnt(_edgeBufferId);
+        _vertexBufferId=-1;
+        _normalBufferId=-1;
+        _edgeBufferId=-1;
+    #endif
 }
 
 void CMesh::setBBFrame(const C7Vector& bbFrame)
@@ -957,13 +822,15 @@ void CMesh::setHeightfieldDiamonds(bool d)
                 _indices[6*i+5]=_indices[6*i+2];
             }
         }
-        decreaseVertexBufferRefCnt(_vertexBufferId);
-        decreaseNormalBufferRefCnt(_normalBufferId);
-        decreaseEdgeBufferRefCnt(_edgeBufferId);
+        #ifdef SIM_WITH_GUI
+            decreaseVertexBufferRefCnt(_vertexBufferId);
+            decreaseNormalBufferRefCnt(_normalBufferId);
+            decreaseEdgeBufferRefCnt(_edgeBufferId);
 
-        _vertexBufferId=-1;
-        _normalBufferId=-1;
-        _edgeBufferId=-1;
+            _vertexBufferId=-1;
+            _normalBufferId=-1;
+            _edgeBufferId=-1;
+        #endif
     }
 }
 
@@ -1167,21 +1034,6 @@ std::vector<unsigned char>* CMesh::getEdges()
     return(&_edges);
 }
 
-int* CMesh::getVertexBufferIdPtr()
-{
-    return(&_vertexBufferId);
-}
-
-int* CMesh::getNormalBufferIdPtr()
-{
-    return(&_normalBufferId);
-}
-
-int* CMesh::getEdgeBufferIdPtr()
-{
-    return(&_edgeBufferId);
-}
-
 void CMesh::removeAllTextures()
 { // function has virtual/non-virtual counterpart!
     delete _textureProperty;
@@ -1250,11 +1102,13 @@ void CMesh::flipFaces()
     _computeVisibleEdges();
     checkIfConvex();
 
-    decreaseVertexBufferRefCnt(_vertexBufferId);
-    decreaseNormalBufferRefCnt(_normalBufferId);
+    #ifdef SIM_WITH_GUI
+        decreaseVertexBufferRefCnt(_vertexBufferId);
+        decreaseNormalBufferRefCnt(_normalBufferId);
 
-    _normalBufferId=-1;
-    _vertexBufferId=-1;
+        _normalBufferId=-1;
+        _vertexBufferId=-1;
+    #endif
 
     _normalsForDisplayAndDisk.resize(_normals.size());
     for (size_t i=0;i<_normals.size();i++)
@@ -1342,9 +1196,10 @@ void CMesh::_recomputeNormals()
             _normals[9*i+j]=changedNorm[9*i+j];
     }
 
+#ifdef SIM_WITH_GUI
     decreaseNormalBufferRefCnt(_normalBufferId);
-
     _normalBufferId=-1;
+#endif
 
     _normalsForDisplayAndDisk.resize(_normals.size());
     for (size_t i=0;i<_normals.size();i++)
@@ -1386,7 +1241,9 @@ void CMesh::_computeVisibleEdges()
             usedEdges[eIDs[i]]=true;
         }
     }
+#ifdef SIM_WITH_GUI
     _edgeBufferId=-1;
+#endif
 }
 
 bool CMesh::checkIfConvex()
@@ -1829,15 +1686,17 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
             ar.flush();
 
 #ifdef TMPOPERATION
+            {
             ar.storeDataName("Ppf"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
             C7Vector w(parentCumulIFrame*_iFrame*_bbFrame);
             ar << (float)w(0) << (float)w(1) << (float)w(2) << (float)w(3);
             ar << (float)w(4) << (float)w(5) << (float)w(6);
             ar.flush();
+            }
 #endif
 
             ar.storeDataName("_pf"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
-            w=parentCumulIFrame*_iFrame*_bbFrame;
+            C7Vector w(parentCumulIFrame*_iFrame*_bbFrame);
             ar << w(0) << w(1) << w(2) << w(3);
             ar << w(4) << w(5) << w(6);
             ar.flush();
@@ -2459,6 +2318,7 @@ void CMesh::_updateDisplayAndDiskValues()
         _normalsForDisplayAndDisk[i]=(float)_normals[i];
 }
 
+#ifdef SIM_WITH_GUI
 void CMesh::display(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling,bool multishapeEditSelected)
 { // function has virtual/non-virtual counterpart!
     displayGeometric(cumulIFrameTr*_iFrame,this,geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,multishapeEditSelected);
@@ -2474,7 +2334,6 @@ void CMesh::displayGhost(const C7Vector& cumulIFrameTr,CShape* geomData,int disp
     displayGeometricGhost(cumulIFrameTr*_iFrame,this,geomData,displayAttrib,originalColors,backfaceCulling,transparency,newColors);
 }
 
-#ifdef SIM_WITH_GUI
 bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
 {
     if (_textureProperty==nullptr)
@@ -2486,5 +2345,171 @@ bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
         return(false);
     texCoords.assign(tc->begin(),tc->end());
     return(true);
+}
+
+void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,int displayAttrib,const C7Vector& tr,int shapeHandle,int& componentIndex)
+{ // function has virtual/non-virtual counterpart!
+    if (!_wireframe_OLD)
+    {
+        // Mesh change:
+        if (_extRendererMeshId==0)
+        { // first time we render this item
+            _extRendererMeshId=_extRendererUniqueMeshID++;
+            _extRendererMesh_lastVertexBufferId=_vertexBufferId;
+        }
+        else
+        { // we already rendered this item. Did it change?
+            if (_extRendererMesh_lastVertexBufferId!=_vertexBufferId)
+            {
+                _extRendererMeshId=_extRendererUniqueMeshID++;
+                _extRendererMesh_lastVertexBufferId=_vertexBufferId;
+            }
+        }
+
+        // texture change:
+        if (_extRendererTextureId==0)
+        { // first time we render this item
+            _extRendererTexture_lastTextureId=(unsigned int)-1;
+            if (_textureProperty!=nullptr)
+            {
+                CTextureObject* to=_textureProperty->getTextureObject();
+                if (to!=nullptr)
+                    _extRendererTexture_lastTextureId=to->getCurrentTextureContentUniqueId();
+            }
+            _extRendererTextureId=_extRendererUniqueTextureID++;
+        }
+        else
+        { // we already rendered this item. Did it change?
+            unsigned int tex=(unsigned int)-1;
+            if (_textureProperty!=nullptr)
+            {
+                CTextureObject* to=_textureProperty->getTextureObject();
+                if (to!=nullptr)
+                    tex=to->getCurrentTextureContentUniqueId();
+            }
+            if (tex!=_extRendererTexture_lastTextureId)
+            {
+
+                _extRendererTexture_lastTextureId=tex;
+                _extRendererTextureId=_extRendererUniqueTextureID++;
+            }
+        }
+
+        // Object change:
+        if (_extRendererObjectId==0)
+        { // first time we render this item
+            _extRendererObjectId=_extRendererUniqueObjectID++;
+            _extRendererObject_lastMeshId=_extRendererMeshId;
+            _extRendererObject_lastTextureId=_extRendererTextureId;
+        }
+        else
+        { // we already rendered this item. Did it change?
+            if ((_extRendererObject_lastMeshId!=_extRendererMeshId)||(_extRendererObject_lastTextureId!=_extRendererTextureId))
+            {
+                _extRendererObjectId=_extRendererUniqueObjectID++;
+                _extRendererObject_lastMeshId=_extRendererMeshId;
+                _extRendererObject_lastTextureId=_extRendererTextureId;
+            }
+        }
+
+        C7Vector tr2(tr*cumulIFrameTr*_iFrame*_bbFrame);
+        static int a=0;
+        a++;
+        void* data[40];
+        data[0]=&_verticesForDisplayAndDisk[0];
+        int vs=(int)_verticesForDisplayAndDisk.size()/3;
+        data[1]=&vs;
+        data[2]=&_indices[0];
+        int is=(int)_indices.size()/3;
+        data[3]=&is;
+        data[4]=&_normalsForDisplayAndDisk[0];
+        int ns=(int)_normalsForDisplayAndDisk.size()/3;
+        data[5]=&ns;
+        float x[3]={(float)tr2.X(0),(float)tr2.X(1),(float)tr2.X(2)};
+        data[6]=x;
+        float q[4]={(float)tr2.Q(0),(float)tr2.Q(1),(float)tr2.Q(2),(float)tr2.Q(3)};
+        data[7]=q;
+        data[8]=color.getColorsPtr();
+        float sa=(float)_shadingAngle;
+        data[19]=&sa;
+        data[20]=&_extRendererObjectId;
+        bool translucid=color.getTranslucid();
+        data[21]=&translucid;
+        float transparencyF=color.getOpacity();
+        data[22]=&transparencyF;
+        data[23]=&_culling;
+        data[24]=&_extRendererMeshId;
+        data[25]=&_extRendererTextureId;
+        data[26]=&_edges[0];
+        bool visibleEdges=_visibleEdges;
+        if (displayAttrib&sim_displayattribute_forbidedges)
+            visibleEdges=false;
+        data[27]=&visibleEdges;
+        // FREE data[28]=edgeColor_DEPRECATED.colors;
+        data[30]=&displayAttrib;
+        data[31]=(void*)color.getColorName().c_str();
+        data[32]=&shapeHandle;
+        data[33]=&componentIndex;
+
+        // Following actually free since CoppeliaSim 3.3.0
+        // But the older PovRay plugin version crash without this:
+        int povMaterial=0;
+        data[29]=&povMaterial;
+
+        CTextureProperty* tp=_textureProperty;
+        if ((!App::currentWorld->environment->getShapeTexturesEnabled())||CEnvironment::getShapeTexturesTemporarilyDisabled())
+            tp=nullptr;
+        bool textured=false;
+        std::vector<float>* textureCoords=nullptr;
+        if (tp!=nullptr)
+        {
+            textured=true;
+            textureCoords=tp->getTextureCoordinates(geomData->getMeshModificationCounter(),_verticesForDisplayAndDisk,_indices);
+            if (textureCoords==nullptr)
+                return; // Should normally never happen
+            data[9]=&(textureCoords[0])[0];
+            int texCoordSize=(int)textureCoords->size()/2;
+            data[10]=&texCoordSize;
+            CTextureObject* to=tp->getTextureObject();
+            if (to==nullptr)
+                return; // should normally never happen
+            data[11]=(unsigned char*)to->getTextureBufferPointer();
+            int sx,sy;
+            to->getTextureSize(sx,sy);
+            data[12]=&sx;
+            data[13]=&sy;
+            bool repeatU=tp->getRepeatU();
+            bool repeatV=tp->getRepeatU();
+            bool interpolateColors=tp->getInterpolateColors();
+            int applyMode=tp->getApplyMode();
+            data[14]=&repeatU;
+            data[15]=&repeatV;
+            data[16]=&interpolateColors;
+            data[17]=&applyMode;
+            data[18]=&textured;
+            App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh,data);
+        }
+        else
+        {
+            data[18]=&textured;
+            App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh,data);
+        }
+    }
+    componentIndex++;
+}
+
+int* CMesh::getVertexBufferIdPtr()
+{
+    return(&_vertexBufferId);
+}
+
+int* CMesh::getNormalBufferIdPtr()
+{
+    return(&_normalBufferId);
+}
+
+int* CMesh::getEdgeBufferIdPtr()
+{
+    return(&_edgeBufferId);
 }
 #endif

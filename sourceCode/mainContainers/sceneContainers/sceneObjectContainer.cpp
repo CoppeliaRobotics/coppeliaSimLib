@@ -337,7 +337,9 @@ void CSceneObjectContainer::actualizeObjectInformation()
             getShapeFromIndex(i)->clearLastParentForLocalGlobalRespondable();
 
         App::currentWorld->textureContainer->updateAllDependencies();
-        GuiApp::setRebuildHierarchyFlag();
+        #ifdef SIM_WITH_GUI
+            GuiApp::setRebuildHierarchyFlag();
+        #endif
     }
 }
 
@@ -1184,7 +1186,9 @@ bool CSceneObjectContainer::setObjectAlias(CSceneObject* object,const char* newA
         if (sn>=0)
             newName=newName+"#"+std::to_string(sn);
         setObjectName_old(object,newName.c_str(),true);
-        GuiApp::setRebuildHierarchyFlag();
+        #ifdef SIM_WITH_GUI
+            GuiApp::setRebuildHierarchyFlag();
+        #endif
     }
     return(retVal);
 }
@@ -1201,11 +1205,13 @@ bool CSceneObjectContainer::setObjectSequence(CSceneObject* object,int order)
     }
     else
         retVal=parent->setChildSequence(object,order);
-    if (retVal)
-    {
-        GuiApp::setFullDialogRefreshFlag();
-        GuiApp::setRebuildHierarchyFlag();
-    }
+    #ifdef SIM_WITH_GUI
+        if (retVal)
+        {
+            GuiApp::setFullDialogRefreshFlag();
+            GuiApp::setRebuildHierarchyFlag();
+        }
+    #endif
     return(retVal);
 }
 
@@ -1304,8 +1310,10 @@ void CSceneObjectContainer::_handleOrderIndexOfOrphans()
             co[i]=-1; // means unique with that name, with that parent
         child->setChildOrder(co[i]);
     }
-    GuiApp::setFullDialogRefreshFlag();
-    GuiApp::setRebuildHierarchyFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+        GuiApp::setRebuildHierarchyFlag();
+    #endif
 }
 
 void CSceneObjectContainer::setObjectAbsolutePose(int objectHandle,const C7Vector& v,bool keepChildrenInPlace)
@@ -1393,11 +1401,11 @@ void CSceneObjectContainer::selectObject(int objectHandle)
     sel.push_back(objectHandle);
     if (setSelectedObjectHandles(&sel))
     {
-#ifdef SIM_WITH_GUI
-        if (GuiApp::mainWindow!=nullptr)
-            GuiApp::mainWindow->editModeContainer->announceObjectSelectionChanged();
-#endif
-        GuiApp::setLightDialogRefreshFlag();
+        #ifdef SIM_WITH_GUI
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->editModeContainer->announceObjectSelectionChanged();
+            GuiApp::setLightDialogRefreshFlag();
+        #endif
     }
 }
 
@@ -1411,11 +1419,11 @@ void CSceneObjectContainer::selectAllObjects()
     }
     if (setSelectedObjectHandles(&sel))
     {
-#ifdef SIM_WITH_GUI
-        if (GuiApp::mainWindow!=nullptr)
-            GuiApp::mainWindow->editModeContainer->announceObjectSelectionChanged();
-#endif
-        GuiApp::setLightDialogRefreshFlag();
+        #ifdef SIM_WITH_GUI
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->editModeContainer->announceObjectSelectionChanged();
+            GuiApp::setLightDialogRefreshFlag();
+        #endif
     }
 }
 
@@ -1423,11 +1431,11 @@ void CSceneObjectContainer::deselectObjects()
 {
     if (setSelectedObjectHandles(nullptr))
     {
-#ifdef SIM_WITH_GUI
-        if (GuiApp::mainWindow!=nullptr)
-            GuiApp::mainWindow->editModeContainer->announceObjectSelectionChanged();
-#endif
-        GuiApp::setLightDialogRefreshFlag();
+        #ifdef SIM_WITH_GUI
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->editModeContainer->announceObjectSelectionChanged();
+            GuiApp::setLightDialogRefreshFlag();
+        #endif
     }
 }
 
@@ -1461,10 +1469,10 @@ void CSceneObjectContainer::addObjectToSelection(int objectHandle)
     {
         if (objectHandle>=NON_OBJECT_PICKING_ID_PATH_PTS_START) // individual path points!
         {
-#ifdef SIM_WITH_GUI
-            if (GuiApp::mainWindow!=nullptr)
-                GuiApp::mainWindow->editModeContainer->pathPointManipulation->addPathPointToSelection_nonEditMode(objectHandle);
-#endif
+            #ifdef SIM_WITH_GUI
+                if (GuiApp::mainWindow!=nullptr)
+                    GuiApp::mainWindow->editModeContainer->pathPointManipulation->addPathPointToSelection_nonEditMode(objectHandle);
+            #endif
         }
         else
         {
@@ -1478,16 +1486,18 @@ void CSceneObjectContainer::addObjectToSelection(int objectHandle)
                     App::currentWorld->buttonBlockContainer->aSceneObjectWasSelected(objectHandle);
                     if (setSelectedObjectHandles(&_sel))
                     {
-#ifdef SIM_WITH_GUI
-                        if (GuiApp::mainWindow!=nullptr)
-                            GuiApp::mainWindow->editModeContainer->announceObjectSelectionChanged();
-#endif
+                        #ifdef SIM_WITH_GUI
+                            if (GuiApp::mainWindow!=nullptr)
+                                GuiApp::mainWindow->editModeContainer->announceObjectSelectionChanged();
+                        #endif
                     }
                 }
             }
         }
     }
-    GuiApp::setLightDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setLightDialogRefreshFlag();
+    #endif
 }
 
 void CSceneObjectContainer::removeObjectFromSelection(int objectHandle)
@@ -1505,11 +1515,11 @@ void CSceneObjectContainer::removeObjectFromSelection(int objectHandle)
                     sel.erase(sel.begin()+i);
                     if (setSelectedObjectHandles(&sel))
                     {
-#ifdef SIM_WITH_GUI
-                        if (GuiApp::mainWindow!=nullptr)
-                            GuiApp::mainWindow->editModeContainer->announceObjectSelectionChanged();
-                        GuiApp::setLightDialogRefreshFlag();
-#endif
+                        #ifdef SIM_WITH_GUI
+                            if (GuiApp::mainWindow!=nullptr)
+                                GuiApp::mainWindow->editModeContainer->announceObjectSelectionChanged();
+                            GuiApp::setLightDialogRefreshFlag();
+                        #endif
                     }
                     break;
                 }
@@ -1524,10 +1534,10 @@ void CSceneObjectContainer::xorAddObjectToSelection(int objectHandle)
     {
         if (objectHandle>=NON_OBJECT_PICKING_ID_PATH_PTS_START) // individual path points!
         {
-#ifdef SIM_WITH_GUI
-            if (GuiApp::mainWindow!=nullptr)
-                GuiApp::mainWindow->editModeContainer->pathPointManipulation->xorAddPathPointToSelection_nonEditMode(objectHandle);
-#endif
+            #ifdef SIM_WITH_GUI
+                if (GuiApp::mainWindow!=nullptr)
+                    GuiApp::mainWindow->editModeContainer->pathPointManipulation->xorAddPathPointToSelection_nonEditMode(objectHandle);
+            #endif
         }
         else
         {
@@ -2283,8 +2293,10 @@ void CSceneObjectContainer::_addObject(CSceneObject* object)
     _CSceneObjectContainer_::_addObject(object);
     _handleOrderIndexOfOrphans();
 
-    GuiApp::setFullDialogRefreshFlag();
-    GuiApp::setRebuildHierarchyFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+        GuiApp::setRebuildHierarchyFlag();
+    #endif
 
     actualizeObjectInformation();
 
@@ -2303,8 +2315,10 @@ void CSceneObjectContainer::_removeObject(CSceneObject* object)
     _handleOrderIndexOfOrphans();
 
     actualizeObjectInformation();
-    GuiApp::setFullDialogRefreshFlag();
-    GuiApp::setRebuildHierarchyFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+        GuiApp::setRebuildHierarchyFlag();
+    #endif
 
     _objectDestructionCounter++;
 }

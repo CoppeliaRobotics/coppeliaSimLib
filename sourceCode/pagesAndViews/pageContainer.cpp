@@ -7,9 +7,9 @@
 #include <fileOperations.h>
 #include <simStrings.h>
 #include <app.h>
-#include <pageRendering.h>
 #include <simFlavor.h>
 #ifdef SIM_WITH_GUI
+    #include <pageRendering.h>
     #include <toolBarCommand.h>
     #include <guiApp.h>
 #endif
@@ -224,7 +224,9 @@ void CPageContainer::serialize(CSer& ar)
                         ar >> _activePageIndex;
                         if (_activePageIndex>=PAGES_COUNT)
                             _activePageIndex=0;
-                        GuiApp::setToolbarRefreshFlag();
+                        #ifdef SIM_WITH_GUI
+                            GuiApp::setToolbarRefreshFlag();
+                        #endif
                     }
                     if (theName.compare("Vwo")==0)
                     {
@@ -304,6 +306,7 @@ void CPageContainer::performObjectLoadingMapping(const std::map<int,int>* map)
     }
 }
 
+#ifdef SIM_WITH_GUI
 bool CPageContainer::processCommand(int commandID,int viewIndex)
 { // Return value is true if the command belonged to hierarchy menu and was executed
     if ( (viewIndex<0)||(viewIndex>=PAGES_COUNT) )
@@ -348,7 +351,7 @@ bool CPageContainer::processCommand(int commandID,int viewIndex)
             {
                 it->setPageSizeAndPosition(_pageSize[0],_pageSize[1],_pagePosition[0],_pagePosition[1]);
                 _allPages[viewIndex]=it;
-                App::undoRedo_sceneChanged(""); 
+                App::undoRedo_sceneChanged("");
             }
         }
         else
@@ -356,14 +359,13 @@ bool CPageContainer::processCommand(int commandID,int viewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(viewIndex);
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
     return(false);
 }
 
-#ifdef SIM_WITH_GUI
 void CPageContainer::renderCurrentPage(bool hideWatermark)
 {
     TRACE_INTERNAL;
@@ -709,7 +711,7 @@ void CPageContainer::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* m
             {
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=REMOVE_CURRENT_PAGE_CMD;
-                App::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(cmd);
             }
         }
     }

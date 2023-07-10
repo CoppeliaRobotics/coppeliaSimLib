@@ -67,7 +67,6 @@ public:
     bool navigationBackwardCompatibility;
     double colorAdjust_backCompatibility;
     bool specificGpuTweak;
-    bool useAlternateSerialPortRoutines;
     bool disableOpenGlBasedCustomUi;
     bool showOldDlgs;
     bool enableOldRenderableBehaviour;

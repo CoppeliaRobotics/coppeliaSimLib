@@ -10,7 +10,6 @@ public:
     CDistanceObject_old(int entity1Handle,int entity2Handle);
     virtual ~CDistanceObject_old();
 
-    void displayDistanceSegment();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationEnded();
@@ -50,6 +49,10 @@ public:
     bool setObjectName(const char* newName,bool check);
     bool setThreshold(double tr);
     bool setSegmentWidth(int w);
+
+    #ifdef SIM_WITH_GUI
+        void displayDistanceSegment();
+    #endif
 
 private:
     void _commonInit();

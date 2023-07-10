@@ -175,8 +175,10 @@ void CSimulation::setDynamicContentVisualizationOnly(bool dynOnly)
 {
     if ((!isSimulationStopped())||(!dynOnly))
         _dynamicContentVisualizationOnly=dynOnly;
-    GuiApp::setFullDialogRefreshFlag(); // so we reflect the effect also to the toolbar button
-    GuiApp::setToolbarRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag(); // so we reflect the effect also to the toolbar button
+        GuiApp::setToolbarRefreshFlag();
+    #endif
 }
 
 bool CSimulation::canGoSlower() const
@@ -216,7 +218,9 @@ bool CSimulation::startOrResumeSimulation()
     TRACE_INTERNAL;
     if (isSimulationStopped())
     {
-        GuiApp::setFullScreen(_fullscreenAtSimulationStart);
+        #ifdef SIM_WITH_GUI
+            GuiApp::setFullScreen(_fullscreenAtSimulationStart);
+        #endif
         CThreadPool_old::setSimulationEmergencyStop(false);
         CThreadPool_old::setRequestSimulationStop(false);
         App::worldContainer->simulationAboutToStart();
@@ -251,8 +255,10 @@ bool CSimulation::startOrResumeSimulation()
 bool CSimulation::stopSimulation()
 {
     TRACE_INTERNAL;
-    if (getSimulationState()!=sim_simulation_stopped)
-        GuiApp::setFullScreen(false);
+    #ifdef SIM_WITH_GUI
+        if (getSimulationState()!=sim_simulation_stopped)
+            GuiApp::setFullScreen(false);
+    #endif
 
     if ((getSimulationState()==sim_simulation_advancing_abouttostop)||
         (getSimulationState()==sim_simulation_advancing_lastbeforestop))
@@ -409,7 +415,9 @@ void CSimulation::setTimeStep(double dt)
         if (dt>10.0)
             dt=10.0;
         _simulationTimeStep=dt;
-        GuiApp::setFullDialogRefreshFlag();
+        #ifdef SIM_WITH_GUI
+            GuiApp::setFullDialogRefreshFlag();
+        #endif
     }
 }
 
@@ -651,11 +659,13 @@ bool CSimulation::_goFasterOrSlower(int action)
             retVal=true;
         }
     }
-    if (retVal)
-    {
-        GuiApp::setLightDialogRefreshFlag();
-        GuiApp::setToolbarRefreshFlag();
-    }
+    #ifdef SIM_WITH_GUI
+        if (retVal)
+        {
+            GuiApp::setLightDialogRefreshFlag();
+            GuiApp::setToolbarRefreshFlag();
+        }
+    #endif
     return(retVal);
 }
 
@@ -672,237 +682,6 @@ int CSimulation::getStopRequestCounter() const
 bool CSimulation::didStopRequestCounterChangeSinceSimulationStart() const
 {
     return(_stopRequestCounter!=_stopRequestCounterAtSimulationStart);
-}
-
-bool CSimulation::processCommand(int commandID)
-{ // Return value is true if the command belonged to hierarchy menu and was executed
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            bool noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
-            if (App::currentWorld->simulation->isSimulationStopped()&&noEditMode )
-            {
-                App::currentWorld->simulation->setIsRealTimeSimulation(!App::currentWorld->simulation->getIsRealTimeSimulation());
-                if (App::currentWorld->simulation->getIsRealTimeSimulation())
-                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_REAL_TIME_MODE);
-                else
-                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE);
-                GuiApp::setLightDialogRefreshFlag();
-                GuiApp::setToolbarRefreshFlag(); // will trigger a refresh
-                App::undoRedo_sceneChanged(""); 
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD)
-    { 
-        _desiredFasterOrSlowerSpeed--;
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD)
-    {
-        _desiredFasterOrSlowerSpeed++;
-        return(true);
-    }
-
-#ifdef SIM_WITH_GUI
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD)
-    {
-        if (VThread::isUiThread())
-        { // We are in the UI thread. We execute the command now:
-            GuiApp::mainWindow->setOpenGlDisplayEnabled(!GuiApp::mainWindow->getOpenGlDisplayEnabled());
-        }
-        else
-        { // We are not in the UI thread. Execute the command via the UI thread:
-            SUIThreadCommand cmdIn;
-            SUIThreadCommand cmdOut;
-            cmdIn.cmdId=TOGGLE_VISUALIZATION_UITHREADCMD;
-            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-        }
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_DYNAMIC_CONTENT_VISUALIZATION_SCCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            if (!isSimulationStopped())
-                setDynamicContentVisualizationOnly(!getDynamicContentVisualizationOnly());
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-    }
-#endif
-
-    if (commandID==SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD)
-    {
-        if (GuiApp::getEditModeType()==NO_EDIT_MODE)
-        {
-            if (!VThread::isUiThread())
-            { // we are NOT in the UI thread. We execute the command now:
-                App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_start_resume_request,0,0,0,0,nullptr,0);
-            }
-            else
-            { // We are in the UI thread. Execute the command via the main thread:
-                SSimulationThreadCommand cmd;
-                cmd.cmdId=commandID;
-                App::appendSimulationThreadCommand(cmd);
-            }
-        }
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_pause_request,0,0,0,0,nullptr,0);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            CThreadPool_old::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
-            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,nullptr,0);
-            incrementStopRequestCounter();
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_78_ENGINE_SCCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_bullet,0);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_83_ENGINE_SCCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_bullet,283);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_ode,0);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_vortex,0);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_newton,0);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_mujoco,0);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_PHYSX_ENGINE_SCCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_physx,0);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
-#ifdef SIM_WITH_GUI
-    if (commandID==TOGGLE_SIMULATION_DLG_CMD)
-    {
-        if (VThread::isUiThread())
-        {
-            if (GuiApp::mainWindow!=nullptr)
-                GuiApp::mainWindow->dlgCont->toggle(SIMULATION_DLG);
-        }
-        return(true);
-    }
-#endif
-
-    return(false);
 }
 
 bool CSimulation::getInfo(std::string& txtLeft,std::string& txtRight,int& index) const
@@ -1274,6 +1053,246 @@ void CSimulation::serialize(CSer& ar)
 }
 
 #ifdef SIM_WITH_GUI
+bool CSimulation::processCommand(int commandID)
+{ // Return value is true if the command belonged to hierarchy menu and was executed
+    if (commandID==SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            bool noEditMode=true;
+            #ifdef SIM_WITH_GUI
+                noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
+            #endif
+            if (App::currentWorld->simulation->isSimulationStopped()&&noEditMode )
+            {
+                App::currentWorld->simulation->setIsRealTimeSimulation(!App::currentWorld->simulation->getIsRealTimeSimulation());
+                if (App::currentWorld->simulation->getIsRealTimeSimulation())
+                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_REAL_TIME_MODE);
+                else
+                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE);
+                #ifdef SIM_WITH_GUI
+                    GuiApp::setLightDialogRefreshFlag();
+                    GuiApp::setToolbarRefreshFlag(); // will trigger a refresh
+                #endif
+                App::undoRedo_sceneChanged("");
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD)
+    {
+        _desiredFasterOrSlowerSpeed--;
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD)
+    {
+        _desiredFasterOrSlowerSpeed++;
+        return(true);
+    }
+
+#ifdef SIM_WITH_GUI
+    if (commandID==SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD)
+    {
+        if (VThread::isUiThread())
+        { // We are in the UI thread. We execute the command now:
+            GuiApp::mainWindow->setOpenGlDisplayEnabled(!GuiApp::mainWindow->getOpenGlDisplayEnabled());
+        }
+        else
+        { // We are not in the UI thread. Execute the command via the UI thread:
+            SUIThreadCommand cmdIn;
+            SUIThreadCommand cmdOut;
+            cmdIn.cmdId=TOGGLE_VISUALIZATION_UITHREADCMD;
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        }
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_TOGGLE_DYNAMIC_CONTENT_VISUALIZATION_SCCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            if (!isSimulationStopped())
+                setDynamicContentVisualizationOnly(!getDynamicContentVisualizationOnly());
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+    }
+#endif
+
+    if (commandID==SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD)
+    {
+        int editMode=NO_EDIT_MODE;
+        #ifdef SIM_WITH_GUI
+            editMode=GuiApp::getEditModeType();
+        #endif
+        if (editMode==NO_EDIT_MODE)
+        {
+            if (!VThread::isUiThread())
+            { // we are NOT in the UI thread. We execute the command now:
+                App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_start_resume_request,0,0,0,0,nullptr,0);
+            }
+            else
+            { // We are in the UI thread. Execute the command via the main thread:
+                SSimulationThreadCommand cmd;
+                cmd.cmdId=commandID;
+                GuiApp::appendSimulationThreadCommand(cmd);
+            }
+        }
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_pause_request,0,0,0,0,nullptr,0);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            CThreadPool_old::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
+            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,nullptr,0);
+            incrementStopRequestCounter();
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_78_ENGINE_SCCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_bullet,0);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_83_ENGINE_SCCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_bullet,283);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_ode,0);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_vortex,0);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_newton,0);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_mujoco,0);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_PHYSX_ENGINE_SCCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_physx,0);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+
+#ifdef SIM_WITH_GUI
+    if (commandID==TOGGLE_SIMULATION_DLG_CMD)
+    {
+        if (VThread::isUiThread())
+        {
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->dlgCont->toggle(SIMULATION_DLG);
+        }
+        return(true);
+    }
+#endif
+
+    return(false);
+}
+
 bool CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* scriptName)
 {
     TRACE_INTERNAL;

@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <fileOperations.h>
 #include <QTextDocument>
+#include <simFlavor.h>
 #ifdef SIM_WITH_GUI
     #include <guiApp.h>
 #endif
@@ -25,7 +26,6 @@
     #include <signal.h>
 #endif
 
-CSimThread* App::simThread=nullptr;
 CUserSettings* App::userSettings=nullptr;
 CFolderSystem* App::folders=nullptr;
 CWorldContainer* App::worldContainer=nullptr;
@@ -49,6 +49,7 @@ std::string App::_consoleMsgsFilename="debugLog.txt";
 VFile* App::_consoleMsgsFile=nullptr;
 VArchive* App::_consoleMsgsArchive=nullptr;
 SignalHandler* App::_sigHandler=nullptr;
+CGm* App::gm=nullptr;
 
 #ifdef WIN_SIM
     LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
@@ -140,46 +141,53 @@ void App::init(const char* appDir,int)
             VThread::sleep(1);
     #endif
 
-    App::simThread=new CSimThread();
+    GuiApp::simThread=new CSimThread();
     CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(true); // lock initially...
 
+    CSimFlavor::run(0);
+
     // Send the "instancePass" message to all plugins already here (needed for some old plugins to properly finish initialization):
-    int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData);
+    int auxData[4]={worldContainer->getModificationFlags(true),0,0,0};
+    worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData);
     #ifdef SIM_WITH_GUI
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
         GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     #endif
-    App::worldContainer->sandboxScript=new CScriptObject(sim_scripttype_sandboxscript);
-    App::worldContainer->sandboxScript->initSandbox();
+    worldContainer->sandboxScript=new CScriptObject(sim_scripttype_sandboxscript);
+    worldContainer->sandboxScript->initSandbox();
     if (_startupScriptString.size()>0)
     {
-        App::worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(),nullptr);
+        worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(),nullptr);
         _startupScriptString.clear();
     }
-    App::worldContainer->addOnScriptContainer->loadAllAddOns();
+    worldContainer->addOnScriptContainer->loadAllAddOns();
+    gm=new CGm();
 
     setAppStage(appstage_simRunning);
 }
 
 void App::cleanup()
 {
-    while (App::worldContainer->getWorldCount()>1)
-        App::worldContainer->destroyCurrentWorld();
-    App::currentWorld->clearScene(true);
+    delete gm;
+    gm=nullptr;
 
-    App::worldContainer->addOnScriptContainer->removeAllAddOns();
-    App::worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup,nullptr,nullptr);
-    CScriptObject::destroy(App::worldContainer->sandboxScript,true);
-    App::worldContainer->sandboxScript=nullptr;
-    App::worldContainer->pluginContainer->unloadNewPlugins(); // cleanup via (UI thread) and SIM thread
+    while (worldContainer->getWorldCount()>1)
+        worldContainer->destroyCurrentWorld();
+    currentWorld->clearScene(true);
 
+    worldContainer->addOnScriptContainer->removeAllAddOns();
+    worldContainer->sandboxScript->systemCallScript(sim_syscb_cleanup,nullptr,nullptr);
+    CScriptObject::destroy(worldContainer->sandboxScript,true);
+    worldContainer->sandboxScript=nullptr;
+    worldContainer->pluginContainer->unloadNewPlugins(); // cleanup via (UI thread) and SIM thread
+
+    CSimFlavor::run(10);
 
     CSimAndUiThreadSync::simThread_allowUiThreadToWrite(); // ...finally unlock
-    delete App::simThread;
-    App::simThread=nullptr;
+    delete GuiApp::simThread;
+    GuiApp::simThread=nullptr;
 
 #ifdef SIM_WITH_GUI
     GuiApp::qtApp->quit();
@@ -189,7 +197,7 @@ void App::cleanup()
         VThread::sleep(1);
 #endif
 
-    App::deleteWorldsContainer();
+    deleteWorldsContainer();
     CThreadPool_old::cleanUp();
 
     delete folders;
@@ -222,14 +230,14 @@ void App::cleanup()
     delete _sigHandler;
     _exitCode=0;
     setAppStage(appstage_simCleanupDone);
-    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"CoppeliaSim ended.");
+    logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"CoppeliaSim ended.");
 }
 
 void App::loop(void(*callback)(),bool stepIfRunning)
 {
     // Send the "instancePass" message to all plugins:
-    int auxData[4]={App::worldContainer->getModificationFlags(true),0,0,0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData);
+    int auxData[4]={worldContainer->getModificationFlags(true),0,0,0};
+    worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData);
 #ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
@@ -237,19 +245,19 @@ void App::loop(void(*callback)(),bool stepIfRunning)
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    if ( App::currentWorld->simulation->isSimulationStopped()&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
+    if ( currentWorld->simulation->isSimulationStopped()&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
     {
-        App::worldContainer->dispatchEvents();
-        App::worldContainer->callScripts(sim_syscb_nonsimulation,nullptr,nullptr);
+        worldContainer->dispatchEvents();
+        worldContainer->callScripts(sim_syscb_nonsimulation,nullptr,nullptr);
     }
-    if (App::currentWorld->simulation->isSimulationPaused())
+    if (currentWorld->simulation->isSimulationPaused())
     {
-        CScriptObject* mainScript=App::currentWorld->embeddedScriptContainer->getMainScript();
+        CScriptObject* mainScript=currentWorld->embeddedScriptContainer->getMainScript();
         if (mainScript!=nullptr)
         {
-            App::worldContainer->dispatchEvents();
+            worldContainer->dispatchEvents();
             if (mainScript->systemCallMainScript(sim_syscb_suspended,nullptr,nullptr)==0)
-                App::worldContainer->callScripts(sim_syscb_suspended,nullptr,nullptr);
+                worldContainer->callScripts(sim_syscb_suspended,nullptr,nullptr);
         }
     }
 
@@ -282,62 +290,21 @@ void App::loop(void(*callback)(),bool stepIfRunning)
                 simAdvanceSimulationByOneStep_internal();
         }
         else
-            App::worldContainer->callScripts(sim_syscb_realtimeidle,nullptr,nullptr);
+            worldContainer->callScripts(sim_syscb_realtimeidle,nullptr,nullptr);
     }
     //*******************************
 
-    App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
-    App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
+    currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
+    currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
 
     // Keep for backward compatibility:
-    if (!App::currentWorld->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts after the main script was called
-        App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old,nullptr,nullptr);
+    if (!currentWorld->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts after the main script was called
+        worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old,nullptr,nullptr);
 
     #ifdef SIM_WITH_GUI
-            App::currentWorld->simulation->showAndHandleEmergencyStopButton(false,""); // 10/10/2015
+            currentWorld->simulation->showAndHandleEmergencyStopButton(false,""); // 10/10/2015
     #endif
-    App::simThread->executeMessages(); // rendering, queued command execution, etc.
-}
-
-void App::appendSimulationThreadCommand(int cmdId,int intP1,int intP2,double floatP1,double floatP2,const char* stringP1,const char* stringP2,int executionDelay)
-{ // convenience function. All args have default values except for the first
-    SSimulationThreadCommand cmd;
-    cmd.cmdId=cmdId;
-    cmd.intParams.push_back(intP1);
-    cmd.intParams.push_back(intP2);
-    cmd.doubleParams.push_back(floatP1);
-    cmd.doubleParams.push_back(floatP2);
-    if (stringP1==nullptr)
-        cmd.stringParams.push_back("");
-    else
-        cmd.stringParams.push_back(stringP1);
-    if (stringP2==nullptr)
-        cmd.stringParams.push_back("");
-    else
-        cmd.stringParams.push_back(stringP2);
-    appendSimulationThreadCommand(cmd,executionDelay);
-}
-
-void App::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay/*=0*/)
-{
-    static std::vector<SSimulationThreadCommand> delayed_cmd;
-    static std::vector<int> delayed_delay;
-    if (simThread!=nullptr)
-    {
-        if (delayed_cmd.size()!=0)
-        {
-            for (unsigned int i=0;i<delayed_cmd.size();i++)
-                simThread->appendSimulationThreadCommand(delayed_cmd[i],delayed_delay[i]);
-            delayed_cmd.clear();
-            delayed_delay.clear();
-        }
-        simThread->appendSimulationThreadCommand(cmd,executionDelay);
-    }
-    else
-    { // can happen during the initialization phase, when the client loads a scene for instance
-        delayed_cmd.push_back(cmd);
-        delayed_delay.push_back(executionDelay);
-    }
+    GuiApp::simThread->executeMessages(); // rendering, queued command execution, etc.
 }
 
 long long int App::getFreshUniqueId()
@@ -461,422 +428,6 @@ int App::setApplicationNamedParam(const char* paramName,const char* param,int pa
     return(retVal);
 }
 
-void App::clearStatusbar()
-{
-    if (!VThread::isUiThread())
-    { // we are NOT in the UI thread. We execute the command in a delayed manner:
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId=CLEAR_STATUSBAR_UITHREADCMD;
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-    }
-    else
-    {
-    #ifdef SIM_WITH_GUI
-        if (GuiApp::mainWindow!=nullptr)
-        {
-            if ((GuiApp::operationalUIParts&sim_gui_statusbar)&&(GuiApp::mainWindow->statusBar!=nullptr) )
-                GuiApp::mainWindow->statusBar->clear();
-        }
-    #endif
-    }
-}
-
-float* App::getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle)
-{ // auxDlgTitle can be nullptr
-    std::string __auxDlgTitle;
-    std::string* _auxDlgTitle=&__auxDlgTitle;
-    if (auxDlgTitle!=nullptr)
-        _auxDlgTitle=auxDlgTitle;
-
-    if (objType==COLOR_ID_AMBIENT_LIGHT)
-    {
-        _auxDlgTitle->assign("Ambient light");
-        return(currentWorld->environment->ambientLightColor);
-    }
-    if (objType==COLOR_ID_BACKGROUND_UP)
-    {
-        _auxDlgTitle->assign("Background (up)");
-        return(currentWorld->environment->backGroundColor);
-    }
-    if (objType==COLOR_ID_BACKGROUND_DOWN)
-    {
-        _auxDlgTitle->assign("Background (down)");
-        return(currentWorld->environment->backGroundColorDown);
-    }
-    if (objType==COLOR_ID_FOG)
-    {
-        _auxDlgTitle->assign("Fog");
-        return(currentWorld->environment->fogBackgroundColor);
-    }
-    if (objType==COLOR_ID_MIRROR)
-    {
-        _auxDlgTitle->assign("Mirror");
-        CMirror* it=App::currentWorld->sceneObjects->getMirrorFromHandle(objID1);
-        if ((it!=nullptr)&&it->getIsMirror())
-            return(it->mirrorColor);
-    }
-    if (objType==COLOR_ID_OCTREE)
-    {
-        _auxDlgTitle->assign("OC tree");
-        COcTree* it=App::currentWorld->sceneObjects->getOctreeFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor()->getColorsPtr());
-    }
-    if (objType==COLOR_ID_POINTCLOUD)
-    {
-        _auxDlgTitle->assign("Point cloud");
-        CPointCloud* it=App::currentWorld->sceneObjects->getPointCloudFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor()->getColorsPtr());
-    }
-    if (objType==COLOR_ID_GRAPH_2DCURVE)
-    {
-        _auxDlgTitle->assign("Graph - 2D curve");
-        CGraph* it=currentWorld->sceneObjects->getGraphFromHandle(objID1);
-        if (it!=nullptr)
-        {
-            CGraphDataComb_old* grDataComb=it->getGraphData2D(objID2);
-            if (grDataComb!=nullptr)
-                return(grDataComb->curveColor.getColorsPtr());
-        }
-    }
-    if (objType==COLOR_ID_GRAPH_BACKGROUND)
-    {
-        _auxDlgTitle->assign("Graph - background");
-        CGraph* it=currentWorld->sceneObjects->getGraphFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->backgroundColor);
-    }
-    if (objType==COLOR_ID_GRAPH_GRID)
-    {
-        _auxDlgTitle->assign("Graph - grid");
-        CGraph* it=currentWorld->sceneObjects->getGraphFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->textColor);
-    }
-    if (objType==COLOR_ID_GRAPH_TIMECURVE)
-    {
-        _auxDlgTitle->assign("Graph - data stream");
-        CGraph* it=currentWorld->sceneObjects->getGraphFromHandle(objID1);
-        if (it!=nullptr)
-        {
-            CGraphData_old* grData=it->getGraphData(objID2);
-            if (grData!=nullptr)
-                return(grData->ambientColor);
-        }
-    }
-    if ((objType==COLOR_ID_OPENGLBUTTON_UP)||(objType==COLOR_ID_OPENGLBUTTON_DOWN)||(objType==COLOR_ID_OPENGLBUTTON_TEXT))
-    {
-        if (objType==COLOR_ID_OPENGLBUTTON_UP)
-            _auxDlgTitle->assign("Button - up");
-        if (objType==COLOR_ID_OPENGLBUTTON_DOWN)
-            _auxDlgTitle->assign("Button - down");
-        if (objType==COLOR_ID_OPENGLBUTTON_TEXT)
-            _auxDlgTitle->assign("Button - text");
-        CButtonBlock* block=App::currentWorld->buttonBlockContainer->getBlockWithID(objID1);
-        if (block!=nullptr)
-        {
-            CSoftButton* itButton=block->getButtonWithID(objID2);
-            if (itButton!=nullptr)
-            {
-                if (objType==COLOR_ID_OPENGLBUTTON_UP)
-                    return(itButton->backgroundColor);
-                if (objType==COLOR_ID_OPENGLBUTTON_DOWN)
-                    return(itButton->downBackgroundColor);
-                if (objType==COLOR_ID_OPENGLBUTTON_TEXT)
-                    return(itButton->textColor);
-            }
-        }
-    }
-
-
-    int allowedParts=0;
-    CColorObject* vp=getVisualParamPointerFromItem(objType,objID1,objID2,_auxDlgTitle,&allowedParts);
-    if (vp!=nullptr)
-    {
-        if ((colComponent==sim_colorcomponent_ambient_diffuse)&&(allowedParts&1))
-            return((vp->getColorsPtr()+0));
-        if ((colComponent==sim_colorcomponent_diffuse)&&(allowedParts&2))
-            return((vp->getColorsPtr()+3));
-        if ((colComponent==sim_colorcomponent_specular)&&(allowedParts&4))
-            return((vp->getColorsPtr()+6));
-        if ((colComponent==sim_colorcomponent_emission)&&(allowedParts&8))
-            return((vp->getColorsPtr()+9));
-        if ((colComponent==sim_colorcomponent_auxiliary)&&(allowedParts&16))
-            return((vp->getColorsPtr()+12));
-    }
-
-    return(nullptr);
-}
-
-CColorObject* App::getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts)
-{ // auxDlgTitle and allowedParts can be nullptr. Bit-coded: 1=ambient/diffuse, 2=diffuse(light only), 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-    std::string __auxDlgTitle;
-    int __allowedParts;
-    std::string* _auxDlgTitle=&__auxDlgTitle;
-    int* _allowedParts=&__allowedParts;
-    if (auxDlgTitle!=nullptr)
-        _auxDlgTitle=auxDlgTitle;
-    if (allowedParts!=nullptr)
-        _allowedParts=allowedParts;
-
-    if (objType==COLOR_ID_CAMERA_A)
-    {
-        _auxDlgTitle->assign("Camera");
-        _allowedParts[0]=1+4+8+16+32+64;
-        CCamera* it=currentWorld->sceneObjects->getCameraFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(false));
-    }
-    if (objType==COLOR_ID_FORCESENSOR_A)
-    {
-        _auxDlgTitle->assign("Force sensor");
-        _allowedParts[0]=1+4+8+16+32+64;
-        CForceSensor* it=currentWorld->sceneObjects->getForceSensorFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(false));
-    }
-    if (objType==COLOR_ID_JOINT_A)
-    {
-        _auxDlgTitle->assign("Joint");
-        _allowedParts[0]=1+4+8+16+32+64;
-        CJoint* it=currentWorld->sceneObjects->getJointFromHandle(objID1);
-        if (it!=nullptr)
-            return((CColorObject*)it->getColor(false));
-    }
-    if (objType==COLOR_ID_PATH)
-    {
-        _auxDlgTitle->assign("Path");
-        _allowedParts[0]=1+4+8+16+32+64;
-        CPath_old* it=currentWorld->sceneObjects->getPathFromHandle(objID1);
-        if ( (it!=nullptr)&&(it->pathContainer!=nullptr) )
-            return(&it->pathContainer->_lineColor);
-    }
-    if (objType==COLOR_ID_PATH_SHAPING)
-    {
-        _auxDlgTitle->assign("Path shaping");
-        _allowedParts[0]=1+4+8+16+32+64;
-        CPath_old* it=currentWorld->sceneObjects->getPathFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getShapingColor());
-    }
-    if (objType==COLOR_ID_GRAPH_3DCURVE)
-    {
-        _auxDlgTitle->assign("Graph - 3D curve");
-        _allowedParts[0]=1+8;
-        CGraph* it=currentWorld->sceneObjects->getGraphFromHandle(objID1);
-        if (it!=nullptr)
-        {
-            CGraphDataComb_old* grDataComb=it->getGraphData3D(objID2);
-            if (grDataComb!=nullptr)
-                return(&grDataComb->curveColor);
-        }
-    }
-    if (objType==COLOR_ID_COLLISION)
-    {
-        _auxDlgTitle->assign("Collision");
-        _allowedParts[0]=1+4+8+16+32+64;
-        return(&App::currentWorld->mainSettings->collisionColor);
-    }
-    if (objType==COLOR_ID_COLLISIONCONTOUR)
-    {
-        _auxDlgTitle->assign("Collision contour");
-        _allowedParts[0]=1+4+8+16+32+64;
-        CCollisionObject_old* it=App::currentWorld->collisions->getObjectFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getContourColor());
-    }
-    if (objType==COLOR_ID_DISTANCESEGMENT)
-    {
-        _auxDlgTitle->assign("Distance segment");
-        _allowedParts[0]=1+4+8+16+32+64;
-        CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getSegmentColor());
-    }
-    if (objType==COLOR_ID_CLIPPINGPLANE)
-    {
-        _auxDlgTitle->assign("Clipping plane");
-        _allowedParts[0]=1+4+8+16+32+64+128;
-        CMirror* it=App::currentWorld->sceneObjects->getMirrorFromHandle(objID1);
-        if ((it!=nullptr)&&(!it->getIsMirror()))
-            return(it->getClipPlaneColor());
-    }
-    if (objType==COLOR_ID_LIGHT_CASING)
-    {
-        _auxDlgTitle->assign("Light - casing");
-        _allowedParts[0]=1+4+8+16+64;
-        CLight* it=currentWorld->sceneObjects->getLightFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(false));
-    }
-    if (objType==COLOR_ID_LIGHT_LIGHT)
-    {
-        _auxDlgTitle->assign("Light");
-        _allowedParts[0]=2+4;
-        CLight* it=currentWorld->sceneObjects->getLightFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(true));
-    }
-    if (objType==COLOR_ID_DUMMY)
-    {
-        _auxDlgTitle->assign("Dummy");
-        _allowedParts[0]=1+4+8+16+32+64;
-        CDummy* it=currentWorld->sceneObjects->getDummyFromHandle(objID1);
-        if (it!=nullptr)
-            return((CColorObject*)it->getDummyColor());
-    }
-    if (objType==COLOR_ID_VISIONSENSOR)
-    {
-        _auxDlgTitle->assign("Vision sensor");
-        _allowedParts[0]=1+4+8+16+32;
-        CVisionSensor* it=currentWorld->sceneObjects->getVisionSensorFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor());
-    }
-    if (objType==COLOR_ID_PROXSENSOR_VOLUME)
-    {
-        _auxDlgTitle->assign("Proximity sensor");
-        _allowedParts[0]=1+4+8+16+32;
-        CProxSensor* it=currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(0));
-    }
-    if (objType==COLOR_ID_PROXSENSOR_RAY)
-    {
-        _auxDlgTitle->assign("Proximity sensor - ray");
-        _allowedParts[0]=1+4+8+16+32;
-        CProxSensor* it=currentWorld->sceneObjects->getProximitySensorFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(1));
-    }
-    if (objType==COLOR_ID_MILL_PASSIVE)
-    {
-        _auxDlgTitle->assign("Mill - passive");
-        _allowedParts[0]=1+4+8+16+32;
-        CMill* it=currentWorld->sceneObjects->getMillFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(false));
-    }
-    if (objType==COLOR_ID_MILL_ACTIVE)
-    {
-        _auxDlgTitle->assign("Mill - active");
-        _allowedParts[0]=1+4+8+16+32;
-        CMill* it=currentWorld->sceneObjects->getMillFromHandle(objID1);
-        if (it!=nullptr)
-            return(it->getColor(true));
-    }
-    if (objType==COLOR_ID_SHAPE)
-    {
-        _auxDlgTitle->assign("Shape");
-        _allowedParts[0]=1+4+8+16+32+64+128+256+512;
-        CShape* it=currentWorld->sceneObjects->getShapeFromHandle(objID1);
-        if ((it!=nullptr)&&(!it->isCompound()))
-            return(&it->getSingleMesh()->color);
-    }
-    if (objType==COLOR_ID_SHAPE_GEOMETRY)
-    {
-#ifdef SIM_WITH_GUI
-        if ((GuiApp::mainWindow->editModeContainer->getEditModeObjectID()==objID1)&&(GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex()==objID2))
-        {
-            _auxDlgTitle->assign("Shape component");
-            _allowedParts[0]=1+4+8+16+32+64+128+256+512;
-            CShape* it=currentWorld->sceneObjects->getShapeFromHandle(objID1);
-            if ((it!=nullptr)&&it->isCompound())
-            {
-                std::vector<CMesh*> allGeometrics;
-                it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
-                if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
-                    return(&allGeometrics[objID2]->color);
-            }
-        }
-#endif
-    }
-
-    _allowedParts[0]=0;
-    return(nullptr);
-}
-
-CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CMesh** geom)
-{ // auxDlgTitle, is3D, isValid and geom can be nullptr.
-    std::string __auxDlgTitle;
-    bool __is3D=false;
-    bool __isValid=false;
-    CMesh* __geom=nullptr;
-    std::string* _auxDlgTitle=&__auxDlgTitle;
-    bool* _is3D=&__is3D;
-    bool* _isValid=&__isValid;
-    CMesh** _geom=&__geom;
-    if (auxDlgTitle!=nullptr)
-        _auxDlgTitle=auxDlgTitle;
-    if (is3D!=nullptr)
-        _is3D=is3D;
-    if (valid!=nullptr)
-        _isValid=valid;
-    if (geom!=nullptr)
-        _geom=geom;
-    _isValid[0]=false;
-    _geom[0]=nullptr;
-    if (objType==TEXTURE_ID_SIMPLE_SHAPE)
-    {
-        _auxDlgTitle->assign("Shape");
-        _is3D[0]=true;
-        CShape* it=currentWorld->sceneObjects->getShapeFromHandle(objID1);
-        if ( (it!=nullptr)&&(!it->isCompound()) )
-        {
-            _isValid[0]=true;
-            _geom[0]=it->getSingleMesh();
-            return(_geom[0]->getTextureProperty());
-        }
-    }
-    if (objType==TEXTURE_ID_COMPOUND_SHAPE)
-    {
-        _auxDlgTitle->assign("Shape component");
-        _is3D[0]=true;
-        CShape* it=currentWorld->sceneObjects->getShapeFromHandle(objID1);
-        if (it!=nullptr)
-        {
-            std::vector<CMesh*> allGeometrics;
-            it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
-            if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
-            {
-                _isValid[0]=true;
-                _geom[0]=allGeometrics[objID2];
-                return(_geom[0]->getTextureProperty());
-            }
-        }
-    }
-    if (objType==TEXTURE_ID_OPENGL_GUI_BACKGROUND)
-    {
-        _auxDlgTitle->assign("OpenGl custom UI background");
-        _is3D[0]=false;
-        CButtonBlock* it=currentWorld->buttonBlockContainer->getBlockWithID(objID1);
-        if (it!=nullptr)
-        {
-            _isValid[0]=true;
-            return(it->getTextureProperty());
-        }
-    }
-    if (objType==TEXTURE_ID_OPENGL_GUI_BUTTON)
-    {
-        _auxDlgTitle->assign("OpenGl custom UI button");
-        _is3D[0]=false;
-        CButtonBlock* it=currentWorld->buttonBlockContainer->getBlockWithID(objID1);
-        if (it!=nullptr)
-        {
-            CSoftButton* butt=it->getButtonWithID(objID2);
-            if (butt!=nullptr)
-            {
-                _isValid[0]=true;
-                return(butt->getTextureProperty());
-            }
-        }
-    }
-
-    return(nullptr);
-}
-
 std::string App::getConsoleLogFilter()
 {
     return(_consoleLogFilterStr);
@@ -893,15 +444,15 @@ bool App::logPluginMsg(const char* pluginName,int verbosityLevel,const char* log
 
     CPlugin* it=nullptr;
 
-    if (App::worldContainer!=nullptr)
+    if (worldContainer!=nullptr)
     {
         if (pluginName==nullptr)
-            it=App::worldContainer->pluginContainer->getCurrentPlugin();
+            it=worldContainer->pluginContainer->getCurrentPlugin();
         else
         {
-            it=App::worldContainer->pluginContainer->getPluginFromName(pluginName);
+            it=worldContainer->pluginContainer->getPluginFromName(pluginName);
             if (it==nullptr)
-                it=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
+                it=worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
         }
     }
     int realVerbosityLevel=verbosityLevel&0x0fff;
@@ -1133,7 +684,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         int realVerbosityLevel=verbosityLevel&0x0fff;
         inside=true;
 
-        bool decorateMsg=((verbosityLevel&sim_verbosity_undecorated)==0)&&((App::userSettings==nullptr)||(!App::userSettings->undecoratedStatusbarMessages));
+        bool decorateMsg=((verbosityLevel&sim_verbosity_undecorated)==0)&&((App::userSettings==nullptr)||(!userSettings->undecoratedStatusbarMessages));
         static std::string consoleLogFormat,statusbarLogFormat,statusbarLogFormatUndecorated;
         if (consoleLogFormat.empty())
         {
@@ -1257,7 +808,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         }
         if (statusbarVerbosity==-1)
             statusbarVerbosity=_statusbarVerbosity;
-        if ( (statusbarVerbosity>=realVerbosityLevel)&&(GuiApp::uiThread!=nullptr)&&(simThread!=nullptr)&&((verbosityLevel&sim_verbosity_onlyterminal)==0) )
+        if ( (statusbarVerbosity>=realVerbosityLevel)&&(GuiApp::uiThread!=nullptr)&&(GuiApp::simThread!=nullptr)&&((verbosityLevel&sim_verbosity_onlyterminal)==0) )
         {
             vars["message"]=_getHtmlEscapedString(vars["message"].c_str());
             std::string statusbarTxt=replaceVars(decorateMsg?statusbarLogFormat:statusbarLogFormatUndecorated,vars);
@@ -1299,7 +850,7 @@ void App::undoRedo_sceneChanged(const char* txt)
         SSimulationThreadCommand cmd;
         cmd.cmdId=999999;
         cmd.stringParams.push_back(txt);
-        appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
     }
     else
         currentWorld->undoBufferContainer->announceChange();
@@ -1312,7 +863,7 @@ void App::undoRedo_sceneChangedGradual(const char* txt)
         SSimulationThreadCommand cmd;
         cmd.cmdId=999996;
         cmd.stringParams.push_back(txt);
-        appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
     }
     else
         currentWorld->undoBufferContainer->announceChangeGradual();
@@ -1325,7 +876,7 @@ void App::undoRedo_sceneChangeStart(const char* txt)
         SSimulationThreadCommand cmd;
         cmd.cmdId=999997;
         cmd.stringParams.push_back(txt);
-        appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
     }
     else
         currentWorld->undoBufferContainer->announceChangeStart();
@@ -1338,7 +889,7 @@ void App::undoRedo_sceneChangeEnd()
         SSimulationThreadCommand cmd;
         cmd.cmdId=999998;
         cmd.stringParams.push_back("");
-        appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
     }
     else
         currentWorld->undoBufferContainer->announceChangeEnd();
@@ -1349,7 +900,7 @@ int App::getConsoleVerbosity(const char* pluginName/*=nullptr*/)
     int retVal=_consoleVerbosity;
     if (pluginName!=nullptr)
     {
-        CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
+        CPlugin* pl=worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
         if (pl!=nullptr)
         {
             if (pl->getConsoleVerbosity()!=sim_verbosity_useglobal)
@@ -1363,7 +914,7 @@ void App::setConsoleVerbosity(int v,const char* pluginName/*=nullptr*/)
 { // sim_verbosity_none, etc.
     if (pluginName!=nullptr)
     {
-        CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
+        CPlugin* pl=worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
         if (pl!=nullptr)
             pl->setConsoleVerbosity(v);
     }
@@ -1376,7 +927,7 @@ int App::getStatusbarVerbosity(const char* pluginName/*=nullptr*/)
     int retVal=_statusbarVerbosity;
     if (pluginName!=nullptr)
     {
-        CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
+        CPlugin* pl=worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
         if (pl!=nullptr)
         {
             if (pl->getStatusbarVerbosity()!=sim_verbosity_useglobal)
@@ -1390,7 +941,7 @@ void App::setStatusbarVerbosity(int v,const char* pluginName/*=nullptr*/)
 { // sim_verbosity_none, etc.
     if (pluginName!=nullptr)
     {
-        CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
+        CPlugin* pl=worldContainer->pluginContainer->getPluginFromName_old(pluginName,true);
         if (pl!=nullptr)
             pl->setStatusbarVerbosity(v);
     }

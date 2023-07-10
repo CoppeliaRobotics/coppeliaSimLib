@@ -13,7 +13,6 @@ class CSView
 public:
     CSView(int theLinkedObjectID);
     virtual ~CSView();
-    void render(int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText,bool passiveSubView);
     void initializeInitialValues(bool simulationAlreadyRunning);
     bool simulationEnded();
     void setDefaultValues();
@@ -75,7 +74,6 @@ public:
     void getViewSize(int size[2]) const;
     void getViewPosition(int pos[2]) const;
     int getSelectionStatus() const;
-    bool processCommand(int commandID,int subViewIndex);
     void setCenterPosition(double pos[3]);
     void getCenterPosition(double pos[3]) const;
     void setViewIndex(size_t ind);
@@ -156,6 +154,8 @@ private:
 
 #ifdef SIM_WITH_GUI
 public:
+    void render(int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText,bool passiveSubView);
+    bool processCommand(int commandID,int subViewIndex);
     void addMenu(VMenu* menu);
     void getMouseDownRelativePosition(int p[2]) const;
     void getMouseRelativePosition(int p[2]) const;

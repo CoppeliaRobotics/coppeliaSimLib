@@ -12,8 +12,6 @@ public:
 
     void simulationAboutToStart();
     void simulationEnded();
-    void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
-    void displayCollisionContours();
     int addNewObject(int entity1Handle,int entity2Handle,const char* objName);
     void addObject(CCollisionObject_old* newCollObj,bool objectIsACopy);
     void addObjectWithSuffixOffset(CCollisionObject_old* newCollObj,bool objectIsACopy,int suffixOffset);
@@ -40,4 +38,10 @@ protected:
     void _removeObject(int objectHandle);
 
     std::vector<CCollisionObject_old*> _collisionObjects;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib);
+        void displayCollisionContours();
+    #endif
 };

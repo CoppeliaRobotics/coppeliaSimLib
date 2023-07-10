@@ -112,7 +112,9 @@ void CCollisionObjectContainer_old::addObjectWithSuffixOffset(CCollisionObject_o
 
     _addObject(newCollObj);
 
-    GuiApp::setFullDialogRefreshFlag();
+    #ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+    #endif
 }
 
 int CCollisionObjectContainer_old::addNewObject(int entity1Handle,int entity2Handle,const char* objName)
@@ -261,18 +263,6 @@ int CCollisionObjectContainer_old::handleAllCollisions(bool exceptExplicitHandli
     return(retVal);
 }
 
-void CCollisionObjectContainer_old::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
-{
-    if (displayAttrib&sim_displayattribute_renderpass)
-        displayCollisionContours();
-}
-
-void CCollisionObjectContainer_old::displayCollisionContours()
-{
-    for (size_t i=0;i<getObjectCount();i++)
-        getObjectFromIndex(i)->displayCollisionContour();
-}
-
 size_t CCollisionObjectContainer_old::getObjectCount() const
 {
     return(_collisionObjects.size());
@@ -323,3 +313,17 @@ void CCollisionObjectContainer_old::_removeObject(int objectHandle)
         }
     }
 }
+
+#ifdef SIM_WITH_GUI
+void CCollisionObjectContainer_old::renderYour3DStuff(CViewableBase* renderingObject,int displayAttrib)
+{
+    if (displayAttrib&sim_displayattribute_renderpass)
+        displayCollisionContours();
+}
+
+void CCollisionObjectContainer_old::displayCollisionContours()
+{
+    for (size_t i=0;i<getObjectCount();i++)
+        getObjectFromIndex(i)->displayCollisionContour();
+}
+#endif

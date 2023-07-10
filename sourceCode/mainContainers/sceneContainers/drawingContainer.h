@@ -13,11 +13,6 @@ public:
 
     void simulationEnded();
     void eraseAllObjects();
-    void renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib);
-    void renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib);
-    void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib);
-    void drawAll(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM);
-    void drawObjectsParentedWith(bool overlay,bool transparentObject,int parentObjectId,int displayAttrib,const C4X4Matrix& cameraCTM);
     int addObject(CDrawingObject* it);
     CDrawingObject* getObject(int objectId);
     void announceObjectWillBeErased(const CSceneObject* object);
@@ -29,4 +24,13 @@ public:
 
 private:
     std::vector<CDrawingObject*> _allObjects;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib);
+        void renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib);
+        void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib);
+        void drawAll(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM);
+        void drawObjectsParentedWith(bool overlay,bool transparentObject,int parentObjectId,int displayAttrib,const C4X4Matrix& cameraCTM);
+    #endif
 };

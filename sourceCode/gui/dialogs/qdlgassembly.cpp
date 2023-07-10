@@ -69,7 +69,7 @@ void CQDlgAssembly::on_qqSetLocalMatrix_clicked()
 
 void CQDlgAssembly::on_qqClose_clicked(QAbstractButton *button)
 {
-    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
     defaultModalDialogEndRoutine(true);
 }
 

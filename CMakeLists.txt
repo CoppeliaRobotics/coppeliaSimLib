@@ -62,7 +62,6 @@ endif()
 add_library(coppeliaSim SHARED "")
 
 set(WITH_GUI true CACHE BOOL "Enable gui")
-set(WITH_SERIAL false)
 
 target_compile_features(coppeliaSim PRIVATE cxx_std_17)
 target_include_directories(coppeliaSim PRIVATE ${LUA_INCLUDE_DIR})
@@ -113,7 +112,7 @@ else()
 endif()
 
 target_compile_definitions(coppeliaSim PRIVATE SIM_MATH_DOUBLE)
-target_compile_definitions(coppeliaSim PRIVATE TMPOPERATION) # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats)
+#target_compile_definitions(coppeliaSim PRIVATE TMPOPERATION) # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats)
 
 if(WITH_GUI)
     find_package(Qt5 COMPONENTS Widgets REQUIRED)
@@ -123,12 +122,7 @@ if(WITH_GUI)
     find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 endif()
 
-if(WITH_SERIAL)
-    find_package(Qt5 COMPONENTS SerialPort REQUIRED)
-    target_compile_definitions(coppeliaSim PRIVATE SIM_WITH_SERIAL)
-endif()
-
-find_package(Qt5 COMPONENTS Core PrintSupport Network REQUIRED)
+find_package(Qt5 COMPONENTS Core PrintSupport Network SerialPort REQUIRED)
 
 if(MSVC)
     target_compile_options(coppeliaSim PRIVATE /FI"simMainHeader.h")
@@ -188,6 +182,7 @@ target_include_directories(coppeliaSim
     sourceCode/communication
     sourceCode/communication/tubes
     sourceCode/communication/wireless
+    sourceCode/communication/serialPort
     sourceCode/drawingObjects
     sourceCode/platform
     sourceCode/collections
@@ -228,14 +223,10 @@ target_include_directories(coppeliaSim
     sourceCode/backwardCompatibility/kinematics
     sourceCode/customUserInterfaces
     sourceCode/undoRedo
-    sourceCode/rendering
     ${COPPELIASIM_INCLUDE_DIR}
 )
 
 
-if(WITH_SERIAL)
-    target_include_directories(coppeliaSim PRIVATE sourceCode/communication/serialPort)
-endif()
 
 if(WITH_GUI)
     target_include_directories(coppeliaSim PRIVATE
@@ -252,6 +243,10 @@ if(WITH_GUI)
         sourceCode/gui/menusAndSimilar
         sourceCode/gui/various
         sourceCode/gui/libs
+        sourceCode/gui/visual
+        sourceCode/gui/sceneObjects
+        sourceCode/gui/sceneObjects/visionSensorObjectRelated
+        sourceCode/gui/rendering
     )
 endif()
 
@@ -269,6 +264,35 @@ endif()
 
 if(WITH_GUI)
     target_sources(coppeliaSim PRIVATE
+        sourceCode/gui/rendering/rendering.cpp
+        sourceCode/gui/rendering/cameraRendering.cpp
+        sourceCode/gui/rendering/visionSensorRendering.cpp
+        sourceCode/gui/rendering/forceSensorRendering.cpp
+        sourceCode/gui/rendering/proximitySensorRendering.cpp
+        sourceCode/gui/rendering/dummyRendering.cpp
+        sourceCode/gui/rendering/lightRendering.cpp
+        sourceCode/gui/rendering/pointCloudRendering.cpp
+        sourceCode/gui/rendering/octreeRendering.cpp
+        sourceCode/gui/rendering/jointRendering.cpp
+        sourceCode/gui/rendering/graphRendering.cpp
+        sourceCode/gui/rendering/millRendering.cpp
+        sourceCode/gui/rendering/mirrorRendering.cpp
+        sourceCode/gui/rendering/pathRendering.cpp
+        sourceCode/gui/rendering/shapeRendering.cpp
+        sourceCode/gui/rendering/ghostRendering.cpp
+        sourceCode/gui/rendering/drawingObjectRendering.cpp
+        sourceCode/gui/rendering/ptCloudRendering_old.cpp
+        sourceCode/gui/rendering/collisionContourRendering.cpp
+        sourceCode/gui/rendering/distanceRendering.cpp
+        sourceCode/gui/rendering/bannerRendering.cpp
+        sourceCode/gui/rendering/thumbnailRendering.cpp
+        sourceCode/gui/rendering/pathPlanningTaskRendering_old.cpp
+        sourceCode/gui/rendering/broadcastDataVisualRendering.cpp
+        sourceCode/gui/rendering/dynamicsRendering.cpp
+        sourceCode/gui/rendering/environmentRendering.cpp
+        sourceCode/gui/rendering/pageRendering.cpp
+        sourceCode/gui/rendering/viewRendering.cpp
+
         sourceCode/gui/dialogs/qdlgsettings.cpp
         sourceCode/gui/dialogs/qdlglayers.cpp
         sourceCode/gui/dialogs/qdlgavirecorder.cpp
@@ -343,6 +367,8 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgtranslation.cpp
         sourceCode/gui/dialogs/qdlgrotation.cpp
         sourceCode/gui/dialogs/qdlgtranslationrotationcont.cpp
+        
+        sourceCode/gui/communication/wireless/broadcastDataVisual.cpp
 
         sourceCode/gui/dialogs/other/editboxdelegate.cpp
         sourceCode/gui/dialogs/other/toolDlgWrapper.cpp
@@ -385,6 +411,8 @@ if(WITH_GUI)
         sourceCode/gui/various/guiApp.cpp
         sourceCode/gui/various/simRecorder.cpp
         sourceCode/gui/various/engineProperties.cpp
+        sourceCode/gui/various/uiThread.cpp
+        sourceCode/gui/various/simThread.cpp
 
         sourceCode/gui/libs/auxLibVideo.cpp
     )
@@ -473,7 +501,9 @@ target_sources(coppeliaSim PRIVATE
 
     sourceCode/communication/wireless/broadcastDataContainer.cpp
     sourceCode/communication/wireless/broadcastData.cpp
-    sourceCode/communication/wireless/broadcastDataVisual.cpp
+    sourceCode/communication/serialPort/serialPort.cpp
+    sourceCode/communication/serialPort/serial_win_mac_linux.cpp
+    sourceCode/communication/serialPort/serialPortWin.cpp
 
     sourceCode/mainContainers/worldContainer.cpp
     sourceCode/shared/mainContainers/_worldContainer_.cpp
@@ -521,6 +551,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/applicationContainers/codeEditorInfos.cpp
     sourceCode/mainContainers/applicationContainers/codeEditorFunctions.cpp
     sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp
+    sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp
 
     sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.cpp
     sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.cpp
@@ -548,7 +579,6 @@ target_sources(coppeliaSim PRIVATE
 
     sourceCode/serialization/ser.cpp
     sourceCode/serialization/huffman.c
-    sourceCode/serialization/tinyxml2.cpp
 
     sourceCode/interfaces/sim.cpp
     sourceCode/interfaces/simInternal.cpp
@@ -580,8 +610,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/various/memorizedConf_old.cpp
     sourceCode/various/userSettings.cpp
     sourceCode/various/folderSystem.cpp
-    sourceCode/various/uiThread.cpp
-    sourceCode/various/simThread.cpp
     sourceCode/various/app.cpp
     sourceCode/various/dynMaterialObject.cpp
     sourceCode/various/easyLock.cpp
@@ -593,35 +621,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/undoRedo/undoBufferArrays.cpp
     sourceCode/undoRedo/undoBuffer.cpp
     sourceCode/undoRedo/undoBufferCameras.cpp
-
-    sourceCode/rendering/rendering.cpp
-    sourceCode/rendering/cameraRendering.cpp
-    sourceCode/rendering/visionSensorRendering.cpp
-    sourceCode/rendering/forceSensorRendering.cpp
-    sourceCode/rendering/proximitySensorRendering.cpp
-    sourceCode/rendering/dummyRendering.cpp
-    sourceCode/rendering/lightRendering.cpp
-    sourceCode/rendering/pointCloudRendering.cpp
-    sourceCode/rendering/octreeRendering.cpp
-    sourceCode/rendering/jointRendering.cpp
-    sourceCode/rendering/graphRendering.cpp
-    sourceCode/rendering/millRendering.cpp
-    sourceCode/rendering/mirrorRendering.cpp
-    sourceCode/rendering/pathRendering.cpp
-    sourceCode/rendering/shapeRendering.cpp
-    sourceCode/rendering/ghostRendering.cpp
-    sourceCode/rendering/drawingObjectRendering.cpp
-    sourceCode/rendering/ptCloudRendering_old.cpp
-    sourceCode/rendering/collisionContourRendering.cpp
-    sourceCode/rendering/distanceRendering.cpp
-    sourceCode/rendering/bannerRendering.cpp
-    sourceCode/rendering/thumbnailRendering.cpp
-    sourceCode/rendering/pathPlanningTaskRendering_old.cpp
-    sourceCode/rendering/broadcastDataVisualRendering.cpp
-    sourceCode/rendering/dynamicsRendering.cpp
-    sourceCode/rendering/environmentRendering.cpp
-    sourceCode/rendering/pageRendering.cpp
-    sourceCode/rendering/viewRendering.cpp
 
     sourceCode/displ/colorObject.cpp
 
@@ -655,26 +654,16 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/various/simQApp.cpp
 )
 
-if(WITH_SERIAL)
-    target_sources(coppeliaSim PRIVATE
-        sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp
-
-        sourceCode/communication/serialPort/serialPort.cpp
-        sourceCode/communication/serialPort/serial_win_mac_linux.cpp
-        sourceCode/communication/serialPort/serialPortWin.cpp
-    )
-endif()
-
 if(WITH_GUI)
     target_sources(coppeliaSim PRIVATE
-        sourceCode/sceneObjects/visionSensorObjectRelated/offscreenGlContext.cpp
-        sourceCode/sceneObjects/visionSensorObjectRelated/frameBufferObject.cpp
-        sourceCode/sceneObjects/visionSensorObjectRelated/visionSensorGlStuff.cpp
+        sourceCode/gui/sceneObjects/visionSensorObjectRelated/offscreenGlContext.cpp
+        sourceCode/gui/sceneObjects/visionSensorObjectRelated/frameBufferObject.cpp
+        sourceCode/gui/sceneObjects/visionSensorObjectRelated/visionSensorGlStuff.cpp
 
-        sourceCode/visual/oGL.cpp
-        sourceCode/visual/oglExt.cpp
-        sourceCode/visual/glShader.cpp
-        sourceCode/visual/glBufferObjects.cpp
+        sourceCode/gui/visual/oGL.cpp
+        sourceCode/gui/visual/oglExt.cpp
+        sourceCode/gui/visual/glShader.cpp
+        sourceCode/gui/visual/glBufferObjects.cpp
     )
 endif()
 
@@ -689,9 +678,6 @@ if(WITH_GUI)
     target_link_libraries(coppeliaSim Qt5::Widgets)
     target_link_libraries(coppeliaSim OpenGL::GL)
     target_link_libraries(coppeliaSim Qt5::OpenGL)
-endif()
-if(WITH_SERIAL)
-    target_link_libraries(coppeliaSim Qt5::SerialPort)
 endif()
 if(WIN32)
     target_link_libraries(coppeliaSim

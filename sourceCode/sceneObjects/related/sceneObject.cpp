@@ -1730,8 +1730,10 @@ void CSceneObject::temporarilyDisableDynamicTree()
 
 void CSceneObject::setDynamicSimulationIconCode(int c)
 {
-    if (c!=_dynamicSimulationIconCode)
-        GuiApp::setRefreshHierarchyViewFlag();
+    #ifdef SIM_WITH_GUI
+        if (c!=_dynamicSimulationIconCode)
+            GuiApp::setRefreshHierarchyViewFlag();
+    #endif
     _dynamicSimulationIconCode=c;
 }
 
@@ -3736,13 +3738,13 @@ bool CSceneObject::getRestoreToDefaultLights() const
     return(_restoreToDefaultLights);
 }
 
+#ifdef SIM_WITH_GUI
 void CSceneObject::display(CViewableBase* renderingObject,int displayAttrib)
 {
 }
 
 void CSceneObject::displayFrames(CViewableBase* renderingObject,double size,bool persp)
 {
-#ifdef SIM_WITH_GUI
     if (persp)
     {
         C7Vector x(renderingObject->getCumulativeTransformation().getInverse()*getCumulativeTransformation());
@@ -3754,17 +3756,13 @@ void CSceneObject::displayFrames(CViewableBase* renderingObject,double size,bool
     C7Vector localFrame(getIntrinsicTransformation(true,&available));
     if (available)
         _displayFrame(tr*localFrame,size*0.0125);
-#endif
 }
 
 void CSceneObject::displayBoundingBox(CViewableBase* renderingObject,bool mainSelection)
 {
-#ifdef SIM_WITH_GUI
     _displayBoundingBox(this,renderingObject,mainSelection);
-#endif
 }
 
-#ifdef SIM_WITH_GUI
 void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase* renderingObject,double size,bool persp)
 {
     if (_objectManipulationMode_flaggedForGridOverlay==0)

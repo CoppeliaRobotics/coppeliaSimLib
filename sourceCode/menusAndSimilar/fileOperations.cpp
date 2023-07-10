@@ -29,7 +29,7 @@ bool CFileOperations::processCommand(int commandID)
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=commandID;
-        App::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
         return(true);
     }
     return(false);
@@ -47,7 +47,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 createNewScene(true,true);
             }
             else
-                App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+                GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
         return(true);
     }
@@ -60,7 +60,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             if (!VThread::isUiThread())
                 closeScene(true);
             else
-                App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+                GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
         return(true);
     }
@@ -96,7 +96,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
             }
             else
-                App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+                GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
         return(true);
     }
@@ -107,7 +107,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         SSimulationThreadCommand cmd2;
         cmd2.cmdId=cmd.cmdId-FILE_OPERATION_OPEN_RECENT_SCENE0_FOCMD+FILE_OPERATION_OPEN_RECENT_SCENE0_PHASE2_FOCMD;
-        App::appendSimulationThreadCommand(cmd2);
+        GuiApp::appendSimulationThreadCommand(cmd2);
         return(true);
     }
     if ((cmd.cmdId>=FILE_OPERATION_OPEN_RECENT_SCENE0_PHASE2_FOCMD)&&(cmd.cmdId<=FILE_OPERATION_OPEN_RECENT_SCENE9_PHASE2_FOCMD))
@@ -150,7 +150,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 }
             }
             else
-                App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+                GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
         return(true);
     }
@@ -172,7 +172,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 App::logMsg(sim_verbosity_msgs,"Aborted.");
         }
         else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+            GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         return(true);
     }
     if (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_FOCMD)
@@ -184,7 +184,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 _saveSceneWithDialogAndEverything(); // will call save as if needed!
             }
             else
-                App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+                GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
         return(true);
     }
@@ -204,7 +204,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 _saveSceneAsWithDialogAndEverything(filetype);
             }
             else
-                App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+                GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
         return(true);
     }
@@ -360,7 +360,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_MODEL,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
             }
             else
-                App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+                GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
         return(true);
     }
@@ -399,7 +399,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,IDSN_EXPORT,"Assimp plugin was not found, cannot import",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         }
         else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+            GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         return(true);
     }
 
@@ -430,7 +430,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 App::logMsg(sim_verbosity_msgs,"Aborted.");
         }
         else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+            GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         return(true);
     }
 
@@ -481,7 +481,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,IDSN_EXPORT,"Assimp plugin was not found, cannot export",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         }
         else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+            GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         return(true);
     }
     if (cmd.cmdId==FILE_OPERATION_EXPORT_GRAPHS_FOCMD)
@@ -516,7 +516,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             }
         }
         else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+            GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         return(true);
     }
 
@@ -590,7 +590,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_EXPORT,IDS_SCENE_IS_LOCKED_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
         }
         else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+            GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         return(true);
     }
 #endif
@@ -681,11 +681,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             {
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=EXIT_REQUEST_CMD;
-                App::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(cmd);
             }
         }
         else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+            GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
 
         return(true);
     }
@@ -697,7 +697,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             loadModel(cmd.stringParams[0].c_str(),true,false,cmd.boolParams[1],nullptr,false,false);
         }
         else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread:
+            GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread:
         return(true);
     }
     return(false);

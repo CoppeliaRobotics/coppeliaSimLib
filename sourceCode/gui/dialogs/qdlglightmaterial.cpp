@@ -26,7 +26,7 @@ CQDlgLightMaterial::~CQDlgLightMaterial()
 void CQDlgLightMaterial::refresh()
 {
     int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=spec, 4=emiss., 8=aux channels, 16=pulsation, 32=shininess, 64=opacity, 128=colorName, 256=ext. string
-    App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+    GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
     bool simStopped=App::currentWorld->simulation->isSimulationStopped();
     ui->qqDiffuseAdjust->setEnabled(simStopped&&(allowedParts&2));
     ui->qqSpecularAdjust->setEnabled(simStopped&&(allowedParts&4));
@@ -47,7 +47,7 @@ bool CQDlgLightMaterial::isLinkedDataValid()
         return(false);
     if (!App::currentWorld->simulation->isSimulationStopped())
         return(false);
-    return(App::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,nullptr)!=nullptr);
+    return(GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,nullptr)!=nullptr);
 }
 
 
@@ -72,7 +72,7 @@ void CQDlgLightMaterial::_initializeDlg(int objType,int objID1,int objID2)
     _objID1=objID1;
     _objID2=objID2;
     std::string str;
-    App::getRGBPointerFromItem(_objType,_objID1,_objID2,-1,&str);
+    GuiApp::getRGBPointerFromItem(_objType,_objID1,_objID2,-1,&str);
     setWindowTitle(str.c_str());
     refresh();
 }
