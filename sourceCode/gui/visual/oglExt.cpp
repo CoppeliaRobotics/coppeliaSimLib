@@ -1,4 +1,3 @@
-
 #include <oglExt.h>
 
 #ifndef MAC_SIM

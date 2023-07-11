@@ -14,6 +14,14 @@
     #include <GL/gl.h>
     #include <GL/glx.h>
     #include <GL/glxext.h>
+    // Following since those macros are defined by Qt and XLib:
+    #undef None
+    #undef KeyPress
+    #undef KeyRelease
+    #undef FocusIn
+    #undef FocusOut
+    #undef FontChange
+    #undef Expose
 #endif
 
 #ifdef MAC_SIM

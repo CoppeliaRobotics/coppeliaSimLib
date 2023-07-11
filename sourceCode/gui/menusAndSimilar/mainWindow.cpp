@@ -29,9 +29,17 @@
 #include <QToolButton>
 #include <QLabel>
 #include <QWindow>
-#include <Qsci/qsciscintilla.h> // put this before glx.h
+//#include <Qsci/qsciscintilla.h> // put this before glx.h
 #ifdef LIN_SIM
     #include <GL/glx.h>
+    // Following since those macros are defined by Qt and XLib:
+    #undef None
+    #undef KeyPress
+    #undef KeyRelease
+    #undef FocusIn
+    #undef FocusOut
+    #undef FontChange
+    #undef Expose
 #endif
 #ifdef SIM_WITH_GUI
     #include <guiApp.h>
@@ -42,7 +50,7 @@ const int DEFAULT_MOUSE_MODE=sim_navigation_camerashift|sim_navigation_clicksele
 CMainWindow::CMainWindow() : QMainWindow()
 {
     TRACE_INTERNAL;
-    QsciScintilla obj; // somehow required to avoid a crash on exit (Windows), when copy was used in the code editor...
+//    QsciScintilla obj; // somehow required to avoid a crash on exit (Windows), when copy was used in the code editor...
     _focusObject=FOCUS_ON_PAGE;
     _clientArea[0]=1024;
     _clientArea[1]=768;
