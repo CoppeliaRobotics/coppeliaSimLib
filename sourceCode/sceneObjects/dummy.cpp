@@ -886,8 +886,7 @@ void CDummy::setLinkedDummyHandle(int handle,bool check)
     if (_linkedDummyHandleOld!=_linkedDummyHandle)
     {
         _reflectPropToLinkedDummy();
-        if (getObjectCanSync())
-            _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);
+        _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);
         #ifdef SIM_WITH_GUI
             GuiApp::setRefreshHierarchyViewFlag();
             GuiApp::setFullDialogRefreshFlag();
@@ -901,8 +900,7 @@ bool CDummy::setLinkType(int lt,bool check)
     if (diff)
     {
         _linkType=lt;
-        if (getObjectCanSync())
-            _setLinkType_sendOldIk(lt);
+        _setLinkType_sendOldIk(lt);
     }
     if ( (_linkedDummyHandle!=-1)&&check )
     {
@@ -958,7 +956,7 @@ void CDummy::_setLinkedDummyHandle_sendOldIk(int h) const
             if (_linkType==sim_dummy_linktype_ik_tip_target)
                 hh=App::currentWorld->sceneObjects->getObjectFromHandle(h)->getIkPluginCounterpartHandle();
         }
-        App::worldContainer->pluginContainer->ikPlugin_setLinkedDummy(_ikPluginCounterpartHandle,hh);
+        App::worldContainer->pluginContainer->oldIkPlugin_setLinkedDummy(_ikPluginCounterpartHandle,hh);
     }
 }
 
@@ -973,7 +971,7 @@ void CDummy::_setLinkType_sendOldIk(int t) const
             if (t==sim_dummy_linktype_ik_tip_target)
                 hh=App::currentWorld->sceneObjects->getObjectFromHandle(_linkedDummyHandle)->getIkPluginCounterpartHandle();
         }
-        App::worldContainer->pluginContainer->ikPlugin_setLinkedDummy(_ikPluginCounterpartHandle,hh);
+        App::worldContainer->pluginContainer->oldIkPlugin_setLinkedDummy(_ikPluginCounterpartHandle,hh);
     }
 }
 
@@ -1002,30 +1000,17 @@ std::string CDummy::getLinkedDummyLoadAlias() const
     return(_linkedDummyLoadAlias);
 }
 
-void CDummy::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
-{ // Overridden from CSceneObject
-    if (setObjectCanSync(true))
-    {
-        // Set routing:
-        SSyncRoute r;
-        r.objHandle=_objectHandle;
-        r.objType=sim_syncobj_dummy;
-        setSyncMsgRouting(parentRouting,r);
-
-        // Update the remote sceneObject:
-        CSceneObject::buildUpdateAndPopulateSynchronizationObject(parentRouting);
-    }
+void CDummy::buildOrUpdate_oldIk()
+{
+    CSceneObject::buildOrUpdate_oldIk();
 }
 
-void CDummy::connectSynchronizationObject()
-{ // Overridden from CSceneObject
-    if (getObjectCanSync())
-    {
-        CSceneObject::connectSynchronizationObject();
+void CDummy::connect_oldIk()
+{
+    CSceneObject::connect_oldIk();
 
-        _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);
-        _setLinkType_sendOldIk(_linkType);
-    }
+    _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);
+    _setLinkType_sendOldIk(_linkType);
 }
 
 bool CDummy::getAssignedToParentPath() const

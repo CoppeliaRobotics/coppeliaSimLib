@@ -12,7 +12,6 @@
 #include <utils.h>
 #include <boost/lexical_cast.hpp>
 #include <app.h>
-#include <easyLock.h>
 #include <jointObject.h>
 #include <sceneObject.h>
 #include <dummy.h>
@@ -2034,7 +2033,7 @@ void CSceneObject::_setLocalTransformation_send(const C7Vector& tr) const
 {
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        App::worldContainer->pluginContainer->ikPlugin_setObjectLocalTransformation(_ikPluginCounterpartHandle,_localTransformation);
+        App::worldContainer->pluginContainer->oldIkPlugin_setObjectLocalTransformation(_ikPluginCounterpartHandle,_localTransformation);
 }
 
 void CSceneObject::_setParent_send(int parentHandle) const
@@ -2045,7 +2044,7 @@ void CSceneObject::_setParent_send(int parentHandle) const
         int p=-1;
         if (getParent()!=nullptr)
             p=getParent()->getIkPluginCounterpartHandle();
-        App::worldContainer->pluginContainer->ikPlugin_setObjectParent(_ikPluginCounterpartHandle,p);
+        App::worldContainer->pluginContainer->oldIkPlugin_setObjectParent(_ikPluginCounterpartHandle,p);
     }
 }
 
@@ -2065,13 +2064,10 @@ bool CSceneObject::setParent(CSceneObject* parent)
             ev->appendKeyInt(cmd,pUid);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanSync())
-        {
-            int h=-1;
-            if (parent!=nullptr)
-                h=parent->getObjectHandle();
-            _setParent_send(h);
-        }
+        int h=-1;
+        if (parent!=nullptr)
+            h=parent->getObjectHandle();
+        _setParent_send(h);
     }
     return(diff);
 }
@@ -4441,53 +4437,27 @@ bool CSceneObject::setLocalTransformationFromObjectTranslationMode(const C4X4Mat
 }
 #endif
 
-void CSceneObject::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
-{ // Overridden from CSyncObject
-    if (setObjectCanSync(true))
-    {
-        // Routing normally already done, and remote object already built (in the derived class, if implemented)
-        if (!isRoutingSet())
-        { // If not, do it here (and build a dummy)
-            // Set routing:
-            SSyncRoute r;
-            r.objHandle=_objectHandle;
-            r.objType=sim_syncobj_dummy;
-            setSyncMsgRouting(parentRouting,r);
-        }
-
-        // Build IK plugin counterpart, if not a joint:
-        if (_ikPluginCounterpartHandle==-1)
-            _ikPluginCounterpartHandle=App::worldContainer->pluginContainer->ikPlugin_createDummy();
-        // Update the remote object:
-        _setLocalTransformation_send(_localTransformation);
-    }
+void CSceneObject::buildOrUpdate_oldIk()
+{
+    // Build IK plugin counterpart, if not a joint:
+    if (_ikPluginCounterpartHandle==-1)
+        _ikPluginCounterpartHandle=App::worldContainer->pluginContainer->oldIkPlugin_createDummy();
+    // Update the remote object:
+    _setLocalTransformation_send(_localTransformation);
 }
 
-void CSceneObject::connectSynchronizationObject()
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-        int h=-1;
-        if (getParent()!=nullptr)
-            h=getParent()->getObjectHandle();
-        _setParent_send(h);
-    }
+void CSceneObject::connect_oldIk()
+{
+    int h=-1;
+    if (getParent()!=nullptr)
+        h=getParent()->getObjectHandle();
+    _setParent_send(h);
 }
 
-void CSceneObject::removeSynchronizationObject(bool localReferencesToItOnly)
-{ // Overridden from CSyncObject
-    if (getObjectCanSync())
-    {
-        setObjectCanSync(false);
-
-        if (!localReferencesToItOnly)
-        {
-            // Synchronize with IK plugin:
-            if (_ikPluginCounterpartHandle!=-1)
-                App::worldContainer->pluginContainer->ikPlugin_eraseObject(_ikPluginCounterpartHandle);
-        }
-    }
-    // IK plugin part:
+void CSceneObject::remove_oldIk()
+{
+    if (_ikPluginCounterpartHandle!=-1)
+        App::worldContainer->pluginContainer->oldIkPlugin_eraseObject(_ikPluginCounterpartHandle);
     _ikPluginCounterpartHandle=-1;
 }
 
@@ -4574,8 +4544,7 @@ void CSceneObject::setLocalTransformation(const C7Vector& tr)
             ev->appendKeyDoubleArray(cmd,p,7);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanSync())
-            _setLocalTransformation_send(_localTransformation);
+        _setLocalTransformation_send(_localTransformation);
     }
 }
 
@@ -4593,12 +4562,9 @@ void CSceneObject::setLocalTransformation(const C4Vector& q)
             ev->appendKeyDoubleArray(cmd,p,7);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanSync())
-        {
-            C7Vector tr(_localTransformation);
-            tr.Q=q;
-            _setLocalTransformation_send(tr);
-        }
+        C7Vector tr(_localTransformation);
+        tr.Q=q;
+        _setLocalTransformation_send(tr);
     }
 }
 
@@ -4616,12 +4582,9 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
             ev->appendKeyDoubleArray(cmd,p,7);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanSync())
-        {
-            C7Vector tr(_localTransformation);
-            tr.X=x;
-            _setLocalTransformation_send(tr);
-        }
+        C7Vector tr(_localTransformation);
+        tr.X=x;
+        _setLocalTransformation_send(tr);
     }
 }
 

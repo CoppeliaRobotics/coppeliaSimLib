@@ -154,9 +154,8 @@ public:
     CJoint(int jointType);
     virtual ~CJoint();
 
-    // Overridden from CSceneObject:
-    void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
-    void connectSynchronizationObject();
+    void buildOrUpdate_oldIk();
+    void connect_oldIk();
 
     // Following functions are inherited from CSceneObject
     void addSpecializedObjectEventData(CCbor* ev) const;

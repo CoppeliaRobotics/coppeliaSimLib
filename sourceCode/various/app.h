@@ -25,9 +25,6 @@ public:
     static long long int getFreshUniqueId();
 
     static void beep(int frequ=5000,int duration=1000);
-    static void createWorldsContainer();
-    static void deleteWorldsContainer();
-
 
     static void init(const char* appDir,int options);
     static void cleanup();

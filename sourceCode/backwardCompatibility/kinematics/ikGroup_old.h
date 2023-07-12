@@ -13,10 +13,9 @@ public:
     CIkGroup_old();
     virtual ~CIkGroup_old();
 
-    // Overridden from CSyncObject:
-    void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
-    void connectSynchronizationObject();
-    void removeSynchronizationObject(bool localReferencesToItOnly);
+    void buildOrUpdate_oldIk();
+    void connect_oldIk();
+    void remove_oldIk();
 
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();

@@ -762,8 +762,7 @@ void CJoint::setDependencyMasterJointHandle(int depJointID)
     {
         _dependencyMasterJointHandle=depJointID;
         App::currentWorld->sceneObjects->actualizeObjectInformation();
-        if (getObjectCanSync())
-            _setDependencyJointHandle_sendOldIk(_dependencyMasterJointHandle);
+        _setDependencyJointHandle_sendOldIk(_dependencyMasterJointHandle);
 
         if (_dependencyMasterJointHandle==-1)
             setPosition(getPosition());
@@ -818,7 +817,7 @@ void CJoint::_setDependencyJointHandle_sendOldIk(int depJointID) const
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(depJointID);
         if (it!=nullptr)
             dep=it->getIkPluginCounterpartHandle();
-        App::worldContainer->pluginContainer->ikPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,_dependencyJointMult);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,_dependencyJointMult);
     }
 }
 
@@ -831,8 +830,7 @@ void CJoint::setDependencyJointMult(double coeff)
         if (diff)
         {
             _dependencyJointMult=coeff;
-            if (getObjectCanSync())
-                _setDependencyJointMult_sendOldIk(coeff);
+            _setDependencyJointMult_sendOldIk(coeff);
             updateSelfAsSlave();
             _sendDependencyChange();
         }
@@ -848,7 +846,7 @@ void CJoint::_setDependencyJointMult_sendOldIk(double coeff) const
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_dependencyMasterJointHandle);
         if (it!=nullptr)
             dep=it->getIkPluginCounterpartHandle();
-        App::worldContainer->pluginContainer->ikPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,coeff);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,coeff);
     }
 }
 
@@ -861,8 +859,7 @@ void CJoint::setDependencyJointOffset(double off)
         if (diff)
         {
             _dependencyJointOffset=off;
-            if (getObjectCanSync())
-                _setDependencyJointOffset_sendOldIk(off);
+            _setDependencyJointOffset_sendOldIk(off);
             updateSelfAsSlave();
             _sendDependencyChange();
         }
@@ -878,7 +875,7 @@ void CJoint::_setDependencyJointOffset_sendOldIk(double off) const
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(_dependencyMasterJointHandle);
         if (it!=nullptr)
             dep=it->getIkPluginCounterpartHandle();
-        App::worldContainer->pluginContainer->ikPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,_dependencyJointMult);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointDependency(_ikPluginCounterpartHandle,dep,_dependencyJointOffset,_dependencyJointMult);
     }
 }
 
@@ -1272,8 +1269,7 @@ bool CJoint::setScrewLead(double lead)
             if (diff)
             {
                 _screwLead=lead;
-                if (getObjectCanSync())
-                    _setScrewPitch_sendOldIk(lead/piValT2);
+                _setScrewPitch_sendOldIk(lead/piValT2);
                 if (lead!=0.0)
                     setHybridFunctionality_old(false);
             }
@@ -1287,7 +1283,7 @@ void CJoint::_setScrewPitch_sendOldIk(double pitch) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        App::worldContainer->pluginContainer->ikPlugin_setJointScrewPitch(_ikPluginCounterpartHandle,_screwLead/piValT2);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointScrewPitch(_ikPluginCounterpartHandle,_screwLead/piValT2);
 }
 
 void CJoint::setPositionMin(double min)
@@ -1309,8 +1305,7 @@ void CJoint::setPositionMin(double min)
                 ev->appendKeyDouble(cmd,min);
                 App::worldContainer->pushEvent();
             }
-            if (getObjectCanSync())
-                _setPositionIntervalMin_sendOldIk(min);
+            _setPositionIntervalMin_sendOldIk(min);
             setPosition(getPosition());
         }
     }
@@ -1320,7 +1315,7 @@ void CJoint::_setPositionIntervalMin_sendOldIk(double min) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        App::worldContainer->pluginContainer->ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
 }
 
 void CJoint::setPositionRange(double range)
@@ -1347,8 +1342,7 @@ void CJoint::setPositionRange(double range)
             ev->appendKeyDouble(cmd,range);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanSync())
-            _setPositionIntervalRange_sendOldIk(range);
+        _setPositionIntervalRange_sendOldIk(range);
         setPosition(getPosition());
         setSphericalTransformation(getSphericalTransformation());
     }
@@ -1358,7 +1352,7 @@ void CJoint::_setPositionIntervalRange_sendOldIk(double range) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        App::worldContainer->pluginContainer->ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
 }
 
 void CJoint::setLength(double l)
@@ -1989,8 +1983,7 @@ void CJoint::setIsCyclic(bool isCyclic)
             ev->appendKeyBool(cmd,isCyclic);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanSync())
-            _setPositionIsCyclic_sendOldIk(isCyclic);
+        _setPositionIsCyclic_sendOldIk(isCyclic);
         setVelocity_DEPRECATED(getVelocity_DEPRECATED()); // To make sure velocity is within allowed range
     }
 }
@@ -1999,7 +1992,7 @@ void CJoint::_setPositionIsCyclic_sendOldIk(bool isCyclic) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        App::worldContainer->pluginContainer->ikPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointInterval(_ikPluginCounterpartHandle,_isCyclic,_posMin,_posRange);
 }
 
 void CJoint::removeSceneDependencies()
@@ -3974,8 +3967,7 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int newMode)
     if (diff)
     {
         _jointMode=newMode;
-        if (getObjectCanSync())
-            _setJointMode_sendOldIk(_jointMode);
+        _setJointMode_sendOldIk(_jointMode);
         if ( (_jointMode!=sim_jointmode_dependent)&&(_jointMode!=sim_jointmode_reserved_previously_ikdependent) )
             setDependencyMasterJointHandle(-1);
         if (_jointMode==sim_jointmode_dynamic)
@@ -4029,7 +4021,7 @@ void CJoint::_setJointMode_sendOldIk(int theMode) const
     {
         if ((theMode==sim_jointmode_reserved_previously_ikdependent)||(theMode==sim_jointmode_dependent)||(theMode==sim_jointmode_hybrid_deprecated) )
             theMode=2; // actually ik_jointmode_ik
-        App::worldContainer->pluginContainer->ikPlugin_setJointMode(_ikPluginCounterpartHandle,theMode);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointMode(_ikPluginCounterpartHandle,theMode);
     }
 }
 
@@ -4050,8 +4042,7 @@ void CJoint::setSphericalTransformation(const C4Vector& tr)
             ev->appendKeyDoubleArray("intrinsicPose",p,7);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanSync())
-            _setSphericalTransformation_sendOldIk(_sphericalTransf);
+        _setSphericalTransformation_sendOldIk(_sphericalTransf);
     }
 }
 
@@ -4059,7 +4050,7 @@ void CJoint::_setSphericalTransformation_sendOldIk(const C4Vector& tr) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if ( (_ikPluginCounterpartHandle!=-1)&&(_jointType==sim_joint_spherical_subtype) )
-        App::worldContainer->pluginContainer->ikPlugin_setSphericalJointQuaternion(_ikPluginCounterpartHandle,tr);
+        App::worldContainer->pluginContainer->oldIkPlugin_setSphericalJointQuaternion(_ikPluginCounterpartHandle,tr);
 }
 
 void CJoint::setMaxStepSize_old(double stepS)
@@ -4074,8 +4065,7 @@ void CJoint::setMaxStepSize_old(double stepS)
     if (diff)
     {
         _maxStepSize_old=stepS;
-        if (getObjectCanSync())
-            _setMaxStepSize_sendOldIk(stepS);
+        _setMaxStepSize_sendOldIk(stepS);
     }
 }
 
@@ -4083,7 +4073,7 @@ void CJoint::_setMaxStepSize_sendOldIk(double stepS) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        App::worldContainer->pluginContainer->ikPlugin_setJointMaxStepSize(_ikPluginCounterpartHandle,_maxStepSize_old);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointMaxStepSize(_ikPluginCounterpartHandle,_maxStepSize_old);
 }
 
 void CJoint::setIKWeight_old(double newWeight)
@@ -4093,8 +4083,7 @@ void CJoint::setIKWeight_old(double newWeight)
     if (diff)
     {
         _ikWeight_old=newWeight;
-        if (getObjectCanSync())
-            _setIkWeight_sendOldIk(newWeight);
+        _setIkWeight_sendOldIk(newWeight);
     }
 }
 
@@ -4102,7 +4091,7 @@ void CJoint::_setIkWeight_sendOldIk(double newWeight) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle!=-1)
-        App::worldContainer->pluginContainer->ikPlugin_setJointIkWeight(_ikPluginCounterpartHandle,_ikWeight_old);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointIkWeight(_ikPluginCounterpartHandle,_ikWeight_old);
 }
 
 void CJoint::setPosition(double pos,const CJoint* masterJoint/*=nullptr*/,bool setDirect/*=false*/)
@@ -4146,8 +4135,7 @@ void CJoint::setPosition(double pos,const CJoint* masterJoint/*=nullptr*/,bool s
             ev->appendKeyDoubleArray("intrinsicPose",p,7);
             App::worldContainer->pushEvent();
         }
-        if (getObjectCanSync())
-            _setPosition_sendOldIk(pos);
+        _setPosition_sendOldIk(pos);
         setVelocity_DEPRECATED(getVelocity_DEPRECATED());
     }
     // Execute this even if this joint didn't change. Maybe a slave joint change its parameters (off or mult)
@@ -4159,7 +4147,7 @@ void CJoint::_setPosition_sendOldIk(double pos) const
 { // Overriden from _CJoint_
     // Synchronize with IK plugin:
     if ( (_ikPluginCounterpartHandle!=-1)&&(_jointType!=sim_joint_spherical_subtype) )
-        App::worldContainer->pluginContainer->ikPlugin_setJointPosition(_ikPluginCounterpartHandle,pos);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointPosition(_ikPluginCounterpartHandle,pos);
 }
 
 void CJoint::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
@@ -4203,45 +4191,33 @@ void CJoint::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID,copyBuffer);
 }
 
-void CJoint::buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting)
-{ // Overridden from CSceneObject
-    if (setObjectCanSync(true))
-    {
-        // Set routing:
-        SSyncRoute r;
-        r.objHandle=_objectHandle;
-        r.objType=sim_syncobj_joint;
-        setSyncMsgRouting(parentRouting,r);
+void CJoint::buildOrUpdate_oldIk()
+{
+    // Build IK plugin counterpart:
+    _ikPluginCounterpartHandle=App::worldContainer->pluginContainer->oldIkPlugin_createJoint(_jointType);
 
-        // Build IK plugin counterpart:
-        _ikPluginCounterpartHandle=App::worldContainer->pluginContainer->ikPlugin_createJoint(_jointType);
+    // Update the remote sceneObject:
+    CSceneObject::buildOrUpdate_oldIk();
 
-        // Update the remote sceneObject:
-        CSceneObject::buildUpdateAndPopulateSynchronizationObject(parentRouting);
-
-        // Update the remote joint:
-        _setPositionIntervalMin_sendOldIk(_posMin);
-        _setPositionIntervalRange_sendOldIk(_posRange);
-        _setPositionIsCyclic_sendOldIk(_isCyclic);
-        _setScrewPitch_sendOldIk(_screwLead/piValT2);
-        _setIkWeight_sendOldIk(_ikWeight_old);
-        _setMaxStepSize_sendOldIk(_maxStepSize_old);
-        _setPosition_sendOldIk(_pos);
-        _setSphericalTransformation_sendOldIk(_sphericalTransf);
-        _setJointMode_sendOldIk(_jointMode);
-    }
+    // Update the remote joint:
+    _setPositionIntervalMin_sendOldIk(_posMin);
+    _setPositionIntervalRange_sendOldIk(_posRange);
+    _setPositionIsCyclic_sendOldIk(_isCyclic);
+    _setScrewPitch_sendOldIk(_screwLead/piValT2);
+    _setIkWeight_sendOldIk(_ikWeight_old);
+    _setMaxStepSize_sendOldIk(_maxStepSize_old);
+    _setPosition_sendOldIk(_pos);
+    _setSphericalTransformation_sendOldIk(_sphericalTransf);
+    _setJointMode_sendOldIk(_jointMode);
 }
 
-void CJoint::connectSynchronizationObject()
-{ // Overridden from CSceneObject
-    if (getObjectCanSync())
-    {
-        CSceneObject::connectSynchronizationObject();
+void CJoint::connect_oldIk()
+{
+    CSceneObject::connect_oldIk();
 
-        _setDependencyJointHandle_sendOldIk(_dependencyMasterJointHandle);
-        _setDependencyJointMult_sendOldIk(_dependencyJointMult);
-        _setDependencyJointOffset_sendOldIk(_dependencyJointOffset);
-    }
+    _setDependencyJointHandle_sendOldIk(_dependencyMasterJointHandle);
+    _setDependencyJointMult_sendOldIk(_dependencyJointMult);
+    _setDependencyJointOffset_sendOldIk(_dependencyJointOffset);
 }
 
 int CJoint::getDynCtrlMode() const

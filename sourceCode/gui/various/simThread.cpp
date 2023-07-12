@@ -11,7 +11,6 @@
 #include <addOperations.h>
 #include <utils.h>
 #include <vVarious.h>
-#include <easyLock.h>
 #include <mesh.h>
 #include <threadPool_old.h>
 #include <graphingRoutines_old.h>
@@ -65,7 +64,6 @@ void CSimThread::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int 
     cmd.sceneUniqueId=App::currentWorld->environment->getSceneUniqueID();
     cmd.postTime=(int)VDateTime::getTimeInMs();
     cmd.execDelay=executionDelay;
-    CEasyLock easyLock(_simulationThreadCommandsMutex,__func__);
     _simulationThreadCommands_tmp.push_back(cmd);
 }
 
@@ -73,12 +71,9 @@ void CSimThread::_handleSimulationThreadCommands()
 { // CALLED ONLY FROM THE MAIN SIMULATION THREAD
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        { // Keep the parenthesis!
-            CEasyLock easyLock(_simulationThreadCommandsMutex,__func__);
-            for (unsigned int i=0;i<_simulationThreadCommands_tmp.size();i++)
-                _simulationThreadCommands.push_back(_simulationThreadCommands_tmp[i]);
-            _simulationThreadCommands_tmp.clear();
-        }
+        for (unsigned int i=0;i<_simulationThreadCommands_tmp.size();i++)
+            _simulationThreadCommands.push_back(_simulationThreadCommands_tmp[i]);
+        _simulationThreadCommands_tmp.clear();
 
         std::vector<SSimulationThreadCommand> delayedCommands;
         while (_simulationThreadCommands.size()>0)
@@ -208,8 +203,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
 #ifdef SIM_WITH_GUI
             GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,"Tracing","Tracing is turned on: this might lead to drastic performance loss.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-#else
-            App::logMsg(sim_verbosity_warnings,"tracing is turned on: this might lead to drastic performance loss.");
 #endif
         }
     }

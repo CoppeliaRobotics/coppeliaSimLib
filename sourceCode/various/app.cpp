@@ -127,13 +127,15 @@ void App::init(const char* appDir,int)
     logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,str.c_str());
 
 
-    createWorldsContainer();
-    CFileOperations::createNewScene(true,false);
-
     CThreadPool_old::init();
+    CSimFlavor::run(0);
     VThread::setSimThread();
     srand((int)VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
-                                        // Remember that each thread starts with a same seed!!!
+                                             // Remember that each thread starts with a same seed!!!
+    worldContainer=new CWorldContainer();
+    worldContainer->initialize();
+    CFileOperations::createNewScene(true,false);
+
 
     setAppStage(appstage_simInitDone);
     #ifdef SIM_WITH_GUI
@@ -144,8 +146,7 @@ void App::init(const char* appDir,int)
     GuiApp::simThread=new CSimThread();
     CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(true); // lock initially...
 
-    CSimFlavor::run(0);
-
+    /*
     // Send the "instancePass" message to all plugins already here (needed for some old plugins to properly finish initialization):
     int auxData[4]={worldContainer->getModificationFlags(true),0,0,0};
     worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData);
@@ -155,6 +156,7 @@ void App::init(const char* appDir,int)
         cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
         GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     #endif
+    */
     worldContainer->sandboxScript=new CScriptObject(sim_scripttype_sandboxscript);
     worldContainer->sandboxScript->initSandbox();
     if (_startupScriptString.size()>0)
@@ -166,6 +168,10 @@ void App::init(const char* appDir,int)
     gm=new CGm();
 
     setAppStage(appstage_simRunning);
+
+    if ( (App::getConsoleVerbosity()>=sim_verbosity_trace)&&(!App::userSettings->suppressStartupDialogs) )
+        App::logMsg(sim_verbosity_warnings,"tracing is turned on: this might lead to drastic performance loss.");
+
 }
 
 void App::cleanup()
@@ -197,7 +203,10 @@ void App::cleanup()
         VThread::sleep(1);
 #endif
 
-    deleteWorldsContainer();
+    worldContainer->deinitialize();
+    delete worldContainer;
+    worldContainer=nullptr;
+
     CThreadPool_old::cleanUp();
 
     delete folders;
@@ -334,21 +343,6 @@ void App::beep(int frequ,int duration)
         VThread::sleep(500);
     }
 #endif
-}
-
-void App::createWorldsContainer()
-{
-    TRACE_INTERNAL;
-    worldContainer=new CWorldContainer();
-    worldContainer->initialize();
-}
-
-void App::deleteWorldsContainer()
-{
-    TRACE_INTERNAL;
-    worldContainer->deinitialize();
-    delete worldContainer;
-    worldContainer=nullptr;
 }
 
 std::string App::getApplicationArgument(int index)

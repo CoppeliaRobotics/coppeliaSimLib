@@ -11,7 +11,6 @@
 #include <calculationInfo.h>
 #include <moduleMenuItemContainer.h>
 #include <world.h>
-#include <_worldContainer_.h>
 #include <customData.h>
 #include <tuple>
 
@@ -37,7 +36,7 @@
 #define EVENTTYPE_GENESISBEGIN "genesisBegin"
 #define EVENTTYPE_GENESISEND "genesisEnd"
 
-class CWorldContainer : public _CWorldContainer_
+class CWorldContainer
 {
 public:
     CWorldContainer();
@@ -100,6 +99,7 @@ public:
     CAddOnScriptContainer* addOnScriptContainer;
     CScriptObject* sandboxScript;
     CModuleMenuItemContainer* moduleMenuItemContainer;
+    CWorld* currentWorld;
 #ifdef SIM_WITH_GUI
     CGlobalGuiTextureContainer* globalGuiTextureCont;
     CSerialPortContainer* serialPortContainer;

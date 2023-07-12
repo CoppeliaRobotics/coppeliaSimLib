@@ -178,11 +178,7 @@ endif()
 target_include_directories(coppeliaSim
     PRIVATE
     sourceCode
-    sourceCode/shared
-    sourceCode/shared/backwardCompatibility/kinematics
     sourceCode/communication
-    sourceCode/communication/tubes
-    sourceCode/communication/wireless
     sourceCode/communication/serialPort
     sourceCode/drawingObjects
     sourceCode/platform
@@ -193,17 +189,12 @@ target_include_directories(coppeliaSim
     sourceCode/sceneObjects
     sourceCode/sceneObjects/related
     sourceCode/sceneObjects/graphObjectRelated
-    sourceCode/sceneObjects/pathObjectRelated
     sourceCode/sceneObjects/proximitySensorObjectRelated
     sourceCode/sceneObjects/shapeObjectRelated
-    sourceCode/sceneObjects/visionSensorObjectRelated
     sourceCode/mainContainers
-    sourceCode/shared/mainContainers
     sourceCode/mainContainers/sceneContainers
-    sourceCode/shared/mainContainers/sceneContainers
     sourceCode/mainContainers/applicationContainers
     sourceCode/scripting
-    sourceCode/scripting/customScriptFuncAndVar
     sourceCode/pagesAndViews
     sourceCode/textures
     sourceCode/serialization
@@ -214,16 +205,26 @@ target_include_directories(coppeliaSim
     sourceCode/variousFunctions
     sourceCode/geometricAlgorithms
     sourceCode/various
-    sourceCode/shared/various
     sourceCode/visual
     sourceCode/displ
     sourceCode/utils
+    sourceCode/undoRedo
     sourceCode/backwardCompatibility/pathPlanning
     sourceCode/backwardCompatibility/collisions
     sourceCode/backwardCompatibility/distances
     sourceCode/backwardCompatibility/kinematics
-    sourceCode/customUserInterfaces
-    sourceCode/undoRedo
+    sourceCode/backwardCompatibility/tubes
+    sourceCode/backwardCompatibility/wireless
+    sourceCode/backwardCompatibility/customUserInterfaces
+    sourceCode/backwardCompatibility/draw
+    sourceCode/backwardCompatibility/geom
+    sourceCode/backwardCompatibility/interfaces
+    sourceCode/backwardCompatibility/sceneContainers
+    sourceCode/backwardCompatibility/sceneObjects
+    sourceCode/backwardCompatibility/scripting
+    sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar
+    sourceCode/backwardCompatibility/utils
+    sourceCode/backwardCompatibility/various
     ${COPPELIASIM_INCLUDE_DIR}
 )
 
@@ -430,13 +431,57 @@ target_sources(coppeliaSim PRIVATE
     ${COPPELIASIM_INCLUDE_DIR}/simMath/3Vector.cpp
 
     sourceCode/backwardCompatibility/kinematics/ikGroup_old.cpp
-    sourceCode/shared/backwardCompatibility/kinematics/_ikGroup_old.cpp
+    sourceCode/backwardCompatibility/kinematics/_ikGroup_old.cpp
     sourceCode/backwardCompatibility/kinematics/ikElement_old.cpp
-    sourceCode/shared/backwardCompatibility/kinematics/_ikElement_old.cpp
+    sourceCode/backwardCompatibility/kinematics/ikGroupContainer.cpp
+    sourceCode/backwardCompatibility/kinematics/_ikGroupContainer_.cpp
+    sourceCode/backwardCompatibility/pathPlanning/pathPlanning_old.cpp
+    sourceCode/backwardCompatibility/pathPlanning/holonomicPathPlanning_old.cpp
+    sourceCode/backwardCompatibility/pathPlanning/holonomicPathNode_old.cpp
+    sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathPlanning_old.cpp
+    sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathNode_old.cpp
+    sourceCode/backwardCompatibility/pathPlanning/pathPlanningTask_old.cpp
+    sourceCode/backwardCompatibility/tubes/commTube.cpp
+    sourceCode/backwardCompatibility/wireless/broadcastDataContainer.cpp
+    sourceCode/backwardCompatibility/wireless/broadcastData.cpp
+    sourceCode/backwardCompatibility/customUserInterfaces/buttonBlock.cpp
+    sourceCode/backwardCompatibility/customUserInterfaces/softButton.cpp
+    sourceCode/backwardCompatibility/draw/bannerObject.cpp
+    sourceCode/backwardCompatibility/draw/ptCloud_old.cpp
+    sourceCode/backwardCompatibility/geom/linMotionRoutines.cpp
+    sourceCode/backwardCompatibility/interfaces/pathPlanningInterface.cpp
+    sourceCode/backwardCompatibility/sceneContainers/bannerContainer.cpp
+    sourceCode/backwardCompatibility/sceneContainers/registeredPathPlanningTasks.cpp
+    sourceCode/backwardCompatibility/sceneContainers/distanceObjectContainer_old.cpp
+    sourceCode/backwardCompatibility/sceneContainers/collisionObjectContainer_old.cpp
+    sourceCode/backwardCompatibility/sceneContainers/customData_old.cpp
+    sourceCode/backwardCompatibility/sceneContainers/commTubeContainer.cpp
+    sourceCode/backwardCompatibility/sceneContainers/ghostObjectContainer.cpp
+    sourceCode/backwardCompatibility/sceneContainers/pointCloudContainer_old.cpp
+    sourceCode/backwardCompatibility/sceneContainers/buttonBlockContainer.cpp
+    sourceCode/backwardCompatibility/sceneObjects/mill.cpp
+    sourceCode/backwardCompatibility/sceneObjects/path_old.cpp
+    sourceCode/backwardCompatibility/collisions/collisionObject_old.cpp
+    sourceCode/backwardCompatibility/distances/distanceObject_old.cpp
+    sourceCode/backwardCompatibility/sceneObjects/bezierPathPoint_old.cpp
+    sourceCode/backwardCompatibility/sceneObjects/simplePathPoint_old.cpp
+    sourceCode/backwardCompatibility/sceneObjects/pathPoint_old.cpp
+    sourceCode/backwardCompatibility/sceneObjects/pathCont_old.cpp
+    sourceCode/backwardCompatibility/sceneObjects/simpleFilter.cpp
+    sourceCode/backwardCompatibility/sceneObjects/composedFilter.cpp
+    sourceCode/backwardCompatibility/sceneObjects/graphingRoutines_old.cpp
+    sourceCode/backwardCompatibility/sceneObjects/graphDataComb_old.cpp
+    sourceCode/backwardCompatibility/sceneObjects/graphData_old.cpp
+    sourceCode/backwardCompatibility/sceneObjects/staticGraphCurve_old.cpp
+    sourceCode/backwardCompatibility/scripting/userParameters.cpp
+    sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomFuncAndVarContainer.cpp
+    sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomFunction.cpp
+    sourceCode/backwardCompatibility/scripting/customScriptFuncAndVar/scriptCustomVariable.cpp
+    sourceCode/backwardCompatibility/utils/threadPool_old.cpp
+    sourceCode/backwardCompatibility/various/memorizedConf_old.cpp
+    sourceCode/backwardCompatibility/various/ghostObject.cpp
 
-    sourceCode/drawingObjects/bannerObject.cpp
     sourceCode/drawingObjects/drawingObject.cpp
-    sourceCode/drawingObjects/ptCloud_old.cpp
 
     sourceCode/platform/vVarious.cpp
     sourceCode/platform/vThread.cpp
@@ -449,10 +494,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/collections/collectionElement.cpp
     sourceCode/collections/collection.cpp
 
-    sourceCode/backwardCompatibility/collisions/collisionObject_old.cpp
     sourceCode/collisions/collisionRoutines.cpp
-
-    sourceCode/backwardCompatibility/distances/distanceObject_old.cpp
     sourceCode/distances/distanceRoutines.cpp
 
     sourceCode/sceneObjects/related/sceneObject.cpp
@@ -468,23 +510,12 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/sceneObjects/graph.cpp
     sourceCode/sceneObjects/light.cpp
     sourceCode/sceneObjects/mirror.cpp
-    sourceCode/sceneObjects/mill.cpp
-    sourceCode/sceneObjects/path_old.cpp
     sourceCode/sceneObjects/proximitySensor.cpp
     sourceCode/sceneObjects/shape.cpp
     sourceCode/sceneObjects/visionSensor.cpp
 
     sourceCode/sceneObjects/graphObjectRelated/graphDataStream.cpp
     sourceCode/sceneObjects/graphObjectRelated/graphCurve.cpp
-    sourceCode/sceneObjects/graphObjectRelated/graphingRoutines_old.cpp
-    sourceCode/sceneObjects/graphObjectRelated/graphDataComb_old.cpp
-    sourceCode/sceneObjects/graphObjectRelated/graphData_old.cpp
-    sourceCode/sceneObjects/graphObjectRelated/staticGraphCurve_old.cpp
-
-    sourceCode/sceneObjects/pathObjectRelated/bezierPathPoint_old.cpp
-    sourceCode/sceneObjects/pathObjectRelated/simplePathPoint_old.cpp
-    sourceCode/sceneObjects/pathObjectRelated/pathPoint_old.cpp
-    sourceCode/sceneObjects/pathObjectRelated/pathCont_old.cpp
 
     sourceCode/sceneObjects/proximitySensorObjectRelated/proxSensorRoutine.cpp
 
@@ -492,52 +523,27 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/sceneObjects/shapeObjectRelated/meshWrapper.cpp
     sourceCode/sceneObjects/shapeObjectRelated/volInt.cpp
 
-
-    sourceCode/backwardCompatibility/pathPlanning/pathPlanning_old.cpp
-    sourceCode/backwardCompatibility/pathPlanning/holonomicPathPlanning_old.cpp
-    sourceCode/backwardCompatibility/pathPlanning/holonomicPathNode_old.cpp
-    sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathPlanning_old.cpp
-    sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathNode_old.cpp
-
-    sourceCode/communication/tubes/commTube.cpp
-
-    sourceCode/communication/wireless/broadcastDataContainer.cpp
-    sourceCode/communication/wireless/broadcastData.cpp
     sourceCode/communication/serialPort/serialPort.cpp
     sourceCode/communication/serialPort/serial_win_mac_linux.cpp
     sourceCode/communication/serialPort/serialPortWin.cpp
 
     sourceCode/mainContainers/worldContainer.cpp
-    sourceCode/shared/mainContainers/_worldContainer_.cpp
     sourceCode/mainContainers/world.cpp
-    sourceCode/shared/mainContainers/_world_.cpp
-
-    sourceCode/mainContainers/sceneContainers/bannerContainer.cpp
+    
     sourceCode/mainContainers/sceneContainers/drawingContainer.cpp
     sourceCode/mainContainers/sceneContainers/textureContainer.cpp
     sourceCode/mainContainers/sceneContainers/simulation.cpp
     sourceCode/mainContainers/sceneContainers/signalContainer.cpp
-    sourceCode/mainContainers/sceneContainers/registeredPathPlanningTasks.cpp
-    sourceCode/mainContainers/sceneContainers/ikGroupContainer.cpp
-    sourceCode/shared/mainContainers/sceneContainers/_ikGroupContainer_.cpp
     sourceCode/mainContainers/sceneContainers/collectionContainer.cpp
-    sourceCode/mainContainers/sceneContainers/distanceObjectContainer_old.cpp
-    sourceCode/mainContainers/sceneContainers/collisionObjectContainer_old.cpp
     sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp
     sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp
-    sourceCode/shared/mainContainers/sceneContainers/_sceneObjectContainer_.cpp
     sourceCode/mainContainers/sceneContainers/mainSettings.cpp
     sourceCode/mainContainers/sceneContainers/embeddedScriptContainer.cpp
     sourceCode/mainContainers/sceneContainers/environment.cpp
     sourceCode/mainContainers/sceneContainers/dynamicsContainer.cpp
     sourceCode/mainContainers/sceneContainers/customData.cpp
-    sourceCode/mainContainers/sceneContainers/customData_old.cpp
-    sourceCode/mainContainers/sceneContainers/commTubeContainer.cpp
     sourceCode/mainContainers/sceneContainers/cacheCont.cpp
     sourceCode/mainContainers/sceneContainers/apiErrors.cpp
-    sourceCode/mainContainers/sceneContainers/ghostObjectContainer.cpp
-    sourceCode/mainContainers/sceneContainers/pointCloudContainer_old.cpp
-    sourceCode/mainContainers/sceneContainers/buttonBlockContainer.cpp
     sourceCode/mainContainers/sceneContainers/undoBufferCont.cpp
 
     sourceCode/mainContainers/applicationContainers/copyBuffer.cpp
@@ -555,19 +561,9 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp
     sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp
 
-    sourceCode/sceneObjects/visionSensorObjectRelated/simpleFilter.cpp
-    sourceCode/sceneObjects/visionSensorObjectRelated/composedFilter.cpp
-
-    sourceCode/pathPlanning_old/pathPlanningTask_old.cpp
-
-    sourceCode/scripting/userParameters.cpp
     sourceCode/scripting/scriptObject.cpp
     sourceCode/scripting/outsideCommandQueueForScript.cpp
     sourceCode/scripting/luaWrapper.cpp
-
-    sourceCode/scripting/customScriptFuncAndVar/scriptCustomFuncAndVarContainer.cpp
-    sourceCode/scripting/customScriptFuncAndVar/scriptCustomFunction.cpp
-    sourceCode/scripting/customScriptFuncAndVar/scriptCustomVariable.cpp
 
     sourceCode/pagesAndViews/pageContainer.cpp
     sourceCode/pagesAndViews/sPage.cpp
@@ -585,7 +581,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/interfaces/sim.cpp
     sourceCode/interfaces/simInternal.cpp
     sourceCode/interfaces/luaScriptFunctions.cpp
-    sourceCode/interfaces/pathPlanningInterface.cpp
 
     sourceCode/interfaces/interfaceStack/interfaceStack.cpp
     sourceCode/interfaces/interfaceStack/interfaceStackObject.cpp
@@ -603,22 +598,16 @@ target_sources(coppeliaSim PRIVATE
 
     sourceCode/variousFunctions/sceneObjectOperations.cpp
 
-    sourceCode/geometricAlgorithms/linMotionRoutines.cpp
     sourceCode/geometricAlgorithms/meshRoutines.cpp
     sourceCode/geometricAlgorithms/meshManip.cpp
     sourceCode/geometricAlgorithms/edgeElement.cpp
     sourceCode/geometricAlgorithms/algos.cpp
 
-    sourceCode/various/memorizedConf_old.cpp
     sourceCode/various/userSettings.cpp
     sourceCode/various/folderSystem.cpp
     sourceCode/various/app.cpp
     sourceCode/various/dynMaterialObject.cpp
-    sourceCode/various/easyLock.cpp
-    sourceCode/various/ghostObject.cpp
     sourceCode/various/sigHandler.cpp
-    sourceCode/various/syncObject.cpp
-    sourceCode/shared/various/_syncObject_.cpp
 
     sourceCode/undoRedo/undoBufferArrays.cpp
     sourceCode/undoRedo/undoBuffer.cpp
@@ -628,7 +617,6 @@ target_sources(coppeliaSim PRIVATE
 
     sourceCode/visual/thumbnail.cpp
 
-    sourceCode/utils/threadPool_old.cpp
     sourceCode/utils/utils.cpp
     sourceCode/utils/tt.cpp
     sourceCode/utils/confReaderAndWriter.cpp
@@ -636,9 +624,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/utils/cbor.cpp
     sourceCode/utils/annJson.cpp
     sourceCode/utils/sha256.cpp
-
-    sourceCode/customUserInterfaces/buttonBlock.cpp
-    sourceCode/customUserInterfaces/softButton.cpp
 )
 
 if(NOT PLUS)

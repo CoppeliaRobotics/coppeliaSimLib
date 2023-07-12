@@ -20,7 +20,11 @@
 #include <signalContainer.h>
 #include <commTubeContainer.h>
 #include <undoBufferCont.h>
-#include <_world_.h>
+#include <collectionContainer.h>
+#include <distanceObjectContainer_old.h>
+#include <collisionObjectContainer_old.h>
+#include <ikGroupContainer.h>
+#include <sceneObjectContainer.h>
 
 struct SLoadOperationIssue
 {
@@ -29,19 +33,20 @@ struct SLoadOperationIssue
     int objectHandle;
 };
 
-class CWorld : public _CWorld_
+class CWorld
 {
 public:
     CWorld();
     virtual ~CWorld();
 
-    void setEnableRemoteWorldsSync(bool enabled);
-    void rebuildRemoteWorlds();
-    void removeRemoteWorlds();
+    void rebuildWorld_oldIk();
+    void removeWorld_oldIk();
 
     void initializeWorld();
     void clearScene(bool notCalledFromUndoFunction);
     void deleteWorld();
+    int getWorldHandle() const;
+    void setWorldHandle(int handle);
 
     bool loadScene(CSer& ar,bool forUndoRedoOperation);
     void saveScene(CSer& ar);
@@ -101,8 +106,13 @@ public:
     CCustomData_old* customSceneData_old;
     CCacheCont* cacheData;
     CDrawingContainer* drawingCont;
+    CCollectionContainer* collections;
+    CSceneObjectContainer* sceneObjects;
 
     // Old:
+    CDistanceObjectContainer_old* distances;
+    CCollisionObjectContainer_old* collisions;
+    CIkGroupContainer* ikGroups;
     CRegisteredPathPlanningTasks* pathPlanning;
     CPointCloudContainer_old* pointCloudCont;
     CGhostObjectContainer* ghostObjectCont;
@@ -135,6 +145,7 @@ private:
     bool _canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const;
     void _setSuffix1ToSuffix2(int suffix1,int suffix2);
 
+    int _worldHandle;
     int _savedMouseMode;
     std::vector<long long int> _initialObjectUniqueIdentifiersForRemovingNewObjects;
 

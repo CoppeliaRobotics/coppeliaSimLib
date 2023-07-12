@@ -38,9 +38,8 @@ public:
     CDummy();
     virtual ~CDummy();
 
-    // Overridden from CSyncObject
-    void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
-    void connectSynchronizationObject();
+    void buildOrUpdate_oldIk();
+    void connect_oldIk();
 
     // Following functions are inherited from CSceneObject
     void addSpecializedObjectEventData(CCbor* ev) const;

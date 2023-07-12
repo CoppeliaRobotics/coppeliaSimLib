@@ -7,7 +7,6 @@
 #include <map>
 #include <userParameters.h>
 #include <customData.h>
-#include <syncObject.h>
 #include <cbor.h>
 
 struct SCustomRefs
@@ -29,17 +28,16 @@ class CViewableBase;
 class CScriptObject;
 class CInterfaceStack;
 
-class CSceneObject : public CSyncObject
+class CSceneObject
 {
 public:
 
     CSceneObject();
     virtual ~CSceneObject();
 
-    // Overridden from CSyncObject:
-    virtual void buildUpdateAndPopulateSynchronizationObject(const std::vector<SSyncRoute>* parentRouting);
-    virtual void connectSynchronizationObject();
-    virtual void removeSynchronizationObject(bool localReferencesToItOnly);
+    virtual void buildOrUpdate_oldIk();
+    virtual void connect_oldIk();
+    virtual void remove_oldIk();
 
     virtual void addSpecializedObjectEventData(CCbor* ev) const;
     virtual CSceneObject* copyYourself();

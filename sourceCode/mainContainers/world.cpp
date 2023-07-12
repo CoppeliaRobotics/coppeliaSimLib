@@ -12,6 +12,11 @@ std::vector<SLoadOperationIssue> CWorld::_loadOperationIssues;
 
 CWorld::CWorld()
 {
+    collections=nullptr;
+    distances=nullptr;
+    collisions=nullptr;
+    ikGroups=nullptr;
+    sceneObjects=nullptr;
     commTubeContainer=nullptr;
     signalContainer=nullptr;
     dynamicsContainer=nullptr;
@@ -31,20 +36,18 @@ CWorld::CWorld()
     pointCloudCont=nullptr;
     ghostObjectCont=nullptr;
     bannerCont=nullptr;
+    _worldHandle=-1;
 }
 
 CWorld::~CWorld()
 {
 }
 
-void CWorld::removeRemoteWorlds()
+void CWorld::removeWorld_oldIk()
 {
-    // IK plugin world:
-    App::worldContainer->pluginContainer->ikPlugin_emptyEnvironment();
-
-    // Local references to remote worlds:
-    sceneObjects->removeSynchronizationObjects(true);
-    ikGroups->removeSynchronizationObjects(true);
+    App::worldContainer->pluginContainer->oldIkPlugin_emptyEnvironment();
+    sceneObjects->remove_oldIk();
+    ikGroups->remove_oldIk();
 }
 
 void CWorld::initializeWorld()
@@ -55,9 +58,11 @@ void CWorld::initializeWorld()
     simulation=new CSimulation();
     textureContainer=new CTextureContainer();
     embeddedScriptContainer=new CEmbeddedScriptContainer();
-
-    _CWorld_::initializeWorld();
-
+    ikGroups=new CIkGroupContainer();
+    collections=new CCollectionContainer();
+    distances=new CDistanceObjectContainer_old();
+    collisions=new CCollisionObjectContainer_old();
+    sceneObjects=new CSceneObjectContainer();
     pathPlanning=new CRegisteredPathPlanningTasks();
     environment=new CEnvironment();
     pageContainer=new CPageContainer();
@@ -132,9 +137,16 @@ void CWorld::deleteWorld()
     environment=nullptr;
     delete pathPlanning;
     pathPlanning=nullptr;
-
-    _CWorld_::deleteWorld();
-
+    delete sceneObjects;
+    sceneObjects=nullptr;
+    delete collisions;
+    collisions=nullptr;
+    delete distances;
+    distances=nullptr;
+    delete collections;
+    collections=nullptr;
+    delete ikGroups;
+    ikGroups=nullptr;
     delete textureContainer;
     textureContainer=nullptr;
     delete simulation;
@@ -161,19 +173,12 @@ void CWorld::deleteWorld()
     commTubeContainer=nullptr;
 }
 
-void CWorld::rebuildRemoteWorlds()
+void CWorld::rebuildWorld_oldIk()
 {
-    // Build remote world objects:
-    sceneObjects->buildUpdateAndPopulateSynchronizationObjects();
-    sceneObjects->connectSynchronizationObjects();
-
-    ikGroups->buildUpdateAndPopulateSynchronizationObjects();
-    ikGroups->connectSynchronizationObjects();
-
-    // selection state:
-    std::vector<int> sel(sceneObjects->getSelectedObjectHandlesPtr()[0]);
-    sceneObjects->deselectObjects();
-    sceneObjects->setSelectedObjectHandles(&sel);
+    sceneObjects->buildOrUpdate_oldIk();
+    sceneObjects->connect_oldIk();
+    ikGroups->buildOrUpdate_oldIk();
+    ikGroups->connect_oldIk();
 }
 
 bool CWorld::loadScene(CSer& ar,bool forUndoRedoOperation)
@@ -737,11 +742,6 @@ void CWorld::simulationEnded(bool removeNewObjects)
     App::worldContainer->callScripts(sim_syscb_aftersimulation,nullptr,nullptr);
 }
 
-void CWorld::setEnableRemoteWorldsSync(bool enabled)
-{
-    CSyncObject::setOverallSyncEnabled(enabled);
-}
-
 void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject*>* loadedObjectList,
                                                     std::vector<CCollection*>* loadedCollectionList,
                                                     std::vector<CCollisionObject_old*>* loadedCollisionList,
@@ -775,8 +775,6 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
         textureMapping[oldHandle]=handler->getObjectID();
     }
 
-
-    setEnableRemoteWorldsSync(false); // do not trigger object creation in plugins, etc. when adding objects to world
 
     // We add all sceneObjects:
     sceneObjects->enableObjectActualization(false);
@@ -1038,18 +1036,16 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(std::vector<CSceneObject
     }
     appendLoadOperationIssue(-1,nullptr,-1); // clears it
 
-    setEnableRemoteWorldsSync(true);
-
     if (loadedIkGroupList->size()>0)
     { // OLD
         for (size_t i=0;i<loadedObjectList->size();i++)
-            loadedObjectList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
+            loadedObjectList->at(i)->buildOrUpdate_oldIk();
         for (size_t i=0;i<loadedObjectList->size();i++)
-            loadedObjectList->at(i)->connectSynchronizationObject();
+            loadedObjectList->at(i)->connect_oldIk();
         for (size_t i=0;i<loadedIkGroupList->size();i++)
-            loadedIkGroupList->at(i)->buildUpdateAndPopulateSynchronizationObject(nullptr);
+            loadedIkGroupList->at(i)->buildOrUpdate_oldIk();
         for (size_t i=0;i<loadedIkGroupList->size();i++)
-            loadedIkGroupList->at(i)->connectSynchronizationObject();
+            loadedIkGroupList->at(i)->connect_oldIk();
     }
 
 
@@ -1664,8 +1660,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
 {
     bool retVal=true;
     bool isScene=(ar.getFileType()==CSer::filetype_csim_xml_simplescene_file);
-    removeRemoteWorlds();
-    setEnableRemoteWorldsSync(false);
+    removeWorld_oldIk();
     if ( isScene&&ar.xmlPushChildNode(SERX_ENVIRONMENT,false) )
     {
         environment->serialize(ar);
@@ -2021,8 +2016,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer& ar)
         }
     }
 
-    setEnableRemoteWorldsSync(true);
-    rebuildRemoteWorlds();
+    rebuildWorld_oldIk();
 
     return(retVal);
 }
@@ -2322,6 +2316,18 @@ int CWorld::getLoadingMapping(const std::map<int,int>* map,int oldVal)
         retVal=it->second;
     return(retVal);
 }
+
+void CWorld::setWorldHandle(int handle)
+{
+    _worldHandle=handle;
+}
+
+int CWorld::getWorldHandle() const
+{
+    return(_worldHandle);
+}
+
+
 
 #ifdef SIM_WITH_GUI
 void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject,int displayAttrib,int windowSize[2],double verticalViewSizeOrAngle,bool perspective)

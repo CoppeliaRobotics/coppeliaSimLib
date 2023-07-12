@@ -155,7 +155,6 @@ bool CUndoBufferCont::memorizeState()
         return(false);
     }
 
-    App::currentWorld->setEnableRemoteWorldsSync(false);
     bool retVal=true; // means the scene changed.. we modify this variable accordingly later down
 
     static int tooLongExecutionCount=0;
@@ -241,7 +240,6 @@ bool CUndoBufferCont::memorizeState()
     GuiApp::setToolbarRefreshFlag();
 
     _sceneSaveMightBeNeeded=_sceneSaveMightBeNeeded||retVal;
-    App::currentWorld->setEnableRemoteWorldsSync(true);
     return(retVal);
 #else
     return(false);

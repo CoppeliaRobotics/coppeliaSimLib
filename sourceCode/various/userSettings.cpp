@@ -4,7 +4,6 @@
 #include <global.h>
 #include <threadPool_old.h>
 #include <tt.h>
-#include <easyLock.h>
 #include <vVarious.h>
 #include <app.h>
 #include <simFlavor.h>

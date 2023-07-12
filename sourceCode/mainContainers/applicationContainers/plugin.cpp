@@ -42,7 +42,7 @@ CPlugin::CPlugin(const char* filename,const char* pluginnamespaceAndVersion,int 
     // Following used to detect appartenance:
     instance=nullptr;
     geomPlugin_createMesh=nullptr;
-    ikPlugin_createEnv=nullptr;
+    oldIkPlugin_createEnv=nullptr;
     _codeEditor_openModal=nullptr;
     _customUi_msgBox=nullptr;
     _assimp_importShapes=nullptr;
@@ -86,7 +86,7 @@ CPlugin::~CPlugin()
         App::worldContainer->pluginContainer->newtonEngine=nullptr;
     if (mujoco_engine!=nullptr) // also check constructor above
         App::worldContainer->pluginContainer->mujocoEngine=nullptr;
-    if (ikPlugin_createEnv!=nullptr) // also check constructor above
+    if (oldIkPlugin_createEnv!=nullptr) // also check constructor above
     {
         App::worldContainer->pluginContainer->currentIKPlugin=nullptr;
         App::worldContainer->pluginContainer->ikEnvironment=-1;
@@ -283,7 +283,7 @@ bool CPlugin::init(std::string* errStr)
     if (_initAddress!=nullptr)
     {
         if (!VThread::isSimThread())
-            printf("Error: wrong thread in CPlugin::init\n");
+            App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::init");
 
         pushCurrentPlugin();
         pluginVersion=_initAddress(_name.c_str());
@@ -329,7 +329,7 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*
     if (_initAddress!=nullptr)
     {
         if (!VThread::isSimThread())
-            printf("Error: wrong thread in CPlugin::msg\n");
+            App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::msg");
 
         if (_msgAddress!=nullptr)
             _msgAddress(msgId,auxData,auxPointer); // new plugin
@@ -353,7 +353,7 @@ void CPlugin::init_ui()
     if ( (_initAddress_ui!=nullptr)&&(_stage==stage_siminitdone) )
     {
         if (!VThread::isUiThread())
-            printf("Error: wrong thread in CPlugin::init_ui\n");
+            App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::init_ui");
 
         _initAddress_ui();
         _stage=stage_uiinitdone;
@@ -365,7 +365,7 @@ void CPlugin::cleanup_ui()
     if ( (_cleanupAddress_ui!=nullptr)&&(_stage==stage_docleanup) )
     {
         if (!VThread::isUiThread())
-            printf("Error: wrong thread in CPlugin::cleanup_ui\n");
+            App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::cleanup_ui");
 
         _cleanupAddress_ui();
         _stage=stage_uicleanupdone;
@@ -377,7 +377,7 @@ void CPlugin::msg_ui(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullp
     if ( (_msgAddress_ui!=nullptr)&&(_stage==stage_uiinitdone) )
     {
         if (!VThread::isUiThread())
-            printf("Error: wrong thread in CPlugin::msg_ui\n");
+            App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::msg_ui");
 
         _msgAddress_ui(msgId,auxData,auxPointer);
     }
@@ -388,7 +388,7 @@ void CPlugin::cleanup()
     if (_initAddress!=nullptr)
     {
         if (!VThread::isSimThread())
-            printf("Error: wrong thread in CPlugin::cleanup\n");
+            App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::cleanup");
 
         if (_cleanupAddress!=nullptr)
         {
@@ -640,46 +640,46 @@ void CPlugin::_loadAuxEntryPoints()
         App::worldContainer->pluginContainer->currentGeomPlugin=this;
 
     // For the IK plugin:
-    ikPlugin_createEnv=(ptr_ikPlugin_createEnv)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_createEnv"));
-    ikPlugin_eraseEnvironment=(ptr_ikPlugin_eraseEnvironment)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_eraseEnvironment"));
-    ikPlugin_eraseObject=(ptr_ikPlugin_eraseObject)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_eraseObject"));
-    ikPlugin_setObjectParent=(ptr_ikPlugin_setObjectParent)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setObjectParent"));
-    ikPlugin_createDummy=(ptr_ikPlugin_createDummy)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_createDummy"));
-    ikPlugin_setLinkedDummy=(ptr_ikPlugin_setLinkedDummy)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setLinkedDummy"));
-    ikPlugin_createJoint=(ptr_ikPlugin_createJoint)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_createJoint"));
-    ikPlugin_setJointMode=(ptr_ikPlugin_setJointMode)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointMode"));
-    ikPlugin_setJointInterval=(ptr_ikPlugin_setJointInterval)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointInterval"));
-    ikPlugin_setJointScrewPitch=(ptr_ikPlugin_setJointScrewPitch)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointScrewPitch"));
-    ikPlugin_setJointIkWeight=(ptr_ikPlugin_setJointIkWeight)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointIkWeight"));
-    ikPlugin_setJointMaxStepSize=(ptr_ikPlugin_setJointMaxStepSize)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointMaxStepSize"));
-    ikPlugin_setJointDependency=(ptr_ikPlugin_setJointDependency)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointDependency"));
-    ikPlugin_getJointPosition=(ptr_ikPlugin_getJointPosition)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getJointPosition"));
-    ikPlugin_setJointPosition=(ptr_ikPlugin_setJointPosition)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointPosition"));
-    ikPlugin_getSphericalJointQuaternion=(ptr_ikPlugin_getSphericalJointQuaternion)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getSphericalJointQuaternion"));
-    ikPlugin_setSphericalJointQuaternion=(ptr_ikPlugin_setSphericalJointQuaternion)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setSphericalJointQuaternion"));
-    ikPlugin_createIkGroup=(ptr_ikPlugin_createIkGroup)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_createIkGroup"));
-    ikPlugin_eraseIkGroup=(ptr_ikPlugin_eraseIkGroup)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_eraseIkGroup"));
-    ikPlugin_setIkGroupFlags=(ptr_ikPlugin_setIkGroupFlags)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkGroupFlags"));
-    ikPlugin_setIkGroupCalculation=(ptr_ikPlugin_setIkGroupCalculation)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkGroupCalculation"));
-    ikPlugin_addIkElement=(ptr_ikPlugin_addIkElement)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_addIkElement"));
-    ikPlugin_eraseIkElement=(ptr_ikPlugin_eraseIkElement)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_eraseIkElement"));
-    ikPlugin_setIkElementFlags=(ptr_ikPlugin_setIkElementFlags)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkElementFlags"));
-    ikPlugin_setIkElementBase=(ptr_ikPlugin_setIkElementBase)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkElementBase"));
-    ikPlugin_setIkElementConstraints=(ptr_ikPlugin_setIkElementConstraints)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkElementConstraints"));
-    ikPlugin_setIkElementPrecision=(ptr_ikPlugin_setIkElementPrecision)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkElementPrecision"));
-    ikPlugin_setIkElementWeights=(ptr_ikPlugin_setIkElementWeights)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkElementWeights"));
-    ikPlugin_handleIkGroup=(ptr_ikPlugin_handleIkGroup)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_handleIkGroup"));
-    ikPlugin_computeJacobian=(ptr_ikPlugin_computeJacobian)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_computeJacobian"));
-    ikPlugin_getJacobian=(ptr_ikPlugin_getJacobian)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getJacobian"));
-    ikPlugin_getManipulability=(ptr_ikPlugin_getManipulability)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getManipulability"));
-    ikPlugin_getConfigForTipPose=(ptr_ikPlugin_getConfigForTipPose)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getConfigForTipPose"));
-    ikPlugin_getObjectLocalTransformation=(ptr_ikPlugin_getObjectLocalTransformation)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getObjectLocalTransformation"));
-    ikPlugin_setObjectLocalTransformation=(ptr_ikPlugin_setObjectLocalTransformation)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setObjectLocalTransformation"));
-    if (ikPlugin_createEnv!=nullptr)
+    oldIkPlugin_createEnv=(ptr_oldIkPlugin_createEnv)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_createEnv"));
+    oldIkPlugin_eraseEnvironment=(ptr_oldIkPlugin_eraseEnvironment)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_eraseEnvironment"));
+    oldIkPlugin_eraseObject=(ptr_oldIkPlugin_eraseObject)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_eraseObject"));
+    oldIkPlugin_setObjectParent=(ptr_oldIkPlugin_setObjectParent)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setObjectParent"));
+    oldIkPlugin_createDummy=(ptr_oldIkPlugin_createDummy)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_createDummy"));
+    oldIkPlugin_setLinkedDummy=(ptr_oldIkPlugin_setLinkedDummy)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setLinkedDummy"));
+    oldIkPlugin_createJoint=(ptr_oldIkPlugin_createJoint)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_createJoint"));
+    oldIkPlugin_setJointMode=(ptr_oldIkPlugin_setJointMode)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointMode"));
+    oldIkPlugin_setJointInterval=(ptr_oldIkPlugin_setJointInterval)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointInterval"));
+    oldIkPlugin_setJointScrewPitch=(ptr_oldIkPlugin_setJointScrewPitch)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointScrewPitch"));
+    oldIkPlugin_setJointIkWeight=(ptr_oldIkPlugin_setJointIkWeight)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointIkWeight"));
+    oldIkPlugin_setJointMaxStepSize=(ptr_oldIkPlugin_setJointMaxStepSize)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointMaxStepSize"));
+    oldIkPlugin_setJointDependency=(ptr_oldIkPlugin_setJointDependency)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointDependency"));
+    oldIkPlugin_getJointPosition=(ptr_oldIkPlugin_getJointPosition)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getJointPosition"));
+    oldIkPlugin_setJointPosition=(ptr_oldIkPlugin_setJointPosition)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setJointPosition"));
+    oldIkPlugin_getSphericalJointQuaternion=(ptr_oldIkPlugin_getSphericalJointQuaternion)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getSphericalJointQuaternion"));
+    oldIkPlugin_setSphericalJointQuaternion=(ptr_oldIkPlugin_setSphericalJointQuaternion)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setSphericalJointQuaternion"));
+    oldIkPlugin_createIkGroup=(ptr_oldIkPlugin_createIkGroup)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_createIkGroup"));
+    oldIkPlugin_eraseIkGroup=(ptr_oldIkPlugin_eraseIkGroup)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_eraseIkGroup"));
+    oldIkPlugin_setIkGroupFlags=(ptr_oldIkPlugin_setIkGroupFlags)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkGroupFlags"));
+    oldIkPlugin_setIkGroupCalculation=(ptr_oldIkPlugin_setIkGroupCalculation)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkGroupCalculation"));
+    oldIkPlugin_addIkElement=(ptr_oldIkPlugin_addIkElement)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_addIkElement"));
+    oldIkPlugin_eraseIkElement=(ptr_oldIkPlugin_eraseIkElement)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_eraseIkElement"));
+    oldIkPlugin_setIkElementFlags=(ptr_oldIkPlugin_setIkElementFlags)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkElementFlags"));
+    oldIkPlugin_setIkElementBase=(ptr_oldIkPlugin_setIkElementBase)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkElementBase"));
+    oldIkPlugin_setIkElementConstraints=(ptr_oldIkPlugin_setIkElementConstraints)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkElementConstraints"));
+    oldIkPlugin_setIkElementPrecision=(ptr_oldIkPlugin_setIkElementPrecision)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkElementPrecision"));
+    oldIkPlugin_setIkElementWeights=(ptr_oldIkPlugin_setIkElementWeights)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setIkElementWeights"));
+    oldIkPlugin_handleIkGroup=(ptr_oldIkPlugin_handleIkGroup)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_handleIkGroup"));
+    oldIkPlugin_computeJacobian=(ptr_oldIkPlugin_computeJacobian)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_computeJacobian"));
+    oldIkPlugin_getJacobian=(ptr_oldIkPlugin_getJacobian)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getJacobian"));
+    oldIkPlugin_getManipulability=(ptr_oldIkPlugin_getManipulability)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getManipulability"));
+    oldIkPlugin_getConfigForTipPose=(ptr_oldIkPlugin_getConfigForTipPose)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getConfigForTipPose"));
+    oldIkPlugin_getObjectLocalTransformation=(ptr_oldIkPlugin_getObjectLocalTransformation)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_getObjectLocalTransformation"));
+    oldIkPlugin_setObjectLocalTransformation=(ptr_oldIkPlugin_setObjectLocalTransformation)(VVarious::resolveLibraryFuncName(instance,"ikPlugin_setObjectLocalTransformation"));
+    if (oldIkPlugin_createEnv!=nullptr)
     {
         App::worldContainer->pluginContainer->currentIKPlugin=this;
         pushCurrentPlugin();
-        App::worldContainer->pluginContainer->ikEnvironment=App::worldContainer->pluginContainer->currentIKPlugin->ikPlugin_createEnv();
+        App::worldContainer->pluginContainer->ikEnvironment=App::worldContainer->pluginContainer->currentIKPlugin->oldIkPlugin_createEnv();
         popCurrentPlugin();
     }
 

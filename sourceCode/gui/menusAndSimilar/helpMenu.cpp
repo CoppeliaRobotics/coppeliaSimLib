@@ -1,4 +1,3 @@
-#include <easyLock.h>
 #include <simInternal.h>
 #include <helpMenu.h>
 #include <oGL.h>

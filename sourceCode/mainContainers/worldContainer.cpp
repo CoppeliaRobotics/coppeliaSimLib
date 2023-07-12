@@ -14,6 +14,7 @@ long long int CWorldContainer::_eventSeq=0;
 CWorldContainer::CWorldContainer()
 {
     TRACE_INTERNAL;
+    currentWorld=nullptr;
     _sessionId=utils::generateUniqueReadableString();
     pluginContainer=nullptr;
     codeEditorInfos=nullptr;
@@ -115,9 +116,8 @@ int CWorldContainer::createNewWorld()
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    // Empty remote worlds:
     if (currentWorld!=nullptr)
-        currentWorld->removeRemoteWorlds();
+        currentWorld->removeWorld_oldIk();
 
     // Create new world and switch to it:
     CWorld* w=new CWorld();
@@ -144,7 +144,7 @@ int CWorldContainer::createNewWorld()
     cmdIn.cmdId=INSTANCE_WAS_JUST_CREATED_UITHREADCMD;
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
-    currentWorld->rebuildRemoteWorlds();
+    currentWorld->rebuildWorld_oldIk();
 
     return(_currentWorldIndex);
 }
@@ -190,8 +190,7 @@ int CWorldContainer::destroyCurrentWorld()
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    // Empty remote worlds:
-    currentWorld->removeRemoteWorlds();
+    currentWorld->removeWorld_oldIk();
 
     // Destroy current world:
     currentWorld=nullptr;
@@ -225,7 +224,7 @@ int CWorldContainer::destroyCurrentWorld()
         cmdIn.intParams.push_back(_currentWorldIndex);
         GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
-        currentWorld->rebuildRemoteWorlds();
+        currentWorld->rebuildWorld_oldIk();
     }
 
     return(_currentWorldIndex);
@@ -317,9 +316,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     currentWorld->pageContainer->clearAllLastMouseDownViewIndex();
 #endif
 
-
-    // Empty remote worlds:
-    currentWorld->removeRemoteWorlds();
+    currentWorld->removeWorld_oldIk();
 
     // Switch worlds:
     _currentWorldIndex=newWorldIndex;
@@ -346,7 +343,7 @@ bool CWorldContainer::_switchToWorld(int newWorldIndex)
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    currentWorld->rebuildRemoteWorlds();
+    currentWorld->rebuildWorld_oldIk();
 
     return(true);
 }
