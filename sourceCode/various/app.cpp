@@ -107,7 +107,9 @@ void App::init(const char* appDir,int)
         _applicationDir=pathInfo.path().toStdString();
     }
     VVarious::removePathFinalSlashOrBackslash(_applicationDir);
-    QDir::setCurrent(_applicationDir.data());
+    #ifdef WIN_SIM
+        QDir::setCurrent(_applicationDir.data());
+    #endif
 
     #ifdef WIN_SIM
         SetUnhandledExceptionFilter(_winExceptionHandler);
