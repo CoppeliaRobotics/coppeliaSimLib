@@ -11,8 +11,9 @@ class App
 public:
     enum {
         appstage_none=0,
-        appstage_simInitDone,
-        appstage_guiInitDone, // set by UI thread
+        appstage_guiInit1Done, // set by UI thread. An temp dummy QApplication is created to make sure Qt doesn't complain about wrong thread
+        appstage_simInitDone, // the SIM thread is ready, except for the simThread object, and sandbox/add-ons load/initializations
+        appstage_guiInit2Done, // set by UI thread. The UI thread is ready
         appstage_simRunning,
         appstage_guiCleanupRequest,
         appstage_guiCleanupDone, // set by UI thread

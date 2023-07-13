@@ -11,7 +11,7 @@ pVideo_recorderEnd CAuxLibVideo::video_recorderEnd=0;
 bool CAuxLibVideo::loadLibrary()
 {
     bool retVal=false;
-    std::string vidLibPathAndName(VVarious::getModulePath());
+    std::string vidLibPathAndName(App::getApplicationDir());
     vidLibPathAndName+="/";
 #ifdef WIN_SIM
     vidLibPathAndName+="vvcl.dll";

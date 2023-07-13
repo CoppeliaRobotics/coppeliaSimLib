@@ -63,32 +63,6 @@ bool VVarious::executeExternalApplication(const char* file,const char* arguments
 #endif
 }
 
-std::string VVarious::getModulePath()
-{
-    static std::string retVal;
-    if (retVal.size()==0)
-    {
-        char curDirAndFile[2048];
-#ifdef _WIN32
-        GetModuleFileNameA(nullptr,curDirAndFile,2000);
-        int i=0;
-        while (true)
-        {
-            if (curDirAndFile[i]==0)
-                break;
-            if (curDirAndFile[i]=='\\')
-                curDirAndFile[i]='/';
-            i++;
-        }
-        retVal=splitPath_path(curDirAndFile);
-#else
-        char* dummy=getcwd(curDirAndFile, 2000);
-        retVal=curDirAndFile;
-#endif
-    }
-    return(retVal);
-}
-
 void VVarious::removePathFinalSlashOrBackslash(std::string& pathWithOrWithoutFinalThing)
 {
     size_t l=pathWithOrWithoutFinalThing.length();

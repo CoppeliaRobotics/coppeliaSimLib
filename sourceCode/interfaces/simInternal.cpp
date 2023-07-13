@@ -73,9 +73,7 @@ void simRunGui_internal(int options)
 {
 #ifdef SIM_WITH_GUI
     GuiApp app;
-    app.initGui(options);
-    app.runGui();
-    app.cleanupGui();
+    app.runGui(options);
 #endif
 }
 

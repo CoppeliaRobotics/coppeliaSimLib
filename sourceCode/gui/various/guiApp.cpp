@@ -44,59 +44,20 @@ GuiApp::~GuiApp()
 {
 }
 
-void GuiApp::cleanupGui()
+void GuiApp::runGui(int options)
 {
+    QApplication* dummyApp=new QApplication(_qApp_argc,_qApp_argv);
+    delete dummyApp;
+    uiThread=new CUiThread();
+    VThread::setUiThread();
+    App::setAppStage(App::appstage_guiInit1Done);
+
+
     TRACE_INTERNAL;
-
-    deleteMainWindow();
-    deinitializeRendering();
-
-    VThread::unsetUiThread();
-    delete uiThread;
-    uiThread=nullptr;
-
-    // Clear the TAG that CoppeliaSim crashed! (because if we arrived here, we didn't crash!)
-    CPersistentDataContainer cont;
-    cont.writeData("SIMSETTINGS_SIM_CRASHED","No",!App::userSettings->doNotWritePersistentData);
-
-    // Remove any remaining auto-saved file:
-    for (int i=1;i<30;i++)
-    {
-        std::string testScene(App::folders->getAutoSavedScenesPath()+"/");
-        testScene+=utils::getIntString(false,i);
-        testScene+=".";
-        testScene+=SIM_SCENE_EXTENSION;
-        if (VFile::doesFileExist(testScene.c_str()))
-            VFile::eraseFile(testScene.c_str());
-    }
-
-#ifdef SIM_WITH_GUI
-    CAuxLibVideo::unloadLibrary();
-#endif
-
-    if (qtApp!=nullptr)
-    {
-        #ifdef SIM_WITH_GUI
-            Q_CLEANUP_RESOURCE(imageFiles);
-            Q_CLEANUP_RESOURCE(variousImageFiles);
-            Q_CLEANUP_RESOURCE(toolbarFiles);
-            Q_CLEANUP_RESOURCE(targaFiles);
-        #endif // SIM_WITH_GUI
-        qtApp->disconnect();
-        delete qtApp;
-        qtApp=nullptr;
-    }
-    App::setAppStage(App::appstage_guiCleanupDone);
-}
-
-void GuiApp::initGui(int options)
-{
-    TRACE_INTERNAL;
-    while (App::getAppStage()!=App::appstage_simInitDone) // wait until SIM thread finished first phase of initialization
+    while (App::getAppStage()!=App::appstage_simInitDone) // wait until SIM thread finished initialization
         VThread::sleep(1);
 
     _browserEnabled=true;
-
     for (int i=0;i<9;i++)
     {
         std::string str(App::getApplicationArgument(i));
@@ -111,33 +72,29 @@ void GuiApp::initGui(int options)
             }
         }
     }
-
     operationalUIParts=options;
     if (operationalUIParts&sim_gui_headless)
         operationalUIParts=sim_gui_headless;
-
-#ifdef SIM_WITH_GUI
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
+
     int highResDisplayDefault=App::userSettings->highResDisplay;
     if (highResDisplayDefault==-1)
     {
-        QApplication* ta=new QApplication(_qApp_argc,_qApp_argv);
-        QScreen* scr=ta->primaryScreen();
+        QScreen* scr=qtApp->primaryScreen();
         if (scr!=nullptr)
         {
             App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"primary screen physical dots per inch: %s",std::to_string(int(scr->physicalDotsPerInch()+0.5)).c_str());
-            QDesktopWidget* dw=ta->desktop();
+            QDesktopWidget* dw=qtApp->desktop();
             if (dw!=nullptr)
             {
                 double val=(dw->logicalDpiX()/96.0)*100.0;
                 App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"display scaling (guessed): %s",std::to_string(int(val+0.5)).c_str());
-#ifndef MAC_SIM
-                if (val>=App::userSettings->guessedDisplayScalingThresholdFor2xOpenGl)
-                    highResDisplayDefault=2;
-#endif
+                #ifndef MAC_SIM
+                    if (val>=App::userSettings->guessedDisplayScalingThresholdFor2xOpenGl)
+                        highResDisplayDefault=2;
+                #endif
             }
         }
-        delete ta;
     }
     if (highResDisplayDefault==1)
     {
@@ -149,11 +106,11 @@ void GuiApp::initGui(int options)
     {
         qputenv("QT_AUTO_SCREEN_SCALE_FACTOR","1");
         sc=2;
-#ifdef WIN_SIM
-        // To address a bug with qscintilla on hdpi display:
-        if (App::userSettings->scriptEditorFont=="")
-            App::userSettings->scriptEditorFont="Consolas";
-#endif
+        #ifdef WIN_SIM
+            // To address a bug with qscintilla on hdpi display:
+            if (App::userSettings->scriptEditorFont=="")
+                App::userSettings->scriptEditorFont="Consolas";
+        #endif
     }
     if (highResDisplayDefault==3)
     {
@@ -162,10 +119,11 @@ void GuiApp::initGui(int options)
         if (App::userSettings->oglScaling!=1)
             sc=App::userSettings->oglScaling;
     }
-#endif
+
     qtApp=new CSimQApp(_qApp_argc,_qApp_argv);
-    uiThread=new CUiThread();
-    VThread::setUiThread();
+
+
+
 
     QHostInfo::lookupHost("www.coppeliarobotics.com",
         [=] (const QHostInfo &info)
@@ -175,15 +133,14 @@ void GuiApp::initGui(int options)
         }
     );
 
-#ifdef USING_QOPENGLWIDGET
-    // Following mandatory on some platforms (e.g. OSX), call just after a QApplication was constructed:
-    QSurfaceFormat format;
-    format.setRenderableType(QSurfaceFormat::OpenGL);
-    QSurfaceFormat::setDefaultFormat(format);
-#endif
+    #ifdef USING_QOPENGLWIDGET
+        // Following mandatory on some platforms (e.g. OSX), call just after a QApplication was constructed:
+        QSurfaceFormat format;
+        format.setRenderableType(QSurfaceFormat::OpenGL);
+        QSurfaceFormat::setDefaultFormat(format);
+    #endif
 
     qRegisterMetaType<std::string>("std::string");
-#ifdef SIM_WITH_GUI
     Q_INIT_RESOURCE(targaFiles);
     Q_INIT_RESOURCE(toolbarFiles);
     Q_INIT_RESOURCE(variousImageFiles);
@@ -200,15 +157,11 @@ void GuiApp::initGui(int options)
             qApp->setStyleSheet(ts.readAll());
         }
     }
-#endif
 
-#ifdef WIN_SIM
-    #ifdef SIM_WITH_GUI
+    #ifdef WIN_SIM
         CSimQApp::setStyle(QStyleFactory::create("Fusion")); // Probably most compatible. Other platforms: best in native (other styles have problems)!
     #endif
-#endif
 
-#ifdef SIM_WITH_GUI
     if ( (options&sim_gui_headless)==0 )
     {
         if (CAuxLibVideo::loadLibrary())
@@ -216,14 +169,14 @@ void GuiApp::initGui(int options)
         else
         {
             std::string msg("could not find or correctly load the video compression library.");
-#ifdef LIN_SIM
-            msg+="\nTry following:";
-            msg+="\n";
-            msg+="\n$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev";
-            msg+="\nif above fails, try first:";
-            msg+="\n$ sudo apt-get -f install";
-            msg+="\n";
-#endif
+            #ifdef LIN_SIM
+                msg+="\nTry following:";
+                msg+="\n";
+                msg+="\n$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev";
+                msg+="\nif above fails, try first:";
+                msg+="\n$ sudo apt-get -f install";
+                msg+="\n";
+            #endif
             App::logMsg(sim_verbosity_errors,msg.c_str());
         }
     }
@@ -245,12 +198,10 @@ void GuiApp::initGui(int options)
     #ifdef LIN_SIM // make the groupbox frame visible on Linux
         qtApp->setStyleSheet("QGroupBox {  border: 1px solid lightgray;} QGroupBox::title {  background-color: transparent; subcontrol-position: top left; padding:2 13px;}");
     #endif
-#endif
 
     srand((int)VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
                                         // Remember that each thread starts with a same seed!!!
 
-#ifdef SIM_WITH_GUI
     // Browser and hierarchy visibility is set in userset.txt. We can override it here:
     if ((operationalUIParts&sim_gui_hierarchy)==0)
         COglSurface::_hierarchyEnabled=false;
@@ -264,24 +215,14 @@ void GuiApp::initGui(int options)
         createMainWindow();
         mainWindow->oglSurface->adjustBrowserAndHierarchySizesToDefault();
     }
-#endif
-}
 
-void GuiApp::runGui()
-{
-    TRACE_INTERNAL;
-
-#ifdef SIM_WITH_GUI
     if (mainWindow!=nullptr)
         mainWindow->setFocus(Qt::MouseFocusReason); // needed because at first Qt behaves strangely (really??)
     uiThread->setFileDialogsNative(App::userSettings->fileDialogs);
-#endif
 
     _loadLegacyPlugins();
 
-    App::setAppStage(App::appstage_guiInitDone);    // now let the SIM thread run freely
 
-#ifdef SIM_WITH_GUI
     // Prepare a few initial triggers:
     {
         SSimulationThreadCommand cmd;
@@ -317,7 +258,6 @@ void GuiApp::runGui()
         cmd.cmdId=CHKLICM_CMD;
         GuiApp::appendSimulationThreadCommand(cmd,5000);
     }
-#endif
 
     std::string msg=CSimFlavor::getStringVal(18);
     if (msg.size()>0)
@@ -327,6 +267,8 @@ void GuiApp::runGui()
         cmd.stringParams.push_back(msg);
         GuiApp::appendSimulationThreadCommand(cmd,3000);
     }
+
+    App::setAppStage(App::appstage_guiInit2Done);    // now let the SIM thread run freely
 
     qtApp->exec(); // sits here until quit
 
@@ -339,6 +281,42 @@ void GuiApp::runGui()
     App::worldContainer->pluginContainer->unloadLegacyPlugins();
 
     deinitGl_ifNeeded();
+
+    deleteMainWindow();
+    deinitializeRendering();
+
+    VThread::unsetUiThread();
+    delete uiThread;
+    uiThread=nullptr;
+
+    // Clear the TAG that CoppeliaSim crashed! (because if we arrived here, we didn't crash!)
+    CPersistentDataContainer cont;
+    cont.writeData("SIMSETTINGS_SIM_CRASHED","No",!App::userSettings->doNotWritePersistentData);
+
+    // Remove any remaining auto-saved file:
+    for (int i=1;i<30;i++)
+    {
+        std::string testScene(App::folders->getAutoSavedScenesPath()+"/");
+        testScene+=utils::getIntString(false,i);
+        testScene+=".";
+        testScene+=SIM_SCENE_EXTENSION;
+        if (VFile::doesFileExist(testScene.c_str()))
+            VFile::eraseFile(testScene.c_str());
+    }
+
+    CAuxLibVideo::unloadLibrary();
+
+    if (qtApp!=nullptr)
+    {
+        Q_CLEANUP_RESOURCE(imageFiles);
+        Q_CLEANUP_RESOURCE(variousImageFiles);
+        Q_CLEANUP_RESOURCE(toolbarFiles);
+        Q_CLEANUP_RESOURCE(targaFiles);
+        qtApp->disconnect();
+        delete qtApp;
+        qtApp=nullptr;
+    }
+    App::setAppStage(App::appstage_guiCleanupDone);
 }
 
 void GuiApp::setBrowserEnabled(bool e)

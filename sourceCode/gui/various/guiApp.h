@@ -13,9 +13,7 @@ public:
     GuiApp();
     virtual ~GuiApp();
 
-    void initGui(int options);
-    void runGui();
-    void cleanupGui();
+    void runGui(int options);
 
     static int getEditModeType(); // helper
     static void setRebuildHierarchyFlag(); // helper

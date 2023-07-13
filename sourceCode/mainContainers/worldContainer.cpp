@@ -108,13 +108,13 @@ int CWorldContainer::createNewWorld()
         App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData);
     }
 
-#ifdef SIM_WITH_GUI
-    // Inform UI about new world creation:
-    SUIThreadCommand cmdIn;
-    SUIThreadCommand cmdOut;
-    cmdIn.cmdId=INSTANCE_ABOUT_TO_BE_CREATED_UITHREADCMD;
-    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-#endif
+    #ifdef SIM_WITH_GUI
+        // Inform UI about new world creation:
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=INSTANCE_ABOUT_TO_BE_CREATED_UITHREADCMD;
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    #endif
 
     if (currentWorld!=nullptr)
         currentWorld->removeWorld_oldIk();
@@ -139,11 +139,11 @@ int CWorldContainer::createNewWorld()
     App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,dat);
     setModificationFlag(64); // instance switched
 
-#ifdef SIM_WITH_GUI
-    // Inform UI about performed switch to new world:
-    cmdIn.cmdId=INSTANCE_WAS_JUST_CREATED_UITHREADCMD;
-    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-#endif
+    #ifdef SIM_WITH_GUI
+        // Inform UI about performed switch to new world:
+        cmdIn.cmdId=INSTANCE_WAS_JUST_CREATED_UITHREADCMD;
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    #endif
     currentWorld->rebuildWorld_oldIk();
 
     return(_currentWorldIndex);

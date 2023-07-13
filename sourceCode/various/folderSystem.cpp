@@ -15,8 +15,7 @@
 
 CFolderSystem::CFolderSystem()
 {
-    _executablePath=VVarious::getModulePath();
-    VVarious::removePathFinalSlashOrBackslash(_executablePath);
+    _executablePath=App::getApplicationDir();
 #ifdef MAC_SIM
     _resourcesPath=_executablePath+"/../Resources";
 #else
@@ -232,9 +231,9 @@ std::string CFolderSystem::getUserSettingsPath()
         if (userSettingsFolder.size()==0)
         { // fallback
 #ifdef MAC_SIM
-            userSettingsFolder=VVarious::getModulePath()+"/../Resources/system";
+            userSettingsFolder=App::getApplicationDir()+"/../Resources/system";
 #else
-            userSettingsFolder=VVarious::getModulePath()+"/system";
+            userSettingsFolder=App::getApplicationDir()+"/system";
 #endif
         }
     }

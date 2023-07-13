@@ -18,7 +18,6 @@ public:
     static void closeLibrary(WLibrary lib,std::string* errMsg);
     static WLibraryFunc resolveLibraryFuncName(WLibrary lib,const char* funcName);
 
-    static std::string getModulePath();
     static void removePathFinalSlashOrBackslash(std::string& pathWithOrWithoutFinalThing);
 
     static std::string splitPath_path(const char* fullPathAndName);

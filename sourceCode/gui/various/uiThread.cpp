@@ -48,17 +48,16 @@ CUiThread::~CUiThread()
 
 bool CUiThread::executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 { // Called by any thread
-    if (!VThread::isUiThread())
+    bool retVal=false;
+    if (App::getAppStage()>=App::appstage_simInitDone)
     {
-        _executeCommandViaUiThread(cmdIn,cmdOut);
+        if (!VThread::isUiThread())
+            _executeCommandViaUiThread(cmdIn,cmdOut);
+        else
+            __executeCommandViaUiThread(cmdIn,cmdOut);
         return(true);
     }
-    else
-    {
-        __executeCommandViaUiThread(cmdIn,cmdOut);
-        return(true);
-    }
-    return(false);
+    return(retVal);
 }
 
 void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
