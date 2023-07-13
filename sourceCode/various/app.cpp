@@ -105,27 +105,9 @@ void App::init(const char* appDir,int)
     {
         QFileInfo pathInfo(QCoreApplication::applicationFilePath());
         _applicationDir=pathInfo.path().toStdString();
-        /*
-        char curDirAndFile[2048];
-        #ifdef _WIN32
-            GetModuleFileNameA(nullptr,curDirAndFile,2000);
-            int i=0;
-            while (true)
-            {
-                if (curDirAndFile[i]==0)
-                    break;
-                if (curDirAndFile[i]=='\\')
-                    curDirAndFile[i]='/';
-                i++;
-            }
-            _applicationDir=VVarious::splitPath_path(curDirAndFile);
-        #else
-            char* dummy=getcwd(curDirAndFile, 2000);
-            _applicationDir=curDirAndFile;
-        #endif
-        */
     }
     VVarious::removePathFinalSlashOrBackslash(_applicationDir);
+    QDir::setCurrent(_applicationDir.data());
 
     #ifdef WIN_SIM
         SetUnhandledExceptionFilter(_winExceptionHandler);
