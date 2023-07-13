@@ -7,13 +7,13 @@
 #include <pluginCallbackContainer.h>
 #include <pluginVariableContainer.h>
 
-typedef  int (__cdecl *ptrInit)(const char*);
+typedef  int (__cdecl *ptrInit)(SSimInit*);
 typedef  void (__cdecl *ptrCleanup)(void);
-typedef  void (__cdecl *ptrMsg)(int msgId,int* auxData,void* auxpointer);
+typedef  void (__cdecl *ptrMsg)(SSimMsg*);
 
 typedef  void (__cdecl *ptrInit_ui)(void);
 typedef  void (__cdecl *ptrCleanup_ui)(void);
-typedef  void (__cdecl *ptrMsg_ui)(int msgId,int* auxData,void* auxpointer);
+typedef  void (__cdecl *ptrMsg_ui)(SSimMsg_ui*);
 
 typedef  void (__cdecl *ptrExtRenderer)(int,void*);
 

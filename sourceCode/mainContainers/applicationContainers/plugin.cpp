@@ -286,7 +286,24 @@ bool CPlugin::init(std::string* errStr)
             App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::init");
 
         pushCurrentPlugin();
-        pluginVersion=_initAddress(_name.c_str());
+        SSimInit d;
+        d.pluginName=_name.c_str();
+        std::string libPath(App::folders->getExecutablePath()+"/");
+#ifndef WIN_SIM
+        libPath+="lib";
+#endif
+        libPath+="coppeliaSim.";
+#ifdef WIN_SIM
+        libPath+="dll";
+#endif
+#ifdef LIN_SIM
+        libPath+="so";
+#endif
+#ifdef MAC_SIM
+        libPath+="dylib";
+#endif
+        d.coppeliaSimLibPath=libPath.data();
+        pluginVersion=_initAddress(&d);
         popCurrentPlugin();
         if (pluginVersion!=0)
         {
@@ -332,7 +349,13 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*
             App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::msg");
 
         if (_msgAddress!=nullptr)
-            _msgAddress(msgId,auxData,auxPointer); // new plugin
+        {
+            SSimMsg p;
+            p.msgId=msgId;
+            p.auxData=auxData;
+            p.auxPointer=auxPointer;
+            _msgAddress(&p); // new plugin
+        }
     }
     else
     { // legacy plugin
@@ -378,8 +401,11 @@ void CPlugin::msg_ui(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullp
     {
         if (!VThread::isUiThread())
             App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::msg_ui");
-
-        _msgAddress_ui(msgId,auxData,auxPointer);
+        SSimMsg_ui p;
+        p.msgId=msgId;
+        p.auxData=auxData;
+        p.auxPointer=auxPointer;
+        _msgAddress_ui(&p);
     }
 }
 

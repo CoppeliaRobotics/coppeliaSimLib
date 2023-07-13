@@ -166,10 +166,8 @@ CMainWindow::CMainWindow() : QMainWindow()
         msg+="\n    >sudo apt install libgl1-mesa-dev";
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,msg.c_str());
     #endif
-    #ifndef USING_QOPENGLWIDGET
-        openglWidget->makeCurrent();
-        initGl_ifNeeded();
-    #endif
+    openglWidget->makeCurrent();
+    initGl_ifNeeded();
     #ifdef LIN_SIM
         App::logMsg(sim_verbosity_infos,"...did not crash.");
     #endif
@@ -858,11 +856,7 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         int oglDebugTime=(int)VDateTime::getTimeInMs();
         // the only time in the whole application (except for COpenglWidget::paintGL() ) where we can call
         // this command, otherwise we have problems with some graphic cards and VMWare on MAC:
-        #ifndef USING_QOPENGLWIDGET
-            openglWidget->swapBuffers();
-        #else
-            openglWidget->update();
-        #endif
+        openglWidget->swapBuffers();
         if (App::userSettings->debugOpenGl)
         {
             int oglDebugTimeNow=(int)VDateTime::getTimeInMs();

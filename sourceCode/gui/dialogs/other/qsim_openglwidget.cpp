@@ -22,27 +22,9 @@ int _savedMouseMode;
 
 std::vector<SMouseOrKeyboardOrResizeEvent> _bufferedMouseOrKeyboardOrResizeEvents;
 
-#ifdef USING_QOPENGLWIDGET
-COpenglWidget::COpenglWidget(QWidget *parent) : QOpenGLWidget(parent)
-#else
 COpenglWidget::COpenglWidget(QWidget *parent) : QGLWidget(QGLFormat((App::userSettings->stereoDist<=0.0) ? (QGL::DoubleBuffer) : (QGL::StereoBuffers)),parent)
-#endif
 {
     TRACE_INTERNAL;
-#ifdef USING_QOPENGLWIDGET
-    if (App::userSettings->stereoDist>0.0)
-    {
-        QSurfaceFormat s(QSurfaceFormat::StereoBuffers);
-        s.setRenderableType(QSurfaceFormat::OpenGL);
-        setFormat(s);
-    }
-    else
-    {
-        QSurfaceFormat s;
-        s.setRenderableType(QSurfaceFormat::OpenGL);
-        setFormat(s);
-    }
-#endif
     _bufferedMouseOrKeyboardOrResizeEvents.clear();
     disableWheelRotateForOne500ms=-1;
     disableMouseMoveFor200ms=-1;
@@ -67,12 +49,7 @@ COpenglWidget::~COpenglWidget()
 void COpenglWidget::initializeGL()
 {
     TRACE_INTERNAL;
-#ifndef USING_QOPENGLWIDGET
     setAutoBufferSwap(false);
-#else
-    makeContextCurrent();
-    initGl_ifNeeded();
-#endif
 }
 
 void COpenglWidget::makeContextCurrent()
@@ -88,9 +65,6 @@ void COpenglWidget::paintEvent(QPaintEvent* event)
 void COpenglWidget::resizeEvent(QResizeEvent* rEvent)
 {
     TRACE_INTERNAL;
-#ifdef USING_QOPENGLWIDGET
-    QOpenGLWidget::resizeEvent(rEvent);
-#endif
     _handleMouseAndKeyboardAndResizeEvents(rEvent,7);
 }
 
@@ -567,13 +541,8 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
 
 void COpenglWidget::_computeMousePos(int inX,int inY,int& outX,int& outY)
 {
-#ifdef USING_QOPENGLWIDGET
-    double sx=App::qtApp->devicePixelRatio();
-    double sy=sx;
-#else
     double sx=windowHandle()->devicePixelRatio();
     double sy=windowHandle()->devicePixelRatio();
-#endif
     outX=int(double(inX)*sx+0.5);
     outY=int(double(inY)*sy+0.5);
     _lastGlobalMousePos[0]=QCursor::pos().x();

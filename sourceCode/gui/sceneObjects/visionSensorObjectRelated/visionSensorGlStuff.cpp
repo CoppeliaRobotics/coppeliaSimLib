@@ -2,11 +2,7 @@
 #include <visionSensorGlStuff.h>
 #include <glShader.h>
 
-#ifdef USING_QOPENGLWIDGET
-CVisionSensorGlStuff::CVisionSensorGlStuff(int resX,int resY,int offscreenType,bool qtFbo,QOpenGLWidget* otherWidgetToShareResourcesWith,bool useStencilBuffer,bool destroyOffscreenContext,int majorOpenGl,int minorOpenGl) : QObject()
-#else
 CVisionSensorGlStuff::CVisionSensorGlStuff(int resX,int resY,int offscreenType,bool qtFbo,QGLWidget* otherWidgetToShareResourcesWith,bool useStencilBuffer,bool destroyOffscreenContext,int majorOpenGl,int minorOpenGl) : QObject()
-#endif
 {
     _destroyOffscreenContext=destroyOffscreenContext;
 

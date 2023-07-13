@@ -133,13 +133,6 @@ void GuiApp::runGui(int options)
         }
     );
 
-    #ifdef USING_QOPENGLWIDGET
-        // Following mandatory on some platforms (e.g. OSX), call just after a QApplication was constructed:
-        QSurfaceFormat format;
-        format.setRenderableType(QSurfaceFormat::OpenGL);
-        QSurfaceFormat::setDefaultFormat(format);
-    #endif
-
     qRegisterMetaType<std::string>("std::string");
     Q_INIT_RESOURCE(targaFiles);
     Q_INIT_RESOURCE(toolbarFiles);
