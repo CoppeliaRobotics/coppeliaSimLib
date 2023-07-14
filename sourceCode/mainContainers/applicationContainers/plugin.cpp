@@ -449,6 +449,9 @@ void CPlugin::cleanup()
 
 int CPlugin::loadAndInit_old(std::string* errStr)
 { // retVal: -2 (could not open library), -1 (missing init entry point), 0 (could not properly initialize), otherwise plugin version
+    int retVal=-2; // could not open library
+    QString curr(QDir::currentPath());
+    QDir::setCurrent(App::getApplicationDir().c_str()); // needed for old plugins, also Linux and macOS!
     WLibrary lib=VVarious::openLibrary(_filename.c_str(),errStr); // here we have the extension in the filename (.dll, .so or .dylib)
     if (lib!=nullptr)
     {
@@ -478,21 +481,13 @@ int CPlugin::loadAndInit_old(std::string* errStr)
                     errStr[0]="could not properly initialize plugin";
                 instance=nullptr;
             }
-            return(pluginVersion);
+            retVal=pluginVersion;
         }
-        /*
         else
-        {
-            VVarious::closeLibrary(instance,nullptr);
-            if (errStr!=nullptr)
-                errStr[0]="missing entry points in plugin";
-            instance=nullptr;
-        }
-        */
-        return(-1); // missing entry points
+            retVal=-1; // missing entry points
     }
-    else
-        return(-2); // could not open library
+    QDir::setCurrent(curr);
+    return(retVal);
 }
 
 void CPlugin::_loadAuxEntryPoints()

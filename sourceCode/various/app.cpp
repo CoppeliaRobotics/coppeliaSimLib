@@ -92,13 +92,6 @@ void App::setAppStage(int s)
 
 void App::init(const char* appDir,int)
 {
-#ifdef SIM_WITH_GUI
-    while (getAppStage()!=appstage_guiInit1Done)
-        VThread::sleep(1);
-#endif
-    VThread::setSimThread();
-    _exitRequest=false;
-
     if (appDir)
         _applicationDir=appDir;
     else
@@ -107,9 +100,17 @@ void App::init(const char* appDir,int)
         _applicationDir=pathInfo.path().toStdString();
     }
     VVarious::removePathFinalSlashOrBackslash(_applicationDir);
-    #ifdef WIN_SIM
-        QDir::setCurrent(_applicationDir.data());
-    #endif
+#ifdef WIN_SIM
+    SetDllDirectoryA(_applicationDir.c_str());
+#endif
+    setAppStage(appstage_simInit1Done);
+
+#ifdef SIM_WITH_GUI
+    while (getAppStage()!=appstage_guiInit1Done)
+        VThread::sleep(1);
+#endif
+    VThread::setSimThread();
+    _exitRequest=false;
 
     #ifdef WIN_SIM
         SetUnhandledExceptionFilter(_winExceptionHandler);
@@ -148,7 +149,7 @@ void App::init(const char* appDir,int)
     if ( (App::getConsoleVerbosity()>=sim_verbosity_trace)&&(!App::userSettings->suppressStartupDialogs) )
         App::logMsg(sim_verbosity_warnings,"tracing is turned on: this might lead to drastic performance loss.");
 
-    setAppStage(appstage_simInitDone);
+    setAppStage(appstage_simInit2Done);
     #ifdef SIM_WITH_GUI
         while (getAppStage()!=appstage_guiInit2Done)
             VThread::sleep(1);
@@ -166,6 +167,13 @@ void App::init(const char* appDir,int)
     }
     worldContainer->addOnScriptContainer->loadAllAddOns();
     setAppStage(appstage_simRunning);
+
+    #ifdef SIM_WITH_GUI
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    #endif
 }
 
 void App::cleanup()

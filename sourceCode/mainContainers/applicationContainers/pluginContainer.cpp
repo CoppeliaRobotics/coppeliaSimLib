@@ -114,6 +114,7 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion,int
         plug->setHandle(_nextHandle);
         _allPlugins.push_back(plug);
         std::string errMsg;
+
         int loadRes=plug->load(&errMsg);
         if (loadRes==1)
         {

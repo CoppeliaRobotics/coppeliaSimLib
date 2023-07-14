@@ -46,15 +46,14 @@ GuiApp::~GuiApp()
 
 void GuiApp::runGui(int options)
 {
+    while (App::getAppStage()!=App::appstage_simInit1Done)
+        VThread::sleep(1);
     QApplication* dummyApp=new QApplication(_qApp_argc,_qApp_argv);
     delete dummyApp;
     uiThread=new CUiThread();
     VThread::setUiThread();
     App::setAppStage(App::appstage_guiInit1Done);
-
-
-    TRACE_INTERNAL;
-    while (App::getAppStage()!=App::appstage_simInitDone) // wait until SIM thread finished initialization
+    while (App::getAppStage()!=App::appstage_simInit2Done) // wait until SIM thread finished initialization
         VThread::sleep(1);
 
     _browserEnabled=true;

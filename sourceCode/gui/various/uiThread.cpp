@@ -49,7 +49,7 @@ CUiThread::~CUiThread()
 bool CUiThread::executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 { // Called by any thread
     bool retVal=false;
-    if (App::getAppStage()>=App::appstage_simInitDone)
+    if (App::getAppStage()>=App::appstage_simInit2Done)
     {
         if (!VThread::isUiThread())
             _executeCommandViaUiThread(cmdIn,cmdOut);
