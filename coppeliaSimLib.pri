@@ -7,7 +7,7 @@ DEFINES += SIM_MATH_DOUBLE # math and vector classes
 CONFIG += shared plugin debug_and_release
 
 !HEADLESS {
-    CONFIG += WITH_GUI
+   CONFIG += WITH_GUI
 }
 
 CONFIG(debug,debug|release) {
@@ -527,8 +527,7 @@ HEADERS += $$PWD/sourceCode/utils/tt.h \
 HEADERS += $$PWD/sourceCode/platform/vSimUiMutex.h \
     $$PWD/sourceCode/platform/wThread.h
 
-HEADERS += $$PWD/sourceCode/various/simAndUiThreadSync.h \
-    $$PWD/sourceCode/various/simQApp.h
+HEADERS += $$PWD/sourceCode/various/simQApp.h \
 
 WITH_GUI {
     HEADERS += $$PWD/sourceCode/gui/rendering/rendering.h \
@@ -689,6 +688,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/various/guiApp.h \
         $$PWD/sourceCode/gui/various/uiThread.h \
         $$PWD/sourceCode/gui/various/simThread.h \
+        $$PWD/sourceCode/gui/various/simAndUiThreadSync.h \
 
     HEADERS += $$PWD/sourceCode/gui/libs/auxLibVideo.h \
 }
@@ -908,8 +908,7 @@ SOURCES += $$PWD/sourceCode/utils/utils.cpp \
 SOURCES += $$PWD/sourceCode/platform/vSimUiMutex.cpp \
     $$PWD/sourceCode/platform/wThread.cpp
 
-SOURCES += $$PWD/sourceCode/various/simAndUiThreadSync.cpp \
-    $$PWD/sourceCode/various/simQApp.cpp
+SOURCES += $$PWD/sourceCode/various/simQApp.cpp \
 
 WITH_GUI {
     SOURCES += $$PWD/sourceCode/gui/rendering/rendering.cpp \
@@ -1070,6 +1069,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/various/guiApp.cpp \
         $$PWD/sourceCode/gui/various/uiThread.cpp \
         $$PWD/sourceCode/gui/various/simThread.cpp \
+        $$PWD/sourceCode/gui/various/simAndUiThreadSync.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/libs/auxLibVideo.cpp \
 }

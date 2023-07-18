@@ -72,8 +72,6 @@ public:
 
     static void undoRedo_sceneChanged(const char* txt);
     static void undoRedo_sceneChangedGradual(const char* txt);
-    static void undoRedo_sceneChangeStart(const char* txt);
-    static void undoRedo_sceneChangeEnd();
 
     static CFolderSystem* folders;
     static CUserSettings* userSettings;

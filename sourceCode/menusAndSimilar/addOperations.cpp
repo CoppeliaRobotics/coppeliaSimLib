@@ -25,533 +25,6 @@ CAddOperations::~CAddOperations()
 
 }
 
-bool CAddOperations::processCommand(int commandID,CSView* subView)
-{ // Return value is true if the command belonged to Add menu and was executed
-#ifdef SIM_WITH_GUI
-    if ( (commandID==ADD_COMMANDS_ADD_PRIMITIVE_PLANE_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRIMITIVE_DISC_ACCMD)||
-        (commandID==ADD_COMMANDS_ADD_PRIMITIVE_RECTANGLE_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRIMITIVE_SPHERE_ACCMD)||
-        (commandID==ADD_COMMANDS_ADD_PRIMITIVE_CYLINDER_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRIMITIVE_CONE_ACCMD)||
-         (commandID==ADD_COMMANDS_ADD_PRIMITIVE_CAPSULE_ACCMD) )
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PRIMITIVE_SHAPE);
-
-            CShape* newShape=addPrimitive_withDialog(commandID,nullptr);
-            int shapeHandle=-1;
-            if (newShape!=nullptr)
-                shapeHandle=newShape->getObjectHandle();
-            if (shapeHandle!=-1)
-            {
-                App::currentWorld->sceneObjects->deselectObjects();
-                App::currentWorld->sceneObjects->selectObject(shapeHandle);
-                App::undoRedo_sceneChanged("");
-                App::logMsg(sim_verbosity_msgs,"done.");
-            }
-            else
-                App::logMsg(sim_verbosity_msgs,"Operation aborted.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-#endif
-
-    if (commandID==ADD_COMMANDS_ADD_FLOATING_VIEW_ACCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_FLOATING_VIEW);
-#ifdef SIM_WITH_GUI
-            App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex())->addFloatingView();
-#endif
-            App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs,"done.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if ( (commandID==ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRISMATIC_JOINT_ACCMD)||
-        (commandID==ADD_COMMANDS_ADD_SPHERICAL_JOINT_ACCMD) )
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_JOINT);
-            CJoint* newObject=nullptr;
-            if (commandID==ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD)
-                newObject=new CJoint(sim_joint_revolute_subtype);
-            if (commandID==ADD_COMMANDS_ADD_PRISMATIC_JOINT_ACCMD)
-                newObject=new CJoint(sim_joint_prismatic_subtype);
-            if (commandID==ADD_COMMANDS_ADD_SPHERICAL_JOINT_ACCMD)
-                newObject=new CJoint(sim_joint_spherical_subtype);
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::undoRedo_sceneChanged("");
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,"done.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if ( (commandID==ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD)||(commandID==ADD_COMMANDS_ADD_ORTHOGONAL_CAMERA_ACCMD)||(commandID==ADD_COMMANDS_ADD_OMNI_LIGHT_ACCMD)||
-        (commandID==ADD_COMMANDS_ADD_SPOT_LIGHT_ACCMD)||(commandID==ADD_COMMANDS_ADD_DIR_LIGHT_ACCMD) )
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            int lo=-1;
-            if (subView!=nullptr)
-                lo=subView->getLinkedObjectID();
-            CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(lo);
-            CGraph* graph=App::currentWorld->sceneObjects->getGraphFromHandle(lo);
-            if (graph!=nullptr)
-                return(true);
-            CCamera* myNewCamera=nullptr;
-            CLight* myNewLight=nullptr;
-            if ( (commandID==ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD)||(commandID==ADD_COMMANDS_ADD_ORTHOGONAL_CAMERA_ACCMD) )
-            {
-                App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_CAMERA);
-                myNewCamera=new CCamera();
-                myNewCamera->setPerspective(commandID==ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD);
-                App::currentWorld->sceneObjects->addObjectToScene(myNewCamera,false,true);
-                App::logMsg(sim_verbosity_msgs,"done.");
-            }
-            else
-            {
-                App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_LIGHT);
-                int tp;
-                if (commandID==ADD_COMMANDS_ADD_OMNI_LIGHT_ACCMD)
-                    tp=sim_light_omnidirectional_subtype;
-                if (commandID==ADD_COMMANDS_ADD_SPOT_LIGHT_ACCMD)
-                    tp=sim_light_spot_subtype;
-                if (commandID==ADD_COMMANDS_ADD_DIR_LIGHT_ACCMD)
-                    tp=sim_light_directional_subtype;
-                myNewLight=new CLight(tp);
-                App::currentWorld->sceneObjects->addObjectToScene(myNewLight,false,true);
-                App::logMsg(sim_verbosity_msgs,"done.");
-            }
-            CSceneObject* addedObject=myNewCamera;
-            if (addedObject==nullptr)
-                addedObject=myNewLight;
-            addedObject->setLocalTransformation(C3Vector(0.0,0.0,1.0));
-            addedObject->setLocalTransformation(C4Vector(piValue*0.5,0.0,0.0));
-            if (camera!=nullptr)
-            {
-                if (myNewCamera!=nullptr)
-                {
-                    App::currentWorld->sceneObjects->selectObject(myNewCamera->getObjectHandle());
-                    C7Vector m(camera->getFullCumulativeTransformation());
-                    myNewCamera->setLocalTransformation(m);
-                    myNewCamera->scaleObject(camera->getCameraSize()/myNewCamera->getCameraSize());
-                    C3Vector hs(myNewCamera->getBBHSize());
-                    m=myNewCamera->getLocalTransformation();
-                    double averageSize=(hs(0)+hs(1)+hs(2))/1.5;
-                    double shiftForward=camera->getNearClippingPlane()+hs(2)*2.0+3.0*averageSize;
-                    m.X+=(m.Q.getAxis(2)*shiftForward);
-                    myNewCamera->setLocalTransformation(m.X);
-                }
-            }
-            else if (subView!=nullptr)
-            {   // When we want to add a camera to an empty window
-                if (myNewCamera!=nullptr)
-                {
-                    C7Vector m;
-                    m.X=C3Vector(-1.12,1.9,1.08);
-                    m.Q.setEulerAngles(C3Vector(110.933*degToRad,28.703*degToRad,-10.41*degToRad));
-                    myNewCamera->setLocalTransformation(m);
-                    subView->setLinkedObjectID(myNewCamera->getObjectHandle(),false);
-                }
-            }
-            App::currentWorld->sceneObjects->selectObject(addedObject->getObjectHandle());
-            App::undoRedo_sceneChanged("");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.objectParams.push_back(subView);
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==ADD_COMMANDS_ADD_MIRROR_ACCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_MIRROR);
-            CMirror* newObject=new CMirror();
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(newObject->getObjectHandle(),C3Vector(piValD2,0.0,0.0));
-            App::currentWorld->sceneObjects->setObjectAbsolutePosition(newObject->getObjectHandle(),C3Vector(0.0,0.0,newObject->getMirrorHeight()*0.5));
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs,"done.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==ADD_COMMANDS_ADD_DUMMY_ACCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_DUMMY);
-            CDummy* newObject=new CDummy();
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs,"done.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==ADD_COMMANDS_ADD_OCTREE_ACCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_AN_OCTREE);
-            COcTree* newObject=new COcTree();
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs,"done.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==ADD_COMMANDS_ADD_POINTCLOUD_ACCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_POINTCLOUD);
-            CPointCloud* newObject=new CPointCloud();
-/*
-            std::vector<double> v;
-            for (size_t i=0;i<50000;i++)
-            {
-                double x=sin(double(i)/500.0);
-                double y=cos(double(i)/500.0);
-                double z=double(i)/50000.0;
-                v.push_back(x);
-                v.push_back(y);
-                v.push_back(z);
-            }
-            newObject->insertPoints(&v[0],v.size()/3,true,nullptr);
-            //*/
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs,"done.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if ( (commandID>=ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_LUA_ACCMD)&&(commandID<=ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD) )
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            if (App::currentWorld->sceneObjects->getSelectionCount()==1)
-            {
-                bool isLua=(commandID<ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
-                bool isThreaded=(commandID==ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD)||(commandID==ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
-                int scriptID=App::currentWorld->embeddedScriptContainer->insertDefaultScript(sim_scripttype_childscript,isThreaded,isLua,commandID==ADD_COMMANDS_ADD_oldTHREADED_CHILD_SCRIPT_LUA_ACCMD);
-                CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
-                if (script!=nullptr)
-                    script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
-                App::undoRedo_sceneChanged("");
-                GuiApp::setFullDialogRefreshFlag();
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
-    if ( (commandID>=ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD)&&(commandID<=ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD) )
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            if (App::currentWorld->sceneObjects->getSelectionCount()==1)
-            {
-                bool isLua=(commandID<=ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD);
-                bool isThreaded=(commandID==ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD)||(commandID==ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD);
-                int scriptID=App::currentWorld->embeddedScriptContainer->insertDefaultScript(sim_scripttype_customizationscript,isThreaded,isLua);
-                CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
-                if (script!=nullptr)
-                    script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
-                App::undoRedo_sceneChanged("");
-                GuiApp::setFullDialogRefreshFlag();
-            }
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
-    if ( (commandID==ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD)||(commandID==ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD) )
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PATH);
-            std::string txt;
-            if (commandID==ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD)
-                txt+="local pathData={-2.5000e-01,0.0000e+00,0.0000e+00,0.0000e+00,0.0000e+00,0.0000e+00,1.0000e+00,2.5000e-01,0.0000e+00,0.0000e+00,0.0000e+00,0.0000e+00,0.0000e+00,1.0000e+00}";
-            else
-                txt+="local pathData={2.5490e-01,0.0000e+00,0.0000e+00,-2.1073e-08,-2.9802e-08,2.1073e-08,1.0000e+00,2.3549e-01,9.7545e-02,0.0000e+00,0.0000e+00,0.0000e+00,1.9509e-01,9.8079e-01,1.8024e-01,1.8024e-01,0.0000e+00,4.4703e-08,0.0000e+00,3.8268e-01,9.2388e-01,9.7545e-02,2.3549e-01,0.0000e+00,-2.9802e-08,-2.9802e-08,5.5557e-01,8.3147e-01,-1.1142e-08,2.5490e-01,0.0000e+00,0.0000e+00,0.0000e+00,7.0711e-01,7.0711e-01,-9.7545e-02,2.3549e-01,0.0000e+00,-2.9802e-08,-5.9605e-08,8.3147e-01,5.5557e-01,-1.8024e-01,1.8024e-01,0.0000e+00,-8.9407e-08,-4.4703e-08,9.2388e-01,3.8268e-01,-2.3549e-01,9.7545e-02,0.0000e+00,0.0000e+00,0.0000e+00,9.8079e-01,1.9509e-01,-2.5490e-01,3.8488e-08,0.0000e+00,-2.9802e-08,-2.1073e-08,1.0000e+00,2.1073e-08,-2.3549e-01,-9.7545e-02,0.0000e+00,-5.9605e-08,4.4703e-08,9.8079e-01,-1.9509e-01,-1.8024e-01,-1.8024e-01,0.0000e+00,0.0000e+00,-4.4703e-08,9.2388e-01,-3.8268e-01,-9.7545e-02,-2.3549e-01,0.0000e+00,-5.9605e-08,5.9605e-08,8.3147e-01,-5.5557e-01,3.0396e-09,-2.5490e-01,0.0000e+00,0.0000e+00,0.0000e+00,7.0711e-01,-7.0711e-01,9.7545e-02,-2.3549e-01,0.0000e+00,0.0000e+00,0.0000e+00,5.5557e-01,-8.3147e-01,1.8024e-01,-1.8024e-01,0.0000e+00,0.0000e+00,0.0000e+00,3.8268e-01,-9.2388e-01,2.3549e-01,-9.7545e-02,0.0000e+00,-2.2352e-08,0.0000e+00,1.9509e-01,-9.8079e-01}";
-            txt+="\nlocal path=sim.createPath(pathData,";
-            int opt=0;
-            if (commandID==ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD)
-                opt+=2;
-            txt+=std::to_string(opt)+",100)\nsim.setObjectSelection({path})";
-            App::worldContainer->sandboxScript->executeScriptString(txt.c_str(),nullptr);
-            App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs,"done.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==ADD_COMMANDS_ADD_GRAPH_ACCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_GRAPH);
-            CGraph* newObject=new CGraph();
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-
-            // Following 3 on 24/3/2017
-            CScriptObject* scriptObj=new CScriptObject(sim_scripttype_customizationscript);
-            App::currentWorld->embeddedScriptContainer->insertScript(scriptObj);
-            scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
-            scriptObj->setScriptText("graph=require('graph_customization')");
-            newObject->setScriptExecPriority(sim_scriptexecorder_last);
-
-            App::undoRedo_sceneChanged("");
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,"done.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if ( (commandID==ADD_COMMANDS_ADD_VISION_SENSOR_PERSPECTIVE_ACCMD)||(commandID==ADD_COMMANDS_ADD_VISION_SENSOR_ORTHOGONAL_ACCMD) )
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_VISION_SENSOR);
-            CVisionSensor* newObject=new CVisionSensor();
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            newObject->setPerspective(commandID==ADD_COMMANDS_ADD_VISION_SENSOR_PERSPECTIVE_ACCMD);
-            bool isSet=false;
-            if (subView!=nullptr)
-            {
-                C7Vector m;
-                int lo=subView->getLinkedObjectID();
-                CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(lo);
-                CVisionSensor* sens=App::currentWorld->sceneObjects->getVisionSensorFromHandle(lo);
-                isSet=( (camera!=nullptr)||(sens!=nullptr) );
-                if (isSet)
-                {
-                    if (camera!=nullptr)
-                        m=camera->getLocalTransformation();
-                    if (sens!=nullptr)
-                        m=sens->getLocalTransformation();
-                    newObject->setLocalTransformation(m);
-                    C3Vector hs(newObject->getBBHSize());
-                    double averageSize=(hs(0)+hs(1)+hs(2))/1.5;
-                    double shiftForward;
-                    if (camera!=nullptr)
-                        shiftForward=camera->getNearClippingPlane()+hs(2)*2.0+3.0*averageSize;
-                    if (sens!=nullptr)
-                        shiftForward=sens->getNearClippingPlane()+hs(2)*2.0+3.0*averageSize;
-                    m.X+=(m.Q.getAxis(2)*shiftForward);
-                    newObject->setLocalTransformation(m.X);
-                }
-            }
-            if (!isSet)
-                newObject->setLocalTransformation(C3Vector(0.0,0.0,newObject->getVisionSensorSize()*2.0));
-            App::undoRedo_sceneChanged("");
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,"done.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            cmd.objectParams.push_back(subView);
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==ADD_COMMANDS_ADD_FORCE_SENSOR_ACCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_FORCE_SENSOR);
-            CForceSensor* newObject=new CForceSensor();
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::undoRedo_sceneChanged("");
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,"done.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if ( (commandID==ADD_COMMANDS_ADD_RAY_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_PYRAMID_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_CYLINDER_PROXSENSOR_ACCMD)||
-        (commandID==ADD_COMMANDS_ADD_DISC_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_CONE_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_RANDOMIZED_RAY_PROXSENSOR_ACCMD) )
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PROXIMITY_SENSOR);
-            CProxSensor* newObject=nullptr;
-            if (commandID==ADD_COMMANDS_ADD_RANDOMIZED_RAY_PROXSENSOR_ACCMD)
-            {
-                newObject=new CProxSensor(sim_proximitysensor_ray_subtype);
-                newObject->setRandomizedDetection(true);
-            }
-            else
-                newObject=new CProxSensor(commandID-ADD_COMMANDS_ADD_PYRAMID_PROXSENSOR_ACCMD+sim_proximitysensor_pyramid_subtype);
-            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
-            App::undoRedo_sceneChanged("");
-            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
-            App::logMsg(sim_verbosity_msgs,"done.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    if (commandID==ADD_COMMANDS_ADD_CONVEX_HULL_ACCMD)
-    { 
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<CSceneObject*> sel;
-            App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
-            App::logMsg(sim_verbosity_msgs,"Adding convex hull...");
-            GuiApp::uiThread->showOrHideProgressBar(true,-1,"Adding convex hull...");
-            App::currentWorld->sceneObjects->deselectObjects();
-
-            CShape* hull=addConvexHull(sel,0.0,true);
-
-            if (hull!=nullptr)
-            {
-                App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
-                App::undoRedo_sceneChanged("");
-                App::logMsg(sim_verbosity_msgs,"done.");
-            }
-            else
-                App::logMsg(sim_verbosity_errors,"Operation failed.");
-            GuiApp::uiThread->showOrHideProgressBar(false);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
-    if (commandID==ADD_COMMANDS_ADD_GROWN_CONVEX_HULL_ACCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::vector<CSceneObject*> sel;
-            App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
-            double grow=0.03;
-            bool doIt=true;
-#ifdef SIM_WITH_GUI
-            doIt=GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow,"Convex hull","Grow parameter",0.05,0.001,10.0,3,&grow);
-#endif
-            App::currentWorld->sceneObjects->deselectObjects();
-
-            if (doIt)
-            {
-                App::logMsg(sim_verbosity_msgs,"Adding inflated convex hull...");
-                GuiApp::uiThread->showOrHideProgressBar(true,-1,"Adding inflated convex hull...");
-
-                CShape* hull=addConvexHull(sel,grow,true);
-
-                if (hull!=nullptr)
-                {
-                    App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
-                    GuiApp::uiThread->showOrHideProgressBar(false);
-                    App::undoRedo_sceneChanged("");
-                    App::logMsg(sim_verbosity_msgs,"done.");
-                }
-                else
-                    App::logMsg(sim_verbosity_errors,"Operation failed.");
-                GuiApp::uiThread->showOrHideProgressBar(false);
-            }
-            else
-                App::logMsg(sim_verbosity_msgs,"Aborted.");
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-    return(false);
-}
-
 CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& psizes,int options,const int subdiv[3],int faceSubdiv,int sides,int discSubdiv,bool dynamic,int pure,double density)
 { // pure=0: create non-pure, pure=1: create pure if possible, pure=2: force pure creation
     int sdiv[3]={0,0,0};
@@ -1210,5 +683,527 @@ CShape* CAddOperations::addPrimitive_withDialog(int command,const C3Vector* optS
         }
     }
     return(retVal);
+}
+
+bool CAddOperations::processCommand(int commandID,CSView* subView)
+{ // Return value is true if the command belonged to Add menu and was executed
+    if ( (commandID==ADD_COMMANDS_ADD_PRIMITIVE_PLANE_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRIMITIVE_DISC_ACCMD)||
+        (commandID==ADD_COMMANDS_ADD_PRIMITIVE_RECTANGLE_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRIMITIVE_SPHERE_ACCMD)||
+        (commandID==ADD_COMMANDS_ADD_PRIMITIVE_CYLINDER_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRIMITIVE_CONE_ACCMD)||
+         (commandID==ADD_COMMANDS_ADD_PRIMITIVE_CAPSULE_ACCMD) )
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PRIMITIVE_SHAPE);
+
+            CShape* newShape=addPrimitive_withDialog(commandID,nullptr);
+            int shapeHandle=-1;
+            if (newShape!=nullptr)
+                shapeHandle=newShape->getObjectHandle();
+            if (shapeHandle!=-1)
+            {
+                App::currentWorld->sceneObjects->deselectObjects();
+                App::currentWorld->sceneObjects->selectObject(shapeHandle);
+                App::undoRedo_sceneChanged("");
+                App::logMsg(sim_verbosity_msgs,"done.");
+            }
+            else
+                App::logMsg(sim_verbosity_msgs,"Operation aborted.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+
+    if (commandID==ADD_COMMANDS_ADD_FLOATING_VIEW_ACCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_FLOATING_VIEW);
+            App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex())->addFloatingView();
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+
+    if ( (commandID==ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD)||(commandID==ADD_COMMANDS_ADD_PRISMATIC_JOINT_ACCMD)||
+        (commandID==ADD_COMMANDS_ADD_SPHERICAL_JOINT_ACCMD) )
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_JOINT);
+            CJoint* newObject=nullptr;
+            if (commandID==ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD)
+                newObject=new CJoint(sim_joint_revolute_subtype);
+            if (commandID==ADD_COMMANDS_ADD_PRISMATIC_JOINT_ACCMD)
+                newObject=new CJoint(sim_joint_prismatic_subtype);
+            if (commandID==ADD_COMMANDS_ADD_SPHERICAL_JOINT_ACCMD)
+                newObject=new CJoint(sim_joint_spherical_subtype);
+            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
+            App::undoRedo_sceneChanged("");
+            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
+            App::logMsg(sim_verbosity_msgs,"done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if ( (commandID==ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD)||(commandID==ADD_COMMANDS_ADD_ORTHOGONAL_CAMERA_ACCMD)||(commandID==ADD_COMMANDS_ADD_OMNI_LIGHT_ACCMD)||
+        (commandID==ADD_COMMANDS_ADD_SPOT_LIGHT_ACCMD)||(commandID==ADD_COMMANDS_ADD_DIR_LIGHT_ACCMD) )
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            int lo=-1;
+            if (subView!=nullptr)
+                lo=subView->getLinkedObjectID();
+            CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(lo);
+            CGraph* graph=App::currentWorld->sceneObjects->getGraphFromHandle(lo);
+            if (graph!=nullptr)
+                return(true);
+            CCamera* myNewCamera=nullptr;
+            CLight* myNewLight=nullptr;
+            if ( (commandID==ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD)||(commandID==ADD_COMMANDS_ADD_ORTHOGONAL_CAMERA_ACCMD) )
+            {
+                App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_CAMERA);
+                myNewCamera=new CCamera();
+                myNewCamera->setPerspective(commandID==ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD);
+                App::currentWorld->sceneObjects->addObjectToScene(myNewCamera,false,true);
+                App::logMsg(sim_verbosity_msgs,"done.");
+            }
+            else
+            {
+                App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_LIGHT);
+                int tp;
+                if (commandID==ADD_COMMANDS_ADD_OMNI_LIGHT_ACCMD)
+                    tp=sim_light_omnidirectional_subtype;
+                if (commandID==ADD_COMMANDS_ADD_SPOT_LIGHT_ACCMD)
+                    tp=sim_light_spot_subtype;
+                if (commandID==ADD_COMMANDS_ADD_DIR_LIGHT_ACCMD)
+                    tp=sim_light_directional_subtype;
+                myNewLight=new CLight(tp);
+                App::currentWorld->sceneObjects->addObjectToScene(myNewLight,false,true);
+                App::logMsg(sim_verbosity_msgs,"done.");
+            }
+            CSceneObject* addedObject=myNewCamera;
+            if (addedObject==nullptr)
+                addedObject=myNewLight;
+            addedObject->setLocalTransformation(C3Vector(0.0,0.0,1.0));
+            addedObject->setLocalTransformation(C4Vector(piValue*0.5,0.0,0.0));
+            if (camera!=nullptr)
+            {
+                if (myNewCamera!=nullptr)
+                {
+                    App::currentWorld->sceneObjects->selectObject(myNewCamera->getObjectHandle());
+                    C7Vector m(camera->getFullCumulativeTransformation());
+                    myNewCamera->setLocalTransformation(m);
+                    myNewCamera->scaleObject(camera->getCameraSize()/myNewCamera->getCameraSize());
+                    C3Vector hs(myNewCamera->getBBHSize());
+                    m=myNewCamera->getLocalTransformation();
+                    double averageSize=(hs(0)+hs(1)+hs(2))/1.5;
+                    double shiftForward=camera->getNearClippingPlane()+hs(2)*2.0+3.0*averageSize;
+                    m.X+=(m.Q.getAxis(2)*shiftForward);
+                    myNewCamera->setLocalTransformation(m.X);
+                }
+            }
+            else if (subView!=nullptr)
+            {   // When we want to add a camera to an empty window
+                if (myNewCamera!=nullptr)
+                {
+                    C7Vector m;
+                    m.X=C3Vector(-1.12,1.9,1.08);
+                    m.Q.setEulerAngles(C3Vector(110.933*degToRad,28.703*degToRad,-10.41*degToRad));
+                    myNewCamera->setLocalTransformation(m);
+                    subView->setLinkedObjectID(myNewCamera->getObjectHandle(),false);
+                }
+            }
+            App::currentWorld->sceneObjects->selectObject(addedObject->getObjectHandle());
+            App::undoRedo_sceneChanged("");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.objectParams.push_back(subView);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==ADD_COMMANDS_ADD_MIRROR_ACCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_MIRROR);
+            CMirror* newObject=new CMirror();
+            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
+            App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(newObject->getObjectHandle(),C3Vector(piValD2,0.0,0.0));
+            App::currentWorld->sceneObjects->setObjectAbsolutePosition(newObject->getObjectHandle(),C3Vector(0.0,0.0,newObject->getMirrorHeight()*0.5));
+            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==ADD_COMMANDS_ADD_DUMMY_ACCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_DUMMY);
+            CDummy* newObject=new CDummy();
+            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
+            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==ADD_COMMANDS_ADD_OCTREE_ACCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_AN_OCTREE);
+            COcTree* newObject=new COcTree();
+            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
+            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==ADD_COMMANDS_ADD_POINTCLOUD_ACCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_POINTCLOUD);
+            CPointCloud* newObject=new CPointCloud();
+/*
+            std::vector<double> v;
+            for (size_t i=0;i<50000;i++)
+            {
+                double x=sin(double(i)/500.0);
+                double y=cos(double(i)/500.0);
+                double z=double(i)/50000.0;
+                v.push_back(x);
+                v.push_back(y);
+                v.push_back(z);
+            }
+            newObject->insertPoints(&v[0],v.size()/3,true,nullptr);
+            //*/
+            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
+            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if ( (commandID>=ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_LUA_ACCMD)&&(commandID<=ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD) )
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            if (App::currentWorld->sceneObjects->getSelectionCount()==1)
+            {
+                bool isLua=(commandID<ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
+                bool isThreaded=(commandID==ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD)||(commandID==ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
+                int scriptID=App::currentWorld->embeddedScriptContainer->insertDefaultScript(sim_scripttype_childscript,isThreaded,isLua,commandID==ADD_COMMANDS_ADD_oldTHREADED_CHILD_SCRIPT_LUA_ACCMD);
+                CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
+                if (script!=nullptr)
+                    script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
+                App::undoRedo_sceneChanged("");
+                GuiApp::setFullDialogRefreshFlag();
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+
+    if ( (commandID>=ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD)&&(commandID<=ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD) )
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            if (App::currentWorld->sceneObjects->getSelectionCount()==1)
+            {
+                bool isLua=(commandID<=ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD);
+                bool isThreaded=(commandID==ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD)||(commandID==ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD);
+                int scriptID=App::currentWorld->embeddedScriptContainer->insertDefaultScript(sim_scripttype_customizationscript,isThreaded,isLua);
+                CScriptObject* script=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
+                if (script!=nullptr)
+                    script->setObjectHandleThatScriptIsAttachedTo(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
+                App::undoRedo_sceneChanged("");
+                GuiApp::setFullDialogRefreshFlag();
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+
+    if ( (commandID==ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD)||(commandID==ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD) )
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PATH);
+            std::string txt;
+            if (commandID==ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD)
+                txt+="local pathData={-2.5000e-01,0.0000e+00,0.0000e+00,0.0000e+00,0.0000e+00,0.0000e+00,1.0000e+00,2.5000e-01,0.0000e+00,0.0000e+00,0.0000e+00,0.0000e+00,0.0000e+00,1.0000e+00}";
+            else
+                txt+="local pathData={2.5490e-01,0.0000e+00,0.0000e+00,-2.1073e-08,-2.9802e-08,2.1073e-08,1.0000e+00,2.3549e-01,9.7545e-02,0.0000e+00,0.0000e+00,0.0000e+00,1.9509e-01,9.8079e-01,1.8024e-01,1.8024e-01,0.0000e+00,4.4703e-08,0.0000e+00,3.8268e-01,9.2388e-01,9.7545e-02,2.3549e-01,0.0000e+00,-2.9802e-08,-2.9802e-08,5.5557e-01,8.3147e-01,-1.1142e-08,2.5490e-01,0.0000e+00,0.0000e+00,0.0000e+00,7.0711e-01,7.0711e-01,-9.7545e-02,2.3549e-01,0.0000e+00,-2.9802e-08,-5.9605e-08,8.3147e-01,5.5557e-01,-1.8024e-01,1.8024e-01,0.0000e+00,-8.9407e-08,-4.4703e-08,9.2388e-01,3.8268e-01,-2.3549e-01,9.7545e-02,0.0000e+00,0.0000e+00,0.0000e+00,9.8079e-01,1.9509e-01,-2.5490e-01,3.8488e-08,0.0000e+00,-2.9802e-08,-2.1073e-08,1.0000e+00,2.1073e-08,-2.3549e-01,-9.7545e-02,0.0000e+00,-5.9605e-08,4.4703e-08,9.8079e-01,-1.9509e-01,-1.8024e-01,-1.8024e-01,0.0000e+00,0.0000e+00,-4.4703e-08,9.2388e-01,-3.8268e-01,-9.7545e-02,-2.3549e-01,0.0000e+00,-5.9605e-08,5.9605e-08,8.3147e-01,-5.5557e-01,3.0396e-09,-2.5490e-01,0.0000e+00,0.0000e+00,0.0000e+00,7.0711e-01,-7.0711e-01,9.7545e-02,-2.3549e-01,0.0000e+00,0.0000e+00,0.0000e+00,5.5557e-01,-8.3147e-01,1.8024e-01,-1.8024e-01,0.0000e+00,0.0000e+00,0.0000e+00,3.8268e-01,-9.2388e-01,2.3549e-01,-9.7545e-02,0.0000e+00,-2.2352e-08,0.0000e+00,1.9509e-01,-9.8079e-01}";
+            txt+="\nlocal path=sim.createPath(pathData,";
+            int opt=0;
+            if (commandID==ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD)
+                opt+=2;
+            txt+=std::to_string(opt)+",100)\nsim.setObjectSelection({path})";
+            App::worldContainer->sandboxScript->executeScriptString(txt.c_str(),nullptr);
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs,"done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==ADD_COMMANDS_ADD_GRAPH_ACCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_GRAPH);
+            CGraph* newObject=new CGraph();
+            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
+
+            // Following 3 on 24/3/2017
+            CScriptObject* scriptObj=new CScriptObject(sim_scripttype_customizationscript);
+            App::currentWorld->embeddedScriptContainer->insertScript(scriptObj);
+            scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
+            scriptObj->setScriptText("graph=require('graph_customization')");
+            newObject->setScriptExecPriority(sim_scriptexecorder_last);
+
+            App::undoRedo_sceneChanged("");
+            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
+            App::logMsg(sim_verbosity_msgs,"done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if ( (commandID==ADD_COMMANDS_ADD_VISION_SENSOR_PERSPECTIVE_ACCMD)||(commandID==ADD_COMMANDS_ADD_VISION_SENSOR_ORTHOGONAL_ACCMD) )
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_VISION_SENSOR);
+            CVisionSensor* newObject=new CVisionSensor();
+            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
+            newObject->setPerspective(commandID==ADD_COMMANDS_ADD_VISION_SENSOR_PERSPECTIVE_ACCMD);
+            bool isSet=false;
+            if (subView!=nullptr)
+            {
+                C7Vector m;
+                int lo=subView->getLinkedObjectID();
+                CCamera* camera=App::currentWorld->sceneObjects->getCameraFromHandle(lo);
+                CVisionSensor* sens=App::currentWorld->sceneObjects->getVisionSensorFromHandle(lo);
+                isSet=( (camera!=nullptr)||(sens!=nullptr) );
+                if (isSet)
+                {
+                    if (camera!=nullptr)
+                        m=camera->getLocalTransformation();
+                    if (sens!=nullptr)
+                        m=sens->getLocalTransformation();
+                    newObject->setLocalTransformation(m);
+                    C3Vector hs(newObject->getBBHSize());
+                    double averageSize=(hs(0)+hs(1)+hs(2))/1.5;
+                    double shiftForward;
+                    if (camera!=nullptr)
+                        shiftForward=camera->getNearClippingPlane()+hs(2)*2.0+3.0*averageSize;
+                    if (sens!=nullptr)
+                        shiftForward=sens->getNearClippingPlane()+hs(2)*2.0+3.0*averageSize;
+                    m.X+=(m.Q.getAxis(2)*shiftForward);
+                    newObject->setLocalTransformation(m.X);
+                }
+            }
+            if (!isSet)
+                newObject->setLocalTransformation(C3Vector(0.0,0.0,newObject->getVisionSensorSize()*2.0));
+            App::undoRedo_sceneChanged("");
+            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
+            App::logMsg(sim_verbosity_msgs,"done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            cmd.objectParams.push_back(subView);
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==ADD_COMMANDS_ADD_FORCE_SENSOR_ACCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_FORCE_SENSOR);
+            CForceSensor* newObject=new CForceSensor();
+            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
+            App::undoRedo_sceneChanged("");
+            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
+            App::logMsg(sim_verbosity_msgs,"done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if ( (commandID==ADD_COMMANDS_ADD_RAY_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_PYRAMID_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_CYLINDER_PROXSENSOR_ACCMD)||
+        (commandID==ADD_COMMANDS_ADD_DISC_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_CONE_PROXSENSOR_ACCMD)||(commandID==ADD_COMMANDS_ADD_RANDOMIZED_RAY_PROXSENSOR_ACCMD) )
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs,IDSNS_ADDING_A_PROXIMITY_SENSOR);
+            CProxSensor* newObject=nullptr;
+            if (commandID==ADD_COMMANDS_ADD_RANDOMIZED_RAY_PROXSENSOR_ACCMD)
+            {
+                newObject=new CProxSensor(sim_proximitysensor_ray_subtype);
+                newObject->setRandomizedDetection(true);
+            }
+            else
+                newObject=new CProxSensor(commandID-ADD_COMMANDS_ADD_PYRAMID_PROXSENSOR_ACCMD+sim_proximitysensor_pyramid_subtype);
+            App::currentWorld->sceneObjects->addObjectToScene(newObject,false,true);
+            App::undoRedo_sceneChanged("");
+            App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
+            App::logMsg(sim_verbosity_msgs,"done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    if (commandID==ADD_COMMANDS_ADD_CONVEX_HULL_ACCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
+            App::logMsg(sim_verbosity_msgs,"Adding convex hull...");
+            GuiApp::uiThread->showOrHideProgressBar(true,-1,"Adding convex hull...");
+            App::currentWorld->sceneObjects->deselectObjects();
+
+            CShape* hull=addConvexHull(sel,0.0,true);
+
+            if (hull!=nullptr)
+            {
+                App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
+                App::undoRedo_sceneChanged("");
+                App::logMsg(sim_verbosity_msgs,"done.");
+            }
+            else
+                App::logMsg(sim_verbosity_errors,"Operation failed.");
+            GuiApp::uiThread->showOrHideProgressBar(false);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+
+    if (commandID==ADD_COMMANDS_ADD_GROWN_CONVEX_HULL_ACCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            std::vector<CSceneObject*> sel;
+            App::currentWorld->sceneObjects->getSelectedObjects(sel,-1,true,true);
+            double grow=0.03;
+            bool doIt=true;
+            doIt=GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow,"Convex hull","Grow parameter",0.05,0.001,10.0,3,&grow);
+            App::currentWorld->sceneObjects->deselectObjects();
+
+            if (doIt)
+            {
+                App::logMsg(sim_verbosity_msgs,"Adding inflated convex hull...");
+                GuiApp::uiThread->showOrHideProgressBar(true,-1,"Adding inflated convex hull...");
+
+                CShape* hull=addConvexHull(sel,grow,true);
+
+                if (hull!=nullptr)
+                {
+                    App::currentWorld->sceneObjects->addObjectToSelection(hull->getObjectHandle());
+                    GuiApp::uiThread->showOrHideProgressBar(false);
+                    App::undoRedo_sceneChanged("");
+                    App::logMsg(sim_verbosity_msgs,"done.");
+                }
+                else
+                    App::logMsg(sim_verbosity_errors,"Operation failed.");
+                GuiApp::uiThread->showOrHideProgressBar(false);
+            }
+            else
+                App::logMsg(sim_verbosity_msgs,"Aborted.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=commandID;
+            GuiApp::appendSimulationThreadCommand(cmd);
+        }
+        return(true);
+    }
+    return(false);
 }
 #endif

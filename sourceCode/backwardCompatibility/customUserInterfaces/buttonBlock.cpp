@@ -224,8 +224,13 @@ void CButtonBlock::getButtonSizeOriginal(VPoint& theSize)
 
 void CButtonBlock::getButtonSizeRetina(VPoint& theSize)
 {
-    theSize.x=_buttonWidth*GuiApp::sc;
-    theSize.y=_buttonHeight*GuiApp::sc;
+    #ifdef SIM_WITH_GUI
+        int s=GuiApp::sc;
+    #else
+        int s=1;
+    #endif
+    theSize.x=_buttonWidth*s;
+    theSize.y=_buttonHeight*s;
 }
 
 int CButtonBlock::getButtonWidthOriginal()
@@ -240,12 +245,22 @@ int CButtonBlock::getButtonHeightOriginal()
 
 int CButtonBlock::getButtonWidthRetina()
 {
-    return(_buttonWidth*GuiApp::sc);
+    #ifdef SIM_WITH_GUI
+        int s=GuiApp::sc;
+    #else
+        int s=1;
+    #endif
+    return(_buttonWidth*s);
 }
 
 int CButtonBlock::getButtonHeightRetina()
 {
-    return(_buttonHeight*GuiApp::sc);
+    #ifdef SIM_WITH_GUI
+        int s=GuiApp::sc;
+    #else
+        int s=1;
+    #endif
+    return(_buttonHeight*s);
 }
 
 CSoftButton* CButtonBlock::getButtonWithID(int id)

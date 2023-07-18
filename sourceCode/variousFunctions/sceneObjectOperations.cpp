@@ -15,6 +15,7 @@
     #include <guiApp.h>
 #endif
 
+#ifdef SIM_WITH_GUI
 void CSceneObjectOperations::keyPress(int key)
 {
     if (key==CTRL_V_KEY)
@@ -35,7 +36,6 @@ void CSceneObjectOperations::keyPress(int key)
         processCommand(SCENE_OBJECT_OPERATION_SELECT_ALL_OBJECTS_SOOCMD);
 }
 
-#ifdef SIM_WITH_GUI
 bool CSceneObjectOperations::processCommand(int commandID)
 { // Return value is true if the command belonged to object edition menu and was executed
  // Can be called by the UI and SIM thread!
@@ -998,17 +998,20 @@ bool CSceneObjectOperations::processCommand(int commandID)
 #endif
 void CSceneObjectOperations::copyObjects(std::vector<int>* selection,bool displayMessages)
 {
+#ifdef SIM_WITH_GUI
     if (displayMessages)
         GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Copying objects...");
-
+#endif
     // We first copy the selection:
     std::vector<int> sel(*selection);
     App::currentWorld->sceneObjects->addModelObjects(sel);
     App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),0);
     App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
 
+#ifdef SIM_WITH_GUI
     if (displayMessages)
         GuiApp::uiThread->showOrHideProgressBar(false);
+#endif
 }
 
 void CSceneObjectOperations::pasteCopyBuffer(bool displayMessages)
@@ -1036,30 +1039,37 @@ void CSceneObjectOperations::pasteCopyBuffer(bool displayMessages)
 void CSceneObjectOperations::cutObjects(std::vector<int>* selection,bool displayMessages)
 {
     TRACE_INTERNAL;
+#ifdef SIM_WITH_GUI
     if (displayMessages)
         GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Cutting objects...");
-
+#endif
     App::currentWorld->sceneObjects->addModelObjects(*selection);
     copyObjects(selection,false);
     deleteObjects(selection,false);
     App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
 
+#ifdef SIM_WITH_GUI
     if (displayMessages)
         GuiApp::uiThread->showOrHideProgressBar(false);
+#endif
 }
 
 void CSceneObjectOperations::deleteObjects(std::vector<int>* selection,bool displayMessages)
 { // There are a few other spots where objects get deleted (e.g. the C-interface)
     TRACE_INTERNAL;
+#ifdef SIM_WITH_GUI
     if (displayMessages)
         GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Deleting objects...");
+#endif
 
     App::currentWorld->sceneObjects->addModelObjects(selection[0]);
     App::currentWorld->sceneObjects->eraseObjects(selection[0],true);
     App::currentWorld->sceneObjects->deselectObjects();
 
+#ifdef SIM_WITH_GUI
     if (displayMessages)
         GuiApp::uiThread->showOrHideProgressBar(false);
+#endif
 }
 
 int CSceneObjectOperations::groupSelection(std::vector<int>* selection)
@@ -1461,7 +1471,9 @@ void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection,doub
         }
     }
 
+#ifdef SIM_WITH_GUI
     GuiApp::setFullDialogRefreshFlag();
+#endif
 }
 
 CMesh* CSceneObjectOperations::generateConvexHull(int shapeHandle)
@@ -1672,6 +1684,7 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
         }
     }
     bool abortp=false;
+#ifdef SIM_WITH_GUI
     if ((options&2)!=0)
     {
         // Display the dialog:
@@ -1735,6 +1748,7 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
             minVolumePerCH=cmdOut.floatParams[7];
         }
     }
+#endif
     CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
     if (!abortp)
     {

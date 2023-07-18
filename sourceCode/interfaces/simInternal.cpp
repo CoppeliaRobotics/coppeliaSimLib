@@ -3246,7 +3246,11 @@ int simSetInt32Param_internal(int parameter,int intState)
         }
         if (parameter==sim_intparam_scene_index)
         {
+#ifdef SIM_WITH_GUI
             GuiApp::appendSimulationThreadCommand(SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD,intState);
+#else
+            App::worldContainer->switchToWorld(intState);
+#endif
             return(1);
         }
         if (parameter==sim_intparam_dynamic_engine)
@@ -3517,7 +3521,10 @@ int simGetInt32Param_internal(int parameter,int* intState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
                 return(-1);
-            int editMode=GuiApp::getEditModeType();
+            int editMode=NO_EDIT_MODE;
+            #ifdef SIM_WITH_GUI
+                editMode=GuiApp::getEditModeType();
+            #endif
             if (editMode==NO_EDIT_MODE)
                 intState[0]=0;
             if (editMode==TRIANGLE_EDIT_MODE)
@@ -4592,7 +4599,9 @@ int simAssociateScriptWithObject_internal(int scriptHandle,int associatedObjectH
                 if (associatedObjectHandle==-1)
                 { // remove association
                     it->setObjectHandleThatScriptIsAttachedTo(-1);
-                    GuiApp::setLightDialogRefreshFlag();
+                    #ifdef SIM_WITH_GUI
+                        GuiApp::setLightDialogRefreshFlag();
+                    #endif
                     retVal=1;
                 }
                 else
@@ -4609,7 +4618,9 @@ int simAssociateScriptWithObject_internal(int scriptHandle,int associatedObjectH
                             if (currentSimilarObj==nullptr)
                             {
                                 it->setObjectHandleThatScriptIsAttachedTo(associatedObjectHandle);
-                                GuiApp::setLightDialogRefreshFlag();
+                                #ifdef SIM_WITH_GUI
+                                    GuiApp::setLightDialogRefreshFlag();
+                                #endif
                                 retVal=1;
                             }
                             else
@@ -4649,7 +4660,9 @@ int simAddScript_internal(int scriptProperty)
             }
         }
         int retVal=App::currentWorld->embeddedScriptContainer->insertScript(it);
-        GuiApp::setFullDialogRefreshFlag();
+        #ifdef SIM_WITH_GUI
+            GuiApp::setFullDialogRefreshFlag();
+        #endif
         return(retVal);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -4670,7 +4683,9 @@ int simRemoveScript_internal(int scriptHandle)
                 return(-1);
             }
             App::currentWorld->embeddedScriptContainer->removeAllScripts();
-            GuiApp::setFullDialogRefreshFlag();
+            #ifdef SIM_WITH_GUI
+                GuiApp::setFullDialogRefreshFlag();
+            #endif
             return(1);
         }
         CScriptObject* it=App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
@@ -4679,12 +4694,14 @@ int simRemoveScript_internal(int scriptHandle)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCRIPT_INEXISTANT);
             return(-1);
         }
-#ifdef SIM_WITH_GUI
-        if (GuiApp::mainWindow!=nullptr)
-            GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
-#endif
+        #ifdef SIM_WITH_GUI
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
+        #endif
         App::currentWorld->embeddedScriptContainer->removeScript_safe(scriptHandle);
-        GuiApp::setFullDialogRefreshFlag();
+        #ifdef SIM_WITH_GUI
+            GuiApp::setFullDialogRefreshFlag();
+        #endif
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -5504,7 +5521,9 @@ int simAddLog_internal(const char* pluginName,int verbosityLevel,const char* log
     int retVal=0;
     if (logMsg==nullptr)
     {
+    #ifdef SIM_WITH_GUI
         GuiApp::clearStatusbar();
+    #endif
         retVal=1;
     }
     else
@@ -5517,17 +5536,18 @@ int simAddLog_internal(const char* pluginName,int verbosityLevel,const char* log
 
 int simSetNavigationMode_internal(int navigationMode)
 {
-    TRACE_C_API;
-
-    GuiApp::setMouseMode(navigationMode);
+    #ifdef SIM_WITH_GUI
+        GuiApp::setMouseMode(navigationMode);
+    #endif
     return(1);
 }
 
 int simGetNavigationMode_internal()
 {
-    TRACE_C_API;
-
-    int retVal=GuiApp::getMouseMode();
+    int retVal=-1;
+    #ifdef SIM_WITH_GUI
+        retVal=GuiApp::getMouseMode();
+    #endif
     return(retVal);
 }
 
@@ -9441,11 +9461,13 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
                     }
                     else
                     { // We are in the UI thread. Execute the command via the main thread:
-                        SSimulationThreadCommand cmd;
-                        cmd.cmdId=SET_SHAPE_SHADING_ANGLE_CMD;
-                        cmd.intParams.push_back(shape->getObjectHandle());
-                        cmd.doubleParams.push_back(parameter);
-                        GuiApp::appendSimulationThreadCommand(cmd);
+                        #ifdef SIM_WITH_GUI
+                            SSimulationThreadCommand cmd;
+                            cmd.cmdId=SET_SHAPE_SHADING_ANGLE_CMD;
+                            cmd.intParams.push_back(shape->getObjectHandle());
+                            cmd.doubleParams.push_back(parameter);
+                            GuiApp::appendSimulationThreadCommand(cmd);
+                        #endif
                     }
                     retVal=1;
                 }
@@ -9462,11 +9484,13 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
                     }
                     else
                     { // We are in the UI thread. Execute the command via the main thread:
-                        SSimulationThreadCommand cmd;
-                        cmd.cmdId=SET_SHAPE_EDGE_ANGLE_CMD;
-                        cmd.intParams.push_back(shape->getObjectHandle());
-                        cmd.doubleParams.push_back(parameter);
-                        GuiApp::appendSimulationThreadCommand(cmd);
+                        #ifdef SIM_WITH_GUI
+                            SSimulationThreadCommand cmd;
+                            cmd.cmdId=SET_SHAPE_EDGE_ANGLE_CMD;
+                            cmd.intParams.push_back(shape->getObjectHandle());
+                            cmd.doubleParams.push_back(parameter);
+                            GuiApp::appendSimulationThreadCommand(cmd);
+                        #endif
                     }
                     retVal=1;
                 }
@@ -11342,9 +11366,13 @@ int simConvexDecompose_internal(int shapeHandle,int options,const int* intParams
 void simQuitSimulator_internal(bool ignoredArgument)
 {
     TRACE_C_API;
-    SSimulationThreadCommand cmd;
-    cmd.cmdId=EXIT_REQUEST_CMD;
-    GuiApp::appendSimulationThreadCommand(cmd);
+    #ifdef SIM_WITH_GUI
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=EXIT_REQUEST_CMD;
+        GuiApp::appendSimulationThreadCommand(cmd);
+    #else
+        App::postExitRequest();
+    #endif
 }
 
 int simSetShapeMaterial_internal(int shapeHandle,int materialIdOrShapeHandle)

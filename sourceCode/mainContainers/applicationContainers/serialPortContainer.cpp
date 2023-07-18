@@ -3,9 +3,6 @@
 #include <tt.h>
 #include <utils.h>
 #include <app.h>
-#ifdef SIM_WITH_GUI
-    #include <guiApp.h>
-#endif
 
 CSerialPortContainer::CSerialPortContainer()
 {

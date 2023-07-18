@@ -1610,7 +1610,11 @@ int simHandleCustomizationScripts_internal(int callType)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal=0;
-        if (GuiApp::getEditModeType()==NO_EDIT_MODE)
+        int editMode=NO_EDIT_MODE;
+        #ifdef SIM_WITH_GUI
+            editMode=GuiApp::getEditModeType();
+        #endif
+        if (editMode==NO_EDIT_MODE)
         {
             retVal=App::currentWorld->embeddedScriptContainer->callChildAndEmbeddedScripts(sim_scripttype_customizationscript,callType,nullptr,nullptr);
             App::currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
@@ -1845,8 +1849,10 @@ int simAddStatusbarMessage_internal(const char* message)
                 v=sim_verbosity_errors;
             App::logScriptMsg(nullptr,v|sim_verbosity_undecorated,message);
         }
+#ifdef SIM_WITH_GUI
         else
             GuiApp::clearStatusbar();
+#endif
 
         return(1);
     }
@@ -2958,7 +2964,9 @@ int simInsertPathCtrlPoints_internal(int pathHandle,int options,int startIndex,i
             path->pathContainer->setAttributes((path->pathContainer->getAttributes()|sim_pathproperty_closed_path)-sim_pathproperty_closed_path);
         path->pathContainer->enableActualization(true);
         path->pathContainer->actualizePath();
+#ifdef SIM_WITH_GUI
         GuiApp::setFullDialogRefreshFlag();
+#endif
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -2987,7 +2995,9 @@ int simCutPathCtrlPoints_internal(int pathHandle,int startIndex,int ptCnt)
             path->pathContainer->enableActualization(true);
             path->pathContainer->actualizePath();
         }
+#ifdef SIM_WITH_GUI
         GuiApp::setFullDialogRefreshFlag();
+#endif
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -3869,7 +3879,9 @@ int simSetObjectName_internal(int objectHandle,const char* objectName)
         else
         {
             App::currentWorld->sceneObjects->setObjectName_old(it,text.c_str(),true);
+#ifdef SIM_WITH_GUI
             GuiApp::setFullDialogRefreshFlag();
+#endif
         }
         return(1);
     }
@@ -5624,6 +5636,7 @@ int simLoadModule_internal(const char* filenameAndPath,const char* pluginName)
     // -3: could not load, -2: missing entry points, -1: could not initialize. 0=< : handle of the plugin
   // we cannot lock/unlock, because this function might trigger another thread (GUI) that itself will initialize the plugin and call sim-functions --> forever locked!!
     TRACE_C_API;
+#ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=PLUGIN_LOAD_AND_START_PLUGUITHREADCMD;
@@ -5658,6 +5671,9 @@ int simLoadModule_internal(const char* filenameAndPath,const char* pluginName)
     if (handle>=0)
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"plugin '%s': load succeeded.",pluginName);
     return(handle);
+#else
+    return(-1);
+#endif
 }
 
 int simUnloadModule_internal(int pluginhandle)
@@ -5665,6 +5681,7 @@ int simUnloadModule_internal(int pluginhandle)
     // we cannot lock/unlock, because this function might trigger another thread (GUI) that itself will initialize the plugin and call sim-functions --> forever locked!!
     TRACE_C_API;
     int retVal=0;
+#ifdef SIM_WITH_GUI
     CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromHandle(pluginhandle);
     if (pl!=nullptr)
     {
@@ -5685,6 +5702,7 @@ int simUnloadModule_internal(int pluginhandle)
         if (cmdOut.boolParams[0])
             retVal=1;
     }
+#endif
     return(retVal);
 }
 

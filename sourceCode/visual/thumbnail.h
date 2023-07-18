@@ -12,7 +12,6 @@ public:
     virtual ~CThumbnail();
     static void compressThumbnail(const char* uncompressedRGBAImage,char* compressedRGBImage);
     static void uncompressThumbnail(const char* compressedRGBImage,char* uncompressedRGBAImage);
-    void display(int posX,int posY,const char* name,int sc);
     void setUncompressedThumbnailImage(const char* uncompressedRGBAImage,bool rgba,bool verticalFlip);
     void setCompressedThumbnailImage(const char* compressedRGBImage);
     void setUncompressedThumbnailImageFromFloat(const float* uncompressedRGBAImage);
@@ -30,4 +29,9 @@ public:
 protected:
     char* _thumbnailRGBAImage;
     bool _compressData;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void display(int posX,int posY,const char* name,int sc);
+    #endif
 };

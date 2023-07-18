@@ -466,7 +466,9 @@ void CThumbnail::serialize(CSer& ar,bool forceCompressedSaving/*=false*/)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CThumbnail::display(int posX,int posY,const char* name,int sc)
 {
     displayThumbnail(this,posX,posY,name,sc);
 }
+#endif

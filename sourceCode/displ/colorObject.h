@@ -8,8 +8,6 @@ public:
     CColorObject();
     virtual ~CColorObject();
 
-    void makeCurrentColor(bool useAuxiliaryComponent) const;
-    void makeCurrentColor2(bool forceNonTransparent,bool useAuxiliaryComponent) const;
     void setDefaultValues();
     void setColorsAllBlack();
     void setColor(const float theColor[3],unsigned char colorMode);
@@ -64,4 +62,10 @@ private:
     float _flashRatio;
     float _flashPhase;
     bool _flash;
+
+    #ifdef SIM_WITH_GUI
+    public:
+        void makeCurrentColor(bool useAuxiliaryComponent) const;
+        void makeCurrentColor2(bool forceNonTransparent,bool useAuxiliaryComponent) const;
+    #endif
 };

@@ -444,6 +444,7 @@ void CGhostObjectContainer::serialize(CSer& ar)
     }
 }
 
+#ifdef SIM_WITH_GUI
 void CGhostObjectContainer::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib)
 {
     if ((displayAttrib&sim_displayattribute_noghosts)==0)
@@ -480,3 +481,4 @@ void CGhostObjectContainer::renderYour3DStuff_overlay(CViewableBase* renderingOb
 //  {
 //  }
 }
+#endif

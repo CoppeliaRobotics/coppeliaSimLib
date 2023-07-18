@@ -11,9 +11,6 @@ public:
     CGhostObjectContainer();
     virtual ~CGhostObjectContainer();
 
-    void renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib);
-    void renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib);
-    void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib);
     int addGhost(int theGroupId,int theObjectHandle,int theOptions,double theStartTime,double theEndTime,const float theColor[12]);
     int removeGhost(int groupId,int ghostId); // -1,-1 to remove all objects
     int modifyGhost(int groupId,int ghostId,int operation,double floatValue,int theOptions,int theOptionsMask,const double* colorOrTransformation);
@@ -23,4 +20,12 @@ public:
 
 protected:
     std::vector<CGhostObject*> _allObjects;
+
+
+#ifdef SIM_WITH_GUI
+public:
+    void renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib);
+    void renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib);
+    void renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib);
+#endif
 };

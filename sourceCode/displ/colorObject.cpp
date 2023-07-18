@@ -621,16 +621,6 @@ std::string CColorObject::_getPatternStringFromPatternId_backwardCompatibility_3
     return("default");
 }
 
-void CColorObject::makeCurrentColor(bool useAuxiliaryComponent) const
-{
-    makeCurrentColor2(false,useAuxiliaryComponent);
-}
-
-void CColorObject::makeCurrentColor2(bool forceNonTransparent,bool useAuxiliaryComponent) const
-{
-    makeColorCurrent(this,forceNonTransparent,useAuxiliaryComponent);
-}
-
 bool CColorObject::getTranslucid() const
 {
     return(_translucid);
@@ -743,3 +733,15 @@ void CColorObject::setExtensionString(const char* nm)
     if (diff)
         _extensionString=nm;
 }
+
+#ifdef SIM_WITH_GUI
+void CColorObject::makeCurrentColor(bool useAuxiliaryComponent) const
+{
+    makeCurrentColor2(false,useAuxiliaryComponent);
+}
+
+void CColorObject::makeCurrentColor2(bool forceNonTransparent,bool useAuxiliaryComponent) const
+{
+    makeColorCurrent(this,forceNonTransparent,useAuxiliaryComponent);
+}
+#endif

@@ -3,9 +3,7 @@
 #include <vDateTime.h>
 #include <tt.h>
 #include <utils.h>
-#ifdef SIM_WITH_GUI
-    #include <guiApp.h>
-#endif
+#include <guiApp.h>
 
 VSimUiMutex CSimAndUiThreadSync::_uiReadPermission;
 VSimUiMutex CSimAndUiThreadSync::_uiWritePermission;

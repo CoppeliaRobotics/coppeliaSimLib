@@ -169,8 +169,12 @@ void POSIX_handleFunc(int signal)
 bool handleSignal(int signal)
 {
     App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"external exit request: %i",signal);
-    SSimulationThreadCommand cmd;
-    cmd.cmdId=EXIT_REQUEST_CMD;
-    GuiApp::appendSimulationThreadCommand(cmd);
+    #ifdef SIM_WITH_GUI
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=EXIT_REQUEST_CMD;
+        GuiApp::appendSimulationThreadCommand(cmd);
+    #else
+        App::postExitRequest();
+    #endif
     return true; // don't propagate the signal further
 }

@@ -1,8 +1,8 @@
-
 #pragma once
 
 #include <serialPort.h>
-#include <uiThread.h>
+#include <string>
+#include <vector>
 
 class CSerialPortContainer
 {

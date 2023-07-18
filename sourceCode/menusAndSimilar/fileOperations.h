@@ -11,8 +11,6 @@ struct SSimulationThreadCommand;
 class CFileOperations  
 {
 public:
-    static bool processCommand(int commandID);
-    static bool processCommand(const SSimulationThreadCommand& cmd);
     static bool loadScene(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,std::vector<char>* loadBuffer=nullptr);
     static bool loadModel(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy);
     static bool saveScene(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,bool changeSceneUniqueId,std::vector<char>* saveBuffer=nullptr);
@@ -30,6 +28,8 @@ private:
 
 #ifdef SIM_WITH_GUI
 public:
+    static bool processCommand(int commandID);
+    static bool processCommand(const SSimulationThreadCommand& cmd);
     static void keyPress(int key);
     static void addMenu(VMenu* menu);
 

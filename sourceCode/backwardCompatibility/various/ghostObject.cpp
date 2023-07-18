@@ -67,6 +67,7 @@ CGhostObject* CGhostObject::copyYourself()
     return(newGhost);
 }
 
+#ifdef SIM_WITH_GUI
 void CGhostObject::render(int displayAttributes,double simulationTime,double realTime)
 {
     if ((options&16)!=0)
@@ -83,3 +84,4 @@ void CGhostObject::render(int displayAttributes,double simulationTime,double rea
             displayGhost(shape,tr,displayAttributes,options,double(transparencyFactor)/255.0,color);
     }
 }
+#endif

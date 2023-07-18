@@ -14,6 +14,7 @@
 #include <fileOperations.h>
 #include <QTextDocument>
 #include <simFlavor.h>
+#include <QCoreApplication>
 #ifdef SIM_WITH_GUI
     #include <guiApp.h>
 #endif
@@ -100,15 +101,16 @@ void App::init(const char* appDir,int)
         _applicationDir=pathInfo.path().toStdString();
     }
     VVarious::removePathFinalSlashOrBackslash(_applicationDir);
-#ifdef WIN_SIM
-    SetDllDirectoryA(_applicationDir.c_str());
-#endif
+    #ifdef WIN_SIM
+        timeBeginPeriod(1);
+        SetDllDirectoryA(_applicationDir.c_str());
+    #endif
     setAppStage(appstage_simInit1Done);
 
-#ifdef SIM_WITH_GUI
-    while (getAppStage()!=appstage_guiInit1Done)
-        VThread::sleep(1);
-#endif
+    #ifdef SIM_WITH_GUI
+        while (getAppStage()!=appstage_guiInit1Done)
+            VThread::sleep(1);
+    #endif
     VThread::setSimThread();
     _exitRequest=false;
 
@@ -193,17 +195,18 @@ void App::cleanup()
 
     CSimFlavor::run(10);
 
-    CSimAndUiThreadSync::simThread_allowUiThreadToWrite(); // ...finally unlock
-    delete GuiApp::simThread;
-    GuiApp::simThread=nullptr;
 
-#ifdef SIM_WITH_GUI
-    GuiApp::qtApp->quit();
-    if (getAppStage()==appstage_simRunning)
-        setAppStage(appstage_guiCleanupRequest);
-    while (getAppStage()!=appstage_guiCleanupDone)
-        VThread::sleep(1);
-#endif
+    #ifdef SIM_WITH_GUI
+        CSimAndUiThreadSync::simThread_allowUiThreadToWrite(); // ...finally unlock
+        delete GuiApp::simThread;
+        GuiApp::simThread=nullptr;
+
+        GuiApp::qtApp->quit();
+        if (getAppStage()==appstage_simRunning)
+            setAppStage(appstage_guiCleanupRequest);
+        while (getAppStage()!=appstage_guiCleanupDone)
+            VThread::sleep(1);
+    #endif
 
     worldContainer->deinitialize();
     delete worldContainer;
@@ -241,6 +244,9 @@ void App::cleanup()
     delete _sigHandler;
     _exitCode=0;
     setAppStage(appstage_simCleanupDone);
+    #ifdef WIN_SIM
+        timeEndPeriod(1);
+    #endif
     logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"CoppeliaSim ended.");
 }
 
@@ -249,14 +255,18 @@ void App::loop(void(*callback)(),bool stepIfRunning)
     // Send the "instancePass" message to all plugins:
     int auxData[4]={worldContainer->getModificationFlags(true),0,0,0};
     worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData);
-#ifdef SIM_WITH_GUI
-    SUIThreadCommand cmdIn;
-    SUIThreadCommand cmdOut;
-    cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
-    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-#endif
+    #ifdef SIM_WITH_GUI
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    #endif
 
-    if ( currentWorld->simulation->isSimulationStopped()&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
+    int editMode=NO_EDIT_MODE;
+    #ifdef SIM_WITH_GUI
+        editMode=GuiApp::getEditModeType();
+    #endif
+    if ( currentWorld->simulation->isSimulationStopped()&&(editMode==NO_EDIT_MODE) )
     {
         worldContainer->dispatchEvents();
         worldContainer->callScripts(sim_syscb_nonsimulation,nullptr,nullptr);
@@ -314,8 +324,8 @@ void App::loop(void(*callback)(),bool stepIfRunning)
 
     #ifdef SIM_WITH_GUI
             currentWorld->simulation->showAndHandleEmergencyStopButton(false,""); // 10/10/2015
+            GuiApp::simThread->executeMessages(); // rendering, queued command execution, etc.
     #endif
-    GuiApp::simThread->executeMessages(); // rendering, queued command execution, etc.
 }
 
 long long int App::getFreshUniqueId()
@@ -804,12 +814,14 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         }
         if (statusbarVerbosity==-1)
             statusbarVerbosity=_statusbarVerbosity;
-        if ( (statusbarVerbosity>=realVerbosityLevel)&&(GuiApp::uiThread!=nullptr)&&(GuiApp::simThread!=nullptr)&&((verbosityLevel&sim_verbosity_onlyterminal)==0) )
-        {
-            vars["message"]=_getHtmlEscapedString(vars["message"].c_str());
-            std::string statusbarTxt=replaceVars(decorateMsg?statusbarLogFormat:statusbarLogFormatUndecorated,vars);
-            GuiApp::logMsgToStatusbar(statusbarTxt.c_str(),true);
-        }
+        #ifdef SIM_WITH_GUI
+            if ( (statusbarVerbosity>=realVerbosityLevel)&&(GuiApp::uiThread!=nullptr)&&(GuiApp::simThread!=nullptr)&&((verbosityLevel&sim_verbosity_onlyterminal)==0) )
+            {
+                vars["message"]=_getHtmlEscapedString(vars["message"].c_str());
+                std::string statusbarTxt=replaceVars(decorateMsg?statusbarLogFormat:statusbarLogFormatUndecorated,vars);
+                GuiApp::logMsgToStatusbar(statusbarTxt.c_str(),true);
+            }
+        #endif
         inside=false;
     }
 }
@@ -841,6 +853,7 @@ int App::getExitCode()
 
 void App::undoRedo_sceneChanged(const char* txt)
 {
+#ifdef SIM_WITH_GUI
     if (VThread::isUiThread())
     {
         SSimulationThreadCommand cmd;
@@ -849,11 +862,13 @@ void App::undoRedo_sceneChanged(const char* txt)
         GuiApp::appendSimulationThreadCommand(cmd);
     }
     else
+#endif
         currentWorld->undoBufferContainer->announceChange();
 }
 
 void App::undoRedo_sceneChangedGradual(const char* txt)
 {
+#ifdef SIM_WITH_GUI
     if (VThread::isUiThread())
     {
         SSimulationThreadCommand cmd;
@@ -863,32 +878,7 @@ void App::undoRedo_sceneChangedGradual(const char* txt)
     }
     else
         currentWorld->undoBufferContainer->announceChangeGradual();
-}
-
-void App::undoRedo_sceneChangeStart(const char* txt)
-{
-    if  (VThread::isUiThread())
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=999997;
-        cmd.stringParams.push_back(txt);
-        GuiApp::appendSimulationThreadCommand(cmd);
-    }
-    else
-        currentWorld->undoBufferContainer->announceChangeStart();
-}
-
-void App::undoRedo_sceneChangeEnd()
-{
-    if  (VThread::isUiThread())
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=999998;
-        cmd.stringParams.push_back("");
-        GuiApp::appendSimulationThreadCommand(cmd);
-    }
-    else
-        currentWorld->undoBufferContainer->announceChangeEnd();
+#endif
 }
 
 int App::getConsoleVerbosity(const char* pluginName/*=nullptr*/)
