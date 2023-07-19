@@ -570,7 +570,7 @@ void CWorldContainer::pushGenesisEvents()
 
 void CWorldContainer::dispatchEvents()
 {
-    if (!VThread::isUiThread())
+    if (VThread::isSimThread())
     {
         // Push the last changes that are not immediate:
         currentWorld->drawingCont->pushAppendNewPointEvents();

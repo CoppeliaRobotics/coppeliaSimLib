@@ -102,9 +102,13 @@ void VThread::unsetUiThread()
 
 bool VThread::isUiThread()
 {
+#ifdef SIM_WITH_GUI
     if (!_uiThreadSet)
         return(true); // the main thread is the UI thread
     return(areThreadIdsSame(_uiThreadId,getCurrentThreadId()));
+#else
+    return(false);
+#endif
 }
 
 bool VThread::isSimThread()

@@ -2695,6 +2695,15 @@ int _auxFunc(luaWrap_lua_State* L)
                 LUA_END(1);
             }
         }
+        if (cmd.compare("headless")==0)
+        {
+            bool retVal=true;
+            #ifdef SIM_WITH_GUI
+                retVal=(GuiApp::mainWindow==nullptr);
+            #endif
+            luaWrap_lua_pushboolean(L,retVal);
+            LUA_END(1);
+        }
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
@@ -18700,25 +18709,6 @@ int _simSetThreadIsFree(luaWrap_lua_State* L)
     LUA_START("sim.setThreadIsFree");
 
     int retVal=0;
-    /*
-    int retVal=-1;
-    if (!VThread::isSimThread())
-    {
-        bool result=false;
-        if (checkInputArguments(L,nullptr,lua_arg_bool,0))
-        {
-            result=CThreadPool_old::setThreadFreeMode(luaToBool(L,1));
-            if (result)
-                retVal=1;
-            else
-                retVal=0;
-        }
-        else
-            errorString=SIM_ERROR_INVALID_ARGUMENT;
-    }
-    else
-        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD;
-    */
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
