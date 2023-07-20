@@ -662,8 +662,6 @@
 
 #define IDSN_MODEL_BROWSER   "Model browser"
 
-#define IDS_END_EDIT_MODE_BEFORE_PROCEEDING "Please end the edit mode before proceeding"
-#define IDS_STOP_SIMULATION_BEFORE_PROCEEDING "Please stop the simulation before proceeding"
 #define IDS_WANNA_DISCARD_CURRENT_SCENE "Do you want to discard current scene?"
 #define IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED "The texture file could not be loaded."
 #define IDS_A_TEXTURE_FILE_COULD_NOT_BE_LOADED "A texture file could not be loaded"

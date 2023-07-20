@@ -169,7 +169,6 @@ public:
 private:
     int _renderOpenGlContent_callFromRenderingThreadOnly();
     void _actualizetoolbarButtonState();
-    void _dropFilesIntoScene(const std::vector<std::string>& tttFiles,const std::vector<std::string>& ttmFiles);
     void _createDefaultToolBars();
     void _recomputeClientSizeAndPos();
     void _setClientArea(int x,int y);

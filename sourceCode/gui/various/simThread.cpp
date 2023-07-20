@@ -4394,13 +4394,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
     }
 
-    if (cmd.cmdId==OPEN_DRAG_AND_DROP_SCENE_CMD)
-    {
-        CFileOperations::createNewScene(false,true);
-        CFileOperations::loadScene(cmd.stringParams[0].c_str(),true,false);
-        App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
-    }
-
     if (cmd.cmdId==AUTO_SAVE_SCENE_CMD)
         _handleAutoSaveSceneCommand(cmd);
 
@@ -4529,11 +4522,13 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                         {
                             std::string testScene=App::folders->getAutoSavedScenesPath()+"/1.";
                             testScene+=SIM_SCENE_EXTENSION;
-                            if (CFileOperations::loadScene(testScene.c_str(),false,false))
+                            GuiApp::setDefaultMouseMode();
+                            if (CFileOperations::loadScene(testScene.c_str(),false))
                             {
                                 App::currentWorld->mainSettings->setScenePathAndName("");
                                 App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_WAS_RESTORED_FROM_AUTO_SAVED_SCENE);
                             }
+                            GuiApp::setRebuildHierarchyFlag();
                             int instanceNb=2;
                             while (true)
                             {
@@ -4544,7 +4539,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                                 if (VFile::doesFileExist(testScene.c_str()))
                                 {
                                     App::worldContainer->createNewWorld();
-                                    if (CFileOperations::loadScene(testScene.c_str(),false,false))
+                                    if (CFileOperations::loadScene(testScene.c_str(),false))
                                     {
                                         App::currentWorld->mainSettings->setScenePathAndName("");
                                         App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_WAS_RESTORED_FROM_AUTO_SAVED_SCENE);

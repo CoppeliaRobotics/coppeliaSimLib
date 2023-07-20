@@ -11,13 +11,13 @@ struct SSimulationThreadCommand;
 class CFileOperations  
 {
 public:
-    static bool loadScene(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,std::vector<char>* loadBuffer=nullptr);
+    static bool loadScene(const char* pathAndFilename,bool setCurrentDir,std::vector<char>* loadBuffer=nullptr,std::string* infoStr=nullptr,std::string* errorStr=nullptr);
     static bool loadModel(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy);
     static bool saveScene(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,bool changeSceneUniqueId,std::vector<char>* saveBuffer=nullptr);
     static bool saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool setCurrentDir,std::vector<char>* saveBuffer=nullptr);
 
     static int apiAddHeightfieldToScene(int xSize,double pointSpacing,const std::vector<std::vector<double>*>& readData,double shadingAngle,int options);
-    static void createNewScene(bool displayMessages,bool forceForNewInstance);
+    static void createNewScene(bool forceForNewInstance);
     static void closeScene(bool displayMessages);
     static void addToRecentlyOpenedScenes(std::string filenameAndPath);
 

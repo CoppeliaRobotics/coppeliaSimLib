@@ -292,7 +292,11 @@ bool CPlugin::init(std::string* errStr)
 #ifndef WIN_SIM
         libPath+="lib";
 #endif
+#ifdef SIM_WITH_GUI
         libPath+="coppeliaSim.";
+#else
+        libPath+="coppeliaSimHeadless.";
+#endif
 #ifdef WIN_SIM
         libPath+="dll";
 #endif

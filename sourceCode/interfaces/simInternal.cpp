@@ -32,7 +32,6 @@
 int _currentScriptNameIndex=-1;
 int _currentScriptHandle=-1;
 
-bool outputSceneOrModelLoadMessagesWithApiCall=false;
 bool fullModelCopyFromApi=true;
 bool waitingForTrigger=false;
 bool doNotRunMainScriptFromRosInterface=false;
@@ -2223,10 +2222,7 @@ int simSetBoolParam_internal(int parameter,bool boolState)
         }
 
         if (parameter==sim_boolparam_scene_and_model_load_messages)
-        {
-            if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,1+2+4+8+16+32))
-                return(-1);
-            outputSceneOrModelLoadMessagesWithApiCall=(boolState!=0);
+        { // deprecated
             return(1);
         }
 
@@ -2731,13 +2727,8 @@ int simGetBoolParam_internal(int parameter)
         }
 
         if (parameter==sim_boolparam_scene_and_model_load_messages)
-        {
-            if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,1+2+4+8+16+32))
-                return(-1);
-            int retVal=0;
-            if (outputSceneOrModelLoadMessagesWithApiCall)
-                retVal=1;
-            return(retVal);
+        { // deprecated
+            return(0);
         }
         if (parameter==sim_boolparam_console_visible)
         {
@@ -4176,9 +4167,9 @@ int simLoadScene_internal(const char* filename)
         }
 
         if (keepCurrent)
-            CFileOperations::createNewScene(outputSceneOrModelLoadMessagesWithApiCall,true);
+            CFileOperations::createNewScene(true);
 
-        if (!CFileOperations::loadScene(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,false))
+        if (!CFileOperations::loadScene(nm.c_str(),false))
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SCENE_COULD_NOT_BE_READ);
             return(-1);
@@ -4225,7 +4216,7 @@ int simLoadModel_internal(const char* filename)
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_FILE_NOT_FOUND);
             return(-1);
         }
-        if (!CFileOperations::loadModel(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,false,true,nullptr,false,forceAsCopy))
+        if (!CFileOperations::loadModel(nm.c_str(),false,false,true,nullptr,false,forceAsCopy))
         {
             CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_MODEL_COULD_NOT_BE_READ);
             return(-1);

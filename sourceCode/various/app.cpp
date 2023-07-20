@@ -145,7 +145,7 @@ void App::init(const char* appDir,int)
                                              // Remember that each thread starts with a same seed!!!
     worldContainer=new CWorldContainer();
     worldContainer->initialize();
-    CFileOperations::createNewScene(true,false);
+    CFileOperations::createNewScene(false);
 
     gm=new CGm();
     if ( (App::getConsoleVerbosity()>=sim_verbosity_trace)&&(!App::userSettings->suppressStartupDialogs) )

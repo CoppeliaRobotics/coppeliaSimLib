@@ -1298,36 +1298,6 @@ void CMainWindow::dropEvent(QDropEvent* dEvent)
         GuiApp::appendSimulationThreadCommand(cmd);
         _mimeText.clear();
     }
-
-    /*
-    if (dEvent->mimeData()->hasUrls())
-    {
-        QStringList pathList;
-        QList<QUrl> urlList=dEvent->mimeData()->urls();
-        if (urlList.size()>0)
-        {
-            std::vector<std::string> scenes;
-            std::vector<std::string> models;
-            int fileCnt=0;
-            for (int i=0;i<urlList.size()&&(i<100);++i)
-            {
-                std::string pathFile=urlList.at(i).toLocalFile().toLocal8Bit().data();
-                std::string extension(VVarious::splitPath_fileExtension(pathFile.c_str()));
-                if (extension.compare(SIM_SCENE_EXTENSION)==0)
-                    scenes.push_back(pathFile);
-                if (extension.compare(SIM_MODEL_EXTENSION)==0)
-                    models.push_back(pathFile);
-                if (CSimFlavor::getIntVal_str(1,extension.c_str())==1)
-                    scenes.push_back(pathFile);
-                if (CSimFlavor::getIntVal_str(2,extension.c_str())==1)
-                    models.push_back(pathFile);
-                fileCnt++;
-            }
-            if ( ( (fileCnt==int(scenes.size()))&&(scenes.size()>0) ) ||  ( (fileCnt==int(models.size()))&&(models.size()>0) )  )
-                _dropFilesIntoScene(scenes,models);
-        }
-    }
-    */
 }
 
 
@@ -1762,53 +1732,6 @@ void CMainWindow::_recomputeClientSizeAndPos()
     if ( windowHandle()&&windowHandle()->isExposed()&&(_clientArea[0]!=0)&&(_clientArea[1]!=0) ) // Added the two last args to avoid a collaps of the hierarchy when switching to another app (2011/01/26)
         oglSurface->setSurfaceSizeAndPosition(_clientArea[0],_clientArea[1]+App::userSettings->renderingSurfaceVResize,0,App::userSettings->renderingSurfaceVShift);
 }
-
-void CMainWindow::_dropFilesIntoScene(const std::vector<std::string>& tttFiles,const std::vector<std::string>& ttmFiles)
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        if ( ((tttFiles.size()>0)&&(ttmFiles.size()==0))||((tttFiles.size()==0)&&(ttmFiles.size()>0)) )
-        {
-            if (editModeContainer->getEditModeType()!=NO_EDIT_MODE)
-                GuiApp::uiThread->messageBox_warning(this,"Drag and drop",IDS_END_EDIT_MODE_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-            else
-            {
-                if (tttFiles.size()>0)
-                { // loading (a) scene(s):
-                    if (!App::currentWorld->simulation->isSimulationStopped())
-                        GuiApp::uiThread->messageBox_warning(this,"Drag and drop",IDS_STOP_SIMULATION_BEFORE_PROCEEDING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                    else
-                    {
-                        for (size_t i=0;i<tttFiles.size();i++)
-                        {
-                            SSimulationThreadCommand cmd;
-                            cmd.cmdId=OPEN_DRAG_AND_DROP_SCENE_CMD;
-                            cmd.stringParams.push_back(tttFiles[i]);
-                            cmd.boolParams.push_back(tttFiles.size()<2);
-                            GuiApp::appendSimulationThreadCommand(cmd);
-                        }
-                    }
-                }
-                else
-                {
-                    if (ttmFiles.size()>0)
-                    { // loading (a) model(s):
-                        for (int i=0;i<int(ttmFiles.size());i++)
-                        {
-                            SSimulationThreadCommand cmd;
-                            cmd.cmdId=FILE_OPERATION_OPEN_DRAG_AND_DROP_MODEL_FOCMD;
-                            cmd.stringParams.push_back(ttmFiles[i]);
-                            cmd.boolParams.push_back(ttmFiles.size()<2);
-                            cmd.boolParams.push_back(i==int(ttmFiles.size()-1));
-                            GuiApp::appendSimulationThreadCommand(cmd);
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 
 void CMainWindow::_engineSelectedViaToolbar(int index)
 {
