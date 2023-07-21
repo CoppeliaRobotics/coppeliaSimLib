@@ -584,8 +584,10 @@ void CWorldContainer::dispatchEvents()
             CInterfaceStack* stack=interfaceStackContainer->createStack();
             stack->pushStringOntoStack((char*)ev.data(),ev.size());
             _eventMutex.unlock(); // below might lead to a deadlock if _eventMutex still locked
-            int auxData=evCnt;
-            pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_events,&auxData,ev.data());
+            int auxData[2];
+            auxData[0]=evCnt;
+            auxData[1]=int(ev.size());
+            pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_events,auxData,ev.data());
             if (getSysFuncAndHookCnt(sim_syscb_event)>0)
                 callScripts(sim_syscb_event,stack,nullptr);
             interfaceStackContainer->destroyStack(stack);

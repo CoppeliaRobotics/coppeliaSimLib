@@ -44,8 +44,8 @@ public:
     bool writeOpenBinaryNoHeader(bool compress);
     void writeClose();
 
-    int readOpenBinary(int& serializationVersion,unsigned short& coppeliaSimVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber,bool ignoreTooOldSerializationVersion);
-    int readOpenXml(int& serializationVersion,unsigned short& coppeliaSimVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber,bool ignoreTooOldSerializationVersion);
+    int readOpenBinary(int fileType,bool ignoreTooOldSerializationVersion=false,std::string* infoStr=nullptr,std::string* errorStr=nullptr);
+    int readOpenXml(int fileType,bool ignoreTooOldSerializationVersion=false,std::string* infoStr=nullptr,std::string* errorStr=nullptr);
     int readOpenBinaryNoHeader();
     void readClose();
 
@@ -192,6 +192,8 @@ public:
     static int SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ;
 
 private:
+    void _getFileOpenInfoAndError(int fileType,int result,int serializationVersion,unsigned short coppeliaSimVersionThatWroteThis,int licenseTypeThatWroteThis,char revNumber,std::string* infoStr=nullptr,std::string* errorStr=nullptr);
+
     void _commonInit();
     void _writeBinaryHeader();
     void _writeXmlHeader();

@@ -9,6 +9,7 @@
 void setCurrentScriptInfo_cSide(int scriptHandle,int scriptNameIndex);
 int getCurrentScriptNameIndex_cSide();
 std::string getIndexAdjustedObjectName(const char* nm);
+void setLastInfo(const char* infoStr);
 
 
 void simRunGui_internal(int options);
@@ -20,6 +21,7 @@ int simLoop_internal(void(*callback)(),int options);
 int simTest_internal(int mode,void* ptr1,void* ptr2,void* ptr3);
 void* simGetMainWindow_internal(int type);
 char* simGetLastError_internal();
+char* simGetLastInfo_internal();
 int simSetBoolParam_internal(int parameter,bool boolState);
 int simGetBoolParam_internal(int parameter);
 int simSetInt32Param_internal(int parameter,int intState);

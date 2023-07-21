@@ -45,55 +45,27 @@ void CFileOperations::createNewScene(bool forceForNewInstance)
     App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
 }
 
-void CFileOperations::closeScene(bool displayMessages)
+void CFileOperations::closeScene()
 {
-    TRACE_INTERNAL;
-#ifdef SIM_WITH_GUI
-    unsigned short action=VMESSAGEBOX_REPLY_NO;
-    if (displayMessages&&(!App::currentWorld->environment->getSceneCanBeDiscardedWhenNewSceneOpened()))
-    {
-        if (CSimFlavor::getBoolVal(16)&&(!App::currentWorld->environment->getSceneLocked()))
-        {
-            if (displayMessages&&App::currentWorld->undoBufferContainer->isSceneSaveMaybeNeededFlagSet())
-            {
-                action=GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_SAVE,IDS_WANNA_SAVE_THE_SCENE_WARNING,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_NO);
-                if (action==VMESSAGEBOX_REPLY_YES)
-                {
-                    if (_saveSceneWithDialogAndEverything()) // will call save as if needed!
-                        action=VMESSAGEBOX_REPLY_NO;
-                }
-            }
-        }
+    App::currentWorld->simulation->stopSimulation();
+    App::currentWorld->clearScene(true);
+    if (App::worldContainer->getWorldCount()>1)
+        App::worldContainer->destroyCurrentWorld();
+    else
+    { // simply set-up an empty (default) scene
+        std::string savedLoc=App::currentWorld->mainSettings->getScenePathAndName();
+        std::string fullPathAndFilename=App::folders->getSystemPath()+"/";
+        fullPathAndFilename+="dfltscn.";
+        fullPathAndFilename+=SIM_SCENE_EXTENSION;
+        loadScene(fullPathAndFilename.c_str(),false);
+        App::currentWorld->mainSettings->setScenePathAndName(""); //savedLoc.c_str());
+        App::currentWorld->environment->generateNewUniquePersistentIdString();
+        App::currentWorld->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!
+        App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
     }
-    if (action==VMESSAGEBOX_REPLY_NO)
-    {
-#endif
-        App::currentWorld->simulation->stopSimulation();
-#ifdef SIM_WITH_GUI
-        GuiApp::setDefaultMouseMode();
-        if (GuiApp::mainWindow!=nullptr)
-            GuiApp::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr);
-#endif
-        App::currentWorld->clearScene(true);
-        if (App::worldContainer->getWorldCount()>1)
-            App::worldContainer->destroyCurrentWorld();
-        else
-        { // simply set-up an empty (default) scene
-            std::string savedLoc=App::currentWorld->mainSettings->getScenePathAndName();
-            std::string fullPathAndFilename=App::folders->getSystemPath()+"/";
-            fullPathAndFilename+="dfltscn.";
-            fullPathAndFilename+=SIM_SCENE_EXTENSION;
-            loadScene(fullPathAndFilename.c_str(),false);
-            App::currentWorld->mainSettings->setScenePathAndName(""); //savedLoc.c_str());
-            App::currentWorld->environment->generateNewUniquePersistentIdString();
-            App::logMsg(sim_verbosity_msgs,IDSNS_DEFAULT_SCENE_WAS_SET_UP);
-            App::currentWorld->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!
-            App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
-        }
-#ifdef SIM_WITH_GUI
-    }
-    GuiApp::setRebuildHierarchyFlag();
-#endif
+    #ifdef SIM_WITH_GUI
+        GuiApp::setRebuildHierarchyFlag();
+    #endif
 }
 
 bool CFileOperations::loadScene(const char* pathAndFilename,bool setCurrentDir,std::vector<char>* loadBuffer/*=nullptr*/,std::string* infoStr/*=nullptr*/,std::string* errorStr/*=nullptr*/)
@@ -118,53 +90,17 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool setCurrentDir,s
             if (pathAndFilename!=nullptr)
             { // loading from file...
                 CSer* serObj;
-                int serializationVersion;
-                unsigned short csimVersionThatWroteThis;
-                int licenseTypeThatWroteThis;
-                char revisionNumber;
                 if ( (CSer::getFileTypeFromName(pathAndFilename)==CSer::filetype_csim_xml_simplescene_file) )
                 {
                     serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
-                    result=serObj->readOpenXml(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+                    result=serObj->readOpenXml(0,false,infoStr,errorStr);
                     if (serObj->getFileType()==CSer::filetype_csim_xml_simplescene_file) // final file type is set in readOpenXml (whether exhaustive or simple scene)
                         App::currentWorld->mainSettings->setScenePathAndName(""); // since lossy format
                 }
                 else
                 {
                     serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
-                    result=serObj->readOpenBinary(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
-                }
-
-                std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_SCENE," ("));
-                infoPrintOut+=std::string(pathAndFilename)+"). ";
-
-                if (errorStr!=nullptr)
-                {
-                    if (result==-3)
-                        errorStr[0]="The file does not seem to be a valid scene file.";
-                    if (result==-2)
-                        errorStr[0]=IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE;
-                    if (result==-1)
-                        errorStr[0]=IDS_SERIALIZATION_VERSION_TOO_RECENT;
-                    if (result==0)
-                        errorStr[0]=IDS_COMPRESSION_SCHEME_NOT_SUPPORTED;
-                }
-                if (infoStr!=nullptr)
-                {
-                    if (result>-3)
-                    {
-                        infoPrintOut+=" ";
-                        infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
-                        infoPrintOut+=" ";
-                        infoPrintOut+=boost::lexical_cast<std::string>(serializationVersion)+".";
-                        infoStr[0]=infoPrintOut;
-                        infoPrintOut=_getStringOfVersionAndLicenseThatTheFileWasWrittenWith(csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber);
-                        if (infoPrintOut!="")
-                        {
-                            infoStr[0]+="\n";
-                            infoStr[0]+=infoPrintOut;
-                        }
-                    }
+                    result=serObj->readOpenBinary(0,false,infoStr,errorStr);
                 }
 
                 if (result==1)
@@ -188,11 +124,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool setCurrentDir,s
             else
             { // loading from buffer
                 CSer serObj(loadBuffer[0],CSer::filetype_csim_bin_scene_buff);
-                int serializationVersion;
-                unsigned short csimVersionThatWroteThis;
-                int licenseTypeThatWroteThis;
-                char revisionNumber;
-                result=serObj.readOpenBinary(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+                result=serObj.readOpenBinary(0,false,infoStr,errorStr);
                 if (result==1)
                 {
                     App::currentWorld->loadScene(serObj,false);
@@ -215,7 +147,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool setCurrentDir,s
     }
 }
 
-bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy)
+bool CFileOperations::loadModel(const char* pathAndFilename,bool setCurrentDir,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy,std::string* infoStr/*=nullptr*/,std::string* errorStr/*=nullptr*/)
 {
     TRACE_INTERNAL;
     int result=-3;
@@ -230,88 +162,49 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
         if (pathAndFilename!=nullptr)
         { // loading from file...
             CSer* serObj;
-            int serializationVersion;
-            unsigned short csimVersionThatWroteThis;
-            int licenseTypeThatWroteThis;
-            char revisionNumber;
 
             if (CSer::getFileTypeFromName(pathAndFilename)==CSer::filetype_csim_xml_simplemodel_file)
             {
                 serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
-                result=serObj->readOpenXml(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+                result=serObj->readOpenXml(1,false,infoStr,errorStr);
             }
             else
             {
                 serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
-                result=serObj->readOpenBinary(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+                result=serObj->readOpenBinary(1,false,infoStr,errorStr);
             }
 
-            std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_MODEL," ("));
-            infoPrintOut+=std::string(pathAndFilename)+"). ";
-    #ifdef SIM_WITH_GUI
-            if ( (result==-3)&&displayMessages )
-                App::logMsg(sim_verbosity_errors,"The file does not seem to be a valid model file.");
-            if ( (result!=-3)&&displayMessages )
-            {
-                infoPrintOut+=" ";
-                infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
-                infoPrintOut+=" ";
-                infoPrintOut+=boost::lexical_cast<std::string>(serializationVersion)+".";
-                App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
-                infoPrintOut=_getStringOfVersionAndLicenseThatTheFileWasWrittenWith(csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber);
-                if (infoPrintOut!="")
-                    App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
-            }
-            if ( (result==-2)&&displayMessages )
-                App::logMsg(sim_verbosity_errors,IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE);
-            if ( (result==-1)&&displayMessages )
-                App::logMsg(sim_verbosity_errors,IDS_SERIALIZATION_VERSION_TOO_RECENT);
-            if ( (result==0)&&displayMessages )
-                App::logMsg(sim_verbosity_errors,IDS_COMPRESSION_SCHEME_NOT_SUPPORTED);
-    #endif
             if (result==1)
             {
                 App::currentWorld->loadModel(serObj[0],onlyThumbnail,forceModelAsCopy,nullptr,nullptr,nullptr);
                 serObj->readClose();
-                if (displayMessages&&(!onlyThumbnail))
-                    App::logMsg(sim_verbosity_msgs,IDSNS_MODEL_LOADED);
-                if (!onlyThumbnail)
+                if ( (!onlyThumbnail)&&(infoStr!=nullptr) )
                 {
-                    std::string acknowledgement;
-                    // now we search for the model base that contains the acknowledgment:
                     std::vector<CSceneObject*> loadedObjects;
                     App::currentWorld->sceneObjects->getSelectedObjects(loadedObjects);
                     for (size_t obba=0;obba<loadedObjects.size();obba++)
                     {
                         if (loadedObjects[obba]->getParent()==nullptr)
                         {
-                            acknowledgement=loadedObjects[obba]->getModelAcknowledgement();
+                            std::string acknowledgement(loadedObjects[obba]->getModelAcknowledgement());
                             tt::removeSpacesAtBeginningAndEnd(acknowledgement);
+                            if (acknowledgement.size()>0)
+                            {
+                                acknowledgement="Model infos:\n"+acknowledgement;
+                                infoStr[0]+="\n";
+                                infoStr[0]+=acknowledgement;
+                            }
                             break;
                         }
                     }
-                    if (displayMessages&&(acknowledgement.length()!=0))
-                    {
-                        acknowledgement="Model infos:\n"+acknowledgement;
-                        App::logMsg(sim_verbosity_scriptinfos,acknowledgement.c_str());
-                    }
                 }
-            }
-            else
-            {
-                if (displayMessages)
-                    App::logMsg(sim_verbosity_errors,IDSNS_MODEL_COULD_NOT_BE_LOADED);
             }
             delete serObj;
         }
         else
         { // loading from buffer...
             CSer serObj(loadBuffer[0],CSer::filetype_csim_bin_model_buff);
-            int serializationVersion;
-            unsigned short csimVersionThatWroteThis;
-            int licenseTypeThatWroteThis;
-            char revisionNumber;
-            result=serObj.readOpenBinary(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+            result=serObj.readOpenBinary(1,false,infoStr,errorStr);
             if (result==1)
             {
                 App::currentWorld->loadModel(serObj,onlyThumbnail,forceModelAsCopy,nullptr,nullptr,nullptr);
@@ -320,21 +213,18 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
         }
 
         App::currentWorld->sceneObjects->removeFromSelectionAllExceptModelBase(false);
-#ifdef SIM_WITH_GUI
-        GuiApp::setRebuildHierarchyFlag();
-#endif
         if (doUndoThingInHere)
             App::undoRedo_sceneChanged(""); 
     }
     else
     {
-        if (displayMessages)
-            App::logMsg(sim_verbosity_errors,"Aborted (file does not exist).");
+        if (errorStr!=nullptr)
+            errorStr[0]="file does not exist.";
     }
     return(result==1);
 }
 
-bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,bool changeSceneUniqueId,std::vector<char>* saveBuffer/*=nullptr*/)
+bool CFileOperations::saveScene(const char* pathAndFilename,bool setCurrentDir,bool changeSceneUniqueId,std::vector<char>* saveBuffer/*=nullptr*/,std::string* infoStr/*=nullptr*/,std::string* errorStr/*=nullptr*/)
 {
     bool retVal=false;
     if (CSimFlavor::getBoolVal(16)) // saving a scene to buffer not for player version
@@ -343,9 +233,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
         if (GuiApp::mainWindow!=nullptr)
             GuiApp::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 #endif
-
         App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scenesave);
-
         if (pathAndFilename!=nullptr)
         { // saving to file...
             std::string _pathAndFilename(pathAndFilename);
@@ -369,6 +257,12 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
                 retVal=serObj->writeOpenBinary(App::userSettings->compressFiles);
             }
 
+            if (infoStr!=nullptr)
+            {
+                infoStr[0]="Scene: ";
+                infoStr[0]+=_pathAndFilename;
+            }
+
             if (retVal)
             {
                 if (!simpleXml) // because lossy
@@ -382,45 +276,38 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
                 if (setCurrentDir)
                     App::folders->setScenesPath(App::currentWorld->mainSettings->getScenePath().c_str());
 
-                std::string infoPrintOut(IDSN_SAVING_SCENE);
-                infoPrintOut+=" (";
-                infoPrintOut+=std::string(_pathAndFilename.c_str())+"). ";
-                infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
-                infoPrintOut+=" ";
-                if ( (serObj->getFileType()==CSer::filetype_csim_xml_xscene_file)||(serObj->getFileType()==CSer::filetype_csim_xml_simplescene_file) )
-                    infoPrintOut+=boost::lexical_cast<std::string>(CSer::XML_XSERIALIZATION_VERSION)+".";
-                else
-                    infoPrintOut+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
-                if (displayMessages)
-                    App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
-
+                if (infoStr!=nullptr)
+                {
+                    infoStr[0]+="\n";
+                    infoStr[0]+=IDSNS_SERIALIZATION_VERSION_IS;
+                    infoStr[0]+=" ";
+                    if ( (serObj->getFileType()==CSer::filetype_csim_xml_xscene_file)||(serObj->getFileType()==CSer::filetype_csim_xml_simplescene_file) )
+                        infoStr[0]+=boost::lexical_cast<std::string>(CSer::XML_XSERIALIZATION_VERSION)+".";
+                    else
+                        infoStr[0]+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
+                }
                 App::currentWorld->saveScene(serObj[0]);
                 serObj->writeClose();
-
-                if (displayMessages)
-                    App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_WAS_SAVED);
-
-#ifdef SIM_WITH_GUI
-                GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
-#endif
             }
             delete serObj;
         }
         else
         { // saving to buffer...
             CSer serObj(saveBuffer[0],CSer::filetype_csim_bin_scene_buff);
-
             retVal=serObj.writeOpenBinary(App::userSettings->compressFiles);
             App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(-1);
             App::currentWorld->saveScene(serObj);
             serObj.writeClose();
         }
     }
+    if ( (!retVal)&&(errorStr!=nullptr) )
+        errorStr[0]="Failed to save scene.";
     return(retVal);
 }
 
-bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool setCurrentDir,std::vector<char>* saveBuffer/*=nullptr*/)
+bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename,bool setCurrentDir,std::vector<char>* saveBuffer/*=nullptr*/,std::string* infoStr/*=nullptr*/,std::string* errorStr/*=nullptr*/)
 {
+    bool retVal=false;
     if ( CSimFlavor::getBoolVal(16)||(saveBuffer!=nullptr) )
     {
         App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(modelBaseDummyID);
@@ -461,6 +348,16 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
 
         if (pathAndFilename!=nullptr)
         { // saving to file...
+            if (infoStr!=nullptr)
+            {
+                infoStr[0]="Model: ";
+                infoStr[0]+=pathAndFilename;
+                infoStr[0]+="\n";
+                infoStr[0]+=IDSNS_SERIALIZATION_VERSION_IS;
+                infoStr[0]+=" ";
+                infoStr[0]+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
+            }
+
             CSer* serObj;
             if (CSer::getFileTypeFromName(pathAndFilename)==CSer::filetype_csim_xml_simplemodel_file)
             {
@@ -485,182 +382,17 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
             App::worldContainer->copyBuffer->serializeCurrentSelection(serObj,&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
             serObj.writeClose();
         }
-        infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
-        infoPrintOut+=" ";
-        infoPrintOut+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
-
-        if (displayMessages)
-            App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
-        if (displayMessages)
-            App::logMsg(sim_verbosity_msgs,IDSNS_MODEL_WAS_SAVED);
-        return(true);
+        retVal=true;
     }
-    return(false);
-}
-
-std::string CFileOperations::_getStringOfVersionAndLicenseThatTheFileWasWrittenWith(unsigned short coppeliaSimVer,int licenseType,char revision)
-{
-    if (coppeliaSimVer==0)
-        return("");
-    std::string retStr;
-    retStr=tt::decorateString("",IDSNS_FILE_WAS_PREVIOUSLY_WRITTEN_WITH_CSIM_VERSION," ");
-    int v=coppeliaSimVer;
-    retStr+=char('0')+(unsigned char)(v/10000);
-    retStr+='.';
-    v=v-(v/10000)*10000;
-    retStr+=char('0')+(unsigned char)(v/1000);
-    v=v-(v/1000)*1000;
-    retStr+=char('0')+(unsigned char)(v/100);
-    v=v-(v/100)*100;
-    retStr+='.';
-    retStr+=char('0')+(unsigned char)(v/10);
-    v=v-(v/10)*10;
-    retStr+=char('0')+(unsigned char)v;
-
-    retStr+=" (rev ";
-    retStr+=utils::getIntString(false,(int)revision);
-    retStr+=')';
-
-    if (licenseType!=-1)
+    else
     {
-        licenseType=(licenseType|0x00040000)-0x00040000;
-        if (licenseType==0x00001000)
-            retStr+=" (CoppeliaSim Edu license)";
-        if (licenseType==0x00002000)
-            retStr+=" (CoppeliaSim Pro license)";
-        if (licenseType==0x00005000)
-            retStr+=" (CoppeliaSim Player license)";
-        if (licenseType==0x00006000)
-            retStr+=" (custom compilation)";
+        if (errorStr!=nullptr)
+            errorStr[0]="Model could not be saved.";
     }
-    return(retStr);
+    return(retVal);
 }
 
-bool CFileOperations::heightfieldImportRoutine(const char* pathName)
-{
-    if (VFile::doesFileExist(pathName))
-    {
-        try
-        {
-            std::vector<std::vector<double>*> readData;
-            // We read each line at a time, which gives rows:
-            int minRow=-1;
-
-            std::string ext(utils::getLowerCaseString(VVarious::splitPath_fileExtension(pathName).c_str()));
-            if ((ext.compare("csv")!=0)&&(ext.compare("txt")!=0))
-            { // from image file
-                int resX,resY,n;
-                unsigned char* data=CImageLoaderSaver::load(pathName,&resX,&resY,&n,3);
-                if (data!=nullptr)
-                {
-                    if ( (resX>1)&&(resY>1) )
-                    {
-                        int bytesPerPixel=0;
-                        if (n==3)
-                            bytesPerPixel=3;
-                        if (n==4)
-                            bytesPerPixel=4;
-                        if (bytesPerPixel!=0)
-                        {
-                            for (int i=0;i<resY;i++)
-                            {
-                                std::vector<double>* lineVect=new std::vector<double>;
-                                for (int j=0;j<resX;j++)
-                                    lineVect->push_back(double(data[bytesPerPixel*(i*resX+j)+0]+data[bytesPerPixel*(i*resX+j)+1]+data[bytesPerPixel*(i*resX+j)+2])/768.0);
-                                readData.push_back(lineVect);
-                            }
-                            minRow=resX;
-                        }
-                    }
-                    delete[] data;
-                }
-                else
-                {
-                    #ifdef SIM_WITH_GUI
-                        GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,IDSN_IMPORT,IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                    #endif
-                }
-            }
-            else
-            { // from csv or txt file:
-                VFile file(pathName,VFile::READ|VFile::SHARE_DENY_NONE);
-                VArchive archive(&file,VArchive::LOAD);
-                unsigned int currentPos=0;
-                std::string line;
-                while (archive.readSingleLine(currentPos,line,false))
-                {
-                    std::string word;
-                    std::vector<double>* lineVect=new std::vector<double>;
-                    while (tt::extractCommaSeparatedWord(line,word))
-                    {
-                        tt::removeSpacesAtBeginningAndEnd(word);
-                        double val;
-                        if (tt::getValidFloat(word.c_str(),val))
-                            lineVect->push_back(val);
-                        else
-                            break;
-                    }
-                    if (lineVect->size()!=0)
-                    {
-                        if ( (minRow==-1)||(int(lineVect->size())<minRow) )
-                            minRow=int(lineVect->size());
-                        readData.push_back(lineVect);
-                    }
-                    else
-                    {
-                        delete lineVect;
-                        break;
-                    }
-                }
-                archive.close();
-                file.close();
-            }
-            if ( (readData.size()>1)&&(minRow>1) )
-            {
-                int xSize=minRow;
-                int ySize=int(readData.size());
-                double pointSpacing=1.0;
-#ifdef SIM_WITH_GUI
-                // Display the heightfield scaling dialog:
-                SUIThreadCommand cmdIn;
-                SUIThreadCommand cmdOut;
-                cmdIn.cmdId=HEIGHTFIELD_DIMENSION_DLG_UITHREADCMD;
-                cmdIn.floatParams.push_back(10.0);
-                cmdIn.floatParams.push_back(double(ySize-1)/double(xSize-1));
-                GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-                if (cmdOut.floatParams.size()==0)
-                {
-                    cmdOut.floatParams.push_back(1.0);
-                    cmdOut.floatParams.push_back(1.0);
-                }
-                pointSpacing=cmdOut.floatParams[0]/double(xSize-1);
-                for (int i=0;i<int(readData.size());i++)
-                {
-                    for (int j=0;j<int(readData[i]->size());j++)
-                    {
-                        readData[i]->at(j)*=cmdOut.floatParams[1];
-                    }
-                }
-#endif
-                int shapeHandle=apiAddHeightfieldToScene(xSize,pointSpacing,readData,0.0,2);
-                App::currentWorld->sceneObjects->deselectObjects();
-                App::currentWorld->sceneObjects->addObjectToSelection(shapeHandle);
-
-            }
-            for (int i=0;i<int(readData.size());i++)
-                delete readData[i];
-            return(readData.size()!=0);
-        }
-        catch(VFILE_EXCEPTION_TYPE e)
-        {
-            VFile::reportAndHandleFileExceptionError(e);
-            return(false);
-        }
-    }
-    return(false);
-}
-
-int CFileOperations::apiAddHeightfieldToScene(int xSize,double pointSpacing,const std::vector<std::vector<double>*>& readData,double shadingAngle,int options)
+int CFileOperations::createHeightfield(int xSize,double pointSpacing,const std::vector<std::vector<double>*>& readData,double shadingAngle,int options)
 { // options bits:
     // 0 set --> backfaces are culled
     // 1 set --> edges are visible
@@ -705,7 +437,8 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,double pointSpacing,cons
     return(shape->getObjectHandle());
 }
 
-void CFileOperations::addToRecentlyOpenedScenes(std::string filenameAndPath)
+#ifdef SIM_WITH_GUI
+void CFileOperations::_addToRecentlyOpenedScenes(std::string filenameAndPath)
 {
     CPersistentDataContainer cont;
     std::string recentScenes[10];
@@ -780,7 +513,6 @@ void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPat
     }
 }
 
-#ifdef SIM_WITH_GUI
 void CFileOperations::keyPress(int key)
 {
     if (key==CTRL_S_KEY)
@@ -919,10 +651,22 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
                 std::string infoPrintOut(IDSN_SAVING_SCENE);
                 infoPrintOut+="...";
                 App::logMsg(sim_verbosity_msgs,infoPrintOut.c_str());
-                if (saveScene(App::currentWorld->mainSettings->getScenePathAndName().c_str(),true,true,false))
+                std::string infoStr;
+                std::string errorStr;
+                if (saveScene(App::currentWorld->mainSettings->getScenePathAndName().c_str(),true,false,nullptr,&infoStr,&errorStr))
                 {
-                    addToRecentlyOpenedScenes(App::currentWorld->mainSettings->getScenePathAndName());
+                    if (infoStr.size()>0)
+                        App::logMsg(sim_verbosity_msgs,infoStr.c_str());
+                    App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_WAS_SAVED);
+                    GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
+                    _addToRecentlyOpenedScenes(App::currentWorld->mainSettings->getScenePathAndName());
                     App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+                }
+                else
+                {
+                    if (infoStr.size()>0)
+                        App::logMsg(sim_verbosity_msgs,infoStr.c_str());
+                    App::logMsg(sim_verbosity_errors,errorStr.c_str());
                 }
             }
             retVal=true;
@@ -1012,11 +756,23 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                 {
                     if (filetype==CSer::filetype_csim_xml_simplescene_file)
                         filenameAndPath+="@simpleXml";
-                    if (saveScene(filenameAndPath.c_str(),true,true,true))
+                    std::string infoStr;
+                    std::string errorStr;
+                    if (saveScene(filenameAndPath.c_str(),true,true,nullptr,&infoStr,&errorStr))
                     {
-                        addToRecentlyOpenedScenes(App::currentWorld->mainSettings->getScenePathAndName());
+                        if (infoStr.size()>0)
+                            App::logMsg(sim_verbosity_msgs,infoStr.c_str());
+                        App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_WAS_SAVED);
+                        GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
+                        _addToRecentlyOpenedScenes(App::currentWorld->mainSettings->getScenePathAndName());
                         App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
                         retVal=true;
+                    }
+                    else
+                    {
+                        if (infoStr.size()>0)
+                            App::logMsg(sim_verbosity_msgs,infoStr.c_str());
+                        App::logMsg(sim_verbosity_errors,errorStr.c_str());
                     }
                 }
                 else
@@ -1068,7 +824,36 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         if (App::currentWorld->simulation->isSimulationStopped()&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
             if (!VThread::isUiThread())
-                closeScene(true);
+            {
+                unsigned short action=VMESSAGEBOX_REPLY_NO;
+                if (!App::currentWorld->environment->getSceneCanBeDiscardedWhenNewSceneOpened())
+                {
+                    if (CSimFlavor::getBoolVal(16)&&(!App::currentWorld->environment->getSceneLocked()))
+                    {
+                        if (App::currentWorld->undoBufferContainer->isSceneSaveMaybeNeededFlagSet())
+                        {
+                            action=GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_SAVE,IDS_WANNA_SAVE_THE_SCENE_WARNING,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_NO);
+                            if (action==VMESSAGEBOX_REPLY_YES)
+                            {
+                                if (_saveSceneWithDialogAndEverything()) // will call save as if needed!
+                                    action=VMESSAGEBOX_REPLY_NO;
+                            }
+                        }
+                    }
+                }
+                if (action==VMESSAGEBOX_REPLY_NO)
+                {
+                    App::currentWorld->simulation->stopSimulation();
+                    GuiApp::setDefaultMouseMode();
+                    if (GuiApp::mainWindow!=nullptr)
+                        GuiApp::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr);
+                    closeScene();
+                    App::logMsg(sim_verbosity_msgs,"Scene closed.");
+                    if (GuiApp::mainWindow!=nullptr)
+                        GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
+                    GuiApp::setRebuildHierarchyFlag();
+                }
+            }
             else
                 GuiApp::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
@@ -1096,8 +881,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     GuiApp::setDefaultMouseMode();
                     App::worldContainer->createNewWorld();
                     createNewScene(false);
-                    App::logMsg(sim_verbosity_msgs,IDSNS_DEFAULT_SCENE_WAS_SET_UP);
-
                     std::string infoStr;
                     std::string errorStr;
                     if (loadScene(filenameAndPath.c_str(),true,nullptr,&infoStr,&errorStr))
@@ -1108,7 +891,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         if (infoStr.size()!=0)
                             App::logMsg(sim_verbosity_msgs,infoStr.c_str());
                         App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_OPENED);
-                        addToRecentlyOpenedScenes(filenameAndPath);
+                        _addToRecentlyOpenedScenes(filenameAndPath);
                     }
                     else
                     {
@@ -1162,9 +945,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 {
                     GuiApp::setDefaultMouseMode();
                     App::worldContainer->createNewWorld();
-                    CFileOperations::createNewScene(false);
-                    App::logMsg(sim_verbosity_msgs,IDSNS_DEFAULT_SCENE_WAS_SET_UP);
-
+                    createNewScene(false);
                     std::string infoStr;
                     std::string errorStr;
                     if (loadScene(filenameAndPath.c_str(),true,nullptr,&infoStr,&errorStr))
@@ -1175,7 +956,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         if (infoStr.size()!=0)
                             App::logMsg(sim_verbosity_msgs,infoStr.c_str());
                         App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_OPENED);
-                        addToRecentlyOpenedScenes(filenameAndPath);
+                        _addToRecentlyOpenedScenes(filenameAndPath);
                     }
                     else
                     {
@@ -1210,7 +991,23 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             std::string filenameAndPath=GuiApp::uiThread->getOpenFileName(GuiApp::mainWindow,0,IDSN_LOADING_MODEL,App::folders->getModelsPath().c_str(),"",false,"Models",ext[0].c_str(),ext[1].c_str(),ext[2].c_str(),ext[3].c_str());
 
             if (filenameAndPath.length()!=0)
-                loadModel(filenameAndPath.c_str(),true,true,true,nullptr,false,false); // Undo things is in here.
+            {
+                std::string infoStr;
+                std::string errorStr;
+                if (loadModel(filenameAndPath.c_str(),true,true,nullptr,false,false,&infoStr,&errorStr)) // Undo things is in here.
+                {
+                    GuiApp::setRebuildHierarchyFlag();
+                    if (infoStr.size()>0)
+                        App::logMsg(sim_verbosity_msgs,infoStr.c_str());
+                    App::logMsg(sim_verbosity_msgs,IDSNS_MODEL_LOADED);
+                }
+                else
+                {
+                    if (infoStr.size()>0)
+                        App::logMsg(sim_verbosity_msgs,infoStr.c_str());
+                    App::logMsg(sim_verbosity_errors,errorStr.c_str());
+                }
+            }
             else
                 App::logMsg(sim_verbosity_msgs,"Aborted.");
         }
@@ -1384,7 +1181,16 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                 }
                                 if (!abort)
                                 {
-                                    saveModel(modelBase,filenameAndPath.c_str(),true,true);
+                                    std::string infoStr;
+                                    std::string errorStr;
+                                    if (saveModel(modelBase,filenameAndPath.c_str(),true,nullptr,&infoStr,&errorStr))
+                                    {
+                                        if (infoStr.size()>0)
+                                            App::logMsg(sim_verbosity_msgs,infoStr.c_str());
+                                        App::logMsg(sim_verbosity_msgs,IDSNS_MODEL_WAS_SAVED);
+                                    }
+                                    else
+                                        App::logMsg(sim_verbosity_errors,errorStr.c_str());
                                     App::currentWorld->sceneObjects->deselectObjects();
                                 }
                                 else
@@ -1460,7 +1266,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 App::folders->setImportExportPath(App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                 if (VFile::doesFileExist(filenameAndPath.c_str()))
                 {
-                    if (heightfieldImportRoutine(filenameAndPath.c_str()))
+                    if (_heightfieldImportRoutine(filenameAndPath.c_str()))
                         App::logMsg(sim_verbosity_msgs,"done.");
                     else
                         App::logMsg(sim_verbosity_errors,"An error occurred during the import operation.");
@@ -1736,4 +1542,121 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     return(false);
 }
 
+bool CFileOperations::_heightfieldImportRoutine(const char* pathName)
+{
+    if (VFile::doesFileExist(pathName))
+    {
+        try
+        {
+            std::vector<std::vector<double>*> readData;
+            // We read each line at a time, which gives rows:
+            int minRow=-1;
+
+            std::string ext(utils::getLowerCaseString(VVarious::splitPath_fileExtension(pathName).c_str()));
+            if ((ext.compare("csv")!=0)&&(ext.compare("txt")!=0))
+            { // from image file
+                int resX,resY,n;
+                unsigned char* data=CImageLoaderSaver::load(pathName,&resX,&resY,&n,3);
+                if (data!=nullptr)
+                {
+                    if ( (resX>1)&&(resY>1) )
+                    {
+                        int bytesPerPixel=0;
+                        if (n==3)
+                            bytesPerPixel=3;
+                        if (n==4)
+                            bytesPerPixel=4;
+                        if (bytesPerPixel!=0)
+                        {
+                            for (int i=0;i<resY;i++)
+                            {
+                                std::vector<double>* lineVect=new std::vector<double>;
+                                for (int j=0;j<resX;j++)
+                                    lineVect->push_back(double(data[bytesPerPixel*(i*resX+j)+0]+data[bytesPerPixel*(i*resX+j)+1]+data[bytesPerPixel*(i*resX+j)+2])/768.0);
+                                readData.push_back(lineVect);
+                            }
+                            minRow=resX;
+                        }
+                    }
+                    delete[] data;
+                }
+                else
+                    GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,IDSN_IMPORT,IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+            }
+            else
+            { // from csv or txt file:
+                VFile file(pathName,VFile::READ|VFile::SHARE_DENY_NONE);
+                VArchive archive(&file,VArchive::LOAD);
+                unsigned int currentPos=0;
+                std::string line;
+                while (archive.readSingleLine(currentPos,line,false))
+                {
+                    std::string word;
+                    std::vector<double>* lineVect=new std::vector<double>;
+                    while (tt::extractCommaSeparatedWord(line,word))
+                    {
+                        tt::removeSpacesAtBeginningAndEnd(word);
+                        double val;
+                        if (tt::getValidFloat(word.c_str(),val))
+                            lineVect->push_back(val);
+                        else
+                            break;
+                    }
+                    if (lineVect->size()!=0)
+                    {
+                        if ( (minRow==-1)||(int(lineVect->size())<minRow) )
+                            minRow=int(lineVect->size());
+                        readData.push_back(lineVect);
+                    }
+                    else
+                    {
+                        delete lineVect;
+                        break;
+                    }
+                }
+                archive.close();
+                file.close();
+            }
+            if ( (readData.size()>1)&&(minRow>1) )
+            {
+                int xSize=minRow;
+                int ySize=int(readData.size());
+                double pointSpacing=1.0;
+                // Display the heightfield scaling dialog:
+                SUIThreadCommand cmdIn;
+                SUIThreadCommand cmdOut;
+                cmdIn.cmdId=HEIGHTFIELD_DIMENSION_DLG_UITHREADCMD;
+                cmdIn.floatParams.push_back(10.0);
+                cmdIn.floatParams.push_back(double(ySize-1)/double(xSize-1));
+                GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                if (cmdOut.floatParams.size()==0)
+                {
+                    cmdOut.floatParams.push_back(1.0);
+                    cmdOut.floatParams.push_back(1.0);
+                }
+                pointSpacing=cmdOut.floatParams[0]/double(xSize-1);
+                for (int i=0;i<int(readData.size());i++)
+                {
+                    for (int j=0;j<int(readData[i]->size());j++)
+                    {
+                        readData[i]->at(j)*=cmdOut.floatParams[1];
+                    }
+                }
+                int shapeHandle=createHeightfield(xSize,pointSpacing,readData,0.0,2);
+                App::currentWorld->sceneObjects->deselectObjects();
+                App::currentWorld->sceneObjects->addObjectToSelection(shapeHandle);
+
+            }
+            for (int i=0;i<int(readData.size());i++)
+                delete readData[i];
+            return(readData.size()!=0);
+        }
+        catch(VFILE_EXCEPTION_TYPE e)
+        {
+            VFile::reportAndHandleFileExceptionError(e);
+            return(false);
+        }
+    }
+    return(false);
+}
 #endif

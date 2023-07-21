@@ -339,11 +339,7 @@ void CUndoBufferCont::undo()
     App::currentWorld->clearScene(false);
 
     CSer serObj(theBuff,CSer::filetype_csim_bin_scene_buff);
-    int serializationVersion;
-    unsigned short dum0;
-    int dum1;
-    char dum2;
-    serObj.readOpenBinary(serializationVersion,dum0,dum1,dum2,false);
+    serObj.readOpenBinary(0,false);
     _undoPointSavingOrRestoringUnderWay=true;
 
     App::currentWorld->loadScene(serObj,true);
@@ -398,11 +394,7 @@ void CUndoBufferCont::redo()
     App::currentWorld->clearScene(false);
 
     CSer serObj(theBuff,CSer::filetype_csim_bin_scene_buff);
-    int serializationVersion;
-    unsigned short dum0;
-    int dum1;
-    char dum2;
-    serObj.readOpenBinary(serializationVersion,dum0,dum1,dum2,false);
+    serObj.readOpenBinary(0,false);
     _undoPointSavingOrRestoringUnderWay=true;
 
     App::currentWorld->loadScene(serObj,true);

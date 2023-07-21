@@ -517,18 +517,24 @@ int CSer::readOpenBinaryNoHeader()
     return(retVal);
 }
 
-int CSer::readOpenXml(int& serializationVersion,unsigned short& coppeliaSimVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber,bool ignoreTooOldSerializationVersion)
+int CSer::readOpenXml(int fileType,bool ignoreTooOldSerializationVersion,std::string* infoStr/*=nullptr*/,std::string* errorStr/*=nullptr*/)
 { // return values: -4 file can't be opened, -3=wrong fileformat, -2=format too old, -1=format too new, 0=compressor unknown, 1=alright!
     _storing=false;
-    coppeliaSimVersionThatWroteThis=0; // means: not yet supported
-    licenseTypeThatWroteThis=-1; // means: not yet supported
-    serializationVersion=-1; // error
+    unsigned short coppeliaSimVersionThatWroteThis=0; // means: not yet supported
+    int licenseTypeThatWroteThis=-1; // means: not yet supported
+    int serializationVersion=-1; // error
+    char revNumber;
     _serializationVersionThatWroteThisFile=serializationVersion;
     _serializationVersionThatWroteLastFile=serializationVersion;
-    return(_readXmlHeader(serializationVersion,coppeliaSimVersionThatWroteThis,revNumber));
+    int retVal=_readXmlHeader(serializationVersion,coppeliaSimVersionThatWroteThis,revNumber);
+
+    _getFileOpenInfoAndError(fileType,retVal,serializationVersion,coppeliaSimVersionThatWroteThis,licenseTypeThatWroteThis,revNumber,infoStr,errorStr);
+
+    return(retVal);
 }
-int CSer::readOpenBinary(int& serializationVersion,unsigned short& coppeliaSimVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber,bool ignoreTooOldSerializationVersion)
+int CSer::readOpenBinary(int fileType,bool ignoreTooOldSerializationVersion,std::string* infoStr/*=nullptr*/,std::string* errorStr/*=nullptr*/)
 { // return values: -4 file can't be opened, -3=wrong fileformat, -2=format too old, -1=format too new, 0=compressor unknown, 1=alright!
+    int retVal=1;
     _storing=false;
     if ( (_filetype!=filetype_csim_bin_scene_buff)&&(_filetype!=filetype_csim_bin_model_buff) )
     {
@@ -539,217 +545,294 @@ int CSer::readOpenBinary(int& serializationVersion,unsigned short& coppeliaSimVe
         {
             delete theFile;
             theFile=nullptr;
-            return(-4);
+            retVal=-4;
         }
     }
 
-    coppeliaSimVersionThatWroteThis=0; // means: not yet supported
-    licenseTypeThatWroteThis=-1; // means: not yet supported
-    serializationVersion=-1; // error
+    char revNumber;
+    unsigned short coppeliaSimVersionThatWroteThis=0; // means: not yet supported
+    int licenseTypeThatWroteThis=-1; // means: not yet supported
+    int serializationVersion=-1; // error
     _serializationVersionThatWroteThisFile=serializationVersion;
     _serializationVersionThatWroteLastFile=serializationVersion;
-    int minSerializationVersionThatCanReadThis=-1; // error
-    int compilationVersion=-1;
-    int alreadyReadDataCount=0;
-    char filetype=0;
-    char compressMethod=0;
-    int originalDataSize=0;
-    int bufferArchivePointer=0;
 
-    if (!_noHeader)
+    if (retVal==1)
     {
-        // We try to read the header:
-        if (theArchive!=nullptr)
+        int minSerializationVersionThatCanReadThis=-1; // error
+        int compilationVersion=-1;
+        int alreadyReadDataCount=0;
+        char filetype=0;
+        char compressMethod=0;
+        int originalDataSize=0;
+        int bufferArchivePointer=0;
+
+        if (!_noHeader)
         {
-            VFile* theFile=theArchive->getFile();
-            if (theFile->getLength()<strlen(SER_SIM_HEADER))
-                return(-3); // wrong fileformat
-        }
-        else
-        {
-            if ((*_bufferArchive).size()<strlen(SER_SIM_HEADER))
-                return(-3); // wrong fileformat
-        }
-        std::string head;
-        for (size_t i=0;i<strlen(SER_SIM_HEADER);i++)
-        {
-            char tmp;
-            if (theArchive!=nullptr)
-                (*theArchive) >> tmp;
-            else
-                tmp=(*_bufferArchive)[bufferArchivePointer++];
-            head+=tmp;
-        }
-        if (head!=SER_SIM_HEADER)
-            return(-3); // we don't have the appropriate header! (wrong fileformat)
-        else
-        { // We have the correct header!
-            // We read the serialization version:
+            // We try to read the header:
             if (theArchive!=nullptr)
             {
-                (*theArchive) >> ((char*)&serializationVersion)[0];
-                (*theArchive) >> ((char*)&serializationVersion)[1];
-                (*theArchive) >> ((char*)&serializationVersion)[2];
-                (*theArchive) >> ((char*)&serializationVersion)[3];
-                (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[0];
-                (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[1];
-                (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[2];
-                (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[3];
+                VFile* theFile=theArchive->getFile();
+                if (theFile->getLength()<strlen(SER_SIM_HEADER))
+                    retVal=-3; // wrong fileformat
             }
             else
             {
-                ((char*)&serializationVersion)[0]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&serializationVersion)[1]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&serializationVersion)[2]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&serializationVersion)[3]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&minSerializationVersionThatCanReadThis)[0]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&minSerializationVersionThatCanReadThis)[1]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&minSerializationVersionThatCanReadThis)[2]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&minSerializationVersionThatCanReadThis)[3]=(*_bufferArchive)[bufferArchivePointer++];
+                if ((*_bufferArchive).size()<strlen(SER_SIM_HEADER))
+                    retVal=-3; // wrong fileformat
             }
-            _serializationVersionThatWroteThisFile=serializationVersion;
-            _serializationVersionThatWroteLastFile=serializationVersion;
-            // We read the compression method:
-            if (theArchive!=nullptr)
-                (*theArchive) >> compressMethod;
-            else
-                compressMethod=(*_bufferArchive)[bufferArchivePointer++];
-            // We read the uncompressed data size:
-            if (theArchive!=nullptr)
+            if (retVal==1)
             {
-                (*theArchive) >> ((char*)&originalDataSize)[0];
-                (*theArchive) >> ((char*)&originalDataSize)[1];
-                (*theArchive) >> ((char*)&originalDataSize)[2];
-                (*theArchive) >> ((char*)&originalDataSize)[3];
-            }
-            else
-            {
-                ((char*)&originalDataSize)[0]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&originalDataSize)[1]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&originalDataSize)[2]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&originalDataSize)[3]=(*_bufferArchive)[bufferArchivePointer++];
-            }
-
-            alreadyReadDataCount=17; // this is for ser version 12, ser version 13 has additional 1004!! (added a bit further down)
-            if (serializationVersion>12)
-            { // for serialization version 13 and above! (2009/07/21)
-                if (theArchive!=nullptr)
+                std::string head;
+                for (size_t i=0;i<strlen(SER_SIM_HEADER);i++)
                 {
-                    (*theArchive) >> ((char*)&compilationVersion)[0];
-                    (*theArchive) >> ((char*)&compilationVersion)[1];
-                    (*theArchive) >> ((char*)&compilationVersion)[2];
-                    (*theArchive) >> ((char*)&compilationVersion)[3];
-                }
-                else
-                {
-                    ((char*)&compilationVersion)[0]=(*_bufferArchive)[bufferArchivePointer++];
-                    ((char*)&compilationVersion)[1]=(*_bufferArchive)[bufferArchivePointer++];
-                    ((char*)&compilationVersion)[2]=(*_bufferArchive)[bufferArchivePointer++];
-                    ((char*)&compilationVersion)[3]=(*_bufferArchive)[bufferArchivePointer++];
-                }
-
-                // We read the license version that wrote this file and the CoppeliaSim version:
-                if (theArchive!=nullptr)
-                {
-                    (*theArchive) >> ((char*)&coppeliaSimVersionThatWroteThis)[0];
-                    (*theArchive) >> ((char*)&coppeliaSimVersionThatWroteThis)[1];
-                    unsigned int licenseTypeThatWroteThisTmp;
-                    (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[0];
-                    (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[1];
-                    (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[2];
-                    (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[3];
-                    licenseTypeThatWroteThis=licenseTypeThatWroteThisTmp-1; // -1 because -1 means: no info about license type yet!
-                }
-                else
-                {
-                    ((char*)&coppeliaSimVersionThatWroteThis)[0]=(*_bufferArchive)[bufferArchivePointer++];
-                    ((char*)&coppeliaSimVersionThatWroteThis)[1]=(*_bufferArchive)[bufferArchivePointer++];
-                    unsigned int licenseTypeThatWroteThisTmp;
-                    ((char*)&licenseTypeThatWroteThisTmp)[0]=(*_bufferArchive)[bufferArchivePointer++];
-                    ((char*)&licenseTypeThatWroteThisTmp)[1]=(*_bufferArchive)[bufferArchivePointer++];
-                    ((char*)&licenseTypeThatWroteThisTmp)[2]=(*_bufferArchive)[bufferArchivePointer++];
-                    ((char*)&licenseTypeThatWroteThisTmp)[3]=(*_bufferArchive)[bufferArchivePointer++];
-                    licenseTypeThatWroteThis=licenseTypeThatWroteThisTmp-1; // -1 because -1 means: no info about license type yet!
-                }
-
-                // We read the revision number:
-                if (theArchive!=nullptr)
-                    (*theArchive) >> revNumber;
-                else
-                    revNumber=(*_bufferArchive)[bufferArchivePointer++];
-
-                if (theArchive!=nullptr)
-                    (*theArchive) >> filetype;
-                else
-                    filetype=(*_bufferArchive)[bufferArchivePointer++];
-
-                for (int i=0;i<992;i++)
-                { // for future use!
-                    char dummy;
+                    char tmp;
                     if (theArchive!=nullptr)
-                        (*theArchive) >> dummy; // not used for now
+                        (*theArchive) >> tmp;
                     else
-                        dummy=(*_bufferArchive)[bufferArchivePointer++];
+                        tmp=(*_bufferArchive)[bufferArchivePointer++];
+                    head+=tmp;
                 }
-                alreadyReadDataCount+=1004;
+                if (head==SER_SIM_HEADER)
+                { // We have the correct header!
+                    // We read the serialization version:
+                    if (theArchive!=nullptr)
+                    {
+                        (*theArchive) >> ((char*)&serializationVersion)[0];
+                        (*theArchive) >> ((char*)&serializationVersion)[1];
+                        (*theArchive) >> ((char*)&serializationVersion)[2];
+                        (*theArchive) >> ((char*)&serializationVersion)[3];
+                        (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[0];
+                        (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[1];
+                        (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[2];
+                        (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[3];
+                    }
+                    else
+                    {
+                        ((char*)&serializationVersion)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                        ((char*)&serializationVersion)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                        ((char*)&serializationVersion)[2]=(*_bufferArchive)[bufferArchivePointer++];
+                        ((char*)&serializationVersion)[3]=(*_bufferArchive)[bufferArchivePointer++];
+                        ((char*)&minSerializationVersionThatCanReadThis)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                        ((char*)&minSerializationVersionThatCanReadThis)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                        ((char*)&minSerializationVersionThatCanReadThis)[2]=(*_bufferArchive)[bufferArchivePointer++];
+                        ((char*)&minSerializationVersionThatCanReadThis)[3]=(*_bufferArchive)[bufferArchivePointer++];
+                    }
+                    _serializationVersionThatWroteThisFile=serializationVersion;
+                    _serializationVersionThatWroteLastFile=serializationVersion;
+                    // We read the compression method:
+                    if (theArchive!=nullptr)
+                        (*theArchive) >> compressMethod;
+                    else
+                        compressMethod=(*_bufferArchive)[bufferArchivePointer++];
+                    // We read the uncompressed data size:
+                    if (theArchive!=nullptr)
+                    {
+                        (*theArchive) >> ((char*)&originalDataSize)[0];
+                        (*theArchive) >> ((char*)&originalDataSize)[1];
+                        (*theArchive) >> ((char*)&originalDataSize)[2];
+                        (*theArchive) >> ((char*)&originalDataSize)[3];
+                    }
+                    else
+                    {
+                        ((char*)&originalDataSize)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                        ((char*)&originalDataSize)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                        ((char*)&originalDataSize)[2]=(*_bufferArchive)[bufferArchivePointer++];
+                        ((char*)&originalDataSize)[3]=(*_bufferArchive)[bufferArchivePointer++];
+                    }
+
+                    alreadyReadDataCount=17; // this is for ser version 12, ser version 13 has additional 1004!! (added a bit further down)
+                    if (serializationVersion>12)
+                    { // for serialization version 13 and above! (2009/07/21)
+                        if (theArchive!=nullptr)
+                        {
+                            (*theArchive) >> ((char*)&compilationVersion)[0];
+                            (*theArchive) >> ((char*)&compilationVersion)[1];
+                            (*theArchive) >> ((char*)&compilationVersion)[2];
+                            (*theArchive) >> ((char*)&compilationVersion)[3];
+                        }
+                        else
+                        {
+                            ((char*)&compilationVersion)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                            ((char*)&compilationVersion)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                            ((char*)&compilationVersion)[2]=(*_bufferArchive)[bufferArchivePointer++];
+                            ((char*)&compilationVersion)[3]=(*_bufferArchive)[bufferArchivePointer++];
+                        }
+
+                        // We read the license version that wrote this file and the CoppeliaSim version:
+                        if (theArchive!=nullptr)
+                        {
+                            (*theArchive) >> ((char*)&coppeliaSimVersionThatWroteThis)[0];
+                            (*theArchive) >> ((char*)&coppeliaSimVersionThatWroteThis)[1];
+                            unsigned int licenseTypeThatWroteThisTmp;
+                            (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[0];
+                            (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[1];
+                            (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[2];
+                            (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[3];
+                            licenseTypeThatWroteThis=licenseTypeThatWroteThisTmp-1; // -1 because -1 means: no info about license type yet!
+                        }
+                        else
+                        {
+                            ((char*)&coppeliaSimVersionThatWroteThis)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                            ((char*)&coppeliaSimVersionThatWroteThis)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                            unsigned int licenseTypeThatWroteThisTmp;
+                            ((char*)&licenseTypeThatWroteThisTmp)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                            ((char*)&licenseTypeThatWroteThisTmp)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                            ((char*)&licenseTypeThatWroteThisTmp)[2]=(*_bufferArchive)[bufferArchivePointer++];
+                            ((char*)&licenseTypeThatWroteThisTmp)[3]=(*_bufferArchive)[bufferArchivePointer++];
+                            licenseTypeThatWroteThis=licenseTypeThatWroteThisTmp-1; // -1 because -1 means: no info about license type yet!
+                        }
+
+                        // We read the revision number:
+                        if (theArchive!=nullptr)
+                            (*theArchive) >> revNumber;
+                        else
+                            revNumber=(*_bufferArchive)[bufferArchivePointer++];
+
+                        if (theArchive!=nullptr)
+                            (*theArchive) >> filetype;
+                        else
+                            filetype=(*_bufferArchive)[bufferArchivePointer++];
+
+                        for (int i=0;i<992;i++)
+                        { // for future use!
+                            char dummy;
+                            if (theArchive!=nullptr)
+                                (*theArchive) >> dummy; // not used for now
+                            else
+                                dummy=(*_bufferArchive)[bufferArchivePointer++];
+                        }
+                        alreadyReadDataCount+=1004;
+                    }
+                }
+                else
+                    retVal=-3; // we don't have the appropriate header! (wrong fileformat)
+            }
+
+            if (retVal==1)
+            {
+                _coppeliaSimVersionThatWroteThis=coppeliaSimVersionThatWroteThis;
+                _licenseTypeThatWroteThis=licenseTypeThatWroteThis;
+
+                if (!ignoreTooOldSerializationVersion) // we can most of the time ignore a too old serialization number, if we only want to load the thumbnail
+                {
+                    if (serializationVersion<SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ)
+                        retVal=-2; // This file is too old
+                }
+                if (retVal==1)
+                {
+                    if (minSerializationVersionThatCanReadThis>SER_SERIALIZATION_VERSION)
+                        retVal=-1; // This file is too new
+                }
             }
         }
 
+        if (retVal==1)
+        { // We read the whole file:
+            if (theArchive!=nullptr)
+            {
+                unsigned long l=(unsigned long)theArchive->getFile()->getLength()-alreadyReadDataCount;
+                char dummy;
+                for (unsigned long i=0;i<l;i++)
+                {
+                    (*theArchive) >> dummy;
+                    _fileBuffer.push_back(dummy);
+                }
+            }
+            else
+            {
+                for (unsigned long i=bufferArchivePointer;i<(*_bufferArchive).size();i++)
+                    _fileBuffer.push_back((*_bufferArchive)[i]);
+            }
 
-        _coppeliaSimVersionThatWroteThis=coppeliaSimVersionThatWroteThis;
-        _licenseTypeThatWroteThis=licenseTypeThatWroteThis;
+            if (compressMethod!=0)
+            { // compressed
+                if (compressMethod==1) // for now, only Huffman is supported
+                { // Huffman uncompression:
+                    unsigned char* uncompressedBuffer=new unsigned char[originalDataSize];
+                    Huffman_Uncompress(&_fileBuffer[0],uncompressedBuffer,(int)_fileBuffer.size(),originalDataSize);
+                    _fileBuffer.clear();
+                    for (int i=0;i<originalDataSize;i++)
+                        _fileBuffer.push_back(uncompressedBuffer[i]);
+                    delete[] uncompressedBuffer;
 
-        if (!ignoreTooOldSerializationVersion) // we can most of the time ignore a too old serialization number, if we only want to load the thumbnail
-        {
-            if (serializationVersion<SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ)
-                return(-2); // This file is too old
+                    retVal=CSimFlavor::handleReadOpenFile(_filetype,(char*)&_fileBuffer[0]);
+                }
+            }
         }
-        if (minSerializationVersionThatCanReadThis>SER_SERIALIZATION_VERSION)
-            return(-1); // This file is too new
+    }
+
+    _getFileOpenInfoAndError(fileType,retVal,serializationVersion,coppeliaSimVersionThatWroteThis,licenseTypeThatWroteThis,revNumber,infoStr,errorStr);
+
+    return(retVal);
+}
+
+void CSer::_getFileOpenInfoAndError(int fileType,int result,int serializationVersion,unsigned short coppeliaSimVersionThatWroteThis,int licenseTypeThatWroteThis,char revNumber,std::string* infoStr/*=nullptr*/,std::string* errorStr/*=nullptr*/)
+{
+    if (errorStr!=nullptr)
+    {
+        if (result==-4)
+            errorStr[0]="The file cannot be opened.";
+        if (result==-3)
+        {
+            if (fileType==0)
+                errorStr[0]="The file does not seem to be a valid scene file.";
+            else
+                errorStr[0]="The file does not seem to be a valid model file.";
+        }
+        if (result==-2)
+            errorStr[0]="This serialization version is not supported anymore. Please convert this file.";
+        if (result==-1)
+            errorStr[0]="The serialization version is too recent and cannot be loaded by this CoppeliaSim version.";
+        if (result==0)
+            errorStr[0]="This CoppeliaSim version doesn't support the file's compression scheme.";
+    }
+    if (infoStr!=nullptr)
+    {
+        if (fileType==0)
+            infoStr[0]="Scene: ";
+        else
+            infoStr[0]="Model: ";
+        infoStr[0]+=_filename;
+        if (result>-3)
+        {
+            infoStr[0]+="\nSerialization version is "+std::to_string(serializationVersion)+".";
+            if (coppeliaSimVersionThatWroteThis!=0)
+            {
+                infoStr[0]+="\nFile was previously written with CoppeliaSim version ";
+                int v=coppeliaSimVersionThatWroteThis;
+                infoStr[0]+=char('0')+(unsigned char)(v/10000);
+                infoStr[0]+='.';
+                v=v-(v/10000)*10000;
+                infoStr[0]+=char('0')+(unsigned char)(v/1000);
+                v=v-(v/1000)*1000;
+                infoStr[0]+=char('0')+(unsigned char)(v/100);
+                v=v-(v/100)*100;
+                infoStr[0]+='.';
+                infoStr[0]+=char('0')+(unsigned char)(v/10);
+                v=v-(v/10)*10;
+                infoStr[0]+=char('0')+(unsigned char)v;
+
+                infoStr[0]+=" (rev ";
+                infoStr[0]+=std::to_string(int(revNumber));
+                infoStr[0]+=')';
+
+                if (licenseTypeThatWroteThis!=-1)
+                {
+                    licenseTypeThatWroteThis=(licenseTypeThatWroteThis|0x00040000)-0x00040000;
+                    if (licenseTypeThatWroteThis==0x00001000)
+                         infoStr[0]+=" (CoppeliaSim Edu license)";
+                    if (licenseTypeThatWroteThis==0x00002000)
+                         infoStr[0]+=" (CoppeliaSim Pro license)";
+                    if (licenseTypeThatWroteThis==0x00005000)
+                         infoStr[0]+=" (CoppeliaSim Player license)";
+                    if (licenseTypeThatWroteThis==0x00006000)
+                         infoStr[0]+=" (custom compilation)";
+                }
+            }
+        }
         if (serializationVersion>SER_SERIALIZATION_VERSION)
-        { // we might have problems reading this (even if it should be supported). Some functions might not be available.
-#ifdef SIM_WITH_GUI
-            GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Serialization",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-#else
-            App::logMsg(sim_verbosity_warnings,"%s.",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING);
-#endif
-        }
+            infoStr[0]+="\n*** The file was created with a newer version of CoppeliaSim. Some functionality might not be available or not working properly ***";
     }
-
-    // We read the whole file:
-    if (theArchive!=nullptr)
-    {
-        unsigned long l=(unsigned long)theArchive->getFile()->getLength()-alreadyReadDataCount;
-        char dummy;
-        for (unsigned long i=0;i<l;i++)
-        {
-            (*theArchive) >> dummy;
-            _fileBuffer.push_back(dummy);
-        }
-    }
-    else
-    {
-        for (unsigned long i=bufferArchivePointer;i<(*_bufferArchive).size();i++)
-            _fileBuffer.push_back((*_bufferArchive)[i]);
-    }
-
-    if (compressMethod!=0)
-    { // compressed
-        if (compressMethod==1) // for now, only Huffman is supported
-        { // Huffman uncompression:
-            unsigned char* uncompressedBuffer=new unsigned char[originalDataSize];
-            Huffman_Uncompress(&_fileBuffer[0],uncompressedBuffer,(int)_fileBuffer.size(),originalDataSize);
-            _fileBuffer.clear();
-            for (int i=0;i<originalDataSize;i++)
-                _fileBuffer.push_back(uncompressedBuffer[i]);
-            delete[] uncompressedBuffer;
-
-            return(CSimFlavor::handleReadOpenFile(_filetype,(char*)&_fileBuffer[0]));
-        }
-    }
-    else
-        return(1); // everything went ok!
-    return(0); // error, unknown compressor
 }
 
 void CSer::readClose()

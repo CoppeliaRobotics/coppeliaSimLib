@@ -465,14 +465,19 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
         if (cmd.cmdId==MODEL_BROWSER_DRAG_AND_DROP_CMD)
         {
-            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,false,false,nullptr,false,false);
-            if (App::currentWorld->sceneObjects->getSelectionCount()==1)
-            { // we could have several model bases (in the old fileformat)
-                CSceneObject* obj=App::currentWorld->sceneObjects->getLastSelectionObject();
-                if (obj!=nullptr)
-                {
-// Not anymore! 30/12/2016                    if ( (obj->getObjectMovementPreferredAxes()&0x03)||(obj->getObjectMovementRelativity(0)!=0) )
-//                    { // We can only place the model if the X and/or Y manip are set or if the placement is not relative to world
+            std::string infoStr;
+            std::string errorStr;
+            if (CFileOperations::loadModel(cmd.stringParams[0].c_str(),false,false,nullptr,false,false,&infoStr,&errorStr))
+            {
+                GuiApp::setRebuildHierarchyFlag();
+                if (infoStr.size()>0)
+                    App::logMsg(sim_verbosity_msgs,infoStr.c_str());
+                App::logMsg(sim_verbosity_msgs,IDSNS_MODEL_LOADED);
+                if (App::currentWorld->sceneObjects->getSelectionCount()==1)
+                { // we could have several model bases (in the old fileformat)
+                    CSceneObject* obj=App::currentWorld->sceneObjects->getLastSelectionObject();
+                    if (obj!=nullptr)
+                    {
                         C7Vector tr(obj->getFullLocalTransformation());
                         double ss=obj->getObjectMovementStepSize(0);
                         if (ss==0.0)
@@ -482,11 +487,17 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         tr.X(0)+=x;
                         tr.X(1)+=y;
                         obj->setLocalTransformation(tr);
-//                    }
+                    }
                 }
+                GuiApp::mainWindow->openglWidget->clearModelDragAndDropInfo();
+                App::undoRedo_sceneChanged("");
             }
-            GuiApp::mainWindow->openglWidget->clearModelDragAndDropInfo();
-            App::undoRedo_sceneChanged("");
+            else
+            {
+                if (infoStr.size()>0)
+                    App::logMsg(sim_verbosity_msgs,infoStr.c_str());
+                App::logMsg(sim_verbosity_errors,errorStr.c_str());
+            }
         }
 
         if (cmd.cmdId==DISPLAY_VARIOUS_WARNING_MESSAGES_DURING_SIMULATION_CMD)
@@ -4580,7 +4591,8 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                     testScene+=utils::getIntString(false,App::worldContainer->getCurrentWorldIndex()+1);
                     testScene+=".";
                     testScene+=SIM_SCENE_EXTENSION;
-                    CFileOperations::saveScene(testScene.c_str(),false,false,false);
+                    CFileOperations::saveScene(testScene.c_str(),false,false);
+                    GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
                     App::currentWorld->mainSettings->setScenePathAndName(savedLoc.c_str());
                     App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970=VDateTime::getSecondsSince1970();
                 }

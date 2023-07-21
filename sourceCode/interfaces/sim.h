@@ -8,6 +8,7 @@
 SIM_DLLEXPORT int simTest(int mode,void* ptr1,void* ptr2,void* ptr3);
 SIM_DLLEXPORT void* simGetMainWindow(int type);
 SIM_DLLEXPORT char* simGetLastError();
+SIM_DLLEXPORT char* simGetLastInfo();
 SIM_DLLEXPORT int simSetBoolParam(int parameter,bool boolState);
 SIM_DLLEXPORT int simGetBoolParam(int parameter);
 SIM_DLLEXPORT int simSetInt32Param(int parameter,int intState);

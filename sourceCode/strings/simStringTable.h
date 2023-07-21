@@ -9,9 +9,6 @@
 #define IDSNS_PASTING_BUFFER "Pasting buffer..."
 #define IDSNS_DELETING_SELECTION "Deleting selection..."
 #define IDSNS_CUTTING_SELECTION "Cutting selection..."
-#define IDSNS_PREPARING_INITIAL_CALCULATION_STRUCTURES "Preparing initial calculation structures..."
-#define IDSNS_INSERTING_BUTTONS "Inserting buttons..."
-#define IDSNS_INSERTING_MERGED_BUTTON "Inserting merged button..."
 
 #define IDSNS_OPERATION_DISABLED_WITH_INDIVIDUAL_PATH_POINTS_SELECTED "Operation disabled while individual path points are selected."
 
@@ -39,13 +36,8 @@
 #define IDSNS_SWAPPING_TO_EDGE_EDIT_MODE "Swapping to edge edit mode..."
 #define IDSNS_SWAPPING_TO_TRIANGLE_EDIT_MODE "Swapping to triangle edit mode..."
 #define IDSNS_SWAPPING_TO_VERTEX_EDIT_MODE "Swapping to vertex edit mode..."
-#define IDSNS_EDGE_VISIBILITY_TOGGLED "Edge visibility toggled."
-#define IDSNS_GENERATING_DUMMIES "Generating dummies..."
 #define IDSNS_INVERTING_CONTROL_POINT_ORDER "Inverting control point order..."
 #define IDSNS_FAILED_SELECTED_CONTROL_POINTS_ARE_NOT_CONSECUTIVE "Failed: selected control points are not consecutive."
-#define IDSNS_INSERTING_TRIANGLES "Inserting triangles..."
-#define IDSNS_REDUCING_TRIANGLE_SIZES "Reducing triangle sizes..."
-#define IDSNS_INSERTING_TRIANGLE_FAN "Inserting triangle fan..."
 #define IDSNS_INSERTING_NEW_PATH_POINT "Inserting new path point..."
 #define IDSNS_APPENDING_NEW_PATH_POINT_FROM_CAMERA_CONFIGURATION "Appending new path point from camera configuration..."
 #define IDSNS_KEEPING_CONTROL_POINT_X_AXIS_AND_ALIGNING_CONTROL_POINT_Z_AXIS_WITH_LAST_SELECTION "Keeping control point's x axis and aligning control point's z axis with last selection..."
@@ -65,7 +57,6 @@
 #define IDSNS_ADDING_A_VISION_SENSOR "Adding a vision sensor..."
 #define IDSNS_ADDING_A_FORCE_SENSOR "Adding a force sensor..."
 #define IDSNS_ADDING_A_PROXIMITY_SENSOR "Adding a proximity sensor..."
-#define IDSNS_ADDING_A_MILL "Adding a mill..."
 
 #define IDSNS_IMPORTING_HEIGHTFIELD_SHAPE "Importing heightfield shape..."
 
@@ -76,36 +67,20 @@
 #define IDSNS_SCENE_COULD_NOT_BE_OPENED "Scene could not be opened."
 #define IDSNS_SCENE_OPENED "Scene opened."
 
-#define IDSNS_GENERATING_PATH "Generating path..."
-#define IDSNS_GENERATING_PURE_SHAPE "Generating pure shape..."
 #define IDSNS_GENERATING_SHAPE "Generating shape..."
-#define IDSNS_FLIPPING_TRIANGLE_SIDES "Flipping triangle sides..."
 #define IDSNS_TOGGLED_AUTOMATIC_EDGE_FOLLOWING "Toggled automatic edge following."
 #define IDSNS_EDGES_CANNOT_BE_COPIED_CUR_OR_PASTED "Edges can't be copied, cut or pasted."
 #define IDSNS_TOGGLED_HIDDEN_VERTICES_EDGES_SHOW_STATE "Toggled hidden vertices/edges show state."
 
-#define IDSNS_MEMORIZING_OBJECT_CONFIGURATION "Memorizing object configuration (object position/orientation, joint parameter)..."
-#define IDSNS_RESTORING_OBJECT_CONFIGURATION "Restoring object configuration (object position/orientation, joint parameter)..."
-
-#define IDSNS_LOADING_MODEL "Loading model"
-#define IDSNS_LOADING_UI "Loading OpenGl-based custom UI"
 #define IDSNS_FILE_WAS_PREVIOUSLY_WRITTEN_WITH_CSIM_VERSION "File was previously written with CoppeliaSim version"
 
 #define IDSNS_DEFAULT_SCENE_WAS_SET_UP "Default scene was set-up."
 #define IDSNS_SERIALIZATION_VERSION_IS "Serialization version is"
 #define IDSNS_MODEL_LOADED "Model loaded."
-#define IDSNS_MODEL_COULD_NOT_BE_LOADED "Model could not be loaded."
-
-
-#define IDSNS_UI_LOADED "OpenGl-based custom UIs loaded."
-#define IDSNS_UI_COULD_NOT_BE_LOADED "OpenGl-based custom UIs could not be loaded."
 
 #define IDSNS_SCENE_WAS_SAVED "Scene was saved."
-#define IDSNS_SCENE_WAS_EXPORTED "Scene was exported."
 #define IDSNS_SAVING_MODEL "Saving model"
 #define IDSNS_MODEL_WAS_SAVED "Model was saved."
-#define IDSNS_FORWARD_ROLL_PERFORMED "Forward roll performed."
-#define IDSNS_BACKWARD_ROLL_PERFORMED "Backward roll performed."
 #define IDSNS_EXECUTING_UNDO "Executing undo... "
 #define IDSNS_EXECUTING_REDO "Executing redo... "
 #define IDSN_ASSEMBLING_2_OBJECTS "Assembling 2 objects..."
@@ -115,7 +90,6 @@
 
 
 #define IDSNS_SCENE_WAS_RESTORED_FROM_AUTO_SAVED_SCENE "Scene was restored from auto-saved scene."
-#define IDSNS_AUTO_SAVED_SCENE "Auto-saved scene"
 #define IDSNS_SWAPPED_TO_PAGE "Swapped to page"
 
 #define IDSNS_LOADING_SCENE "Loading scene"
@@ -129,9 +103,6 @@
 #define IDSN_PAGE_SELECTOR "Page selector"      //addedOn 8/3/2012
 #define IDSN_SELECT_VIEWABLE_OBJECT "View selector..." //addedOn 9/3/2012
 #define IDSN_MODEL_SAVE_POSITION_OFFSET_INFO "Remember that the current X/Y position of your model will be the horizontal offset to the drop position during a drag-and-drop operation later."//addedOn 7/3/2012
-#define IDSN_DYNAMIC_CONTENT "Dynamics content" //addedOn 24/02/2012
-#define IDSN_RENDERING "Rendering" //addedOn 06/02/2013
-#define IDSN_RENDERING_TOO_SLOW "It appears that your graphic card takes too much time to render a simple scene. This could be because your graphic card is very old, because your graphic card uses old/faulty drivers (or drivers not from the manufacturer), or because your graphic card overrides some application settings: 'vertical synchronization' (vsync) is disabled by CoppeliaSim, but some graphic card settings might override this (often the case with Nvidia cards)."
 #define IDS_CLOSE_SCENE_MENU_ITEM "Close scene" //addedOn 4/3/2012
 #define IDS_SHAPE_EDITION_TOOLBAR_TIP "Toggle shape edit mode (make sure to have a single shape object selected)" //addedOn 11/3/2012
 #define IDS_PATH_EDITION_TOOLBAR_TIP "Toggle path edit mode (make sure to have a single path object selected)" //addedOn 11/3/2012

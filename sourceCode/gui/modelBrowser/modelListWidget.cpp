@@ -126,11 +126,7 @@ CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int
     {
         CSer serObj(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
 
-        int serializationVersion;
-        unsigned short csimVersionThatWroteThis;
-        int licenseTypeThatWroteThis;
-        char revisionNumber;
-        result=serObj.readOpenBinary(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,true);
+        result=serObj.readOpenBinary(1,true);
         if (result==1)
         {
             result=0;
@@ -199,11 +195,7 @@ void CModelListWidget::setFolder(const char* folderPath)
         if (VFile::doesFileExist(fn.c_str()))
         {
             CSer serObj(fn.c_str(),CSer::filetype_csim_bin_thumbnails_file);
-            int serializationVersion;
-            unsigned short csimVersionThatWroteThis;
-            int licenseTypeThatWroteThis;
-            char revisionNumber;
-            int result=serObj.readOpenBinary(serializationVersion,csimVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+            int result=serObj.readOpenBinary(1,false);
             if (result==1)
             {
                 thumbnailFileExistsAndWasLoaded=true;

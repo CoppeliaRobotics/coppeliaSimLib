@@ -39,6 +39,10 @@ SIM_DLLEXPORT char* simGetLastError()
 {
     return(simGetLastError_internal());
 }
+SIM_DLLEXPORT char* simGetLastInfo()
+{
+    return(simGetLastInfo_internal());
+}
 SIM_DLLEXPORT int simSetBoolParam(int parameter,bool boolState)
 {
     return(simSetBoolParam_internal(parameter,boolState));

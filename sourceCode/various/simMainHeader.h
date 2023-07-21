@@ -47,11 +47,11 @@
 #endif
 
 // Trace commands:
-#define TRACE_C_API CFuncTrace funcTrace(__func__,sim_verbosity_traceall)
+#define C_API_START CFuncTrace funcTrace(__func__,sim_verbosity_traceall); lastInfoString.clear()
 #define TRACE_LUA_API CFuncTrace funcTrace(__func__,sim_verbosity_tracelua)
 #define TRACE_INTERNAL CFuncTrace funcTrace(__func__,sim_verbosity_traceall)
 
-//#include <typeinfo>
+
 #define SIMPLE_FUNCNAME_DEBUG printf("SYNC_DEBUG: %s, %s\n",typeid(*this).name(),__func__);
 
 #ifdef WIN_SIM

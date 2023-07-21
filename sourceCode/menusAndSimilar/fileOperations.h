@@ -12,19 +12,13 @@ class CFileOperations
 {
 public:
     static bool loadScene(const char* pathAndFilename,bool setCurrentDir,std::vector<char>* loadBuffer=nullptr,std::string* infoStr=nullptr,std::string* errorStr=nullptr);
-    static bool loadModel(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy);
-    static bool saveScene(const char* pathAndFilename,bool displayMessages,bool setCurrentDir,bool changeSceneUniqueId,std::vector<char>* saveBuffer=nullptr);
-    static bool saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool setCurrentDir,std::vector<char>* saveBuffer=nullptr);
+    static bool loadModel(const char* pathAndFilename,bool setCurrentDir,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy,std::string* infoStr=nullptr,std::string* errorStr=nullptr);
+    static bool saveScene(const char* pathAndFilename,bool setCurrentDir,bool changeSceneUniqueId,std::vector<char>* saveBuffer=nullptr,std::string* infoStr=nullptr,std::string* errorStr=nullptr);
+    static bool saveModel(int modelBaseDummyID,const char* pathAndFilename,bool setCurrentDir,std::vector<char>* saveBuffer=nullptr,std::string* infoStr=nullptr,std::string* errorStr=nullptr);
 
-    static int apiAddHeightfieldToScene(int xSize,double pointSpacing,const std::vector<std::vector<double>*>& readData,double shadingAngle,int options);
+    static int createHeightfield(int xSize,double pointSpacing,const std::vector<std::vector<double>*>& readData,double shadingAngle,int options);
     static void createNewScene(bool forceForNewInstance);
-    static void closeScene(bool displayMessages);
-    static void addToRecentlyOpenedScenes(std::string filenameAndPath);
-
-private:
-    static void _removeFromRecentlyOpenedScenes(std::string filenameAndPath);
-    static bool heightfieldImportRoutine(const char* pathName);
-    static std::string _getStringOfVersionAndLicenseThatTheFileWasWrittenWith(unsigned short coppeliaSimVer,int licenseType,char revision);
+    static void closeScene();
 
 #ifdef SIM_WITH_GUI
 public:
@@ -34,6 +28,9 @@ public:
     static void addMenu(VMenu* menu);
 
 private:
+    static void _addToRecentlyOpenedScenes(std::string filenameAndPath);
+    static void _removeFromRecentlyOpenedScenes(std::string filenameAndPath);
+    static bool _heightfieldImportRoutine(const char* pathName);
     static bool _saveSceneWithDialogAndEverything();
     static bool _saveSceneAsWithDialogAndEverything(int filetype);
 #endif

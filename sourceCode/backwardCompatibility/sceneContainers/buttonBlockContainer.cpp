@@ -1166,11 +1166,7 @@ CButtonBlockContainer* CButtonBlockContainer::loadSystemButtonBlocks(std::string
         try
         {
             CSer ar(fullPathAndFilename.c_str(),CSer::filetype_csim_bin_ui_file);
-            int serializationVersion;
-            unsigned short dum0;
-            int dum1;
-            char dum2;
-            int result=ar.readOpenBinary(serializationVersion,dum0,dum1,dum2,false);
+            int result=ar.readOpenBinary(-1,false);
             CButtonBlockContainer* cont=new CButtonBlockContainer(false);
             if (result==1)
             {

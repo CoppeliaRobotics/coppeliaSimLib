@@ -1928,7 +1928,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar,bool noHeightfield
                 vect->push_back(data[i*size[0]+j]);
             allData.push_back(vect);
         }
-        int newShapeHandle=CFileOperations::apiAddHeightfieldToScene(size[0],meshSize/double(size[0]-1),allData,0.0,0);
+        int newShapeHandle=CFileOperations::createHeightfield(size[0],meshSize/double(size[0]-1),allData,0.0,0);
         for (size_t i=0;i<allData.size();i++)
             delete allData[i];
         retVal=getShapeFromHandle(newShapeHandle);

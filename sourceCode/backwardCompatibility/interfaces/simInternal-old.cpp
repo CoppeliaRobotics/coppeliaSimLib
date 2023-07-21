@@ -1,6 +1,6 @@
 int simGetMaterialId_internal(const char* materialName)
 { // DEPRECATED since 29/10/2016.
-    TRACE_C_API;
+    C_API_START;
     // For backward compatibility (28/10/2016)
     // We now do not share materials anymore: each shape has its own material, so
     // the material of a shape is identified by the shape handle itself
@@ -9,7 +9,7 @@ int simGetMaterialId_internal(const char* materialName)
 
 int simGetShapeMaterial_internal(int shapeHandle)
 { // DEPRECATED since 29/10/2016.
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -28,7 +28,7 @@ int simGetShapeMaterial_internal(int shapeHandle)
 int simHandleVarious_internal()
 { // DEPRECATED since 29/10/2016. use simHandleSimulationStart and simHandleSensingStart instead!
     // HandleVarious should be the last function call before the sensing phase
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -55,14 +55,14 @@ int simHandleVarious_internal()
 
 int simGetMpConfigForTipPose_internal(int motionPlanningObjectHandle,int options,double closeNodesDistance,int trialCount,const double* tipPose,int maxTimeInMs,double* outputJointPositions,const double* referenceConfigs,int referenceConfigCount,const double* jointWeights,const int* jointBehaviour,int correctionPasses)
 { // DEPRECATED since 21/1/2016   referenceConfigs can be nullptr, as well as jointWeights
-    TRACE_C_API;
+    C_API_START;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
 int simResetPath_internal(int pathHandle)
 { // DEPRECATED
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -100,7 +100,7 @@ int simResetPath_internal(int pathHandle)
 
 int simHandlePath_internal(int pathHandle,double deltaTime)
 { // DEPRECATED
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -138,7 +138,7 @@ int simHandlePath_internal(int pathHandle,double deltaTime)
 
 int simResetJoint_internal(int jointHandle)
 { // DEPRECATED
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -174,7 +174,7 @@ int simResetJoint_internal(int jointHandle)
 
 int simHandleJoint_internal(int jointHandle,double deltaTime)
 { // DEPRECATED
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -210,7 +210,7 @@ int simHandleJoint_internal(int jointHandle,double deltaTime)
 
 int simGetPathPlanningHandle_internal(const char* pathPlanningObjectName)
 { // DEPRECATED since release 3.3.0
-    TRACE_C_API;
+    C_API_START;
 
     std::string pathPlanningObjectNameAdjusted=getIndexAdjustedObjectName(pathPlanningObjectName);
 
@@ -231,56 +231,56 @@ int simGetPathPlanningHandle_internal(const char* pathPlanningObjectName)
 
 int simGetMotionPlanningHandle_internal(const char* motionPlanningObjectName)
 { // DEPRECATED since release 3.3.0
-    TRACE_C_API;
+    C_API_START;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
 double* simFindMpPath_internal(int motionPlanningObjectHandle,const double* startConfig,const double* goalConfig,int options,double stepSize,int* outputConfigsCnt,int maxTimeInMs,double* reserved,const int* auxIntParams,const double* auxFloatParams)
 { // DEPRECATED since release 3.3.0
-    TRACE_C_API;
+    C_API_START;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
 double* simSimplifyMpPath_internal(int motionPlanningObjectHandle,const double* pathBuffer,int configCnt,int options,double stepSize,int increment,int* outputConfigsCnt,int maxTimeInMs,double* reserved,const int* auxIntParams,const double* auxFloatParams)
 { // DEPRECATED since release 3.3.0
-    TRACE_C_API;
+    C_API_START;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
 double* simFindIkPath_internal(int motionPlanningObjectHandle,const double* startConfig,const double* goalPose,int options,double stepSize,int* outputConfigsCnt,double* reserved,const int* auxIntParams,const double* auxFloatParams)
 { // DEPRECATED since release 3.3.0
-    TRACE_C_API;
+    C_API_START;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
 double* simGetMpConfigTransition_internal(int motionPlanningObjectHandle,const double* startConfig,const double* goalConfig,int options,const int* select,double calcStepSize,double maxOutStepSize,int wayPointCnt,const double* wayPoints,int* outputConfigsCnt,const int* auxIntParams,const double* auxFloatParams)
 { // DEPRECATED since release 3.3.0
-    TRACE_C_API;
+    C_API_START;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(nullptr);
 }
 
 int simCreateMotionPlanning_internal(int jointCnt,const int* jointHandles,const int* jointRangeSubdivisions,const double* jointMetricWeights,int options,const int* intParams,const double* floatParams,const void* reserved)
 { // DEPRECATED since release 3.3.0
-    TRACE_C_API;
+    C_API_START;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
 int simRemoveMotionPlanning_internal(int motionPlanningHandle)
 { // DEPRECATED since release 3.3.0
-    TRACE_C_API;
+    C_API_START;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
 int simSearchPath_internal(int pathPlanningObjectHandle,double maximumSearchTime)
 { // DEPRECATED since release 3.3.0
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -302,7 +302,7 @@ int simSearchPath_internal(int pathPlanningObjectHandle,double maximumSearchTime
 
 int simInitializePathSearch_internal(int pathPlanningObjectHandle,double maximumSearchTime,double searchTimeStep)
 { // DEPRECATED since release 3.3.0
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -339,7 +339,7 @@ int simInitializePathSearch_internal(int pathPlanningObjectHandle,double maximum
 
 int simPerformPathSearchStep_internal(int temporaryPathSearchObject,bool abortSearch)
 { // DEPRECATED since release 3.3.0
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -394,7 +394,7 @@ int simLockInterface_internal(bool locked)
 
 int simCopyPasteSelectedObjects_internal()
 { // deprecated since 3.1.3
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -419,7 +419,7 @@ int simCopyPasteSelectedObjects_internal()
 
 int simSerialPortOpen_internal(int portNumber,int baudRate,void* reserved1,void* reserved2)
 { // deprecated (10/04/2012)
-    TRACE_C_API;
+    C_API_START;
 
 #ifdef SIM_WITH_GUI
     if (App::worldContainer->serialPortContainer->serialPortOpen_old(false,portNumber,baudRate))
@@ -430,7 +430,7 @@ int simSerialPortOpen_internal(int portNumber,int baudRate,void* reserved1,void*
 
 int simSerialPortClose_internal(int portNumber)
 { // deprecated (10/04/2012)
-    TRACE_C_API;
+    C_API_START;
 
 #ifdef SIM_WITH_GUI
     if (App::worldContainer->serialPortContainer->serialPortClose_old(portNumber))
@@ -442,7 +442,7 @@ int simSerialPortClose_internal(int portNumber)
 
 int simSerialPortSend_internal(int portNumber,const char* data,int dataLength)
 { // deprecated (10/04/2012)
-    TRACE_C_API;
+    C_API_START;
 
     int retVal=-1;
 #ifdef SIM_WITH_GUI
@@ -455,7 +455,7 @@ int simSerialPortSend_internal(int portNumber,const char* data,int dataLength)
 
 int simSerialPortRead_internal(int portNumber,char* buffer,int dataLengthToRead)
 { // deprecated (10/04/2012)
-    TRACE_C_API;
+    C_API_START;
 
     int retVal=-1;
 #ifdef SIM_WITH_GUI
@@ -468,7 +468,7 @@ int simSerialPortRead_internal(int portNumber,char* buffer,int dataLengthToRead)
 
 int simAppendScriptArrayEntry_internal(const char* reservedSetToNull,int scriptHandleOrType,const char* arrayNameAtScriptName,const char* keyName,const char* data,const int* what)
 { // deprecated (23/02/2016)
-    TRACE_C_API;
+    C_API_START;
     CScriptObject* script=nullptr;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
@@ -558,7 +558,7 @@ int simAppendScriptArrayEntry_internal(const char* reservedSetToNull,int scriptH
 
 int simClearScriptVariable_internal(const char* reservedSetToNull,int scriptHandleOrType,const char* variableNameAtScriptName)
 { // DEPRECATED (23/02/2016)
-    TRACE_C_API;
+    C_API_START;
     CScriptObject* script=nullptr;
 
     std::string variableName;
@@ -643,7 +643,7 @@ int simClearScriptVariable_internal(const char* reservedSetToNull,int scriptHand
 void _simGetVortexParameters_internal(const void* object,int version,double* floatParams,int* intParams)
 { // if object is nullptr, we return general engine settings, if object is a shape, we return shape settings, otherwise joint settings
     // Version allows to adjust for future extensions.
-    TRACE_C_API;
+    C_API_START;
     std::vector<double> fparams;
     std::vector<int> iparams;
     int icnt=0;
@@ -739,7 +739,7 @@ void _simGetVortexParameters_internal(const void* object,int version,double* flo
 void _simGetNewtonParameters_internal(const void* object,int* version,double* floatParams,int* intParams)
 { // if object is nullptr, we return general engine settings, if object is a shape, we return shape settings, otherwise joint settings
     // Version allows to adjust for future extensions.
-    TRACE_C_API;
+    C_API_START;
     std::vector<double> fparams;
     std::vector<int> iparams;
     int icnt=0;
@@ -792,7 +792,7 @@ void _simGetNewtonParameters_internal(const void* object,int* version,double* fl
 
 void _simGetJointOdeParameters_internal(const void* joint,double* stopERP,double* stopCFM,double* bounce,double* fudge,double* normalCFM)
 {
-    TRACE_C_API;
+    C_API_START;
     stopERP[0]=((CJoint*)joint)->getEngineFloatParam(sim_ode_joint_stoperp,nullptr);
     stopCFM[0]=((CJoint*)joint)->getEngineFloatParam(sim_ode_joint_stopcfm,nullptr);
     bounce[0]=((CJoint*)joint)->getEngineFloatParam(sim_ode_joint_bounce,nullptr);
@@ -802,7 +802,7 @@ void _simGetJointOdeParameters_internal(const void* joint,double* stopERP,double
 
 void _simGetJointBulletParameters_internal(const void* joint,double* stopERP,double* stopCFM,double* normalCFM)
 {
-    TRACE_C_API;
+    C_API_START;
     stopERP[0]=((CJoint*)joint)->getEngineFloatParam(sim_bullet_joint_stoperp,nullptr);
     stopCFM[0]=((CJoint*)joint)->getEngineFloatParam(sim_bullet_joint_stopcfm,nullptr);
     normalCFM[0]=((CJoint*)joint)->getEngineFloatParam(sim_bullet_joint_normalcfm,nullptr);
@@ -821,7 +821,7 @@ CShape* __getShapeFromGeomInfo(const void* geomInfo)
 
 void _simGetOdeMaxContactFrictionCFMandERP_internal(const void* geomInfo,int* maxContacts,double* friction,double* cfm,double* erp)
 {
-    TRACE_C_API;
+    C_API_START;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
     CDynMaterialObject* mat=shape->getDynMaterial();
     maxContacts[0]=mat->getEngineIntParam(sim_ode_body_maxcontacts,nullptr);
@@ -832,7 +832,7 @@ void _simGetOdeMaxContactFrictionCFMandERP_internal(const void* geomInfo,int* ma
 
 bool _simGetBulletCollisionMargin_internal(const void* geomInfo,double* margin,int* otherProp)
 {
-    TRACE_C_API;
+    C_API_START;
     CMeshWrapper* geomWrap=(CMeshWrapper*)geomInfo;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
     CDynMaterialObject* mat=shape->getDynMaterial();
@@ -864,7 +864,7 @@ bool _simGetBulletCollisionMargin_internal(const void* geomInfo,double* margin,i
 
 bool _simGetBulletStickyContact_internal(const void* geomInfo)
 {
-    TRACE_C_API;
+    C_API_START;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
     CDynMaterialObject* mat=shape->getDynMaterial();
     return(mat->getEngineBoolParam(sim_bullet_body_sticky,nullptr));
@@ -872,7 +872,7 @@ bool _simGetBulletStickyContact_internal(const void* geomInfo)
 
 double _simGetBulletRestitution_internal(const void* geomInfo)
 {
-    TRACE_C_API;
+    C_API_START;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
     CDynMaterialObject* mat=shape->getDynMaterial();
     return(mat->getEngineFloatParam(sim_bullet_body_restitution,nullptr));
@@ -880,7 +880,7 @@ double _simGetBulletRestitution_internal(const void* geomInfo)
 
 void _simGetDamping_internal(const void* geomInfo,double* linDamping,double* angDamping)
 {
-    TRACE_C_API;
+    C_API_START;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
     CDynMaterialObject* mat=shape->getDynMaterial();
 
@@ -899,7 +899,7 @@ void _simGetDamping_internal(const void* geomInfo,double* linDamping,double* ang
 
 double _simGetFriction_internal(const void* geomInfo)
 {
-    TRACE_C_API;
+    C_API_START;
     CShape* shape=__getShapeFromGeomInfo(geomInfo);
     CDynMaterialObject* mat=shape->getDynMaterial();
 
@@ -913,7 +913,7 @@ double _simGetFriction_internal(const void* geomInfo)
 
 int simAddSceneCustomData_internal(int header,const char* data,int dataLength)
 { // deprecated
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -932,7 +932,7 @@ int simAddSceneCustomData_internal(int header,const char* data,int dataLength)
 
 int simGetSceneCustomDataLength_internal(int header)
 { // deprecated
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -949,7 +949,7 @@ int simGetSceneCustomDataLength_internal(int header)
 
 int simGetSceneCustomData_internal(int header,char* data)
 { // deprecated
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -970,7 +970,7 @@ int simGetSceneCustomData_internal(int header,char* data)
 
 int simAddObjectCustomData_internal(int objectHandle,int header,const char* data,int dataLength)
 { // deprecated
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -992,7 +992,7 @@ int simAddObjectCustomData_internal(int objectHandle,int header,const char* data
 
 int simGetObjectCustomDataLength_internal(int objectHandle,int header)
 { // deprecated
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1012,7 +1012,7 @@ int simGetObjectCustomDataLength_internal(int objectHandle,int header)
 
 int simGetObjectCustomData_internal(int objectHandle,int header,char* data)
 { // deprecated
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1034,13 +1034,13 @@ int simGetObjectCustomData_internal(int objectHandle,int header,char* data)
 
 int simLoadUI_internal(const char* filename,int maxCount,int* uiHandles)
 {
-    TRACE_C_API;
+    C_API_START;
     return(-1);
 }
 
 int simCreateUI_internal(const char* elementName,int menuAttributes,const int* clientSize,const int* cellSize,int* buttonHandles)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -1107,7 +1107,7 @@ int simCreateUI_internal(const char* elementName,int menuAttributes,const int* c
 
 int simCreateUIButton_internal(int elementHandle,const int* position,const int* size,int buttonProperty)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -1132,7 +1132,7 @@ int simCreateUIButton_internal(int elementHandle,const int* position,const int* 
 
 int simGetUIHandle_internal(const char* elementName)
 {
-    TRACE_C_API;
+    C_API_START;
 
     std::string elementNameAdjusted=getIndexAdjustedObjectName(elementName);
 
@@ -1153,7 +1153,7 @@ int simGetUIHandle_internal(const char* elementName)
 
 int simGetUIProperty_internal(int elementHandle)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1169,7 +1169,7 @@ int simGetUIProperty_internal(int elementHandle)
 
 int simGetUIEventButton_internal(int elementHandle,int* auxiliaryValues)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1188,7 +1188,7 @@ int simGetUIEventButton_internal(int elementHandle,int* auxiliaryValues)
 
 int simSetUIProperty_internal(int elementHandle,int elementProperty)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1209,7 +1209,7 @@ int simSetUIProperty_internal(int elementHandle,int elementProperty)
 
 int simGetUIButtonSize_internal(int elementHandle,int buttonHandle,int* size)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1228,7 +1228,7 @@ int simGetUIButtonSize_internal(int elementHandle,int buttonHandle,int* size)
 
 int simGetUIButtonProperty_internal(int elementHandle,int buttonHandle)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1245,7 +1245,7 @@ int simGetUIButtonProperty_internal(int elementHandle,int buttonHandle)
 
 int simSetUIButtonProperty_internal(int elementHandle,int buttonHandle,int buttonProperty)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1262,7 +1262,7 @@ int simSetUIButtonProperty_internal(int elementHandle,int buttonHandle,int butto
 
 int simSetUIButtonLabel_internal(int elementHandle,int buttonHandle,const char* upStateLabel,const char* downStateLabel)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1282,7 +1282,7 @@ int simSetUIButtonLabel_internal(int elementHandle,int buttonHandle,const char* 
 
 char* simGetUIButtonLabel_internal(int elementHandle,int buttonHandle)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1302,7 +1302,7 @@ char* simGetUIButtonLabel_internal(int elementHandle,int buttonHandle)
 
 int simSetUISlider_internal(int elementHandle,int buttonHandle,int position)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1324,7 +1324,7 @@ int simSetUISlider_internal(int elementHandle,int buttonHandle,int position)
 
 int simGetUISlider_internal(int elementHandle,int buttonHandle)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1346,7 +1346,7 @@ int simGetUISlider_internal(int elementHandle,int buttonHandle)
 
 int simSetUIButtonColor_internal(int elementHandle,int buttonHandle,const float* upStateColor,const float* downStateColor,const float* labelColor)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1371,7 +1371,7 @@ int simSetUIButtonColor_internal(int elementHandle,int buttonHandle,const float*
 
 int simRemoveUI_internal(int elementHandle)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -1395,7 +1395,7 @@ int simRemoveUI_internal(int elementHandle)
 
 int simCreateUIButtonArray_internal(int elementHandle,int buttonHandle)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -1412,7 +1412,7 @@ int simCreateUIButtonArray_internal(int elementHandle,int buttonHandle)
 
 int simSetUIButtonArrayColor_internal(int elementHandle,int buttonHandle,const int* position,const float* color)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1433,7 +1433,7 @@ int simSetUIButtonArrayColor_internal(int elementHandle,int buttonHandle,const i
 
 int simDeleteUIButtonArray_internal(int elementHandle,int buttonHandle)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -1450,7 +1450,7 @@ int simDeleteUIButtonArray_internal(int elementHandle,int buttonHandle)
 
 int simSetUIButtonTexture_internal(int elementHandle,int buttonHandle,const int* size,const char* textureData)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -1503,13 +1503,13 @@ int simSetUIButtonTexture_internal(int elementHandle,int buttonHandle,const int*
 
 int simSaveUI_internal(int count,const int* uiHandles,const char* filename)
 {
-    TRACE_C_API;
+    C_API_START;
     return(-1);
 }
 
 int simGetUIPosition_internal(int elementHandle,int* position)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1529,7 +1529,7 @@ int simGetUIPosition_internal(int elementHandle,int* position)
 
 int simSetUIPosition_internal(int elementHandle,const int* position)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1545,13 +1545,13 @@ int simSetUIPosition_internal(int elementHandle,const int* position)
 
 int simHandleGeneralCallbackScript_internal(int callbackId,int callbackTag,void* additionalData)
 { // Deprecated since release 3.4.1
-    TRACE_C_API;
+    C_API_START;
     return(-1);
 }
 
 int simRegisterCustomLuaFunction_internal(const char* funcName,const char* callTips,const int* inputArgumentTypes,void(*callBack)(struct SLuaCallBack* p))
 { // deprecated
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1591,21 +1591,21 @@ int simRegisterJointCtrlCallback_internal(int(*callBack)(int,int,int,const int*,
 
 int simGetMechanismHandle_internal(const char* mechanismName)
 { // deprecated
-    TRACE_C_API;
+    C_API_START;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
 int simHandleMechanism_internal(int mechanismHandle)
 { // deprecated
-    TRACE_C_API;
+    C_API_START;
     CApiErrors::setLastWarningOrError(__func__,"not supported anymore.");
     return(-1);
 }
 
 int simHandleCustomizationScripts_internal(int callType)
 { // deprecated
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1627,7 +1627,7 @@ int simHandleCustomizationScripts_internal(int callType)
 
 int simCallScriptFunction_internal(int scriptHandleOrType,const char* functionNameAtScriptName,SLuaCallBack* data,const char* reservedSetToNull)
 { // DEPRECATED
-    TRACE_C_API;
+    C_API_START;
     CScriptObject* script=nullptr;
 
     std::string funcName;
@@ -1728,21 +1728,21 @@ int simCallScriptFunction_internal(int scriptHandleOrType,const char* functionNa
 
 int simSetVisionSensorFilter_internal(int visionSensorHandle,int filterIndex,int options,const int* pSizes,const unsigned char* bytes,const int* ints,const double* floats,const unsigned char* custom)
 { // DEPRECATED
-    TRACE_C_API;
+    C_API_START;
 
     return(-1);
 }
 
 int simGetVisionSensorFilter_internal(int visionSensorHandle,int filterIndex,int* options,int* pSizes,unsigned char** bytes,int** ints,double** floats,unsigned char** custom)
 { // DEPRECATED
-    TRACE_C_API;
+    C_API_START;
 
     return(-1);
 }
 
 char* simGetScriptSimulationParameter_internal(int scriptHandle,const char* parameterName,int* parameterLength)
 { // DEPRECATED
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1779,7 +1779,7 @@ char* simGetScriptSimulationParameter_internal(int scriptHandle,const char* para
 
 int simSetScriptSimulationParameter_internal(int scriptHandle,const char* parameterName,const char* parameterValue,int parameterLength)
 { // DEPRECATED
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1815,7 +1815,7 @@ int simSetScriptSimulationParameter_internal(int scriptHandle,const char* parame
 
 int simGetNameSuffix_internal(const char* name)
 { // DEPRECATED in 2020
-    TRACE_C_API;
+    C_API_START;
 
     int suffixNumber;
     if (name!=nullptr)
@@ -1827,7 +1827,7 @@ int simGetNameSuffix_internal(const char* name)
 
 int simSetNameSuffix_internal(int nameSuffixNumber)
 { // DEPRECATED in 2020
-    TRACE_C_API;
+    C_API_START;
 
     if (nameSuffixNumber<-1)
         nameSuffixNumber=-1;
@@ -1837,7 +1837,7 @@ int simSetNameSuffix_internal(int nameSuffixNumber)
 
 int simAddStatusbarMessage_internal(const char* message)
 { // DEPRECATED in 2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1877,7 +1877,7 @@ int simReleaseScriptRawBuffer_internal(int scriptHandle,int bufferHandle)
 
 int simSetShapeMassAndInertia_internal(int shapeHandle,double mass,const double* inertiaMatrix,const double* centerOfMass,const double* transformation)
 { // DEPRECATED in 2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1912,7 +1912,7 @@ int simSetShapeMassAndInertia_internal(int shapeHandle,double mass,const double*
 
 int simGetShapeMassAndInertia_internal(int shapeHandle,double* mass,double* inertiaMatrix,double* centerOfMass,const double* transformation)
 { // DEPRECATED in 2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1939,7 +1939,7 @@ int simGetShapeMassAndInertia_internal(int shapeHandle,double* mass,double* iner
 
 int simCheckIkGroup_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,double* jointValues,const int* jointOptions)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -1962,7 +1962,7 @@ int simCheckIkGroup_internal(int ikGroupHandle,int jointCnt,const int* jointHand
 
 int simCreateIkGroup_internal(int options,const int* intParams,const double* floatParams,const void* reserved)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -1989,7 +1989,7 @@ int simCreateIkGroup_internal(int options,const int* intParams,const double* flo
 
 int simRemoveIkGroup_internal(int ikGroupHandle)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -2008,7 +2008,7 @@ int simRemoveIkGroup_internal(int ikGroupHandle)
 
 int simCreateIkElement_internal(int ikGroupHandle,int options,const int* intParams,const double* floatParams,const void* reserved)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -2055,7 +2055,7 @@ int simExportIk_internal(const char* pathAndFilename,int reserved1,void* reserve
 
 int simComputeJacobian_internal(int ikGroupHandle,int options,void* reserved)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2074,7 +2074,7 @@ int simComputeJacobian_internal(int ikGroupHandle,int options,void* reserved)
 
 int simGetConfigForTipPose_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,double thresholdDist,int maxTimeInMs,double* retConfig,const double* metric,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,const double* lowLimits,const double* ranges,void* reserved)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2095,7 +2095,7 @@ int simGetConfigForTipPose_internal(int ikGroupHandle,int jointCnt,const int* jo
 
 double* simGenerateIkPath_internal(int ikGroupHandle,int jointCnt,const int* jointHandles,int ptCnt,int collisionPairCnt,const int* collisionPairs,const int* jointOptions,void* reserved)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2296,7 +2296,7 @@ double* simGenerateIkPath_internal(int ikGroupHandle,int jointCnt,const int* joi
 
 int simGetIkGroupHandle_internal(const char* ikGroupName)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     size_t silentErrorPos=std::string(ikGroupName).find("@silentError");
     std::string nm(ikGroupName);
@@ -2322,7 +2322,7 @@ int simGetIkGroupHandle_internal(const char* ikGroupName)
 
 double* simGetIkGroupMatrix_internal(int ikGroupHandle,int options,int* matrixSize)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2345,7 +2345,7 @@ double* simGetIkGroupMatrix_internal(int ikGroupHandle,int options,int* matrixSi
 
 int simHandleIkGroup_internal(int ikGroupHandle)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2375,7 +2375,7 @@ int simHandleIkGroup_internal(int ikGroupHandle)
 
 int simSetIkGroupProperties_internal(int ikGroupHandle,int resolutionMethod,int maxIterations,double damping,void* reserved)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2396,7 +2396,7 @@ int simSetIkGroupProperties_internal(int ikGroupHandle,int resolutionMethod,int 
 
 int simSetIkElementProperties_internal(int ikGroupHandle,int tipDummyHandle,int constraints,const double* precision,const double* weight,void* reserved)
 { // deprecated on 29.09.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2433,7 +2433,7 @@ int simSetIkElementProperties_internal(int ikGroupHandle,int tipDummyHandle,int 
 
 int simSetThreadIsFree_internal(bool freeMode)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     if (VThread::isSimThread())
     {
@@ -2448,7 +2448,7 @@ int simSetThreadIsFree_internal(bool freeMode)
 
 int simTubeOpen_internal(int dataHeader,const char* dataName,int readBufferSize,bool notUsedButKeepFalse)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2462,7 +2462,7 @@ int simTubeOpen_internal(int dataHeader,const char* dataName,int readBufferSize,
 
 int simTubeClose_internal(int tubeHandle)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2483,7 +2483,7 @@ int simTubeClose_internal(int tubeHandle)
 
 int simTubeWrite_internal(int tubeHandle,const char* data,int dataLength)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2504,7 +2504,7 @@ int simTubeWrite_internal(int tubeHandle,const char* data,int dataLength)
 
 char* simTubeRead_internal(int tubeHandle,int* dataLength)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2518,7 +2518,7 @@ char* simTubeRead_internal(int tubeHandle,int* dataLength)
 
 int simTubeStatus_internal(int tubeHandle,int* readPacketsCount,int* writePacketsCount)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2538,7 +2538,7 @@ int simTubeStatus_internal(int tubeHandle,int* readPacketsCount,int* writePacket
 
 int simSendData_internal(int targetID,int dataHeader,const char* dataName,const char* data,int dataLength,int antennaHandle,double actionRadius,double emissionAngle1,double emissionAngle2,double persistence)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     if (App::currentWorld->simulation->getSimulationState()==sim_simulation_stopped)
     {
@@ -2599,7 +2599,7 @@ int simSendData_internal(int targetID,int dataHeader,const char* dataName,const 
 
 char* simReceiveData_internal(int dataHeader,const char* dataName,int antennaHandle,int index,int* dataLength,int* senderID,int* dataHeaderR,char** dataNameR)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     if (App::currentWorld->simulation->getSimulationState()==sim_simulation_stopped)
     {
@@ -2665,7 +2665,7 @@ char* simReceiveData_internal(int dataHeader,const char* dataName,int antennaHan
 
 int simGetDataOnPath_internal(int pathHandle,double relativeDistance,int dataType,int* intData,double* floatData)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2720,7 +2720,7 @@ int simGetDataOnPath_internal(int pathHandle,double relativeDistance,int dataTyp
 
 int simGetPositionOnPath_internal(int pathHandle,double relativeDistance,double* position)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2768,7 +2768,7 @@ int simGetPositionOnPath_internal(int pathHandle,double relativeDistance,double*
 
 int simGetOrientationOnPath_internal(int pathHandle,double relativeDistance,double* eulerAngles)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2815,7 +2815,7 @@ int simGetOrientationOnPath_internal(int pathHandle,double relativeDistance,doub
 
 int simGetClosestPositionOnPath_internal(int pathHandle,double* absolutePosition,double* pathPosition)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2841,7 +2841,7 @@ int simGetClosestPositionOnPath_internal(int pathHandle,double* absolutePosition
 
 int simGetPathPosition_internal(int objectHandle,double* position)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2859,7 +2859,7 @@ int simGetPathPosition_internal(int objectHandle,double* position)
 
 int simSetPathPosition_internal(int objectHandle,double position)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2877,7 +2877,7 @@ int simSetPathPosition_internal(int objectHandle,double position)
 
 int simGetPathLength_internal(int objectHandle,double* length)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -2895,7 +2895,7 @@ int simGetPathLength_internal(int objectHandle,double* length)
 
 int simCreatePath_internal(int attributes,const int* intParams,const double* floatParams,const float* color)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -2926,7 +2926,7 @@ int simCreatePath_internal(int attributes,const int* intParams,const double* flo
 
 int simInsertPathCtrlPoints_internal(int pathHandle,int options,int startIndex,int ptCnt,const void* ptData)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -2975,7 +2975,7 @@ int simInsertPathCtrlPoints_internal(int pathHandle,int options,int startIndex,i
 
 int simCutPathCtrlPoints_internal(int pathHandle,int startIndex,int ptCnt)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -3006,7 +3006,7 @@ int simCutPathCtrlPoints_internal(int pathHandle,int startIndex,int ptCnt)
 
 int simGetThreadId_internal()
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     int retVal=VThread::getThreadId_apiQueried();
     return(retVal); // 0=GUI thread, 1=main sim thread, 2-n=aux. sim threads
@@ -3014,7 +3014,7 @@ int simGetThreadId_internal()
 
 int simSwitchThread_internal()
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
     if (CThreadPool_old::getThreadAutomaticSwitch())
     { // Important: when a script forbids thread switching, we don't want that a plugin switches anyways
         if (CThreadPool_old::switchBackToPreviousThread())
@@ -3035,7 +3035,7 @@ int simUnlockResources_internal(int lockHandle)
 
 char* simGetUserParameter_internal(int objectHandle,const char* parameterName,int* parameterLength)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3064,7 +3064,7 @@ char* simGetUserParameter_internal(int objectHandle,const char* parameterName,in
 
 int simSetUserParameter_internal(int objectHandle,const char* parameterName,const char* parameterValue,int parameterLength)
 { // deprecated on 01.10.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3092,7 +3092,7 @@ int simSetUserParameter_internal(int objectHandle,const char* parameterName,cons
 
 int simSetPathTargetNominalVelocity_internal(int objectHandle,double targetNominalVelocity)
 { // deprecated probably around 2015 or earlier
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3110,7 +3110,7 @@ int simSetPathTargetNominalVelocity_internal(int objectHandle,double targetNomin
 
 int simGetCollectionHandle_internal(const char* collectionName)
 { // deprecated on 17.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     size_t silentErrorPos=std::string(collectionName).find("@silentError");
     std::string nm(collectionName);
@@ -3136,7 +3136,7 @@ int simGetCollectionHandle_internal(const char* collectionName)
 
 int simRemoveCollection_internal(int collectionHandle)
 { // deprecated on 17.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -3188,7 +3188,7 @@ int simRemoveCollection_internal(int collectionHandle)
 
 int simEmptyCollection_internal(int collectionHandle)
 { // deprecated on 17.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -3213,7 +3213,7 @@ int simEmptyCollection_internal(int collectionHandle)
 
 char* simGetCollectionName_internal(int collectionHandle)
 { // deprecated on 17.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3232,7 +3232,7 @@ char* simGetCollectionName_internal(int collectionHandle)
 
 int simSetCollectionName_internal(int collectionHandle,const char* collectionName)
 { // deprecated on 17.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -3269,7 +3269,7 @@ int simSetCollectionName_internal(int collectionHandle,const char* collectionNam
 
 int simCreateCollection_internal(const char* collectionName,int options)
 { // deprecated on 17.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -3311,7 +3311,7 @@ int simCreateCollection_internal(const char* collectionName,int options)
 
 int simAddObjectToCollection_internal(int collectionHandle,int objectHandle,int what,int options)
 { // deprecated on 17.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -3364,7 +3364,7 @@ int simAddObjectToCollection_internal(int collectionHandle,int objectHandle,int 
 
 int simHandleCollision_internal(int collisionObjectHandle)
 { // deprecated on 20.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3397,7 +3397,7 @@ int simHandleCollision_internal(int collisionObjectHandle)
 
 int simReadCollision_internal(int collisionObjectHandle)
 { // deprecated on 20.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3415,7 +3415,7 @@ int simReadCollision_internal(int collisionObjectHandle)
 
 int simHandleDistance_internal(int distanceObjectHandle,double* smallestDistance)
 { // deprecated on 20.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3452,7 +3452,7 @@ int simHandleDistance_internal(int distanceObjectHandle,double* smallestDistance
 
 int simReadDistance_internal(int distanceObjectHandle,double* smallestDistance)
 { // deprecated on 20.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3475,7 +3475,7 @@ int simReadDistance_internal(int distanceObjectHandle,double* smallestDistance)
 
 int simGetCollisionHandle_internal(const char* collisionObjectName)
 { // deprecated on 20.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     size_t silentErrorPos=std::string(collisionObjectName).find("@silentError");
     std::string nm(collisionObjectName);
@@ -3501,7 +3501,7 @@ int simGetCollisionHandle_internal(const char* collisionObjectName)
 
 int simGetDistanceHandle_internal(const char* distanceObjectName)
 { // deprecated on 20.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     size_t silentErrorPos=std::string(distanceObjectName).find("@silentError");
     std::string nm(distanceObjectName);
@@ -3527,7 +3527,7 @@ int simGetDistanceHandle_internal(const char* distanceObjectName)
 
 int simResetCollision_internal(int collisionObjectHandle)
 { // deprecated on 20.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3556,7 +3556,7 @@ int simResetCollision_internal(int collisionObjectHandle)
 
 int simResetDistance_internal(int distanceObjectHandle)
 { // deprecated on 20.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3585,7 +3585,7 @@ int simResetDistance_internal(int distanceObjectHandle)
 
 int simAddBanner_internal(const char* label,double size,int options,const double* positionAndEulerAngles,int parentObjectHandle,const float* labelColors,const float* backgroundColors)
 { // deprecated on 23.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -3602,7 +3602,7 @@ int simAddBanner_internal(const char* label,double size,int options,const double
 
 int simRemoveBanner_internal(int bannerID)
 { // deprecated on 23.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -3639,7 +3639,7 @@ int simRemoveBanner_internal(int bannerID)
 
 int simAddGhost_internal(int ghostGroup,int objectHandle,int options,double startTime,double endTime,const float* color)
 { // deprecated on 23.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3654,7 +3654,7 @@ int simAddGhost_internal(int ghostGroup,int objectHandle,int options,double star
 
 int simModifyGhost_internal(int ghostGroup,int ghostId,int operation,double floatValue,int options,int optionsMask,const double* colorOrTransformation)
 { // deprecated on 23.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3667,7 +3667,7 @@ int simModifyGhost_internal(int ghostGroup,int ghostId,int operation,double floa
 
 int simSetGraphUserData_internal(int graphHandle,const char* streamName,double data)
 { // deprecated on 23.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     if (!App::currentWorld->simulation->isSimulationRunning())
     {
@@ -3700,7 +3700,7 @@ int simSetGraphUserData_internal(int graphHandle,const char* streamName,double d
 
 int simAddPointCloud_internal(int pageMask,int layerMask,int objectHandle,int options,double pointSize,int ptCnt,const double* pointCoordinates,const char* defaultColors,const char* pointColors,const double* pointNormals)
 { // deprecated on 23.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3715,7 +3715,7 @@ int simAddPointCloud_internal(int pageMask,int layerMask,int objectHandle,int op
 
 int simModifyPointCloud_internal(int pointCloudHandle,int operation,const int* intParam,const double* floatParam)
 { // deprecated on 23.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3732,7 +3732,7 @@ int simModifyPointCloud_internal(int pointCloudHandle,int operation,const int* i
 
 int simCopyMatrix_internal(const double* matrixIn,double* matrixOut)
 { // deprecated on 23.11.2020
-    TRACE_C_API;
+    C_API_START;
 
     for (int i=0;i<12;i++)
         matrixOut[i]=matrixIn[i];
@@ -3741,7 +3741,7 @@ int simCopyMatrix_internal(const double* matrixIn,double* matrixOut)
 
 int simAddModuleMenuEntry_internal(const char* entryLabel,int itemCount,int* itemHandles)
 { // deprecated on 04.05.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3764,7 +3764,7 @@ int simAddModuleMenuEntry_internal(const char* entryLabel,int itemCount,int* ite
 
 int simSetModuleMenuItemState_internal(int itemHandle,int state,const char* label)
 { // deprecated on 04.05.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3786,7 +3786,7 @@ int simSetModuleMenuItemState_internal(int itemHandle,int state,const char* labe
 
 char* simGetObjectName_internal(int objectHandle)
 { // deprecated on 08.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3817,7 +3817,7 @@ char* simGetObjectName_internal(int objectHandle)
 
 int simSetObjectName_internal(int objectHandle,const char* objectName)
 { // deprecated on 08.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -3891,7 +3891,7 @@ int simSetObjectName_internal(int objectHandle,const char* objectName)
 
 char* simGetScriptName_internal(int scriptHandle)
 { // deprecated on 08.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -3914,7 +3914,7 @@ char* simGetScriptName_internal(int scriptHandle)
 
 int simGetScriptHandle_internal(const char* targetAtScriptName)
 { // deprecated on 16.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     std::string scriptName(targetAtScriptName);
     std::string targetName;
@@ -3978,7 +3978,7 @@ int simGetScriptHandle_internal(const char* targetAtScriptName)
 
 int simSetScriptVariable_internal(int scriptHandleOrType,const char* variableNameAtScriptName,int stackHandle)
 { // deprecated on 16.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4088,7 +4088,7 @@ int simSetScriptVariable_internal(int scriptHandleOrType,const char* variableNam
 
 int simGetScript_internal(int index)
 { // deprecated on 18.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4104,7 +4104,7 @@ int simGetScript_internal(int index)
 
 int simGetScriptAssociatedWithObject_internal(int objectHandle)
 { // deprecated on 18.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4122,7 +4122,7 @@ int simGetScriptAssociatedWithObject_internal(int objectHandle)
 
 int simGetCustomizationScriptAssociatedWithObject_internal(int objectHandle)
 { // deprecated on 18.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4140,7 +4140,7 @@ int simGetCustomizationScriptAssociatedWithObject_internal(int objectHandle)
 
 int simGetObjectAssociatedWithScript_internal(int scriptHandle)
 { // deprecated on 18.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4163,7 +4163,7 @@ int simGetObjectAssociatedWithScript_internal(int scriptHandle)
 
 char* simGetObjectConfiguration_internal(int objectHandle)
 { // deprecated on 18.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4190,7 +4190,7 @@ char* simGetObjectConfiguration_internal(int objectHandle)
 
 int simSetObjectConfiguration_internal(const char* data)
 { // deprecated on 18.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4212,7 +4212,7 @@ int simSetObjectConfiguration_internal(const char* data)
 
 char* simGetConfigurationTree_internal(int objectHandle)
 { // deprecated on 18.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4253,7 +4253,7 @@ char* simGetConfigurationTree_internal(int objectHandle)
 
 int simSetConfigurationTree_internal(const char* data)
 { // deprecated on 18.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4294,7 +4294,7 @@ int simEnableEventCallback_internal(int eventCallbackType,const char* plugin,int
 
 int simSetObjectSizeValues_internal(int objectHandle,const double* sizeValues)
 { // deprecated on 28.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4311,7 +4311,7 @@ int simSetObjectSizeValues_internal(int objectHandle,const double* sizeValues)
 
 int simGetObjectSizeValues_internal(int objectHandle,double* sizeValues)
 { // deprecated on 28.06.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4328,7 +4328,7 @@ int simGetObjectSizeValues_internal(int objectHandle,double* sizeValues)
 
 char* simFileDialog_internal(int mode,const char* title,const char* startPath,const char* initName,const char* extName,const char* ext)
 { // deprecated on 07.09.2021
-    TRACE_C_API;
+    C_API_START;
 #ifdef SIM_WITH_GUI
     char* retVal=nullptr;
 
@@ -4360,7 +4360,7 @@ char* simFileDialog_internal(int mode,const char* title,const char* startPath,co
 
 int simMsgBox_internal(int dlgType,int buttons,const char* title,const char* message)
 { // deprecated on 07.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     int retVal=sim_msgbox_return_ok;
 #ifdef SIM_WITH_GUI
@@ -4371,7 +4371,7 @@ int simMsgBox_internal(int dlgType,int buttons,const char* title,const char* mes
 
 int simDisplayDialog_internal(const char* titleText,const char* mainText,int dialogType,const char* initialText,const float* titleColors,const float* dialogColors,int* elementHandle)
 { // deprecated on 07.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4398,7 +4398,7 @@ int simDisplayDialog_internal(const char* titleText,const char* mainText,int dia
 
 int simGetDialogResult_internal(int genericDialogHandle)
 { // deprecated on 07.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4420,7 +4420,7 @@ int simGetDialogResult_internal(int genericDialogHandle)
 
 char* simGetDialogInput_internal(int genericDialogHandle)
 { // deprecated on 07.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4448,7 +4448,7 @@ char* simGetDialogInput_internal(int genericDialogHandle)
 
 int simEndDialog_internal(int genericDialogHandle)
 { // deprecated on 07.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4466,7 +4466,7 @@ int simEndDialog_internal(int genericDialogHandle)
 
 int simIsObjectInSelection_internal(int objectHandle)
 { // deprecated on 24.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4487,7 +4487,7 @@ int simIsObjectInSelection_internal(int objectHandle)
 
 int simAddObjectToSelection_internal(int what,int objectHandle)
 { // deprecated on 24.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4530,7 +4530,7 @@ int simAddObjectToSelection_internal(int what,int objectHandle)
 
 int simRemoveObjectFromSelection_internal(int what,int objectHandle)
 { // deprecated on 24.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4575,7 +4575,7 @@ int simRemoveObjectFromSelection_internal(int what,int objectHandle)
 
 int simGetObjectSelectionSize_internal()
 { // deprecated on 24.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4588,7 +4588,7 @@ int simGetObjectSelectionSize_internal()
 
 int simGetObjectLastSelection_internal()
 { // deprecated on 24.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4605,7 +4605,7 @@ int simGetObjectLastSelection_internal()
 
 int simGetObjectSelection_internal(int* objectHandles)
 { // deprecated on 24.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4619,7 +4619,7 @@ int simGetObjectSelection_internal(int* objectHandles)
 
 int simScaleSelectedObjects_internal(double scalingFactor,bool scalePositionsToo)
 { // deprecated on 24.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4637,7 +4637,7 @@ int simScaleSelectedObjects_internal(double scalingFactor,bool scalePositionsToo
 
 int simDeleteSelectedObjects_internal()
 { // deprecated on 24.09.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4655,7 +4655,7 @@ int simDeleteSelectedObjects_internal()
 
 int simGetObjectUniqueIdentifier_internal(int objectHandle,int* uniqueIdentifier)
 { // deprecated on 08.10.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4700,7 +4700,7 @@ void _simSetDynamicForceSensorLocalTransformationPart2IsValid_internal(void* for
 
 int simBreakForceSensor_internal(int objectHandle)
 { // deprecated on 08.11.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4725,14 +4725,14 @@ int simBreakForceSensor_internal(int objectHandle)
 
 bool _simIsForceSensorBroken_internal(const void* forceSensor)
 { // deprecated on 08.11.2021
-    TRACE_C_API;
+    C_API_START;
     CSceneObject* child=((CForceSensor*)forceSensor)->getChildFromIndex(0);
     return(child==nullptr);
 }
 
 void _simGetDynamicForceSensorLocalTransformationPart2_internal(const void* forceSensor,double* pos,double* quat)
 { // deprecated on 08.11.2021
-    TRACE_C_API;
+    C_API_START;
     C7Vector tr;
     tr.setIdentity();
     tr.X.getData(pos);
@@ -4741,7 +4741,7 @@ void _simGetDynamicForceSensorLocalTransformationPart2_internal(const void* forc
 
 int simGetJointMatrix_internal(int objectHandle,double* matrix)
 { // deprecated on 09.11.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4762,7 +4762,7 @@ int simGetJointMatrix_internal(int objectHandle,double* matrix)
 
 int simSetSphericalJointMatrix_internal(int objectHandle,const double* matrix)
 { // deprecated on 09.11.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4787,7 +4787,7 @@ int simSetSphericalJointMatrix_internal(int objectHandle,const double* matrix)
 
 int simGetObjectHandleEx_internal(const char* objectAlias,int index,int proxy,int options)
 { // deprecated on 03.12.2021
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4846,7 +4846,7 @@ int simGetObjectHandleEx_internal(const char* objectAlias,int index,int proxy,in
 
 int simSetScriptAttribute_internal(int scriptHandle,int attributeID,double floatVal,int intOrBoolVal)
 { // deprecated on 05.01.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4899,7 +4899,7 @@ int simSetScriptAttribute_internal(int scriptHandle,int attributeID,double float
 
 int simGetScriptAttribute_internal(int scriptHandle,int attributeID,double* floatVal,int* intOrBoolVal)
 { // deprecated on 05.01.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -4970,7 +4970,7 @@ int simGetScriptAttribute_internal(int scriptHandle,int attributeID,double* floa
 
 int simSetScriptText_internal(int scriptHandle,const char* scriptText)
 { // deprecated on 04.02.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -4996,7 +4996,7 @@ int simSetScriptText_internal(int scriptHandle,const char* scriptText)
 
 const char* simGetScriptText_internal(int scriptHandle)
 { // deprecated on 04.02.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5027,7 +5027,7 @@ const char* simGetScriptText_internal(int scriptHandle)
 
 int simGetScriptProperty_internal(int scriptHandle,int* scriptProperty,int* associatedObjectHandle)
 { // deprecated on 04.02.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5049,7 +5049,7 @@ int simGetScriptProperty_internal(int scriptHandle,int* scriptProperty,int* asso
 
 int simGetJointMaxForce_internal(int jointHandle,double* forceOrTorque)
 { // deprecated on 24.02.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5067,7 +5067,7 @@ int simGetJointMaxForce_internal(int jointHandle,double* forceOrTorque)
 
 int simSetJointMaxForce_internal(int objectHandle,double forceOrTorque)
 { // deprecated on 24.02.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5094,7 +5094,7 @@ bool _simGetGeomProxyDynamicsFullRefreshFlag_internal(const void* geomData)
 
 int simRemoveObject_internal(int objectHandle)
 { // deprecated on 07.03.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -5130,7 +5130,7 @@ int simRemoveObject_internal(int objectHandle)
 
 unsigned int simGetSystemTimeInMs_internal(int previousTime)
 { // deprecated on 01.04.2022
-    TRACE_C_API;
+    C_API_START;
     unsigned int retVal;
     if (previousTime<-1)
         retVal=VDateTime::getOSTimeInMs();
@@ -5146,7 +5146,7 @@ unsigned int simGetSystemTimeInMs_internal(int previousTime)
 
 float* simGetVisionSensorImage_internal(int sensorHandle)
 { // deprecated on 11.04.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5187,7 +5187,7 @@ float* simGetVisionSensorImage_internal(int sensorHandle)
 
 int simSetVisionSensorImage_internal(int sensorHandle,const float* image)
 { // deprecated on 11.04.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -5214,7 +5214,7 @@ int simSetVisionSensorImage_internal(int sensorHandle,const float* image)
 
 unsigned char* simGetVisionSensorCharImage_internal(int sensorHandle,int* resolutionX,int* resolutionY)
 { // deprecated on 11.04.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5262,7 +5262,7 @@ unsigned char* simGetVisionSensorCharImage_internal(int sensorHandle,int* resolu
 
 int simSetVisionSensorCharImage_internal(int sensorHandle,const unsigned char* image)
 { // deprecated on 11.04.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -5284,7 +5284,7 @@ int simSetVisionSensorCharImage_internal(int sensorHandle,const unsigned char* i
 
 float* simGetVisionSensorDepthBuffer_internal(int sensorHandle)
 { // deprecated on 11.04.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5320,7 +5320,7 @@ float* simGetVisionSensorDepthBuffer_internal(int sensorHandle)
 
 int simCreatePureShape_internal(int primitiveType,int options,const double* sizes,double mass,const int* precision)
 { // deprecated on 27.04.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -5378,7 +5378,7 @@ int simCreatePureShape_internal(int primitiveType,int options,const double* size
 
 void* simBroadcastMessage_internal(int* auxiliaryData,void* customData,int* replyData)
 { // deprecated on 04.05.2022
-    TRACE_C_API;
+    C_API_START;
 
     if (replyData!=nullptr)
     {
@@ -5392,7 +5392,7 @@ void* simBroadcastMessage_internal(int* auxiliaryData,void* customData,int* repl
 
 void* simSendModuleMessage_internal(int message,int* auxiliaryData,void* customData,int* replyData)
 { // deprecated on 04.05.2022
-    TRACE_C_API;
+    C_API_START;
 
     if (replyData!=nullptr)
     {
@@ -5406,7 +5406,7 @@ void* simSendModuleMessage_internal(int message,int* auxiliaryData,void* customD
 
 int simBuildMatrixQ_internal(const double* position,const double* quaternion,double* matrix)
 { // deprecated on 09.08.2022
-    TRACE_C_API;
+    C_API_START;
 
     C4X4Matrix m;
     C4Vector q(quaternion[3],quaternion[0],quaternion[1],quaternion[2]);
@@ -5418,7 +5418,7 @@ int simBuildMatrixQ_internal(const double* position,const double* quaternion,dou
 
 int simGetQuaternionFromMatrix_internal(const double* matrix,double* quaternion)
 { // deprecated on 09.08.2022
-    TRACE_C_API;
+    C_API_START;
 
     C4X4Matrix m;
     m.setData(matrix);
@@ -5432,7 +5432,7 @@ int simGetQuaternionFromMatrix_internal(const double* matrix,double* quaternion)
 
 void _simGetLocalInertiaFrame_internal(const void* geomInfo,double* pos,double* quat)
 { // deprecated on 19.08.2022
-    TRACE_C_API;
+    C_API_START;
     C3Vector diag;
     C7Vector tr(((CMeshWrapper*)geomInfo)->getDiagonalInertiaInfo(diag));
     tr.Q.getData(quat);
@@ -5441,13 +5441,13 @@ void _simGetLocalInertiaFrame_internal(const void* geomInfo,double* pos,double* 
 
 void _simGetPrincipalMomentOfInertia_internal(const void* geomInfo,double* inertia)
 { // deprecated on 19.08.2022
-    TRACE_C_API;
+    C_API_START;
     ((CMeshWrapper*)geomInfo)->getPMI().getData(inertia);
 }
 
 int simSetDoubleSignalOld_internal(const char* signalName,double signalValue)
 { // deprecated on 13.10.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5460,7 +5460,7 @@ int simSetDoubleSignalOld_internal(const char* signalName,double signalValue)
 
 int simGetDoubleSignalOld_internal(const char* signalName,double* signalValue)
 { // deprecated on 13.10.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5477,7 +5477,7 @@ int simGetDoubleSignalOld_internal(const char* signalName,double* signalValue)
 
 int simClearDoubleSignalOld_internal(const char* signalName)
 { // deprecated on 13.10.2022
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5496,7 +5496,7 @@ int simClearDoubleSignalOld_internal(const char* signalName)
 
 int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexIndex,double* relativePosition)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5529,7 +5529,7 @@ int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexI
 
 int simGetShapeTriangle_internal(int shapeHandle,int groupElementIndex,int triangleIndex,int* vertexIndices,double* triangleNormals)
 {
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -5584,7 +5584,7 @@ const void* _simGetGeomProxyFromShape_internal(const void* shape)
 
 int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,int reservedSetToZero)
 { // deprecated on 15.03.2023
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -5635,7 +5635,7 @@ int simLoadModule_internal(const char* filenameAndPath,const char* pluginName)
 { // deprecated on 07.06.2023
     // -3: could not load, -2: missing entry points, -1: could not initialize. 0=< : handle of the plugin
   // we cannot lock/unlock, because this function might trigger another thread (GUI) that itself will initialize the plugin and call sim-functions --> forever locked!!
-    TRACE_C_API;
+    C_API_START;
 #ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
@@ -5679,7 +5679,7 @@ int simLoadModule_internal(const char* filenameAndPath,const char* pluginName)
 int simUnloadModule_internal(int pluginhandle)
 { // deprecated on 07.06.2023
     // we cannot lock/unlock, because this function might trigger another thread (GUI) that itself will initialize the plugin and call sim-functions --> forever locked!!
-    TRACE_C_API;
+    C_API_START;
     int retVal=0;
 #ifdef SIM_WITH_GUI
     CPlugin* pl=App::worldContainer->pluginContainer->getPluginFromHandle(pluginhandle);
@@ -5708,7 +5708,7 @@ int simUnloadModule_internal(int pluginhandle)
 
 int simIsStackValueNull_internal(int stackHandle)
 { // deprecated on 16.06.2023
-    TRACE_C_API;
+    C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {

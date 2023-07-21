@@ -87,6 +87,7 @@ extern int _setThreadSwitchAllowed(luaWrap_lua_State* L);
 extern int _addLog(luaWrap_lua_State* L);
 extern int _quitSimulator(luaWrap_lua_State* L);
 
+extern int _simGetLastInfo(luaWrap_lua_State* L);
 extern int _simRegisterScriptFuncHook(luaWrap_lua_State* L);
 extern int _simIsHandle(luaWrap_lua_State* L);
 extern int _simHandleChildScripts(luaWrap_lua_State* L);

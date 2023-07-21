@@ -116,6 +116,7 @@ const SLuaCommands simLuaCommands[]=
 
 
 // testing    {"sim_2_0.handleDynamics",_simGetScript},
+    {"sim.getLastInfo",_simGetLastInfo},
     {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook},
     {"sim.isHandle",_simIsHandle},
     {"sim.handleDynamics",_simHandleDynamics},
@@ -5338,10 +5339,10 @@ int _simLoadScene(luaWrap_lua_State* L)
                     buffer.erase(buffer.end()-12,buffer.end());
                     CFileOperations::createNewScene(true);
                 }
-                if (!CFileOperations::loadScene(nullptr,false,&buffer))
-                    errorString=SIM_ERROR_SCENE_COULD_NOT_BE_READ;
-                else
+                std::string infoStr;
+                if (CFileOperations::loadScene(nullptr,false,&buffer,&infoStr,&errorString))
                     retVal=1;
+                setLastInfo(infoStr.c_str());
             }
         }
     }
@@ -5387,13 +5388,17 @@ int _simSaveScene(luaWrap_lua_State* L)
         if (!App::currentWorld->environment->getSceneLocked())
         {
             std::vector<char> buffer;
-            if (CFileOperations::saveScene(nullptr,false,false,false,&buffer))
+            std::string infoStr;
+            if (CFileOperations::saveScene(nullptr,false,false,&buffer,&infoStr,&errorString))
             {
+                #ifdef SIM_WITH_GUI
+                    GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
+                #endif
+                setLastInfo(infoStr.c_str());
                 luaWrap_lua_pushlstring(L,&buffer[0],buffer.size());
                 LUA_END(1);
             }
-            else
-                errorString=SIM_ERROR_SCENE_COULD_NOT_BE_SAVED;
+            setLastInfo(infoStr.c_str());
         }
         else
             errorString=SIM_ERROR_SCENE_LOCKED;
@@ -5428,37 +5433,13 @@ int _simLoadModel(luaWrap_lua_State* L)
                 if (forceAsCopy)
                     path.erase(path.begin()+atCopyPos,path.end());
 
-                if (VFile::doesFileExist(path.c_str()))
+                std::string infoStr;
+                if (CFileOperations::loadModel(path.c_str(),false,false,nullptr,onlyThumbnails,forceAsCopy,&infoStr,&errorString))
                 {
-                    if (CFileOperations::loadModel(path.c_str(),false,false,false,nullptr,onlyThumbnails,forceAsCopy))
-                    {
-                        if (onlyThumbnails)
-                        {
-                            char* buff=new char[128*128*4];
-                            bool opRes=App::currentWorld->environment->modelThumbnail_notSerializedHere.copyUncompressedImageToBuffer(buff);
-                            if (opRes)
-                            {
-                                luaWrap_lua_pushlstring(L,buff,128*128*4);
-                                delete[] buff;
-                                LUA_END(1);
-                            }
-                            delete[] buff;
-                            LUA_END(0);
-                        }
-                        else
-                            retVal=App::currentWorld->sceneObjects->getLastSelectionHandle();
-                    }
-                    else
-                        errorString=SIM_ERROR_MODEL_COULD_NOT_BE_READ;
-                }
-                else
-                    errorString=SIM_ERROR_FILE_NOT_FOUND;
-            }
-            else
-            { // loading from buffer:
-                std::vector<char> buffer(data,data+dataLength);
-                if (CFileOperations::loadModel(nullptr,false,false,false,&buffer,onlyThumbnails,false))
-                {
+                    setLastInfo(infoStr.c_str());
+                    #ifdef SIM_WITH_GUI
+                        GuiApp::setRebuildHierarchyFlag();
+                    #endif
                     if (onlyThumbnails)
                     {
                         char* buff=new char[128*128*4];
@@ -5475,8 +5456,35 @@ int _simLoadModel(luaWrap_lua_State* L)
                     else
                         retVal=App::currentWorld->sceneObjects->getLastSelectionHandle();
                 }
-                else
-                    errorString=SIM_ERROR_MODEL_COULD_NOT_BE_READ;
+                setLastInfo(infoStr.c_str());
+            }
+            else
+            { // loading from buffer:
+                std::vector<char> buffer(data,data+dataLength);
+                std::string infoStr;
+                if (CFileOperations::loadModel(nullptr,false,false,&buffer,onlyThumbnails,false,&infoStr,&errorString))
+                {
+                    setLastInfo(infoStr.c_str());
+                    #ifdef SIM_WITH_GUI
+                        GuiApp::setRebuildHierarchyFlag();
+                    #endif
+                    if (onlyThumbnails)
+                    {
+                        char* buff=new char[128*128*4];
+                        bool opRes=App::currentWorld->environment->modelThumbnail_notSerializedHere.copyUncompressedImageToBuffer(buff);
+                        if (opRes)
+                        {
+                            luaWrap_lua_pushlstring(L,buff,128*128*4);
+                            delete[] buff;
+                            LUA_END(1);
+                        }
+                        delete[] buff;
+                        LUA_END(0);
+                    }
+                    else
+                        retVal=App::currentWorld->sceneObjects->getLastSelectionHandle();
+                }
+                setLastInfo(infoStr.c_str());
             }
         }
     }
@@ -5512,14 +5520,14 @@ int _simSaveModel(luaWrap_lua_State* L)
                         {
                             const std::vector<int>* initSelection=App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
                             std::vector<char> buffer;
-                            if (CFileOperations::saveModel(model,nullptr,false,false,&buffer))
+                            std::string infoStr;
+                            if (CFileOperations::saveModel(model,nullptr,false,&buffer,&infoStr,&errorString))
                             {
+                                App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection);
+                                setLastInfo(infoStr.c_str());
                                 luaWrap_lua_pushlstring(L,&buffer[0],buffer.size());
                                 LUA_END(1);
                             }
-                            else
-                                errorString=SIM_ERROR_MODEL_COULD_NOT_BE_SAVED;
-                            App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection);
                         }
                         else
                             errorString=SIM_ERROR_OBJECT_NOT_MODEL_BASE;
@@ -13934,6 +13942,22 @@ int _simSetPluginInfo(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _simGetLastInfo(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getLastInfo");
+
+    const char* info=simGetLastInfo_internal();
+    std::string inf;
+    if (info!=nullptr)
+    {
+        inf=info;
+        delete[] info;
+    }
+    luaWrap_lua_pushstring(L,inf.c_str());
+    LUA_END(1);
 }
 
 int _simRegisterScriptFuncHook(luaWrap_lua_State* L)
