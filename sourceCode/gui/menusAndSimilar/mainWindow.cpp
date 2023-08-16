@@ -856,7 +856,11 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         int oglDebugTime=(int)VDateTime::getTimeInMs();
         // the only time in the whole application (except for COpenglWidget::paintGL() ) where we can call
         // this command, otherwise we have problems with some graphic cards and VMWare on MAC:
+#ifdef USES_QGLWIDGET
         openglWidget->swapBuffers();
+#else
+        openglWidget->update();
+#endif
         if (App::userSettings->debugOpenGl)
         {
             int oglDebugTimeNow=(int)VDateTime::getTimeInMs();

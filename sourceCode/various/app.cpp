@@ -168,6 +168,7 @@ void App::init(const char* appDir,int)
         _startupScriptString.clear();
     }
     worldContainer->addOnScriptContainer->loadAllAddOns();
+    worldContainer->addOnScriptContainer->callScripts(sim_syscb_init,nullptr,nullptr);
     setAppStage(appstage_simRunning);
 
     #ifdef SIM_WITH_GUI

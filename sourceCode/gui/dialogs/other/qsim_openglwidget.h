@@ -2,7 +2,11 @@
 #ifndef QSIM_OPENGLWIDGET_H
 #define QSIM_OPENGLWIDGET_H
 
-#include <QGLWidget>
+#ifdef USES_QGLWIDGET
+    #include <QGLWidget>
+#else
+#include <QOpenGLWidget>
+#endif
 #include <QString>
 
 struct SModelThumbnailInfo;
@@ -23,7 +27,11 @@ struct SMouseOrKeyboardOrResizeEvent
     QString unicodeText;
 };
 
+#ifdef USES_QGLWIDGET
 class COpenglWidget : public QGLWidget
+#else
+class COpenglWidget : public QOpenGLWidget
+#endif
 {
     Q_OBJECT
 public:

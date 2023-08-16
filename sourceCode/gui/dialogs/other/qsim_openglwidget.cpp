@@ -22,7 +22,11 @@ int _savedMouseMode;
 
 std::vector<SMouseOrKeyboardOrResizeEvent> _bufferedMouseOrKeyboardOrResizeEvents;
 
+#ifdef USES_QGLWIDGET
 COpenglWidget::COpenglWidget(QWidget *parent) : QGLWidget(QGLFormat((App::userSettings->stereoDist<=0.0) ? (QGL::DoubleBuffer) : (QGL::StereoBuffers)),parent)
+#else
+COpenglWidget::COpenglWidget(QWidget *parent) : QOpenGLWidget(parent)
+#endif
 {
     TRACE_INTERNAL;
     _bufferedMouseOrKeyboardOrResizeEvents.clear();
@@ -49,7 +53,9 @@ COpenglWidget::~COpenglWidget()
 void COpenglWidget::initializeGL()
 {
     TRACE_INTERNAL;
+#ifdef USES_QGLWIDGET
     setAutoBufferSwap(false);
+#endif
 }
 
 void COpenglWidget::makeContextCurrent()
@@ -397,11 +403,20 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
         if (t==4)
         { // mouse wheel events
             QWheelEvent* wEvent=(QWheelEvent*)event;
+#ifdef USES_QT5
             e.x=wEvent->x();
             e.y=wEvent->y();
+#else
+            e.x=wEvent->position().x();
+            e.y=wEvent->position().y();
+#endif
             e.ctrlDown=((wEvent->modifiers()&Qt::ControlModifier)!=0);
             e.shiftDown=((wEvent->modifiers()&Qt::ShiftModifier)!=0);
+#ifdef USES_QT5
             e.wheelDelta=wEvent->delta();
+#else
+            e.wheelDelta=wEvent->angleData().y();
+#endif
         }
         if ((t>=5)&&(t<=6))
         { // keyboard events

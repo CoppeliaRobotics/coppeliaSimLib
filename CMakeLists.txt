@@ -123,7 +123,7 @@ if(WITH_GUI)
     find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
 endif()
 
-find_package(Qt5 COMPONENTS Core PrintSupport Network SerialPort REQUIRED)
+find_package(Qt5 COMPONENTS Core PrintSupport Network REQUIRED)
 
 if(MSVC)
     target_compile_options(coppeliaSim PRIVATE /FI"simMainHeader.h")

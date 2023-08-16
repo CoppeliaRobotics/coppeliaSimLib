@@ -4,10 +4,12 @@ DEFINES += SIM_MATH_DOUBLE # math and vector classes
 #DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats). Same for CMakeLists.txt
 #DEFINES += HAS_PHYSX
 
+DEFINES += USES_QT5
 CONFIG += USES_QGLWIDGET
 USES_QGLWIDGET {
     DEFINES += USES_QGLWIDGET
 } else {
+    QT += openglwidgets
 }
 
 CONFIG += shared plugin debug_and_release
@@ -23,7 +25,7 @@ CONFIG(debug,debug|release) {
 QT += printsupport
 QT += network
 
-DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x050000
 #commented on 16.06.2023 DEFINES += LUA_STACK_COMPATIBILITY_MODE # 06.11.2020, will avoid using Lua INTEGER values at interfaces (using DOUBLE type instead)
 
 WITH_GUI {

@@ -2,7 +2,11 @@
 
 #include <QOpenGLContext>
 #include <QOffscreenSurface>
-#include <QGLWidget>
+#ifdef USES_QGLWIDGET
+    #include <QGLWidget>
+#else
+    #include <QOpenGLWidget>
+#endif
 #include <vThread.h>
 
 class COffscreenGlContext : public QObject
@@ -10,7 +14,11 @@ class COffscreenGlContext : public QObject
     Q_OBJECT
 public:
 
-    COffscreenGlContext(int offscreenType,int resX,int resY,QGLWidget *otherWidgetToShareResourcesWith,int majorOpenGl,int minorOpenGl);
+    #ifdef USES_QGLWIDGET
+        COffscreenGlContext(int offscreenType,int resX,int resY,QGLWidget *otherWidgetToShareResourcesWith,int majorOpenGl,int minorOpenGl);
+    #else
+        COffscreenGlContext(int offscreenType,int resX,int resY,QOpenGLWidget *otherWidgetToShareResourcesWith,int majorOpenGl,int minorOpenGl);
+    #endif
     virtual ~COffscreenGlContext();
 
     bool makeCurrent();
@@ -43,9 +51,13 @@ protected:
     QOpenGLContext* _qContext;
     QOffscreenSurface* _qOffscreenSurface;
 
-    // Qt window vars:
-    QGLWidget* _hiddenWindow;
+    #ifdef USES_QGLWIDGET
+        QGLWidget* _hiddenWindow;
+        static std::vector<QGLWidget*> _allQtWidgets;
+    #else
+        QOpenGLWidget* _hiddenWindow;
+        static std::vector<QOpenGLWidget*> _allQtWidgets;
+    #endif
 
     static std::vector<QOpenGLContext*> _allQtContexts;
-    static std::vector<QGLWidget*> _allQtWidgets;
 };

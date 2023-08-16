@@ -7,7 +7,11 @@
 #endif
 
 std::vector<QOpenGLContext*> COffscreenGlContext::_allQtContexts;
-std::vector<QGLWidget*> COffscreenGlContext::_allQtWidgets;
+#ifdef USES_QGLWIDGET
+    std::vector<QGLWidget*> COffscreenGlContext::_allQtWidgets;
+#else
+    std::vector<QOpenGLWidget*> COffscreenGlContext::_allQtWidgets;
+#endif
 
 #ifdef WIN_SIM
 std::vector<HGLRC> COffscreenGlContext::_allNativeContexts;
@@ -19,7 +23,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 */
 #endif
 
+#ifdef USES_QGLWIDGET
 COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGLWidget *otherWidgetToShareResourcesWith,int majorOpenGl,int minorOpenGl) : QObject()
+#else
+COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QOpenGLWidget *otherWidgetToShareResourcesWith,int majorOpenGl,int minorOpenGl) : QObject()
+#endif
 {
     // 1. QT_OFFSCREEN_TP can be started from any thread, also when running in headless mode. However:
     // QOpenGLContext somehow requires that the thread that created it also processes its events on
@@ -64,7 +72,11 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
             _qContext=new QOpenGLContext();
             _qContext->setFormat(_qOffscreenSurface->format());
             if (otherWidgetToShareResourcesWith!=nullptr)
-                _qContext->setShareContext(otherWidgetToShareResourcesWith->context()->contextHandle());
+                #ifdef USES_QGLWIDGET
+                    _qContext->setShareContext(otherWidgetToShareResourcesWith->context()->contextHandle());
+                #else
+                    _qContext->setShareContext(otherWidgetToShareResourcesWith->context());
+                #endif
             else
             {
                 if (_allQtContexts.size()!=0)
@@ -79,14 +91,22 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
                 _qOffscreenSurface->destroy();
                 delete _qOffscreenSurface;
                 _offscreenType=QT_WINDOW_HIDE_TP;
-                App::logMsg(sim_verbosity_errors,"failed creating an offscreen QOpenGLContext. Switching to a hidden QGLWidget.");
+                #ifdef USES_QGLWIDGET
+                    App::logMsg(sim_verbosity_errors,"failed creating an offscreen QOpenGLContext. Switching to a hidden QGLWidget.");
+                #else
+                    App::logMsg(sim_verbosity_errors,"failed creating an offscreen QOpenGLContext. Switching to a hidden QOpenGLWidget.");
+                #endif
             }
         }
         else
         { // surface creation failed. Use an invisible window instead:
             delete _qOffscreenSurface;
             _offscreenType=QT_WINDOW_HIDE_TP;
-            App::logMsg(sim_verbosity_errors,"failed creating a QOffscreenSurface. Switching to a hidden QGLWidget.");
+            #ifdef USES_QGLWIDGET
+                App::logMsg(sim_verbosity_errors,"failed creating a QOffscreenSurface. Switching to a hidden QGLWidget.");
+            #else
+                App::logMsg(sim_verbosity_errors,"failed creating a QOffscreenSurface. Switching to a hidden QOpenGLWidget.");
+            #endif
         }
     }
 
@@ -96,6 +116,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
         if ((otherWidgetToShareResourcesWith==nullptr)&&(_allQtWidgets.size()!=0))
             otherWidgetToShareResourcesWith=_allQtWidgets[0];
 
+#ifdef USES_QGLWIDGET
         if ((majorOpenGl!=-1)||(minorOpenGl!=-1))
         {
             QGLFormat fmt;
@@ -118,8 +139,13 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
             _hiddenWindow=new QGLWidget(fmt,GuiApp::mainWindow,otherWidgetToShareResourcesWith,Qt::Tool);
         }
         else
+#endif
         {
-            _hiddenWindow=new QGLWidget(GuiApp::mainWindow,otherWidgetToShareResourcesWith,Qt::Tool);
+            #ifdef USES_QGLWIDGET
+                _hiddenWindow=new QGLWidget(GuiApp::mainWindow,otherWidgetToShareResourcesWith,Qt::Tool);
+            #else
+                _hiddenWindow=new QOpenGLWidget(GuiApp::mainWindow,Qt::Tool);
+            #endif
             _hiddenWindow->setFixedWidth(resX);
             _hiddenWindow->setFixedHeight(resY);
 
