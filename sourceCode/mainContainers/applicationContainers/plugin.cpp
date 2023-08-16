@@ -314,18 +314,18 @@ bool CPlugin::init(std::string* errStr)
             retVal=true;
             _loadAuxEntryPoints();
             _stage=stage_siminitdone;
+#ifdef SIM_WITH_GUI
             if (_initAddress_ui!=nullptr)
             {
-#ifdef SIM_WITH_GUI
                 SUIThreadCommand cmdIn;
                 SUIThreadCommand cmdOut;
                 cmdIn.cmdId=CALL_PLUGIN_INITUI_FROM_UITHREAD_UITHREADCMD;
                 cmdIn.intParams.push_back(handle);
                 GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-#endif
                 while (_stage!=stage_uiinitdone)
                     VThread::sleep(1);
             }
+#endif
         }
         else
         { // could not properly initialize

@@ -1213,7 +1213,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SCALE_SCALINGGUITRIGGEREDCMD)
         {
             if (cmd.intParams.size()>0)
+            {
                 CSceneObjectOperations::scaleObjects(cmd.intParams,cmd.doubleParams[0],!cmd.boolParams[0]);
+                GuiApp::setFullDialogRefreshFlag();
+            }
         }
 
 

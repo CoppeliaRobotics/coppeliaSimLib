@@ -4629,6 +4629,9 @@ int simScaleSelectedObjects_internal(double scalingFactor,bool scalePositionsToo
         for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
             sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         CSceneObjectOperations::scaleObjects(sel,scalingFactor,scalePositionsToo!=0);
+        #ifdef SIM_WITH_GUI
+            GuiApp::setFullDialogRefreshFlag();
+        #endif
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);

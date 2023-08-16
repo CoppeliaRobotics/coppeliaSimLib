@@ -8607,7 +8607,7 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
                         errorString=SIM_ERROR_INVALID_BUFFER_SIZE;
                 }
                 else
-                { // clear the drawing object
+                { // old. back compatibility: clear the drawing object
                     if (res>=0)
                     {
                         if (it->addItem(nullptr))
@@ -8618,34 +8618,44 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
                 }
             }
             else
-            { // data provided as table (or nil arg)
-                int res=checkOneGeneralInputArgument(L,2,lua_arg_number,int(d),true,true,&errorString);
+            { // data provided as table
+                int res=checkOneGeneralInputArgument(L,2,lua_arg_number,-1,true,true,&errorString);
                 if (res==2)
-                { // append data from table
-                    std::vector<double> vertices;
-                    if ( (((handleFlags&sim_handleflag_setmultiple)!=0)||((handleFlags&sim_handleflag_addmultiple)!=0)) )
-                    { // append multiple
-                        size_t itemCnt=luaWrap_lua_rawlen(L,2)/d;
-                        vertices.resize(itemCnt*d);
-                        getDoublesFromTable(L,2,int(itemCnt*d),&vertices[0]);
-                        if ((handleFlags&sim_handleflag_addmultiple)!=0)
-                            it->addItems(&vertices[0],itemCnt);
+                {
+                    if (int(d)<=luaWrap_lua_rawlen(L,2))
+                    { // append data from table
+                        std::vector<double> vertices;
+                        if ( (((handleFlags&sim_handleflag_setmultiple)!=0)||((handleFlags&sim_handleflag_addmultiple)!=0)) )
+                        { // append multiple
+                            size_t itemCnt=luaWrap_lua_rawlen(L,2)/d;
+                            vertices.resize(itemCnt*d);
+                            getDoublesFromTable(L,2,int(itemCnt*d),&vertices[0]);
+                            if ((handleFlags&sim_handleflag_addmultiple)!=0)
+                                it->addItems(&vertices[0],itemCnt);
+                            else
+                                it->setItems(&vertices[0],itemCnt); // old. Previously setmultiple, which is now deprecated
+                            retVal=1;
+                        }
                         else
-                            it->setItems(&vertices[0],itemCnt); // old. Previously setmultiple, which is now deprecated
-                        retVal=1;
+                        { // append single
+                            vertices.resize(d);
+                            getDoublesFromTable(L,2,int(d),&vertices[0]);
+                            if (it->addItem(vertices.data()))
+                                retVal=1;
+                            else
+                                retVal=0;
+                        }
                     }
                     else
-                    { // append single
-                        vertices.resize(d);
-                        getDoublesFromTable(L,2,int(d),&vertices[0]);
-                        if (it->addItem(vertices.data()))
+                    { // empty table: we clear the drawing object
+                        if (it->addItem(nullptr))
                             retVal=1;
                         else
                             retVal=0;
                     }
                 }
                 else
-                { // clear the drawing object
+                { // old. Back compatibility: clear the drawing object
                     if (res>=0)
                     {
                         if (it->addItem(nullptr))

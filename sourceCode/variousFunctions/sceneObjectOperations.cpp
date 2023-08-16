@@ -302,7 +302,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         newShapes.push_back(it);
                         for (size_t j=0;j<newShapes.size();j++)
                         {
-                            CMesh* convexHull=generateConvexHull(newShapes[j]->getObjectHandle());
+                            CMesh* convexHull=_generateConvexHull(newShapes[j]->getObjectHandle());
                             if (convexHull!=nullptr)
                                 newShapes[j]->replaceMesh(convexHull,true);
                         }
@@ -314,7 +314,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     }
                     else
                     {
-                        CMesh* convexHull=generateConvexHull(it->getObjectHandle());
+                        CMesh* convexHull=_generateConvexHull(it->getObjectHandle());
                         if (convexHull!=nullptr)
                             it->replaceMesh(convexHull,true);
                     }
@@ -480,7 +480,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     CShape* it=(CShape*)sel[i];
                     if (!it->getMesh()->isConvex())
                     {
-                        CShape* morphedShape=morphToConvexDecomposed(it,nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
+                        CShape* morphedShape=_morphToConvexDecomposed(it,nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
                                                                     maxConnectDist,maxTrianglesInDecimatedMesh,maxHullVertices,
                                                                     smallClusterThreshold,
                                                                     useHACD,resolution,depth,concavity,planeDownsampling,
@@ -697,7 +697,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs,IDSNS_COPYING_SELECTION);
-            copyObjects(&sel,true);
+            GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Copying objects...");
+            _copyObjects(&sel);
+            GuiApp::uiThread->showOrHideProgressBar(false);
             App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
@@ -725,7 +727,12 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (sel.size()>0)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_CUTTING_SELECTION);
-                cutObjects(&sel,true);
+                GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Cutting objects...");
+                App::currentWorld->sceneObjects->addModelObjects(sel);
+                _copyObjects(&sel);
+                _deleteObjects(&sel);
+                App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
+                GuiApp::uiThread->showOrHideProgressBar(false);
                 App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
@@ -747,9 +754,15 @@ bool CSceneObjectOperations::processCommand(int commandID)
             for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs,IDSNS_PASTING_BUFFER);
-            pasteCopyBuffer(true);
+
+            GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Pasting objects...");
+            bool failed=(App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3)==-1);
+            GuiApp::uiThread->showOrHideProgressBar(false);
+            if (failed) // Error: trying to copy locked buffer into unlocked scene!
+                GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Paste",IDS_SCENE_IS_LOCKED_CANNOT_PASTE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+            else
+                App::logMsg(sim_verbosity_msgs,"done.");
             App::undoRedo_sceneChanged("");
-            App::logMsg(sim_verbosity_msgs,"done.");
         }
         else
         { // We are in the UI thread. We execute the command in a delayed manner:
@@ -777,7 +790,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (sel.size()>0)
             {
                 App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTION);
-                deleteObjects(&sel,true);
+                GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Deleting objects...");
+                _deleteObjects(&sel);
+                GuiApp::uiThread->showOrHideProgressBar(false);
                 App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs,"done.");
             }
@@ -996,80 +1011,21 @@ bool CSceneObjectOperations::processCommand(int commandID)
     return(false);
 }
 #endif
-void CSceneObjectOperations::copyObjects(std::vector<int>* selection,bool displayMessages)
+void CSceneObjectOperations::_copyObjects(std::vector<int>* selection)
 {
-#ifdef SIM_WITH_GUI
-    if (displayMessages)
-        GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Copying objects...");
-#endif
     // We first copy the selection:
     std::vector<int> sel(*selection);
     App::currentWorld->sceneObjects->addModelObjects(sel);
     App::worldContainer->copyBuffer->copyCurrentSelection(&sel,App::currentWorld->environment->getSceneLocked(),0);
     App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
-
-#ifdef SIM_WITH_GUI
-    if (displayMessages)
-        GuiApp::uiThread->showOrHideProgressBar(false);
-#endif
 }
 
-void CSceneObjectOperations::pasteCopyBuffer(bool displayMessages)
-{
-    TRACE_INTERNAL;
-#ifdef SIM_WITH_GUI
-    if (displayMessages)
-        GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Pasting objects...");
-#endif
-
-    bool failed=(App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),3)==-1);
-
-#ifdef SIM_WITH_GUI
-    if (displayMessages)
-        GuiApp::uiThread->showOrHideProgressBar(false);
-
-    if (failed) // Error: trying to copy locked buffer into unlocked scene!
-    {
-        if (displayMessages)
-            GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Paste",IDS_SCENE_IS_LOCKED_CANNOT_PASTE_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-    }
-#endif
-}
-
-void CSceneObjectOperations::cutObjects(std::vector<int>* selection,bool displayMessages)
-{
-    TRACE_INTERNAL;
-#ifdef SIM_WITH_GUI
-    if (displayMessages)
-        GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Cutting objects...");
-#endif
-    App::currentWorld->sceneObjects->addModelObjects(*selection);
-    copyObjects(selection,false);
-    deleteObjects(selection,false);
-    App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
-
-#ifdef SIM_WITH_GUI
-    if (displayMessages)
-        GuiApp::uiThread->showOrHideProgressBar(false);
-#endif
-}
-
-void CSceneObjectOperations::deleteObjects(std::vector<int>* selection,bool displayMessages)
+void CSceneObjectOperations::_deleteObjects(std::vector<int>* selection)
 { // There are a few other spots where objects get deleted (e.g. the C-interface)
     TRACE_INTERNAL;
-#ifdef SIM_WITH_GUI
-    if (displayMessages)
-        GuiApp::uiThread->showOrHideProgressBar(true,-1.0,"Deleting objects...");
-#endif
-
     App::currentWorld->sceneObjects->addModelObjects(selection[0]);
     App::currentWorld->sceneObjects->eraseObjects(selection[0],true);
     App::currentWorld->sceneObjects->deselectObjects();
-
-#ifdef SIM_WITH_GUI
-    if (displayMessages)
-        GuiApp::uiThread->showOrHideProgressBar(false);
-#endif
 }
 
 int CSceneObjectOperations::groupSelection(std::vector<int>* selection)
@@ -1470,13 +1426,9 @@ void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection,doub
                 ikEl->setMinLinearPrecision(ikEl->getMinLinearPrecision()*scalingFactor); // we scale that ikElement!
         }
     }
-
-#ifdef SIM_WITH_GUI
-    GuiApp::setFullDialogRefreshFlag();
-#endif
 }
 
-CMesh* CSceneObjectOperations::generateConvexHull(int shapeHandle)
+CMesh* CSceneObjectOperations::_generateConvexHull(int shapeHandle)
 {
     TRACE_INTERNAL;
     CMesh* retVal=nullptr;
@@ -1508,7 +1460,7 @@ CMesh* CSceneObjectOperations::generateConvexHull(int shapeHandle)
     return(retVal);
 }
 
-CShape* CSceneObjectOperations::morphToConvexDecomposed(CShape* it,size_t nClusters,double maxConcavity,
+CShape* CSceneObjectOperations::_morphToConvexDecomposed(CShape* it,size_t nClusters,double maxConcavity,
                                              bool addExtraDistPoints,bool addFacesPoints,double maxConnectDist,
                                              size_t maxTrianglesInDecimatedMesh,size_t maxHullVertices,
                                              double smallClusterThreshold,bool useHACD,int resolution_VHACD,int depth_VHACD_old,double concavity_VHACD,
@@ -1619,15 +1571,10 @@ CShape* CSceneObjectOperations::morphToConvexDecomposed(CShape* it,size_t nClust
     return(morphedShape);
 }
 
-int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int options,const int* intParams,const double* floatParams)
+int CSceneObjectOperations::convexDecompose(int shapeHandle,int options,const int* intParams,const double* floatParams)
 {
     TRACE_INTERNAL;
     int retVal=-1;
-
-#ifdef SIM_WITH_GUI
-    if (GuiApp::mainWindow==nullptr)
-#endif
-        options=(options|2)-2; // we are in headless mode: do not display the dialog!
 
     static bool addExtraDistPoints=true;
     static bool addFacesPoints=true;
@@ -1637,17 +1584,13 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
     static double smallClusterThreshold=0.25;
     static int maxTrianglesInDecimatedMesh=500;
     static double maxConnectDist=30.0;
-    // static bool individuallyConsiderMultishapeComponents=false;
-    // static int maxIterations=4;
     static bool useHACD=false; // i.e. use V-HACD
     static int resolution=100000;
-// not present in newest VHACD   static int depth=20;
     static double concavity=0.0025;
     static int planeDownsampling=4;
     static int convexHullDownsampling=4;
     static double alpha=0.05;
     static double beta=0.05;
-// not present in newest VHACD   static double gamma=0.00125;
     static bool pca=false;
     static bool voxelBasedMode=true;
     static int maxVerticesPerCH=64;
@@ -1663,110 +1606,37 @@ int CSceneObjectOperations::convexDecompose_apiVersion(int shapeHandle,int optio
         smallClusterThreshold=floatParams[2];
         maxTrianglesInDecimatedMesh=intParams[1];
         maxConnectDist=floatParams[1];
-        //individuallyConsiderMultishapeComponents=(options&32)!=0;
-        // maxIterations=intParams[3];
         useHACD=true; // forgotten, fixed thanks to Patrick Gruener
         if (options&128)
         { // we have more parameters than usual (i.e. the V-HACD parameters):
             useHACD=false;
             resolution=intParams[5];
-            // depth=intParams[6];
             concavity=floatParams[5];
             planeDownsampling=intParams[7];
             convexHullDownsampling=intParams[8];
             alpha=floatParams[6];
             beta=floatParams[7];
-            //gamma=floatParams[8];
             pca=(options&256);
             voxelBasedMode=!(options&512);
             maxVerticesPerCH=intParams[9];
             minVolumePerCH=floatParams[9];
         }
     }
-    bool abortp=false;
-#ifdef SIM_WITH_GUI
-    if ((options&2)!=0)
-    {
-        // Display the dialog:
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId=DISPLAY_CONVEX_DECOMPOSITION_DIALOG_UITHREADCMD;
-        cmdIn.boolParams.push_back(addExtraDistPoints);
-        cmdIn.boolParams.push_back(addFacesPoints);
-        cmdIn.intParams.push_back(nClusters);
-        cmdIn.intParams.push_back(maxHullVertices);
-        cmdIn.floatParams.push_back(maxConcavity);
-        cmdIn.floatParams.push_back(smallClusterThreshold);
-        cmdIn.intParams.push_back(maxTrianglesInDecimatedMesh);
-        cmdIn.floatParams.push_back(maxConnectDist);
-        cmdIn.boolParams.push_back(true);
-        cmdIn.boolParams.push_back(false);
-        cmdIn.intParams.push_back(4); // previously maxIterations
-        cmdIn.boolParams.push_back(false);
-        cmdIn.boolParams.push_back(useHACD);
-        cmdIn.intParams.push_back(resolution);
-        cmdIn.intParams.push_back(20); //depth);
-        cmdIn.floatParams.push_back(concavity);
-        cmdIn.intParams.push_back(planeDownsampling);
-        cmdIn.intParams.push_back(convexHullDownsampling);
-        cmdIn.floatParams.push_back(alpha);
-        cmdIn.floatParams.push_back(beta);
-        cmdIn.floatParams.push_back(0.00125); //gamma);
-        cmdIn.boolParams.push_back(pca);
-        cmdIn.boolParams.push_back(voxelBasedMode);
-        cmdIn.intParams.push_back(maxVerticesPerCH);
-        cmdIn.floatParams.push_back(minVolumePerCH);
-
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-
-        // Retrieve the chosen settings:
-        abortp=cmdOut.boolParams[4];
-        if (!abortp)
-        {
-            addExtraDistPoints=cmdOut.boolParams[0];
-            addFacesPoints=cmdOut.boolParams[1];
-            nClusters=cmdOut.intParams[0];
-            maxHullVertices=cmdOut.intParams[1];
-            maxConcavity=cmdOut.floatParams[0];
-            smallClusterThreshold=cmdOut.floatParams[1];
-            maxTrianglesInDecimatedMesh=cmdOut.intParams[2];
-            maxConnectDist=cmdOut.floatParams[2];
-            // individuallyConsiderMultishapeComponents=cmdOut.boolParams[2];
-            // maxIterations=cmdOut.intParams[3];
-            useHACD=cmdOut.boolParams[5];
-            resolution=cmdOut.intParams[4];
-            // depth=cmdOut.intParams[5];
-            concavity=cmdOut.floatParams[3];
-            planeDownsampling=cmdOut.intParams[6];
-            convexHullDownsampling=cmdOut.intParams[7];
-            alpha=cmdOut.floatParams[4];
-            beta=cmdOut.floatParams[5];
-            // gamma=cmdOut.floatParams[6];
-            pca=cmdOut.boolParams[6];
-            voxelBasedMode=cmdOut.boolParams[7];
-            maxVerticesPerCH=cmdOut.intParams[8];
-            minVolumePerCH=cmdOut.floatParams[7];
-        }
-    }
-#endif
     CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-    if (!abortp)
-    {
-        if ((options&1)==0)
-        { // We want to create a new shape from it:
-            CShape* it2=new CShape();
-            it2->replaceMesh(it->getMesh()->copyYourself(),false);
-            it2->setLocalTransformation(it->getCumulativeTransformation());
-            App::currentWorld->sceneObjects->addObjectToScene(it2,false,true);
-            it=it2;
-        }
-        it=CSceneObjectOperations::morphToConvexDecomposed(it,nClusters,maxConcavity,addExtraDistPoints,
-                                                        addFacesPoints,maxConnectDist,maxTrianglesInDecimatedMesh,
-                                                        maxHullVertices,smallClusterThreshold,
-                                                        useHACD,resolution,20,concavity,planeDownsampling,
-                                                        convexHullDownsampling,alpha,beta,0.00125,pca,voxelBasedMode,
-                                                        maxVerticesPerCH,minVolumePerCH);
+    if ((options&1)==0)
+    { // We want to create a new shape from it:
+        CShape* it2=new CShape();
+        it2->replaceMesh(it->getMesh()->copyYourself(),false);
+        it2->setLocalTransformation(it->getCumulativeTransformation());
+        App::currentWorld->sceneObjects->addObjectToScene(it2,false,true);
+        it=it2;
     }
+    it=CSceneObjectOperations::_morphToConvexDecomposed(it,nClusters,maxConcavity,addExtraDistPoints,
+                                                    addFacesPoints,maxConnectDist,maxTrianglesInDecimatedMesh,
+                                                    maxHullVertices,smallClusterThreshold,
+                                                    useHACD,resolution,20,concavity,planeDownsampling,
+                                                    convexHullDownsampling,alpha,beta,0.00125,pca,voxelBasedMode,
+                                                    maxVerticesPerCH,minVolumePerCH);
     if (it!=nullptr)
         retVal=it->getObjectHandle();
     return(retVal);

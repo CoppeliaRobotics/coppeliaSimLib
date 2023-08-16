@@ -5725,6 +5725,9 @@ int simScaleObjects_internal(const int* objectHandles,int objectCount,double sca
         std::vector<int> sel;
         sel.assign(objectHandles,objectHandles+objectCount);
         CSceneObjectOperations::scaleObjects(sel,scalingFactor,scalePositionsToo!=0);
+        #ifdef SIM_WITH_GUI
+            GuiApp::setFullDialogRefreshFlag();
+        #endif
         return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -11386,7 +11389,7 @@ int simConvexDecompose_internal(int shapeHandle,int options,const int* intParams
 { // one shape at a time!
     C_API_START;
 
-    int retVal=CSceneObjectOperations::convexDecompose_apiVersion(shapeHandle,options,intParams,floatParams);
+    int retVal=CSceneObjectOperations::convexDecompose(shapeHandle,options,intParams,floatParams);
     return(retVal);
 }
 

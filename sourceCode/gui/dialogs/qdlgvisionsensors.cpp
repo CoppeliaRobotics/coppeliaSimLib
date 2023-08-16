@@ -105,14 +105,16 @@ void CQDlgVisionSensors::refresh()
         ui->qqIgnoreDepth->setChecked(s->getIgnoreDepthInfo());
         ui->qqIgnorePacket1->setChecked(!s->getComputeImageBasicStats());
 
-        ui->qqRenderModeCombo->addItem(IDS_VISIBLE_COMPONENTS,QVariant(sim_rendermode_opengl));
-        ui->qqRenderModeCombo->addItem(IDS_AUXILIARY_CHANNELS,QVariant(sim_rendermode_auxchannels));
-        ui->qqRenderModeCombo->addItem(IDS_COLOR_CODED_IDS,QVariant(sim_rendermode_colorcoded));
+        ui->qqRenderModeCombo->addItem("Legacy OpenGL",QVariant(sim_rendermode_opengl));
+        ui->qqRenderModeCombo->addItem("Legacy OpenGL, auxiliary channels",QVariant(sim_rendermode_auxchannels));
+        ui->qqRenderModeCombo->addItem("Legacy OpenGL, color coded handles",QVariant(sim_rendermode_colorcoded));
         ui->qqRenderModeCombo->addItem(IDS_RAY_TRACING,QVariant(sim_rendermode_povray));
         ui->qqRenderModeCombo->addItem(IDS_EXTERNAL_RENDERER,QVariant(sim_rendermode_extrenderer));
         ui->qqRenderModeCombo->addItem(IDS_EXTERNAL_RENDERER_WINDOWED,QVariant(sim_rendermode_extrendererwindowed));
         ui->qqRenderModeCombo->addItem(IDS_OPENGL3,QVariant(sim_rendermode_opengl3));
         ui->qqRenderModeCombo->addItem(IDS_OPENGL3_WINDOWED,QVariant(sim_rendermode_opengl3windowed));
+        ui->qqRenderModeCombo->addItem("OpenGL",QVariant(sim_rendermode_oglimg));
+        ui->qqRenderModeCombo->addItem("OpenGL, color coded handles",QVariant(sim_rendermode_codedimg));
 
         // Select current item:
         for (int i=0;i<ui->qqRenderModeCombo->count();i++)

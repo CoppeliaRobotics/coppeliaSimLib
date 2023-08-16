@@ -1060,9 +1060,7 @@ bool CSimulation::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             bool noEditMode=true;
-            #ifdef SIM_WITH_GUI
-                noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
-            #endif
+            noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
             if (App::currentWorld->simulation->isSimulationStopped()&&noEditMode )
             {
                 App::currentWorld->simulation->setIsRealTimeSimulation(!App::currentWorld->simulation->getIsRealTimeSimulation());
@@ -1070,10 +1068,8 @@ bool CSimulation::processCommand(int commandID)
                     App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_REAL_TIME_MODE);
                 else
                     App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE);
-                #ifdef SIM_WITH_GUI
-                    GuiApp::setLightDialogRefreshFlag();
-                    GuiApp::setToolbarRefreshFlag(); // will trigger a refresh
-                #endif
+                GuiApp::setLightDialogRefreshFlag();
+                GuiApp::setToolbarRefreshFlag(); // will trigger a refresh
                 App::undoRedo_sceneChanged("");
             }
         }
@@ -1096,7 +1092,6 @@ bool CSimulation::processCommand(int commandID)
         return(true);
     }
 
-#ifdef SIM_WITH_GUI
     if (commandID==SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD)
     {
         if (VThread::isUiThread())
@@ -1126,14 +1121,11 @@ bool CSimulation::processCommand(int commandID)
             GuiApp::appendSimulationThreadCommand(cmd);
         }
     }
-#endif
 
     if (commandID==SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD)
     {
         int editMode=NO_EDIT_MODE;
-        #ifdef SIM_WITH_GUI
-            editMode=GuiApp::getEditModeType();
-        #endif
+        editMode=GuiApp::getEditModeType();
         if (editMode==NO_EDIT_MODE)
         {
             if (!VThread::isUiThread())
@@ -1277,8 +1269,6 @@ bool CSimulation::processCommand(int commandID)
         }
         return(true);
     }
-
-#ifdef SIM_WITH_GUI
     if (commandID==TOGGLE_SIMULATION_DLG_CMD)
     {
         if (VThread::isUiThread())
@@ -1288,8 +1278,6 @@ bool CSimulation::processCommand(int commandID)
         }
         return(true);
     }
-#endif
-
     return(false);
 }
 
