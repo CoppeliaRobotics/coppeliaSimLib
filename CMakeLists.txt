@@ -63,6 +63,7 @@ endif()
 add_library(coppeliaSim SHARED "")
 
 set(WITH_GUI true CACHE BOOL "Enable gui")
+set(USES_QGLWIDGET true CACHE BOOL "Use the old QGLWidget instead of QOpenGLWidget")
 
 target_compile_features(coppeliaSim PRIVATE cxx_std_17)
 target_include_directories(coppeliaSim PRIVATE ${LUA_INCLUDE_DIR})
@@ -121,6 +122,10 @@ if(WITH_GUI)
     target_compile_definitions(coppeliaSim PRIVATE QT_DISABLE_DEPRECATED_BEFORE=0)
     find_package(OpenGL REQUIRED)
     find_package(Qt5 COMPONENTS Gui OpenGL REQUIRED)
+endif()
+
+if(USES_QGLWIDGET)
+    target_compile_definitions(coppeliaSim PRIVATE USES_QGLWIDGET)
 endif()
 
 find_package(Qt5 COMPONENTS Core PrintSupport Network REQUIRED)
