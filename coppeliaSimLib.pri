@@ -4,7 +4,6 @@ DEFINES += SIM_MATH_DOUBLE # math and vector classes
 #DEFINES += TMPOPERATION # <-- remove once we release V4.6 (i.e. V4.5 needs to support both serialization formats). Same for CMakeLists.txt
 #DEFINES += HAS_PHYSX
 
-DEFINES += USES_QT5
 CONFIG += USES_QGLWIDGET
 USES_QGLWIDGET {
     DEFINES += USES_QGLWIDGET

@@ -403,7 +403,7 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
         if (t==4)
         { // mouse wheel events
             QWheelEvent* wEvent=(QWheelEvent*)event;
-#ifdef USES_QT5
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             e.x=wEvent->x();
             e.y=wEvent->y();
 #else
@@ -412,7 +412,7 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
 #endif
             e.ctrlDown=((wEvent->modifiers()&Qt::ControlModifier)!=0);
             e.shiftDown=((wEvent->modifiers()&Qt::ShiftModifier)!=0);
-#ifdef USES_QT5
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             e.wheelDelta=wEvent->delta();
 #else
             e.wheelDelta=wEvent->angleData().y();

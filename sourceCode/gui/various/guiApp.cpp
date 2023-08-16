@@ -13,7 +13,7 @@
     #include <QBitmap>
     #include <QTextStream>
     #include <QScreen>
-    #ifdef USES_QT5
+    #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         #include <QDesktopWidget>
     #endif
     #ifdef WIN_SIM
@@ -85,7 +85,7 @@ void GuiApp::runGui(int options)
         if (scr!=nullptr)
         {
             App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"primary screen physical dots per inch: %s",std::to_string(int(scr->physicalDotsPerInch()+0.5)).c_str());
-            #ifdef USES_QT5
+            #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             QDesktopWidget* dw=qtApp->desktop();
             if (dw!=nullptr)
             #else
@@ -93,7 +93,11 @@ void GuiApp::runGui(int options)
             if (primaryScreen!=nullptr)
             #endif
             {
-                double val=(dw->logicalDpiX()/96.0)*100.0;
+                #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+                    double val=(dw->logicalDpiX()/96.0)*100.0;
+                #else
+                    double val=(primaryScreen->logicalDotsPerInchX()/96.0)*100.0;
+                #endif
                 App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"display scaling (guessed): %s",std::to_string(int(val+0.5)).c_str());
                 #ifndef MAC_SIM
                     if (val>=App::userSettings->guessedDisplayScalingThresholdFor2xOpenGl)
