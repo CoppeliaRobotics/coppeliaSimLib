@@ -315,7 +315,7 @@ bool CPlugin::init(std::string* errStr)
             _loadAuxEntryPoints();
             _stage=stage_siminitdone;
 #ifdef SIM_WITH_GUI
-            if (_initAddress_ui!=nullptr)
+            if ( (GuiApp::mainWindow!=nullptr)&&(_initAddress_ui!=nullptr) ) // will have to be adjusted with the new framework eventually
             {
                 SUIThreadCommand cmdIn;
                 SUIThreadCommand cmdOut;
