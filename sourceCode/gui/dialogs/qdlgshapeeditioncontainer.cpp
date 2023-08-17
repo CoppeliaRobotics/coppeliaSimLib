@@ -64,7 +64,7 @@ CQDlgShapeEditionContainer::~CQDlgShapeEditionContainer()
 
 void CQDlgShapeEditionContainer::cancelEvent()
 {
-    GuiApp::appendSimulationThreadCommand(ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD);
+    App::appendSimulationThreadCommand(ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD);
 //  defaultModalDialogEndRoutine(false);
 }
 
@@ -124,15 +124,15 @@ void CQDlgShapeEditionContainer::refresh()
 
 void CQDlgShapeEditionContainer::on_qqTriangleMode_clicked()
 {   // Following executed by the main simulation thread:
-    GuiApp::appendSimulationThreadCommand(SHAPE_EDIT_MODE_SWAP_TO_TRIANGLE_EDIT_MODE_EMCMD);
+    App::appendSimulationThreadCommand(SHAPE_EDIT_MODE_SWAP_TO_TRIANGLE_EDIT_MODE_EMCMD);
 }
 
 void CQDlgShapeEditionContainer::on_qqVertexMode_clicked()
 {   // Following executed by the main simulation thread:
-    GuiApp::appendSimulationThreadCommand(SHAPE_EDIT_MODE_SWAP_TO_VERTEX_EDIT_MODE_EMCMD);
+    App::appendSimulationThreadCommand(SHAPE_EDIT_MODE_SWAP_TO_VERTEX_EDIT_MODE_EMCMD);
 }
 
 void CQDlgShapeEditionContainer::on_qqEdgeMode_clicked()
 {   // Following executed by the main simulation thread:
-    GuiApp::appendSimulationThreadCommand(SHAPE_EDIT_MODE_SWAP_TO_EDGE_EDIT_MODE_EMCMD);
+    App::appendSimulationThreadCommand(SHAPE_EDIT_MODE_SWAP_TO_EDGE_EDIT_MODE_EMCMD);
 }

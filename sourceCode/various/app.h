@@ -4,6 +4,7 @@
 #include <userSettings.h>
 #include <worldContainer.h>
 #include <sigHandler.h>
+#include <simThread.h>
 #include <gm.h>
 
 class App
@@ -70,6 +71,11 @@ public:
     static int getAppStage();
     static void setAppStage(int s);
 
+    #ifdef SIM_WITH_GUI
+        static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,double floatP1=0.0,double floatP2=0.0,const char* stringP1=nullptr,const char* stringP2=nullptr,int executionDelay=0);
+        static void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
+    #endif
+
     static void undoRedo_sceneChanged(const char* txt);
     static void undoRedo_sceneChangedGradual(const char* txt);
 
@@ -77,6 +83,7 @@ public:
     static CUserSettings* userSettings;
     static CWorldContainer* worldContainer;
     static CWorld* currentWorld; // actually worldContainer->currentWorld
+    static CSimThread* simThread;
     static CGm* gm;
 
 private:

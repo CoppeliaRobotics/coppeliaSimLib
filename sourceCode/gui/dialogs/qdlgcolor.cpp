@@ -221,8 +221,8 @@ void CQDlgColor::on_qqRedValue_editingFinished()
                 cmd.doubleParams.push_back(redState);
                 cmd.doubleParams.push_back(greenState);
                 cmd.doubleParams.push_back(blueState);
-                GuiApp::appendSimulationThreadCommand(cmd);
-                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                App::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
         }
         refresh();
@@ -254,8 +254,8 @@ void CQDlgColor::on_qqGreenValue_editingFinished()
                 cmd.doubleParams.push_back(redState);
                 cmd.doubleParams.push_back(greenState);
                 cmd.doubleParams.push_back(blueState);
-                GuiApp::appendSimulationThreadCommand(cmd);
-                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                App::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
         }
         refresh();
@@ -287,8 +287,8 @@ void CQDlgColor::on_qqBlueValue_editingFinished()
                 cmd.doubleParams.push_back(redState);
                 cmd.doubleParams.push_back(greenState);
                 cmd.doubleParams.push_back(blueState);
-                GuiApp::appendSimulationThreadCommand(cmd);
-                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                App::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
         }
         refresh();
@@ -320,8 +320,8 @@ void CQDlgColor::on_qqHueValue_editingFinished()
                 cmd.doubleParams.push_back(redState);
                 cmd.doubleParams.push_back(greenState);
                 cmd.doubleParams.push_back(blueState);
-                GuiApp::appendSimulationThreadCommand(cmd);
-                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                App::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
         }
         refresh();
@@ -353,8 +353,8 @@ void CQDlgColor::on_qqSaturationValue_editingFinished()
                 cmd.doubleParams.push_back(redState);
                 cmd.doubleParams.push_back(greenState);
                 cmd.doubleParams.push_back(blueState);
-                GuiApp::appendSimulationThreadCommand(cmd);
-                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                App::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
         }
         refresh();
@@ -386,8 +386,8 @@ void CQDlgColor::on_qqLuminosityValue_editingFinished()
                 cmd.doubleParams.push_back(redState);
                 cmd.doubleParams.push_back(greenState);
                 cmd.doubleParams.push_back(blueState);
-                GuiApp::appendSimulationThreadCommand(cmd);
-                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                App::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
         }
         refresh();
@@ -414,7 +414,7 @@ void CQDlgColor::on_qqRedSlider_sliderMoved(int position)
             cmd.doubleParams.push_back(redState);
             cmd.doubleParams.push_back(greenState);
             cmd.doubleParams.push_back(blueState);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         refresh();
     }
@@ -440,7 +440,7 @@ void CQDlgColor::on_qqGreenSlider_sliderMoved(int position)
             cmd.doubleParams.push_back(redState);
             cmd.doubleParams.push_back(greenState);
             cmd.doubleParams.push_back(blueState);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         refresh();
     }
@@ -466,7 +466,7 @@ void CQDlgColor::on_qqBlueSlider_sliderMoved(int position)
             cmd.doubleParams.push_back(redState);
             cmd.doubleParams.push_back(greenState);
             cmd.doubleParams.push_back(blueState);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         refresh();
     }
@@ -492,7 +492,7 @@ void CQDlgColor::on_qqHueSlider_sliderMoved(int position)
             cmd.doubleParams.push_back(redState);
             cmd.doubleParams.push_back(greenState);
             cmd.doubleParams.push_back(blueState);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         refresh();
     }
@@ -518,7 +518,7 @@ void CQDlgColor::on_qqSaturationSlider_sliderMoved(int position)
             cmd.doubleParams.push_back(redState);
             cmd.doubleParams.push_back(greenState);
             cmd.doubleParams.push_back(blueState);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         refresh();
     }
@@ -544,7 +544,7 @@ void CQDlgColor::on_qqLuminositySlider_sliderMoved(int position)
             cmd.doubleParams.push_back(redState);
             cmd.doubleParams.push_back(greenState);
             cmd.doubleParams.push_back(blueState);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         refresh();
     }
@@ -554,35 +554,35 @@ void CQDlgColor::on_qqLuminositySlider_sliderMoved(int position)
 void CQDlgColor::on_qqRedSlider_sliderReleased()
 {
     if (!isModal())
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
 }
 
 void CQDlgColor::on_qqGreenSlider_sliderReleased()
 {
     if (!isModal())
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
 }
 
 void CQDlgColor::on_qqBlueSlider_sliderReleased()
 {
     if (!isModal())
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
 }
 
 void CQDlgColor::on_qqHueSlider_sliderReleased()
 {
     if (!isModal())
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
 }
 
 void CQDlgColor::on_qqSaturationSlider_sliderReleased()
 {
     if (!isModal())
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
 }
 
 void CQDlgColor::on_qqLuminositySlider_sliderReleased()
 {
     if (!isModal())
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
 }

@@ -302,8 +302,8 @@ void CViewSelector::leftMouseButtonUp(int x,int y)
             cmd.intParams.push_back(viewIndex);
             cmd.intParams.push_back(subViewIndex);
             cmd.boolParams.push_back(viewSelectionBufferType[bufferInd1]==0);
-            GuiApp::appendSimulationThreadCommand(cmd);
-            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             GuiApp::mainWindow->oglSurface->setViewSelectionActive(false);
         }
     }
@@ -375,7 +375,7 @@ bool CViewSelector::processCommand(int commandID,int subViewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(subViewIndex);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }

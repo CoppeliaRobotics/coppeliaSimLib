@@ -51,7 +51,7 @@ void CQDlgVertexEdit::on_qqInsertTriangles_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         GuiApp::mainWindow->editModeContainer->getShapeEditMode()->insertTriangles();
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -60,7 +60,7 @@ void CQDlgVertexEdit::on_qqInsertFan_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         GuiApp::mainWindow->editModeContainer->getShapeEditMode()->insertTriangleFan();
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -69,7 +69,7 @@ void CQDlgVertexEdit::on_qqMakeDummies_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         GuiApp::mainWindow->editModeContainer->getShapeEditMode()->makeDummies();
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -78,7 +78,7 @@ void CQDlgVertexEdit::on_qqClearSelection_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         GuiApp::mainWindow->editModeContainer->deselectEditModeBuffer();
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -88,6 +88,6 @@ void CQDlgVertexEdit::on_qqInvertSelection_clicked()
     {
         for (int i=0;i<GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVerticesSize()/3;i++)
             GuiApp::mainWindow->editModeContainer->getShapeEditMode()->xorAddItemToEditModeBuffer(i,true);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

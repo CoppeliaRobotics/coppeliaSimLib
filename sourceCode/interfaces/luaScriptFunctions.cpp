@@ -13417,14 +13417,14 @@ int _simAuxFunc(luaWrap_lua_State* L)
         if (cmd.compare("enableRendering")==0)
         {
             #ifdef SIM_WITH_GUI
-                GuiApp::simThread->setRenderingAllowed(true);
+                App::simThread->setRenderingAllowed(true);
             #endif
             LUA_END(0);
         }
         if (cmd.compare("disableRendering")==0)
         {
             #ifdef SIM_WITH_GUI
-                GuiApp::simThread->setRenderingAllowed(false);
+                App::simThread->setRenderingAllowed(false);
             #endif
             LUA_END(0);
         }

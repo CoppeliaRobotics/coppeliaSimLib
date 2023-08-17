@@ -1711,7 +1711,7 @@ void CShapeEditMode::makeShape()
         cmd.doubleVectorParams.push_back(nVertices);
         cmd.doubleVectorParams.push_back(nNormals);
         cmd.floatVectorParams.push_back(nTexCoords);
-        GuiApp::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(cmd);
     }
 }
 
@@ -1743,7 +1743,7 @@ void CShapeEditMode::makePrimitive(int what)
         cmd.intParams.push_back(what);
         cmd.intVectorParams.push_back(nIndices);
         cmd.doubleVectorParams.push_back(nVertices);
-        GuiApp::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(cmd);
     }
 }
 
@@ -1822,7 +1822,7 @@ void CShapeEditMode::makeDummies()
 //            cmd.stringParams.push_back("ExtractedDummy");
 //            cmd.floatParams.push_back(0.01);
 //            cmd.transfParams.push_back(v);
-//            GuiApp::appendSimulationThreadCommand(cmd);
+//            App::appendSimulationThreadCommand(cmd);
         }
         editModeBuffer.clear();
 

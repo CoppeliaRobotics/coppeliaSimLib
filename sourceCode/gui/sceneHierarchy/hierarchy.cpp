@@ -771,7 +771,7 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
             SSimulationThreadCommand cmd;
             cmd.cmdId=TOGGLE_EXPAND_COLLAPSE_HIERARCHY_OBJECT_CMD;
             cmd.intParams.push_back(it->getObjectHandle());
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
             shiftingAllowed=false;
             canSelect=false;
         }
@@ -878,7 +878,7 @@ void CHierarchy::leftMouseUp(int x,int y)
                 cmd.cmdId=MAKE_OBJECT_CHILD_OF_CMD;
                 cmd.intParams.push_back(_mouseDownDragObjectID);
                 cmd.intParams.push_back(objectIDWhereTheMouseCurrentlyIs_minus9999ForNone);
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
     }
@@ -1113,7 +1113,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
             SSimulationThreadCommand cmd;
             cmd.cmdId=OPEN_SCRIPT_EDITOR_CMD;
             cmd.intParams.push_back(it->getScriptHandle());
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1126,7 +1126,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
             SSimulationThreadCommand cmd;
             cmd.cmdId=CALL_USER_CONFIG_CALLBACK_CMD;
             cmd.intParams.push_back(objID);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1165,7 +1165,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=OPEN_MODAL_MODEL_PROPERTIES_CMD;
                 cmd.intParams.push_back(it->getObjectHandle());
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
             return(true);
         }
@@ -1486,7 +1486,7 @@ bool CHierarchy::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1520,7 +1520,7 @@ bool CHierarchy::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1539,7 +1539,7 @@ bool CHierarchy::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }

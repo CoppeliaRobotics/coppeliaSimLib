@@ -45,7 +45,7 @@ bool CToolBarCommand::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -62,7 +62,7 @@ bool CToolBarCommand::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -79,7 +79,7 @@ bool CToolBarCommand::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -96,7 +96,7 @@ bool CToolBarCommand::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -113,7 +113,7 @@ bool CToolBarCommand::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -130,7 +130,7 @@ bool CToolBarCommand::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -150,7 +150,7 @@ bool CToolBarCommand::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -171,7 +171,7 @@ bool CToolBarCommand::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -192,7 +192,7 @@ bool CToolBarCommand::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -212,7 +212,7 @@ bool CToolBarCommand::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -231,7 +231,7 @@ bool CToolBarCommand::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -261,7 +261,7 @@ bool CToolBarCommand::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }

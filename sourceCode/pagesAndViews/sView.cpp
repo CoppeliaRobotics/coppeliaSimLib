@@ -651,7 +651,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(subViewIndex);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -671,7 +671,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(subViewIndex);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -691,7 +691,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(subViewIndex);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -711,7 +711,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(subViewIndex);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -731,7 +731,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(subViewIndex);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -756,7 +756,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(subViewIndex);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -781,7 +781,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(subViewIndex);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -806,7 +806,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(subViewIndex);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -830,7 +830,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(subViewIndex);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -851,7 +851,7 @@ bool CSView::processCommand(int commandID,int subViewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(subViewIndex);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1143,7 +1143,7 @@ void CSView::_handleClickRayIntersection_old(int x,int y,bool mouseDown)
     cmd.doubleParams.push_back(cam->getNearClippingPlane());
     cmd.intParams.push_back(cam->getObjectHandle());
     cmd.transfParams.push_back(tr);
-    GuiApp::appendSimulationThreadCommand(cmd);
+    App::appendSimulationThreadCommand(cmd);
 }
 
 int CSView::getCursor(int x,int y) const

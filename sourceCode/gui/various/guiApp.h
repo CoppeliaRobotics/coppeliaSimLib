@@ -2,7 +2,6 @@
 #include <simQApp.h>
 #include <simAndUiThreadSync.h>
 #include <mainWindow.h>
-#include <simThread.h>
 #include <simAndUiThreadSync.h>
 
 #pragma once
@@ -37,9 +36,6 @@ public:
     static bool executeUiThreadCommand(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
     static void logMsgToStatusbar(const char* msg,bool html);
 
-    static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,double floatP1=0.0,double floatP2=0.0,const char* stringP1=nullptr,const char* stringP2=nullptr,int executionDelay=0);
-    static void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
-
     static void clearStatusbar();
     static float* getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle);
     static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
@@ -56,7 +52,6 @@ public:
 
 
     static CSimQApp* qtApp;
-    static CSimThread* simThread;
     static CUiThread* uiThread;
 
     static int operationalUIParts;

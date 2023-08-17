@@ -98,7 +98,7 @@ void CQDlgEdgeEdit::on_qqMakePath_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         GuiApp::mainWindow->editModeContainer->getShapeEditMode()->makePath();
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -107,7 +107,7 @@ void CQDlgEdgeEdit::on_qqClearSelection_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         GuiApp::mainWindow->editModeContainer->getShapeEditMode()->deselectEditModeBuffer();
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -117,6 +117,6 @@ void CQDlgEdgeEdit::on_qqInvertSelection_clicked()
     {
         for (int i=0;i<GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionEdgesSize()/2;i++)
             GuiApp::mainWindow->editModeContainer->getShapeEditMode()->xorAddItemToEditModeBuffer(i,true);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

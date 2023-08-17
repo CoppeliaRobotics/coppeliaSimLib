@@ -1,44 +1,43 @@
 #include <simThread.h>
-#include <vThread.h>
-#include <app.h>
-#include <fileOperations.h>
-#include <simStringTable.h>
-#include <tt.h>
-#include <vDateTime.h>
-#include <proxSensorRoutine.h>
-#include <sceneObjectOperations.h>
-#include <fileOperations.h>
-#include <addOperations.h>
-#include <utils.h>
-#include <vVarious.h>
-#include <mesh.h>
-#include <threadPool_old.h>
-#include <graphingRoutines_old.h>
-#include <simStringTable_openGl.h>
-#include <simFlavor.h>
-#include <toolBarCommand.h>
-#include <vMessageBox.h>
-#include <engineProperties.h>
-#include <guiApp.h>
+
+#ifdef SIM_WITH_GUI
+    #include <vThread.h>
+    #include <app.h>
+    #include <fileOperations.h>
+    #include <simStringTable.h>
+    #include <tt.h>
+    #include <vDateTime.h>
+    #include <proxSensorRoutine.h>
+    #include <sceneObjectOperations.h>
+    #include <fileOperations.h>
+    #include <addOperations.h>
+    #include <utils.h>
+    #include <vVarious.h>
+    #include <mesh.h>
+    #include <threadPool_old.h>
+    #include <graphingRoutines_old.h>
+    #include <simStringTable_openGl.h>
+    #include <simFlavor.h>
+    #include <toolBarCommand.h>
+    #include <vMessageBox.h>
+    #include <engineProperties.h>
+    #include <guiApp.h>
+#endif
 
 CSimThread::CSimThread()
 {
-    _renderingAllowed=true;
+    #ifdef SIM_WITH_GUI
+        _renderingAllowed=true;
+    #endif
 }
 
 CSimThread::~CSimThread()
 {
 }
 
-void CSimThread::setRenderingAllowed(bool a)
-{
-    _renderingAllowed=a;
-}
-
 void CSimThread::executeMessages()
 {
-    TRACE_INTERNAL;
-
+#ifdef SIM_WITH_GUI
     int triggerType=_prepareSceneForRenderIfNeeded();
     CSimAndUiThreadSync::simThread_allowUiThreadToWrite();
     if ((triggerType>0)&&_renderingAllowed)
@@ -57,6 +56,15 @@ void CSimThread::executeMessages()
     }
 
     _handleSimulationThreadCommands(); // Handle delayed SIM commands
+#else
+    _eventLoop.processEvents();
+#endif
+}
+
+#ifdef SIM_WITH_GUI
+void CSimThread::setRenderingAllowed(bool a)
+{
+    _renderingAllowed=a;
 }
 
 void CSimThread::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay/*=0*/)
@@ -191,23 +199,16 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId==EDU_EXPIRED_CMD)
     {
         App::logMsg(sim_verbosity_errors,cmd.stringParams[0].c_str());
-#ifdef SIM_WITH_GUI
         GuiApp::uiThread->messageBox_informationSystemModal(GuiApp::mainWindow,"New CoppeliaSim Release",cmd.stringParams[0].c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-#endif
         App::postExitRequest();
     }
 
     if (cmd.cmdId==DISPLAY_WARNING_IF_DEBUGGING_CMD)
     {
         if ( (App::getConsoleVerbosity()>=sim_verbosity_trace)&&(!App::userSettings->suppressStartupDialogs) )
-        {
-#ifdef SIM_WITH_GUI
             GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,"Tracing","Tracing is turned on: this might lead to drastic performance loss.",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-#endif
-        }
     }
 
-#ifdef SIM_WITH_GUI
     if (cmd.cmdId==PLUS_CVU_CMD)
     {
         SUIThreadCommand cmdIn;
@@ -505,7 +506,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if ( (!App::currentWorld->simulation->isSimulationStopped())&&(!GuiApp::isFullScreen())&&(GuiApp::mainWindow!=nullptr) )
             {
                 App::currentWorld->dynamicsContainer->displayWarningsIfNeeded();
-                GuiApp::appendSimulationThreadCommand(cmd,500);
+                App::appendSimulationThreadCommand(cmd,500);
             }
         }
 
@@ -653,7 +654,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             cmd2.intParams.push_back(COLLECTION_DLG);
             cmd2.intParams.push_back(0);
             cmd2.intParams.push_back(newGroup->getCollectionHandle());
-            GuiApp::appendSimulationThreadCommand(cmd2);
+            App::appendSimulationThreadCommand(cmd2);
         }
         if (cmd.cmdId==TOGGLE_OVERRIDE_COLLECTIONGUITRIGGEREDCMD)
         {
@@ -910,7 +911,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             cmd2.intParams.push_back(COLLISION_DLG);
             cmd2.intParams.push_back(0);
             cmd2.intParams.push_back(h);
-            GuiApp::appendSimulationThreadCommand(cmd2);
+            App::appendSimulationThreadCommand(cmd2);
         }
         if (cmd.cmdId==SET_OBJECTNAME_COLLISIONGUITRIGGEREDCMD)
         {
@@ -969,7 +970,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             cmd2.intParams.push_back(DISTANCE_DLG);
             cmd2.intParams.push_back(0);
             cmd2.intParams.push_back(h);
-            GuiApp::appendSimulationThreadCommand(cmd2);
+            App::appendSimulationThreadCommand(cmd2);
         }
         if (cmd.cmdId==SET_OBJECTNAME_DISTANCEGUITRIGGEREDCMD)
         {
@@ -3290,7 +3291,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 cmd2.intParams.push_back(GRAPH_DLG);
                 cmd2.intParams.push_back(0);
                 cmd2.intParams.push_back(h);
-                GuiApp::appendSimulationThreadCommand(cmd2);
+                App::appendSimulationThreadCommand(cmd2);
             }
         }
         if (cmd.cmdId==REMOVE_DATASTREAM_GRAPHGUITRIGGEREDCMD)
@@ -3566,7 +3567,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 cmd2.intParams.push_back(GRAPH2DAND3DCURVES_DLG);
                 cmd2.intParams.push_back(0);
                 cmd2.intParams.push_back(theNew->getIdentifier());
-                GuiApp::appendSimulationThreadCommand(cmd2);
+                App::appendSimulationThreadCommand(cmd2);
             }
         }
 
@@ -3908,7 +3909,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         cmd2.intParams.push_back(IKELEMENT_DLG);
                         cmd2.intParams.push_back(0);
                         cmd2.intParams.push_back(newIkEl->getObjectHandle());
-                        GuiApp::appendSimulationThreadCommand(cmd2);
+                        App::appendSimulationThreadCommand(cmd2);
                     }
                 }
             }
@@ -4019,9 +4020,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             cmd2.intParams.push_back(IK_DLG);
             cmd2.intParams.push_back(0);
             cmd2.intParams.push_back(newGroup->getObjectHandle());
-            GuiApp::appendSimulationThreadCommand(cmd2);
+            App::appendSimulationThreadCommand(cmd2);
             // Following second refresh is needed so that the up/down buttons become enabled:
-            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
         if (cmd.cmdId==RENAME_IKGROUP_IKGROUPGUITRIGGEREDCMD)
         {
@@ -4041,7 +4042,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 cmd2.intParams.push_back(IK_DLG);
                 cmd2.intParams.push_back(0);
                 cmd2.intParams.push_back(it->getObjectHandle());
-                GuiApp::appendSimulationThreadCommand(cmd2);
+                App::appendSimulationThreadCommand(cmd2);
             }
         }
         if (cmd.cmdId==TOGGLE_EXPLICITHANDLING_IKGROUPGUITRIGGEREDCMD)
@@ -4414,7 +4415,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId==MEMORIZE_UNDO_STATE_IF_NEEDED_CMD)
     {
         App::currentWorld->undoBufferContainer->memorizeStateIfNeeded();
-        GuiApp::appendSimulationThreadCommand(cmd,200);
+        App::appendSimulationThreadCommand(cmd,200);
     }
 
     if (cmd.cmdId==CHKLICM_CMD)
@@ -4426,13 +4427,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 App::logMsg(sim_verbosity_errors,v.c_str());
             else
             {
-    #ifdef SIM_WITH_GUI
                 App::logMsg(sim_verbosity_errors,v.c_str());
                 GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,CSimFlavor::getStringVal(20).c_str(),v.c_str(),VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-    #endif
             }
         }
-        GuiApp::appendSimulationThreadCommand(cmd,CSimFlavor::getIntVal(4));
+        App::appendSimulationThreadCommand(cmd,CSimFlavor::getIntVal(4));
     }
 
     if (cmd.cmdId==REFRESH_DIALOGS_CMD)
@@ -4447,10 +4446,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         appendSimulationThreadCommand(cmd,300);
     }
-#endif
 }
 
-#ifdef SIM_WITH_GUI
 void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
 {
     double nearClipp=cmd.doubleParams[0];
@@ -4522,7 +4519,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
         { // Here we maybe need to load auto-saved scenes:
             // First post the next command in the sequence:
             cmd.intParams[0]=1;
-            GuiApp::appendSimulationThreadCommand(cmd,1000);
+            App::appendSimulationThreadCommand(cmd,1000);
             CPersistentDataContainer cont;
             std::string val;
             cont.readData("SIMSETTINGS_SIM_CRASHED",val);
@@ -4577,14 +4574,14 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
         { // Set the TAG: CoppeliaSim started normally
             // First post the auto-save command:
             cmd.intParams[0]=2;
-            GuiApp::appendSimulationThreadCommand(cmd,1000);
+            App::appendSimulationThreadCommand(cmd,1000);
             CPersistentDataContainer cont;
             cont.writeData("SIMSETTINGS_SIM_CRASHED","Yes",!App::userSettings->doNotWritePersistentData);
         }
         else if (cmd.intParams[0]==2)
         {
             // First repost a same command:
-            GuiApp::appendSimulationThreadCommand(cmd,1000);
+            App::appendSimulationThreadCommand(cmd,1000);
             if ( CSimFlavor::getBoolVal(16)&&(App::userSettings->autoSaveDelay>0)&&(!App::currentWorld->environment->getSceneLocked()) )
             {
                 if (VDateTime::getSecondsSince1970()>(App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970+App::userSettings->autoSaveDelay*60))
@@ -4603,7 +4600,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
         }
     }
     else
-        GuiApp::appendSimulationThreadCommand(cmd,1000); // repost the same message a bit later
+        App::appendSimulationThreadCommand(cmd,1000); // repost the same message a bit later
 }
 
 int CSimThread::_prepareSceneForRenderIfNeeded()
@@ -4647,5 +4644,4 @@ int CSimThread::_prepareSceneForRenderIfNeeded()
     }
     return(0); // we do not want to render
 }
-
 #endif

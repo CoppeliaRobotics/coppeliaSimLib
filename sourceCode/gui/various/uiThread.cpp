@@ -302,7 +302,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             unsigned char* img=(unsigned char*)dlg.thumbnail.getPointerToUncompressedImage();
             for (size_t i=0;i<128*128*4;i++)
                 cmd.uint8Params.push_back(img[i]);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
             cmdOut->boolParams.push_back(false);
             cmdOut->boolParams.push_back(!dlg.thumbnailIsFromFile);
         }
@@ -344,7 +344,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
                 cmd.stringParams.push_back(sp->userParamEntries[i].unit);
                 cmd.stringParams.push_back(sp->userParamEntries[i].value);
             }
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
     }
     if ( (!GuiApp::isFullScreen())&&(GuiApp::mainWindow!=nullptr)&&(cmdIn->cmdId==OPEN_MODAL_MODEL_PROPERTIES_UITHREADCMD) )
@@ -557,7 +557,7 @@ void CUiThread::requestSceneRender_wait()
         while (_frameId!=_lastFrameId)
         {
             VThread::sleep(1);
-            // GuiApp::simThread->executeMessages();
+            // App::simThread->executeMessages();
         }
         _lastFrameId=_frameId;
     }

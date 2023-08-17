@@ -123,7 +123,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -211,7 +211,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -244,7 +244,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -270,7 +270,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -331,7 +331,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -432,7 +432,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -500,7 +500,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -539,7 +539,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -576,7 +576,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -613,7 +613,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -631,7 +631,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -655,7 +655,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -679,7 +679,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -706,7 +706,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -742,7 +742,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -768,7 +768,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -802,7 +802,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -845,7 +845,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -885,7 +885,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -905,7 +905,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -925,7 +925,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -945,7 +945,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -964,7 +964,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -983,7 +983,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);
@@ -1003,7 +1003,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=commandID;
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
         return(true);

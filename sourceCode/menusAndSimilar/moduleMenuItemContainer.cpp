@@ -100,7 +100,7 @@ bool CModuleMenuItemContainer::processCommand(int commandID)
             cmd.cmdId=CALL_MODULE_ENTRY_CMD;
             cmd.intParams.push_back(it->getScriptHandle());
             cmd.intParams.push_back(commandID);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
             return(true);
         }
     }

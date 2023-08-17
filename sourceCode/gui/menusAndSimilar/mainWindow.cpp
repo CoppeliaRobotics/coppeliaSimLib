@@ -136,7 +136,7 @@ CMainWindow::CMainWindow() : QMainWindow()
             cmd.intParams.push_back(sim_msgbox_type_warning);
             cmd.stringParams.push_back("Model folder not found");
             cmd.stringParams.push_back(IDSNS_MAC_FILE_ATTRIBUTE_PROBLEM);
-            GuiApp::appendSimulationThreadCommand(cmd,5000);
+            App::appendSimulationThreadCommand(cmd,5000);
         }
     #endif
 
@@ -1243,7 +1243,7 @@ void CMainWindow::dragEnterEvent(QDragEnterEvent* dEvent)
         SSimulationThreadCommand cmd;
         cmd.cmdId=DRAGENTER_GUITRIGGEREDCMD;
         cmd.stringParams.push_back(_mimeText);
-        GuiApp::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(cmd);
         dEvent->acceptProposedAction();
     }
 /*
@@ -1288,7 +1288,7 @@ void CMainWindow::dragLeaveEvent(QDragLeaveEvent* dEvent)
         SSimulationThreadCommand cmd;
         cmd.cmdId=DRAGLEAVE_GUITRIGGEREDCMD;
         cmd.stringParams.push_back(_mimeText);
-        GuiApp::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(cmd);
         _mimeText.clear();
     }
 }
@@ -1300,7 +1300,7 @@ void CMainWindow::dropEvent(QDropEvent* dEvent)
         SSimulationThreadCommand cmd;
         cmd.cmdId=DRAGDROP_GUITRIGGEREDCMD;
         cmd.stringParams.push_back(_mimeText);
-        GuiApp::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(cmd);
         _mimeText.clear();
     }
 }
