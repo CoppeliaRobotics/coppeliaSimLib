@@ -74,17 +74,17 @@ void CQDlgEnvironment::on_qqSaveCalcStruct_clicked()
     {
         if (!App::currentWorld->environment->getSaveExistingCalculationStructures())
             GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_CALCULATION_STRUCTURE,IDS_SAVING_CALCULATION_STRUCTURE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-        App::appendSimulationThreadCommand(TOGGLE_SAVECALCSTRUCT_ENVIRONMENTGUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(TOGGLE_SAVECALCSTRUCT_ENVIRONMENTGUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
 void CQDlgEnvironment::on_qqShapeTexturesDisabled_clicked()
 {
-    App::appendSimulationThreadCommand(TOGGLE_SHAPETEXTURES_ENVIRONMENTGUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    GuiApp::appendSimulationThreadCommand(TOGGLE_SHAPETEXTURES_ENVIRONMENTGUITRIGGEREDCMD);
+    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgEnvironment::on_qqNextSaveIsDefinitive_clicked()
@@ -93,9 +93,9 @@ void CQDlgEnvironment::on_qqNextSaveIsDefinitive_clicked()
     {
         if (!App::currentWorld->environment->getRequestFinalSave())
             GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_SCENE_LOCKING,IDS_SCENE_LOCKING_INFO,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-        App::appendSimulationThreadCommand(TOGGLE_LOCKSCENE_ENVIRONMENTGUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(TOGGLE_LOCKSCENE_ENVIRONMENTGUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -104,6 +104,6 @@ void CQDlgEnvironment::on_qqAcknowledgments_textChanged()
     std::string txt=ui->qqAcknowledgments->toPlainText().toStdString();
     tt::removeSpacesAndEmptyLinesAtBeginningAndEnd(txt);
     // No refresh here!! (otherwise we can't edit the item properly)
-    App::appendSimulationThreadCommand(SET_ACKNOWLEDGMENT_ENVIRONMENTGUITRIGGEREDCMD,-1,-1,0.0,0.0,txt.c_str());
+    GuiApp::appendSimulationThreadCommand(SET_ACKNOWLEDGMENT_ENVIRONMENTGUITRIGGEREDCMD,-1,-1,0.0,0.0,txt.c_str());
 }
 

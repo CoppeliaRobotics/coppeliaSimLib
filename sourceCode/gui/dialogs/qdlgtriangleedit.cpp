@@ -73,7 +73,7 @@ void CQDlgTriangleEdit::on_qqFlip_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         GuiApp::mainWindow->editModeContainer->getShapeEditMode()->flipTriangles();
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -82,7 +82,7 @@ void CQDlgTriangleEdit::on_qqSubdivide_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         GuiApp::mainWindow->editModeContainer->getShapeEditMode()->subdivideTriangles();
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -91,7 +91,7 @@ void CQDlgTriangleEdit::on_qqClearSelection_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         GuiApp::mainWindow->editModeContainer->deselectEditModeBuffer();
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -101,6 +101,6 @@ void CQDlgTriangleEdit::on_qqInvertSelection_clicked()
     {
         for (int i=0;i<GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()/3;i++)
             GuiApp::mainWindow->editModeContainer->getShapeEditMode()->xorAddItemToEditModeBuffer(i,true);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

@@ -223,9 +223,9 @@ void CQDlgCollections::on_qqNewCollection_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        App::appendSimulationThreadCommand(NEW_COLLECTION_COLLECTIONGUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(NEW_COLLECTION_COLLECTIONGUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -236,9 +236,9 @@ void CQDlgCollections::on_qqOverride_clicked()
         int grpID=getSelectedGroupID();
         if (grpID!=-1)
         {
-            App::appendSimulationThreadCommand(TOGGLE_OVERRIDE_COLLECTIONGUITRIGGEREDCMD,grpID);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(TOGGLE_OVERRIDE_COLLECTIONGUITRIGGEREDCMD,grpID);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -261,9 +261,9 @@ void CQDlgCollections::onDeletePressed()
             int grpID=getSelectedGroupID();
             if (grpID!=-1)
             {
-                App::appendSimulationThreadCommand(REMOVE_COLLECTION_COLLECTIONGUITRIGGEREDCMD,grpID);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-                App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(REMOVE_COLLECTION_COLLECTIONGUITRIGGEREDCMD,grpID);
+                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
             }
         }
         if (focusWidget()==ui->qqElementList)
@@ -283,9 +283,9 @@ void CQDlgCollections::onDeletePressed()
                         QListWidgetItem* it=sel.at(i);
                         cmd.intParams.push_back(it->data(Qt::UserRole).toInt());
                     }
-                    App::appendSimulationThreadCommand(cmd);
-                    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-                    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+                    GuiApp::appendSimulationThreadCommand(cmd);
+                    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
                 }
             }
         }
@@ -303,7 +303,7 @@ void CQDlgCollections::on_qqVisualizeCollection_clicked()
         cmd.cmdId=SET_OBJECT_SELECTION_GUITRIGGEREDCMD;
         for (size_t i=0;i<coll->getSceneObjectCountInCollection();i++)
             cmd.intParams.push_back(coll->getSceneObjectHandleFromIndex(i));
-        App::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
     }
 }
 
@@ -322,12 +322,12 @@ void CQDlgCollections::on_qqCollectionList_itemChanged(QListWidgetItem *item)
                     tt::removeIllegalCharacters(newName,true);
                     if (App::currentWorld->collections->getObjectFromName(newName.c_str())==nullptr)
                     {
-                        App::appendSimulationThreadCommand(RENAME_COLLECTION_COLLECTIONGUITRIGGEREDCMD,it->getCollectionHandle(),-1,0.0,0.0,newName.c_str());
-                        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                        GuiApp::appendSimulationThreadCommand(RENAME_COLLECTION_COLLECTIONGUITRIGGEREDCMD,it->getCollectionHandle(),-1,0.0,0.0,newName.c_str());
+                        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                     }
                 }
             }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -420,8 +420,8 @@ void CQDlgCollections::doTheOperation(int opType,bool additive)
                 {
                     if (it->getSceneObjectCountInCollection()==0)
                     { // "Everything"-tag can only be added to an empty collection (first position)
-                        App::appendSimulationThreadCommand(ADD_COLLECTION_ITEM_EVERYTHING_COLLECTIONGUITRIGGEREDCMD,it->getCollectionHandle());
-                        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                        GuiApp::appendSimulationThreadCommand(ADD_COLLECTION_ITEM_EVERYTHING_COLLECTIONGUITRIGGEREDCMD,it->getCollectionHandle());
+                        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                     }
                 }
                 if (opType==1)
@@ -432,8 +432,8 @@ void CQDlgCollections::doTheOperation(int opType,bool additive)
                     for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount();i++)
                         cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
                     cmd.boolParams.push_back(additive);
-                    App::appendSimulationThreadCommand(cmd);
-                    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                    GuiApp::appendSimulationThreadCommand(cmd);
+                    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                 }
                 if (opType==2)
                 {
@@ -446,8 +446,8 @@ void CQDlgCollections::doTheOperation(int opType,bool additive)
                     cmd.intParams.push_back(lastSel->getObjectHandle());
                     cmd.boolParams.push_back(additive);
                     cmd.boolParams.push_back(baseInclusive);
-                    App::appendSimulationThreadCommand(cmd);
-                    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                    GuiApp::appendSimulationThreadCommand(cmd);
+                    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                 }
                 if (opType==3)
                 {
@@ -460,11 +460,11 @@ void CQDlgCollections::doTheOperation(int opType,bool additive)
                     cmd.intParams.push_back(lastSel->getObjectHandle());
                     cmd.boolParams.push_back(additive);
                     cmd.boolParams.push_back(tipInclusive);
-                    App::appendSimulationThreadCommand(cmd);
-                    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                    GuiApp::appendSimulationThreadCommand(cmd);
+                    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                 }
             }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 

@@ -111,9 +111,9 @@ void CQDlgDistances::on_qqAddNewObject_clicked()
         theDialog.initialize(1);
         if (theDialog.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL)
         {
-            App::appendSimulationThreadCommand(ADD_NEW_DISTANCEGUITRIGGEREDCMD,theDialog.entity1,theDialog.entity2);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(ADD_NEW_DISTANCEGUITRIGGEREDCMD,theDialog.entity1,theDialog.entity2);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -173,12 +173,12 @@ void CQDlgDistances::on_qqDistanceList_itemChanged(QListWidgetItem *item)
                     tt::removeIllegalCharacters(newName,true);
                     if (App::currentWorld->distances->getObjectFromName(newName.c_str())==nullptr)
                     {
-                        App::appendSimulationThreadCommand(SET_OBJECTNAME_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle(),-1,0.0,0.0,newName.c_str());
-                        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                        GuiApp::appendSimulationThreadCommand(SET_OBJECTNAME_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle(),-1,0.0,0.0,newName.c_str());
+                        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                     }
                 }
             }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -192,9 +192,9 @@ void CQDlgDistances::onDeletePressed()
             int objID=getSelectedObjectID();
             if (objID!=-1)
             {
-                App::appendSimulationThreadCommand(DELETE_OBJECT_DISTANCEGUITRIGGEREDCMD,objID);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-                App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(DELETE_OBJECT_DISTANCEGUITRIGGEREDCMD,objID);
+                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
             }
         }
     }
@@ -204,9 +204,9 @@ void CQDlgDistances::on_qqEnableAll_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_ENABLE_ALL_DISTANCEGUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(TOGGLE_ENABLE_ALL_DISTANCEGUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -217,10 +217,10 @@ void CQDlgDistances::on_qqExplicitHandling_clicked()
         CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
-            App::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle());
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle());
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -232,10 +232,10 @@ void CQDlgDistances::on_qqUseThreshold_clicked()
         CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
-            App::appendSimulationThreadCommand(TOGGLE_USETHRESHOLD_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle());
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(TOGGLE_USETHRESHOLD_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle());
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -252,10 +252,10 @@ void CQDlgDistances::on_qqThreshold_editingFinished()
             double newVal=ui->qqThreshold->text().toDouble(&ok);
             if (ok)
             {
-                App::appendSimulationThreadCommand(SET_THRESHOLD_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(SET_THRESHOLD_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
+                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -267,10 +267,10 @@ void CQDlgDistances::on_qqDisplaySegment_clicked()
         CDistanceObject_old* it=App::currentWorld->distances->getObjectFromHandle(getSelectedObjectID());
         if (it!=nullptr)
         {
-            App::appendSimulationThreadCommand(TOGGLE_SEGMENTDISPLAY_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle());
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(TOGGLE_SEGMENTDISPLAY_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle());
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -287,10 +287,10 @@ void CQDlgDistances::on_qqSegmentWidth_editingFinished()
             int newVal=ui->qqSegmentWidth->text().toInt(&ok);
             if (ok)
             {
-                App::appendSimulationThreadCommand(SET_SEGMENTWIDTH_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(SET_SEGMENTWIDTH_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
+                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }

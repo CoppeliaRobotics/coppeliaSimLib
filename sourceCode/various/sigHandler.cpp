@@ -172,7 +172,7 @@ bool handleSignal(int signal)
     #ifdef SIM_WITH_GUI
         SSimulationThreadCommand cmd;
         cmd.cmdId=EXIT_REQUEST_CMD;
-        App::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
     #else
         App::postExitRequest();
     #endif

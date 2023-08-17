@@ -29,7 +29,7 @@ void CQDlgMultishapeEdition::cancelEvent()
     // we override this cancel event.
     SSimulationThreadCommand cmd;
     cmd.cmdId=ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD;
-    App::appendSimulationThreadCommand(cmd);
+    GuiApp::appendSimulationThreadCommand(cmd);
 }
 
 void CQDlgMultishapeEdition::refresh()
@@ -70,10 +70,10 @@ void CQDlgMultishapeEdition::on_qqBackfaceCulling_clicked()
         int index=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
         if (shape!=nullptr)
         {
-            App::appendSimulationThreadCommand(TOGGLE_BACKFACECULLING_MULTISHAPEEDITIONGUITRIGGEREDCMD,shape->getObjectHandle(),index);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(TOGGLE_BACKFACECULLING_MULTISHAPEEDITIONGUITRIGGEREDCMD,shape->getObjectHandle(),index);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -87,10 +87,10 @@ void CQDlgMultishapeEdition::on_qqShowEdges_clicked()
         int index=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
         if (shape!=nullptr)
         {
-            App::appendSimulationThreadCommand(TOGGLE_SHOWEDGES_MULTISHAPEEDITIONGUITRIGGEREDCMD,shape->getObjectHandle(),index);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(TOGGLE_SHOWEDGES_MULTISHAPEEDITIONGUITRIGGEREDCMD,shape->getObjectHandle(),index);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -108,10 +108,10 @@ void CQDlgMultishapeEdition::on_qqShadingAngle_editingFinished()
         int index=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
         if ((shape!=nullptr)&&ok)
         {
-            App::appendSimulationThreadCommand(SET_SHADINGANGLE_MULTISHAPEEDITIONGUITRIGGEREDCMD,shape->getObjectHandle(),index,degToRad*newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(SET_SHADINGANGLE_MULTISHAPEEDITIONGUITRIGGEREDCMD,shape->getObjectHandle(),index,degToRad*newVal);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 

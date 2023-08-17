@@ -26,6 +26,7 @@ int GuiApp::_qApp_argc=1;
 char GuiApp::_qApp_arg0[]={"CoppeliaSim"};
 char* GuiApp::_qApp_argv[1]={_qApp_arg0};
 CUiThread* GuiApp::uiThread=nullptr;
+CSimThread* GuiApp::simThread=nullptr;
 int GuiApp::operationalUIParts=0; // sim_gui_menubar,sim_gui_popupmenus,sim_gui_toolbar1,sim_gui_toolbar2, etc.
 bool GuiApp::_browserEnabled=true;
 bool GuiApp::_online=false;
@@ -49,8 +50,8 @@ void GuiApp::runGui(int options)
 {
     while (App::getAppStage()!=App::appstage_simInit1Done)
         VThread::sleep(1);
-    QApplication* dummyApp=new QApplication(_qApp_argc,_qApp_argv);
-    delete dummyApp;
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
+    QApplication* tempApp=new QApplication(_qApp_argc,_qApp_argv);
     uiThread=new CUiThread();
     VThread::setUiThread();
     App::setAppStage(App::appstage_guiInit1Done);
@@ -75,20 +76,19 @@ void GuiApp::runGui(int options)
     operationalUIParts=options;
     if (operationalUIParts&sim_gui_headless)
         operationalUIParts=sim_gui_headless;
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
 
     int highResDisplayDefault=App::userSettings->highResDisplay;
     if (highResDisplayDefault==-1)
     {
-        QScreen* scr=qtApp->primaryScreen();
+        QScreen* scr=tempApp->primaryScreen();
         if (scr!=nullptr)
         {
             App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"primary screen physical dots per inch: %s",std::to_string(int(scr->physicalDotsPerInch()+0.5)).c_str());
             #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-            QDesktopWidget* dw=qtApp->desktop();
+            QDesktopWidget* dw=tempApp->desktop();
             if (dw!=nullptr)
             #else
-            const QScreen *primaryScreen=qtApp->primaryScreen();
+            const QScreen *primaryScreen=tempApp->primaryScreen();
             if (primaryScreen!=nullptr)
             #endif
             {
@@ -105,6 +105,9 @@ void GuiApp::runGui(int options)
             }
         }
     }
+
+    delete tempApp;
+
     if (highResDisplayDefault==1)
     {
         qputenv("QT_SCALE_FACTOR","1.0");
@@ -130,9 +133,6 @@ void GuiApp::runGui(int options)
     }
 
     qtApp=new CSimQApp(_qApp_argc,_qApp_argv);
-
-
-
 
     QHostInfo::lookupHost("www.coppeliarobotics.com",
         [=] (const QHostInfo &info)
@@ -230,11 +230,11 @@ void GuiApp::runGui(int options)
         SSimulationThreadCommand cmd;
         cmd.cmdId=AUTO_SAVE_SCENE_CMD;
         cmd.intParams.push_back(0); // load autosaved scenes, if crashed
-        App::appendSimulationThreadCommand(cmd,2000); // was 1000
+        GuiApp::appendSimulationThreadCommand(cmd,2000); // was 1000
 
         cmd.cmdId=MEMORIZE_UNDO_STATE_IF_NEEDED_CMD;
         cmd.intParams.clear();
-        App::appendSimulationThreadCommand(cmd,2200); // was 200
+        GuiApp::appendSimulationThreadCommand(cmd,2200); // was 200
     }
 
     if (CSimFlavor::getBoolVal(17))
@@ -242,23 +242,23 @@ void GuiApp::runGui(int options)
         SSimulationThreadCommand cmd;
         CSimFlavor::run(4);
         cmd.cmdId=PLUS_CVU_CMD;
-        App::appendSimulationThreadCommand(cmd,1500);
+        GuiApp::appendSimulationThreadCommand(cmd,1500);
         cmd.cmdId=PLUS_HVUD_CMD;
-        App::appendSimulationThreadCommand(cmd,20000);
+        GuiApp::appendSimulationThreadCommand(cmd,20000);
     }
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=REFRESH_DIALOGS_CMD;
-        App::appendSimulationThreadCommand(cmd,1000);
+        GuiApp::appendSimulationThreadCommand(cmd,1000);
         cmd.cmdId=DISPLAY_WARNING_IF_DEBUGGING_CMD;
-        App::appendSimulationThreadCommand(cmd,3000);
+        GuiApp::appendSimulationThreadCommand(cmd,3000);
     }
 
     CSimFlavor::run(7);
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=CHKLICM_CMD;
-        App::appendSimulationThreadCommand(cmd,5000);
+        GuiApp::appendSimulationThreadCommand(cmd,5000);
     }
 
     std::string msg=CSimFlavor::getStringVal(18);
@@ -267,7 +267,7 @@ void GuiApp::runGui(int options)
         SSimulationThreadCommand cmd;
         cmd.cmdId=EDU_EXPIRED_CMD;
         cmd.stringParams.push_back(msg);
-        App::appendSimulationThreadCommand(cmd,3000);
+        GuiApp::appendSimulationThreadCommand(cmd,3000);
     }
 
     App::setAppStage(App::appstage_guiInit2Done);    // now let the SIM thread run freely
@@ -1052,7 +1052,46 @@ CTextureProperty* GuiApp::getTexturePropertyPointerFromItem(int objType,int objI
             }
         }
     }
-
     return(nullptr);
 }
 
+void GuiApp::appendSimulationThreadCommand(int cmdId,int intP1,int intP2,double floatP1,double floatP2,const char* stringP1,const char* stringP2,int executionDelay)
+{ // convenience function. All args have default values except for the first
+    SSimulationThreadCommand cmd;
+    cmd.cmdId=cmdId;
+    cmd.intParams.push_back(intP1);
+    cmd.intParams.push_back(intP2);
+    cmd.doubleParams.push_back(floatP1);
+    cmd.doubleParams.push_back(floatP2);
+    if (stringP1==nullptr)
+        cmd.stringParams.push_back("");
+    else
+        cmd.stringParams.push_back(stringP1);
+    if (stringP2==nullptr)
+        cmd.stringParams.push_back("");
+    else
+        cmd.stringParams.push_back(stringP2);
+    appendSimulationThreadCommand(cmd,executionDelay);
+}
+
+void GuiApp::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay/*=0*/)
+{
+    static std::vector<SSimulationThreadCommand> delayed_cmd;
+    static std::vector<int> delayed_delay;
+    if (simThread!=nullptr)
+    {
+        if (delayed_cmd.size()!=0)
+        {
+            for (unsigned int i=0;i<delayed_cmd.size();i++)
+                simThread->appendSimulationThreadCommand(delayed_cmd[i],delayed_delay[i]);
+            delayed_cmd.clear();
+            delayed_delay.clear();
+        }
+        simThread->appendSimulationThreadCommand(cmd,executionDelay);
+    }
+    else
+    { // can happen during the initialization phase, when the client loads a scene for instance
+        delayed_cmd.push_back(cmd);
+        delayed_delay.push_back(executionDelay);
+    }
+}

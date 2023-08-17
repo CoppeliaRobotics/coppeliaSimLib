@@ -420,6 +420,7 @@ if(WITH_GUI)
         sourceCode/gui/various/simRecorder.cpp
         sourceCode/gui/various/engineProperties.cpp
         sourceCode/gui/various/uiThread.cpp
+        sourceCode/gui/various/simThread.cpp
         sourceCode/gui/various/simAndUiThreadSync.cpp
 
         sourceCode/gui/libs/auxLibVideo.cpp
@@ -611,7 +612,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/various/userSettings.cpp
     sourceCode/various/folderSystem.cpp
     sourceCode/various/app.cpp
-    sourceCode/various/simThread.cpp
     sourceCode/various/dynMaterialObject.cpp
     sourceCode/various/sigHandler.cpp
 

@@ -401,6 +401,6 @@ void CQDlgPathEdit::on_qqMakeDummies_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         GuiApp::mainWindow->editModeContainer->getPathEditMode()->makeDummies();
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

@@ -125,9 +125,9 @@ void CQDlg2D3DGraphProperties::onDeletePressed()
             cmd.intParams.push_back(_graphHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.boolParams.push_back(_xyGraph);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -278,9 +278,9 @@ void CQDlg2D3DGraphProperties::on_qqAddNewCurve_clicked()
             cmd.intParams.push_back(theDialog.dataIDY);
             cmd.intParams.push_back(theDialog.dataIDZ);
             cmd.boolParams.push_back(_xyGraph);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -318,10 +318,10 @@ void CQDlg2D3DGraphProperties::on_qqList_itemChanged(QListWidgetItem *item)
             cmd.intParams.push_back(item->data(Qt::UserRole).toInt());
             cmd.boolParams.push_back(_xyGraph);
             cmd.stringParams.push_back(item->text().toStdString());
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -334,9 +334,9 @@ void CQDlg2D3DGraphProperties::on_qqVisible_clicked()
         cmd.intParams.push_back(_graphHandle);
         cmd.intParams.push_back(getSelectedObjectID());
         cmd.boolParams.push_back(_xyGraph);
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -349,9 +349,9 @@ void CQDlg2D3DGraphProperties::on_qqDisplayLabel_clicked()
         cmd.intParams.push_back(_graphHandle);
         cmd.intParams.push_back(getSelectedObjectID());
         cmd.boolParams.push_back(_xyGraph);
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -364,9 +364,9 @@ void CQDlg2D3DGraphProperties::on_qqLinkPoints_clicked()
         cmd.intParams.push_back(_graphHandle);
         cmd.intParams.push_back(getSelectedObjectID());
         cmd.boolParams.push_back(_xyGraph);
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -390,9 +390,9 @@ void CQDlg2D3DGraphProperties::on_qqDuplicate_clicked()
         cmd.intParams.push_back(_graphHandle);
         cmd.intParams.push_back(getSelectedObjectID());
         cmd.boolParams.push_back(_xyGraph);
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -411,9 +411,9 @@ void CQDlg2D3DGraphProperties::on_qqWidth_editingFinished()
             cmd.intParams.push_back(_graphHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(newVal);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -429,9 +429,9 @@ void CQDlg2D3DGraphProperties::on_qqRelativeToGraph_clicked()
             cmd.intParams.push_back(_graphHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.boolParams.push_back(false);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -447,9 +447,9 @@ void CQDlg2D3DGraphProperties::on_qqRelativeToWorld_clicked()
             cmd.intParams.push_back(_graphHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.boolParams.push_back(true);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -463,8 +463,8 @@ void CQDlg2D3DGraphProperties::on_qqAlwaysOnTop_clicked()
         cmd.intParams.push_back(_graphHandle);
         cmd.intParams.push_back(getSelectedObjectID());
         cmd.boolParams.push_back(_xyGraph);
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

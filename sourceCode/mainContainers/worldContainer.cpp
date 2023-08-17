@@ -646,7 +646,7 @@ int CWorldContainer::getInstanceIndexOfASceneNotYetSaved(bool doNotIncludeCurren
 void CWorldContainer::setInstanceIndexWithThumbnails(int index)
 { // GUI THREAD only
     TRACE_INTERNAL;
-    App::appendSimulationThreadCommand(SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD,index);
+    GuiApp::appendSimulationThreadCommand(SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD,index);
 }
 
 bool CWorldContainer::processGuiCommand(int commandID)

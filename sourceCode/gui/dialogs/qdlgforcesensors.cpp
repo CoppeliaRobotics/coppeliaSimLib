@@ -93,10 +93,10 @@ void CQDlgForceSensors::on_qqSize_editingFinished()
         double newVal=ui->qqSize->text().toDouble(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_SIZE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(SET_SIZE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -117,9 +117,9 @@ void CQDlgForceSensors::on_qqApplyMain_clicked()
         cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
         for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -133,10 +133,10 @@ void CQDlgForceSensors::on_qqSampleSize_editingFinished()
         int newVal=ui->qqSampleSize->text().toInt(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_SAMPLESIZE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(SET_SAMPLESIZE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -144,9 +144,9 @@ void CQDlgForceSensors::on_qqAverage_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        App::appendSimulationThreadCommand(SET_AVERAGEVALUE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(SET_AVERAGEVALUE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -154,9 +154,9 @@ void CQDlgForceSensors::on_qqMedian_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        App::appendSimulationThreadCommand(SET_MEDIANVALUE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(SET_MEDIANVALUE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -169,9 +169,9 @@ void CQDlgForceSensors::on_qqApplyFilter_clicked()
         cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
         for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -179,9 +179,9 @@ void CQDlgForceSensors::on_qqForceThresholdEnable_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_FORCETHRESHOLDENABLE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(TOGGLE_FORCETHRESHOLDENABLE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -195,10 +195,10 @@ void CQDlgForceSensors::on_qqForceThreshold_editingFinished()
         double newVal=ui->qqForceThreshold->text().toDouble(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_FORCETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(SET_FORCETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -206,9 +206,9 @@ void CQDlgForceSensors::on_qqTorqueThresholdEnable_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_TORQUETHRESHOLDENABLE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(TOGGLE_TORQUETHRESHOLDENABLE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -222,10 +222,10 @@ void CQDlgForceSensors::on_qqTorqueThreshold_editingFinished()
         double newVal=ui->qqTorqueThreshold->text().toDouble(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_TORQUETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(SET_TORQUETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -239,10 +239,10 @@ void CQDlgForceSensors::on_qqViolationCount_editingFinished()
         int newVal=ui->qqViolationCount->text().toInt(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_CONSECTHRESHOLDVIOLATIONS_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(SET_CONSECTHRESHOLDVIOLATIONS_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -255,8 +255,8 @@ void CQDlgForceSensors::on_qqApplyBreaking_clicked()
         cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
         for (size_t i=0;i<App::currentWorld->sceneObjects->getSelectionCount()-1;i++)
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-        App::appendSimulationThreadCommand(cmd);
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

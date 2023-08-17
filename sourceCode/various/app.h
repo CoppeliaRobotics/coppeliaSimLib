@@ -4,8 +4,10 @@
 #include <userSettings.h>
 #include <worldContainer.h>
 #include <sigHandler.h>
-#include <simThread.h>
 #include <gm.h>
+#ifndef SIM_WITH_GUI
+    #include <simQApp.h>
+#endif
 
 class App
 {
@@ -71,11 +73,6 @@ public:
     static int getAppStage();
     static void setAppStage(int s);
 
-    #ifdef SIM_WITH_GUI
-        static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,double floatP1=0.0,double floatP2=0.0,const char* stringP1=nullptr,const char* stringP2=nullptr,int executionDelay=0);
-        static void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
-    #endif
-
     static void undoRedo_sceneChanged(const char* txt);
     static void undoRedo_sceneChangedGradual(const char* txt);
 
@@ -83,8 +80,10 @@ public:
     static CUserSettings* userSettings;
     static CWorldContainer* worldContainer;
     static CWorld* currentWorld; // actually worldContainer->currentWorld
-    static CSimThread* simThread;
     static CGm* gm;
+    #ifndef SIM_WITH_GUI
+        static CSimQApp* qtApp;
+    #endif
 
 private:
     static void _simulatorLoop(bool stepIfRunning=true);
@@ -101,6 +100,9 @@ private:
     static long long int _nextUniqueId;
     static SignalHandler* _sigHandler;
 
+    static int _qApp_argc;
+    static char _qApp_arg0[];
+    static char* _qApp_argv[1];
     static std::vector<std::string> _applicationArguments;
     static std::map<std::string,std::string> _applicationNamedParams;
     static std::string _additionalAddOnScript1;

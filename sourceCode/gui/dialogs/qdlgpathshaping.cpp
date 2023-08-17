@@ -27,7 +27,7 @@ void CQDlgPathShaping::cancelEvent()
 { // no cancel event allowed
     showWindow=false;
     CDlgEx::cancelEvent();
-    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgPathShaping::refresh()
@@ -118,9 +118,9 @@ void CQDlgPathShaping::on_qqEnabled_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_SHAPINGENABLED_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(TOGGLE_SHAPINGENABLED_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -128,9 +128,9 @@ void CQDlgPathShaping::on_qqFollowOrientation_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_FOLLOWORIENTATION_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(TOGGLE_FOLLOWORIENTATION_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 /*
@@ -142,12 +142,12 @@ void CQDlgPathShaping::on_qqConvexHull_clicked()
         if (it!=nullptr)
         {
             if (!it->getShapingThroughConvexHull())
-                App::appendSimulationThreadCommand(SHOW_PROGRESSDLGGUITRIGGEREDCMD,-1,-1,0.0,0.0,"Recomputing the path geometry...");
-            App::appendSimulationThreadCommand(TOGGLE_CONVEXHULLS_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->objCont->getLastSelectionID());
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(HIDE_PROGRESSDLGGUITRIGGEREDCMD);
+                GuiApp::appendSimulationThreadCommand(SHOW_PROGRESSDLGGUITRIGGEREDCMD,-1,-1,0.0,0.0,"Recomputing the path geometry...");
+            GuiApp::appendSimulationThreadCommand(TOGGLE_CONVEXHULLS_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->objCont->getLastSelectionID());
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(HIDE_PROGRESSDLGGUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 */
@@ -163,9 +163,9 @@ void CQDlgPathShaping::on_qqGenerateShape_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(GENERATE_SHAPE_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(GENERATE_SHAPE_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -179,10 +179,10 @@ void CQDlgPathShaping::on_qqMaxLength_editingFinished()
         double newVal=ui->qqMaxLength->text().toDouble(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_ELEMENTMAXLENGTH_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(SET_ELEMENTMAXLENGTH_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -192,9 +192,9 @@ void CQDlgPathShaping::on_qqTypeCombo_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            App::appendSimulationThreadCommand(SET_TYPE_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),ui->qqTypeCombo->itemData(ui->qqTypeCombo->currentIndex()).toInt());
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(SET_TYPE_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),ui->qqTypeCombo->itemData(ui->qqTypeCombo->currentIndex()).toInt());
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -203,9 +203,9 @@ void CQDlgPathShaping::on_qqCyclic_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_LASTCOORDLINKSTOFIRST_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
-        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(TOGGLE_LASTCOORDLINKSTOFIRST_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -219,10 +219,10 @@ void CQDlgPathShaping::on_qqScalingFactor_editingFinished()
         double newVal=ui->qqScalingFactor->text().toDouble(&ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_SCALINGFACTOR_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(SET_SCALINGFACTOR_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -239,9 +239,9 @@ void CQDlgPathShaping::on_qqCoordinates_textChanged()
             cmd.doubleParams.push_back(tmp);
         if (cmd.doubleParams.size()&1)
             cmd.doubleParams.push_back(0.0); // no odd number!
-        App::appendSimulationThreadCommand(cmd);
-        //App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        //App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        GuiApp::appendSimulationThreadCommand(cmd);
+        //GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        //GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 

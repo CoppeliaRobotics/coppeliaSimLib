@@ -1,4 +1,5 @@
 #include <uiThread.h>
+#include <simThread.h>
 #include <simQApp.h>
 #include <simAndUiThreadSync.h>
 #include <mainWindow.h>
@@ -41,18 +42,19 @@ public:
     static CColorObject* getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts);
     static CTextureProperty* getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CMesh** geom);
 
-#ifdef SIM_WITH_GUI
+    static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,double floatP1=0.0,double floatP2=0.0,const char* stringP1=nullptr,const char* stringP2=nullptr,int executionDelay=0);
+    static void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
     static void showSplashScreen();
     static void setIcon();
     static CMainWindow* mainWindow;
     static void createMainWindow();
     static void deleteMainWindow();
     static void setShowConsole(bool s);
-#endif
 
 
     static CSimQApp* qtApp;
     static CUiThread* uiThread;
+    static CSimThread* simThread;
 
     static int operationalUIParts;
     static int sc;

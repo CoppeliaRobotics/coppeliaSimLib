@@ -5,7 +5,7 @@ DEFINES += SIM_MATH_DOUBLE # math and vector classes
 #DEFINES += HAS_PHYSX
 
 CONFIG += USES_QGLWIDGET
-CONFIG += HEADLESS
+#CONFIG += HEADLESS
 USES_QGLWIDGET {
     DEFINES += USES_QGLWIDGET
 } else {
@@ -511,7 +511,6 @@ HEADERS += $$PWD/sourceCode/various/simConfig.h \
     $$PWD/sourceCode/various/embeddedFonts.h \
     $$PWD/sourceCode/various/userSettings.h \
     $$PWD/sourceCode/various/app.h \
-    $$PWD/sourceCode/various/simThread.h \
     $$PWD/sourceCode/various/folderSystem.h \
     $$PWD/sourceCode/various/dynMaterialObject.h \
     $$PWD/sourceCode/various/sigHandler.h \
@@ -694,6 +693,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/various/engineProperties.h \
         $$PWD/sourceCode/gui/various/guiApp.h \
         $$PWD/sourceCode/gui/various/uiThread.h \
+        $$PWD/sourceCode/gui/various/simThread.h \
         $$PWD/sourceCode/gui/various/simAndUiThreadSync.h \
 
     HEADERS += $$PWD/sourceCode/gui/libs/auxLibVideo.h \
@@ -892,7 +892,6 @@ SOURCES += $$PWD/sourceCode/geometricAlgorithms/meshRoutines.cpp \
 SOURCES += $$PWD/sourceCode/various/userSettings.cpp \
     $$PWD/sourceCode/various/folderSystem.cpp \
     $$PWD/sourceCode/various/app.cpp \
-    $$PWD/sourceCode/various/simThread.cpp \
     $$PWD/sourceCode/various/dynMaterialObject.cpp \
     $$PWD/sourceCode/various/sigHandler.cpp \
 
@@ -1074,6 +1073,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/various/engineProperties.cpp \
         $$PWD/sourceCode/gui/various/guiApp.cpp \
         $$PWD/sourceCode/gui/various/uiThread.cpp \
+        $$PWD/sourceCode/gui/various/simThread.cpp \
         $$PWD/sourceCode/gui/various/simAndUiThreadSync.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/libs/auxLibVideo.cpp \

@@ -441,9 +441,9 @@ void CQDlgGeometry::on_qqApplySize_clicked()
             cmd.doubleParams.push_back(sizeVal[0]);
             cmd.doubleParams.push_back(sizeVal[1]);
             cmd.doubleParams.push_back(sizeVal[2]);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -460,9 +460,9 @@ void CQDlgGeometry::on_qqApplyScale_clicked()
             cmd.doubleParams.push_back(scaleVal[0]);
             cmd.doubleParams.push_back(scaleVal[1]);
             cmd.doubleParams.push_back(scaleVal[2]);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }

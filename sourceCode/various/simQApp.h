@@ -1,4 +1,3 @@
-
 #pragma once
 
 #ifdef SIM_WITH_GUI

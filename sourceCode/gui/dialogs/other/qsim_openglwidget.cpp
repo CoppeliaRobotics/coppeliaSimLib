@@ -609,7 +609,7 @@ void COpenglWidget::dropEvent(QDropEvent* dEvent)
                     cmd.doubleParams.push_back(desiredModelPosition(0));
                     cmd.doubleParams.push_back(desiredModelPosition(1));
                     cmd.doubleParams.push_back(desiredModelPosition(2));
-                    App::appendSimulationThreadCommand(cmd); // that command will clear _modelDragAndDropInfo once the model was loaded
+                    GuiApp::appendSimulationThreadCommand(cmd); // that command will clear _modelDragAndDropInfo once the model was loaded
                 }
                 else
                     _modelDragAndDropInfo=nullptr;

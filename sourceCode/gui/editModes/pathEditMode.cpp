@@ -441,7 +441,7 @@ void CPathEditMode_old::makeDummies()
         cmd.stringParams.push_back("ExtractedDummy");
         cmd.doubleParams.push_back(0.02); // so that we can see them over the ctrl pts!
         cmd.transfParams.push_back(_path->getFullCumulativeTransformation()*it->getTransformation());
-        App::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
     }
     deselectEditModeBuffer();
 }

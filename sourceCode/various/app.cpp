@@ -27,11 +27,16 @@
     #include <signal.h>
 #endif
 
+#ifndef SIM_WITH_GUI
+    CSimQApp* App::qtApp=nullptr;
+    int App::_qApp_argc=1;
+    char App::_qApp_arg0[]={"CoppeliaSim"};
+    char* App::_qApp_argv[1]={_qApp_arg0};
+#endif
 CUserSettings* App::userSettings=nullptr;
 CFolderSystem* App::folders=nullptr;
 CWorldContainer* App::worldContainer=nullptr;
 CWorld* App::currentWorld=nullptr;
-CSimThread* App::simThread=nullptr;
 int App::_consoleVerbosity=sim_verbosity_default;
 int App::_statusbarVerbosity=sim_verbosity_msgs;
 int App::_dlgVerbosity=sim_verbosity_infos;
@@ -111,7 +116,10 @@ void App::init(const char* appDir,int)
     #ifdef SIM_WITH_GUI
         while (getAppStage()!=appstage_guiInit1Done)
             VThread::sleep(1);
+    #else
+        qtApp=new CSimQApp(_qApp_argc,_qApp_argv);
     #endif
+
     VThread::setSimThread();
     _exitRequest=false;
 
@@ -156,9 +164,7 @@ void App::init(const char* appDir,int)
     #ifdef SIM_WITH_GUI
         while (getAppStage()!=appstage_guiInit2Done)
             VThread::sleep(1);
-    #endif
-    App::simThread=new CSimThread();
-    #ifdef SIM_WITH_GUI
+        GuiApp::simThread=new CSimThread();
         CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(true); // lock initially...
     #endif
 
@@ -202,8 +208,8 @@ void App::cleanup()
 
     #ifdef SIM_WITH_GUI
         CSimAndUiThreadSync::simThread_allowUiThreadToWrite(); // ...finally unlock
-        delete App::simThread;
-        App::simThread=nullptr;
+        delete GuiApp::simThread;
+        GuiApp::simThread=nullptr;
 
         GuiApp::qtApp->quit();
         if (getAppStage()==appstage_simRunning)
@@ -328,8 +334,10 @@ void App::loop(void(*callback)(),bool stepIfRunning)
 
     #ifdef SIM_WITH_GUI
         currentWorld->simulation->showAndHandleEmergencyStopButton(false,""); // 10/10/2015
+        GuiApp::simThread->executeMessages(); // rendering, queued command execution, etc.
+    #else
+        qtApp->processEvents();
     #endif
-    simThread->executeMessages(); // rendering, queued command execution, etc.
 }
 
 long long int App::getFreshUniqueId()
@@ -819,7 +827,7 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         if (statusbarVerbosity==-1)
             statusbarVerbosity=_statusbarVerbosity;
         #ifdef SIM_WITH_GUI
-            if ( (statusbarVerbosity>=realVerbosityLevel)&&(GuiApp::uiThread!=nullptr)&&(App::simThread!=nullptr)&&((verbosityLevel&sim_verbosity_onlyterminal)==0) )
+            if ( (statusbarVerbosity>=realVerbosityLevel)&&(GuiApp::uiThread!=nullptr)&&(GuiApp::simThread!=nullptr)&&((verbosityLevel&sim_verbosity_onlyterminal)==0) )
             {
                 vars["message"]=_getHtmlEscapedString(vars["message"].c_str());
                 std::string statusbarTxt=replaceVars(decorateMsg?statusbarLogFormat:statusbarLogFormatUndecorated,vars);
@@ -863,7 +871,7 @@ void App::undoRedo_sceneChanged(const char* txt)
         SSimulationThreadCommand cmd;
         cmd.cmdId=999999;
         cmd.stringParams.push_back(txt);
-        App::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
     }
     else
 #endif
@@ -878,7 +886,7 @@ void App::undoRedo_sceneChangedGradual(const char* txt)
         SSimulationThreadCommand cmd;
         cmd.cmdId=999996;
         cmd.stringParams.push_back(txt);
-        App::appendSimulationThreadCommand(cmd);
+        GuiApp::appendSimulationThreadCommand(cmd);
     }
     else
         currentWorld->undoBufferContainer->announceChangeGradual();
@@ -958,47 +966,3 @@ bool App::getExitRequest()
 {
     return(_exitRequest);
 }
-
-#ifdef SIM_WITH_GUI
-void App::appendSimulationThreadCommand(int cmdId,int intP1,int intP2,double floatP1,double floatP2,const char* stringP1,const char* stringP2,int executionDelay)
-{ // convenience function. All args have default values except for the first
-    SSimulationThreadCommand cmd;
-    cmd.cmdId=cmdId;
-    cmd.intParams.push_back(intP1);
-    cmd.intParams.push_back(intP2);
-    cmd.doubleParams.push_back(floatP1);
-    cmd.doubleParams.push_back(floatP2);
-    if (stringP1==nullptr)
-        cmd.stringParams.push_back("");
-    else
-        cmd.stringParams.push_back(stringP1);
-    if (stringP2==nullptr)
-        cmd.stringParams.push_back("");
-    else
-        cmd.stringParams.push_back(stringP2);
-    appendSimulationThreadCommand(cmd,executionDelay);
-}
-
-void App::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay/*=0*/)
-{
-    static std::vector<SSimulationThreadCommand> delayed_cmd;
-    static std::vector<int> delayed_delay;
-    if (simThread!=nullptr)
-    {
-        if (delayed_cmd.size()!=0)
-        {
-            for (unsigned int i=0;i<delayed_cmd.size();i++)
-                simThread->appendSimulationThreadCommand(delayed_cmd[i],delayed_delay[i]);
-            delayed_cmd.clear();
-            delayed_delay.clear();
-        }
-        simThread->appendSimulationThreadCommand(cmd,executionDelay);
-    }
-    else
-    { // can happen during the initialization phase, when the client loads a scene for instance
-        delayed_cmd.push_back(cmd);
-        delayed_delay.push_back(executionDelay);
-    }
-}
-#endif
-

@@ -47,9 +47,9 @@ void CQDlgScaling::_doTheScaling()
     cmd.intParams.assign(sel.begin(),sel.end());
     cmd.doubleParams.push_back(factor);
     cmd.boolParams.push_back(inPlace);
-    App::appendSimulationThreadCommand(cmd);
-    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    GuiApp::appendSimulationThreadCommand(cmd);
+    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgScaling::on_qqInPlace_clicked()

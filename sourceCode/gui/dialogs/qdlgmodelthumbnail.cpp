@@ -305,7 +305,7 @@ void CQDlgModelThumbnail::on_qqFromFile_clicked()
     {
         if (VFile::doesFileExist(filenameAndPath.c_str()))
         {
-            App::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD,DIRECTORY_ID_TEXTURE,-1,0.0,0.0,App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
+            GuiApp::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD,DIRECTORY_ID_TEXTURE,-1,0.0,0.0,App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
             int resX,resY,n;
             unsigned char* data=CImageLoaderSaver::load(filenameAndPath.c_str(),&resX,&resY,&n,0);
             if (n<3)

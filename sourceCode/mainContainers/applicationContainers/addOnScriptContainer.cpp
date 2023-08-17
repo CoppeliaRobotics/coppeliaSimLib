@@ -416,7 +416,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
     }
     return(false);

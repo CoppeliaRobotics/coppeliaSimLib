@@ -359,7 +359,7 @@ bool CPageContainer::processCommand(int commandID,int viewIndex)
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.intParams.push_back(viewIndex);
-            App::appendSimulationThreadCommand(cmd);
+            GuiApp::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -711,7 +711,7 @@ void CPageContainer::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* m
             {
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=REMOVE_CURRENT_PAGE_CMD;
-                App::appendSimulationThreadCommand(cmd);
+                GuiApp::appendSimulationThreadCommand(cmd);
             }
         }
     }
