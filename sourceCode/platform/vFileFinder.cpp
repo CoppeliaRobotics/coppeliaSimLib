@@ -67,7 +67,11 @@ int VFileFinder::_searchFilesOrFolders(const char* pathWithoutTerminalSlash,cons
         f.name=fileInfo.fileName().toLocal8Bit().data();
         f.path=fileInfo.filePath().toLocal8Bit().data();
         QDateTime lastWriteTime(fileInfo.lastModified());
-        f.lastWriteTime=lastWriteTime.toTime_t();
+        #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            f.lastWriteTime=lastWriteTime.toTime_t();
+        #else
+            f.lastWriteTime=lastWriteTime.toSecsSinceEpoch();
+        #endif
         _searchResult.push_back(f);
     }
     return(int(_searchResult.size()));

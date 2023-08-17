@@ -269,6 +269,9 @@ bool oglExt::isFboAvailable()
 bool oglExt::_isFboAvailable(bool& viaExt)
 { // prepareExtensionFunctions() should have been called previously!
 #ifndef MAC_SIM
+//    printf("glGetString: %u\n",glGetString);
+//    const char* vend=(const char*)(glGetString(GL_VENDOR));
+//    printf("vendor: %s\n",vend);
     const char* gl_version=(const char*)(glGetString(GL_VERSION));
     if (gl_version==nullptr)
     {

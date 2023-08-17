@@ -1,8 +1,11 @@
 #include <app.h>
 #include <visionSensorGlStuff.h>
-#include <glShader.h>
 
+#ifdef USES_QGLWIDGET
 CVisionSensorGlStuff::CVisionSensorGlStuff(int resX,int resY,int offscreenType,bool qtFbo,QGLWidget* otherWidgetToShareResourcesWith,bool useStencilBuffer,bool destroyOffscreenContext,int majorOpenGl,int minorOpenGl) : QObject()
+#else
+CVisionSensorGlStuff::CVisionSensorGlStuff(int resX,int resY,int offscreenType,bool qtFbo,QOpenGLWidget* otherWidgetToShareResourcesWith,bool useStencilBuffer,bool destroyOffscreenContext,int majorOpenGl,int minorOpenGl) : QObject()
+#endif
 {
     _destroyOffscreenContext=destroyOffscreenContext;
 
@@ -14,8 +17,6 @@ CVisionSensorGlStuff::CVisionSensorGlStuff(int resX,int resY,int offscreenType,b
 
     // 3. We need a texture object:
     textureObject=new CTextureObject(resX,resY);
-
-//  CGlShader* a=new CGlShader();
 
     offscreenContext->doneCurrent();
 }

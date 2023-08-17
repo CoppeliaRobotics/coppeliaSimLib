@@ -44,7 +44,6 @@ void initGl_ifNeeded()
     if (_glInitialized)
         return;
     _glInitialized=true;
-
     oglExt::prepareExtensionFunctions(App::userSettings->forceFboViaExt);
 
     // Turn off vertical screen synchronization. Very important, otherwise the simulation gets drastically slowed down!

@@ -8,7 +8,6 @@ CONFIG += USES_QGLWIDGET
 USES_QGLWIDGET {
     DEFINES += USES_QGLWIDGET
 } else {
-    QT += openglwidgets
 }
 
 CONFIG += shared plugin debug_and_release
@@ -574,7 +573,6 @@ WITH_GUI {
 
     HEADERS += $$PWD/sourceCode/gui/visual/oGL.h \
         $$PWD/sourceCode/gui/visual/oglExt.h \
-        $$PWD/sourceCode/gui/visual/glShader.h \
         $$PWD/sourceCode/gui/visual/glBufferObjects.h \
 
     HEADERS += $$PWD/sourceCode/gui/dialogs/qdlglayers.h \
@@ -955,7 +953,6 @@ WITH_GUI {
 
     SOURCES += $$PWD/sourceCode/gui/visual/oGL.cpp \
         $$PWD/sourceCode/gui/visual/oglExt.cpp \
-        $$PWD/sourceCode/gui/visual/glShader.cpp \
         $$PWD/sourceCode/gui/visual/glBufferObjects.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/dialogs/qdlgsettings.cpp \

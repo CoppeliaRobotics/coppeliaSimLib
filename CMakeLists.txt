@@ -654,7 +654,6 @@ if(WITH_GUI)
 
         sourceCode/gui/visual/oGL.cpp
         sourceCode/gui/visual/oglExt.cpp
-        sourceCode/gui/visual/glShader.cpp
         sourceCode/gui/visual/glBufferObjects.cpp
     )
 endif()

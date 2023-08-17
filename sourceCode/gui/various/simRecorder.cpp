@@ -3,7 +3,7 @@
 #include <tt.h>
 #include <utils.h>
 #include <QScreen>
-#include <QDesktopWidget>
+//#include <QDesktopWidget>
 #include <imgLoaderSaver.h>
 #include <auxLibVideo.h>
 #include <simStrings.h>

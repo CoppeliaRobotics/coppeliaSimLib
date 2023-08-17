@@ -63,7 +63,11 @@ bool CGlBufferObjects::_checkIfBuffersAreSupported()
     static int alreadyChecked=-1;
     if (alreadyChecked!=-1)
         return(alreadyChecked!=0);
+#ifdef USES_QGLWIDGET
     QGLBuffer vbuff(QGLBuffer::VertexBuffer);
+#else
+    QOpenGLBuffer vbuff(QOpenGLBuffer::VertexBuffer);
+#endif
     if (!vbuff.create())
     {
         alreadyChecked=0;
@@ -341,10 +345,18 @@ int CGlBufferObjects::_buildVertexBuffer(const float* individualVertices,int ind
 #endif
     if (_buffersAreSupported&&(!forceNotUsingBuffers))
     {
+#ifdef USES_QGLWIDGET
         buff.buffer=new QGLBuffer(QGLBuffer::VertexBuffer);
+#else
+        buff.buffer=new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+#endif
         buff.buffer->create();
         buff.buffer->bind();
+#ifdef USES_QGLWIDGET
         buff.buffer->setUsagePattern(QGLBuffer::StaticDraw);
+#else
+        buff.buffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+#endif
         buff.buffer->allocate(individualVertices,3*individualVerticesCnt*sizeof(float));
         buff.qglBufferInitialized=true;
     }
@@ -387,10 +399,18 @@ int CGlBufferObjects::_buildNormalBuffer(const float* normals,int normalsCnt)
 #endif
     if (_buffersAreSupported&&(!forceNotUsingBuffers))
     {
+#ifdef USES_QGLWIDGET
         buff.buffer=new QGLBuffer(QGLBuffer::VertexBuffer);
+#else
+        buff.buffer=new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+#endif
         buff.buffer->create();
         buff.buffer->bind();
+#ifdef USES_QGLWIDGET
         buff.buffer->setUsagePattern(QGLBuffer::StaticDraw);
+#else
+        buff.buffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+#endif
         buff.buffer->allocate(normals,3*normalsCnt*sizeof(float));
         buff.qglBufferInitialized=true;
     }
@@ -429,10 +449,18 @@ int CGlBufferObjects::_buildTexCoordBuffer(const float* texCoords,int texCoordsC
     bool forceNotUsingBuffers=(App::userSettings->vboOperation==0);
     if (_buffersAreSupported&&(!forceNotUsingBuffers))
     {
+#ifdef USES_QGLWIDGET
         buff.buffer=new QGLBuffer(QGLBuffer::VertexBuffer);
+#else
+        buff.buffer=new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+#endif
         buff.buffer->create();
         buff.buffer->bind();
+#ifdef USES_QGLWIDGET
         buff.buffer->setUsagePattern(QGLBuffer::StaticDraw);
+#else
+        buff.buffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+#endif
         buff.buffer->allocate(texCoords,2*texCoordsCnt*sizeof(float));
         buff.qglBufferInitialized=true;
     }
@@ -471,10 +499,18 @@ int CGlBufferObjects::_buildEdgeBuffer(const float* individualVertices,int indiv
     bool forceNotUsingBuffers=(App::userSettings->vboOperation==0);
     if (_buffersAreSupported&&(!forceNotUsingBuffers))
     {
+#ifdef USES_QGLWIDGET
         buff.buffer=new QGLBuffer(QGLBuffer::VertexBuffer);
+#else
+        buff.buffer=new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+#endif
         buff.buffer->create();
         buff.buffer->bind();
+#ifdef USES_QGLWIDGET
         buff.buffer->setUsagePattern(QGLBuffer::StaticDraw);
+#else
+        buff.buffer->setUsagePattern(QOpenGLBuffer::StaticDraw);
+#endif
         buff.buffer->allocate(individualVertices,3*individualVerticesCnt*sizeof(float));
         buff.qglBufferInitialized=true;
     }

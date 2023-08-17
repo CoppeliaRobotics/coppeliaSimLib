@@ -1,10 +1,18 @@
 #pragma once
 
-#include <QGLBuffer>
+#ifdef USES_QGLWIDGET
+    #include <QGLBuffer>
+#else
+    #include <QOpenGLBuffer>
+#endif
 
 struct SBuffwid
 {
+#ifdef USES_QGLWIDGET
     QGLBuffer* buffer;
+#else
+    QOpenGLBuffer* buffer;
+#endif
     std::vector<float>* data;
     int refCnt;
     int verticesCnt;

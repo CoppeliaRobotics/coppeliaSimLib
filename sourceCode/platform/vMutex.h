@@ -1,10 +1,17 @@
 #pragma once
 
 #include <string>
-
 #include <QMutex>
 #include <QWaitCondition>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#else
+#include <QRecursiveMutex>
+#endif
 typedef QMutex WMutex;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#else
+typedef QRecursiveMutex WRecursiveMutex;
+#endif
 typedef QWaitCondition WWaitCondition;
 
 class VMutex
@@ -32,7 +39,11 @@ public:
 private:
     void _msg(const char* location,const char* info) const;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     WMutex _recursiveMutex;
+#else
+    WRecursiveMutex _recursiveMutex;
+#endif
     WMutex _simpleMutex;
     WWaitCondition _simpleWaitCondition;
     std::string _location;

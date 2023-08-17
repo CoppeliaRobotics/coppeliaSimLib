@@ -23,7 +23,11 @@
 #include <simFlavor.h>
 #ifdef SIM_WITH_GUI
     #include <QScreen>
-    #include <QDesktopWidget>
+    #ifdef USES_QGLWIDGET
+        #include <QDesktopWidget>
+    #else
+        #include <QPainter>
+    #endif
     #include <guiApp.h>
 #endif
 

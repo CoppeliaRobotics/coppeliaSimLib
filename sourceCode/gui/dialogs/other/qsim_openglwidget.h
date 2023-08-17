@@ -75,7 +75,6 @@ protected:
     void resizeEvent(QResizeEvent* rEvent);
     void _resizeEvent(SMouseOrKeyboardOrResizeEvent e);
 
-
     void initializeGL();
     void paintGL();
 

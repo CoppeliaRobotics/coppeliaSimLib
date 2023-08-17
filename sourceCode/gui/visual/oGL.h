@@ -4,7 +4,11 @@
 
 #include <textureProperty.h>
 #include <softButton.h>
-#include <QGLWidget>
+#ifdef USES_QGLWIDGET
+    #include <QGLWidget>
+#else
+    #include <QOpenGLWidget>
+#endif
 
 struct SOglFont
 {

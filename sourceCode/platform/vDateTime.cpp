@@ -55,7 +55,11 @@ int VDateTime::getTimeDiffInMs(int oldTime,int newTime)
 quint64 VDateTime::getSecondsSince1970()
 {
     QDateTime now=QDateTime::currentDateTime();
-    return(now.toTime_t());
+    #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        return(now.toTime_t());
+    #else
+        return(now.toSecsSinceEpoch());
+    #endif
 }
 
 void VDateTime::getYearMonthDayHourMinuteSecond(int* year,int* month,int* day,int* hour,int* minute,int* second)

@@ -2774,7 +2774,11 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded(bool useStenci
     if (_contextFboAndTexture==nullptr)
     { // our objects are not yet there. Build them:
 
-        QGLWidget* otherWidgetToShareResourcesWith=nullptr;
+        #ifdef USES_QGLWIDGET
+            QGLWidget* otherWidgetToShareResourcesWith=nullptr;
+        #else
+            QOpenGLWidget* otherWidgetToShareResourcesWith=nullptr;
+        #endif
 #ifdef SIM_WITH_GUI
         if (GuiApp::mainWindow!=nullptr)
             otherWidgetToShareResourcesWith=GuiApp::mainWindow->openglWidget;

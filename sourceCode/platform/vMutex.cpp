@@ -1,7 +1,11 @@
 #include <vMutex.h>
 #include <vThread.h>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 VMutex::VMutex() : _recursiveMutex(QMutex::Recursive), _simpleMutex(QMutex::NonRecursive)
+#else
+VMutex::VMutex()
+#endif
 {
 }
 

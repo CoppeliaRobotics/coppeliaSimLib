@@ -324,8 +324,8 @@ void App::loop(void(*callback)(),bool stepIfRunning)
         worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old,nullptr,nullptr);
 
     #ifdef SIM_WITH_GUI
-            currentWorld->simulation->showAndHandleEmergencyStopButton(false,""); // 10/10/2015
-            GuiApp::simThread->executeMessages(); // rendering, queued command execution, etc.
+        currentWorld->simulation->showAndHandleEmergencyStopButton(false,""); // 10/10/2015
+        GuiApp::simThread->executeMessages(); // rendering, queued command execution, etc.
     #endif
 }
 

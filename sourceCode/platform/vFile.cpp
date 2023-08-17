@@ -17,7 +17,11 @@ VFile::VFile(const char* filename,unsigned short flags,bool dontThrow)
 {
     _pathAndFilename=filename;
     _theFile=new QFile(QString::fromLocal8Bit(filename));
-    QFlags<QIODevice::OpenModeFlag> openFlags=0;
+    #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        QFlags<QIODevice::OpenModeFlag> openFlags=0;
+    #else
+        QFlags<QIODevice::OpenModeFlag> openFlags;
+    #endif
     if (flags&CREATE_WRITE)
         openFlags|=QIODevice::Truncate|QIODevice::WriteOnly;
     if (flags&READ)

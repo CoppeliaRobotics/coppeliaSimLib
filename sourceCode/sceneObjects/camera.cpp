@@ -14,7 +14,6 @@
     #include <guiApp.h>
     #include <rendering.h>
     #include <oGL.h>
-    #include <glShader.h>
 #endif
 
 unsigned int CCamera::selectBuff[SELECTION_BUFFER_SIZE*4];

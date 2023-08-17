@@ -50,7 +50,6 @@ const int DEFAULT_MOUSE_MODE=sim_navigation_camerashift|sim_navigation_clicksele
 CMainWindow::CMainWindow() : QMainWindow()
 {
     TRACE_INTERNAL;
-//    QsciScintilla obj; // somehow required to avoid a crash on exit (Windows), when copy was used in the code editor...
     _focusObject=FOCUS_ON_PAGE;
     _clientArea[0]=1024;
     _clientArea[1]=768;
@@ -167,7 +166,9 @@ CMainWindow::CMainWindow() : QMainWindow()
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,msg.c_str());
     #endif
     openglWidget->makeCurrent();
-    initGl_ifNeeded();
+    #ifdef USES_QGLWIDGET
+        initGl_ifNeeded();
+    #endif
     #ifdef LIN_SIM
         App::logMsg(sim_verbosity_infos,"...did not crash.");
     #endif

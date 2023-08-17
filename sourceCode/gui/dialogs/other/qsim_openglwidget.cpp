@@ -50,14 +50,6 @@ COpenglWidget::~COpenglWidget()
 {
 }
 
-void COpenglWidget::initializeGL()
-{
-    TRACE_INTERNAL;
-#ifdef USES_QGLWIDGET
-    setAutoBufferSwap(false);
-#endif
-}
-
 void COpenglWidget::makeContextCurrent()
 {
     makeCurrent();
@@ -84,9 +76,21 @@ void COpenglWidget::_resizeEvent(SMouseOrKeyboardOrResizeEvent e)
     GuiApp::mainWindow->windowResizeEvent(x,y);
 }
 
+void COpenglWidget::initializeGL()
+{
+#ifdef USES_QGLWIDGET
+    setAutoBufferSwap(false);
+#else
+    QOpenGLWidget::initializeGL();
+#endif
+}
+
 void COpenglWidget::paintGL()
 {
-    TRACE_INTERNAL;
+#ifdef USES_QGLWIDGET
+#else
+    QOpenGLWidget::paintGL();
+#endif
 }
 
 void COpenglWidget::_setCtrlAndShiftKeyState(bool ctrlDown,bool shiftDown)
@@ -556,10 +560,14 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
 
 void COpenglWidget::_computeMousePos(int inX,int inY,int& outX,int& outY)
 {
+    outX=GuiApp::mainWindow->devicePixelRatio()*inX;
+    outY=GuiApp::mainWindow->devicePixelRatio()*inY;
+    /*
     double sx=windowHandle()->devicePixelRatio();
     double sy=windowHandle()->devicePixelRatio();
     outX=int(double(inX)*sx+0.5);
     outY=int(double(inY)*sy+0.5);
+    */
     _lastGlobalMousePos[0]=QCursor::pos().x();
     _lastGlobalMousePos[1]=QCursor::pos().y();
 }
