@@ -540,6 +540,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
 
+        if (cmd.cmdId==SELECT_RENDERER_CMD)
+        {
+            App::worldContainer->pluginContainer->selectExtRenderer(cmd.intParams[0]);
+        }
+
         if (cmd.cmdId==SET_VIEW_ANGLE_CAMERAGUITRIGGEREDCMD)
         {
             CCamera* cam=App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);

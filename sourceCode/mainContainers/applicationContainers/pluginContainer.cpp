@@ -424,13 +424,23 @@ bool CPluginContainer::selectExtRenderer(int index)
     if (index==sim_rendermode_povray-sim_rendermode_povray)
     {
         if (currentPovRayPlugin==nullptr)
-            currentPovRayPlugin=_tryToLoadPluginOnce(SIMPOVRAY_DEFAULT);
+        {
+            if (VThread::isSimThread())
+                currentPovRayPlugin=_tryToLoadPluginOnce(SIMPOVRAY_DEFAULT);
+            else
+                GuiApp::appendSimulationThreadCommand(SELECT_RENDERER_CMD,index);
+        }
         currentExternalRendererPlugin=currentPovRayPlugin;
     }
     if (index==sim_rendermode_opengl3-sim_rendermode_povray)
     {
         if (currentOpenGl3Plugin==nullptr)
-            currentOpenGl3Plugin=_tryToLoadPluginOnce(SIMOPENGL3_DEFAULT);
+        {
+            if (VThread::isSimThread())
+                currentOpenGl3Plugin=_tryToLoadPluginOnce(SIMOPENGL3_DEFAULT);
+            else
+                GuiApp::appendSimulationThreadCommand(SELECT_RENDERER_CMD,index);
+        }
         currentExternalRendererPlugin=currentOpenGl3Plugin;
     }
     return(currentExternalRendererPlugin!=nullptr);

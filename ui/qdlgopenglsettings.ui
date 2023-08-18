@@ -42,7 +42,7 @@
     <set>QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox">
+  <widget class="QGroupBox" name="qqOffscreenBox">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -134,7 +134,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="groupBox_2">
+  <widget class="QGroupBox" name="qqFboBox">
    <property name="geometry">
     <rect>
      <x>220</x>
@@ -262,7 +262,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox_5">
+  <widget class="QGroupBox" name="qqVboBox">
    <property name="geometry">
     <rect>
      <x>10</x>

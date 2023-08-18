@@ -844,6 +844,14 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_FBO_TYPE,fboType);
     c.getBoolean(_USR_FORCE_FBO_VIA_EXT,forceFboViaExt);
     c.getInteger(_USR_VBO_OPERATION,vboOperation);
+    //*
+    #ifdef USES_QGLWIDGET
+    #else
+        offscreenContextType=0;
+        fboType=1;
+        vboOperation=0;
+    #endif
+    //*/
     c.getInteger(_USR_VBO_PERSISTENCE_IN_MS,vboPersistenceInMs);
     c.getBoolean(_USR_OGL_COMPATIBILITY_TWEAK_1,oglCompatibilityTweak1);
     c.getInteger(_USR_VISION_SENSORS_USE_GUI_WINDOWED,visionSensorsUseGuiThread_windowed);

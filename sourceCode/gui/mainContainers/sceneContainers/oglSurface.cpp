@@ -57,6 +57,7 @@ void COglSurface::setSurfaceSizeAndPosition(int sizeX,int sizeY,int posX,int pos
     surfaceSize[1]=sizeY;
     surfacePosition[0]=posX;
     surfacePosition[1]=posY;
+
     actualizeAllSurfacesSizeAndPosition();
     _readyToRender=true;
 }

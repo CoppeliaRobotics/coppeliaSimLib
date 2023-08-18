@@ -1637,6 +1637,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
         renderingMode=subView->getRenderingMode();
         displ_ref=true;
         subView->getViewSize(currentWinSize);
+
         subView->getMouseRelativePosition(mouseRelativePosition);
         subView->getMouseDownRelativePosition(mouseDownRelativePosition);
         if (!passiveSubView)
@@ -2035,16 +2036,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             GuiApp::mainWindow->openglWidget->doneCurrent();
 
 #ifdef SIM_WITH_GUI
-            if (!_extRenderer_prepareView(rendererIndex,_currentViewSize,isPerspective))
-            {
-                if (rendererIndex==0)
-                {
-                    static bool alreadyShown=false;
-                    if (!alreadyShown)
-                        GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,"POV-Ray plugin","The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/simExtPovRay",VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
-                    alreadyShown=true;
-                }
-            }
+            _extRenderer_prepareView(rendererIndex,_currentViewSize,isPerspective);
 #endif
             _extRenderer_prepareLights();
 

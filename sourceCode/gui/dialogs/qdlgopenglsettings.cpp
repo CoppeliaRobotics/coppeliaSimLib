@@ -28,6 +28,14 @@ void CQDlgOpenGlSettings::okEvent()
 
 void CQDlgOpenGlSettings::refresh()
 {
+
+    #ifdef USES_QGLWIDGET
+    #else
+        ui->qqOffscreenBox->setEnabled(false);
+        ui->qqFboBox->setEnabled(false);
+        ui->qqVboBox->setEnabled(false);
+    #endif
+
     ui->qqContextDefault->setChecked(offscreenContextType==-1);
     ui->qqContextOffscreen->setChecked(offscreenContextType==0);
     ui->qqContextVisibleWindow->setChecked(offscreenContextType==1);

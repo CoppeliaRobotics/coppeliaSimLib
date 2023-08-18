@@ -62,8 +62,11 @@ void COpenglWidget::paintEvent(QPaintEvent* event)
 
 void COpenglWidget::resizeEvent(QResizeEvent* rEvent)
 {
-    TRACE_INTERNAL;
     _handleMouseAndKeyboardAndResizeEvents(rEvent,7);
+    #ifdef USES_QGLWIDGET
+    #else
+        QOpenGLWidget::resizeEvent(rEvent);
+    #endif
 }
 
 void COpenglWidget::_resizeEvent(SMouseOrKeyboardOrResizeEvent e)
@@ -81,6 +84,7 @@ void COpenglWidget::initializeGL()
 #ifdef USES_QGLWIDGET
     setAutoBufferSwap(false);
 #else
+    initGl_ifNeeded();
     QOpenGLWidget::initializeGL();
 #endif
 }
@@ -93,6 +97,14 @@ void COpenglWidget::paintGL()
 #endif
 }
 
+/*
+void COpenglWidget::resizeGL(int w,int h)
+{
+    printf("resizeGL Wx/Wy: %i, %i\n",w,h);
+
+    QOpenGLWidget::resizeGL(w,h);
+}
+*/
 void COpenglWidget::_setCtrlAndShiftKeyState(bool ctrlDown,bool shiftDown)
 {
     int state=GuiApp::mainWindow->getKeyDownState()&(0xffff-1-2);

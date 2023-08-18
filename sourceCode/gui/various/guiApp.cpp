@@ -50,6 +50,13 @@ void GuiApp::runGui(int options)
 {
     while (App::getAppStage()!=App::appstage_simInit1Done)
         VThread::sleep(1);
+//    #ifdef USES_QGLWIDGET
+//    #else
+        QSurfaceFormat format;
+        format.setSwapInterval(0); // turn VSync off
+        QSurfaceFormat::setDefaultFormat(format);
+//    #endif
+
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
     QApplication* tempApp=new QApplication(_qApp_argc,_qApp_argv);
     uiThread=new CUiThread();
