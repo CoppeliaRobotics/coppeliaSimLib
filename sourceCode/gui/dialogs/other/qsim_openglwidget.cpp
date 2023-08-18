@@ -431,7 +431,7 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             e.wheelDelta=wEvent->delta();
 #else
-            e.wheelDelta=wEvent->angleData().y();
+            e.wheelDelta=wEvent->angleDelta().y();
 #endif
         }
         if ((t>=5)&&(t<=6))
