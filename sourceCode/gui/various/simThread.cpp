@@ -4139,7 +4139,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             App::userSettings->offscreenContextType=cmd.intParams[0];
             App::userSettings->fboType=cmd.intParams[1];
             App::userSettings->vboOperation=cmd.intParams[2];
-            App::userSettings->visionSensorsUseGuiThread_windowed=cmd.intParams[3];
+            // cmd.intParams[3] not used
             App::userSettings->oglCompatibilityTweak1=cmd.boolParams[0];
             App::userSettings->useGlFinish=cmd.boolParams[1];
             App::userSettings->useGlFinish_visionSensors=cmd.boolParams[2];

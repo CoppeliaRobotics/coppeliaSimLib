@@ -22,7 +22,6 @@
 
 #define _USR_STEREO_DIST "stereoDist"
 #define _USR_VSYNC "vsync"
-#define _USR_DEBUG_OPENGL "debugOpenGl"
 #define _USR_IDENTICAL_VERTICES_TOLERANCE "identicalVertexTolerance"
 #define _USR_DYNAMIC_ACTIVITY_RANGE "dynamicActivityRange"
 #define _USR_FREE_SERVER_PORT_START "freeServerPortStart"
@@ -155,8 +154,6 @@
 #define _USR_CUSTOMIZATION_SCRIPT_COLOR_WORD3 "customizationScriptColor_word3"
 #define _USR_CUSTOMIZATION_SCRIPT_COLOR_WORD4 "customizationScriptColor_word4"
 
-#define _USR_VISION_SENSORS_USE_GUI_WINDOWED "visionSensorsUseGuiThread_windowed"
-#define _USR_VISION_SENSORS_USE_GUI_HEADLESS "visionSensorsUseGuiThread_headless"
 #define _USR_FILE_DIALOGS_NATIVE "fileDialogs"
 #define _USR_MOUSE_WHEEL_ZOOM_FACTOR "mouseWheelZoomFactor"
 
@@ -209,12 +206,9 @@ CUserSettings::CUserSettings()
     vboOperation=-1; // default
     vboPersistenceInMs=5000; // default
     oglCompatibilityTweak1=false;
-    visionSensorsUseGuiThread_windowed=-1; // default
-    visionSensorsUseGuiThread_headless=-1; // default
     useGlFinish=false;
     useGlFinish_visionSensors=false;
     vsync=0;
-    debugOpenGl=false;
     stereoDist=0.0; // default, no stereo!
 
 
@@ -564,12 +558,9 @@ void CUserSettings::saveUserSettings()
         c.addInteger(_USR_VBO_OPERATION,vboOperation,"recommended to keep -1 (-1=default, 0=always off, 1=on when available).");
         c.addInteger(_USR_VBO_PERSISTENCE_IN_MS,vboPersistenceInMs,"recommended to keep 5000.");
         c.addBoolean(_USR_OGL_COMPATIBILITY_TWEAK_1,oglCompatibilityTweak1,"recommended to keep false since it causes small memory leaks.");
-        c.addInteger(_USR_VISION_SENSORS_USE_GUI_WINDOWED,visionSensorsUseGuiThread_windowed,"recommended to keep -1 (-1=default, 0=GUI when not otherwise possible, 1=always GUI).");
-        c.addInteger(_USR_VISION_SENSORS_USE_GUI_HEADLESS,visionSensorsUseGuiThread_headless,"recommended to keep -1 (-1=default, 0=GUI when not otherwise possible, 1=always GUI).");
         c.addBoolean(_USR_USE_GLFINISH,useGlFinish,"recommended to keep false. Graphic card dependent.");
         c.addBoolean(_USR_USE_GLFINISH_VISION_SENSORS,useGlFinish_visionSensors,"recommended to keep false. Graphic card dependent.");
         c.addInteger(_USR_VSYNC,vsync,"recommended to keep at 0. Graphic card dependent.");
-        c.addBoolean(_USR_DEBUG_OPENGL,debugOpenGl,"");
         c.addFloat(_USR_STEREO_DIST,stereoDist,"0=no stereo, otherwise the intra occular distance (0.0635 for the human eyes).");
         c.addInteger(_USR_HIGH_RES_DISPLAY,highResDisplay,"-1=none, 1=special, 2=enabled, 3=enable oglScaling and guiScaling below.");
         c.addInteger(_USR_GUESSED_SCALING_FOR_2X_OPENGL,guessedDisplayScalingThresholdFor2xOpenGl,"200=default");
@@ -854,12 +845,9 @@ void CUserSettings::loadUserSettings()
     //*/
     c.getInteger(_USR_VBO_PERSISTENCE_IN_MS,vboPersistenceInMs);
     c.getBoolean(_USR_OGL_COMPATIBILITY_TWEAK_1,oglCompatibilityTweak1);
-    c.getInteger(_USR_VISION_SENSORS_USE_GUI_WINDOWED,visionSensorsUseGuiThread_windowed);
-    c.getInteger(_USR_VISION_SENSORS_USE_GUI_HEADLESS,visionSensorsUseGuiThread_headless);
     c.getBoolean(_USR_USE_GLFINISH,useGlFinish);
     c.getBoolean(_USR_USE_GLFINISH_VISION_SENSORS,useGlFinish_visionSensors);
     c.getInteger(_USR_VSYNC,vsync);
-    c.getBoolean(_USR_DEBUG_OPENGL,debugOpenGl);
     c.getFloat(_USR_STEREO_DIST,stereoDist);
     c.getInteger(_USR_HIGH_RES_DISPLAY,highResDisplay);
     c.getInteger(_USR_GUESSED_SCALING_FOR_2X_OPENGL,guessedDisplayScalingThresholdFor2xOpenGl);

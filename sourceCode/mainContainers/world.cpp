@@ -632,7 +632,18 @@ void CWorld::simulationAboutToStart()
         App::logMsg(sim_verbosity_errors,"the 'Geometric' plugin could not be initialized. Collision detection,\n       distance calculation, and proximity sensor simulation will not work.");
     }
 
-    _simulationAboutToStart();
+    buttonBlockContainer->simulationAboutToStart(); // old
+    sceneObjects->simulationAboutToStart();
+    dynamicsContainer->simulationAboutToStart();
+    embeddedScriptContainer->simulationAboutToStart();
+    pageContainer->simulationAboutToStart();
+    collisions->simulationAboutToStart(); // old
+    distances->simulationAboutToStart(); // old
+    collections->simulationAboutToStart();
+    ikGroups->simulationAboutToStart(); // old
+    pathPlanning->simulationAboutToStart(); // old
+    simulation->simulationAboutToStart();
+
     App::worldContainer->calcInfo->simulationAboutToStart();
 
     App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttostart);
@@ -655,7 +666,10 @@ void CWorld::simulationAboutToStart()
 
 void CWorld::simulationPaused()
 {
-    _simulationPaused();
+    CScriptObject* mainScript=embeddedScriptContainer->getMainScript();
+    if (mainScript!=nullptr)
+        mainScript->systemCallMainScript(sim_syscb_suspend,nullptr,nullptr);
+
     #ifdef SIM_WITH_GUI
         GuiApp::setToolbarRefreshFlag();
         GuiApp::setFullDialogRefreshFlag();
@@ -664,7 +678,10 @@ void CWorld::simulationPaused()
 
 void CWorld::simulationAboutToResume()
 {
-    _simulationAboutToResume();
+    CScriptObject* mainScript=embeddedScriptContainer->getMainScript();
+    if (mainScript!=nullptr)
+        mainScript->systemCallMainScript(sim_syscb_resume,nullptr,nullptr);
+
     #ifdef SIM_WITH_GUI
         GuiApp::setToolbarRefreshFlag();
         GuiApp::setFullDialogRefreshFlag();
@@ -673,7 +690,7 @@ void CWorld::simulationAboutToResume()
 
 void CWorld::simulationAboutToStep()
 {
-    _simulationAboutToStep();
+    ikGroups->resetCalculationResults();
 }
 
 void CWorld::simulationAboutToEnd()
@@ -682,7 +699,7 @@ void CWorld::simulationAboutToEnd()
 
     App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttoend);
 
-    _simulationAboutToEnd();
+    embeddedScriptContainer->simulationAboutToEnd(); // will call a last time the main and all non-threaded child scripts, then reset them
 
 #ifdef SIM_WITH_GUI
     if (GuiApp::mainWindow!=nullptr)
@@ -722,8 +739,22 @@ void CWorld::simulationEnded(bool removeNewObjects)
     }
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
 
-    _simulationEnded();
-
+    drawingCont->simulationEnded();
+    pointCloudCont->simulationEnded();
+    bannerCont->simulationEnded();
+    buttonBlockContainer->simulationEnded();
+    dynamicsContainer->simulationEnded();
+    signalContainer->simulationEnded();
+    embeddedScriptContainer->simulationEnded();
+    sceneObjects->simulationEnded();
+    pageContainer->simulationEnded();
+    collisions->simulationEnded();
+    distances->simulationEnded();
+    collections->simulationEnded();
+    ikGroups->simulationEnded();
+    pathPlanning->simulationEnded();
+    simulation->simulationEnded();
+    commTubeContainer->simulationEnded();
     App::worldContainer->calcInfo->simulationEnded();
     #ifdef SIM_WITH_GUI
         App::worldContainer->serialPortContainer->simulationEnded();
@@ -735,7 +766,6 @@ void CWorld::simulationEnded(bool removeNewObjects)
         GuiApp::setToolbarRefreshFlag();
         GuiApp::setFullDialogRefreshFlag();
     #endif
-
 
     App::undoRedo_sceneChanged(""); // keeps this (additional objects were removed, and object positions were reset)
 
@@ -2064,65 +2094,6 @@ bool CWorld::_saveSimpleXmlScene(CSer& ar)
         sceneObjects->writeSimpleXmlSceneObjectTree(ar,sceneObjects->getOrphanFromIndex(i));
 
     return(retVal);
-}
-
-void CWorld::_simulationAboutToStart()
-{
-    buttonBlockContainer->simulationAboutToStart(); // old
-    sceneObjects->simulationAboutToStart();
-    dynamicsContainer->simulationAboutToStart();
-    embeddedScriptContainer->simulationAboutToStart();
-    pageContainer->simulationAboutToStart();
-    collisions->simulationAboutToStart(); // old
-    distances->simulationAboutToStart(); // old
-    collections->simulationAboutToStart();
-    ikGroups->simulationAboutToStart(); // old
-    pathPlanning->simulationAboutToStart(); // old
-    simulation->simulationAboutToStart();
-}
-
-void CWorld::_simulationPaused()
-{
-    CScriptObject* mainScript=embeddedScriptContainer->getMainScript();
-    if (mainScript!=nullptr)
-        mainScript->systemCallMainScript(sim_syscb_suspend,nullptr,nullptr);
-}
-
-void CWorld::_simulationAboutToResume()
-{
-    CScriptObject* mainScript=embeddedScriptContainer->getMainScript();
-    if (mainScript!=nullptr)
-        mainScript->systemCallMainScript(sim_syscb_resume,nullptr,nullptr);
-}
-
-void CWorld::_simulationAboutToStep()
-{
-    ikGroups->resetCalculationResults();
-}
-
-void CWorld::_simulationAboutToEnd()
-{
-    embeddedScriptContainer->simulationAboutToEnd(); // will call a last time the main and all non-threaded child scripts, then reset them
-}
-
-void CWorld::_simulationEnded()
-{
-    drawingCont->simulationEnded();
-    pointCloudCont->simulationEnded();
-    bannerCont->simulationEnded();
-    buttonBlockContainer->simulationEnded();
-    dynamicsContainer->simulationEnded();
-    signalContainer->simulationEnded();
-    embeddedScriptContainer->simulationEnded();
-    sceneObjects->simulationEnded();
-    pageContainer->simulationEnded();
-    collisions->simulationEnded();
-    distances->simulationEnded();
-    collections->simulationEnded();
-    ikGroups->simulationEnded();
-    pathPlanning->simulationEnded();
-    simulation->simulationEnded();
-    commTubeContainer->simulationEnded();
 }
 
 void CWorld::_getMinAndMaxNameSuffixes(int& smallestSuffix,int& biggestSuffix) const

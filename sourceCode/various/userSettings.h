@@ -42,7 +42,6 @@ public:
     bool oglCompatibilityTweak1;
     double stereoDist;
     int vsync;
-    bool debugOpenGl;
     double identicalVertexTolerance;
     bool compressFiles;
     int triCountInOBB;
@@ -90,8 +89,6 @@ public:
     int vboPersistenceInMs;
     int desiredOpenGlMajor;
     int desiredOpenGlMinor;
-    int visionSensorsUseGuiThread_windowed;
-    int visionSensorsUseGuiThread_headless;
     int fileDialogs;
     double mouseWheelZoomFactor;
 

@@ -858,38 +858,10 @@ bool CVisionSensor::detectEntity(int entityID,bool detectAll,bool entityIsModelA
     bool retVal=false;
     App::worldContainer->calcInfo->visionSensorSimulationStart();
 
-    // Following strange construction needed so that we can
-    // do all the initialization/rendering in the UI thread:
-    // - if not using an offscreen type (otherwise big problems and crashes)
-    // - if this is not called from the main simulation thread or the UI thread (otherwise, hangs eventually (linked to QOpenGLContext that requires event handling somehow))
-
-    // On Linux, depending on the openGl version, drivers and GPU, there can be many crashes if we do not handle
-    // vision sensors in the UI thread. So, we handle everything in the UI thread by default:
-    bool onlyGuiThread=true;
-#ifdef SIM_WITH_GUI
-    if (GuiApp::mainWindow==nullptr)
-    { // headless
-        if (App::userSettings->visionSensorsUseGuiThread_headless==0)
-            onlyGuiThread=false;
-    }
-    else
-    { // windowed
-        if (App::userSettings->visionSensorsUseGuiThread_windowed==0)
-            onlyGuiThread=false;
-    }
-#else
-    if (App::userSettings->visionSensorsUseGuiThread_headless==0)
-        onlyGuiThread=false;
-#endif
-
-    bool ui=VThread::isUiThread();
-    bool noAuxThread=VThread::isUiThread()||VThread::isSimThread();
-    bool offscreen=(App::userSettings->offscreenContextType<1);
-
-    if ( ui || ((noAuxThread&&offscreen)&&(!onlyGuiThread)) )
-        detectEntity2(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
-    else
+    #ifdef SIM_WITH_GUI
         detectVisionSensorEntity_executedViaUiThread(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
+    #else
+    #endif
 
     retVal=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
     sensorResult.sensorWasTriggered=retVal;
@@ -2767,10 +2739,10 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded(bool useStenci
         #else
             QOpenGLWidget* otherWidgetToShareResourcesWith=nullptr;
         #endif
-#ifdef SIM_WITH_GUI
-        if (GuiApp::mainWindow!=nullptr)
-            otherWidgetToShareResourcesWith=GuiApp::mainWindow->openglWidget;
-#endif
+        #ifdef SIM_WITH_GUI
+            if (GuiApp::mainWindow!=nullptr)
+                otherWidgetToShareResourcesWith=GuiApp::mainWindow->openglWidget;
+        #endif
 
         // By default, we use QT_WINDOW_HIDE_TP, since
         // QT_OFFSCREEN_TP causes problems on certain GPUs, e.g.:

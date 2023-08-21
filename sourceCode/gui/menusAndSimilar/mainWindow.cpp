@@ -772,12 +772,6 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         swapTheBuffers=true;
         int oglDebugTime=startTime;
         openglWidget->makeContextCurrent();
-        if (App::userSettings->debugOpenGl)
-        {
-            int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
-            App::logMsg(sim_verbosity_trace,"openGl debug --> doneCurrent + makeCurrent: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
-            oglDebugTime=oglDebugTimeNow;
-        }
 
         int mp[2]={_mouseRenderingPos[0],_mouseRenderingPos[1]};
 
@@ -793,38 +787,12 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
             oglSurface->render(_currentCursor,_mouseButtonsState,mp,nullptr);
         }
 
-        if (App::userSettings->debugOpenGl)
-        {
-            int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
-            App::logMsg(sim_verbosity_trace,"openGl debug --> sendEventCallbackMessageToAllPlugins + render: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
-            oglDebugTime=oglDebugTimeNow;
-        }
-
         previousDisplayWasEnabled=0;
         if (App::userSettings->useGlFinish) // false by default!
             glFinish(); // Might be important later (synchronization problems)
                     // removed on 2009/12/09 upon recomendation of gamedev community
                     // re-put on 2010/01/11 because it slows down some graphic cards in a non-proportional way (e.g. 1 object=x ms, 5 objects=20x ms)
                     // re-removed again (by default) on 31/01/2013. Thanks a lot to Cedric Pradalier for pointing problems appearing with the NVidia drivers
-
-        if (App::userSettings->debugOpenGl)
-        {
-            int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
-            App::logMsg(sim_verbosity_trace,"openGl debug --> glFinish (%i, %i): %i",App::userSettings->useGlFinish,App::userSettings->vsync,VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
-            std::string tmp="(none given)";
-            if (glGetString(GL_VENDOR)!=nullptr)
-                tmp=(char*)glGetString(GL_VENDOR);
-            App::logMsg(sim_verbosity_debug,"openGl debug --> VENDOR:%s",tmp.c_str());
-            tmp="(none given)";
-            if (glGetString(GL_RENDERER)!=nullptr)
-                tmp=(char*)glGetString(GL_RENDERER);
-            App::logMsg(sim_verbosity_debug,"openGl debug --> RENDERER:%s",tmp.c_str());
-            tmp="(none given)";
-            if (glGetString(GL_VERSION)!=nullptr)
-                tmp=(char*)glGetString(GL_VERSION);
-            App::logMsg(sim_verbosity_debug,"openGl debug --> VERSION:%s",tmp.c_str());
-            oglDebugTime=oglDebugTimeNow;
-        }
     }
     else
     {
@@ -855,30 +823,13 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
     if ( swapTheBuffers&&(openglWidget!=nullptr) ) // condition added on 31/1/2012... might help because some VMWare installations crash when disabling the rendering
     {
         int oglDebugTime=(int)VDateTime::getTimeInMs();
-        // the only time in the whole application (except for COpenglWidget::paintGL() ) where we can call
-        // this command, otherwise we have problems with some graphic cards and VMWare on MAC:
 #ifdef USES_QGLWIDGET
         openglWidget->swapBuffers();
-#else
-        openglWidget->update();
-#endif
-        if (App::userSettings->debugOpenGl)
-        {
-            int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
-            App::logMsg(sim_verbosity_trace,"openGl debug --> swapBuffers: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
-            oglDebugTime=oglDebugTimeNow;
-        }
-
         openglWidget->doneCurrent();
-
-        if (App::userSettings->debugOpenGl)
-        {
-            int oglDebugTimeNow=(int)VDateTime::getTimeInMs();
-            App::logMsg(sim_verbosity_trace,"openGl debug --> doneCurrent: %i",VDateTime::getTimeDiffInMs(oglDebugTime,oglDebugTimeNow));
-            oglDebugTime=oglDebugTimeNow;
-        }
+#else
+        openglWidget->repaint();
+#endif
     }
-
     _renderingTimeInMs=VDateTime::getTimeDiffInMs(startTime);
     return(_renderingTimeInMs);
 }
@@ -1502,7 +1453,6 @@ void CMainWindow::simulationEnded()
 {
     tabBar->setEnabled(true);
     editModeContainer->simulationEnded();
-    // reset those:
     _proxSensorClickSelectDown=0;
     _proxSensorClickSelectUp=0;
 }

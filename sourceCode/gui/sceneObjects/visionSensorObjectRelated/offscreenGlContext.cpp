@@ -32,9 +32,6 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QOp
     // 1. QT_OFFSCREEN_TP can be started from any thread, also when running in headless mode. However:
     // QOpenGLContext somehow requires that the thread that created it also processes its events on
     // a regular basis, otherwise the UI thread will hang out of the blue somehow.
-    // The UI thread has its own App::qtApp->processEvents(), same for the SIM thread.
-    // Auxiliary SIM threads (started via threaded scripts) will ask the UI thread to do
-    // QOpenGLContext initialization and rendering.
     //
     // 2. QT_WINDOW_SHOW_TP and QT_WINDOW_HIDE_TP can only be started from the UI thread
     // (also when running in headless mode), otherwise we have crashes. So in that situation
@@ -52,25 +49,29 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QOp
     if (_offscreenType==QT_OFFSCREEN_TP)
     {
         _qOffscreenSurface=new QOffscreenSurface();
-        QSurfaceFormat f;
-        f.setSwapBehavior(QSurfaceFormat::SingleBuffer);
-        f.setRenderableType(QSurfaceFormat::OpenGL);
-        f.setRedBufferSize(8);
-        f.setGreenBufferSize(8);
-        f.setBlueBufferSize(8);
-        f.setAlphaBufferSize(0);
-        f.setStencilBufferSize(8);
-        f.setDepthBufferSize(24);
-        if (majorOpenGl!=-1)
-            f.setMajorVersion(majorOpenGl);
-        if (minorOpenGl!=-1)
-            f.setMinorVersion(minorOpenGl);
-        _qOffscreenSurface->setFormat(f);
+        #ifdef USES_QGLWIDGET
+            QSurfaceFormat f;
+            f.setSwapBehavior(QSurfaceFormat::SingleBuffer);
+            f.setRenderableType(QSurfaceFormat::OpenGL);
+            f.setRedBufferSize(8);
+            f.setGreenBufferSize(8);
+            f.setBlueBufferSize(8);
+            f.setAlphaBufferSize(0);
+            f.setStencilBufferSize(8);
+            f.setDepthBufferSize(24);
+            if (majorOpenGl!=-1)
+                f.setMajorVersion(majorOpenGl);
+            if (minorOpenGl!=-1)
+                f.setMinorVersion(minorOpenGl);
+            _qOffscreenSurface->setFormat(f);
+        #endif
         _qOffscreenSurface->create();
         if (_qOffscreenSurface->isValid())
         {
             _qContext=new QOpenGLContext();
-            _qContext->setFormat(_qOffscreenSurface->format());
+            #ifdef USES_QGLWIDGET
+                _qContext->setFormat(_qOffscreenSurface->format());
+            #endif
             if (otherWidgetToShareResourcesWith!=nullptr)
                 #ifdef USES_QGLWIDGET
                     _qContext->setShareContext(otherWidgetToShareResourcesWith->context()->contextHandle());

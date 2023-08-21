@@ -126,13 +126,6 @@ private:
     bool _loadSimpleXmlSceneOrModel(CSer& ar);
     bool _saveSimpleXmlScene(CSer& ar);
 
-    void _simulationAboutToStart();
-    void _simulationPaused();
-    void _simulationAboutToResume();
-    void _simulationAboutToStep();
-    void _simulationAboutToEnd();
-    void _simulationEnded();
-
     void _getMinAndMaxNameSuffixes(int& smallestSuffix,int& biggestSuffix) const;
     int _getSuffixOffsetForGeneralObjectToAdd(bool tempNames,std::vector<CSceneObject*>* loadedObjectList,
         std::vector<CCollection*>* loadedCollectionList,

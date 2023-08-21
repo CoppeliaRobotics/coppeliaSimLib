@@ -135,7 +135,7 @@ void CQDlgSettings::on_qqAdjustOpenGl_clicked()
             cmd.intParams.push_back(theDialog.fboType);
             cmd.intParams.push_back(theDialog.vboOperation);
 
-            cmd.intParams.push_back(App::userSettings->visionSensorsUseGuiThread_windowed);
+            cmd.intParams.push_back(false);
             cmd.boolParams.push_back(App::userSettings->oglCompatibilityTweak1);
             cmd.boolParams.push_back(App::userSettings->useGlFinish);
             cmd.boolParams.push_back(App::userSettings->useGlFinish_visionSensors);

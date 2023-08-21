@@ -425,10 +425,14 @@ bool CPluginContainer::selectExtRenderer(int index)
     {
         if (currentPovRayPlugin==nullptr)
         {
-            if (VThread::isSimThread())
+            #ifdef SIM_WITH_GUI
+                if (VThread::isSimThread())
+                    currentPovRayPlugin=_tryToLoadPluginOnce(SIMPOVRAY_DEFAULT);
+                else
+                    GuiApp::appendSimulationThreadCommand(SELECT_RENDERER_CMD,index);
+            #else
                 currentPovRayPlugin=_tryToLoadPluginOnce(SIMPOVRAY_DEFAULT);
-            else
-                GuiApp::appendSimulationThreadCommand(SELECT_RENDERER_CMD,index);
+            #endif
         }
         currentExternalRendererPlugin=currentPovRayPlugin;
     }
@@ -436,10 +440,14 @@ bool CPluginContainer::selectExtRenderer(int index)
     {
         if (currentOpenGl3Plugin==nullptr)
         {
-            if (VThread::isSimThread())
+            #ifdef SIM_WITH_GUI
+                if (VThread::isSimThread())
+                    currentOpenGl3Plugin=_tryToLoadPluginOnce(SIMOPENGL3_DEFAULT);
+                else
+                    GuiApp::appendSimulationThreadCommand(SELECT_RENDERER_CMD,index);
+            #else
                 currentOpenGl3Plugin=_tryToLoadPluginOnce(SIMOPENGL3_DEFAULT);
-            else
-                GuiApp::appendSimulationThreadCommand(SELECT_RENDERER_CMD,index);
+            #endif
         }
         currentExternalRendererPlugin=currentOpenGl3Plugin;
     }

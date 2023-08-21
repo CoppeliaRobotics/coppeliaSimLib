@@ -48,7 +48,6 @@ public:
     SModelThumbnailInfo* getModelDragAndDropInfo();
     void clearModelDragAndDropInfo();
 
-
 protected:
     void _setCtrlAndShiftKeyState(bool ctrlDown,bool shiftDown);
     void _computeMousePos(int inX,int inY,int& outX,int& outY);

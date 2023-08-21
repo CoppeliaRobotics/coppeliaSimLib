@@ -29,6 +29,7 @@ COpenglWidget::COpenglWidget(QWidget *parent) : QOpenGLWidget(parent)
 #endif
 {
     TRACE_INTERNAL;
+
     _bufferedMouseOrKeyboardOrResizeEvents.clear();
     disableWheelRotateForOne500ms=-1;
     disableMouseMoveFor200ms=-1;
