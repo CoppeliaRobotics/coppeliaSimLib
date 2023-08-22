@@ -33,8 +33,3 @@ CVisionSensorGlStuff::~CVisionSensorGlStuff()
     if (_destroyOffscreenContext)
         delete offscreenContext;
 }
-
-bool CVisionSensorGlStuff::canDeleteNow()
-{
-    return(offscreenContext->canBeDeleted());
-}

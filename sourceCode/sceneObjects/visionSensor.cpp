@@ -858,22 +858,26 @@ bool CVisionSensor::detectEntity(int entityID,bool detectAll,bool entityIsModelA
     bool retVal=false;
     App::worldContainer->calcInfo->visionSensorSimulationStart();
 
+    bool validRendering=false;
     #ifdef SIM_WITH_GUI
-        detectVisionSensorEntity_executedViaUiThread(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
+        validRendering=detectVisionSensorEntity_executedViaUiThread(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
     #else
     #endif
 
-    retVal=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
-    sensorResult.sensorWasTriggered=retVal;
+    if (validRendering)
+    {
+        retVal=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
+        sensorResult.sensorWasTriggered=retVal;
+    }
 
     App::worldContainer->calcInfo->visionSensorSimulationEnd(retVal);
     return(retVal);
 }
 
-void CVisionSensor::detectEntity2(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
+bool CVisionSensor::detectEntity2(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
 { // if entityID is -1, all detectable objects are rendered!
     TRACE_INTERNAL;
-
+    bool retVal=false;
     std::vector<int> activeMirrors;
 
 #ifdef SIM_WITH_GUI
@@ -881,19 +885,13 @@ void CVisionSensor::detectEntity2(int entityID,bool detectAll,bool entityIsModel
     {
         int activeMirrorCnt=_getActiveMirrors(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,overrideRenderableFlagsForNonCollections,_attributesForRendering,activeMirrors);
         createGlContextAndFboAndTextureObjectIfNeeded(activeMirrorCnt>0);
-
-        if (!_contextFboAndTexture->offscreenContext->makeCurrent())
-        { // we could not make current in the current thread: we erase the context and create a new one:
-            _removeGlContextAndFboAndTextureObjectIfNeeded();
-            createGlContextAndFboAndTextureObjectIfNeeded(activeMirrorCnt>0);
-            _contextFboAndTexture->offscreenContext->makeCurrent();
-        }
+        _contextFboAndTexture->offscreenContext->makeCurrent();
         _contextFboAndTexture->frameBufferObject->switchToFbo();
     }
 #endif
 
     if (!_useExternalImage)
-        renderForDetection(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections,activeMirrors);
+        retVal=renderForDetection(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections,activeMirrors);
 
     if (getInternalRendering())
     {
@@ -929,11 +927,12 @@ void CVisionSensor::detectEntity2(int entityID,bool detectAll,bool entityIsModel
                 // re-removed again (by default) on 31/01/2013. Thanks a lot to Cedric Pradalier for pointing problems appearing with the NVidia drivers
 
         _contextFboAndTexture->frameBufferObject->switchToNonFbo();
-        _contextFboAndTexture->offscreenContext->doneCurrent(); // Important to free it if we want to use this context from a different thread!
+        _contextFboAndTexture->offscreenContext->doneCurrent();
 #endif
     }
     else
         _extRenderer_retrieveImage();
+    return(retVal);
 }
 
 bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
@@ -1031,6 +1030,16 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     data[26]=&povAperture;
     data[27]=&povBlurSamples;
 
+    #ifdef SIM_WITH_GUI
+        #ifdef USES_QGLWIDGET
+            QGLWidget* otherWidgetToShareResourcesWith=nullptr;
+        #else
+            QOpenGLWidget* otherWidgetToShareResourcesWith=nullptr;
+        #endif
+        if (GuiApp::mainWindow!=nullptr)
+            data[28]=GuiApp::mainWindow->openglWidget;
+    #endif
+
     App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_start,data);
     return(retVal);
 }
@@ -1092,10 +1101,10 @@ void CVisionSensor::_extRenderer_retrieveImage()
     App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_stop,data);
 }
 
-void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections,const std::vector<int>& activeMirrors)
+bool CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections,const std::vector<int>& activeMirrors)
 { // if entityID==-1, all objects that can be detected are rendered. 
     TRACE_INTERNAL;
-
+    bool retVal=true;
     _currentPerspective=_perspective;
 
     if (getInternalRendering())
@@ -1184,7 +1193,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
     }
     else
     {
-        _extRenderer_prepareView(_renderMode-sim_rendermode_povray);
+        retVal=_extRenderer_prepareView(_renderMode-sim_rendermode_povray);
         _extRenderer_prepareLights();
     }
 
@@ -1220,6 +1229,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
         glRenderMode(GL_RENDER);
     }
 #endif
+    return(retVal);
 }
 
 void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
@@ -2677,13 +2687,14 @@ void CVisionSensor::serialize(CSer& ar)
     }
 }
 
-void CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
+bool CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
 {
+    bool retVal=false;
 #ifdef SIM_WITH_GUI
     TRACE_INTERNAL;
     if (VThread::isUiThread())
     { // we are in the UI thread. We execute the command now:
-        detectEntity2(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
+        retVal=detectEntity2(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
     }
     else
     { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -2697,8 +2708,10 @@ void CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bo
         cmdIn.boolParams.push_back(hideEdgesIfModel);
         cmdIn.boolParams.push_back(overrideRenderableFlagsForNonCollections);
         GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        retVal=cmdOut.boolParams[0];
     }
 #endif
+    return(retVal);
 }
 
 #ifdef SIM_WITH_GUI
@@ -2733,7 +2746,6 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded(bool useStenci
 
     if (_contextFboAndTexture==nullptr)
     { // our objects are not yet there. Build them:
-
         #ifdef USES_QGLWIDGET
             QGLWidget* otherWidgetToShareResourcesWith=nullptr;
         #else
@@ -2795,10 +2807,10 @@ void CVisionSensor::_removeGlContextAndFboAndTextureObjectIfNeeded()
     TRACE_INTERNAL;
     if (_contextFboAndTexture!=nullptr)
     {
-        if (_contextFboAndTexture->canDeleteNow())
-            delete _contextFboAndTexture;
-        else
+        if (VThread::isSimThread())
             _contextFboAndTexture->deleteLater(); // We are in the wrong thread to delete it here
+        else
+            delete _contextFboAndTexture;
         _contextFboAndTexture=nullptr;
     }
 }

@@ -497,35 +497,23 @@ int CPlugin::loadAndInit_old(std::string* errStr)
 void CPlugin::_loadAuxEntryPoints()
 {
     povRayAddr=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(instance,"simPovRay"));
-    if (povRayAddr==nullptr)
-        povRayAddr=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(instance,"v_repPovRay")); // for backward compatibility
     if (povRayAddr!=nullptr)
         App::worldContainer->pluginContainer->currentPovRayPlugin=this;
 
     openGl3Addr=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(instance,"simOpenGL3Renderer"));
-    if (openGl3Addr==nullptr)
-        openGl3Addr=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(instance,"v_repOpenGL3Renderer")); // for backward compatibility
     if (openGl3Addr!=nullptr)
         App::worldContainer->pluginContainer->currentOpenGl3Plugin=this;
 
     qhullAddr=(ptrQhull)(VVarious::resolveLibraryFuncName(instance,"simQhull"));
-    if (qhullAddr==nullptr)
-        qhullAddr=(ptrQhull)(VVarious::resolveLibraryFuncName(instance,"v_repQhull")); // for backward compatibility
     if (qhullAddr!=nullptr)
         App::worldContainer->pluginContainer->currentQHullPlugin=this;
 
     hacdAddr=(ptrHACD)(VVarious::resolveLibraryFuncName(instance,"simHACD"));
-    if (hacdAddr==nullptr)
-        hacdAddr=(ptrHACD)(VVarious::resolveLibraryFuncName(instance,"v_repHACD")); // for backward compatibility
     vhacdAddr=(ptrVHACD)(VVarious::resolveLibraryFuncName(instance,"simVHACD"));
-    if (vhacdAddr==nullptr)
-        vhacdAddr=(ptrVHACD)(VVarious::resolveLibraryFuncName(instance,"v_repVHACD")); // for backward compatibility
     if ( (hacdAddr!=nullptr)&&(vhacdAddr!=nullptr) )
         App::worldContainer->pluginContainer->currentConvexDecomposePlugin=this;
 
     decimatorAddr=(ptrMeshDecimator)(VVarious::resolveLibraryFuncName(instance,"simDecimateMesh"));
-    if (decimatorAddr==nullptr)
-        decimatorAddr=(ptrMeshDecimator)(VVarious::resolveLibraryFuncName(instance,"v_repDecimateMesh")); // for backward compatibility
     if (decimatorAddr!=nullptr)
         App::worldContainer->pluginContainer->currentMeshDecimationPlugin=this;
 

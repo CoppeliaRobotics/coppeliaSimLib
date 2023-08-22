@@ -50,12 +50,22 @@ void GuiApp::runGui(int options)
 {
     while (App::getAppStage()!=App::appstage_simInit1Done)
         VThread::sleep(1);
-//    #ifdef USES_QGLWIDGET
-//    #else
+    #ifdef USES_QGLWIDGET
+    #else
         QSurfaceFormat format;
         format.setSwapInterval(0); // turn VSync off
+        format.setVersion(3,2);
+        format.setProfile(QSurfaceFormat::CompatibilityProfile);
+        format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+        format.setRenderableType(QSurfaceFormat::OpenGL);
+        format.setRedBufferSize(8);
+        format.setGreenBufferSize(8);
+        format.setBlueBufferSize(8);
+        format.setAlphaBufferSize(0);
+        format.setStencilBufferSize(8);
+        format.setDepthBufferSize(24);
         QSurfaceFormat::setDefaultFormat(format);
-//    #endif
+    #endif
 
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL,true);
     QApplication* tempApp=new QApplication(_qApp_argc,_qApp_argv);

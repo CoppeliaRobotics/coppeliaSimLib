@@ -24,9 +24,6 @@ public:
     bool makeCurrent();
     bool doneCurrent();
 
-    bool canBeDeleted();
-    void moveGlContextToThread(QThread* otherThread);
-
     enum OFFSCREEN_TYPE
     {
         QT_OFFSCREEN_TP = 0,
@@ -37,15 +34,6 @@ public:
 protected:
     int _offscreenType;
     bool _isHeadless;
-    QThread* _initialThread;
-
-    // Native window vars:
-#ifdef WIN_SIM
-    HWND _windowHandle;
-    HDC _hdc;
-    HGLRC _nativeContext;
-    static std::vector<HGLRC> _allNativeContexts;
-#endif
 
     // Qt offscreen vars:
     QOpenGLContext* _qContext;

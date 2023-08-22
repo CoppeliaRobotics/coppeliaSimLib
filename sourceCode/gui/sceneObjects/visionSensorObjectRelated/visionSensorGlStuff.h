@@ -16,8 +16,6 @@ public:
     #endif
     virtual ~CVisionSensorGlStuff();
 
-    bool canDeleteNow();
-
     COffscreenGlContext* offscreenContext;
     CFrameBufferObject* frameBufferObject;
     CTextureObject* textureObject;

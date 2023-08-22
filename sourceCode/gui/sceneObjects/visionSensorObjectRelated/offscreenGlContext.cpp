@@ -13,16 +13,6 @@ std::vector<QOpenGLContext*> COffscreenGlContext::_allQtContexts;
     std::vector<QOpenGLWidget*> COffscreenGlContext::_allQtWidgets;
 #endif
 
-#ifdef WIN_SIM
-std::vector<HGLRC> COffscreenGlContext::_allNativeContexts;
-/*
-LRESULT CALLBACK WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
-{
-    return DefWindowProc(hWnd, Message, wParam, lParam);
-}
-*/
-#endif
-
 #ifdef USES_QGLWIDGET
 COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGLWidget *otherWidgetToShareResourcesWith,int majorOpenGl,int minorOpenGl) : QObject()
 #else
@@ -45,7 +35,6 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QOp
     TRACE_INTERNAL;
     _offscreenType=offscreenType;
     _isHeadless=(otherWidgetToShareResourcesWith==nullptr);
-    _initialThread=QThread::currentThread();
     if (_offscreenType==QT_OFFSCREEN_TP)
     {
         _qOffscreenSurface=new QOffscreenSurface();
@@ -201,34 +190,19 @@ COffscreenGlContext::~COffscreenGlContext()
     }
 }
 
-bool COffscreenGlContext::canBeDeleted()
-{
-    return(QThread::currentThread()==_initialThread);
-}
-
 bool COffscreenGlContext::makeCurrent()
 {
     TRACE_INTERNAL;
     if (_offscreenType==QT_OFFSCREEN_TP)
     {
-        if (QThread::currentThread()==_initialThread)
-        {
-            _qContext->makeCurrent(_qOffscreenSurface);
-            return(true);
-        }
-        else
-            return(false); // we cannot pull a Qt context from another thread!
+        _qContext->makeCurrent(_qOffscreenSurface);
+        return(true);
     }
 
     if ((_offscreenType==QT_WINDOW_SHOW_TP)||(_offscreenType==QT_WINDOW_HIDE_TP))
     {
-        if (QThread::currentThread()==_initialThread)
-        {
-            _hiddenWindow->makeCurrent();
-            return(true);
-        }
-        else
-            return(false); // we cannot pull a Qt context from another thread!
+        _hiddenWindow->makeCurrent();
+        return(true);
     }
 
     return(false);
@@ -239,39 +213,16 @@ bool COffscreenGlContext::doneCurrent()
     TRACE_INTERNAL;
     if (_offscreenType==QT_OFFSCREEN_TP)
     {
-        if (QThread::currentThread()==_initialThread)
-        {
-            _qContext->doneCurrent();
-            return(true);
-        }
+        _qContext->doneCurrent();
+        return(true);
     }
 
     if ((_offscreenType==QT_WINDOW_SHOW_TP)||(_offscreenType==QT_WINDOW_HIDE_TP))
     {
-        if (QThread::currentThread()==_initialThread)
-        {
-            _hiddenWindow->doneCurrent();
-            return(true);
-        }
+        _hiddenWindow->doneCurrent();
+        return(true);
     }
 
-    if (QThread::currentThread()!=_initialThread)
-    {
-        App::logMsg(sim_verbosity_errors,"do not call COffscreenGlContext::doneCurrent() from a non-initial thread.");
-        App::beep();
-    }
     return(false);
-}
-
-void COffscreenGlContext::moveGlContextToThread(QThread* otherThread)
-{ // not used!
-    TRACE_INTERNAL;
-    if (_offscreenType==QT_OFFSCREEN_TP)
-        _qContext->moveToThread(otherThread);
-
-    if ((_offscreenType==QT_WINDOW_SHOW_TP)||(_offscreenType==QT_WINDOW_HIDE_TP))
-        _hiddenWindow->context()->moveToThread(otherThread);
-
-    _initialThread=otherThread;
 }
 

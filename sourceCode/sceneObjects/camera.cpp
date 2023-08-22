@@ -2308,6 +2308,16 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bo
     data[26]=&povAperture;
     data[27]=&povBlurSamples;
 
+    #ifdef SIM_WITH_GUI
+        #ifdef USES_QGLWIDGET
+            QGLWidget* otherWidgetToShareResourcesWith=nullptr;
+        #else
+            QOpenGLWidget* otherWidgetToShareResourcesWith=nullptr;
+        #endif
+        if (GuiApp::mainWindow!=nullptr)
+            data[28]=GuiApp::mainWindow->openglWidget;
+    #endif
+
     App::worldContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_start,data);
     return(retVal);
 }

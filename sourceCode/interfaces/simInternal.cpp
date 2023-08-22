@@ -2680,6 +2680,14 @@ int simGetBoolParam_internal(int parameter)
                 return(1);
             #endif
         }
+        if (parameter==sim_boolparam_qglwidget)
+        {
+            #ifdef USES_QGLWIDGET
+                return(1);
+            #else
+                return(0);
+            #endif
+        }
         if (parameter==sim_boolparam_rayvalid)
         {
             #ifdef SIM_WITH_GUI
