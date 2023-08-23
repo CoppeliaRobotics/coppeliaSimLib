@@ -2354,14 +2354,16 @@ void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,i
         // Mesh change:
         if (_extRendererMeshId==0)
         { // first time we render this item
-            _extRendererMeshId=_extRendererUniqueMeshID++;
+            _extRendererUniqueMeshID++;
+            _extRendererMeshId=_extRendererUniqueMeshID;
             _extRendererMesh_lastVertexBufferId=_vertexBufferId;
         }
         else
         { // we already rendered this item. Did it change?
             if (_extRendererMesh_lastVertexBufferId!=_vertexBufferId)
             {
-                _extRendererMeshId=_extRendererUniqueMeshID++;
+                _extRendererUniqueMeshID++;
+                _extRendererMeshId=_extRendererUniqueMeshID;
                 _extRendererMesh_lastVertexBufferId=_vertexBufferId;
             }
         }
@@ -2376,7 +2378,8 @@ void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,i
                 if (to!=nullptr)
                     _extRendererTexture_lastTextureId=to->getCurrentTextureContentUniqueId();
             }
-            _extRendererTextureId=_extRendererUniqueTextureID++;
+            _extRendererUniqueTextureID++;
+            _extRendererTextureId=_extRendererUniqueTextureID;
         }
         else
         { // we already rendered this item. Did it change?
@@ -2389,16 +2392,17 @@ void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,i
             }
             if (tex!=_extRendererTexture_lastTextureId)
             {
-
                 _extRendererTexture_lastTextureId=tex;
-                _extRendererTextureId=_extRendererUniqueTextureID++;
+                _extRendererUniqueTextureID++;
+                _extRendererTextureId=_extRendererUniqueTextureID;
             }
         }
 
         // Object change:
         if (_extRendererObjectId==0)
         { // first time we render this item
-            _extRendererObjectId=_extRendererUniqueObjectID++;
+            _extRendererUniqueObjectID++;
+            _extRendererObjectId=_extRendererUniqueObjectID;
             _extRendererObject_lastMeshId=_extRendererMeshId;
             _extRendererObject_lastTextureId=_extRendererTextureId;
         }
@@ -2406,7 +2410,8 @@ void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr,CShape* geomData,i
         { // we already rendered this item. Did it change?
             if ((_extRendererObject_lastMeshId!=_extRendererMeshId)||(_extRendererObject_lastTextureId!=_extRendererTextureId))
             {
-                _extRendererObjectId=_extRendererUniqueObjectID++;
+                _extRendererUniqueObjectID++;
+                _extRendererObjectId=_extRendererUniqueObjectID;
                 _extRendererObject_lastMeshId=_extRendererMeshId;
                 _extRendererObject_lastTextureId=_extRendererTextureId;
             }
