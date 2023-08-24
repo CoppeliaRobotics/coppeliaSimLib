@@ -6,10 +6,15 @@
     #include <QGLWidget>
 #else
     #include <QOpenGLWidget>
+    #include <QOpenGLFunctions>
 #endif
 #include <vThread.h>
 
+#ifdef USES_QGLWIDGET
 class COffscreenGlContext : public QObject
+#else
+class COffscreenGlContext : public QObject, protected QOpenGLFunctions
+#endif
 {
     Q_OBJECT
 public:

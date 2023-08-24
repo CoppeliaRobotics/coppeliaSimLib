@@ -48,7 +48,11 @@ void _endTextureDisplay();
 
 void initializeRendering();
 void deinitializeRendering();
-void initGl_ifNeeded();
+#ifdef USES_QGLWIDGET
+    void initGl_ifNeeded();
+#else
+    void initGl_openGLWidget();
+#endif
 void deinitGl_ifNeeded();
 void increaseVertexBufferRefCnt(int vertexBufferId);
 void decreaseVertexBufferRefCnt(int vertexBufferId);

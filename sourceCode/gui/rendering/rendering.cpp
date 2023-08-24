@@ -39,6 +39,7 @@ void deinitializeRendering()
     _glBufferObjects=nullptr;
 }
 
+#ifdef USES_QGLWIDGET
 void initGl_ifNeeded()
 { // when calling this we need to have a valid openGl context!!
     if (_glInitialized)
@@ -51,9 +52,23 @@ void initGl_ifNeeded()
     // http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=271567
     oglExt::turnOffVSync(App::userSettings->vsync);
 
-    //CIloIlo::nonPowerOfTwoTexturesAvailable=oglExt::areNonPowerOfTwoTexturesAvailable();
+    glClearDepth(1.0);
+    glDepthFunc(GL_LEQUAL); // Maybe useful with glPolygonOffset?
+    glClearColor(0.0,0.0,0.0,1.0);
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+    glCullFace(GL_BACK);
+    glDisable(GL_CULL_FACE);
+    glBlendFunc(GL_ONE_MINUS_DST_COLOR,GL_ZERO);
+    glLineStipple(1,3855);
+    // The following is very important for the readPixels command and similar:
+    // Default byte alignement in openGL is 4, but we want it to be 1! Make sure to keep GL_UNPACK_ALIGNMENT to 4 (default). Really? Why?
+    glPixelStorei(GL_PACK_ALIGNMENT,1);
 
-    oglExt::initDefaultGlValues();
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DITHER);
+    glEnable(GL_LIGHTING); // keep lighting on for everything, except for temporary operations.
+    glShadeModel(GL_SMOOTH);
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,1); // Important in order to have both sides affected by lights!
 
     int lights;
     glGetIntegerv(GL_MAX_LIGHTS,&lights);
@@ -89,6 +104,70 @@ void initGl_ifNeeded()
     glVer+=tmp.c_str();
     App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,glVer.c_str());
 }
+#else
+void initGl_openGLWidget()
+{
+    if (_glInitialized)
+        return;
+    _glInitialized=true;
+//    oglExt::prepareExtensionFunctions(App::userSettings->forceFboViaExt);
+
+//    oglExt::turnOffVSync(App::userSettings->vsync);
+
+    glClearDepth(1.0);
+    glDepthFunc(GL_LEQUAL); // Maybe useful with glPolygonOffset?
+    glClearColor(0.0,0.0,0.0,1.0);
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+    glCullFace(GL_BACK);
+    glDisable(GL_CULL_FACE);
+    glBlendFunc(GL_ONE_MINUS_DST_COLOR,GL_ZERO);
+    glLineStipple(1,3855);
+    // The following is very important for the readPixels command and similar:
+    // Default byte alignement in openGL is 4, but we want it to be 1! Make sure to keep GL_UNPACK_ALIGNMENT to 4 (default). Really? Why?
+    glPixelStorei(GL_PACK_ALIGNMENT,1);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DITHER);
+    glEnable(GL_LIGHTING); // keep lighting on for everything, except for temporary operations.
+    glShadeModel(GL_SMOOTH);
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,1); // Important in order to have both sides affected by lights!
+
+    int lights;
+    glGetIntegerv(GL_MAX_LIGHTS,&lights);
+    CLight::setMaxAvailableOglLights(lights);
+
+    if (GuiApp::sc>1)// (userSettings->highResDisplay==1)||(highResDisplay&&(userSettings->highResDisplay==-1)) )
+    {
+        ogl::loadBitmapFont(SIMFONT_MS_SANS_SERIF_30,32,0);
+        ogl::loadBitmapFont(SIMFONT_LUCIDA_CONSOLE_26,32,1);
+    }
+    else
+    {
+        ogl::loadBitmapFont(SIMFONT_MS_SANS_SERIF,16,0);
+        ogl::loadBitmapFont(SIMFONT_COURIER_NEW,16,1);
+    }
+
+    ogl::loadOutlineFont(SIMOUTLINEFONT_ARIAL_INT,SIMOUTLINEFONT_ARIAL_FLOAT);
+
+    std::string glVer("OpenGL: ");
+    std::string tmp="(none given)";
+    if (glGetString(GL_VENDOR)!=nullptr)
+        tmp=(char*)glGetString(GL_VENDOR);
+    glVer+=tmp.c_str();
+    glVer+=", Renderer: ";
+    tmp="(none given)";
+    if (glGetString(GL_RENDERER)!=nullptr)
+        tmp=(char*)glGetString(GL_RENDERER);
+    glVer+=tmp.c_str();
+    glVer+=", Version: ";
+    tmp="(none given)";
+    if (glGetString(GL_VERSION)!=nullptr)
+        tmp=(char*)glGetString(GL_VERSION);
+    glVer+=tmp.c_str();
+    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,glVer.c_str());
+}
+
+#endif
 
 void deinitGl_ifNeeded()
 {

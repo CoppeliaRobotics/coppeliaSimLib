@@ -147,8 +147,28 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QOp
 #endif
 
     makeCurrent();
-    initGl_ifNeeded();
-    oglExt::initDefaultGlValues(); // important to call it here, in case the context was already created
+    #ifdef USES_QGLWIDGET
+        initGl_ifNeeded();
+    #else
+        initializeOpenGLFunctions();
+        initGl_openGLWidget();
+    #endif
+
+    // important to call following here, in case the context was already created:
+    glClearDepth(1.0);
+    glDepthFunc(GL_LEQUAL); // Maybe useful with glPolygonOffset?
+    glClearColor(0.0,0.0,0.0,1.0);
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+    glCullFace(GL_BACK);
+    glDisable(GL_CULL_FACE);
+    glBlendFunc(GL_ONE_MINUS_DST_COLOR,GL_ZERO);
+    glLineStipple(1,3855);
+    glPixelStorei(GL_PACK_ALIGNMENT,1);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DITHER);
+    glEnable(GL_LIGHTING); // keep lighting on for everything, except for temporary operations.
+    glShadeModel(GL_SMOOTH);
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,1); // Important in order to have both sides affected by lights!
 }
 
 COffscreenGlContext::~COffscreenGlContext()

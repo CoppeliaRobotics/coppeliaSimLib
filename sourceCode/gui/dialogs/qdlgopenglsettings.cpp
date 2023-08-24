@@ -33,7 +33,7 @@ void CQDlgOpenGlSettings::refresh()
     #else
         ui->qqOffscreenBox->setEnabled(false);
         ui->qqFboBox->setEnabled(false);
-        ui->qqVboBox->setEnabled(false);
+       // ui->qqVboBox->setEnabled(false);
     #endif
 
     ui->qqContextDefault->setChecked(offscreenContextType==-1);

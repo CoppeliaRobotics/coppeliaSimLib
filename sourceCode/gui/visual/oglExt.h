@@ -1,13 +1,7 @@
-
 #pragma once
-#include <oGL.h>
+#ifdef USES_QGLWIDGET
 
-#ifdef WIN_SIM
-//  #include <qgl.h>
-//  #include <GL/gl.h>
-//  #include <glext.h>
-//  #define GL_DEPTH24_STENCIL8_EXT 0x88F0
-#endif
+#include <oGL.h>
 
 #ifdef LIN_SIM
     #include <GL/glext.h>
@@ -25,7 +19,6 @@
 #endif
 
 #ifdef MAC_SIM
-//  #define GL_GLEXT_FUNCTION_POINTERS 1
     #include <OpenGL/OpenGL.h>
     #include <OpenGL/gl.h>
     #include <OpenGL/gl3.h>
@@ -54,9 +47,6 @@ public:
     static void turnOffVSync(int vsync);
     static bool isFboAvailable();
     static bool _isFboAvailable(bool &viaExt);
-    static bool areNonPowerOfTwoTexturesAvailable();
-    static void initDefaultGlValues();
-
 
     static void GenFramebuffers(GLsizei a,GLuint* b);
     static void DeleteFramebuffers(GLsizei a,const GLuint* b);
@@ -91,3 +81,4 @@ public:
 
     static bool _usingExt;
 };
+#endif

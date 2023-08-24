@@ -5,7 +5,8 @@
 #ifdef USES_QGLWIDGET
     #include <QGLWidget>
 #else
-#include <QOpenGLWidget>
+    #include <QOpenGLWidget>
+    #include <QOpenGLFunctions>
 #endif
 #include <QString>
 
@@ -30,7 +31,7 @@ struct SMouseOrKeyboardOrResizeEvent
 #ifdef USES_QGLWIDGET
 class COpenglWidget : public QGLWidget
 #else
-class COpenglWidget : public QOpenGLWidget
+class COpenglWidget : public QOpenGLWidget, protected QOpenGLFunctions
 #endif
 {
     Q_OBJECT

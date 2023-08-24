@@ -85,7 +85,9 @@ void COpenglWidget::initializeGL()
 #ifdef USES_QGLWIDGET
     setAutoBufferSwap(false);
 #else
-    initGl_ifNeeded();
+    initializeOpenGLFunctions();
+    initGl_openGLWidget();
+//    initGl_ifNeeded();
     QOpenGLWidget::initializeGL();
 #endif
 }

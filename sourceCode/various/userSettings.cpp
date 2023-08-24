@@ -840,7 +840,7 @@ void CUserSettings::loadUserSettings()
     #else
         offscreenContextType=0;
         fboType=1;
-        vboOperation=0;
+//        vboOperation=1;
     #endif
     //*/
     c.getInteger(_USR_VBO_PERSISTENCE_IN_MS,vboPersistenceInMs);

@@ -54,9 +54,9 @@ void GuiApp::runGui(int options)
     #else
         QSurfaceFormat format;
         format.setSwapInterval(0); // turn VSync off
-        format.setVersion(3,2);
+        //format.setVersion(3,2);
         format.setProfile(QSurfaceFormat::CompatibilityProfile);
-        format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+        format.setSwapBehavior(QSurfaceFormat::SingleBuffer);
         format.setRenderableType(QSurfaceFormat::OpenGL);
         format.setRedBufferSize(8);
         format.setGreenBufferSize(8);

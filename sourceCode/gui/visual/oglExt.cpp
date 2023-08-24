@@ -1,5 +1,7 @@
 #include <oglExt.h>
 
+#ifdef USES_QGLWIDGET
+
 #ifndef MAC_SIM
 PFNGLGENFRAMEBUFFERSEXTPROC oglExt::_glGenFramebuffers=nullptr;
 PFNGLDELETEFRAMEBUFFERSEXTPROC oglExt::_glDeleteFramebuffers=nullptr;
@@ -341,30 +343,4 @@ bool oglExt::_isFboAvailable(bool& viaExt)
 //  return(extString.find("GL_EXT_framebuffer_object")!=std::string::npos);
 #endif
 }
-
-bool oglExt::areNonPowerOfTwoTexturesAvailable()
-{
-    std::string extString((const char*)glGetString(GL_EXTENSIONS));
-    return(extString.find("GL_ARB_texture_non_power_of_two")!=std::string::npos);
-}
-
-void oglExt::initDefaultGlValues()
-{
-    glClearDepth(1.0);
-    glDepthFunc(GL_LEQUAL); // Maybe useful with glPolygonOffset?
-    glClearColor(0.0,0.0,0.0,1.0);
-    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-    glCullFace(GL_BACK);
-    glDisable(GL_CULL_FACE);
-    glBlendFunc(GL_ONE_MINUS_DST_COLOR,GL_ZERO);
-    glLineStipple(1,3855);
-    // The following is very important for the readPixels command and similar:
-    // Default byte alignement in openGL is 4, but we want it to be 1! Make sure to keep GL_UNPACK_ALIGNMENT to 4 (default). Really? Why?
-    glPixelStorei(GL_PACK_ALIGNMENT,1);
-
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_DITHER);
-    glEnable(GL_LIGHTING); // keep lighting on for everything, except for temporary operations.
-    glShadeModel(GL_SMOOTH);
-    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,1); // Important in order to have both sides affected by lights!
-}
+#endif

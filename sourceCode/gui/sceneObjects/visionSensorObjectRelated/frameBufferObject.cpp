@@ -6,14 +6,17 @@ CFrameBufferObject::CFrameBufferObject(bool native,int resX,int resY,bool useSte
 {
     TRACE_INTERNAL;
 
-    if (!oglExt::isFboAvailable())
-        native=false;
+    #ifdef USES_QGLWIDGET
+        if (!oglExt::isFboAvailable())
+            native=false;
+    #endif
 
     _native=native;
     _usingStencilBuffer=useStencilBuffer;
 
     _initialThread=QThread::currentThread();
 
+    #ifdef USES_QGLWIDGET
     if (_native)
     {
         unsigned int theMode=GL_DEPTH_COMPONENT;
@@ -40,6 +43,7 @@ CFrameBufferObject::CFrameBufferObject(bool native,int resX,int resY,bool useSte
         oglExt::FramebufferRenderbuffer(oglExt::FRAMEBUFFER,oglExt::COLOR_ATTACHMENT0,oglExt::RENDERBUFFER,_fboPictureBuffer);
     }
     else
+    #endif
     {
         QOpenGLFramebufferObject::Attachment attachment=QOpenGLFramebufferObject::Depth;
         if (_usingStencilBuffer)
@@ -52,6 +56,7 @@ CFrameBufferObject::~CFrameBufferObject()
 {
     TRACE_INTERNAL;
     switchToNonFbo();
+    #ifdef USES_QGLWIDGET
     if (_native)
     {
         oglExt::DeleteRenderbuffers(1,&_fboPictureBuffer);
@@ -59,6 +64,7 @@ CFrameBufferObject::~CFrameBufferObject()
         oglExt::DeleteFramebuffers(1,&_fbo);
     }
     else
+    #endif
         delete _frameBufferObject;
 }
 
@@ -70,18 +76,22 @@ bool CFrameBufferObject::canBeDeleted()
 void CFrameBufferObject::switchToFbo()
 {
     TRACE_INTERNAL;
+#ifdef USES_QGLWIDGET
     if (_native)
         oglExt::BindFramebuffer(oglExt::FRAMEBUFFER,_fbo);
     else
+#endif
         _frameBufferObject->bind();
 }
 
 void CFrameBufferObject::switchToNonFbo()
 {
     TRACE_INTERNAL;
+#ifdef USES_QGLWIDGET
     if (_native)
         oglExt::BindFramebuffer(oglExt::FRAMEBUFFER,0);
     else
+#endif
         _frameBufferObject->release();
 }
 
