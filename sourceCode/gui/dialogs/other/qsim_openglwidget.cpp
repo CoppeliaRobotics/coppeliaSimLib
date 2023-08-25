@@ -56,11 +56,6 @@ void COpenglWidget::makeContextCurrent()
     makeCurrent();
 }
 
-void COpenglWidget::paintEvent(QPaintEvent* event)
-{
-    TRACE_INTERNAL;
-}
-
 void COpenglWidget::resizeEvent(QResizeEvent* rEvent)
 {
     _handleMouseAndKeyboardAndResizeEvents(rEvent,7);
@@ -87,7 +82,7 @@ void COpenglWidget::initializeGL()
 #else
     initializeOpenGLFunctions();
     initGl_openGLWidget();
-//    QOpenGLWidget::initializeGL();
+    QOpenGLWidget::initializeGL();
 #endif
 }
 
@@ -95,18 +90,11 @@ void COpenglWidget::paintGL()
 {
 #ifdef USES_QGLWIDGET
 #else
-    QOpenGLWidget::paintGL();
+    GuiApp::mainWindow->renderScene();
+//    QOpenGLWidget::paintGL();
 #endif
 }
 
-/*
-void COpenglWidget::resizeGL(int w,int h)
-{
-    printf("resizeGL Wx/Wy: %i, %i\n",w,h);
-
-    QOpenGLWidget::resizeGL(w,h);
-}
-*/
 void COpenglWidget::_setCtrlAndShiftKeyState(bool ctrlDown,bool shiftDown)
 {
     int state=GuiApp::mainWindow->getKeyDownState()&(0xffff-1-2);
@@ -594,11 +582,22 @@ void COpenglWidget::dragEnterEvent(QDragEnterEvent* dEvent)
         if (thumbnail!=nullptr)
             dEvent->accept();
     }
+    else
+#ifdef USES_QGLWIDGET
+        QGLWidget::dragEnterEvent(dEvent);
+#else
+        QOpenGLWidget::dragEnterEvent(dEvent);
+#endif
 }
 
 void COpenglWidget::dragLeaveEvent(QDragLeaveEvent* dEvent)
 {
     _modelDragAndDropInfo=nullptr;
+#ifdef USES_QGLWIDGET
+    QGLWidget::dragLeaveEvent(dEvent);
+#else
+    QOpenGLWidget::dragLeaveEvent(dEvent);
+#endif
 }
 
 void COpenglWidget::dropEvent(QDropEvent* dEvent)
@@ -635,7 +634,14 @@ void COpenglWidget::dropEvent(QDropEvent* dEvent)
             _modelDragAndDropInfo=nullptr;
     }
     else
+    {
         _modelDragAndDropInfo=nullptr;
+#ifdef USES_QGLWIDGET
+        QGLWidget::dropEvent(dEvent);
+#else
+        QOpenGLWidget::dropEvent(dEvent);
+#endif
+    }
 }
 
 void COpenglWidget::dragMoveEvent(QDragMoveEvent* dEvent)
@@ -668,7 +674,14 @@ void COpenglWidget::dragMoveEvent(QDragMoveEvent* dEvent)
         }
     }
     else
+    {
         _modelDragAndDropInfo=nullptr;
+#ifdef USES_QGLWIDGET
+        QGLWidget::dragMoveEvent(dEvent);
+#else
+        QOpenGLWidget::dragMoveEvent(dEvent);
+#endif
+    }
 }
 
 SModelThumbnailInfo* COpenglWidget::getModelDragAndDropInfo()

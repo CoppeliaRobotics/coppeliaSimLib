@@ -106,9 +106,7 @@ public:
     bool getStopViaGuiEnabled();
 
 //------------------------
-    void uiThread_renderScene();
-    void uiThread_renderScene_noLock();
-    void simThread_prepareToRenderScene();
+    void renderScene();
     void refreshDialogs_uiThread();
     void callDialogFunction(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
 //------------------------
@@ -164,10 +162,10 @@ public:
     void mouseClickAction(bool down);
     int getMouseClickActionCounter(bool down);
     void getClientArea(int& x,int& y) const;
+    void updateOpenGl();
 
 
 private:
-    int _renderOpenGlContent_callFromRenderingThreadOnly();
     void _actualizetoolbarButtonState();
     void _createDefaultToolBars();
     void _recomputeClientSizeAndPos();

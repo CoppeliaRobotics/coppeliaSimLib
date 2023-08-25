@@ -34,12 +34,8 @@
 
 CUiThread::CUiThread()
 {
-    _frameId=0;
-    _lastFrameId=0;
-
     connect(this,SIGNAL(_executeCommandViaUiThread(SUIThreadCommand*,SUIThreadCommand*)),this,SLOT(__executeCommandViaUiThread(SUIThreadCommand*,SUIThreadCommand*)),Qt::BlockingQueuedConnection);
-    // Blocking:
-    connect(this,SIGNAL(_requestSceneRender_wait()),this,SLOT(__requestSceneRender_wait()),Qt::QueuedConnection);
+    connect(this,SIGNAL(_renderScene()),this,SLOT(__renderScene()),Qt::QueuedConnection);
 }
 
 CUiThread::~CUiThread()
@@ -547,41 +543,26 @@ bool CUiThread::showOrHideEmergencyStop(bool show,const char* txt)
     return(retVal);
 }
 
-void CUiThread::requestSceneRender_wait()
-{ // is called by the non-UI thread
+void CUiThread::renderScene()
+{ // is called by the SIM thread
     TRACE_INTERNAL;
-    if (GuiApp::mainWindow!=nullptr)
-    { // make sure we are not in headless mode
-        _frameId++;
-        _requestSceneRender_wait();
-        while (_frameId!=_lastFrameId)
-        {
-            VThread::sleep(1);
-            // App::simThread->executeMessages();
-        }
-        _lastFrameId=_frameId;
-    }
+    _frameRendered=false;
+    _renderScene(); // switch to UI thread
+    while (!_frameRendered)
+        VThread::sleep(0);
 }
 
-void CUiThread::__requestSceneRender_wait()
+void CUiThread::__renderScene()
 { // is called by the UI thread.
     TRACE_INTERNAL;
-    if ((_frameId!=_lastFrameId)&&(GuiApp::mainWindow!=nullptr))
-    {
-        GuiApp::mainWindow->uiThread_renderScene();
-        _lastFrameId=_frameId;
-    }
+    GuiApp::mainWindow->updateOpenGl();
 }
 
-int CUiThread::getLastFrameId()
+void CUiThread::setFrameRendered()
 {
-    return(_lastFrameId);
+    _frameRendered=true;
 }
 
-void CUiThread::setLastFrameId(int fid)
-{
-    _lastFrameId=fid;
-}
 
 std::string CUiThread::getOpenOrSaveFileName_api(int mode,const char* title,const char* startPath,const char* initName,const char* extName,const char* ext)
 { // mode= 1: save, 0: load single, >1: load multiple

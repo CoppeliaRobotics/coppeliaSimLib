@@ -32,21 +32,37 @@ CSimThread::~CSimThread()
 
 void CSimThread::executeMessages()
 {
-    int triggerType=_prepareSceneForRenderIfNeeded();
-    CSimAndUiThreadSync::simThread_allowUiThreadToWrite();
-    if ((triggerType>0)&&_renderingAllowed)
+    if ( _renderRequired()&&(GuiApp::mainWindow!=nullptr) )
     { // we need to render. Send the appropriate signal
-        if (triggerType==2)
+        if (App::currentWorld->simulation->isSimulationStopped())
         {
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_beforerendering);
-            GuiApp::uiThread->requestSceneRender_wait(); // non-threaded rendering
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getCameraCount();i++)
+            {
+                CCamera*  it=App::currentWorld->sceneObjects->getCameraFromIndex(i);
+                it->handleCameraTracking();
+            }
         }
+        // OLD:
+        if (App::currentWorld->simulation->isSimulationStopped())
+        {
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getPathCount();i++)
+            {
+                CPath_old* it=App::currentWorld->sceneObjects->getPathFromIndex(i);
+                it->resetPath();
+            }
+        }
+
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_beforerendering);
+        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+        GuiApp::uiThread->renderScene(); // will render via the UI thread
     }
-    bool doIt=true;
-    while (doIt)
+
+    CSimAndUiThreadSync::simThread_allowUiThreadToWrite();
+    while (true)
     {
         _eventLoop.processEvents();
-        doIt=(!CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(false));
+        if (CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(false))
+            break;
     }
 
     _handleSimulationThreadCommands(); // Handle delayed SIM commands
@@ -4598,7 +4614,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
         GuiApp::appendSimulationThreadCommand(cmd,1000); // repost the same message a bit later
 }
 
-int CSimThread::_prepareSceneForRenderIfNeeded()
+bool CSimThread::_renderRequired()
 {
     static int lastRenderingTime=0;
     static int frameCount=1000;
@@ -4628,14 +4644,6 @@ int CSimThread::_prepareSceneForRenderIfNeeded()
     }
 
     if (render)
-    {
         lastRenderingTime=(int)VDateTime::getTimeInMs();
-        if (GuiApp::mainWindow!=nullptr)
-        {
-            GuiApp::mainWindow->simThread_prepareToRenderScene();
-            return(2); // means: wait until rendering finished
-        }
-        return(0); // we do not want to render
-    }
-    return(0); // we do not want to render
+    return(render);
 }

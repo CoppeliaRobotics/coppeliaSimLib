@@ -127,8 +127,7 @@ public:
     bool showOrHideEmergencyStop(bool show,const char* txt);
 
 private:
-    int _frameId;
-    int _lastFrameId;
+    volatile int _frameRendered;
 
 signals:
     void _executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
@@ -137,9 +136,8 @@ private slots:
     void __executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
 
 public:
-    int getLastFrameId();
-    void setLastFrameId(int fid);
-    void requestSceneRender_wait();
+    void renderScene();
+    void setFrameRendered();
     bool messageBox_checkbox(void* parentWidget,const char* title,const char* message,const char* checkboxMessage,bool isWarning);
     void setFileDialogsNative(int n);
     std::string getOpenFileName(void* parentWidget,unsigned short option,const char* title,const char* startPath,const char* initFilename,bool allowAnyFile,const char* extensionName,const char* extension1,const char* extension2="",const char* extension3="",const char* extension4="",const char* extension5="",const char* extension6="",const char* extension7="",const char* extension8="",const char* extension9="",const char* extension10="");
@@ -159,8 +157,8 @@ private:
     unsigned short _messageBox(int type,void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer);
 
 signals:
-    void _requestSceneRender_wait();
+    void _renderScene();
 
 private slots:
-    void __requestSceneRender_wait();
+    void __renderScene();
 };

@@ -154,6 +154,14 @@ void VThread::sleep(int ms)
 #ifdef WIN_SIM
     Sleep(ms);
 #else
-    usleep(ms*1000);
+    if (ms==0)
+        sched_yield();
+    else
+    {
+        struct timespec ts;
+        ts.tv_sec=ms/1000;
+        ts.tv_nsec=(ms%1000)*1000;
+        nanosleep(&ts, NULL);
+    }
 #endif
 }

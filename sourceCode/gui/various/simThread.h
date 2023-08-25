@@ -50,5 +50,5 @@ private:
     std::vector<SSimulationThreadCommand> _simulationThreadCommands;
     void _handleClickRayIntersection_old(SSimulationThreadCommand cmd);
     void _handleAutoSaveSceneCommand(SSimulationThreadCommand cmd);
-    int _prepareSceneForRenderIfNeeded();
+    bool _renderRequired();
 };
