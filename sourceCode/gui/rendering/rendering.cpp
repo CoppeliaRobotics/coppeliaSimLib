@@ -107,12 +107,9 @@ void initGl_ifNeeded()
 #else
 void initGl_openGLWidget()
 {
-    if (_glInitialized)
-        return;
-    _glInitialized=true;
-//    oglExt::prepareExtensionFunctions(App::userSettings->forceFboViaExt);
-
-//    oglExt::turnOffVSync(App::userSettings->vsync);
+//    if (_glInitialized)
+//        return;
+//    _glInitialized=true;
 
     glClearDepth(1.0);
     glDepthFunc(GL_LEQUAL); // Maybe useful with glPolygonOffset?

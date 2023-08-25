@@ -29,7 +29,7 @@ class CMainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    CMainWindow();
+    CMainWindow(int operationalUiParts);
     virtual ~CMainWindow();
 
     void executeCommand(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
@@ -257,6 +257,7 @@ private:
     int _mouseClickActionCounter_down;
     int _mouseClickActionCounter_up;
     std::string _mimeText;
+    int _operationalUiParts;
 
 
 

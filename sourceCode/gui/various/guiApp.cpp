@@ -228,9 +228,10 @@ void GuiApp::runGui(int options)
         setBrowserEnabled(false);
     setIcon();
     initializeRendering();
-    if ( (operationalUIParts&sim_gui_headless)==0 )
+    if ((operationalUIParts&sim_gui_headless)==0)
     {
-        showSplashScreen();
+        if ((operationalUIParts&sim_gui_splash)!=0)
+            showSplashScreen();
         createMainWindow();
         mainWindow->oglSurface->adjustBrowserAndHierarchySizesToDefault();
     }
@@ -473,7 +474,7 @@ void GuiApp::setIcon()
 void GuiApp::createMainWindow()
 {
     TRACE_INTERNAL;
-    mainWindow=new CMainWindow();
+    mainWindow=new CMainWindow(operationalUIParts);
     mainWindow->initializeWindow();
     setShowConsole(App::userSettings->alwaysShowConsole);
 }

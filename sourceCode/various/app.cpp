@@ -107,6 +107,9 @@ void App::init(const char* appDir,int)
         _applicationDir=pathInfo.path().toStdString();
     }
     VVarious::removePathFinalSlashOrBackslash(_applicationDir);
+    std::string appD("Application directory is ");
+    appD+=_applicationDir;
+    logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,appD.c_str());
     #ifdef WIN_SIM
         timeBeginPeriod(1);
         SetDllDirectoryA(_applicationDir.c_str());

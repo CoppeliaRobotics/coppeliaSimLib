@@ -87,8 +87,7 @@ void COpenglWidget::initializeGL()
 #else
     initializeOpenGLFunctions();
     initGl_openGLWidget();
-//    initGl_ifNeeded();
-    QOpenGLWidget::initializeGL();
+//    QOpenGLWidget::initializeGL();
 #endif
 }
 

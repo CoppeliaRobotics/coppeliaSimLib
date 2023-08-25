@@ -47,9 +47,10 @@
 
 const int DEFAULT_MOUSE_MODE=sim_navigation_camerashift|sim_navigation_clickselection|sim_navigation_ctrlselection|sim_navigation_shiftselection|sim_navigation_camerazoomwheel|sim_navigation_camerarotaterightbutton;
 
-CMainWindow::CMainWindow() : QMainWindow()
+CMainWindow::CMainWindow(int operationalUiParts) : QMainWindow()
 {
     TRACE_INTERNAL;
+    _operationalUiParts=operationalUiParts;
     _focusObject=FOCUS_ON_PAGE;
     _clientArea[0]=1024;
     _clientArea[1]=768;
@@ -181,7 +182,8 @@ CMainWindow::CMainWindow() : QMainWindow()
 
 // --- Tab widget ---
     tabBar=new QTabBar();
-    tabBar->addTab(App::currentWorld->mainSettings->getSceneNameForUi().c_str());
+    int ind=tabBar->addTab(App::currentWorld->mainSettings->getSceneNameForUi().c_str());
+    tabBar->setTabVisible(ind,_operationalUiParts&sim_gui_menubar);
 
     #ifdef MAC_SIM
         tabBar->setExpanding(true);
@@ -827,7 +829,9 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
         openglWidget->swapBuffers();
         openglWidget->doneCurrent();
 #else
+        openglWidget->update();
         openglWidget->repaint();
+        openglWidget->doneCurrent();
 #endif
     }
     _renderingTimeInMs=VDateTime::getTimeDiffInMs(startTime);
@@ -2008,7 +2012,8 @@ void CMainWindow::newInstanceAboutToBeCreated()
 void CMainWindow::newInstanceWasJustCreated()
 {
     TRACE_INTERNAL;
-    tabBar->addTab(App::currentWorld->mainSettings->getSceneNameForUi().c_str());
+    int ind=tabBar->addTab(App::currentWorld->mainSettings->getSceneNameForUi().c_str());
+    tabBar->setTabVisible(ind,_operationalUiParts&sim_gui_menubar);
     tabBar->setCurrentIndex(App::worldContainer->getCurrentWorldIndex());
 }
 
