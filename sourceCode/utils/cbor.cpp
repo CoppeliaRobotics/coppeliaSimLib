@@ -1,6 +1,7 @@
 #include <cbor.h>
 #include <app.h>
 #include <string.h>
+#include <boost/algorithm/string/predicate.hpp>
 
 bool CCbor::isText(const char* v,size_t l)
 {
@@ -290,9 +291,9 @@ void CCbor::appendRaw(const unsigned char* v,size_t l)
 
 void CCbor::appendLuaString(const std::string& v)
 {
-    if (v.find("@:txt:",v.size()-6-1)!=std::string::npos)
+    if (boost::algorithm::ends_with(v.c_str(),"@:txt:"))
         appendString(v.c_str(),int(v.size())-6);
-    else if (v.find("@:dat:",v.size()-6-1)!=std::string::npos)
+    else if (boost::algorithm::ends_with(v.c_str(),"@:dat:"))
         appendBuff((unsigned char*)v.c_str(),v.size()-6);
     else
     {

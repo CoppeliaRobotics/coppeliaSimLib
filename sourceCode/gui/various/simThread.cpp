@@ -4161,8 +4161,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             App::userSettings->useGlFinish_visionSensors=cmd.boolParams[2];
             App::userSettings->setIdleFps(cmd.intParams[4]);
             App::userSettings->forceFboViaExt=cmd.boolParams[3];
-            App::userSettings->desiredOpenGlMajor=cmd.intParams[5];
-            App::userSettings->desiredOpenGlMinor=cmd.intParams[6];
             App::userSettings->saveUserSettings();
         }
 

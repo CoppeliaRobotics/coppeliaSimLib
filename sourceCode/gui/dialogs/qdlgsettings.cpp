@@ -141,8 +141,6 @@ void CQDlgSettings::on_qqAdjustOpenGl_clicked()
             cmd.boolParams.push_back(App::userSettings->useGlFinish_visionSensors);
             cmd.intParams.push_back(theDialog.idleFps);
             cmd.boolParams.push_back(App::userSettings->forceFboViaExt);
-            cmd.intParams.push_back(App::userSettings->desiredOpenGlMajor);
-            cmd.intParams.push_back(App::userSettings->desiredOpenGlMinor);
 
 //            int tmp=-1;
 //            if (!theDialog.exclusiveGuiRendering)

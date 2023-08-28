@@ -750,24 +750,21 @@ std::string CInterfaceStack::getBufferFromTable() const
             retVal='m'+table->getObjectData();
             retVal[0]=5; // this is the version of the pack format. 0 was when all numbers would be packed as double (Lua5.1)
                          // 1-4 are reserved in order to detect other non-CoppeliaSim formats, check sim.lua for details
+                         // make sure not to use any byte that could be a first byte in a cbor string!
         }
     }
     return(retVal);
 }
 
-std::string CInterfaceStack::getCborEncodedBufferFromTable(int options) const
+std::string CInterfaceStack::getCborEncodedBuffer(int options) const
 {
     std::string retVal;  // empty string=error
     if (_stackObjects.size()!=0)
     {
         CInterfaceStackObject* it=_stackObjects[_stackObjects.size()-1];
-        if (it->getObjectType()==sim_stackitem_table)
-        {
-            CInterfaceStackTable* table=(CInterfaceStackTable*)it;
-            CCbor cborObj(nullptr,options);
-            table->addCborObjectData(&cborObj);
-            retVal=cborObj.getBuff();
-        }
+        CCbor cborObj(nullptr,options);
+        it->addCborObjectData(&cborObj);
+        retVal=cborObj.getBuff();
     }
     return(retVal);
 }

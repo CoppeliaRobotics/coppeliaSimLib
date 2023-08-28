@@ -718,89 +718,98 @@ void CMainWindow::updateOpenGl()
 
 void CMainWindow::renderScene()
 {
-    TRACE_INTERNAL;
-    App::worldContainer->calcInfo->clearRenderingTime();
-    App::worldContainer->calcInfo->renderingStart();
-
-    int startTime=(int)VDateTime::getTimeInMs();
-    _fps=1.0/(double(VDateTime::getTimeDiffInMs(lastTimeRenderingStarted,startTime))/1000.0);
-    lastTimeRenderingStarted=startTime;
-
-    if (_fullDialogRefreshFlag)
-        GuiApp::setRebuildHierarchyFlag();
-    if (_lightDialogRefreshFlag)
-        GuiApp::setRefreshHierarchyViewFlag();
-
-    if (windowHandle()->isExposed())
+    static int ins=false;
+    if (!ins)
     {
-        if ( (!getOpenGlDisplayEnabled())&&(App::currentWorld->simulation!=nullptr)&&(App::currentWorld->simulation->isSimulationStopped()) )
-            setOpenGlDisplayEnabled(true);
-
-        bool swapTheBuffers=false;
-        if (getOpenGlDisplayEnabled())
+        ins=true;
+        TRACE_INTERNAL;
+        IF_UI_EVENT_CAN_READ_DATA // needed when the render is triggered by a resize (i.e. the SIM thread could be writing to resources)
         {
-            swapTheBuffers=true;
-            openglWidget->makeContextCurrent();
+            App::worldContainer->calcInfo->clearRenderingTime();
+            App::worldContainer->calcInfo->renderingStart();
 
-            int mp[2]={_mouseRenderingPos[0],_mouseRenderingPos[1]};
+            int startTime=(int)VDateTime::getTimeInMs();
+            _fps=1.0/(double(VDateTime::getTimeDiffInMs(lastTimeRenderingStarted,startTime))/1000.0);
+            lastTimeRenderingStarted=startTime;
 
-            if (!_hasStereo)
-                oglSurface->render(_currentCursor,_mouseButtonsState,mp,nullptr);
-            else
+            if (_fullDialogRefreshFlag)
+                GuiApp::setRebuildHierarchyFlag();
+            if (_lightDialogRefreshFlag)
+                GuiApp::setRefreshHierarchyViewFlag();
+
+            if (windowHandle()->isExposed())
             {
-                _leftEye=true;
-                glDrawBuffer(GL_BACK_LEFT);
-                oglSurface->render(_currentCursor,_mouseButtonsState,mp,nullptr);
-                _leftEye=false;
-                glDrawBuffer(GL_BACK_RIGHT);
-                oglSurface->render(_currentCursor,_mouseButtonsState,mp,nullptr);
-            }
+                if ( (!getOpenGlDisplayEnabled())&&(App::currentWorld->simulation!=nullptr)&&(App::currentWorld->simulation->isSimulationStopped()) )
+                    setOpenGlDisplayEnabled(true);
 
-            previousDisplayWasEnabled=0;
-            if (App::userSettings->useGlFinish) // false by default!
-                glFinish(); // Might be important later (synchronization problems)
-                        // removed on 2009/12/09 upon recomendation of gamedev community
-                        // re-put on 2010/01/11 because it slows down some graphic cards in a non-proportional way (e.g. 1 object=x ms, 5 objects=20x ms)
-                        // re-removed again (by default) on 31/01/2013. Thanks a lot to Cedric Pradalier for pointing problems appearing with the NVidia drivers
-        }
-        else
-        {
-            if (previousDisplayWasEnabled<2)
-            { // clear the screen
-                // We draw a dark grey view:
-                swapTheBuffers=true;
-                openglWidget->makeContextCurrent();
-                glDisable(GL_SCISSOR_TEST);
-                glViewport(-2000,-2000,4000,4000);
-                glClearColor(0.0,0.0,0.0,1.0);
-                glClear(GL_COLOR_BUFFER_BIT);
-                if (App::userSettings->useGlFinish) // false by default!
-                    glFinish(); // Might be important later (synchronization problems)
-                            // removed on 2009/12/09 upon recomendation of gamedev community
-                            // re-put on 2010/01/11 because it slows down some graphic cards in a non-proportional way (e.g. 1 object=x ms, 5 objects=20x ms)
-                            // re-removed again (by default) on 31/01/2013. Thanks a lot to Cedric Pradalier for pointing problems appearing with the NVidia drivers
-            }
-            if (previousDisplayWasEnabled<2)
-                previousDisplayWasEnabled++;
-        }
+                bool swapTheBuffers=false;
+                if (getOpenGlDisplayEnabled())
+                {
+                    swapTheBuffers=true;
+                    openglWidget->makeContextCurrent();
 
-        if (simulationRecorder->getIsRecording())
-            simulationRecorder->recordFrameIfNeeded(_clientArea[0],_clientArea[1],0,0);
-        GuiApp::uiThread->setFrameRendered();
-        if ( swapTheBuffers&&(openglWidget!=nullptr) ) // condition added on 31/1/2012... might help because some VMWare installations crash when disabling the rendering
-        {
-            #ifdef USES_QGLWIDGET
-                openglWidget->swapBuffers();
-                openglWidget->doneCurrent();
-            #else
-  //              openglWidget->update();
-  //              openglWidget->repaint();
-                openglWidget->doneCurrent();
-            #endif
+                    int mp[2]={_mouseRenderingPos[0],_mouseRenderingPos[1]};
+
+                    if (!_hasStereo)
+                        oglSurface->render(_currentCursor,_mouseButtonsState,mp,nullptr);
+                    else
+                    {
+                        _leftEye=true;
+                        glDrawBuffer(GL_BACK_LEFT);
+                        oglSurface->render(_currentCursor,_mouseButtonsState,mp,nullptr);
+                        _leftEye=false;
+                        glDrawBuffer(GL_BACK_RIGHT);
+                        oglSurface->render(_currentCursor,_mouseButtonsState,mp,nullptr);
+                    }
+
+                    previousDisplayWasEnabled=0;
+                    if (App::userSettings->useGlFinish) // false by default!
+                        glFinish(); // Might be important later (synchronization problems)
+                                // removed on 2009/12/09 upon recomendation of gamedev community
+                                // re-put on 2010/01/11 because it slows down some graphic cards in a non-proportional way (e.g. 1 object=x ms, 5 objects=20x ms)
+                                // re-removed again (by default) on 31/01/2013. Thanks a lot to Cedric Pradalier for pointing problems appearing with the NVidia drivers
+                }
+                else
+                {
+                    if (previousDisplayWasEnabled<2)
+                    { // clear the screen
+                        // We draw a dark grey view:
+                        swapTheBuffers=true;
+                        openglWidget->makeContextCurrent();
+                        glDisable(GL_SCISSOR_TEST);
+                        glViewport(-2000,-2000,4000,4000);
+                        glClearColor(0.0,0.0,0.0,1.0);
+                        glClear(GL_COLOR_BUFFER_BIT);
+                        if (App::userSettings->useGlFinish) // false by default!
+                            glFinish(); // Might be important later (synchronization problems)
+                                    // removed on 2009/12/09 upon recomendation of gamedev community
+                                    // re-put on 2010/01/11 because it slows down some graphic cards in a non-proportional way (e.g. 1 object=x ms, 5 objects=20x ms)
+                                    // re-removed again (by default) on 31/01/2013. Thanks a lot to Cedric Pradalier for pointing problems appearing with the NVidia drivers
+                    }
+                    if (previousDisplayWasEnabled<2)
+                        previousDisplayWasEnabled++;
+                }
+
+                if (simulationRecorder->getIsRecording())
+                    simulationRecorder->recordFrameIfNeeded(_clientArea[0],_clientArea[1],0,0);
+                GuiApp::uiThread->setFrameRendered();
+                if ( swapTheBuffers&&(openglWidget!=nullptr) ) // condition added on 31/1/2012... might help because some VMWare installations crash when disabling the rendering
+                {
+                    #ifdef USES_QGLWIDGET
+                        openglWidget->swapBuffers();
+                        openglWidget->doneCurrent();
+                    #else
+          //              openglWidget->update();
+          //              openglWidget->repaint();
+                        openglWidget->doneCurrent();
+                    #endif
+                }
+                _renderingTimeInMs=VDateTime::getTimeDiffInMs(startTime);
+            }
+            App::worldContainer->calcInfo->renderingEnd();
         }
-        _renderingTimeInMs=VDateTime::getTimeDiffInMs(startTime);
+        ins=false;
     }
-    App::worldContainer->calcInfo->renderingEnd();
 }
 
 void CMainWindow::createDefaultMenuBar()

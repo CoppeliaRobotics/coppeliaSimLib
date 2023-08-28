@@ -86,7 +86,7 @@ public:
     bool getStackMapFloatArray(const char* fieldName,float* array,int count) const;
     bool getStackMapDoubleArray(const char* fieldName,double* array,int count) const;
     std::string getBufferFromTable() const;
-    std::string getCborEncodedBufferFromTable(int options) const;
+    std::string getCborEncodedBuffer(int options) const;
 
     void printContent(int cIndex,std::string& buffer) const;
 

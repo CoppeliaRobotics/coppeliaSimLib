@@ -356,7 +356,10 @@ bool CSceneObjectOperations::processCommand(int commandID)
             cmdIn.cmdId=DISPLAY_MESH_DECIMATION_DIALOG_UITHREADCMD;
             cmdIn.intParams.push_back(totalTriangles);
             cmdIn.floatParams.push_back(0.2);
-            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            {
+                SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+                GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            }
             if ( (cmdOut.boolParams.size()>0)&&cmdOut.boolParams[0] )
                 percentageToKeep=cmdOut.floatParams[0];
             App::currentWorld->sceneObjects->deselectObjects();
@@ -446,7 +449,10 @@ bool CSceneObjectOperations::processCommand(int commandID)
             SUIThreadCommand cmdIn;
             SUIThreadCommand cmdOut;
             cmdIn.cmdId=DISPLAY_CONVEX_DECOMPOSITION_DIALOG_UITHREADCMD;
-            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            {
+                SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+                GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            }
             bool addExtraDistPoints=cmdOut.boolParams[0];
             bool addFacesPoints=cmdOut.boolParams[1];
             int nClusters=cmdOut.intParams[0];

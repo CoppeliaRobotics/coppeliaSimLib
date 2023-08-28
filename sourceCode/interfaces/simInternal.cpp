@@ -4932,6 +4932,16 @@ int simRegisterScriptCallbackFunction_internal(const char* func,const char* rese
     {
         int retVal=-1;
         CPlugin* plug=App::worldContainer->pluginContainer->getCurrentPlugin();
+        /*
+        if (plug!=nullptr)
+        {
+            printf("PluginName: %s\n",plug->getName().c_str());
+            if (plug->isLegacyPlugin())
+                printf("    legacy plugin\n");
+            else
+                printf("    new plugin\n");
+        }
+        */
         if ( (plug!=nullptr)&&(!plug->isLegacyPlugin()) )
         { // new plugins. e.g. 'createGroup', and not 'simIK.createGroup'
             if (callBack!=nullptr)
@@ -4946,6 +4956,7 @@ int simRegisterScriptCallbackFunction_internal(const char* func,const char* rese
         }
         else
         { // old plugins
+            //App::worldContainer->pluginContainer->printPluginStack();
             std::string funcName;
             std::string pluginName;
 

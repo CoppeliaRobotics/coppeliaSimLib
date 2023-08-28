@@ -2791,7 +2791,7 @@ void CScriptObject::registerNewFunctions_lua()
         else
             luaWrap_lua_register(L,simLuaCommands[i].name.c_str(),simLuaCommands[i].func);
     }
-    if (App::userSettings->getSupportOldApiNotation())
+    if (App::userSettings->supportOldApiNotation)
     { // i.e. sim_old.simGetObjectHandle, etc. We need to put this in the global namespace, since we do not have a lazy load option
         for (int i=0;simLuaCommandsOldApi[i].name!="";i++)
         {
@@ -3104,7 +3104,7 @@ void CScriptObject::_registerNewVariables_lua()
         tmp+="="+std::to_string(simLuaVariables[i].val);
         _execSimpleString_safe_lua(L,tmp.c_str());
     }
-    if (App::userSettings->getSupportOldApiNotation())
+    if (App::userSettings->supportOldApiNotation)
     { // i.e. sim_old.sim_handle_all, etc. We need to put this in the global namespace, since we do not have a lazy load option
         for (size_t i=0;simLuaVariablesOldApi[i].name!="";i++)
         {

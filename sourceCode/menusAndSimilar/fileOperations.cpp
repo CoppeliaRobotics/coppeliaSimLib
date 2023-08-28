@@ -1096,7 +1096,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                 SUIThreadCommand cmdIn;
                                 SUIThreadCommand cmdOut;
                                 cmdIn.cmdId=KEEP_THUMBNAIL_QUESTION_DLG_UITHREADCMD;
-                                GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                                {
+                                    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+                                    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                                }
                                 if (cmdOut.boolParams.size()>0)
                                     keepCurrentThumbnail=cmdOut.boolParams[0];
                             }
@@ -1106,7 +1109,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                 SUIThreadCommand cmdOut;
                                 cmdIn.intParams.push_back(modelBase);
                                 cmdIn.cmdId=SELECT_THUMBNAIL_DLG_UITHREADCMD;
-                                GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                                {
+                                    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+                                    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                                }
                                 if (cmdOut.boolParams.size()>0)
                                 {
                                     if (!cmdOut.boolParams[0])
@@ -1628,7 +1634,10 @@ bool CFileOperations::_heightfieldImportRoutine(const char* pathName)
                 cmdIn.cmdId=HEIGHTFIELD_DIMENSION_DLG_UITHREADCMD;
                 cmdIn.floatParams.push_back(10.0);
                 cmdIn.floatParams.push_back(double(ySize-1)/double(xSize-1));
-                GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                {
+                    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+                    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                }
                 if (cmdOut.floatParams.size()==0)
                 {
                     cmdOut.floatParams.push_back(1.0);

@@ -2798,7 +2798,7 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded(bool useStenci
                 nativeFbo=false;
         }
 
-        _contextFboAndTexture=new CVisionSensorGlStuff(_resolution[0],_resolution[1],offscreenContextType,!nativeFbo,otherWidgetToShareResourcesWith,useStencilBuffer,!App::userSettings->oglCompatibilityTweak1,App::userSettings->desiredOpenGlMajor,App::userSettings->desiredOpenGlMinor);
+        _contextFboAndTexture=new CVisionSensorGlStuff(_resolution[0],_resolution[1],offscreenContextType,!nativeFbo,otherWidgetToShareResourcesWith,useStencilBuffer,!App::userSettings->oglCompatibilityTweak1);
     }
 }
 

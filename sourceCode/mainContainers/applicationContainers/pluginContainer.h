@@ -32,6 +32,7 @@ public:
     CPlugin* getPluginFromHandle(int handle);
     void lockInterface();
     void unlockInterface();
+    void printPluginStack();
 
     int addAndInitPlugin_old(const char* filename,const char* pluginName);
     bool unloadPlugin_old(int handle);

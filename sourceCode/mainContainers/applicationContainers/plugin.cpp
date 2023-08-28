@@ -7,6 +7,7 @@
 #include <collisionRoutines.h>
 #include <volInt.h>
 #include <algorithm>
+#include <simFlavor.h>
 #ifdef SIM_WITH_GUI
     #include <guiApp.h>
 #endif
@@ -282,7 +283,7 @@ bool CPlugin::init(std::string* errStr)
     bool retVal=false;
     if (_initAddress!=nullptr)
     {
-        if (!VThread::isSimThread())
+        if ( (!VThread::isSimThread())&&CSimFlavor::getBoolVal(18) ) // old scenes might still trigger wrong thread usage, in some cases
             App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::init");
 
         pushCurrentPlugin();
@@ -349,9 +350,12 @@ bool CPlugin::msg(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*
     pushCurrentPlugin();
     if (_initAddress!=nullptr)
     {
-        if (!VThread::isSimThread())
-            App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::msg");
-
+        if ( (!VThread::isSimThread())&&CSimFlavor::getBoolVal(18) ) // old scenes might still trigger wrong thread usage, in some cases
+        {
+            std::string m("wrong thread in CPlugin::msg (");
+            m+=std::to_string(msgId)+")";
+            App::logMsg(sim_verbosity_errors,m.c_str());
+        }
         if (_msgAddress!=nullptr)
         {
             SSimMsg p;
@@ -379,7 +383,7 @@ void CPlugin::init_ui()
 {
     if ( (_initAddress_ui!=nullptr)&&(_stage==stage_siminitdone) )
     {
-        if (!VThread::isUiThread())
+        if ( VThread::isSimThread()&&CSimFlavor::getBoolVal(18) ) // old scenes might still trigger wrong thread usage, in some cases
             App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::init_ui");
 
         _initAddress_ui();
@@ -391,7 +395,7 @@ void CPlugin::cleanup_ui()
 {
     if ( (_cleanupAddress_ui!=nullptr)&&(_stage==stage_docleanup) )
     {
-        if (!VThread::isUiThread())
+        if ( VThread::isSimThread()&&CSimFlavor::getBoolVal(18) ) // old scenes might still trigger wrong thread usage, in some cases
             App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::cleanup_ui");
 
         _cleanupAddress_ui();
@@ -403,8 +407,13 @@ void CPlugin::msg_ui(int msgId,int* auxData/*=nullptr*/,void* auxPointer/*=nullp
 {
     if ( (_msgAddress_ui!=nullptr)&&(_stage==stage_uiinitdone) )
     {
-        if (!VThread::isUiThread())
-            App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::msg_ui");
+        if ( VThread::isSimThread()&&CSimFlavor::getBoolVal(18) ) // old scenes might still trigger wrong thread usage, in some cases
+        {
+            std::string m("wrong thread in CPlugin::msg_ui (");
+            m+=std::to_string(msgId)+")";
+            App::logMsg(sim_verbosity_errors,m.c_str());
+        }
+
         SSimMsg_ui p;
         p.msgId=msgId;
         p.auxData=auxData;
@@ -417,7 +426,7 @@ void CPlugin::cleanup()
 {
     if (_initAddress!=nullptr)
     {
-        if (!VThread::isSimThread())
+        if ( (!VThread::isSimThread())&&CSimFlavor::getBoolVal(18) ) // old scenes might still trigger wrong thread usage, in some cases
             App::logMsg(sim_verbosity_errors,"wrong thread in CPlugin::cleanup");
 
         if (_cleanupAddress!=nullptr)

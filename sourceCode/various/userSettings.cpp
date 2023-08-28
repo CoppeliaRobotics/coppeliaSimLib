@@ -101,8 +101,6 @@
 #define _USR_FORCE_FBO_VIA_EXT "forceFboViaExt"
 #define _USR_VBO_OPERATION "vboOperation"
 #define _USR_VBO_PERSISTENCE_IN_MS "vboPersistenceInMs"
-#define _USR_DESIRED_OPENGL_MAJOR "desiredOpenGlMajor"
-#define _USR_DESIRED_OPENGL_MINOR "desiredOpenGlMinor"
 #define _USR_HIGH_RES_DISPLAY "highResDisplay"
 #define _USR_GUESSED_SCALING_FOR_2X_OPENGL "guessedDisplayScalingThresholdFor2xOpenGl"
 #define _USR_OGL_SCALING "oglScaling"
@@ -198,8 +196,6 @@ CUserSettings::CUserSettings()
     // *****************************
     _idleFps=8;
     _idleFps_session=-1;
-    desiredOpenGlMajor=-1; // default
-    desiredOpenGlMinor=-1; // default
     offscreenContextType=-1; // default type
     fboType=-1; // default type
     forceFboViaExt=false; // default
@@ -332,7 +328,7 @@ CUserSettings::CUserSettings()
     showOldDlgs=false;
     enableOldRenderableBehaviour=false;
     keepOldThreadedScripts=false;
-    _supportOldApiNotation=true;
+    supportOldApiNotation=true;
     enableOldScriptTraversal=false;
     enableOldMirrorObjects=false;
     allowOldEduRelease=-1;
@@ -499,26 +495,6 @@ void CUserSettings::setNextFreeServerPortToUse(int p)
     _nextfreeServerPortToUse=p;
 }
 
-bool CUserSettings::getSupportOldApiNotation()
-{
-    static int support=0;
-    if (support==0)
-    {
-        for (int i=0;i<9;i++)
-        {
-            std::string s(App::getApplicationArgument(i));
-            if (s.compare("NO_old_API_SUPPORT")==0)
-            {
-                support=-1;
-                break;
-            }
-        }
-        if (support==0)
-            support=1;
-    }
-    return(_supportOldApiNotation&&(support==1));
-}
-
 void CUserSettings::_setIntVector3(int v[3],int a,int b,int c)
 {
     v[0]=a;
@@ -550,8 +526,6 @@ void CUserSettings::saveUserSettings()
         c.addRandomLine("// Rendering");
         c.addRandomLine("// =================================================");
         c.addInteger(_USR_IDLE_FPS,_idleFps,"");
-        c.addInteger(_USR_DESIRED_OPENGL_MAJOR,desiredOpenGlMajor,"recommended to keep -1.");
-        c.addInteger(_USR_DESIRED_OPENGL_MINOR,desiredOpenGlMinor,"recommended to keep -1.");
         c.addInteger(_USR_OFFSCREEN_CONTEXT_TYPE,offscreenContextType,"recommended to keep -1 (-1=default, 0=Qt offscreen, 1=QGLWidget/QOpenGLWidget visible, 2=QGLWidget/QOpenGLWidget invisible).");
         c.addInteger(_USR_FBO_TYPE,fboType,"recommended to keep -1 (-1=default, 0=native, 1=QOpenGLFramebufferObject).");
         c.addBoolean(_USR_FORCE_FBO_VIA_EXT,forceFboViaExt,"recommended to keep false.");
@@ -703,7 +677,7 @@ void CUserSettings::saveUserSettings()
         c.addBoolean(_USR_SHOW_old_DLGS,showOldDlgs,"");
         c.addBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour,"");
         c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts,"");
-        c.addBoolean(_USR_SUPPORT_old_API_NOTATION,_supportOldApiNotation,"");
+        c.addBoolean(_USR_SUPPORT_old_API_NOTATION,supportOldApiNotation,"");
         c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
         c.addBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal,"");
         c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
@@ -829,20 +803,15 @@ void CUserSettings::loadUserSettings()
     // *****************************
     c.getInteger(_USR_IDLE_FPS,_idleFps);
     setIdleFps(_idleFps);
-    c.getInteger(_USR_DESIRED_OPENGL_MAJOR,desiredOpenGlMajor);
-    c.getInteger(_USR_DESIRED_OPENGL_MINOR,desiredOpenGlMinor);
     c.getInteger(_USR_OFFSCREEN_CONTEXT_TYPE,offscreenContextType);
     c.getInteger(_USR_FBO_TYPE,fboType);
     c.getBoolean(_USR_FORCE_FBO_VIA_EXT,forceFboViaExt);
     c.getInteger(_USR_VBO_OPERATION,vboOperation);
-    //*
     #ifdef USES_QGLWIDGET
     #else
         offscreenContextType=0;
         fboType=1;
-//        vboOperation=1;
     #endif
-    //*/
     c.getInteger(_USR_VBO_PERSISTENCE_IN_MS,vboPersistenceInMs);
     c.getBoolean(_USR_OGL_COMPATIBILITY_TWEAK_1,oglCompatibilityTweak1);
     c.getBoolean(_USR_USE_GLFINISH,useGlFinish);
@@ -857,6 +826,10 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_NO_TEXTURES_WHEN_MOUSE_DOWN,noTexturesWhenMouseDownInCameraView);
     c.getBoolean(_USR_NO_CUSTOM_UIS_WHEN_MOUSE_DOWN,noCustomUisWhenMouseDownInCameraView);
     c.getInteger(_USR_HIERARCHY_REFRESH_CNT,hierarchyRefreshCnt);
+    #ifdef USES_QGLWIDGET
+    #else
+        hierarchyRefreshCnt=0;
+    #endif
 
     // Visual section:
     // *****************************
@@ -976,7 +949,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_SHOW_old_DLGS,showOldDlgs);
     c.getBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour);
     c.getBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts);
-    c.getBoolean(_USR_SUPPORT_old_API_NOTATION,_supportOldApiNotation);
+    c.getBoolean(_USR_SUPPORT_old_API_NOTATION,supportOldApiNotation);
     c.getBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal);
     c.getBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects);
     c.getInteger(_USR_ALLOW_old_EDU_RELEASE,allowOldEduRelease);

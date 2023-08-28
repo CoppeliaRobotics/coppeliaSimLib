@@ -14,9 +14,9 @@ std::vector<QOpenGLContext*> COffscreenGlContext::_allQtContexts;
 #endif
 
 #ifdef USES_QGLWIDGET
-COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGLWidget *otherWidgetToShareResourcesWith,int majorOpenGl,int minorOpenGl) : QObject()
+COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGLWidget *otherWidgetToShareResourcesWith) : QObject()
 #else
-COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QOpenGLWidget *otherWidgetToShareResourcesWith,int majorOpenGl,int minorOpenGl) : QObject()
+COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QOpenGLWidget *otherWidgetToShareResourcesWith) : QObject()
 #endif
 {
     // 1. QT_OFFSCREEN_TP can be started from any thread, also when running in headless mode. However:
@@ -48,10 +48,6 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QOp
             f.setAlphaBufferSize(0);
             f.setStencilBufferSize(8);
             f.setDepthBufferSize(24);
-            if (majorOpenGl!=-1)
-                f.setMajorVersion(majorOpenGl);
-            if (minorOpenGl!=-1)
-                f.setMinorVersion(minorOpenGl);
             _qOffscreenSurface->setFormat(f);
         #endif
         _qOffscreenSurface->create();
@@ -106,42 +102,16 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QOp
         if ((otherWidgetToShareResourcesWith==nullptr)&&(_allQtWidgets.size()!=0))
             otherWidgetToShareResourcesWith=_allQtWidgets[0];
 
-#ifdef USES_QGLWIDGET
-        if ((majorOpenGl!=-1)||(minorOpenGl!=-1))
-        {
-            QGLFormat fmt;
-            fmt.setDoubleBuffer(false);
-            // fmt.setDirectRendering(false);   // default is true
-            fmt.setRedBufferSize(8);
-            fmt.setGreenBufferSize(8);
-            fmt.setBlueBufferSize(8);
-            fmt.setAlphaBufferSize(0);
-            fmt.setStencilBufferSize(8);
-            fmt.setDepthBufferSize(24);
-            if ((majorOpenGl!=-1)||(minorOpenGl!=-1))
-            {
-                if (majorOpenGl==-1)
-                    majorOpenGl=2;
-                if (minorOpenGl==-1)
-                    minorOpenGl=0;
-                fmt.setVersion(majorOpenGl,minorOpenGl);
-            }
-            _hiddenWindow=new QGLWidget(fmt,GuiApp::mainWindow,otherWidgetToShareResourcesWith,Qt::Tool);
-        }
-        else
-#endif
-        {
-            #ifdef USES_QGLWIDGET
-                _hiddenWindow=new QGLWidget(GuiApp::mainWindow,otherWidgetToShareResourcesWith,Qt::Tool);
-            #else
-                _hiddenWindow=new QOpenGLWidget(GuiApp::mainWindow,Qt::Tool);
-            #endif
-            _hiddenWindow->setFixedWidth(resX);
-            _hiddenWindow->setFixedHeight(resY);
+        #ifdef USES_QGLWIDGET
+            _hiddenWindow=new QGLWidget(GuiApp::mainWindow,otherWidgetToShareResourcesWith,Qt::Tool);
+        #else
+            _hiddenWindow=new QOpenGLWidget(GuiApp::mainWindow,Qt::Tool);
+        #endif
+        _hiddenWindow->setFixedWidth(resX);
+        _hiddenWindow->setFixedHeight(resY);
 
-            if (_offscreenType==QT_WINDOW_SHOW_TP)
-                _hiddenWindow->show();
-        }
+        if (_offscreenType==QT_WINDOW_SHOW_TP)
+            _hiddenWindow->show();
         _allQtWidgets.push_back(_hiddenWindow);
     }
 #endif

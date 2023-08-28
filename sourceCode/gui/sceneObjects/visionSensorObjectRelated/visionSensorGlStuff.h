@@ -10,9 +10,9 @@ class CVisionSensorGlStuff : public QObject
 public:
 
     #ifdef USES_QGLWIDGET
-        CVisionSensorGlStuff(int resX,int resY,int offscreenType,bool qtFbo,QGLWidget* otherWidgetToShareResourcesWith,bool useStencilBuffer,bool destroyOffscreenContext,int majorOpenGl,int minorOpenGl);
+        CVisionSensorGlStuff(int resX,int resY,int offscreenType,bool qtFbo,QGLWidget* otherWidgetToShareResourcesWith,bool useStencilBuffer,bool destroyOffscreenContext);
     #else
-        CVisionSensorGlStuff(int resX,int resY,int offscreenType,bool qtFbo,QOpenGLWidget* otherWidgetToShareResourcesWith,bool useStencilBuffer,bool destroyOffscreenContext,int majorOpenGl,int minorOpenGl);
+        CVisionSensorGlStuff(int resX,int resY,int offscreenType,bool qtFbo,QOpenGLWidget* otherWidgetToShareResourcesWith,bool useStencilBuffer,bool destroyOffscreenContext);
     #endif
     virtual ~CVisionSensorGlStuff();
 

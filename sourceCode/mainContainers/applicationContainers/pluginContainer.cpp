@@ -62,6 +62,18 @@ CPluginContainer::~CPluginContainer()
 {
 }
 
+void CPluginContainer::printPluginStack()
+{
+    if (currentPluginStack.size()>0)
+    {
+        for (size_t i=0;i<currentPluginStack.size();i++)
+            printf("Plugin stack at pos %i: %s\n",i,currentPluginStack[i]->getName().c_str());
+    }
+    else
+        printf("Plugin stack is empty\n");
+}
+
+
 CPlugin* CPluginContainer::getCurrentPlugin()
 {
     if (currentPluginStack.size()==0)

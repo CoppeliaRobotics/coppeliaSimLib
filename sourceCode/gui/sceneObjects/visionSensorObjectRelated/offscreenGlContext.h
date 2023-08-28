@@ -20,9 +20,9 @@ class COffscreenGlContext : public QObject, protected QOpenGLFunctions
 public:
 
     #ifdef USES_QGLWIDGET
-        COffscreenGlContext(int offscreenType,int resX,int resY,QGLWidget *otherWidgetToShareResourcesWith,int majorOpenGl,int minorOpenGl);
+        COffscreenGlContext(int offscreenType,int resX,int resY,QGLWidget *otherWidgetToShareResourcesWith);
     #else
-        COffscreenGlContext(int offscreenType,int resX,int resY,QOpenGLWidget *otherWidgetToShareResourcesWith,int majorOpenGl,int minorOpenGl);
+        COffscreenGlContext(int offscreenType,int resX,int resY,QOpenGLWidget *otherWidgetToShareResourcesWith);
     #endif
     virtual ~COffscreenGlContext();
 

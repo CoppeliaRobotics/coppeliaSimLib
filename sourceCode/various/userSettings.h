@@ -28,8 +28,6 @@ public:
     int getNextFreeServerPortToUse();
     void setNextFreeServerPortToUse(int p);
 
-    bool getSupportOldApiNotation();
-
     std::string _overrideConsoleVerbosity;
     std::string _overrideStatusbarVerbosity;
     std::string _consoleLogFilter;
@@ -74,6 +72,7 @@ public:
     bool enableOldScriptTraversal;
     int allowOldEduRelease;
     int threadedScriptsStoppingGraceTime;
+    bool supportOldApiNotation;
     bool antiAliasing;
     double dynamicActivityRange;
     int freeServerPortStart;
@@ -87,8 +86,6 @@ public:
     bool forceFboViaExt;
     int vboOperation;
     int vboPersistenceInMs;
-    int desiredOpenGlMajor;
-    int desiredOpenGlMinor;
     int fileDialogs;
     double mouseWheelZoomFactor;
 
@@ -185,7 +182,6 @@ public:
     bool keepDongleOpen;
 
 private:
-    bool _supportOldApiNotation;
     void _setIntVector3(int v[3],int a,int b,int c);
     bool _undoRedoEnabled;
     bool _undoRedoOnlyPartialWithCameras;

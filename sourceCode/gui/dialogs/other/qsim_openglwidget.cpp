@@ -71,7 +71,6 @@ void COpenglWidget::_resizeEvent(SMouseOrKeyboardOrResizeEvent e)
 
     int x,y;
     _computeMousePos(e.x,e.y,x,y);
-
     GuiApp::mainWindow->windowResizeEvent(x,y);
 }
 

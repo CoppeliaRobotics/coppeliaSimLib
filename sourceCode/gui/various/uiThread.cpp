@@ -134,19 +134,6 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     if ( (!GuiApp::isFullScreen())&&(GuiApp::mainWindow!=nullptr)&&(cmdIn->cmdId==DISPLAY_OR_HIDE_PROGRESS_DIALOG_UITHREADCMD) )
         showOrHideProgressBar(cmdIn->boolParams[0],cmdIn->floatParams[0],cmdIn->stringParams[0].c_str());
 
-    if ( (!GuiApp::isFullScreen())&&(GuiApp::mainWindow!=nullptr)&&(cmdIn->cmdId==DISPLAY_MESH_INSIDE_EXTRACTION_ITERATIONS_DIALOG_UITHREADCMD) )
-    {
-        CQDlgSlider2 theDialog(GuiApp::mainWindow);
-        theDialog.opMode=0;
-        theDialog.resolution=cmdIn->intParams[0];
-        theDialog.iterationCnt=cmdIn->intParams[1];
-        theDialog.refresh();
-        bool cancel=(theDialog.makeDialogModal()==VDIALOG_MODAL_RETURN_CANCEL);
-        cmdOut->boolParams.push_back(!cancel);
-        cmdOut->intParams.push_back(theDialog.resolution);
-        cmdOut->intParams.push_back(theDialog.iterationCnt);
-    }
-
     if (cmdIn->cmdId==COPY_TEXT_TO_CLIPBOARD_UITHREADCMD)
         VVarious::copyTextToClipboard(cmdIn->stringParams[0].c_str());
 
@@ -563,7 +550,6 @@ void CUiThread::setFrameRendered()
     _frameRendered=true;
 }
 
-
 std::string CUiThread::getOpenOrSaveFileName_api(int mode,const char* title,const char* startPath,const char* initName,const char* extName,const char* ext)
 { // mode= 1: save, 0: load single, >1: load multiple
     TRACE_INTERNAL;
@@ -608,6 +594,7 @@ std::string CUiThread::getOpenOrSaveFileName_api(int mode,const char* title,cons
             cmdIn.stringParams.push_back(initName);
             cmdIn.stringParams.push_back(extName);
             cmdIn.stringParams.push_back(ext);
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
             executeCommandViaUiThread(&cmdIn,&cmdOut);
             retVal=cmdOut.stringParams[0];
         }
@@ -618,30 +605,35 @@ std::string CUiThread::getOpenOrSaveFileName_api(int mode,const char* title,cons
 unsigned short CUiThread::messageBox_informationSystemModal(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
+    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
     return(_messageBox(4,parentWidget,title,message,flags,defaultAnswer));
 }
 
 unsigned short CUiThread::messageBox_information(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
+    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
     return(_messageBox(0,parentWidget,title,message,flags,defaultAnswer));
 }
 
 unsigned short CUiThread::messageBox_question(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
+    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
     return(_messageBox(1,parentWidget,title,message,flags,defaultAnswer));
 }
 
 unsigned short CUiThread::messageBox_warning(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
+    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
     return(_messageBox(2,parentWidget,title,message,flags,defaultAnswer));
 }
 
 unsigned short CUiThread::messageBox_critical(void* parentWidget,const char* title,const char* message,unsigned short flags,unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
+    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
     return(_messageBox(3,parentWidget,title,message,flags,defaultAnswer));
 }
 
@@ -717,6 +709,7 @@ bool CUiThread::messageBox_checkbox(void* parentWidget,const char* title,const c
             cmdIn.stringParams.push_back(message);
             cmdIn.stringParams.push_back(checkboxMessage);
             cmdIn.boolParams.push_back(isWarning);
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
             executeCommandViaUiThread(&cmdIn,&cmdOut);
             if (cmdOut.boolParams.size()>0)
                 retVal=cmdOut.boolParams[0];
@@ -781,6 +774,7 @@ bool CUiThread::getOpenFileNames(std::vector<std::string>& files,void* parentWid
             cmdIn.stringParams.push_back(extension8);
             cmdIn.stringParams.push_back(extension9);
             cmdIn.stringParams.push_back(extension10);
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
             executeCommandViaUiThread(&cmdIn,&cmdOut);
             files.clear();
             for (size_t i=0;i<cmdOut.stringParams.size();i++)
@@ -840,6 +834,7 @@ std::string CUiThread::getOpenFileName(void* parentWidget,unsigned short option,
             cmdIn.stringParams.push_back(extension8);
             cmdIn.stringParams.push_back(extension9);
             cmdIn.stringParams.push_back(extension10);
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
             executeCommandViaUiThread(&cmdIn,&cmdOut);
             if (cmdOut.stringParams.size()>0)
                 retVal=cmdOut.stringParams[0];
@@ -880,6 +875,7 @@ std::string CUiThread::getSaveFileName(void* parentWidget,unsigned short option,
             cmdIn.stringParams.push_back(extension8);
             cmdIn.stringParams.push_back(extension9);
             cmdIn.stringParams.push_back(extension10);
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
             executeCommandViaUiThread(&cmdIn,&cmdOut);
             if (cmdOut.stringParams.size()>0)
                 retVal=cmdOut.stringParams[0];
@@ -955,6 +951,7 @@ bool CUiThread::showPrimitiveShapeDialog(int type,const C3Vector* optionalSizesI
             cmdIn.cmdId=SHOW_PRIMITIVE_SHAPE_DLG_UITHREADCMD;
             cmdIn.intParams.push_back(type);
             cmdIn.objectParams.push_back((void*)optionalSizesIn);
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
             executeCommandViaUiThread(&cmdIn,&cmdOut);
             if (cmdOut.intParams.size()>0)
             {
