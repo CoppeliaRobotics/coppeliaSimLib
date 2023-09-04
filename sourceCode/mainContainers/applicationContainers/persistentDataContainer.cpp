@@ -10,10 +10,12 @@ CPersistentDataContainer::CPersistentDataContainer()
     initializeWithDataFromFile();
 }
 
-CPersistentDataContainer::CPersistentDataContainer(const char* filename)
+CPersistentDataContainer::CPersistentDataContainer(const char* filename,const char* customFolder/*=nullptr*/)
 {
     _eventMutex.lock();
     _filename=filename;
+    if (customFolder!=nullptr)
+        _customFolder=customFolder; // otherwise user settings folder
     initializeWithDataFromFile();
 }
 
@@ -113,6 +115,8 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames
     dataValues.clear();
 
     std::string filenameAndPath=CFolderSystem::getUserSettingsPath();
+    if (_customFolder.size()>0)
+        filenameAndPath=_customFolder;
     filenameAndPath+="/";
     filenameAndPath+=_filename;
     if (VFile::doesFileExist(filenameAndPath.c_str()))
@@ -135,6 +139,8 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames
 void CPersistentDataContainer::_writeToFile(std::vector<std::string>& dataNames,std::vector<std::string>& dataValues)
 {
     std::string filenameAndPath=CFolderSystem::getUserSettingsPath();
+    if (_customFolder.size()>0)
+        filenameAndPath=_customFolder;
     filenameAndPath+="/";
     filenameAndPath+=_filename;
     try

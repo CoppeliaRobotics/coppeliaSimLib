@@ -435,6 +435,39 @@ void CWorldContainer::broadcastMsg(CInterfaceStack* inStack,int emittingScriptHa
     callScripts(sim_syscb_msg,inStack,nullptr,nullptr,emittingScriptHandle);
 }
 
+bool CWorldContainer::shouldTemporarilySuspendMainScript()
+{
+    TRACE_INTERNAL;
+    bool retVal=false;
+
+    // Old plugins:
+    int data[4]={0,0,0,0};
+    int rtVal[4]={-1,-1,-1,-1};
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_mainscriptabouttobecalled,data,nullptr,rtVal);
+    if (rtVal[0]!=-1)
+        retVal=true;
+
+    // New plugins:
+    int dat=-1;
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_mainscriptabouttobecalled,&dat,nullptr,true);
+    if (dat!=-1)
+        retVal=true;
+
+    // Child scripts & customization scripts:
+    if (currentWorld->embeddedScriptContainer->shouldTemporarilySuspendMainScript())
+        retVal=true;
+
+    // Add-on scripts:
+    if (addOnScriptContainer->shouldTemporarilySuspendMainScript())
+        retVal=true;
+
+    // Sandbox script:
+    if ( (sandboxScript!=nullptr)&&sandboxScript->shouldTemporarilySuspendMainScript() )
+        retVal=true;
+
+    return(retVal);
+}
+
 void CWorldContainer::pushSceneObjectRemoveEvent(const CSceneObject* object)
 {
     if (getEventsEnabled())

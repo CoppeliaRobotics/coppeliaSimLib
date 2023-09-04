@@ -383,12 +383,13 @@ void CPluginContainer::uiCallAllPlugins(int msg,int* auxData/*=nullptr*/,void* a
     unlockInterface();
 }
 
-void CPluginContainer::sendEventCallbackMessageToAllPlugins(int msg,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*/)
+void CPluginContainer::sendEventCallbackMessageToAllPlugins(int msg,int* auxData/*=nullptr*/,void* auxPointer/*=nullptr*/,bool onlyToNewPlugins/*=false*/)
 {
     for (size_t i=0;i<_allPlugins.size();i++)
     {
         CPlugin* plug=_allPlugins[size_t(i)];
-        plug->msg(msg,auxData,auxPointer);
+        if ( (!plug->isLegacyPlugin())||(!onlyToNewPlugins) )
+            plug->msg(msg,auxData,auxPointer);
     }
 }
 

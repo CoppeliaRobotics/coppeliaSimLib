@@ -6198,11 +6198,16 @@ int _getThreadAutomaticSwitch(luaWrap_lua_State* L)
     int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
     CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     bool retVal=false;
+    int level=0;
     if (it!=nullptr)
-        retVal=(it->getAutoYieldingForbidLevel()==0);
+    {
+        level=it->getAutoYieldingForbidLevel();
+        retVal=(level==0);
+    }
 
-    luaWrap_lua_pushboolean(L,retVal); //CThreadPool_old::getThreadAutomaticSwitch());
-    LUA_END(1);
+    luaWrap_lua_pushboolean(L,retVal);
+    luaWrap_lua_pushinteger(L,level);
+    LUA_END(2);
 }
 
 int _getThreadSwitchAllowed(luaWrap_lua_State* L)
@@ -11254,6 +11259,11 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
         }
         else
         { // the script is identified by its type sometimes also by its name
+            if (scriptHandleOrType==sim_handle_self)
+            {
+                int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                script=App::worldContainer->getScriptFromHandle(currentScriptID);
+            }
             if (scriptHandleOrType==sim_scripttype_mainscript)
                 script=App::currentWorld->embeddedScriptContainer->getMainScript();
             if ( (scriptHandleOrType==sim_scripttype_childscript)||(scriptHandleOrType==sim_scripttype_customizationscript) )

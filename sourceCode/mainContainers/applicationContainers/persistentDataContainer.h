@@ -7,7 +7,7 @@ class CPersistentDataContainer
 {
 public:
     CPersistentDataContainer();
-    CPersistentDataContainer(const char* filename);
+    CPersistentDataContainer(const char* filename,const char* customFolder=nullptr);
     virtual ~CPersistentDataContainer();
 
     int removeAllData();
@@ -27,6 +27,7 @@ protected:
     void _serialize(VArchive& ar,std::vector<std::string>& dataNames,std::vector<std::string>& dataValues);
 
     std::string _filename;
+    std::string _customFolder;
     std::vector<std::string> _dataNames;
     std::vector<std::string> _dataValues;
     VMutex _eventMutex;

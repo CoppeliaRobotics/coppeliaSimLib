@@ -940,11 +940,8 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     bool retVal=App::worldContainer->pluginContainer->selectExtRenderer(extRendererIndex);
 
     void* data[30];
-    if ((_renderMode!=sim_rendermode_extrendererwindowed)&&(_renderMode!=sim_rendermode_opengl3windowed))
-    { // When the view is not windowed:
-        _extWindowedViewSize[0]=_resolution[0];
-        _extWindowedViewSize[1]=_resolution[1];
-    }
+    _extWindowedViewSize[0]=_resolution[0];
+    _extWindowedViewSize[1]=_resolution[1];
 
     data[0]=_extWindowedViewSize; // for windowed views, this value is also a return value
     data[1]=_extWindowedViewSize+1; // for windowed views, this value is also a return value
@@ -1201,19 +1198,14 @@ bool CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
     _planesCalculated=false;
     _currentViewSize[0]=_resolution[0];
     _currentViewSize[1]=_resolution[1];
-    if ((_renderMode==sim_rendermode_extrendererwindowed)||(_renderMode==sim_rendermode_opengl3windowed))
-    { // We have a windowed view (the window's size is different from the vision sensor's resolution)
-        _currentViewSize[0]=_extWindowedViewSize[0];
-        _currentViewSize[1]=_extWindowedViewSize[1];
-    }
 
-    if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3)||(_renderMode==sim_rendermode_opengl3windowed))
+    if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3))
         setFrustumCullingTemporarilyDisabled(true); // important with ray-tracers and similar
 
     // Draw objects:
     _drawObjects(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
 
-    if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3)||(_renderMode==sim_rendermode_opengl3windowed))
+    if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3))
         setFrustumCullingTemporarilyDisabled(false); // important with ray-tracers and similar
 
 #ifdef SIM_WITH_GUI
@@ -2403,6 +2395,10 @@ void CVisionSensor::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _renderMode;
+                        if (_renderMode==sim_rendermode_extrendererwindowed)
+                            _renderMode=sim_rendermode_extrenderer;
+                        if (_renderMode==sim_rendermode_opengl3windowed)
+                            _renderMode=sim_rendermode_opengl3;
                     }
                     if (theName.compare("Afr")==0)
                     {
@@ -2520,7 +2516,7 @@ void CVisionSensor::serialize(CSer& ar)
                 ar.xmlAddNode_ints("defaultBufferValues",rgb,3);
             }
 
-            ar.xmlAddNode_comment(" 'renderMode' tag: can be 'openGL', 'auxiliaryChannels', 'colorCoded', 'PovRay', 'externalRenderer', 'externalRendererWindowed', 'openGL3' or 'openGL3Windowed' ",exhaustiveXml);
+            ar.xmlAddNode_comment(" 'renderMode' tag: can be 'openGL', 'colorCoded', 'PovRay', 'externalRenderer' or 'openGL3'",exhaustiveXml);
             ar.xmlAddNode_enum("renderMode",_renderMode,sim_rendermode_opengl,"openGL",sim_rendermode_auxchannels,"auxiliaryChannels",sim_rendermode_colorcoded,"colorCoded",sim_rendermode_povray,"PovRay",sim_rendermode_extrenderer,"externalRenderer",sim_rendermode_extrendererwindowed,"externalRendererWindowed",sim_rendermode_opengl3,"openGL3",sim_rendermode_opengl3windowed,"openGL3Windowed");
 
             if (exhaustiveXml)
@@ -2616,6 +2612,10 @@ void CVisionSensor::serialize(CSer& ar)
             }
 
             ar.xmlGetNode_enum("renderMode",_renderMode,exhaustiveXml,"openGL",sim_rendermode_opengl,"auxiliaryChannels",sim_rendermode_auxchannels,"colorCoded",sim_rendermode_colorcoded,"PovRay",sim_rendermode_povray,"externalRenderer",sim_rendermode_extrenderer,"externalRendererWindowed",sim_rendermode_extrendererwindowed,"openGL3",sim_rendermode_opengl3,"openGL3Windowed",sim_rendermode_opengl3windowed);
+            if (_renderMode==sim_rendermode_extrendererwindowed)
+                _renderMode=sim_rendermode_extrenderer;
+            if (_renderMode==sim_rendermode_opengl3windowed)
+                _renderMode=sim_rendermode_opengl3;
 
             if (exhaustiveXml)
                 ar.xmlGetNode_int("renderAttributes",_attributesForRendering,exhaustiveXml);

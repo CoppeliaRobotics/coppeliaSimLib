@@ -4547,23 +4547,7 @@ int simHandleMainScript_internal()
     C_API_START;
     int retVal=0;
 
-    // Plugins:
-    int data[4]={0,0,0,0};
-    int rtVal[4]={-1,-1,-1,-1};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_mainscriptabouttobecalled,data,nullptr,rtVal);
-
-    // Child scripts & customization scripts:
-    bool cs=!App::currentWorld->embeddedScriptContainer->shouldTemporarilySuspendMainScript();
-
-    // Add-on scripts:
-    bool as=!App::worldContainer->addOnScriptContainer->shouldTemporarilySuspendMainScript();
-
-    // Sandbox script:
-    bool ss=true;
-    if (App::worldContainer->sandboxScript!=nullptr)
-        ss=!App::worldContainer->sandboxScript->shouldTemporarilySuspendMainScript();
-
-    if ( ( (rtVal[0]==-1)&&cs&&as&&ss )||App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart() )
+    if ( (!App::worldContainer->shouldTemporarilySuspendMainScript())||App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart() )
     {
         CScriptObject* it=App::currentWorld->embeddedScriptContainer->getMainScript();
         if (it!=nullptr)
@@ -4585,7 +4569,7 @@ int simHandleMainScript_internal()
         }
     }
     else
-    { // a plugin or customization script doesn't want to run the main script!
+    { // "something" doesn't want to run the main script
         retVal=sim_script_main_script_not_called; // this should not generate an error
     }
 
@@ -11234,16 +11218,28 @@ int simCheckExecAuthorization_internal(const char* what,const char* args,int scr
                 if (it!=nullptr)
                 {
                     x=x+args+" ";
-                    x=std::regex_replace(x,std::regex(" ([0-9]+) ")," X ");
-                    x=std::regex_replace(x,std::regex("([0-9]{5}) "),"X ");
+                    if (x.find("pythonLauncher.py")!=std::string::npos)
+                    { // followin pattern occur constantly with python scripts within CoppeliaSim
+                        x=std::regex_replace(x,std::regex(R"(tcp://127\.0\.0\.1:(\d+))"),"localhost");
+                        x=std::regex_replace(x,std::regex(R"(tcp://localhost:(\d+))"),"localhost");
+                        x=std::regex_replace(x,std::regex("([^ ]*)pythonLauncher.py "),"pythonLauncher.py ");
+                        x=std::regex_replace(x,std::regex("^([^ ]*)python([^ ]*) "),"py ");
+                        x=std::regex_replace(x,std::regex("^([^ ]*)py.exe "),"py ");
+                    }
                     x=std::regex_replace(x,std::regex(" "),"_");
                     y=x+std::to_string(it->getSimpleHash());
                     std::hash<std::string> hasher;
                     y=std::to_string(hasher(y))+"EXECUNSAFE";
-                    CPersistentDataContainer cont;
+                    CPersistentDataContainer cont("signedPyScripts.dat",App::folders->getSystemPath().c_str()); // first check in system
                     std::string val;
                     if (cont.readData(y.c_str(),val))
                         auth=true;
+                    else
+                    {
+                        CPersistentDataContainer cont;
+                        if (cont.readData(y.c_str(),val))
+                            auth=true;
+                    }
                 }
             }
 #ifdef SIM_WITH_GUI
@@ -11254,6 +11250,11 @@ int simCheckExecAuthorization_internal(const char* what,const char* args,int scr
                     auth=true;
                     if (it!=nullptr)
                     {
+                        if (CSimFlavor::getBoolVal(18))
+                        {
+                            CPersistentDataContainer cont("signedPyScripts.dat",App::folders->getSystemPath().c_str());
+                            cont.writeData(y.c_str(),"OK",true);
+                        }
                         CPersistentDataContainer cont;
                         cont.writeData(y.c_str(),"OK",true);
                     }

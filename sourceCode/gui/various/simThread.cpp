@@ -33,7 +33,7 @@ CSimThread::~CSimThread()
 void CSimThread::executeMessages()
 {
     if ( _renderRequired()&&(GuiApp::mainWindow!=nullptr) )
-    { // we need to render. Send the appropriate signal
+    { // we always enter here, unless we skip display frames during simulation. In idle mode, _renderRequired will sleep appropriately
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             for (size_t i=0;i<App::currentWorld->sceneObjects->getCameraCount();i++)

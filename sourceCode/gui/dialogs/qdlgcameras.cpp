@@ -101,10 +101,15 @@ void CQDlgCameras::refresh()
             }
         }
 
-        ui->qqRenderModeCombo->addItem(IDS_VISIBLE_COMPONENTS,QVariant(0));
-        ui->qqRenderModeCombo->addItem(IDS_EXTERNAL_RENDERER,QVariant(1));
-        ui->qqRenderModeCombo->addItem(IDS_EXT_RENDERER_DURING_SIMULATION,QVariant(2));
-        ui->qqRenderModeCombo->addItem(IDS_EXT_RENDERER_DURING_SIMULATION_AND_RECORDING,QVariant(3));
+        bool duringSim,duringRec;
+        int renderMode=it->getRenderMode(&duringSim,&duringRec);
+        ui->qqRenderModeCombo->addItem("OpenGL",QVariant(0));
+        if (renderMode==sim_rendermode_extrenderer)
+        {
+            ui->qqRenderModeCombo->addItem("External renderer (deprecated)",QVariant(1));
+            ui->qqRenderModeCombo->addItem("External renderer during simulation (deprecated)",QVariant(2));
+            ui->qqRenderModeCombo->addItem("External renderer during simulation and recording (deprecated)",QVariant(3));
+        }
         ui->qqRenderModeCombo->addItem(IDS_OPENGL3,QVariant(4));
         ui->qqRenderModeCombo->addItem(IDS_OPENGL3_DURING_SIMULATION,QVariant(5));
         ui->qqRenderModeCombo->addItem(IDS_OPENGL3_DURING_SIMULATION_AND_RECORDING,QVariant(6));
@@ -112,8 +117,6 @@ void CQDlgCameras::refresh()
         ui->qqRenderModeCombo->addItem(IDS_RAY_TRACING_DURING_SIMULATION_AND_RECORDING,QVariant(8));
 
         // Select current item:
-        bool duringSim,duringRec;
-        int renderMode=it->getRenderMode(&duringSim,&duringRec);
         for (int i=0;i<ui->qqRenderModeCombo->count();i++)
         {
             bool ok=false;

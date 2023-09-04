@@ -61,6 +61,7 @@ public:
 
     void callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr,int scriptToExclude=-1);
     void broadcastMsg(CInterfaceStack* inStack,int emittingScriptHandle,int options);
+    bool shouldTemporarilySuspendMainScript();
     void pushSceneObjectRemoveEvent(const CSceneObject* object);
 
     bool getEventsEnabled() const;
