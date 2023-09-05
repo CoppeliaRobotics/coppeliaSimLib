@@ -792,7 +792,7 @@ void CMainWindow::renderScene()
 
                 if (simulationRecorder->getIsRecording())
                     simulationRecorder->recordFrameIfNeeded(_clientArea[0],_clientArea[1],0,0);
-                GuiApp::uiThread->setFrameRendered();
+                //GuiApp::uiThread->setFrameRendered();
                 if ( swapTheBuffers&&(openglWidget!=nullptr) ) // condition added on 31/1/2012... might help because some VMWare installations crash when disabling the rendering
                 {
                     #ifdef USES_QGLWIDGET
@@ -810,6 +810,7 @@ void CMainWindow::renderScene()
         }
         ins=false;
     }
+    GuiApp::uiThread->setFrameRendered();
 }
 
 void CMainWindow::createDefaultMenuBar()
