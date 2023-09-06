@@ -2137,9 +2137,12 @@ int CScriptObject::_callScriptFunc(const char* functionName,const CInterfaceStac
                 if (luaWrap_lua_isstring(L,-1))
                 {
                     errorMsg[0]=std::string(luaWrap_lua_tostring(L,-1));
-                    size_t p=errorMsg[0].find("__truncateStackFromHere__");
+                    size_t p=errorMsg[0].find("__]]__");
                     if (p!=std::string::npos)
                         errorMsg[0]=errorMsg[0].substr(0,p);
+                    p=errorMsg[0].find("__[[__");
+                    if (p!=std::string::npos)
+                        errorMsg[0]=errorMsg[0].substr(p+6);
                 }
                 else
                     errorMsg[0]="(error unknown)";
