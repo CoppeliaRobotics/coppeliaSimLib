@@ -1142,9 +1142,17 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection)
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
+
+        stack->pushStringOntoStack("objects",0);
+        stack->pushInt32ArrayOntoStack(&newObjectHandles[0],newObjectHandles.size());
+        stack->insertDataIntoStackTable();
+
+        // Following for backward compatibility:
         stack->pushStringOntoStack("objectHandles",0);
         stack->pushInt32ArrayOntoStack(&newObjectHandles[0],newObjectHandles.size());
         stack->insertDataIntoStackTable();
+        // --------------------------------------
+
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
@@ -1312,9 +1320,17 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection)
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
+
+        stack->pushStringOntoStack("objects",0);
+        stack->pushInt32ArrayOntoStack(&newObjectHandles[0],newObjectHandles.size());
+        stack->insertDataIntoStackTable();
+
+        // Following for backward compatibility:
         stack->pushStringOntoStack("objectHandles",0);
         stack->pushInt32ArrayOntoStack(&newObjectHandles[0],newObjectHandles.size());
         stack->insertDataIntoStackTable();
+        // --------------------------------------
+
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }

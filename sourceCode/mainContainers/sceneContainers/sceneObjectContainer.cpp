@@ -210,12 +210,22 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObj
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
+
+        std::vector<int> hand;
+        hand.push_back(newObject->getObjectHandle());
+        stack->pushStringOntoStack("objects",0);
+        stack->pushInt32ArrayOntoStack(hand.data(),hand.size());
+        stack->insertDataIntoStackTable();
+
+        // Following for backward compatibility:
         stack->pushStringOntoStack("objectHandles",0);
         stack->pushTableOntoStack();
         stack->pushInt32OntoStack(1); // key or index
         stack->pushInt32OntoStack(newObject->getObjectHandle());
         stack->insertDataIntoStackTable();
         stack->insertDataIntoStackTable();
+        // --------------------------------------
+
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
@@ -247,6 +257,16 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int>& objectHandles,b
         if (generateBeforeAfterDeleteCallback)
         {
             stack->pushTableOntoStack();
+
+            stack->pushStringOntoStack("objects",0);
+            stack->pushInt32ArrayOntoStack(objectHandles.data(),objectHandles.size());
+            stack->insertDataIntoStackTable();
+
+            stack->pushStringOntoStack("allObjects",0);
+            stack->pushBoolOntoStack(objectHandles.size()==getObjectCount());
+            stack->insertDataIntoStackTable();
+
+            // Following for backward compatibility:
             stack->pushStringOntoStack("objectHandles",0);
             stack->pushTableOntoStack();
             for (size_t i=0;i<objectHandles.size();i++)
@@ -260,9 +280,8 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int>& objectHandles,b
                 }
             }
             stack->insertDataIntoStackTable();
-            stack->pushStringOntoStack("allObjects",0);
-            stack->pushBoolOntoStack(objectHandles.size()==getObjectCount());
-            stack->insertDataIntoStackTable();
+            // --------------------------------------
+
             App::worldContainer->callScripts(sim_syscb_beforedelete,stack,nullptr);
         }
 

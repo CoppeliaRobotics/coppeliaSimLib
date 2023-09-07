@@ -237,6 +237,15 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene,int selectionMode)
 
     CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
     stack->pushTableOntoStack();
+
+    std::vector<int> hand;
+    for (size_t i=0;i<objectCopy.size();i++)
+        hand.push_back(objectCopy[i]->getObjectHandle());
+    stack->pushStringOntoStack("objects",0);
+    stack->pushInt32ArrayOntoStack(hand.data(),hand.size());
+    stack->insertDataIntoStackTable();
+
+    // Following for backward compatibility:
     stack->pushStringOntoStack("objectHandles",0);
     stack->pushTableOntoStack();
     for (size_t i=0;i<objectCopy.size();i++)
@@ -246,6 +255,8 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene,int selectionMode)
         stack->insertDataIntoStackTable();
     }
     stack->insertDataIntoStackTable();
+    // --------------------------------------
+
     App::worldContainer->callScripts(sim_syscb_aftercreate,stack,nullptr);
     App::worldContainer->interfaceStackContainer->destroyStack(stack);
 
@@ -281,6 +292,12 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
 
     CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
     stack->pushTableOntoStack();
+
+    stack->pushStringOntoStack("objects",0);
+    stack->pushInt32ArrayOntoStack(sel->data(),sel->size());
+    stack->insertDataIntoStackTable();
+
+    // Following for backward compatibility:
     stack->pushStringOntoStack("objectHandles",0);
     stack->pushTableOntoStack();
     for (size_t i=0;i<sel->size();i++)
@@ -290,6 +307,8 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         stack->insertDataIntoStackTable();
     }
     stack->insertDataIntoStackTable();
+    // --------------------------------------
+
     App::worldContainer->callScripts(sim_syscb_beforecopy,stack,nullptr); // could destroy or create objects in there!
 
     // Copy objects in hierarchial order!

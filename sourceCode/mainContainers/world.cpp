@@ -1593,6 +1593,15 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
+
+        std::vector<int> hand;
+        for (size_t i=0;i<loadedObjectList.size();i++)
+            hand.push_back(loadedObjectList[i]->getObjectHandle());
+        stack->pushStringOntoStack("objects",0);
+        stack->pushInt32ArrayOntoStack(hand.data(),hand.size());
+        stack->insertDataIntoStackTable();
+
+        // Following for backward compatibility:
         stack->pushStringOntoStack("objectHandles",0);
         stack->pushTableOntoStack();
         for (size_t i=0;i<loadedObjectList.size();i++)
@@ -1602,6 +1611,8 @@ bool CWorld::_loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool just
             stack->insertDataIntoStackTable();
         }
         stack->insertDataIntoStackTable();
+        // --------------------------------------
+
         App::worldContainer->callScripts(sim_syscb_aftercreate,stack,nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
