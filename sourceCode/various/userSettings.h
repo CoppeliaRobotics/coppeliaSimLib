@@ -90,11 +90,8 @@ public:
     double mouseWheelZoomFactor;
 
     bool doNotWritePersistentData;
-    bool doNotShowCrashRecoveryMessage;
     bool doNotShowUpdateCheckMessage;
     bool doNotShowProgressBars;
-    bool doNotShowAcknowledgmentMessages;
-    bool doNotShowVideoCompressionLibraryLoadError;
     bool suppressStartupDialogs;
     bool suppressXmlOverwriteMsg;
     bool allowSettingsWrite;

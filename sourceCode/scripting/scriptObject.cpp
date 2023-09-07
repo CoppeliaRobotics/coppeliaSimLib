@@ -1580,7 +1580,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,std:
                 std::string w;
                 if ( (utils::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
                 { // ok, we have a python script
-                    std::string t("wrapper='pythonWrapper'\n"); // default wrapper
+                    std::string t("wrapper='pythonWrapperV2'\n"); // default wrapper
                     bool stayIn=true;
                     while (stayIn&&utils::extractLine(tmpCode,l))
                     {
@@ -3406,6 +3406,24 @@ void CScriptObject::serialize(CSer& ar)
                     _executeJustOnce_oldThreads=false;
                 }
             }
+
+            if (getLanguage()==lang_python)
+            {
+                if (ar.getSerializationVersionThatWroteThisFile()<25)
+                { // make sure to use the old Python wrapper, with old Python scripts, for backward compatibility:
+                    std::smatch match;
+                    std::regex regEx(" *# *python.*");
+                    std::string newTxt("#python\n#luaExec wrapper='pythonWrapper' -- using the old wrapper for backw. compat.");
+                    newTxt+="\n# To switch to the new wrapper, simply remove above line, and add sim=require('sim')";
+                    newTxt+="\n# as the first instruction in sysCall_init() or sysCall_thread()";
+                    if (std::regex_search(_scriptText,match,regEx))
+                        _scriptText=std::string(match.prefix())+newTxt+std::string(match.suffix());
+
+
+
+                }
+            }
+
             fromBufferToFile();
         }
     }

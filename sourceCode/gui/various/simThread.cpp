@@ -4522,90 +4522,23 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
 
 void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
 {
-    if ( (!CSimFlavor::getBoolVal(15))&&(GuiApp::mainWindow!=nullptr)&&App::currentWorld->simulation->isSimulationStopped()&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
+    if ( (!CSimFlavor::getBoolVal(15))&&CSimFlavor::getBoolVal(16)&&(App::userSettings->autoSaveDelay>0)&&(!App::currentWorld->environment->getSceneLocked())&&App::currentWorld->simulation->isSimulationStopped()&&(GuiApp::getEditModeType()==NO_EDIT_MODE) )
     {
-        if (cmd.intParams[0]==0)
-        { // Here we maybe need to load auto-saved scenes:
-            // First post the next command in the sequence:
-            cmd.intParams[0]=1;
-            GuiApp::appendSimulationThreadCommand(cmd,1000);
+        // First repost a same command:
+        GuiApp::appendSimulationThreadCommand(cmd,1000);
+        if (VDateTime::getSecondsSince1970()>(App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970+App::userSettings->autoSaveDelay*60))
+        {
             CPersistentDataContainer cont;
             std::string val;
             cont.readData("SIMSETTINGS_SIM_CRASHED",val);
-            if (val=="Yes")
-            { // ask what to do:
-                if (!GuiApp::isFullScreen())
-                {
-                    if ( (!App::userSettings->doNotShowCrashRecoveryMessage)&&(!App::userSettings->suppressStartupDialogs) )
-                    {
-                        if (VMESSAGEBOX_REPLY_YES==GuiApp::uiThread->messageBox_question(GuiApp::mainWindow,CSimFlavor::getStringVal(11).c_str(),CSimFlavor::getStringVal(12).c_str(),VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_NO))
-                        {
-                            std::string testScene=App::folders->getAutoSavedScenesPath()+"/1.";
-                            testScene+=SIM_SCENE_EXTENSION;
-                            GuiApp::setDefaultMouseMode();
-                            if (CFileOperations::loadScene(testScene.c_str(),false))
-                            {
-                                App::currentWorld->mainSettings->setScenePathAndName("");
-                                App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_WAS_RESTORED_FROM_AUTO_SAVED_SCENE);
-                            }
-                            GuiApp::setRebuildHierarchyFlag();
-                            int instanceNb=2;
-                            while (true)
-                            {
-                                testScene=App::folders->getAutoSavedScenesPath()+"/";
-                                testScene+=utils::getIntString(false,instanceNb);
-                                testScene+=".";
-                                testScene+=SIM_SCENE_EXTENSION;
-                                if (VFile::doesFileExist(testScene.c_str()))
-                                {
-                                    App::worldContainer->createNewWorld();
-                                    if (CFileOperations::loadScene(testScene.c_str(),false))
-                                    {
-                                        App::currentWorld->mainSettings->setScenePathAndName("");
-                                        App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_WAS_RESTORED_FROM_AUTO_SAVED_SCENE);
-                                    }
-                                    else
-                                        break;
-                                    instanceNb++;
-                                }
-                                else
-                                    break;
-                            }
-                            App::worldContainer->switchToWorld(0);
-                        }
-                    }
-                    else
-                        App::logMsg(sim_verbosity_msgs,"It seems that CoppeliaSim crashed in last session (or you might be running several instances of CoppeliaSim in parallel).");
-                }
-            }
-        }
-        else if (cmd.intParams[0]==1)
-        { // Set the TAG: CoppeliaSim started normally
-            // First post the auto-save command:
-            cmd.intParams[0]=2;
-            GuiApp::appendSimulationThreadCommand(cmd,1000);
-            CPersistentDataContainer cont;
-            cont.writeData("SIMSETTINGS_SIM_CRASHED","Yes",!App::userSettings->doNotWritePersistentData);
-        }
-        else if (cmd.intParams[0]==2)
-        {
-            // First repost a same command:
-            GuiApp::appendSimulationThreadCommand(cmd,1000);
-            if ( CSimFlavor::getBoolVal(16)&&(App::userSettings->autoSaveDelay>0)&&(!App::currentWorld->environment->getSceneLocked()) )
-            {
-                if (VDateTime::getSecondsSince1970()>(App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970+App::userSettings->autoSaveDelay*60))
-                {
-                    std::string savedLoc=App::currentWorld->mainSettings->getScenePathAndName();
-                    std::string testScene=App::folders->getAutoSavedScenesPath()+"/";
-                    testScene+=utils::getIntString(false,App::worldContainer->getCurrentWorldIndex()+1);
-                    testScene+=".";
-                    testScene+=SIM_SCENE_EXTENSION;
-                    CFileOperations::saveScene(testScene.c_str(),false,false);
-                    GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
-                    App::currentWorld->mainSettings->setScenePathAndName(savedLoc.c_str());
-                    App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970=VDateTime::getSecondsSince1970();
-                }
-            }
+            std::string savedLoc=App::currentWorld->mainSettings->getScenePathAndName();
+            std::string testScene=App::folders->getAutoSavedScenesPath()+"/";
+            testScene+=val+std::to_string(App::worldContainer->getCurrentWorldIndex()+1)+".";
+            testScene+=SIM_SCENE_EXTENSION;
+            CFileOperations::saveScene(testScene.c_str(),false,false);
+            GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
+            App::currentWorld->mainSettings->setScenePathAndName(savedLoc.c_str());
+            App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970=VDateTime::getSecondsSince1970();
         }
     }
     else

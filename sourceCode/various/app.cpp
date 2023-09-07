@@ -183,6 +183,42 @@ void App::init(const char* appDir,int)
     worldContainer->addOnScriptContainer->callScripts(sim_syscb_init,nullptr,nullptr);
     setAppStage(appstage_simRunning);
 
+    if (!App::userSettings->doNotWritePersistentData)
+    {
+        CPersistentDataContainer cont;
+        std::string val;
+        cont.readData("SIMSETTINGS_SIM_CRASHED",val);
+        if (val.size()==1) // A,B,C,AA,BB,CC (where double-chars indicate correctly closed app, the char itself indicates the namespace for the auto save scenes)
+            App::logMsg(sim_verbosity_warnings,(std::string("If CoppeliaSim crashed in previous session, you can find auto-saved scenes in ")+App::folders->getAutoSavedScenesPath()).c_str());
+        if (val[0]=='A')
+            val="B";
+        else if (val[0]=='B')
+            val="C";
+        else if (val[0]=='C')
+            val="D";
+        else
+            val="A";
+        cont.writeData("SIMSETTINGS_SIM_CRASHED",val.c_str(),true);
+
+        // Remove any remaining auto-saved file:
+        for (int i=1;i<30;i++)
+        {
+            std::string testScene(App::folders->getAutoSavedScenesPath()+"/");
+            testScene+=val+std::to_string(i)+".";
+            testScene+=SIM_SCENE_EXTENSION;
+            if (VFile::doesFileExist(testScene.c_str()))
+                VFile::eraseFile(testScene.c_str());
+        }
+    }
+
+    // Prepare a few recurrent triggers:
+    SSimulationThreadCommand cmd;
+    cmd.cmdId=AUTO_SAVE_SCENE_CMD;
+    GuiApp::appendSimulationThreadCommand(cmd,2000);
+    cmd.cmdId=MEMORIZE_UNDO_STATE_IF_NEEDED_CMD;
+    cmd.intParams.clear();
+    GuiApp::appendSimulationThreadCommand(cmd,2200);
+
     #ifdef SIM_WITH_GUI
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;

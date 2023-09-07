@@ -156,11 +156,8 @@
 #define _USR_MOUSE_WHEEL_ZOOM_FACTOR "mouseWheelZoomFactor"
 
 #define _USR_DO_NOT_WRITE_PERSISTENT_DATA "doNotWritePersistentData"
-#define _USR_DO_NOT_SHOW_CRASH_RECOVERY_MESSAGE "doNotShowCrashRecoveryMessage"
 #define _USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE "doNotShowUpdateCheckMessage"
 #define _USR_DO_NOT_SHOW_PROGRESS_BARS "doNotShowProgressBars"
-#define _USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES "doNotShowAcknowledgmentMessages"
-#define _USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR "doNotShowVideoCompressionLibraryLoadError"
 #define _USR_SUPPRESS_STARTUP_DIALOG "suppressStartupDialogs"
 #define _USR_SUPPRESS_XML_OVERWRITE_MSG "suppressXmlOverwriteMsg"
 #define _USR_ALLOW_SETTINGS_WRITE "allowSettingsWrite"
@@ -308,11 +305,8 @@ CUserSettings::CUserSettings()
 
     // Messaging section:
     // *****************************
-    doNotShowCrashRecoveryMessage=false;
     doNotShowUpdateCheckMessage=false;
     doNotShowProgressBars=false;
-    doNotShowAcknowledgmentMessages=false;
-    doNotShowVideoCompressionLibraryLoadError=false;
     suppressStartupDialogs=false;
     suppressXmlOverwriteMsg=false;
     noVersionCheck=0;
@@ -528,21 +522,21 @@ void CUserSettings::saveUserSettings()
         c.addInteger(_USR_IDLE_FPS,_idleFps,"");
         c.addInteger(_USR_OFFSCREEN_CONTEXT_TYPE,offscreenContextType,"recommended to keep -1 (-1=default, 0=Qt offscreen, 1=QGLWidget/QOpenGLWidget visible, 2=QGLWidget/QOpenGLWidget invisible).");
         c.addInteger(_USR_FBO_TYPE,fboType,"recommended to keep -1 (-1=default, 0=native, 1=QOpenGLFramebufferObject).");
-        c.addBoolean(_USR_FORCE_FBO_VIA_EXT,forceFboViaExt,"recommended to keep false.");
+        //c.addBoolean(_USR_FORCE_FBO_VIA_EXT,forceFboViaExt,"recommended to keep false.");
         c.addInteger(_USR_VBO_OPERATION,vboOperation,"recommended to keep -1 (-1=default, 0=always off, 1=on when available).");
-        c.addInteger(_USR_VBO_PERSISTENCE_IN_MS,vboPersistenceInMs,"recommended to keep 5000.");
-        c.addBoolean(_USR_OGL_COMPATIBILITY_TWEAK_1,oglCompatibilityTweak1,"recommended to keep false since it causes small memory leaks.");
-        c.addBoolean(_USR_USE_GLFINISH,useGlFinish,"recommended to keep false. Graphic card dependent.");
-        c.addBoolean(_USR_USE_GLFINISH_VISION_SENSORS,useGlFinish_visionSensors,"recommended to keep false. Graphic card dependent.");
-        c.addInteger(_USR_VSYNC,vsync,"recommended to keep at 0. Graphic card dependent.");
-        c.addFloat(_USR_STEREO_DIST,stereoDist,"0=no stereo, otherwise the intra occular distance (0.0635 for the human eyes).");
+        //c.addInteger(_USR_VBO_PERSISTENCE_IN_MS,vboPersistenceInMs,"recommended to keep 5000.");
+        //c.addBoolean(_USR_OGL_COMPATIBILITY_TWEAK_1,oglCompatibilityTweak1,"recommended to keep false since it causes small memory leaks.");
+        //c.addBoolean(_USR_USE_GLFINISH,useGlFinish,"recommended to keep false. Graphic card dependent.");
+        //c.addBoolean(_USR_USE_GLFINISH_VISION_SENSORS,useGlFinish_visionSensors,"recommended to keep false. Graphic card dependent.");
+        //c.addInteger(_USR_VSYNC,vsync,"recommended to keep at 0. Graphic card dependent.");
+        //c.addFloat(_USR_STEREO_DIST,stereoDist,"0=no stereo, otherwise the intra occular distance (0.0635 for the human eyes).");
         c.addInteger(_USR_HIGH_RES_DISPLAY,highResDisplay,"-1=none, 1=special, 2=enabled, 3=enable oglScaling and guiScaling below.");
         c.addInteger(_USR_GUESSED_SCALING_FOR_2X_OPENGL,guessedDisplayScalingThresholdFor2xOpenGl,"200=default");
         c.addInteger(_USR_OGL_SCALING,oglScaling,"1=default. No effect if highResDisplay!=3 above.");
         c.addFloat(_USR_GUI_SCALING,guiScaling,"1.0=default. No effect if highResDisplay!=3 above.");
-        c.addBoolean(_USR_NO_EDGES_WHEN_MOUSE_DOWN,noEdgesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
-        c.addBoolean(_USR_NO_TEXTURES_WHEN_MOUSE_DOWN,noTexturesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
-        c.addBoolean(_USR_NO_CUSTOM_UIS_WHEN_MOUSE_DOWN,noCustomUisWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
+        //c.addBoolean(_USR_NO_EDGES_WHEN_MOUSE_DOWN,noEdgesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
+        //c.addBoolean(_USR_NO_TEXTURES_WHEN_MOUSE_DOWN,noTexturesWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
+        //c.addBoolean(_USR_NO_CUSTOM_UIS_WHEN_MOUSE_DOWN,noCustomUisWhenMouseDownInCameraView,"if true, rendering is faster during mouse/view interaction");
         c.addInteger(_USR_HIERARCHY_REFRESH_CNT,hierarchyRefreshCnt,"");
 
 
@@ -554,10 +548,10 @@ void CUserSettings::saveUserSettings()
         c.addRandomLine("// =================================================");
         c.addIntVector2(_USR_INIT_WINDOW_SIZE,initWindowSize,"0,0 for fullscreen");
         c.addBoolean(_USR_DARK_MODE,darkMode,"");
-        c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_SHIFT,renderingSurfaceVShift,"");
-        c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_RESIZE,renderingSurfaceVResize,"");
+        //c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_SHIFT,renderingSurfaceVShift,"");
+        //c.addInteger(_USR_RENDERING_SURFACE_VERTICAL_RESIZE,renderingSurfaceVResize,"");
         c.addBoolean(_USR_DISPLAY_WORLD_REF,displayWorldReference,"");
-        c.addBoolean(_USR_ANTIALIASING,antiAliasing,"");
+        //c.addBoolean(_USR_ANTIALIASING,antiAliasing,"");
         c.addInteger(_USR_GUI_FONT_SIZE_WIN,guiFontSize_Win,"-1=default");
         c.addInteger(_USR_GUI_FONT_SIZE_MAC,guiFontSize_Mac,"-1=default");
         c.addInteger(_USR_GUI_FONT_SIZE_LINUX,guiFontSize_Linux,"-1=default");
@@ -631,8 +625,8 @@ void CUserSettings::saveUserSettings()
         c.addRandomLine("// =================================================");
         c.addInteger(_USR_AUTO_SAVE_DELAY,autoSaveDelay,"in minutes. 0 to disable.");
         c.addBoolean(_USR_DO_NOT_WRITE_PERSISTENT_DATA,doNotWritePersistentData,"");
-        c.addBoolean(_USR_COMPRESS_FILES,compressFiles,"");
-        c.addInteger(_USR_FILE_DIALOGS_NATIVE,fileDialogs,"recommended to keep -1 (-1=default, 0=native dialogs, 1=Qt dialogs).");
+        //c.addBoolean(_USR_COMPRESS_FILES,compressFiles,"");
+        //c.addInteger(_USR_FILE_DIALOGS_NATIVE,fileDialogs,"recommended to keep -1 (-1=default, 0=native dialogs, 1=Qt dialogs).");
         c.addBoolean(_USR_ALLOW_SETTINGS_WRITE,allowSettingsWrite,"");
 
 
@@ -653,11 +647,8 @@ void CUserSettings::saveUserSettings()
 
         c.addRandomLine("// Messaging");
         c.addRandomLine("// =================================================");
-        c.addBoolean(_USR_DO_NOT_SHOW_CRASH_RECOVERY_MESSAGE,doNotShowCrashRecoveryMessage,"");
         c.addBoolean(_USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE,doNotShowUpdateCheckMessage,"");
         c.addBoolean(_USR_DO_NOT_SHOW_PROGRESS_BARS,doNotShowProgressBars,"");
-        c.addBoolean(_USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES,doNotShowAcknowledgmentMessages,"");
-        c.addBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError,"");
         c.addBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs,"");
         c.addBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG,suppressXmlOverwriteMsg,"");
 
@@ -669,18 +660,18 @@ void CUserSettings::saveUserSettings()
 
         c.addRandomLine("// Compatibility");
         c.addRandomLine("// =================================================");
-        c.addBoolean(_USR_MIDDLE_MOUSE_BUTTON_SWITCHES_MODES,middleMouseButtonSwitchesModes,"has only an effect if navigationBackwardCompatibility is true.");
-        c.addBoolean(_USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE,navigationBackwardCompatibility,"recommended to keep false.");
-        c.addFloat(_USR_COLOR_ADJUST_BACK_COMPATIBILITY,colorAdjust_backCompatibility,"recommended to keep 1.0");
-        c.addBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak,"");
-        c.addBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi,"");
+        //c.addBoolean(_USR_MIDDLE_MOUSE_BUTTON_SWITCHES_MODES,middleMouseButtonSwitchesModes,"has only an effect if navigationBackwardCompatibility is true.");
+        //c.addBoolean(_USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE,navigationBackwardCompatibility,"recommended to keep false.");
+        //c.addFloat(_USR_COLOR_ADJUST_BACK_COMPATIBILITY,colorAdjust_backCompatibility,"recommended to keep 1.0");
+        //c.addBoolean(_USR_SPECIFIC_GPU_TWEAK,specificGpuTweak,"");
+        //c.addBoolean(_USR_DISABLED_OPENGL_BASED_CUSTOM_UI,disableOpenGlBasedCustomUi,"");
         c.addBoolean(_USR_SHOW_old_DLGS,showOldDlgs,"");
-        c.addBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour,"");
-        c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts,"");
+        //c.addBoolean(_USR_ENABLE_OLD_RENDERABLE,enableOldRenderableBehaviour,"");
+        //c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts,"");
         c.addBoolean(_USR_SUPPORT_old_API_NOTATION,supportOldApiNotation,"");
-        c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
-        c.addBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal,"");
-        c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
+        //c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
+        //c.addBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal,"");
+        //c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
 
 
 
@@ -694,20 +685,20 @@ void CUserSettings::saveUserSettings()
         c.addFloat(_USR_DYNAMIC_ACTIVITY_RANGE,dynamicActivityRange,"");
         c.addFloat(_USR_TRANSLATION_STEP_SIZE,_translationStepSize,"");
         c.addFloat(_USR_ROTATION_STEP_SIZE,_rotationStepSize*radToDeg,"");
-        c.addInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart,"");
-        c.addInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange,"");
+        //c.addInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart,"");
+        //c.addInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange,"");
         c.addInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton,"in seconds. Zero to disable.");
         c.addInteger(_USR_TRIANGLE_COUNT_IN_OBB,triCountInOBB,"");
         c.addFloat(_USR_IDENTICAL_VERTICES_TOLERANCE,identicalVertexTolerance,"");
         c.addBoolean(_USR_RUN_CUSTOMIZATION_SCRIPTS,runCustomizationScripts,"");
-        c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
-        c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
+        //c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
+        //c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
         c.addString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath,"e.g. d:/myLuaRoutines");
         c.addString(_USR_ADDITIONAL_PYTHON_PATH,additionalPythonPath,"e.g. d:/myPythonRoutines");
         c.addString(_USR_DEFAULT_PYTHON,defaultPython,"e.g. c:/Python38/python.exe");
         c.addBoolean(_USR_EXECUTE_UNSAFE,executeUnsafe,"recommended to keep false.");
-        c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
-        c.addInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth,"-1=default.");
+        //c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
+        //c.addInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth,"-1=default.");
         c.addString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditor,"");
         c.addInteger(_USR_XML_EXPORT_SPLIT_SIZE,xmlExportSplitSize,"0=generate a single file.");
         c.addBoolean(_USR_XML_EXPORT_KNOWN_FORMATS,xmlExportKnownFormats,"true=if several files are generated, mesh and image files are saved under known formats.");
@@ -929,11 +920,8 @@ void CUserSettings::loadUserSettings()
 
     // Messaging section:
     // *****************************
-    c.getBoolean(_USR_DO_NOT_SHOW_CRASH_RECOVERY_MESSAGE,doNotShowCrashRecoveryMessage);
     c.getBoolean(_USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE,doNotShowUpdateCheckMessage);
     c.getBoolean(_USR_DO_NOT_SHOW_PROGRESS_BARS,doNotShowProgressBars);
-    c.getBoolean(_USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES,doNotShowAcknowledgmentMessages);
-    c.getBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError);
     c.getBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs);
     c.getBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG,suppressXmlOverwriteMsg);
     c.getInteger(_USR_NO_VERSION_CHECK,noVersionCheck);

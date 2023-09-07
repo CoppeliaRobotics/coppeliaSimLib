@@ -242,19 +242,6 @@ void GuiApp::runGui(int options)
 
     _loadLegacyPlugins();
 
-
-    // Prepare a few initial triggers:
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=AUTO_SAVE_SCENE_CMD;
-        cmd.intParams.push_back(0); // load autosaved scenes, if crashed
-        GuiApp::appendSimulationThreadCommand(cmd,2000); // was 1000
-
-        cmd.cmdId=MEMORIZE_UNDO_STATE_IF_NEEDED_CMD;
-        cmd.intParams.clear();
-        GuiApp::appendSimulationThreadCommand(cmd,2200); // was 200
-    }
-
     if (CSimFlavor::getBoolVal(17))
     {
         SSimulationThreadCommand cmd;
@@ -309,20 +296,15 @@ void GuiApp::runGui(int options)
     delete uiThread;
     uiThread=nullptr;
 
-    // Clear the TAG that CoppeliaSim crashed! (because if we arrived here, we didn't crash!)
+    // Indicate that we didn't crash:
     CPersistentDataContainer cont;
-    cont.writeData("SIMSETTINGS_SIM_CRASHED","No",!App::userSettings->doNotWritePersistentData);
-
-    // Remove any remaining auto-saved file:
-    for (int i=1;i<30;i++)
-    {
-        std::string testScene(App::folders->getAutoSavedScenesPath()+"/");
-        testScene+=utils::getIntString(false,i);
-        testScene+=".";
-        testScene+=SIM_SCENE_EXTENSION;
-        if (VFile::doesFileExist(testScene.c_str()))
-            VFile::eraseFile(testScene.c_str());
-    }
+    std::string val;
+    cont.readData("SIMSETTINGS_SIM_CRASHED",val);
+    if (val.size()==1)
+        val+=val[0];
+    else
+        val="AA";
+    cont.writeData("SIMSETTINGS_SIM_CRASHED",val.c_str(),!App::userSettings->doNotWritePersistentData);
 
     CAuxLibVideo::unloadLibrary();
 

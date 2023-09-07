@@ -89,7 +89,6 @@
 #define IDSN_X_CLONES_WERE_UPDATED " clones were updated."
 
 
-#define IDSNS_SCENE_WAS_RESTORED_FROM_AUTO_SAVED_SCENE "Scene was restored from auto-saved scene."
 #define IDSNS_SWAPPED_TO_PAGE "Swapped to page"
 
 #define IDSNS_LOADING_SCENE "Loading scene"
