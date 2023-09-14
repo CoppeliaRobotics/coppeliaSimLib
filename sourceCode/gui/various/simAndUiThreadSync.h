@@ -42,6 +42,7 @@ private:
     std::string _functionName;
     int _lockType; // 0=UI READ, 1=UI WRITE, 2=SIM THREAD WRITE, 3=SIM THREAD ALLOWS OVERRIDING READ OR WRITE BAN, 4=UI THREAD GRANTS SPECIAL READ/WRITE RIGHTS
     int _handle;
+    bool _err;
 
     static VSimUiMutex _uiReadPermission; // shared between the SIM and UI thread. Locked by UI when UI reads.
     static VSimUiMutex _uiWritePermission; // shared between the SIM and UI thread. Locked by UI when UI writes

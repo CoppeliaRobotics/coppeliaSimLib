@@ -211,19 +211,14 @@ void App::init(const char* appDir,int)
         }
     }
 
-    // Prepare a few recurrent triggers:
-    SSimulationThreadCommand cmd;
-    cmd.cmdId=AUTO_SAVE_SCENE_CMD;
-    GuiApp::appendSimulationThreadCommand(cmd,2000);
-    cmd.cmdId=MEMORIZE_UNDO_STATE_IF_NEEDED_CMD;
-    cmd.intParams.clear();
-    GuiApp::appendSimulationThreadCommand(cmd,2200);
-
     #ifdef SIM_WITH_GUI
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId=CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        // Prepare a few recurrent triggers:
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=AUTO_SAVE_SCENE_CMD;
+        GuiApp::appendSimulationThreadCommand(cmd,2000);
+        cmd.cmdId=MEMORIZE_UNDO_STATE_IF_NEEDED_CMD;
+        cmd.intParams.clear();
+        GuiApp::appendSimulationThreadCommand(cmd,2200);
     #endif
 }
 

@@ -1224,20 +1224,7 @@ void CCamera::serialize(CSer& ar)
 
             // reserved ar.storeDataName("Rcm");
 
-            ar.storeDataName("Ca2");
-            unsigned char nothing=0;
-            SIM_SET_CLEAR_BIT(nothing,0,_useParentObjectAsManipulationProxy);
-            SIM_SET_CLEAR_BIT(nothing,1,!_showFogIfAvailable);
-            SIM_SET_CLEAR_BIT(nothing,2,_useLocalLights);
-            SIM_SET_CLEAR_BIT(nothing,3,!_allowPicking);
-            SIM_SET_CLEAR_BIT(nothing,4,!_perspective);
-            SIM_SET_CLEAR_BIT(nothing,5,_renderModeDuringSimulation);
-            SIM_SET_CLEAR_BIT(nothing,6,_renderModeDuringRecording);
-            SIM_SET_CLEAR_BIT(nothing,7,_showVolume);
-            ar << nothing;
-            ar.flush();
-
-            ar.storeDataName("Cpm"); // keep for backward compatibility. Keep after Ca2 (22.06.2023)
+            ar.storeDataName("Cpm"); // keep for backward compatibility (22.06.2023)
             int po=-1;
             if (_viewModeSet_old)
             {
@@ -1247,6 +1234,26 @@ void CCamera::serialize(CSer& ar)
                     po=0;
             }
             ar << po;
+            ar.flush();
+
+            ar.storeDataName("Ca2");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_useParentObjectAsManipulationProxy);
+            SIM_SET_CLEAR_BIT(nothing,1,!_showFogIfAvailable);
+            SIM_SET_CLEAR_BIT(nothing,2,_useLocalLights);
+            SIM_SET_CLEAR_BIT(nothing,3,!_allowPicking);
+            //SIM_SET_CLEAR_BIT(nothing,4,!_perspective);
+            SIM_SET_CLEAR_BIT(nothing,5,_renderModeDuringSimulation);
+            SIM_SET_CLEAR_BIT(nothing,6,_renderModeDuringRecording);
+            SIM_SET_CLEAR_BIT(nothing,7,_showVolume);
+            ar << nothing;
+            ar.flush();
+
+            ar.storeDataName("Ca3");
+            nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_viewModeSet_old);
+            SIM_SET_CLEAR_BIT(nothing,1,_perspective);
+            ar << nothing;
             ar.flush();
 
             ar.storeDataName("Cl1");
@@ -1262,6 +1269,7 @@ void CCamera::serialize(CSer& ar)
             int byteQuantity;
             std::string theName="";
             bool povFocalBlurEnabled_backwardCompatibility_3_2_2016=false;
+            _viewModeSet_old=false;
             while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
                 theName=ar.readDataName();
@@ -1328,6 +1336,15 @@ void CCamera::serialize(CSer& ar)
                         ar >> nothing;
                         _useParentObjectAsManipulationProxy=SIM_IS_BIT_SET(nothing,0);
                     }
+                    if (theName.compare("Cpm")==0)
+                    { // keep for backward compatibility (22.06.2023)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int po;
+                        ar >> po;
+                        _perspective=(po!=0);
+                        _viewModeSet_old=(po>=0);
+                    }
                     if (theName=="Ca2")
                     {
                         noHit=false;
@@ -1338,7 +1355,7 @@ void CCamera::serialize(CSer& ar)
                         _showFogIfAvailable=!SIM_IS_BIT_SET(nothing,1);
                         _useLocalLights=SIM_IS_BIT_SET(nothing,2);
                         _allowPicking=!SIM_IS_BIT_SET(nothing,3);
-                        _perspective=!SIM_IS_BIT_SET(nothing,4);
+                        //_perspective=!SIM_IS_BIT_SET(nothing,4);
                         _renderModeDuringSimulation=SIM_IS_BIT_SET(nothing,5);
                         _renderModeDuringRecording=SIM_IS_BIT_SET(nothing,6);
                         _showVolume=SIM_IS_BIT_SET(nothing,7);
@@ -1349,14 +1366,14 @@ void CCamera::serialize(CSer& ar)
                         ar >> byteQuantity;
                         ar >> _renderMode;
                     }
-                    if (theName.compare("Cpm")==0)
-                    { // keep for backward compatibility (22.06.2023)
+                    if (theName=="Ca3")
+                    {
                         noHit=false;
                         ar >> byteQuantity;
-                        int po;
-                        ar >> po;
-                        _perspective=(po!=0);
-                        _viewModeSet_old=(po>=0);
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _viewModeSet_old=SIM_IS_BIT_SET(nothing,0);
+                        _perspective=SIM_IS_BIT_SET(nothing,1);
                     }
                     if (theName.compare("Rmd")==0)
                     { // keep for backward compatibility 28/06/2019

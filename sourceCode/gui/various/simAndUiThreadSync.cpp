@@ -24,6 +24,7 @@ int CSimAndUiThreadSync::_nextHandleValue=0;
 
 CSimAndUiThreadSync::CSimAndUiThreadSync(const char* functionName)
 {
+    _err=false;
     _lockFunctionResult=-1;
     _lockType=-1;
     _functionName=functionName;
@@ -32,43 +33,46 @@ CSimAndUiThreadSync::CSimAndUiThreadSync(const char* functionName)
 
 CSimAndUiThreadSync::~CSimAndUiThreadSync()
 {
-    if (_lockType==0)
+    if (!_err)
     {
-        if (_lockFunctionResult>0)
+        if (_lockType==0)
         {
-            _ui_readLevel--;
-            _uiReadPermission.unlock(); // release the read permission for the UI thread
+            if (_lockFunctionResult>0)
+            {
+                _ui_readLevel--;
+                _uiReadPermission.unlock(); // release the read permission for the UI thread
+            }
         }
-    }
 
 
-    if (_lockType==1)
-    {
-        if (_lockFunctionResult>0)
+        if (_lockType==1)
         {
-            _ui_writeLevel--;
-            _uiWritePermission.unlock(); // release the write permission for the UI thread
+            if (_lockFunctionResult>0)
+            {
+                _ui_writeLevel--;
+                _uiWritePermission.unlock(); // release the write permission for the UI thread
+            }
         }
-    }
 
-    if (_lockType==2)
-    {
-        _sim_writeLevel--;
-        _uiReadPermission.unlock(); // release the write permission for the SIM thread (i.e. allow the UI thread to read again)
-    }
+        if (_lockType==2)
+        {
+            _sim_writeLevel--;
+            _uiReadPermission.unlock(); // release the write permission for the SIM thread (i.e. allow the UI thread to read again)
+        }
 
-    if (_lockType==3)
-    {
-        for (int i=0;i<_sim_readLevel_temp;i++)
-            _uiWritePermission.lock(VSimUiMutex::nonUi);
-        _sim_readLevel=_sim_readLevel_temp;
-        _sim_readLevel_temp=0;
+        if (_lockType==3)
+        {
+            for (int i=0;i<_sim_readLevel_temp;i++)
+                _uiWritePermission.lock(VSimUiMutex::nonUi);
+            _sim_readLevel=_sim_readLevel_temp;
+            _sim_readLevel_temp=0;
 
 
-        for (int i=0;i<_sim_writeLevel_temp;i++)
-            _uiReadPermission.lock(VSimUiMutex::nonUi);
-        _sim_writeLevel=_sim_writeLevel_temp;
-        _sim_writeLevel_temp=0;
+            for (int i=0;i<_sim_writeLevel_temp;i++)
+                _uiReadPermission.lock(VSimUiMutex::nonUi);
+            _sim_writeLevel=_sim_writeLevel_temp;
+            _sim_writeLevel_temp=0;
+        }
     }
 }
 
@@ -160,10 +164,15 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int maxTime)
 
 void CSimAndUiThreadSync::simThread_lockForSimThreadWrite()
 { // called by the SIM thread only!
+    if (VThread::isUiThread())
+    {
+        _err=true;
+        return;
+    }
     _lockType=2; // SIM THREAD WRITE
 
-    if (VThread::isUiThread())
-        App::beep(); // we are NOT in the UI thread. This is a bug!
+    //if (VThread::isUiThread())
+    //    App::beep(); // we are NOT in the UI thread. This is a bug!
 
     if (_lockFunctionResult!=-1)
         return; // should not happen!
@@ -245,10 +254,18 @@ void CSimAndUiThreadSync::simThread_allowUiThreadToWrite()
 
 
 void CSimAndUiThreadSync::simThread_temporarilyAllowUiThreadToReadAndWrite()
-{   _lockType=3; // SIM THREAD TEMPORARILY ALLOWS THE UI THREAD TO READ AND WRITE
-
+{
     if (VThread::isUiThread())
-        App::beep(); // we are NOT in the UI thread. This is a bug!
+    {
+        _err=true;
+        return;
+    }
+
+
+    _lockType=3; // SIM THREAD TEMPORARILY ALLOWS THE UI THREAD TO READ AND WRITE
+
+//    if (VThread::isUiThread())
+//        App::beep(); // we are NOT in the UI thread. This is a bug!
 
     // We will release possession of the _uiReadPermission and _uiWritePermission locks.
     // This will succeed once the UI thread is not reading anymore.

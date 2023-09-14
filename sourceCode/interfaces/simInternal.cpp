@@ -12615,6 +12615,7 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
     C_API_START;
     CScriptObject* script=nullptr;
     std::string funcName;
+
     int handleFlags=scriptHandleOrType&0x0ff00000;
     scriptHandleOrType=scriptHandleOrType&0x000fffff;
     if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)

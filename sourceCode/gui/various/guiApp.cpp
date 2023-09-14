@@ -277,6 +277,13 @@ void GuiApp::runGui(int options)
 
     App::setAppStage(App::appstage_guiInit2Done);    // now let the SIM thread run freely
 
+    {
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
+        uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    }
+
     qtApp->exec(); // sits here until quit
 
     CSimFlavor::run(8);
