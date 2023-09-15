@@ -2510,22 +2510,9 @@ std::string CScriptObject::getSearchPath_lua()
     retVal+=App::folders->getInterpretersRootPath();
     retVal+="/lua/?.lua;"; // present by default, but also needed for the code editor
     retVal+=App::folders->getInterpretersRootPath();
-    retVal+="/bwf/?.lua";
-#ifdef WIN_SIM
-    retVal+=";";
-    retVal+=App::folders->getInterpretersRootPath();
-    retVal+="/luar/?.lua";
-#endif
-#ifdef LIN_SIM
-    retVal+=";";
-    retVal+=App::folders->getInterpretersRootPath();
-    retVal+="/luar/?.lua";
-#endif
-#ifdef MAC_SIM
-    retVal+=";";
+    retVal+="/bwf/?.lua;";
     retVal+=App::folders->getInterpretersRootPath();
     retVal+="/luarocks/share/lua/5.3/?.lua";
-#endif
     if (App::currentWorld->mainSettings->getScenePathAndName().compare("")!=0)
     {
         retVal+=";";
@@ -2543,17 +2530,10 @@ std::string CScriptObject::getSearchPath_lua()
 
 std::string CScriptObject::getSearchCPath_lua()
 {
-    std::string retVal;
+    std::string retVal(App::folders->getInterpretersRootPath());
 #ifdef WIN_SIM
-    retVal+=App::folders->getInterpretersRootPath();
-    retVal+="/luar/?.dll";
-#endif
-#ifdef LIN_SIM
-    retVal+=App::folders->getInterpretersRootPath();
-    retVal+="/luar/?.so";
-#endif
-#ifdef MAC_SIM
-    retVal+=App::folders->getInterpretersRootPath();
+    retVal+="/luarocks/lib/lua/5.3/?.dll";
+#else
     retVal+="/luarocks/lib/lua/5.3/?.so";
 #endif
     return(retVal);
