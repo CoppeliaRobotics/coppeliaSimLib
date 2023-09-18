@@ -9971,6 +9971,15 @@ char* simGetScriptStringParam_internal(int scriptHandle,int parameterID,int* par
             retVal[s.length()]=0;
             parameterLength[0]=(int)s.length();
         }
+        if (parameterID==sim_scriptstringparam_nameext)
+        {
+            std::string s(it->getShortDescriptiveName());
+            retVal=new char[s.length()+1];
+            for (size_t i=0;i<s.length();i++)
+                retVal[i]=s[i];
+            retVal[s.length()]=0;
+            parameterLength[0]=(int)s.length();
+        }
         if (parameterID==sim_scriptstringparam_description)
         {
             std::string s(it->getDescriptiveName());

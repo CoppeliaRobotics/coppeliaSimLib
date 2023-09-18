@@ -745,6 +745,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.scriptstringparam_description",sim_scriptstringparam_description},
     {"sim.scriptstringparam_name",sim_scriptstringparam_name},
     {"sim.scriptstringparam_text",sim_scriptstringparam_text},
+    {"sim.scriptstringparam_nameext",sim_scriptstringparam_nameext},
     // script execution order:
     {"sim.scriptexecorder_first",sim_scriptexecorder_first},
     {"sim.scriptexecorder_normal",sim_scriptexecorder_normal},

@@ -54,7 +54,9 @@ void GuiApp::runGui(int options)
     #else
         QSurfaceFormat format;
         format.setSwapInterval(0); // turn VSync off
-        format.setVersion(3,2);
+        #ifdef WIN_SIM
+            format.setVersion(3,2); // macOS does not work when compatibilityProfile is on too, and it seems Linux too (in some cases)
+        #endif
         format.setProfile(QSurfaceFormat::CompatibilityProfile);
         format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
         format.setRenderableType(QSurfaceFormat::OpenGL);
