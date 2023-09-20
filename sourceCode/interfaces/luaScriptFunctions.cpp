@@ -120,6 +120,7 @@ const SLuaCommands simLuaCommands[]=
 
 
 // testing    {"sim_2_0.handleDynamics",_simGetScript},
+    {"sim.handleExtCalls",_simHandleExtCalls},
     {"sim.getLastInfo",_simGetLastInfo},
     {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook},
     {"sim.isHandle",_simIsHandle},
@@ -13999,6 +14000,14 @@ int _simSetPluginInfo(luaWrap_lua_State* L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simHandleExtCalls(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.handleExtCalls");
+    GuiApp::simThread->handleExtCalls();
     LUA_END(0);
 }
 

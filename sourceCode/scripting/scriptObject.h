@@ -131,7 +131,7 @@ public:
     bool getOldCallMode() const;
     void setOldCallMode();
 
-    std::string getFilenameForExternalScriptEditor() const;
+    std::string getFilenameForExternalScriptEditor();
     void fromFileToBuffer(); // when using an external editor
     void fromBufferToFile() const;
 
@@ -302,7 +302,6 @@ protected:
     int _initFunctionHookCount;
 
 
-    static int _nextIdForExternalScriptEditor;
     static int _nextScriptHandle;
     static std::vector<int> _externalScriptCalls;
 

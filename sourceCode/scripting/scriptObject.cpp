@@ -25,7 +25,6 @@
 #include <threadPool_old.h>
 
 int CScriptObject::_nextScriptHandle=SIM_IDSTART_LUASCRIPT;
-int CScriptObject::_nextIdForExternalScriptEditor=-1;
 std::vector<int> CScriptObject::_externalScriptCalls;
 
 CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
@@ -85,12 +84,6 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _interpreterState=nullptr;
 
     _loadBufferResult_lua=-1;
-
-    if (_nextIdForExternalScriptEditor==-1)
-    { // new since 10/9/2014, otherwise there can be conflicts between simultaneously opened CoppeliaSim instances
-        _nextIdForExternalScriptEditor=(VDateTime::getOSTimeInMs()&0xffff)*1000;
-    }
-    _filenameForExternalScriptEditor="embScript_"+std::to_string(_nextIdForExternalScriptEditor++)+".lua";
 }
 
 CScriptObject::~CScriptObject()
@@ -135,8 +128,36 @@ void CScriptObject::destroy(CScriptObject* obj,bool registeredObject)
     delete obj;
 }
 
-std::string CScriptObject::getFilenameForExternalScriptEditor() const
+std::string CScriptObject::getFilenameForExternalScriptEditor()
 {
+    if (_filenameForExternalScriptEditor.size() == 0)
+    {
+        if (_scriptType == sim_scripttype_mainscript)
+            _filenameForExternalScriptEditor = "mainScript-";
+        else
+        {
+            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+            if (obj != nullptr)
+            {
+                _filenameForExternalScriptEditor = obj->getObjectAlias();
+                if (_scriptType == sim_scripttype_childscript)
+                    _filenameForExternalScriptEditor += "-child-";
+                else
+                    _filenameForExternalScriptEditor += "-cust-";
+            }
+            else
+                _filenameForExternalScriptEditor = "error-";
+        }
+        std::string tmp(App::currentWorld->mainSettings->getSceneName());
+        if (tmp.size() == 0)
+            tmp = "newScene";
+        _filenameForExternalScriptEditor += tmp+"-"+std::to_string(_scriptHandle);
+        if (getLanguage() == lang_python)
+            _filenameForExternalScriptEditor += ".py";
+        else
+            _filenameForExternalScriptEditor += ".lua";
+        fromBufferToFile();
+    }
     std::string fname=App::folders->getTempDataPath()+"/";
     fname.append(_filenameForExternalScriptEditor);
     return(fname);

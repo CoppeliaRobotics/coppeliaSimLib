@@ -57,6 +57,11 @@ void CSimThread::executeMessages()
         GuiApp::uiThread->renderScene(); // will render via the UI thread
     }
 
+    handleExtCalls();
+}
+
+void CSimThread::handleExtCalls()
+{
     CSimAndUiThreadSync::simThread_allowUiThreadToWrite();
     while (true)
     {
@@ -64,7 +69,6 @@ void CSimThread::executeMessages()
         if (CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(false))
             break;
     }
-
     _handleSimulationThreadCommands(); // Handle delayed SIM commands
 }
 

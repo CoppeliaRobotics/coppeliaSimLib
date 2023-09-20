@@ -35,6 +35,7 @@ class CSimThread : public QObject
 public:
     CSimThread();
     virtual ~CSimThread();
+    void handleExtCalls();
     void executeMessages();
     void setRenderingAllowed(bool a);
     void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
