@@ -14007,7 +14007,9 @@ int _simHandleExtCalls(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleExtCalls");
-    GuiApp::simThread->handleExtCalls();
+    #ifdef SIM_WITH_GUI
+        GuiApp::simThread->handleExtCalls();
+    #endif
     LUA_END(0);
 }
 
