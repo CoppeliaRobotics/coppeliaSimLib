@@ -246,7 +246,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.unpackDoubleTable",_simUnpackDoubleTable},
     {"sim.unpackUInt8Table",_simUnpackUInt8Table},
     {"sim.unpackUInt16Table",_simUnpackUInt16Table},
-    {"sim.packCbor",_simPackCbor},
     {"sim.packTable",_simPackTable},
     {"sim.unpackTable",_simUnpackTable},
     {"sim.transformBuffer",_simTransformBuffer},
@@ -13263,38 +13262,6 @@ int _simCheckOctreePointOccupancy(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
-}
-
-int _simPackCbor(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.packCbor");
-
-    if (luaWrap_lua_gettop(L)>=1)
-    {
-        int res=checkOneGeneralInputArgument(L,2,lua_arg_bool,0,true,true,&errorString);
-        if (res>=0)
-        {
-            bool doublePrecision=true;
-            if (res==2)
-                doublePrecision=luaToBool(L,2);
-            CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-            CScriptObject::buildFromInterpreterStack_lua(L,stack,1,1);
-            std::string s;
-            if (doublePrecision)
-                s=stack->getCborEncodedBuffer(0);
-            else
-                s=stack->getCborEncodedBuffer(1);
-            luaWrap_lua_pushlstring(L,s.c_str(),s.length());
-            App::worldContainer->interfaceStackContainer->destroyStack(stack);
-            LUA_END(1);
-        }
-    }
-    else
-        errorString.assign(SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS);
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
 }
 
 int _simPackTable(luaWrap_lua_State* L)

@@ -204,7 +204,6 @@ extern int _simGetScaledImage(luaWrap_lua_State* L);
 extern int _simTransformImage(luaWrap_lua_State* L);
 extern int _simGetQHull(luaWrap_lua_State* L);
 extern int _simGetDecimatedMesh(luaWrap_lua_State* L);
-extern int _simPackCbor(luaWrap_lua_State* L);
 extern int _simPackTable(luaWrap_lua_State* L);
 extern int _simUnpackTable(luaWrap_lua_State* L);
 extern int _simPackInt32Table(luaWrap_lua_State* L);
