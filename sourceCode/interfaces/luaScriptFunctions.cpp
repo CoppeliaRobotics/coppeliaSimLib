@@ -111,10 +111,10 @@ const SLuaCommands simLuaCommands[]=
     {"unloadPlugin",_unloadPlugin},
     {"registerCodeEditorInfos",_registerCodeEditorInfos},
     {"auxFunc",_auxFunc},
-    {"setThreadAutomaticSwitch",_setThreadAutomaticSwitch},
-    {"getThreadAutomaticSwitch",_getThreadAutomaticSwitch},
-    {"getThreadSwitchAllowed",_getThreadSwitchAllowed},
-    {"setThreadSwitchAllowed",_setThreadSwitchAllowed},
+    {"setAutoYield",_setAutoYield},
+    {"getAutoYield",_getAutoYield},
+    {"getYieldAllowed",_getYieldAllowed},
+    {"setYieldAllowed",_setYieldAllowed},
     {"addLog",_addLog},
     {"quitSimulator",_quitSimulator},
 
@@ -226,8 +226,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getPage",_simGetPage},
     {"sim.copyPasteObjects",_simCopyPasteObjects},
     {"sim.scaleObjects",_simScaleObjects},
-    {"sim.setThreadSwitchTiming",_simSetThreadSwitchTiming},
-    {"sim.getThreadSwitchTiming",_simGetThreadSwitchTiming},
+    {"sim.setAutoYieldDelay",_simSetAutoYieldDelay},
+    {"sim.getAutoYieldDelay",_simGetAutoYieldDelay},
     {"sim.saveImage",_simSaveImage},
     {"sim.loadImage",_simLoadImage},
     {"sim.getScaledImage",_simGetScaledImage},
@@ -6121,14 +6121,14 @@ int _simScaleObjects(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simSetThreadSwitchTiming(luaWrap_lua_State* L)
+int _simSetAutoYieldDelay(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setThreadSwitchTiming");
+    LUA_START("sim.setAutoYieldDelay");
 
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int timeInMs=luaToInt(L,1);
+        int timeInMs=int(luaToDouble(L,1)*1000.0);
         int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
         if (it!=nullptr)
@@ -6141,10 +6141,10 @@ int _simSetThreadSwitchTiming(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _simGetThreadSwitchTiming(luaWrap_lua_State* L)
+int _simGetAutoYieldDelay(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getThreadSwitchTiming");
+    LUA_START("sim.getAutoYieldDelay");
 
     int timeInMs=0;
     int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
@@ -6156,10 +6156,10 @@ int _simGetThreadSwitchTiming(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _setThreadAutomaticSwitch(luaWrap_lua_State* L)
+int _setAutoYield(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("setThreadAutomaticSwitch");
+    LUA_START("setAutoYield");
 
     if (luaWrap_lua_gettop(L)>0)
     {
@@ -6193,10 +6193,10 @@ int _setThreadAutomaticSwitch(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
-int _getThreadAutomaticSwitch(luaWrap_lua_State* L)
+int _getAutoYield(luaWrap_lua_State* L)
 { // doesn't generate an error
     TRACE_LUA_API;
-    LUA_START("getThreadAutomaticSwitch");
+    LUA_START("getAutoYield");
     int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
     CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     bool retVal=false;
@@ -6212,10 +6212,10 @@ int _getThreadAutomaticSwitch(luaWrap_lua_State* L)
     LUA_END(2);
 }
 
-int _getThreadSwitchAllowed(luaWrap_lua_State* L)
+int _getYieldAllowed(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("getThreadSwitchAllowed");
+    LUA_START("getYieldAllowed");
     int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
     CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
     bool canYield=true;
@@ -6225,10 +6225,10 @@ int _getThreadSwitchAllowed(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _setThreadSwitchAllowed(luaWrap_lua_State* L)
+int _setYieldAllowed(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("setThreadSwitchAllowed");
+    LUA_START("setYieldAllowed");
 
     if (luaWrap_lua_gettop(L)>0)
     {
@@ -14209,9 +14209,9 @@ const SLuaCommands simLuaCommandsOldApi[]=
   {"sim_old.simCopyPasteObjects",_simCopyPasteObjects},
   {"sim_old.simScaleObjects",_simScaleObjects},
   {"sim_old.simGetObjectUniqueIdentifier",_simGetObjectUniqueIdentifier},
-  {"sim_old.simSetThreadAutomaticSwitch",_setThreadAutomaticSwitch},
-  {"sim_old.simGetThreadAutomaticSwitch",_getThreadAutomaticSwitch},
-  {"sim_old.simSetThreadSwitchTiming",_simSetThreadSwitchTiming},
+  {"sim_old.simSetThreadAutomaticSwitch",_setAutoYield},
+  {"sim_old.simGetThreadAutomaticSwitch",_getAutoYield},
+  {"sim_old.simSetThreadSwitchTiming",_simSetThreadSwitchTimingOLD},
   {"sim_old.simSwitchThread",_simSwitchThread},
   {"sim_old.simSaveImage",_simSaveImage},
   {"sim_old.simLoadImage",_simLoadImage},
@@ -22284,5 +22284,25 @@ int _simUnloadModule(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
+}
+
+int _simSetThreadSwitchTimingOLD(luaWrap_lua_State* L)
+{ // deprecated on 21.09.2023
+    TRACE_LUA_API;
+    LUA_START("sim.setThreadSwitchTiming");
+
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int timeInMs=luaToInt(L,1);
+        int currentScriptID=CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        CScriptObject* it=App::worldContainer->getScriptFromHandle(currentScriptID);
+        if (it!=nullptr)
+            it->setDelayForAutoYielding(timeInMs);
+
+        CThreadPool_old::setThreadSwitchTiming(timeInMs);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 

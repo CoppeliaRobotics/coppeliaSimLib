@@ -3394,6 +3394,7 @@ void CScriptObject::serialize(CSer& ar)
             _adjustScriptText14_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<40201);
             _adjustScriptText15_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<=40300);
             _adjustScriptText16_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<=40500);
+            _adjustScriptText17_old(this,ar.getCoppeliaSimVersionThatWroteThisFile()<=40501);
 
             if (CSimFlavor::getBoolVal(18))
                 _detectDeprecated_old(this);
@@ -7227,6 +7228,18 @@ void CScriptObject::_adjustScriptText16_old(CScriptObject* scriptObject,bool doI
     _replaceScriptText_old(scriptObject,"simIK.addIkElementFromScene","simIK.addElementFromScene");
 }
 
+void CScriptObject::_adjustScriptText17_old(CScriptObject* scriptObject,bool doIt)
+{   // for release 4.5.1 and earlier:
+    if (!doIt)
+        return;
+
+    _replaceScriptText_old(scriptObject,"sim.setThreadAutomaticSwitch","sim.setAutoYield");
+    _replaceScriptText_old(scriptObject,"sim.getThreadAutomaticSwitch","sim.getAutoYield");
+    _replaceScriptText_old(scriptObject,"sim.setThreadSwitchAllowed","sim.setYieldAllowed");
+    _replaceScriptText_old(scriptObject,"sim.getThreadSwitchAllowed","sim.getYieldAllowed");
+    _replaceScriptText_old(scriptObject,"sim.switchThread","sim.yield");
+}
+
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
 {
     /* Explicit requires:
@@ -7296,6 +7309,21 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+
+    if (_containsScriptText_old(scriptObject,"sim.switchThread"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.switchThread...");
+    if (_containsScriptText_old(scriptObject,"sim.setThreadSwitchAllowed"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setThreadSwitchAllowed...");
+    if (_containsScriptText_old(scriptObject,"sim.getThreadSwitchAllowed"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getThreadSwitchAllowed...");
+    if (_containsScriptText_old(scriptObject,"sim.setThreadAutomaticSwitch"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setThreadAutomaticSwitch...");
+    if (_containsScriptText_old(scriptObject,"sim.getThreadAutomaticSwitch"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getThreadAutomaticSwitch...");
+    if (_containsScriptText_old(scriptObject,"sim.setThreadSwitchTiming"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.setThreadSwitchTiming...");
+    if (_containsScriptText_old(scriptObject,"sim.getThreadSwitchTiming"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getThreadSwitchTiming...");
 
     if (_containsScriptText_old(scriptObject,"sim.shapestringparam_color_name"))
         App::logMsg(sim_verbosity_errors,"Contains sim.shapestringparam_color_name...");
