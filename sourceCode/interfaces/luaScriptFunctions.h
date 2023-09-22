@@ -80,10 +80,12 @@ extern int _loadPlugin(luaWrap_lua_State* L);
 extern int _unloadPlugin(luaWrap_lua_State* L);
 extern int _registerCodeEditorInfos(luaWrap_lua_State* L);
 extern int _auxFunc(luaWrap_lua_State* L);
+
 extern int _setAutoYield(luaWrap_lua_State* L);
 extern int _getAutoYield(luaWrap_lua_State* L);
 extern int _getYieldAllowed(luaWrap_lua_State* L);
 extern int _setYieldAllowed(luaWrap_lua_State* L);
+
 extern int _addLog(luaWrap_lua_State* L);
 extern int _quitSimulator(luaWrap_lua_State* L);
 

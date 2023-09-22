@@ -7233,11 +7233,7 @@ void CScriptObject::_adjustScriptText17_old(CScriptObject* scriptObject,bool doI
     if (!doIt)
         return;
 
-    _replaceScriptText_old(scriptObject,"sim.setThreadAutomaticSwitch","sim.setAutoYield");
-    _replaceScriptText_old(scriptObject,"sim.getThreadAutomaticSwitch","sim.getAutoYield");
-    _replaceScriptText_old(scriptObject,"sim.setThreadSwitchAllowed","sim.setYieldAllowed");
-    _replaceScriptText_old(scriptObject,"sim.getThreadSwitchAllowed","sim.getYieldAllowed");
-    _replaceScriptText_old(scriptObject,"sim.switchThread","sim.yield");
+    // _replaceScriptText_old(scriptObject,"sim.switchThread","sim.step");
 }
 
 void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
