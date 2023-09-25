@@ -179,10 +179,6 @@ SIM_DLLEXPORT int simAssociateScriptWithObject(int scriptHandle,int associatedOb
 {
     return(simAssociateScriptWithObject_internal(scriptHandle,associatedObjectHandle));
 }
-SIM_DLLEXPORT int simHandleMainScript()
-{
-    return(simHandleMainScript_internal());
-}
 SIM_DLLEXPORT int simResetScript(int scriptHandle)
 {
     return(simResetScript_internal(scriptHandle));
@@ -218,18 +214,6 @@ SIM_DLLEXPORT int simCheckCollision(int entity1Handle,int entity2Handle)
 SIM_DLLEXPORT int simGetRealTimeSimulation()
 {
     return(simGetRealTimeSimulation_internal());
-}
-SIM_DLLEXPORT int simIsRealTimeSimulationStepNeeded()
-{
-    return(simIsRealTimeSimulationStepNeeded_internal());
-}
-SIM_DLLEXPORT int simGetSimulationPassesPerRenderingPass()
-{
-    return(simGetSimulationPassesPerRenderingPass_internal());
-}
-SIM_DLLEXPORT int simAdvanceSimulationByOneStep()
-{
-    return(simAdvanceSimulationByOneStep_internal());
 }
 SIM_DLLEXPORT int simStartSimulation()
 {
@@ -454,10 +438,6 @@ SIM_DLLEXPORT char* simGetScriptStringParam(int ScriptHandle,int ParamID,int* Pa
 SIM_DLLEXPORT int simSetScriptStringParam(int ScriptHandle,int ParamID,const char* Param,int ParamLength)
 {
     return(simSetScriptStringParam_internal(ScriptHandle,ParamID,Param,ParamLength));
-}
-SIM_DLLEXPORT int simSetSimulationPassesPerRenderingPass(int p)
-{
-    return(simSetSimulationPassesPerRenderingPass_internal(p));
 }
 SIM_DLLEXPORT int simPersistentDataWrite(const char* dataName,const char* dataValue,int dataLength,int options)
 {
@@ -1179,10 +1159,6 @@ SIM_DLLEXPORT int simSetSimulationTimeStep_D(double timeStep)
 SIM_DLLEXPORT double simGetSimulationTimeStep_D()
 {
     return(simGetSimulationTimeStep_internal());
-}
-SIM_DLLEXPORT int simAdjustRealTimeTimer_D(int instanceIndex,double deltaTime)
-{
-    return(simAdjustRealTimeTimer_internal(instanceIndex,deltaTime));
 }
 SIM_DLLEXPORT int simFloatingViewAdd_D(double posX,double posY,double sizeX,double sizeY,int options)
 {

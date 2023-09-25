@@ -373,6 +373,13 @@ SIM_DLLEXPORT int _simGetContactCallbackCount();
 SIM_DLLEXPORT const void* _simGetContactCallback(int index);
 SIM_DLLEXPORT int _simGetJointCallbackCallOrder(const void* joint);
 SIM_DLLEXPORT int simReorientShapeBoundingBox(int shapeHandle,int relativeToHandle,int reservedSetToZero);
+SIM_DLLEXPORT int simIsRealTimeSimulationStepNeeded();
+SIM_DLLEXPORT int simSetSimulationPassesPerRenderingPass(int p);
+SIM_DLLEXPORT int simGetSimulationPassesPerRenderingPass();
+SIM_DLLEXPORT int simAdvanceSimulationByOneStep();
+SIM_DLLEXPORT int simHandleMainScript();
+SIM_DLLEXPORT int simAdjustRealTimeTimer_D(int instanceIndex,double deltaTime);
+
 
 
 /* deprecated, double and single precision functions (compatibility): */

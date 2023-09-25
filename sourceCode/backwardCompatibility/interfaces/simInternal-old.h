@@ -228,4 +228,10 @@ int simReorientShapeBoundingBox_internal(int shapeHandle,int relativeToHandle,in
 int simLoadModule_internal(const char* filenameAndPath,const char* pluginName);
 int simUnloadModule_internal(int pluginhandle);
 int simIsStackValueNull_internal(int stackHandle);
+int simIsRealTimeSimulationStepNeeded_internal();
+int simAdjustRealTimeTimer_internal(int instanceIndex,double deltaTime);
+int simSetSimulationPassesPerRenderingPass_internal(int p);
+int simGetSimulationPassesPerRenderingPass_internal();
+int simAdvanceSimulationByOneStep_internal();
+int simHandleMainScript_internal();
 

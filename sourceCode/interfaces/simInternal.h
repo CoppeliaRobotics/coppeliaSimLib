@@ -11,7 +11,6 @@ int getCurrentScriptNameIndex_cSide();
 std::string getIndexAdjustedObjectName(const char* nm);
 void setLastInfo(const char* infoStr);
 
-
 void simRunGui_internal(int options);
 int simInitialize_internal(const char* appDir,int options);
 int simDeinitialize_internal();
@@ -96,7 +95,6 @@ int simHandleProximitySensor_internal(int sensorHandle,double* detectedPoint,int
 int simReadProximitySensor_internal(int sensorHandle,double* detectedPoint,int* detectedObjectHandle,double* normalVector);
 int simHandleDynamics_internal(double deltaTime);
 int simAssociateScriptWithObject_internal(int scriptHandle,int associatedObjectHandle);
-int simHandleMainScript_internal();
 int simResetScript_internal(int scriptHandle);
 int simAddScript_internal(int scriptProperty);
 int simRemoveScript_internal(int scriptHandle);
@@ -113,10 +111,6 @@ int simCheckDistance_internal(int entity1Handle,int entity2Handle,double thresho
 int simSetSimulationTimeStep_internal(double timeStep);
 double simGetSimulationTimeStep_internal();
 int simGetRealTimeSimulation_internal();
-int simIsRealTimeSimulationStepNeeded_internal();
-int simAdjustRealTimeTimer_internal(int instanceIndex,double deltaTime);
-int simGetSimulationPassesPerRenderingPass_internal();
-int simAdvanceSimulationByOneStep_internal();
 int simStartSimulation_internal();
 int simStopSimulation_internal();
 int simPauseSimulation_internal();
@@ -217,7 +211,6 @@ int simGetScriptInt32Param_internal(int scriptHandle,int parameterID,int* parame
 int simSetScriptInt32Param_internal(int scriptHandle,int parameterID,int parameter);
 char* simGetScriptStringParam_internal(int scriptHandle,int parameterID,int* parameterLength);
 int simSetScriptStringParam_internal(int scriptHandle,int parameterID,const char* parameter,int parameterLength);
-int simSetSimulationPassesPerRenderingPass_internal(int p);
 int simGetRotationAxis_internal(const double* matrixStart,const double* matrixGoal,double* axis,double* angle);
 int simRotateAroundAxis_internal(const double* matrixIn,const double* axis,const double* axisPos,double angle,double* matrixOut);
 int simGetJointForce_internal(int jointHandle,double* forceOrTorque);

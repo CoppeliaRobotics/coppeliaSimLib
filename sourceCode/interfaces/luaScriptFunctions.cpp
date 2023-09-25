@@ -707,6 +707,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.scripttype_customizationscript",sim_scripttype_customizationscript},
     {"sim.scripttype_sandboxscript",sim_scripttype_sandboxscript},
     // System callbacks
+    {"sim.syscb_thread",sim_syscb_thread},
     {"sim.syscb_init",sim_syscb_init},
     {"sim.syscb_cleanup",sim_syscb_cleanup},
     {"sim.syscb_nonsimulation",sim_syscb_nonsimulation},

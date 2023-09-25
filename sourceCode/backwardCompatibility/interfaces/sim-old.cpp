@@ -3332,3 +3332,27 @@ SIM_DLLEXPORT int simIsStackValueNull(int stackHandle)
 {
     return(simIsStackValueNull_internal(stackHandle));
 }
+SIM_DLLEXPORT int simIsRealTimeSimulationStepNeeded()
+{
+    return(simIsRealTimeSimulationStepNeeded_internal());
+}
+SIM_DLLEXPORT int simSetSimulationPassesPerRenderingPass(int p)
+{
+    return(simSetSimulationPassesPerRenderingPass_internal(p));
+}
+SIM_DLLEXPORT int simGetSimulationPassesPerRenderingPass()
+{
+    return(simGetSimulationPassesPerRenderingPass_internal());
+}
+SIM_DLLEXPORT int simAdvanceSimulationByOneStep()
+{
+    return(simAdvanceSimulationByOneStep_internal());
+}
+SIM_DLLEXPORT int simHandleMainScript()
+{
+    return(simHandleMainScript_internal());
+}
+SIM_DLLEXPORT int simAdjustRealTimeTimer_D(int instanceIndex,double deltaTime)
+{
+    return(simAdjustRealTimeTimer_internal(instanceIndex,deltaTime));
+}

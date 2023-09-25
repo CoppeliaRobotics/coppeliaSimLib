@@ -349,10 +349,23 @@ void App::loop(void(*callback)(),bool stepIfRunning)
      // Handle a running simulation:
     if ( stepIfRunning && (simGetSimulationState_internal()&sim_simulation_advancing)!=0 )
     {
-        if ( (simGetRealTimeSimulation_internal()!=1)||(simIsRealTimeSimulationStepNeeded_internal()==1) )
+        if ( (!App::currentWorld->simulation->getIsRealTimeSimulation())||App::currentWorld->simulation->isRealTimeCalculationStepNeeded() )
         {
-            if ((simHandleMainScript_internal()&sim_script_main_script_not_called)==0)
-                simAdvanceSimulationByOneStep_internal();
+            if ( (!App::worldContainer->shouldTemporarilySuspendMainScript())||App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart() )
+            {
+                CScriptObject* it=App::currentWorld->embeddedScriptContainer->getMainScript();
+                if (it!=nullptr)
+                {
+                    App::worldContainer->calcInfo->simulationPassStart();
+                    App::currentWorld->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(App::currentWorld->simulation->getSimulationTime()); // remove invalid elements
+                    CThreadPool_old::prepareAllThreadsForResume_calledBeforeMainScript();
+                    it->systemCallMainScript(-1,nullptr,nullptr);
+                    App::worldContainer->calcInfo->simulationPassEnd();
+                }
+                App::currentWorld->simulation->advanceSimulationByOneStep();
+            }
+            // Following for backward compatibility:
+            App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old,nullptr,nullptr);
         }
         else
             worldContainer->callScripts(sim_syscb_realtimeidle,nullptr,nullptr);

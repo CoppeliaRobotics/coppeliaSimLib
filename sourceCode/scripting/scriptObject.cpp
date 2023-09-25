@@ -277,6 +277,8 @@ int CScriptObject::getSystemCallbackFromString(const char* cb)
 {
     if (std::string(cb)=="sysCall_info")
         return(sim_syscb_info);
+    if (std::string(cb)=="sysCall_thread")
+        return(sim_syscb_thread);
     if (std::string(cb)=="sysCall_init")
         return(sim_syscb_init);
     if (std::string(cb)=="sysCall_cleanup")
@@ -367,6 +369,13 @@ std::string CScriptObject::getSystemCallbackString(int calltype,int what)
         std::string r("sysCall_info");
         if (what==2)
             r+=" - Called even before the script is initialized.";
+        return(r);
+    }
+    if (calltype==sim_syscb_thread)
+    {
+        std::string r("sysCall_thread");
+        if (what==2)
+            r+=" - Thread/coroutine entry point.";
         return(r);
     }
     if (calltype==sim_syscb_init)
@@ -1683,7 +1692,7 @@ int CScriptObject::___loadCode(const char* code,const char* functionsToFind,std:
                         _code="#\n"+_code;
                     //printf("luaExec:\n%s\n",t.c_str());
                     //printf("code:\n%s\n",_code.c_str());
-                    _code=t+"\nrequire(wrapper) pythonProg=[=["+_code+"]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
+                    _code=t+"\nrequire(wrapper) pythonUserCode=[=["+_code+"]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
                     break;
                 }
                 else
@@ -7305,6 +7314,9 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+
+    if (_containsScriptText_old(scriptObject,"coroutine.create"))
+        App::logMsg(sim_verbosity_errors,"Contains coroutine.create...");
 
     if (_containsScriptText_old(scriptObject,"sim.switchThread"))
         App::logMsg(sim_verbosity_errors,"Contains sim.switchThread...");

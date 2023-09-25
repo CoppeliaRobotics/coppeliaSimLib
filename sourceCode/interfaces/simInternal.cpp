@@ -4542,43 +4542,6 @@ int simHandleDynamics_internal(double deltaTime)
     return(-1);
 }
 
-int simHandleMainScript_internal()
-{
-    C_API_START;
-    int retVal=0;
-
-    if ( (!App::worldContainer->shouldTemporarilySuspendMainScript())||App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart() )
-    {
-        CScriptObject* it=App::currentWorld->embeddedScriptContainer->getMainScript();
-        if (it!=nullptr)
-        {
-            App::worldContainer->calcInfo->simulationPassStart();
-
-            App::currentWorld->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(App::currentWorld->simulation->getSimulationTime()); // remove invalid elements
-            CThreadPool_old::prepareAllThreadsForResume_calledBeforeMainScript();
-
-            if (it->systemCallMainScript(-1,nullptr,nullptr)>0)
-                retVal=sim_script_no_error;
-            else
-                retVal=sim_script_lua_error;
-            App::worldContainer->calcInfo->simulationPassEnd();
-        }
-        else
-        { // we don't have a main script
-            retVal=sim_script_main_script_nonexistent; // this should not generate an error
-        }
-    }
-    else
-    { // "something" doesn't want to run the main script
-        retVal=sim_script_main_script_not_called; // this should not generate an error
-    }
-
-    // Following for backward compatibility:
-    App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old,nullptr,nullptr);
-
-    return(retVal);
-}
-
 int simResetScript_internal(int scriptHandle)
 {
     C_API_START;
@@ -5125,24 +5088,6 @@ int simCheckDistance_internal(int entity1Handle,int entity2Handle,double thresho
     return(-1);
 }
 
-int simAdvanceSimulationByOneStep_internal()
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!App::currentWorld->simulation->isSimulationRunning())
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
-            return(-1);
-        }
-        App::currentWorld->simulation->advanceSimulationByOneStep();
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 int simSetSimulationTimeStep_internal(double timeStep)
 {
     C_API_START;
@@ -5189,74 +5134,6 @@ int simGetRealTimeSimulation_internal()
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
-
-int simAdjustRealTimeTimer_internal(int instanceIndex,double deltaTime)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        App::currentWorld->simulation->adjustRealTimeTimer(deltaTime);
-        return(1);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-
-int simIsRealTimeSimulationStepNeeded_internal()
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (!App::currentWorld->simulation->isSimulationRunning())
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_RUNNING);
-            return(-1);
-        }
-        if (!App::currentWorld->simulation->getIsRealTimeSimulation())
-        {
-            CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_SIMULATION_NOT_REAL_TIME);
-            return(-1);
-        }
-        if (App::currentWorld->simulation->isRealTimeCalculationStepNeeded())
-        {
-            return(1);
-        }
-        return(0);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-int simGetSimulationPassesPerRenderingPass_internal()
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal=App::currentWorld->simulation->getPassesPerRendering();
-        return(retVal);
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
-int simSetSimulationPassesPerRenderingPass_internal(int p)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        p=tt::getLimitedInt(1,512,p);
-        App::currentWorld->simulation->setPassesPerRendering(p);
-        return(App::currentWorld->simulation->getPassesPerRendering());
-    }
-    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return(-1);
-}
-
 
 int simStartSimulation_internal()
 {
