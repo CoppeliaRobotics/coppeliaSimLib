@@ -4067,6 +4067,11 @@ char* simGetStringParam_internal(int parameter)
             validParam=true;
             retVal=App::folders->getSystemPath();
         }
+        if (parameter==sim_stringparam_addondir)
+        {
+            validParam=true;
+            retVal=App::folders->getAddOnPath();
+        }
         if (parameter==sim_stringparam_resourcesdir)
         {
             validParam=true;
@@ -7829,6 +7834,11 @@ int simGetObjectInt32Param_internal(int objectHandle,int parameterID,int* parame
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
             if (it!=nullptr)
             {
+                if (parameterID==sim_objintparam_hierarchycolor)
+                {
+                    parameter[0]=it->getHierarchyColorIndex();
+                    retVal=1;
+                }
                 if (parameterID==sim_objintparam_visibility_layer)
                 {
                     parameter[0]=it->getVisibilityLayer();
@@ -8260,6 +8270,11 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
             CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
             if (it!=nullptr)
             {
+                if (parameterID==sim_objintparam_hierarchycolor)
+                {
+                    it->setHierarchyColorIndex(parameter);
+                    retVal=1;
+                }
                 if (parameterID==sim_objintparam_visibility_layer)
                 {
                     it->setVisibilityLayer(tt::getLimitedInt(0,65535,parameter));

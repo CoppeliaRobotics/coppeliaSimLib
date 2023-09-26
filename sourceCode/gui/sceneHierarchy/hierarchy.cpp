@@ -1457,10 +1457,25 @@ void CHierarchy::drawEditionLabel(int textPosX,int textPosY)
 void CHierarchy::addMenu(VMenu* menu)
 { 
     bool selection=App::currentWorld->sceneObjects->getSelectionCount()>0;
-    menu->appendMenuItem(true,false,EXPAND_HIERARCHY_CMD,IDS_EXPAND_ALL_MENU_ITEM);
-    menu->appendMenuItem(true,false,COLLAPSE_HIERARCHY_CMD,IDS_COLLAPSE_ALL_MENU_ITEM);
+    menu->appendMenuItem(true,false,EXPAND_HIERARCHY_CMD,"Expand all");
+    menu->appendMenuItem(true,false,COLLAPSE_HIERARCHY_CMD,"Collapse all");
     menu->appendMenuItem(selection,false,EXPAND_SELECTED_HIERARCHY_CMD,IDS_EXPAND_SELECTED_TREE_MENU_ITEM);
     menu->appendMenuItem(selection,false,COLLAPSE_SELECTED_HIERARCHY_CMD,IDS_COLLAPSE_SELECTED_TREE_MENU_ITEM);
+    if ( (App::currentWorld->sceneObjects->getSelectionCount()==1)&&(App::userSettings->externalScriptEditor.size()>0) )
+    {
+        int h=App::currentWorld->sceneObjects->getLastSelectionHandle();
+        CScriptObject* childS=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,h);
+        CScriptObject* custS=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,h);
+        if ( (childS!=nullptr)||(custS!=nullptr) )
+        {
+            menu->appendMenuSeparator();
+            if (childS!=nullptr)
+                menu->appendMenuItem(App::currentWorld->simulation->getSimulationState()!=sim_simulation_stopped,false,RESTART_CHILD_SCRIPT_CMD,"Restart child script");
+            if (custS!=nullptr)
+                menu->appendMenuItem(true,false,RESTART_CUSTOMIZATION_SCRIPT_CMD,"Restart customization script");
+            menu->appendMenuSeparator();
+        }
+    }
 }
 
 bool CHierarchy::processCommand(int commandID)
@@ -1543,7 +1558,22 @@ bool CHierarchy::processCommand(int commandID)
         }
         return(true);
     }
-    
+
+    if ( (commandID==RESTART_CHILD_SCRIPT_CMD)||(commandID==RESTART_CUSTOMIZATION_SCRIPT_CMD) )
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId=RESTART_SCRIPT_CMD;
+        int h=App::currentWorld->sceneObjects->getLastSelectionHandle();
+        CScriptObject* s=nullptr;
+        if (commandID==RESTART_CHILD_SCRIPT_CMD)
+            s=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,h);
+        else
+            s=App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,h);
+        cmd.intParams.push_back(s->getScriptHandle());
+        GuiApp::appendSimulationThreadCommand(cmd);
+        return(true);
+    }
+
     return(false);
 }
 

@@ -18,6 +18,8 @@ CFolderSystem::CFolderSystem()
     _executablePath=App::getApplicationDir();
 #ifdef MAC_SIM
     _resourcesPath=_executablePath+"/../Resources";
+    QDir ad(_resourcesPath.c_str());
+    _resourcesPath=ad.absolutePath().toStdString();
 #else
     _resourcesPath=_executablePath;
 #endif

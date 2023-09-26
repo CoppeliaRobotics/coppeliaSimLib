@@ -597,8 +597,6 @@
 
 #define IDS_NOW_PERFORMING_POST_PROCESSING___ "Now performing post-processing..."
 #define IDS_ALL_OTHER_ENTITIES  "All other entities"
-#define IDS_EXPAND_ALL_MENU_ITEM "Expand all"
-#define IDS_COLLAPSE_ALL_MENU_ITEM "Collapse all"
 
 
 #define IDS_PATH_LENGTH_CALC_DL "sum(dl)"

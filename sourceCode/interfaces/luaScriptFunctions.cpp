@@ -115,6 +115,7 @@ const SLuaCommands simLuaCommands[]=
     {"getAutoYield",_getAutoYield},
     {"getYieldAllowed",_getYieldAllowed},
     {"setYieldAllowed",_setYieldAllowed},
+    {"registerScriptFuncHook",_registerScriptFuncHook},
     {"addLog",_addLog},
     {"quitSimulator",_quitSimulator},
 
@@ -122,7 +123,6 @@ const SLuaCommands simLuaCommands[]=
 // testing    {"sim_2_0.handleDynamics",_simGetScript},
     {"sim.handleExtCalls",_simHandleExtCalls},
     {"sim.getLastInfo",_simGetLastInfo},
-    {"sim.registerScriptFuncHook",_simRegisterScriptFuncHook},
     {"sim.isHandle",_simIsHandle},
     {"sim.handleDynamics",_simHandleDynamics},
     {"sim.handleProximitySensor",_simHandleProximitySensor},
@@ -736,6 +736,7 @@ const SLuaVariables simLuaVariables[]=
     //{"sim.syscb_threadmain",sim_syscb_threadmain},
     {"sim.syscb_userconfig",sim_syscb_userconfig},
     {"sim.syscb_moduleentry",sim_syscb_moduleentry},
+    {"sim.syscb_selchange",sim_syscb_selchange},
     // script params:
     {"sim.scriptintparam_execorder",sim_scriptintparam_execorder},
     {"sim.scriptintparam_execcount",sim_scriptintparam_execcount},
@@ -945,6 +946,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_usersettingsdir",sim_stringparam_usersettingsdir},
     {"sim.stringparam_systemdir",sim_stringparam_systemdir},
     {"sim.stringparam_resourcesdir",sim_stringparam_resourcesdir},
+    {"sim.stringparam_addondir",sim_stringparam_addondir},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal},
@@ -1109,6 +1111,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.volume_cone",sim_volume_cone},
     // Object int/float/string parameters
     // scene objects
+    {"sim.objintparam_hierarchycolor",sim_objintparam_hierarchycolor},
     {"sim.objintparam_visibility_layer",sim_objintparam_visibility_layer},
     {"sim.objfloatparam_abs_x_velocity",sim_objfloatparam_abs_x_velocity},
     {"sim.objfloatparam_abs_y_velocity",sim_objfloatparam_abs_y_velocity},
@@ -6259,6 +6262,25 @@ int _setYieldAllowed(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _registerScriptFuncHook(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("registerScriptFuncHook");
+
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0,lua_arg_bool,0))
+    {
+        const char* systemFunc=luaWrap_lua_tostring(L,1);
+        const char* userFunc=luaWrap_lua_tostring(L,2);
+        bool execBefore=luaToBool(L,3);
+        retVal=simRegisterScriptFuncHook_internal(CScriptObject::getScriptHandleFromInterpreterState_lua(L),systemFunc,userFunc,execBefore,0);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
 }
 
 int _simSaveImage(luaWrap_lua_State* L)
@@ -13994,25 +14016,6 @@ int _simGetLastInfo(luaWrap_lua_State* L)
         delete[] info;
     }
     luaWrap_lua_pushstring(L,inf.c_str());
-    LUA_END(1);
-}
-
-int _simRegisterScriptFuncHook(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.registerScriptFuncHook");
-
-    int retVal=-1;
-    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0,lua_arg_bool,0))
-    {
-        const char* systemFunc=luaWrap_lua_tostring(L,1);
-        const char* userFunc=luaWrap_lua_tostring(L,2);
-        bool execBefore=luaToBool(L,3);
-        retVal=simRegisterScriptFuncHook_internal(CScriptObject::getScriptHandleFromInterpreterState_lua(L),systemFunc,userFunc,execBefore,0);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
 

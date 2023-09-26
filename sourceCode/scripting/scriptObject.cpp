@@ -347,6 +347,8 @@ int CScriptObject::getSystemCallbackFromString(const char* cb)
         return(sim_syscb_aftersave);
     if (std::string(cb)=="sysCall_msg")
         return(sim_syscb_msg);
+    if (std::string(cb)=="sysCall_selChange")
+        return(sim_syscb_selchange);
 
     // Old:
     if (std::string(cb)=="sysCall_addOnScriptRun")
@@ -618,6 +620,13 @@ std::string CScriptObject::getSystemCallbackString(int calltype,int what)
             r+=" - Called via sim.broadcastMsg.";
         return(r);
     }
+    if (calltype==sim_syscb_selchange)
+    {
+        std::string r("sysCall_selChange");
+        if (what==2)
+            r+=" - Called when selection changes.";
+        return(r);
+    }
 
 
     // Old:
@@ -807,6 +816,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
             return(true);
         if (callType==sim_syscb_msg)
             return(true);
+        if (callType==sim_syscb_selchange)
+            return(true);
     }
     if ( (scriptType==sim_scripttype_sandboxscript)||(scriptType==sim_scripttype_addonscript)||(scriptType==sim_scripttype_customizationscript) )
     {
@@ -904,6 +915,7 @@ std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType,bool thread
                  sim_syscb_beforesave,
                  sim_syscb_aftersave,
                  sim_syscb_msg,
+                 sim_syscb_selchange,
                  -1
             };
 
@@ -2359,6 +2371,7 @@ bool CScriptObject::isSceneSwitchPersistentScript() const
 bool CScriptObject::resetScript()
 {
    bool retVal=_killInterpreterState();
+   fromFileToBuffer();
    _scriptState=scriptState_unloaded;
    return(retVal);
 }

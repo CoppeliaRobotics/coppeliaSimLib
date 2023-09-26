@@ -3339,6 +3339,13 @@ CForceSensor* CSceneObjectContainer::getLastSelectionForceSensor() const
     return(nullptr);
 }
 
+bool CSceneObjectContainer::hasSelectionChanged()
+{
+    bool retVal=(_lastSelection != _selectedObjectHandles);
+    _lastSelection.assign(_selectedObjectHandles.begin(), _selectedObjectHandles.end());
+    return(retVal);
+}
+
 bool CSceneObjectContainer::isObjectSelected(int objectHandle) const
 {
     bool retVal=false;

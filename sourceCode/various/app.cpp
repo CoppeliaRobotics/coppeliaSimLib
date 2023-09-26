@@ -106,6 +106,9 @@ void App::init(const char* appDir,int)
         QFileInfo pathInfo(QCoreApplication::applicationFilePath());
         _applicationDir=pathInfo.path().toStdString();
     }
+    QDir ad(_applicationDir.c_str());
+    _applicationDir=ad.absolutePath().toStdString();
+
     VVarious::removePathFinalSlashOrBackslash(_applicationDir);
     std::string appD("Application directory is ");
     appD+=_applicationDir;
@@ -314,6 +317,18 @@ void App::loop(void(*callback)(),bool stepIfRunning)
     {
         worldContainer->dispatchEvents();
         worldContainer->callScripts(sim_syscb_nonsimulation,nullptr,nullptr);
+    }
+    if (currentWorld->sceneObjects->hasSelectionChanged())
+    {
+        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+        stack->pushTableOntoStack();
+        stack->pushStringOntoStack("sel",0);
+        std::vector<int> sel;
+        currentWorld->sceneObjects->getSelectedObjectHandles(sel);
+        stack->pushInt32ArrayOntoStack(sel.data(),sel.size());
+        stack->insertDataIntoStackTable();
+        worldContainer->callScripts(sim_syscb_selchange,stack,nullptr);
+        App::worldContainer->interfaceStackContainer->destroyStack(stack);
     }
     if (currentWorld->simulation->isSimulationPaused())
     {

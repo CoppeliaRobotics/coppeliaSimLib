@@ -105,6 +105,7 @@ public:
     CMill* getMillFromHandle(int objectHandle) const;
     CForceSensor* getForceSensorFromHandle(int objectHandle) const;
 
+    bool hasSelectionChanged();
     size_t getSelectionCount() const;
     int getObjectHandleFromSelectionIndex(size_t index) const;
     const std::vector<int>* getSelectedObjectHandlesPtr() const;
@@ -273,6 +274,7 @@ private:
     std::vector<CMill*> _millList;
 
     std::vector<int> _selectedObjectHandles;
+    std::vector<int> _lastSelection; // to keep track of selection changes (async.)
 };
 
 

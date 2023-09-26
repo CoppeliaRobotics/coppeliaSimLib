@@ -459,6 +459,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 GuiApp::mainWindow->oglSurface->hierarchy->processCommand(cmd.cmdId);
         }
 
+        if (cmd.cmdId==RESTART_SCRIPT_CMD)
+        {
+            if (GuiApp::mainWindow!=nullptr)
+                GuiApp::mainWindow->codeEditorContainer->resetScript(cmd.intParams[0]);
+        }
+
         if ( (cmd.cmdId>VIEW_FUNCTIONS_START_VFCMD)&&(cmd.cmdId<VIEW_FUNCTIONS_END_VFCMD) )
         {
             CSPage* page=App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
