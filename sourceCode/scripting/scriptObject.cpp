@@ -7327,7 +7327,11 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+    //if (getLanguage()==CScriptObject::lang_lua)
+    //    _scriptText.insert(0,"--lua\n\n");
 
+    if (_containsScriptText_old(scriptObject,"sim.getThreadExitRequest"))
+        App::logMsg(sim_verbosity_errors,"Contains sim.getThreadExitRequest...");
     if (_containsScriptText_old(scriptObject,"coroutine.create"))
         App::logMsg(sim_verbosity_errors,"Contains coroutine.create...");
 

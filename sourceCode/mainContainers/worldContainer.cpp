@@ -412,6 +412,7 @@ void CWorldContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfa
             addOnScriptContainer->callScripts(callType,inStack,outStack,scriptToExclude);
         if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
             currentWorld->embeddedScriptContainer->callScripts(callType,inStack,outStack,objectBranch,scriptToExclude);
+
     }
     else
     { // regular order, from unimportant, to most important

@@ -14742,13 +14742,13 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
             {
                 if (VThread::isSimThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
-//                    stack->pushStringOntoStack(stringToExec.c_str());
-//                    retVal=script->callCustomScriptFunction("_evalExec",stack)-1;
-//                    if (retVal==-1)
+                    if (script->getLanguage()==CScriptObject::lang_python)
                     {
-                        stack->clear();
-                        retVal=script->executeScriptString(stringToExec.c_str(),stack);
+                        stack->pushStringOntoStack(stringToExec.c_str());
+                        retVal=script->callCustomScriptFunction("_evalExec",stack)-1;
                     }
+                    if (script->getLanguage()==CScriptObject::lang_lua)
+                        retVal=script->executeScriptString(stringToExec.c_str(),stack);
                 }
             }
 
