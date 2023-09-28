@@ -25,6 +25,7 @@
 #include <simFlavor.h>
 #include <regex>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #ifdef SIM_WITH_GUI
     #include <guiApp.h>
 #endif
@@ -14742,13 +14743,16 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
             {
                 if (VThread::isSimThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
-                    if (script->getLanguage()==CScriptObject::lang_python)
-                    {
-                        stack->pushStringOntoStack(stringToExec.c_str());
-                        retVal=script->callCustomScriptFunction("_evalExec",stack)-1;
-                    }
-                    if (script->getLanguage()==CScriptObject::lang_lua)
+                    if ( (script->getLanguage()==CScriptObject::lang_lua)||boost::algorithm::ends_with(stringToExec.c_str(),"@lua") )
                         retVal=script->executeScriptString(stringToExec.c_str(),stack);
+                    else
+                    {
+                        if (script->getLanguage()==CScriptObject::lang_python)
+                        {
+                            stack->pushStringOntoStack(stringToExec.c_str());
+                            retVal=script->callCustomScriptFunction("_evalExec",stack)-1;
+                        }
+                    }
                 }
             }
 
