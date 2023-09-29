@@ -20,7 +20,8 @@ CAddOnScriptContainer::CAddOnScriptContainer()
 
 void CAddOnScriptContainer::loadAllAddOns()
 { // will load them. But not call any script function yet (including 'info', which is called on-demand when a callback is distributed)
-    _insertAddOns();
+    _insertAddOns(ADDON_EXTENTION_LUA);
+    _insertAddOns(ADDON_EXTENTION_PY);
     _prepareAddOnFunctionNames_old();
 }
 
@@ -98,11 +99,11 @@ int CAddOnScriptContainer::_insertAddOn(CScriptObject* script)
     return(script->getScriptHandle());
 }
 
-int CAddOnScriptContainer::_insertAddOns()
+int CAddOnScriptContainer::_insertAddOns(const char* addOnExt)
 {
     int addOnsCount=0;
     VFileFinder finder;
-    finder.searchFilesWithExtension(App::folders->getAddOnPath().c_str(),ADDON_EXTENTION,nullptr);
+    finder.searchFilesWithExtension(App::folders->getAddOnPath().c_str(),addOnExt,nullptr);
     int cnt=0;
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
     while (foundItem!=nullptr)
@@ -135,7 +136,7 @@ int CAddOnScriptContainer::_insertAddOns()
                 _insertAddOn(defScript);
                 std::string nm(foundItem->name);
                 nm.erase(nm.begin(),nm.begin()+at.size());
-                nm.erase(nm.end()-strlen(ADDON_EXTENTION)-1,nm.end());
+                nm.erase(nm.end()-strlen(addOnExt)-1,nm.end());
                 defScript->setAddOnName(nm.c_str());
                 if ( (at.compare(ADDON_SCRIPT_PREFIX1_NOAUTOSTART)==0)||(at.compare(ADDON_SCRIPT_PREFIX2_NOAUTOSTART)==0) )
                     defScript->setScriptState(CScriptObject::scriptState_ended);
@@ -214,7 +215,7 @@ int CAddOnScriptContainer::_prepareAddOnFunctionNames_old()
 {
     int addOnsCount=0;
     VFileFinder finder;
-    finder.searchFilesWithExtension(App::folders->getAddOnPath().c_str(),ADDON_EXTENTION,nullptr);
+    finder.searchFilesWithExtension(App::folders->getAddOnPath().c_str(),ADDON_EXTENTION_LUA,nullptr);
     int cnt=0;
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
     while (foundItem!=nullptr)
@@ -228,7 +229,7 @@ int CAddOnScriptContainer::_prepareAddOnFunctionNames_old()
         {
             std::string nm(foundItem->name);
             nm.erase(nm.begin(),nm.begin()+pref.size());
-            nm.erase(nm.end()-strlen(ADDON_EXTENTION)-1,nm.end());
+            nm.erase(nm.end()-strlen(ADDON_EXTENTION_LUA)-1,nm.end());
             _allAddOnFunctionNames_old.push_back(nm);
             nm="Compatibility mode add-on functions\n"+nm;
             _allAddOnFunctionUiHandles_old.push_back(App::worldContainer->moduleMenuItemContainer->addMenuItem(nm.c_str(),-1));
@@ -368,12 +369,12 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                     fp1+=ADDON_FUNCTION_PREFIX1;
                     fp1+=_allAddOnFunctionNames_old[index];
                     fp1+=".";
-                    fp1+=ADDON_EXTENTION;
+                    fp1+=ADDON_EXTENTION_LUA;
                     std::string fp2(App::folders->getAddOnPath()+"/");
                     fp2+=ADDON_FUNCTION_PREFIX2;
                     fp2+=_allAddOnFunctionNames_old[index];
                     fp2+=".";
-                    fp2+=ADDON_EXTENTION;
+                    fp2+=ADDON_EXTENTION_LUA;
                     std::string fp;
                     if (VFile::doesFileExist(fp1.c_str()))
                         fp=fp1;

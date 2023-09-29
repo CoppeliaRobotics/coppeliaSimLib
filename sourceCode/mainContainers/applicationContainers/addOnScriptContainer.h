@@ -6,7 +6,8 @@
 #endif
 
 #define ADDON_PREFIX "simAddOn"
-#define ADDON_EXTENTION "lua"
+#define ADDON_EXTENTION_LUA "lua"
+#define ADDON_EXTENTION_PY "py"
 
 // OLD:
 #define ADDON_SCRIPT_PREFIX1_AUTOSTART "simAddOnScript_"
@@ -41,7 +42,7 @@ public:
 private:
     bool _removeAddOn(int scriptID);
     int _insertAddOn(CScriptObject* script);
-    int _insertAddOns();
+    int _insertAddOns(const char* addOnExt);
 
     int _sysFuncAndHookCnt_event;
     int _sysFuncAndHookCnt_dyn;
