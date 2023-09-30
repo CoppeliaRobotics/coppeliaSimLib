@@ -14753,49 +14753,7 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
             {
                 if (VThread::isSimThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
-                    if ( (script->getLanguage()==CScriptObject::lang_lua)||boost::algorithm::ends_with(stringToExec.c_str(),"@lua") )
-                        retVal=script->executeScriptString(stringToExec.c_str(),stack);
-                    else
-                    {
-                        if (script->getLanguage()==CScriptObject::lang_python)
-                        {
-                            CInterfaceStack* tmpStack=App::worldContainer->interfaceStackContainer->createStack();
-                            tmpStack->pushStringOntoStack(stringToExec.c_str());
-                            retVal=script->callCustomScriptFunction("_evalExec",tmpStack);
-                            if (stack!=nullptr)
-                                stack->copyFrom(tmpStack);
-                            App::worldContainer->interfaceStackContainer->destroyStack(tmpStack);
-                            if (retVal<=0)
-                            {
-                                if (stack!=nullptr)
-                                {
-                                    stack->clear();
-                                    if (retVal<0)
-                                        stack->pushStringOntoStack("Lua: runtime error.");
-                                    else
-                                        stack->pushStringOntoStack("Lua: function does not exist or was not executed.");
-                                }
-                                retVal=-1;
-                            }
-                            else
-                            {
-                                retVal=0;
-                                if (stack!=nullptr)
-                                {
-                                     CInterfaceStackObject* obj=stack->getStackObjectFromIndex(0);
-                                     if (obj->getObjectType()==sim_stackitem_string)
-                                     {
-                                         CInterfaceStackString* str=(CInterfaceStackString*)obj;
-                                         std::string tmp(str->getValue(nullptr));
-                                         if (tmp.compare(0,strlen("Error: "),"Error: ")==0)
-                                             retVal=-1;
-                                         if (tmp=="_*empty*_")
-                                             stack->clear();
-                                     }
-                                }
-                            }
-                        }
-                    }
+                    retVal=script->executeScriptString(stringToExec.c_str(),stack);
                 }
             }
 

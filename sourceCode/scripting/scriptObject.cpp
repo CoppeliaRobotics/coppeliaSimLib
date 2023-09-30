@@ -105,10 +105,7 @@ void CScriptObject::initSandbox()
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"initializing the sandbox script...");
         if (_initInterpreterState(nullptr))
             _raiseErrors_backCompatibility=true; // Old
-        if (App::userSettings->preferredLanguage=="python")
-            setScriptTextFromFile((App::folders->getPythonPath()+"/sandboxScript.py").c_str());
-        else
-            setScriptTextFromFile((App::folders->getLuaPath()+"/sandboxScript.lua").c_str());
+        setScriptTextFromFile((App::folders->getPythonPath()+"/sandboxScript.py").c_str());
         systemCallScript(sim_syscb_init,nullptr,nullptr);
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"sandbox script initialized.");
     }
@@ -2697,15 +2694,15 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
         luaWrap_lua_sethook(L,_hookFunction_lua,luaWrapGet_LUA_MASKCOUNT(),100); // This instruction gets also called in luaHookFunction!!!!
         _initFunctionHookCount=int(_functionHooks_before.size()+_functionHooks_after.size());
 
-        if (!App::userSettings->executeUnsafe)
-        {
-            std::string tmp(App::folders->getUserSettingsPath()+"/usrset.txt");
-            _execSimpleString_safe_lua(L,(std::string("load=function() sim.addLog(sim.verbosity_errors,\"'load' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
-            _execSimpleString_safe_lua(L,(std::string("loadfile=function() sim.addLog(sim.verbosity_errors,\"'loadfile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
-            _execSimpleString_safe_lua(L,(std::string("dofile=function() sim.addLog(sim.verbosity_errors,\"'dofile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
-            _execSimpleString_safe_lua(L,(std::string("io.popen=function() sim.addLog(sim.verbosity_errors,\"'io.popen' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' ")+tmp+", at your own risk!\") end").c_str());
-            _execSimpleString_safe_lua(L,(std::string("os.execute=function() sim.addLog(sim.verbosity_errors,\"'os.execute' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
-        }
+//        if (!App::userSettings->executeUnsafe)
+//        {
+//            std::string tmp(App::folders->getUserSettingsPath()+"/usrset.txt");
+//            _execSimpleString_safe_lua(L,(std::string("load=function() sim.addLog(sim.verbosity_errors,\"'load' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
+//            _execSimpleString_safe_lua(L,(std::string("loadfile=function() sim.addLog(sim.verbosity_errors,\"'loadfile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
+//            _execSimpleString_safe_lua(L,(std::string("dofile=function() sim.addLog(sim.verbosity_errors,\"'dofile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
+//            _execSimpleString_safe_lua(L,(std::string("io.popen=function() sim.addLog(sim.verbosity_errors,\"'io.popen' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' ")+tmp+", at your own risk!\") end").c_str());
+//            _execSimpleString_safe_lua(L,(std::string("os.execute=function() sim.addLog(sim.verbosity_errors,\"'os.execute' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
+//        }
     }
 
     return(_interpreterState!=nullptr);
