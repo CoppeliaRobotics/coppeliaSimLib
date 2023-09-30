@@ -105,7 +105,10 @@ void CScriptObject::initSandbox()
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"initializing the sandbox script...");
         if (_initInterpreterState(nullptr))
             _raiseErrors_backCompatibility=true; // Old
-        setScriptTextFromFile((App::folders->getSystemPath()+"/"+"sandboxScript.lua").c_str());
+        if (App::userSettings->preferredLanguage=="python")
+            setScriptTextFromFile((App::folders->getPythonPath()+"/sandboxScript.py").c_str());
+        else
+            setScriptTextFromFile((App::folders->getLuaPath()+"/sandboxScript.lua").c_str());
         systemCallScript(sim_syscb_init,nullptr,nullptr);
         App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"sandbox script initialized.");
     }

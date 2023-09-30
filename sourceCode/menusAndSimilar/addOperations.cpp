@@ -614,25 +614,25 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
 
             VMenu* childScript=new VMenu();
             VMenu* childScriptNonThreaded=new VMenu();
-            childScriptNonThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_LUA_ACCMD,"Lua");
             childScriptNonThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_PYTHON_ACCMD,"Python");
+            childScriptNonThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_LUA_ACCMD,"Lua");
             childScript->appendMenuAndDetach(childScriptNonThreaded,canAddChildScript,"Non threaded");
             VMenu* childScriptThreaded=new VMenu();
+            childScriptThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD,"Python");
             childScriptThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD,"Lua");
             if (App::userSettings->keepOldThreadedScripts)
                 childScriptThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_oldTHREADED_CHILD_SCRIPT_LUA_ACCMD,"Lua (deprecated, compatibility version)");
-            childScriptThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD,"Python");
             childScript->appendMenuAndDetach(childScriptThreaded,canAddChildScript,"Threaded");
             menu->appendMenuAndDetach(childScript,canAddChildScript,"Associated child script");
 
             VMenu* customizationScript=new VMenu();
             VMenu* customizationScriptNonThreaded=new VMenu();
-            customizationScriptNonThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD,"Lua");
             customizationScriptNonThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD,"Python");
+            customizationScriptNonThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD,"Lua");
             customizationScript->appendMenuAndDetach(customizationScriptNonThreaded,canAddCustomizationScript,"Non threaded");
             VMenu* customizationScriptThreaded=new VMenu();
-            customizationScriptThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD,"Lua");
             customizationScriptThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD,"Python");
+            customizationScriptThreaded->appendMenuItem(true,false,ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD,"Lua");
             customizationScript->appendMenuAndDetach(customizationScriptThreaded,canAddCustomizationScript,"Threaded");
             menu->appendMenuAndDetach(customizationScript,canAddCustomizationScript,"Associated customization script");
 

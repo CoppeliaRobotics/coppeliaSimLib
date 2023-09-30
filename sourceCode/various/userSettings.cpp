@@ -154,6 +154,7 @@
 
 #define _USR_FILE_DIALOGS_NATIVE "fileDialogs"
 #define _USR_MOUSE_WHEEL_ZOOM_FACTOR "mouseWheelZoomFactor"
+#define _USR_PREFERRED_LANGUAGE "preferredLanguage"
 
 #define _USR_DO_NOT_WRITE_PERSISTENT_DATA "doNotWritePersistentData"
 #define _USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE "doNotShowUpdateCheckMessage"
@@ -333,6 +334,7 @@ CUserSettings::CUserSettings()
 
     // Various section:
     // *****************************
+    preferredLanguage="lua";
     mouseWheelZoomFactor=1.0; // default
     dynamicActivityRange=1000.0;
     _translationStepSize=0.025;
@@ -681,6 +683,8 @@ void CUserSettings::saveUserSettings()
 
         c.addRandomLine("// Various");
         c.addRandomLine("// =================================================");
+
+        c.addString(_USR_PREFERRED_LANGUAGE,preferredLanguage,"python or lua");
         c.addFloat(_USR_MOUSE_WHEEL_ZOOM_FACTOR,mouseWheelZoomFactor,"");
         c.addFloat(_USR_DYNAMIC_ACTIVITY_RANGE,dynamicActivityRange,"");
         c.addFloat(_USR_TRANSLATION_STEP_SIZE,_translationStepSize,"");
@@ -949,6 +953,7 @@ void CUserSettings::loadUserSettings()
 
     // Various section:
     // *****************************
+    c.getString(_USR_PREFERRED_LANGUAGE,preferredLanguage);
     c.getFloat(_USR_MOUSE_WHEEL_ZOOM_FACTOR,mouseWheelZoomFactor);
     c.getFloat(_USR_DYNAMIC_ACTIVITY_RANGE,dynamicActivityRange);
     if (c.getFloat(_USR_TRANSLATION_STEP_SIZE,_translationStepSize))

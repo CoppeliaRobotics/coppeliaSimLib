@@ -24,6 +24,7 @@
 #include <tinyxml2.h>
 #include <simFlavor.h>
 #include <regex>
+#include <interfaceStackString.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #ifdef SIM_WITH_GUI
@@ -14665,8 +14666,9 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
         if (scriptHandle>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
             std::string strAtScriptName(stringToExecute);
-            size_t p=strAtScriptName.rfind('@');
-            if (p!=std::string::npos)
+            size_t p=strAtScriptName.rfind('@'); // back compat.
+            size_t p2=strAtScriptName.rfind("@lua"); // introduced later
+            if ( (p!=std::string::npos)&&(p!=p2) )
                 stringToExec.assign(strAtScriptName.begin(),strAtScriptName.begin()+p);
             else
                 stringToExec=strAtScriptName;
@@ -14676,8 +14678,9 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
         { // script is identified by its type
             std::string scriptName;
             std::string strAtScriptName(stringToExecute);
-            size_t p=strAtScriptName.rfind('@');
-            if (p!=std::string::npos)
+            size_t p=strAtScriptName.rfind('@'); // back compat.
+            size_t p2=strAtScriptName.rfind("@lua"); // introduced later
+            if ( (p!=std::string::npos)&&(p!=p2) )
             {
                 scriptName.assign(strAtScriptName.begin()+p+1,strAtScriptName.end());
                 stringToExec.assign(strAtScriptName.begin(),strAtScriptName.begin()+p);
@@ -14749,8 +14752,41 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
                     {
                         if (script->getLanguage()==CScriptObject::lang_python)
                         {
-                            stack->pushStringOntoStack(stringToExec.c_str());
-                            retVal=script->callCustomScriptFunction("_evalExec",stack)-1;
+                            CInterfaceStack* tmpStack=App::worldContainer->interfaceStackContainer->createStack();
+                            tmpStack->pushStringOntoStack(stringToExec.c_str());
+                            retVal=script->callCustomScriptFunction("_evalExec",tmpStack);
+                            if (stack!=nullptr)
+                                stack->copyFrom(tmpStack);
+                            App::worldContainer->interfaceStackContainer->destroyStack(tmpStack);
+                            if (retVal<=0)
+                            {
+                                if (stack!=nullptr)
+                                {
+                                    stack->clear();
+                                    if (retVal<0)
+                                        stack->pushStringOntoStack("Lua: runtime error.");
+                                    else
+                                        stack->pushStringOntoStack("Lua: function does not exist or was not executed.");
+                                }
+                                retVal=-1;
+                            }
+                            else
+                            {
+                                retVal=0;
+                                if (stack!=nullptr)
+                                {
+                                     CInterfaceStackObject* obj=stack->getStackObjectFromIndex(0);
+                                     if (obj->getObjectType()==sim_stackitem_string)
+                                     {
+                                         CInterfaceStackString* str=(CInterfaceStackString*)obj;
+                                         std::string tmp(str->getValue(nullptr));
+                                         if (tmp.compare(0,strlen("Error: "),"Error: ")==0)
+                                             retVal=-1;
+                                         if (tmp=="_*empty*_")
+                                             stack->clear();
+                                     }
+                                }
+                            }
                         }
                     }
                 }
