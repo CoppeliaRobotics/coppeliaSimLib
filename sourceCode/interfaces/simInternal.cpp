@@ -9801,6 +9801,13 @@ int simGetScriptInt32Param_internal(int scriptHandle,int parameterID,int* parame
             parameter[0]=it->getObjectHandleThatScriptIsAttachedTo(-1);
             retVal=1;
         }
+        if (parameterID==sim_scriptintparam_lang)
+        {
+            parameter[0]=0;
+            if (it->getLanguage()==CScriptObject::lang_lua)
+                parameter[0]=1;
+            retVal=1;
+        }
 
         return(retVal);
     }

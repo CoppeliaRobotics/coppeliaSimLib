@@ -744,6 +744,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.scriptintparam_handle",sim_scriptintparam_handle},
     {"sim.scriptintparam_objecthandle",sim_scriptintparam_objecthandle},
     {"sim.scriptintparam_enabled",sim_scriptintparam_enabled},
+    {"sim.scriptintparam_lang",sim_scriptintparam_lang},
     {"sim.scriptstringparam_description",sim_scriptstringparam_description},
     {"sim.scriptstringparam_name",sim_scriptstringparam_name},
     {"sim.scriptstringparam_text",sim_scriptstringparam_text},
