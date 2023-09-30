@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <QByteArray>
 
 void utils::lightBinaryEncode(char* data,int length)
 { // Very simple!
@@ -215,12 +216,16 @@ void utils::scaleColorUp_(float* rgb)
 
 std::string utils::decode64(const std::string &data)
 {
-    return(base64_decode(data));
+    QByteArray arr(data.c_str(), data.size());
+    return(QByteArray::fromBase64(arr, QByteArray::Base64Encoding).toStdString());
+    //return(base64_decode(data));
 }
 
 std::string utils::encode64(const std::string &data)
 {
-    return(base64_encode((const unsigned char*)data.c_str(),(unsigned int)data.size()));
+    QByteArray arr(data.c_str(), data.size());
+    return(arr.toBase64().toStdString());
+    //return(base64_encode((const unsigned char*)data.c_str(),(unsigned int)data.size()));
 }
 
 std::string utils::generateUniqueString()
