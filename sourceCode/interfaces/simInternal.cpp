@@ -12528,10 +12528,24 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
 
     int handleFlags=scriptHandleOrType&0x0ff00000;
     scriptHandleOrType=scriptHandleOrType&0x000fffff;
+
+    std::string funcNameAtScriptName(functionNameAtScriptName);
+    int lang=CScriptObject::lang_undefined;
+    if (boost::algorithm::ends_with(funcNameAtScriptName.c_str(),"@lua"))
+    {
+        lang=CScriptObject::lang_lua;
+        funcNameAtScriptName.resize(funcNameAtScriptName.size()-4);
+    }
+    else if (boost::algorithm::ends_with(funcNameAtScriptName.c_str(),"@python"))
+    {
+        lang=CScriptObject::lang_python;
+        funcNameAtScriptName.resize(funcNameAtScriptName.size()-7);
+    }
+
     if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
     { // script is identified by its ID
-        std::string funcNameAtScriptName(functionNameAtScriptName);
-        size_t p=funcNameAtScriptName.find('@');
+
+        size_t p=funcNameAtScriptName.rfind('@'); // back compat.
         if (p!=std::string::npos)
             funcName.assign(funcNameAtScriptName.begin(),funcNameAtScriptName.begin()+p);
         else
@@ -12541,8 +12555,7 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
     else
     { // script is identified by a script type and sometimes also a script name
         std::string scriptName;
-        std::string funcNameAtScriptName(functionNameAtScriptName);
-        size_t p=funcNameAtScriptName.find('@');
+        size_t p=funcNameAtScriptName.rfind('@'); // back compat.
         if (p!=std::string::npos)
         {
             scriptName.assign(funcNameAtScriptName.begin()+p+1,funcNameAtScriptName.end());
@@ -12592,14 +12605,32 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
                     d[1]=script;
                     d[2]=(void*)funcName.c_str();
                     d[3]=stack;
-
                     retVal=CThreadPool_old::callRoutineViaSpecificThread(script->getThreadedScriptThreadId_old(),d);
                 }
             }
             else
             {
                 if (VThread::isSimThread())
+                {
+                    if ( (script->getLanguage()!=CScriptObject::lang_lua)&&(lang==CScriptObject::lang_lua) )
+                        funcName+="@lua"; // explicit lua when Python script
                     retVal=script->callCustomScriptFunction(funcName.c_str(),stack);
+
+                    if (stack->getStackSize()>0)
+                    { // when the script is a Python script, we must check for other errors:
+                        CInterfaceStackObject* obj=stack->getStackObjectFromIndex(0);
+                        if (obj->getObjectType()==sim_stackitem_string)
+                        {
+                            CInterfaceStackString* str=(CInterfaceStackString*)obj;
+                            std::string tmp(str->getValue(nullptr));
+                            if (tmp=="_*funcNotFound*_")
+                            {
+                                retVal=0;
+                                stack->clear();
+                            }
+                        }
+                    }
+                }
             }
             if (retVal==-1)
             {
@@ -14670,12 +14701,24 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
     {
         CScriptObject* script=nullptr;
         std::string stringToExec;
+
+        std::string strAtScriptName(stringToExecute);
+        int lang=CScriptObject::lang_undefined;
+        if (boost::algorithm::ends_with(strAtScriptName.c_str(),"@lua"))
+        {
+            lang=CScriptObject::lang_lua;
+            strAtScriptName.resize(strAtScriptName.size()-4);
+        }
+        else if (boost::algorithm::ends_with(strAtScriptName.c_str(),"@python"))
+        {
+            lang=CScriptObject::lang_python;
+            strAtScriptName.resize(strAtScriptName.size()-7);
+        }
+
         if (scriptHandle>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
-            std::string strAtScriptName(stringToExecute);
             size_t p=strAtScriptName.rfind('@'); // back compat.
-            size_t p2=strAtScriptName.rfind("@lua"); // introduced later
-            if ( (p!=std::string::npos)&&(p!=p2) )
+            if (p!=std::string::npos)
                 stringToExec.assign(strAtScriptName.begin(),strAtScriptName.begin()+p);
             else
                 stringToExec=strAtScriptName;
@@ -14684,10 +14727,8 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
         else
         { // script is identified by its type
             std::string scriptName;
-            std::string strAtScriptName(stringToExecute);
             size_t p=strAtScriptName.rfind('@'); // back compat.
-            size_t p2=strAtScriptName.rfind("@lua"); // introduced later
-            if ( (p!=std::string::npos)&&(p!=p2) )
+            if (p!=std::string::npos)
             {
                 scriptName.assign(strAtScriptName.begin()+p+1,strAtScriptName.end());
                 stringToExec.assign(strAtScriptName.begin(),strAtScriptName.begin()+p);
@@ -14753,7 +14794,42 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
             {
                 if (VThread::isSimThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
-                    retVal=script->executeScriptString(stringToExec.c_str(),stack);
+                    if ( (script->getLanguage()==CScriptObject::lang_lua)|| (lang==CScriptObject::lang_lua) )
+                        retVal=script->executeScriptString(stringToExec.c_str(),stack);
+                    else
+                    {
+                        if (script->getLanguage()==CScriptObject::lang_python)
+                        {
+                            if (script->getScriptState()==CScriptObject::scriptState_initialized)
+                            {
+                                CInterfaceStack* tmpStack=App::worldContainer->interfaceStackContainer->createStack();
+                                tmpStack->pushStringOntoStack(stringToExec.c_str());
+                                retVal=script->callCustomScriptFunction("_evalExecRet",tmpStack);
+                                if (stack!=nullptr)
+                                    stack->copyFrom(tmpStack);
+                                App::worldContainer->interfaceStackContainer->destroyStack(tmpStack);
+                                if (retVal==1)
+                                {
+                                    retVal=0;
+                                    if (stack!=nullptr)
+                                    {
+                                         CInterfaceStackObject* obj=stack->getStackObjectFromIndex(0);
+                                         if (obj->getObjectType()==sim_stackitem_string)
+                                         {
+                                             CInterfaceStackString* str=(CInterfaceStackString*)obj;
+                                             std::string tmp(str->getValue(nullptr));
+                                             if (tmp=="_*empty*_")
+                                                 stack->clear();
+                                         }
+                                    }
+                                }
+                                else
+                                    retVal=-1; // error
+                            }
+                            else
+                                retVal=-2; // script not initialized
+                        }
+                    }
                 }
             }
 
