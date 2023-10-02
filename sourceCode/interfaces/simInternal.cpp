@@ -12612,10 +12612,22 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
             {
                 if (VThread::isSimThread())
                 {
-                    if ( (script->getLanguage()!=CScriptObject::lang_lua)&&(lang==CScriptObject::lang_lua) )
-                        funcName+="@lua"; // explicit lua when Python script
-                    retVal=script->callCustomScriptFunction(funcName.c_str(),stack);
+                    if (script->getLanguage()==CScriptObject::lang_lua)
+                    {
+                        if (lang==CScriptObject::lang_python)
+                            funcName+="@python"; // explicit python when Lua script --> generates an error further down
+                        else
+                            funcName+="@lua";
+                    }
+                    if (script->getLanguage()==CScriptObject::lang_python)
+                    {
+                        if (lang==CScriptObject::lang_lua)
+                            funcName+="@lua"; // explicit lua when Python script
+                        else
+                            funcName+="@python"; // explicit python
+                    }
 
+                    retVal=script->callCustomScriptFunction(funcName.c_str(),stack);
                     if (stack->getStackSize()>0)
                     { // when the script is a Python script, we must check for other errors:
                         CInterfaceStackObject* obj=stack->getStackObjectFromIndex(0);
