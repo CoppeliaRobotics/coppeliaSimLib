@@ -152,7 +152,7 @@ std::string CScriptObject::getFilenameForExternalScriptEditor()
         if (tmp.size() == 0)
             tmp = "newScene";
         _filenameForExternalScriptEditor += tmp+"-"+std::to_string(_scriptHandle);
-        if (getLanguage() == lang_python)
+        if (getLanguage() == sim_lang_python)
             _filenameForExternalScriptEditor += ".py";
         else
             _filenameForExternalScriptEditor += ".lua";
@@ -2608,7 +2608,7 @@ int CScriptObject::getLanguage()
 {
     std::string l;
     std::string tmpCode(_scriptText);
-    int retVal=lang_lua;
+    int retVal=sim_lang_lua;
     while (utils::extractLine(tmpCode,l))
     {
         utils::removeSpacesAtBeginningAndEnd(l);
@@ -2622,7 +2622,7 @@ int CScriptObject::getLanguage()
                 utils::removeSpacesAtBeginningAndEnd(l);
                 std::string w;
                 if ( (utils::extractSpaceSeparatedWord(l,w)&&(w=="python")) )
-                    retVal=lang_python;
+                    retVal=sim_lang_python;
                 break;
             }
         }
@@ -3431,7 +3431,7 @@ void CScriptObject::serialize(CSer& ar)
                 }
             }
 
-            if (getLanguage()==lang_python)
+            if (getLanguage()==sim_lang_python)
             {
                 if (ar.getSerializationVersionThatWroteThisFile()<25)
                 { // make sure to use the old Python wrapper, with old Python scripts, for backward compatibility:
@@ -7327,7 +7327,7 @@ void CScriptObject::_detectDeprecated_old(CScriptObject* scriptObject)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
-    //if (getLanguage()==CScriptObject::lang_lua)
+    //if (getLanguage()==sim_lang_lua)
     //    _scriptText.insert(0,"--lua\n\n");
 
     if (_containsScriptText_old(scriptObject,"sim.getThreadExitRequest"))

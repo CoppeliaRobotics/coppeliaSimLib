@@ -9803,9 +9803,7 @@ int simGetScriptInt32Param_internal(int scriptHandle,int parameterID,int* parame
         }
         if (parameterID==sim_scriptintparam_lang)
         {
-            parameter[0]=0;
-            if (it->getLanguage()==CScriptObject::lang_lua)
-                parameter[0]=1;
+            parameter[0]=it->getLanguage();
             retVal=1;
         }
 
@@ -12530,15 +12528,15 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
     scriptHandleOrType=scriptHandleOrType&0x000fffff;
 
     std::string funcNameAtScriptName(functionNameAtScriptName);
-    int lang=CScriptObject::lang_undefined;
+    int lang=sim_lang_undefined;
     if (boost::algorithm::ends_with(funcNameAtScriptName.c_str(),"@lua"))
     {
-        lang=CScriptObject::lang_lua;
+        lang=sim_lang_lua;
         funcNameAtScriptName.resize(funcNameAtScriptName.size()-4);
     }
     else if (boost::algorithm::ends_with(funcNameAtScriptName.c_str(),"@python"))
     {
-        lang=CScriptObject::lang_python;
+        lang=sim_lang_python;
         funcNameAtScriptName.resize(funcNameAtScriptName.size()-7);
     }
 
@@ -12612,16 +12610,16 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
             {
                 if (VThread::isSimThread())
                 {
-                    if (script->getLanguage()==CScriptObject::lang_lua)
+                    if (script->getLanguage()==sim_lang_lua)
                     {
-                        if (lang==CScriptObject::lang_python)
+                        if (lang==sim_lang_python)
                             funcName+="@python"; // explicit python when Lua script --> generates an error further down
                         else
                             funcName+="@lua";
                     }
-                    if (script->getLanguage()==CScriptObject::lang_python)
+                    if (script->getLanguage()==sim_lang_python)
                     {
-                        if (lang==CScriptObject::lang_lua)
+                        if (lang==sim_lang_lua)
                             funcName+="@lua"; // explicit lua when Python script
                         else
                             funcName+="@python"; // explicit python
@@ -14715,15 +14713,15 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
         std::string stringToExec;
 
         std::string strAtScriptName(stringToExecute);
-        int lang=CScriptObject::lang_undefined;
+        int lang=sim_lang_undefined;
         if (boost::algorithm::ends_with(strAtScriptName.c_str(),"@lua"))
         {
-            lang=CScriptObject::lang_lua;
+            lang=sim_lang_lua;
             strAtScriptName.resize(strAtScriptName.size()-4);
         }
         else if (boost::algorithm::ends_with(strAtScriptName.c_str(),"@python"))
         {
-            lang=CScriptObject::lang_python;
+            lang=sim_lang_python;
             strAtScriptName.resize(strAtScriptName.size()-7);
         }
 
@@ -14806,11 +14804,11 @@ int simExecuteScriptString_internal(int scriptHandle,const char* stringToExecute
             {
                 if (VThread::isSimThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
-                    if ( (script->getLanguage()==CScriptObject::lang_lua)|| (lang==CScriptObject::lang_lua) )
+                    if ( (script->getLanguage()==sim_lang_lua)|| (lang==sim_lang_lua) )
                         retVal=script->executeScriptString(stringToExec.c_str(),stack);
                     else
                     {
-                        if (script->getLanguage()==CScriptObject::lang_python)
+                        if (script->getLanguage()==sim_lang_python)
                         {
                             if (script->getScriptState()==CScriptObject::scriptState_initialized)
                             {

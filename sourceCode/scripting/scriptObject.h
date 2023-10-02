@@ -39,11 +39,6 @@ public:
         scriptState_error=8,
         scriptState_suspended=16 // only add-ons
     };
-    enum {
-        lang_undefined=-1,
-        lang_lua=0,
-        lang_python
-    };
 
     CScriptObject(int scriptTypeOrMinusOneForSerialization);
     virtual ~CScriptObject();

@@ -374,12 +374,12 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     editorNode->SetAttribute("tab-width",4);
                     editorNode->SetAttribute("can-restart-in-sim",toBoolStr(!( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution_oldThreads() )));
                     editorNode->SetAttribute("script-up-to-date",toBoolStr(it->getIsUpToDate()));
-                    if (it->getLanguage()==CScriptObject::lang_lua)
+                    if (it->getLanguage()==sim_lang_lua)
                     {
                         editorNode->SetAttribute("lang","lua");
                         editorNode->SetAttribute("search-paths",it->getSearchPath_lua().c_str());
                     }
-                    if (it->getLanguage()==CScriptObject::lang_python)
+                    if (it->getLanguage()==sim_lang_python)
                     {
                         editorNode->SetAttribute("lang","python");
                         editorNode->SetAttribute("search-paths",it->getSearchPath_python().c_str());
@@ -505,12 +505,12 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
                     editorNode->SetAttribute("can-restart-in-sim","true");
                     editorNode->SetAttribute("can-restart-in-nosim","true");
                     editorNode->SetAttribute("script-up-to-date",toBoolStr(it->getIsUpToDate()));
-                    if (it->getLanguage()==CScriptObject::lang_lua)
+                    if (it->getLanguage()==sim_lang_lua)
                     {
                         editorNode->SetAttribute("lang","lua");
                         editorNode->SetAttribute("search-paths",it->getSearchPath_lua().c_str());
                     }
-                    if (it->getLanguage()==CScriptObject::lang_python)
+                    if (it->getLanguage()==sim_lang_python)
                     {
                         editorNode->SetAttribute("lang","python");
                         editorNode->SetAttribute("search-paths",it->getSearchPath_python().c_str());
