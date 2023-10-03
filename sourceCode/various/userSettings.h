@@ -12,7 +12,7 @@ public:
     bool getUndoRedoEnabled();
     bool getUndoRedoOnlyPartialWithCameras();
 
-    void saveUserSettings();
+    void saveUserSettings(bool outputMsgs=true);
     void loadUserSettings();
 
     void setTranslationStepSize(double s);

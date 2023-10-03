@@ -3983,7 +3983,7 @@ int simSetStringParam_internal(int parameter,const char* str)
             if (App::userSettings->preferredSandboxLang!=str)
             {
                 App::userSettings->preferredSandboxLang=str;
-                App::userSettings->saveUserSettings();
+                App::userSettings->saveUserSettings(false);
             }
             return(1);
         }
@@ -12628,8 +12628,8 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
                     {
                         if (lang==sim_lang_python)
                             funcName+="@python"; // explicit python when Lua script --> generates an error further down
-                        else
-                            funcName+="@lua";
+                        //else
+                        //    funcName+="@lua";
                     }
                     if (script->getLanguage()==sim_lang_python)
                     {

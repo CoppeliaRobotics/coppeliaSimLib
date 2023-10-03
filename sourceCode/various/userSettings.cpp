@@ -498,7 +498,7 @@ void CUserSettings::_setIntVector3(int v[3],int a,int b,int c)
     v[2]=c;
 }
 
-void CUserSettings::saveUserSettings()
+void CUserSettings::saveUserSettings(bool outputMsgs/*=true*/)
 {
     if (allowSettingsWrite)
     {
@@ -728,9 +728,12 @@ void CUserSettings::saveUserSettings()
         file+="/";
         file+=USER_SETTINGS_FILENAME;
         c.writeConfiguration(file.c_str());
-        std::string txt("wrote user settings to ");
-        txt+=file;
-        App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
+        if (outputMsgs)
+        {
+            std::string txt("wrote user settings to ");
+            txt+=file;
+            App::logMsg(sim_verbosity_scriptinfos,txt.c_str());
+        }
     }
 }
 
