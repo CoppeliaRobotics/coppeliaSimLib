@@ -12628,15 +12628,11 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
                     {
                         if (lang==sim_lang_python)
                             funcName+="@python"; // explicit python when Lua script --> generates an error further down
-                        //else
-                        //    funcName+="@lua";
                     }
                     if (script->getLanguage()==sim_lang_python)
                     {
                         if (lang==sim_lang_lua)
                             funcName+="@lua"; // explicit lua when Python script
-                        else
-                            funcName+="@python"; // explicit python
                     }
 
                     retVal=script->callCustomScriptFunction(funcName.c_str(),stack);

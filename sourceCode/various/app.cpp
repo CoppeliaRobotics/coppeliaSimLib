@@ -868,7 +868,17 @@ void App::__logMsg(const char* originName,int verbosityLevel,const char* msg,int
         if (!_consoleLogFilter(consoleTxt.c_str()))
         {
             if (consoleVerbosity==-1)
+            {
                 consoleVerbosity=_consoleVerbosity;
+
+                bool headless=true;
+                #ifdef SIM_WITH_GUI
+                    headless=(GuiApp::mainWindow==nullptr);
+                #endif
+                if (headless)
+                    consoleVerbosity=_statusbarVerbosity;
+            }
+
             if (consoleVerbosity>=realVerbosityLevel)
             {
                 printf("%s",consoleTxt.c_str());
