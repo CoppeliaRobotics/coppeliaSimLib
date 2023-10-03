@@ -174,7 +174,7 @@ void App::init(const char* appDir,int)
         CSimAndUiThreadSync::simThread_forbidUiThreadToWrite(true); // lock initially...
     #endif
 
-    // Some items below require the GUI to be initialized (e.g. the luaCommander plugin):
+    // Some items below require the GUI to be initialized (e.g. the Commander plugin):
     worldContainer->sandboxScript=new CScriptObject(sim_scripttype_sandboxscript);
     worldContainer->sandboxScript->initSandbox();
     if (_startupScriptString.size()>0)
