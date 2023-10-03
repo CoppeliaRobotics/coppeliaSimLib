@@ -952,6 +952,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_systemdir",sim_stringparam_systemdir},
     {"sim.stringparam_resourcesdir",sim_stringparam_resourcesdir},
     {"sim.stringparam_addondir",sim_stringparam_addondir},
+    {"sim.stringparam_sandboxlang",sim_stringparam_sandboxlang},
 
     // verbosity:
     {"sim.verbosity_useglobal",sim_verbosity_useglobal},

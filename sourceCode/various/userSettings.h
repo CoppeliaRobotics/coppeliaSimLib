@@ -87,7 +87,7 @@ public:
     int vboOperation;
     int vboPersistenceInMs;
     int fileDialogs;
-    std::string preferredLanguage;
+    std::string preferredSandboxLang;
     double mouseWheelZoomFactor;
 
     bool doNotWritePersistentData;

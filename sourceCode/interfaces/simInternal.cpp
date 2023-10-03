@@ -3978,6 +3978,15 @@ int simSetStringParam_internal(int parameter,const char* str)
             App::folders->setImportExportPath(str);
             return(1);
         }
+        if (parameter==sim_stringparam_sandboxlang)
+        {
+            if (App::userSettings->preferredSandboxLang!=str)
+            {
+                App::userSettings->preferredSandboxLang=str;
+                App::userSettings->saveUserSettings();
+            }
+            return(1);
+        }
 
         CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);
@@ -4136,6 +4145,11 @@ char* simGetStringParam_internal(int parameter)
         {
             validParam=true;
             retVal=App::getConsoleLogFilter();
+        }
+        if (parameter==sim_stringparam_sandboxlang)
+        {
+            validParam=true;
+            retVal=App::userSettings->preferredSandboxLang;
         }
         if (validParam)
         {
