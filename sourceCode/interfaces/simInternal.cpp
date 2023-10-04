@@ -12538,6 +12538,8 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
     CScriptObject* script=nullptr;
     std::string funcName;
 
+    //printf("f: %s\n",functionNameAtScriptName);
+
     int handleFlags=scriptHandleOrType&0x0ff00000;
     scriptHandleOrType=scriptHandleOrType&0x000fffff;
 
@@ -12637,7 +12639,7 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
 
                     retVal=script->callCustomScriptFunction(funcName.c_str(),stack);
                     if (stack->getStackSize()>0)
-                    { // when the script is a Python script, we must check for other errors:
+                    { // when the script is a Python script, we must check for other errors, since the call is handled via sysCall_ext:
                         CInterfaceStackObject* obj=stack->getStackObjectFromIndex(0);
                         if (obj->getObjectType()==sim_stackitem_string)
                         {
@@ -12646,6 +12648,11 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType,const char* function
                             if (tmp=="_*funcNotFound*_")
                             {
                                 retVal=0;
+                                stack->clear();
+                            }
+                            if (tmp=="_*runtimeError*_")
+                            {
+                                retVal=-1;
                                 stack->clear();
                             }
                         }
