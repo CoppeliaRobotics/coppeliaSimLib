@@ -11180,16 +11180,11 @@ int simCheckExecAuthorization_internal(const char* what,const char* args,int scr
                     y=x+std::to_string(it->getSimpleHash());
                     std::hash<std::string> hasher;
                     y=std::to_string(hasher(y))+"EXECUNSAFE";
-                    CPersistentDataContainer cont("signedPyScripts.dat",App::folders->getSystemPath().c_str()); // first check in system
+
                     std::string val;
+                    CPersistentDataContainer cont;
                     if (cont.readData(y.c_str(),val))
                         auth=true;
-                    else
-                    {
-                        CPersistentDataContainer cont;
-                        if (cont.readData(y.c_str(),val))
-                            auth=true;
-                    }
                 }
             }
 #ifdef SIM_WITH_GUI
@@ -11200,11 +11195,6 @@ int simCheckExecAuthorization_internal(const char* what,const char* args,int scr
                     auth=true;
                     if (it!=nullptr)
                     {
-                        if (CSimFlavor::getBoolVal(18))
-                        {
-                            CPersistentDataContainer cont("signedPyScripts.dat",App::folders->getSystemPath().c_str());
-                            cont.writeData(y.c_str(),"OK",true);
-                        }
                         CPersistentDataContainer cont;
                         cont.writeData(y.c_str(),"OK",true);
                     }
@@ -11216,7 +11206,7 @@ int simCheckExecAuthorization_internal(const char* what,const char* args,int scr
             else
             {
                 std::string tmp("function was hindered to execute for your safety. You can enable its execution and every other unsafe function with 'executeUnsafe=true' in ");
-                tmp+=App::folders->getUserSettingsPath()+"/usrset.txt, at your own risk!";
+                tmp+=App::folders->getUserSettingsPath()+"/usrset.txt";
                 CApiErrors::setLastWarningOrError(__func__,tmp.c_str());
             }
         }
