@@ -464,18 +464,6 @@
 #define IDS_HELP_TOPICS_MENU_ITEM "User manual"
 #define IDS_BUSY____PLEASE_WAIT "Busy... please wait"
 
-#define IDS_AUXILIARY_CHANNELS  "OpenGL, auxiliary channels"
-#define IDS_COLOR_CODED_IDS     "OpenGL, color coded handles"
-#define IDS_RAY_TRACING         "POV-Ray"
-#define IDS_OPENGL3  "OpenGL 3"
-#define IDS_RAY_TRACING_DURING_SIMULATION_AND_RECORDING "POV-Ray (simulation & video recording)"
-#define IDS_RAY_TRACING_DURING_SIMULATION   "POV-Ray (simulation)"
-#define IDS_EXT_RENDERER_DURING_SIMULATION_AND_RECORDING "External renderer (simulation & video recording)"
-#define IDS_EXT_RENDERER_DURING_SIMULATION   "External renderer (simulation)"
-#define IDS_OPENGL3_DURING_SIMULATION_AND_RECORDING "OpenGL 3 (simulation & video recording)"
-#define IDS_OPENGL3_DURING_SIMULATION   "OpenGL 3 (simulation)"
-
-
 #define IDS_ALL_OTHER_COLLIDABLE_OBJECTS_IN_SCENE "all other collidable objects in the scene"
 #define IDS_ALL_OTHER_MEASURABLE_OBJECTS_IN_SCENE "all other measurable objects in the scene"
 #define IDS_ALL_RENDERABLE_OBJECTS_IN_SCENE "all renderable objects in the scene"

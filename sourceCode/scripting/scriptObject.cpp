@@ -2693,16 +2693,6 @@ bool CScriptObject::_initInterpreterState(std::string* errorMsg)
 
         luaWrap_lua_sethook(L,_hookFunction_lua,luaWrapGet_LUA_MASKCOUNT(),100); // This instruction gets also called in luaHookFunction!!!!
         _initFunctionHookCount=int(_functionHooks_before.size()+_functionHooks_after.size());
-
-//        if (!App::userSettings->executeUnsafe)
-//        {
-//            std::string tmp(App::folders->getUserSettingsPath()+"/usrset.txt");
-//            _execSimpleString_safe_lua(L,(std::string("load=function() sim.addLog(sim.verbosity_errors,\"'load' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
-//            _execSimpleString_safe_lua(L,(std::string("loadfile=function() sim.addLog(sim.verbosity_errors,\"'loadfile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
-//            _execSimpleString_safe_lua(L,(std::string("dofile=function() sim.addLog(sim.verbosity_errors,\"'dofile' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
-//            _execSimpleString_safe_lua(L,(std::string("io.popen=function() sim.addLog(sim.verbosity_errors,\"'io.popen' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' ")+tmp+", at your own risk!\") end").c_str());
-//            _execSimpleString_safe_lua(L,(std::string("os.execute=function() sim.addLog(sim.verbosity_errors,\"'os.execute' has been disabled for your safety. You can enabled it and every other unsafe function with 'executeUnsafe=true' in ")+tmp+", at your own risk!\") end").c_str());
-//        }
     }
 
     return(_interpreterState!=nullptr);

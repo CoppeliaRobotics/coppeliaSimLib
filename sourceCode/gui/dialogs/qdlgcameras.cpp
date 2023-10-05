@@ -103,18 +103,18 @@ void CQDlgCameras::refresh()
 
         bool duringSim,duringRec;
         int renderMode=it->getRenderMode(&duringSim,&duringRec);
-        ui->qqRenderModeCombo->addItem("OpenGL",QVariant(0));
+        ui->qqRenderModeCombo->addItem("Legacy OpenGL",QVariant(0));
         if (renderMode==sim_rendermode_extrenderer)
         {
             ui->qqRenderModeCombo->addItem("External renderer (deprecated)",QVariant(1));
             ui->qqRenderModeCombo->addItem("External renderer during simulation (deprecated)",QVariant(2));
             ui->qqRenderModeCombo->addItem("External renderer during simulation and recording (deprecated)",QVariant(3));
         }
-        ui->qqRenderModeCombo->addItem(IDS_OPENGL3,QVariant(4));
-        ui->qqRenderModeCombo->addItem(IDS_OPENGL3_DURING_SIMULATION,QVariant(5));
-        ui->qqRenderModeCombo->addItem(IDS_OPENGL3_DURING_SIMULATION_AND_RECORDING,QVariant(6));
-        ui->qqRenderModeCombo->addItem(IDS_RAY_TRACING_DURING_SIMULATION,QVariant(7));
-        ui->qqRenderModeCombo->addItem(IDS_RAY_TRACING_DURING_SIMULATION_AND_RECORDING,QVariant(8));
+        ui->qqRenderModeCombo->addItem("OpenGL 3",QVariant(4));
+        ui->qqRenderModeCombo->addItem("OpenGL 3 (simulation)",QVariant(5));
+        ui->qqRenderModeCombo->addItem("OpenGL 3 (simulation & video recording)",QVariant(6));
+        ui->qqRenderModeCombo->addItem("POV-Ray (simulation)",QVariant(7));
+        ui->qqRenderModeCombo->addItem("POV-Ray (simulation & video recording)",QVariant(8));
 
         // Select current item:
         for (int i=0;i<ui->qqRenderModeCombo->count();i++)

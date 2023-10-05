@@ -843,6 +843,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.boolparam_calcmodules_toolbarbutton_enabled",sim_boolparam_calcmodules_toolbarbutton_enabled},
     {"sim.boolparam_rosinterface_donotrunmainscript",sim_boolparam_rosinterface_donotrunmainscript},
     {"sim.boolparam_rayvalid",sim_boolparam_rayvalid},
+    {"sim.boolparam_execunsafe",sim_boolparam_execunsafe},
+    {"sim.boolparam_execunsafeext",sim_boolparam_execunsafeext},
 
     // Integer parameters:
     {"sim.intparam_error_report_mode",sim_intparam_error_report_mode},

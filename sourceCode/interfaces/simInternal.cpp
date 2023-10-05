@@ -2762,6 +2762,22 @@ int simGetBoolParam_internal(int parameter)
             return(retVal);
         }
 
+        if (parameter==sim_boolparam_execunsafe)
+        {
+            int retVal=0;
+            if (App::userSettings->executeUnsafe)
+                retVal=1;
+            return(retVal);
+        }
+
+        if (parameter==sim_boolparam_execunsafeext)
+        {
+            int retVal=0;
+            if (App::userSettings->executeUnsafeExt)
+                retVal=1;
+            return(retVal);
+        }
+
         if (parameter==sim_boolparam_scene_and_model_load_messages)
         { // deprecated
             return(0);
@@ -10842,11 +10858,23 @@ int simIsDynamicallyEnabled_internal(int objectHandle)
             return(-1);
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal=0;
+        if (it->getObjectType()==sim_object_shape_type)
+        {
+            CShape* shape=(CShape*)it;
+            if (it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisdynamicallysimulated)
+                retVal=1;
+        }
         if (it->getObjectType()==sim_object_joint_type)
         {
             CJoint* joint=(CJoint*)it;
             if ( (joint->getJointMode()==sim_jointmode_dynamic)&&(it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisdynamicallysimulated) )
                 retVal=1; // we do not consider a joint dyn. enabled when in deprecated hybrid mode
+        }
+        if (it->getObjectType()==sim_object_forcesensor_type)
+        {
+            CForceSensor* shape=(CForceSensor*)it;
+            if (it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisdynamicallysimulated)
+                retVal=1;
         }
         return(retVal);
     }

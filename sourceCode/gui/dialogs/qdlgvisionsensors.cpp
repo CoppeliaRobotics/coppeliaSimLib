@@ -109,12 +109,14 @@ void CQDlgVisionSensors::refresh()
         if (it->getRenderMode()==sim_rendermode_auxchannels) // deprecated
             ui->qqRenderModeCombo->addItem("Legacy OpenGL (deprecated)",QVariant(sim_rendermode_auxchannels));
         ui->qqRenderModeCombo->addItem("Legacy OpenGL, color coded handles",QVariant(sim_rendermode_colorcoded));
-        ui->qqRenderModeCombo->addItem(IDS_RAY_TRACING,QVariant(sim_rendermode_povray));
+        ui->qqRenderModeCombo->addItem("POV-Ray",QVariant(sim_rendermode_povray));
         if (it->getRenderMode()==sim_rendermode_extrenderer) // deprecated
             ui->qqRenderModeCombo->addItem("External renderer (deprecated)",QVariant(sim_rendermode_extrenderer));
-        ui->qqRenderModeCombo->addItem(IDS_OPENGL3,QVariant(sim_rendermode_opengl3));
+        ui->qqRenderModeCombo->addItem("OpenGL 3",QVariant(sim_rendermode_opengl3));
+        /* for now
         ui->qqRenderModeCombo->addItem("OpenGL",QVariant(sim_rendermode_oglimg));
         ui->qqRenderModeCombo->addItem("OpenGL, color coded handles",QVariant(sim_rendermode_codedimg));
+        */
 
         // Select current item:
         for (int i=0;i<ui->qqRenderModeCombo->count();i++)
