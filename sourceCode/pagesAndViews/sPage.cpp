@@ -909,7 +909,7 @@ bool CSPage::doubleClickActionForView(size_t viewIndex)
             cmd.intParams.push_back(int(viewIndex));
             cmd.intParams.push_back(0);
             cmd.boolParams.push_back(false);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
             return(true);
         }
         // We can now also swap some of the regular views with the main view (since 1/11/2014):
@@ -923,7 +923,7 @@ bool CSPage::doubleClickActionForView(size_t viewIndex)
                 cmd.intParams.push_back(int(viewIndex));
                 cmd.intParams.push_back(0);
                 cmd.boolParams.push_back(false);
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
                 return(true);
             }
         }
@@ -1126,7 +1126,7 @@ void CSPage::leftMouseButtonUp(int x,int y)
             SSimulationThreadCommand cmd;
             cmd.cmdId=CLOSE_FLOATING_VIEW_CMD;
             cmd.intParams.push_back(viewIndexOfResizingAction);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         auxViewResizingAction=-1;
     }

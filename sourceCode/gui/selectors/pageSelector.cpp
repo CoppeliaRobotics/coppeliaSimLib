@@ -277,8 +277,8 @@ void CPageSelector::leftMouseButtonUp(int x,int y)
         int bufferInd2=getPageIndexInViewSelection(mouseRelativePosition);
         if ( (bufferInd1==bufferInd2)&&(bufferInd1!=-1) )
         { // Mouse went down and up on the same item:
-            GuiApp::appendSimulationThreadCommand(SET_ACTIVEPAGE_GUITRIGGEREDCMD,bufferInd1);
-            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(SET_ACTIVEPAGE_GUITRIGGEREDCMD,bufferInd1);
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             GuiApp::mainWindow->oglSurface->setPageSelectionActive(false);
         }
     }

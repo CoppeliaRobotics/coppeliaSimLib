@@ -193,9 +193,9 @@ void CQDlgScripts::onDeletePressed()
         if ( (focusWidget()==ui->qqScriptList)&&App::currentWorld->simulation->isSimulationStopped() )
         {
             int scriptID=getSelectedObjectID();
-            GuiApp::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,scriptID);
-            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,scriptID);
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -222,7 +222,7 @@ void CQDlgScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem *item)
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=OPEN_SCRIPT_EDITOR_CMD;
                 cmd.intParams.push_back(it->getScriptHandle());
-                GuiApp::appendSimulationThreadCommand(cmd);
+                App::appendSimulationThreadCommand(cmd);
             }
         }
     }
@@ -233,10 +233,10 @@ void CQDlgScripts::on_qqDisabled_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         int scriptID=getSelectedObjectID();
-        GuiApp::appendSimulationThreadCommand(TOGGLE_DISABLED_SCRIPTGUITRIGGEREDCMD,scriptID);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(TOGGLE_DISABLED_SCRIPTGUITRIGGEREDCMD,scriptID);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
     }
 }
 
@@ -245,9 +245,9 @@ void CQDlgScripts::on_qqExecuteOnce_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         int scriptID=getSelectedObjectID();
-        GuiApp::appendSimulationThreadCommand(TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD,scriptID);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD,scriptID);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -262,9 +262,9 @@ void CQDlgScripts::on_qqExecutionOrder_currentIndexChanged(int index)
             if (objectId!=-1)
             {
                 int executionOrder=ui->qqExecutionOrder->itemData(ui->qqExecutionOrder->currentIndex()).toInt();
-                GuiApp::appendSimulationThreadCommand(SET_EXECORDER_SCRIPTGUITRIGGEREDCMD,objectId,executionOrder);
-                GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-                GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+                App::appendSimulationThreadCommand(SET_EXECORDER_SCRIPTGUITRIGGEREDCMD,objectId,executionOrder);
+                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
             }
         }
     }
@@ -290,9 +290,9 @@ void CQDlgScripts::on_qqTreeTraversalDirection_currentIndexChanged(int index)
         {
             int scriptID=getSelectedObjectID();
             int treeTraversalDirection=ui->qqTreeTraversalDirection->itemData(ui->qqTreeTraversalDirection->currentIndex()).toInt();
-            GuiApp::appendSimulationThreadCommand(SET_TREETRAVERSALDIR_SCRIPTGUITRIGGEREDCMD,scriptID,treeTraversalDirection);
-            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(SET_TREETRAVERSALDIR_SCRIPTGUITRIGGEREDCMD,scriptID,treeTraversalDirection);
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }

@@ -18,7 +18,6 @@
 #include <oglSurface.h>
 #include <editModeContainer.h>
 #include <codeEditorContainer.h>
-#include <simThread.h>
 #include <modelFolderWidget.h>
 #include <modelListWidget.h>
 

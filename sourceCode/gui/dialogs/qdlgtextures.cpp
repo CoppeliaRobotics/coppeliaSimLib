@@ -315,10 +315,10 @@ void CQDlgTextures::_setTextureConfig(int index)
         if (index>=3)
             newVal*=degToRad;
         cmd.doubleParams.push_back(newVal);
-        GuiApp::appendSimulationThreadCommand(cmd);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
     }
-    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgTextures::_setTextureScaling(int index)
@@ -335,10 +335,10 @@ void CQDlgTextures::_setTextureScaling(int index)
         cmd.intParams.push_back(_objID2);
         cmd.intParams.push_back(index);
         cmd.doubleParams.push_back(newVal);
-        GuiApp::appendSimulationThreadCommand(cmd);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
     }
-    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgTextures::_setTextureBooleanProperty(int index)
@@ -351,9 +351,9 @@ void CQDlgTextures::_setTextureBooleanProperty(int index)
     cmd.intParams.push_back(_objID1);
     cmd.intParams.push_back(_objID2);
     cmd.intParams.push_back(index);
-    GuiApp::appendSimulationThreadCommand(cmd);
-    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(cmd);
+    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgTextures::cancelEvent() // this was empty before VDialog wrap thing
@@ -491,9 +491,9 @@ void CQDlgTextures::on_qqRemoveSelect_clicked()
         cmd.intParams.push_back(_objID1);
         cmd.intParams.push_back(_objID2);
         cmd.intParams.push_back(tObject);
-        GuiApp::appendSimulationThreadCommand(cmd);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -513,7 +513,7 @@ void CQDlgTextures::on_qqLoad_clicked()
                 int scaleTo=0;
                 if (dlg.scale)
                     scaleTo=dlg.scaleTo;
-                GuiApp::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD,DIRECTORY_ID_TEXTURE,-1,0.0,0.0,App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
+                App::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD,DIRECTORY_ID_TEXTURE,-1,0.0,0.0,App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
                 int resX,resY,n;
                 unsigned char* data=CImageLoaderSaver::load(filenameAndPath.c_str(),&resX,&resY,&n,0,scaleTo);
                 if ( (n<3)||(n>4) )
@@ -551,9 +551,9 @@ void CQDlgTextures::on_qqLoad_clicked()
                     cmd.intParams.push_back(n);
                     cmd.uint8Params.assign(data,data+n*resX*resY);
                     cmd.stringParams.push_back(App::folders->getNameFromFull(filenameAndPath.c_str()).c_str());
-                    GuiApp::appendSimulationThreadCommand(cmd);
-                    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-                    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+                    App::appendSimulationThreadCommand(cmd);
+                    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+                    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
                 }
             }
         }
@@ -573,9 +573,9 @@ void CQDlgTextures::on_qqMapMode_currentIndexChanged(int index)
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);
             cmd.intParams.push_back(mode);
-            GuiApp::appendSimulationThreadCommand(cmd);
-            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }
@@ -593,9 +593,9 @@ void CQDlgTextures::on_qqApplyMode_currentIndexChanged(int index)
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);
             cmd.intParams.push_back(mode);
-            GuiApp::appendSimulationThreadCommand(cmd);
-            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
     }
 }

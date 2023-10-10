@@ -72,39 +72,39 @@ void CQDlgSettings::refresh()
 
 void CQDlgSettings::on_translationStepSize_activated(int index)
 {
-    GuiApp::appendSimulationThreadCommand(SET_TRANSLATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,double(ui->translationStepSize->itemData(index).toInt())/1000.0);
-    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(SET_TRANSLATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,double(ui->translationStepSize->itemData(index).toInt())/1000.0);
+    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgSettings::on_rotationStepSize_activated(int index)
 {
-    GuiApp::appendSimulationThreadCommand(SET_ROTATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,double(ui->rotationStepSize->itemData(index).toInt())*degToRad);
-    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(SET_ROTATIONSTEPSIZE_USERSETTINGSGUITRIGGEREDCMD,-1,-1,double(ui->rotationStepSize->itemData(index).toInt())*degToRad);
+    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgSettings::on_worldReference_clicked()
 {
-    GuiApp::appendSimulationThreadCommand(TOGGLE_SHOWWORLDREF_USERSETTINGSGUITRIGGEREDCMD);
-    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(TOGGLE_SHOWWORLDREF_USERSETTINGSGUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgSettings::on_undoRedo_clicked()
 {
-    GuiApp::appendSimulationThreadCommand(TOGGLE_UNDOREDO_USERSETTINGSGUITRIGGEREDCMD);
-    GuiApp::appendSimulationThreadCommand(REFRESH_TOOLBARS_GUITRIGGEREDCMD);
-    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(TOGGLE_UNDOREDO_USERSETTINGSGUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(REFRESH_TOOLBARS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgSettings::on_hideConsole_clicked()
 {
-    GuiApp::appendSimulationThreadCommand(TOGGLE_HIDECONSOLE_USERSETTINGSGUITRIGGEREDCMD);
-    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(TOGGLE_HIDECONSOLE_USERSETTINGSGUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 void CQDlgSettings::on_qqAutoSave_clicked()
 {
-    GuiApp::appendSimulationThreadCommand(TOGGLE_AUTOSAVE_USERSETTINGSGUITRIGGEREDCMD);
-    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(TOGGLE_AUTOSAVE_USERSETTINGSGUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 
@@ -153,7 +153,7 @@ void CQDlgSettings::on_qqAdjustOpenGl_clicked()
 //            cmd.boolParams.push_back(theDialog.forceExt);
 //            cmd.intParams.push_back(theDialog.glVersionMajor);
 //            cmd.intParams.push_back(theDialog.glVersionMinor);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
     }
 }
@@ -176,6 +176,6 @@ int CQDlgSettings::_getIndexOfComboboxItemWithData(QComboBox* theBox,int itemDat
 
 void CQDlgSettings::on_qqHideHierarchy_clicked()
 {
-    GuiApp::appendSimulationThreadCommand(TOGGLE_HIDEHIERARCHY_USERSETTINGSGUITRIGGEREDCMD);
-    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(TOGGLE_HIDEHIERARCHY_USERSETTINGSGUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }

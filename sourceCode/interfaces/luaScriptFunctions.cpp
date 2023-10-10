@@ -13462,20 +13462,6 @@ int _simAuxFunc(luaWrap_lua_State* L)
             }
             LUA_END(0);
         }
-        if (cmd.compare("enableRendering")==0)
-        {
-            #ifdef SIM_WITH_GUI
-                GuiApp::simThread->setRenderingAllowed(true);
-            #endif
-            LUA_END(0);
-        }
-        if (cmd.compare("disableRendering")==0)
-        {
-            #ifdef SIM_WITH_GUI
-                GuiApp::simThread->setRenderingAllowed(false);
-            #endif
-            LUA_END(0);
-        }
         if (cmd.compare("curveToClipboard")==0)
         {
             if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_number,0,lua_arg_string,0))
@@ -14010,9 +13996,7 @@ int _simHandleExtCalls(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("sim.handleExtCalls");
-    #ifdef SIM_WITH_GUI
-        GuiApp::simThread->handleExtCalls();
-    #endif
+    App::simThread->handleExtCalls();
     LUA_END(0);
 }
 

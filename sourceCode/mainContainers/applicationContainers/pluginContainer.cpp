@@ -442,7 +442,7 @@ bool CPluginContainer::selectExtRenderer(int index)
                 if (VThread::isSimThread())
                     currentPovRayPlugin=_tryToLoadPluginOnce(SIMPOVRAY_DEFAULT);
                 else
-                    GuiApp::appendSimulationThreadCommand(SELECT_RENDERER_CMD,index);
+                    App::appendSimulationThreadCommand(SELECT_RENDERER_CMD,index);
             #else
                 currentPovRayPlugin=_tryToLoadPluginOnce(SIMPOVRAY_DEFAULT);
             #endif
@@ -457,7 +457,7 @@ bool CPluginContainer::selectExtRenderer(int index)
                 if (VThread::isSimThread())
                     currentOpenGl3Plugin=_tryToLoadPluginOnce(SIMOPENGL3_DEFAULT);
                 else
-                    GuiApp::appendSimulationThreadCommand(SELECT_RENDERER_CMD,index);
+                    App::appendSimulationThreadCommand(SELECT_RENDERER_CMD,index);
             #else
                 currentOpenGl3Plugin=_tryToLoadPluginOnce(SIMOPENGL3_DEFAULT);
             #endif

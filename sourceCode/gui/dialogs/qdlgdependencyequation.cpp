@@ -89,8 +89,8 @@ void CQDlgDependencyEquation::refresh()
 
 void CQDlgDependencyEquation::on_qqClose_clicked(QAbstractButton *button)
 {
-    GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-    GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     defaultModalDialogEndRoutine(true);
 }
 
@@ -106,7 +106,7 @@ void CQDlgDependencyEquation::on_qqOffset_editingFinished()
         if (ok&&(it!=nullptr))
         {
             it->setDependencyJointOffset(newVal); // we also modify the ui resources (dlg is modal)
-            GuiApp::appendSimulationThreadCommand(SET_OFFFSET_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_OFFFSET_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
             // scene change announcement at the end of this modal dlg
         }
         refresh();
@@ -125,7 +125,7 @@ void CQDlgDependencyEquation::on_qqCoeff_editingFinished()
         if (ok&&(it!=nullptr))
         {
             it->setDependencyJointMult(newVal); // we also modify the ui resources (dlg is modal)
-            GuiApp::appendSimulationThreadCommand(SET_MULTFACT_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_MULTFACT_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
             // scene change announcement at the end of this modal dlg
         }
         refresh();
@@ -143,7 +143,7 @@ void CQDlgDependencyEquation::on_qqCombo_currentIndexChanged(int index)
             if (it!=nullptr)
             {
                 it->setDependencyMasterJointHandle(objID); // we also modify the ui resources (dlg is modal)
-                GuiApp::appendSimulationThreadCommand(SET_OTHERJOINT_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),objID);
+                App::appendSimulationThreadCommand(SET_OTHERJOINT_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),objID);
                 // scene change announcement at the end of this modal dlg
             }
             refresh();

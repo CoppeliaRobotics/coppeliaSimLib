@@ -37,19 +37,20 @@ public:
     virtual ~CSimThread();
     void handleExtCalls();
     void executeMessages();
-    void setRenderingAllowed(bool a);
     void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
 
 private:
     QEventLoop _eventLoop;
-    bool _renderingAllowed;
     void _handleSimulationThreadCommands();
     void _executeSimulationThreadCommand(SSimulationThreadCommand cmd);
 
-    VMutex _simulationThreadCommandsMutex;
     std::vector<SSimulationThreadCommand> _simulationThreadCommands_tmp;
     std::vector<SSimulationThreadCommand> _simulationThreadCommands;
-    void _handleClickRayIntersection_old(SSimulationThreadCommand cmd);
     void _handleAutoSaveSceneCommand(SSimulationThreadCommand cmd);
-    bool _renderRequired();
+    #ifdef SIM_WITH_GUI
+        void _handleClickRayIntersection_old(SSimulationThreadCommand cmd);
+        bool _renderRequired();
+
+        VMutex _mutex;
+    #endif
 };

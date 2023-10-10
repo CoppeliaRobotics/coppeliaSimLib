@@ -2002,7 +2002,7 @@ int simSetBoolParam_internal(int parameter,bool boolState)
                 {
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=EXIT_REQUEST_CMD;
-                    GuiApp::appendSimulationThreadCommand(cmd);
+                    App::appendSimulationThreadCommand(cmd);
                     return(1);
                 }
             #else
@@ -3290,7 +3290,7 @@ int simSetInt32Param_internal(int parameter,int intState)
         if (parameter==sim_intparam_scene_index)
         {
 #ifdef SIM_WITH_GUI
-            GuiApp::appendSimulationThreadCommand(SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD,intState);
+            App::appendSimulationThreadCommand(SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD,intState);
 #else
             App::worldContainer->switchToWorld(intState);
 #endif
@@ -9423,7 +9423,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
                             cmd.cmdId=SET_SHAPE_SHADING_ANGLE_CMD;
                             cmd.intParams.push_back(shape->getObjectHandle());
                             cmd.doubleParams.push_back(parameter);
-                            GuiApp::appendSimulationThreadCommand(cmd);
+                            App::appendSimulationThreadCommand(cmd);
                         #endif
                     }
                     retVal=1;
@@ -9446,7 +9446,7 @@ int simSetObjectFloatParam_internal(int objectHandle,int parameterID,double para
                             cmd.cmdId=SET_SHAPE_EDGE_ANGLE_CMD;
                             cmd.intParams.push_back(shape->getObjectHandle());
                             cmd.doubleParams.push_back(parameter);
-                            GuiApp::appendSimulationThreadCommand(cmd);
+                            App::appendSimulationThreadCommand(cmd);
                         #endif
                     }
                     retVal=1;
@@ -11359,7 +11359,7 @@ void simQuitSimulator_internal(bool ignoredArgument)
     #ifdef SIM_WITH_GUI
         SSimulationThreadCommand cmd;
         cmd.cmdId=EXIT_REQUEST_CMD;
-        GuiApp::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(cmd);
     #else
         App::postExitRequest();
     #endif

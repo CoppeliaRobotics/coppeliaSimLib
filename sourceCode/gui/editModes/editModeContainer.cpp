@@ -441,7 +441,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -521,7 +521,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -564,7 +564,7 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -600,7 +600,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -623,7 +623,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -646,7 +646,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -669,7 +669,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -692,7 +692,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -709,7 +709,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -728,7 +728,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -751,7 +751,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -768,7 +768,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -785,7 +785,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -808,7 +808,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -820,7 +820,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
             if (_shapeEditMode->getEditModeType()&TRIANGLE_EDIT_MODE)
                 _shapeEditMode->flipTriangles();
             deselectEditModeBuffer();
-            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
         return(true);
     }
@@ -863,7 +863,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         IF_UI_EVENT_CAN_READ_DATA // no write here
         {
             _shapeEditMode->makeDummies();
-            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
         return(true);
     }
@@ -873,7 +873,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         IF_UI_EVENT_CAN_READ_DATA // no write here!!
         {
             _shapeEditMode->insertTriangles();
-            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
         return(true);
     }
@@ -883,7 +883,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         IF_UI_EVENT_CAN_READ_DATA // no write here!!
         {
             _shapeEditMode->subdivideTriangles();
-            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
         return(true);
     }
@@ -893,7 +893,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         IF_UI_EVENT_CAN_READ_DATA // no write here!!
         {
             _shapeEditMode->insertTriangleFan();
-            GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
         return(true);
     }
@@ -926,7 +926,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
-            GuiApp::appendSimulationThreadCommand(commandID);
+            App::appendSimulationThreadCommand(commandID);
         }
         return(true);
     }
@@ -950,7 +950,7 @@ bool CEditModeContainer::_processMultishapeEditModeCommand(int commandID)
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -976,7 +976,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -996,7 +996,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1016,7 +1016,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1036,7 +1036,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1060,7 +1060,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
             cmd.objectParams.push_back(viewableObject);
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1080,7 +1080,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1100,7 +1100,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1120,7 +1120,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1128,7 +1128,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
     if (commandID==PATH_EDIT_MODE_OLD_MAKE_DUMMIES_FROM_PATH_CTRL_POINTS_EMCMD)
     {
         _pathEditMode->makeDummies();
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         return(true);
     }
 
@@ -1147,7 +1147,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1173,7 +1173,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }
@@ -1207,7 +1207,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObj
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
             cmd.cmdId=commandID;
-            GuiApp::appendSimulationThreadCommand(cmd);
+            App::appendSimulationThreadCommand(cmd);
         }
         return(true);
     }

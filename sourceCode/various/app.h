@@ -4,6 +4,7 @@
 #include <userSettings.h>
 #include <worldContainer.h>
 #include <sigHandler.h>
+#include <simThread.h>
 #include <gm.h>
 #ifndef SIM_WITH_GUI
     #include <simQApp.h>
@@ -38,6 +39,9 @@ public:
     static std::string getApplicationDir();
     static void postExitRequest();
     static bool getExitRequest();
+
+    static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,double floatP1=0.0,double floatP2=0.0,const char* stringP1=nullptr,const char* stringP2=nullptr,int executionDelay=0);
+    static void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
 
     static std::string getApplicationArgument(int index);
     static void setApplicationArgument(int index,std::string arg);
@@ -78,6 +82,7 @@ public:
 
     static CFolderSystem* folders;
     static CUserSettings* userSettings;
+    static CSimThread* simThread;
     static CWorldContainer* worldContainer;
     static CWorld* currentWorld; // actually worldContainer->currentWorld
     static CGm* gm;

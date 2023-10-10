@@ -137,7 +137,7 @@ CMainWindow::CMainWindow(int operationalUiParts) : QMainWindow()
             cmd.intParams.push_back(sim_msgbox_type_warning);
             cmd.stringParams.push_back("Model folder not found");
             cmd.stringParams.push_back(IDSNS_MAC_FILE_ATTRIBUTE_PROBLEM);
-            GuiApp::appendSimulationThreadCommand(cmd,5000);
+            App::appendSimulationThreadCommand(cmd,5000);
         }
     #endif
 
@@ -1172,42 +1172,9 @@ void CMainWindow::dragEnterEvent(QDragEnterEvent* dEvent)
         SSimulationThreadCommand cmd;
         cmd.cmdId=DRAGENTER_GUITRIGGEREDCMD;
         cmd.stringParams.push_back(_mimeText);
-        GuiApp::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(cmd);
         dEvent->acceptProposedAction();
     }
-/*
-    if (dEvent->mimeData()->hasUrls())
-    {
-        printf("Enter: %s\n",dEvent->mimeData()->text().toStdString().c_str());
-        QStringList pathList;
-        QList<QUrl> urlList=dEvent->mimeData()->urls();
-        if (urlList.size()>0)
-        {
-            int sceneCnt=0;
-            int modelCnt=0;
-            int fileCnt=0;
-            for (int i=0;i<urlList.size()&&(i<100);++i)
-            {
-                std::string pathFile=urlList.at(i).toLocalFile().toStdString();
-                std::string extension(VVarious::splitPath_fileExtension(pathFile.c_str()));
-
-                if (extension.compare(SIM_SCENE_EXTENSION)==0)
-                    sceneCnt++;
-                else
-                    sceneCnt+=CSimFlavor::getIntVal_str(1,extension.c_str());
-                if (extension.compare(SIM_MODEL_EXTENSION)==0)
-                    modelCnt++;
-                else
-                    modelCnt+=CSimFlavor::getIntVal_str(2,extension.c_str());
-                fileCnt++;
-            }
-            if ( (fileCnt==sceneCnt)&&(sceneCnt>0) )
-                dEvent->acceptProposedAction();
-            if ( (fileCnt==modelCnt)&&(modelCnt>0) )
-                dEvent->acceptProposedAction();
-        }
-    }
-    */
 }
 
 void CMainWindow::dragLeaveEvent(QDragLeaveEvent* dEvent)
@@ -1217,7 +1184,7 @@ void CMainWindow::dragLeaveEvent(QDragLeaveEvent* dEvent)
         SSimulationThreadCommand cmd;
         cmd.cmdId=DRAGLEAVE_GUITRIGGEREDCMD;
         cmd.stringParams.push_back(_mimeText);
-        GuiApp::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(cmd);
         _mimeText.clear();
     }
 }
@@ -1229,7 +1196,7 @@ void CMainWindow::dropEvent(QDropEvent* dEvent)
         SSimulationThreadCommand cmd;
         cmd.cmdId=DRAGDROP_GUITRIGGEREDCMD;
         cmd.stringParams.push_back(_mimeText);
-        GuiApp::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(cmd);
         _mimeText.clear();
     }
 }

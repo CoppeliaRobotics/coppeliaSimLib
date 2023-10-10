@@ -393,9 +393,9 @@ bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit,int index)
         cmd.intParams.push_back(App::currentWorld->sceneObjects->getLastSelectionHandle());
         cmd.intParams.push_back(coordMode);
         cmd.transfParams.push_back(tr);
-        GuiApp::appendSimulationThreadCommand(cmd);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
     if ( (editMode&PATH_EDIT_MODE_OLD)&&(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0)&&(GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
     {
@@ -462,9 +462,9 @@ bool CQDlgTranslation::_applyCoord(int mask)
             cmd.intParams.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
         cmd.intParams.push_back(coordMode);
         cmd.intParams.push_back(mask);
-        GuiApp::appendSimulationThreadCommand(cmd);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
     if ( (editMode&PATH_EDIT_MODE_OLD)&&(editObjSelSize>1)&&(GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
     {
@@ -565,9 +565,9 @@ bool CQDlgTranslation::_applyTranslation(int axis)
         cmd.doubleParams.push_back(TX[0]);
         cmd.doubleParams.push_back(TX[1]);
         cmd.doubleParams.push_back(TX[2]);
-        GuiApp::appendSimulationThreadCommand(cmd);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
     if ( (editMode&PATH_EDIT_MODE_OLD)&&(editObjSelSize>0)&&(GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
     {
@@ -643,9 +643,9 @@ bool CQDlgTranslation::_applyScaling(int axis)
         cmd.doubleParams.push_back(0.0);
         cmd.doubleParams.push_back(0.0);
         cmd.doubleParams.push_back(0.0);
-        GuiApp::appendSimulationThreadCommand(cmd);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(cmd);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
     if ( (editMode&PATH_EDIT_MODE_OLD)&&(editObjSelSize>0)&&(GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()!=nullptr) )
     {
@@ -1065,9 +1065,9 @@ void CQDlgTranslation::on_qqPosWorld_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        GuiApp::appendSimulationThreadCommand(SET_POSRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),0);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(SET_POSRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),0);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -1075,9 +1075,9 @@ void CQDlgTranslation::on_qqPosParent_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        GuiApp::appendSimulationThreadCommand(SET_POSRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),1);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(SET_POSRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),1);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -1085,9 +1085,9 @@ void CQDlgTranslation::on_qqPosOwn_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        GuiApp::appendSimulationThreadCommand(SET_POSRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),2);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(SET_POSRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),2);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -1107,10 +1107,10 @@ void CQDlgTranslation::on_qqPosX_clicked()
             if (low==0)
                 low=1;
             permission=low+high;
-            GuiApp::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
-            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -1130,10 +1130,10 @@ void CQDlgTranslation::on_qqPosY_clicked()
             if (low==0)
                 low=2;
             permission=low+high;
-            GuiApp::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
-            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -1153,10 +1153,10 @@ void CQDlgTranslation::on_qqPosZ_clicked()
             if (low==0)
                 low=4;
             permission=low+high;
-            GuiApp::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
-            GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+            App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),permission);
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
@@ -1164,9 +1164,9 @@ void CQDlgTranslation::on_qqPosCombo_activated(int index)
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        GuiApp::appendSimulationThreadCommand(SET_POSSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,double(ui->qqPosCombo->itemData(index).toInt())/1000.0);
-        GuiApp::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        GuiApp::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(SET_POSSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,double(ui->qqPosCombo->itemData(index).toInt())/1000.0);
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }
 
