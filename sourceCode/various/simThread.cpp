@@ -198,18 +198,20 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         App::appendSimulationThreadCommand(cmd,CSimFlavor::getIntVal(4));
     }
 
-    if (cmd.cmdId==REFRESH_DIALOGS_CMD)
-    { // like a timer actually
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId=REFRESH_DIALOGS_UITHREADCMD;
-        {
-            // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
-            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    #ifdef SIM_WITH_GUI
+        if (cmd.cmdId==REFRESH_DIALOGS_CMD)
+        { // like a timer actually
+            SUIThreadCommand cmdIn;
+            SUIThreadCommand cmdOut;
+            cmdIn.cmdId=REFRESH_DIALOGS_UITHREADCMD;
+            {
+                // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
+                SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+                GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            }
+            appendSimulationThreadCommand(cmd,300);
         }
-        appendSimulationThreadCommand(cmd,300);
-    }
+    #endif
 
     if (cmd.sceneUniqueId!=App::currentWorld->environment->getSceneUniqueID())
         return;
