@@ -4336,8 +4336,7 @@ int _simStopSimulation(luaWrap_lua_State* L)
     retVal=simStopSimulation_internal();
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simPauseSimulation(luaWrap_lua_State* L)
@@ -4349,8 +4348,7 @@ int _simPauseSimulation(luaWrap_lua_State* L)
     retVal=simPauseSimulation_internal();
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simStartSimulation(luaWrap_lua_State* L)
@@ -4362,8 +4360,7 @@ int _simStartSimulation(luaWrap_lua_State* L)
     retVal=simStartSimulation_internal();
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simGetObjectMatrix(luaWrap_lua_State* L)
@@ -10478,8 +10475,7 @@ int _simAdjustView(luaWrap_lua_State* L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simCameraFitToView(luaWrap_lua_State* L)
