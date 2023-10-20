@@ -2765,7 +2765,7 @@ int simGetBoolParam_internal(int parameter)
         if (parameter==sim_boolparam_execunsafe)
         {
             int retVal=0;
-            if (App::userSettings->executeUnsafe)
+            if (App::userSettings->execUnsafe)
                 retVal=1;
             return(retVal);
         }
@@ -2773,7 +2773,7 @@ int simGetBoolParam_internal(int parameter)
         if (parameter==sim_boolparam_execunsafeext)
         {
             int retVal=0;
-            if (App::userSettings->executeUnsafeExt)
+            if (App::userSettings->execUnsafeExt)
                 retVal=1;
             return(retVal);
         }
@@ -11152,7 +11152,7 @@ int simCheckExecAuthorization_internal(const char* what,const char* args,int scr
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal=0;
-        if (App::userSettings->executeUnsafe)
+        if (App::userSettings->execUnsafe)
             retVal=1;
         else
         {
@@ -11205,7 +11205,7 @@ int simCheckExecAuthorization_internal(const char* what,const char* args,int scr
                 retVal=1;
             else
             {
-                std::string tmp("function was hindered to execute for your safety. You can enable its execution and every other unsafe function with 'executeUnsafe=true' in ");
+                std::string tmp("function was hindered to execute for your safety. You can enable its execution and every other unsafe function with 'execUnsafe=true' in ");
                 tmp+=App::folders->getUserSettingsPath()+"/usrset.txt";
                 CApiErrors::setLastWarningOrError(__func__,tmp.c_str());
             }

@@ -88,8 +88,8 @@
 #define _USR_ADDITIONAL_LUA_PATH "additionalLuaPath"
 #define _USR_ADDITIONAL_PYTHON_PATH "additionalPythonPath"
 #define _USR_DEFAULT_PYTHON "defaultPython"
-#define _USR_EXECUTE_UNSAFE "executeUnsafe"
-#define _USR_EXECUTE_UNSAFE_EXT "executeUnsafeExt"
+#define _USR_EXEC_UNSAFE "execUnsafe"
+#define _USR_EXEC_UNSAFE_EXT "execUnsafeExt"
 
 #define _USR_DIRECTORY_FOR_SCENES "defaultDirectoryForScenes"
 #define _USR_DIRECTORY_FOR_MODELS "defaultDirectoryForModels"
@@ -352,8 +352,8 @@ CUserSettings::CUserSettings()
     additionalLuaPath="";
     additionalPythonPath="";
     defaultPython="";
-    executeUnsafe=true;
-    executeUnsafeExt=false;
+    execUnsafe=true;
+    execUnsafeExt=false;
 
     desktopRecordingIndex=0;
     desktopRecordingWidth=-1;
@@ -702,8 +702,8 @@ void CUserSettings::saveUserSettings(bool outputMsgs/*=true*/)
         c.addString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath,"e.g. d:/myLuaRoutines");
         c.addString(_USR_ADDITIONAL_PYTHON_PATH,additionalPythonPath,"e.g. d:/myPythonRoutines");
         c.addString(_USR_DEFAULT_PYTHON,defaultPython,"e.g. c:/Python38/python.exe");
-        c.addBoolean(_USR_EXECUTE_UNSAFE,executeUnsafe,"");
-        c.addBoolean(_USR_EXECUTE_UNSAFE_EXT,executeUnsafeExt,"same as above, but for code triggered externally. Recommended to keep false.");
+        c.addBoolean(_USR_EXEC_UNSAFE,execUnsafe,"");
+        c.addBoolean(_USR_EXEC_UNSAFE_EXT,execUnsafeExt,"same as above, but for code triggered externally. Recommended to keep false.");
         //c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
         //c.addInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth,"-1=default.");
         c.addString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditor,"");
@@ -992,8 +992,8 @@ void CUserSettings::loadUserSettings()
     c.getString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath);
     c.getString(_USR_ADDITIONAL_PYTHON_PATH,additionalPythonPath);
     c.getString(_USR_DEFAULT_PYTHON,defaultPython);
-    c.getBoolean(_USR_EXECUTE_UNSAFE,executeUnsafe);
-    c.getBoolean(_USR_EXECUTE_UNSAFE_EXT,executeUnsafeExt);
+    c.getBoolean(_USR_EXEC_UNSAFE,execUnsafe);
+    c.getBoolean(_USR_EXEC_UNSAFE_EXT,execUnsafeExt);
     c.getInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex);
     c.getInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth);
     c.getBoolean(_USR_FORCE_BUG_FIX_REL_30002,forceBugFix_rel30002);

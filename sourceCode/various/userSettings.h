@@ -105,8 +105,8 @@ public:
     std::string additionalLuaPath;
     std::string additionalPythonPath;
     std::string defaultPython;
-    bool executeUnsafe;
-    bool executeUnsafeExt;
+    bool execUnsafe;
+    bool execUnsafeExt;
 
     int guiFontSize_Win;
     int guiFontSize_Mac;
