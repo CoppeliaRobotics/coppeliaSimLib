@@ -10475,6 +10475,7 @@ int _simAdjustView(luaWrap_lua_State* L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
     LUA_END(0);
 }
 
