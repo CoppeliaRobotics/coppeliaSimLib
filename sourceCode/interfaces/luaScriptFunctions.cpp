@@ -219,7 +219,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.saveModel",_simSaveModel},
     {"sim.getObjectSel",_simGetObjectSel},
     {"sim.setObjectSel",_simSetObjectSel},
-    {"sim.getIsRealTimeSimulation",_simGetRealTimeSimulation},
+    {"sim.getRealTimeSimulation",_simGetRealTimeSimulation},
     {"sim.setNavigationMode",_simSetNavigationMode},
     {"sim.getNavigationMode",_simGetNavigationMode},
     {"sim.setPage",_simSetPage},
@@ -5616,12 +5616,12 @@ int _simSetObjectSel(luaWrap_lua_State* L)
 int _simGetRealTimeSimulation(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getIsRealTimeSimulation");
+    LUA_START("sim.getRealTimeSimulation");
 
     int retVal=simGetRealTimeSimulation_internal();
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
+    luaWrap_lua_pushboolean(L,retVal);
     LUA_END(1);
 }
 
