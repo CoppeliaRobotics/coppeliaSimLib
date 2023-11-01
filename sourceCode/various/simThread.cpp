@@ -84,7 +84,7 @@ void CSimThread::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int 
     cmd.postTime=(int)VDateTime::getTimeInMs();
     cmd.execDelay=executionDelay;
     #ifdef SIM_WITH_GUI
-        _mutex.lock();
+        _mutex.lock("CSimThread::appendSimulationThreadCommand");
         _simulationThreadCommands_tmp.push_back(cmd);
         _mutex.unlock();
     #else
@@ -97,7 +97,7 @@ void CSimThread::_handleSimulationThreadCommands()
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         #ifdef SIM_WITH_GUI
-            _mutex.lock();
+            _mutex.lock("CSimThread::_handleSimulationThreadCommands");
             for (size_t i=0;i<_simulationThreadCommands_tmp.size();i++)
                 _simulationThreadCommands.push_back(_simulationThreadCommands_tmp[i]);
             _simulationThreadCommands_tmp.clear();

@@ -43,7 +43,7 @@ public:
     QMenu* createPopupMenu() { return nullptr; } // required to avoid having a popup when over the toolbar (and other situations). 4/12/2011
 
     void refreshDimensions();
-    void setWindowDimensions(int x,int y);
+    void setWindowPosAndDim(int px, int py, int sx,int sy);
     void windowResizeEvent(int x,int y);
     bool isFullScreen();
     void setFullScreen(bool f);

@@ -296,7 +296,7 @@ void CMainWindow::initializeWindow()
 {
     createDefaultMenuBar();
     _createDefaultToolBars();
-    setWindowDimensions(App::userSettings->initWindowSize[0],App::userSettings->initWindowSize[1]);
+    setWindowPosAndDim(App::userSettings->initWindowPos[0],App::userSettings->initWindowPos[1],App::userSettings->initWindowSize[0],App::userSettings->initWindowSize[1]);
 }
 
 void CMainWindow::announceScriptStateWillBeErased(int scriptHandle)
@@ -579,21 +579,24 @@ void CMainWindow::windowResizeEvent(int x,int y)
 {
     _setClientArea(x,y);
     _recomputeClientSizeAndPos();
+    // printf("Size: %i, %i\n",size().width(),size().height());
+    // printf("Pos: %i, %i\n",pos().x(),pos().y());
     //renderScene();
 }
 
-void CMainWindow::setWindowDimensions(int x,int y)
+void CMainWindow::setWindowPosAndDim(int px, int py, int sx,int sy)
 {
-    if ( (x==0)&&(y==0) )
+    if ( (sx==0)&&(sy==0) )
         showMaximized();
     else
     {
         showNormal();
         int frameWidth=0;
         int frameHeight=0;
-        x-=frameWidth;
-        y-=frameHeight;
-        resize(x,y);
+        sx-=frameWidth;
+        sy-=frameHeight;
+        resize(sx,sy);
+        move(px,py);
     }
 }
 

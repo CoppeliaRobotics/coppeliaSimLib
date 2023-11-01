@@ -9768,8 +9768,15 @@ int _simGetContactInfo(luaWrap_lua_State* L)
             pushDoubleTableOntoStack(L,3,contactInfo);
             pushDoubleTableOntoStack(L,3,contactInfo+3);
             pushDoubleTableOntoStack(L,3,contactInfo+6);
-            LUA_END(4);
         }
+        else
+        {
+            pushIntTableOntoStack(L,0,nullptr);
+            pushDoubleTableOntoStack(L,0,nullptr);
+            pushDoubleTableOntoStack(L,0,nullptr);
+            pushDoubleTableOntoStack(L,0,nullptr);
+        }
+        LUA_END(4);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -11338,7 +11345,8 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                             App::worldContainer->interfaceStackContainer->destroyStack(stack);
                             if (ss==0)
                             {
-                                pushIntTableOntoStack(L,0,nullptr);
+                                luaWrap_lua_pushnil(L);
+                                // pushIntTableOntoStack(L,0,nullptr);
                                 ss++;
                             }
                             LUA_END(ss);
@@ -11393,7 +11401,8 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                             App::worldContainer->interfaceStackContainer->destroyStack(stack);
                             if (ss==0)
                             {
-                                pushIntTableOntoStack(L,0,nullptr);
+                                luaWrap_lua_pushnil(L);
+                                // pushIntTableOntoStack(L,0,nullptr);
                                 ss++;
                             }
                             LUA_END(ss);

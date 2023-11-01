@@ -264,7 +264,7 @@ CPlugin* CPluginContainer::getPluginFromHandle(int handle)
 
 void CPluginContainer::lockInterface()
 {
-    _pluginInterfaceMutex.lock();
+    _pluginInterfaceMutex.lock("CPluginContainer::lockInterface");
 }
 
 void CPluginContainer::unlockInterface()
