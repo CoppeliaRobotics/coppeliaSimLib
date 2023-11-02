@@ -745,6 +745,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.scriptintparam_objecthandle",sim_scriptintparam_objecthandle},
     {"sim.scriptintparam_enabled",sim_scriptintparam_enabled},
     {"sim.scriptintparam_lang",sim_scriptintparam_lang},
+    {"sim.scriptintparam_autorestartonerror",sim_scriptintparam_autorestartonerror},
     {"sim.scriptstringparam_description",sim_scriptstringparam_description},
     {"sim.scriptstringparam_name",sim_scriptstringparam_name},
     {"sim.scriptstringparam_text",sim_scriptstringparam_text},
@@ -11612,12 +11613,7 @@ int _simInitScript(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int scriptHandle=luaToInt(L,1);
-        int r=simInitScript_internal(scriptHandle);
-        if (r>=0)
-        {
-            luaWrap_lua_pushboolean(L,r==1);
-            LUA_END(1);
-        }
+        simInitScript_internal(scriptHandle);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

@@ -9866,9 +9866,14 @@ int simSetScriptInt32Param_internal(int scriptHandle,int parameterID,int paramet
             it->setNumberOfPasses(parameter);
             retVal=1;
         }
-        if (parameterID==sim_scriptintparam_enabled)//&&(it->getScriptType()==sim_scripttype_childscript) )
+        if (parameterID==sim_scriptintparam_enabled)
         {
             it->setScriptIsDisabled(parameter==0);
+            retVal=1;
+        }
+        if (parameterID==sim_scriptintparam_autorestartonerror)
+        {
+            it->setAutoRestartOnError(parameter!=0);
             retVal=1;
         }
 
@@ -11089,18 +11094,9 @@ int simInitScript_internal(int scriptHandle)
         CScriptObject* it=App::worldContainer->getScriptFromHandle(scriptHandle);
         if (it!=nullptr)
         {
-            if ( (it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_customizationscript)||(it->getScriptType()==sim_scripttype_sandboxscript) )
-            {
-                it->resetScript();
-                if (it->initScript())
-                    return(1);
-                return(0);
-            }
-            else
-            {
-                CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_ILLEGAL_SCRIPT_TYPE);
-                return(-1);
-            }
+            it->resetScript();
+            it->initScript();
+            return(1);
         }
         else
         {

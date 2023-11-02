@@ -99,6 +99,7 @@ public:
     int getScriptType() const;
     void setScriptIsDisabled(bool isDisabled);
     bool getScriptIsDisabled() const;
+    void setAutoRestartOnError(bool restart);
     bool getScriptEnabledAndNoErrorRaised() const;
     void getPreviousEditionWindowPosAndSize(int posAndSize[4]) const;
     void setPreviousEditionWindowPosAndSize(const int posAndSize[4]);
@@ -245,6 +246,7 @@ protected:
     int _scriptHandle; // is unique since 25.11.2022
     int _scriptType;
     bool _scriptIsDisabled;
+    bool _autoRestartOnError;
     int _scriptState;
     int _executionDepth;
     int _treeTraversalDirection;

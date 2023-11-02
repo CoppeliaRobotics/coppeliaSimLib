@@ -68,6 +68,7 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     // ***********************************************************
 
     _scriptIsDisabled=false;
+    _autoRestartOnError=false;
     _scriptState=scriptState_unloaded;
     _flaggedForDestruction=false;
     _executionDepth=0;
@@ -1162,6 +1163,11 @@ void CScriptObject::setScriptIsDisabled(bool isDisabled)
 bool CScriptObject::getScriptIsDisabled() const
 {
     return(_scriptIsDisabled);
+}
+
+void CScriptObject::setAutoRestartOnError(bool restart)
+{
+    _autoRestartOnError=restart;
 }
 
 bool CScriptObject::getScriptEnabledAndNoErrorRaised() const
@@ -2437,6 +2443,11 @@ bool CScriptObject::_killInterpreterState()
     #ifdef SIM_WITH_GUI
         GuiApp::setRefreshHierarchyViewFlag();
     #endif
+    if ( (_scriptState & scriptState_error) && _autoRestartOnError )
+    {
+        _autoRestartOnError = false;
+        _scriptState = scriptState_unloaded;
+    }
     return(retVal);
 }
 
