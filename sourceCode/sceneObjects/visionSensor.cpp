@@ -2242,13 +2242,6 @@ void CVisionSensor::serialize(CSer& ar)
     {
         if (ar.isStoring())
         { // Storing
-#ifdef TMPOPERATION
-            ar.storeDataName("Ccp");
-            ar << (float)_orthoViewSize << (float)_viewAngle;
-            ar << (float)_nearClippingPlane << (float)_farClippingPlane;
-            ar.flush();
-#endif
-
             ar.storeDataName("_cp");
             ar << _orthoViewSize << _viewAngle;
             ar << _nearClippingPlane << _farClippingPlane;
@@ -2266,12 +2259,6 @@ void CVisionSensor::serialize(CSer& ar)
             ar.storeDataName("Db2");
             ar << _defaultBufferValues[0] << _defaultBufferValues[1] << _defaultBufferValues[2];
             ar.flush();
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Si2");
-            ar << (float)_visionSensorSize;
-            ar.flush();
-#endif
 
             ar.storeDataName("_i2");
             ar << _visionSensorSize;

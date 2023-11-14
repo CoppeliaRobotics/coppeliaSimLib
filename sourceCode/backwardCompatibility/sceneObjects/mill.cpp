@@ -250,12 +250,6 @@ void CMill::serialize(CSer& ar)
             if (ar.setWritingMode())
                 convexVolume->serialize(ar);
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Sns");
-            ar << (float)_size;
-            ar.flush();
-#endif
-
             ar.storeDataName("_ns");
             ar << _size;
             ar.flush();

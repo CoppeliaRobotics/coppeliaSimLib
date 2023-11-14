@@ -1165,13 +1165,6 @@ void CCamera::serialize(CSer& ar)
             if (_trackedObjectHandle!=-1)
                 trck=_trackedObjectHandle;
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Cp4");
-            ar << trck;
-            ar << (float)_cameraSize;
-            ar.flush();
-#endif
-
             ar.storeDataName("_p4");
             ar << trck;
             ar << _cameraSize;
@@ -1179,31 +1172,15 @@ void CCamera::serialize(CSer& ar)
 
 
             double ovs=_orthoViewSize;
-#ifdef TMPOPERATION
-            ar.storeDataName("Cp3");
-            if (_ignorePosAndCameraOrthoviewSize_forUndoRedo)
-                ovs=1.0;
-            ar << (float)ovs << (float)_viewAngle;
-            ar.flush();
-#endif
-
             ar.storeDataName("_p3");
             if (_ignorePosAndCameraOrthoviewSize_forUndoRedo)
                 ovs=1.0;
             ar << ovs << _viewAngle;
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Ccp");
-            ar << (float)_nearClippingPlane << (float)_farClippingPlane;
-            ar.flush();
-#endif
-
             ar.storeDataName("_cp");
             ar << _nearClippingPlane << _farClippingPlane;
             ar.flush();
-
 
             ar.storeDataName("Cmp"); // keep for backward compatibility (28.09.2022)
             int tmp=0;

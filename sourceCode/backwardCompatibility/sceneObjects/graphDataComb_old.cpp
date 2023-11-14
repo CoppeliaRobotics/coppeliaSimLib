@@ -144,12 +144,6 @@ void CGraphDataComb_old::serialize(CSer& ar)
             ar << data[0] << data[1] << data[2];
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("3dw");
-            ar << (float)threeDCurveWidth;
-            ar.flush();
-#endif
-
             ar.storeDataName("_dw");
             ar << threeDCurveWidth;
             ar.flush();

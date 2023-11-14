@@ -94,12 +94,6 @@ void CIkGroup_old::serialize(CSer &ar)
             ar << _maxIterations;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Dpg");
-            ar << float(_dampingFactor);
-            ar.flush();
-#endif
-
             ar.storeDataName("_pg");
             ar << _dampingFactor;
             ar.flush();

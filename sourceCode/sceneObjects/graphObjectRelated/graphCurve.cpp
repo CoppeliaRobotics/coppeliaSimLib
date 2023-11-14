@@ -460,12 +460,6 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar << _color[0] << _color[1] << _color[2];
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Dev");
-            ar << (float)_defaultVals[0] << (float)_defaultVals[1] << (float)_defaultVals[2];
-            ar.flush();
-#endif
-
             ar.storeDataName("_ev");
             ar << _defaultVals[0] << _defaultVals[1] << _defaultVals[2];
             ar.flush();
@@ -483,14 +477,6 @@ void CGraphCurve::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             SIM_SET_CLEAR_BIT(nothing,3,_isStatic);
             ar << nothing;
             ar.flush();
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Pts");
-            ar << int(_staticCurveValues.size());
-            for (int i=0;i<_staticCurveValues.size();i++)
-                ar << (float)_staticCurveValues[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_ts");
             ar << int(_staticCurveValues.size());

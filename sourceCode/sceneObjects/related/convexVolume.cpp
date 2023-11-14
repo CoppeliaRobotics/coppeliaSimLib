@@ -105,24 +105,10 @@ void CConvexVolume::serialize(CSer& ar)
             ar << _volumeType;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Ss3");
-            ar << (float)offset << (float)range << (float)xSize << (float)ySize << (float)xSizeFar << (float)ySizeFar;
-            ar << (float)radius << (float)radiusFar << (float)angle;
-            ar.flush();
-#endif
-
             ar.storeDataName("_s3");
             ar << offset << range << xSize << ySize << xSizeFar << ySizeFar;
             ar << radius << radiusFar << angle;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Sia");
-            ar << (float)insideAngleThing;
-            ar.flush();
-#endif
 
             ar.storeDataName("_ia");
             ar << insideAngleThing;
@@ -132,12 +118,6 @@ void CConvexVolume::serialize(CSer& ar)
             ar.storeDataName("Ssi");
             ar << faceNumber << faceNumberFar << subdivisions << subdivisionsFar;
             ar.flush();
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Wtf");
-            ar << (float)_smallestDistanceAllowed;
-            ar.flush();
-#endif
 
             ar.storeDataName("_tf");
             ar << _smallestDistanceAllowed;
@@ -152,28 +132,11 @@ void CConvexVolume::serialize(CSer& ar)
 
             // Following added on 2010/04/28 because recomputing those values takes long:
             //***************************************************************************
-#ifdef TMPOPERATION
-            ar.storeDataName("Nc0");
-            ar << int(planesInside.size());
-            for (int i=0;i<int(planesInside.size());i++)
-                ar << (float)planesInside[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_c0");
             ar << int(planesInside.size());
             for (int i=0;i<int(planesInside.size());i++)
                 ar << planesInside[i];
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Nc1");
-            ar << int(planesOutside.size());
-            for (int i=0;i<int(planesOutside.size());i++)
-                ar << (float)planesOutside[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_c1");
             ar << int(planesOutside.size());
@@ -181,29 +144,11 @@ void CConvexVolume::serialize(CSer& ar)
                 ar << planesOutside[i];
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Nc2");
-            ar << int(normalsInside.size());
-            for (int i=0;i<int(normalsInside.size());i++)
-                ar << (float)normalsInside[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_c2");
             ar << int(normalsInside.size());
             for (int i=0;i<int(normalsInside.size());i++)
                 ar << normalsInside[i];
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Nc3");
-            ar << int(normalsOutside.size());
-            for (int i=0;i<int(normalsOutside.size());i++)
-                ar << (float)normalsOutside[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_c3");
             ar << int(normalsOutside.size());
@@ -211,29 +156,11 @@ void CConvexVolume::serialize(CSer& ar)
                 ar << normalsOutside[i];
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Nc4");
-            ar << int(volumeEdges.size());
-            for (int i=0;i<int(volumeEdges.size());i++)
-                ar << (float)volumeEdges[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_c4");
             ar << int(volumeEdges.size());
             for (int i=0;i<int(volumeEdges.size());i++)
                 ar << volumeEdges[i];
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Nc5");
-            ar << int(nonDetectingVolumeEdges.size());
-            for (int i=0;i<int(nonDetectingVolumeEdges.size());i++)
-                ar << (float)nonDetectingVolumeEdges[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_c5");
             ar << int(nonDetectingVolumeEdges.size());

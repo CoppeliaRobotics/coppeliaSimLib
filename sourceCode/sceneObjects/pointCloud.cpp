@@ -951,35 +951,14 @@ void CPointCloud::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
-#ifdef TMPOPERATION
-            ar.storeDataName("Siz");
-            ar << (float)_cellSize;
-            ar << _pointSize;
-            ar.flush();
-#endif
-
             ar.storeDataName("_iz");
             ar << _cellSize;
             ar << _pointSize;
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Sut");
-            ar << (float)_removalDistanceTolerance;
-            ar.flush();
-#endif
-
             ar.storeDataName("_ut");
             ar << _removalDistanceTolerance;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("adt");
-            ar << (float)_insertionDistanceTolerance;
-            ar.flush();
-#endif
 
             ar.storeDataName("_dt");
             ar << _insertionDistanceTolerance;
@@ -990,23 +969,9 @@ void CPointCloud::serialize(CSer& ar)
             ar << _nonEmptyCells;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Pdr");
-            ar << (float)_pointDisplayRatio;
-            ar.flush();
-#endif
-
             ar.storeDataName("_dr");
             ar << _pointDisplayRatio;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Pcc");
-            ar << _maxPointCountPerCell;
-            ar << (float)_buildResolution;
-            ar.flush();
-#endif
 
             ar.storeDataName("_cc");
             ar << _maxPointCountPerCell;
@@ -1032,21 +997,6 @@ void CPointCloud::serialize(CSer& ar)
 
             if ( (!_saveCalculationStructure)||_doNotUseOctreeStructure )
             {
-#ifdef TMPOPERATION
-                ar.storeDataName("Pt2");
-                ar << int(_points.size()/3);
-                for (size_t i=0;i<_points.size()/3;i++)
-                {
-                    ar << (float)_points[3*i+0];
-                    ar << (float)_points[3*i+1];
-                    ar << (float)_points[3*i+2];
-                    ar << (unsigned char)(_colors[4*i+0]*255.1);
-                    ar << (unsigned char)(_colors[4*i+1]*255.1);
-                    ar << (unsigned char)(_colors[4*i+2]*255.1);
-                }
-                ar.flush();
-#endif
-
                 ar.storeDataName("_t2");
                 ar << int(_points.size()/3);
                 for (size_t i=0;i<_points.size()/3;i++)
@@ -1066,28 +1016,6 @@ void CPointCloud::serialize(CSer& ar)
                 if (_pointCloudInfo!=nullptr)
                 {
                     std::vector<unsigned char> data;
-#ifdef TMPOPERATION
-                    ar.storeDataName("Mmd");
-                    C3Vector boundingBoxMin(_bbFrame.X-_bbHalfSize);
-                    C3Vector boundingBoxMax(_bbFrame.X+_bbHalfSize);
-                    ar << (float)boundingBoxMin(0) << (float)boundingBoxMin(1) << (float)boundingBoxMin(2);
-                    ar << (float)boundingBoxMax(0) << (float)boundingBoxMax(1) << (float)boundingBoxMax(2);
-                    ar.flush();
-
-                    App::worldContainer->pluginContainer->geomPlugin_getPtcloudSerializationData_float(_pointCloudInfo,data);
-                    ar.storeDataName("Co2");
-                    ar.setCountingMode(true);
-                    for (size_t i=0;i<data.size();i++)
-                        ar << data[i];
-                    ar.flush(false);
-                    if (ar.setWritingMode(true))
-                    {
-                        for (size_t i=0;i<data.size();i++)
-                            ar << data[i];
-                        ar.flush(false);
-                    }
-#endif
-
                     App::worldContainer->pluginContainer->geomPlugin_getPtcloudSerializationData(_pointCloudInfo,data);
                     ar.storeDataName("_o2");
                     ar.setCountingMode(true);

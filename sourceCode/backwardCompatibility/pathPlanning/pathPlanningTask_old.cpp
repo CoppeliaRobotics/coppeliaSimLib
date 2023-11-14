@@ -349,35 +349,16 @@ void CPathPlanningTask::serialize(CSer& ar)
         ar << holonomicTaskType;
         ar.flush();
 
-#ifdef TMPOPERATION
-        ar.storeDataName("Pss");
-        ar << (float)stepSize << (float)angularStepSize;
-        ar.flush();
-#endif
-
         ar.storeDataName("_ss");
         ar << stepSize << angularStepSize;
         ar.flush();
 
-
-#ifdef TMPOPERATION
-        ar.storeDataName("Rn2");
-        for (int i=0;i<4;i++)
-            ar << (float)searchMinValue[i] << (float)searchRange[i];
-        ar.flush();
-#endif
 
         ar.storeDataName("_n2");
         for (int i=0;i<4;i++)
             ar << searchMinValue[i] << searchRange[i];
         ar.flush();
 
-
-#ifdef TMPOPERATION
-        ar.storeDataName("Mtd");
-        ar << (float)minTurningCircleDiameter;
-        ar.flush();
-#endif
 
         ar.storeDataName("_td");
         ar << minTurningCircleDiameter;
@@ -391,12 +372,6 @@ void CPathPlanningTask::serialize(CSer& ar)
         ar.storeDataName("Oid");
         ar << _objectID;
         ar.flush();
-
-#ifdef TMPOPERATION
-        ar.storeDataName("Mxt");
-        ar << (float)maximumTime;
-        ar.flush();
-#endif
 
         ar.storeDataName("_xt");
         ar << maximumTime;
@@ -418,22 +393,10 @@ void CPathPlanningTask::serialize(CSer& ar)
         ar << dummy;
         ar.flush();
 
-#ifdef TMPOPERATION
-        ar.storeDataName("Ocl");
-        ar << (float)obstacleClearance;
-        ar.flush();
-#endif
-
         ar.storeDataName("_cl");
         ar << obstacleClearance;
         ar.flush();
 
-
-#ifdef TMPOPERATION
-        ar.storeDataName("Omd");
-        ar << (float)_obstacleMaxDistance;
-        ar.flush();
-#endif
 
         ar.storeDataName("_md");
         ar << _obstacleMaxDistance;
@@ -443,12 +406,6 @@ void CPathPlanningTask::serialize(CSer& ar)
         ar.storeDataName("Pp2");
         ar << _postProcessingPassCount;
         ar.flush();
-
-#ifdef TMPOPERATION
-        ar.storeDataName("Gaa");
-        ar << (float)_gammaAxis(0) << (float)_gammaAxis(1) << (float)_gammaAxis(2);
-        ar.flush();
-#endif
 
         ar.storeDataName("_aa");
         ar << _gammaAxis(0) << _gammaAxis(1) << _gammaAxis(2);

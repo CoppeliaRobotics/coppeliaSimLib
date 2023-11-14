@@ -541,23 +541,9 @@ void CPath_old::serialize(CSer& ar)
             ar << dummy;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Pss");
-            ar << (float)_shapingScaling;
-            ar.flush();
-#endif
-
             ar.storeDataName("_ss");
             ar << _shapingScaling;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Sha");
-            ar << (float)_shapingElementMaxLength;
-            ar << _shapingType;
-            ar.flush();
-#endif
 
             ar.storeDataName("_ha");
             ar << _shapingElementMaxLength;
@@ -570,14 +556,6 @@ void CPath_old::serialize(CSer& ar)
             pathContainer->serialize(ar);
             if (ar.setWritingMode())
                 pathContainer->serialize(ar);
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Sec");
-            ar << int(shapingCoordinates.size());
-            for (int i=0;i<int(shapingCoordinates.size());i++)
-                ar << (float)shapingCoordinates[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_ec");
             ar << int(shapingCoordinates.size());

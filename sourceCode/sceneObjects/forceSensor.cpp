@@ -567,12 +567,6 @@ void CForceSensor::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {   // Storing.
-#ifdef TMPOPERATION
-            ar.storeDataName("Siz");
-            ar << (float)_forceSensorSize;
-            ar.flush();
-#endif
-
             ar.storeDataName("_iz");
             ar << _forceSensorSize;
             ar.flush();
@@ -586,13 +580,6 @@ void CForceSensor::serialize(CSer& ar)
     //      SIM_SET_CLEAR_BIT(dummy,3,_breaksOrientationConstraints); // removed on 2010/02/06
             ar << dummy;
             ar.flush();
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Tri");
-            ar << (float)_forceThreshold << (float)_torqueThreshold;
-            ar << _consecutiveThresholdViolationsForBreaking;
-            ar.flush();
-#endif
 
             ar.storeDataName("_ri");
             ar << _forceThreshold << _torqueThreshold;

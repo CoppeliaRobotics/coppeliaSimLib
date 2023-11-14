@@ -669,21 +669,6 @@ void CSPage::serialize(CSer& ar)
                         _allViews[i]->serialize(ar);
                 }
             }
-#ifdef TMPOPERATION
-            ar.storeDataName("Fvr");
-            ar << totViewsToSaveCnt*4;
-            for (size_t i=0;i<_allViews.size();i++)
-            {
-                if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
-                {
-                    ar << (float)_allViewAuxSizesAndPos[4*i+0];
-                    ar << (float)_allViewAuxSizesAndPos[4*i+1];
-                    ar << (float)_allViewAuxSizesAndPos[4*i+2];
-                    ar << (float)_allViewAuxSizesAndPos[4*i+3];
-                }
-            }
-            ar.flush();
-#endif
 
             ar.storeDataName("_vr");
             ar << totViewsToSaveCnt*4;

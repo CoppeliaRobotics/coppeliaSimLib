@@ -547,25 +547,10 @@ void CTextureProperty::serialize(CSer& ar)
             ar << nothing;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Tob");
-            ar << _textureOrVisionSensorObjectID << _textureCoordinateMode;
-            ar << (float)_textureScalingX << (float)_textureScalingY;
-            ar.flush();
-#endif
-
             ar.storeDataName("_ob");
             ar << _textureOrVisionSensorObjectID << _textureCoordinateMode;
             ar << _textureScalingX << _textureScalingY;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Trc");
-            ar << (float)_textureRelativeConfig.Q(0) << (float)_textureRelativeConfig.Q(1) << (float)_textureRelativeConfig.Q(2) << (float)_textureRelativeConfig.Q(3);
-            ar << (float)_textureRelativeConfig.X(0) << (float)_textureRelativeConfig.X(1) << (float)_textureRelativeConfig.X(2);
-            ar.flush();
-#endif
 
             ar.storeDataName("_rc");
             ar << _textureRelativeConfig.Q(0) << _textureRelativeConfig.Q(1) << _textureRelativeConfig.Q(2) << _textureRelativeConfig.Q(3);

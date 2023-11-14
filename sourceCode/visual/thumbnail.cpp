@@ -210,16 +210,6 @@ void  CThumbnail::serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vec
     {
         if (ar.isStoring())
         { // Storing
-#ifdef TMPOPERATION
-            ar.storeDataName("Mo2");
-            for (int i=0;i<7;i++)
-                ar << (float)modelTr(i);
-            for (int i=0;i<3;i++)
-                ar << (float)modelBBSize(i);
-            ar << (float)modelNonDefaultTranslationStepSize;
-            ar.flush();
-#endif
-
             ar.storeDataName("_o2");
             for (int i=0;i<7;i++)
                 ar << modelTr(i);

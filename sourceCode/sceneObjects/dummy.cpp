@@ -433,12 +433,6 @@ void CDummy::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
-#ifdef TMPOPERATION
-            ar.storeDataName("Dy2");
-            ar << float(_dummySize);
-            ar.flush();
-#endif
-
             ar.storeDataName("_y2");
             ar << _dummySize;
             ar.flush();
@@ -464,12 +458,6 @@ void CDummy::serialize(CSer& ar)
             ar << dummy;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Po5");
-            ar << (float)_virtualDistanceOffsetOnPath_OLD << (float)_virtualDistanceOffsetOnPath_variationWhenCopy_OLD;
-            ar.flush();
-#endif
-
             ar.storeDataName("_o5");
             ar << _virtualDistanceOffsetOnPath_OLD << _virtualDistanceOffsetOnPath_variationWhenCopy_OLD;
             ar.flush();
@@ -478,16 +466,6 @@ void CDummy::serialize(CSer& ar)
             ar.storeDataName("Dl2");
             ar << _linkType;
             ar.flush();
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Mj1"); // mujoco params:
-            ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
-            for (size_t i=0;i<_mujocoFloatParams.size();i++)
-                ar << (float)_mujocoFloatParams[i];
-            for (size_t i=0;i<_mujocoIntParams.size();i++)
-                ar << _mujocoIntParams[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_j1"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());

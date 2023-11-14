@@ -204,26 +204,6 @@ void CGhostObjectContainer::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {
-#ifdef TMPOPERATION
-            ar.storeDataName("V02");
-            ar << int(_allObjects.size());
-            for (size_t i=0;i<_allObjects.size();i++)
-            {
-                ar << _allObjects[i]->groupId;
-                ar << _allObjects[i]->ghostId;
-                ar << _allObjects[i]->objectHandle;
-                ar << _allObjects[i]->options;
-                ar << (float)_allObjects[i]->startTime;
-                ar << (float)_allObjects[i]->endTime;
-                ar << _allObjects[i]->transparencyFactor;
-                for (int j=0;j<12;j++)
-                    ar << (float)_allObjects[i]->color[j];
-                ar << (float)_allObjects[i]->tr.X(0) << (float)_allObjects[i]->tr.X(1) << (float)_allObjects[i]->tr.X(2);
-                ar << (float)_allObjects[i]->tr.Q(0) << (float)_allObjects[i]->tr.Q(1) << (float)_allObjects[i]->tr.Q(2) << (float)_allObjects[i]->tr.Q(3);
-            }
-            ar.flush();
-#endif
-
             ar.storeDataName("_02");
             ar << int(_allObjects.size());
             for (size_t i=0;i<_allObjects.size();i++)

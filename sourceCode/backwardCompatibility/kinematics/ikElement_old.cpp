@@ -75,12 +75,6 @@ void CIkElement_old::serialize(CSer& ar)
             ar << _constraintBaseHandle;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Pr2");
-            ar << (float)_minAngularPrecision << (float)_minLinearPrecision;
-            ar.flush();
-#endif
-
             ar.storeDataName("_r2");
             ar << _minAngularPrecision << _minLinearPrecision;
             ar.flush();
@@ -89,12 +83,6 @@ void CIkElement_old::serialize(CSer& ar)
             ar.storeDataName("Ctr");
             ar << _constraints;
             ar.flush();
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Wgt");
-            ar << (float)_positionWeight << (float)_orientationWeight;
-            ar.flush();
-#endif
 
             ar.storeDataName("_gt");
             ar << _positionWeight << _orientationWeight;

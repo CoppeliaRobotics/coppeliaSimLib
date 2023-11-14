@@ -375,12 +375,6 @@ void CEnvironment::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
-#ifdef TMPOPERATION
-            ar.storeDataName("Fdn");
-            ar << (float)fogEnd;
-            ar.flush();
-#endif
-
             ar.storeDataName("_dn");
             ar << fogEnd;
             ar.flush();
@@ -390,18 +384,10 @@ void CEnvironment::serialize(CSer& ar)
             ar << _activeLayers;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Fd2");
-            ar << fogType;
-            ar << (float)fogStart << (float)fogDensity;
-            ar.flush();
-#endif
-
             ar.storeDataName("_d2");
             ar << fogType;
             ar << fogStart << fogDensity;
             ar.flush();
-
 
             ar.storeDataName("Clc");
             ar << backGroundColor[0] << backGroundColor[1] << backGroundColor[2];
@@ -448,22 +434,9 @@ void CEnvironment::serialize(CSer& ar)
             ar << _acknowledgement;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Mt2");
-            ar << (float)_calculationMaxTriangleSize;
-            ar.flush();
-#endif
-
             ar.storeDataName("_t2");
             ar << _calculationMaxTriangleSize;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Mrs");
-            ar << (float)_calculationMinRelTriangleSize;
-            ar.flush();
-#endif
 
             ar.storeDataName("_rs");
             ar << _calculationMinRelTriangleSize;

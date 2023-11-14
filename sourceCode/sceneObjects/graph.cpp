@@ -2014,12 +2014,6 @@ void CGraph::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
-#ifdef TMPOPERATION
-            ar.storeDataName("Ghg");
-            ar << (float)_graphSize;
-            ar.flush();
-#endif
-
             ar.storeDataName("_hg");
             ar << _graphSize;
             ar.flush();
@@ -2039,17 +2033,6 @@ void CGraph::serialize(CSer& ar)
             ar.storeDataName("Gbv");
             ar << bufferSize << numberOfPoints;
             ar.flush();
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Gtd"); // Should always come after bufferSize!!!
-            for (int i=0;i<numberOfPoints;i++)
-            {
-                int absIndex;
-                getAbsIndexOfPosition(i,absIndex);
-                ar << (float)times[absIndex];
-            }
-            ar.flush();
-#endif
 
             ar.storeDataName("_td"); // Should always come after bufferSize!!!
             for (int i=0;i<numberOfPoints;i++)

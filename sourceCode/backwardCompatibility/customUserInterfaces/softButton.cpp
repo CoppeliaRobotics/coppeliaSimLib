@@ -265,13 +265,6 @@ void CSoftButton::serialize(CSer& ar)
     if (ar.isStoring())
     {       // Storing
 
-#ifdef TMPOPERATION
-        ar.storeDataName("Bva");
-        ar << _buttonAttributes << buttonID << length << height << xPos << yPos << label << downLabel;
-        ar << (float)sliderPos;
-        ar.flush();
-#endif
-
         ar.storeDataName("_va");
         ar << _buttonAttributes << buttonID << length << height << xPos << yPos << label << downLabel;
         ar << sliderPos;

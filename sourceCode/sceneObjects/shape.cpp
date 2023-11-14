@@ -665,13 +665,6 @@ void CShape::serialize(CSer& ar)
             ar << _dynamicCollisionMask;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Idv");
-            ar << (float)_initialDynamicLinearVelocity(0) << (float)_initialDynamicLinearVelocity(1) << (float)_initialDynamicLinearVelocity(2);
-            ar << (float)_initialDynamicAngularVelocity(0) << (float)_initialDynamicAngularVelocity(1) << (float)_initialDynamicAngularVelocity(2);
-            ar.flush();
-#endif
-
             ar.storeDataName("_dv");
             ar << _initialDynamicLinearVelocity(0) << _initialDynamicLinearVelocity(1) << _initialDynamicLinearVelocity(2);
             ar << _initialDynamicAngularVelocity(0) << _initialDynamicAngularVelocity(1) << _initialDynamicAngularVelocity(2);

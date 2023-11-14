@@ -610,12 +610,6 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
             ar << _name;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Mas");
-            ar << (float)_mass;
-            ar.flush();
-#endif
-
             ar.storeDataName("_as");
             ar << _mass;
             ar.flush();
@@ -625,19 +619,6 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
             ar << _dynMaterialId_old;
             ar.flush();
 
-#ifdef TMPOPERATION
-            {
-            ar.storeDataName("Ine"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
-            C7Vector w(parentCumulIFrame*_iFrame);
-            w.X+=_com;
-            w.Q=w.Q*_pmiRotFrame;
-            ar << (float)w(0) << (float)w(1) << (float)w(2);
-            ar << (float)w(3) << (float)w(4) << (float)w(5) << (float)w(6);
-            ar << (float)_pmi(0) << (float)_pmi(1) << (float)_pmi(2);
-            ar.flush();
-            }
-#endif
-
             ar.storeDataName("_ne"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
             C7Vector w(parentCumulIFrame*_iFrame);
             w.X+=_com;
@@ -646,14 +627,6 @@ bool CMeshWrapper::serialize(CSer& ar,const char* shapeName,const C7Vector& pare
             ar << w(3) << w(4) << w(5) << w(6);
             ar << _pmi(0) << _pmi(1) << _pmi(2);
             ar.flush();
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Vtb"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
-            w=parentCumulIFrame*_iFrame;
-            ar << (float)w(0) << (float)w(1) << (float)w(2) << (float)w(3);
-            ar << (float)w(4) << (float)w(5) << (float)w(6);
-            ar.flush();
-#endif
 
             ar.storeDataName("_tb"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
             w=parentCumulIFrame*_iFrame;

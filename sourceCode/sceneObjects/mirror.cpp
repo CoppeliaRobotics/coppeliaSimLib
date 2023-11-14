@@ -304,12 +304,6 @@ void CMirror::serialize(CSer& ar)
     {
         if (ar.isStoring())
         { // Storing
-#ifdef TMPOPERATION
-            ar.storeDataName("Msz");
-            ar << (float)_mirrorWidth << (float)_mirrorHeight;
-            ar.flush();
-#endif
-
             ar.storeDataName("_sz");
             ar << _mirrorWidth << _mirrorHeight;
             ar.flush();

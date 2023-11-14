@@ -382,22 +382,9 @@ void CProxSensor::serialize(CSer& ar)
             if (ar.setWritingMode())
                 convexVolume->serialize(ar);
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Sns");
-            ar << (float)_proxSensorSize;
-            ar.flush();
-#endif
-
             ar.storeDataName("_ns");
             ar << _proxSensorSize;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Al2");
-            ar << (float)allowedNormal;
-            ar.flush();
-#endif
 
             ar.storeDataName("_l2");
             ar << allowedNormal;

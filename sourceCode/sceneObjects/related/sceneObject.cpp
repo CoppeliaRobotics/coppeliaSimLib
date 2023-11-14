@@ -2084,26 +2084,11 @@ void CSceneObject::serialize(CSer& ar)
             ar.flush();
 
             C7Vector tr=getLocalTransformation();
-#ifdef TMPOPERATION
-            ar.storeDataName("Cfq");
-            if (_ignorePosAndCameraOrthoviewSize_forUndoRedo)
-                tr.setIdentity();
-            ar << (float)tr.Q(0) << (float)tr.Q(1) << (float)tr.Q(2) << (float)tr.Q(3) << (float)tr.X(0) << (float)tr.X(1) << (float)tr.X(2);
-            ar.flush();
-#endif
-
             ar.storeDataName("_fq");
             if (_ignorePosAndCameraOrthoviewSize_forUndoRedo)
                 tr.setIdentity();
             ar << tr.Q(0) << tr.Q(1) << tr.Q(2) << tr.Q(3) << tr.X(0) << tr.X(1) << tr.X(2);
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Alt");
-            ar << (float)_assemblingLocalTransformation.Q(0) << (float)_assemblingLocalTransformation.Q(1) << (float)_assemblingLocalTransformation.Q(2) << (float)_assemblingLocalTransformation.Q(3) << (float)_assemblingLocalTransformation.X(0) << (float)_assemblingLocalTransformation.X(1) << (float)_assemblingLocalTransformation.X(2);
-            ar.flush();
-#endif
 
             ar.storeDataName("_lt");
             ar << _assemblingLocalTransformation.Q(0) << _assemblingLocalTransformation.Q(1) << _assemblingLocalTransformation.Q(2) << _assemblingLocalTransformation.Q(3) << _assemblingLocalTransformation.X(0) << _assemblingLocalTransformation.X(1) << _assemblingLocalTransformation.X(2);
@@ -2201,48 +2186,19 @@ void CSceneObject::serialize(CSer& ar)
             ar << _childOrder;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Om5");
-            ar << _objectMovementPreferredAxes << _objectMovementRelativity[0];
-            ar << (float)_objectMovementStepSize[0];
-            ar.flush();
-#endif
-
             ar.storeDataName("_m5");
             ar << _objectMovementPreferredAxes << _objectMovementRelativity[0];
             ar << _objectMovementStepSize[0];
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Omr");
-            ar << _objectMovementRelativity[1];
-            ar << (float)_objectMovementStepSize[1];
-            ar.flush();
-#endif
 
             ar.storeDataName("_mr");
             ar << _objectMovementRelativity[1];
             ar << _objectMovementStepSize[1];
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Sfa");
-            ar << (float)_sizeFactor;
-            ar.flush();
-#endif
-
             ar.storeDataName("_fa");
             ar << _sizeFactor;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Sfb");
-            ar << (float)_sizeValues[0] << (float)_sizeValues[1] << (float)_sizeValues[2];
-            ar.flush();
-#endif
 
             ar.storeDataName("_fb");
             ar << _sizeValues[0] << _sizeValues[1] << _sizeValues[2];
@@ -2314,12 +2270,6 @@ void CSceneObject::serialize(CSer& ar)
             ar.storeDataName("Uis");
             ar << _uniquePersistentIdString;
             ar.flush();
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Tdo");
-            ar << (float)_transparentObjectDistanceOffset;
-            ar.flush();
-#endif
 
             ar.storeDataName("_do");
             ar << _transparentObjectDistanceOffset;

@@ -1662,38 +1662,14 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
             ar << _tempEdgesIndexForSerialization;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Ppr");
-            ar << _purePrimitive;
-            ar << (float)_purePrimitiveXSizeOrDiameter << (float)_purePrimitiveYSize << (float)_purePrimitiveZSizeOrHeight;
-            ar.flush();
-#endif
-
             ar.storeDataName("_pr");
             ar << _purePrimitive;
             ar << _purePrimitiveXSizeOrDiameter << _purePrimitiveYSize << _purePrimitiveZSizeOrHeight;
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Pp2");
-            ar << (float)_purePrimitiveInsideScaling;
-            ar.flush();
-#endif
-
             ar.storeDataName("_p2");
             ar << _purePrimitiveInsideScaling;
             ar.flush();
-
-#ifdef TMPOPERATION
-            {
-            ar.storeDataName("Ppf"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
-            C7Vector w(parentCumulIFrame*_iFrame*_bbFrame);
-            ar << (float)w(0) << (float)w(1) << (float)w(2) << (float)w(3);
-            ar << (float)w(4) << (float)w(5) << (float)w(6);
-            ar.flush();
-            }
-#endif
 
             ar.storeDataName("_pf"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
             C7Vector w(parentCumulIFrame*_iFrame*_bbFrame);
@@ -1701,24 +1677,10 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
             ar << w(4) << w(5) << w(6);
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Gsa"); // write this always before Gs2
-            ar << (float)_shadingAngle;
-            ar << _edgeWidth_DEPRERCATED;
-            ar.flush();
-#endif
-
             ar.storeDataName("_sa"); // write this always before Gs2
             ar << _shadingAngle;
             ar << _edgeWidth_DEPRERCATED;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Gs2");
-            ar << (float)_edgeThresholdAngle;
-            ar.flush();
-#endif
 
             ar.storeDataName("_s2");
             ar << _edgeThresholdAngle;
@@ -1752,14 +1714,6 @@ bool CMesh::serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumul
                 if (ar.setWritingMode())
                     _textureProperty->serialize(ar);
             }
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Hfd"); // Has to come after PURE TYPE!
-            ar << _heightfieldXCount << _heightfieldYCount;
-            for (size_t i=0;i<_heightfieldHeights.size();i++)
-                ar << (float)_heightfieldHeights[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_fd"); // Has to come after PURE TYPE!
             ar << _heightfieldXCount << _heightfieldYCount;

@@ -85,16 +85,6 @@ void CSimplePathPoint_old::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
-#ifdef TMPOPERATION
-            ar.storeDataName("At2");
-            ar << (float)_transformation(0) << (float)_transformation(1) << (float)_transformation(2) << (float)_transformation(3);
-            ar << (float)_transformation(4) << (float)_transformation(5) << (float)_transformation(6);
-            ar << (float)_bezierFactorBefore << (float)_bezierFactorAfter;
-            ar << _bezierPointCount;
-            ar << (float)_maxRelAbsVelocity;
-            ar.flush();
-#endif
-
             ar.storeDataName("_t2");
             ar << _transformation(0) << _transformation(1) << _transformation(2) << _transformation(3);
             ar << _transformation(4) << _transformation(5) << _transformation(6);
@@ -103,27 +93,9 @@ void CSimplePathPoint_old::serialize(CSer& ar)
             ar << _maxRelAbsVelocity;
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("At3");
-            ar << (float)_onSpotDistance;
-            ar.flush();
-#endif
-
             ar.storeDataName("_t3");
             ar << _onSpotDistance;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("At4");
-            ar << _auxFlags;
-            ar << (float)_auxChannels[0];
-            ar << (float)_auxChannels[1];
-            ar << (float)_auxChannels[2];
-            ar << (float)_auxChannels[3];
-            ar.flush();
-#endif
 
             ar.storeDataName("_t4");
             ar << _auxFlags;

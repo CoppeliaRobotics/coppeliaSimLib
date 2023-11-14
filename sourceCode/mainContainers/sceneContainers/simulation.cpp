@@ -746,12 +746,6 @@ void CSimulation::serialize(CSer& ar)
             ar << quint64(_simulationTimeStep*1000000.0);
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("St3");
-            ar << (float)_simulationTimeStep;
-            ar.flush();
-#endif
-
             ar.storeDataName("_t3");
             ar << _simulationTimeStep;
             ar.flush();
@@ -794,12 +788,6 @@ void CSimulation::serialize(CSer& ar)
             ar.storeDataName("Pa2"); // for backward compatibility (05/09/2022), keep before Pa3
             ar << quint64(_simulationTimeToPause*1000000.0);
             ar.flush();
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Pa3");
-            ar << (float)_simulationTimeToPause;
-            ar.flush();
-#endif
 
             ar.storeDataName("_a3");
             ar << _simulationTimeToPause;

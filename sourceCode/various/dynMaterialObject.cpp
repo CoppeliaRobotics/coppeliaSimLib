@@ -775,29 +775,6 @@ void CDynMaterialObject::serialize(CSer& ar)
             ar << dummy;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Bul"); // keep for file write backw. compat. (09/03/2016)
-            ar << (float)_bulletFloatParams[simi_bullet_body_restitution] << (float)_bulletFloatParams[simi_bullet_body_oldfriction] << (float)_bulletFloatParams[simi_bullet_body_lineardamping] << (float)_bulletFloatParams[simi_bullet_body_angulardamping] << (float)_bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor] << (float)_bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex];
-            ar.flush();
-#endif
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Od2"); // keep for file write backw. compat. (09/03/2016)
-            ar << _odeIntParams[simi_ode_body_maxcontacts];
-            ar << (float)_odeFloatParams[simi_ode_body_friction] << (float)_odeFloatParams[simi_ode_body_softerp] << (float)_odeFloatParams[simi_ode_body_softcfm] << (float)_odeFloatParams[simi_ode_body_lineardamping] << (float)_odeFloatParams[simi_ode_body_angulardamping];
-            ar.flush();
-#endif
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Vo4"); // vortex params:
-            ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
-            for (int i=0;i<int(_vortexFloatParams.size());i++)
-                ar << (float)_vortexFloatParams[i];
-            for (int i=0;i<int(_vortexIntParams.size());i++)
-                ar << _vortexIntParams[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_o4"); // vortex params:
             ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
             for (int i=0;i<int(_vortexFloatParams.size());i++)
@@ -805,17 +782,6 @@ void CDynMaterialObject::serialize(CSer& ar)
             for (int i=0;i<int(_vortexIntParams.size());i++)
                 ar << _vortexIntParams[i];
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Nw1"); // newton params:
-            ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
-            for (int i=0;i<int(_newtonFloatParams.size());i++)
-                ar << (float)_newtonFloatParams[i];
-            for (int i=0;i<int(_newtonIntParams.size());i++)
-                ar << _newtonIntParams[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_w1"); // newton params:
             ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
@@ -839,16 +805,6 @@ void CDynMaterialObject::serialize(CSer& ar)
             ar << nothing;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("BuN"); // Bullet params, keep after "Bul" and "Var"
-            ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
-            for (int i=0;i<int(_bulletFloatParams.size());i++)
-                ar << (float)_bulletFloatParams[i];
-            for (int i=0;i<int(_bulletIntParams.size());i++)
-                ar << _bulletIntParams[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_uN"); // Bullet params, keep after "Bul" and "Var"
             ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
             for (int i=0;i<int(_bulletFloatParams.size());i++)
@@ -857,17 +813,6 @@ void CDynMaterialObject::serialize(CSer& ar)
                 ar << _bulletIntParams[i];
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("OdN"); // Ode params, keep after "Od2"
-            ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
-            for (int i=0;i<int(_odeFloatParams.size());i++)
-                ar << (float)_odeFloatParams[i];
-            for (int i=0;i<int(_odeIntParams.size());i++)
-                ar << _odeIntParams[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_dN"); // Ode params, keep after "Od2"
             ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
             for (int i=0;i<int(_odeFloatParams.size());i++)
@@ -875,17 +820,6 @@ void CDynMaterialObject::serialize(CSer& ar)
             for (int i=0;i<int(_odeIntParams.size());i++)
                 ar << _odeIntParams[i];
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Mj1"); // mujoco params:
-            ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
-            for (int i=0;i<int(_mujocoFloatParams.size());i++)
-                ar << (float)_mujocoFloatParams[i];
-            for (int i=0;i<int(_mujocoIntParams.size());i++)
-                ar << _mujocoIntParams[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_j1"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());

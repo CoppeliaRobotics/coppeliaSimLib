@@ -2000,13 +2000,6 @@ void CPathCont_old::serialize(CSer& ar)
                     _simplePathPoints[i]->serialize(ar);
             }
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Si2");
-            ar << _lineSize;
-            ar << (float)_squareSize;
-            ar.flush();
-#endif
-
             ar.storeDataName("_i2");
             ar << _lineSize;
             ar << _squareSize;
@@ -2023,53 +2016,23 @@ void CPathCont_old::serialize(CSer& ar)
             if (ar.setWritingMode())
                 _lineColor.serialize(ar,1);
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Jm2");
-            ar << (float)_position << (float)_maxAcceleration << (float)_nominalVelocity << (float)_targetNominalVelocity;
-            ar.flush();
-#endif
-
             ar.storeDataName("_m2");
             ar << _position << _maxAcceleration << _nominalVelocity << _targetNominalVelocity;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Av3");
-            ar << (float)_angleVarToDistanceCoeff;
-            ar << _pathLengthCalculationMethod;
-            ar.flush();
-#endif
 
             ar.storeDataName("_v3");
             ar << _angleVarToDistanceCoeff;
             ar << _pathLengthCalculationMethod;
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Av9");
-            ar << (float)_onSpotDistanceToDistanceCoeff;
-            ar.flush();
-#endif
-
             ar.storeDataName("_v9");
             ar << _onSpotDistanceToDistanceCoeff;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Av2");
-            ar << (float)_avp_turningCircleRadiusForHalfVelocity << (float)_avp_relativeVelocityAtRotationAxisChange;
-            ar << (float)_avp_relativeAcceleration;
-            ar.flush();
-#endif
 
             ar.storeDataName("_v2");
             ar << _avp_turningCircleRadiusForHalfVelocity << _avp_relativeVelocityAtRotationAxisChange;
             ar << _avp_relativeAcceleration;
             ar.flush();
-
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }

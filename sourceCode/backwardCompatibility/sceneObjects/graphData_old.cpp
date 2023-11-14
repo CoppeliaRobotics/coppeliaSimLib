@@ -456,13 +456,6 @@ void CGraphData_old::serialize(CSer& ar,void* it)
             ar << ambientColor[0] << ambientColor[1] << ambientColor[2];
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Var");
-            float dum=0.0;
-            ar << (float)zoomFactor << dum << (float)addCoeff;
-            ar.flush();
-#endif
-
             ar.storeDataName("_ar");
             ar << zoomFactor << addCoeff;
             ar.flush();
@@ -484,17 +477,6 @@ void CGraphData_old::serialize(CSer& ar,void* it)
             ar << dummy;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Dt9"); // Should always come after nullValue
-            for (int i=0;i<cg->getNumberOfPoints();i++)
-            {
-                int absIndex;
-                cg->getAbsIndexOfPosition(i,absIndex);
-                ar << (float)_floatData[absIndex];
-            }
-            ar.flush();
-#endif
-
             ar.storeDataName("_t9"); // Should always come after nullValue
             for (int i=0;i<cg->getNumberOfPoints();i++)
             {
@@ -503,18 +485,6 @@ void CGraphData_old::serialize(CSer& ar,void* it)
                 ar << _floatData[absIndex];
             }
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Ifd");
-            for (int i=0;i<cg->getNumberOfPoints();i++)
-            {
-                int absIndex;
-                cg->getAbsIndexOfPosition(i,absIndex);
-                ar << (float)_transformedFloatData[absIndex];
-            }
-            ar.flush();
-#endif
 
             ar.storeDataName("_fd");
             for (int i=0;i<cg->getNumberOfPoints();i++)

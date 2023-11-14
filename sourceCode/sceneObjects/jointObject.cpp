@@ -2193,12 +2193,6 @@ void CJoint::serialize(CSer& ar)
             ar << _jointType;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Jsp");
-            ar << (float)(_screwLead/piValT2);
-            ar.flush();
-#endif
-
             ar.storeDataName("_sp");
             ar << (_screwLead/piValT2);
             ar.flush();
@@ -2206,14 +2200,6 @@ void CJoint::serialize(CSer& ar)
             ar.storeDataName("Sld");
             ar << _screwLead;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Jst");
-            ar << (float)_sphericalTransf(0) << (float)_sphericalTransf(1);
-            ar << (float)_sphericalTransf(2) << (float)_sphericalTransf(3);
-            ar.flush();
-#endif
 
             ar.storeDataName("_st");
             ar << _sphericalTransf(0) << _sphericalTransf(1);
@@ -2246,55 +2232,21 @@ void CJoint::serialize(CSer& ar)
             if (ar.setWritingMode())
                 _color.serialize(ar,0);
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Pmr");
-            ar << (float)_posMin << (float)_posRange;
-            ar.flush();
-#endif
-
             ar.storeDataName("_mr");
             ar << _posMin << _posRange;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Prt");
-            ar << (float)_pos;
-            ar.flush();
-#endif
 
             ar.storeDataName("_rt");
             ar << _pos;
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Mss");
-            ar << (float)_maxStepSize_old;
-            ar.flush();
-#endif
-
             ar.storeDataName("_ss");
             ar << _maxStepSize_old;
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Arg");
-            ar << (float)_length << (float)_diameter;
-            ar.flush();
-#endif
-
             ar.storeDataName("_rg");
             ar << _length << _diameter;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Ikw");
-            ar << (float)_ikWeight_old;
-            ar.flush();
-#endif
 
             ar.storeDataName("_kw");
             ar << _ikWeight_old;
@@ -2305,35 +2257,14 @@ void CJoint::serialize(CSer& ar)
             ar << _jointMode;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Jdt");
-            ar << _dependencyMasterJointHandle;
-            ar << (float)_dependencyJointMult << (float)_dependencyJointOffset;
-            ar.flush();
-#endif
-
             ar.storeDataName("_dt");
             ar << _dependencyMasterJointHandle;
             ar << _dependencyJointMult << _dependencyJointOffset;
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Jm3");
-            ar << (float)_maxAcceleration_DEPRECATED << (float)_velocity_DEPRECATED;
-            ar.flush();
-#endif
-
             ar.storeDataName("_m3");
             ar << _maxAcceleration_DEPRECATED << _velocity_DEPRECATED;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Dmp");
-            ar << (float)_targetVel << (float)_targetForce;
-            ar.flush();
-#endif
 
             ar.storeDataName("_mp");
             ar << _targetVel << _targetForce;
@@ -2342,65 +2273,13 @@ void CJoint::serialize(CSer& ar)
 
             double P,I,D;
             getPid(P,I,D,sim_physics_bullet);
-#ifdef TMPOPERATION
-            // Following for backward compatibility (7/5/2014):
-            // Keep this before "Dp2"
-            ar.storeDataName("Dpc");
-            ar << (float)P << (float)(I*0.005) << (float)(D/0.005);
-            ar.flush();
-#endif
-
-#ifdef TMPOPERATION
-            // Following for backward compatibility (29/8/2022):
-            // Keep this before "Mj3"
-            ar.storeDataName("Dp2");
-            ar << (float)P << (float)I << (float)D;
-            ar.flush();
-#endif
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Spp");
-            ar << (float)_dynCtrl_kc[0] << (float)_dynCtrl_kc[1];
-            ar.flush();
-#endif
-
             ar.storeDataName("_pp");
             ar << _dynCtrl_kc[0] << _dynCtrl_kc[1];
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Dtp");
-            ar << (float)_targetPos;
-            ar.flush();
-#endif
-
             ar.storeDataName("_tp");
             ar << _targetPos;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Od1"); // keep this for file backw. compat. (09/03/2016)
-            ar << (float)_odeFloatParams[simi_ode_joint_stoperp] << (float)_odeFloatParams[simi_ode_joint_stopcfm] << (float)_odeFloatParams[simi_ode_joint_bounce] << (float)_odeFloatParams[simi_ode_joint_fudgefactor] << (float)_odeFloatParams[simi_ode_joint_normalcfm];
-            ar.flush();
-#endif
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Bt1"); // keep this for file backw. compat. (09/03/2016)
-            ar << (float)_bulletFloatParams[simi_bullet_joint_stoperp] << (float)_bulletFloatParams[simi_bullet_joint_stopcfm] << (float)_bulletFloatParams[simi_bullet_joint_normalcfm];
-            ar.flush();
-#endif
-
-#ifdef TMPOPERATION
-            ar.storeDataName("BtN"); // Bullet params, keep this after "Bt1"
-            ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
-            for (size_t i=0;i<_bulletFloatParams.size();i++)
-                ar << (float)_bulletFloatParams[i];
-            for (size_t i=0;i<_bulletIntParams.size();i++)
-                ar << _bulletIntParams[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_tN"); // Bullet params, keep this after "Bt1"
             ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
@@ -2410,17 +2289,6 @@ void CJoint::serialize(CSer& ar)
                 ar << _bulletIntParams[i];
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("OdN"); // ODE params, keep this after "Od1"
-            ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
-            for (size_t i=0;i<_odeFloatParams.size();i++)
-                ar << (float)_odeFloatParams[i];
-            for (size_t i=0;i<_odeIntParams.size();i++)
-                ar << _odeIntParams[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_dN"); // ODE params, keep this after "Od1"
             ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
             for (size_t i=0;i<_odeFloatParams.size();i++)
@@ -2428,17 +2296,6 @@ void CJoint::serialize(CSer& ar)
             for (size_t i=0;i<_odeIntParams.size();i++)
                 ar << _odeIntParams[i];
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Vo2"); // vortex params:
-            ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
-            for (size_t i=0;i<_vortexFloatParams.size();i++)
-                ar << (float)_vortexFloatParams[i];
-            for (size_t i=0;i<_vortexIntParams.size();i++)
-                ar << _vortexIntParams[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_o2"); // vortex params:
             ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
@@ -2448,17 +2305,6 @@ void CJoint::serialize(CSer& ar)
                 ar << _vortexIntParams[i];
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Nw1"); // newton params:
-            ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
-            for (size_t i=0;i<_newtonFloatParams.size();i++)
-                ar << (float)_newtonFloatParams[i];
-            for (size_t i=0;i<_newtonIntParams.size();i++)
-                ar << _newtonIntParams[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_w1"); // newton params:
             ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
             for (size_t i=0;i<_newtonFloatParams.size();i++)
@@ -2466,17 +2312,6 @@ void CJoint::serialize(CSer& ar)
             for (size_t i=0;i<_newtonIntParams.size();i++)
                 ar << _newtonIntParams[i];
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Mj3"); // mujoco params:
-            ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
-            for (size_t i=0;i<_mujocoFloatParams.size();i++)
-                ar << (float)_mujocoFloatParams[i];
-            for (size_t i=0;i<_mujocoIntParams.size();i++)
-                ar << _mujocoIntParams[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_j3"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
@@ -2486,23 +2321,9 @@ void CJoint::serialize(CSer& ar)
                 ar << _mujocoIntParams[i];
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Ruc");
-            ar << (float)_maxVelAccelJerk[0] << (float)_maxVelAccelJerk[1] << (float)_maxVelAccelJerk[2];
-            ar.flush();
-#endif
-
             ar.storeDataName("_uc");
             ar << _maxVelAccelJerk[0] << _maxVelAccelJerk[1] << _maxVelAccelJerk[2];
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Ulv");
-            ar << (float)_maxVelAccelJerk[0]; // for backward compatibility. Keep after "Ruc"
-            ar.flush();
-#endif
 
             ar.storeDataName("Dcm");
             ar << _dynCtrlMode;

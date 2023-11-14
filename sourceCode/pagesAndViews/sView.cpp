@@ -459,13 +459,6 @@ void CSView::serialize(CSer& ar)
             ar << linkedObjectID;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Gps");
-            ar << (float)graphPosition[0] << (float)graphPosition[1];
-            ar << (float)graphSize[0] << (float)graphSize[1];
-            ar.flush();
-#endif
-
             ar.storeDataName("_ps");
             ar << graphPosition[0] << graphPosition[1];
             ar << graphSize[0] << graphSize[1];

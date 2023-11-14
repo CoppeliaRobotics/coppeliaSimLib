@@ -1114,61 +1114,19 @@ void CDynamicsContainer::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {       // Storing
-#ifdef TMPOPERATION
-            ar.storeDataName("En3");
-            ar << _dynamicEngineToUse;
-            ar << (float)_gravity(0) << (float)_gravity(1) << (float)_gravity(2);
-            ar << int(5); // 5 is for backw. compat. (dyn. settings mode=custom)
-            ar.flush();
-#endif
-
             ar.storeDataName("_n3");
             ar << _dynamicEngineToUse;
             ar << _gravity(0) << _gravity(1) << _gravity(2);
             ar << int(5); // 5 is for backw. compat. (dyn. settings mode=custom)
             ar.flush();
 
-
             ar.storeDataName("Ver");
             ar << _dynamicEngineVersionToUse;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Stp"); // since 17.08.2022, step size is not individual to engine anymore
-            ar << (float)_stepSize;
-            ar.flush();
-#endif
-
             ar.storeDataName("_tp"); // since 17.08.2022, step size is not individual to engine anymore
             ar << _stepSize;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Bul"); // keep a while for file write backw. compatibility (09/03/2016)
-            ar << (float)_stepSize << (float)_bulletFloatParams[simi_bullet_global_internalscalingfactor];
-            ar << _bulletIntParams[simi_bullet_global_constraintsolvingiterations];
-            ar << (float)_bulletFloatParams[simi_bullet_global_collisionmarginfactor];
-            ar.flush();
-#endif
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Ode"); // keep a while for file write backw. compatibility (09/03/2016)
-            ar << (float)_stepSize << (float)_odeFloatParams[simi_ode_global_internalscalingfactor];
-            ar << _odeIntParams[simi_ode_global_constraintsolvingiterations];
-            ar << (float)_odeFloatParams[simi_ode_global_cfm] << (float)_odeFloatParams[simi_ode_global_erp];
-            ar.flush();
-#endif
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Vo5"); // vortex params:
-            ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
-            for (int i=0;i<int(_vortexFloatParams.size());i++)
-                ar << (float)_vortexFloatParams[i];
-            for (int i=0;i<int(_vortexIntParams.size());i++)
-                ar << _vortexIntParams[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_o5"); // vortex params:
             ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
@@ -1178,17 +1136,6 @@ void CDynamicsContainer::serialize(CSer& ar)
                 ar << _vortexIntParams[i];
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Nw1"); // newton params:
-            ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
-            for (int i=0;i<int(_newtonFloatParams.size());i++)
-                ar << (float)_newtonFloatParams[i];
-            for (int i=0;i<int(_newtonIntParams.size());i++)
-                ar << _newtonIntParams[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_w1"); // newton params:
             ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
             for (int i=0;i<int(_newtonFloatParams.size());i++)
@@ -1197,17 +1144,6 @@ void CDynamicsContainer::serialize(CSer& ar)
                 ar << _newtonIntParams[i];
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Mj1"); // mujoco params:
-            ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
-            for (int i=0;i<int(_mujocoFloatParams.size());i++)
-                ar << (float)_mujocoFloatParams[i];
-            for (int i=0;i<int(_mujocoIntParams.size());i++)
-                ar << _mujocoIntParams[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_j1"); // mujoco params:
             ar << int(_mujocoFloatParams.size()) << int(_mujocoIntParams.size());
             for (int i=0;i<int(_mujocoFloatParams.size());i++)
@@ -1215,7 +1151,6 @@ void CDynamicsContainer::serialize(CSer& ar)
             for (int i=0;i<int(_mujocoIntParams.size());i++)
                 ar << _mujocoIntParams[i];
             ar.flush();
-
 
             ar.storeDataName("Var");
             unsigned char dummy=0;
@@ -1228,16 +1163,6 @@ void CDynamicsContainer::serialize(CSer& ar)
             ar << dummy;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("BuN"); // Bullet params (keep this after "Bul" and "Var"):
-            ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
-            for (int i=0;i<int(_bulletFloatParams.size());i++)
-                ar << (float)_bulletFloatParams[i];
-            for (int i=0;i<int(_bulletIntParams.size());i++)
-                ar << _bulletIntParams[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_uN"); // Bullet params (keep this after "Bul" and "Var"):
             ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
             for (int i=0;i<int(_bulletFloatParams.size());i++)
@@ -1245,17 +1170,6 @@ void CDynamicsContainer::serialize(CSer& ar)
             for (int i=0;i<int(_bulletIntParams.size());i++)
                 ar << _bulletIntParams[i];
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("OdN"); // ODE params (keep this after "Ode" and "Var"):
-            ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
-            for (int i=0;i<int(_odeFloatParams.size());i++)
-                ar << (float)_odeFloatParams[i];
-            for (int i=0;i<int(_odeIntParams.size());i++)
-                ar << _odeIntParams[i];
-            ar.flush();
-#endif
 
             ar.storeDataName("_dN"); // ODE params (keep this after "Ode" and "Var"):
             ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());

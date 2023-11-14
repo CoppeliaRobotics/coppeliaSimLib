@@ -318,12 +318,6 @@ void CDistanceObject_old::serialize(CSer& ar)
             ar << _entity1Handle << _entity2Handle << _objectHandle;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Trh");
-            ar << float(_threshold);
-            ar.flush();
-#endif
-
             ar.storeDataName("_rh");
             ar << _threshold;
             ar.flush();

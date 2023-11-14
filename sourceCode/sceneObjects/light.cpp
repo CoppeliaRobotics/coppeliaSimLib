@@ -427,37 +427,15 @@ void CLight::serialize(CSer& ar)
         if (ar.isStoring())
         { // Storing
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Cp2");
-            ar << _lightType;
-            ar << _spotExponent;
-            ar << (float)_lightSize;
-            ar.flush();
-#endif
-
             ar.storeDataName("_p2");
             ar << _lightType;
             ar << _spotExponent;
             ar << _lightSize;
             ar.flush();
 
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Cp3");
-            ar << (float)_spotCutoffAngle;
-            ar.flush();
-#endif
-
             ar.storeDataName("_p3");
             ar << _spotCutoffAngle;
             ar.flush();
-
-
-#ifdef TMPOPERATION
-            ar.storeDataName("Caf");
-            ar << (float)constantAttenuation << (float)linearAttenuation << (float)quadraticAttenuation;
-            ar.flush();
-#endif
 
             ar.storeDataName("_af");
             ar << constantAttenuation << linearAttenuation << quadraticAttenuation;

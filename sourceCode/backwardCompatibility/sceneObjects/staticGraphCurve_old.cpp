@@ -128,14 +128,6 @@ void CStaticGraphCurve_old::serialize(CSer& ar)
             ar << nothing;
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Val");
-            ar << int(values.size());
-            for (int i=0;i<int(values.size());i++)
-                ar << (float)values[i];
-            ar.flush();
-#endif
-
             ar.storeDataName("_al");
             ar << int(values.size());
             for (int i=0;i<int(values.size());i++)

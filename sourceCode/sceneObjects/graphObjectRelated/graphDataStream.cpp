@@ -465,15 +465,6 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             ar << _color[0] << _color[1] << _color[2];
             ar.flush();
 
-#ifdef TMPOPERATION
-            ar.storeDataName("Var");
-            ar << _transformationType;
-            ar << (float)_transformationMult << (float)_transformationOff;
-            ar << _movingAveragePeriod;
-            ar << (float)_cyclicRange;
-            ar.flush();
-#endif
-
             ar.storeDataName("_ar");
             ar << _transformationType;
             ar << _transformationMult << _transformationOff;
@@ -494,26 +485,6 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
 
             if (!_static)
             {
-#ifdef TMPOPERATION
-                ar.storeDataName("Pts");
-                for (int i=0;i<ptCnt;i++)
-                {
-                    int absIndex=startPt+i;
-                    if (absIndex>=bufferSize)
-                        absIndex-=bufferSize;
-                    ar << (float)_values[absIndex] << (float)_transformedValues[absIndex] ;
-                    if ((_valuesValidityFlags[absIndex/8]&(1<<(absIndex&7)))!=0)
-                        ar << (unsigned char)1;
-                    else
-                        ar << (unsigned char)0;
-                    if ((_transformedValuesValidityFlags[absIndex/8]&(1<<(absIndex&7)))!=0)
-                        ar << (unsigned char)1;
-                    else
-                        ar << (unsigned char)0;
-                }
-                ar.flush();
-#endif
-
                 ar.storeDataName("_ts");
                 for (int i=0;i<ptCnt;i++)
                 {
@@ -535,14 +506,6 @@ void CGraphDataStream::serialize(CSer& ar,int startPt,int ptCnt,int bufferSize)
             }
             else
             {
-#ifdef TMPOPERATION
-                ar.storeDataName("Sps");
-                ar << int(_staticCurveValues.size());
-                for (size_t i=0;i<_staticCurveValues.size();i++)
-                    ar << (float)_staticCurveValues[i];
-                ar.flush();
-#endif
-
                 ar.storeDataName("_ps");
                 ar << int(_staticCurveValues.size());
                 for (size_t i=0;i<_staticCurveValues.size();i++)
