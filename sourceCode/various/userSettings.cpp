@@ -112,47 +112,19 @@
 #define _USR_NO_CUSTOM_UIS_WHEN_MOUSE_DOWN "noCustomUisWhenMouseDownInCameraView"
 #define _USR_HIERARCHY_REFRESH_CNT "hierarchyRefreshCnt"
 
-#define _USR_CHILD_SCRIPT_COLOR_BACKGROUND "childScriptColor_background"
-#define _USR_CHILD_SCRIPT_COLOR_SELECTION "childScriptColor_selection"
-#define _USR_CHILD_SCRIPT_COLOR_COMMENT "childScriptColor_comment"
-#define _USR_CHILD_SCRIPT_COLOR_NUMBER "childScriptColor_number"
-#define _USR_CHILD_SCRIPT_COLOR_STRING "childScriptColor_string"
-#define _USR_CHILD_SCRIPT_COLOR_CHARACTER "childScriptColor_character"
-#define _USR_CHILD_SCRIPT_COLOR_OPERATOR "childScriptColor_operator"
-#define _USR_CHILD_SCRIPT_COLOR_PREPROCESSOR "childScriptColor_preprocessor"
-#define _USR_CHILD_SCRIPT_COLOR_IDENTIFIER "childScriptColor_identifier"
-#define _USR_CHILD_SCRIPT_COLOR_WORD "childScriptColor_word"
-#define _USR_CHILD_SCRIPT_COLOR_WORD2 "childScriptColor_word2"
-#define _USR_CHILD_SCRIPT_COLOR_WORD3 "childScriptColor_word3"
-#define _USR_CHILD_SCRIPT_COLOR_WORD4 "childScriptColor_word4"
-
-#define _USR_MAIN_SCRIPT_COLOR_BACKGROUND "mainScriptColor_background"
-#define _USR_MAIN_SCRIPT_COLOR_SELECTION "mainScriptColor_selection"
-#define _USR_MAIN_SCRIPT_COLOR_COMMENT "mainScriptColor_comment"
-#define _USR_MAIN_SCRIPT_COLOR_NUMBER "mainScriptColor_number"
-#define _USR_MAIN_SCRIPT_COLOR_STRING "mainScriptColor_string"
-#define _USR_MAIN_SCRIPT_COLOR_CHARACTER "mainScriptColor_character"
-#define _USR_MAIN_SCRIPT_COLOR_OPERATOR "mainScriptColor_operator"
-#define _USR_MAIN_SCRIPT_COLOR_PREPROCESSOR "mainScriptColor_preprocessor"
-#define _USR_MAIN_SCRIPT_COLOR_IDENTIFIER "mainScriptColor_identifier"
-#define _USR_MAIN_SCRIPT_COLOR_WORD "mainScriptColor_word"
-#define _USR_MAIN_SCRIPT_COLOR_WORD2 "mainScriptColor_word2"
-#define _USR_MAIN_SCRIPT_COLOR_WORD3 "mainScriptColor_word3"
-#define _USR_MAIN_SCRIPT_COLOR_WORD4 "mainScriptColor_word4"
-
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_BACKGROUND "customizationScriptColor_background"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_SELECTION "customizationScriptColor_selection"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_COMMENT "customizationScriptColor_comment"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_NUMBER "customizationScriptColor_number"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_STRING "customizationScriptColor_string"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_CHARACTER "customizationScriptColor_character"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_OPERATOR "customizationScriptColor_operator"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_PREPROCESSOR "customizationScriptColor_preprocessor"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_IDENTIFIER "customizationScriptColor_identifier"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_WORD "customizationScriptColor_word"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_WORD2 "customizationScriptColor_word2"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_WORD3 "customizationScriptColor_word3"
-#define _USR_CUSTOMIZATION_SCRIPT_COLOR_WORD4 "customizationScriptColor_word4"
+#define _USR_CODE_COLOR_BACKGROUND "codeColor_background"
+#define _USR_CODE_COLOR_SELECTION "codeColor_selection"
+#define _USR_CODE_COLOR_COMMENT "codeColor_comment"
+#define _USR_CODE_COLOR_NUMBER "codeColor_number"
+#define _USR_CODE_COLOR_STRING "codeColor_string"
+#define _USR_CODE_COLOR_CHARACTER "codeColor_character"
+#define _USR_CODE_COLOR_OPERATOR "codeColor_operator"
+#define _USR_CODE_COLOR_PREPROCESSOR "codeColor_preprocessor"
+#define _USR_CODE_COLOR_IDENTIFIER "codeColor_identifier"
+#define _USR_CODE_COLOR_WORD "codeColor_word"
+#define _USR_CODE_COLOR_WORD2 "codeColor_word2"
+#define _USR_CODE_COLOR_WORD3 "codeColor_word3"
+#define _USR_CODE_COLOR_WORD4 "codeColor_word4"
 
 #define _USR_FILE_DIALOGS_NATIVE "fileDialogs"
 #define _USR_MOUSE_WHEEL_ZOOM_FACTOR "mouseWheelZoomFactor"
@@ -240,48 +212,19 @@ CUserSettings::CUserSettings()
     noCustomUisWhenMouseDownInCameraView=true;
     hierarchyRefreshCnt=6;
 
-    _setIntVector3(childScriptColor_background,205,205,205);
-    _setIntVector3(childScriptColor_selection,128,128,255);
-    _setIntVector3(childScriptColor_comment,0,140,0);
-    _setIntVector3(childScriptColor_number,220,0,220);
-    _setIntVector3(childScriptColor_string,255,255,0);
-    _setIntVector3(childScriptColor_character,255,255,0);
-    _setIntVector3(childScriptColor_operator,0,0,0);
-    _setIntVector3(childScriptColor_preprocessor,0,128,128);
-    _setIntVector3(childScriptColor_identifier,64,64,64);
-    _setIntVector3(childScriptColor_word,0,0,255);
-    _setIntVector3(childScriptColor_word2,152,0,0);
-    _setIntVector3(childScriptColor_word3,220,80,20);
-    _setIntVector3(childScriptColor_word4,152,64,0);
-
-    _setIntVector3(mainScriptColor_background,205,195,195);
-    _setIntVector3(mainScriptColor_selection,128,128,255);
-    _setIntVector3(mainScriptColor_comment,0,140,0);
-    _setIntVector3(mainScriptColor_number,220,0,220);
-    _setIntVector3(mainScriptColor_string,255,255,0);
-    _setIntVector3(mainScriptColor_character,255,255,0);
-    _setIntVector3(mainScriptColor_operator,0,0,0);
-    _setIntVector3(mainScriptColor_preprocessor,0,128,128);
-    _setIntVector3(mainScriptColor_identifier,64,64,64);
-    _setIntVector3(mainScriptColor_word,0,0,255);
-    _setIntVector3(mainScriptColor_word2,152,0,0);
-    _setIntVector3(mainScriptColor_word3,220,80,20);
-    _setIntVector3(mainScriptColor_word4,152,64,0);
-
-    _setIntVector3(customizationScriptColor_background,180,180,180);
-    _setIntVector3(customizationScriptColor_selection,128,128,255);
-    _setIntVector3(customizationScriptColor_comment,0,120,0);
-    _setIntVector3(customizationScriptColor_number,220,0,220);
-    _setIntVector3(customizationScriptColor_string,255,255,0);
-    _setIntVector3(customizationScriptColor_character,255,255,0);
-    _setIntVector3(customizationScriptColor_operator,0,0,0);
-    _setIntVector3(customizationScriptColor_preprocessor,0,128,128);
-    _setIntVector3(customizationScriptColor_identifier,70,70,70);
-    _setIntVector3(customizationScriptColor_word,0,0,255);
-    _setIntVector3(customizationScriptColor_word2,152,0,0);
-    _setIntVector3(customizationScriptColor_word3,220,80,20);
-    _setIntVector3(customizationScriptColor_word4,152,64,0);
-
+    _setIntVector3(codeColor_background,205,205,205);
+    _setIntVector3(codeColor_selection,128,128,255);
+    _setIntVector3(codeColor_comment,0,140,0);
+    _setIntVector3(codeColor_number,220,0,220);
+    _setIntVector3(codeColor_string,48,149,186);
+    _setIntVector3(codeColor_character,48,149,186);
+    _setIntVector3(codeColor_operator,0,0,0);
+    _setIntVector3(codeColor_preprocessor,0,128,128);
+    _setIntVector3(codeColor_identifier,64,64,64);
+    _setIntVector3(codeColor_word,50,50,215);
+    _setIntVector3(codeColor_word2,152,0,0);
+    _setIntVector3(codeColor_word3,220,80,20);
+    _setIntVector3(codeColor_word4,152,64,0);
 
     // Directories section:
     // *****************************
@@ -571,47 +514,19 @@ void CUserSettings::saveUserSettings(bool outputMsgs/*=true*/)
         c.addBoolean(_USR_SCRIPT_EDITOR_BOLDFONT,scriptEditorBoldFont,"");
         c.addInteger(_USR_SCRIPT_EDITOR_FONT_SIZE,scriptEditorFontSize,"-1=default.");
 
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_BACKGROUND,mainScriptColor_background,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_SELECTION,mainScriptColor_selection,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_COMMENT,mainScriptColor_comment,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_NUMBER,mainScriptColor_number,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_STRING,mainScriptColor_string,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_CHARACTER,mainScriptColor_character,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_OPERATOR,mainScriptColor_operator,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_PREPROCESSOR,mainScriptColor_preprocessor,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_IDENTIFIER,mainScriptColor_identifier,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD,mainScriptColor_word,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD2,mainScriptColor_word2,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD3,mainScriptColor_word3,"");
-        c.addIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD4,mainScriptColor_word4,"");
-
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_BACKGROUND,childScriptColor_background,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_SELECTION,childScriptColor_selection,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_COMMENT,childScriptColor_comment,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_NUMBER,childScriptColor_number,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_STRING,childScriptColor_string,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_CHARACTER,childScriptColor_character,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_OPERATOR,childScriptColor_operator,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_PREPROCESSOR,childScriptColor_preprocessor,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_IDENTIFIER,childScriptColor_identifier,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD,childScriptColor_word,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD2,childScriptColor_word2,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD3,childScriptColor_word3,"");
-        c.addIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD4,childScriptColor_word4,"");
-
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_BACKGROUND,customizationScriptColor_background,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_SELECTION,customizationScriptColor_selection,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_COMMENT,customizationScriptColor_comment,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_NUMBER,customizationScriptColor_number,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_STRING,customizationScriptColor_string,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_CHARACTER,customizationScriptColor_character,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_OPERATOR,customizationScriptColor_operator,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_PREPROCESSOR,customizationScriptColor_preprocessor,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_IDENTIFIER,customizationScriptColor_identifier,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD,customizationScriptColor_word,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD2,customizationScriptColor_word2,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD3,customizationScriptColor_word3,"");
-        c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD4,customizationScriptColor_word4,"");
+        c.addIntVector3(_USR_CODE_COLOR_BACKGROUND,codeColor_background,"");
+        c.addIntVector3(_USR_CODE_COLOR_SELECTION,codeColor_selection,"");
+        c.addIntVector3(_USR_CODE_COLOR_COMMENT,codeColor_comment,"");
+        c.addIntVector3(_USR_CODE_COLOR_NUMBER,codeColor_number,"");
+        c.addIntVector3(_USR_CODE_COLOR_STRING,codeColor_string,"");
+        c.addIntVector3(_USR_CODE_COLOR_CHARACTER,codeColor_character,"");
+        c.addIntVector3(_USR_CODE_COLOR_OPERATOR,codeColor_operator,"");
+        c.addIntVector3(_USR_CODE_COLOR_PREPROCESSOR,codeColor_preprocessor,"");
+        c.addIntVector3(_USR_CODE_COLOR_IDENTIFIER,codeColor_identifier,"");
+        c.addIntVector3(_USR_CODE_COLOR_WORD,codeColor_word,"");
+        c.addIntVector3(_USR_CODE_COLOR_WORD2,codeColor_word2,"");
+        c.addIntVector3(_USR_CODE_COLOR_WORD3,codeColor_word3,"");
+        c.addIntVector3(_USR_CODE_COLOR_WORD4,codeColor_word4,"");
 
         c.addRandomLine("");
         c.addRandomLine("");
@@ -865,47 +780,19 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_SCRIPT_EDITOR_BOLDFONT,scriptEditorBoldFont);
     c.getInteger(_USR_SCRIPT_EDITOR_FONT_SIZE,scriptEditorFontSize);
 
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_BACKGROUND,mainScriptColor_background);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_SELECTION,mainScriptColor_selection);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_COMMENT,mainScriptColor_comment);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_NUMBER,mainScriptColor_number);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_STRING,mainScriptColor_string);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_CHARACTER,mainScriptColor_character);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_OPERATOR,mainScriptColor_operator);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_PREPROCESSOR,mainScriptColor_preprocessor);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_IDENTIFIER,mainScriptColor_identifier);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD,mainScriptColor_word);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD2,mainScriptColor_word2);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD3,mainScriptColor_word3);
-    c.getIntVector3(_USR_MAIN_SCRIPT_COLOR_WORD4,mainScriptColor_word4);
-
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_BACKGROUND,childScriptColor_background);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_SELECTION,childScriptColor_selection);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_COMMENT,childScriptColor_comment);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_NUMBER,childScriptColor_number);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_STRING,childScriptColor_string);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_CHARACTER,childScriptColor_character);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_OPERATOR,childScriptColor_operator);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_PREPROCESSOR,childScriptColor_preprocessor);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_IDENTIFIER,childScriptColor_identifier);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD,childScriptColor_word);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD2,childScriptColor_word2);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD3,childScriptColor_word3);
-    c.getIntVector3(_USR_CHILD_SCRIPT_COLOR_WORD4,childScriptColor_word4);
-
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_BACKGROUND,customizationScriptColor_background);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_SELECTION,customizationScriptColor_selection);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_COMMENT,customizationScriptColor_comment);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_NUMBER,customizationScriptColor_number);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_STRING,customizationScriptColor_string);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_CHARACTER,customizationScriptColor_character);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_OPERATOR,customizationScriptColor_operator);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_PREPROCESSOR,customizationScriptColor_preprocessor);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_IDENTIFIER,customizationScriptColor_identifier);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD,customizationScriptColor_word);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD2,customizationScriptColor_word2);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD3,customizationScriptColor_word3);
-    c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD4,customizationScriptColor_word4);
+    c.getIntVector3(_USR_CODE_COLOR_BACKGROUND,codeColor_background);
+    c.getIntVector3(_USR_CODE_COLOR_SELECTION,codeColor_selection);
+    c.getIntVector3(_USR_CODE_COLOR_COMMENT,codeColor_comment);
+    c.getIntVector3(_USR_CODE_COLOR_NUMBER,codeColor_number);
+    c.getIntVector3(_USR_CODE_COLOR_STRING,codeColor_string);
+    c.getIntVector3(_USR_CODE_COLOR_CHARACTER,codeColor_character);
+    c.getIntVector3(_USR_CODE_COLOR_OPERATOR,codeColor_operator);
+    c.getIntVector3(_USR_CODE_COLOR_PREPROCESSOR,codeColor_preprocessor);
+    c.getIntVector3(_USR_CODE_COLOR_IDENTIFIER,codeColor_identifier);
+    c.getIntVector3(_USR_CODE_COLOR_WORD,codeColor_word);
+    c.getIntVector3(_USR_CODE_COLOR_WORD2,codeColor_word2);
+    c.getIntVector3(_USR_CODE_COLOR_WORD3,codeColor_word3);
+    c.getIntVector3(_USR_CODE_COLOR_WORD4,codeColor_word4);
 
     // Directories section:
     // *****************************

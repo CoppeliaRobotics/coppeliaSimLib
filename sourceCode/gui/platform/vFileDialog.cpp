@@ -1,4 +1,3 @@
-
 #include <vFileDialog.h>
 #include <QFileDialog>
 
