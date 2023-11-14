@@ -220,11 +220,11 @@ std::string CFolderSystem::getUserSettingsPath()
             userSettingsFolder=std::string(appData)+"/"+usrSet;
     #endif
     #ifdef LIN_SIM
-        const char* xdghome=std::getenv("XDG_CONFIG_HOME");
-        if (xdghome!=nullptr)
-            xdghome=home;
-        if (xdghome!=nullptr)
-            userSettingsFolder=std::string(xdghome)+"/."+usrSet;
+        const char* xdghome=std::getenv("XDG_CONFIG_HOME"); // takes precedence
+        if  ( (xdghome!=nullptr) && (strlen(xdghome) != 0) )
+            home = xdghome;
+        if ( (home != nullptr) && (strlen(home) != 0) )
+            userSettingsFolder=std::string(home)+"/."+usrSet;
     #endif
     #ifdef MAC_SIM
         if (home!=nullptr)

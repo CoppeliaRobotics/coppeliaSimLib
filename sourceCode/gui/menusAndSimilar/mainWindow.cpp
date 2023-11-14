@@ -127,7 +127,7 @@ CMainWindow::CMainWindow(int operationalUiParts) : QMainWindow()
     modelListWidget->setMaximumWidth(170*4);
     modelListWidget->setMinimumWidth(180);
 
-    modelFolderWidget=new CModelFolderWidget(modelListWidget,"Model browser",App::folders->getModelsPath().c_str(),CSimFlavor::getStringVal(15).c_str());
+    modelFolderWidget = new CModelFolderWidget(modelListWidget, "Model browser", App::folders->getModelsPath().c_str(), CSimFlavor::getStringVal(15).c_str());
 
     #ifdef MAC_SIM
         if (modelFolderWidget->hasError())

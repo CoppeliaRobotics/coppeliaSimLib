@@ -7,12 +7,14 @@
 #include <sha256.h>
 #include <QMimeData>
 #include <QScrollBar>
+#include <utils.h>
 #ifdef SIM_WITH_GUI
     #include <guiApp.h>
 #endif
 
 CModelListWidget::CModelListWidget() : CModelListWidgetBase()
 {
+    //setSortingEnabled(true);
     setViewMode(QListView::IconMode);
     setGridSize(QSize(160,180));
     setIconSize(QSize(128,128));
@@ -45,15 +47,16 @@ void CModelListWidget::clearAll()
     for (size_t i=0;i<_allThumbnailsInfo.size();i++)
         delete _allThumbnailsInfo[i].thumbnail;
     _allThumbnailsInfo.clear();
-    _folderPath="";
     clear();
 }
 
-void CModelListWidget::addThumbnail(CThumbnail* thumbN,const char* nameWithExtension,unsigned int creationTime,unsigned char modelOrFolder,bool validFileformat,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,double* optionalModelNonDefaultTranslationStepSize)
+void CModelListWidget::addThumbnail(CThumbnail* thumbN,const char* filepath,const char* suffix,unsigned int creationTime,unsigned char modelOrFolder,bool validFileformat,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,double* optionalModelNonDefaultTranslationStepSize)
 {
     SModelThumbnailInfo info;
     info.thumbnail=thumbN;
-    info.nameWithExtension=nameWithExtension;
+
+    info.name = VVarious::splitPath_fileBase(filepath) + suffix;
+    info.filepath = filepath;
     info.creationTime=creationTime;
     info.modelOrFolder=modelOrFolder;
     info.validFileFormat=validFileformat;
@@ -76,7 +79,7 @@ void CModelListWidget::addThumbnail(CThumbnail* thumbN,const char* nameWithExten
 
 void CModelListWidget::_addThumbnailItemToList(int index)
 {
-    std::string str(_allThumbnailsInfo[index].nameWithExtension);
+    std::string str(_allThumbnailsInfo[index].name);
     int cnt=0;
     for (size_t i=0;i<str.size();i++)
     {
@@ -116,6 +119,7 @@ void CModelListWidget::_addThumbnailItemToList(int index)
         item->setIcon(*(new QIcon(":/variousImageFiles/128x128folder.png")));
     item->setData(Qt::UserRole,index);
     insertItem(index,item);
+    //sortItems();
 }
 
 CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int& result,C7Vector& modelTr,C3Vector& modelBoundingBoxSize,double& modelNonDefaultTranslationStepSize)
@@ -153,40 +157,95 @@ void CModelListWidget::setFolder(const char* folderPath)
     const std::vector<int>* initialSelection=App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
     if (folderPath!=nullptr)
     {
-        _folderPath=folderPath;
         // 1. Get all files and their info from the folder:
-        std::vector<std::string> allModelNames;
-        std::vector<unsigned int> allModelCreationTimes;
-        std::vector<unsigned char> allModelOrFolder; // 1=model, 0=folder
+        std::string fp(folderPath);
+        std::string p;
 
-        VFileFinder finder;
-        finder.searchFilesOrFolders(folderPath);
-        int index=0;
-        SFileOrFolder* foundItem=finder.getFoundItem(index++);
-        while (foundItem!=nullptr)
+        struct sost
         {
-            if (foundItem->isFile)
-            { // Files
-                std::string filename(foundItem->name);
-                if (CSimFlavor::getBoolVal_str(0,filename.c_str()))
-                {
-                    allModelNames.push_back(filename);
-                    allModelCreationTimes.push_back((unsigned int)foundItem->lastWriteTime);
-                    allModelOrFolder.push_back(1); // this is a model
-                }
-            }
+            std::string name;
+            std::string path;
+            std::string suffix;
+            unsigned int creationTime;
+            unsigned char model;
+        };
+        std::vector<sost> allItems;
+
+        std::map<std::string, int> visitedItems;
+        std::map<std::string, int> visitedItemsCnt;
+        std::string fpath;
+        while (utils::extractCommaSeparatedWord(fp, p))
+        {
+            std::string suffix;
+            if (fpath.size() == 0)
+                fpath = p;
             else
-            { // Added on 28/05/2011 to accomodate for folder thumbnail display
-                std::string filename(foundItem->name);
-                if ( (filename!=".")&&(filename!="..") )
-                { // We don't wanna the . and .. folders
-                    allModelNames.push_back(filename);
-                    allModelCreationTimes.push_back((unsigned int)foundItem->lastWriteTime);
-                    allModelOrFolder.push_back(0); // this is a folder
+                suffix = " (" + _getFirstDifferentDir(fpath.c_str(), p.c_str()) + ")";
+            VFileFinder finder;
+            finder.searchFilesOrFolders(p.c_str());
+            int index=0;
+            SFileOrFolder* foundItem=finder.getFoundItem(index++);
+            while (foundItem!=nullptr)
+            {
+                utils::replaceSubstring(foundItem->path, "\\", "/");
+                std::string base(VVarious::splitPath_fileBase(foundItem->path.c_str()));
+                if (foundItem->isFile)
+                { // Files
+                    if (visitedItemsCnt.find(base) == visitedItemsCnt.end())
+                        visitedItemsCnt[base] = 1;
+                    else
+                        visitedItemsCnt[base] = 2;
+                    sost it;
+                    it.path = foundItem->path;
+                    it.name = VVarious::splitPath_fileBase(it.path.c_str());
+                    it.suffix = suffix;
+                    if (visitedItems.find(base) == visitedItems.end())
+                        visitedItems[base] = allItems.size();
+                    it.creationTime = (unsigned int)foundItem->lastWriteTime;
+                    it.model = 1;
+                    allItems.push_back(it);
                 }
+                else
+                { // Added on 28/05/2011 to accomodate for folder thumbnail display
+                    if ( (foundItem->name!=".")&&(foundItem->name!="..") )
+                    { // We don't wanna the . and .. folders
+                        if (visitedItems.find(base) == visitedItems.end())
+                        {
+                            sost it;
+                            it.path = foundItem->path;
+                            it.name = VVarious::splitPath_fileBase(it.path.c_str());
+                            it.creationTime = (unsigned int)foundItem->lastWriteTime;
+                            it.model = 0;
+                            visitedItems[base] = allItems.size();
+                            allItems.push_back(it);
+                        }
+                        else
+                        {
+                            int ind = visitedItems[base];
+                            allItems[ind].path += "," + foundItem->path;
+                        }
+                    }
+                }
+                foundItem=finder.getFoundItem(index++);
             }
-            foundItem=finder.getFoundItem(index++);
         }
+
+        for (size_t i = 0; i < allItems.size(); i++)
+        {
+            std::string suff = allItems[i].suffix;
+            if (suff.size() > 0 )
+            {
+                std::string base(VVarious::splitPath_fileBase(allItems[i].path.c_str()));
+                if (visitedItemsCnt[base] < 2)
+                    allItems[i].suffix.clear();
+            }
+        }
+
+        std::sort(allItems.begin(), allItems.end(), [](const sost& a, const sost& b)
+        {
+            return a.name+a.suffix < b.name+b.suffix;
+        });
+
         // 2. Check if a thumbnail file exists:
         clearAll();
         std::string fn(sha256(folderPath));
@@ -200,28 +259,25 @@ void CModelListWidget::setFolder(const char* folderPath)
             {
                 thumbnailFileExistsAndWasLoaded=true;
                 serializePart1(serObj);
-                // a. do we have the same directory as written in the file?
-                if (_folderPath.compare(folderPath)!=0)
-                    thumbnailFileExistsAndWasLoaded=false;
                 // b. do we have the same number of files?
-                if (_allThumbnailsInfo.size()!=allModelNames.size())
+                if (_allThumbnailsInfo.size()!=allItems.size())
                     thumbnailFileExistsAndWasLoaded=false;
                 else
                 { // we have the same number of files. Check if the names and last write times are same:
                     bool same=true;
-                    for (int i=0;i<int(allModelNames.size());i++)
+                    for (size_t i=0;i<allItems.size();i++)
                     {
-                        if (allModelNames[i].compare(_allThumbnailsInfo[i].nameWithExtension)!=0)
+                        if (allItems[i].path.compare(_allThumbnailsInfo[i].filepath)!=0)
                         {
                             same=false;
                             break;
                         }
-                        if (allModelCreationTimes[i]!=_allThumbnailsInfo[i].creationTime)
+                        if (allItems[i].creationTime!=_allThumbnailsInfo[i].creationTime)
                         {
                             same=false;
                             break;
                         }
-                        if (allModelOrFolder[i]!=_allThumbnailsInfo[i].modelOrFolder)
+                        if (allItems[i].model != _allThumbnailsInfo[i].modelOrFolder)
                         { // Check also if both are models or folders!
                             same=false;
                             break;
@@ -236,34 +292,36 @@ void CModelListWidget::setFolder(const char* folderPath)
             }
         }
         // 3. Now load all thumbnails freshly (if needed):
-        if ( (!thumbnailFileExistsAndWasLoaded)&&(allModelNames.size()!=0) )
+        if ( (!thumbnailFileExistsAndWasLoaded)&&(allItems.size()!=0) )
         {
             clearAll();
-            _folderPath=folderPath;
-            for (int i=0;i<int(allModelNames.size());i++)
-            {
-                if (allModelOrFolder[i]==1)
-                { // we have a model here
-                    std::string nameAndPath(_folderPath);
-                    nameAndPath+="/";
-                    nameAndPath+=allModelNames[i];
-                    int result;
-                    C7Vector modelTr;
-                    C3Vector modelBBs;
-                    double ndss;
-                    CThumbnail* thumbnail=loadModelThumbnail(nameAndPath.c_str(),result,modelTr,modelBBs,ndss);
-                    if (thumbnail!=nullptr)
-                        addThumbnail(thumbnail,allModelNames[i].c_str(),allModelCreationTimes[i],1,result>=0,&modelTr,&modelBBs,&ndss);
-                }
-                else
-                { // we have a folder here!
-                    int xres,yres;
-                    bool rgba;
-                    unsigned char* thumbnail=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/128x128folder.tga",xres,yres,rgba,nullptr);
-                    CThumbnail* foldThumb=new CThumbnail();
-                    foldThumb->setUncompressedThumbnailImage((char*)thumbnail,true,false);
-                    delete[] thumbnail;
-                    addThumbnail(foldThumb,allModelNames[i].c_str(),allModelCreationTimes[i],0,true,nullptr,nullptr,nullptr);
+            for (size_t k=0; k < 2; k++)
+            { // file or folder (folders first)
+                for (size_t i=0;i<allItems.size();i++)
+                {
+                    if (allItems[i].model == k)
+                    {
+                        if (k == 0)
+                        { // we have a folder here!
+                            int xres,yres;
+                            bool rgba;
+                            unsigned char* thumbnail=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/128x128folder.tga",xres,yres,rgba,nullptr);
+                            CThumbnail* foldThumb=new CThumbnail();
+                            foldThumb->setUncompressedThumbnailImage((char*)thumbnail,true,false);
+                            delete[] thumbnail;
+                            addThumbnail(foldThumb,allItems[i].path.c_str(),allItems[i].suffix.c_str(),allItems[i].creationTime,0,true,nullptr,nullptr,nullptr);
+                        }
+                        else
+                        { // we have a model here
+                            int result;
+                            C7Vector modelTr;
+                            C3Vector modelBBs;
+                            double ndss;
+                            CThumbnail* thumbnail=loadModelThumbnail(allItems[i].path.c_str(),result,modelTr,modelBBs,ndss);
+                            if (thumbnail!=nullptr)
+                                addThumbnail(thumbnail,allItems[i].path.c_str(),allItems[i].suffix.c_str(),allItems[i].creationTime,1,result>=0,&modelTr,&modelBBs,&ndss);
+                        }
+                    }
                 }
             }
             // 4. Serialize the thumbnail file for fast access in future:
@@ -277,37 +335,45 @@ void CModelListWidget::setFolder(const char* folderPath)
     App::currentWorld->sceneObjects->setSelectedObjectHandles(initialSelection);
 }
 
+std::string CModelListWidget::_getFirstDifferentDir(const char* pathA, const char* pathB)
+{
+    fs::path fsPathA(pathA);
+    fs::path fsPathB(pathB);
+
+    std::vector<std::string> dirsA;
+    std::vector<std::string> dirsB;
+
+    for (auto& part : fsPathA)
+        dirsA.push_back(part.string());
+    for (auto& part : fsPathB)
+        dirsB.push_back(part.string());
+
+    std::reverse(dirsA.begin(), dirsA.end());
+    std::reverse(dirsB.begin(), dirsB.end());
+
+    auto itA = dirsA.begin();
+    auto itB = dirsB.begin();
+    while (itA != dirsA.end() && itB != dirsB.end())
+    {
+        if (*itA != *itB)
+            return *itB;
+        ++itA;
+        ++itB;
+    }
+
+    return "";
+}
+
 void CModelListWidget::serializePart1(CSer& ar)
 {
     if (ar.isStoring())
     { // Storing
-        ar.storeDataName("Tfp");
-        ar << _folderPath;
-        ar.flush();
-
-#ifdef TMPOPERATION
-        ar.storeDataName("Tn5");
+        ar.storeDataName("_n6");
         ar << int(_allThumbnailsInfo.size());
         for (size_t i=0;i<_allThumbnailsInfo.size();i++)
         {
-            ar << _allThumbnailsInfo[i].nameWithExtension;
-            ar << _allThumbnailsInfo[i].creationTime;
-            ar << _allThumbnailsInfo[i].modelOrFolder;
-            ar << _allThumbnailsInfo[i].validFileFormat;
-            for (int j=0;j<7;j++)
-                ar << (float)_allThumbnailsInfo[i].modelTr(j);
-            for (int j=0;j<3;j++)
-                ar << (float)_allThumbnailsInfo[i].modelBoundingBoxSize(j);
-            ar << (float)_allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
-        }
-        ar.flush();
-#endif
-
-        ar.storeDataName("_n5");
-        ar << int(_allThumbnailsInfo.size());
-        for (size_t i=0;i<_allThumbnailsInfo.size();i++)
-        {
-            ar << _allThumbnailsInfo[i].nameWithExtension;
+            ar << _allThumbnailsInfo[i].name;
+            ar << _allThumbnailsInfo[i].filepath;
             ar << _allThumbnailsInfo[i].creationTime;
             ar << _allThumbnailsInfo[i].modelOrFolder;
             ar << _allThumbnailsInfo[i].validFileFormat;
@@ -318,7 +384,6 @@ void CModelListWidget::serializePart1(CSer& ar)
             ar << _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize;
         }
         ar.flush();
-
 
         ar.storeDataName(SER_END_OF_OBJECT);
     }
@@ -332,99 +397,7 @@ void CModelListWidget::serializePart1(CSer& ar)
             if (theName.compare(SER_END_OF_OBJECT)!=0)
             {
                 bool noHit=true;
-                if (theName.compare("Tfp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _folderPath;
-                }
-                if (theName.compare("Tnd")==0)
-                { // For backward compatibility (28/05/2011)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int thmbCnt;
-                    ar >> thmbCnt;
-                    _allThumbnailsInfo.resize(thmbCnt);
-                    for (int i=0;i<thmbCnt;i++)
-                    {
-                        std::string dum;
-                        ar >> dum;
-                        _allThumbnailsInfo[i].nameWithExtension=dum;
-                        unsigned int dum2;
-                        ar >> dum2;
-                        _allThumbnailsInfo[i].creationTime=dum2;
-                        _allThumbnailsInfo[i].modelOrFolder=1; // 1=model
-                        unsigned char dum3;
-                        ar >> dum3;
-                        _allThumbnailsInfo[i].validFileFormat=dum3;
-                        _allThumbnailsInfo[i].modelTr.setIdentity();
-                        _allThumbnailsInfo[i].modelBoundingBoxSize.clear();
-                        _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize=0.0;
-                    }
-                }
-                if (theName.compare("Tn2")==0)
-                { // For backward compatibility (29/12/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int thmbCnt;
-                    ar >> thmbCnt;
-                    _allThumbnailsInfo.resize(thmbCnt);
-                    for (int i=0;i<thmbCnt;i++)
-                    {
-                        std::string dum;
-                        ar >> dum;
-                        _allThumbnailsInfo[i].nameWithExtension=dum;
-                        unsigned int dum2;
-                        ar >> dum2;
-                        _allThumbnailsInfo[i].creationTime=dum2;
-                        unsigned char dum3;
-                        ar >> dum3;
-                        _allThumbnailsInfo[i].modelOrFolder=dum3;
-                        ar >> dum3;
-                        _allThumbnailsInfo[i].validFileFormat=dum3;
-                        _allThumbnailsInfo[i].modelTr.setIdentity();
-                        _allThumbnailsInfo[i].modelBoundingBoxSize.clear();
-                        _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize=0.0;
-                    }
-                }
-                if (theName.compare("Tn5")==0)
-                { // for backward comp. (flt->dbl)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int thmbCnt;
-                    ar >> thmbCnt;
-                    _allThumbnailsInfo.resize(thmbCnt);
-                    for (int i=0;i<thmbCnt;i++)
-                    {
-                        std::string dum;
-                        ar >> dum;
-                        _allThumbnailsInfo[i].nameWithExtension=dum;
-                        unsigned int dum2;
-                        ar >> dum2;
-                        _allThumbnailsInfo[i].creationTime=dum2;
-                        unsigned char dum3;
-                        ar >> dum3;
-                        _allThumbnailsInfo[i].modelOrFolder=dum3;
-                        ar >> dum3;
-                        _allThumbnailsInfo[i].validFileFormat=dum3;
-                        float bla;
-                        for (int j=0;j<7;j++)
-                        {
-                            ar >> bla;
-                            _allThumbnailsInfo[i].modelTr(j)=(double)bla;
-                        }
-                        _allThumbnailsInfo[i].modelTr.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
-                        for (int j=0;j<3;j++)
-                        {
-                            ar >> bla;
-                            _allThumbnailsInfo[i].modelBoundingBoxSize(j)=(double)bla;
-                        }
-                        ar >> bla;
-                        _allThumbnailsInfo[i].modelNonDefaultTranslationStepSize=(double)bla;
-                    }
-                }
-
-                if (theName.compare("_n5")==0)
+                if (theName.compare("_n6")==0)
                 {
                     noHit=false;
                     ar >> byteQuantity;
@@ -435,7 +408,9 @@ void CModelListWidget::serializePart1(CSer& ar)
                     {
                         std::string dum;
                         ar >> dum;
-                        _allThumbnailsInfo[i].nameWithExtension=dum;
+                        _allThumbnailsInfo[i].name = dum;
+                        ar >> dum;
+                        _allThumbnailsInfo[i].filepath=dum;
                         unsigned int dum2;
                         ar >> dum2;
                         _allThumbnailsInfo[i].creationTime=dum2;
@@ -532,18 +507,15 @@ QMimeData* CModelListWidget::mimeData(const QList<QListWidgetItem *> items) cons
     int index=item->data(Qt::UserRole).toInt();
     QMimeData* data=new QMimeData();
     SModelThumbnailInfo* info=(SModelThumbnailInfo*)&_allThumbnailsInfo[index];
-    data->setText(info->nameWithExtension.c_str());
-    info->modelPathAndNameWithExtension=_folderPath;
-    info->modelPathAndNameWithExtension+="/";
-    info->modelPathAndNameWithExtension+=info->nameWithExtension;
+    data->setText(info->name.c_str());
     return(data);
 }
 
-SModelThumbnailInfo* CModelListWidget::getThumbnailInfoFromModelName(const char* nameWithExtension,int* index)
+SModelThumbnailInfo* CModelListWidget::getThumbnailInfoFromModelName(const char* name,int* index)
 {
     for (size_t i=0;i<_allThumbnailsInfo.size();i++)
     {
-        if (_allThumbnailsInfo[i].nameWithExtension.compare(nameWithExtension)==0)
+        if (_allThumbnailsInfo[i].name.compare(name)==0)
         {
             if (index!=nullptr)
                 index[0]=(int)i;
@@ -559,9 +531,5 @@ void CModelListWidget::onItemClicked(QListWidgetItem* item)
 {
     int index=item->data(Qt::UserRole).toInt();
     if (_allThumbnailsInfo[index].modelOrFolder==0)
-    {
-        _folderPath+="/";
-        _folderPath+=_allThumbnailsInfo[index].nameWithExtension;
-        GuiApp::mainWindow->modelFolderWidget->selectFolder(_folderPath.c_str());
-    }
+        GuiApp::mainWindow->modelFolderWidget->selectFolder(_allThumbnailsInfo[index].filepath.c_str());
 }

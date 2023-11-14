@@ -612,7 +612,7 @@ void COpenglWidget::dropEvent(QDropEvent* dEvent)
             int okToDrop=GuiApp::mainWindow->modelDragMoveEvent(x,y,&desiredModelPosition);
             if (okToDrop>0)
             {
-                std::string pathAndName=_modelDragAndDropInfo->modelPathAndNameWithExtension;
+                std::string pathAndName=_modelDragAndDropInfo->filepath;
                 if (pathAndName.length()!=0)
                 {
                     SSimulationThreadCommand cmd;
