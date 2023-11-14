@@ -176,56 +176,60 @@ void CModelListWidget::setFolder(const char* folderPath)
         std::string fpath;
         while (utils::extractCommaSeparatedWord(fp, p))
         {
-            std::string suffix;
-            if (fpath.size() == 0)
-                fpath = p;
-            else
-                suffix = " (" + _getFirstDifferentDir(fpath.c_str(), p.c_str()) + ")";
             VFileFinder finder;
-            finder.searchFilesOrFolders(p.c_str());
+            finder.searchFolders(p.c_str());
             int index=0;
             SFileOrFolder* foundItem=finder.getFoundItem(index++);
             while (foundItem!=nullptr)
             {
                 utils::replaceSubstring(foundItem->path, "\\", "/");
                 std::string base(VVarious::splitPath_fileBase(foundItem->path.c_str()));
-                if (foundItem->isFile)
-                { // Files
-                    if (visitedItemsCnt.find(base) == visitedItemsCnt.end())
-                        visitedItemsCnt[base] = 1;
-                    else
-                        visitedItemsCnt[base] = 2;
-                    sost it;
-                    it.path = foundItem->path;
-                    it.name = VVarious::splitPath_fileBase(it.path.c_str());
-                    it.suffix = suffix;
+                if ( (foundItem->name!=".")&&(foundItem->name!="..") )
+                { // We don't wanna the . and .. folders
                     if (visitedItems.find(base) == visitedItems.end())
+                    {
+                        sost it;
+                        it.path = foundItem->path;
+                        it.name = VVarious::splitPath_fileBase(it.path.c_str());
+                        it.creationTime = (unsigned int)foundItem->lastWriteTime;
+                        it.model = 0;
                         visitedItems[base] = allItems.size();
-                    it.creationTime = (unsigned int)foundItem->lastWriteTime;
-                    it.model = 1;
-                    allItems.push_back(it);
-                }
-                else
-                { // Added on 28/05/2011 to accomodate for folder thumbnail display
-                    if ( (foundItem->name!=".")&&(foundItem->name!="..") )
-                    { // We don't wanna the . and .. folders
-                        if (visitedItems.find(base) == visitedItems.end())
-                        {
-                            sost it;
-                            it.path = foundItem->path;
-                            it.name = VVarious::splitPath_fileBase(it.path.c_str());
-                            it.creationTime = (unsigned int)foundItem->lastWriteTime;
-                            it.model = 0;
-                            visitedItems[base] = allItems.size();
-                            allItems.push_back(it);
-                        }
-                        else
-                        {
-                            int ind = visitedItems[base];
-                            allItems[ind].path += "," + foundItem->path;
-                        }
+                        allItems.push_back(it);
+                    }
+                    else
+                    {
+                        int ind = visitedItems[base];
+                        allItems[ind].path += "," + foundItem->path;
                     }
                 }
+                foundItem=finder.getFoundItem(index++);
+            }
+
+            std::string suffix;
+            if (fpath.size() == 0)
+                fpath = p;
+            else
+                suffix = " (" + _getFirstDifferentDir(fpath.c_str(), p.c_str()) + ")";
+            finder.searchFiles(p.c_str(), "ttm", nullptr);
+            index=0;
+            foundItem=finder.getFoundItem(index++);
+            while (foundItem!=nullptr)
+            {
+                utils::replaceSubstring(foundItem->path, "\\", "/");
+                std::string base(VVarious::splitPath_fileBase(foundItem->path.c_str()));
+                if (visitedItemsCnt.find(base) == visitedItemsCnt.end())
+                    visitedItemsCnt[base] = 1;
+                else
+                    visitedItemsCnt[base] = 2;
+                sost it;
+                it.path = foundItem->path;
+                it.name = VVarious::splitPath_fileBase(it.path.c_str());
+                it.suffix = suffix;
+                if (visitedItems.find(base) == visitedItems.end())
+                    visitedItems[base] = allItems.size();
+                it.creationTime = (unsigned int)foundItem->lastWriteTime;
+                it.model = 1;
+                allItems.push_back(it);
                 foundItem=finder.getFoundItem(index++);
             }
         }

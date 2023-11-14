@@ -2694,7 +2694,7 @@ int _auxFunc(luaWrap_lua_State* L)
                 std::string filter(luaWrap_lua_tostring(L,3));
                 std::string ext(luaWrap_lua_tostring(L,4));
                 VFileFinder finder;
-                finder.searchFilesWithExtension(path.c_str(),ext.c_str(),filter.c_str());
+                finder.searchFiles(path.c_str(),ext.c_str(),filter.c_str());
                 int cnt=0;
                 SFileOrFolder* foundItem=finder.getFoundItem(cnt);
                 std::vector<std::string> nstrs;

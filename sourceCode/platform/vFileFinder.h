@@ -17,7 +17,7 @@ public:
     VFileFinder();
     virtual ~VFileFinder();
 
-    int searchFilesWithExtension(const char* pathWithoutTerminalSlash,const char* extension,const char* filter);
+    int searchFiles(const char* pathWithoutTerminalSlash,const char* extension,const char* filter);
     int searchFolders(const char* pathWithoutTerminalSlash);
     int searchFilesOrFolders(const char* pathWithoutTerminalSlash);
     static int countFiles(const char* pathWithoutTerminalSlash);

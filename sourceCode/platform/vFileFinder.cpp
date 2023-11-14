@@ -11,7 +11,7 @@ VFileFinder::~VFileFinder()
 {
 }
 
-int VFileFinder::searchFilesWithExtension(const char* pathWithoutTerminalSlash,const char* extension,const char* filter)
+int VFileFinder::searchFiles(const char* pathWithoutTerminalSlash,const char* extension,const char* filter)
 {
     return(_searchFilesOrFolders(pathWithoutTerminalSlash,extension,0,filter));
 }
