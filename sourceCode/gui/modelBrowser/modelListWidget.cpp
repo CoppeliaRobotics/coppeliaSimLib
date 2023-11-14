@@ -343,9 +343,9 @@ std::string CModelListWidget::_getFirstDifferentDir(const char* pathA, const cha
     std::vector<std::string> dirsA;
     std::vector<std::string> dirsB;
 
-    for (auto& part : fsPathA)
+    for (const auto& part : fsPathA)
         dirsA.push_back(part.string());
-    for (auto& part : fsPathB)
+    for (const auto& part : fsPathB)
         dirsB.push_back(part.string());
 
     std::reverse(dirsA.begin(), dirsA.end());

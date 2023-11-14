@@ -34,6 +34,7 @@ CModelFolderWidget::CModelFolderWidget(CModelListWidget* modelListWidget,const c
     {
         std::vector<std::string> rootPaths;
         rootPaths.push_back(folderPath);
+        // overlays <userSettings>/userContent/models and <userSettings>/overlays/*/models if present
         std::string tmp(App::folders->getUserSettingsPath()+"/userContent/models");
         if (VFile::doesFolderExist(tmp.c_str()))
             rootPaths.push_back(tmp);
