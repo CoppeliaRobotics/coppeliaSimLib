@@ -154,6 +154,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_MISSING_PLUGIN_NAME "missing plugin name."
 #define SIM_ERROR_CALLBACK_IS_NULL "callback is NULL."
 #define SIM_ERROR_INVALID_FUNCTION_NAME "invalid function name."
+#define SIM_ERROR_INVALID_ASSEMBLY "invalid assembly."
 #define SIM_ERROR_INVALID_VARIABLE_NAME "invalid variable name."
 #define SIM_ERROR_FUNCTIONALITY_NOT_APPLICABLE_WITH_CURRENT_SCRIPT "functionality not applicable with current script."
 #define SIM_ERROR_FUNCTIONALITY_NOT_APPLICABLE_WITH_CURRENT_SCRIPT_STATE "functionality not applicable with current script state."

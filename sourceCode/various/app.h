@@ -51,6 +51,8 @@ public:
     static std::string getAdditionalAddOnScript1();
     static void setAdditionalAddOnScript2(const char* script);
     static std::string getAdditionalAddOnScript2();
+    static bool assemble(int parentHandle, int childHandle, bool justTest, bool msgs = false);
+    static bool disassemble(int objectHandle, bool justTest, bool msgs = false);
 
     static std::string getConsoleLogFilter();
     static void setConsoleLogFilter(const char* filter);

@@ -605,7 +605,7 @@
      <x>10</x>
      <y>360</y>
      <width>411</width>
-     <height>71</height>
+     <height>51</height>
     </rect>
    </property>
    <property name="title">
@@ -614,38 +614,6 @@
    <property name="flat">
     <bool>false</bool>
    </property>
-   <widget class="QToolButton" name="qqOpenScalingDialog">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>190</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Scaling</string>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="qqAssembling">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>45</y>
-      <width>190</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Assembling</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="qqSelfCollisionIndicator">
     <property name="geometry">
      <rect>
@@ -2089,6 +2057,38 @@
     <string>Can be seen by</string>
    </property>
   </widget>
+  <widget class="QToolButton" name="qqOpenScalingDialog">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>410</y>
+     <width>190</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Scaling</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="qqAssembling">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>410</y>
+     <width>190</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Assembling</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>qqSelectable</tabstop>
@@ -2128,8 +2128,6 @@
   <tabstop>qqRenderable</tabstop>
   <tabstop>qqApplySpecialProperties</tabstop>
   <tabstop>qqSelfCollisionIndicator</tabstop>
-  <tabstop>qqOpenScalingDialog</tabstop>
-  <tabstop>qqAssembling</tabstop>
  </tabstops>
  <resources/>
  <connections/>

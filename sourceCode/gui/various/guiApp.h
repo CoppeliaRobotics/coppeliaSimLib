@@ -29,6 +29,8 @@ public:
     static void setFullScreen(bool f); // helper
     static bool getShowInertias();
     static void setShowInertias(bool show);
+    static bool canDisassemble(int objectHandle);
+    static bool canAssemble(int parentHandle, int childHandle);
 
     static void setBrowserEnabled(bool e);
     static bool getBrowserEnabled();

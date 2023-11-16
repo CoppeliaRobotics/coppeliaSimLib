@@ -1080,3 +1080,114 @@ void App::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executi
         delayed_delay.push_back(executionDelay);
     }
 }
+
+bool App::disassemble(int objectHandle, bool justTest, bool msgs/* = false*/)
+{
+    bool retVal = false;
+    CSceneObject* it;
+    it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+    retVal = (it->getParent() != nullptr);
+    if (retVal && (!justTest))
+    {
+        if (msgs)
+            App::logMsg(sim_verbosity_msgs, "Disassembling item...");
+        App::currentWorld->sceneObjects->setObjectParent(it, nullptr, true);
+        App::undoRedo_sceneChanged("");
+        if (msgs)
+            App::logMsg(sim_verbosity_msgs, "done.");
+    }
+    return retVal;
+}
+
+bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs/* = false*/)
+{ // e.g. robot (parent) <-- gripper (child)
+    bool retVal = false;
+    CSceneObject* it1; // robot dummy
+    CSceneObject* it2; // gripper dummy (or object itself (special case))
+    CSceneObject* obj1; // robot part
+    CSceneObject* obj2; // gripper base
+    it1 = App::currentWorld->sceneObjects->getObjectFromHandle(parentHandle);
+    it2 = App::currentWorld->sceneObjects->getObjectFromHandle(childHandle);
+    obj1 = it1->getParent();
+    obj2 = it2->getParent();
+    if ( (it1->getObjectType() == sim_object_dummy_type) && (obj1 != nullptr) )
+    { // possibly new method of assembly (via 2 dummies)
+        if (it2->getObjectType() != sim_object_dummy_type)
+        { // we might have the special case. Let's search for the appropriate dummy:
+            obj2 = it2;
+            it2 = nullptr;
+            for (size_t i = 0; i < obj2->getChildCount(); i++)
+            {
+                CSceneObject* child = obj2->getChildFromIndex(i);
+                if (child->getObjectType() == sim_object_dummy_type)
+                {
+                    CDummy* dummy = (CDummy*) child;
+                    if (dummy->getLinkedDummyHandle() == -1)
+                    { // we take the first non-linked dummy
+                        it2 = dummy;
+                        break;
+                    }
+                }
+            }
+        }
+        if ( (it2 != nullptr)&&(obj2 != nullptr) )
+        {
+            if ( (obj2->getParent() != obj1) && (!obj1->hasAncestor(obj2)) )
+                retVal = true;
+        }
+    }
+
+    if (!retVal)
+    { // old method of assembling 2 objects
+        it1 = App::currentWorld->sceneObjects->getObjectFromHandle(parentHandle);
+        it2 = App::currentWorld->sceneObjects->getObjectFromHandle(childHandle);
+        if ((it1->getParent()!=it2)&&(it2->getParent()!=it1))
+        {
+            std::vector<CSceneObject*> potParents;
+            it1->getAllChildrenThatMayBecomeAssemblyParent(it2->getChildAssemblyMatchValuesPointer(),potParents);
+            bool directAssembly=it1->doesParentAssemblingMatchValuesMatchWithChild(it2->getChildAssemblyMatchValuesPointer());
+            if ( directAssembly || (potParents.size() == 1) )
+            {
+                retVal = true;
+                obj1 = it1;
+                obj2 = it2;
+            }
+        }
+        it1 = nullptr;
+        it2 = nullptr;
+    }
+    if (retVal && (!justTest))
+    {
+        if (msgs)
+            App::logMsg(sim_verbosity_msgs, "Assembling items...");
+        if (it1 != nullptr)
+        { // new method (via dummies)
+            C7Vector newLocal(it1->getFullLocalTransformation() * it2->getFullLocalTransformation().getInverse());
+            App::currentWorld->sceneObjects->setObjectParent(obj2, obj1, true);
+            obj2->setLocalTransformation(newLocal);
+        }
+        else
+        { // old method
+            std::vector<CSceneObject*> potParents;
+            obj1->getAllChildrenThatMayBecomeAssemblyParent(obj2->getChildAssemblyMatchValuesPointer(),potParents);
+            bool directAssembly=obj1->doesParentAssemblingMatchValuesMatchWithChild(obj2->getChildAssemblyMatchValuesPointer());
+            if ( directAssembly||(potParents.size()==1) )
+            {
+                if (directAssembly)
+                    App::currentWorld->sceneObjects->setObjectParent(obj2,obj1,true);
+                else
+                    App::currentWorld->sceneObjects->setObjectParent(obj2,potParents[0],true);
+                if (obj2->getAssemblingLocalTransformationIsUsed())
+                    obj2->setLocalTransformation(obj2->getAssemblingLocalTransformation());
+            }
+        }
+        App::undoRedo_sceneChanged("");
+        if (msgs)
+            App::logMsg(sim_verbosity_msgs, "done.");
+    }
+    return retVal;
+}
+
+
+
+

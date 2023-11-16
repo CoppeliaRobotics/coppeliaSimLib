@@ -954,7 +954,7 @@ void CMainWindow::_createDefaultToolBars()
 
         _toolbar1->addSeparator();
 
-        _toolbarActionAssemble=_toolbar1->addAction(QIcon(":/toolbarFiles/assemble.png"),tr(IDSN_ASSEMBLE));
+        _toolbarActionAssemble=_toolbar1->addAction(QIcon(":/toolbarFiles/assemble.png"),tr("Assemble / Disassemble"));
         _toolbarActionAssemble->setCheckable(false);
         connect(_toolbarActionAssemble,SIGNAL(triggered()),_signalMapper,SLOT(map()));
         _signalMapper->setMapping(_toolbarActionAssemble,SCENE_OBJECT_OPERATION_ASSEMBLE_SOOCMD);
@@ -1438,40 +1438,13 @@ void CMainWindow::_actualizetoolbarButtonState()
     bool noUiNorMultishapeEditMode=(editModeContainer->getEditModeType()!=MULTISHAPE_EDIT_MODE);
     bool noSelector=((!oglSurface->isPageSelectionActive())&&(!oglSurface->isViewSelectionActive()));
 
-    bool assembleEnabled=false;
-    bool disassembleEnabled=false;
-    size_t selS=App::currentWorld->sceneObjects->getSelectionCount();
-    if (selS==1)
-    { // here we can only have disassembly
-        CSceneObject* it=App::currentWorld->sceneObjects->getLastSelectionObject();
-        disassembleEnabled=(it->getParent()!=nullptr)&&(it->getAssemblyMatchValues(true).length()!=0);
-    }
-    else if (selS==2)
-    { // here we can have assembly or disassembly
-        CSceneObject* it1=App::currentWorld->sceneObjects->getLastSelectionObject();
-        CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
-        if ((it1->getParent()==it2)||(it2->getParent()==it1))
-        {
-            if ( (it1->getParent()==it2)&&(it1->getAssemblyMatchValues(true).length()!=0) )
-                disassembleEnabled=true; // disassembly
-            if ( (it2->getParent()==it1)&&(it2->getAssemblyMatchValues(true).length()!=0) )
-                disassembleEnabled=true; // disassembly
-        }
-        else
-        { // assembly
-            std::vector<CSceneObject*> potParents;
-            it1->getAllChildrenThatMayBecomeAssemblyParent(it2->getChildAssemblyMatchValuesPointer(),potParents);
-            bool directAssembly=it1->doesParentAssemblingMatchValuesMatchWithChild(it2->getChildAssemblyMatchValuesPointer());
-            if ( directAssembly||(potParents.size()==1) )
-                assembleEnabled=true;
-            else
-            { // here we might have the opposite of what we usually do to assemble (i.e. last selection should always be parent, but not here)
-                // we assemble anyways if the roles are unequivoque:
-                if ( it2->doesParentAssemblingMatchValuesMatchWithChild(it1->getChildAssemblyMatchValuesPointer()) )
-                    assembleEnabled=true;
-            }
-        }
-    }
+    size_t selS = App::currentWorld->sceneObjects->getSelectionCount();
+    bool disassembleEnabled = false;
+    bool assembleEnabled = false;
+    if (selS == 1)
+        disassembleEnabled = GuiApp::canDisassemble(App::currentWorld->sceneObjects->getLastSelectionHandle());
+    else if (selS == 2)
+        assembleEnabled = GuiApp::canAssemble(App::currentWorld->sceneObjects->getLastSelectionHandle(), App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
 
     bool transferDnaAllowed=false;
     if ( (selS==1)&&noSelector&&(editModeContainer->getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped() )
@@ -1509,11 +1482,11 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionCameraAngle->setEnabled(noSelector);
         _toolbarActionCameraSizeToScreen->setEnabled(allowFitToView&&noSelector);
 
-        if (disassembleEnabled)
-            _toolbarActionAssemble->setIcon(QIcon(":/toolbarFiles/disassemble.png"));
-        else
+        if (assembleEnabled)
             _toolbarActionAssemble->setIcon(QIcon(":/toolbarFiles/assemble.png"));
-        _toolbarActionAssemble->setEnabled(assembleEnabled||disassembleEnabled);
+        else
+            _toolbarActionAssemble->setIcon(QIcon(":/toolbarFiles/disassemble.png"));
+        _toolbarActionAssemble->setEnabled(assembleEnabled || disassembleEnabled);
 
         _toolbarActionTransferDna->setEnabled(transferDnaAllowed);
 

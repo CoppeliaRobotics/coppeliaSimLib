@@ -84,7 +84,6 @@
 #define IDSNS_EXECUTING_UNDO "Executing undo... "
 #define IDSNS_EXECUTING_REDO "Executing redo... "
 #define IDSN_ASSEMBLING_2_OBJECTS "Assembling 2 objects..."
-#define IDSN_DISASSEMBLING_OBJECT "Disassembling object..."
 #define IDSN_TRANSFERRING_DNA_TO_CLONES "Transferring DNA to clones..."
 #define IDSN_X_CLONES_WERE_UPDATED " clones were updated."
 
@@ -630,7 +629,6 @@
 #define IDSN_UNDO_REDO "Undo / Redo"
 #define IDSN_UNDO "Undo"
 #define IDSN_REDO "Redo"
-#define IDSN_ASSEMBLE "Assemble / Disassemble"
 #define IDSN_TRANSFER_DNA "Transfer DNA to clones"
 
 

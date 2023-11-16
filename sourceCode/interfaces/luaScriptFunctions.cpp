@@ -1172,6 +1172,8 @@ const SLuaVariables simLuaVariables[]=
     {"sim.visionintparam_render_mode",sim_visionintparam_render_mode},
     {"sim.visionintparam_perspective_operation",sim_visionintparam_perspective_operation},
     {"sim.visionfarrayparam_viewfrustum",sim_visionfarrayparam_viewfrustum},
+    {"sim.visionintparam_rgbignored",sim_visionintparam_rgbignored},
+    {"sim.visionintparam_depthignored",sim_visionintparam_depthignored},
 
     // joints
     {"sim.jointintparam_motor_enabled",sim_jointintparam_motor_enabled},

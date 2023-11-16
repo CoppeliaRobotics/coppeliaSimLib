@@ -301,6 +301,9 @@ void CQDlgCommonProperties::refresh()
         ui->qqDetectable->setChecked(false);
     }
 
+    ui->qqOpenScalingDialog->setVisible(App::userSettings->showOldDlgs);
+    ui->qqAssembling->setVisible(App::userSettings->showOldDlgs);
+
     ui->qqOpenScalingDialog->setEnabled(objIsSelected&&noEditModeNoSim);
 
     ui->qqSelfCollisionIndicator->setEnabled(objIsSelected&&noEditModeNoSim&&(isDummy||isShape));

@@ -1672,23 +1672,21 @@ int simSetObjectParent_internal(int objectHandle,int parentObjectHandle,bool kee
             App::currentWorld->sceneObjects->setObjectParent(it,parentIt,true);
         else
         {
-            if ( (handleFlags&sim_handleflag_assembly)&&(parentIt!=nullptr) )
+            if (handleFlags & sim_handleflag_assembly)
             { // only assembling
-                // There is another such similar routine!! XXBFVGA
-                std::vector<CSceneObject*> potParents;
-                parentIt->getAllChildrenThatMayBecomeAssemblyParent(it->getChildAssemblyMatchValuesPointer(),potParents);
-                bool directAssembly=parentIt->doesParentAssemblingMatchValuesMatchWithChild(it->getChildAssemblyMatchValuesPointer());
-                if ( directAssembly||(potParents.size()==1) )
+                if (parentIt != nullptr)
                 {
-                    if (directAssembly)
-                        App::currentWorld->sceneObjects->setObjectParent(it,parentIt,true);
-                    else
-                        App::currentWorld->sceneObjects->setObjectParent(it,potParents[0],true);
-                    if (it->getAssemblingLocalTransformationIsUsed())
-                        it->setLocalTransformation(it->getAssemblingLocalTransformation());
+                    if (!App::assemble(parentIt->getObjectHandle(), it->getObjectHandle(), false))
+                    {
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ASSEMBLY);
+                        return(-1);
+                    }
                 }
                 else
-                    App::currentWorld->sceneObjects->setObjectParent(it,parentIt,false);
+                {
+                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ASSEMBLY);
+                    return(-1);
+                }
             }
             else
                 App::currentWorld->sceneObjects->setObjectParent(it,parentIt,false);
@@ -7931,6 +7929,20 @@ int simGetObjectInt32Param_internal(int objectHandle,int parameterID,int* parame
         }
         if (rendSens!=nullptr)
         {
+            if (parameterID==sim_visionintparam_rgbignored)
+            {
+                if (rendSens->getIgnoreRGBInfo())
+                    retVal=1;
+                else
+                    retVal=0;
+            }
+            if (parameterID==sim_visionintparam_depthignored)
+            {
+                if (rendSens->getIgnoreDepthInfo())
+                    retVal=1;
+                else
+                    retVal=0;
+            }
             if (parameterID==sim_visionintparam_resolution_x)
             {
                 int r[2];
@@ -8361,6 +8373,17 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
                 else
                     r[1]=parameter;
                 rendSens->setResolution(r);
+                retVal=1;
+            }
+
+            if (parameterID==sim_visionintparam_rgbignored)
+            {
+                rendSens->setIgnoreRGBInfo(parameter!=0);
+                retVal=1;
+            }
+            if (parameterID==sim_visionintparam_depthignored)
+            {
+                rendSens->setIgnoreDepthInfo(parameter!=0);
                 retVal=1;
             }
             if (parameterID==sim_visionintparam_disabled_light_components)

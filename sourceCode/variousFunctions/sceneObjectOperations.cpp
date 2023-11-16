@@ -45,78 +45,20 @@ bool CSceneObjectOperations::processCommand(int commandID)
         // There is another such routine!! XXBFVGA
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            bool assembleEnabled=false;
-            bool disassembleEnabled=false;
-            size_t selS=App::currentWorld->sceneObjects->getSelectionCount();
-            if (selS==1)
-            { // here we can only have disassembly
-                CSceneObject* it=App::currentWorld->sceneObjects->getLastSelectionObject();
-                disassembleEnabled=(it->getParent()!=nullptr)&&(it->getAssemblyMatchValues(true).length()!=0);
-                if (disassembleEnabled)
-                {
-                    App::logMsg(sim_verbosity_msgs,IDSN_DISASSEMBLING_OBJECT);
-                    App::currentWorld->sceneObjects->setObjectParent(it,nullptr,true);
-                }
-            }
-            else if (selS==2)
-            { // here we can have assembly or disassembly
-                CSceneObject* it1=App::currentWorld->sceneObjects->getLastSelectionObject();
-                CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
-                if ((it1->getParent()==it2)||(it2->getParent()==it1))
-                { // disassembly
-                    if ( (it1->getParent()==it2) && (it1->getAssemblyMatchValues(true).length()!=0) )
-                        disassembleEnabled=true;
-                    if ( (it2->getParent()==it1) && (it2->getAssemblyMatchValues(true).length()!=0) )
-                        disassembleEnabled=true;
-                    if (disassembleEnabled)
-                    {
-                        App::logMsg(sim_verbosity_msgs,IDSN_DISASSEMBLING_OBJECT);
-                        if (it1->getParent()==it2)
-                        {
-                            App::currentWorld->sceneObjects->setObjectParent(it1,nullptr,true);
-                            App::currentWorld->sceneObjects->deselectObjects();
-                            App::currentWorld->sceneObjects->addObjectToSelection(it1->getObjectHandle());
-                            App::currentWorld->sceneObjects->addObjectToSelection(it2->getObjectHandle());
-                        }
-                        else
-                            App::currentWorld->sceneObjects->setObjectParent(it2,nullptr,true);
-                    }
-                }
-                else
-                { // assembly
-                    std::vector<CSceneObject*> potParents;
-                    it1->getAllChildrenThatMayBecomeAssemblyParent(it2->getChildAssemblyMatchValuesPointer(),potParents);
-                    bool directAssembly=it1->doesParentAssemblingMatchValuesMatchWithChild(it2->getChildAssemblyMatchValuesPointer());
-                    if ( directAssembly||(potParents.size()==1) )
-                    {
-                        App::logMsg(sim_verbosity_msgs,IDSN_ASSEMBLING_2_OBJECTS);
-                        assembleEnabled=true;
-                        if (directAssembly)
-                            App::currentWorld->sceneObjects->setObjectParent(it2,it1,true);
-                        else
-                            App::currentWorld->sceneObjects->setObjectParent(it2,potParents[0],true);
-                        if (it2->getAssemblingLocalTransformationIsUsed())
-                            it2->setLocalTransformation(it2->getAssemblingLocalTransformation());
-                    }
-                    else
-                    { // here we might have the opposite of what we usually do to assemble (i.e. last selection should always be parent, but not here)
-                        // we assemble anyways if the roles are unequivoque:
-                        if ( it2->doesParentAssemblingMatchValuesMatchWithChild(it1->getChildAssemblyMatchValuesPointer()) )
-                        {
-                            App::logMsg(sim_verbosity_msgs,IDSN_ASSEMBLING_2_OBJECTS);
-                            assembleEnabled=true;
-                            App::currentWorld->sceneObjects->setObjectParent(it1,it2,true);
-                            if (it1->getAssemblingLocalTransformationIsUsed())
-                                it1->setLocalTransformation(it1->getAssemblingLocalTransformation());
-                        }
-                    }
-                }
-            }
-
-            if (assembleEnabled||disassembleEnabled)
+            size_t selS = App::currentWorld->sceneObjects->getSelectionCount();
+            if (selS == 1)
             {
-                App::undoRedo_sceneChanged("");
-                App::logMsg(sim_verbosity_msgs,"done.");
+                if (App::disassemble(App::currentWorld->sceneObjects->getLastSelectionHandle(), false, true))
+                    App::currentWorld->sceneObjects->deselectObjects();
+            }
+            else if (selS == 2)
+            {
+                int lastSel = App::currentWorld->sceneObjects->getLastSelectionHandle();
+                if (App::assemble(lastSel, App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0), false, true))
+                {
+                    App::currentWorld->sceneObjects->deselectObjects();
+                    App::currentWorld->sceneObjects->selectObject(lastSel);
+                }
             }
         }
         else

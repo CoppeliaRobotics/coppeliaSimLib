@@ -1053,3 +1053,23 @@ CTextureProperty* GuiApp::getTexturePropertyPointerFromItem(int objType,int objI
     }
     return(nullptr);
 }
+
+bool GuiApp::canDisassemble(int objectHandle)
+{
+    bool retVal = false;
+    IF_UI_EVENT_CAN_READ_DATA
+    {
+        retVal = App::disassemble(objectHandle, true);
+    }
+    return retVal;
+}
+
+bool GuiApp::canAssemble(int parentHandle, int childHandle)
+{
+    bool retVal = false;
+    IF_UI_EVENT_CAN_READ_DATA
+    {
+        retVal = App::assemble(parentHandle, childHandle, true);
+    }
+    return retVal;
+}
