@@ -1264,6 +1264,25 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (it!=nullptr)
             it->setObjectProperty(it->getObjectProperty()^sim_objectproperty_cannotdeleteduringsim);
     }
+    if (cmd.cmdId==TOGGLE_HIDDENDURINGSIMULATION_COMMONPROPGUITRIGGEREDCMD)
+    {
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        if (it!=nullptr)
+            it->setObjectProperty(it->getObjectProperty()^sim_objectproperty_hiddenforsimulation);
+    }
+    if (cmd.cmdId==TOGGLE_NOTMOVEABLE_COMMONPROPGUITRIGGEREDCMD)
+    {
+        CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
+        if (it!=nullptr)
+        {
+            int p = it->getObjectMovementOptions();
+            if ((p & 15) == 15)
+                p -= 15;
+            else
+                p |= 15;
+            it->setObjectMovementOptions(p);
+        }
+    }
     if (cmd.cmdId==SET_SELFCOLLISIONINDICATOR_COMMONPROPGUITRIGGEREDCMD)
     {
         CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
@@ -1778,8 +1797,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 bool n=(it->getLinkedDummyHandle()==-1);
                 it->setLinkedDummyHandle(it2->getObjectHandle(),true);
-                if (n)
-                    it->setLinkType(sim_dummylink_dynloopclosure,true);
+
+                int tp = it->getDummyType();
+                if ( (tp == sim_dummytype_default) || (tp == sim_dummytype_assembly) || (tp == sim_dummytype_parentassembly) || (tp == sim_dummytype_childassembly) )
+                    it->setDummyType(sim_dummytype_dynloopclosure,true);
             }
             else
                 it->setLinkedDummyHandle(-1,true);
@@ -1789,7 +1810,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CDummy* it=App::currentWorld->sceneObjects->getDummyFromHandle(cmd.intParams[0]);
         if (it!=nullptr)
-            it->setLinkType(cmd.intParams[1],true);
+            it->setDummyType(cmd.intParams[1],true);
     }
     if (cmd.cmdId==TOGGLE_FOLLOWORIENTATION_DUMMYGUITRIGGEREDCMD)
     {

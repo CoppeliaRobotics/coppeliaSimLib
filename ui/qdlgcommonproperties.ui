@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>441</height>
+    <height>451</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <x>10</x>
      <y>10</y>
      <width>411</width>
-     <height>131</height>
+     <height>151</height>
     </rect>
    </property>
    <property name="title">
@@ -131,7 +131,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>105</y>
+      <y>125</y>
       <width>131</width>
       <height>18</height>
      </rect>
@@ -144,7 +144,7 @@
     <property name="geometry">
      <rect>
       <x>150</x>
-      <y>105</y>
+      <y>125</y>
       <width>251</width>
       <height>18</height>
      </rect>
@@ -182,12 +182,44 @@
      <string>Cannot be deleted during simul.</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="qqHiddenDuringSimul">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>105</y>
+      <width>231</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Hidden during simulation</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="qqNotMoveable">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>105</y>
+      <width>171</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="text">
+     <string>Not moveable</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>170</y>
+     <y>190</y>
      <width>411</width>
      <height>71</height>
     </rect>
@@ -472,7 +504,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>270</y>
+     <y>290</y>
      <width>161</width>
      <height>71</height>
     </rect>
@@ -520,7 +552,7 @@
    <property name="geometry">
     <rect>
      <x>180</x>
-     <y>270</y>
+     <y>290</y>
      <width>241</width>
      <height>71</height>
     </rect>
@@ -603,7 +635,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>360</y>
+     <y>380</y>
      <width>411</width>
      <height>51</height>
     </rect>
@@ -642,7 +674,7 @@
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>145</y>
+     <y>165</y>
      <width>130</width>
      <height>18</height>
     </rect>
@@ -1100,7 +1132,7 @@
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>250</y>
+     <y>270</y>
      <width>130</width>
      <height>18</height>
     </rect>
@@ -1558,7 +1590,7 @@
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>345</y>
+     <y>365</y>
      <width>130</width>
      <height>18</height>
     </rect>
@@ -2019,7 +2051,7 @@
    <property name="geometry">
     <rect>
      <x>190</x>
-     <y>340</y>
+     <y>360</y>
      <width>91</width>
      <height>18</height>
     </rect>
@@ -2035,7 +2067,7 @@
    <property name="geometry">
     <rect>
      <x>140</x>
-     <y>250</y>
+     <y>270</y>
      <width>141</width>
      <height>18</height>
     </rect>
@@ -2048,7 +2080,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>250</y>
+     <y>270</y>
      <width>91</width>
      <height>18</height>
     </rect>
@@ -2061,7 +2093,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>410</y>
+     <y>430</y>
      <width>190</width>
      <height>18</height>
     </rect>
@@ -2077,7 +2109,7 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>410</y>
+     <y>430</y>
      <width>190</width>
      <height>18</height>
     </rect>
@@ -2099,6 +2131,8 @@
   <tabstop>qqIgnoreForViewFitting</tabstop>
   <tabstop>qqCannotBeDeletedDuringSimul</tabstop>
   <tabstop>qqCannotBeDeleted</tabstop>
+  <tabstop>qqHiddenDuringSimul</tabstop>
+  <tabstop>qqNotMoveable</tabstop>
   <tabstop>qqExtensionString</tabstop>
   <tabstop>qqApplyGeneralProperties</tabstop>
   <tabstop>a_1</tabstop>

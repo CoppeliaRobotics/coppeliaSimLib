@@ -74,12 +74,12 @@ void displayDummy(CDummy* dummy,CViewableBase* renderingObject,int displayAttrib
             C7Vector cumulMobile(linkedDummy->getFullCumulativeTransformation());
             cumulMobile=cumulBase.getInverse()*cumulMobile;
             ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
-            int _linkType=dummy->getLinkType();
+            int _linkType=dummy->getDummyType();
             if ((_linkType==sim_dummy_linktype_gcs_loop_closure)||(_linkType==sim_dummy_linktype_gcs_tip)||(_linkType==sim_dummy_linktype_gcs_target))
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ogl::colorGreen);
             if (_linkType==sim_dummy_linktype_ik_tip_target)
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ogl::colorRed);
-            if ((_linkType==sim_dummylink_dynloopclosure)||(_linkType==sim_dummy_linktype_dynamics_force_constraint)||(_linkType==sim_dummylink_dyntendon))
+            if ((_linkType==sim_dummytype_dynloopclosure)||(_linkType==sim_dummy_linktype_dynamics_force_constraint)||(_linkType==sim_dummytype_dyntendon))
                 ogl::setMaterialColor(sim_colorcomponent_ambient_diffuse,ogl::colorBlue);
             ogl::buffer.clear();
             ogl::addBuffer3DPoints(0.0,0.0,0.0);

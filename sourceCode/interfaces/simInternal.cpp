@@ -8124,9 +8124,9 @@ int simGetObjectInt32Param_internal(int objectHandle,int parameterID,int* parame
         }
         if (dummy!=nullptr)
         {
-            if (parameterID==sim_dummyintparam_link_type)
+            if (parameterID==sim_dummyintparam_dummytype)
             {
-                parameter[0]=dummy->getLinkType();
+                parameter[0]=dummy->getDummyType();
                 retVal=1;
             }
             if (parameterID==sim_dummyintparam_follow_path)
@@ -8520,9 +8520,9 @@ int simSetObjectInt32Param_internal(int objectHandle,int parameterID,int paramet
         }
         if (dummy!=nullptr)
         {
-            if (parameterID==sim_dummyintparam_link_type)
+            if (parameterID==sim_dummyintparam_dummytype)
             {
-                dummy->setLinkType(parameter,true);
+                dummy->setDummyType(parameter,true);
                 retVal=1;
             }
             if (parameterID==sim_dummyintparam_follow_path)
@@ -15844,7 +15844,7 @@ const void** _simGetObjectChildren_internal(const void* object,int* count)
 int _simGetDummyLinkType_internal(const void* dummy,int* linkedDummyID)
 {
     C_API_START;
-    int dType=((CDummy*)dummy)->getLinkType();
+    int dType=((CDummy*)dummy)->getDummyType();
     if (linkedDummyID!=nullptr)
         linkedDummyID[0]=((CDummy*)dummy)->getLinkedDummyHandle();
     return(dType);

@@ -19,7 +19,7 @@ CDummy::CDummy()
     _assignedToParentPath=false;
     _assignedToParentPathOrientation=false;
     _linkedDummyHandle=-1;
-    _linkType=sim_dummylink_dynloopclosure;
+    _linkType=sim_dummytype_default;
 
     _visibilityLayer=DUMMY_LAYER;
     _objectAlias=IDSOGL_DUMMY;
@@ -219,7 +219,7 @@ void CDummy::setMujocoIntParams(const std::vector<int>& p,bool reflectToLinkedDu
 
 void CDummy::_reflectPropToLinkedDummy() const
 { // will not infinitely recurse since once identical, it stops
-    if ( (_linkedDummyHandle!=-1)&&((_linkType==sim_dummylink_dynloopclosure)||(_linkType==sim_dummylink_dyntendon)) )
+    if ( (_linkedDummyHandle!=-1)&&((_linkType==sim_dummytype_dynloopclosure)||(_linkType==sim_dummytype_dyntendon)) )
     {
         CDummy* l=App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
         l->setMujocoFloatParams(_mujocoFloatParams,false);
@@ -636,7 +636,7 @@ void CDummy::serialize(CSer& ar)
             if (before2009_12_16)
             {
                 if (_linkedDummyHandle==-1)
-                    _linkType=sim_dummylink_dynloopclosure;
+                    _linkType=sim_dummytype_default;
             }
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
@@ -670,8 +670,8 @@ void CDummy::serialize(CSer& ar)
                 ar.xmlAddNode_string("linkedDummyAlias",str.c_str());
             }
 
-            ar.xmlAddNode_comment(" 'linkType' tag: can be 'dynamics_loopClosure' or 'dynamics_tendon'",exhaustiveXml);
-            ar.xmlAddNode_enum("linkType",_linkType,sim_dummylink_dynloopclosure,"dynamics_loopClosure",sim_dummy_linktype_dynamics_force_constraint,"dynamics_forceConstraint",sim_dummy_linktype_ik_tip_target,"ik_tipTarget",sim_dummylink_dyntendon,"dynamics_tendon");
+            ar.xmlAddNode_comment(" 'linkType' tag: can be 'default', 'dynamics_loopClosure', 'dynamics_tendon', 'assembly', 'parentAssembly', 'childAssembly'", exhaustiveXml);
+            ar.xmlAddNode_enum("linkType",_linkType,sim_dummytype_dynloopclosure,"dynamics_loopClosure",sim_dummy_linktype_dynamics_force_constraint,"dynamics_forceConstraint",sim_dummy_linktype_ik_tip_target,"ik_tipTarget",sim_dummytype_dyntendon,"dynamics_tendon",sim_dummytype_default,"default",sim_dummytype_assembly,"assembly",sim_dummytype_parentassembly,"parentAssembly",sim_dummytype_childassembly,"childAssembly");
 
             if (exhaustiveXml)
             {
@@ -729,7 +729,7 @@ void CDummy::serialize(CSer& ar)
                 ar.xmlGetNode_string("linkedDummyAlias",_linkedDummyLoadAlias,exhaustiveXml);
                 ar.xmlGetNode_string("linkedDummy",_linkedDummyLoadName_old,exhaustiveXml);
             }
-            ar.xmlGetNode_enum("linkType",_linkType,exhaustiveXml,"dynamics_loopClosure",sim_dummylink_dynloopclosure,"dynamics_forceConstraint",sim_dummy_linktype_dynamics_force_constraint,"ik_tipTarget",sim_dummy_linktype_ik_tip_target,"dynamics_tendon",sim_dummylink_dyntendon);
+            ar.xmlGetNode_enum("linkType",_linkType,exhaustiveXml,"dynamics_loopClosure",sim_dummytype_dynloopclosure,"dynamics_forceConstraint",sim_dummy_linktype_dynamics_force_constraint,"ik_tipTarget",sim_dummy_linktype_ik_tip_target,"dynamics_tendon",sim_dummytype_dyntendon,"default",sim_dummytype_default,"assembly",sim_dummytype_assembly,"parentAssembly",sim_dummytype_parentassembly,"childAssembly",sim_dummytype_childassembly);
 
             if (exhaustiveXml&&ar.xmlPushChildNode("switches"))
             {
@@ -851,11 +851,11 @@ void CDummy::setLinkedDummyHandle(int handle,bool check)
                 newLinkedDummy->setLinkedDummyHandle(getObjectHandle(),false);
 
                 if (_linkType==sim_dummy_linktype_gcs_tip)
-                    newLinkedDummy->setLinkType(sim_dummy_linktype_gcs_target,false);
+                    newLinkedDummy->setDummyType(sim_dummy_linktype_gcs_target,false);
                 if (_linkType==sim_dummy_linktype_gcs_target)
-                    newLinkedDummy->setLinkType(sim_dummy_linktype_gcs_tip,false);
-                if ( (_linkType==sim_dummy_linktype_ik_tip_target)||(_linkType==sim_dummy_linktype_gcs_loop_closure)||(_linkType==sim_dummylink_dynloopclosure)||(_linkType==sim_dummylink_dyntendon)||(_linkType==sim_dummy_linktype_dynamics_force_constraint) )
-                    newLinkedDummy->setLinkType(_linkType,false);
+                    newLinkedDummy->setDummyType(sim_dummy_linktype_gcs_tip,false);
+                if ( (_linkType==sim_dummy_linktype_ik_tip_target)||(_linkType==sim_dummy_linktype_gcs_loop_closure)||(_linkType==sim_dummytype_dynloopclosure)||(_linkType==sim_dummytype_dyntendon)||(_linkType==sim_dummy_linktype_dynamics_force_constraint) )
+                    newLinkedDummy->setDummyType(_linkType,false);
             }
             else
                 _linkedDummyHandle=-1;
@@ -872,26 +872,35 @@ void CDummy::setLinkedDummyHandle(int handle,bool check)
     }
 }
 
-bool CDummy::setLinkType(int lt,bool check)
+bool CDummy::setDummyType(int lt,bool check)
 {
     bool diff=(_linkType!=lt);
     if (diff)
     {
         _linkType=lt;
         _setLinkType_sendOldIk(lt);
+        _dummyColor.setDefaultValues();
+        if (lt == sim_dummytype_default)
+            _dummyColor.setColor(1.0f,0.8f,0.55f,sim_colorcomponent_ambient_diffuse);
+        if (lt == sim_dummytype_dynloopclosure)
+            _dummyColor.setColor(0.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
+        if (lt == sim_dummytype_dyntendon)
+            _dummyColor.setColor(0.0f,0.5f,1.0f,sim_colorcomponent_ambient_diffuse);
+        if ( (lt == sim_dummytype_assembly) || (lt == sim_dummytype_parentassembly) || (lt == sim_dummytype_childassembly) )
+            _dummyColor.setColor(1.0f,0.0f,0.0f,sim_colorcomponent_ambient_diffuse);
     }
-    if ( (_linkedDummyHandle!=-1)&&check )
+    if ( (_linkedDummyHandle != -1) && check )
     {
         CDummy* it=App::currentWorld->sceneObjects->getDummyFromHandle(_linkedDummyHandle);
-        CDummy* thisObject=thisObject=App::currentWorld->sceneObjects->getDummyFromHandle(_objectHandle);
-        if ( (thisObject==this)&&(it!=nullptr) )
+        CDummy* thisObject=App::currentWorld->sceneObjects->getDummyFromHandle(_objectHandle);
+        if ( (thisObject == this) && (it != nullptr) )
         { // dummy is in the scene
             if (lt==sim_dummy_linktype_gcs_tip)
-                it->setLinkType(sim_dummy_linktype_gcs_target,false);
+                it->setDummyType(sim_dummy_linktype_gcs_target,false);
             if (lt==sim_dummy_linktype_gcs_target)
-                it->setLinkType(sim_dummy_linktype_gcs_tip,false);
-            if ( (lt==sim_dummy_linktype_ik_tip_target)||(lt==sim_dummy_linktype_gcs_loop_closure)||(lt==sim_dummylink_dynloopclosure)||(lt==sim_dummylink_dyntendon)||(lt==sim_dummy_linktype_dynamics_force_constraint) )
-                it->setLinkType(lt,false);
+                it->setDummyType(sim_dummy_linktype_gcs_tip,false);
+            if ( (lt==sim_dummy_linktype_ik_tip_target)||(lt==sim_dummy_linktype_gcs_loop_closure)||(lt==sim_dummytype_dynloopclosure)||(lt==sim_dummytype_dyntendon)||(lt==sim_dummy_linktype_dynamics_force_constraint) )
+                it->setDummyType(lt,false);
         }
         _reflectPropToLinkedDummy();
         #ifdef SIM_WITH_GUI
@@ -1006,7 +1015,7 @@ double CDummy::getDummySize() const
     return(_dummySize);
 }
 
-int CDummy::getLinkType() const
+int CDummy::getDummyType() const
 {
     return(_linkType);
 }

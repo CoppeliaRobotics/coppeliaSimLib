@@ -77,6 +77,8 @@ void CQDlgCommonProperties::refresh()
     ui->qqCannotBeDeleted->setEnabled(noEditModeNoSim&&objIsSelected);
     ui->qqCannotBeDeletedDuringSimul->setEnabled(noEditModeNoSim&&objIsSelected&&((ls->getObjectProperty()&sim_objectproperty_cannotdelete)==0));
     ui->qqDontShowInModelSelection->setEnabled(noEditModeNoSim&&objIsSelected);
+    ui->qqHiddenDuringSimul->setEnabled(noEditModeNoSim&&objIsSelected);
+    ui->qqNotMoveable->setEnabled(noEditModeNoSim&&objIsSelected);
     ui->qqApplyGeneralProperties->setEnabled(noEditModeNoSim&&bigSel);
     ui->qqAssembling->setEnabled(noEditModeNoSim&&objIsSelected);
 
@@ -95,6 +97,8 @@ void CQDlgCommonProperties::refresh()
         ui->qqDontShowInModelSelection->setChecked((ls->getObjectProperty()&sim_objectproperty_dontshowasinsidemodel)!=0);
         ui->qqCannotBeDeleted->setChecked((ls->getObjectProperty()&sim_objectproperty_cannotdelete)!=0);
         ui->qqCannotBeDeletedDuringSimul->setChecked((ls->getObjectProperty()&(sim_objectproperty_cannotdeleteduringsim|sim_objectproperty_cannotdelete))!=0);
+        ui->qqHiddenDuringSimul->setChecked((ls->getObjectProperty()&sim_objectproperty_hiddenforsimulation)!=0);
+        ui->qqNotMoveable->setChecked((ls->getObjectMovementOptions()&15) == 15);
         ui->qqExtensionString->setText(ls->getExtensionString().c_str());
     }
     else
@@ -107,6 +111,8 @@ void CQDlgCommonProperties::refresh()
         ui->qqDontShowInModelSelection->setChecked(false);
         ui->qqCannotBeDeleted->setChecked(false);
         ui->qqCannotBeDeletedDuringSimul->setChecked(false);
+        ui->qqHiddenDuringSimul->setChecked(false);
+        ui->qqNotMoveable->setChecked(false);
         ui->qqExtensionString->setText("");
     }
 
@@ -882,6 +888,26 @@ void CQDlgCommonProperties::on_qqCannotBeDeletedDuringSimul_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_CANNOTBEDELETEDDURINGSIMULATION_COMMONPROPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    }
+}
+
+void CQDlgCommonProperties::on_qqHiddenDuringSimul_clicked()
+{
+    IF_UI_EVENT_CAN_READ_DATA
+    {
+        App::appendSimulationThreadCommand(TOGGLE_HIDDENDURINGSIMULATION_COMMONPROPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
+    }
+}
+
+void CQDlgCommonProperties::on_qqNotMoveable_clicked()
+{
+    IF_UI_EVENT_CAN_READ_DATA
+    {
+        App::appendSimulationThreadCommand(TOGGLE_NOTMOVEABLE_COMMONPROPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

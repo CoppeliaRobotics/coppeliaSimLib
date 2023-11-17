@@ -78,7 +78,7 @@ public:
     bool getAssignedToParentPath() const;
     bool getAssignedToParentPathOrientation() const;
     int getLinkedDummyHandle() const;
-    int getLinkType() const;
+    int getDummyType() const;
 
     CColorObject* getDummyColor();
     void loadUnknownObjectType(CSer& ar);
@@ -86,7 +86,7 @@ public:
     bool setAssignedToParentPath(bool assigned);
     bool setAssignedToParentPathOrientation(bool assigned);
     void setLinkedDummyHandle(int handle,bool check);
-    bool setLinkType(int lt,bool check);
+    bool setDummyType(int lt,bool check);
     void setDummySize(double s);
 
     void setFreeOnPathTrajectory(bool isFree);

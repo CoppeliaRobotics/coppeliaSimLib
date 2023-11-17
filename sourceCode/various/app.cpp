@@ -1112,45 +1112,52 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs/*
     obj2 = it2->getParent();
     if ( (it1->getObjectType() == sim_object_dummy_type) && (obj1 != nullptr) )
     { // possibly new method of assembly (via 2 dummies)
-        if (it2->getObjectType() != sim_object_dummy_type)
-        { // we might have the special case. Let's search for the appropriate dummy:
-            obj2 = it2;
-            it2 = nullptr;
-            for (size_t i = 0; i < obj2->getChildCount(); i++)
-            {
-                CSceneObject* child = obj2->getChildFromIndex(i);
-                if (child->getObjectType() == sim_object_dummy_type)
+        CDummy* dummy1 = (CDummy*)it1;
+        if ( (dummy1->getDummyType() == sim_dummytype_assembly) || (dummy1->getDummyType() == sim_dummytype_parentassembly) )
+        { // we have the correct dummy type for the parent side
+            if (it2->getObjectType() != sim_object_dummy_type)
+            { // we might have the special case. Let's search for an appropriate dummy:
+                obj2 = it2;
+                it2 = nullptr;
+                for (size_t i = 0; i < obj2->getChildCount(); i++)
                 {
-                    CDummy* dummy = (CDummy*) child;
-                    if (dummy->getLinkedDummyHandle() == -1)
-                    { // we take the first non-linked dummy
-                        it2 = dummy;
-                        break;
+                    CSceneObject* child = obj2->getChildFromIndex(i);
+                    if (child->getObjectType() == sim_object_dummy_type)
+                    {
+                        CDummy* dummy = (CDummy*) child;
+                        if ( (dummy->getDummyType() == sim_dummytype_assembly) || (dummy->getDummyType() == sim_dummytype_childassembly) )
+                        { // we have the correct dummy type for the child side (we take the first compatible dummy found)
+                            it2 = dummy;
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if ( (it2 != nullptr)&&(obj2 != nullptr) )
-        {
-            if ( (obj2->getParent() != obj1) && (!obj1->hasAncestor(obj2)) )
-                retVal = true;
+            if ( (it2 != nullptr)&&(obj2 != nullptr) )
+            {
+                if (!obj1->hasAncestor(obj2))  // (obj2->getParent() != obj1) (if we are already connected, we might want to correct the pose)
+                    retVal = true;
+            }
         }
     }
 
     if (!retVal)
-    { // old method of assembling 2 objects
+    { // old method of assembling 2 objects. We limit the scope to joint/fsensor as parent and shape as child, since we slowly want to get rid of that method
         it1 = App::currentWorld->sceneObjects->getObjectFromHandle(parentHandle);
         it2 = App::currentWorld->sceneObjects->getObjectFromHandle(childHandle);
         if ((it1->getParent()!=it2)&&(it2->getParent()!=it1))
         {
-            std::vector<CSceneObject*> potParents;
-            it1->getAllChildrenThatMayBecomeAssemblyParent(it2->getChildAssemblyMatchValuesPointer(),potParents);
-            bool directAssembly=it1->doesParentAssemblingMatchValuesMatchWithChild(it2->getChildAssemblyMatchValuesPointer());
-            if ( directAssembly || (potParents.size() == 1) )
+            if ( ( (it1->getObjectType() == sim_object_joint_type) || (it1->getObjectType() == sim_object_forcesensor_type) ) && (it2->getObjectType() == sim_object_shape_type) )
             {
-                retVal = true;
-                obj1 = it1;
-                obj2 = it2;
+                std::vector<CSceneObject*> potParents;
+                it1->getAllChildrenThatMayBecomeAssemblyParent(it2->getChildAssemblyMatchValuesPointer(),potParents);
+                bool directAssembly=it1->doesParentAssemblingMatchValuesMatchWithChild(it2->getChildAssemblyMatchValuesPointer());
+                if ( directAssembly || (potParents.size() == 1) )
+                {
+                    retVal = true;
+                    obj1 = it1;
+                    obj2 = it2;
+                }
             }
         }
         it1 = nullptr;

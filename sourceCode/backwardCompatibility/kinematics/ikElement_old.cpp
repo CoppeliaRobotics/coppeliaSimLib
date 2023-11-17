@@ -326,7 +326,7 @@ int CIkElement_old::getTargetHandle() const
     int linkedDummyHandle=tip->getLinkedDummyHandle();
     if (linkedDummyHandle==-1)
         return(-1);
-    if (tip->getLinkType()!=sim_dummy_linktype_ik_tip_target)
+    if (tip->getDummyType()!=sim_dummy_linktype_ik_tip_target)
         return(-1);
     return(linkedDummyHandle); // this should be the target!
 }

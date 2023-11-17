@@ -43,7 +43,7 @@ void CQDlgDummies::refresh()
 
     ui->qqLinkedDummyCombo->setEnabled(sel&&noEditModeNoSim);
     ui->qqLinkedDummyCombo->clear();
-    ui->qqLinkTypeCombo->setEnabled(sel&&(it->getLinkedDummyHandle()!=-1)&&noEditModeNoSim);
+    ui->qqLinkTypeCombo->setEnabled(sel&&noEditModeNoSim);
     ui->qqLinkTypeCombo->clear();
     ui->qqEditEngine->setEnabled(sel&&noEditModeNoSim);
 
@@ -57,52 +57,67 @@ void CQDlgDummies::refresh()
     {
         ui->qqSize->setText(utils::getSizeString(false,it->getDummySize()).c_str());
 
-        ui->qqLinkedDummyCombo->addItem(IDSN_NONE,QVariant(-1));
-        std::vector<std::string> names;
-        std::vector<int> ids;
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
+        int lt = it->getDummyType();
+        int lts = lt;
+        ui->qqLinkTypeCombo->addItem("Default",QVariant(sim_dummytype_default));
+        ui->qqLinkTypeCombo->addItem("Assembly",QVariant(sim_dummytype_assembly));
+        ui->qqLinkTypeCombo->addItem("Assembly (parent)",QVariant(sim_dummytype_parentassembly));
+        ui->qqLinkTypeCombo->addItem("Assembly (child)",QVariant(sim_dummytype_childassembly));
+        ui->qqLinkTypeCombo->addItem("Dynamics, overlap constraint",QVariant(sim_dummytype_dynloopclosure));
+        ui->qqLinkTypeCombo->addItem("Dynamics, tendon constraint",QVariant(sim_dummytype_dyntendon));
+        // Following for backward compatibility:
+        if (it->getLinkedDummyHandle() != -1)
         {
-            CDummy* it2=App::currentWorld->sceneObjects->getDummyFromIndex(i);
-            if (it2!=it)
+            if ( (it->getDummyType()==sim_dummy_linktype_ik_tip_target)||App::userSettings->showOldDlgs )
+                ui->qqLinkTypeCombo->addItem("IK, tip-target (deprecated)",QVariant(sim_dummy_linktype_ik_tip_target));
+            if (it->getDummyType()==sim_dummy_linktype_gcs_loop_closure)
+                ui->qqLinkTypeCombo->addItem("GCS, overlap constraint (deprecated)",QVariant(sim_dummy_linktype_gcs_loop_closure));
+            if (it->getDummyType()==sim_dummy_linktype_gcs_tip)
+                ui->qqLinkTypeCombo->addItem("GCS, tip (deprecated)",QVariant(sim_dummy_linktype_gcs_tip));
+            if (it->getDummyType()==sim_dummy_linktype_gcs_target)
+                ui->qqLinkTypeCombo->addItem("GCS, target (deprecated)",QVariant(sim_dummy_linktype_gcs_target));
+        }
+        else
+        { // if we have a deprecated dummy type, but no linked dummy, we fake a 'default' link type:
+            if ( (it->getDummyType()==sim_dummy_linktype_ik_tip_target) || (it->getDummyType()==sim_dummy_linktype_gcs_loop_closure) ||
+                 (it->getDummyType()==sim_dummy_linktype_gcs_tip) || (it->getDummyType()==sim_dummy_linktype_gcs_target) )
+                lts = sim_dummytype_default;
+        }
+
+        // Here we select the appropriate item:
+        for (int i=0;i<ui->qqLinkTypeCombo->count();i++)
+        {
+            if (ui->qqLinkTypeCombo->itemData(i).toInt() == lts)
             {
-                names.push_back(it2->getObjectAlias_printPath());
-                ids.push_back(it2->getObjectHandle());
+                ui->qqLinkTypeCombo->setCurrentIndex(i);
+                break;
             }
         }
-        tt::orderStrings(names,ids);
-        for (int i=0;i<int(names.size());i++)
-            ui->qqLinkedDummyCombo->addItem(names[i].c_str(),QVariant(ids[i]));
+
+        ui->qqLinkedDummyCombo->addItem(IDSN_NONE,QVariant(-1));
+        if ( (lt != sim_dummytype_default) && (lt != sim_dummytype_assembly) && (lt != sim_dummytype_parentassembly) && (lt != sim_dummytype_childassembly) )
+        {
+            std::vector<std::string> names;
+            std::vector<int> ids;
+            for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
+            {
+                CDummy* it2=App::currentWorld->sceneObjects->getDummyFromIndex(i);
+                if (it2!=it)
+                {
+                    names.push_back(it2->getObjectAlias_printPath());
+                    ids.push_back(it2->getObjectHandle());
+                }
+            }
+            tt::orderStrings(names,ids);
+            for (int i=0;i<int(names.size());i++)
+                ui->qqLinkedDummyCombo->addItem(names[i].c_str(),QVariant(ids[i]));
+        }
         for (int i=0;i<ui->qqLinkedDummyCombo->count();i++)
         {
             if (ui->qqLinkedDummyCombo->itemData(i).toInt()==it->getLinkedDummyHandle())
             {
                 ui->qqLinkedDummyCombo->setCurrentIndex(i);
                 break;
-            }
-        }
-
-        if (it->getLinkedDummyHandle()!=-1)
-        {
-            ui->qqLinkTypeCombo->addItem("Dynamics, overlap constraint",QVariant(sim_dummylink_dynloopclosure));
-            ui->qqLinkTypeCombo->addItem("Dynamics, tendon constraint",QVariant(sim_dummylink_dyntendon));
-            // Following for backward compatibility:
-            if ( (it->getLinkType()==sim_dummy_linktype_ik_tip_target)||App::userSettings->showOldDlgs )
-                ui->qqLinkTypeCombo->addItem("IK, tip-target (deprecated)",QVariant(sim_dummy_linktype_ik_tip_target));
-            if (it->getLinkType()==sim_dummy_linktype_gcs_loop_closure)
-                ui->qqLinkTypeCombo->addItem("GCS, overlap constraint (deprecated)",QVariant(sim_dummy_linktype_gcs_loop_closure));
-            if (it->getLinkType()==sim_dummy_linktype_gcs_tip)
-                ui->qqLinkTypeCombo->addItem("GCS, tip (deprecated)",QVariant(sim_dummy_linktype_gcs_tip));
-            if (it->getLinkType()==sim_dummy_linktype_gcs_target)
-                ui->qqLinkTypeCombo->addItem("GCS, target (deprecated)",QVariant(sim_dummy_linktype_gcs_target));
-
-            // Here we select the appropriate item:
-            for (int i=0;i<ui->qqLinkTypeCombo->count();i++)
-            {
-                if (ui->qqLinkTypeCombo->itemData(i).toInt()==it->getLinkType())
-                {
-                    ui->qqLinkTypeCombo->setCurrentIndex(i);
-                    break;
-                }
             }
         }
 

@@ -215,7 +215,7 @@ void CQDlgIkElements::refresh()
                 ui->qqTargetString->setText("tip dummy is not linked!");
             else
             {
-                if (tip->getLinkType()!=sim_dummy_linktype_ik_tip_target)
+                if (tip->getDummyType()!=sim_dummy_linktype_ik_tip_target)
                     ui->qqTargetString->setText("wrong dummy link type!");
                 else
                     ui->qqTargetString->setText(target->getObjectAlias_printPath().c_str());

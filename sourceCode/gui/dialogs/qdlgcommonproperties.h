@@ -88,6 +88,10 @@ private slots:
 
     void on_qqCannotBeDeletedDuringSimul_clicked();
 
+    void on_qqHiddenDuringSimul_clicked();
+
+    void on_qqNotMoveable_clicked();
+
 private:
     Ui::CQDlgCommonProperties *ui;
 };

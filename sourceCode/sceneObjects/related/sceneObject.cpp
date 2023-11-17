@@ -1337,7 +1337,11 @@ CSceneObject* CSceneObject::copyYourself()
 
     theNewObject->_objectHandle=_objectHandle; // important for copy operations connections
     theNewObject->_authorizedViewableObjects=_authorizedViewableObjects;
-    theNewObject->_visibilityLayer=_visibilityLayer;
+    theNewObject->_initialVisibilityLayer=_initialVisibilityLayer; // for cases object copied during simulation
+    if (_initialValuesInitialized)
+        theNewObject->_visibilityLayer=_initialVisibilityLayer; // for cases object copied during simulation
+    else
+        theNewObject->_visibilityLayer=_visibilityLayer;
     theNewObject->_childOrder=_childOrder;
     theNewObject->_localTransformation=_localTransformation;
     theNewObject->_objectAlias=_objectAlias;
@@ -1635,6 +1639,10 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
     _dynamicsTemporarilyDisabled=false;
 
     _initialMainPropertyOverride=_modelProperty;
+
+    _initialVisibilityLayer = _visibilityLayer;
+    if ((_objectProperty & sim_objectproperty_hiddenforsimulation) != 0)
+        setVisibilityLayer(0);
 }
 
 void CSceneObject::simulationEnded_restoreHierarchy()
@@ -1681,6 +1689,9 @@ void CSceneObject::simulationEnded()
                 _initialConfigurationMemorized=false;
             }
         }
+
+        if ((_objectProperty & sim_objectproperty_hiddenforsimulation) != 0)
+            setVisibilityLayer(_initialVisibilityLayer);
     }
     _initialValuesInitialized=false;
 }
@@ -2864,6 +2875,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlAddNode_bool("cannotDelete",_objectProperty&sim_objectproperty_cannotdelete);
             ar.xmlAddNode_bool("cannotDeleteDuringSimulation",_objectProperty&sim_objectproperty_cannotdeleteduringsim);
             ar.xmlAddNode_bool("ignoreViewFitting",_objectProperty&sim_objectproperty_ignoreviewfitting);
+            ar.xmlAddNode_bool("hiddenForSimulation",_objectProperty&sim_objectproperty_hiddenforsimulation);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("localObjectSpecialProperty");
@@ -3105,6 +3117,7 @@ void CSceneObject::serialize(CSer& ar)
                     ar.xmlGetNode_flags("cannotDelete",_objectProperty,sim_objectproperty_cannotdelete,exhaustiveXml);
                     ar.xmlGetNode_flags("cannotDeleteDuringSimulation",_objectProperty,sim_objectproperty_cannotdeleteduringsim,exhaustiveXml);
                     ar.xmlGetNode_flags("ignoreViewFitting",_objectProperty,sim_objectproperty_ignoreviewfitting,false);
+                    ar.xmlGetNode_flags("hiddenForSimulation",_objectProperty,sim_objectproperty_hiddenforsimulation,false);
                     ar.xmlPopNode();
                 }
 

@@ -261,7 +261,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
             for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
             {
                 CDummy* it=App::currentWorld->sceneObjects->getDummyFromIndex(i);
-                if ( (it->getLinkedDummyHandle()!=-1)&&(it->getLinkType()==sim_dummylink_dyntendon) )
+                if ( (it->getLinkedDummyHandle()!=-1)&&(it->getDummyType()==sim_dummytype_dyntendon) )
                 {
                     App::logMsg(sim_verbosity_warnings,"Detected tendon constraints, which are only supported with the MuJoCo engine");
                     _stringsNotSupportedWarning++;

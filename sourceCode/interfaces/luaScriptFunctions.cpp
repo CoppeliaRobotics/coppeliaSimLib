@@ -685,6 +685,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.objectproperty_cannotdelete",sim_objectproperty_cannotdelete},
     {"sim.objectproperty_cannotdeleteduringsim",sim_objectproperty_cannotdeleteduringsim},
     {"sim.objectproperty_ignoreviewfitting",sim_objectproperty_ignoreviewfitting},
+    {"sim.objectproperty_hiddenforsimulation",sim_objectproperty_hiddenforsimulation},
     // Simulation status:
     {"sim.simulation_stopped",sim_simulation_stopped},
     {"sim.simulation_paused",sim_simulation_paused},
@@ -1101,8 +1102,12 @@ const SLuaVariables simLuaVariables[]=
     {"sim.primitiveshape_heightfield",sim_primitiveshape_heightfield},
     {"sim.primitiveshape_capsule",sim_primitiveshape_capsule},
     // dummy-dummy link types
-    {"sim.dummylink_dynloopclosure",sim_dummylink_dynloopclosure},
-    {"sim.dummylink_dyntendon",sim_dummylink_dyntendon},
+    {"sim.dummytype_dynloopclosure",sim_dummytype_dynloopclosure},
+    {"sim.dummytype_dyntendon",sim_dummytype_dyntendon},
+    {"sim.dummytype_default",sim_dummytype_default},
+    {"sim.dummytype_assembly",sim_dummytype_assembly},
+    {"sim.dummytype_parentassembly",sim_dummytype_parentassembly},
+    {"sim.dummytype_childassembly",sim_dummytype_childassembly},
     // color components
     {"sim.colorcomponent_ambient",sim_colorcomponent_ambient},
     {"sim.colorcomponent_ambient_diffuse",sim_colorcomponent_ambient_diffuse},
@@ -1285,7 +1290,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.camerafarrayparam_viewfrustum",sim_camerafarrayparam_viewfrustum},
 
     // dummies
-    {"sim.dummyintparam_link_type",sim_dummyintparam_link_type},
+    {"sim.dummyintparam_dummytype",sim_dummyintparam_dummytype},
     {"sim.dummyfloatparam_size",sim_dummyfloatparam_size},
     // graph
     {"sim.graphintparam_needs_refresh",sim_graphintparam_needs_refresh},
@@ -1646,6 +1651,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.ruckig_minaccel",sim_ruckig_minaccel},
 
     // deprecated!
+    {"sim.dummyintparam_link_type",sim_dummyintparam_dummytype},
     {"sim.filtercomponent_originalimage",sim_filtercomponent_originalimage_deprecated},
     {"sim.filtercomponent_originaldepth",sim_filtercomponent_originaldepth_deprecated},
     {"sim.filtercomponent_uniformimage",sim_filtercomponent_uniformimage_deprecated},
@@ -1908,7 +1914,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.pure_primitive_heightfield",sim_primitiveshape_heightfield},
     {"sim.jointmode_passive",sim_jointmode_kinematic},
     {"sim.jointmode_force",sim_jointmode_dynamic},
-    {"sim.dummy_linktype_dynamics_loop_closure",sim_dummylink_dynloopclosure},
+    {"sim.dummy_linktype_dynamics_loop_closure",sim_dummytype_dynloopclosure},
+    {"sim.dummylink_dynloopclosure",sim_dummytype_dynloopclosure},
+    {"sim.dummylink_dyntendon",sim_dummytype_dyntendon},
     {"sim.bullet_global_stepsize",sim_bullet_global_stepsize},
     {"sim.ode_global_stepsize",sim_ode_global_stepsize},
     {"sim.vortex_global_stepsize",sim_vortex_global_stepsize},
@@ -15006,7 +15014,7 @@ const SLuaVariables simLuaVariablesOldApi[]=
   {"sim_old.sim_pure_primitive_cylinder",sim_primitiveshape_cylinder},
   {"sim_old.sim_pure_primitive_cone",sim_primitiveshape_cone},
   {"sim_old.sim_pure_primitive_heightfield",sim_primitiveshape_heightfield},
-  {"sim_old.sim_dummy_linktype_dynamics_loop_closure",sim_dummylink_dynloopclosure},
+  {"sim_old.sim_dummy_linktype_dynamics_loop_closure",sim_dummytype_dynloopclosure},
   {"sim_old.sim_dummy_linktype_dynamics_force_constraint",sim_dummy_linktype_dynamics_force_constraint},
   {"sim_old.sim_dummy_linktype_gcs_loop_closure",sim_dummy_linktype_gcs_loop_closure},
   {"sim_old.sim_dummy_linktype_gcs_tip",sim_dummy_linktype_gcs_tip},
@@ -15148,7 +15156,7 @@ const SLuaVariables simLuaVariablesOldApi[]=
   {"sim_old.sim_camerafloatparam_pov_blur_distance",sim_camerafloatparam_pov_blur_distance},
   {"sim_old.sim_camerafloatparam_pov_aperture",sim_camerafloatparam_pov_aperture},
   {"sim_old.sim_cameraintparam_pov_blur_samples",sim_cameraintparam_pov_blur_samples},
-  {"sim_old.sim_dummyintparam_link_type",sim_dummyintparam_link_type},
+  {"sim_old.sim_dummyintparam_link_type",sim_dummyintparam_dummytype},
   {"sim_old.sim_dummyintparam_follow_path",sim_dummyintparam_follow_path},
   {"sim_old.sim_dummyfloatparam_follow_path_offset",sim_dummyfloatparam_follow_path_offset},
   {"sim_old.sim_millintparam_volume_type",sim_millintparam_volume_type},

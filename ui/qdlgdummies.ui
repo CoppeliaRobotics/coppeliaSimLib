@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>193</height>
+    <height>156</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>110</y>
+     <y>70</y>
      <width>411</width>
      <height>51</height>
     </rect>
@@ -71,90 +71,6 @@
     </property>
     <property name="text">
      <string>Color</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupBox_2">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>411</width>
-     <height>91</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Dummy - dummy linking</string>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>25</y>
-      <width>141</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Linked dummy</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>141</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Link type</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="qqLinkedDummyCombo">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>25</y>
-      <width>251</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="maxVisibleItems">
-     <number>50</number>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="qqLinkTypeCombo">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>45</y>
-      <width>251</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="maxVisibleItems">
-     <number>50</number>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="qqEditEngine">
-    <property name="geometry">
-     <rect>
-      <x>260</x>
-      <y>65</y>
-      <width>141</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Engine properties</string>
     </property>
    </widget>
   </widget>
@@ -329,7 +245,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>170</y>
+     <y>130</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -783,10 +699,78 @@
     <string>Apply to selection</string>
    </property>
   </widget>
+  <widget class="QToolButton" name="qqEditEngine">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>50</y>
+     <width>141</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Engine properties</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="qqLinkTypeCombo">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>10</y>
+     <width>251</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="maxVisibleItems">
+    <number>50</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>141</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Dummy type</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="qqLinkedDummyCombo">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>30</y>
+     <width>251</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="maxVisibleItems">
+    <number>50</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>141</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Linked dummy</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
-  <tabstop>qqLinkedDummyCombo</tabstop>
   <tabstop>qqLinkTypeCombo</tabstop>
+  <tabstop>qqLinkedDummyCombo</tabstop>
   <tabstop>qqEditEngine</tabstop>
   <tabstop>qqSize</tabstop>
   <tabstop>qqColor</tabstop>

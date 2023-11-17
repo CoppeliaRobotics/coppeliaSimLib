@@ -405,6 +405,7 @@ protected:
     int _initialMainPropertyOverride;
     C7Vector _initialLocalPose;
     C7Vector _initialAbsPose;
+    unsigned short _initialVisibilityLayer;
 
     int _dynamicFlag; // 1=respondableShape, 2=nonStaticShape, 4=dynJoint, 32=dynForceSensor, 64=dynDummy
 
