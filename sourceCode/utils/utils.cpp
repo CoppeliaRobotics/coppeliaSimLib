@@ -273,13 +273,13 @@ bool utils::checkAssemblyTagValidity(const char* parentSideTag, const char* chil
     {
         std::string p(parentSideTag);
         if (p.size() > 0)
-            retVal = ( (p[0] == '*') || (p[0] == '+') || (p[0] == '-') || (p[0] == 'p') || (p[0] == '#') );
+            retVal = ( (p[0] == '*') || (p[0] == '+') || (p[0] == '-') || (p[0] == ':') || (p[0] == '#') );
     }
     else if (parentSideTag == nullptr)
     {
         std::string c(childSideTag);
         if (c.size() > 0)
-            retVal = ( (c[0] == '*') || (c[0] == '+') || (c[0] == '-') || (c[0] == 'c') || (c[0] == '#') );
+            retVal = ( (c[0] == '*') || (c[0] == '+') || (c[0] == '-') || (c[0] == '.') || (c[0] == '#') );
     }
     else
     {
@@ -290,8 +290,8 @@ bool utils::checkAssemblyTagValidity(const char* parentSideTag, const char* chil
             bool fine = false;
             if (p[0] == '*')
                 fine = ( (c[0] == '*') || (c[0] == '+') || (c[0] == '-') );
-            else if (p[0] == 'p')
-                fine = (c[0] == 'c');
+            else if (p[0] == ':')
+                fine = (c[0] == '.');
             else if (p[0] == '+')
                 fine = ( (c[0] == '-') || (c[0] == '*') );
             else if (p[0] == '-')
