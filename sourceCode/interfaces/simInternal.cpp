@@ -9725,7 +9725,7 @@ char* simGetObjectStringParam_internal(int objectHandle,int parameterID,int* par
         char* retVal=nullptr; // Means the parameter was not retrieved
         parameterLength[0]=0;
         CSceneObject* object=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        CVisionSensor* rendSens=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
+        CDummy* dummy=App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
         CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
         if (parameterID==sim_objstringparam_dna)
         {
@@ -9746,9 +9746,17 @@ char* simGetObjectStringParam_internal(int objectHandle,int parameterID,int* par
             parameterLength[0]=(int)s.length();
         }
 
-        if (rendSens!=nullptr)
+        if (dummy!=nullptr)
         {
-
+            if (parameterID==sim_dummystringparam_assemblytag)
+            {
+                std::string s(dummy->getAssemblyTag());
+                retVal=new char[s.length()+1];
+                for (size_t i=0;i<s.length();i++)
+                    retVal[i]=s[i];
+                retVal[s.length()]=0;
+                parameterLength[0]=(int)s.length();
+            }
         }
         if (shape!=nullptr)
         {
@@ -9786,11 +9794,15 @@ int simSetObjectStringParam_internal(int objectHandle,int parameterID,const char
         int retVal=0; // Means the parameter was not set
 
 
-        CVisionSensor* rendSens=App::currentWorld->sceneObjects->getVisionSensorFromHandle(objectHandle);
+        CDummy* dummy=App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
         CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
-        if (rendSens!=nullptr)
+        if (dummy!=nullptr)
         {
-
+            if (parameterID == sim_dummystringparam_assemblytag)
+            {
+                dummy->setAssemblyTag(parameter);
+                retVal = 1;
+            }
         }
         if (shape!=nullptr)
         {

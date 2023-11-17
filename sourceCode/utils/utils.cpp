@@ -266,6 +266,49 @@ std::string utils::generateUniqueReadableString()
     return(str);
 }
 
+bool utils::checkAssemblyTagValidity(const char* parentSideTag, const char* childSideTag)
+{
+    bool retVal = false;
+    if (childSideTag == nullptr)
+    {
+        std::string p(parentSideTag);
+        if (p.size() > 0)
+            retVal = ( (p[0] == '*') || (p[0] == '+') || (p[0] == '-') || (p[0] == 'p') || (p[0] == '#') );
+    }
+    else if (parentSideTag == nullptr)
+    {
+        std::string c(childSideTag);
+        if (c.size() > 0)
+            retVal = ( (c[0] == '*') || (c[0] == '+') || (c[0] == '-') || (c[0] == 'c') || (c[0] == '#') );
+    }
+    else
+    {
+        std::string p(parentSideTag);
+        std::string c(childSideTag);
+        if ( (p.size() > 0) && (c.size() > 0) )
+        {
+            bool fine = false;
+            if (p[0] == '*')
+                fine = ( (c[0] == '*') || (c[0] == '+') || (c[0] == '-') );
+            else if (p[0] == 'p')
+                fine = (c[0] == 'c');
+            else if (p[0] == '+')
+                fine = ( (c[0] == '-') || (c[0] == '*') );
+            else if (p[0] == '-')
+                fine = ( (c[0] == '+') || (c[0] == '*') );
+            else if (p[0] == '#')
+                fine = (c[0] == '#');
+            if (fine)
+            {
+                p.erase(0, 1);
+                c.erase(0, 1);
+                retVal = (p == c);
+            }
+        }
+    }
+    return retVal;
+}
+
 void utils::replaceSubstring(std::string& str,const char* subStr,const char* replacementSubStr)
 {
     size_t index=0;

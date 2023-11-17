@@ -79,6 +79,7 @@ public:
     bool getAssignedToParentPathOrientation() const;
     int getLinkedDummyHandle() const;
     int getDummyType() const;
+    std::string getAssemblyTag() const;
 
     CColorObject* getDummyColor();
     void loadUnknownObjectType(CSer& ar);
@@ -88,7 +89,7 @@ public:
     void setLinkedDummyHandle(int handle,bool check);
     bool setDummyType(int lt,bool check);
     void setDummySize(double s);
-
+    void setAssemblyTag(const char* tag);
     void setFreeOnPathTrajectory(bool isFree);
     void setVirtualDistanceOffsetOnPath(double off);
     void setVirtualDistanceOffsetOnPath_variationWhenCopy(double off);
@@ -122,6 +123,7 @@ protected:
     double _dummySize;
     int _linkedDummyHandle;
     int _linkType;
+    std::string _assemblyTag;
     bool _assignedToParentPath;
     bool _assignedToParentPathOrientation;
 

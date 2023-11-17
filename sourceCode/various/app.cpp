@@ -1086,7 +1086,43 @@ bool App::disassemble(int objectHandle, bool justTest, bool msgs/* = false*/)
     bool retVal = false;
     CSceneObject* it;
     it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-    retVal = (it->getParent() != nullptr);
+    CSceneObject* parent = it->getParent();
+    if (parent != nullptr)
+    {
+        for (size_t i = 0; i < parent->getChildCount(); i++)
+        {
+            CSceneObject* child = parent->getChildFromIndex(i);
+            if (child->getObjectType() == sim_object_dummy_type)
+            {
+                CDummy* dummy = (CDummy*) child;
+                std::string childTag(dummy->getAssemblyTag());
+                if (utils::checkAssemblyTagValidity(childTag.c_str(), nullptr))
+                { // the parent has at least one valid assembly item
+
+
+                    for (size_t j = 0; j < it->getChildCount(); j++)
+                    {
+                        child = it->getChildFromIndex(j);
+                        if (child->getObjectType() == sim_object_dummy_type)
+                        {
+                            dummy = (CDummy*) child;
+                            std::string childTag(dummy->getAssemblyTag());
+                            if (utils::checkAssemblyTagValidity(nullptr, childTag.c_str()))
+                            { // the child has at least one valid assembly item
+                                retVal = true;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        if (!retVal)
+        { // backward compatibility method:
+            retVal = ( ( (parent->getObjectType() == sim_object_joint_type) || (parent->getObjectType() == sim_object_forcesensor_type) ) && (it->getObjectType() == sim_object_shape_type) );
+        }
+    }
     if (retVal && (!justTest))
     {
         if (msgs)
@@ -1113,7 +1149,8 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs/*
     if ( (it1->getObjectType() == sim_object_dummy_type) && (obj1 != nullptr) )
     { // possibly new method of assembly (via 2 dummies)
         CDummy* dummy1 = (CDummy*)it1;
-        if ( (dummy1->getDummyType() == sim_dummytype_assembly) || (dummy1->getDummyType() == sim_dummytype_parentassembly) )
+        std::string parentTag(dummy1->getAssemblyTag());
+        if ( (dummy1->getDummyType() == sim_dummytype_assembly) && utils::checkAssemblyTagValidity(parentTag.c_str(), nullptr) )
         { // we have the correct dummy type for the parent side
             if (it2->getObjectType() != sim_object_dummy_type)
             { // we might have the special case. Let's search for an appropriate dummy:
@@ -1125,7 +1162,8 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs/*
                     if (child->getObjectType() == sim_object_dummy_type)
                     {
                         CDummy* dummy = (CDummy*) child;
-                        if ( (dummy->getDummyType() == sim_dummytype_assembly) || (dummy->getDummyType() == sim_dummytype_childassembly) )
+                        std::string childTag(dummy->getAssemblyTag());
+                        if ( (dummy->getDummyType() == sim_dummytype_assembly) && utils::checkAssemblyTagValidity(parentTag.c_str(), childTag.c_str()) )
                         { // we have the correct dummy type for the child side (we take the first compatible dummy found)
                             it2 = dummy;
                             break;
@@ -1135,8 +1173,13 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs/*
             }
             if ( (it2 != nullptr)&&(obj2 != nullptr) )
             {
-                if (!obj1->hasAncestor(obj2))  // (obj2->getParent() != obj1) (if we are already connected, we might want to correct the pose)
-                    retVal = true;
+                CDummy* dummy = (CDummy*) it2;
+                std::string childTag(dummy->getAssemblyTag());
+                if (utils::checkAssemblyTagValidity(parentTag.c_str(), childTag.c_str()))
+                {
+                    if (!obj1->hasAncestor(obj2))  // (obj2->getParent() != obj1) (if we are already connected, we might want to correct the pose)
+                        retVal = true;
+                }
             }
         }
     }

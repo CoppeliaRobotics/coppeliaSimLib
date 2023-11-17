@@ -61,8 +61,6 @@ void CQDlgDummies::refresh()
         int lts = lt;
         ui->qqLinkTypeCombo->addItem("Default",QVariant(sim_dummytype_default));
         ui->qqLinkTypeCombo->addItem("Assembly",QVariant(sim_dummytype_assembly));
-        ui->qqLinkTypeCombo->addItem("Assembly (parent)",QVariant(sim_dummytype_parentassembly));
-        ui->qqLinkTypeCombo->addItem("Assembly (child)",QVariant(sim_dummytype_childassembly));
         ui->qqLinkTypeCombo->addItem("Dynamics, overlap constraint",QVariant(sim_dummytype_dynloopclosure));
         ui->qqLinkTypeCombo->addItem("Dynamics, tendon constraint",QVariant(sim_dummytype_dyntendon));
         // Following for backward compatibility:
@@ -95,7 +93,7 @@ void CQDlgDummies::refresh()
         }
 
         ui->qqLinkedDummyCombo->addItem(IDSN_NONE,QVariant(-1));
-        if ( (lt != sim_dummytype_default) && (lt != sim_dummytype_assembly) && (lt != sim_dummytype_parentassembly) && (lt != sim_dummytype_childassembly) )
+        if ( (lt != sim_dummytype_default) && (lt != sim_dummytype_assembly) )
         {
             std::vector<std::string> names;
             std::vector<int> ids;

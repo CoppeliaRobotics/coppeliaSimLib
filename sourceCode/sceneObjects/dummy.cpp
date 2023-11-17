@@ -16,6 +16,7 @@ CDummy::CDummy()
     _localObjectSpecialProperty=0;
 
     _dummySize=0.01;
+    _assemblyTag = "*";
     _assignedToParentPath=false;
     _assignedToParentPathOrientation=false;
     _linkedDummyHandle=-1;
@@ -294,6 +295,7 @@ CSceneObject* CDummy::copyYourself()
     _dummyColor.copyYourselfInto(&newDummy->_dummyColor);
     newDummy->_dummySize=_dummySize;
     newDummy->_linkType=_linkType;
+    newDummy->_assemblyTag = _assemblyTag;
     newDummy->_assignedToParentPath=_assignedToParentPath;
     newDummy->_assignedToParentPathOrientation=_assignedToParentPathOrientation;
     newDummy->_freeOnPathTrajectory=_freeOnPathTrajectory;
@@ -437,6 +439,9 @@ void CDummy::serialize(CSer& ar)
             ar << _dummySize;
             ar.flush();
 
+            ar.storeDataName("Atg");
+            ar << _assemblyTag;
+            ar.flush();
 
             ar.storeDataName("Cl0");
             ar.setCountingMode();
@@ -503,6 +508,13 @@ void CDummy::serialize(CSer& ar)
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _dummySize;
+                    }
+
+                    if (theName.compare("Atg")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _assemblyTag;
                     }
 
                     if (theName.compare("Lli")==0)
@@ -651,6 +663,7 @@ void CDummy::serialize(CSer& ar)
         if (ar.isStoring())
         {
             ar.xmlAddNode_float("size",_dummySize);
+            ar.xmlAddNode_string("assemblyTag",_assemblyTag.c_str());
 
             if (exhaustiveXml)
                 ar.xmlAddNode_int("linkedDummyHandle",_linkedDummyHandle);
@@ -671,7 +684,7 @@ void CDummy::serialize(CSer& ar)
             }
 
             ar.xmlAddNode_comment(" 'linkType' tag: can be 'default', 'dynamics_loopClosure', 'dynamics_tendon', 'assembly', 'parentAssembly', 'childAssembly'", exhaustiveXml);
-            ar.xmlAddNode_enum("linkType",_linkType,sim_dummytype_dynloopclosure,"dynamics_loopClosure",sim_dummy_linktype_dynamics_force_constraint,"dynamics_forceConstraint",sim_dummy_linktype_ik_tip_target,"ik_tipTarget",sim_dummytype_dyntendon,"dynamics_tendon",sim_dummytype_default,"default",sim_dummytype_assembly,"assembly",sim_dummytype_parentassembly,"parentAssembly",sim_dummytype_childassembly,"childAssembly");
+            ar.xmlAddNode_enum("linkType",_linkType,sim_dummytype_dynloopclosure,"dynamics_loopClosure",sim_dummy_linktype_dynamics_force_constraint,"dynamics_forceConstraint",sim_dummy_linktype_ik_tip_target,"ik_tipTarget",sim_dummytype_dyntendon,"dynamics_tendon",sim_dummytype_default,"default",sim_dummytype_assembly,"assembly");
 
             if (exhaustiveXml)
             {
@@ -721,6 +734,7 @@ void CDummy::serialize(CSer& ar)
         else
         {
             ar.xmlGetNode_float("size",_dummySize,exhaustiveXml);
+            ar.xmlGetNode_string("assemblyTag",_assemblyTag,false);
 
             if (exhaustiveXml)
                 ar.xmlGetNode_int("linkedDummyHandle",_linkedDummyHandle);
@@ -729,7 +743,7 @@ void CDummy::serialize(CSer& ar)
                 ar.xmlGetNode_string("linkedDummyAlias",_linkedDummyLoadAlias,exhaustiveXml);
                 ar.xmlGetNode_string("linkedDummy",_linkedDummyLoadName_old,exhaustiveXml);
             }
-            ar.xmlGetNode_enum("linkType",_linkType,exhaustiveXml,"dynamics_loopClosure",sim_dummytype_dynloopclosure,"dynamics_forceConstraint",sim_dummy_linktype_dynamics_force_constraint,"ik_tipTarget",sim_dummy_linktype_ik_tip_target,"dynamics_tendon",sim_dummytype_dyntendon,"default",sim_dummytype_default,"assembly",sim_dummytype_assembly,"parentAssembly",sim_dummytype_parentassembly,"childAssembly",sim_dummytype_childassembly);
+            ar.xmlGetNode_enum("linkType",_linkType,exhaustiveXml,"dynamics_loopClosure",sim_dummytype_dynloopclosure,"dynamics_forceConstraint",sim_dummy_linktype_dynamics_force_constraint,"ik_tipTarget",sim_dummy_linktype_ik_tip_target,"dynamics_tendon",sim_dummytype_dyntendon,"default",sim_dummytype_default,"assembly",sim_dummytype_assembly);
 
             if (exhaustiveXml&&ar.xmlPushChildNode("switches"))
             {
@@ -886,7 +900,7 @@ bool CDummy::setDummyType(int lt,bool check)
             _dummyColor.setColor(0.0f,1.0f,1.0f,sim_colorcomponent_ambient_diffuse);
         if (lt == sim_dummytype_dyntendon)
             _dummyColor.setColor(0.0f,0.5f,1.0f,sim_colorcomponent_ambient_diffuse);
-        if ( (lt == sim_dummytype_assembly) || (lt == sim_dummytype_parentassembly) || (lt == sim_dummytype_childassembly) )
+        if (lt == sim_dummytype_assembly)
             _dummyColor.setColor(1.0f,0.0f,0.0f,sim_colorcomponent_ambient_diffuse);
     }
     if ( (_linkedDummyHandle != -1) && check )
@@ -909,6 +923,11 @@ bool CDummy::setDummyType(int lt,bool check)
         #endif
     }
     return(diff);
+}
+
+void CDummy::setAssemblyTag(const char* tag)
+{
+    _assemblyTag = tag;
 }
 
 void CDummy::announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer)
@@ -1018,6 +1037,11 @@ double CDummy::getDummySize() const
 int CDummy::getDummyType() const
 {
     return(_linkType);
+}
+
+std::string CDummy::getAssemblyTag() const
+{
+    return(_assemblyTag);
 }
 
 int CDummy::getLinkedDummyHandle() const

@@ -1106,8 +1106,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.dummytype_dyntendon",sim_dummytype_dyntendon},
     {"sim.dummytype_default",sim_dummytype_default},
     {"sim.dummytype_assembly",sim_dummytype_assembly},
-    {"sim.dummytype_parentassembly",sim_dummytype_parentassembly},
-    {"sim.dummytype_childassembly",sim_dummytype_childassembly},
     // color components
     {"sim.colorcomponent_ambient",sim_colorcomponent_ambient},
     {"sim.colorcomponent_ambient_diffuse",sim_colorcomponent_ambient_diffuse},
@@ -1292,6 +1290,7 @@ const SLuaVariables simLuaVariables[]=
     // dummies
     {"sim.dummyintparam_dummytype",sim_dummyintparam_dummytype},
     {"sim.dummyfloatparam_size",sim_dummyfloatparam_size},
+    {"sim.dummystringparam_assemblytag",sim_dummystringparam_assemblytag},
     // graph
     {"sim.graphintparam_needs_refresh",sim_graphintparam_needs_refresh},
     // mills

@@ -1799,7 +1799,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 it->setLinkedDummyHandle(it2->getObjectHandle(),true);
 
                 int tp = it->getDummyType();
-                if ( (tp == sim_dummytype_default) || (tp == sim_dummytype_assembly) || (tp == sim_dummytype_parentassembly) || (tp == sim_dummytype_childassembly) )
+                if ( (tp == sim_dummytype_default) || (tp == sim_dummytype_assembly) )
                     it->setDummyType(sim_dummytype_dynloopclosure,true);
             }
             else
