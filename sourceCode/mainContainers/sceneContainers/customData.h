@@ -17,6 +17,7 @@ public:
 
     bool setData(const char* tag,const char* data,size_t dataLen);
     std::string getData(const char* tag) const;
+    void getAndClearDataEvents(std::map<std::string, bool>& dataEvents); // different from below cbor events
     std::string getAllTags(size_t* cnt) const;
     size_t getDataCount() const;
     void copyYourselfInto(CCustomData& theCopy) const;
@@ -25,5 +26,6 @@ public:
 
 protected:
     std::vector<SCustomData> _data;
+    std::map<std::string, bool> _dataEvents; // tag, true=present, false=absent. Different from above cbor events
 };
 

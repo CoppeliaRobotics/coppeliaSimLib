@@ -61,8 +61,8 @@ void CQDlgDummies::refresh()
         int lts = lt;
         ui->qqLinkTypeCombo->addItem("Default",QVariant(sim_dummytype_default));
         ui->qqLinkTypeCombo->addItem("Assembly",QVariant(sim_dummytype_assembly));
-        ui->qqLinkTypeCombo->addItem("Dynamics, overlap constraint",QVariant(sim_dummytype_dynloopclosure));
-        ui->qqLinkTypeCombo->addItem("Dynamics, tendon constraint",QVariant(sim_dummytype_dyntendon));
+        ui->qqLinkTypeCombo->addItem("Dynamic, overlap constraint",QVariant(sim_dummytype_dynloopclosure));
+        ui->qqLinkTypeCombo->addItem("Dynamic, tendon constraint",QVariant(sim_dummytype_dyntendon));
         // Following for backward compatibility:
         if (it->getLinkedDummyHandle() != -1)
         {

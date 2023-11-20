@@ -436,6 +436,35 @@ void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack
     }
 }
 
+void CEmbeddedScriptContainer::handleDataCallbacks()
+{
+    std::vector<int> scriptHandles;
+    _getScriptsToExecute(scriptHandles, -1);
+    for (size_t i = 0; i < scriptHandles.size(); i++)
+    {
+        CScriptObject* it = getScriptFromHandle(scriptHandles[i]);
+        if (it!=nullptr)
+        { // could have been erased in the mean time! noooo!
+            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo(-1));
+            if (obj != nullptr)
+            {
+                std::map<std::string, bool> dataItems;
+                if (obj->getAndClearCustomDataEvents(dataItems))
+                {
+                    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+                    stack->pushTableOntoStack();
+                    for (const auto& r : dataItems)
+                        stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
+                    it->systemCallScript(sim_syscb_data, stack, nullptr);
+                    App::worldContainer->interfaceStackContainer->destroyStack(stack);
+
+
+                }
+            }
+        }
+    }
+}
+
 int CEmbeddedScriptContainer::getEquivalentScriptExecPriority_old(int objectHandle) const
 { // for backward compatibility
     int retVal=-1; // no script attached

@@ -16,6 +16,8 @@ bool CCustomData::setData(const char* tag,const char* data,size_t dataLen)
     bool diff=false;
     if ( (tag==nullptr)||(std::strlen(tag)==0) )
     {
+        for (size_t i = 0; i < _data.size(); i++)
+            _dataEvents[_data[i].tag] = false;
         diff=(_data.size()>0);
         _data.clear();
     }
@@ -36,6 +38,7 @@ bool CCustomData::setData(const char* tag,const char* data,size_t dataLen)
             {
                 _data.erase(_data.begin()+f);
                 diff=true;
+                _dataEvents[tag] = false;
             }
         }
         else
@@ -65,6 +68,7 @@ bool CCustomData::setData(const char* tag,const char* data,size_t dataLen)
             }
             _data[size_t(f)].tag=tag;
             _data[size_t(f)].data.assign(data,dataLen);
+            _dataEvents[tag] = true;
         }
     }
     return(diff);
@@ -107,6 +111,7 @@ void CCustomData::copyYourselfInto(CCustomData& theCopy) const
     theCopy._data.clear();
     for (size_t i=0;i<_data.size();i++)
         theCopy._data.push_back(_data[i]);
+    theCopy._dataEvents = _dataEvents;
 }
 
 void CCustomData::serializeData(CSer &ar,const char* objectName)
@@ -242,4 +247,11 @@ void CCustomData::appendEventData(CCbor* ev) const
 {
     for (size_t i=0;i<_data.size();i++)
         ev->appendKeyBuff(_data[i].tag.c_str(),(unsigned char*)_data[i].data.c_str(),_data[i].data.size());
+}
+
+void CCustomData::getAndClearDataEvents(std::map<std::string, bool>& dataEvents)
+{
+    for (const auto& it : _dataEvents)
+        dataEvents[it.first] = it.second;
+    _dataEvents.clear();
 }

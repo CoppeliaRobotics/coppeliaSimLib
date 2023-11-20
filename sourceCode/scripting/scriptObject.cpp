@@ -350,6 +350,8 @@ int CScriptObject::getSystemCallbackFromString(const char* cb)
         return(sim_syscb_msg);
     if (std::string(cb)=="sysCall_selChange")
         return(sim_syscb_selchange);
+    if (std::string(cb)=="sysCall_data")
+        return(sim_syscb_data);
 
     // Old:
     if (std::string(cb)=="sysCall_addOnScriptRun")
@@ -628,6 +630,13 @@ std::string CScriptObject::getSystemCallbackString(int calltype,int what)
             r+=" - Called when selection changes.";
         return(r);
     }
+    if (calltype==sim_syscb_data)
+    {
+        std::string r("sysCall_data");
+        if (what==2)
+            r+=" - Called when a custom data block changed.";
+        return(r);
+    }
 
 
     // Old:
@@ -864,6 +873,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType,bool threadedOld,int ca
             return(true);
         if (callType==sim_syscb_userconfig)
             return(true);
+        if (callType==sim_syscb_data)
+            return(true);
         if ( (callType>=sim_syscb_customcallback1)&&(callType<=sim_syscb_customcallback4) )
             return(true);
     }
@@ -917,6 +928,7 @@ std::vector<int> CScriptObject::getAllSystemCallbacks(int scriptType,bool thread
                  sim_syscb_aftersave,
                  sim_syscb_msg,
                  sim_syscb_selchange,
+                 sim_syscb_data,
                  -1
             };
 
@@ -1447,6 +1459,7 @@ int CScriptObject::systemCallMainScript(int optionalCallType,const CInterfaceSta
             if (App::currentWorld->simulation->getSimulationState()==sim_simulation_advancing_firstafterstop)
                 retVal=systemCallScript(sim_syscb_init,inStack,outStack);
 
+            App::currentWorld->embeddedScriptContainer->handleDataCallbacks();
             retVal=systemCallScript(sim_syscb_actuation,inStack,outStack);
             App::worldContainer->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
             retVal=systemCallScript(sim_syscb_sensing,inStack,outStack);

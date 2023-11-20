@@ -738,6 +738,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.syscb_userconfig",sim_syscb_userconfig},
     {"sim.syscb_moduleentry",sim_syscb_moduleentry},
     {"sim.syscb_selchange",sim_syscb_selchange},
+    {"sim.syscb_data",sim_syscb_data},
     // script params:
     {"sim.scriptintparam_execorder",sim_scriptintparam_execorder},
     {"sim.scriptintparam_execcount",sim_scriptintparam_execcount},

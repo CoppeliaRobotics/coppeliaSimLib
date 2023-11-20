@@ -1583,7 +1583,7 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
     for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
     {
         CDummy* dummy=App::currentWorld->sceneObjects->getDummyFromIndex(i);
-        if (dummy->getLinkedDummyHandle()!=-1)
+        if ( (dummy->getLinkedDummyHandle()!=-1) && (dummy->getDummyType() != sim_dummytype_default) && (dummy->getDummyType() != sim_dummytype_assembly) )
         {
             int dummyID=dummy->getObjectHandle();
             int linkedDummyID=dummy->getLinkedDummyHandle();

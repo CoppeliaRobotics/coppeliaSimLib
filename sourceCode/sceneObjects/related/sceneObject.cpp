@@ -1409,6 +1409,13 @@ void CSceneObject::clearObjectCustomData_old()
     _customObjectData_old=nullptr;
 }
 
+bool CSceneObject::getAndClearCustomDataEvents(std::map<std::string, bool>& dataEvents)
+{
+    dataEvents.clear();
+    _customObjectData.getAndClearDataEvents(dataEvents);
+    _customObjectData_tempData.getAndClearDataEvents(dataEvents);
+    return dataEvents.size() > 0;
+}
 
 void CSceneObject::writeCustomDataBlock(bool tmpData,const char* dataName,const char* data,size_t dataLength)
 {

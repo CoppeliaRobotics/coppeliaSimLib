@@ -46,6 +46,7 @@ public:
     void callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch=nullptr,int scriptToExclude=-1);
     void sceneOrModelAboutToBeSaved_old(int modelBase);
     int getEquivalentScriptExecPriority_old(int objectHandle) const;
+    void handleDataCallbacks();
 
     std::vector<CScriptObject*> allScripts;
 
