@@ -319,6 +319,7 @@ void App::loop(void(*callback)(),bool stepIfRunning)
         worldContainer->dispatchEvents();
         worldContainer->callScripts(sim_syscb_nonsimulation,nullptr,nullptr);
     }
+    App::currentWorld->embeddedScriptContainer->handleDataCallbacks();
     if (currentWorld->sceneObjects->hasSelectionChanged())
     {
         CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();

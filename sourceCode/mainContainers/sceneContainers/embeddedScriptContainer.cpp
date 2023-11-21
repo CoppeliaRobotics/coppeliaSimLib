@@ -445,20 +445,27 @@ void CEmbeddedScriptContainer::handleDataCallbacks()
         CScriptObject* it = getScriptFromHandle(scriptHandles[i]);
         if (it!=nullptr)
         { // could have been erased in the mean time! noooo!
-            CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo(-1));
-            if (obj != nullptr)
+            if ( (it->getScriptType() == sim_scripttype_customizationscript) || (!App::currentWorld->simulation->isSimulationStopped()) )
             {
-                std::map<std::string, bool> dataItems;
-                if (obj->getAndClearCustomDataEvents(dataItems))
+                CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo(-1));
+                if (obj != nullptr)
                 {
-                    CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
-                    stack->pushTableOntoStack();
-                    for (const auto& r : dataItems)
-                        stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
-                    it->systemCallScript(sim_syscb_data, stack, nullptr);
-                    App::worldContainer->interfaceStackContainer->destroyStack(stack);
-
-
+                    std::map<std::string, bool> dataItems;
+                    if (obj->getAndClearCustomDataEvents(dataItems))
+                    {
+                        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+                        stack->pushTableOntoStack();
+                        for (const auto& r : dataItems)
+                            stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
+                        it->systemCallScript(sim_syscb_data, stack, nullptr);
+                        if (it->getScriptType() == sim_scripttype_childscript)
+                        { // check and handle a possible customization script here (the data is cleared when fetched the first time)
+                            CScriptObject* it2 = getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, obj->getObjectHandle());
+                            if (it2 != nullptr)
+                                it2->systemCallScript(sim_syscb_data, stack, nullptr);
+                        }
+                        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                    }
                 }
             }
         }
