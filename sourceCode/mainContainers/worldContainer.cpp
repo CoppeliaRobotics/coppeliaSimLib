@@ -15,7 +15,7 @@ CWorldContainer::CWorldContainer()
 {
     TRACE_INTERNAL;
     currentWorld=nullptr;
-    _sessionId=utils::generateUniqueReadableString();
+    _sessionId=utils::generateUniqueAlphaNumericString();
     pluginContainer=nullptr;
     codeEditorInfos=nullptr;
     copyBuffer=nullptr;

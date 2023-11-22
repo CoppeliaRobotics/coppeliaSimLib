@@ -13,7 +13,7 @@ CCollection::CCollection(int creatorHandle)
     _collectionHandle=-1;
     _creatorHandle=creatorHandle;
     _overridesObjectMainProperties=false;
-    _uniquePersistentIdString=utils::generateUniqueReadableString();
+    _uniquePersistentIdString=utils::generateUniqueAlphaNumericString();
 }
 
 CCollection::~CCollection()

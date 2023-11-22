@@ -16,6 +16,7 @@ public:
     std::string getAddOnPath() const;
     std::string getInterpretersRootPath() const;
     std::string getAutoSavedScenesPath() const;
+    std::string getAutoSavedScenesContainingPath() const;
     std::string getSystemPath() const;
     std::string getResourcesPath() const;
     std::string getScenesDefaultPath() const;
@@ -56,4 +57,7 @@ private:
     std::string _tempDataPath;
     std::string _scenesDefaultPath;
     std::string _modelsDefaultPath;
+    std::string _mujocoPath;
+    std::string _autoSavedScenesContainingPath;
+    std::string _autoSavedScenesDir;
 };

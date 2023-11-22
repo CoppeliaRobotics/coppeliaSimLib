@@ -12,7 +12,7 @@
 CIkGroup_old::CIkGroup_old()
 {
     _objectHandle=SIM_IDSTART_IKGROUP_old;
-    _uniquePersistentIdString=utils::generateUniqueReadableString(); // persistent
+    _uniquePersistentIdString=utils::generateUniqueAlphaNumericString(); // persistent
     _ikPluginCounterpartHandle=-1;
     _calcTimeInMs=0;
     _initialValuesInitialized=false;

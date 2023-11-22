@@ -243,7 +243,7 @@ std::string utils::generateUniqueString()
     return(s);
 }
 
-std::string utils::generateUniqueReadableString()
+std::string utils::generateUniqueAlphaNumericString()
 {
     static bool seeded=false;
     if (!seeded)
@@ -264,6 +264,11 @@ std::string utils::generateUniqueReadableString()
     }
     std::transform(str.begin(),str.end(),str.begin(),::toupper);
     return(str);
+}
+
+bool utils::isAlphaNumeric(const std::string& str)
+{
+    return std::all_of(str.begin(), str.end(), [](unsigned char ch) { return std::isalnum(ch); });
 }
 
 bool utils::checkAssemblyTagValidity(const char* parentSideTag, const char* childSideTag)

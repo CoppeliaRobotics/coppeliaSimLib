@@ -87,7 +87,7 @@ CSceneObject::CSceneObject()
 
     _dynamicSimulationIconCode=sim_dynamicsimicon_none;
 
-    _uniquePersistentIdString=utils::generateUniqueReadableString(); // persistent
+    _uniquePersistentIdString=utils::generateUniqueAlphaNumericString(); // persistent
     _modelAcknowledgement="";
     _objectTempAlias="_*_object_*_";
     _objectTempName_old="_*_object_*_";
@@ -2786,7 +2786,7 @@ void CSceneObject::serialize(CSer& ar)
             if ( (ar.getCoppeliaSimVersionThatWroteThisFile()<30003)&&getModelBase() )
             {
                 _dnaString="1234567890123456";
-                std::string a(utils::generateUniqueReadableString());
+                std::string a(utils::generateUniqueAlphaNumericString());
                 while (a.length()<16)
                     a=a+"*";
                 std::string b("1234567890123456");

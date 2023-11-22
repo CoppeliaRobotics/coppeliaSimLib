@@ -4507,21 +4507,18 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
     {
         // First repost a same command:
         App::appendSimulationThreadCommand(cmd,1000);
-        if (VDateTime::getSecondsSince1970()>(App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970+App::userSettings->autoSaveDelay*60))
+        if (VDateTime::getSecondsSince1970() > (App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970+App::userSettings->autoSaveDelay*60))
         {
-            CPersistentDataContainer cont;
-            std::string val;
-            cont.readData("SIMSETTINGS_SIM_CRASHED",val);
-            std::string savedLoc=App::currentWorld->mainSettings->getScenePathAndName();
-            std::string testScene=App::folders->getAutoSavedScenesPath()+"/";
-            testScene+=val+std::to_string(App::worldContainer->getCurrentWorldIndex()+1)+".";
-            testScene+=SIM_SCENE_EXTENSION;
-            CFileOperations::saveScene(testScene.c_str(),false,false);
+            std::string savedLoc = App::currentWorld->mainSettings->getScenePathAndName();
+            std::string testScene = App::folders->getAutoSavedScenesPath() + "/";
+            testScene += std::to_string(App::worldContainer->getCurrentWorldIndex() + 1) + "-" + App::currentWorld->environment->getUniquePersistentIdString() + ".";
+            testScene += SIM_SCENE_EXTENSION;
+            CFileOperations::saveScene(testScene.c_str(), false, false);
             #ifdef SIM_WITH_GUI
                 GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
             #endif
             App::currentWorld->mainSettings->setScenePathAndName(savedLoc.c_str());
-            App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970=VDateTime::getSecondsSince1970();
+            App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970 = VDateTime::getSecondsSince1970();
         }
     }
     else

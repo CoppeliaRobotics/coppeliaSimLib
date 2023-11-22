@@ -4025,7 +4025,7 @@ char* simGetStringParam_internal(int parameter)
         if (parameter==sim_stringparam_uniqueid)
         {
             validParam=true;
-            retVal=utils::generateUniqueReadableString();
+            retVal=utils::generateUniqueAlphaNumericString();
         }
         if (parameter==sim_stringparam_tempdir)
         {

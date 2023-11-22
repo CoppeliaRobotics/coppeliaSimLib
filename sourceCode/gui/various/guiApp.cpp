@@ -297,13 +297,7 @@ void GuiApp::runGui(int options)
 
     // Indicate that we didn't crash:
     CPersistentDataContainer cont;
-    std::string val;
-    cont.readData("SIMSETTINGS_SIM_CRASHED",val);
-    if (val.size()==1)
-        val+=val[0];
-    else
-        val="AA";
-    cont.writeData("SIMSETTINGS_SIM_CRASHED",val.c_str(),!App::userSettings->doNotWritePersistentData);
+    cont.writeData("SIMSETTINGS_SIM_CRASHED", "", !App::userSettings->doNotWritePersistentData);
 
     CAuxLibVideo::unloadLibrary();
 

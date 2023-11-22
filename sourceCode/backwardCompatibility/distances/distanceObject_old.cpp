@@ -39,7 +39,7 @@ void CDistanceObject_old::_commonInit()
     _threshold=0.5;
     _thresholdEnabled=false;
     _segmentWidth=2;
-    _uniquePersistentIdString=utils::generateUniqueReadableString(); // persistent
+    _uniquePersistentIdString=utils::generateUniqueAlphaNumericString(); // persistent
     for (size_t i=0;i<7;i++)
         _distanceResult[i]=0.0;
     _distanceBuffer[0]=-1;

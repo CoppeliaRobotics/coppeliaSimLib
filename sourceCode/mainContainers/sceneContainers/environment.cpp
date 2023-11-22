@@ -34,7 +34,7 @@ CEnvironment::~CEnvironment()
 
 void CEnvironment::generateNewUniquePersistentIdString()
 {
-    _sceneUniquePersistentIdString=utils::generateUniqueReadableString();
+    _sceneUniquePersistentIdString=utils::generateUniqueAlphaNumericString();
 }
 
 std::string CEnvironment::getUniquePersistentIdString() const
@@ -680,7 +680,11 @@ void CEnvironment::serialize(CSer& ar)
                         ar >> byteQuantity;
                         ar >> s;
                         if (s.size()!=0)
+                        {
                             _sceneUniquePersistentIdString=s;
+                            if (!utils::isAlphaNumeric(_sceneUniquePersistentIdString))
+                                generateNewUniquePersistentIdString();
+                        }
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -887,7 +891,11 @@ void CEnvironment::serialize(CSer& ar)
             ar.xmlGetNode_string("extensionString",_extensionString,exhaustiveXml);
 
             if ( exhaustiveXml&&ar.xmlGetNode_string("sceneUniquePersistentIdString_base64Coded",_sceneUniquePersistentIdString))
+            {
                 _sceneUniquePersistentIdString=base64_decode(_sceneUniquePersistentIdString);
+                if (!utils::isAlphaNumeric(_sceneUniquePersistentIdString))
+                    generateNewUniquePersistentIdString();
+            }
         }
     }
 }

@@ -5,9 +5,11 @@
 #include <vVarious.h>
 #include <app.h>
 #include <simFlavor.h>
-#ifdef __cpp_lib_filesystem // macOS 10.13 does not support XCode >=11 which is required for that
-    #include <filesystem>
-#else
+#include <vFileFinder.h>
+#include <vDateTime.h>
+#include <utils.h>
+#include <filesystem>
+#ifndef __cpp_lib_filesystem // macOS 10.13 does not support XCode >=11 which is required for that
     #include <ftw.h>
     #include <unistd.h>
 #endif
@@ -45,6 +47,18 @@ CFolderSystem::CFolderSystem()
     _tempDir->setAutoRemove(true);
     if (_tempDir->isValid())
         _tempDataPath=_tempDir->path().toStdString().c_str();
+    if (_tempDataPath.size()==0)
+    {
+        _tempDataPath=_executablePath+"/tmp";
+        if (!VFile::doesFolderExist(_tempDataPath.c_str()))
+            VFile::createFolder(_tempDataPath.c_str());
+    }
+
+    _mujocoPath = _tempDataPath + "/mujoco";
+    if (!VFile::doesFolderExist(_mujocoPath.c_str()))
+        VFile::createFolder(_mujocoPath.c_str());
+
+
     QString s(QStandardPaths::locate(QStandardPaths::AppDataLocation,"CoppeliaSim",QStandardPaths::LocateDirectory));
     if (s.length()==0)
     {
@@ -53,18 +67,33 @@ CFolderSystem::CFolderSystem()
     }
     _appDataPath=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/CoppeliaSim";
 
-    if (_tempDataPath.size()==0)
-    {
-        _tempDataPath=_executablePath+"/tmp";
-        if (!VFile::doesFolderExist(_tempDataPath.c_str()))
-            VFile::createFolder(_tempDataPath.c_str());
-    }
     if (_appDataPath.size()==0)
     {
         _appDataPath=_executablePath+"/app";
         if (!VFile::doesFolderExist(_appDataPath.c_str()))
             VFile::createFolder(_appDataPath.c_str());
     }
+
+
+    _autoSavedScenesContainingPath = getUserSettingsPath() + "/autoSavedScenes";
+    if (!VFile::doesFolderExist(_autoSavedScenesContainingPath.c_str()))
+        VFile::createFolder(_autoSavedScenesContainingPath.c_str());
+    // First remove old folders:
+    VFileFinder finder;
+    finder.searchFolders(_autoSavedScenesContainingPath.c_str());
+    int index = 0;
+    SFileOrFolder* foundItem = finder.getFoundItem(index++);
+    while (foundItem != nullptr)
+    {
+        if ( (foundItem->name != ".") && (foundItem->name != "..") && (foundItem->lastWriteTime + 3600 * 24 * 2 < VDateTime::getSecondsSince1970() ) ) // 2 days
+            std::filesystem::remove_all(foundItem->path.c_str());
+        foundItem = finder.getFoundItem(index++);
+    }
+    // create a new folder:
+    QDateTime now = QDateTime::currentDateTime();
+    _autoSavedScenesDir = now.toString("yyyy-MM-dd-HH-mm-").toStdString();
+    _autoSavedScenesDir += utils::generateUniqueAlphaNumericString();
+    VFile::createFolder((_autoSavedScenesContainingPath + "/" + _autoSavedScenesDir).c_str());
 }
 
 #ifndef  __cpp_lib_filesystem // macOS 10.13 does not support XCode >=11 which is required for that
@@ -133,7 +162,12 @@ std::string CFolderSystem::getSystemPath() const
 
 std::string CFolderSystem::getAutoSavedScenesPath() const
 {
-    return(getUserSettingsPath()+"/autoSavedScenes");
+    return(_autoSavedScenesContainingPath + "/" + _autoSavedScenesDir);
+}
+
+std::string CFolderSystem::getAutoSavedScenesContainingPath() const
+{
+    return(_autoSavedScenesContainingPath);
 }
 
 std::string CFolderSystem::getResourcesPath() const
@@ -201,7 +235,7 @@ std::string CFolderSystem::getPythonPath() const
 
 std::string CFolderSystem::getMujocoPath() const
 {
-    return(_resourcesPath+"/mujoco");
+    return(_mujocoPath);
 }
 
 std::string CFolderSystem::getUserSettingsPath()

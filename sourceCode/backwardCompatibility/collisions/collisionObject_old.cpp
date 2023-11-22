@@ -40,7 +40,7 @@ void CCollisionObject_old::_commonInit()
     _detectAllCollisions=false;
     _explicitHandling=false;
 
-    _uniquePersistentIdString=utils::generateUniqueReadableString(); // persistent
+    _uniquePersistentIdString=utils::generateUniqueAlphaNumericString(); // persistent
     _collisionResult=false;
     _collisionResultValid=false;
     _collObjectHandles[0]=-1;
