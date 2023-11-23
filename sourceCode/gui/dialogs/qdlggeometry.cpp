@@ -202,7 +202,7 @@ void CQDlgGeometry::_readSize(int index)
     if (shape!=nullptr)
     {
         bool ok;
-        double newVal=ww[index]->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ww[index]->text().toStdString().c_str(), &ok);
         if (ok)
         {
             newVal=tt::getLimitedFloat(0.0001,1000.0,newVal);
@@ -271,7 +271,7 @@ void CQDlgGeometry::_readScaling(int index)
     if (shape!=nullptr)
     {
         bool ok;
-        double newVal=ww[index]->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ww[index]->text().toStdString().c_str(), &ok);
         if (!keepProp)
         { // imagine we have a plane that has dims x*y*0!
             C3Vector bbhalfSizes(shape->getBBHSize());

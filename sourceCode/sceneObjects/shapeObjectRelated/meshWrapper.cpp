@@ -561,21 +561,21 @@ bool CMeshWrapper::getColor(const char* colorName,int colorComponent,float* rgbD
     return(retVal);
 }
 
-void CMeshWrapper::getAllShapeComponentsCumulative(const C7Vector& parentCumulTr,std::vector<CMesh*>& shapeComponentList,std::vector<C7Vector>* OptParentCumulTrList/*=nullptr*/)
+void CMeshWrapper::getAllMeshComponentsCumulative(const C7Vector& parentCumulTr,std::vector<CMesh*>& shapeComponentList,std::vector<C7Vector>* OptParentCumulTrList/*=nullptr*/)
 {   // function has virtual/non-virtual counterpart!
     // needed by the dynamics routine. We return ALL shape components!
     for (size_t i=0;i<childList.size();i++)
-        childList[i]->getAllShapeComponentsCumulative(parentCumulTr*_iFrame,shapeComponentList,OptParentCumulTrList);
+        childList[i]->getAllMeshComponentsCumulative(parentCumulTr*_iFrame,shapeComponentList,OptParentCumulTrList);
 }
 
-CMesh* CMeshWrapper::getShapeComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut/*=nullptr*/)
+CMesh* CMeshWrapper::getMeshComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut/*=nullptr*/)
 { // function has virtual/non-virtual counterpart!
     CMesh* retVal=nullptr;
     if (index>=0)
     {
         for (size_t i=0;i<childList.size();i++)
         {
-            retVal=childList[i]->getShapeComponentAtIndex(parentCumulTr*_iFrame,index,optParentCumulTrOut);
+            retVal=childList[i]->getMeshComponentAtIndex(parentCumulTr*_iFrame,index,optParentCumulTrOut);
             if (retVal!=nullptr)
                 break;
         }

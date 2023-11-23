@@ -450,7 +450,7 @@ void CQDlgIkElements::on_qqPrecisionLinear_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqPrecisionLinear->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqPrecisionLinear->text().toStdString().c_str(), &ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
@@ -473,7 +473,7 @@ void CQDlgIkElements::on_qqPrecisionAngular_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqPrecisionAngular->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqPrecisionAngular->text().toStdString().c_str(), &ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
@@ -496,7 +496,7 @@ void CQDlgIkElements::on_qqWeightLinear_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqWeightLinear->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqWeightLinear->text().toStdString().c_str(), &ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
@@ -519,7 +519,7 @@ void CQDlgIkElements::on_qqWeightAngular_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqWeightAngular->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqWeightAngular->text().toStdString().c_str(), &ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;

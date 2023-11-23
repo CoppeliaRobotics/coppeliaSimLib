@@ -100,7 +100,7 @@ void CQDlgPointclouds::on_qqMaxCellSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqMaxCellSize->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqMaxCellSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_MAXVOXELSIZE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -145,7 +145,7 @@ void CQDlgPointclouds::on_qqPointSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        int newVal=ui->qqPointSize->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqPointSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_PTSIZE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
@@ -187,7 +187,7 @@ void CQDlgPointclouds::on_qqMaxPointCount_editingFinished()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         bool ok;
-        int newVal=ui->qqMaxPointCount->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqMaxPointCount->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_MAXPTCNT_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
@@ -204,7 +204,7 @@ void CQDlgPointclouds::on_qqBuildResolution_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqBuildResolution->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqBuildResolution->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_BUILDRESOLUTION_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -247,7 +247,7 @@ void CQDlgPointclouds::on_qqDisplayRatio_editingFinished()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         bool ok;
-        double newVal=ui->qqDisplayRatio->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqDisplayRatio->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_DISPLAYRATIO_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -279,7 +279,7 @@ void CQDlgPointclouds::on_qqSubtractionTolerance_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSubtractionTolerance->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqSubtractionTolerance->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SUBTRACTTOLERANCE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -296,7 +296,7 @@ void CQDlgPointclouds::on_qqInsertionTolerance_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqInsertionTolerance->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqInsertionTolerance->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_INSERTTOLERANCE_PTCLOUDGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

@@ -203,7 +203,7 @@ void CQDlgColor::on_qqRedValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqRedValue->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqRedValue->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -236,7 +236,7 @@ void CQDlgColor::on_qqGreenValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqGreenValue->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqGreenValue->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -269,7 +269,7 @@ void CQDlgColor::on_qqBlueValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqBlueValue->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqBlueValue->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -302,7 +302,7 @@ void CQDlgColor::on_qqHueValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqHueValue->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqHueValue->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -335,7 +335,7 @@ void CQDlgColor::on_qqSaturationValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSaturationValue->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqSaturationValue->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);
@@ -368,7 +368,7 @@ void CQDlgColor::on_qqLuminosityValue_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqLuminosityValue->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqLuminosityValue->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(0.0,1.0,newVal);

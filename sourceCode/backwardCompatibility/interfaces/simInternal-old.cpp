@@ -5514,7 +5514,7 @@ int simGetShapeVertex_internal(int shapeHandle,int groupElementIndex,int vertexI
         }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         C7Vector ptr;
-        CMesh* cc=it->getMesh()->getShapeComponentAtIndex(C7Vector::identityTransformation,groupElementIndex,&ptr);
+        CMesh* cc=it->getMesh()->getMeshComponentAtIndex(C7Vector::identityTransformation,groupElementIndex,&ptr);
         if (cc==nullptr)
             return(0);
         std::vector<double> wvert;
@@ -5547,7 +5547,7 @@ int simGetShapeTriangle_internal(int shapeHandle,int groupElementIndex,int trian
         }
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         C7Vector ptr;
-        CMesh* cc=it->getMesh()->getShapeComponentAtIndex(C7Vector::identityTransformation,groupElementIndex,&ptr);
+        CMesh* cc=it->getMesh()->getMeshComponentAtIndex(C7Vector::identityTransformation,groupElementIndex,&ptr);
         if (cc==nullptr)
             return(0);
         std::vector<double> wvert;

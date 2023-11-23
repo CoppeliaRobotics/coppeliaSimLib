@@ -403,7 +403,7 @@ void CQDlg2D3DGraphProperties::on_qqWidth_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        int newVal=ui->qqWidth->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqWidth->text().toStdString().c_str(), &ok);
         if (ok&&(!_xyGraph))
         {
             SSimulationThreadCommand cmd;

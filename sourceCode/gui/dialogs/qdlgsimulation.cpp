@@ -118,7 +118,7 @@ void CQDlgSimulation::on_qqTimeStep_editingFinished()
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
-            double newVal=ui->qqTimeStep->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqTimeStep->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 SSimulationThreadCommand cmd;
@@ -141,7 +141,7 @@ void CQDlgSimulation::on_qqScriptExecutionPasses_editingFinished()
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
-            int newVal=ui->qqScriptExecutionPasses->text().toInt(&ok);
+            int newVal=(int)GuiApp::getEvalInt(ui->qqScriptExecutionPasses->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 App::appendSimulationThreadCommand(SET_PPF_SIMULATIONGUITRIGGEREDCMD,newVal);
@@ -174,7 +174,7 @@ void CQDlgSimulation::on_qqMultiplicationCoefficient_editingFinished()
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
-            double newVal=ui->qqMultiplicationCoefficient->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqMultiplicationCoefficient->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 App::appendSimulationThreadCommand(SET_REALTIMEFACTOR_SIMULATIONGUITRIGGEREDCMD,-1,-1,newVal);
@@ -204,7 +204,7 @@ void CQDlgSimulation::on_qqPauseTime_editingFinished()
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
-            double newVal=ui->qqPauseTime->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqPauseTime->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 SSimulationThreadCommand cmd;
@@ -329,7 +329,7 @@ void CQDlgSimulation::on_qqGravityX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqGravityX->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqGravityX->text().toStdString().c_str(), &ok);
         if (ok)
         {
             C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
@@ -351,7 +351,7 @@ void CQDlgSimulation::on_qqGravityY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqGravityY->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqGravityY->text().toStdString().c_str(), &ok);
         if (ok)
         {
             C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
@@ -373,7 +373,7 @@ void CQDlgSimulation::on_qqGravityZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqGravityZ->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqGravityZ->text().toStdString().c_str(), &ok);
         if (ok)
         {
             C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
@@ -395,7 +395,7 @@ void CQDlgSimulation::on_qqDynTimeStep_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqDynTimeStep->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqDynTimeStep->text().toStdString().c_str(), &ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;

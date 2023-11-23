@@ -185,7 +185,7 @@ void CQDlgAviRecorder::on_displayedFramesVsRecordedFrame_editingFinished()
         {
             int newVal;
             bool ok;
-            newVal=ui->displayedFramesVsRecordedFrame->text().toInt(&ok);
+            newVal=(int)GuiApp::getEvalInt(ui->displayedFramesVsRecordedFrame->text().toStdString().c_str(), &ok);
             if (ok)
                 GuiApp::mainWindow->simulationRecorder->setRecordEveryXRenderedFrame(newVal);
         }
@@ -201,7 +201,7 @@ void CQDlgAviRecorder::on_frameRate_editingFinished()
         {
             int newVal;
             bool ok;
-            newVal=ui->frameRate->text().toInt(&ok);
+            newVal=(int)GuiApp::getEvalInt(ui->frameRate->text().toStdString().c_str(), &ok);
             if (ok)
                 GuiApp::mainWindow->simulationRecorder->setFrameRate(newVal);
         }

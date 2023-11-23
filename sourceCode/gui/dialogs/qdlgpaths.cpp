@@ -173,7 +173,7 @@ void CQDlgPaths::on_qqLineSize_editingFinished()
     {
         CPathCont_old* pathCont=getPathCont();
         bool ok;
-        int newVal=ui->qqLineSize->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqLineSize->text().toStdString().c_str(), &ok);
         if (ok&&(pathCont!=nullptr))
         {
             App::appendSimulationThreadCommand(SET_LINESIZE_PATH_OLD_GUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
@@ -191,7 +191,7 @@ void CQDlgPaths::on_qqControlPointSize_editingFinished()
     {
         CPathCont_old* pathCont=getPathCont();
         bool ok;
-        double newVal=ui->qqControlPointSize->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqControlPointSize->text().toStdString().c_str(), &ok);
         if (ok&&(pathCont!=nullptr))
         {
             App::appendSimulationThreadCommand(SET_CTRLPTSIZE_PATH_OLD_GUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

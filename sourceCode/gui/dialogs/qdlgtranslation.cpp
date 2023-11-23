@@ -754,7 +754,7 @@ void CQDlgTranslation::on_qqCoordX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordX->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqCoordX->text().toStdString().c_str(), &ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,0))
@@ -770,7 +770,7 @@ void CQDlgTranslation::on_qqCoordY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordY->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqCoordY->text().toStdString().c_str(), &ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,1))
@@ -786,7 +786,7 @@ void CQDlgTranslation::on_qqCoordZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordZ->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqCoordZ->text().toStdString().c_str(), &ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,2))
@@ -866,7 +866,7 @@ void CQDlgTranslation::on_qqTransfX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfX->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTransfX->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,+1000000.0,newVal);
@@ -883,7 +883,7 @@ void CQDlgTranslation::on_qqTransfY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfY->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTransfY->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,+1000000.0,newVal);
@@ -900,7 +900,7 @@ void CQDlgTranslation::on_qqTransfZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfZ->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTransfZ->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,+1000000.0,newVal);
@@ -926,7 +926,7 @@ void CQDlgTranslation::on_qqTransfSX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfSX->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTransfSX->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,1000000.0,newVal);
@@ -943,7 +943,7 @@ void CQDlgTranslation::on_qqTransfSY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfSY->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTransfSY->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,1000000.0,newVal);
@@ -960,7 +960,7 @@ void CQDlgTranslation::on_qqTransfSZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfSZ->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTransfSZ->text().toStdString().c_str(), &ok);
         if (ok)
         {
             tt::limitValue(-1000000.0,1000000.0,newVal);

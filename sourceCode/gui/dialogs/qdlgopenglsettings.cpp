@@ -1,5 +1,6 @@
 #include <qdlgopenglsettings.h>
 #include <ui_qdlgopenglsettings.h>
+#include <guiApp.h>
 #include <app.h>
 #include <tt.h>
 #include <utils.h>
@@ -140,7 +141,7 @@ void CQDlgOpenGlSettings::on_qqMajorOpenGlVersion_editingFinished()
         return;
     int newVal;
     bool ok;
-    newVal=ui->qqMajorOpenGlVersion->text().toInt(&ok);
+    newVal=(int)GuiApp::getEvalInt(ui->qqMajorOpenGlVersion->text().toStdString().c_str(), &ok);
     if (ok)
     {
         if (newVal!=-1)
@@ -156,7 +157,7 @@ void CQDlgOpenGlSettings::on_qqMinorOpenGlVersion_editingFinished()
         return;
     int newVal;
     bool ok;
-    newVal=ui->qqMinorOpenGlVersion->text().toInt(&ok);
+    newVal=(int)GuiApp::getEvalInt(ui->qqMinorOpenGlVersion->text().toStdString().c_str(), &ok);
     if (ok)
     {
         if (newVal!=-1)
@@ -179,7 +180,7 @@ void CQDlgOpenGlSettings::on_qqIdleFps_editingFinished()
         return;
     int newVal;
     bool ok;
-    newVal=ui->qqIdleFps->text().toInt(&ok);
+    newVal=(int)GuiApp::getEvalInt(ui->qqIdleFps->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(2,25,newVal);

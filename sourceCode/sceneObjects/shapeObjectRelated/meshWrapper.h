@@ -45,8 +45,8 @@ public:
     virtual void getCumulativeMeshes(const C7Vector& parentCumulTr,const CMeshWrapper* wrapper,std::vector<double>& vertices,std::vector<int>* indices,std::vector<double>* normals);
     virtual void setColor(const CShape* shape,int& elementIndex,const char* colorName,int colorComponent,const float* rgbData,int& rgbDataOffset);
     virtual bool getColor(const char* colorName,int colorComponent,float* rgbData,int& rgbDataOffset) const;
-    virtual void getAllShapeComponentsCumulative(const C7Vector& parentCumulTr,std::vector<CMesh*>& shapeComponentList,std::vector<C7Vector>* OptParentCumulTrList=nullptr);
-    virtual CMesh* getShapeComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut=nullptr);
+    virtual void getAllMeshComponentsCumulative(const C7Vector& parentCumulTr,std::vector<CMesh*>& shapeComponentList,std::vector<C7Vector>* OptParentCumulTrList=nullptr);
+    virtual CMesh* getMeshComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut=nullptr);
     virtual int getComponentCount() const;
     virtual bool serialize(CSer& ar,const char* shapeName,const C7Vector& parentCumulIFrame,bool rootLevel);
     virtual void flipFaces();

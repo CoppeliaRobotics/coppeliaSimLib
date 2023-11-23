@@ -249,7 +249,7 @@ void CQDlgDistances::on_qqThreshold_editingFinished()
         if (it!=nullptr)
         {
             bool ok;
-            double newVal=ui->qqThreshold->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqThreshold->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 App::appendSimulationThreadCommand(SET_THRESHOLD_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
@@ -284,7 +284,7 @@ void CQDlgDistances::on_qqSegmentWidth_editingFinished()
         if (it!=nullptr)
         {
             bool ok;
-            int newVal=ui->qqSegmentWidth->text().toInt(&ok);
+            int newVal=(int)GuiApp::getEvalInt(ui->qqSegmentWidth->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 App::appendSimulationThreadCommand(SET_SEGMENTWIDTH_DISTANCEGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);

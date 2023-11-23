@@ -102,7 +102,7 @@ void CQDlgDependencyEquation::on_qqOffset_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        double newVal=ui->qqOffset->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqOffset->text().toStdString().c_str(), &ok);
         if (ok&&(it!=nullptr))
         {
             it->setDependencyJointOffset(newVal); // we also modify the ui resources (dlg is modal)
@@ -121,7 +121,7 @@ void CQDlgDependencyEquation::on_qqCoeff_editingFinished()
     {
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         bool ok;
-        double newVal=ui->qqCoeff->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqCoeff->text().toStdString().c_str(), &ok);
         if (ok&&(it!=nullptr))
         {
             it->setDependencyJointMult(newVal); // we also modify the ui resources (dlg is modal)

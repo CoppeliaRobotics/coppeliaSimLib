@@ -3,6 +3,7 @@
 #include <tt.h>
 #include <utils.h>
 #include <simMath/mathDefines.h>
+#include <guiApp.h>
 #include <app.h>
 
 CQDlgProxSensDetectionParam::CQDlgProxSensDetectionParam(QWidget *parent) :
@@ -83,7 +84,7 @@ void CQDlgProxSensDetectionParam::on_qqLimitedAngle_clicked()
 void CQDlgProxSensDetectionParam::on_qqAngle_editingFinished()
 {
     bool ok;
-    double newVal=ui->qqAngle->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqAngle->text().toStdString().c_str(), &ok);
     if (ok)
     {
         angle=(newVal*degToRad);
@@ -107,7 +108,7 @@ void CQDlgProxSensDetectionParam::on_qqMinDistEnabled_clicked()
 void CQDlgProxSensDetectionParam::on_qqMinDist_editingFinished()
 {
     bool ok;
-    double newVal=ui->qqMinDist->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqMinDist->text().toStdString().c_str(), &ok);
     if (ok)
         minimumDistance=(newVal);
     refresh();
@@ -116,7 +117,7 @@ void CQDlgProxSensDetectionParam::on_qqMinDist_editingFinished()
 void CQDlgProxSensDetectionParam::on_qqRayCount_editingFinished()
 {
     bool ok;
-    int newVal=ui->qqRayCount->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqRayCount->text().toStdString().c_str(), &ok);
     if (ok)
     {
         rayCount=tt::getLimitedInt(1,5000,newVal);
@@ -128,7 +129,7 @@ void CQDlgProxSensDetectionParam::on_qqRayCount_editingFinished()
 void CQDlgProxSensDetectionParam::on_qqRandomizedDetectionCount_editingFinished()
 {
     bool ok;
-    int newVal=ui->qqRandomizedDetectionCount->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqRandomizedDetectionCount->text().toStdString().c_str(), &ok);
     if (ok)
         rayDetectionCount=tt::getLimitedInt(1,rayCount,newVal);
     refresh();

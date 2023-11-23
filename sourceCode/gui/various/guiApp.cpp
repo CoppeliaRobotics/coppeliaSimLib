@@ -30,6 +30,7 @@ int GuiApp::operationalUIParts=0; // sim_gui_menubar,sim_gui_popupmenus,sim_gui_
 bool GuiApp::_browserEnabled=true;
 bool GuiApp::_online=false;
 bool GuiApp::_showInertias=false;
+luaWrap_lua_State* GuiApp::L = nullptr;
 int GuiApp::sc=1;
 #ifdef SIM_WITH_GUI
     CMainWindow* GuiApp::mainWindow=nullptr;
@@ -39,10 +40,66 @@ GuiApp::GuiApp()
 {
     uiThread=nullptr;
     qtApp=nullptr;
+
+    L = luaWrap_luaL_newstate();
+    luaWrap_luaL_openlibs(L);
+    luaWrap_luaL_dostring(L, "os.setlocale'C'");
+    luaWrap_luaL_dostring(L, "pi = math.pi; sin = math.sin; cos = math.cos; tan = math.tan; abs = math.abs; acos = math.acos; asin = math.asin; atan2 = math.atan2; deg = math.deg; exp = math.exp; floor = math.floor; fmod = math.fmod; log = math.log; max = math.max; min = math.min; pow = math.pow; rad = math.rad; random = math.random; rand = random; sqrt = math.sqrt; round = function(_a) return math.floor(_a + 0.5) end");
 }
 
 GuiApp::~GuiApp()
 {
+    luaWrap_lua_close(L);
+}
+
+long long int GuiApp::getEvalInt(const char* str, bool* ok /*= nullptr*/)
+{
+    long long int retVal = 0.0;
+    int top = luaWrap_lua_gettop(L);
+    std::string s(str);
+    if (s.find("=") == std::string::npos)
+    {
+        s = "return abs(" + s;
+        s += ")";
+    }
+    if (ok != nullptr)
+        ok[0] = false;
+    if (luaWrap_luaL_dostring(L, s.c_str()) == 0)
+    {
+        if (luaWrap_lua_isinteger(L, -1))
+        {
+            retVal = luaWrap_lua_tointeger(L, -1);
+            if (ok != nullptr)
+                ok[0] = true;
+        }
+    }
+    luaWrap_lua_settop(L, top);
+    return retVal;
+}
+
+double GuiApp::getEvalDouble(const char* str, bool* ok /*= nullptr*/)
+{
+    double retVal = 0.0;
+    int top = luaWrap_lua_gettop(L);
+    std::string s(str);
+    if (s.find("=") == std::string::npos)
+    {
+        s = "return (" + s;
+        s += ")";
+    }
+    if (ok != nullptr)
+        ok[0] = false;
+    if (luaWrap_luaL_dostring(L, s.c_str()) == 0)
+    {
+        if (luaWrap_lua_isnumber(L, -1))
+        {
+            retVal = luaWrap_lua_tonumber(L, -1);
+            if (ok != nullptr)
+                ok[0] = true;
+        }
+    }
+    luaWrap_lua_settop(L, top);
+    return retVal;
 }
 
 void GuiApp::runGui(int options)
@@ -958,7 +1015,7 @@ CColorObject* GuiApp::getVisualParamPointerFromItem(int objType,int objID1,int o
             if ((it!=nullptr)&&it->isCompound())
             {
                 std::vector<CMesh*> allGeometrics;
-                it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
+                it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
                 if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
                     return(&allGeometrics[objID2]->color);
             }
@@ -1010,7 +1067,7 @@ CTextureProperty* GuiApp::getTexturePropertyPointerFromItem(int objType,int objI
         if (it!=nullptr)
         {
             std::vector<CMesh*> allGeometrics;
-            it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
+            it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,allGeometrics);
             if ((objID2>=0)&&(objID2<int(allGeometrics.size())))
             {
                 _isValid[0]=true;

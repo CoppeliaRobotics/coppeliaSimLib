@@ -569,7 +569,7 @@ void CQDlgRotation::on_qqCoordAlpha_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordAlpha->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqCoordAlpha->text().toStdString().c_str(), &ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,0))
@@ -585,7 +585,7 @@ void CQDlgRotation::on_qqCoordBeta_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordBeta->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqCoordBeta->text().toStdString().c_str(), &ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,1))
@@ -601,7 +601,7 @@ void CQDlgRotation::on_qqCoordGamma_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqCoordGamma->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqCoordGamma->text().toStdString().c_str(), &ok);
         if (ok)
         {
             if (_setCoord_userUnit(newVal,2))
@@ -653,7 +653,7 @@ void CQDlgRotation::on_qqTransfAlpha_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfAlpha->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTransfAlpha->text().toStdString().c_str(), &ok);
         if (ok)
         {
             newVal*=degToRad;
@@ -671,7 +671,7 @@ void CQDlgRotation::on_qqTransfBeta_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfBeta->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTransfBeta->text().toStdString().c_str(), &ok);
         if (ok)
         {
             newVal*=degToRad;
@@ -689,7 +689,7 @@ void CQDlgRotation::on_qqTransfGamma_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransfGamma->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTransfGamma->text().toStdString().c_str(), &ok);
         if (ok)
         {
             newVal*=degToRad;

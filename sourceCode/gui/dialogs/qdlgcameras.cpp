@@ -173,7 +173,7 @@ void CQDlgCameras::on_qqPerspectiveProjectionAngle_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqPerspectiveProjectionAngle->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqPerspectiveProjectionAngle->text().toStdString().c_str(), &ok);
         if (ok)
         {
             double v=newVal*degToRad;
@@ -191,7 +191,7 @@ void CQDlgCameras::on_qqOrthographicProjectionSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqOrthographicProjectionSize->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqOrthographicProjectionSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_ORTHO_VIEW_SIZE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -208,7 +208,7 @@ void CQDlgCameras::on_qqNearClipping_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqNearClipping->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqNearClipping->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_NEAR_CLIPPING_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -225,7 +225,7 @@ void CQDlgCameras::on_qqFarClipping_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqFarClipping->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqFarClipping->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_FAR_CLIPPING_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -304,7 +304,7 @@ void CQDlgCameras::on_qqSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSize->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SIZE_CAMERAGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

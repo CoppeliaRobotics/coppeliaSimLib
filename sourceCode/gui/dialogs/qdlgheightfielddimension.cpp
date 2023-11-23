@@ -2,6 +2,7 @@
 #include <ui_qdlgheightfielddimension.h>
 #include <tt.h>
 #include <utils.h>
+#include <guiApp.h>
 #include <app.h>
 
 CQDlgHeightfieldDimension::CQDlgHeightfieldDimension(QWidget *parent) :
@@ -42,7 +43,7 @@ void CQDlgHeightfieldDimension::on_qqSizeX_editingFinished()
     if (!ui->qqSizeX->isModified())
         return;
     bool ok;
-    double newVal=ui->qqSizeX->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqSizeX->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(0.01,10000.0,newVal);
@@ -57,7 +58,7 @@ void CQDlgHeightfieldDimension::on_qqSizeY_editingFinished()
     if (!ui->qqSizeY->isModified())
         return;
     bool ok;
-    double newVal=ui->qqSizeY->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqSizeY->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(0.01,10000.0,newVal);
@@ -72,7 +73,7 @@ void CQDlgHeightfieldDimension::on_qqScalingZ_editingFinished()
     if (!ui->qqScalingZ->isModified())
         return;
     bool ok;
-    double newVal=ui->qqScalingZ->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqScalingZ->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(0.001,1000.0,newVal);

@@ -6560,7 +6560,7 @@ int simSetObjectColor_internal(int objectHandle,int index,int colorComponent,con
         {
             CShape* shape=(CShape*)it;
             std::vector<CMesh*> all;
-            shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all);
+            shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,all);
             if ( (index>=0)&&(index<int(all.size()))&&(colorComponent<=sim_colorcomponent_auxiliary) )
             {
                 CMesh* geom=all[index];
@@ -6681,7 +6681,7 @@ int simGetObjectColor_internal(int objectHandle,int index,int colorComponent,flo
         {
             CShape* shape=(CShape*)it;
             std::vector<CMesh*> all;
-            shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all);
+            shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,all);
             if ( (index>=0)&&(index<int(all.size()))&&(colorComponent<=sim_colorcomponent_auxiliary) )
             {
                 CMesh* geom=all[index];
@@ -12211,44 +12211,45 @@ int simSetShapeTexture_internal(int shapeHandle,int textureId,int mappingMode,in
         if (isShape(__func__,shapeHandle))
         {
             CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
-            if (shape->getMesh()->isMesh())
+            CTextureObject* to = nullptr;
+            if (textureId != -1)
+                to = App::currentWorld->textureContainer->getObject(textureId);
+            std::vector<CMesh*> meshItems;
+            shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshItems);
+            for (size_t i = 0; i < meshItems.size(); i++)
             {
-                CTextureProperty* tp=shape->getSingleMesh()->getTextureProperty();
-                if (tp!=nullptr)
+                CMesh* mesh = meshItems[i];
+                CTextureProperty* tp = mesh->getTextureProperty();
+                if (tp != nullptr)
                 { // first remove any existing texture:
            //         App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),-1);
                     delete tp;
-                    shape->getSingleMesh()->setTextureProperty(nullptr);
+                    mesh->setTextureProperty(nullptr);
                 }
-                if (textureId==-1)
-                    return(1);
-                CTextureObject* to=App::currentWorld->textureContainer->getObject(textureId);
-                if (to!=nullptr)
+                if (to != nullptr)
                 {
-                    to->addDependentObject(shape->getObjectHandle(),shape->getSingleMesh()->getUniqueID());
-                    tp=new CTextureProperty(textureId);
-                    shape->getSingleMesh()->setTextureProperty(tp);
+                    to->addDependentObject(shape->getObjectHandle(), mesh->getUniqueID());
+                    tp = new CTextureProperty(textureId);
+                    mesh->setTextureProperty(tp);
                     tp->setTextureMapMode(mappingMode);
-                    tp->setInterpolateColors((options&1)==0);
-                    if ((options&2)!=0)
+                    tp->setInterpolateColors((options & 1) == 0);
+                    if ((options & 2) != 0)
                         tp->setApplyMode(1);
                     else
                         tp->setApplyMode(0);
-                    tp->setRepeatU((options&4)!=0);
-                    tp->setRepeatV((options&8)!=0);
-                    tp->setTextureScaling(uvScaling[0],uvScaling[1]);
+                    tp->setRepeatU((options & 4) != 0);
+                    tp->setRepeatV((options & 8) != 0);
+                    tp->setTextureScaling(uvScaling[0], uvScaling[1]);
                     C7Vector tr;
                     tr.setIdentity();
                     if (position!=nullptr)
                         tr.X.setData(position);
                     if (orientation!=nullptr)
-                        tr.Q=C4Vector(orientation[0],orientation[1],orientation[2]);
+                        tr.Q=C4Vector(orientation[0], orientation[1], orientation[2]);
                     tp->setTextureRelativeConfig(tr);
-                    return(1);
                 }
-                else
-                    CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_TEXTURE_INEXISTANT);
             }
+            return 1;
         }
         return(-1);
     }
@@ -12760,7 +12761,7 @@ char* simGetExtensionString_internal(int objectHandle,int index,const char* key)
                 CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if ( (it->getObjectType()==sim_object_shape_type)&&(index>=0) )
                 {
-                    CMesh* geom=((CShape*)it)->getMesh()->getShapeComponentAtIndex(C7Vector::identityTransformation,index);
+                    CMesh* geom=((CShape*)it)->getMesh()->getMeshComponentAtIndex(C7Vector::identityTransformation,index);
                     if (geom!=nullptr)
                         extensionString=geom->color.getExtensionString();
                 }
@@ -14552,7 +14553,7 @@ int simGetShapeViz_internal(int shapeHandle,int index,struct SShapeVizInfo* info
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         std::vector<CMesh*> all;
         std::vector<C7Vector> allTr;
-        it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
+        it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
         if ( (index>=0)&&(index<int(all.size())) )
         {
             CMesh* geom=all[index];
@@ -14668,7 +14669,7 @@ int simGetShapeVizf_internal(int shapeHandle,int index,struct SShapeVizInfof* in
         CShape* it=App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
         std::vector<CMesh*> all;
         std::vector<C7Vector> allTr;
-        it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
+        it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
         if ( (index>=0)&&(index<int(all.size())) )
         {
             CMesh* geom=all[index];
@@ -15425,7 +15426,7 @@ int _simGetGeometricCount_internal(const void* geomInfo)
 {
     C_API_START;
     std::vector<CMesh*> all;
-    ((CMeshWrapper*)geomInfo)->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all);
+    ((CMeshWrapper*)geomInfo)->getAllMeshComponentsCumulative(C7Vector::identityTransformation,all);
     return((int)all.size());
 }
 
@@ -15433,7 +15434,7 @@ void _simGetAllGeometrics_internal(const void* geomInfo,void** allGeometrics)
 {
     C_API_START;
     std::vector<CMesh*> all;
-    ((CMeshWrapper*)geomInfo)->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all);
+    ((CMeshWrapper*)geomInfo)->getAllMeshComponentsCumulative(C7Vector::identityTransformation,all);
     for (size_t i=0;i<all.size();i++)
         allGeometrics[i]=all[i];
 }

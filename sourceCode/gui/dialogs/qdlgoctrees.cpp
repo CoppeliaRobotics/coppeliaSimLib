@@ -77,7 +77,7 @@ void CQDlgOctrees::on_qqSize_editingFinished()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         bool ok;
-        double newVal=ui->qqSize->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_VOXELSIZE_OCTREEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -132,7 +132,7 @@ void CQDlgOctrees::on_qqPointSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        int newVal=ui->qqPointSize->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqPointSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_POINTSIZE_OCTREEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);

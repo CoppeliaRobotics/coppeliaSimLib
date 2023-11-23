@@ -3,6 +3,7 @@
 #include <simAndUiThreadSync.h>
 #include <mainWindow.h>
 #include <simAndUiThreadSync.h>
+#include <luaWrapper.h>
 
 #pragma once
 
@@ -50,9 +51,12 @@ public:
     static void deleteMainWindow();
     static void setShowConsole(bool s);
 
+    static long long int getEvalInt(const char* str, bool* ok = nullptr);
+    static double getEvalDouble(const char* str, bool* ok = nullptr);
 
     static CSimQApp* qtApp;
     static CUiThread* uiThread;
+    static luaWrap_lua_State* L; // Minimalistic Lua interpreter just for the UI thread
 
     static int operationalUIParts;
     static int sc;

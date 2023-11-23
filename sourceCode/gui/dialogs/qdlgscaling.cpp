@@ -63,7 +63,7 @@ void CQDlgScaling::on_qqScalingFactor_editingFinished()
     if (!ui->qqScalingFactor->isModified())
         return;
     bool ok;
-    double newVal=ui->qqScalingFactor->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqScalingFactor->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(0.001,1000.0,newVal);

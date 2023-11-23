@@ -66,7 +66,7 @@ void CQDlgEdgeEdit::on_qqEdgeAngle_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqEdgeAngle->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqEdgeAngle->text().toStdString().c_str(), &ok);
         if (ok)
         {
             newVal=tt::getLimitedFloat(1.0*degToRad,180.0*degToRad,newVal*degToRad);
@@ -83,7 +83,7 @@ void CQDlgEdgeEdit::on_qqDirectionChangeAngle_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqDirectionChangeAngle->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqDirectionChangeAngle->text().toStdString().c_str(), &ok);
         if (ok)
         {
             newVal=tt::getLimitedFloat(0.0*degToRad,180.0*degToRad,newVal*degToRad);

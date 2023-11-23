@@ -1390,7 +1390,7 @@ void CShape::addSpecializedObjectEventData(CCbor* ev) const
     ev->openKeyArray("meshes");
     std::vector<CMesh*> all;
     std::vector<C7Vector> allTr;
-    getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
+    getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,all,&allTr);
     for (size_t i=0;i<all.size();i++)
     {
         CMesh* geom=all[i];

@@ -223,7 +223,7 @@ void CQDlgJoints::on_qqLead_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqLead->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqLead->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_LEAD_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -240,7 +240,7 @@ void CQDlgJoints::on_qqMinimum_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqMinimum->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqMinimum->text().toStdString().c_str(), &ok);
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
@@ -260,7 +260,7 @@ void CQDlgJoints::on_qqRange_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqRange->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqRange->text().toStdString().c_str(), &ok);
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
@@ -280,7 +280,7 @@ void CQDlgJoints::on_qqPosition_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqPosition->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqPosition->text().toStdString().c_str(), &ok);
         CJoint* it=App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok&&(it!=nullptr))
         {
@@ -367,7 +367,7 @@ void CQDlgJoints::on_qqLength_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqLength->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqLength->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_LENGTH_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -384,7 +384,7 @@ void CQDlgJoints::on_qqDiameter_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqDiameter->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqDiameter->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_DIAMETER_JOINTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

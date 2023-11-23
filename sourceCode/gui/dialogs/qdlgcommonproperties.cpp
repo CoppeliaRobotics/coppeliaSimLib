@@ -837,7 +837,7 @@ void CQDlgCommonProperties::on_qqSelfCollisionIndicator_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        int newVal=ui->qqSelfCollisionIndicator->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqSelfCollisionIndicator->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SELFCOLLISIONINDICATOR_COMMONPROPGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);

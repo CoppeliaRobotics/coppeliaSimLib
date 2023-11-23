@@ -2,6 +2,7 @@
 #include <ui_qdlgcolorpulsation.h>
 #include <tt.h>
 #include <utils.h>
+#include <guiApp.h>
 #include <app.h>
 
 CQDlgColorPulsation::CQDlgColorPulsation(QWidget *parent) :
@@ -65,7 +66,7 @@ void CQDlgColorPulsation::on_qqFrequency_editingFinished()
     if (!ui->qqFrequency->isModified())
         return;
     bool ok;
-    double newVal=ui->qqFrequency->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqFrequency->text().toStdString().c_str(), &ok);
     if (ok)
     {
         pulsationFrequency=newVal;
@@ -79,7 +80,7 @@ void CQDlgColorPulsation::on_qqPhase_editingFinished()
     if (!ui->qqPhase->isModified())
         return;
     bool ok;
-    double newVal=ui->qqPhase->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqPhase->text().toStdString().c_str(), &ok);
     if (ok)
     {
         pulsationPhase=newVal;
@@ -93,7 +94,7 @@ void CQDlgColorPulsation::on_qqRatio_editingFinished()
     if (!ui->qqRatio->isModified())
         return;
     bool ok;
-    double newVal=ui->qqRatio->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqRatio->text().toStdString().c_str(), &ok);
     if (ok)
     {
         pulsationRatio=newVal;

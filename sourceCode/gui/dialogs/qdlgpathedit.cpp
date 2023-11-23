@@ -155,7 +155,7 @@ void CQDlgPathEdit::on_qqFactor1_editingFinished()
             double bInt0,bInt1;
             it->getBezierFactors(bInt0,bInt1);
             bool ok;
-            double newVal=ui->qqFactor1->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqFactor1->text().toStdString().c_str(), &ok);
             if (ok)
                 it->setBezierFactors(newVal,bInt1);
             GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->actualizePath();
@@ -177,7 +177,7 @@ void CQDlgPathEdit::on_qqFactor2_editingFinished()
             double bInt0,bInt1;
             it->getBezierFactors(bInt0,bInt1);
             bool ok;
-            double newVal=ui->qqFactor2->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqFactor2->text().toStdString().c_str(), &ok);
             if (ok)
                 it->setBezierFactors(bInt0,newVal);
             GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->actualizePath();
@@ -197,7 +197,7 @@ void CQDlgPathEdit::on_qqPointCount_editingFinished()
         {
             CSimplePathPoint_old* it=GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            int newVal=ui->qqPointCount->text().toInt(&ok);
+            int newVal=(int)GuiApp::getEvalInt(ui->qqPointCount->text().toStdString().c_str(), &ok);
             if (ok)
                 it->setBezierPointCount(newVal);
             GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->actualizePath();
@@ -217,7 +217,7 @@ void CQDlgPathEdit::on_qqVirtualDistance_editingFinished()
         {
             CSimplePathPoint_old* it=GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            double newVal=ui->qqVirtualDistance->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqVirtualDistance->text().toStdString().c_str(), &ok);
             if (ok)
                 it->setOnSpotDistance(newVal);
             GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->actualizePath();
@@ -284,7 +284,7 @@ void CQDlgPathEdit::on_qqAuxFlags_editingFinished()
         {
             CSimplePathPoint_old* it=GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            int newVal=ui->qqAuxFlags->text().toInt(&ok);
+            int newVal=(int)GuiApp::getEvalInt(ui->qqAuxFlags->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 tt::limitValue(0,65535,newVal);
@@ -307,7 +307,7 @@ void CQDlgPathEdit::on_qqAuxChannel1_editingFinished()
         {
             CSimplePathPoint_old* it=GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            double newVal=ui->qqAuxChannel1->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqAuxChannel1->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 double auxChannels[4];
@@ -332,7 +332,7 @@ void CQDlgPathEdit::on_qqAuxChannel2_editingFinished()
         {
             CSimplePathPoint_old* it=GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            double newVal=ui->qqAuxChannel2->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqAuxChannel2->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 double auxChannels[4];
@@ -357,7 +357,7 @@ void CQDlgPathEdit::on_qqAuxChannel3_editingFinished()
         {
             CSimplePathPoint_old* it=GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            double newVal=ui->qqAuxChannel3->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqAuxChannel3->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 double auxChannels[4];
@@ -382,7 +382,7 @@ void CQDlgPathEdit::on_qqAuxChannel4_editingFinished()
         {
             CSimplePathPoint_old* it=GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(selectedPointCount-1);
             bool ok;
-            double newVal=ui->qqAuxChannel4->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqAuxChannel4->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 double auxChannels[4];

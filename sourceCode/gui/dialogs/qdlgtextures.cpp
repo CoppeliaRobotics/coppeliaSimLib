@@ -303,7 +303,7 @@ void CQDlgTextures::_setTextureConfig(int index)
 {
     QLineEdit* ww[6]={ui->qqX,ui->qqY,ui->qqZ,ui->qqAlpha,ui->qqBeta,ui->qqGamma};
     bool ok;
-    double newVal=ww[index]->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ww[index]->text().toStdString().c_str(), &ok);
     if (ok)
     {
         SSimulationThreadCommand cmd;
@@ -325,7 +325,7 @@ void CQDlgTextures::_setTextureScaling(int index)
 {
     QLineEdit* ww[2]={ui->qqU,ui->qqV};
     bool ok;
-    double newVal=ww[index]->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ww[index]->text().toStdString().c_str(), &ok);
     if (ok)
     {
         SSimulationThreadCommand cmd;

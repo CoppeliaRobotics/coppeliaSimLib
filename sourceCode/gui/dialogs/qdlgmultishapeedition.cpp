@@ -103,7 +103,7 @@ void CQDlgMultishapeEdition::on_qqShadingAngle_editingFinished()
         if (theGeom==nullptr)
             return;
         bool ok;
-        double newVal=ui->qqShadingAngle->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqShadingAngle->text().toStdString().c_str(), &ok);
         CShape* shape=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getEditModeMultishape();
         int index=GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex();
         if ((shape!=nullptr)&&ok)

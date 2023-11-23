@@ -743,7 +743,7 @@ bool CMesh::getColor(const char* colorName,int colorComponent,float* rgbData,int
     return(false);
 }
 
-void CMesh::getAllShapeComponentsCumulative(const C7Vector& parentCumulTr,std::vector<CMesh*>& shapeComponentList,std::vector<C7Vector>* OptParentCumulTrList/*=nullptr*/)
+void CMesh::getAllMeshComponentsCumulative(const C7Vector& parentCumulTr,std::vector<CMesh*>& shapeComponentList,std::vector<C7Vector>* OptParentCumulTrList/*=nullptr*/)
 {   // function has virtual/non-virtual counterpart!
     // needed by the dynamics routine. We return ALL shape components!
     shapeComponentList.push_back(this);
@@ -751,7 +751,7 @@ void CMesh::getAllShapeComponentsCumulative(const C7Vector& parentCumulTr,std::v
         OptParentCumulTrList->push_back(parentCumulTr*_iFrame*_bbFrame);
 }
 
-CMesh* CMesh::getShapeComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut/*=nullptr*/)
+CMesh* CMesh::getMeshComponentAtIndex(const C7Vector& parentCumulTr,int& index,C7Vector* optParentCumulTrOut/*=nullptr*/)
 { // function has virtual/non-virtual counterpart!
     CMesh* retVal=nullptr;
     if (index>=0)

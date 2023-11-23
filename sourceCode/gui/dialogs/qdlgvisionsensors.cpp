@@ -213,7 +213,7 @@ void CQDlgVisionSensors::on_qqNearPlane_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqNearPlane->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqNearPlane->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_NEARCLIPPING_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -230,7 +230,7 @@ void CQDlgVisionSensors::on_qqFarPlane_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqFarPlane->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqFarPlane->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_FARCLIPPING_VISIONSENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -247,7 +247,7 @@ void CQDlgVisionSensors::on_qqPerspectiveAngleOrOrthographicSize_editingFinished
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqPerspectiveAngleOrOrthographicSize->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqPerspectiveAngleOrOrthographicSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             CVisionSensor* it=App::currentWorld->sceneObjects->getLastSelectionVisionSensor();
@@ -270,7 +270,7 @@ void CQDlgVisionSensors::on_qqResX_editingFinished()
         if (it!=nullptr)
         {
             bool ok;
-            int newVal=ui->qqResX->text().toInt(&ok);
+            int newVal=(int)GuiApp::getEvalInt(ui->qqResX->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 int r[2];
@@ -302,7 +302,7 @@ void CQDlgVisionSensors::on_qqResY_editingFinished()
         if (it!=nullptr)
         {
             bool ok;
-            int newVal=ui->qqResY->text().toInt(&ok);
+            int newVal=(int)GuiApp::getEvalInt(ui->qqResY->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 int r[2];
@@ -334,7 +334,7 @@ void CQDlgVisionSensors::on_qqSizeX_editingFinished()
         if (it!=nullptr)
         {
             bool ok;
-            double newVal=ui->qqSizeX->text().toDouble(&ok);
+            double newVal=GuiApp::getEvalDouble(ui->qqSizeX->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 SSimulationThreadCommand cmd;

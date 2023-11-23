@@ -2,6 +2,7 @@
 #include <ui_qdlgconvexdecomposition.h>
 #include <tt.h>
 #include <utils.h>
+#include <guiApp.h>
 #include <app.h>
 
 CQDlgConvexDecomposition::CQDlgConvexDecomposition(QWidget *parent) :
@@ -112,7 +113,7 @@ void CQDlgConvexDecomposition::on_qqClusters_editingFinished()
     if (!ui->qqClusters->isModified())
         return;
     bool ok;
-    int newVal=ui->qqClusters->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqClusters->text().toStdString().c_str(), &ok);
     if (ok)
         nClusters=tt::getLimitedInt(1,100,newVal);
     refresh();
@@ -123,7 +124,7 @@ void CQDlgConvexDecomposition::on_qqConcavity_editingFinished()
     if (!ui->qqConcavity->isModified())
         return;
     bool ok;
-    double newVal=ui->qqConcavity->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqConcavity->text().toStdString().c_str(), &ok);
     if (ok)
         maxConcavity=tt::getLimitedFloat(0.01,100000.0,newVal);
     refresh();
@@ -134,7 +135,7 @@ void CQDlgConvexDecomposition::on_qqConnectDist_editingFinished()
     if (!ui->qqConnectDist->isModified())
         return;
     bool ok;
-    double newVal=ui->qqConnectDist->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqConnectDist->text().toStdString().c_str(), &ok);
     if (ok)
         maxConnectDist=tt::getLimitedFloat(0.001,1000.0,newVal);
     refresh();
@@ -145,7 +146,7 @@ void CQDlgConvexDecomposition::on_qqTargetBlabla_editingFinished()
     if (!ui->qqTargetBlabla->isModified())
         return;
     bool ok;
-    int newVal=ui->qqTargetBlabla->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqTargetBlabla->text().toStdString().c_str(), &ok);
     if (ok)
         maxTrianglesInDecimatedMesh=tt::getLimitedInt(4,100000,newVal);
     refresh();
@@ -156,7 +157,7 @@ void CQDlgConvexDecomposition::on_qqMaxHullVertices_editingFinished()
     if (!ui->qqMaxHullVertices->isModified())
         return;
     bool ok;
-    int newVal=ui->qqMaxHullVertices->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqMaxHullVertices->text().toStdString().c_str(), &ok);
     if (ok)
         maxHullVertices=tt::getLimitedInt(4,100000,newVal);
     refresh();
@@ -167,7 +168,7 @@ void CQDlgConvexDecomposition::on_qqSmallClusterThreshold_editingFinished()
     if (!ui->qqSmallClusterThreshold->isModified())
         return;
     bool ok;
-    double newVal=ui->qqSmallClusterThreshold->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqSmallClusterThreshold->text().toStdString().c_str(), &ok);
     if (ok)
         smallClusterThreshold=tt::getLimitedFloat(0.01,1.0,newVal);
     refresh();
@@ -190,7 +191,7 @@ void CQDlgConvexDecomposition::on_qqResolution_editingFinished()
     if (!ui->qqResolution->isModified())
         return;
     bool ok;
-    int newVal=ui->qqResolution->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqResolution->text().toStdString().c_str(), &ok);
     if (ok)
         resolution=tt::getLimitedInt(10000,64000000,newVal);
     refresh();
@@ -201,7 +202,7 @@ void CQDlgConvexDecomposition::on_qqDepth_editingFinished()
     if (!ui->qqDepth->isModified())
         return;
     bool ok;
-    int newVal=ui->qqDepth->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqDepth->text().toStdString().c_str(), &ok);
     if (ok)
         depth=tt::getLimitedInt(1,32,newVal);
     refresh();
@@ -212,7 +213,7 @@ void CQDlgConvexDecomposition::on_qqConcavity_2_editingFinished()
     if (!ui->qqConcavity_2->isModified())
         return;
     bool ok;
-    double newVal=ui->qqConcavity_2->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqConcavity_2->text().toStdString().c_str(), &ok);
     if (ok)
         concavity=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
@@ -223,7 +224,7 @@ void CQDlgConvexDecomposition::on_qqPlaneDownsampling_editingFinished()
     if (!ui->qqPlaneDownsampling->isModified())
         return;
     bool ok;
-    int newVal=ui->qqPlaneDownsampling->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqPlaneDownsampling->text().toStdString().c_str(), &ok);
     if (ok)
         planeDownsampling=tt::getLimitedInt(1,16,newVal);
     refresh();
@@ -234,7 +235,7 @@ void CQDlgConvexDecomposition::on_qqConvexHullDownsampling_editingFinished()
     if (!ui->qqConvexHullDownsampling->isModified())
         return;
     bool ok;
-    int newVal=ui->qqConvexHullDownsampling->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqConvexHullDownsampling->text().toStdString().c_str(), &ok);
     if (ok)
         convexHullDownsampling=tt::getLimitedInt(1,16,newVal);
     refresh();
@@ -245,7 +246,7 @@ void CQDlgConvexDecomposition::on_qqAlpha_editingFinished()
     if (!ui->qqAlpha->isModified())
         return;
     bool ok;
-    double newVal=ui->qqAlpha->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqAlpha->text().toStdString().c_str(), &ok);
     if (ok)
         alpha=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
@@ -256,7 +257,7 @@ void CQDlgConvexDecomposition::on_qqBeta_editingFinished()
     if (!ui->qqBeta->isModified())
         return;
     bool ok;
-    double newVal=ui->qqBeta->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqBeta->text().toStdString().c_str(), &ok);
     if (ok)
         beta=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
@@ -267,7 +268,7 @@ void CQDlgConvexDecomposition::on_qqGamma_editingFinished()
     if (!ui->qqGamma->isModified())
         return;
     bool ok;
-    double newVal=ui->qqGamma->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqGamma->text().toStdString().c_str(), &ok);
     if (ok)
         gamma=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
@@ -278,7 +279,7 @@ void CQDlgConvexDecomposition::on_qqMaxVerticesPerCh_editingFinished()
     if (!ui->qqMaxVerticesPerCh->isModified())
         return;
     bool ok;
-    int newVal=ui->qqMaxVerticesPerCh->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqMaxVerticesPerCh->text().toStdString().c_str(), &ok);
     if (ok)
         maxNumVerticesPerCH=tt::getLimitedInt(4,1024,newVal);
     refresh();
@@ -289,7 +290,7 @@ void CQDlgConvexDecomposition::on_qqMinVolumePerCh_editingFinished()
     if (!ui->qqMinVolumePerCh->isModified())
         return;
     bool ok;
-    double newVal=ui->qqMinVolumePerCh->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqMinVolumePerCh->text().toStdString().c_str(), &ok);
     if (ok)
         minVolumePerCH=tt::getLimitedFloat(0.0,0.1,newVal);
     refresh();

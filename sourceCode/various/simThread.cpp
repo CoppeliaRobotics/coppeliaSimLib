@@ -2372,7 +2372,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (shape!=nullptr)
             {
                 std::vector<CMesh*> components;
-                shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
+                shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,components);
                 for (size_t j=0;j<components.size();j++)
                 {
                     CTextureProperty* tp=components[j]->getTextureProperty();
@@ -2405,7 +2405,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 shapeList.push_back(shape);
                 std::vector<CMesh*> components;
-                shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
+                shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,components);
                 for (size_t j=0;j<components.size();j++)
                 {
                     CTextureProperty* tp=components[j]->getTextureProperty();
@@ -2429,7 +2429,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 CShape* shape=shapeList[i];
                 std::vector<CMesh*> components;
-                shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
+                shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,components);
                 for (size_t j=0;j<components.size();j++)
                 {
                     CMesh* geom=components[j];
@@ -2445,7 +2445,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 C3Vector bbhs(shape->getBBHSize());
                 double s=std::max<double>(std::max<double>(bbhs(0),bbhs(1)),bbhs(2))*2.0;
                 std::vector<CMesh*> components;
-                shape->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,components);
+                shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,components);
                 for (size_t j=0;j<components.size();j++)
                 {
                     CMesh* geom=components[j];
@@ -2705,7 +2705,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (it!=nullptr)
         {
             std::vector<CMesh*> geoms;
-            it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
+            it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,geoms);
             int index=cmd.intParams[1];
             if ((index>=0)&&(index<int(geoms.size())))
             {
@@ -2720,7 +2720,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (it!=nullptr)
         {
             std::vector<CMesh*> geoms;
-            it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
+            it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,geoms);
             int index=cmd.intParams[1];
             if ((index>=0)&&(index<int(geoms.size())))
             {
@@ -2735,7 +2735,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (it!=nullptr)
         {
             std::vector<CMesh*> geoms;
-            it->getMesh()->getAllShapeComponentsCumulative(C7Vector::identityTransformation,geoms);
+            it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,geoms);
             int index=cmd.intParams[1];
             if ((index>=0)&&(index<int(geoms.size())))
             {

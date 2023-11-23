@@ -294,7 +294,7 @@ void CQDlgCollisions::on_qqContourWidth_editingFinished()
         if (it!=nullptr)
         {
             bool ok;
-            int newVal=ui->qqContourWidth->text().toInt(&ok);
+            int newVal=(int)GuiApp::getEvalInt(ui->qqContourWidth->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 App::appendSimulationThreadCommand(SET_CONTOURWIDTH_COLLISIONGUITRIGGEREDCMD,it->getObjectHandle(),newVal);

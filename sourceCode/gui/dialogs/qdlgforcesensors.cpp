@@ -90,7 +90,7 @@ void CQDlgForceSensors::on_qqSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSize->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SIZE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -130,7 +130,7 @@ void CQDlgForceSensors::on_qqSampleSize_editingFinished()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         bool ok;
-        int newVal=ui->qqSampleSize->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqSampleSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SAMPLESIZE_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
@@ -192,7 +192,7 @@ void CQDlgForceSensors::on_qqForceThreshold_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqForceThreshold->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqForceThreshold->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_FORCETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -219,7 +219,7 @@ void CQDlgForceSensors::on_qqTorqueThreshold_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTorqueThreshold->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTorqueThreshold->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_TORQUETHRESHOLD_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -236,7 +236,7 @@ void CQDlgForceSensors::on_qqViolationCount_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        int newVal=ui->qqViolationCount->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqViolationCount->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_CONSECTHRESHOLDVIOLATIONS_FORCESENSORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);

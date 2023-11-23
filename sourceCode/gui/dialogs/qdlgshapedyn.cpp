@@ -318,7 +318,7 @@ void CQDlgShapeDyn::on_qqMass_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqMass->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqMass->text().toStdString().c_str(), &ok);
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         if (ok&&(shape!=nullptr))
         {
@@ -382,7 +382,7 @@ void CQDlgShapeDyn::_inertiaChanged(size_t row,size_t col,QLineEdit* ct)
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        double newVal=ct->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ct->text().toStdString().c_str(), &ok);
         if (ok&&(shape!=nullptr))
         {
             SSimulationThreadCommand cmd;
@@ -407,7 +407,7 @@ void CQDlgShapeDyn::on_qqPX_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        double newVal=ui->qqPX->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqPX->text().toStdString().c_str(), &ok);
         if (ok&&(shape!=nullptr))
         {
             C3Vector com(shape->getMesh()->getCOM());
@@ -431,7 +431,7 @@ void CQDlgShapeDyn::on_qqPY_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        double newVal=ui->qqPY->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqPY->text().toStdString().c_str(), &ok);
         if (ok&&(shape!=nullptr))
         {
             C3Vector com(shape->getMesh()->getCOM());
@@ -455,7 +455,7 @@ void CQDlgShapeDyn::on_qqPZ_editingFinished()
     {
         CShape* shape=App::currentWorld->sceneObjects->getLastSelectionShape();
         bool ok;
-        double newVal=ui->qqPZ->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqPZ->text().toStdString().c_str(), &ok);
         if (ok&&(shape!=nullptr))
         {
             C3Vector com(shape->getMesh()->getCOM());

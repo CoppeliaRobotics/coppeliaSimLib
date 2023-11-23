@@ -176,7 +176,7 @@ void CQDlgPathShaping::on_qqMaxLength_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqMaxLength->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqMaxLength->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_ELEMENTMAXLENGTH_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -216,7 +216,7 @@ void CQDlgPathShaping::on_qqScalingFactor_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqScalingFactor->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqScalingFactor->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SCALINGFACTOR_PATH_OLD_SHAPINGGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

@@ -138,7 +138,7 @@ void CQDlgShapes::on_qqShadingAngle_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqShadingAngle->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqShadingAngle->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SHADINGANGLE_SHAPEGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,degToRad*newVal);

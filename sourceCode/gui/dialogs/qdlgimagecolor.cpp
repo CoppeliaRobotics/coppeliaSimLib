@@ -2,6 +2,7 @@
 #include <ui_qdlgimagecolor.h>
 #include <tt.h>
 #include <utils.h>
+#include <guiApp.h>
 #include <app.h>
 
 CQDlgImageColor::CQDlgImageColor(QWidget *parent) :
@@ -48,7 +49,7 @@ void CQDlgImageColor::on_qqRed_editingFinished()
     if (!ui->qqRed->isModified())
         return;
     bool ok;
-    double newVal=ui->qqRed->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqRed->text().toStdString().c_str(), &ok);
     if (ok)
         red=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
@@ -59,7 +60,7 @@ void CQDlgImageColor::on_qqGreen_editingFinished()
     if (!ui->qqGreen->isModified())
         return;
     bool ok;
-    double newVal=ui->qqGreen->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqGreen->text().toStdString().c_str(), &ok);
     if (ok)
         green=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();
@@ -70,7 +71,7 @@ void CQDlgImageColor::on_qqBlue_editingFinished()
     if (!ui->qqBlue->isModified())
         return;
     bool ok;
-    double newVal=ui->qqBlue->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqBlue->text().toStdString().c_str(), &ok);
     if (ok)
         blue=tt::getLimitedFloat(0.0,1.0,newVal);
     refresh();

@@ -308,7 +308,7 @@ void CQDlgIk::on_qqDamping_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqDamping->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqDamping->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_DAMPING_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID(),-1,newVal);
@@ -325,7 +325,7 @@ void CQDlgIk::on_qqMaxIterations_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        int newVal=ui->qqMaxIterations->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqMaxIterations->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_ITERATIONS_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID(),newVal);

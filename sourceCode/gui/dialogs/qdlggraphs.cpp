@@ -319,7 +319,7 @@ void CQDlgGraphs::on_qqObjectSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqObjectSize->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqObjectSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_OBJECTSIZE_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -336,7 +336,7 @@ void CQDlgGraphs::on_qqBufferSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        int newVal=ui->qqBufferSize->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqBufferSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_BUFFERSIZE_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
@@ -391,7 +391,7 @@ void CQDlgGraphs::on_qqTransformationCoeff_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransformationCoeff->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTransformationCoeff->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_VALUEMULTIPLIER_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),newVal);
@@ -408,7 +408,7 @@ void CQDlgGraphs::on_qqTransformationOffset_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqTransformationOffset->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqTransformationOffset->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_VALUEOFFSET_GRAPHGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),getSelectedObjectID(),newVal);
@@ -425,7 +425,7 @@ void CQDlgGraphs::on_qqMovingAveragePeriod_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        int newVal=ui->qqMovingAveragePeriod->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqMovingAveragePeriod->text().toStdString().c_str(), &ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;

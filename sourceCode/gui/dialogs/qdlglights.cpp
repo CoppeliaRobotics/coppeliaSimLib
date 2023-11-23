@@ -124,7 +124,7 @@ void CQDlgLights::on_qqSize_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSize->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqSize->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SIZE_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -141,7 +141,7 @@ void CQDlgLights::on_qqSpotCutoff_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqSpotCutoff->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqSpotCutoff->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SPOTCUTOFF_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal*degToRad);
@@ -158,7 +158,7 @@ void CQDlgLights::on_qqSpotExponent_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        int newVal=ui->qqSpotExponent->text().toInt(&ok);
+        int newVal=(int)GuiApp::getEvalInt(ui->qqSpotExponent->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_SPOTEXPONENT_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),newVal);
@@ -175,7 +175,7 @@ void CQDlgLights::on_qqConstantFactor_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqConstantFactor->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqConstantFactor->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_CONSTATTENUATION_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -192,7 +192,7 @@ void CQDlgLights::on_qqLinearFactor_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqLinearFactor->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqLinearFactor->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_LINATTENUATION_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
@@ -209,7 +209,7 @@ void CQDlgLights::on_qqQuadraticFactor_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=ui->qqQuadraticFactor->text().toDouble(&ok);
+        double newVal=GuiApp::getEvalDouble(ui->qqQuadraticFactor->text().toStdString().c_str(), &ok);
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_QUADATTENUATION_LIGHTGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);

@@ -330,7 +330,7 @@ void CQDlgPrimitives::on_qqXSize_editingFinished()
     if (!ui->qqXSize->isModified())
         return;
     bool ok;
-    double newVal=ui->qqXSize->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqXSize->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(0.0001,1000.0,newVal);
@@ -350,7 +350,7 @@ void CQDlgPrimitives::on_qqYSize_editingFinished()
     if (!ui->qqYSize->isModified())
         return;
     bool ok;
-    double newVal=ui->qqYSize->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqYSize->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(0.0001,1000.0,newVal);
@@ -370,7 +370,7 @@ void CQDlgPrimitives::on_qqZSize_editingFinished()
     if (!ui->qqZSize->isModified())
         return;
     bool ok;
-    double newVal=ui->qqZSize->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqZSize->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(0.0001,1000.0,newVal);
@@ -391,7 +391,7 @@ void CQDlgPrimitives::on_qqXSubdiv_editingFinished()
     if (!ui->qqXSubdiv->isModified())
         return;
     bool ok;
-    int newVal=ui->qqXSubdiv->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqXSubdiv->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(0,100,newVal);
@@ -406,7 +406,7 @@ void CQDlgPrimitives::on_qqYSubdiv_editingFinished()
     if (!ui->qqYSubdiv->isModified())
         return;
     bool ok;
-    int newVal=ui->qqYSubdiv->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqYSubdiv->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(0,100,newVal);
@@ -421,7 +421,7 @@ void CQDlgPrimitives::on_qqZSubdiv_editingFinished()
     if (!ui->qqZSubdiv->isModified())
         return;
     bool ok;
-    int newVal=ui->qqZSubdiv->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqZSubdiv->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(0,100,newVal);
@@ -436,7 +436,7 @@ void CQDlgPrimitives::on_qqSides_editingFinished()
     if (!ui->qqSides->isModified())
         return;
     bool ok;
-    int newVal=ui->qqSides->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqSides->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(3,100,newVal);
@@ -453,7 +453,7 @@ void CQDlgPrimitives::on_qqFaceSubdiv_editingFinished()
     if (!ui->qqFaceSubdiv->isModified())
         return;
     bool ok;
-    int newVal=ui->qqFaceSubdiv->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqFaceSubdiv->text().toStdString().c_str(), &ok);
     if (ok)
     {
         if (primitiveType==sim_primitiveshape_spheroid)
@@ -471,7 +471,7 @@ void CQDlgPrimitives::on_qqDiscSubdiv_editingFinished()
     if (!ui->qqDiscSubdiv->isModified())
         return;
     bool ok;
-    int newVal=ui->qqDiscSubdiv->text().toInt(&ok);
+    int newVal=(int)GuiApp::getEvalInt(ui->qqDiscSubdiv->text().toStdString().c_str(), &ok);
     if (ok)
     {
         tt::limitValue(0,50,newVal);
@@ -541,7 +541,7 @@ void CQDlgPrimitives::on_qqDensity_editingFinished()
     if (!ui->qqDensity->isModified())
         return;
     bool ok;
-    double newVal=ui->qqDensity->text().toDouble(&ok);
+    double newVal=GuiApp::getEvalDouble(ui->qqDensity->text().toStdString().c_str(), &ok);
     if (ok)
     {
         density=newVal;
