@@ -34,7 +34,7 @@ public:
     void setVideosPath(const char* path);
     std::string getOtherFilesPath() const;
     void setOtherFilesPath(const char* path);
-    std::string getAppDataPath() const;
+    //std::string getAppDataPath() const;
     std::string getTempDataPath() const;
     std::string getSceneTempDataPath() const;
     std::string getLuaPath() const;

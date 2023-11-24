@@ -756,10 +756,8 @@ void CQDlgTranslation::on_qqCoordX_editingFinished()
         bool ok;
         double newVal=GuiApp::getEvalDouble(ui->qqCoordX->text().toStdString().c_str(), &ok);
         if (ok)
-        {
-            if (_setCoord_userUnit(newVal,0))
-                refresh();
-        }
+            _setCoord_userUnit(newVal,0);
+        refresh();
     }
 }
 
@@ -772,10 +770,8 @@ void CQDlgTranslation::on_qqCoordY_editingFinished()
         bool ok;
         double newVal=GuiApp::getEvalDouble(ui->qqCoordY->text().toStdString().c_str(), &ok);
         if (ok)
-        {
-            if (_setCoord_userUnit(newVal,1))
-                refresh();
-        }
+            _setCoord_userUnit(newVal,1);
+        refresh();
     }
 }
 
@@ -788,10 +784,8 @@ void CQDlgTranslation::on_qqCoordZ_editingFinished()
         bool ok;
         double newVal=GuiApp::getEvalDouble(ui->qqCoordZ->text().toStdString().c_str(), &ok);
         if (ok)
-        {
-            if (_setCoord_userUnit(newVal,2))
-                refresh();
-        }
+            _setCoord_userUnit(newVal,2);
+        refresh();
     }
 }
 

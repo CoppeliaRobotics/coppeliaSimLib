@@ -65,6 +65,7 @@ CFolderSystem::CFolderSystem()
         QString wl(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
         QDir(wl).mkdir("CoppeliaSim");
     }
+    /*
     _appDataPath=QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString()+"/CoppeliaSim";
 
     if (_appDataPath.size()==0)
@@ -73,7 +74,7 @@ CFolderSystem::CFolderSystem()
         if (!VFile::doesFolderExist(_appDataPath.c_str()))
             VFile::createFolder(_appDataPath.c_str());
     }
-
+    */
 
     _autoSavedScenesContainingPath = getUserSettingsPath() + "/autoSavedScenes";
     if (!VFile::doesFolderExist(_autoSavedScenesContainingPath.c_str()))
@@ -272,6 +273,7 @@ std::string CFolderSystem::getUserSettingsPath()
             userSettingsFolder=App::getApplicationDir()+"/system";
 #endif
         }
+
     }
     return(userSettingsFolder);
 }
@@ -304,10 +306,12 @@ void CFolderSystem::setOtherFilesPath(const char* path)
     VVarious::removePathFinalSlashOrBackslash(_otherFilesPath);
 }
 
+/*
 std::string CFolderSystem::getAppDataPath() const
 {
     return(_appDataPath);
 }
+*/
 
 std::string CFolderSystem::getTempDataPath() const
 {

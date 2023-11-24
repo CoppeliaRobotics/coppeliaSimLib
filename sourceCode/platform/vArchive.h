@@ -20,6 +20,13 @@ public:
     bool isLoading();
     void close();
 
+    inline VArchive& operator<< (const std::string& v)
+    {
+        (*_theArchive) << v.length();
+        _theArchive->writeRawData(v.data(), v.length());
+        return(*this);
+    }
+
     inline VArchive& operator<< (const int& v)
     {
         (*_theArchive) << v;
@@ -73,6 +80,15 @@ public:
     inline VArchive& operator<< (const signed char& v)
     {
         (*_theArchive) << qint8(v);
+        return(*this);
+    }
+
+    inline VArchive& operator>> (std::string& v)
+    {
+        size_t l;
+        (*_theArchive) >> l;
+        v.resize(l);
+        _theArchive->readRawData(&v[0], l);
         return(*this);
     }
 

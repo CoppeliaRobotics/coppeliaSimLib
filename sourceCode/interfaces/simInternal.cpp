@@ -4040,7 +4040,7 @@ char* simGetStringParam_internal(int parameter)
         if (parameter==sim_stringparam_datadir)
         {
             validParam=true;
-            retVal=App::folders->getAppDataPath();
+            retVal=App::folders->getUserSettingsPath(); // getAppDataPath();
         }
         if (parameter==sim_stringparam_importexportdir)
         {

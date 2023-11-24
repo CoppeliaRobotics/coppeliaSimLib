@@ -571,10 +571,8 @@ void CQDlgRotation::on_qqCoordAlpha_editingFinished()
         bool ok;
         double newVal=GuiApp::getEvalDouble(ui->qqCoordAlpha->text().toStdString().c_str(), &ok);
         if (ok)
-        {
-            if (_setCoord_userUnit(newVal,0))
-                refresh();
-        }
+            _setCoord_userUnit(newVal,0);
+        refresh();
     }
 }
 
@@ -587,10 +585,8 @@ void CQDlgRotation::on_qqCoordBeta_editingFinished()
         bool ok;
         double newVal=GuiApp::getEvalDouble(ui->qqCoordBeta->text().toStdString().c_str(), &ok);
         if (ok)
-        {
-            if (_setCoord_userUnit(newVal,1))
-                refresh();
-        }
+            _setCoord_userUnit(newVal,1);
+        refresh();
     }
 }
 
@@ -603,10 +599,8 @@ void CQDlgRotation::on_qqCoordGamma_editingFinished()
         bool ok;
         double newVal=GuiApp::getEvalDouble(ui->qqCoordGamma->text().toStdString().c_str(), &ok);
         if (ok)
-        {
-            if (_setCoord_userUnit(newVal,2))
-                refresh();
-        }
+            _setCoord_userUnit(newVal,2);
+        refresh();
     }
 }
 
