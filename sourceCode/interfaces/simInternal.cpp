@@ -4226,23 +4226,28 @@ int simLoadScene_internal(const char* filename)
         if (keepCurrent)
             nm.erase(nm.begin()+keepCurrentPos,nm.end());
 
-        if (keepCurrent)
-            CFileOperations::createNewScene(true);
-        std::string errorStr;
-        if (CFileOperations::loadScene(nm.c_str(),false,nullptr,&lastInfoString,&errorStr))
+        if (nm.size() > 0)
         {
-            #ifdef SIM_WITH_GUI
-                if (GuiApp::mainWindow!=nullptr)
-                    GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
-            #endif
-            App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
-            return(1);
+            if (keepCurrent)
+                CFileOperations::createNewScene(true);
+            std::string errorStr;
+            if (CFileOperations::loadScene(nm.c_str(),false,nullptr,&lastInfoString,&errorStr))
+            {
+                #ifdef SIM_WITH_GUI
+                    if (GuiApp::mainWindow!=nullptr)
+                        GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
+                #endif
+                App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+            }
+            else
+            {
+                CApiErrors::setLastWarningOrError(__func__,errorStr.c_str());
+                return(-1);
+            }
         }
         else
-        {
-            CApiErrors::setLastWarningOrError(__func__,errorStr.c_str());
-            return(-1);
-        }
+            CFileOperations::createNewScene(keepCurrent);
+        return(1);
     }
     CApiErrors::setLastWarningOrError(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);

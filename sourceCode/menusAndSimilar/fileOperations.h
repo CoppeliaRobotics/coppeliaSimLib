@@ -17,7 +17,7 @@ public:
     static bool saveModel(int modelBaseDummyID,const char* pathAndFilename,bool setCurrentDir,std::vector<char>* saveBuffer=nullptr,std::string* infoStr=nullptr,std::string* errorStr=nullptr);
 
     static int createHeightfield(int xSize,double pointSpacing,const std::vector<std::vector<double>*>& readData,double shadingAngle,int options);
-    static void createNewScene(bool forceForNewInstance);
+    static void createNewScene(bool keepCurrentScene);
     static void closeScene();
 
 #ifdef SIM_WITH_GUI

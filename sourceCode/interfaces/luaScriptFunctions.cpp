@@ -13670,10 +13670,15 @@ int _simSetReferencedHandles(luaWrap_lua_State* L)
             int cnt=(int)luaWrap_lua_rawlen(L,2);
             if (cnt>0)
             {
-                std::vector<int> handles;
-                handles.resize(cnt);
-                getIntsFromTable(L,2,cnt,&handles[0]);
-                retVal=simSetReferencedHandles_internal(objHandle,cnt,&handles[0],nullptr,nullptr);
+                if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_integer,cnt))
+                {
+                    std::vector<int> handles;
+                    handles.resize(cnt);
+                    getIntsFromTable(L, 2, cnt, &handles[0]);
+                    retVal=simSetReferencedHandles_internal(objHandle,cnt,&handles[0],nullptr,nullptr);
+                }
+                else
+                    errorString=SIM_ERROR_INVALID_ARGUMENT;
             }
             else
                 retVal=simSetReferencedHandles_internal(objHandle,0,nullptr,nullptr,nullptr);

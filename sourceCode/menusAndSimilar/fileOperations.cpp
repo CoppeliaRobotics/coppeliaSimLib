@@ -23,15 +23,11 @@
 #endif
 #include <vFileFinder.h>
 
-void CFileOperations::createNewScene(bool forceForNewInstance)
+void CFileOperations::createNewScene(bool keepCurrentScene)
 {
     TRACE_INTERNAL;
-    bool useNewInstance=false;
-    useNewInstance=(App::currentWorld->undoBufferContainer->isSceneSaveMaybeNeededFlagSet()||(App::currentWorld->mainSettings->getScenePathAndName()!=""))&&(!App::currentWorld->environment->getSceneCanBeDiscardedWhenNewSceneOpened());
-    if (forceForNewInstance)
-        useNewInstance=true;
     CSimFlavor::run(2);
-    if (useNewInstance)
+    if (keepCurrentScene)
         App::worldContainer->createNewWorld();
     else
         App::currentWorld->simulation->stopSimulation();
@@ -64,12 +60,15 @@ void CFileOperations::closeScene()
         App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
     }
     #ifdef SIM_WITH_GUI
+        if (GuiApp::mainWindow!=nullptr)
+            GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
         GuiApp::setRebuildHierarchyFlag();
     #endif
 }
 
 bool CFileOperations::loadScene(const char* pathAndFilename,bool setCurrentDir,std::vector<char>* loadBuffer/*=nullptr*/,std::string* infoStr/*=nullptr*/,std::string* errorStr/*=nullptr*/)
-{
+{ // empty pathAndFilename to create the default scene
+    bool retVal = false;
     TRACE_INTERNAL;
     if ( (pathAndFilename==nullptr)||(strlen(pathAndFilename)!=0) )
     {
@@ -138,13 +137,19 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool setCurrentDir,s
             if (errorStr!=nullptr)
                 errorStr[0]="file does not exist.";
         }
-        return(result==1);
+        retVal = (result==1);
     }
     else
     {
         createNewScene(true);
-        return(true);
+        retVal = true;
     }
+    #ifdef SIM_WITH_GUI
+        if (GuiApp::mainWindow!=nullptr)
+            GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
+        GuiApp::setRebuildHierarchyFlag();
+    #endif
+    return retVal;
 }
 
 bool CFileOperations::loadModel(const char* pathAndFilename,bool setCurrentDir,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy,std::string* infoStr/*=nullptr*/,std::string* errorStr/*=nullptr*/)
@@ -849,9 +854,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         GuiApp::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr);
                     closeScene();
                     App::logMsg(sim_verbosity_msgs,"Scene closed.");
-                    if (GuiApp::mainWindow!=nullptr)
-                        GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
-                    GuiApp::setRebuildHierarchyFlag();
                 }
             }
             else
@@ -879,15 +881,12 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 {
                     GuiApp::setRebuildHierarchyFlag();
                     GuiApp::setDefaultMouseMode();
-                    App::worldContainer->createNewWorld();
-                    createNewScene(false);
+                    //App::worldContainer->createNewWorld();
+                    createNewScene(true);
                     std::string infoStr;
                     std::string errorStr;
                     if (loadScene(filenameAndPath.c_str(),true,nullptr,&infoStr,&errorStr))
                     {
-                        if (GuiApp::mainWindow!=nullptr)
-                            GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
-                        GuiApp::setRebuildHierarchyFlag();
                         if (infoStr.size()!=0)
                             App::logMsg(sim_verbosity_msgs,infoStr.c_str());
                         App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_OPENED);
@@ -944,15 +943,12 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 if (VFile::doesFileExist(filenameAndPath.c_str()))
                 {
                     GuiApp::setDefaultMouseMode();
-                    App::worldContainer->createNewWorld();
-                    createNewScene(false);
+                    // App::worldContainer->createNewWorld();
+                    createNewScene(true);
                     std::string infoStr;
                     std::string errorStr;
                     if (loadScene(filenameAndPath.c_str(),true,nullptr,&infoStr,&errorStr))
                     {
-                        if (GuiApp::mainWindow!=nullptr)
-                            GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
-                        GuiApp::setRebuildHierarchyFlag();
                         if (infoStr.size()!=0)
                             App::logMsg(sim_verbosity_msgs,infoStr.c_str());
                         App::logMsg(sim_verbosity_msgs,IDSNS_SCENE_OPENED);
