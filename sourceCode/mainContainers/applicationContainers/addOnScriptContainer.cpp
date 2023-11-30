@@ -121,13 +121,12 @@ int CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
             at = ADDON_SCRIPT_PREFIX2_NOAUTOSTART;
         if ((foundItem->name.find(ADDON_FUNCTION_PREFIX1) == 0) || (foundItem->name.find(ADDON_FUNCTION_PREFIX2) == 0))
             at = "X";
-        if ((at.size() == 0) && (foundItem->name.find(ADDON_PREFIX) == 0))
+        if ((at.size() == 0) )//&& (foundItem->name.find(ADDON_PREFIX) == 0))
         {
-            at = ADDON_PREFIX;
+           // at = ADDON_PREFIX;
             oldAddOn = false;
         }
-        if ((at.size() > 1) &&
-            (foundItem->name.find("simAddOnHibot Visualization") == std::string::npos)) // second part is temp
+        if (foundItem->name.find("simAddOnHibot Visualization") == std::string::npos) // temp, remove later
         {
             std::string fp(App::folders->getAddOnPath() + "/");
             fp += foundItem->name;

@@ -1322,8 +1322,8 @@ std::string CScriptObject::getShortDescriptiveName() const
 
 void CScriptObject::setAddOnName(const char *name)
 {
-    _addOnName = name;
-    _addOnPathAndName = _addOnName;
+    _addOnName = name; // e.g. "Animation capture"
+    _addOnPathAndName = _addOnName; // e.g. "Tools >> Blabla" (if sysCall_info returns menu = 'Tools\nBlabla')
 }
 
 void CScriptObject::performSceneObjectLoadingMapping(const std::map<int, int> *map)
@@ -1537,7 +1537,15 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
         CModuleMenuItem *m = App::worldContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle);
         if (m != nullptr)
         {
-            std::string txt(_addOnName);
+            std::string txt(_addOnPathAndName);
+            while (true)
+            {
+                size_t p = txt.find(" >> ");
+                if (p == std::string::npos)
+                    break;
+                txt.erase(0, p + 4);
+            }
+
             if (_scriptState == CScriptObject::scriptState_initialized)
                 txt += " (running)";
             if ((_scriptState & CScriptObject::scriptState_error) != 0)
@@ -1584,7 +1592,7 @@ void CScriptObject::_handleInfoCallback()
         std::string menuEntry(_addOnName);
         outStack->getStackMapStringValue("menu", menuEntry);
         if (menuEntry.size() > 0)
-        { // might contain also path info, e.g. "Exporters/URDF exporter"
+        { // might contain also path info, e.g. "Exporters/nURDF exporter"
             _addOnPathAndName = menuEntry;
             size_t r = _addOnPathAndName.find("\n");
             while (r != std::string::npos)

@@ -5,7 +5,6 @@
 #include <vMenubar.h>
 #endif
 
-#define ADDON_PREFIX "simAddOn"
 #define ADDON_EXTENTION_LUA "lua"
 #define ADDON_EXTENTION_PY "py"
 
