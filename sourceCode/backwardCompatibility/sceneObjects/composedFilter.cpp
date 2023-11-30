@@ -14,28 +14,28 @@ CComposedFilter::~CComposedFilter()
 
 void CComposedFilter::removeAllSimpleFilters()
 {
-    for (int i=0;i<int(_allSimpleFilters.size());i++)
+    for (int i = 0; i < int(_allSimpleFilters.size()); i++)
         delete _allSimpleFilters[i];
     _allSimpleFilters.clear();
 }
 
-void CComposedFilter::serialize(CSer& ar)
+void CComposedFilter::serialize(CSer &ar)
 {
     if (!ar.isStoring())
-    {       // Loading
+    { // Loading
         int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
+        std::string theName = "";
+        while (theName.compare(SER_END_OF_OBJECT) != 0)
         {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            theName = ar.readDataName();
+            if (theName.compare(SER_END_OF_OBJECT) != 0)
             {
-                bool noHit=true;
-                if (theName.compare("Sfr")==0)
+                bool noHit = true;
+                if (theName.compare("Sfr") == 0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity; 
-                    CSimpleFilter* it=new CSimpleFilter();
+                    noHit = false;
+                    ar >> byteQuantity;
+                    CSimpleFilter *it = new CSimpleFilter();
                     it->serialize(ar);
                     _allSimpleFilters.push_back(it);
                 }
@@ -48,22 +48,25 @@ void CComposedFilter::serialize(CSer& ar)
 }
 void CComposedFilter::_prepareScriptEquivalent()
 {
-    if (_allSimpleFilters.size()!=0)
+    if (_allSimpleFilters.size() != 0)
     {
-        scriptEquivalent+="function sysCall_vision(inData)\n";
-        scriptEquivalent+="    -- callback function automatically added for backward compatibility\n    -- (vision sensor have no filters anymore, but rather a callback function where image processing can be performed)\n    local retVal={}\n    retVal.trigger=false\n    retVal.packedPackets={}\n";
-        for (size_t i=0;i<_allSimpleFilters.size();i++)
+        scriptEquivalent += "function sysCall_vision(inData)\n";
+        scriptEquivalent +=
+            "    -- callback function automatically added for backward compatibility\n    -- (vision sensor have no "
+            "filters anymore, but rather a callback function where image processing can be performed)\n    local "
+            "retVal={}\n    retVal.trigger=false\n    retVal.packedPackets={}\n";
+        for (size_t i = 0; i < _allSimpleFilters.size(); i++)
         {
-            CSimpleFilter* it=_allSimpleFilters[i];
-            scriptEquivalent+="    ";
-            scriptEquivalent+=it->getCodeEquivalent();
-            scriptEquivalent+="\n";
+            CSimpleFilter *it = _allSimpleFilters[i];
+            scriptEquivalent += "    ";
+            scriptEquivalent += it->getCodeEquivalent();
+            scriptEquivalent += "\n";
         }
-        scriptEquivalent+="    return retVal\nend\n\n";
-        if ( (_allSimpleFilters.size()==2)&&(_allSimpleFilters[0]->getFilterType()==sim_filtercomponent_originalimage_deprecated)&&(_allSimpleFilters[1]->getFilterType()==sim_filtercomponent_tooutput_deprecated) )
+        scriptEquivalent += "    return retVal\nend\n\n";
+        if ((_allSimpleFilters.size() == 2) &&
+            (_allSimpleFilters[0]->getFilterType() == sim_filtercomponent_originalimage_deprecated) &&
+            (_allSimpleFilters[1]->getFilterType() == sim_filtercomponent_tooutput_deprecated))
             scriptEquivalent.clear();
     }
     removeAllSimpleFilters();
 }
-
-

@@ -4,60 +4,60 @@
 #include <oGL.h>
 
 #ifdef LIN_SIM
-    #include <GL/glext.h>
-    #include <GL/gl.h>
-    #include <GL/glx.h>
-    #include <GL/glxext.h>
-    // Following since those macros are defined by Qt and XLib:
-    #undef None
-    #undef KeyPress
-    #undef KeyRelease
-    #undef FocusIn
-    #undef FocusOut
-    #undef FontChange
-    #undef Expose
+#include <GL/glext.h>
+#include <GL/gl.h>
+#include <GL/glx.h>
+#include <GL/glxext.h>
+// Following since those macros are defined by Qt and XLib:
+#undef None
+#undef KeyPress
+#undef KeyRelease
+#undef FocusIn
+#undef FocusOut
+#undef FontChange
+#undef Expose
 #endif
 
 #ifdef MAC_SIM
-    #include <OpenGL/OpenGL.h>
-    #include <OpenGL/gl.h>
-    #include <OpenGL/gl3.h>
-    #include <OpenGL/glext.h>
-    #include <OpenGL/gl3ext.h>
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/gl3.h>
+#include <OpenGL/glext.h>
+#include <OpenGL/gl3ext.h>
 #endif
 
 #ifndef MAC_SIM
-    extern PFNGLGENFRAMEBUFFERSEXTPROC _glGenFramebuffers;
-    extern PFNGLDELETEFRAMEBUFFERSEXTPROC _glDeleteFramebuffers;
-    extern PFNGLBINDFRAMEBUFFEREXTPROC _glBindFramebuffer;
-    extern PFNGLGENRENDERBUFFERSEXTPROC _glGenRenderbuffers;
-    extern PFNGLDELETERENDERBUFFERSEXTPROC _glDeleteRenderbuffers;
-    extern PFNGLBINDRENDERBUFFEREXTPROC _glBindRenderbuffer;
-    extern PFNGLRENDERBUFFERSTORAGEEXTPROC _glRenderbufferStorage;
-    extern PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC _glFramebufferRenderbuffer;
-    extern PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC _glCheckFramebufferStatus;
-    extern PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC _glGetRenderbufferParameteriv;
+extern PFNGLGENFRAMEBUFFERSEXTPROC _glGenFramebuffers;
+extern PFNGLDELETEFRAMEBUFFERSEXTPROC _glDeleteFramebuffers;
+extern PFNGLBINDFRAMEBUFFEREXTPROC _glBindFramebuffer;
+extern PFNGLGENRENDERBUFFERSEXTPROC _glGenRenderbuffers;
+extern PFNGLDELETERENDERBUFFERSEXTPROC _glDeleteRenderbuffers;
+extern PFNGLBINDRENDERBUFFEREXTPROC _glBindRenderbuffer;
+extern PFNGLRENDERBUFFERSTORAGEEXTPROC _glRenderbufferStorage;
+extern PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC _glFramebufferRenderbuffer;
+extern PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC _glCheckFramebufferStatus;
+extern PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC _glGetRenderbufferParameteriv;
 #endif
 
-//FULLY STATIC CLASS
-class oglExt 
+// FULLY STATIC CLASS
+class oglExt
 {
-public:
+  public:
     static void prepareExtensionFunctions(bool forceFboToUseExt);
     static void turnOffVSync(int vsync);
     static bool isFboAvailable();
     static bool _isFboAvailable(bool &viaExt);
 
-    static void GenFramebuffers(GLsizei a,GLuint* b);
-    static void DeleteFramebuffers(GLsizei a,const GLuint* b);
-    static void BindFramebuffer(GLenum a,GLuint b);
-    static void GenRenderbuffers(GLsizei a,GLuint* b);
-    static void DeleteRenderbuffers(GLsizei a,const GLuint* b);
-    static void BindRenderbuffer(GLenum a,GLuint b);
-    static void RenderbufferStorage(GLenum a,GLenum b,GLsizei c,GLsizei d);
-    static void FramebufferRenderbuffer(GLenum a,GLenum b,GLenum c,GLuint d);
+    static void GenFramebuffers(GLsizei a, GLuint *b);
+    static void DeleteFramebuffers(GLsizei a, const GLuint *b);
+    static void BindFramebuffer(GLenum a, GLuint b);
+    static void GenRenderbuffers(GLsizei a, GLuint *b);
+    static void DeleteRenderbuffers(GLsizei a, const GLuint *b);
+    static void BindRenderbuffer(GLenum a, GLuint b);
+    static void RenderbufferStorage(GLenum a, GLenum b, GLsizei c, GLsizei d);
+    static void FramebufferRenderbuffer(GLenum a, GLenum b, GLenum c, GLuint d);
     static void CheckFramebufferStatus(GLenum a);
-    static void GetRenderbufferParameteriv(GLenum a,GLenum b,GLint* c);
+    static void GetRenderbufferParameteriv(GLenum a, GLenum b, GLint *c);
 
 #ifndef MAC_SIM
     static PFNGLGENFRAMEBUFFERSEXTPROC _glGenFramebuffers;

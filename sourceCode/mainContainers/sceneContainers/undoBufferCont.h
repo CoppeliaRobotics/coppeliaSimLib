@@ -5,18 +5,18 @@
 
 class CUndoBufferCont
 {
-public:
+  public:
     CUndoBufferCont();
     virtual ~CUndoBufferCont();
     void emptySceneProcedure();
     void memorizeStateIfNeeded();
 
-    void emptyRedoBuffer(); 
+    void emptyRedoBuffer();
 
-    bool announceChange();          // Will directly save the changes
-    void announceChangeStart();     // Will only save changes if announceChangeEnd is called after
-    void announceChangeEnd();       // Will only save changes if announceChangeStart was called previously
-    void announceChangeGradual();   // Will save grouped changes (with a delay)
+    bool announceChange();        // Will directly save the changes
+    void announceChangeStart();   // Will only save changes if announceChangeEnd is called after
+    void announceChangeEnd();     // Will only save changes if announceChangeStart was called previously
+    void announceChangeGradual(); // Will save grouped changes (with a delay)
 
     bool memorizeState();
     void undo();
@@ -31,15 +31,15 @@ public:
 
     CUndoBufferArrays undoBufferArrays;
 
-private:
-    CUndoBufferCameras* _getFullBuffer(int index,std::vector<char>& fullBuff);
+  private:
+    CUndoBufferCameras *_getFullBuffer(int index, std::vector<char> &fullBuff);
     int _getUsedMemory();
     bool _isGoodToMemorizeUndoOrRedo();
     void _commonInit();
     void _rememberSelectionState();
     void _restoreSelectionState();
     int _currentStateIndex;
-    std::vector<CUndoBuffer*> _buffers;
+    std::vector<CUndoBuffer *> _buffers;
     bool _announceChangeStartCalled;
     int _announceChangeGradualCalledTime;
     bool _sceneSaveMightBeNeeded;

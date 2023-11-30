@@ -3,43 +3,43 @@
 
 CInterfaceStackNull::CInterfaceStackNull()
 {
-    _objectType=sim_stackitem_null;
+    _objectType = sim_stackitem_null;
 }
 
 CInterfaceStackNull::~CInterfaceStackNull()
 {
 }
 
-CInterfaceStackObject* CInterfaceStackNull::copyYourself() const
+CInterfaceStackObject *CInterfaceStackNull::copyYourself() const
 {
-    CInterfaceStackNull* retVal=new CInterfaceStackNull();
-    return(retVal);
+    CInterfaceStackNull *retVal = new CInterfaceStackNull();
+    return (retVal);
 }
 
-void CInterfaceStackNull::printContent(int spaces,std::string& buffer) const
+void CInterfaceStackNull::printContent(int spaces, std::string &buffer) const
 {
-    for (int i=0;i<spaces;i++)
-        buffer+=" ";
-    buffer+="nullptr\n";
+    for (int i = 0; i < spaces; i++)
+        buffer += " ";
+    buffer += "nullptr\n";
 }
 
 std::string CInterfaceStackNull::getObjectData() const
 {
-    return("");
+    return ("");
 }
 
-void CInterfaceStackNull::addCborObjectData(CCbor* cborObj) const
+void CInterfaceStackNull::addCborObjectData(CCbor *cborObj) const
 {
     cborObj->appendNull();
 }
 
-unsigned int CInterfaceStackNull::createFromData(const char* /*data*/,const unsigned char /*version*/)
+unsigned int CInterfaceStackNull::createFromData(const char * /*data*/, const unsigned char /*version*/)
 {
-    return(0);
+    return (0);
 }
 
-bool CInterfaceStackNull::checkCreateFromData(const char* data,unsigned int& w,unsigned int l)
+bool CInterfaceStackNull::checkCreateFromData(const char *data, unsigned int &w, unsigned int l)
 {
-    w=0;
-    return(true);
+    w = 0;
+    return (true);
 }

@@ -6,16 +6,16 @@
 CPersistentDataContainer::CPersistentDataContainer()
 {
     _eventMutex.lock();
-    _filename="settings.dat";
+    _filename = "settings.dat";
     initializeWithDataFromFile();
 }
 
-CPersistentDataContainer::CPersistentDataContainer(const char* filename,const char* customFolder/*=nullptr*/)
+CPersistentDataContainer::CPersistentDataContainer(const char *filename, const char *customFolder /*=nullptr*/)
 {
     _eventMutex.lock();
-    _filename=filename;
-    if (customFolder!=nullptr)
-        _customFolder=customFolder; // otherwise user settings folder
+    _filename = filename;
+    if (customFolder != nullptr)
+        _customFolder = customFolder; // otherwise user settings folder
     initializeWithDataFromFile();
 }
 
@@ -27,166 +27,168 @@ CPersistentDataContainer::~CPersistentDataContainer()
 
 int CPersistentDataContainer::removeAllData()
 {
-    int retVal=int(_dataNames.size());
+    int retVal = int(_dataNames.size());
     _dataNames.clear();
     _dataValues.clear();
-    return(retVal);
+    return (retVal);
 }
 
-void CPersistentDataContainer::writeData(const char* dataName,const std::string& value,bool toFile)
+void CPersistentDataContainer::writeData(const char *dataName, const std::string &value, bool toFile)
 {
-    _writeData(dataName,value);
+    _writeData(dataName, value);
     if (toFile)
     {
         std::vector<std::string> _dataNamesAux;
         std::vector<std::string> _dataValuesAux;
-        _readFromFile(_dataNamesAux,_dataValuesAux);
+        _readFromFile(_dataNamesAux, _dataValuesAux);
         _dataNames.swap(_dataNamesAux);
         _dataValues.swap(_dataValuesAux);
-        _writeData(dataName,value);
+        _writeData(dataName, value);
         _dataNames.swap(_dataNamesAux);
         _dataValues.swap(_dataValuesAux);
-        _writeToFile(_dataNamesAux,_dataValuesAux);
+        _writeToFile(_dataNamesAux, _dataValuesAux);
     }
 }
 
-void CPersistentDataContainer::_writeData(const char* dataName,const std::string& value)
+void CPersistentDataContainer::_writeData(const char *dataName, const std::string &value)
 {
-    if (dataName!=nullptr)
+    if (dataName != nullptr)
     {
-        int index=_getDataIndex(dataName);
-        if (index==-1)
+        int index = _getDataIndex(dataName);
+        if (index == -1)
         {
-            if (strlen(dataName)!=0)
+            if (strlen(dataName) != 0)
             { // we have to add this data:
                 _dataNames.push_back(dataName);
                 _dataValues.push_back(value);
             }
         }
         else
-        { 
-            if (value.length()!=0)
-                _dataValues[index]=value; // we have to update this data:
+        {
+            if (value.length() != 0)
+                _dataValues[index] = value; // we have to update this data:
             else
             { // we have to remove this data:
-                _dataNames.erase(_dataNames.begin()+index);
-                _dataValues.erase(_dataValues.begin()+index);
+                _dataNames.erase(_dataNames.begin() + index);
+                _dataValues.erase(_dataValues.begin() + index);
             }
         }
     }
 }
 
-bool CPersistentDataContainer::readData(const char* dataName,std::string& value)
+bool CPersistentDataContainer::readData(const char *dataName, std::string &value)
 {
-    if ((dataName==nullptr)||(strlen(dataName)==0))
-        return(false);
-    int index=_getDataIndex(dataName);
-    if (index==-1)
-        return(false);
-    value=_dataValues[index];
-    return(true);
+    if ((dataName == nullptr) || (strlen(dataName) == 0))
+        return (false);
+    int index = _getDataIndex(dataName);
+    if (index == -1)
+        return (false);
+    value = _dataValues[index];
+    return (true);
 }
 
-int CPersistentDataContainer::getAllDataNames(std::vector<std::string>& names)
+int CPersistentDataContainer::getAllDataNames(std::vector<std::string> &names)
 {
-    names.assign(_dataNames.begin(),_dataNames.end());
-    return(int(names.size()));
+    names.assign(_dataNames.begin(), _dataNames.end());
+    return (int(names.size()));
 }
 
-int CPersistentDataContainer::_getDataIndex(const char* dataName)
+int CPersistentDataContainer::_getDataIndex(const char *dataName)
 {
-    for (int i=0;i<int(_dataNames.size());i++)
+    for (int i = 0; i < int(_dataNames.size()); i++)
     {
-        if (_dataNames[i].compare(dataName)==0)
-            return(i);
+        if (_dataNames[i].compare(dataName) == 0)
+            return (i);
     }
-    return(-1);
+    return (-1);
 }
 
 void CPersistentDataContainer::initializeWithDataFromFile()
 {
-    _readFromFile(_dataNames,_dataValues);
+    _readFromFile(_dataNames, _dataValues);
 }
 
-
-void CPersistentDataContainer::_readFromFile(std::vector<std::string>& dataNames,std::vector<std::string>& dataValues)
+void CPersistentDataContainer::_readFromFile(std::vector<std::string> &dataNames, std::vector<std::string> &dataValues)
 {
     dataNames.clear();
     dataValues.clear();
 
-    std::string filenameAndPath=CFolderSystem::getUserSettingsPath();
-    if (_customFolder.size()>0)
-        filenameAndPath=_customFolder;
-    filenameAndPath+="/";
-    filenameAndPath+=_filename;
+    std::string filenameAndPath = CFolderSystem::getUserSettingsPath();
+    if (_customFolder.size() > 0)
+        filenameAndPath = _customFolder;
+    filenameAndPath += "/";
+    filenameAndPath += _filename;
     if (VFile::doesFileExist(filenameAndPath.c_str()))
     {
         try
         {
-            VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-            VArchive archive(&file,VArchive::LOAD);
-            _serialize(archive,dataNames,dataValues);
+            VFile file(filenameAndPath.c_str(), VFile::READ | VFile::SHARE_DENY_NONE);
+            VArchive archive(&file, VArchive::LOAD);
+            _serialize(archive, dataNames, dataValues);
             archive.close();
             file.close();
         }
-        catch(VFILE_EXCEPTION_TYPE e)
+        catch (VFILE_EXCEPTION_TYPE e)
         {
-            // silent error since 3/2/2012: when the system folder dowesn't exist, we don't want an error!!    VFile::reportAndHandleFileExceptionError(e);
+            // silent error since 3/2/2012: when the system folder dowesn't exist, we don't want an error!!
+            // VFile::reportAndHandleFileExceptionError(e);
         }
     }
 }
 
-void CPersistentDataContainer::_writeToFile(std::vector<std::string>& dataNames,std::vector<std::string>& dataValues)
+void CPersistentDataContainer::_writeToFile(std::vector<std::string> &dataNames, std::vector<std::string> &dataValues)
 {
-    std::string filenameAndPath=CFolderSystem::getUserSettingsPath();
-    if (_customFolder.size()>0)
-        filenameAndPath=_customFolder;
-    filenameAndPath+="/";
-    filenameAndPath+=_filename;
+    std::string filenameAndPath = CFolderSystem::getUserSettingsPath();
+    if (_customFolder.size() > 0)
+        filenameAndPath = _customFolder;
+    filenameAndPath += "/";
+    filenameAndPath += _filename;
     try
     {
-        VFile myFile(filenameAndPath.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
-        VArchive archive(&myFile,VArchive::STORE);
-        _serialize(archive,dataNames,dataValues);
+        VFile myFile(filenameAndPath.c_str(), VFile::CREATE_WRITE | VFile::SHARE_EXCLUSIVE);
+        VArchive archive(&myFile, VArchive::STORE);
+        _serialize(archive, dataNames, dataValues);
         archive.close();
         myFile.close();
     }
-    catch(VFILE_EXCEPTION_TYPE e)
+    catch (VFILE_EXCEPTION_TYPE e)
     {
-        // silent error since 3/2/2012: when the system folder doesn't exist, we don't want an error!!    VFile::reportAndHandleFileExceptionError(e);
+        // silent error since 3/2/2012: when the system folder doesn't exist, we don't want an error!!
+        // VFile::reportAndHandleFileExceptionError(e);
     }
 }
 
-void CPersistentDataContainer::_serialize(VArchive& ar,std::vector<std::string>& dataNames,std::vector<std::string>& dataValues)
+void CPersistentDataContainer::_serialize(VArchive &ar, std::vector<std::string> &dataNames,
+                                          std::vector<std::string> &dataValues)
 {
     if (ar.isStoring())
     { // Storing
         ar << int(dataNames.size());
-        for (int i=0;i<int(dataNames.size());i++)
+        for (int i = 0; i < int(dataNames.size()); i++)
         {
-            ar << (unsigned char) (1);
+            ar << (unsigned char)(1);
 
             ar << int(dataNames[i].size());
-            for (int j=0;j<int(dataNames[i].size());j++)
+            for (int j = 0; j < int(dataNames[i].size()); j++)
                 ar << (unsigned char)(dataNames[i][j]);
 
             ar << int(dataValues[i].size());
-            for (int j=0;j<int(dataValues[i].size());j++)
+            for (int j = 0; j < int(dataValues[i].size()); j++)
                 ar << (unsigned char)(dataValues[i][j]);
         }
-        ar << (unsigned char) (0);
+        ar << (unsigned char)(0);
     }
     else
-    {       // Loading
+    { // Loading
         int count;
         ar >> count;
-        if (count>0)
+        if (count > 0)
         {
-            unsigned char d=1;
-            while (d!=0)
+            unsigned char d = 1;
+            while (d != 0)
             {
                 ar >> d;
-                if (d!=0)
+                if (d != 0)
                 {
                     std::string dat;
                     std::string val;
@@ -194,17 +196,17 @@ void CPersistentDataContainer::_serialize(VArchive& ar,std::vector<std::string>&
                     int l;
                     unsigned char v;
                     ar >> l;
-                    for (int i=0;i<l;i++)
+                    for (int i = 0; i < l; i++)
                     {
                         ar >> v;
-                        dat+=v;
+                        dat += v;
                     }
 
                     ar >> l;
-                    for (int i=0;i<l;i++)
+                    for (int i = 0; i < l; i++)
                     {
                         ar >> v;
-                        val+=v;
+                        val += v;
                     }
 
                     dataNames.push_back(dat);
@@ -214,4 +216,3 @@ void CPersistentDataContainer::_serialize(VArchive& ar,std::vector<std::string>&
         }
     }
 }
-

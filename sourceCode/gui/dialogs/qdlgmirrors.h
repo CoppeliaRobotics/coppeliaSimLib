@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgMirrors;
+namespace Ui
+{
+class CQDlgMirrors;
 }
 
 class CQDlgMirrors : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgMirrors(QWidget *parent = 0);
     ~CQDlgMirrors();
 
@@ -20,7 +21,7 @@ public:
 
     void cancelEvent();
     bool inMainRefreshRoutine;
-private slots:
+  private slots:
     void on_qqEnabled_clicked();
     void on_qqWidth_editingFinished();
     void on_qqHeight_editingFinished();
@@ -38,7 +39,7 @@ private slots:
 
     void on_qqDisableAllClippingPlanes_clicked();
 
-private:
+  private:
     Ui::CQDlgMirrors *ui;
 };
 

@@ -3,18 +3,18 @@
 #include <simStringTable.h>
 #include <vMessageBox.h>
 #ifdef SIM_WITH_GUI
-    #include <guiApp.h>
+#include <guiApp.h>
 #endif
 
 CEditModeContainer::CEditModeContainer()
 {
     TRACE_INTERNAL;
-    _shapeEditMode=nullptr;
-    _multishapeEditMode=nullptr;
-    _pathEditMode=nullptr;
-    _editModeObject=-1;
-    _simulationStopped=true;
-    pathPointManipulation=new CPathPointManipulation_old();
+    _shapeEditMode = nullptr;
+    _multishapeEditMode = nullptr;
+    _pathEditMode = nullptr;
+    _editModeObject = -1;
+    _simulationStopped = true;
+    pathPointManipulation = new CPathPointManipulation_old();
 }
 
 CEditModeContainer::~CEditModeContainer()
@@ -28,81 +28,84 @@ CEditModeContainer::~CEditModeContainer()
     delete pathPointManipulation;
 }
 
-bool CEditModeContainer::enterEditMode(int objID,int modeType)
+bool CEditModeContainer::enterEditMode(int objID, int modeType)
 {
     TRACE_INTERNAL;
     App::currentWorld->sceneObjects->deselectObjects();
-    if (getEditModeType()!=NO_EDIT_MODE)
-        return(false);
+    if (getEditModeType() != NO_EDIT_MODE)
+        return (false);
     if (!App::currentWorld->simulation->isSimulationStopped())
-        return(false);
+        return (false);
 
-    if (modeType&SHAPE_EDIT_MODE)
+    if (modeType & SHAPE_EDIT_MODE)
     {
-        CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(objID);
-        if (shape==nullptr)
-            return(false);
+        CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(objID);
+        if (shape == nullptr)
+            return (false);
         if (shape->isCompound())
-            return(false);
+            return (false);
     }
-    if (modeType&PATH_EDIT_MODE_OLD)
+    if (modeType & PATH_EDIT_MODE_OLD)
     {
-        CPath_old* path=App::currentWorld->sceneObjects->getPathFromHandle(objID);
-        if (path==nullptr)
-            return(false);
+        CPath_old *path = App::currentWorld->sceneObjects->getPathFromHandle(objID);
+        if (path == nullptr)
+            return (false);
     }
-    if (modeType&MULTISHAPE_EDIT_MODE)
+    if (modeType & MULTISHAPE_EDIT_MODE)
     {
-        CShape* shape=App::currentWorld->sceneObjects->getShapeFromHandle(objID);
-        if (shape==nullptr)
-            return(false);
+        CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(objID);
+        if (shape == nullptr)
+            return (false);
         if (!shape->isCompound())
-            return(false);
+            return (false);
     }
 
     // UI and Multishape edit modes don't support item shift/rotate:
-    GuiApp::setMouseMode((GuiApp::getMouseMode()&0xfff0)|sim_navigation_camerashift);
+    GuiApp::setMouseMode((GuiApp::getMouseMode() & 0xfff0) | sim_navigation_camerashift);
 
-    _editModeObject=objID;
+    _editModeObject = objID;
 
-    _editMode_hierarchyWasEnabledBeforeEditMode=GuiApp::mainWindow->oglSurface->isHierarchyEnabled();
+    _editMode_hierarchyWasEnabledBeforeEditMode = GuiApp::mainWindow->oglSurface->isHierarchyEnabled();
     if (!_editMode_hierarchyWasEnabledBeforeEditMode)
     {
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
-        cmdIn.cmdId=OPEN_HIERARCHY_UITHREADCMD;
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        cmdIn.cmdId = OPEN_HIERARCHY_UITHREADCMD;
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
     }
 
-    if (modeType&SHAPE_EDIT_MODE)
+    if (modeType & SHAPE_EDIT_MODE)
     {
-        _shapeEditMode=new CShapeEditMode(App::currentWorld->sceneObjects->getShapeFromHandle(objID),modeType,App::currentWorld->sceneObjects,App::currentWorld->textureContainer,GuiApp::uiThread);
+        _shapeEditMode =
+            new CShapeEditMode(App::currentWorld->sceneObjects->getShapeFromHandle(objID), modeType,
+                               App::currentWorld->sceneObjects, App::currentWorld->textureContainer, GuiApp::uiThread);
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
-        cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
+        cmdIn.cmdId = OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(OPEN_SHAPE_EDITION_DLG_CMD);
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
     }
-    else if (modeType&PATH_EDIT_MODE_OLD)
+    else if (modeType & PATH_EDIT_MODE_OLD)
     {
-        _pathEditMode=new CPathEditMode_old(App::currentWorld->sceneObjects->getPathFromHandle(objID),App::currentWorld->sceneObjects);
+        _pathEditMode = new CPathEditMode_old(App::currentWorld->sceneObjects->getPathFromHandle(objID),
+                                              App::currentWorld->sceneObjects);
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
-        cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
+        cmdIn.cmdId = OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(OPEN_PATH_EDITION_DLG_CMD);
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
     }
-    else if (modeType&MULTISHAPE_EDIT_MODE)
+    else if (modeType & MULTISHAPE_EDIT_MODE)
     {
-        _multishapeEditMode=new CMultishapeEditMode(App::currentWorld->sceneObjects->getShapeFromHandle(objID));
+        _multishapeEditMode = new CMultishapeEditMode(App::currentWorld->sceneObjects->getShapeFromHandle(objID));
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
-        cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
+        cmdIn.cmdId = OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(OPEN_MULTISHAPE_EDITION_DLG_CMD);
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
     }
 
     GuiApp::setFullDialogRefreshFlag();
@@ -115,62 +118,62 @@ bool CEditModeContainer::enterEditMode(int objID,int modeType)
 
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
-    cmdIn.cmdId=CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
-    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    cmdIn.cmdId = CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 
-    cmdIn.cmdId=EDIT_MODE_ABOUT_TO_START_UITHREADCMD;
-    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-    return(true);
+    cmdIn.cmdId = EDIT_MODE_ABOUT_TO_START_UITHREADCMD;
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
+    return (true);
 }
 
 void CEditModeContainer::endEditMode(bool cancelChanges)
 {
     TRACE_INTERNAL;
-    if (getEditModeType()==NO_EDIT_MODE)
+    if (getEditModeType() == NO_EDIT_MODE)
         return;
 
-    int objectIDToSelect=_editModeObject;
+    int objectIDToSelect = _editModeObject;
 
-    if (_shapeEditMode!=nullptr)
+    if (_shapeEditMode != nullptr)
     {
         deselectEditModeBuffer();
         if (!_shapeEditMode->endEditMode(cancelChanges))
-            objectIDToSelect=-1; // the shape is now empty --> was erased
+            objectIDToSelect = -1; // the shape is now empty --> was erased
         delete _shapeEditMode;
-        _shapeEditMode=nullptr;
+        _shapeEditMode = nullptr;
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
-        cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
+        cmdIn.cmdId = OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(CLOSE_SHAPE_EDITION_DLG_CMD);
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
     }
-    if (_pathEditMode!=nullptr)
+    if (_pathEditMode != nullptr)
     {
         deselectEditModeBuffer();
         _pathEditMode->endEditMode(cancelChanges);
         delete _pathEditMode;
-        _pathEditMode=nullptr;
+        _pathEditMode = nullptr;
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
-        cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
+        cmdIn.cmdId = OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(CLOSE_PATH_EDITION_DLG_CMD);
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
     }
-    if (_multishapeEditMode!=nullptr)
+    if (_multishapeEditMode != nullptr)
     {
         delete _multishapeEditMode;
-        _multishapeEditMode=nullptr;
+        _multishapeEditMode = nullptr;
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
-        cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
+        cmdIn.cmdId = OPEN_OR_CLOSE_UITHREADCMD;
         cmdIn.intParams.push_back(CLOSE_MULTISHAPE_EDITION_DLG_CMD);
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
     }
 
-    _editModeObject=-1;
+    _editModeObject = -1;
 
     App::currentWorld->sceneObjects->selectObject(objectIDToSelect);
 
@@ -178,8 +181,8 @@ void CEditModeContainer::endEditMode(bool cancelChanges)
     {
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
-        cmdIn.cmdId=CLOSE_HIERARCHY_UITHREADCMD;
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        cmdIn.cmdId = CLOSE_HIERARCHY_UITHREADCMD;
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
     }
 
     GuiApp::mainWindow->reopenTemporarilyClosedNonEditModeDialogs();
@@ -191,86 +194,86 @@ void CEditModeContainer::endEditMode(bool cancelChanges)
 
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
-    cmdIn.cmdId=CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
-    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    cmdIn.cmdId = CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 
-    cmdIn.cmdId=EDIT_MODE_JUST_ENDED_UITHREADCMD;
-    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+    cmdIn.cmdId = EDIT_MODE_JUST_ENDED_UITHREADCMD;
+    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 }
 
 int CEditModeContainer::getEditModeObjectID()
 {
     TRACE_INTERNAL;
-    return(_editModeObject);
+    return (_editModeObject);
 }
 
 int CEditModeContainer::getEditModeType()
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
-        return(_shapeEditMode->getEditModeType());
-    if (_multishapeEditMode!=nullptr)
-        return(MULTISHAPE_EDIT_MODE);
-    if (_pathEditMode!=nullptr)
-        return(PATH_EDIT_MODE_OLD);
-    return(NO_EDIT_MODE);
+    if (_shapeEditMode != nullptr)
+        return (_shapeEditMode->getEditModeType());
+    if (_multishapeEditMode != nullptr)
+        return (MULTISHAPE_EDIT_MODE);
+    if (_pathEditMode != nullptr)
+        return (PATH_EDIT_MODE_OLD);
+    return (NO_EDIT_MODE);
 }
 
 void CEditModeContainer::swapShapeEditModeType(int theType)
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
+    if (_shapeEditMode != nullptr)
         _shapeEditMode->swapShapeEditModeType(theType);
 }
 
 int CEditModeContainer::getEditModeBufferSize()
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
-        return(_shapeEditMode->getEditModeBufferSize());
-    if (_pathEditMode!=nullptr)
-        return(_pathEditMode->getEditModeBufferSize());
-    return(0);
+    if (_shapeEditMode != nullptr)
+        return (_shapeEditMode->getEditModeBufferSize());
+    if (_pathEditMode != nullptr)
+        return (_pathEditMode->getEditModeBufferSize());
+    return (0);
 }
 
 int CEditModeContainer::getLastEditModeBufferValue()
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
-        return(_shapeEditMode->getLastEditModeBufferValue());
-    if (_pathEditMode!=nullptr)
-        return(_pathEditMode->getLastEditModeBufferValue());
-    return(-1);
+    if (_shapeEditMode != nullptr)
+        return (_shapeEditMode->getLastEditModeBufferValue());
+    if (_pathEditMode != nullptr)
+        return (_pathEditMode->getLastEditModeBufferValue());
+    return (-1);
 }
 
 int CEditModeContainer::getEditModeBufferValue(int index)
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
-        return(_shapeEditMode->getEditModeBufferValue(index));
-    if (_pathEditMode!=nullptr)
-        return(_pathEditMode->getEditModeBufferValue(index));
-    return(-1);
+    if (_shapeEditMode != nullptr)
+        return (_shapeEditMode->getEditModeBufferValue(index));
+    if (_pathEditMode != nullptr)
+        return (_pathEditMode->getEditModeBufferValue(index));
+    return (-1);
 }
 
-std::vector<int>* CEditModeContainer::getEditModeBuffer()
+std::vector<int> *CEditModeContainer::getEditModeBuffer()
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
-        return(_shapeEditMode->getEditModeBuffer());
-    if (_pathEditMode!=nullptr)
-        return(_pathEditMode->getEditModeBuffer());
-    return(nullptr);
+    if (_shapeEditMode != nullptr)
+        return (_shapeEditMode->getEditModeBuffer());
+    if (_pathEditMode != nullptr)
+        return (_pathEditMode->getEditModeBuffer());
+    return (nullptr);
 }
 
 void CEditModeContainer::deselectEditModeBuffer()
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
+    if (_shapeEditMode != nullptr)
         _shapeEditMode->deselectEditModeBuffer();
-    if (_pathEditMode!=nullptr)
+    if (_pathEditMode != nullptr)
         _pathEditMode->deselectEditModeBuffer();
-    if (_multishapeEditMode!=nullptr)
+    if (_multishapeEditMode != nullptr)
         _multishapeEditMode->setMultishapeGeometricComponentIndex(-1);
     pathPointManipulation->clearPathPointIndices_nonEditMode();
     GuiApp::setLightDialogRefreshFlag();
@@ -279,159 +282,159 @@ void CEditModeContainer::deselectEditModeBuffer()
 void CEditModeContainer::removeItemFromEditModeBuffer(int item)
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
+    if (_shapeEditMode != nullptr)
         _shapeEditMode->removeItemFromEditModeBuffer(item);
-    if (_pathEditMode!=nullptr)
+    if (_pathEditMode != nullptr)
         _pathEditMode->removeItemFromEditModeBuffer(item);
     GuiApp::setLightDialogRefreshFlag();
 }
 
-void CEditModeContainer::xorAddItemToEditModeBuffer(int item,bool disableEdgeFollowing)
+void CEditModeContainer::xorAddItemToEditModeBuffer(int item, bool disableEdgeFollowing)
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
-        _shapeEditMode->xorAddItemToEditModeBuffer(item,disableEdgeFollowing);
-    if (_pathEditMode!=nullptr)
+    if (_shapeEditMode != nullptr)
+        _shapeEditMode->xorAddItemToEditModeBuffer(item, disableEdgeFollowing);
+    if (_pathEditMode != nullptr)
         _pathEditMode->xorAddItemToEditModeBuffer(item);
     GuiApp::setLightDialogRefreshFlag();
 }
 
-void CEditModeContainer::addItemToEditModeBuffer(int item,bool disableEdgeFollowing)
+void CEditModeContainer::addItemToEditModeBuffer(int item, bool disableEdgeFollowing)
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
-        _shapeEditMode->addItemToEditModeBuffer(item,disableEdgeFollowing);
-    if (_pathEditMode!=nullptr)
+    if (_shapeEditMode != nullptr)
+        _shapeEditMode->addItemToEditModeBuffer(item, disableEdgeFollowing);
+    if (_pathEditMode != nullptr)
         _pathEditMode->addItemToEditModeBuffer(item);
     GuiApp::setLightDialogRefreshFlag();
 }
 
-CShapeEditMode* CEditModeContainer::getShapeEditMode()
+CShapeEditMode *CEditModeContainer::getShapeEditMode()
 {
     TRACE_INTERNAL;
-    return(_shapeEditMode);
+    return (_shapeEditMode);
 }
 
-CMultishapeEditMode* CEditModeContainer::getMultishapeEditMode()
+CMultishapeEditMode *CEditModeContainer::getMultishapeEditMode()
 {
     TRACE_INTERNAL;
-    return(_multishapeEditMode);
+    return (_multishapeEditMode);
 }
 
-CPathEditMode_old* CEditModeContainer::getPathEditMode()
+CPathEditMode_old *CEditModeContainer::getPathEditMode()
 {
     TRACE_INTERNAL;
-    return(_pathEditMode);
+    return (_pathEditMode);
 }
 
-CShape* CEditModeContainer::getEditModeShape()
+CShape *CEditModeContainer::getEditModeShape()
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
-        return(_shapeEditMode->getEditModeShape());
-    if (_multishapeEditMode!=nullptr)
-        return(_multishapeEditMode->getEditModeMultishape());
-    return(nullptr);
+    if (_shapeEditMode != nullptr)
+        return (_shapeEditMode->getEditModeShape());
+    if (_multishapeEditMode != nullptr)
+        return (_multishapeEditMode->getEditModeMultishape());
+    return (nullptr);
 }
 
-CPath_old* CEditModeContainer::getEditModePath_old()
+CPath_old *CEditModeContainer::getEditModePath_old()
 {
     TRACE_INTERNAL;
-    if (_pathEditMode!=nullptr)
-        return(_pathEditMode->getEditModePath_old());
-    return(nullptr);
+    if (_pathEditMode != nullptr)
+        return (_pathEditMode->getEditModePath_old());
+    return (nullptr);
 }
 
-CSceneObject* CEditModeContainer::getEditModeObject()
+CSceneObject *CEditModeContainer::getEditModeObject()
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
-        return(_shapeEditMode->getEditModeShape());
-    if (_multishapeEditMode!=nullptr)
-        return(_multishapeEditMode->getEditModeMultishape());
-    if (_pathEditMode!=nullptr)
-        return(_pathEditMode->getEditModePath_old());
-    return(nullptr);
+    if (_shapeEditMode != nullptr)
+        return (_shapeEditMode->getEditModeShape());
+    if (_multishapeEditMode != nullptr)
+        return (_multishapeEditMode->getEditModeMultishape());
+    if (_pathEditMode != nullptr)
+        return (_pathEditMode->getEditModePath_old());
+    return (nullptr);
 }
 
-CPathCont_old* CEditModeContainer::getEditModePathContainer_old()
+CPathCont_old *CEditModeContainer::getEditModePathContainer_old()
 {
     TRACE_INTERNAL;
-    if (_pathEditMode!=nullptr)
-        return(_pathEditMode->getEditModePathContainer_old());
-    return(nullptr);
+    if (_pathEditMode != nullptr)
+        return (_pathEditMode->getEditModePathContainer_old());
+    return (nullptr);
 }
 
 bool CEditModeContainer::keyPress(int key)
 { // return true means the key press was ment for this object
 
-    if (getEditModeType()==NO_EDIT_MODE)
+    if (getEditModeType() == NO_EDIT_MODE)
     {
-        if (pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode()==0)
-            return(false);
+        if (pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode() == 0)
+            return (false);
         // The key press can only be meant for the path point manipulation mode:
-        if ( (key==CTRL_V_KEY)||(key==CTRL_X_KEY)||(key==CTRL_C_KEY) )
-            App::logMsg(sim_verbosity_msgs,IDSNS_OPERATION_DISABLED_WITH_INDIVIDUAL_PATH_POINTS_SELECTED);
-        if (key==ESC_KEY)
-            processCommand(ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD,nullptr);
-        return(true);
+        if ((key == CTRL_V_KEY) || (key == CTRL_X_KEY) || (key == CTRL_C_KEY))
+            App::logMsg(sim_verbosity_msgs, IDSNS_OPERATION_DISABLED_WITH_INDIVIDUAL_PATH_POINTS_SELECTED);
+        if (key == ESC_KEY)
+            processCommand(ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD, nullptr);
+        return (true);
     }
 
-    if (_shapeEditMode!=nullptr)
+    if (_shapeEditMode != nullptr)
     { // for the shape edit mode:
-        if (key==CTRL_V_KEY)
-            processCommand(SHAPE_EDIT_MODE_PASTE_TRIANGLE_VERTEX_EMCMD,nullptr);
-        if ((key==DELETE_KEY)||(key==BACKSPACE_KEY))
-            processCommand(SHAPE_EDIT_MODE_DELETE_TRIANGLE_VERTEX_EDGE_EMCMD,nullptr);
-        if (key==CTRL_X_KEY)
-            processCommand(SHAPE_EDIT_MODE_TRIANGLE_VERTEX_CUT_EMCMD,nullptr);
-        if (key==CTRL_C_KEY)
-            processCommand(SHAPE_EDIT_MODE_TRIANGLE_VERTEX_COPY_EMCMD,nullptr);
-        if (key==ESC_KEY)
-            processCommand(ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD,nullptr);
-        if (key==CTRL_A_KEY)
-            processCommand(SHAPE_EDIT_MODE_SELECT_ALL_ITEMS_EMCMD,nullptr);
+        if (key == CTRL_V_KEY)
+            processCommand(SHAPE_EDIT_MODE_PASTE_TRIANGLE_VERTEX_EMCMD, nullptr);
+        if ((key == DELETE_KEY) || (key == BACKSPACE_KEY))
+            processCommand(SHAPE_EDIT_MODE_DELETE_TRIANGLE_VERTEX_EDGE_EMCMD, nullptr);
+        if (key == CTRL_X_KEY)
+            processCommand(SHAPE_EDIT_MODE_TRIANGLE_VERTEX_CUT_EMCMD, nullptr);
+        if (key == CTRL_C_KEY)
+            processCommand(SHAPE_EDIT_MODE_TRIANGLE_VERTEX_COPY_EMCMD, nullptr);
+        if (key == ESC_KEY)
+            processCommand(ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD, nullptr);
+        if (key == CTRL_A_KEY)
+            processCommand(SHAPE_EDIT_MODE_SELECT_ALL_ITEMS_EMCMD, nullptr);
     }
 
-    if (_pathEditMode!=nullptr)
+    if (_pathEditMode != nullptr)
     { // for the path edit mode:
-        if (key==CTRL_V_KEY)
-            processCommand(PATH_EDIT_MODE_OLD_PASTE_PATH_POINT_EMCMD,nullptr);
-        if ((key==DELETE_KEY)||(key==BACKSPACE_KEY))
-            processCommand(PATH_EDIT_MODE_OLD_DELETE_PATH_POINT_EMCMD,nullptr);
-        if (key==CTRL_X_KEY)
-            processCommand(PATH_EDIT_MODE_OLD_PATH_POINT_CUT_EMCMD,nullptr);
-        if (key==CTRL_C_KEY)
-            processCommand(PATH_EDIT_MODE_OLD_PATH_POINT_COPY_EMCMD,nullptr);
-        if (key==ESC_KEY)
-            processCommand(ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD,nullptr);
-        if (key==CTRL_A_KEY)
-            processCommand(PATH_EDIT_MODE_OLD_SELECT_ALL_PATH_POINTS_EMCMD,nullptr);
+        if (key == CTRL_V_KEY)
+            processCommand(PATH_EDIT_MODE_OLD_PASTE_PATH_POINT_EMCMD, nullptr);
+        if ((key == DELETE_KEY) || (key == BACKSPACE_KEY))
+            processCommand(PATH_EDIT_MODE_OLD_DELETE_PATH_POINT_EMCMD, nullptr);
+        if (key == CTRL_X_KEY)
+            processCommand(PATH_EDIT_MODE_OLD_PATH_POINT_CUT_EMCMD, nullptr);
+        if (key == CTRL_C_KEY)
+            processCommand(PATH_EDIT_MODE_OLD_PATH_POINT_COPY_EMCMD, nullptr);
+        if (key == ESC_KEY)
+            processCommand(ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD, nullptr);
+        if (key == CTRL_A_KEY)
+            processCommand(PATH_EDIT_MODE_OLD_SELECT_ALL_PATH_POINTS_EMCMD, nullptr);
     }
 
-    if (_multishapeEditMode!=nullptr)
+    if (_multishapeEditMode != nullptr)
     { // for the multishape edit mode:
-        if (key==ESC_KEY)
-            processCommand(ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD,nullptr);
+        if (key == ESC_KEY)
+            processCommand(ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD, nullptr);
     }
 
-    return(true);
+    return (true);
 }
 
-void CEditModeContainer::addMenu(VMenu* menu,CSceneObject* viewableObject)
+void CEditModeContainer::addMenu(VMenu *menu, CSceneObject *viewableObject)
 {
     TRACE_INTERNAL;
-    if (_shapeEditMode!=nullptr)
+    if (_shapeEditMode != nullptr)
         _shapeEditMode->addMenu(menu);
-    if (_pathEditMode!=nullptr)
-        _pathEditMode->addMenu(menu,viewableObject);
+    if (_pathEditMode != nullptr)
+        _pathEditMode->addMenu(menu, viewableObject);
 }
 
-bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObject)
+bool CEditModeContainer::processCommand(int commandID, CSceneObject *viewableObject)
 {
     TRACE_INTERNAL;
 
-    if (commandID==ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD)
+    if (commandID == ANY_EDIT_MODE_DESELECT_BUFFER_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -440,78 +443,92 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if ( (commandID==SHAPE_EDIT_MODE_START_EMCMD)||( (getEditModeType()==NO_EDIT_MODE)&&(commandID==SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) ) )
+    if ((commandID == SHAPE_EDIT_MODE_START_EMCMD) ||
+        ((getEditModeType() == NO_EDIT_MODE) && (commandID == SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD)))
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CShape* it=nullptr;
-            if (App::currentWorld->sceneObjects->getSelectionCount()>=1)
-                it=App::currentWorld->sceneObjects->getShapeFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(App::currentWorld->sceneObjects->getSelectionCount()-1));
-            if (it!=nullptr)
+            CShape *it = nullptr;
+            if (App::currentWorld->sceneObjects->getSelectionCount() >= 1)
+                it = App::currentWorld->sceneObjects->getShapeFromHandle(
+                    App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(
+                        App::currentWorld->sceneObjects->getSelectionCount() - 1));
+            if (it != nullptr)
             {
                 if (it->isCompound())
                 { // Multishape
-                    App::undoRedo_sceneChanged(""); 
-                    if (enterEditMode(it->getObjectHandle(),MULTISHAPE_EDIT_MODE))
+                    App::undoRedo_sceneChanged("");
+                    if (enterEditMode(it->getObjectHandle(), MULTISHAPE_EDIT_MODE))
                     {
-                        App::logMsg(sim_verbosity_msgs,IDSNS_STARTING_COMPOUND_SHAPE_EDIT_MODE);
+                        App::logMsg(sim_verbosity_msgs, IDSNS_STARTING_COMPOUND_SHAPE_EDIT_MODE);
 
                         // Frame the shape
-                        CSPage* thePage=App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
-                        if (thePage!=nullptr)
+                        CSPage *thePage = App::currentWorld->pageContainer->getPage(
+                            App::currentWorld->pageContainer->getActivePageIndex());
+                        if (thePage != nullptr)
                         {
-                            CSView* theView=thePage->getView(0);
-                            if (theView!=nullptr)
+                            CSView *theView = thePage->getView(0);
+                            if (theView != nullptr)
                             {
-                                CCamera* theCamera=App::currentWorld->sceneObjects->getCameraFromHandle(theView->getLinkedObjectID());
-                                if (theCamera!=nullptr)
+                                CCamera *theCamera =
+                                    App::currentWorld->sceneObjects->getCameraFromHandle(theView->getLinkedObjectID());
+                                if (theCamera != nullptr)
                                 {
                                     int viewSize[2];
                                     theView->getViewSize(viewSize);
-                                    theCamera->frameSceneOrSelectedObjects(double(viewSize[0])/double(viewSize[1]),theView->getPerspectiveDisplay(),nullptr,true,true,0.7,nullptr);
+                                    theCamera->frameSceneOrSelectedObjects(double(viewSize[0]) / double(viewSize[1]),
+                                                                           theView->getPerspectiveDisplay(), nullptr,
+                                                                           true, true, 0.7, nullptr);
                                     theCamera->setFogTimer(4.0);
                                 }
                             }
                         }
-                        App::logMsg(sim_verbosity_msgs,"done.");
+                        App::logMsg(sim_verbosity_msgs, "done.");
                     }
                 }
                 else
                 { // simple shape
-                    bool goOn=(getEditModeType()==NO_EDIT_MODE);
-                    if (goOn&&(it->getMesh()->isPure()))
-                        goOn=(VMESSAGEBOX_REPLY_YES==GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_SHAPE_EDIT_MODE,IDS_SHAPE_IS_PURE_PRIMITIVE_INFO_MESSAGE,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
+                    bool goOn = (getEditModeType() == NO_EDIT_MODE);
+                    if (goOn && (it->getMesh()->isPure()))
+                        goOn = (VMESSAGEBOX_REPLY_YES ==
+                                GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_SHAPE_EDIT_MODE,
+                                                                     IDS_SHAPE_IS_PURE_PRIMITIVE_INFO_MESSAGE,
+                                                                     VMESSAGEBOX_YES_NO, VMESSAGEBOX_REPLY_YES));
                     if (goOn)
                     {
-                        App::undoRedo_sceneChanged(""); 
-                        if (enterEditMode(it->getObjectHandle(),TRIANGLE_EDIT_MODE))
+                        App::undoRedo_sceneChanged("");
+                        if (enterEditMode(it->getObjectHandle(), TRIANGLE_EDIT_MODE))
                         {
-                            App::logMsg(sim_verbosity_msgs,IDSNS_STARTING_TRIANGLE_EDIT_MODE);
+                            App::logMsg(sim_verbosity_msgs, IDSNS_STARTING_TRIANGLE_EDIT_MODE);
 
                             // Frame the shape
-                            CSPage* thePage=App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
-                            if (thePage!=nullptr)
+                            CSPage *thePage = App::currentWorld->pageContainer->getPage(
+                                App::currentWorld->pageContainer->getActivePageIndex());
+                            if (thePage != nullptr)
                             {
-                                CSView* theView=thePage->getView(0);
-                                if (theView!=nullptr)
+                                CSView *theView = thePage->getView(0);
+                                if (theView != nullptr)
                                 {
-                                    CCamera* theCamera=App::currentWorld->sceneObjects->getCameraFromHandle(theView->getLinkedObjectID());
-                                    if (theCamera!=nullptr)
+                                    CCamera *theCamera = App::currentWorld->sceneObjects->getCameraFromHandle(
+                                        theView->getLinkedObjectID());
+                                    if (theCamera != nullptr)
                                     {
                                         int viewSize[2];
                                         theView->getViewSize(viewSize);
-                                        theCamera->frameSceneOrSelectedObjects(double(viewSize[0])/double(viewSize[1]),theView->getPerspectiveDisplay(),nullptr,true,true,0.7,nullptr);
+                                        theCamera->frameSceneOrSelectedObjects(
+                                            double(viewSize[0]) / double(viewSize[1]), theView->getPerspectiveDisplay(),
+                                            nullptr, true, true, 0.7, nullptr);
                                         theCamera->setFogTimer(4.0);
                                     }
                                 }
                             }
-                            App::logMsg(sim_verbosity_msgs,"done.");
+                            App::logMsg(sim_verbosity_msgs, "done.");
                         }
                     }
                 }
@@ -520,699 +537,723 @@ bool CEditModeContainer::processCommand(int commandID,CSceneObject* viewableObje
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if ( (commandID==PATH_EDIT_MODE_OLD_START_EMCMD)||( (getEditModeType()==NO_EDIT_MODE)&&(commandID==PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD) ) )
+    if ((commandID == PATH_EDIT_MODE_OLD_START_EMCMD) ||
+        ((getEditModeType() == NO_EDIT_MODE) && (commandID == PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD)))
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CPath_old* it=nullptr;
-            if (App::currentWorld->sceneObjects->getSelectionCount()>=1)
-                it=App::currentWorld->sceneObjects->getPathFromHandle(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(App::currentWorld->sceneObjects->getSelectionCount()-1));
-            if (it!=nullptr)
+            CPath_old *it = nullptr;
+            if (App::currentWorld->sceneObjects->getSelectionCount() >= 1)
+                it = App::currentWorld->sceneObjects->getPathFromHandle(
+                    App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(
+                        App::currentWorld->sceneObjects->getSelectionCount() - 1));
+            if (it != nullptr)
             {
-                App::undoRedo_sceneChanged(""); 
-                if (enterEditMode(it->getObjectHandle(),PATH_EDIT_MODE_OLD))
+                App::undoRedo_sceneChanged("");
+                if (enterEditMode(it->getObjectHandle(), PATH_EDIT_MODE_OLD))
                 {
-                    App::logMsg(sim_verbosity_msgs,IDSNS_STARTING_PATH_EDIT_MODE_OLD);
+                    App::logMsg(sim_verbosity_msgs, IDSNS_STARTING_PATH_EDIT_MODE_OLD);
                     // Frame the path
-                    CSPage* thePage=App::currentWorld->pageContainer->getPage(App::currentWorld->pageContainer->getActivePageIndex());
-                    if (thePage!=nullptr)
+                    CSPage *thePage = App::currentWorld->pageContainer->getPage(
+                        App::currentWorld->pageContainer->getActivePageIndex());
+                    if (thePage != nullptr)
                     {
-                        CSView* theView=thePage->getView(0);
-                        if (theView!=nullptr)
+                        CSView *theView = thePage->getView(0);
+                        if (theView != nullptr)
                         {
-                            CCamera* theCamera=App::currentWorld->sceneObjects->getCameraFromHandle(theView->getLinkedObjectID());
-                            if (theCamera!=nullptr)
+                            CCamera *theCamera =
+                                App::currentWorld->sceneObjects->getCameraFromHandle(theView->getLinkedObjectID());
+                            if (theCamera != nullptr)
                             {
                                 int viewSize[2];
                                 theView->getViewSize(viewSize);
-                                theCamera->frameSceneOrSelectedObjects(double(viewSize[0])/double(viewSize[1]),theView->getPerspectiveDisplay(),nullptr,true,true,0.7,nullptr);
+                                theCamera->frameSceneOrSelectedObjects(double(viewSize[0]) / double(viewSize[1]),
+                                                                       theView->getPerspectiveDisplay(), nullptr, true,
+                                                                       true, 0.7, nullptr);
                                 theCamera->setFogTimer(4.0);
                             }
                         }
                     }
-                    App::logMsg(sim_verbosity_msgs,"done.");
+                    App::logMsg(sim_verbosity_msgs, "done.");
                 }
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (_shapeEditMode!=nullptr)
-        return(_processShapeEditModeCommand(commandID));
-    if (_multishapeEditMode!=nullptr)
-        return(_processMultishapeEditModeCommand(commandID));
-    if (_pathEditMode!=nullptr)
-        return(_processPathEditModeCommand_old(commandID,viewableObject));
+    if (_shapeEditMode != nullptr)
+        return (_processShapeEditModeCommand(commandID));
+    if (_multishapeEditMode != nullptr)
+        return (_processMultishapeEditModeCommand(commandID));
+    if (_pathEditMode != nullptr)
+        return (_processPathEditModeCommand_old(commandID, viewableObject));
 
-    return(false);
+    return (false);
 }
 
 bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
 {
     TRACE_INTERNAL;
-    if (commandID==SHAPE_EDIT_MODE_SWAP_TO_VERTEX_EDIT_MODE_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_SWAP_TO_VERTEX_EDIT_MODE_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_SWAPPING_TO_VERTEX_EDIT_MODE);
+            App::logMsg(sim_verbosity_msgs, IDSNS_SWAPPING_TO_VERTEX_EDIT_MODE);
             _shapeEditMode->processCommand(commandID);
             SUIThreadCommand cmdIn;
             SUIThreadCommand cmdOut;
-            cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
+            cmdIn.cmdId = OPEN_OR_CLOSE_UITHREADCMD;
             cmdIn.intParams.push_back(OPEN_SHAPE_EDIT_MODE_VERTEX_PART_CMD);
-            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
             GuiApp::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,"done.");
+            App::logMsg(sim_verbosity_msgs, "done.");
         }
         else
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_SWAP_TO_TRIANGLE_EDIT_MODE_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_SWAP_TO_TRIANGLE_EDIT_MODE_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_SWAPPING_TO_TRIANGLE_EDIT_MODE);
+            App::logMsg(sim_verbosity_msgs, IDSNS_SWAPPING_TO_TRIANGLE_EDIT_MODE);
             _shapeEditMode->processCommand(commandID);
             SUIThreadCommand cmdIn;
             SUIThreadCommand cmdOut;
-            cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
+            cmdIn.cmdId = OPEN_OR_CLOSE_UITHREADCMD;
             cmdIn.intParams.push_back(OPEN_SHAPE_EDIT_MODE_TRIANGLE_PART_CMD);
-            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
             GuiApp::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,"done.");
+            App::logMsg(sim_verbosity_msgs, "done.");
         }
         else
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_SWAP_TO_EDGE_EDIT_MODE_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_SWAP_TO_EDGE_EDIT_MODE_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_SWAPPING_TO_EDGE_EDIT_MODE);
+            App::logMsg(sim_verbosity_msgs, IDSNS_SWAPPING_TO_EDGE_EDIT_MODE);
             _shapeEditMode->processCommand(commandID);
             SUIThreadCommand cmdIn;
             SUIThreadCommand cmdOut;
-            cmdIn.cmdId=OPEN_OR_CLOSE_UITHREADCMD;
+            cmdIn.cmdId = OPEN_OR_CLOSE_UITHREADCMD;
             cmdIn.intParams.push_back(OPEN_SHAPE_EDIT_MODE_EDGE_PART_CMD);
-            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
             GuiApp::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,"done.");
+            App::logMsg(sim_verbosity_msgs, "done.");
         }
         else
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_TRIANGLE_VERTEX_COPY_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_TRIANGLE_VERTEX_COPY_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (_shapeEditMode->getEditModeType()&EDGE_EDIT_MODE)
-                App::logMsg(sim_verbosity_msgs,IDSNS_EDGES_CANNOT_BE_COPIED_CUR_OR_PASTED);
+            if (_shapeEditMode->getEditModeType() & EDGE_EDIT_MODE)
+                App::logMsg(sim_verbosity_msgs, IDSNS_EDGES_CANNOT_BE_COPIED_CUR_OR_PASTED);
             else
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_COPYING_SELECTION);
+                App::logMsg(sim_verbosity_msgs, IDSNS_COPYING_SELECTION);
                 _shapeEditMode->processCommand(commandID);
                 GuiApp::setLightDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_PASTE_TRIANGLE_VERTEX_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_PASTE_TRIANGLE_VERTEX_EMCMD)
     {
         if (!VThread::isUiThread())
         { // We are in the main thread. We execute the command here:
-            if (_shapeEditMode->getEditModeType()&EDGE_EDIT_MODE)
-                App::logMsg(sim_verbosity_msgs,IDSNS_EDGES_CANNOT_BE_COPIED_CUR_OR_PASTED);
+            if (_shapeEditMode->getEditModeType() & EDGE_EDIT_MODE)
+                App::logMsg(sim_verbosity_msgs, IDSNS_EDGES_CANNOT_BE_COPIED_CUR_OR_PASTED);
             else
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_PASTING_BUFFER);
+                App::logMsg(sim_verbosity_msgs, IDSNS_PASTING_BUFFER);
                 _shapeEditMode->processCommand(commandID);
                 GuiApp::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_EMPTY_TRIANGLE_VERTEX_COPY_BUFFER_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_EMPTY_TRIANGLE_VERTEX_COPY_BUFFER_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_CLEARING_BUFFER);
+            App::logMsg(sim_verbosity_msgs, IDSNS_CLEARING_BUFFER);
             _shapeEditMode->processCommand(commandID);
-            App::logMsg(sim_verbosity_msgs,"done.");
+            App::logMsg(sim_verbosity_msgs, "done.");
         }
         else
         { // We are in the UI thread. We execute the command in a delayed manner:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-
-    if (commandID==SHAPE_EDIT_MODE_DELETE_TRIANGLE_VERTEX_EDGE_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_DELETE_TRIANGLE_VERTEX_EDGE_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTION);
+            App::logMsg(sim_verbosity_msgs, IDSNS_DELETING_SELECTION);
             _shapeEditMode->processCommand(commandID);
             GuiApp::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,"done.");
+            App::logMsg(sim_verbosity_msgs, "done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_SELECT_ALL_ITEMS_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_SELECT_ALL_ITEMS_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (_shapeEditMode->getEditModeType()&TRIANGLE_EDIT_MODE)
-                App::logMsg(sim_verbosity_msgs,IDSNS_SELECTING_ALL_TRIANGLES);
-            if (_shapeEditMode->getEditModeType()&VERTEX_EDIT_MODE)
-                App::logMsg(sim_verbosity_msgs,IDSNS_SELECTING_ALL_VERTICES);
-            if (_shapeEditMode->getEditModeType()&EDGE_EDIT_MODE)
-                App::logMsg(sim_verbosity_msgs,IDSNS_SELECTING_ALL_EDGES);
+            if (_shapeEditMode->getEditModeType() & TRIANGLE_EDIT_MODE)
+                App::logMsg(sim_verbosity_msgs, IDSNS_SELECTING_ALL_TRIANGLES);
+            if (_shapeEditMode->getEditModeType() & VERTEX_EDIT_MODE)
+                App::logMsg(sim_verbosity_msgs, IDSNS_SELECTING_ALL_VERTICES);
+            if (_shapeEditMode->getEditModeType() & EDGE_EDIT_MODE)
+                App::logMsg(sim_verbosity_msgs, IDSNS_SELECTING_ALL_EDGES);
             _shapeEditMode->processCommand(commandID);
             GuiApp::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,"done.");
+            App::logMsg(sim_verbosity_msgs, "done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_TOGGLE_HIDDEN_VERTICE_EDGE_SHOW_EMCMD)
-    {
-        if (!VThread::isUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            _shapeEditMode->processCommand(commandID);
-            GuiApp::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_HIDDEN_VERTICES_EDGES_SHOW_STATE);
-        }
-        else
-        { // We are in the UI thread. Execute the command via the main thread:
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
-            App::appendSimulationThreadCommand(cmd);
-        }
-        return(true);
-    }
-
-    if (commandID==SHAPE_EDIT_MODE_TOGGLE_AUTOMATIC_EDGE_FOLLOWING_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_TOGGLE_HIDDEN_VERTICE_EDGE_SHOW_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             _shapeEditMode->processCommand(commandID);
             GuiApp::setFullDialogRefreshFlag();
-            App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_AUTOMATIC_EDGE_FOLLOWING);
+            App::logMsg(sim_verbosity_msgs, IDSNS_TOGGLED_HIDDEN_VERTICES_EDGES_SHOW_STATE);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_TRIANGLE_VERTEX_CUT_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_TOGGLE_AUTOMATIC_EDGE_FOLLOWING_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (_shapeEditMode->getEditModeType()&EDGE_EDIT_MODE)
-                App::logMsg(sim_verbosity_msgs,IDSNS_EDGES_CANNOT_BE_COPIED_CUR_OR_PASTED);
+            _shapeEditMode->processCommand(commandID);
+            GuiApp::setFullDialogRefreshFlag();
+            App::logMsg(sim_verbosity_msgs, IDSNS_TOGGLED_AUTOMATIC_EDGE_FOLLOWING);
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId = commandID;
+            App::appendSimulationThreadCommand(cmd);
+        }
+        return (true);
+    }
+
+    if (commandID == SHAPE_EDIT_MODE_TRIANGLE_VERTEX_CUT_EMCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            if (_shapeEditMode->getEditModeType() & EDGE_EDIT_MODE)
+                App::logMsg(sim_verbosity_msgs, IDSNS_EDGES_CANNOT_BE_COPIED_CUR_OR_PASTED);
             else
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_CUTTING_SELECTION);
+                App::logMsg(sim_verbosity_msgs, IDSNS_CUTTING_SELECTION);
                 _shapeEditMode->processCommand(commandID);
                 GuiApp::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_FLIP_TRIANGLES_SIDE_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_FLIP_TRIANGLES_SIDE_EMCMD)
     {
         IF_UI_EVENT_CAN_READ_DATA // no write here
         {
-            if (_shapeEditMode->getEditModeType()&TRIANGLE_EDIT_MODE)
+            if (_shapeEditMode->getEditModeType() & TRIANGLE_EDIT_MODE)
                 _shapeEditMode->flipTriangles();
             deselectEditModeBuffer();
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_MAKE_SHAPE_WITH_SELECTED_TRIANGLES_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_MAKE_SHAPE_WITH_SELECTED_TRIANGLES_EMCMD)
     {
         IF_UI_EVENT_CAN_READ_DATA // no write here
         {
             _shapeEditMode->makeShape();
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SHAPE_EDIT_MODE_MAKE_RECTANGLE_WITH_SELECTED_TRIANGLES_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_MAKE_RECTANGLE_WITH_SELECTED_TRIANGLES_EMCMD)
     {
         IF_UI_EVENT_CAN_READ_DATA // no write here
         {
             _shapeEditMode->makePrimitive(0);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SHAPE_EDIT_MODE_MAKE_SPHERE_WITH_SELECTED_TRIANGLES_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_MAKE_SPHERE_WITH_SELECTED_TRIANGLES_EMCMD)
     {
         IF_UI_EVENT_CAN_READ_DATA // no write here
         {
             _shapeEditMode->makePrimitive(1);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SHAPE_EDIT_MODE_MAKE_CYLINDER_WITH_SELECTED_TRIANGLES_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_MAKE_CYLINDER_WITH_SELECTED_TRIANGLES_EMCMD)
     {
         IF_UI_EVENT_CAN_READ_DATA // no write here
         {
             _shapeEditMode->makePrimitive(3);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_MAKE_DUMMIES_WITH_SELECTED_VERTICES_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_MAKE_DUMMIES_WITH_SELECTED_VERTICES_EMCMD)
     {
         IF_UI_EVENT_CAN_READ_DATA // no write here
         {
             _shapeEditMode->makeDummies();
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_INSERT_TRIANGLES_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_INSERT_TRIANGLES_EMCMD)
     {
         IF_UI_EVENT_CAN_READ_DATA // no write here!!
         {
             _shapeEditMode->insertTriangles();
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_DIVIDE_LARGEST_TRIANGLES_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_DIVIDE_LARGEST_TRIANGLES_EMCMD)
     {
         IF_UI_EVENT_CAN_READ_DATA // no write here!!
         {
             _shapeEditMode->subdivideTriangles();
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==SHAPE_EDIT_MODE_INSERT_TRIANGLE_FAN_EMCMD)
+    if (commandID == SHAPE_EDIT_MODE_INSERT_TRIANGLE_FAN_EMCMD)
     {
         IF_UI_EVENT_CAN_READ_DATA // no write here!!
         {
             _shapeEditMode->insertTriangleFan();
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
-        return(true);
+        return (true);
     }
 
-    if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)||(commandID==SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) )
+    if ((commandID == ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD) ||
+        (commandID == ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD) ||
+        (commandID == ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD) ||
+        (commandID == SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD))
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            unsigned short res=0;
-            if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) )
-                res=GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_SHAPE_EDIT_MODE,IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_YES);
-            if (commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)
-                res=VMESSAGEBOX_REPLY_NO;
-            if (commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)
-                res=VMESSAGEBOX_REPLY_YES;
-            if (res!=VMESSAGEBOX_REPLY_CANCEL)
+            unsigned short res = 0;
+            if ((commandID == ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD) ||
+                (commandID == SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD))
+                res = GuiApp::uiThread->messageBox_information(GuiApp::mainWindow, IDSN_SHAPE_EDIT_MODE,
+                                                               IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,
+                                                               VMESSAGEBOX_YES_NO_CANCEL, VMESSAGEBOX_REPLY_YES);
+            if (commandID == ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)
+                res = VMESSAGEBOX_REPLY_NO;
+            if (commandID == ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)
+                res = VMESSAGEBOX_REPLY_YES;
+            if (res != VMESSAGEBOX_REPLY_CANCEL)
             {
-                if (res==VMESSAGEBOX_REPLY_YES)
-                    App::logMsg(sim_verbosity_msgs,IDSNS_ENDING_EDIT_MODE_AND_APPLYING_CHANGES);
+                if (res == VMESSAGEBOX_REPLY_YES)
+                    App::logMsg(sim_verbosity_msgs, IDSNS_ENDING_EDIT_MODE_AND_APPLYING_CHANGES);
                 else
-                    App::logMsg(sim_verbosity_msgs,IDSNS_ENDING_EDIT_MODE_AND_CANCELLING_CHANGES);
+                    App::logMsg(sim_verbosity_msgs, IDSNS_ENDING_EDIT_MODE_AND_CANCELLING_CHANGES);
 
-                endEditMode(res==VMESSAGEBOX_REPLY_NO);
-                if (res==VMESSAGEBOX_REPLY_YES)
+                endEditMode(res == VMESSAGEBOX_REPLY_NO);
+                if (res == VMESSAGEBOX_REPLY_YES)
                 {
-                    App::undoRedo_sceneChanged(""); 
+                    App::undoRedo_sceneChanged("");
                 }
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             App::appendSimulationThreadCommand(commandID);
         }
-        return(true);
+        return (true);
     }
 
-    return(false);
+    return (false);
 }
 
 bool CEditModeContainer::_processMultishapeEditModeCommand(int commandID)
 {
     TRACE_INTERNAL;
-    if ( (commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)||(commandID==SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD) )
+    if ((commandID == ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD) ||
+        (commandID == ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD) ||
+        (commandID == SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD))
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_ENDING_EDIT_MODE_AND_APPLYING_CHANGES);
+            App::logMsg(sim_verbosity_msgs, IDSNS_ENDING_EDIT_MODE_AND_APPLYING_CHANGES);
             endEditMode(false);
-            App::undoRedo_sceneChanged(""); 
-            App::logMsg(sim_verbosity_msgs,"done.");
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs, "done.");
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    return(false);
+    return (false);
 }
 
-bool CEditModeContainer::_processPathEditModeCommand_old(int commandID,CSceneObject* viewableObject)
+bool CEditModeContainer::_processPathEditModeCommand_old(int commandID, CSceneObject *viewableObject)
 {
     TRACE_INTERNAL;
-    if (commandID==PATH_EDIT_MODE_OLD_SELECT_ALL_PATH_POINTS_EMCMD)
+    if (commandID == PATH_EDIT_MODE_OLD_SELECT_ALL_PATH_POINTS_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (_pathEditMode->processCommand(commandID,viewableObject))
+            if (_pathEditMode->processCommand(commandID, viewableObject))
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_SELECTING_ALL_PATH_POINTS);
+                App::logMsg(sim_verbosity_msgs, IDSNS_SELECTING_ALL_PATH_POINTS);
                 GuiApp::setLightDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==PATH_EDIT_MODE_OLD_PATH_POINT_COPY_EMCMD)
+    if (commandID == PATH_EDIT_MODE_OLD_PATH_POINT_COPY_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (_pathEditMode->processCommand(commandID,viewableObject))
+            if (_pathEditMode->processCommand(commandID, viewableObject))
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_COPYING_SELECTION);
+                App::logMsg(sim_verbosity_msgs, IDSNS_COPYING_SELECTION);
                 GuiApp::setLightDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==PATH_EDIT_MODE_OLD_PASTE_PATH_POINT_EMCMD)
+    if (commandID == PATH_EDIT_MODE_OLD_PASTE_PATH_POINT_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (_pathEditMode->processCommand(commandID,viewableObject))
+            if (_pathEditMode->processCommand(commandID, viewableObject))
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_PASTING_BUFFER);
+                App::logMsg(sim_verbosity_msgs, IDSNS_PASTING_BUFFER);
                 GuiApp::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==PATH_EDIT_MODE_OLD_INSERT_NEW_PATH_POINT_EMCMD)
+    if (commandID == PATH_EDIT_MODE_OLD_INSERT_NEW_PATH_POINT_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (_pathEditMode->processCommand(commandID,viewableObject))
+            if (_pathEditMode->processCommand(commandID, viewableObject))
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_INSERTING_NEW_PATH_POINT);
+                App::logMsg(sim_verbosity_msgs, IDSNS_INSERTING_NEW_PATH_POINT);
                 GuiApp::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==PATH_EDIT_MODE_OLD_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD)
+    if (commandID == PATH_EDIT_MODE_OLD_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if ((viewableObject!=nullptr)&&(viewableObject->getObjectType()==sim_object_camera_type))
+            if ((viewableObject != nullptr) && (viewableObject->getObjectType() == sim_object_camera_type))
             {
-                if (_pathEditMode->processCommand(commandID,viewableObject))
+                if (_pathEditMode->processCommand(commandID, viewableObject))
                 {
-                    App::logMsg(sim_verbosity_msgs,IDSNS_APPENDING_NEW_PATH_POINT_FROM_CAMERA_CONFIGURATION);
+                    App::logMsg(sim_verbosity_msgs, IDSNS_APPENDING_NEW_PATH_POINT_FROM_CAMERA_CONFIGURATION);
                     GuiApp::setFullDialogRefreshFlag();
-                    App::logMsg(sim_verbosity_msgs,"done.");
+                    App::logMsg(sim_verbosity_msgs, "done.");
                 }
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             cmd.objectParams.push_back(viewableObject);
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==PATH_EDIT_MODE_OLD_DELETE_PATH_POINT_EMCMD)
+    if (commandID == PATH_EDIT_MODE_OLD_DELETE_PATH_POINT_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (_pathEditMode->processCommand(commandID,viewableObject))
+            if (_pathEditMode->processCommand(commandID, viewableObject))
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_DELETING_SELECTION);
+                App::logMsg(sim_verbosity_msgs, IDSNS_DELETING_SELECTION);
                 GuiApp::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==PATH_EDIT_MODE_OLD_PATH_POINT_CUT_EMCMD)
+    if (commandID == PATH_EDIT_MODE_OLD_PATH_POINT_CUT_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (_pathEditMode->processCommand(commandID,viewableObject))
+            if (_pathEditMode->processCommand(commandID, viewableObject))
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_CUTTING_SELECTION);
+                App::logMsg(sim_verbosity_msgs, IDSNS_CUTTING_SELECTION);
                 GuiApp::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==PATH_EDIT_MODE_OLD_KEEP_ALL_X_AND_ALIGN_Z_FOR_PATH_POINTS_EMCMD)
+    if (commandID == PATH_EDIT_MODE_OLD_KEEP_ALL_X_AND_ALIGN_Z_FOR_PATH_POINTS_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (_pathEditMode->processCommand(commandID,viewableObject))
+            if (_pathEditMode->processCommand(commandID, viewableObject))
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_KEEPING_CONTROL_POINT_X_AXIS_AND_ALIGNING_CONTROL_POINT_Z_AXIS_WITH_LAST_SELECTION);
+                App::logMsg(sim_verbosity_msgs,
+                            IDSNS_KEEPING_CONTROL_POINT_X_AXIS_AND_ALIGNING_CONTROL_POINT_Z_AXIS_WITH_LAST_SELECTION);
                 GuiApp::setLightDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==PATH_EDIT_MODE_OLD_MAKE_DUMMIES_FROM_PATH_CTRL_POINTS_EMCMD)
+    if (commandID == PATH_EDIT_MODE_OLD_MAKE_DUMMIES_FROM_PATH_CTRL_POINTS_EMCMD)
     {
         _pathEditMode->makeDummies();
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-        return(true);
+        return (true);
     }
 
-    if (commandID==PATH_EDIT_MODE_OLD_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_EMCMD)
+    if (commandID == PATH_EDIT_MODE_OLD_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::logMsg(sim_verbosity_msgs,IDSNS_INVERTING_CONTROL_POINT_ORDER);
-            if (_pathEditMode->processCommand(commandID,viewableObject))
-                App::logMsg(sim_verbosity_msgs,"done.");
+            App::logMsg(sim_verbosity_msgs, IDSNS_INVERTING_CONTROL_POINT_ORDER);
+            if (_pathEditMode->processCommand(commandID, viewableObject))
+                App::logMsg(sim_verbosity_msgs, "done.");
             else
-                App::logMsg(sim_verbosity_msgs,IDSNS_FAILED_SELECTED_CONTROL_POINTS_ARE_NOT_CONSECUTIVE);
+                App::logMsg(sim_verbosity_msgs, IDSNS_FAILED_SELECTED_CONTROL_POINTS_ARE_NOT_CONSECUTIVE);
             GuiApp::setFullDialogRefreshFlag();
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if (commandID==PATH_EDIT_MODE_OLD_MAKE_PATH_FROM_BEZIER_EMCMD)
+    if (commandID == PATH_EDIT_MODE_OLD_MAKE_PATH_FROM_BEZIER_EMCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            bool proceed=true;
-            if (_pathEditMode->getBezierPathPointCount()>50)
-                proceed=(VMESSAGEBOX_REPLY_YES==GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,IDSN_PATH,IDS_LARGE_QUANTITY_OF_PATH_POINTS_WARNING,VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES));
-            if (_pathEditMode->getBezierPathPointCount()<2)
-                proceed=false;
+            bool proceed = true;
+            if (_pathEditMode->getBezierPathPointCount() > 50)
+                proceed = (VMESSAGEBOX_REPLY_YES ==
+                           GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_PATH,
+                                                                IDS_LARGE_QUANTITY_OF_PATH_POINTS_WARNING,
+                                                                VMESSAGEBOX_YES_NO, VMESSAGEBOX_REPLY_YES));
+            if (_pathEditMode->getBezierPathPointCount() < 2)
+                proceed = false;
             if (proceed)
             {
-                App::logMsg(sim_verbosity_msgs,IDSNS_GENERATING_NEW_PATH);
-                _pathEditMode->processCommand(commandID,viewableObject);
+                App::logMsg(sim_verbosity_msgs, IDSNS_GENERATING_NEW_PATH);
+                _pathEditMode->processCommand(commandID, viewableObject);
                 GuiApp::setFullDialogRefreshFlag();
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)||(commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)||(commandID==PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD) )
+    if ((commandID == ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD) ||
+        (commandID == ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD) ||
+        (commandID == ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD) ||
+        (commandID == PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD))
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            unsigned short res=0;
-            if ( (commandID==ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD)||(commandID==PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD) )
-                res=GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_PATH_EDIT_MODE_OLD,IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,VMESSAGEBOX_YES_NO_CANCEL,VMESSAGEBOX_REPLY_YES);
-            if (commandID==ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)
-                res=VMESSAGEBOX_REPLY_NO;
-            if (commandID==ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)
-                res=VMESSAGEBOX_REPLY_YES;
-            if (res!=VMESSAGEBOX_REPLY_CANCEL)
+            unsigned short res = 0;
+            if ((commandID == ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD) ||
+                (commandID == PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD))
+                res = GuiApp::uiThread->messageBox_information(GuiApp::mainWindow, IDSN_PATH_EDIT_MODE_OLD,
+                                                               IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES,
+                                                               VMESSAGEBOX_YES_NO_CANCEL, VMESSAGEBOX_REPLY_YES);
+            if (commandID == ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD)
+                res = VMESSAGEBOX_REPLY_NO;
+            if (commandID == ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD)
+                res = VMESSAGEBOX_REPLY_YES;
+            if (res != VMESSAGEBOX_REPLY_CANCEL)
             {
-                if (res==VMESSAGEBOX_REPLY_YES)
-                    App::logMsg(sim_verbosity_msgs,IDSNS_ENDING_EDIT_MODE_AND_APPLYING_CHANGES);
+                if (res == VMESSAGEBOX_REPLY_YES)
+                    App::logMsg(sim_verbosity_msgs, IDSNS_ENDING_EDIT_MODE_AND_APPLYING_CHANGES);
                 else
-                    App::logMsg(sim_verbosity_msgs,IDSNS_ENDING_EDIT_MODE_AND_CANCELLING_CHANGES);
-                endEditMode(res==VMESSAGEBOX_REPLY_NO);
-                if (res==VMESSAGEBOX_REPLY_YES)
+                    App::logMsg(sim_verbosity_msgs, IDSNS_ENDING_EDIT_MODE_AND_CANCELLING_CHANGES);
+                endEditMode(res == VMESSAGEBOX_REPLY_NO);
+                if (res == VMESSAGEBOX_REPLY_YES)
                 {
-                    App::undoRedo_sceneChanged(""); 
+                    App::undoRedo_sceneChanged("");
                 }
-                App::logMsg(sim_verbosity_msgs,"done.");
+                App::logMsg(sim_verbosity_msgs, "done.");
             }
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
 
-    return(false);
+    return (false);
 }
 
 void CEditModeContainer::announceObjectSelectionChanged()
@@ -1231,12 +1272,12 @@ void CEditModeContainer::simulationAboutToStart()
 {
     TRACE_INTERNAL;
     pathPointManipulation->simulationAboutToStart();
-    _simulationStopped=false;
+    _simulationStopped = false;
 }
 
 void CEditModeContainer::simulationEnded()
 {
     TRACE_INTERNAL;
     pathPointManipulation->simulationEnded();
-    _simulationStopped=true;
+    _simulationStopped = true;
 }

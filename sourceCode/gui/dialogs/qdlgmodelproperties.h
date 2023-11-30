@@ -6,15 +6,16 @@
 #include <vDialog.h>
 #include <sceneObject.h>
 
-namespace Ui {
-    class CQDlgModelProperties;
+namespace Ui
+{
+class CQDlgModelProperties;
 }
 
 class CQDlgModelProperties : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgModelProperties(QWidget *parent = 0);
     ~CQDlgModelProperties();
 
@@ -23,9 +24,9 @@ public:
 
     void refresh();
 
-    CSceneObject* modelBaseObject;
+    CSceneObject *modelBaseObject;
 
-private slots:
+  private slots:
     void on_qqSelectThumbnail_clicked();
 
     void on_qqNotVisible_clicked();
@@ -48,7 +49,7 @@ private slots:
 
     void on_qqClose_clicked(QAbstractButton *button);
 
-private:
+  private:
     Ui::CQDlgModelProperties *ui;
 };
 

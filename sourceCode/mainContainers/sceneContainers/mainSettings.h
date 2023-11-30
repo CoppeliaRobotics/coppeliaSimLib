@@ -3,15 +3,15 @@
 #include <colorObject.h>
 #include <viewableBase.h>
 
-class CMainSettings 
+class CMainSettings
 {
-public:
+  public:
     CMainSettings();
     virtual ~CMainSettings();
-    void serialize(CSer& ar);
+    void serialize(CSer &ar);
     void setUpDefaultValues();
 
-    void setScenePathAndName(const char* pathAndName);
+    void setScenePathAndName(const char *pathAndName);
     std::string getScenePathAndName() const;
     std::string getScenePath() const;
     std::string getSceneName() const;
@@ -39,6 +39,6 @@ public:
     bool infoWindowOpenState;
     bool statusBoxOpenState;
 
-private:
+  private:
     std::string _scenePathAndName;
 };

@@ -9,11 +9,9 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlgEnvironment::CQDlgEnvironment(QWidget *parent) :
-    CDlgEx(parent),
-    ui(new Ui::CQDlgEnvironment)
+CQDlgEnvironment::CQDlgEnvironment(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgEnvironment)
 {
-    _dlgType=ENVIRONMENT_DLG;
+    _dlgType = ENVIRONMENT_DLG;
     ui->setupUi(this);
 }
 
@@ -24,10 +22,11 @@ CQDlgEnvironment::~CQDlgEnvironment()
 
 void CQDlgEnvironment::refresh()
 {
-    QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    bool noEditModeNoSim =
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
-    ui->qqNextSaveIsDefinitive->setEnabled((!App::currentWorld->environment->getSceneLocked())&&noEditModeNoSim);
+    ui->qqNextSaveIsDefinitive->setEnabled((!App::currentWorld->environment->getSceneLocked()) && noEditModeNoSim);
     ui->qqBackgroundColorUp->setEnabled(noEditModeNoSim);
     ui->qqBackgroundColorDown->setEnabled(noEditModeNoSim);
     ui->qqAmbientLightColor->setEnabled(noEditModeNoSim);
@@ -50,17 +49,17 @@ void CQDlgEnvironment::refresh()
 
 void CQDlgEnvironment::on_qqBackgroundColorUp_clicked()
 {
-    CQDlgColor::displayDlg(COLOR_ID_BACKGROUND_UP,-1,-1,0,GuiApp::mainWindow);
+    CQDlgColor::displayDlg(COLOR_ID_BACKGROUND_UP, -1, -1, 0, GuiApp::mainWindow);
 }
 
 void CQDlgEnvironment::on_qqBackgroundColorDown_clicked()
 {
-    CQDlgColor::displayDlg(COLOR_ID_BACKGROUND_DOWN,-1,-1,0,GuiApp::mainWindow);
+    CQDlgColor::displayDlg(COLOR_ID_BACKGROUND_DOWN, -1, -1, 0, GuiApp::mainWindow);
 }
 
 void CQDlgEnvironment::on_qqAmbientLightColor_clicked()
 {
-    CQDlgColor::displayDlg(COLOR_ID_AMBIENT_LIGHT,-1,-1,0,GuiApp::mainWindow);
+    CQDlgColor::displayDlg(COLOR_ID_AMBIENT_LIGHT, -1, -1, 0, GuiApp::mainWindow);
 }
 
 void CQDlgEnvironment::on_qqFogAdjust_clicked()
@@ -73,7 +72,9 @@ void CQDlgEnvironment::on_qqSaveCalcStruct_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         if (!App::currentWorld->environment->getSaveExistingCalculationStructures())
-            GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_CALCULATION_STRUCTURE,IDS_SAVING_CALCULATION_STRUCTURE,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+            GuiApp::uiThread->messageBox_information(GuiApp::mainWindow, IDSN_CALCULATION_STRUCTURE,
+                                                     IDS_SAVING_CALCULATION_STRUCTURE, VMESSAGEBOX_OKELI,
+                                                     VMESSAGEBOX_REPLY_OK);
         App::appendSimulationThreadCommand(TOGGLE_SAVECALCSTRUCT_ENVIRONMENTGUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -92,7 +93,8 @@ void CQDlgEnvironment::on_qqNextSaveIsDefinitive_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         if (!App::currentWorld->environment->getRequestFinalSave())
-            GuiApp::uiThread->messageBox_information(GuiApp::mainWindow,IDSN_SCENE_LOCKING,IDS_SCENE_LOCKING_INFO,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+            GuiApp::uiThread->messageBox_information(GuiApp::mainWindow, IDSN_SCENE_LOCKING, IDS_SCENE_LOCKING_INFO,
+                                                     VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
         App::appendSimulationThreadCommand(TOGGLE_LOCKSCENE_ENVIRONMENTGUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -101,9 +103,8 @@ void CQDlgEnvironment::on_qqNextSaveIsDefinitive_clicked()
 
 void CQDlgEnvironment::on_qqAcknowledgments_textChanged()
 {
-    std::string txt=ui->qqAcknowledgments->toPlainText().toStdString();
+    std::string txt = ui->qqAcknowledgments->toPlainText().toStdString();
     tt::removeSpacesAndEmptyLinesAtBeginningAndEnd(txt);
     // No refresh here!! (otherwise we can't edit the item properly)
-    App::appendSimulationThreadCommand(SET_ACKNOWLEDGMENT_ENVIRONMENTGUITRIGGEREDCMD,-1,-1,0.0,0.0,txt.c_str());
+    App::appendSimulationThreadCommand(SET_ACKNOWLEDGMENT_ENVIRONMENTGUITRIGGEREDCMD, -1, -1, 0.0, 0.0, txt.c_str());
 }
-

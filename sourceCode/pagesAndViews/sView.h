@@ -8,17 +8,17 @@
 #include <vMenubar.h>
 #endif
 
-class CSView  
+class CSView
 {
-public:
+  public:
     CSView(int theLinkedObjectID);
     virtual ~CSView();
     void initializeInitialValues(bool simulationAlreadyRunning);
     bool simulationEnded();
     void setDefaultValues();
     int getLinkedObjectID() const;
-    void setLinkedObjectID(int theNewLinkedObjectID,bool noDefaultValues);
-    void setAlternativeViewName(const char* name);
+    void setLinkedObjectID(int theNewLinkedObjectID, bool noDefaultValues);
+    void setAlternativeViewName(const char *name);
     std::string getAlternativeViewName() const;
     void setPerspectiveDisplay(bool perspective);
     bool getPerspectiveDisplay() const;
@@ -27,8 +27,7 @@ public:
     bool getShowEdges() const;
     void setThickEdges(bool thickEdges);
     bool getThickEdges() const;
-    int getCursor(int x,int y) const;
-
+    int getCursor(int x, int y) const;
 
     void setRenderingMode(int mode);
     int getRenderingMode() const;
@@ -36,7 +35,6 @@ public:
     bool getRemoveFloatingViewAtSimulationEnd() const;
     void setDoNotSaveFloatingView(bool doNotSave);
     bool getDoNotSaveFloatingView() const;
-
 
     void setXYGraphAutoModeDuringSimulation(bool autoMode);
     bool getXYGraphAutoModeDuringSimulation() const;
@@ -63,14 +61,14 @@ public:
     void setFitViewToSelection(bool doIt);
     bool getFitViewToSelection() const;
 
-    void setGraphPosition(double x,double y);
+    void setGraphPosition(double x, double y);
     void getGraphPosition(double position[2]) const;
-    void setGraphSize(double x,double y);
+    void setGraphSize(double x, double y);
     void getGraphSize(double size[2]) const;
-    void serialize(CSer& ar);
+    void serialize(CSer &ar);
     bool announceObjectWillBeErased(int objectID);
-    void performObjectLoadingMapping(const std::map<int,int>* map);
-    void setViewSizeAndPosition(int sizeX,int sizeY,int posX,int posY);
+    void performObjectLoadingMapping(const std::map<int, int> *map);
+    void setViewSizeAndPosition(int sizeX, int sizeY, int posX, int posY);
     void getViewSize(int size[2]) const;
     void getViewPosition(int pos[2]) const;
     int getSelectionStatus() const;
@@ -83,14 +81,14 @@ public:
 
     int getUniqueID() const;
 
-    CSView* copyYourself(); // special! Only used when copy and pasting viewable objects in the copy buffer that are associated with a floating view!
+    CSView *copyYourself(); // special! Only used when copy and pasting viewable objects in the copy buffer that are
+                            // associated with a floating view!
     // Following two lines are only used when copy and pasting viewable objects are associated with a floating view!
     double _relativeViewPosition[2];
     double _relativeViewPositionOffset;
     double _relativeViewSize[2];
 
-
-private:
+  private:
     // Variables which need to be serialized:
     int linkedObjectID;
     bool perspectiveDisplay;
@@ -111,7 +109,7 @@ private:
     double graphSize[2];
     bool _fitSceneToView;
     bool _fitSelectionToView;
-    
+
     // Variables which don't need to be serialized:
     int _viewPosition[2];
     int _viewSize[2];
@@ -153,10 +151,10 @@ private:
     size_t _viewIndex; // set before each rendering
 
 #ifdef SIM_WITH_GUI
-public:
-    void render(int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText,bool passiveSubView);
-    bool processCommand(int commandID,int subViewIndex);
-    void addMenu(VMenu* menu);
+  public:
+    void render(int mainWindowXPos, bool clipWithMainWindowXPos, bool drawText, bool passiveSubView);
+    bool processCommand(int commandID, int subViewIndex);
+    void addMenu(VMenu *menu);
     void getMouseDownRelativePosition(int p[2]) const;
     void getMouseRelativePosition(int p[2]) const;
     void getPreviousMouseRelativePosition(int p[2]) const;
@@ -165,17 +163,18 @@ public:
     bool wasMouseJustWentDownEventProcessed() const;
     bool didMouseJustGoUp() const;
     bool didMouseMoveWhileDown() const;
-    bool leftMouseButtonDown(int x,int y,int selStatus);
-    bool getMouseRelPosObjectAndViewSize(int x,int y,int relPos[2],int& objType,int& objID,int vSize[2],bool& viewIsPerspective) const;
-    void leftMouseButtonUp(int x,int y);
-    void mouseMove(int x,int y,bool passiveAndFocused);
-    int modelDragMoveEvent(int xPos,int yPos,C3Vector* desiredModelPosition);
-    bool mouseWheel(int deltaZ,int x,int y);
-    bool middleMouseButtonDown(int x,int y,bool _subViewIsPassive);
-    void middleMouseButtonUp(int x,int y);
-    bool rightMouseButtonDown(int x,int y,bool _subViewIsPassive);
-    bool rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* mainWindow,int subViewIndex);
-    bool leftMouseButtonDoubleClick(int x,int y,int selStatus);
+    bool leftMouseButtonDown(int x, int y, int selStatus);
+    bool getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], int &objType, int &objID, int vSize[2],
+                                         bool &viewIsPerspective) const;
+    void leftMouseButtonUp(int x, int y);
+    void mouseMove(int x, int y, bool passiveAndFocused);
+    int modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPosition);
+    bool mouseWheel(int deltaZ, int x, int y);
+    bool middleMouseButtonDown(int x, int y, bool _subViewIsPassive);
+    void middleMouseButtonUp(int x, int y);
+    bool rightMouseButtonDown(int x, int y, bool _subViewIsPassive);
+    bool rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainWindow, int subViewIndex);
+    bool leftMouseButtonDoubleClick(int x, int y, int selStatus);
     void setMousePositionDepth(double depth);
     double getMousePositionDepth() const;
     void clearMouseJustWentDownAndUpFlag();
@@ -183,9 +182,9 @@ public:
     int getCaughtElements() const;
     void clearCaughtElements(int keepMask);
 
-private:
+  private:
     void cameraAndObjectMotion();
     void graphMotion();
-    void _handleClickRayIntersection_old(int x,int y,bool mouseDown);
+    void _handleClickRayIntersection_old(int x, int y, bool mouseDown);
 #endif
 };

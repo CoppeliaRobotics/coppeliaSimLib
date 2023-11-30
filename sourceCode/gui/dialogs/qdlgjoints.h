@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgJoints;
+namespace Ui
+{
+class CQDlgJoints;
 }
 
 class CQDlgJoints : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgJoints(QWidget *parent = 0);
     ~CQDlgJoints();
 
@@ -24,7 +25,7 @@ public:
 
     static bool showDynamicWindow;
 
-private slots:
+  private slots:
     void on_qqCyclic_clicked();
 
     void on_qqLead_editingFinished();
@@ -53,7 +54,7 @@ private slots:
 
     void on_qqApplyAppearance_clicked();
 
-private:
+  private:
     Ui::CQDlgJoints *ui;
 };
 

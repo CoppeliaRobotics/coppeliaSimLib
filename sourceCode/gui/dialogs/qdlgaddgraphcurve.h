@@ -4,15 +4,16 @@
 
 #include <vDialog.h>
 
-namespace Ui {
-    class CQDlgAddGraphCurve;
+namespace Ui
+{
+class CQDlgAddGraphCurve;
 }
 
 class CQDlgAddGraphCurve : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgAddGraphCurve(QWidget *parent = 0);
     ~CQDlgAddGraphCurve();
 
@@ -26,12 +27,12 @@ public:
     int dataIDY;
     int dataIDZ;
 
-private slots:
+  private slots:
     void on_qqOkCancel_accepted();
 
     void on_qqOkCancel_rejected();
 
-private:
+  private:
     Ui::CQDlgAddGraphCurve *ui;
 };
 

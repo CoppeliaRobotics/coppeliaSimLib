@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgMultishapeEdition;
+namespace Ui
+{
+class CQDlgMultishapeEdition;
 }
 
 class CQDlgMultishapeEdition : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgMultishapeEdition(QWidget *parent = 0);
     ~CQDlgMultishapeEdition();
 
@@ -20,7 +21,7 @@ public:
 
     void cancelEvent();
 
-private slots:
+  private slots:
     void on_qqBackfaceCulling_clicked();
 
     void on_qqShowEdges_clicked();
@@ -31,7 +32,7 @@ private slots:
 
     void on_qqTexture_clicked();
 
-private:
+  private:
     Ui::CQDlgMultishapeEdition *ui;
 };
 

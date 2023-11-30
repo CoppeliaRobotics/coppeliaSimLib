@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgVertexEdit;
+namespace Ui
+{
+class CQDlgVertexEdit;
 }
 
 class CQDlgVertexEdit : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgVertexEdit(QWidget *parent = 0);
     ~CQDlgVertexEdit();
 
@@ -20,8 +21,8 @@ public:
 
     void cancelEvent();
 
-protected:
-private slots:
+  protected:
+  private slots:
     void on_qqShowHiddenVertices_clicked();
 
     void on_qqInsertTriangles_clicked();
@@ -34,7 +35,7 @@ private slots:
 
     void on_qqInvertSelection_clicked();
 
-private:
+  private:
     Ui::CQDlgVertexEdit *ui;
 };
 

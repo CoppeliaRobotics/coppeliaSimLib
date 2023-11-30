@@ -5,18 +5,17 @@
 
 class CSimpleFilter
 {
-public:
-
+  public:
     CSimpleFilter();
     virtual ~CSimpleFilter();
 
-    void serialize(CSer& ar);
+    void serialize(CSer &ar);
 
     void setFilterType(int t);
     int getFilterType();
     std::string getCodeEquivalent();
 
-protected:
+  protected:
     bool _enabled;
     int _filterType;
     int _customFilterHeader;

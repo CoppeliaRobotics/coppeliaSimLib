@@ -2,25 +2,25 @@
 #include <app.h>
 #include <QLineEdit>
 #ifdef SIM_WITH_GUI
-    #include <guiApp.h>
+#include <guiApp.h>
 #endif
 
-int CDlgEx::doTransparencyCounter=0;
+int CDlgEx::doTransparencyCounter = 0;
 
-CDlgEx::CDlgEx(QWidget* pParent) : VDialog(pParent)
+CDlgEx::CDlgEx(QWidget *pParent) : VDialog(pParent)
 {
-    _markedForDestruction=false;
+    _markedForDestruction = false;
     initializationEvent();
 }
-CDlgEx::CDlgEx(QWidget* pParent,Qt::WindowFlags specialFlags) : VDialog(pParent,specialFlags)
+CDlgEx::CDlgEx(QWidget *pParent, Qt::WindowFlags specialFlags) : VDialog(pParent, specialFlags)
 {
-    _markedForDestruction=false;
+    _markedForDestruction = false;
     initializationEvent();
 }
 
-bool CDlgEx::event(QEvent* event)
+bool CDlgEx::event(QEvent *event)
 {
-    return(QDialog::event(event));
+    return (QDialog::event(event));
 }
 
 CDlgEx::~CDlgEx()
@@ -31,27 +31,27 @@ void CDlgEx::refresh()
 {
 }
 
-void CDlgEx::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
+void CDlgEx::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
 {
 }
 
 bool CDlgEx::needsDestruction()
 {
-    return(_markedForDestruction);
+    return (_markedForDestruction);
 }
 
 bool CDlgEx::doesInstanceSwitchRequireDestruction()
 {
-    return(false); // default behaviour
+    return (false); // default behaviour
 }
-
 
 void CDlgEx::cancelEvent()
 { // We just hide the dialog and destroy it at next rendering pass
-//#ifndef LIN_SIM
-//    showDialog(false); // on Linux it seems that once a window is hidden, its position becomes (0,0)!!! So we don't hide it on Linux, we just destroy it later!
-//#endif
-    _markedForDestruction=true;
+    //#ifndef LIN_SIM
+    //    showDialog(false); // on Linux it seems that once a window is hidden, its position becomes (0,0)!!! So we
+    //    don't hide it on Linux, we just destroy it later!
+    //#endif
+    _markedForDestruction = true;
     GuiApp::setToolbarRefreshFlag();
 }
 
@@ -65,20 +65,20 @@ void CDlgEx::initializationEvent()
     refresh();
 }
 
-QLineEdit* CDlgEx::getSelectedLineEdit()
+QLineEdit *CDlgEx::getSelectedLineEdit()
 {
-    QList<QLineEdit*> wl=((QWidget*)this)->findChildren<QLineEdit*>(QString());
-    for (int i=0;i<wl.size();i++)
+    QList<QLineEdit *> wl = ((QWidget *)this)->findChildren<QLineEdit *>(QString());
+    for (int i = 0; i < wl.size(); i++)
     {
-        if (wl[i]->selectedText().size()>0)
-            return(wl[i]);
+        if (wl[i]->selectedText().size() > 0)
+            return (wl[i]);
     }
-    return(nullptr);
+    return (nullptr);
 }
 
-void CDlgEx::selectLineEdit(QLineEdit* edit)
+void CDlgEx::selectLineEdit(QLineEdit *edit)
 {
-    if (edit!=nullptr)
+    if (edit != nullptr)
     {
         edit->setFocus();
         edit->selectAll();

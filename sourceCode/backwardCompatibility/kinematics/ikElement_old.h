@@ -5,7 +5,7 @@
 
 class CIkElement_old
 {
-public:
+  public:
     CIkElement_old();
     CIkElement_old(int theTooltip);
     virtual ~CIkElement_old();
@@ -16,10 +16,10 @@ public:
 
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationEnded();
-    CIkElement_old* copyYourself() const;
-    void serialize(CSer& ar);
-    bool announceObjectWillBeErased(int objID,bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int,int>* map);
+    CIkElement_old *copyYourself() const;
+    void serialize(CSer &ar);
+    bool announceObjectWillBeErased(int objID, bool copyBuffer);
+    void performObjectLoadingMapping(const std::map<int, int> *map);
 
     int getTargetHandle() const;
     int getIkPluginCounterpartHandle() const;
@@ -27,7 +27,7 @@ public:
 
     int getObjectHandle() const;
     bool getEnabled() const;
-    int getTipHandle()const ;
+    int getTipHandle() const;
     int getBase() const;
     int getAlternativeBaseForConstraints() const;
     double getMinLinearPrecision() const;
@@ -35,7 +35,6 @@ public:
     double getPositionWeight() const;
     double getOrientationWeight() const;
     int getConstraints() const;
-
 
     bool setMinLinearPrecision(double prec);
     bool setMinAngularPrecision(double prec);
@@ -55,7 +54,7 @@ public:
     void setAllInvolvedJointsToIkPluginPositions() const;
     void setAllInvolvedJointsToNewJointMode(int jointMode) const;
 
-private:
+  private:
     void _commonInit();
 
     // Overridden from _CIkElement_old:

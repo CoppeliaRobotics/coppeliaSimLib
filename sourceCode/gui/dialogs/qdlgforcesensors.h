@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgForceSensors;
+namespace Ui
+{
+class CQDlgForceSensors;
 }
 
 class CQDlgForceSensors : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgForceSensors(QWidget *parent = 0);
     ~CQDlgForceSensors();
 
@@ -20,7 +21,7 @@ public:
 
     void refresh();
 
-private slots:
+  private slots:
     void on_qqSize_editingFinished();
 
     void on_qqColorA_clicked();
@@ -47,7 +48,7 @@ private slots:
 
     void on_qqApplyBreaking_clicked();
 
-private:
+  private:
     Ui::CQDlgForceSensors *ui;
 };
 

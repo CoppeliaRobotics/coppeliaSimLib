@@ -2,8 +2,8 @@
 #pragma once
 
 // FULLY STATIC CLASS
-class CToolBarCommand  
+class CToolBarCommand
 {
-public:
+  public:
     static bool processCommand(int commandID);
 };

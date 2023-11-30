@@ -5,20 +5,21 @@
 #include <dlgEx.h>
 #include <QListWidgetItem>
 
-namespace Ui {
-    class CQDlgCollisions;
+namespace Ui
+{
+class CQDlgCollisions;
 }
 
 class CQDlgCollisions : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgCollisions(QWidget *parent = 0);
     ~CQDlgCollisions();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
 
     void cancelEvent();
 
@@ -27,7 +28,7 @@ public:
     void selectObjectInList(int objectID);
     bool inSelectionRoutine;
 
-private slots:
+  private slots:
     void onDeletePressed();
     void on_qqAddNewObject_clicked();
 
@@ -51,7 +52,7 @@ private slots:
 
     void on_qqContourWidth_editingFinished();
 
-private:
+  private:
     Ui::CQDlgCollisions *ui;
 };
 

@@ -2,12 +2,12 @@
 
 #include <QObject>
 
-class CGm: public QObject
+class CGm : public QObject
 {
-public:
+  public:
     CGm();
     ~CGm();
 
-    void ll(const char*);
+    void ll(const char *);
     void rl();
 };

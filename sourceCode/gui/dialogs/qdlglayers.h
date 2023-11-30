@@ -4,22 +4,23 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgLayers;
+namespace Ui
+{
+class CQDlgLayers;
 }
 
 class CQDlgLayers : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgLayers(QWidget *parent = 0);
     ~CQDlgLayers();
 
     void refresh();
     void clickedLayer(int bit);
 
-private slots:
+  private slots:
     void on_a_1_clicked();
     void on_a_2_clicked();
     void on_a_3_clicked();
@@ -41,7 +42,7 @@ private slots:
 
     void on_qqDynamicContentOnly_clicked();
 
-private:
+  private:
     Ui::CQDlgLayers *ui;
 };
 

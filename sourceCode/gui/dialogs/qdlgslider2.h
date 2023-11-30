@@ -5,15 +5,16 @@
 #include <vDialog.h>
 #include <QAbstractButton>
 
-namespace Ui {
-    class CQDlgSlider2;
+namespace Ui
+{
+class CQDlgSlider2;
 }
 
 class CQDlgSlider2 : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgSlider2(QWidget *parent = 0);
     ~CQDlgSlider2();
 
@@ -26,13 +27,13 @@ public:
     int resolution;
     int iterationCnt;
 
-private slots:
+  private slots:
     void on_qqOkCancelButtons_accepted();
     void on_qqOkCancelButtons_rejected();
     void on_qqSlider1_sliderMoved(int position);
     void on_qqSlider2_sliderMoved(int position);
 
-private:
+  private:
     int _resolutionLevel;
 
     void _displayMeshInsideExtractionTexts();

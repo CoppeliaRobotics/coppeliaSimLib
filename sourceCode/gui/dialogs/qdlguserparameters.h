@@ -6,15 +6,16 @@
 #include <QListWidgetItem>
 #include <QAbstractButton>
 
-namespace Ui {
-    class CQDlgUserParameters;
+namespace Ui
+{
+class CQDlgUserParameters;
 }
 
 class CQDlgUserParameters : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgUserParameters(QWidget *parent = 0);
     ~CQDlgUserParameters();
 
@@ -29,9 +30,9 @@ public:
     void selectObjectInList(int objectID);
     bool inSelectionRoutine;
 
-    CSceneObject* object;
+    CSceneObject *object;
 
-private slots:
+  private slots:
     void onDeletePressed();
 
     void on_qqAddNew_clicked();
@@ -54,7 +55,7 @@ private slots:
 
     void on_qqDown_clicked();
 
-private:
+  private:
     Ui::CQDlgUserParameters *ui;
 };
 

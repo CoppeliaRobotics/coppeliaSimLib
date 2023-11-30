@@ -9,26 +9,24 @@
 #include <simStrings.h>
 #include <guiApp.h>
 
-CQDlgIk::CQDlgIk(QWidget *parent) :
-    CDlgEx(parent),
-    ui(new Ui::CQDlgIk)
+CQDlgIk::CQDlgIk(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgIk)
 {
-    _dlgType=IK_DLG;
+    _dlgType = IK_DLG;
     ui->setupUi(this);
-    inMainRefreshRoutine=false;
-    inListSelectionRoutine=false;
-    noListSelectionAllowed=false;
+    inMainRefreshRoutine = false;
+    inListSelectionRoutine = false;
+    noListSelectionAllowed = false;
     delKeyShortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
-    connect(delKeyShortcut,SIGNAL(activated()), this, SLOT(onDeletePressed()));
+    connect(delKeyShortcut, SIGNAL(activated()), this, SLOT(onDeletePressed()));
     backspaceKeyShortcut = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
-    connect(backspaceKeyShortcut,SIGNAL(activated()), this, SLOT(onDeletePressed()));
-    CEditBoxDelegate* delegate=new CEditBoxDelegate();
+    connect(backspaceKeyShortcut, SIGNAL(activated()), this, SLOT(onDeletePressed()));
+    CEditBoxDelegate *delegate = new CEditBoxDelegate();
     ui->qqList->setItemDelegate(delegate);
 }
 
 CQDlgIk::~CQDlgIk()
 {
-    CQDlgIkElements::_invalid=true;
+    CQDlgIkElements::_invalid = true;
     GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
     delete ui;
 }
@@ -40,26 +38,27 @@ void CQDlgIk::cancelEvent()
     GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
 }
 
-void CQDlgIk::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
+void CQDlgIk::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
 {
-    if ( (cmdIn!=nullptr)&&(cmdIn->intParams[0]==_dlgType) )
+    if ((cmdIn != nullptr) && (cmdIn->intParams[0] == _dlgType))
     {
-        if (cmdIn->intParams[1]==0)
+        if (cmdIn->intParams[1] == 0)
             selectObjectInList(cmdIn->intParams[2]);
     }
 }
 
 void CQDlgIk::refresh()
 {
-    inMainRefreshRoutine=true;
-    QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    inMainRefreshRoutine = true;
+    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    bool noEditModeNoSim =
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
     if (!App::currentWorld->mainSettings->ikCalculationEnabled)
-        noEditModeNoSim=false;
+        noEditModeNoSim = false;
 
-    int groupID=getSelectedObjectID();
-    CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(groupID);
+    int groupID = getSelectedObjectID();
+    CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(groupID);
 
     if (!inListSelectionRoutine)
     {
@@ -69,43 +68,44 @@ void CQDlgIk::refresh()
 
     ui->qqAddNewGroup->setEnabled(noEditModeNoSim);
     ui->qqList->setEnabled(noEditModeNoSim);
-    ui->qqUp->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqDown->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqGroupIsActive->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqUp->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqDown->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqGroupIsActive->setEnabled((it != nullptr) && noEditModeNoSim);
 
-    ui->qqExplicitHandling->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getEnabled());
-    ui->qqIgnoreMaxStepSizes->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getEnabled());
-    ui->qqCalcMethodCombo->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getEnabled());
-    ui->qqDamping->setEnabled(((it!=nullptr)&&noEditModeNoSim)&&(it->getCalculationMethod()==sim_ik_damped_least_squares_method)&&it->getEnabled());
-    ui->qqMaxIterations->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getEnabled());
-    ui->qqEditConditional->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getEnabled());
-    ui->qqEditIkElements->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqExplicitHandling->setEnabled((it != nullptr) && noEditModeNoSim && it->getEnabled());
+    ui->qqIgnoreMaxStepSizes->setEnabled((it != nullptr) && noEditModeNoSim && it->getEnabled());
+    ui->qqCalcMethodCombo->setEnabled((it != nullptr) && noEditModeNoSim && it->getEnabled());
+    ui->qqDamping->setEnabled(((it != nullptr) && noEditModeNoSim) &&
+                              (it->getCalculationMethod() == sim_ik_damped_least_squares_method) && it->getEnabled());
+    ui->qqMaxIterations->setEnabled((it != nullptr) && noEditModeNoSim && it->getEnabled());
+    ui->qqEditConditional->setEnabled((it != nullptr) && noEditModeNoSim && it->getEnabled());
+    ui->qqEditIkElements->setEnabled((it != nullptr) && noEditModeNoSim);
 
     ui->qqIkEnabled->setChecked(App::currentWorld->mainSettings->ikCalculationEnabled);
 
-    ui->qqExplicitHandling->setChecked((it!=nullptr)&&it->getExplicitHandling());
-    ui->qqGroupIsActive->setChecked((it!=nullptr)&&it->getEnabled());
-    ui->qqIgnoreMaxStepSizes->setChecked((it!=nullptr)&&it->getIgnoreMaxStepSizes());
+    ui->qqExplicitHandling->setChecked((it != nullptr) && it->getExplicitHandling());
+    ui->qqGroupIsActive->setChecked((it != nullptr) && it->getEnabled());
+    ui->qqIgnoreMaxStepSizes->setChecked((it != nullptr) && it->getIgnoreMaxStepSizes());
 
     ui->qqCalcMethodCombo->clear();
 
-    if (it!=nullptr)
+    if (it != nullptr)
     {
-        ui->qqCalcMethodCombo->addItem(IDS_PSEUDO_INVERSE,QVariant(sim_ik_pseudo_inverse_method));
-        ui->qqCalcMethodCombo->addItem(IDS_DLS,QVariant(sim_ik_damped_least_squares_method));
-        ui->qqCalcMethodCombo->addItem(IDS_JACOBIAN_TRANSPOSE,QVariant(sim_ik_jacobian_transpose_method));
-        ui->qqCalcMethodCombo->addItem(IDS_UNDAMPED_PSEUDO_INVERSE,QVariant(sim_ik_undamped_pseudo_inverse_method));
-        for (int i=0;i<ui->qqCalcMethodCombo->count();i++)
+        ui->qqCalcMethodCombo->addItem(IDS_PSEUDO_INVERSE, QVariant(sim_ik_pseudo_inverse_method));
+        ui->qqCalcMethodCombo->addItem(IDS_DLS, QVariant(sim_ik_damped_least_squares_method));
+        ui->qqCalcMethodCombo->addItem(IDS_JACOBIAN_TRANSPOSE, QVariant(sim_ik_jacobian_transpose_method));
+        ui->qqCalcMethodCombo->addItem(IDS_UNDAMPED_PSEUDO_INVERSE, QVariant(sim_ik_undamped_pseudo_inverse_method));
+        for (int i = 0; i < ui->qqCalcMethodCombo->count(); i++)
         {
-            if (ui->qqCalcMethodCombo->itemData(i).toInt()==it->getCalculationMethod())
+            if (ui->qqCalcMethodCombo->itemData(i).toInt() == it->getCalculationMethod())
             {
                 ui->qqCalcMethodCombo->setCurrentIndex(i);
                 break;
             }
         }
 
-        ui->qqDamping->setText(utils::getSizeString(false,it->getDampingFactor()).c_str());
-        ui->qqMaxIterations->setText(utils::getIntString(false,it->getMaxIterations()).c_str());
+        ui->qqDamping->setText(utils::getSizeString(false, it->getDampingFactor()).c_str());
+        ui->qqMaxIterations->setText(utils::getIntString(false, it->getMaxIterations()).c_str());
     }
     else
     {
@@ -114,66 +114,66 @@ void CQDlgIk::refresh()
     }
 
     selectLineEdit(lineEditToSelect);
-    inMainRefreshRoutine=false;
+    inMainRefreshRoutine = false;
 }
 
 void CQDlgIk::updateObjectsInList()
 {
-    noListSelectionAllowed=true;
+    noListSelectionAllowed = true;
     ui->qqList->clear();
 
-    for (size_t i=0;i<App::currentWorld->ikGroups->getObjectCount();i++)
+    for (size_t i = 0; i < App::currentWorld->ikGroups->getObjectCount(); i++)
     {
-        CIkGroup_old* ikg=App::currentWorld->ikGroups->getObjectFromIndex(i);
-        std::string txt=ikg->getObjectName();
-        txt+=" [containing ";
-        txt+=utils::getIntString(false,int(ikg->getIkElementCount())).c_str();
-        txt+=" ik element(s)]";
-        int objID=ikg->getObjectHandle();
-        QListWidgetItem* itm=new QListWidgetItem(txt.c_str());
-        itm->setData(Qt::UserRole,QVariant(objID));
-        itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsEnabled);
+        CIkGroup_old *ikg = App::currentWorld->ikGroups->getObjectFromIndex(i);
+        std::string txt = ikg->getObjectName();
+        txt += " [containing ";
+        txt += utils::getIntString(false, int(ikg->getIkElementCount())).c_str();
+        txt += " ik element(s)]";
+        int objID = ikg->getObjectHandle();
+        QListWidgetItem *itm = new QListWidgetItem(txt.c_str());
+        itm->setData(Qt::UserRole, QVariant(objID));
+        itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
         ui->qqList->addItem(itm);
     }
 
-    noListSelectionAllowed=false;
+    noListSelectionAllowed = false;
 }
 
 int CQDlgIk::getSelectedObjectID()
 {
-    QList<QListWidgetItem*> sel=ui->qqList->selectedItems();
-    if (sel.size()>0)
-        return(sel.at(0)->data(Qt::UserRole).toInt());
-    return(-1);
+    QList<QListWidgetItem *> sel = ui->qqList->selectedItems();
+    if (sel.size() > 0)
+        return (sel.at(0)->data(Qt::UserRole).toInt());
+    return (-1);
 }
 
 void CQDlgIk::selectObjectInList(int objectID)
 {
-    noListSelectionAllowed=true;
-    for (int i=0;i<ui->qqList->count();i++)
+    noListSelectionAllowed = true;
+    for (int i = 0; i < ui->qqList->count(); i++)
     {
-        QListWidgetItem* it=ui->qqList->item(i);
-        if (it!=nullptr)
+        QListWidgetItem *it = ui->qqList->item(i);
+        if (it != nullptr)
         {
-            if (it->data(Qt::UserRole).toInt()==objectID)
+            if (it->data(Qt::UserRole).toInt() == objectID)
             {
                 it->setSelected(true);
                 break;
             }
         }
     }
-    noListSelectionAllowed=false;
+    noListSelectionAllowed = false;
 }
 
 void CQDlgIk::onDeletePressed()
 {
-    if (focusWidget()==ui->qqList)
+    if (focusWidget() == ui->qqList)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            CQDlgIkElements::_invalid=true;
+            CQDlgIkElements::_invalid = true;
             GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
-            App::appendSimulationThreadCommand(REMOVE_IKGROUP_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID());
+            App::appendSimulationThreadCommand(REMOVE_IKGROUP_IKGROUPGUITRIGGEREDCMD, getSelectedObjectID());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -194,7 +194,7 @@ void CQDlgIk::on_qqAddNewGroup_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CQDlgIkElements::_invalid=true;
+        CQDlgIkElements::_invalid = true;
         GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
         App::appendSimulationThreadCommand(ADD_IKGROUP_IKGROUPGUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -204,13 +204,14 @@ void CQDlgIk::on_qqAddNewGroup_clicked()
 
 void CQDlgIk::on_qqList_itemChanged(QListWidgetItem *item)
 {
-    if (item!=nullptr)
+    if (item != nullptr)
     {
         IF_UI_EVENT_CAN_WRITE_DATA
         {
-            CQDlgIkElements::_invalid=true;
+            CQDlgIkElements::_invalid = true;
             GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
-            App::appendSimulationThreadCommand(RENAME_IKGROUP_IKGROUPGUITRIGGEREDCMD,item->data(Qt::UserRole).toInt(),-1,0.0,0.0,item->text().toStdString().c_str());
+            App::appendSimulationThreadCommand(RENAME_IKGROUP_IKGROUPGUITRIGGEREDCMD, item->data(Qt::UserRole).toInt(),
+                                               -1, 0.0, 0.0, item->text().toStdString().c_str());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -223,17 +224,17 @@ void CQDlgIk::on_qqList_itemSelectionChanged()
     {
         IF_UI_EVENT_CAN_WRITE_DATA
         {
-            CQDlgIkElements::_invalid=true;
+            CQDlgIkElements::_invalid = true;
             GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
-            int objID=getSelectedObjectID();
-            CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(objID);
-            if (it!=nullptr)
-                ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText=it->getObjectName();
+            int objID = getSelectedObjectID();
+            CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(objID);
+            if (it != nullptr)
+                ((CEditBoxDelegate *)ui->qqList->itemDelegate())->initialText = it->getObjectName();
             else
-                ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText="";
-            inListSelectionRoutine=true;
+                ((CEditBoxDelegate *)ui->qqList->itemDelegate())->initialText = "";
+            inListSelectionRoutine = true;
             refresh();
-            inListSelectionRoutine=false;
+            inListSelectionRoutine = false;
         }
     }
 }
@@ -242,7 +243,7 @@ void CQDlgIk::on_qqUp_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        App::appendSimulationThreadCommand(SHIFT_IKGROUP_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID(),1);
+        App::appendSimulationThreadCommand(SHIFT_IKGROUP_IKGROUPGUITRIGGEREDCMD, getSelectedObjectID(), 1);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -252,7 +253,7 @@ void CQDlgIk::on_qqDown_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        App::appendSimulationThreadCommand(SHIFT_IKGROUP_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID(),0);
+        App::appendSimulationThreadCommand(SHIFT_IKGROUP_IKGROUPGUITRIGGEREDCMD, getSelectedObjectID(), 0);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -262,7 +263,7 @@ void CQDlgIk::on_qqExplicitHandling_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID());
+        App::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_IKGROUPGUITRIGGEREDCMD, getSelectedObjectID());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -272,7 +273,7 @@ void CQDlgIk::on_qqGroupIsActive_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_ACTIVE_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID());
+        App::appendSimulationThreadCommand(TOGGLE_ACTIVE_IKGROUPGUITRIGGEREDCMD, getSelectedObjectID());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -282,7 +283,7 @@ void CQDlgIk::on_qqIgnoreMaxStepSizes_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_IGNOREMAXSTEPSIZES_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID());
+        App::appendSimulationThreadCommand(TOGGLE_IGNOREMAXSTEPSIZES_IKGROUPGUITRIGGEREDCMD, getSelectedObjectID());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -294,7 +295,9 @@ void CQDlgIk::on_qqCalcMethodCombo_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            App::appendSimulationThreadCommand(SET_CALCMETHOD_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID(),ui->qqCalcMethodCombo->itemData(ui->qqCalcMethodCombo->currentIndex()).toInt());
+            App::appendSimulationThreadCommand(
+                SET_CALCMETHOD_IKGROUPGUITRIGGEREDCMD, getSelectedObjectID(),
+                ui->qqCalcMethodCombo->itemData(ui->qqCalcMethodCombo->currentIndex()).toInt());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -308,10 +311,10 @@ void CQDlgIk::on_qqDamping_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqDamping->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqDamping->text().toStdString().c_str(), &ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_DAMPING_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_DAMPING_IKGROUPGUITRIGGEREDCMD, getSelectedObjectID(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -325,10 +328,10 @@ void CQDlgIk::on_qqMaxIterations_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        int newVal=(int)GuiApp::getEvalInt(ui->qqMaxIterations->text().toStdString().c_str(), &ok);
+        int newVal = (int)GuiApp::getEvalInt(ui->qqMaxIterations->text().toStdString().c_str(), &ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_ITERATIONS_IKGROUPGUITRIGGEREDCMD,getSelectedObjectID(),newVal);
+            App::appendSimulationThreadCommand(SET_ITERATIONS_IKGROUPGUITRIGGEREDCMD, getSelectedObjectID(), newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -339,17 +342,17 @@ void CQDlgIk::on_qqEditConditional_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(getSelectedObjectID());
-        if (it!=nullptr)
+        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(getSelectedObjectID());
+        if (it != nullptr)
         {
             CQDlgIkConditional theDialog(this);
-            theDialog.ikGroup=it;
+            theDialog.ikGroup = it;
             theDialog.refresh();
-//          delKeyShortcut->setEnabled(false);
-//          backspaceKeyShortcut->setEnabled(false);
+            //          delKeyShortcut->setEnabled(false);
+            //          backspaceKeyShortcut->setEnabled(false);
             theDialog.makeDialogModal();
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_CONDITIONALPARAMS_IKGROUPGUITRIGGEREDCMD;
+            cmd.cmdId = SET_CONDITIONALPARAMS_IKGROUPGUITRIGGEREDCMD;
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(theDialog.doOnFailOrSuccessOf);
             cmd.intParams.push_back(theDialog.ikResult);
@@ -366,8 +369,8 @@ void CQDlgIk::on_qqEditIkElements_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CIkGroup_old* it=App::currentWorld->ikGroups->getObjectFromHandle(getSelectedObjectID());
-        if (it!=nullptr)
-            CQDlgIkElements::display(it->getObjectHandle(),GuiApp::mainWindow);
+        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(getSelectedObjectID());
+        if (it != nullptr)
+            CQDlgIkElements::display(it->getObjectHandle(), GuiApp::mainWindow);
     }
 }

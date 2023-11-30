@@ -6,15 +6,16 @@
 #include <ikGroup_old.h>
 #include <QAbstractButton>
 
-namespace Ui {
-    class CQDlgIkConditional;
+namespace Ui
+{
+class CQDlgIkConditional;
 }
 
 class CQDlgIkConditional : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgIkConditional(QWidget *parent = 0);
     ~CQDlgIkConditional();
 
@@ -24,7 +25,7 @@ public:
     void refresh();
 
     bool inMainRefreshRoutine;
-    CIkGroup_old* ikGroup;
+    CIkGroup_old *ikGroup;
 
     int doOnFailOrSuccessOf;
     int ikResult;
@@ -33,7 +34,7 @@ public:
 
     bool firstHere;
 
-private slots:
+  private slots:
     void on_qqClose_clicked(QAbstractButton *button);
 
     void on_qqIkGroupCombo_currentIndexChanged(int index);
@@ -44,7 +45,7 @@ private slots:
 
     void on_qqFailedAngular_clicked();
 
-private:
+  private:
     Ui::CQDlgIkConditional *ui;
 };
 

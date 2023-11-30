@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgGeometry;
+namespace Ui
+{
+class CQDlgGeometry;
 }
 
 class CQDlgGeometry : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgGeometry(QWidget *parent = 0);
     ~CQDlgGeometry();
 
@@ -28,7 +29,7 @@ public:
     void _readSize(int index);
     void _readScaling(int index);
 
-    static void display(int shapeHandle,QWidget* theParentWindow);
+    static void display(int shapeHandle, QWidget *theParentWindow);
 
     int _shapeHandle;
     double scaleVal[3];
@@ -43,7 +44,7 @@ public:
     int vertexCount;
     int triangleCount;
 
-private slots:
+  private slots:
     void on_qqKeepProp_clicked();
 
     void on_qqSizeX_editingFinished();
@@ -62,7 +63,7 @@ private slots:
 
     void on_qqApplyScale_clicked();
 
-private:
+  private:
     Ui::CQDlgGeometry *ui;
 };
 

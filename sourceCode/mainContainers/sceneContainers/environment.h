@@ -3,7 +3,7 @@
 #include <colorObject.h>
 #include <thumbnail.h>
 #ifdef SIM_WITH_GUI
-    #include <vMenubar.h>
+#include <vMenubar.h>
 #endif
 
 class CCamera;
@@ -11,14 +11,14 @@ class CViewableBase;
 
 class CEnvironment
 {
-public:
+  public:
     CEnvironment();
     virtual ~CEnvironment();
 
     void setUpDefaultValues();
 
-    void serialize(CSer& ar);
-    void setAcknowledgement(const char* a);
+    void serialize(CSer &ar);
+    void setAcknowledgement(const char *a);
     std::string getAcknowledgement() const;
     void setVisualizeWirelessEmitters(bool v);
     bool getVisualizeWirelessEmitters() const;
@@ -28,7 +28,6 @@ public:
     bool getShapeTexturesEnabled() const;
 
     void pushGenesisEvents() const;
-
 
     static int getNextSceneUniqueId();
     static void setShapeTexturesTemporarilyDisabled(bool d);
@@ -56,12 +55,11 @@ public:
 
     int getSceneUniqueID() const;
 
-
     void setSceneCanBeDiscardedWhenNewSceneOpened(bool canBeDiscarded);
     bool getSceneCanBeDiscardedWhenNewSceneOpened() const;
 
     std::string getExtensionString() const;
-    void setExtensionString(const char* str);
+    void setExtensionString(const char *str);
 
     void setFogEnabled(bool e);
     bool getFogEnabled() const;
@@ -93,7 +91,7 @@ public:
 
     CThumbnail modelThumbnail_notSerializedHere;
 
-protected:
+  protected:
     unsigned short _activeLayers;
 
     bool _nonAmbientLightsAreActive;
@@ -128,14 +126,13 @@ protected:
 
     static int _nextSceneUniqueID;
 
-    #ifdef SIM_WITH_GUI
-    public:
-        void setBackgroundColor(int viewSize[2]);
-        void activateAmbientLight(bool a);
-        void activateFogIfEnabled(CViewableBase* viewable,bool forDynamicContentOnly);
-        void deactivateFog();
-        void temporarilyDeactivateFog();
-        void reactivateFogThatWasTemporarilyDisabled();
-    #endif
-
+#ifdef SIM_WITH_GUI
+  public:
+    void setBackgroundColor(int viewSize[2]);
+    void activateAmbientLight(bool a);
+    void activateFogIfEnabled(CViewableBase *viewable, bool forDynamicContentOnly);
+    void deactivateFog();
+    void temporarilyDeactivateFog();
+    void reactivateFogThatWasTemporarilyDisabled();
+#endif
 };

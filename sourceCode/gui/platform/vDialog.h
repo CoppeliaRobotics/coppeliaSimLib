@@ -8,9 +8,9 @@
 class VDialog : public QDialog
 {
     Q_OBJECT
-public:
-    VDialog(QWidget* pParent);
-    VDialog(QWidget* pParent,Qt::WindowFlags specialFlags);
+  public:
+    VDialog(QWidget *pParent);
+    VDialog(QWidget *pParent, Qt::WindowFlags specialFlags);
     virtual ~VDialog();
 
     virtual void cancelEvent();
@@ -23,11 +23,11 @@ public:
     int makeDialogModal();
     void showDialog(bool showIt);
     void bringDialogToTop();
-    void getDialogPositionAndSize(int post[2],int sizet[2]);
-    void setDialogPositionAndSize(int post[2],int sizet[2]);
+    void getDialogPositionAndSize(int post[2], int sizet[2]);
+    void setDialogPositionAndSize(int post[2], int sizet[2]);
 
     static Qt::WindowFlags dialogStyle;
-public slots:
+  public slots:
     void reject();
     void accept();
 };

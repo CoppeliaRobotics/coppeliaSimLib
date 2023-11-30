@@ -5,20 +5,21 @@
 #include <QListWidgetItem>
 #include <QShortcut>
 
-namespace Ui {
-    class CQDlgIk;
+namespace Ui
+{
+class CQDlgIk;
 }
 
 class CQDlgIk : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgIk(QWidget *parent = 0);
     ~CQDlgIk();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
 
     void cancelEvent();
 
@@ -30,10 +31,10 @@ public:
     bool inListSelectionRoutine;
     bool noListSelectionAllowed;
 
-    QShortcut* delKeyShortcut;
-    QShortcut* backspaceKeyShortcut;
+    QShortcut *delKeyShortcut;
+    QShortcut *backspaceKeyShortcut;
 
-    private slots:
+  private slots:
     void onDeletePressed();
 
     void on_qqIkEnabled_clicked();
@@ -64,11 +65,8 @@ public:
 
     void on_qqEditIkElements_clicked();
 
-private:
+  private:
     Ui::CQDlgIk *ui;
 };
 
 #endif // QDLGIK_H
-
-
-

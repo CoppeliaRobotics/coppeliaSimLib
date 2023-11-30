@@ -4,19 +4,19 @@
 
 class CInterfaceStackBool : public CInterfaceStackObject
 {
-public:
+  public:
     CInterfaceStackBool(bool theValue);
     virtual ~CInterfaceStackBool();
 
-    CInterfaceStackObject* copyYourself() const;
-    void printContent(int spaces,std::string& buffer) const;
+    CInterfaceStackObject *copyYourself() const;
+    void printContent(int spaces, std::string &buffer) const;
     std::string getObjectData() const;
-    void addCborObjectData(CCbor* cborObj) const;
-    unsigned int createFromData(const char* data,const unsigned char version);
-    static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
+    void addCborObjectData(CCbor *cborObj) const;
+    unsigned int createFromData(const char *data, const unsigned char version);
+    static bool checkCreateFromData(const char *data, unsigned int &w, unsigned int l);
 
     bool getValue() const;
 
-protected:
+  protected:
     bool _value;
 };

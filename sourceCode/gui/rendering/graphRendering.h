@@ -21,4 +21,4 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib);
+void displayGraph(CGraph *graph, CViewableBase *renderingObject, int displayAttrib);

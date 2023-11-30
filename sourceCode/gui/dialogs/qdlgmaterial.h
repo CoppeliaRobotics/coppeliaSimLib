@@ -6,15 +6,16 @@
 #include <qdlgcolor.h>
 #include <colorObject.h>
 
-namespace Ui {
-    class CQDlgMaterial;
+namespace Ui
+{
+class CQDlgMaterial;
 }
 
 class CQDlgMaterial : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgMaterial(QWidget *parent = 0);
     ~CQDlgMaterial();
 
@@ -34,12 +35,12 @@ public:
     int _lastSelectedObjectID;
     size_t _objectSelectionSize;
 
-    static void displayMaterialDlg(int objType,int objID1,int objID2,QWidget* theParentWindow);
-    static void displayMaterialDlgModal(int objType,int objID1,int objID2,QWidget* theParentWindow);
-    void _initializeDlg(int objType,int objID1,int objID2);
+    static void displayMaterialDlg(int objType, int objID1, int objID2, QWidget *theParentWindow);
+    static void displayMaterialDlgModal(int objType, int objID1, int objID2, QWidget *theParentWindow);
+    void _initializeDlg(int objType, int objID1, int objID2);
     void _adjustCol(int colComponent);
 
-private slots:
+  private slots:
     void on_qqAmbientAdjust_clicked();
 
     void on_qqSpecularAdjust_clicked();
@@ -60,7 +61,7 @@ private slots:
 
     void on_qqExtensionString_editingFinished();
 
-private:
+  private:
     Ui::CQDlgMaterial *ui;
 };
 

@@ -3,26 +3,27 @@
 #define QDLGSTOPSCRIPTS_H
 
 #include <QDialog>
-namespace Ui {
-    class CQDlgStopScripts;
+namespace Ui
+{
+class CQDlgStopScripts;
 }
 
 class CQDlgStopScripts : public QDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgStopScripts(QWidget *parent = 0);
     ~CQDlgStopScripts();
 
-    void setScriptName(const char* name);
+    void setScriptName(const char *name);
     static bool stopScriptNow;
     static bool visible;
 
-private slots:
+  private slots:
     void on_qqStop_clicked();
 
-private:
+  private:
     Ui::CQDlgStopScripts *ui;
 };
 

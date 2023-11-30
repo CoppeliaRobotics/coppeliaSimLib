@@ -4,15 +4,16 @@
 
 #include <vDialog.h>
 
-namespace Ui {
-    class CQDlgMessageAndCheckbox;
+namespace Ui
+{
+class CQDlgMessageAndCheckbox;
 }
 
 class CQDlgMessageAndCheckbox : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgMessageAndCheckbox(QWidget *parent = 0);
     ~CQDlgMessageAndCheckbox();
 
@@ -26,11 +27,11 @@ public:
     std::string checkbox;
     bool checkboxState;
 
-private slots:
+  private slots:
     void on_qqCheckbox_clicked();
     void on_qqOk_accepted();
 
-private:
+  private:
     Ui::CQDlgMessageAndCheckbox *ui;
 };
 

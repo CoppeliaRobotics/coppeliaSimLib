@@ -5,15 +5,16 @@
 #include <dlgEx.h>
 #include <path_old.h>
 
-namespace Ui {
-    class CQDlgPathShaping;
+namespace Ui
+{
+class CQDlgPathShaping;
 }
 
 class CQDlgPathShaping : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgPathShaping(QWidget *parent = 0);
     ~CQDlgPathShaping();
 
@@ -22,16 +23,16 @@ public:
 
     bool inMainRefreshRoutine;
 
-    bool _extractOneFloat(std::string& txt,double& val);
+    bool _extractOneFloat(std::string &txt, double &val);
 
     static bool showWindow;
 
-private slots:
+  private slots:
     void on_qqEnabled_clicked();
 
     void on_qqFollowOrientation_clicked();
 
-//  void on_qqConvexHull_clicked();
+    //  void on_qqConvexHull_clicked();
 
     void on_qqAdjustColor_clicked();
 
@@ -47,7 +48,7 @@ private slots:
 
     void on_qqCoordinates_textChanged();
 
-private:
+  private:
     Ui::CQDlgPathShaping *ui;
 };
 

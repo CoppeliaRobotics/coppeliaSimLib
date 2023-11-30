@@ -1,17 +1,21 @@
 #pragma once
 
-class CBroadcastData  
+class CBroadcastData
 {
-public:
-    CBroadcastData(int emitterID,int targetID,int dataHeader,std::string& dataName,double timeOutSimulationTime,double actionRadius,int antennaHandle,double emissionAngle1,double emissionAngle2,const char* data,int dataLength);
+  public:
+    CBroadcastData(int emitterID, int targetID, int dataHeader, std::string &dataName, double timeOutSimulationTime,
+                   double actionRadius, int antennaHandle, double emissionAngle1, double emissionAngle2,
+                   const char *data, int dataLength);
     virtual ~CBroadcastData();
 
-    char* receiveData(int receiverID,double simulationTime,int dataHeader,std::string& dataName,int antennaHandle,int& dataLength,int& senderID,int& dataHeaderR,std::string& dataNameR,bool removeMessageForThisReceiver);
+    char *receiveData(int receiverID, double simulationTime, int dataHeader, std::string &dataName, int antennaHandle,
+                      int &dataLength, int &senderID, int &dataHeaderR, std::string &dataNameR,
+                      bool removeMessageForThisReceiver);
     bool doesRequireDestruction(double simulationTime);
     bool receiverPresent(int receiverID);
     int getAntennaHandle();
 
-protected:
+  protected:
     int _emitterID;
     int _dataHeader;
     std::string _dataName;
@@ -21,7 +25,7 @@ protected:
     int _antennaHandle;
     double _emissionAngle1;
     double _emissionAngle2;
-    char* _data;
+    char *_data;
     int _dataLength;
     std::vector<int> _receivedReceivers;
 };

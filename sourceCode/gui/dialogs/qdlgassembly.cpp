@@ -6,14 +6,12 @@
 #include <simStrings.h>
 #include <vMessageBox.h>
 #ifdef SIM_WITH_GUI
-    #include <guiApp.h>
+#include <guiApp.h>
 #endif
 
-CQDlgAssembly::CQDlgAssembly(QWidget *parent) :
-    VDialog(parent,QT_MODAL_DLG_STYLE),
-    ui(new Ui::CQDlgAssembly)
+CQDlgAssembly::CQDlgAssembly(QWidget *parent) : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgAssembly)
 {
-    obj=nullptr;
+    obj = nullptr;
     ui->setupUi(this);
 }
 
@@ -24,17 +22,18 @@ CQDlgAssembly::~CQDlgAssembly()
 
 void CQDlgAssembly::cancelEvent()
 {
-//  defaultModalDialogEndRoutine(false);
+    //  defaultModalDialogEndRoutine(false);
 }
 
 void CQDlgAssembly::okEvent()
 {
-//  defaultModalDialogEndRoutine(true);
+    //  defaultModalDialogEndRoutine(true);
 }
 
 void CQDlgAssembly::refresh()
 {
-    ui->qqSetLocalMatrix->setEnabled((obj->getAssemblyMatchValues(true).length()!=0)&&obj->getAssemblingLocalTransformationIsUsed());
+    ui->qqSetLocalMatrix->setEnabled((obj->getAssemblyMatchValues(true).length() != 0) &&
+                                     obj->getAssemblingLocalTransformationIsUsed());
     ui->qqChildMatchValue->setText(obj->getAssemblyMatchValues(true).c_str());
     ui->qqParentMatchValue->setText(obj->getAssemblyMatchValues(false).c_str());
     ui->qqHasMatrix->setChecked(obj->getAssemblingLocalTransformationIsUsed());
@@ -44,7 +43,7 @@ void CQDlgAssembly::on_qqChildMatchValue_editingFinished()
 {
     if (!ui->qqChildMatchValue->isModified())
         return;
-    obj->setAssemblyMatchValues(true,ui->qqChildMatchValue->text().toStdString().c_str());
+    obj->setAssemblyMatchValues(true, ui->qqChildMatchValue->text().toStdString().c_str());
     refresh();
 }
 
@@ -52,14 +51,17 @@ void CQDlgAssembly::on_qqParentMatchValue_editingFinished()
 {
     if (!ui->qqParentMatchValue->isModified())
         return;
-    obj->setAssemblyMatchValues(false,ui->qqParentMatchValue->text().toStdString().c_str());
+    obj->setAssemblyMatchValues(false, ui->qqParentMatchValue->text().toStdString().c_str());
     refresh();
 }
 
 void CQDlgAssembly::on_qqSetLocalMatrix_clicked()
 {
-    unsigned short res=GuiApp::uiThread->messageBox_question(GuiApp::mainWindow,"Setting local matrix transformation (for assembly)","Do you want to use current local transformation matrix as local transformation matrix after assembly?",VMESSAGEBOX_YES_NO,VMESSAGEBOX_REPLY_YES);
-    if (res==VMESSAGEBOX_REPLY_YES)
+    unsigned short res = GuiApp::uiThread->messageBox_question(
+        GuiApp::mainWindow, "Setting local matrix transformation (for assembly)",
+        "Do you want to use current local transformation matrix as local transformation matrix after assembly?",
+        VMESSAGEBOX_YES_NO, VMESSAGEBOX_REPLY_YES);
+    if (res == VMESSAGEBOX_REPLY_YES)
     {
         C7Vector transform(obj->getLocalTransformation());
         obj->setAssemblingLocalTransformation(transform);

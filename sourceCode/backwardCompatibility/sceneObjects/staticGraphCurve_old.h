@@ -5,10 +5,9 @@
 
 class CStaticGraphCurve_old
 {
-public:
-    
+  public:
     CStaticGraphCurve_old();
-    CStaticGraphCurve_old(int type,std::vector<double>* xVals,std::vector<double>* yVals,std::vector<double>* zVals);
+    CStaticGraphCurve_old(int type, std::vector<double> *xVals, std::vector<double> *yVals, std::vector<double> *zVals);
     virtual ~CStaticGraphCurve_old();
 
     // Various
@@ -24,16 +23,16 @@ public:
     void setRelativeToWorld(bool r);
     bool getRelativeToWorld();
 
-    void serialize(CSer& ar);
-    CStaticGraphCurve_old* copyYourself();
-    
-    // Variables which need to be serialized & copied 
-    std::vector <double> values;
+    void serialize(CSer &ar);
+    CStaticGraphCurve_old *copyYourself();
+
+    // Variables which need to be serialized & copied
+    std::vector<double> values;
     float ambientColor[3];
     float emissiveColor[3];
 
-protected:
-    // Variables which need to be serialized & copied 
+  protected:
+    // Variables which need to be serialized & copied
     int _curveType;
     float _curveWidth; // for 3D curves only!
     bool _linkPoints;

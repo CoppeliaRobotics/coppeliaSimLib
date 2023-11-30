@@ -4,21 +4,21 @@
 
 class CInterfaceStackNumber : public CInterfaceStackObject
 {
-public:
+  public:
     CInterfaceStackNumber(double theValue);
     virtual ~CInterfaceStackNumber();
 
-    CInterfaceStackObject* copyYourself() const;
-    void printContent(int spaces,std::string& buffer) const;
+    CInterfaceStackObject *copyYourself() const;
+    void printContent(int spaces, std::string &buffer) const;
     std::string getObjectData() const;
-    void addCborObjectData(CCbor* cborObj) const;
-    unsigned int createFromData(const char* data,const unsigned char version);
-    static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
+    void addCborObjectData(CCbor *cborObj) const;
+    unsigned int createFromData(const char *data, const unsigned char version);
+    static bool checkCreateFromData(const char *data, unsigned int &w, unsigned int l);
 
     double getValue() const;
     void setValue(long long int v);
     void setValue(double v);
 
-protected:
+  protected:
     double _value;
 };

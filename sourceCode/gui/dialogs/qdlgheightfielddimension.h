@@ -4,15 +4,16 @@
 #include <vDialog.h>
 #include <simLib/simTypes.h>
 
-namespace Ui {
-    class CQDlgHeightfieldDimension;
+namespace Ui
+{
+class CQDlgHeightfieldDimension;
 }
 
 class CQDlgHeightfieldDimension : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgHeightfieldDimension(QWidget *parent = 0);
     ~CQDlgHeightfieldDimension();
 
@@ -26,7 +27,7 @@ public:
     double zScaling;
     double xSizeTimesThisGivesYSize;
 
-private slots:
+  private slots:
     void on_qqSizeX_editingFinished();
 
     void on_qqSizeY_editingFinished();
@@ -35,7 +36,7 @@ private slots:
 
     void on_qqOk_accepted();
 
-private:
+  private:
     Ui::CQDlgHeightfieldDimension *ui;
 };
 

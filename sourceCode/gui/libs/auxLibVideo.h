@@ -3,15 +3,16 @@
 
 #include <vVarious.h>
 
-typedef char (__cdecl *pVideo_recorderGetEncoderString)(int index,char* encoderName_200Chars);
-typedef char (__cdecl *pVideo_recorderInitialize)(int resX,int resY,const char* fileAndPath,int frameRate,int encoderIndex);
-typedef char (__cdecl *pVideo_recorderAddFrame)(const unsigned char* buffer);
-typedef char (__cdecl *pVideo_recorderEnd)(void);
+typedef char(__cdecl *pVideo_recorderGetEncoderString)(int index, char *encoderName_200Chars);
+typedef char(__cdecl *pVideo_recorderInitialize)(int resX, int resY, const char *fileAndPath, int frameRate,
+                                                 int encoderIndex);
+typedef char(__cdecl *pVideo_recorderAddFrame)(const unsigned char *buffer);
+typedef char(__cdecl *pVideo_recorderEnd)(void);
 
 // FULLY STATIC CLASS
-class CAuxLibVideo  
+class CAuxLibVideo
 {
-public:
+  public:
     static bool loadLibrary();
     static void unloadLibrary();
 
@@ -20,9 +21,9 @@ public:
     static pVideo_recorderAddFrame video_recorderAddFrame;
     static pVideo_recorderEnd video_recorderEnd;
 
-private:
-    static bool _loadLibrary(const char* pathAndFilename);
+  private:
+    static bool _loadLibrary(const char *pathAndFilename);
     static bool _getAuxLibProcAddresses();
-    static WLibraryFunc _getProcAddress(const char* funcName);
+    static WLibraryFunc _getProcAddress(const char *funcName);
     static WLibrary _lib;
 };

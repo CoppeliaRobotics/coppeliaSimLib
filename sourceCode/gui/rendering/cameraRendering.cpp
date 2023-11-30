@@ -21,19 +21,20 @@ See the GNU General Public License for more details.
 #include <cameraRendering.h>
 #include <guiApp.h>
 
-void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAttrib)
+void displayCamera(CCamera *camera, CViewableBase *renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
-    _commonStart(camera,renderingObject);
+    _commonStart(camera, renderingObject);
 
-    C3Vector normalVectorForLinesAndPoints(camera->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
+    C3Vector normalVectorForLinesAndPoints(camera->getFullCumulativeTransformation().Q.getInverse() *
+                                           C3Vector::unitZVector);
 
     // Object display:
-    if (camera->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
+    if (camera->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(), displayAttrib))
     {
-        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
         {
-            if (camera->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (camera->getObjectProperty() & sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(camera->getModelSelectionHandle());
             else
                 glLoadName(camera->getObjectHandle());
@@ -41,56 +42,59 @@ void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAtt
         else
             glLoadName(-1);
 
-        if ( (displayAttrib&sim_displayattribute_forcewireframe)&&(displayAttrib&sim_displayattribute_renderpass) )
-            glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
+        if ((displayAttrib & sim_displayattribute_forcewireframe) && (displayAttrib & sim_displayattribute_renderpass))
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         _enableAuxClippingPlanes(camera->getObjectHandle());
-        camera->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-        double cameraSize=camera->getCameraSize();
+        camera->getColor(false)->makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
+        double cameraSize = camera->getCameraSize();
         glPushMatrix();
-        glTranslated(0.0,0.0,-cameraSize);
-        ogl::drawBox(0.4*cameraSize,cameraSize,2.0*cameraSize,true,nullptr);
+        glTranslated(0.0, 0.0, -cameraSize);
+        ogl::drawBox(0.4 * cameraSize, cameraSize, 2.0 * cameraSize, true, nullptr);
         glPopMatrix();
         glPushMatrix();
-        camera->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-        glTranslated(0.0,1.3*cameraSize,-0.25*cameraSize);
-        glRotatef(90.0,0,1,0);
-        ogl::drawCylinder(2.0*cameraSize,cameraSize/2.0,20,0,true);
-        glTranslated(1.5*cameraSize,0.0,0.0);
-        ogl::drawCylinder(2.0*cameraSize,cameraSize/2.0,20,0,true);
+        camera->getColor(true)->makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
+        glTranslated(0.0, 1.3 * cameraSize, -0.25 * cameraSize);
+        glRotatef(90.0, 0, 1, 0);
+        ogl::drawCylinder(2.0 * cameraSize, cameraSize / 2.0, 20, 0, true);
+        glTranslated(1.5 * cameraSize, 0.0, 0.0);
+        ogl::drawCylinder(2.0 * cameraSize, cameraSize / 2.0, 20, 0, true);
         glPopMatrix();
         glPushMatrix();
-        glTranslated(0.0,0.0,cameraSize/6.0);
-        ogl::drawCone(cameraSize,5.0*cameraSize/3.0,20,true,true);
+        glTranslated(0.0, 0.0, cameraSize / 6.0);
+        ogl::drawCone(cameraSize, 5.0 * cameraSize / 3.0, 20, true, true);
         glPopMatrix();
         if (camera->getShowVolume())
         {
-            C3Vector c,f;
-            camera->getVolumeVectors(c,f);
+            C3Vector c, f;
+            camera->getVolumeVectors(c, f);
             ogl::buffer.clear();
-            ogl::addBuffer3DPoints(-f(0),-f(1),f(2));
-            ogl::addBuffer3DPoints(-f(0),+f(1),f(2));
-            ogl::addBuffer3DPoints(+f(0),+f(1),f(2));
-            ogl::addBuffer3DPoints(+f(0),-f(1),f(2));
-            ogl::addBuffer3DPoints(-f(0),-f(1),f(2));
-            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,normalVectorForLinesAndPoints.data);
+            ogl::addBuffer3DPoints(-f(0), -f(1), f(2));
+            ogl::addBuffer3DPoints(-f(0), +f(1), f(2));
+            ogl::addBuffer3DPoints(+f(0), +f(1), f(2));
+            ogl::addBuffer3DPoints(+f(0), -f(1), f(2));
+            ogl::addBuffer3DPoints(-f(0), -f(1), f(2));
+            ogl::drawRandom3dLines(&ogl::buffer[0], (int)ogl::buffer.size() / 3, true,
+                                   normalVectorForLinesAndPoints.data);
             ogl::buffer.clear();
-            ogl::addBuffer3DPoints(-c(0),-c(1),c(2));
-            ogl::addBuffer3DPoints(-c(0),+c(1),c(2));
-            ogl::addBuffer3DPoints(+c(0),+c(1),c(2));
-            ogl::addBuffer3DPoints(+c(0),-c(1),c(2));
-            ogl::addBuffer3DPoints(-c(0),-c(1),c(2));
-            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,normalVectorForLinesAndPoints.data);
+            ogl::addBuffer3DPoints(-c(0), -c(1), c(2));
+            ogl::addBuffer3DPoints(-c(0), +c(1), c(2));
+            ogl::addBuffer3DPoints(+c(0), +c(1), c(2));
+            ogl::addBuffer3DPoints(+c(0), -c(1), c(2));
+            ogl::addBuffer3DPoints(-c(0), -c(1), c(2));
+            ogl::drawRandom3dLines(&ogl::buffer[0], (int)ogl::buffer.size() / 3, true,
+                                   normalVectorForLinesAndPoints.data);
             ogl::buffer.clear();
-            ogl::addBuffer3DPoints(-c(0),-c(1),c(2));
-            ogl::addBuffer3DPoints(-f(0),-f(1),f(2));
-            ogl::addBuffer3DPoints(-c(0),+c(1),c(2));
-            ogl::addBuffer3DPoints(-f(0),+f(1),f(2));
-            ogl::addBuffer3DPoints(+c(0),-c(1),c(2));
-            ogl::addBuffer3DPoints(+f(0),-f(1),f(2));
-            ogl::addBuffer3DPoints(+c(0),+c(1),c(2));
-            ogl::addBuffer3DPoints(+f(0),+f(1),f(2));
-            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,normalVectorForLinesAndPoints.data);
+            ogl::addBuffer3DPoints(-c(0), -c(1), c(2));
+            ogl::addBuffer3DPoints(-f(0), -f(1), f(2));
+            ogl::addBuffer3DPoints(-c(0), +c(1), c(2));
+            ogl::addBuffer3DPoints(-f(0), +f(1), f(2));
+            ogl::addBuffer3DPoints(+c(0), -c(1), c(2));
+            ogl::addBuffer3DPoints(+f(0), -f(1), f(2));
+            ogl::addBuffer3DPoints(+c(0), +c(1), c(2));
+            ogl::addBuffer3DPoints(+f(0), +f(1), f(2));
+            ogl::drawRandom3dLines(&ogl::buffer[0], (int)ogl::buffer.size() / 3, false,
+                                   normalVectorForLinesAndPoints.data);
             ogl::buffer.clear();
         }
 
@@ -98,5 +102,5 @@ void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAtt
     }
 
     // At the end of every scene object display routine:
-    _commonFinish(camera,renderingObject);
+    _commonFinish(camera, renderingObject);
 }

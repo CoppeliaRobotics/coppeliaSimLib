@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgDummies;
+namespace Ui
+{
+class CQDlgDummies;
 }
 
 class CQDlgDummies : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgDummies(QWidget *parent = 0);
     ~CQDlgDummies();
 
@@ -22,7 +23,7 @@ public:
 
     bool inMainRefreshRoutine;
 
-private slots:
+  private slots:
     void on_qqSize_editingFinished();
 
     void on_qqColor_clicked();
@@ -47,7 +48,7 @@ private slots:
 
     void on_qqEditEngine_clicked();
 
-private:
+  private:
     Ui::CQDlgDummies *ui;
 };
 

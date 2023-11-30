@@ -4,15 +4,16 @@
 #include <vDialog.h>
 #include <simLib/simTypes.h>
 
-namespace Ui {
-    class CQDlgScaling;
+namespace Ui
+{
+class CQDlgScaling;
 }
 
 class CQDlgScaling : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgScaling(QWidget *parent = 0);
     ~CQDlgScaling();
 
@@ -26,7 +27,7 @@ public:
 
     void _doTheScaling();
 
-private slots:
+  private slots:
     void on_qqInPlace_clicked();
 
     void on_qqScalingFactor_editingFinished();
@@ -35,7 +36,7 @@ private slots:
 
     void on_qqOkCancel_rejected();
 
-private:
+  private:
     Ui::CQDlgScaling *ui;
 };
 

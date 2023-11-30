@@ -2,11 +2,11 @@
 #include <multishapeEditMode.h>
 #include <mesh.h>
 
-CMultishapeEditMode::CMultishapeEditMode(CShape* shape)
+CMultishapeEditMode::CMultishapeEditMode(CShape *shape)
 {
-    _shape=shape;
-    _shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation,_multishapeGeometricComponents);
-    _multishapeGeometricComponentIndex=-1;
+    _shape = shape;
+    _shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, _multishapeGeometricComponents);
+    _multishapeGeometricComponentIndex = -1;
 }
 
 CMultishapeEditMode::~CMultishapeEditMode()
@@ -15,46 +15,51 @@ CMultishapeEditMode::~CMultishapeEditMode()
 
 bool CMultishapeEditMode::processCommand(int commandID)
 { // Return value is true means success
-    return(false);
+    return (false);
 }
 
-CShape* CMultishapeEditMode::getEditModeMultishape()
+CShape *CMultishapeEditMode::getEditModeMultishape()
 {
-    return(_shape);
+    return (_shape);
 }
 
 int CMultishapeEditMode::getMultishapeGeometricComponentsSize()
 {
-    return(int(_multishapeGeometricComponents.size()));
+    return (int(_multishapeGeometricComponents.size()));
 }
 
 int CMultishapeEditMode::getMultishapeGeometricComponentIndex()
 {
-    return(_multishapeGeometricComponentIndex);
+    return (_multishapeGeometricComponentIndex);
 }
 
 void CMultishapeEditMode::setMultishapeGeometricComponentIndex(int index)
 {
-    _multishapeGeometricComponentIndex=index;
+    _multishapeGeometricComponentIndex = index;
 }
 
 bool CMultishapeEditMode::isCurrentMultishapeGeometricComponentValid()
 {
-    return((_multishapeGeometricComponentIndex>=0)&&(_multishapeGeometricComponentIndex<int(_multishapeGeometricComponents.size())));
+    return ((_multishapeGeometricComponentIndex >= 0) &&
+            (_multishapeGeometricComponentIndex < int(_multishapeGeometricComponents.size())));
 }
 
-CMesh* CMultishapeEditMode::getCurrentMultishapeGeometricComponent()
+CMesh *CMultishapeEditMode::getCurrentMultishapeGeometricComponent()
 {
-    return(_multishapeGeometricComponents[_multishapeGeometricComponentIndex]);
+    return (_multishapeGeometricComponents[_multishapeGeometricComponentIndex]);
 }
 
-CMesh* CMultishapeEditMode::getMultishapeGeometricComponentAtIndex(int index)
+CMesh *CMultishapeEditMode::getMultishapeGeometricComponentAtIndex(int index)
 {
-    return(_multishapeGeometricComponents[index]);
+    return (_multishapeGeometricComponents[index]);
 }
 
-void CMultishapeEditMode::displayAllGeometricComponents(CShape* geomData,int displayAttrib,CColorObject* collisionColor,int dynObjFlag_forVisualization,int transparencyHandling)
+void CMultishapeEditMode::displayAllGeometricComponents(CShape *geomData, int displayAttrib,
+                                                        CColorObject *collisionColor, int dynObjFlag_forVisualization,
+                                                        int transparencyHandling)
 {
-    for (size_t i=0;i<_multishapeGeometricComponents.size();i++)
-        _multishapeGeometricComponents[i]->display(C7Vector::identityTransformation,geomData,displayAttrib,collisionColor,dynObjFlag_forVisualization,transparencyHandling,int(i)==_multishapeGeometricComponentIndex);
+    for (size_t i = 0; i < _multishapeGeometricComponents.size(); i++)
+        _multishapeGeometricComponents[i]->display(C7Vector::identityTransformation, geomData, displayAttrib,
+                                                   collisionColor, dynObjFlag_forVisualization, transparencyHandling,
+                                                   int(i) == _multishapeGeometricComponentIndex);
 }

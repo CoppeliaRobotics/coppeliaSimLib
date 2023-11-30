@@ -5,9 +5,8 @@
 #include <tt.h>
 #include <utils.h>
 
-CQDlgOpenGlSettings::CQDlgOpenGlSettings(QWidget *parent) :
-    VDialog(parent,QT_MODAL_DLG_STYLE),
-    ui(new Ui::CQDlgOpenGlSettings)
+CQDlgOpenGlSettings::CQDlgOpenGlSettings(QWidget *parent)
+    : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgOpenGlSettings)
 {
     ui->setupUi(this);
 }
@@ -19,46 +18,46 @@ CQDlgOpenGlSettings::~CQDlgOpenGlSettings()
 
 void CQDlgOpenGlSettings::cancelEvent()
 {
-//  defaultModalDialogEndRoutine(false);
+    //  defaultModalDialogEndRoutine(false);
 }
 
 void CQDlgOpenGlSettings::okEvent()
 {
-//  defaultModalDialogEndRoutine(true);
+    //  defaultModalDialogEndRoutine(true);
 }
 
 void CQDlgOpenGlSettings::refresh()
 {
 
-    #ifdef USES_QGLWIDGET
-    #else
-        ui->qqOffscreenBox->setEnabled(false);
-        ui->qqFboBox->setEnabled(false);
-       // ui->qqVboBox->setEnabled(false);
-    #endif
+#ifdef USES_QGLWIDGET
+#else
+    ui->qqOffscreenBox->setEnabled(false);
+    ui->qqFboBox->setEnabled(false);
+    // ui->qqVboBox->setEnabled(false);
+#endif
 
-    ui->qqContextDefault->setChecked(offscreenContextType==-1);
-    ui->qqContextOffscreen->setChecked(offscreenContextType==0);
-    ui->qqContextVisibleWindow->setChecked(offscreenContextType==1);
-    ui->qqContextInvisibleWindow->setChecked(offscreenContextType==2);
+    ui->qqContextDefault->setChecked(offscreenContextType == -1);
+    ui->qqContextOffscreen->setChecked(offscreenContextType == 0);
+    ui->qqContextVisibleWindow->setChecked(offscreenContextType == 1);
+    ui->qqContextInvisibleWindow->setChecked(offscreenContextType == 2);
 
-    ui->qqFboDefault->setChecked(fboType==-1);
-    ui->qqFboNonQt->setChecked(fboType==0);
-    ui->qqFboQt->setChecked(fboType==1);
+    ui->qqFboDefault->setChecked(fboType == -1);
+    ui->qqFboNonQt->setChecked(fboType == 0);
+    ui->qqFboQt->setChecked(fboType == 1);
 
-    ui->qqVboDefault->setChecked(vboOperation==-1);
-    ui->qqVboDisabled->setChecked(vboOperation==0);
-    ui->qqVboEnabled->setChecked(vboOperation==1);
+    ui->qqVboDefault->setChecked(vboOperation == -1);
+    ui->qqVboDisabled->setChecked(vboOperation == 0);
+    ui->qqVboEnabled->setChecked(vboOperation == 1);
 
-//    ui->qqGuiRenderingOnly->setChecked((exclusiveGuiRendering==-1)||(exclusiveGuiRendering==1));
-//    ui->qqCompatibilityTweak1->setChecked(compatibilityTweak1);
-//    ui->qqUsingGlFinish->setChecked(glFinish_normal);
-//    ui->qqUsingGlFinishVisionSensors->setChecked(glFinish_visionSensors);
-    ui->qqIdleFps->setText(utils::getIntString(false,idleFps).c_str());
-//    ui->qqForceExt->setChecked(forceExt);
+    //    ui->qqGuiRenderingOnly->setChecked((exclusiveGuiRendering==-1)||(exclusiveGuiRendering==1));
+    //    ui->qqCompatibilityTweak1->setChecked(compatibilityTweak1);
+    //    ui->qqUsingGlFinish->setChecked(glFinish_normal);
+    //    ui->qqUsingGlFinishVisionSensors->setChecked(glFinish_visionSensors);
+    ui->qqIdleFps->setText(utils::getIntString(false, idleFps).c_str());
+    //    ui->qqForceExt->setChecked(forceExt);
 
-//    ui->qqMajorOpenGlVersion->setText(utils::getIntString(false,glVersionMajor).c_str());
-//    ui->qqMinorOpenGlVersion->setText(utils::getIntString(false,glVersionMinor).c_str());
+    //    ui->qqMajorOpenGlVersion->setText(utils::getIntString(false,glVersionMajor).c_str());
+    //    ui->qqMinorOpenGlVersion->setText(utils::getIntString(false,glVersionMinor).c_str());
 }
 
 void CQDlgOpenGlSettings::on_qqOk_accepted()
@@ -68,43 +67,43 @@ void CQDlgOpenGlSettings::on_qqOk_accepted()
 
 void CQDlgOpenGlSettings::on_qqContextDefault_clicked()
 {
-    offscreenContextType=-1;
+    offscreenContextType = -1;
     refresh();
 }
 
 void CQDlgOpenGlSettings::on_qqContextOffscreen_clicked()
 {
-    offscreenContextType=0;
+    offscreenContextType = 0;
     refresh();
 }
 
 void CQDlgOpenGlSettings::on_qqContextVisibleWindow_clicked()
 {
-    offscreenContextType=1;
+    offscreenContextType = 1;
     refresh();
 }
 
 void CQDlgOpenGlSettings::on_qqContextInvisibleWindow_clicked()
 {
-    offscreenContextType=2;
+    offscreenContextType = 2;
     refresh();
 }
 
 void CQDlgOpenGlSettings::on_qqFboDefault_clicked()
 {
-    fboType=-1;
+    fboType = -1;
     refresh();
 }
 
 void CQDlgOpenGlSettings::on_qqFboNonQt_clicked()
 {
-    fboType=0;
+    fboType = 0;
     refresh();
 }
 
 void CQDlgOpenGlSettings::on_qqFboQt_clicked()
 {
-    fboType=1;
+    fboType = 1;
     refresh();
 }
 /*
@@ -180,29 +179,29 @@ void CQDlgOpenGlSettings::on_qqIdleFps_editingFinished()
         return;
     int newVal;
     bool ok;
-    newVal=(int)GuiApp::getEvalInt(ui->qqIdleFps->text().toStdString().c_str(), &ok);
+    newVal = (int)GuiApp::getEvalInt(ui->qqIdleFps->text().toStdString().c_str(), &ok);
     if (ok)
     {
-        tt::limitValue(2,25,newVal);
-        idleFps=newVal;
+        tt::limitValue(2, 25, newVal);
+        idleFps = newVal;
     }
     refresh();
 }
 
 void CQDlgOpenGlSettings::on_qqVboDefault_clicked()
 {
-    vboOperation=-1;
+    vboOperation = -1;
     refresh();
 }
 
 void CQDlgOpenGlSettings::on_qqVboDisabled_clicked()
 {
-    vboOperation=0;
+    vboOperation = 0;
     refresh();
 }
 
 void CQDlgOpenGlSettings::on_qqVboEnabled_clicked()
 {
-    vboOperation=1;
+    vboOperation = 1;
     refresh();
 }

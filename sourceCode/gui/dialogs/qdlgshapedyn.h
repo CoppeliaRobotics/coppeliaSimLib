@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgShapeDyn;
+namespace Ui
+{
+class CQDlgShapeDyn;
 }
 
 class CQDlgShapeDyn : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgShapeDyn(QWidget *parent = 0);
     ~CQDlgShapeDyn();
 
@@ -23,7 +24,7 @@ public:
     static bool masslessInertia;
     bool inMainRefreshRoutine;
 
-private slots:
+  private slots:
     void on_qqDynamic_clicked();
 
     void on_qqSleepModeStart_clicked();
@@ -75,8 +76,8 @@ private slots:
 
     void on_qqMassless_clicked();
 
-private:
-    void _inertiaChanged(size_t row,size_t col,QLineEdit* ct);
+  private:
+    void _inertiaChanged(size_t row, size_t col, QLineEdit *ct);
     void _toggleRespondableBits(int bits);
 
     Ui::CQDlgShapeDyn *ui;

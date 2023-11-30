@@ -5,10 +5,10 @@
 
 class VSimUiMutex
 {
-public:
+  public:
     enum VSimUiMutexThread
     {
-        ui=0,
+        ui = 0,
         nonUi
     };
 
@@ -16,13 +16,12 @@ public:
     virtual ~VSimUiMutex();
 
     void lock(int threadType);
-    bool tryLock(int threadType,int timeOut=0);
+    bool tryLock(int threadType, int timeOut = 0);
     void unlock();
 
-private:
+  private:
     volatile int _lockLevel;
     volatile int _threadType;
     QMutex _cs;
     QMutex _cs_aux;
 };
-

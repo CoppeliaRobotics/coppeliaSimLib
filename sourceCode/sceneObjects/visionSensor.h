@@ -12,38 +12,38 @@ struct SHandlingResult
 {
     bool sensorWasTriggered;
     bool sensorResultIsValid;
-    unsigned char sensorDataRed[3]; // min, max, average
-    unsigned char sensorDataGreen[3]; // min, max, average
-    unsigned char sensorDataBlue[3]; // min, max, average
+    unsigned char sensorDataRed[3];       // min, max, average
+    unsigned char sensorDataGreen[3];     // min, max, average
+    unsigned char sensorDataBlue[3];      // min, max, average
     unsigned char sensorDataIntensity[3]; // min, max, average
-    float sensorDataDepth[3]; // min, max, average
+    float sensorDataDepth[3];             // min, max, average
     int calcTimeInMs;
 };
 
-class CVisionSensor : public CViewableBase  
+class CVisionSensor : public CViewableBase
 {
-public:
+  public:
     CVisionSensor();
     virtual ~CVisionSensor();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev) const;
-    CSceneObject* copyYourself();
+    void addSpecializedObjectEventData(CCbor *ev) const;
+    CSceneObject *copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer& ar);
-    void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
-    void announceCollectionWillBeErased(int groupID,bool copyBuffer);
-    void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
-    void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int,int>* map);
+    void serialize(CSer &ar);
+    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void announceCollectionWillBeErased(int groupID, bool copyBuffer);
+    void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
+    void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
+    void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
+    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -65,9 +65,11 @@ public:
     bool getExplicitHandling() const;
     void resetSensor();
     bool handleSensor();
-    bool checkSensor(int entityID,bool overrideRenderableFlagsForNonCollections);
-    float* checkSensorEx(int entityID,bool imageBuffer,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
-    void setDepthBuffer(const float* img);
+    bool checkSensor(int entityID, bool overrideRenderableFlagsForNonCollections);
+    float *checkSensorEx(int entityID, bool imageBuffer,
+                         bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, bool hideEdgesIfModel,
+                         bool overrideRenderableFlagsForNonCollections);
+    void setDepthBuffer(const float *img);
 
     void setIgnoreRGBInfo(bool ignore);
     bool getIgnoreRGBInfo() const;
@@ -83,16 +85,22 @@ public:
     void setComputeImageBasicStats(bool c);
     bool getComputeImageBasicStats() const;
 
-    unsigned char* getRgbBufferPointer();
-    float* getDepthBufferPointer() const;
+    unsigned char *getRgbBufferPointer();
+    float *getDepthBufferPointer() const;
 
     void setDetectableEntityHandle(int entityHandle);
     int getDetectableEntityHandle() const;
 
-    bool detectVisionSensorEntity_executedViaUiThread(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
-    bool detectEntity(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
-    bool detectEntity2(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
-    bool renderForDetection(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections,const std::vector<int>& activeMirrors);
+    bool detectVisionSensorEntity_executedViaUiThread(
+        int entityID, bool detectAll, bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
+        bool hideEdgesIfModel, bool overrideRenderableFlagsForNonCollections);
+    bool detectEntity(int entityID, bool detectAll, bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
+                      bool hideEdgesIfModel, bool overrideRenderableFlagsForNonCollections);
+    bool detectEntity2(int entityID, bool detectAll, bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
+                       bool hideEdgesIfModel, bool overrideRenderableFlagsForNonCollections);
+    bool renderForDetection(int entityID, bool detectAll,
+                            bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, bool hideEdgesIfModel,
+                            bool overrideRenderableFlagsForNonCollections, const std::vector<int> &activeMirrors);
     void setDefaultBufferValues(const float v[3]);
     void getDefaultBufferValues(float v[3]) const;
 
@@ -101,13 +109,14 @@ public:
     bool getInternalRendering() const;
     bool getApplyExternalRenderedImage() const;
 
-    void setExtWindowSizeAndPos(int sizeX,int sizeY,int posX,int posY);
-    void getExtWindowSizeAndPos(int& sizeX,int& sizeY,int& posX,int& posY) const;
+    void setExtWindowSizeAndPos(int sizeX, int sizeY, int posX, int posY);
+    void getExtWindowSizeAndPos(int &sizeX, int &sizeY, int &posX, int &posY) const;
 
-    float* readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth) const;
-    void writeImage(const float* buff,int rgbGreyOrDepth);
-    unsigned char* readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,double cutoffRgba,int option) const;
-    bool writePortionOfCharImage(const unsigned char* img,int posX,int posY,int sizeX,int sizeY,int option);
+    float *readPortionOfImage(int posX, int posY, int sizeX, int sizeY, int rgbGreyOrDepth) const;
+    void writeImage(const float *buff, int rgbGreyOrDepth);
+    unsigned char *readPortionOfCharImage(int posX, int posY, int sizeX, int sizeY, double cutoffRgba,
+                                          int option) const;
+    bool writePortionOfCharImage(const unsigned char *img, int posX, int posY, int sizeX, int sizeY, int option);
 
     void setUseEnvironmentBackgroundColor(bool s);
     bool getUseEnvironmentBackgroundColor() const;
@@ -115,34 +124,45 @@ public:
     std::string getDetectableEntityLoadAlias() const;
     std::string getDetectableEntityLoadName_old() const;
 
-    CComposedFilter* getComposedFilter() const;
-    void setComposedFilter(CComposedFilter* newFilter);
-    CColorObject* getColor();
+    CComposedFilter *getComposedFilter() const;
+    void setComposedFilter(CComposedFilter *newFilter);
+    CColorObject *getColor();
 
     SHandlingResult sensorResult;
-    std::vector<std::vector<double>> sensorAuxiliaryResult; // e.g. vectors, etc. set by a filter or an extension module's filter
+    std::vector<std::vector<double>>
+        sensorAuxiliaryResult; // e.g. vectors, etc. set by a filter or an extension module's filter
 
-    bool setExternalImage_old(const float* img,bool imgIsGreyScale,bool noProcessing);
-    bool setExternalCharImage_old(const unsigned char* img,bool imgIsGreyScale,bool noProcessing);
+    bool setExternalImage_old(const float *img, bool imgIsGreyScale, bool noProcessing);
+    bool setExternalCharImage_old(const unsigned char *img, bool imgIsGreyScale, bool noProcessing);
 
-protected:
-    void _drawObjects(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
-    int _getActiveMirrors(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool overrideRenderableFlagsForNonCollections,int rendAttrib,std::vector<int>& activeMirrors);
+  protected:
+    void _drawObjects(int entityID, bool detectAll, bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
+                      bool hideEdgesIfModel, bool overrideRenderableFlagsForNonCollections);
+    int _getActiveMirrors(int entityID, bool detectAll,
+                          bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
+                          bool overrideRenderableFlagsForNonCollections, int rendAttrib,
+                          std::vector<int> &activeMirrors);
 
     void _reserveBuffers();
     void _clearBuffers();
 
     bool _computeDefaultReturnValuesAndApplyFilters();
 
-    CSceneObject* _getInfoOfWhatNeedsToBeRendered(int entityID,bool detectAll,int rendAttrib,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool overrideRenderableFlagsForNonCollections,std::vector<CSceneObject*>& toRender);
-    CSceneObject* _getInfoOfWhatNeedsToBeRendered_old(int entityID,bool detectAll,int rendAttrib,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool overrideRenderableFlagsForNonCollections,std::vector<CSceneObject*>& toRender);
+    CSceneObject *_getInfoOfWhatNeedsToBeRendered(int entityID, bool detectAll, int rendAttrib,
+                                                  bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
+                                                  bool overrideRenderableFlagsForNonCollections,
+                                                  std::vector<CSceneObject *> &toRender);
+    CSceneObject *_getInfoOfWhatNeedsToBeRendered_old(
+        int entityID, bool detectAll, int rendAttrib,
+        bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
+        bool overrideRenderableFlagsForNonCollections, std::vector<CSceneObject *> &toRender);
 
     bool _extRenderer_prepareView(int extRendererIndex);
     void _extRenderer_prepareLights();
     void _extRenderer_retrieveImage();
 
-    unsigned char* _rgbBuffer;
-    float* _depthBuffer;
+    unsigned char *_rgbBuffer;
+    float *_depthBuffer;
 
     unsigned int _rayTracingTextureName;
 
@@ -160,12 +180,12 @@ protected:
     bool _ignoreRGBInfo;
     bool _ignoreDepthInfo;
     bool _computeImageBasicStats;
-    int _renderMode; // 0=visible, 1=aux channels, 2=colorCodedID, 3=rayTracer, 4=rayTracer2, 5=extRenderer, 6=extRendererWindowed, 7=oculus, 8=oculusWindowed
+    int _renderMode; // 0=visible, 1=aux channels, 2=colorCodedID, 3=rayTracer, 4=rayTracer2, 5=extRenderer,
+                     // 6=extRendererWindowed, 7=oculus, 8=oculusWindowed
     int _attributesForRendering;
     bool _inApplyFilterRoutine;
 
-
-    CComposedFilter* _composedFilter;
+    CComposedFilter *_composedFilter;
 
     // Other variables:
     bool _initialExplicitHandling;
@@ -173,17 +193,20 @@ protected:
     std::string _detectableEntityLoadName_old;
 
 #ifdef SIM_WITH_GUI
-public:
-    void display(CViewableBase* renderingObject,int displayAttrib);
-    void lookAt(CSView* viewObject,int viewPos[2]=nullptr,int viewSize[2]=nullptr);
-    CTextureObject* getTextureObject();
+  public:
+    void display(CViewableBase *renderingObject, int displayAttrib);
+    void lookAt(CSView *viewObject, int viewPos[2] = nullptr, int viewSize[2] = nullptr);
+    CTextureObject *getTextureObject();
 
     void createGlContextAndFboAndTextureObjectIfNeeded(bool useStencilBuffer);
     void createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(bool useStencilBuffer);
-protected:
-    void _removeGlContextAndFboAndTextureObjectIfNeeded();
-    void _handleMirrors(const std::vector<int>& activeMirrors,int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
 
-    CVisionSensorGlStuff* _contextFboAndTexture;
+  protected:
+    void _removeGlContextAndFboAndTextureObjectIfNeeded();
+    void _handleMirrors(const std::vector<int> &activeMirrors, int entityID, bool detectAll,
+                        bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, bool hideEdgesIfModel,
+                        bool overrideRenderableFlagsForNonCollections);
+
+    CVisionSensorGlStuff *_contextFboAndTexture;
 #endif
 };

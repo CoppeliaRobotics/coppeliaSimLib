@@ -20,20 +20,21 @@ See the GNU General Public License for more details.
 
 #include <ghostRendering.h>
 
-void displayGhost(CShape* shape,const C7Vector& tr,int displayAttributes,int options,double transparencyFactor,const float* color)
+void displayGhost(CShape *shape, const C7Vector &tr, int displayAttributes, int options, double transparencyFactor,
+                  const float *color)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
 
-    glTranslated(tr.X(0),tr.X(1),tr.X(2));
-    C4Vector axis=tr.Q.getAngleAndAxis();
-    glRotated(axis(0)*radToDeg,axis(1),axis(2),axis(3));
+    glTranslated(tr.X(0), tr.X(1), tr.X(2));
+    C4Vector axis = tr.Q.getAngleAndAxis();
+    glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
 
-    shape->getMesh()->displayGhost(C7Vector::identityTransformation,shape,displayAttributes,(options&4)!=0,(options&32)!=0,transparencyFactor,color);
+    shape->getMesh()->displayGhost(C7Vector::identityTransformation, shape, displayAttributes, (options & 4) != 0,
+                                   (options & 32) != 0, transparencyFactor, color);
 
     glPopAttrib();
     glPopMatrix();
     ogl::setBlending(false);
     glDisable(GL_CULL_FACE);
 }
-

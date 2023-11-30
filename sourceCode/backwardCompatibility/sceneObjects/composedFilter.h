@@ -7,18 +7,17 @@
 
 class CComposedFilter
 {
-public:
-
+  public:
     CComposedFilter();
     virtual ~CComposedFilter();
 
-    void serialize(CSer& ar);
+    void serialize(CSer &ar);
     void removeAllSimpleFilters();
 
     std::string scriptEquivalent;
 
-protected:
+  protected:
     void _prepareScriptEquivalent();
 
-    std::vector<CSimpleFilter*> _allSimpleFilters;
+    std::vector<CSimpleFilter *> _allSimpleFilters;
 };

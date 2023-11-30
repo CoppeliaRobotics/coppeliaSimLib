@@ -3,15 +3,16 @@
 #define QDLGCAMERAS_H
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgCameras;
+namespace Ui
+{
+class CQDlgCameras;
 }
 
 class CQDlgCameras : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgCameras(QWidget *parent = 0);
     ~CQDlgCameras();
 
@@ -21,7 +22,7 @@ public:
 
     bool inMainRefreshRoutine;
 
-private slots:
+  private slots:
     void on_qqPerspectiveProjectionAngle_editingFinished();
 
     void on_qqOrthographicProjectionSize_editingFinished();
@@ -52,7 +53,7 @@ private slots:
 
     void on_qqShowVolume_clicked();
 
-private:
+  private:
     Ui::CQDlgCameras *ui;
 };
 

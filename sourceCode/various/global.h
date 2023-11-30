@@ -1,115 +1,117 @@
 #pragma once
 
 // Default layers for 3D objects:
-#define SHAPE_LAYER             0x0001
-#define JOINT_LAYER             0x0002
-#define DUMMY_LAYER             0x0004
-#define PROXIMITY_SENSOR_LAYER  0x0008
-#define VISION_SENSOR_LAYER     0x0008
-#define MILL_LAYER              0x0008
-#define FORCE_SENSOR_LAYER      0x0008
-#define CAMERA_LIGHT_LAYER      0x0010
-#define GRAPH_LAYER             0x0020
-#define PATH_LAYER              0x0020
-#define OCTREE_LAYER            0x0040
-#define POINTCLOUD_LAYER        0x0040
-#define ENVIRONMENT_LAYER       0x0080
+#define SHAPE_LAYER 0x0001
+#define JOINT_LAYER 0x0002
+#define DUMMY_LAYER 0x0004
+#define PROXIMITY_SENSOR_LAYER 0x0008
+#define VISION_SENSOR_LAYER 0x0008
+#define MILL_LAYER 0x0008
+#define FORCE_SENSOR_LAYER 0x0008
+#define CAMERA_LIGHT_LAYER 0x0010
+#define GRAPH_LAYER 0x0020
+#define PATH_LAYER 0x0020
+#define OCTREE_LAYER 0x0040
+#define POINTCLOUD_LAYER 0x0040
+#define ENVIRONMENT_LAYER 0x0080
 
 // General serialization tags. Never change an entry!! (values are serialized!)
-#define SER_SHAPE                       "SHP"
-#define SER_JOINT                       "JNT"
-#define SER_CAMERA                      "CMA"
-#define SER_LIGHT                       "LGT"
-#define SER_MIRROR                      "MIR"
-#define SER_DUMMY                       "DMY"
-#define SER_GRAPH                       "GRH"
-#define SER_PROXIMITYSENSOR             "SNR"
-#define SER_VISIONSENSOR                "RSN"
-#define SER_OCTREE                      "OCT"
-#define SER_POINTCLOUD                  "PTC"
+#define SER_SHAPE "SHP"
+#define SER_JOINT "JNT"
+#define SER_CAMERA "CMA"
+#define SER_LIGHT "LGT"
+#define SER_MIRROR "MIR"
+#define SER_DUMMY "DMY"
+#define SER_GRAPH "GRH"
+#define SER_PROXIMITYSENSOR "SNR"
+#define SER_VISIONSENSOR "RSN"
+#define SER_OCTREE "OCT"
+#define SER_POINTCLOUD "PTC"
 //#define SER_GEOMETRIC_old             "GEO" reserved tag
-#define SER_TEXTURE                     "TEX"
-#define SER_DYNMATERIAL                 "DMA"
-#define SER_COLLECTION                  "GRP"
-#define SER_ENVIRONMENT                 "ENV"
-#define SER_GHOSTS                      "GHO"
-#define SER_FORWARD_COMPATIBILITY       "BCK"
-#define SER_IK                          "IKO"
-#define SER_VIEWS                       "VEW"
-#define SER_COLLISION                   "COL"
-#define SER_DISTANCE                    "DST"
-#define SER_PATH_OLD                        "PAT"
-#define SER_MILL                        "MIL"
-#define SER_FORCESENSOR                 "FSE"
-#define SER_PATH_PLANNING               "PPL"
+#define SER_TEXTURE "TEX"
+#define SER_DYNMATERIAL "DMA"
+#define SER_COLLECTION "GRP"
+#define SER_ENVIRONMENT "ENV"
+#define SER_GHOSTS "GHO"
+#define SER_FORWARD_COMPATIBILITY "BCK"
+#define SER_IK "IKO"
+#define SER_VIEWS "VEW"
+#define SER_COLLISION "COL"
+#define SER_DISTANCE "DST"
+#define SER_PATH_OLD "PAT"
+#define SER_MILL "MIL"
+#define SER_FORCESENSOR "FSE"
+#define SER_PATH_PLANNING "PPL"
 // #define SER_MOTION_PLANNING_old         "MPL" reserved tag
-#define SER_SETTINGS                    "SET"
-#define SER_DYNAMICS                    "DYN"
-#define SER_BUTTON_BLOCK_old            "BBK"
-#define SER_LUA_SCRIPT                  "LST"
-#define SER_SCENE_CUSTOM_DATA           "CDA"
-#define SER_SCENE_CUSTOM_DATA_OLD       "CDS"
+#define SER_SETTINGS "SET"
+#define SER_DYNAMICS "DYN"
+#define SER_BUTTON_BLOCK_old "BBK"
+#define SER_LUA_SCRIPT "LST"
+#define SER_SCENE_CUSTOM_DATA "CDA"
+#define SER_SCENE_CUSTOM_DATA_OLD "CDS"
 //#define SER_GEOMETRIC_CONSTRAINT_OBJECT_old "GCO" reserved tag
-#define SER_SIMULATION                  "SIM"
+#define SER_SIMULATION "SIM"
 // #define SER_MODEL_ACKNOWLEDGEMENTOLD_20100714       "MAC" reserved tag
 // #define SER_MODEL_THUMBNAIL_old_COMPATIBILITY_2012_03_06                "MTB" reserved tag
-#define SER_MODEL_THUMBNAIL             "MTC"
-#define SER_MODEL_THUMBNAIL_INFO        "BBC"
+#define SER_MODEL_THUMBNAIL "MTC"
+#define SER_MODEL_THUMBNAIL_INFO "BBC"
 #define SER_VERTICESINDICESNORMALSEDGES "VIN"
 
-#define SERX_MODEL_THUMBNAIL            "modelThumbnail"
-#define SERX_MODEL_THUMBNAIL_INFO       "modelThumbnailInfo"
-#define SERX_TEXTURE                    "texture"
-#define SERX_VERTICESINDICESNORMALS     "meshData"
-#define SERX_SHAPE                      "shape"
-#define SERX_JOINT                      "joint"
-#define SERX_GRAPH                      "graph"
-#define SERX_CAMERA                     "camera"
-#define SERX_LIGHT                      "light"
-#define SERX_MIRROR                     "mirror"
-#define SERX_OCTREE                     "octree"
-#define SERX_POINTCLOUD                 "pointCloud"
-#define SERX_DUMMY                      "dummy"
-#define SERX_PROXIMITYSENSOR            "proximitySensor"
-#define SERX_VISIONSENSOR               "visionSensor"
-#define SERX_PATH_OLD                       "path"
-#define SERX_MILL                       "mill"
-#define SERX_FORCESENSOR                "forceSensor"
-#define SERX_SCENEOBJECT                "sceneObject"
-#define SERX_GHOSTS                     "ghosts"
-#define SERX_ENVIRONMENT                "environment"
-#define SERX_COLLISION                  "collision"
-#define SERX_DISTANCE                   "distance"
-#define SERX_IK                         "inverseKinematicsGroup"
-#define SERX_SETTINGS                   "settings"
-#define SERX_DYNAMICS                   "dynamics"
-#define SERX_SIMULATION                 "simulation"
-#define SERX_SCENE_CUSTOM_DATA          "customSceneData"
-#define SERX_SCENE_CUSTOM_DATA_OLD      "sceneCustomData"
-#define SERX_VIEWS                      "views"
-#define SERX_COLLECTION                 "collection"
-#define SERX_LUA_SCRIPT                 "script"
+#define SERX_MODEL_THUMBNAIL "modelThumbnail"
+#define SERX_MODEL_THUMBNAIL_INFO "modelThumbnailInfo"
+#define SERX_TEXTURE "texture"
+#define SERX_VERTICESINDICESNORMALS "meshData"
+#define SERX_SHAPE "shape"
+#define SERX_JOINT "joint"
+#define SERX_GRAPH "graph"
+#define SERX_CAMERA "camera"
+#define SERX_LIGHT "light"
+#define SERX_MIRROR "mirror"
+#define SERX_OCTREE "octree"
+#define SERX_POINTCLOUD "pointCloud"
+#define SERX_DUMMY "dummy"
+#define SERX_PROXIMITYSENSOR "proximitySensor"
+#define SERX_VISIONSENSOR "visionSensor"
+#define SERX_PATH_OLD "path"
+#define SERX_MILL "mill"
+#define SERX_FORCESENSOR "forceSensor"
+#define SERX_SCENEOBJECT "sceneObject"
+#define SERX_GHOSTS "ghosts"
+#define SERX_ENVIRONMENT "environment"
+#define SERX_COLLISION "collision"
+#define SERX_DISTANCE "distance"
+#define SERX_IK "inverseKinematicsGroup"
+#define SERX_SETTINGS "settings"
+#define SERX_DYNAMICS "dynamics"
+#define SERX_SIMULATION "simulation"
+#define SERX_SCENE_CUSTOM_DATA "customSceneData"
+#define SERX_SCENE_CUSTOM_DATA_OLD "sceneCustomData"
+#define SERX_VIEWS "views"
+#define SERX_COLLECTION "collection"
+#define SERX_LUA_SCRIPT "script"
 
 #define IK_DIVISION_FACTOR 100.0 // needed for better stability of resolutions!
-#define SELECTION_BUFFER_SIZE 100000    // Specifies how many objects can be selected at the (from 10000 to 100000 on 14/6/2011)
+#define SELECTION_BUFFER_SIZE                                                                                          \
+    100000 // Specifies how many objects can be selected at the (from 10000 to 100000 on 14/6/2011)
 
 #define NON_OBJECT_PICKING_ID_BANNER_START SIM_IDSTART_COLLECTION
-#define NON_OBJECT_PICKING_ID_BANNER_END (NON_OBJECT_PICKING_ID_BANNER_START+10000)
-#define NON_OBJECT_PICKING_ID_PATH_PTS_START (NON_OBJECT_PICKING_ID_BANNER_END+1)
+#define NON_OBJECT_PICKING_ID_BANNER_END (NON_OBJECT_PICKING_ID_BANNER_START + 10000)
+#define NON_OBJECT_PICKING_ID_PATH_PTS_START (NON_OBJECT_PICKING_ID_BANNER_END + 1)
 
-#define BUTTON_MIN_X_SIZE 2         // In pixels
-#define BUTTON_MIN_Y_SIZE 2         // In pixels
-#define BUTTON_SLIDER_X_SIZE 0.2   // Percentage of button x-size
-#define BUTTON_SLIDER_Y_SIZE 0.8   // Percentage of button y-size
-#define MAX_X_BUTTONS 256           // Maximum number of buttons in a block (x)
-#define MAX_Y_BUTTONS 256           // Maximum number of buttons in a block (y)
+#define BUTTON_MIN_X_SIZE 2      // In pixels
+#define BUTTON_MIN_Y_SIZE 2      // In pixels
+#define BUTTON_SLIDER_X_SIZE 0.2 // Percentage of button x-size
+#define BUTTON_SLIDER_Y_SIZE 0.8 // Percentage of button y-size
+#define MAX_X_BUTTONS 256        // Maximum number of buttons in a block (x)
+#define MAX_Y_BUTTONS 256        // Maximum number of buttons in a block (y)
 #define BROWSER_HIERARCHY_TITLE_BAR_HEIGHT 16
 #define BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH 16
 #define BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH 2
-#define HIERARCHY_SCROLLBAR_WIDTH (BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH+2)
+#define HIERARCHY_SCROLLBAR_WIDTH (BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH + 2)
 
-enum {
-    GENERAL_PROPERTIES_DLG=0,
+enum
+{
+    GENERAL_PROPERTIES_DLG = 0,
     SHAPE_DLG,
     SHAPE_DYN_DLG,
     CAMERA_DLG,
@@ -155,8 +157,9 @@ enum {
     IKELEMENT_DLG,
 };
 
-enum {
-    FILE_FORMAT_OBJ=0,
+enum
+{
+    FILE_FORMAT_OBJ = 0,
     FILE_FORMAT_DXF,
     FILE_FORMAT_3DS,
     FILE_FORMAT_ASCII_STL,
@@ -165,8 +168,9 @@ enum {
     FILE_FORMAT_ANY_STL,
 };
 
-enum { // CURSORS:
-    sim_cursor_arrow=0,
+enum
+{ // CURSORS:
+    sim_cursor_arrow = 0,
     sim_cursor_finger,
     sim_cursor_all_directions,
     sim_cursor_horizontal_directions,
@@ -178,22 +182,25 @@ enum { // CURSORS:
     sim_cursor_closed_hand,
 };
 
-enum { // RENDERING MODES:
-    RENDERING_MODE_SOLID=0,
+enum
+{ // RENDERING MODES:
+    RENDERING_MODE_SOLID = 0,
     RENDERING_MODE_WIREFRAME_EDGES,
     RENDERING_MODE_WIREFRAME_TRIANGLES,
 };
 
-enum { // catch elements:
-    sim_left_button     =0x0001,
-    sim_middle_button   =0x0002,
-    sim_right_button    =0x0004,
-    sim_focus           =0x0008,
+enum
+{ // catch elements:
+    sim_left_button = 0x0001,
+    sim_middle_button = 0x0002,
+    sim_right_button = 0x0004,
+    sim_focus = 0x0008,
 };
 
 // Specific camera orientations:
-enum {
-    NO_SPECIFIC_VIEW=0,
+enum
+{
+    NO_SPECIFIC_VIEW = 0,
     POSITIVE_X_VIEW,
     NEGATIVE_X_VIEW,
     POSITIVE_Y_VIEW,
@@ -202,21 +209,24 @@ enum {
     NEGATIVE_Z_VIEW
 };
 
-enum {
-    NOSELECTION=0,
+enum
+{
+    NOSELECTION = 0,
     CTRLSELECTION,
     SHIFTSELECTION,
 };
 
-enum {
-    CONSTANT_ATTENUATION=0,
+enum
+{
+    CONSTANT_ATTENUATION = 0,
     LINEAR_ATTENUATION,
     QUADRATIC_ATTENUATION
 };
 
 // Serialization types. Never delete an entry or change order!! (values are serialized!)
-enum {
-    SINGLE_VIEW=0,
+enum
+{
+    SINGLE_VIEW = 0,
     FOUR_VIEWS,
     SIX_VIEWS_old,
     RESERVED_AND_PLACE_HOLDER1,
@@ -234,29 +244,33 @@ enum {
 };
 
 // View selection modes:
-enum {
-    NO_VIEW_SELECT_MODE=0,
+enum
+{
+    NO_VIEW_SELECT_MODE = 0,
     CAMERA_VIEW_SELECT_MODE,
     GRAPH_VIEW_SELECT_MODE,
     VISIONSENSOR_VIEW_SELECT_MODE,
     VIEWABLE_VIEW_SELECT_MODE
 };
 
-enum {
-    NO_EDIT_MODE=0,
-    TRIANGLE_EDIT_MODE=1,
-    VERTEX_EDIT_MODE=2,
-    EDGE_EDIT_MODE=4,
-    SHAPE_EDIT_MODE=TRIANGLE_EDIT_MODE|VERTEX_EDIT_MODE|EDGE_EDIT_MODE,
-    PATH_EDIT_MODE_OLD=8,
-    BUTTON_EDIT_MODE_old=16,
-    MULTISHAPE_EDIT_MODE=32,
-    SHAPE_OR_PATH_EDIT_MODE_OLD=SHAPE_EDIT_MODE|PATH_EDIT_MODE_OLD|MULTISHAPE_EDIT_MODE // Edit mode when regular objects can't be selected
+enum
+{
+    NO_EDIT_MODE = 0,
+    TRIANGLE_EDIT_MODE = 1,
+    VERTEX_EDIT_MODE = 2,
+    EDGE_EDIT_MODE = 4,
+    SHAPE_EDIT_MODE = TRIANGLE_EDIT_MODE | VERTEX_EDIT_MODE | EDGE_EDIT_MODE,
+    PATH_EDIT_MODE_OLD = 8,
+    BUTTON_EDIT_MODE_old = 16,
+    MULTISHAPE_EDIT_MODE = 32,
+    SHAPE_OR_PATH_EDIT_MODE_OLD =
+        SHAPE_EDIT_MODE | PATH_EDIT_MODE_OLD | MULTISHAPE_EDIT_MODE // Edit mode when regular objects can't be selected
 };
 
 // Collection types:
-enum {
-    sim_collectionelement_loose=0,
+enum
+{
+    sim_collectionelement_loose = 0,
     sim_collectionelement_frombaseincluded,
     sim_collectionelement_frombaseexcluded,
     sim_collectionelement_fromtipincluded,
@@ -264,10 +278,9 @@ enum {
     sim_collectionelement_all
 };
 
-
 // Graphing objects. Never remove an element!! (instead replace it with an dummy name
 // (RESERVED0)). These values are serialized!
-// When changing something here, don't forget to change the 
+// When changing something here, don't forget to change the
 // performeObjectLoadingMapping-
 // performCollectionLoadingMapping-
 // performCollisionLoadingMapping-
@@ -279,8 +292,9 @@ enum {
 // routines in CGraphData_old!!!!!
 // and the getCyclicAndRange function in graph!!!!!!!!!!!!
 // and the adjustDataToUserMetric function graph!!!!!!!!
-enum {
-    GRAPH_SCENEOBJECT_START=0,         // From here, streams associated with a scene object handle:
+enum
+{
+    GRAPH_SCENEOBJECT_START = 0, // From here, streams associated with a scene object handle:
     GRAPH_SCENEOBJECT_ALL_X_ABS,
     GRAPH_SCENEOBJECT_ALL_Y_ABS,
     GRAPH_SCENEOBJECT_ALL_Z_ABS,
@@ -300,7 +314,7 @@ enum {
     GRAPH_SCENEOBJECT_ALL_VEL_ABS,
     GRAPH_SCENEOBJECT_ALL_ANGULAR_VEL_ABS,
 
-    GRAPH_SCENEOBJECT_PROXSENSOR_SUBSTART=500,         // sub-start
+    GRAPH_SCENEOBJECT_PROXSENSOR_SUBSTART = 500, // sub-start
     GRAPH_SCENEOBJECT_PROXSENSOR_X_ABS,
     GRAPH_SCENEOBJECT_PROXSENSOR_Y_ABS,
     GRAPH_SCENEOBJECT_PROXSENSOR_Z_ABS,
@@ -315,8 +329,8 @@ enum {
     GRAPH_SCENEOBJECT_PROXSENSOR_ELEVATION,
     GRAPH_SCENEOBJECT_PROXSENSOR_DETECTION_STATE,
     GRAPH_SCENEOBJECT_PROXSENSOR_CALCULATION_TIME,
-    GRAPH_SCENEOBJECT_PROXSENSOR_SUBEND=550,               // sub-end
-    GRAPH_SCENEOBJECT_VISIONSENSOR_SUBSTART=551,       // sub-start
+    GRAPH_SCENEOBJECT_PROXSENSOR_SUBEND = 550,     // sub-end
+    GRAPH_SCENEOBJECT_VISIONSENSOR_SUBSTART = 551, // sub-start
     GRAPH_SCENEOBJECT_VISIONSENSOR_MIN_RED,
     GRAPH_SCENEOBJECT_VISIONSENSOR_MAX_RED,
     GRAPH_SCENEOBJECT_VISIONSENSOR_AVG_RED,
@@ -334,28 +348,28 @@ enum {
     GRAPH_SCENEOBJECT_VISIONSENSOR_AVG_DEPTH,
     GRAPH_SCENEOBJECT_VISIONSENSOR_DETECTION_STATE,
     GRAPH_SCENEOBJECT_VISIONSENSOR_CALCULATION_TIME,
-    GRAPH_SCENEOBJECT_VISIONSENSOR_SUBEND=650,             // sub-end
-    GRAPH_SCENEOBJECT_JOINT_SUBSTART=651,                  // sub-start
+    GRAPH_SCENEOBJECT_VISIONSENSOR_SUBEND = 650, // sub-end
+    GRAPH_SCENEOBJECT_JOINT_SUBSTART = 651,      // sub-start
     GRAPH_SCENEOBJECT_JOINT_POSITION,
     GRAPH_SCENEOBJECT_JOINT_DYN_POSITION_ERROR,
     GRAPH_SCENEOBJECT_JOINT_DYN_ORIENTATION_ERROR,
     GRAPH_SCENEOBJECT_JOINT_DYN_FORCE_OR_TORQUE,
     GRAPH_SCENEOBJECT_JOINT_VELOCITY,
-    GRAPH_SCENEOBJECT_JOINT_SUBEND=700,                // sub-end
+    GRAPH_SCENEOBJECT_JOINT_SUBEND = 700, // sub-end
 
-    GRAPH_SCENEOBJECT_PATH_SUBSTART=701,                   // sub-start
+    GRAPH_SCENEOBJECT_PATH_SUBSTART = 701, // sub-start
     GRAPH_SCENEOBJECT_PATH_POSITION,
     GRAPH_SCENEOBJECT_PATH_POSITION_LINEAR_COMPONENT,
     GRAPH_SCENEOBJECT_PATH_POSITION_ANGULAR_COMPONENT,
-    GRAPH_SCENEOBJECT_PATH_SUBEND=750,             // sub-end
+    GRAPH_SCENEOBJECT_PATH_SUBEND = 750, // sub-end
 
-    GRAPH_SCENEOBJECT_MILL_SUBSTART=751,           // sub-start
+    GRAPH_SCENEOBJECT_MILL_SUBSTART = 751, // sub-start
     GRAPH_SCENEOBJECT_MILL_CUT_SURFACE,
     GRAPH_SCENEOBJECT_MILL_CUT_VOLUME,
     GRAPH_SCENEOBJECT_MILL_CALCULATION_TIME,
-    GRAPH_SCENEOBJECT_MILL_SUBEND=770,             // sub-end
+    GRAPH_SCENEOBJECT_MILL_SUBEND = 770, // sub-end
 
-    GRAPH_SCENEOBJECT_FORCESENSOR_SUBSTART=771,            // sub-start
+    GRAPH_SCENEOBJECT_FORCESENSOR_SUBSTART = 771, // sub-start
     GRAPH_SCENEOBJECT_FORCESENSOR_FORCE_X,
     GRAPH_SCENEOBJECT_FORCESENSOR_FORCE_Y,
     GRAPH_SCENEOBJECT_FORCESENSOR_FORCE_Z,
@@ -367,14 +381,14 @@ enum {
     GRAPH_SCENEOBJECT_FORCESENSOR_POSITION_ERROR,
     GRAPH_SCENEOBJECT_FORCESENSOR_ORIENTATION_ERROR,
     GRAPH_SCENEOBJECT_FORCESENSOR_BROKEN,
-    GRAPH_SCENEOBJECT_FORCESENSOR_SUBEND=790,              // sub-end
+    GRAPH_SCENEOBJECT_FORCESENSOR_SUBEND = 790, // sub-end
 
-    GRAPH_SCENEOBJECT_END=2000,                    //End
-    GRAPH_COLLISION_START=2001,                 //Start
+    GRAPH_SCENEOBJECT_END = 2000, // End
+    GRAPH_COLLISION_START = 2001, // Start
     GRAPH_COLLISION_BOOLEAN,
     GRAPH_COLLISION_CALCULATION_TIME,
-    GRAPH_COLLISION_END=2100,                   //End
-    GRAPH_DISTANCE_START=2101,                  //Start
+    GRAPH_COLLISION_END = 2100,  // End
+    GRAPH_DISTANCE_START = 2101, // Start
     GRAPH_DISTANCE_DIST,
     GRAPH_DISTANCE_SEG1_X_ABS,
     GRAPH_DISTANCE_SEG1_Y_ABS,
@@ -389,13 +403,13 @@ enum {
     GRAPH_DISTANCE_SEG2_Y_REL,
     GRAPH_DISTANCE_SEG2_Z_REL,
     GRAPH_DISTANCE_CALCULATION_TIME,
-    GRAPH_DISTANCE_END=2400,                    //End
-    GRAPH_IK_START=2401,                        //Start
+    GRAPH_DISTANCE_END = 2400, // End
+    GRAPH_IK_START = 2401,     // Start
     GRAPH_IK_CALCULATION_TIME,
-    GRAPH_IK_END=2500,                          //End
-    GRAPH_GCS_START_old=2501,                       //Start
-    GRAPH_GCS_END_old=2600,                         //End
-    GRAPH_NOOBJECT_START=2601,                  //Start
+    GRAPH_IK_END = 2500,         // End
+    GRAPH_GCS_START_old = 2501,  // Start
+    GRAPH_GCS_END_old = 2600,    // End
+    GRAPH_NOOBJECT_START = 2601, // Start
     GRAPH_NOOBJECT_TIME,
     GRAPH_NOOBJECT_COLLISION_QUANTITY,
     GRAPH_NOOBJECT_PROXSENSOR_OVERALL_CALCULATION_TIME,
@@ -413,12 +427,13 @@ enum {
     GRAPH_NOOBJECT_SIMULATIONPASS_EXECUTION_TIME,
     GRAPH_NOOBJECT_RENDERING_TIME,
     GRAPH_NOOBJECT_WORK_THREADS_EXECUTION_TIME,
-    GRAPH_NOOBJECT_END=3000,                    //End
+    GRAPH_NOOBJECT_END = 3000, // End
 };
 
 // Hierarchy and other pictures (TGA format):
-enum {
-    NO_TREE_PICTURE=0,
+enum
+{
+    NO_TREE_PICTURE = 0,
     SIMPLE_SHAPE_TREE_PICTURE,
     MULTI_SHAPE_TREE_PICTURE,
     PURE_SHAPE_TREE_PICTURE,
@@ -478,7 +493,7 @@ enum {
     CURSOR_MIDDLE_BUTTON,
     CURSOR_RIGHT_BUTTON,
     WATERMARK_START,
-    WATERMARK_END=WATERMARK_START+10,
+    WATERMARK_END = WATERMARK_START + 10,
 
     CURSOR_WHEEL_BUTTON,
     CURSOR_SHIFT_BUTTON,
@@ -487,8 +502,9 @@ enum {
 
 // Special keys and commands:
 // (esc-key is handled in the windows messaging part and sends a "looseFocus" command
-enum {
-    TAB_KEY=2000,
+enum
+{
+    TAB_KEY = 2000,
     ENTER_KEY,
     BACKSPACE_KEY,
     DELETE_KEY,
@@ -516,8 +532,9 @@ enum {
 };
 
 // Rich text items
-enum {
-    COLOR_AND_COLOR_RESET_RICH_TEXT=0,
+enum
+{
+    COLOR_AND_COLOR_RESET_RICH_TEXT = 0,
     BOX_RICH_TEXT,
     PAUSE_RICH_TEXT,
     START_RICH_TEXT,
@@ -532,8 +549,9 @@ enum {
 };
 
 // menu items
-enum {
-    NO_COMMAND_CMD=1, // Always start at 1!!!!
+enum
+{
+    NO_COMMAND_CMD = 1, // Always start at 1!!!!
 
     //---------------------------------
     // Edit mode commands start:
@@ -546,7 +564,7 @@ enum {
     ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD,
 
     // Shape edit mode commands:
-    SHAPE_EDIT_MODE_START_EMCMD, // also used for compound shape edit mode
+    SHAPE_EDIT_MODE_START_EMCMD,         // also used for compound shape edit mode
     SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD, // also used for compound shape edit mode
     SHAPE_EDIT_MODE_SWAP_TO_VERTEX_EDIT_MODE_EMCMD,
     SHAPE_EDIT_MODE_SWAP_TO_TRIANGLE_EDIT_MODE_EMCMD,
@@ -587,7 +605,6 @@ enum {
     // Edit mode commands end:
     EDIT_MODE_COMMANDS_END_EMCMD,
     //---------------------------------
-
 
     //---------------------------------
     // Scene object operations start:
@@ -651,7 +668,6 @@ enum {
     PAGE_CONT_FUNCTIONS_END_PCCMD,
     //---------
 
-
     //---------
     // View functions start:
     VIEW_FUNCTIONS_START_VFCMD,
@@ -669,7 +685,6 @@ enum {
     // View functions end:
     VIEW_FUNCTIONS_END_VFCMD,
     //---------
-
 
     //---------
     // View selector functions start:
@@ -760,18 +775,15 @@ enum {
     ADD_COMMANDS_END_ACCMD,
     //----------
 
-
     //----------
     UI_MODULE_MENU_CMDS_START,
-    UI_MODULE_MENU_CMDS_END=UI_MODULE_MENU_CMDS_START+400,
+    UI_MODULE_MENU_CMDS_END = UI_MODULE_MENU_CMDS_START + 400,
     //----------
-
 
     //----------
     SWITCH_TOINSTANCEWITHTHUMBNAILSAVEINDEX0_GUIGUICMD,
-    SWITCH_TOINSTANCEWITHTHUMBNAILSAVEINDEX39_GUIGUICMD=SWITCH_TOINSTANCEWITHTHUMBNAILSAVEINDEX0_GUIGUICMD+39,
+    SWITCH_TOINSTANCEWITHTHUMBNAILSAVEINDEX39_GUIGUICMD = SWITCH_TOINSTANCEWITHTHUMBNAILSAVEINDEX0_GUIGUICMD + 39,
     //----------
-
 
     //----------
     SAVE_LAYOUT_CONFIG_XR,
@@ -782,12 +794,10 @@ enum {
     DELETE_JOB_XR,
     VERIFY_LAYOUT_XR,
     SWITCH_TO_JOB_XR,
-    SWITCH_TO_JOB_END_XR=SWITCH_TO_JOB_XR+100,
+    SWITCH_TO_JOB_END_XR = SWITCH_TO_JOB_XR + 100,
     //----------
 
-
     SET_SHAPE_TRANSPARENCY_CMD,
-
 
     SOLID_DISPLAY_CMD,
     WIREFRAME_EDGES_DISPLAY_CMD,
@@ -869,7 +879,6 @@ enum {
     TOGGLE_SHOW_IKWORLDS_DLG_CMD,
     TOGGLE_SHOW_IKWORLDJACOBIANS_DLG_CMD,
 
-
     //---------
     FILE_OPERATION_START_FOCMD,
 
@@ -913,7 +922,6 @@ enum {
     FILE_OPERATION_END_FOCMD,
     //---------
 
-
     CAMERA_SHIFT_TO_FRAME_SELECTION_CMD,
     CAMERA_SHIFT_NAVIGATION_CMD,
     CAMERA_ROTATE_NAVIGATION_CMD,
@@ -947,9 +955,7 @@ enum {
     HIERARCHY_COLORING_GREEN_CMD,
     HIERARCHY_COLORING_BLUE_CMD,
 
-
     DISPLAY_MESSAGE_CMD,
-
 
     SET_SHAPE_SHADING_ANGLE_CMD,
     SET_SHAPE_EDGE_ANGLE_CMD,
@@ -958,7 +964,6 @@ enum {
     ABOUT_CMD,
     CREDITS_CMD,
     EK_CMD,
-
 
     DISABLE_FRUSTUM_CULLING_DEBUG_CMD,
     DISABLE_DISTANCE_CACHING_DEBUG_CMD,
@@ -1100,12 +1105,10 @@ enum {
     SET_SUBDIVISIONSFAR_DETECTIONVOLUMEGUITRIGGEREDCMD,
     APPLY_DETECTIONVOLUMEGUITRIGGEREDCMD,
 
-
     TOGGLE_ENABLEALL_MILLGUITRIGGEREDCMD,
     TOGGLE_EXPLICITHANDLING_MILLGUITRIGGEREDCMD,
     SET_ENTITYTOCUT_MILLGUITRIGGEREDCMD,
     SET_SIZE_MILLGUITRIGGEREDCMD,
-
 
     TOGGLE_ENABLED_LIGHTGUITRIGGEREDCMD,
     TOGGLE_LIGHTISLOCAL_LIGHTGUITRIGGEREDCMD,
@@ -1115,7 +1118,6 @@ enum {
     SET_LINATTENUATION_LIGHTGUITRIGGEREDCMD,
     SET_QUADATTENUATION_LIGHTGUITRIGGEREDCMD,
     SET_SIZE_LIGHTGUITRIGGEREDCMD,
-
 
     SET_LINKEDDUMMY_DUMMYGUITRIGGEREDCMD,
     SET_LINKTYPE_DUMMYGUITRIGGEREDCMD,
@@ -1171,7 +1173,6 @@ enum {
 
     SET_ROLLEDUPSIZES_ROLLEDUPGUITRIGGEREDCMD,
 
-
     SCALE_SCALINGGUITRIGGEREDCMD,
 
     SET_OVERRIDEPROPANDACKNOWLEDGMENT_MODELGUITRIGGEREDCMD,
@@ -1207,7 +1208,7 @@ enum {
     SET_JOINTPOSCTRLMODETOGGLE_JOINTDYNGUITRIGGEREDCMD,
     TOGGLE_JOINTVELCTRLMODETYPE_JOINTDYNGUITRIGGEREDCMD,
     SET_TARGETVELOCITY_JOINTDYNGUITRIGGEREDCMD,
-    SET_FORCE_JOINTDYNGUITRIGGEREDCMD, // signed
+    SET_FORCE_JOINTDYNGUITRIGGEREDCMD,    // signed
     SET_MAXFORCE_JOINTDYNGUITRIGGEREDCMD, // unsigned
     TOGGLE_LOCKMOTOR_JOINTDYNGUITRIGGEREDCMD,
     APPLY_PARAMS_JOINTDYNGUITRIGGEREDCMD,
@@ -1395,7 +1396,6 @@ enum {
     SHOW_PROGRESSDLGGUITRIGGEREDCMD,
     HIDE_PROGRESSDLGGUITRIGGEREDCMD,
 
-
     PATHEDIT_MAKEDUMMY_GUITRIGGEREDCMD,
     SHAPEEDIT_MAKESHAPE_GUITRIGGEREDCMD,
     SHAPEEDIT_MAKEPRIMITIVE_GUITRIGGEREDCMD,
@@ -1426,21 +1426,21 @@ enum {
 
     SELECT_RENDERER_CMD,
 
-
     END_GUITRIGGEREDCMD,
 
     //----------------------
-    START_SIMPLUS_CMDS=9500,
+    START_SIMPLUS_CMDS = 9500,
     PLUS_CVU_CMD,
     PLUS_HVUD_CMD,
-    OUTSIDE_CUSTOMIZED_COMMANDS_START_CMD=10000
+    OUTSIDE_CUSTOMIZED_COMMANDS_START_CMD = 10000
     // 100000-200000 for cmds from UI to SIM
     // 999995-999999 for UNDO point announcements
     //------------------------
 };
 
-enum { // color type ids, not serialized
-    COLOR_ID_AMBIENT_LIGHT=0,
+enum
+{ // color type ids, not serialized
+    COLOR_ID_AMBIENT_LIGHT = 0,
     COLOR_ID_BACKGROUND_UP,
     COLOR_ID_BACKGROUND_DOWN,
     COLOR_ID_FOG,
@@ -1476,54 +1476,62 @@ enum { // color type ids, not serialized
     COLOR_ID_GRAPH_TIMECURVE,
 };
 
-enum { // texture type ids, not serialized
-    TEXTURE_ID_SIMPLE_SHAPE=0,
+enum
+{ // texture type ids, not serialized
+    TEXTURE_ID_SIMPLE_SHAPE = 0,
     TEXTURE_ID_COMPOUND_SHAPE,
     TEXTURE_ID_OPENGL_GUI_BACKGROUND,
     TEXTURE_ID_OPENGL_GUI_BUTTON,
 };
 
-enum {
-    DIRECTORY_ID_TEXTURE=0
+enum
+{
+    DIRECTORY_ID_TEXTURE = 0
 };
 
-enum { // keep below 2^20=1048576 (b/c of handleflags)
+enum
+{ // keep below 2^20=1048576 (b/c of handleflags)
     // Keep in mind that scene object handles are serialized, other handles/ids are created on-the-fly
-    SIM_IDSTART_SCENEOBJECT             =0,
-    SIM_IDEND_SCENEOBJECT               =999999,
+    SIM_IDSTART_SCENEOBJECT = 0,
+    SIM_IDEND_SCENEOBJECT = 999999,
 
-    SIM_IDSTART_COLLECTION              =2000000, // for V4.6 can be set to 1000000, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
-    SIM_IDEND_COLLECTION                =2010000, // for V4.6 can be set to 1009999, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
+    SIM_IDSTART_COLLECTION = 2000000, // for V4.6 can be set to 1000000, but then not backward compatible prior V4.5. Is
+                                      // ok if we remove float support anyways
+    SIM_IDEND_COLLECTION = 2010000,   // for V4.6 can be set to 1009999, but then not backward compatible prior V4.5. Is
+                                      // ok if we remove float support anyways
 
-    SIM_IDSTART_LUASCRIPT               =1010000,
-    SIM_IDEND_LUASCRIPT                 =1019999,
+    SIM_IDSTART_LUASCRIPT = 1010000,
+    SIM_IDEND_LUASCRIPT = 1019999,
 
-    SIM_IDSTART_INTERFACESTACK          =1020000,
-    SIM_IDEND_INTERFACESTACK            =1029999,
+    SIM_IDSTART_INTERFACESTACK = 1020000,
+    SIM_IDEND_INTERFACESTACK = 1029999,
 
     // Textures are also serialized
-    SIM_IDSTART_TEXTURE                 =2180009, // for V4.6 can be set to 1030000, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
-    SIM_IDEND_TEXTURE                   =2280009, // for V4.6 can be set to 1039999, but then not backward compatible prior V4.5. Is ok if we remove float support anyways
+    SIM_IDSTART_TEXTURE = 2180009, // for V4.6 can be set to 1030000, but then not backward compatible prior V4.5. Is ok
+                                   // if we remove float support anyways
+    SIM_IDEND_TEXTURE = 2280009,   // for V4.6 can be set to 1039999, but then not backward compatible prior V4.5. Is ok
+                                   // if we remove float support anyways
 };
 
-enum { // Old. Values are serialized:
-    SIM_IDSTART_COLLISION_old           =2010001,
-    SIM_IDEND_COLLISION_old             =2020001,
-    SIM_IDSTART_DISTANCE_old            =2020002,
-    SIM_IDEND_DISTANCE_old              =2030002,
-    SIM_IDSTART_IKGROUP_old             =2030003,
-    SIM_IDEND_IKGROUP_old               =2040003,
-    SIM_IDSTART_GCSOBJECT_old           =2040004,
-    SIM_IDEND_GCSOBJECT_old             =2050004,
-    SIM_IDSTART_2DELEMENT_old           =2060006,
-    SIM_IDEND_2DELEMENT_old             =2070006,
-    SIM_IDSTART_PATHPLANNINGTASK_old    =2070007,
-    SIM_IDEND_PATHPLANNINGTASK_old      =2080007,
-    SIM_IDSTART_GEOMETRIC_old           =2080008,
-    SIM_IDEND_GEOMETRIC_old             =2180008,
-    SIM_IDSTART_MOTIONPLANNINGTASK_old  =2280010,
-    SIM_IDEND_MOTIONPLANNINGTASK_old    =2290010,
-    SIM_IDSTART_DYNMATERIAL_old         =2290011,
-    SIM_IDEND_DYNMATERIAL_old           =2300011,
-    SIM_IDSTART_DEFDYNMATERIAL_old      =2310013,
+enum
+{ // Old. Values are serialized:
+    SIM_IDSTART_COLLISION_old = 2010001,
+    SIM_IDEND_COLLISION_old = 2020001,
+    SIM_IDSTART_DISTANCE_old = 2020002,
+    SIM_IDEND_DISTANCE_old = 2030002,
+    SIM_IDSTART_IKGROUP_old = 2030003,
+    SIM_IDEND_IKGROUP_old = 2040003,
+    SIM_IDSTART_GCSOBJECT_old = 2040004,
+    SIM_IDEND_GCSOBJECT_old = 2050004,
+    SIM_IDSTART_2DELEMENT_old = 2060006,
+    SIM_IDEND_2DELEMENT_old = 2070006,
+    SIM_IDSTART_PATHPLANNINGTASK_old = 2070007,
+    SIM_IDEND_PATHPLANNINGTASK_old = 2080007,
+    SIM_IDSTART_GEOMETRIC_old = 2080008,
+    SIM_IDEND_GEOMETRIC_old = 2180008,
+    SIM_IDSTART_MOTIONPLANNINGTASK_old = 2280010,
+    SIM_IDEND_MOTIONPLANNINGTASK_old = 2290010,
+    SIM_IDSTART_DYNMATERIAL_old = 2290011,
+    SIM_IDEND_DYNMATERIAL_old = 2300011,
+    SIM_IDSTART_DEFDYNMATERIAL_old = 2310013,
 };

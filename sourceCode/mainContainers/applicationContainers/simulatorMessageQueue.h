@@ -7,21 +7,20 @@ struct SMessageQueueMessage
 {
     int messageID;
     int auxValues[4];
-    char* data;
+    char *data;
     int dataLength;
 };
 
-
-class CSimulatorMessageQueue  
+class CSimulatorMessageQueue
 {
-public:
+  public:
     CSimulatorMessageQueue();
     virtual ~CSimulatorMessageQueue();
 
-    void addCommand(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,char* data,int dataSize);
-    char* extractOneCommand(int& commandID,int auxVals[4],int& dataSize);
+    void addCommand(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, char *data, int dataSize);
+    char *extractOneCommand(int &commandID, int auxVals[4], int &dataSize);
 
-private:
+  private:
     std::vector<SMessageQueueMessage> _messages;
     VMutex _mutex;
 };

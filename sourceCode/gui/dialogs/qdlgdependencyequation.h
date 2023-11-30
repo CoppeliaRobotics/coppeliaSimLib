@@ -5,15 +5,16 @@
 #include <vDialog.h>
 #include <QAbstractButton>
 
-namespace Ui {
-    class CQDlgDependencyEquation;
+namespace Ui
+{
+class CQDlgDependencyEquation;
 }
 
 class CQDlgDependencyEquation : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgDependencyEquation(QWidget *parent = 0);
     ~CQDlgDependencyEquation();
 
@@ -24,7 +25,7 @@ public:
 
     bool inMainRefreshRoutine;
 
-private slots:
+  private slots:
     void on_qqClose_clicked(QAbstractButton *button);
 
     void on_qqOffset_editingFinished();
@@ -33,7 +34,7 @@ private slots:
 
     void on_qqCombo_currentIndexChanged(int index);
 
-private:
+  private:
     Ui::CQDlgDependencyEquation *ui;
 };
 

@@ -5,21 +5,21 @@
 
 class CInterfaceStackString : public CInterfaceStackObject
 {
-public:
-    CInterfaceStackString(const char* str,size_t l);
+  public:
+    CInterfaceStackString(const char *str, size_t l);
     virtual ~CInterfaceStackString();
 
-    CInterfaceStackObject* copyYourself() const;
-    void printContent(int spaces,std::string& buffer) const;
+    CInterfaceStackObject *copyYourself() const;
+    void printContent(int spaces, std::string &buffer) const;
     std::string getObjectData() const;
     void setCborCoded(bool coded);
-    void addCborObjectData(CCbor* cborObj) const;
-    unsigned int createFromData(const char* data,const unsigned char version);
-    static bool checkCreateFromData(const char* data,unsigned int& w,unsigned int l);
+    void addCborObjectData(CCbor *cborObj) const;
+    unsigned int createFromData(const char *data, const unsigned char version);
+    static bool checkCreateFromData(const char *data, unsigned int &w, unsigned int l);
 
-    const char* getValue(size_t* l) const;
+    const char *getValue(size_t *l) const;
 
-protected:
+  protected:
     std::string _value;
     bool _cborCoded;
 };

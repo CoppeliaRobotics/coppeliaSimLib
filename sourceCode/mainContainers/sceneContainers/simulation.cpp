@@ -11,12 +11,12 @@
 #include <persistentDataContainer.h>
 #include <simFlavor.h>
 #ifdef SIM_WITH_GUI
-    #include <guiApp.h>
+#include <guiApp.h>
 #endif
 
 CSimulation::CSimulation()
 {
-    _stopRequestCounter=0;
+    _stopRequestCounter = 0;
     setUpDefaultValues();
 }
 
@@ -27,43 +27,43 @@ CSimulation::~CSimulation()
 
 void CSimulation::setUpDefaultValues()
 {
-    _dynamicContentVisualizationOnly=false;
-    _simulationState=sim_simulation_stopped;
-    _simulationTime=0.0;
+    _dynamicContentVisualizationOnly = false;
+    _simulationState = sim_simulation_stopped;
+    _simulationTime = 0.0;
 
-    simulationTime_real=0.0;
-    simulationTime_real_noCatchUp=0.0;
+    simulationTime_real = 0.0;
+    simulationTime_real_noCatchUp = 0.0;
     _clearSimulationTimeHistory();
 
-    _simulationTimeStep=0.05;
-    _simulationPassesPerRendering=1;
-    _desiredFasterOrSlowerSpeed=0;
-    _realTimeCoefficient=1.0;
-    _simulationStepCount=0;
-    _simulationTimeToPause=10.0;
-    _pauseAtSpecificTime=false;
-    _pauseAtError=true;
-    _pauseOnErrorRequested=false;
-    _hierarchyWasEnabledBeforeSimulation=false;
-    _initialValuesInitialized=false;
-    _resetSimulationAtEnd=true;
-    _removeNewObjectsAtSimulationEnd=true;
-    _realTimeSimulation=false;
-    _fullscreenAtSimulationStart=false;
-    _speedModifierCount=0;
-    _requestToStop=false;
+    _simulationTimeStep = 0.05;
+    _simulationPassesPerRendering = 1;
+    _desiredFasterOrSlowerSpeed = 0;
+    _realTimeCoefficient = 1.0;
+    _simulationStepCount = 0;
+    _simulationTimeToPause = 10.0;
+    _pauseAtSpecificTime = false;
+    _pauseAtError = true;
+    _pauseOnErrorRequested = false;
+    _hierarchyWasEnabledBeforeSimulation = false;
+    _initialValuesInitialized = false;
+    _resetSimulationAtEnd = true;
+    _removeNewObjectsAtSimulationEnd = true;
+    _realTimeSimulation = false;
+    _fullscreenAtSimulationStart = false;
+    _speedModifierCount = 0;
+    _requestToStop = false;
 }
 
 int CSimulation::getSpeedModifierCount() const
 {
-    return(_speedModifierCount);
+    return (_speedModifierCount);
 }
 
 void CSimulation::setSpeedModifierCount(int sm)
 {
-    while (sm!=_speedModifierCount)
+    while (sm != _speedModifierCount)
     {
-        if (sm>_speedModifierCount)
+        if (sm > _speedModifierCount)
         {
             if (!_goFasterOrSlower(1))
                 break;
@@ -78,139 +78,141 @@ void CSimulation::setSpeedModifierCount(int sm)
 
 double CSimulation::_getSpeedModifier_forRealTimeCoefficient() const
 {
-    double retVal=1.0;
+    double retVal = 1.0;
     if (!isSimulationStopped())
     {
-        if (_speedModifierCount>=0)
-            retVal=pow(2.0,double(_speedModifierCount));
+        if (_speedModifierCount >= 0)
+            retVal = pow(2.0, double(_speedModifierCount));
         else
-            retVal=_simulationTimeStep/_initialSimulationTimeStep;
+            retVal = _simulationTimeStep / _initialSimulationTimeStep;
     }
-    return(retVal);
+    return (retVal);
 }
 
 void CSimulation::setFullscreenAtSimulationStart(bool f)
 {
-    _fullscreenAtSimulationStart=f;
+    _fullscreenAtSimulationStart = f;
 }
 
 bool CSimulation::getFullscreenAtSimulationStart() const
 {
-    return(_fullscreenAtSimulationStart);
+    return (_fullscreenAtSimulationStart);
 }
 
 void CSimulation::setRemoveNewObjectsAtSimulationEnd(bool r)
 {
-    _removeNewObjectsAtSimulationEnd=r;
+    _removeNewObjectsAtSimulationEnd = r;
 }
 
 bool CSimulation::getRemoveNewObjectsAtSimulationEnd() const
 {
-    return(_removeNewObjectsAtSimulationEnd);
+    return (_removeNewObjectsAtSimulationEnd);
 }
 
 void CSimulation::setResetSceneAtSimulationEnd(bool r)
 {
-    _resetSimulationAtEnd=r;    
+    _resetSimulationAtEnd = r;
 }
 
 bool CSimulation::getResetSceneAtSimulationEnd() const
 {
-    return(_resetSimulationAtEnd);
+    return (_resetSimulationAtEnd);
 }
 
 void CSimulation::simulationAboutToStart()
 { // careful here: this is called by this through App::wc->simulationAboutToStart!!
-    _initialValuesInitialized=true;
-    _initialPauseAtSpecificTime=_pauseAtSpecificTime;
-    _speedModifierCount=0;
-    _initialSimulationTimeStep=_simulationTimeStep;
-    _dynamicContentVisualizationOnly=false;
-    _desiredFasterOrSlowerSpeed=0;
-    _stopRequestCounterAtSimulationStart=_stopRequestCounter;
-    #ifdef SIM_WITH_GUI
-        if ( (GuiApp::mainWindow!=nullptr) && App::userSettings->sceneHierarchyHiddenDuringSimulation )
-        {
-            _hierarchyWasEnabledBeforeSimulation=GuiApp::mainWindow->oglSurface->isHierarchyEnabled();
-            GuiApp::mainWindow->dlgCont->processCommand(CLOSE_HIERARCHY_DLG_CMD);
-        }
-    #endif
-    if ( (!App::currentWorld->dynamicsContainer->getSettingsAreDefault())||(!getSettingsAreDefault()) )
-        App::logMsg(sim_verbosity_scriptwarnings,"Detected non-default settings (time steps and/or dyn. engine global settings).");
+    _initialValuesInitialized = true;
+    _initialPauseAtSpecificTime = _pauseAtSpecificTime;
+    _speedModifierCount = 0;
+    _initialSimulationTimeStep = _simulationTimeStep;
+    _dynamicContentVisualizationOnly = false;
+    _desiredFasterOrSlowerSpeed = 0;
+    _stopRequestCounterAtSimulationStart = _stopRequestCounter;
+#ifdef SIM_WITH_GUI
+    if ((GuiApp::mainWindow != nullptr) && App::userSettings->sceneHierarchyHiddenDuringSimulation)
+    {
+        _hierarchyWasEnabledBeforeSimulation = GuiApp::mainWindow->oglSurface->isHierarchyEnabled();
+        GuiApp::mainWindow->dlgCont->processCommand(CLOSE_HIERARCHY_DLG_CMD);
+    }
+#endif
+    if ((!App::currentWorld->dynamicsContainer->getSettingsAreDefault()) || (!getSettingsAreDefault()))
+        App::logMsg(sim_verbosity_scriptwarnings,
+                    "Detected non-default settings (time steps and/or dyn. engine global settings).");
 }
 
 void CSimulation::simulationEnded()
 { // careful here: this is called by this through App::wc->simulationEnded!!
     TRACE_INTERNAL;
 
-    #ifdef SIM_WITH_GUI
-        showAndHandleEmergencyStopButton(false,"");
-    #endif
-    _dynamicContentVisualizationOnly=false;
-    #ifdef SIM_WITH_GUI
-        if (GuiApp::mainWindow!=nullptr)
-            GuiApp::mainWindow->simulationRecorder->stopRecording(false);
-    #endif
+#ifdef SIM_WITH_GUI
+    showAndHandleEmergencyStopButton(false, "");
+#endif
+    _dynamicContentVisualizationOnly = false;
+#ifdef SIM_WITH_GUI
+    if (GuiApp::mainWindow != nullptr)
+        GuiApp::mainWindow->simulationRecorder->stopRecording(false);
+#endif
     if (_initialValuesInitialized)
     {
-        _pauseAtSpecificTime=_initialPauseAtSpecificTime;
-        _simulationTimeStep=_initialSimulationTimeStep;
+        _pauseAtSpecificTime = _initialPauseAtSpecificTime;
+        _simulationTimeStep = _initialSimulationTimeStep;
     }
-    _initialValuesInitialized=false;
-    _speedModifierCount=0;
-    _desiredFasterOrSlowerSpeed=0;
+    _initialValuesInitialized = false;
+    _speedModifierCount = 0;
+    _desiredFasterOrSlowerSpeed = 0;
 
-    #ifdef SIM_WITH_GUI
-        if ( (GuiApp::mainWindow!=nullptr) && _hierarchyWasEnabledBeforeSimulation && App::userSettings->sceneHierarchyHiddenDuringSimulation)
-            GuiApp::mainWindow->dlgCont->processCommand(OPEN_HIERARCHY_DLG_CMD);
-    #endif
+#ifdef SIM_WITH_GUI
+    if ((GuiApp::mainWindow != nullptr) && _hierarchyWasEnabledBeforeSimulation &&
+        App::userSettings->sceneHierarchyHiddenDuringSimulation)
+        GuiApp::mainWindow->dlgCont->processCommand(OPEN_HIERARCHY_DLG_CMD);
+#endif
 }
 
 bool CSimulation::getDynamicContentVisualizationOnly() const
 {
-    return(_dynamicContentVisualizationOnly);
+    return (_dynamicContentVisualizationOnly);
 }
 
 void CSimulation::setDynamicContentVisualizationOnly(bool dynOnly)
 {
-    if ((!isSimulationStopped())||(!dynOnly))
-        _dynamicContentVisualizationOnly=dynOnly;
-    #ifdef SIM_WITH_GUI
-        GuiApp::setFullDialogRefreshFlag(); // so we reflect the effect also to the toolbar button
-        GuiApp::setToolbarRefreshFlag();
-    #endif
+    if ((!isSimulationStopped()) || (!dynOnly))
+        _dynamicContentVisualizationOnly = dynOnly;
+#ifdef SIM_WITH_GUI
+    GuiApp::setFullDialogRefreshFlag(); // so we reflect the effect also to the toolbar button
+    GuiApp::setToolbarRefreshFlag();
+#endif
 }
 
 bool CSimulation::canGoSlower() const
 {
-    bool retVal=false;
+    bool retVal = false;
     if (isSimulationRunning())
     {
-        if (_speedModifierCount>0)
-            retVal=true;
+        if (_speedModifierCount > 0)
+            retVal = true;
         else
         {
-            double newDt=_getNewTimeStep(_speedModifierCount-1);
-            retVal=(newDt!=0.0);
+            double newDt = _getNewTimeStep(_speedModifierCount - 1);
+            retVal = (newDt != 0.0);
         }
     }
-    return(retVal);
+    return (retVal);
 }
 
 bool CSimulation::canGoFaster() const
 {
-    bool retVal=false;
+    bool retVal = false;
     if (isSimulationRunning())
-        retVal=(_speedModifierCount<6);
-    return(retVal);
+        retVal = (_speedModifierCount < 6);
+    return (retVal);
 }
 
 bool CSimulation::getSettingsAreDefault() const
 {
-    double dt=_simulationTimeStep;
+    double dt = _simulationTimeStep;
     if (!isSimulationStopped())
-        dt=_initialSimulationTimeStep;
-    return(fabs(dt-0.05)<0.0001);
+        dt = _initialSimulationTimeStep;
+    return (fabs(dt - 0.05) < 0.0001);
 }
 
 bool CSimulation::startOrResumeSimulation()
@@ -218,96 +220,97 @@ bool CSimulation::startOrResumeSimulation()
     TRACE_INTERNAL;
     if (isSimulationStopped())
     {
-        #ifdef SIM_WITH_GUI
-            GuiApp::setFullScreen(_fullscreenAtSimulationStart);
-        #endif
+#ifdef SIM_WITH_GUI
+        GuiApp::setFullScreen(_fullscreenAtSimulationStart);
+#endif
         CThreadPool_old::setSimulationEmergencyStop(false);
         CThreadPool_old::setRequestSimulationStop(false);
         App::worldContainer->simulationAboutToStart();
-        _pauseOnErrorRequested=false;
-        _realTimeCorrection=0.0;
+        _pauseOnErrorRequested = false;
+        _realTimeCorrection = 0.0;
         _setSimulationTime(0.0);
-        simulationTime_real=0.0;
-        simulationTime_real_noCatchUp=0.0;
+        simulationTime_real = 0.0;
+        simulationTime_real_noCatchUp = 0.0;
         _clearSimulationTimeHistory();
-        _requestToStop=false;
-        _requestToPause=false; 
-        simulationTime_real_lastInMs=(int)VDateTime::getTimeInMs();
-        _simulationStepCount=0;
+        _requestToStop = false;
+        _requestToPause = false;
+        simulationTime_real_lastInMs = (int)VDateTime::getTimeInMs();
+        _simulationStepCount = 0;
         setSimulationState(sim_simulation_advancing_firstafterstop);
-        return(true);
+        return (true);
     }
     else if (isSimulationPaused())
     {
         App::worldContainer->simulationAboutToResume();
 
-        _realTimeCorrection=0.0;
+        _realTimeCorrection = 0.0;
         setSimulationState(sim_simulation_advancing_firstafterpause);
-        simulationTime_real_lastInMs=(int)VDateTime::getTimeInMs();
-        _requestToPause=false;
-        return(true);
+        simulationTime_real_lastInMs = (int)VDateTime::getTimeInMs();
+        _requestToPause = false;
+        return (true);
     }
     // Following not used anymore??
-    _requestToPause=false;
-    return(false);
+    _requestToPause = false;
+    return (false);
 }
 
 bool CSimulation::stopSimulation()
 {
     TRACE_INTERNAL;
-    #ifdef SIM_WITH_GUI
-        if (getSimulationState()!=sim_simulation_stopped)
-            GuiApp::setFullScreen(false);
-    #endif
+#ifdef SIM_WITH_GUI
+    if (getSimulationState() != sim_simulation_stopped)
+        GuiApp::setFullScreen(false);
+#endif
 
-    if ((getSimulationState()==sim_simulation_advancing_abouttostop)||
-        (getSimulationState()==sim_simulation_advancing_lastbeforestop))
-        return(true); // in this situation, we are stopping anyway!!
-    if (getSimulationState()==sim_simulation_paused)
+    if ((getSimulationState() == sim_simulation_advancing_abouttostop) ||
+        (getSimulationState() == sim_simulation_advancing_lastbeforestop))
+        return (true); // in this situation, we are stopping anyway!!
+    if (getSimulationState() == sim_simulation_paused)
     {
         App::worldContainer->simulationAboutToResume();
 
-        // Special case here: we have to change the state directly here (and not automatically in "advanceSimulationByOneStep")
+        // Special case here: we have to change the state directly here (and not automatically in
+        // "advanceSimulationByOneStep")
         setSimulationState(sim_simulation_advancing_firstafterpause);
     }
     if (!_requestToStop)
     {
-        timeInMsWhenStopWasPressed=(int)VDateTime::getTimeInMs();
-        _requestToStop=true;
+        timeInMsWhenStopWasPressed = (int)VDateTime::getTimeInMs();
+        _requestToStop = true;
     }
-    return(true);
+    return (true);
 }
 
 bool CSimulation::pauseSimulation()
 {
-    if ((getSimulationState()!=sim_simulation_advancing_firstafterstop)&&
-        (getSimulationState()!=sim_simulation_advancing_running)&&
-        (getSimulationState()!=sim_simulation_advancing_firstafterpause))
-        return(false); // in these situations, we are already about to pause or stopping anyway!!
+    if ((getSimulationState() != sim_simulation_advancing_firstafterstop) &&
+        (getSimulationState() != sim_simulation_advancing_running) &&
+        (getSimulationState() != sim_simulation_advancing_firstafterpause))
+        return (false); // in these situations, we are already about to pause or stopping anyway!!
     if (_requestToStop)
-        return(false);
-    _requestToPause=true;
-    return(true);   
+        return (false);
+    _requestToPause = true;
+    return (true);
 }
 
 bool CSimulation::isSimulationRunning() const
-{ 
-    return((getSimulationState()&sim_simulation_advancing)!=0);
+{
+    return ((getSimulationState() & sim_simulation_advancing) != 0);
 }
 
 bool CSimulation::isSimulationStopped() const
-{ 
-    return(getSimulationState()==sim_simulation_stopped);
+{
+    return (getSimulationState() == sim_simulation_stopped);
 }
 
 bool CSimulation::isSimulationPaused() const
-{ 
-    return(getSimulationState()==sim_simulation_paused);
+{
+    return (getSimulationState() == sim_simulation_paused);
 }
 
 void CSimulation::adjustRealTimeTimer(double deltaTime)
 {
-    _realTimeCorrection+=deltaTime;
+    _realTimeCorrection += deltaTime;
 }
 
 void CSimulation::advanceSimulationByOneStep()
@@ -316,72 +319,73 @@ void CSimulation::advanceSimulationByOneStep()
     if (!isSimulationRunning())
         return;
 
-    if ( _pauseAtError&&_pauseOnErrorRequested )
+    if (_pauseAtError && _pauseOnErrorRequested)
     {
         pauseSimulation();
-        _pauseOnErrorRequested=false;
+        _pauseOnErrorRequested = false;
     }
     else
     {
-        if ( _pauseAtSpecificTime&&(getSimulationTime()>=_simulationTimeToPause) )
+        if (_pauseAtSpecificTime && (getSimulationTime() >= _simulationTimeToPause))
         {
             pauseSimulation();
-            _pauseAtSpecificTime=false;
+            _pauseAtSpecificTime = false;
         }
     }
 
     App::worldContainer->simulationAboutToStep();
 
     _simulationStepCount++;
-    if (_simulationStepCount==1)
-        _realTimeCorrection=0.0;
+    if (_simulationStepCount == 1)
+        _realTimeCorrection = 0.0;
 
-    _setSimulationTime(getSimulationTime()+getTimeStep());
+    _setSimulationTime(getSimulationTime() + getTimeStep());
 
-    int ct=(int)VDateTime::getTimeInMs();
-    double drt=(double(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))/1000.0+_realTimeCorrection)*getRealTimeCoeff();
-    simulationTime_real+=drt;
-    simulationTime_real_noCatchUp+=drt;
-    if (simulationTime_real_noCatchUp>getSimulationTime()+getTimeStep())
-        simulationTime_real_noCatchUp=getSimulationTime()+getTimeStep();
-    _realTimeCorrection=0.0;
-    simulationTime_real_lastInMs=ct;
-    _addToSimulationTimeHistory(getSimulationTime(),simulationTime_real);
+    int ct = (int)VDateTime::getTimeInMs();
+    double drt = (double(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs)) / 1000.0 + _realTimeCorrection) *
+                 getRealTimeCoeff();
+    simulationTime_real += drt;
+    simulationTime_real_noCatchUp += drt;
+    if (simulationTime_real_noCatchUp > getSimulationTime() + getTimeStep())
+        simulationTime_real_noCatchUp = getSimulationTime() + getTimeStep();
+    _realTimeCorrection = 0.0;
+    simulationTime_real_lastInMs = ct;
+    _addToSimulationTimeHistory(getSimulationTime(), simulationTime_real);
 
-    if (getSimulationState()==sim_simulation_advancing_firstafterstop)
+    if (getSimulationState() == sim_simulation_advancing_firstafterstop)
         setSimulationState(sim_simulation_advancing_running);
-    else if (getSimulationState()==sim_simulation_advancing_running)
+    else if (getSimulationState() == sim_simulation_advancing_running)
     {
         if (_requestToStop)
         {
             CThreadPool_old::setRequestSimulationStop(true);
             setSimulationState(sim_simulation_advancing_abouttostop);
-            _requestToStop=false;
+            _requestToStop = false;
         }
         else
         {
             if (_requestToPause)
             {
                 setSimulationState(sim_simulation_advancing_lastbeforepause);
-                _requestToPause=false;
+                _requestToPause = false;
             }
         }
     }
-    else if (getSimulationState()==sim_simulation_advancing_lastbeforepause)
+    else if (getSimulationState() == sim_simulation_advancing_lastbeforepause)
     {
         setSimulationState(sim_simulation_paused);
         App::worldContainer->simulationPaused();
     }
-    else if (getSimulationState()==sim_simulation_advancing_firstafterpause)
+    else if (getSimulationState() == sim_simulation_advancing_firstafterpause)
     {
         setSimulationState(sim_simulation_advancing_running);
     }
-    else if (getSimulationState()==sim_simulation_advancing_abouttostop)
+    else if (getSimulationState() == sim_simulation_advancing_abouttostop)
     {
-        if (CThreadPool_old::getThreadPoolThreadCount()==0)
+        if (CThreadPool_old::getThreadPoolThreadCount() == 0)
             setSimulationState(sim_simulation_advancing_lastbeforestop);
     }
-    else if (getSimulationState()==sim_simulation_advancing_lastbeforestop)
+    else if (getSimulationState() == sim_simulation_advancing_lastbeforestop)
     {
         App::worldContainer->simulationAboutToEnd();
         CThreadPool_old::setSimulationEmergencyStop(false);
@@ -389,12 +393,12 @@ void CSimulation::advanceSimulationByOneStep()
         setSimulationState(sim_simulation_stopped);
         App::worldContainer->simulationEnded(_removeNewObjectsAtSimulationEnd);
     }
-    while (_desiredFasterOrSlowerSpeed>0)
+    while (_desiredFasterOrSlowerSpeed > 0)
     {
         _goFasterOrSlower(1);
         _desiredFasterOrSlowerSpeed--;
     }
-    while (_desiredFasterOrSlowerSpeed<0)
+    while (_desiredFasterOrSlowerSpeed < 0)
     {
         _goFasterOrSlower(-1);
         _desiredFasterOrSlowerSpeed++;
@@ -402,102 +406,103 @@ void CSimulation::advanceSimulationByOneStep()
 }
 
 int CSimulation::getSimulationState() const
-{ 
-    return(_simulationState);
+{
+    return (_simulationState);
 }
 
 void CSimulation::setTimeStep(double dt)
 {
     if (isSimulationStopped())
     {
-        if (dt<0.0001)
-            dt=0.0001;
-        if (dt>10.0)
-            dt=10.0;
-        _simulationTimeStep=dt;
-        #ifdef SIM_WITH_GUI
-            GuiApp::setFullDialogRefreshFlag();
-        #endif
+        if (dt < 0.0001)
+            dt = 0.0001;
+        if (dt > 10.0)
+            dt = 10.0;
+        _simulationTimeStep = dt;
+#ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+#endif
     }
 }
 
 double CSimulation::getTimeStep() const
 {
-    return(_simulationTimeStep);
+    return (_simulationTimeStep);
 }
 
 int CSimulation::getPassesPerRendering() const
 {
-    int retVal=_simulationPassesPerRendering;
-    if (_speedModifierCount>0)
-        retVal*=int(pow(2.0,double(_speedModifierCount))+0.1);
-    return(retVal);
+    int retVal = _simulationPassesPerRendering;
+    if (_speedModifierCount > 0)
+        retVal *= int(pow(2.0, double(_speedModifierCount)) + 0.1);
+    return (retVal);
 }
 
 double CSimulation::getRealTimeCoeff() const
 {
-    return(_realTimeCoefficient*_getSpeedModifier_forRealTimeCoefficient());
+    return (_realTimeCoefficient * _getSpeedModifier_forRealTimeCoefficient());
 }
 
 void CSimulation::setIsRealTimeSimulation(bool realTime)
 {
     if (isSimulationStopped())
-        _realTimeSimulation=realTime;
+        _realTimeSimulation = realTime;
 }
 
 bool CSimulation::isRealTimeCalculationStepNeeded() const
 {
-    bool retVal=false;
-    if (_realTimeSimulation&&isSimulationRunning())
+    bool retVal = false;
+    if (_realTimeSimulation && isSimulationRunning())
     {
-        double crt=simulationTime_real_noCatchUp+double(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs))*getRealTimeCoeff()/1000.0;
-        retVal=(getSimulationTime()+getTimeStep()<crt);
+        double crt = simulationTime_real_noCatchUp +
+                     double(VDateTime::getTimeDiffInMs(simulationTime_real_lastInMs)) * getRealTimeCoeff() / 1000.0;
+        retVal = (getSimulationTime() + getTimeStep() < crt);
     }
-    return(retVal);
+    return (retVal);
 }
 
 bool CSimulation::getIsRealTimeSimulation() const
 {
-    return(_realTimeSimulation);
+    return (_realTimeSimulation);
 }
 
 void CSimulation::setRealTimeCoeff(double coeff)
 {
-    if (coeff<0.0)
-        coeff=0.0;
-    if (coeff>100.0)
-        coeff=100.0;
-    _realTimeCoefficient=coeff;
+    if (coeff < 0.0)
+        coeff = 0.0;
+    if (coeff > 100.0)
+        coeff = 100.0;
+    _realTimeCoefficient = coeff;
 }
 
 void CSimulation::setPassesPerRendering(int n)
 {
     if (isSimulationStopped())
     {
-        tt::limitValue(1,200,n);
-        _simulationPassesPerRendering=n;
+        tt::limitValue(1, 200, n);
+        _simulationPassesPerRendering = n;
     }
 }
 
 void CSimulation::pushGenesisEvents() const
 {
-    CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED,-1,nullptr,false);
-    ev->appendKeyInt("state",getSimulationState());
-    ev->appendKeyInt("time",int(getSimulationTime()*1000.0));
+    CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, nullptr, false);
+    ev->appendKeyInt("state", getSimulationState());
+    ev->appendKeyInt("time", int(getSimulationTime() * 1000.0));
     App::worldContainer->pushEvent();
 }
 
 void CSimulation::setSimulationState(int state)
 {
-    bool diff=(_simulationState!=state);
+    bool diff = (_simulationState != state);
     if (diff)
     {
-        _simulationState=state;
+        _simulationState = state;
         if (App::worldContainer->getEventsEnabled())
         {
-            const char* cmd="state";
-            CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED,-1,cmd,true);
-            ev->appendKeyInt(cmd,_simulationState);
+            const char *cmd = "state";
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, cmd, true);
+            ev->appendKeyInt(cmd, _simulationState);
             App::worldContainer->pushEvent();
         }
     }
@@ -509,60 +514,61 @@ void CSimulation::_clearSimulationTimeHistory()
     simulationTime_real_history.clear();
 }
 
-void CSimulation::_addToSimulationTimeHistory(double simTime,double simTimeReal)
+void CSimulation::_addToSimulationTimeHistory(double simTime, double simTimeReal)
 {
     simulationTime_history.push_back(simTime);
     simulationTime_real_history.push_back(simTimeReal);
-    if (simulationTime_history.size()>10)
+    if (simulationTime_history.size() > 10)
     {
         simulationTime_history.erase(simulationTime_history.begin());
         simulationTime_real_history.erase(simulationTime_real_history.begin());
     }
 }
 
-bool CSimulation::_getSimulationTimeHistoryDurations(double& simTime,double& simTimeReal) const
+bool CSimulation::_getSimulationTimeHistoryDurations(double &simTime, double &simTimeReal) const
 {
-    bool retVal=false;
-    if (simulationTime_history.size()<2)
+    bool retVal = false;
+    if (simulationTime_history.size() < 2)
     {
-        simTime=0.0;
-        simTimeReal=0.0;
+        simTime = 0.0;
+        simTimeReal = 0.0;
     }
     else
     {
-        simTime=simulationTime_history[simulationTime_history.size()-1]-simulationTime_history[0];
-        simTimeReal=simulationTime_real_history[simulationTime_real_history.size()-1]-simulationTime_real_history[0];
-        retVal=true;
+        simTime = simulationTime_history[simulationTime_history.size() - 1] - simulationTime_history[0];
+        simTimeReal =
+            simulationTime_real_history[simulationTime_real_history.size() - 1] - simulationTime_real_history[0];
+        retVal = true;
     }
-    return(retVal);
+    return (retVal);
 }
 
 void CSimulation::setPauseAtError(bool br)
 {
-    _pauseAtError=br;
+    _pauseAtError = br;
 }
 
 bool CSimulation::getPauseAtError() const
 {
-    return(_pauseAtError);
+    return (_pauseAtError);
 }
 
 void CSimulation::pauseOnErrorRequested()
 {
     if (isSimulationRunning())
     {
-        if (_pauseAtError&&(!_requestToStop))
-            _pauseOnErrorRequested=true;
+        if (_pauseAtError && (!_requestToStop))
+            _pauseOnErrorRequested = true;
     }
 }
 
 void CSimulation::setPauseTime(double time)
 {
-    if (time<0.001)
-        time=0.001;
-    if (time>604800.0)
-        time=604800.0;
-    _simulationTimeToPause=time;
+    if (time < 0.001)
+        time = 0.001;
+    if (time > 604800.0)
+        time = 604800.0;
+    _simulationTimeToPause = time;
 }
 
 double CSimulation::getPauseTime() const
@@ -572,30 +578,30 @@ double CSimulation::getPauseTime() const
 
 bool CSimulation::getPauseAtSpecificTime() const
 {
-    return(_pauseAtSpecificTime);
+    return (_pauseAtSpecificTime);
 }
 
 void CSimulation::setPauseAtSpecificTime(bool e)
 {
-    _pauseAtSpecificTime=e;
+    _pauseAtSpecificTime = e;
 }
 
 double CSimulation::getSimulationTime() const
 {
-    return(_simulationTime);
+    return (_simulationTime);
 }
 
 void CSimulation::_setSimulationTime(double t)
 {
-    bool diff=(_simulationTime!=t);
+    bool diff = (_simulationTime != t);
     if (diff)
     {
-        _simulationTime=t;
+        _simulationTime = t;
         if (App::worldContainer->getEventsEnabled())
         {
-            const char* cmd="time";
-            CCbor* ev=App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED,-1,cmd,true);
-            ev->appendKeyInt(cmd,int(_simulationTime)*1000);
+            const char *cmd = "time";
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, cmd, true);
+            ev->appendKeyInt(cmd, int(_simulationTime) * 1000);
             App::worldContainer->pushEvent();
         }
     }
@@ -603,70 +609,70 @@ void CSimulation::_setSimulationTime(double t)
 
 double CSimulation::getSimulationTime_real() const
 {
-    return(simulationTime_real);
+    return (simulationTime_real);
 }
 
 double CSimulation::_getNewTimeStep(int newSpeedModifierCount) const
 {
-    double ddt=App::currentWorld->dynamicsContainer->getEffectiveStepSize();
-    double dt=_simulationTimeStep;
+    double ddt = App::currentWorld->dynamicsContainer->getEffectiveStepSize();
+    double dt = _simulationTimeStep;
     if (!isSimulationStopped())
-        dt=_initialSimulationTimeStep;
-    for (int i=0;i<-newSpeedModifierCount;i++)
+        dt = _initialSimulationTimeStep;
+    for (int i = 0; i < -newSpeedModifierCount; i++)
     {
-        dt*=0.5;
-        if ((dt*1.01-ddt)<0.0)
-            return(0.0);
-        if ( fmod(dt*1.00001,ddt)>ddt*0.01 )
+        dt *= 0.5;
+        if ((dt * 1.01 - ddt) < 0.0)
+            return (0.0);
+        if (fmod(dt * 1.00001, ddt) > ddt * 0.01)
         {
-            double oldDt=dt;
-            dt=ddt;
-            while (dt+ddt<oldDt)
-                dt+=ddt;
+            double oldDt = dt;
+            dt = ddt;
+            while (dt + ddt < oldDt)
+                dt += ddt;
         }
     }
-    return(dt);
+    return (dt);
 }
 
 bool CSimulation::_goFasterOrSlower(int action)
 {
-    bool retVal=false;
-    if (action<0)
+    bool retVal = false;
+    if (action < 0)
     { // We wanna go slower
-        if (_speedModifierCount>0)
+        if (_speedModifierCount > 0)
         {
             _speedModifierCount--;
-            retVal=true;
+            retVal = true;
         }
         else
         {
-            double newDt=_getNewTimeStep(_speedModifierCount-1);
-            if (newDt!=0.0)
+            double newDt = _getNewTimeStep(_speedModifierCount - 1);
+            if (newDt != 0.0)
             {
                 _speedModifierCount--;
-                _simulationTimeStep=newDt;
-                retVal=true;
+                _simulationTimeStep = newDt;
+                retVal = true;
             }
         }
     }
-    if (action>0)
+    if (action > 0)
     { // We wanna go faster
         if (canGoFaster())
         {
             _speedModifierCount++;
-            if (_speedModifierCount<=0)
-                _simulationTimeStep=_getNewTimeStep(_speedModifierCount);
-            retVal=true;
+            if (_speedModifierCount <= 0)
+                _simulationTimeStep = _getNewTimeStep(_speedModifierCount);
+            retVal = true;
         }
     }
-    #ifdef SIM_WITH_GUI
-        if (retVal)
-        {
-            GuiApp::setLightDialogRefreshFlag();
-            GuiApp::setToolbarRefreshFlag();
-        }
-    #endif
-    return(retVal);
+#ifdef SIM_WITH_GUI
+    if (retVal)
+    {
+        GuiApp::setLightDialogRefreshFlag();
+        GuiApp::setToolbarRefreshFlag();
+    }
+#endif
+    return (retVal);
 }
 
 void CSimulation::incrementStopRequestCounter()
@@ -676,80 +682,82 @@ void CSimulation::incrementStopRequestCounter()
 
 int CSimulation::getStopRequestCounter() const
 {
-    return(_stopRequestCounter);
+    return (_stopRequestCounter);
 }
 
 bool CSimulation::didStopRequestCounterChangeSinceSimulationStart() const
 {
-    return(_stopRequestCounter!=_stopRequestCounterAtSimulationStart);
+    return (_stopRequestCounter != _stopRequestCounterAtSimulationStart);
 }
 
-bool CSimulation::getInfo(std::string& txtLeft,std::string& txtRight,int& index) const
+bool CSimulation::getInfo(std::string &txtLeft, std::string &txtRight, int &index) const
 {
-    bool retVal=false;
+    bool retVal = false;
     if (!isSimulationStopped())
     {
-        if (index==0)
+        if (index == 0)
         {
-            txtLeft="Simulation time:";
+            txtLeft = "Simulation time:";
             if (_realTimeSimulation)
             {
-                txtRight="";
-                double st,str;
-                if (_getSimulationTimeHistoryDurations(st,str))
+                txtRight = "";
+                double st, str;
+                if (_getSimulationTimeHistoryDurations(st, str))
                 {
-                    if (abs((st-str)/str)>0.1)
-                        txtRight="&&fg930"; // When current simulation speed is too slow
+                    if (abs((st - str) / str) > 0.1)
+                        txtRight = "&&fg930"; // When current simulation speed is too slow
                     else
                     {
-                        if ( abs(getSimulationTime()-simulationTime_real) > 10.0*getTimeStep() )
-                            txtRight="&&fg930"; // When simulation is behind
+                        if (abs(getSimulationTime() - simulationTime_real) > 10.0 * getTimeStep())
+                            txtRight = "&&fg930"; // When simulation is behind
                     }
                 }
-                txtRight+=utils::getTimeString(false,getSimulationTime()+0.0001)+" &&fg@@@(real time: ";
-                if (abs(getRealTimeCoeff()-1.0)<0.01)
-                    txtRight+=utils::getTimeString(false,simulationTime_real+0.0001)+")";
+                txtRight += utils::getTimeString(false, getSimulationTime() + 0.0001) + " &&fg@@@(real time: ";
+                if (abs(getRealTimeCoeff() - 1.0) < 0.01)
+                    txtRight += utils::getTimeString(false, simulationTime_real + 0.0001) + ")";
                 else
                 {
-                    txtRight+=utils::getTimeString(false,simulationTime_real+0.0001)+" (x";
-                    txtRight+=utils::getMultString(false,getRealTimeCoeff())+"))";
+                    txtRight += utils::getTimeString(false, simulationTime_real + 0.0001) + " (x";
+                    txtRight += utils::getMultString(false, getRealTimeCoeff()) + "))";
                 }
-                if (simulationTime_real!=0.0)
-                    txtRight+=" (real time fact="+utils::getMultString(false,getSimulationTime()/simulationTime_real)+")";
-                txtRight+=" (dt="+utils::getDoubleString(false,getTimeStep()*1000.0,1,2)+" ms)";
+                if (simulationTime_real != 0.0)
+                    txtRight +=
+                        " (real time fact=" + utils::getMultString(false, getSimulationTime() / simulationTime_real) +
+                        ")";
+                txtRight += " (dt=" + utils::getDoubleString(false, getTimeStep() * 1000.0, 1, 2) + " ms)";
             }
             else
             {
-                txtRight="&&fg@@@"+utils::getTimeString(false,getSimulationTime()+0.0001);
-                txtRight+=" (dt="+utils::getDoubleString(false,getTimeStep()*1000.0,1,2)+" ms, ppf="+std::to_string(getPassesPerRendering())+")";
+                txtRight = "&&fg@@@" + utils::getTimeString(false, getSimulationTime() + 0.0001);
+                txtRight += " (dt=" + utils::getDoubleString(false, getTimeStep() * 1000.0, 1, 2) +
+                            " ms, ppf=" + std::to_string(getPassesPerRendering()) + ")";
             }
-            retVal=true;
+            retVal = true;
         }
         else
-            index=0;
+            index = 0;
         index++;
     }
-    return(retVal);
+    return (retVal);
 }
 
-void CSimulation::serialize(CSer& ar)
+void CSimulation::serialize(CSer &ar)
 {
     if (ar.isBinary())
     {
         if (ar.isStoring())
-        {       // Storing
+        {                            // Storing
             ar.storeDataName("Sts"); // for backward compatibility (03/03/2016), keep before St2
             ar << (float)_simulationTimeStep;
             ar.flush();
 
             ar.storeDataName("St2"); // for backward compatibility (05/09/2022), keep before St3
-            ar << quint64(_simulationTimeStep*1000000.0);
+            ar << quint64(_simulationTimeStep * 1000000.0);
             ar.flush();
 
             ar.storeDataName("_t3");
             ar << _simulationTimeStep;
             ar.flush();
-
 
             ar.storeDataName("Spr");
             ar << _simulationPassesPerRendering;
@@ -760,15 +768,15 @@ void CSimulation::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Ss2");
-            unsigned char nothing=0;
-            SIM_SET_CLEAR_BIT(nothing,0,_realTimeSimulation);
+            unsigned char nothing = 0;
+            SIM_SET_CLEAR_BIT(nothing, 0, _realTimeSimulation);
             // 06.09.2022 SIM_SET_CLEAR_BIT(nothing,1,_avoidBlocking);
-            SIM_SET_CLEAR_BIT(nothing,2,_pauseAtSpecificTime);
-            SIM_SET_CLEAR_BIT(nothing,3,_pauseAtError);
+            SIM_SET_CLEAR_BIT(nothing, 2, _pauseAtSpecificTime);
+            SIM_SET_CLEAR_BIT(nothing, 3, _pauseAtError);
             // 06.09.2022 SIM_SET_CLEAR_BIT(nothing,4,_catchUpIfLate);
-            SIM_SET_CLEAR_BIT(nothing,5,_fullscreenAtSimulationStart);
-            SIM_SET_CLEAR_BIT(nothing,6,!_resetSimulationAtEnd);
-            SIM_SET_CLEAR_BIT(nothing,7,!_removeNewObjectsAtSimulationEnd);
+            SIM_SET_CLEAR_BIT(nothing, 5, _fullscreenAtSimulationStart);
+            SIM_SET_CLEAR_BIT(nothing, 6, !_resetSimulationAtEnd);
+            SIM_SET_CLEAR_BIT(nothing, 7, !_removeNewObjectsAtSimulationEnd);
 
             ar << nothing;
             ar.flush();
@@ -786,150 +794,149 @@ void CSimulation::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Pa2"); // for backward compatibility (05/09/2022), keep before Pa3
-            ar << quint64(_simulationTimeToPause*1000000.0);
+            ar << quint64(_simulationTimeToPause * 1000000.0);
             ar.flush();
 
             ar.storeDataName("_a3");
             ar << _simulationTimeToPause;
             ar.flush();
 
-
             ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
-        {       // Loading
+        { // Loading
             int byteQuantity;
-            std::string theName="";
+            std::string theName = "";
             int oldDefautParamsIndex;
-            bool usingOldDefaultParams=true;
-            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            bool usingOldDefaultParams = true;
+            while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
-                theName=ar.readDataName();
-                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                theName = ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT) != 0)
                 {
-                    bool noHit=true;
-                    if (theName.compare("Sts")==0)
+                    bool noHit = true;
+                    if (theName.compare("Sts") == 0)
                     { // for backward compatibility (03/03/2016)
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         float bla;
                         ar >> bla;
-                        _simulationTimeStep=(double)bla;
+                        _simulationTimeStep = (double)bla;
                     }
-                    if (theName.compare("St2")==0)
+                    if (theName.compare("St2") == 0)
                     { // for backward compatibility (05/09/2022)
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         quint64 stp;
                         ar >> stp;
-                        _simulationTimeStep=double(stp)/1000000.0;
+                        _simulationTimeStep = double(stp) / 1000000.0;
                     }
-                    if (theName.compare("St3")==0)
+                    if (theName.compare("St3") == 0)
                     { // for backward comp. (flt->dbl)
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         float bla;
                         ar >> bla;
-                        _simulationTimeStep=(double)bla;
-                        usingOldDefaultParams=false;
+                        _simulationTimeStep = (double)bla;
+                        usingOldDefaultParams = false;
                     }
 
-                    if (theName.compare("_t3")==0)
+                    if (theName.compare("_t3") == 0)
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         ar >> _simulationTimeStep;
-                        usingOldDefaultParams=false;
+                        usingOldDefaultParams = false;
                     }
 
-                    if (theName.compare("Spr")==0)
+                    if (theName.compare("Spr") == 0)
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         ar >> _simulationPassesPerRendering;
                     }
-                    if (theName.compare("Spi")==0)
+                    if (theName.compare("Spi") == 0)
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         ar >> oldDefautParamsIndex;
                     }
-                    if (theName=="Sst")
+                    if (theName == "Sst")
                     { // for backward compatibility (still in serialization version 15 or before)
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        _realTimeSimulation=SIM_IS_BIT_SET(nothing,0);
-                        _pauseAtSpecificTime=SIM_IS_BIT_SET(nothing,2);
-                        _pauseAtError=SIM_IS_BIT_SET(nothing,3);
+                        _realTimeSimulation = SIM_IS_BIT_SET(nothing, 0);
+                        _pauseAtSpecificTime = SIM_IS_BIT_SET(nothing, 2);
+                        _pauseAtError = SIM_IS_BIT_SET(nothing, 3);
                         // 06.09.2022 _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
-                        bool defaultSimulationTimeStep=SIM_IS_BIT_SET(nothing,5);
-                        _resetSimulationAtEnd=!SIM_IS_BIT_SET(nothing,6);
-                        _removeNewObjectsAtSimulationEnd=!SIM_IS_BIT_SET(nothing,7);
+                        bool defaultSimulationTimeStep = SIM_IS_BIT_SET(nothing, 5);
+                        _resetSimulationAtEnd = !SIM_IS_BIT_SET(nothing, 6);
+                        _removeNewObjectsAtSimulationEnd = !SIM_IS_BIT_SET(nothing, 7);
                         if (defaultSimulationTimeStep)
-                            oldDefautParamsIndex=2; // for default parameters
+                            oldDefautParamsIndex = 2; // for default parameters
                         else
-                            oldDefautParamsIndex=5; // for custom parameters
+                            oldDefautParamsIndex = 5; // for custom parameters
                     }
-                    if (theName=="Ss2")
+                    if (theName == "Ss2")
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        _realTimeSimulation=SIM_IS_BIT_SET(nothing,0);
+                        _realTimeSimulation = SIM_IS_BIT_SET(nothing, 0);
                         // 06.09.2022 _avoidBlocking=SIM_IS_BIT_SET(nothing,1);
-                        _pauseAtSpecificTime=SIM_IS_BIT_SET(nothing,2);
-                        _pauseAtError=SIM_IS_BIT_SET(nothing,3);
+                        _pauseAtSpecificTime = SIM_IS_BIT_SET(nothing, 2);
+                        _pauseAtError = SIM_IS_BIT_SET(nothing, 3);
                         // 06.09.2022 _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
-                        _fullscreenAtSimulationStart=SIM_IS_BIT_SET(nothing,5);
-                        _resetSimulationAtEnd=!SIM_IS_BIT_SET(nothing,6);
-                        _removeNewObjectsAtSimulationEnd=!SIM_IS_BIT_SET(nothing,7);
+                        _fullscreenAtSimulationStart = SIM_IS_BIT_SET(nothing, 5);
+                        _resetSimulationAtEnd = !SIM_IS_BIT_SET(nothing, 6);
+                        _removeNewObjectsAtSimulationEnd = !SIM_IS_BIT_SET(nothing, 7);
                     }
 
-                    if (theName.compare("Rt2")==0)
+                    if (theName.compare("Rt2") == 0)
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         ar >> _realTimeCoefficient;
                     }
-                    if (theName.compare("Rtc")==0)
+                    if (theName.compare("Rtc") == 0)
                     { // for backward compatibility (03/03/2016)
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         float v;
                         ar >> v;
-                        _realTimeCoefficient=double(v);
+                        _realTimeCoefficient = double(v);
                     }
-                    if (theName.compare("Pat")==0)
+                    if (theName.compare("Pat") == 0)
                     { // for backward compatibility (03/03/2016)
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         float bla;
                         ar >> bla;
-                        _simulationTimeToPause=(double)bla;
+                        _simulationTimeToPause = (double)bla;
                     }
-                    if (theName.compare("Pa2")==0)
+                    if (theName.compare("Pa2") == 0)
                     { // for backward compatibility (05/09/2022)
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         quint64 p;
                         ar >> p;
-                        _simulationTimeToPause=double(p)/1000000.0;
+                        _simulationTimeToPause = double(p) / 1000000.0;
                     }
-                    if (theName.compare("Pa3")==0)
+                    if (theName.compare("Pa3") == 0)
                     { // for backward comp. (flt->dbl)
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         float bla;
                         ar >> bla;
-                        _simulationTimeToPause=(double)bla;
+                        _simulationTimeToPause = (double)bla;
                     }
 
-                    if (theName.compare("_a3")==0)
+                    if (theName.compare("_a3") == 0)
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         ar >> _simulationTimeToPause;
                     }
@@ -940,100 +947,107 @@ void CSimulation::serialize(CSer& ar)
             }
             if (usingOldDefaultParams)
             {
-                if ( (oldDefautParamsIndex>=0)&&(oldDefautParamsIndex<5) )
+                if ((oldDefautParamsIndex >= 0) && (oldDefautParamsIndex < 5))
                 {
-                    const double SIMULATION_DEFAULT_TIME_STEP_OLD[5]={0.2,0.1,0.05,0.025,0.01};
-                    _simulationTimeStep=SIMULATION_DEFAULT_TIME_STEP_OLD[oldDefautParamsIndex];
+                    const double SIMULATION_DEFAULT_TIME_STEP_OLD[5] = {0.2, 0.1, 0.05, 0.025, 0.01};
+                    _simulationTimeStep = SIMULATION_DEFAULT_TIME_STEP_OLD[oldDefautParamsIndex];
                 }
             }
         }
     }
     else
     {
-        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        bool exhaustiveXml = ((ar.getFileType() != CSer::filetype_csim_xml_simplescene_file) &&
+                              (ar.getFileType() != CSer::filetype_csim_xml_simplemodel_file));
         if (ar.isStoring())
         {
-            ar.xmlAddNode_float("simTimeStep",_simulationTimeStep);
+            ar.xmlAddNode_float("simTimeStep", _simulationTimeStep);
 
-            ar.xmlAddNode_comment(" 'simulationTimeStep' tag: used for backward compatibility",exhaustiveXml);
-            ar.xmlAddNode_float("simulationTimeStep",_simulationTimeStep);
+            ar.xmlAddNode_comment(" 'simulationTimeStep' tag: used for backward compatibility", exhaustiveXml);
+            ar.xmlAddNode_float("simulationTimeStep", _simulationTimeStep);
             if (exhaustiveXml)
             {
-                ar.xmlAddNode_comment(" 'simulationTimeStep_ns' tag: used for backward compatibility",exhaustiveXml);
-                ar.xmlAddNode_ulonglong("simulationTimeStep_ns",quint64(_simulationTimeStep*1000000.0)); // for backward compatibility (05.09.2022)
+                ar.xmlAddNode_comment(" 'simulationTimeStep_ns' tag: used for backward compatibility", exhaustiveXml);
+                ar.xmlAddNode_ulonglong(
+                    "simulationTimeStep_ns",
+                    quint64(_simulationTimeStep * 1000000.0)); // for backward compatibility (05.09.2022)
             }
 
-            ar.xmlAddNode_int("simulationPassesPerRendering",_simulationPassesPerRendering);
+            ar.xmlAddNode_int("simulationPassesPerRendering", _simulationPassesPerRendering);
 
-            ar.xmlAddNode_comment(" 'simulationMode' tag: used for backward compatibility",exhaustiveXml);
-            ar.xmlAddNode_int("simulationMode",5); // for backward compatibility (05.09.2022)
+            ar.xmlAddNode_comment(" 'simulationMode' tag: used for backward compatibility", exhaustiveXml);
+            ar.xmlAddNode_int("simulationMode", 5); // for backward compatibility (05.09.2022)
 
-            ar.xmlAddNode_float("realTimeCoefficient",_realTimeCoefficient);
+            ar.xmlAddNode_float("realTimeCoefficient", _realTimeCoefficient);
 
-            ar.xmlAddNode_float("simulationTimeToPause",_simulationTimeToPause);
+            ar.xmlAddNode_float("simulationTimeToPause", _simulationTimeToPause);
             if (exhaustiveXml)
             {
-                ar.xmlAddNode_comment(" 'simulationTimeToPause_ns' tag: used for backward compatibility",exhaustiveXml);
-                ar.xmlAddNode_ulonglong("simulationTimeToPause_ns",quint64(_simulationTimeToPause*1000000.0)); // for backward compatibility (05.09.2022)
+                ar.xmlAddNode_comment(" 'simulationTimeToPause_ns' tag: used for backward compatibility",
+                                      exhaustiveXml);
+                ar.xmlAddNode_ulonglong(
+                    "simulationTimeToPause_ns",
+                    quint64(_simulationTimeToPause * 1000000.0)); // for backward compatibility (05.09.2022)
             }
 
             ar.xmlPushNewNode("switches");
-            ar.xmlAddNode_bool("realTime",_realTimeSimulation);
-            ar.xmlAddNode_bool("pauseAtTime",_pauseAtSpecificTime);
-            ar.xmlAddNode_bool("pauseAtError",_pauseAtError);
+            ar.xmlAddNode_bool("realTime", _realTimeSimulation);
+            ar.xmlAddNode_bool("pauseAtTime", _pauseAtSpecificTime);
+            ar.xmlAddNode_bool("pauseAtError", _pauseAtError);
             if (exhaustiveXml)
-                ar.xmlAddNode_bool("fullScreen",_fullscreenAtSimulationStart);
-            ar.xmlAddNode_bool("resetAtEnd",_resetSimulationAtEnd);
-            ar.xmlAddNode_bool("removeNewObjectsAtEnd",_removeNewObjectsAtSimulationEnd);
+                ar.xmlAddNode_bool("fullScreen", _fullscreenAtSimulationStart);
+            ar.xmlAddNode_bool("resetAtEnd", _resetSimulationAtEnd);
+            ar.xmlAddNode_bool("removeNewObjectsAtEnd", _removeNewObjectsAtSimulationEnd);
             ar.xmlPopNode();
         }
         else
         {
             int oldDefautParamsIndex;
-            bool usingOldDefaultParams=true;
+            bool usingOldDefaultParams = true;
             if (exhaustiveXml)
             { // for backward compatibility (05.09.2022)
                 quint64 step;
-                ar.xmlGetNode_ulonglong("simulationTimeStep_ns",step);
-                _simulationTimeStep=double(step)/1000000.0;
+                ar.xmlGetNode_ulonglong("simulationTimeStep_ns", step);
+                _simulationTimeStep = double(step) / 1000000.0;
             }
-            ar.xmlGetNode_float("simulationTimeStep",_simulationTimeStep,exhaustiveXml);
-            if (ar.xmlGetNode_float("simTimeStep",_simulationTimeStep,exhaustiveXml))
-                usingOldDefaultParams=false;
+            ar.xmlGetNode_float("simulationTimeStep", _simulationTimeStep, exhaustiveXml);
+            if (ar.xmlGetNode_float("simTimeStep", _simulationTimeStep, exhaustiveXml))
+                usingOldDefaultParams = false;
 
-            if (ar.xmlGetNode_int("simulationPassesPerRendering",_simulationPassesPerRendering,exhaustiveXml))
-                tt::limitValue(1,100,_simulationPassesPerRendering);
+            if (ar.xmlGetNode_int("simulationPassesPerRendering", _simulationPassesPerRendering, exhaustiveXml))
+                tt::limitValue(1, 100, _simulationPassesPerRendering);
 
-            ar.xmlGetNode_enum("simulationMode",oldDefautParamsIndex,exhaustiveXml,"200ms",0,"100ms",1,"50ms",2,"25ms",3,"10ms",4,"custom",5);
+            ar.xmlGetNode_enum("simulationMode", oldDefautParamsIndex, exhaustiveXml, "200ms", 0, "100ms", 1, "50ms", 2,
+                               "25ms", 3, "10ms", 4, "custom", 5);
 
-            if (ar.xmlGetNode_float("realTimeCoefficient",_realTimeCoefficient,exhaustiveXml))
-                tt::limitDoubleValue(0.01,100.0,_realTimeCoefficient);
+            if (ar.xmlGetNode_float("realTimeCoefficient", _realTimeCoefficient, exhaustiveXml))
+                tt::limitDoubleValue(0.01, 100.0, _realTimeCoefficient);
 
             if (exhaustiveXml)
             { // for backward compatibility (05.09.2022)
                 quint64 p;
-                ar.xmlGetNode_ulonglong("simulationTimeToPause_ns",p);
-                _simulationTimeToPause=double(p)/1000000.0;
+                ar.xmlGetNode_ulonglong("simulationTimeToPause_ns", p);
+                _simulationTimeToPause = double(p) / 1000000.0;
             }
-            ar.xmlGetNode_float("simulationTimeToPause",_simulationTimeToPause,exhaustiveXml);
+            ar.xmlGetNode_float("simulationTimeToPause", _simulationTimeToPause, exhaustiveXml);
 
-            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            if (ar.xmlPushChildNode("switches", exhaustiveXml))
             {
-                ar.xmlGetNode_bool("realTime",_realTimeSimulation,exhaustiveXml);
-                ar.xmlGetNode_bool("pauseAtTime",_pauseAtSpecificTime,exhaustiveXml);
-                ar.xmlGetNode_bool("pauseAtError",_pauseAtError,exhaustiveXml);
+                ar.xmlGetNode_bool("realTime", _realTimeSimulation, exhaustiveXml);
+                ar.xmlGetNode_bool("pauseAtTime", _pauseAtSpecificTime, exhaustiveXml);
+                ar.xmlGetNode_bool("pauseAtError", _pauseAtError, exhaustiveXml);
                 if (exhaustiveXml)
-                    ar.xmlGetNode_bool("fullScreen",_fullscreenAtSimulationStart,exhaustiveXml);
-                ar.xmlGetNode_bool("resetAtEnd",_resetSimulationAtEnd,exhaustiveXml);
-                ar.xmlGetNode_bool("removeNewObjectsAtEnd",_removeNewObjectsAtSimulationEnd,exhaustiveXml);
+                    ar.xmlGetNode_bool("fullScreen", _fullscreenAtSimulationStart, exhaustiveXml);
+                ar.xmlGetNode_bool("resetAtEnd", _resetSimulationAtEnd, exhaustiveXml);
+                ar.xmlGetNode_bool("removeNewObjectsAtEnd", _removeNewObjectsAtSimulationEnd, exhaustiveXml);
                 ar.xmlPopNode();
             }
             if (usingOldDefaultParams)
             {
-                if ( (oldDefautParamsIndex>=0)&&(oldDefautParamsIndex<5) )
+                if ((oldDefautParamsIndex >= 0) && (oldDefautParamsIndex < 5))
                 {
-                    const double SIMULATION_DEFAULT_TIME_STEP_OLD[5]={0.2,0.1,0.05,0.025,0.01};
-                    _simulationTimeStep=SIMULATION_DEFAULT_TIME_STEP_OLD[oldDefautParamsIndex];
+                    const double SIMULATION_DEFAULT_TIME_STEP_OLD[5] = {0.2, 0.1, 0.05, 0.025, 0.01};
+                    _simulationTimeStep = SIMULATION_DEFAULT_TIME_STEP_OLD[oldDefautParamsIndex];
                 }
             }
         }
@@ -1043,19 +1057,20 @@ void CSimulation::serialize(CSer& ar)
 #ifdef SIM_WITH_GUI
 bool CSimulation::processCommand(int commandID)
 { // Return value is true if the command belonged to hierarchy menu and was executed
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            bool noEditMode=true;
-            noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
-            if (App::currentWorld->simulation->isSimulationStopped()&&noEditMode )
+            bool noEditMode = true;
+            noEditMode = (GuiApp::getEditModeType() == NO_EDIT_MODE);
+            if (App::currentWorld->simulation->isSimulationStopped() && noEditMode)
             {
-                App::currentWorld->simulation->setIsRealTimeSimulation(!App::currentWorld->simulation->getIsRealTimeSimulation());
+                App::currentWorld->simulation->setIsRealTimeSimulation(
+                    !App::currentWorld->simulation->getIsRealTimeSimulation());
                 if (App::currentWorld->simulation->getIsRealTimeSimulation())
-                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_REAL_TIME_MODE);
+                    App::logMsg(sim_verbosity_msgs, IDSNS_TOGGLED_TO_REAL_TIME_MODE);
                 else
-                    App::logMsg(sim_verbosity_msgs,IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE);
+                    App::logMsg(sim_verbosity_msgs, IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE);
                 GuiApp::setLightDialogRefreshFlag();
                 GuiApp::setToolbarRefreshFlag(); // will trigger a refresh
                 App::undoRedo_sceneChanged("");
@@ -1064,23 +1079,23 @@ bool CSimulation::processCommand(int commandID)
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD)
     {
         _desiredFasterOrSlowerSpeed--;
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD)
     {
         _desiredFasterOrSlowerSpeed++;
-        return(true);
+        return (true);
     }
 
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD)
     {
         if (VThread::isUiThread())
         { // We are in the UI thread. We execute the command now:
@@ -1090,12 +1105,12 @@ bool CSimulation::processCommand(int commandID)
         { // We are not in the UI thread. Execute the command via the UI thread:
             SUIThreadCommand cmdIn;
             SUIThreadCommand cmdOut;
-            cmdIn.cmdId=TOGGLE_VISUALIZATION_UITHREADCMD;
-            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            cmdIn.cmdId = TOGGLE_VISUALIZATION_UITHREADCMD;
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_DYNAMIC_CONTENT_VISUALIZATION_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_TOGGLE_DYNAMIC_CONTENT_VISUALIZATION_SCCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
@@ -1105,229 +1120,254 @@ bool CSimulation::processCommand(int commandID)
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
     }
 
-    if (commandID==SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD)
     {
-        int editMode=NO_EDIT_MODE;
-        editMode=GuiApp::getEditModeType();
-        if (editMode==NO_EDIT_MODE)
+        int editMode = NO_EDIT_MODE;
+        editMode = GuiApp::getEditModeType();
+        if (editMode == NO_EDIT_MODE)
         {
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_start_resume_request,0,0,0,0,nullptr,0);
+                App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_start_resume_request, 0,
+                                                                       0, 0, 0, nullptr, 0);
             }
             else
             { // We are in the UI thread. Execute the command via the main thread:
                 SSimulationThreadCommand cmd;
-                cmd.cmdId=commandID;
+                cmd.cmdId = commandID;
                 App::appendSimulationThreadCommand(cmd);
             }
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_pause_request,0,0,0,0,nullptr,0);
+            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_pause_request, 0, 0, 0, 0,
+                                                                   nullptr, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CThreadPool_old::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
-            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,nullptr,0);
+            App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request, 0, 0, 0, 0,
+                                                                   nullptr, 0);
             incrementStopRequestCounter();
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_78_ENGINE_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_78_ENGINE_SCCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_bullet,0);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_bullet, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_83_ENGINE_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_83_ENGINE_SCCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_bullet,283);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_bullet, 283);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_ode,0);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_ode, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_vortex,0);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_vortex, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_newton,0);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_newton, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_mujoco,0);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_mujoco, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==SIMULATION_COMMANDS_TOGGLE_TO_PHYSX_ENGINE_SCCMD)
+    if (commandID == SIMULATION_COMMANDS_TOGGLE_TO_PHYSX_ENGINE_SCCMD)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_physx,0);
+            App::currentWorld->dynamicsContainer->setDynamicEngineType(sim_physics_physx, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
             SSimulationThreadCommand cmd;
-            cmd.cmdId=commandID;
+            cmd.cmdId = commandID;
             App::appendSimulationThreadCommand(cmd);
         }
-        return(true);
+        return (true);
     }
-    if (commandID==TOGGLE_SIMULATION_DLG_CMD)
+    if (commandID == TOGGLE_SIMULATION_DLG_CMD)
     {
         if (VThread::isUiThread())
         {
-            if (GuiApp::mainWindow!=nullptr)
+            if (GuiApp::mainWindow != nullptr)
                 GuiApp::mainWindow->dlgCont->toggle(SIMULATION_DLG);
         }
-        return(true);
+        return (true);
     }
-    return(false);
+    return (false);
 }
 
-bool CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* scriptName)
+bool CSimulation::showAndHandleEmergencyStopButton(bool showState, const char *scriptName)
 {
     TRACE_INTERNAL;
-    bool retVal=false;
-    if (GuiApp::mainWindow!=nullptr)
+    bool retVal = false;
+    if (GuiApp::mainWindow != nullptr)
     { // make sure we are not in headless mode
-        bool res=GuiApp::uiThread->showOrHideEmergencyStop(showState,scriptName);
-        if (showState&&res)
+        bool res = GuiApp::uiThread->showOrHideEmergencyStop(showState, scriptName);
+        if (showState && res)
         { // stop button was pressed
             if (!isSimulationStopped())
             {
                 CThreadPool_old::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
                 CThreadPool_old::setSimulationEmergencyStop(true);
             }
-            retVal=true;
+            retVal = true;
         }
     }
-    return(retVal);
+    return (retVal);
 }
 
-void CSimulation::addMenu(VMenu* menu)
+void CSimulation::addMenu(VMenu *menu)
 {
-    bool noEditMode=(GuiApp::getEditModeType()==NO_EDIT_MODE);
-    bool simRunning=App::currentWorld->simulation->isSimulationRunning();
-    bool simStopped=App::currentWorld->simulation->isSimulationStopped();
-    bool simPaused=App::currentWorld->simulation->isSimulationPaused();
-    bool canGoSlower=App::currentWorld->simulation->canGoSlower();
-    bool canGoFaster=App::currentWorld->simulation->canGoFaster();
+    bool noEditMode = (GuiApp::getEditModeType() == NO_EDIT_MODE);
+    bool simRunning = App::currentWorld->simulation->isSimulationRunning();
+    bool simStopped = App::currentWorld->simulation->isSimulationStopped();
+    bool simPaused = App::currentWorld->simulation->isSimulationPaused();
+    bool canGoSlower = App::currentWorld->simulation->canGoSlower();
+    bool canGoFaster = App::currentWorld->simulation->canGoFaster();
     if (simPaused)
-        menu->appendMenuItem(GuiApp::mainWindow->getPlayViaGuiEnabled()&&noEditMode,false,SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,IDS_RESUME_SIMULATION_MENU_ITEM);
+        menu->appendMenuItem(GuiApp::mainWindow->getPlayViaGuiEnabled() && noEditMode, false,
+                             SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,
+                             IDS_RESUME_SIMULATION_MENU_ITEM);
     else
-        menu->appendMenuItem(GuiApp::mainWindow->getPlayViaGuiEnabled()&&noEditMode&&(!simRunning),false,SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD,IDS_START_SIMULATION_MENU_ITEM);
-    menu->appendMenuItem(GuiApp::mainWindow->getPauseViaGuiEnabled()&&noEditMode&&simRunning,false,SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD,IDS_PAUSE_SIMULATION_MENU_ITEM);
-    menu->appendMenuItem(GuiApp::mainWindow->getStopViaGuiEnabled()&&noEditMode&&(!simStopped),false,SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD,IDS_STOP_SIMULATION_MENU_ITEM);
+        menu->appendMenuItem(GuiApp::mainWindow->getPlayViaGuiEnabled() && noEditMode && (!simRunning), false,
+                             SIMULATION_COMMANDS_START_RESUME_SIMULATION_REQUEST_SCCMD, IDS_START_SIMULATION_MENU_ITEM);
+    menu->appendMenuItem(GuiApp::mainWindow->getPauseViaGuiEnabled() && noEditMode && simRunning, false,
+                         SIMULATION_COMMANDS_PAUSE_SIMULATION_REQUEST_SCCMD, IDS_PAUSE_SIMULATION_MENU_ITEM);
+    menu->appendMenuItem(GuiApp::mainWindow->getStopViaGuiEnabled() && noEditMode && (!simStopped), false,
+                         SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD, IDS_STOP_SIMULATION_MENU_ITEM);
     menu->appendMenuSeparator();
     int version;
-    int engine=App::currentWorld->dynamicsContainer->getDynamicEngineType(&version);
-    menu->appendMenuItem(noEditMode&&simStopped,(engine==sim_physics_bullet)&&(version==0),SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_78_ENGINE_SCCMD,IDS_SWITCH_TO_BULLET_2_78_ENGINE_MENU_ITEM,true);
-    menu->appendMenuItem(noEditMode&&simStopped,(engine==sim_physics_bullet)&&(version==283),SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_83_ENGINE_SCCMD,IDS_SWITCH_TO_BULLET_2_83_ENGINE_MENU_ITEM,true);
-    menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_ode,SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD,IDS_SWITCH_TO_ODE_ENGINE_MENU_ITEM,true);
-    menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_vortex,SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD,IDS_SWITCH_TO_VORTEX_ENGINE_MENU_ITEM,true);
-    menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_newton,SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD,IDS_SWITCH_TO_NEWTON_ENGINE_MENU_ITEM,true);
-    menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_mujoco,SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD,IDS_SWITCH_TO_MUJOCO_ENGINE_MENU_ITEM,true);
+    int engine = App::currentWorld->dynamicsContainer->getDynamicEngineType(&version);
+    menu->appendMenuItem(noEditMode && simStopped, (engine == sim_physics_bullet) && (version == 0),
+                         SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_78_ENGINE_SCCMD,
+                         IDS_SWITCH_TO_BULLET_2_78_ENGINE_MENU_ITEM, true);
+    menu->appendMenuItem(noEditMode && simStopped, (engine == sim_physics_bullet) && (version == 283),
+                         SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_83_ENGINE_SCCMD,
+                         IDS_SWITCH_TO_BULLET_2_83_ENGINE_MENU_ITEM, true);
+    menu->appendMenuItem(noEditMode && simStopped, engine == sim_physics_ode,
+                         SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD, IDS_SWITCH_TO_ODE_ENGINE_MENU_ITEM, true);
+    menu->appendMenuItem(noEditMode && simStopped, engine == sim_physics_vortex,
+                         SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD, IDS_SWITCH_TO_VORTEX_ENGINE_MENU_ITEM,
+                         true);
+    menu->appendMenuItem(noEditMode && simStopped, engine == sim_physics_newton,
+                         SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD, IDS_SWITCH_TO_NEWTON_ENGINE_MENU_ITEM,
+                         true);
+    menu->appendMenuItem(noEditMode && simStopped, engine == sim_physics_mujoco,
+                         SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD, IDS_SWITCH_TO_MUJOCO_ENGINE_MENU_ITEM,
+                         true);
 #ifdef HAS_PHYSX
-    menu->appendMenuItem(noEditMode&&simStopped,engine==sim_physics_physx,SIMULATION_COMMANDS_TOGGLE_TO_PHYSX_ENGINE_SCCMD,IDS_SWITCH_TO_PHYSX_ENGINE_MENU_ITEM,true);
+    menu->appendMenuItem(noEditMode && simStopped, engine == sim_physics_physx,
+                         SIMULATION_COMMANDS_TOGGLE_TO_PHYSX_ENGINE_SCCMD, IDS_SWITCH_TO_PHYSX_ENGINE_MENU_ITEM, true);
 #endif
     menu->appendMenuSeparator();
-    menu->appendMenuItem(noEditMode&&simStopped,App::currentWorld->simulation->getIsRealTimeSimulation(),SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD,IDSN_REAL_TIME_SIMULATION,true);
-    menu->appendMenuItem(canGoSlower,false,SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD,IDSN_SLOW_DOWN_SIMULATION);
-    menu->appendMenuItem(canGoFaster,false,SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD,IDSN_SPEED_UP_SIMULATION);
-    menu->appendMenuItem(simRunning&&(!(GuiApp::mainWindow->oglSurface->isPageSelectionActive()||GuiApp::mainWindow->oglSurface->isViewSelectionActive())),!GuiApp::mainWindow->getOpenGlDisplayEnabled(),SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,"Toggle visualization",true);
+    menu->appendMenuItem(noEditMode && simStopped, App::currentWorld->simulation->getIsRealTimeSimulation(),
+                         SIMULATION_COMMANDS_TOGGLE_REAL_TIME_SIMULATION_SCCMD, IDSN_REAL_TIME_SIMULATION, true);
+    menu->appendMenuItem(canGoSlower, false, SIMULATION_COMMANDS_SLOWER_SIMULATION_SCCMD, IDSN_SLOW_DOWN_SIMULATION);
+    menu->appendMenuItem(canGoFaster, false, SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD, IDSN_SPEED_UP_SIMULATION);
+    menu->appendMenuItem(simRunning && (!(GuiApp::mainWindow->oglSurface->isPageSelectionActive() ||
+                                          GuiApp::mainWindow->oglSurface->isViewSelectionActive())),
+                         !GuiApp::mainWindow->getOpenGlDisplayEnabled(), SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,
+                         "Toggle visualization", true);
     menu->appendMenuSeparator();
-    if (GuiApp::mainWindow!=nullptr)
-        menu->appendMenuItem(true,GuiApp::mainWindow->dlgCont->isVisible(SIMULATION_DLG),TOGGLE_SIMULATION_DLG_CMD,IDSN_SIMULATION_SETTINGS,true);
+    if (GuiApp::mainWindow != nullptr)
+        menu->appendMenuItem(true, GuiApp::mainWindow->dlgCont->isVisible(SIMULATION_DLG), TOGGLE_SIMULATION_DLG_CMD,
+                             IDSN_SIMULATION_SETTINGS, true);
 }
 
 void CSimulation::keyPress(int key)
 {
-    if (key==CTRL_SPACE_KEY)
+    if (key == CTRL_SPACE_KEY)
     {
         if (isSimulationRunning())
         {

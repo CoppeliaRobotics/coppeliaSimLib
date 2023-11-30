@@ -4,160 +4,159 @@
 #include <boost/format.hpp>
 #include <base64.h>
 #ifdef SIM_WITH_GUI
-    #include <guiApp.h>
+#include <guiApp.h>
 #endif
 
-unsigned int CTextureObject::_textureContentUniqueId=0;
+unsigned int CTextureObject::_textureContentUniqueId = 0;
 
 CTextureObject::CTextureObject()
 { // for serialization
-    _objectID=SIM_IDSTART_TEXTURE;
-    _objectName="Texture";
-    _textureSize[0]=16;
-    _textureSize[1]=16;
-    _oglTextureName=(unsigned int)-1;
-    _textureBuffer.resize(4*_textureSize[0]*_textureSize[1],0);
-    _providedImageWasRGBA=false;
-    _changedFlag=true;
-    _currentTextureContentUniqueId=_textureContentUniqueId++;
+    _objectID = SIM_IDSTART_TEXTURE;
+    _objectName = "Texture";
+    _textureSize[0] = 16;
+    _textureSize[1] = 16;
+    _oglTextureName = (unsigned int)-1;
+    _textureBuffer.resize(4 * _textureSize[0] * _textureSize[1], 0);
+    _providedImageWasRGBA = false;
+    _changedFlag = true;
+    _currentTextureContentUniqueId = _textureContentUniqueId++;
 }
 
-CTextureObject::CTextureObject(int sizeX,int sizeY)
+CTextureObject::CTextureObject(int sizeX, int sizeY)
 {
-    _objectID=SIM_IDSTART_TEXTURE;
-    _objectName="Texture";
-    _textureSize[0]=sizeX;
-    _textureSize[1]=sizeY;
-    _oglTextureName=(unsigned int)-1;
-    _textureBuffer.resize(4*_textureSize[0]*_textureSize[1],0);
-    _providedImageWasRGBA=false;
-    _changedFlag=true;
-    _currentTextureContentUniqueId=_textureContentUniqueId++;
+    _objectID = SIM_IDSTART_TEXTURE;
+    _objectName = "Texture";
+    _textureSize[0] = sizeX;
+    _textureSize[1] = sizeY;
+    _oglTextureName = (unsigned int)-1;
+    _textureBuffer.resize(4 * _textureSize[0] * _textureSize[1], 0);
+    _providedImageWasRGBA = false;
+    _changedFlag = true;
+    _currentTextureContentUniqueId = _textureContentUniqueId++;
 }
 
 CTextureObject::~CTextureObject()
 {
 #ifdef SIM_WITH_GUI
-    if (_oglTextureName!=(unsigned int)-1)
+    if (_oglTextureName != (unsigned int)-1)
     { // destroy the texture in the UI thread
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
-        cmdIn.cmdId=DESTROY_GL_TEXTURE_UITHREADCMD;
+        cmdIn.cmdId = DESTROY_GL_TEXTURE_UITHREADCMD;
         cmdIn.uintParams.push_back(_oglTextureName);
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
     }
 #endif
 }
 
 void CTextureObject::setObjectID(int newID)
 {
-    _objectID=newID;
+    _objectID = newID;
 }
 
 int CTextureObject::getObjectID() const
 {
-    return(_objectID);
+    return (_objectID);
 }
 
-void CTextureObject::setObjectName(const char* newName)
+void CTextureObject::setObjectName(const char *newName)
 {
-    _objectName=newName;
+    _objectName = newName;
 }
 
 std::string CTextureObject::getObjectName() const
 {
-    return(_objectName);
+    return (_objectName);
 }
 
-void CTextureObject::getTextureSize(int& sizeX,int& sizeY) const
+void CTextureObject::getTextureSize(int &sizeX, int &sizeY) const
 {
-    sizeX=_textureSize[0];
-    sizeY=_textureSize[1];
+    sizeX = _textureSize[0];
+    sizeY = _textureSize[1];
 }
 
-void CTextureObject::setImage(bool rgba,bool horizFlip,bool vertFlip,const unsigned char* data)
+void CTextureObject::setImage(bool rgba, bool horizFlip, bool vertFlip, const unsigned char *data)
 {
-    int dirX=1;
-    int dirY=1;
-    int stX=0;
-    int stY=0;
+    int dirX = 1;
+    int dirY = 1;
+    int stX = 0;
+    int stY = 0;
     if (horizFlip)
     {
-        dirX=-1;
-        stX=_textureSize[0]-1;
+        dirX = -1;
+        stX = _textureSize[0] - 1;
     }
     if (!vertFlip)
     {
-        dirY=-1;
-        stY=_textureSize[1]-1;
+        dirY = -1;
+        stY = _textureSize[1] - 1;
     }
     if (rgba)
     {
-        for (int i=0;i<_textureSize[1];i++)
+        for (int i = 0; i < _textureSize[1]; i++)
         {
-            int p=i*_textureSize[0];
-            int w=(stY+dirY*i)*_textureSize[0];
-            for (int j=0;j<_textureSize[0];j++)
+            int p = i * _textureSize[0];
+            int w = (stY + dirY * i) * _textureSize[0];
+            for (int j = 0; j < _textureSize[0]; j++)
             {
-                int q=4*(p+j);
-                int v=4*(w+stX+dirX*j);
-                _textureBuffer[q+0]=data[v+0];
-                _textureBuffer[q+1]=data[v+1];
-                _textureBuffer[q+2]=data[v+2];
-                _textureBuffer[q+3]=data[v+3];
+                int q = 4 * (p + j);
+                int v = 4 * (w + stX + dirX * j);
+                _textureBuffer[q + 0] = data[v + 0];
+                _textureBuffer[q + 1] = data[v + 1];
+                _textureBuffer[q + 2] = data[v + 2];
+                _textureBuffer[q + 3] = data[v + 3];
             }
         }
     }
     else
     {
-        for (int i=0;i<_textureSize[1];i++)
+        for (int i = 0; i < _textureSize[1]; i++)
         {
-            int p=i*_textureSize[0];
-            int w=(stY+dirY*i)*_textureSize[0];
-            for (int j=0;j<_textureSize[0];j++)
+            int p = i * _textureSize[0];
+            int w = (stY + dirY * i) * _textureSize[0];
+            for (int j = 0; j < _textureSize[0]; j++)
             {
-                int q=4*(p+j);
-                int v=3*(w+stX+dirX*j);
-                _textureBuffer[q+0]=data[v+0];
-                _textureBuffer[q+1]=data[v+1];
-                _textureBuffer[q+2]=data[v+2];
-                _textureBuffer[q+3]=255;
+                int q = 4 * (p + j);
+                int v = 3 * (w + stX + dirX * j);
+                _textureBuffer[q + 0] = data[v + 0];
+                _textureBuffer[q + 1] = data[v + 1];
+                _textureBuffer[q + 2] = data[v + 2];
+                _textureBuffer[q + 3] = 255;
             }
         }
     }
-    _providedImageWasRGBA=rgba;
-    _changedFlag=true;
-    _currentTextureContentUniqueId=_textureContentUniqueId++;
+    _providedImageWasRGBA = rgba;
+    _changedFlag = true;
+    _currentTextureContentUniqueId = _textureContentUniqueId++;
 }
 
-bool CTextureObject::announceGeneralObjectWillBeErased(int objectID,int subObjectID)
+bool CTextureObject::announceGeneralObjectWillBeErased(int objectID, int subObjectID)
 { // return value true means this object needs destruction!
-    for (int i=0;i<int(_dependentObjects.size());i++)
+    for (int i = 0; i < int(_dependentObjects.size()); i++)
     {
-        if (_dependentObjects[i]==objectID)
+        if (_dependentObjects[i] == objectID)
         {
-            if ( (subObjectID==-1)||(subObjectID==_dependentSubObjects[i]) )
+            if ((subObjectID == -1) || (subObjectID == _dependentSubObjects[i]))
             {
-                _dependentObjects.erase(_dependentObjects.begin()+i);
-                _dependentSubObjects.erase(_dependentSubObjects.begin()+i);
+                _dependentObjects.erase(_dependentObjects.begin() + i);
+                _dependentSubObjects.erase(_dependentSubObjects.begin() + i);
                 i--; // we have to reprocess this position!
             }
         }
     }
-    return(_dependentObjects.size()==0);
+    return (_dependentObjects.size() == 0);
 }
 
-void CTextureObject::transferDependenciesToThere(CTextureObject* receivingObject)
+void CTextureObject::transferDependenciesToThere(CTextureObject *receivingObject)
 {
-    for (size_t i=0;i<_dependentObjects.size();i++)
+    for (size_t i = 0; i < _dependentObjects.size(); i++)
         receivingObject->_dependentObjects.push_back(_dependentObjects[i]);
-    for (size_t i=0;i<_dependentSubObjects.size();i++)
+    for (size_t i = 0; i < _dependentSubObjects.size(); i++)
         receivingObject->_dependentSubObjects.push_back(_dependentSubObjects[i]);
     clearAllDependencies();
 }
 
-
-void CTextureObject::addDependentObject(int objectID,int subObjectID)
+void CTextureObject::addDependentObject(int objectID, int subObjectID)
 {
     _dependentObjects.push_back(objectID);
     _dependentSubObjects.push_back(subObjectID);
@@ -169,51 +168,51 @@ void CTextureObject::clearAllDependencies()
     _dependentSubObjects.clear();
 }
 
-bool CTextureObject::isSame(const CTextureObject* obj) const
+bool CTextureObject::isSame(const CTextureObject *obj) const
 {
-    if ( (obj->_textureSize[0]==_textureSize[0])&&(obj->_textureSize[1]==_textureSize[1]) )
+    if ((obj->_textureSize[0] == _textureSize[0]) && (obj->_textureSize[1] == _textureSize[1]))
     {
-        if (obj->_providedImageWasRGBA!=_providedImageWasRGBA)
-            return(false);
-        for (int i=0;i<4*_textureSize[0]*_textureSize[1];i++)
+        if (obj->_providedImageWasRGBA != _providedImageWasRGBA)
+            return (false);
+        for (int i = 0; i < 4 * _textureSize[0] * _textureSize[1]; i++)
         {
-            if (obj->_textureBuffer[i]!=_textureBuffer[i])
-                return(false);
+            if (obj->_textureBuffer[i] != _textureBuffer[i])
+                return (false);
         }
-        return(true);
+        return (true);
     }
-    return(false);
+    return (false);
 }
 
-void CTextureObject::setTextureBuffer(const std::vector<unsigned char>& tb)
+void CTextureObject::setTextureBuffer(const std::vector<unsigned char> &tb)
 {
-    _textureBuffer.assign(tb.begin(),tb.end());
-    _changedFlag=true;
-    _currentTextureContentUniqueId=_textureContentUniqueId++;
+    _textureBuffer.assign(tb.begin(), tb.end());
+    _changedFlag = true;
+    _currentTextureContentUniqueId = _textureContentUniqueId++;
 }
 
-void CTextureObject::getTextureBuffer(std::vector<unsigned char>& tb) const
+void CTextureObject::getTextureBuffer(std::vector<unsigned char> &tb) const
 {
-    tb.assign(_textureBuffer.begin(),_textureBuffer.end());
+    tb.assign(_textureBuffer.begin(), _textureBuffer.end());
 }
 
-const unsigned char* CTextureObject::getTextureBufferPointer() const
+const unsigned char *CTextureObject::getTextureBufferPointer() const
 {
-    return(&_textureBuffer[0]);
+    return (&_textureBuffer[0]);
 }
 
 void CTextureObject::lightenUp()
 {
-    for (size_t i=0;i<_textureBuffer.size()/4;i++)
+    for (size_t i = 0; i < _textureBuffer.size() / 4; i++)
     {
-        int avg=_textureBuffer[4*i+0];
-        avg+=_textureBuffer[4*i+1];
-        avg+=_textureBuffer[4*i+2];
-        avg/=3;
-        avg=128+avg/2;
-        _textureBuffer[4*i+0]=avg;
-        _textureBuffer[4*i+1]=avg;
-        _textureBuffer[4*i+2]=avg;
+        int avg = _textureBuffer[4 * i + 0];
+        avg += _textureBuffer[4 * i + 1];
+        avg += _textureBuffer[4 * i + 2];
+        avg /= 3;
+        avg = 128 + avg / 2;
+        _textureBuffer[4 * i + 0] = avg;
+        _textureBuffer[4 * i + 1] = avg;
+        _textureBuffer[4 * i + 2] = avg;
     }
     /*
     // do some sort of contrast filter and shift all values upwards:
@@ -254,213 +253,221 @@ void CTextureObject::lightenUp()
         _textureBuffer[4*i+3]=255;
     }
 */
-    _changedFlag=true;
-    _currentTextureContentUniqueId=_textureContentUniqueId++;
+    _changedFlag = true;
+    _currentTextureContentUniqueId = _textureContentUniqueId++;
 }
 
 void CTextureObject::setRandomContent()
 {
-    for (size_t i=0;i<_textureBuffer.size()/4;i++)
+    for (size_t i = 0; i < _textureBuffer.size() / 4; i++)
     {
-        _textureBuffer[4*i+0]=(unsigned char)(SIM_RAND_FLOAT*255.0);
-        _textureBuffer[4*i+1]=(unsigned char)(SIM_RAND_FLOAT*255.0);
-        _textureBuffer[4*i+2]=(unsigned char)(SIM_RAND_FLOAT*255.0);
+        _textureBuffer[4 * i + 0] = (unsigned char)(SIM_RAND_FLOAT * 255.0);
+        _textureBuffer[4 * i + 1] = (unsigned char)(SIM_RAND_FLOAT * 255.0);
+        _textureBuffer[4 * i + 2] = (unsigned char)(SIM_RAND_FLOAT * 255.0);
     }
-    _changedFlag=true;
-    _currentTextureContentUniqueId=_textureContentUniqueId++;
+    _changedFlag = true;
+    _currentTextureContentUniqueId = _textureContentUniqueId++;
 }
 
 unsigned int CTextureObject::getCurrentTextureContentUniqueId() const
 {
-    return(_currentTextureContentUniqueId);
+    return (_currentTextureContentUniqueId);
 }
 
 void CTextureObject::setOglTextureName(unsigned int n)
 {
-    _oglTextureName=n;
+    _oglTextureName = n;
 }
 
 unsigned int CTextureObject::getOglTextureName() const
 {
-    return(_oglTextureName);
+    return (_oglTextureName);
 }
 
 bool CTextureObject::getChangedFlag() const
 {
-    return(_changedFlag);
+    return (_changedFlag);
 }
 
 void CTextureObject::setChangedFlag(bool c)
 {
-    _changedFlag=c;
+    _changedFlag = c;
 }
 
-CTextureObject* CTextureObject::copyYourself() const
+CTextureObject *CTextureObject::copyYourself() const
 {
-    CTextureObject* newObj=new CTextureObject();
-    newObj->_objectID=_objectID;
-    newObj->_objectName=_objectName;
+    CTextureObject *newObj = new CTextureObject();
+    newObj->_objectID = _objectID;
+    newObj->_objectName = _objectName;
 
-    newObj->_textureSize[0]=_textureSize[0];
-    newObj->_textureSize[1]=_textureSize[1];
+    newObj->_textureSize[0] = _textureSize[0];
+    newObj->_textureSize[1] = _textureSize[1];
 
-    newObj->_textureBuffer.assign(_textureBuffer.begin(),_textureBuffer.end());
-    newObj->_providedImageWasRGBA=_providedImageWasRGBA;
-    newObj->_changedFlag=true;
-    newObj->_currentTextureContentUniqueId=_textureContentUniqueId++;
+    newObj->_textureBuffer.assign(_textureBuffer.begin(), _textureBuffer.end());
+    newObj->_providedImageWasRGBA = _providedImageWasRGBA;
+    newObj->_changedFlag = true;
+    newObj->_currentTextureContentUniqueId = _textureContentUniqueId++;
 
-    newObj->_dependentObjects.assign(_dependentObjects.begin(),_dependentObjects.end());
-    newObj->_dependentSubObjects.assign(_dependentSubObjects.begin(),_dependentSubObjects.end());
+    newObj->_dependentObjects.assign(_dependentObjects.begin(), _dependentObjects.end());
+    newObj->_dependentSubObjects.assign(_dependentSubObjects.begin(), _dependentSubObjects.end());
 
-    return(newObj);
+    return (newObj);
 }
 
-unsigned char* CTextureObject::readPortionOfTexture(int posX,int posY,int sizeX,int sizeY) const
+unsigned char *CTextureObject::readPortionOfTexture(int posX, int posY, int sizeX, int sizeY) const
 {
-    if ( (posX<0)||(posY<0)||(sizeX<1)||(sizeY<1)||(posX+sizeX>_textureSize[0])||(posY+sizeY>_textureSize[1]) )
-        return(nullptr);
-    unsigned char* buff;
-    buff=new unsigned char[sizeX*sizeY*3];
-    int p=0;
-    int resX=_textureSize[0];
-    for (int j=posY;j<posY+sizeY;j++)
+    if ((posX < 0) || (posY < 0) || (sizeX < 1) || (sizeY < 1) || (posX + sizeX > _textureSize[0]) ||
+        (posY + sizeY > _textureSize[1]))
+        return (nullptr);
+    unsigned char *buff;
+    buff = new unsigned char[sizeX * sizeY * 3];
+    int p = 0;
+    int resX = _textureSize[0];
+    for (int j = posY; j < posY + sizeY; j++)
     {
-        for (int i=posX;i<posX+sizeX;i++)
+        for (int i = posX; i < posX + sizeX; i++)
         {
-            buff[3*p+0]=_textureBuffer[4*(j*resX+i)+0];
-            buff[3*p+1]=_textureBuffer[4*(j*resX+i)+1];
-            buff[3*p+2]=_textureBuffer[4*(j*resX+i)+2];
+            buff[3 * p + 0] = _textureBuffer[4 * (j * resX + i) + 0];
+            buff[3 * p + 1] = _textureBuffer[4 * (j * resX + i) + 1];
+            buff[3 * p + 2] = _textureBuffer[4 * (j * resX + i) + 2];
             p++;
         }
     }
-    return(buff);
+    return (buff);
 }
 
-bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData,int posX,int posY,int sizeX,int sizeY,bool circular,double interpol)
+bool CTextureObject::writePortionOfTexture(const unsigned char *rgbData, int posX, int posY, int sizeX, int sizeY,
+                                           bool circular, double interpol)
 {
-    int p=0;
-    int resX=_textureSize[0];
-    int resY=_textureSize[1];
-    if (interpol==0.0)
+    int p = 0;
+    int resX = _textureSize[0];
+    int resY = _textureSize[1];
+    if (interpol == 0.0)
     {
         if (circular)
         { // circular
-            int hx=posX+sizeX/2;
-            int hy=posY+sizeY/2;
-            for (int j=posY;j<posY+sizeY;j++)
+            int hx = posX + sizeX / 2;
+            int hy = posY + sizeY / 2;
+            for (int j = posY; j < posY + sizeY; j++)
             {
-                if ( (j>=0)&&(j<resY) )
+                if ((j >= 0) && (j < resY))
                 {
-                    double dy=double(hy-j)/double(sizeY/2);
-                    double dy2=dy*dy;
-                    for (int i=posX;i<posX+sizeX;i++)
+                    double dy = double(hy - j) / double(sizeY / 2);
+                    double dy2 = dy * dy;
+                    for (int i = posX; i < posX + sizeX; i++)
                     {
-                        if ( (i>=0)&&(i<resX) )
+                        if ((i >= 0) && (i < resX))
                         {
-                            double dx=double(hx-i)/double(sizeX/2);
-                            double dx2=dx*dx;
-                            if (dx2+dy2<=1.0)
+                            double dx = double(hx - i) / double(sizeX / 2);
+                            double dx2 = dx * dx;
+                            if (dx2 + dy2 <= 1.0)
                             {
-                                _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0];
-                                _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1];
-                                _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2];
+                                _textureBuffer[4 * (j * resX + i) + 0] = rgbData[3 * p + 0];
+                                _textureBuffer[4 * (j * resX + i) + 1] = rgbData[3 * p + 1];
+                                _textureBuffer[4 * (j * resX + i) + 2] = rgbData[3 * p + 2];
                             }
                         }
                         p++;
                     }
                 }
                 else
-                    p+=sizeX;
+                    p += sizeX;
             }
         }
         else
         {
-            for (int j=posY;j<posY+sizeY;j++)
+            for (int j = posY; j < posY + sizeY; j++)
             {
-                if ( (j>=0)&&(j<resY) )
+                if ((j >= 0) && (j < resY))
                 {
-                    for (int i=posX;i<posX+sizeX;i++)
+                    for (int i = posX; i < posX + sizeX; i++)
                     {
-                        if ( (i>=0)&&(i<resX) )
+                        if ((i >= 0) && (i < resX))
                         {
-                            _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0];
-                            _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1];
-                            _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2];
+                            _textureBuffer[4 * (j * resX + i) + 0] = rgbData[3 * p + 0];
+                            _textureBuffer[4 * (j * resX + i) + 1] = rgbData[3 * p + 1];
+                            _textureBuffer[4 * (j * resX + i) + 2] = rgbData[3 * p + 2];
                         }
                         p++;
                     }
                 }
                 else
-                    p+=sizeX;
+                    p += sizeX;
             }
         }
     }
     else
     {
-        double interpolI=1.0-interpol;
+        double interpolI = 1.0 - interpol;
         if (circular)
         { // circular
-            int hx=posX+sizeX/2;
-            int hy=posY+sizeY/2;
-            for (int j=posY;j<posY+sizeY;j++)
+            int hx = posX + sizeX / 2;
+            int hy = posY + sizeY / 2;
+            for (int j = posY; j < posY + sizeY; j++)
             {
-                if ( (j>=0)&&(j<resY) )
+                if ((j >= 0) && (j < resY))
                 {
-                    double dy=double(hy-j)/double(sizeY/2);
-                    double dy2=dy*dy;
-                    for (int i=posX;i<posX+sizeX;i++)
+                    double dy = double(hy - j) / double(sizeY / 2);
+                    double dy2 = dy * dy;
+                    for (int i = posX; i < posX + sizeX; i++)
                     {
-                        if ( (i>=0)&&(i<resX) )
+                        if ((i >= 0) && (i < resX))
                         {
-                            double dx=double(hx-i)/double(sizeX/2);
-                            double dx2=dx*dx;
-                            if (dx2+dy2<=1.0)
+                            double dx = double(hx - i) / double(sizeX / 2);
+                            double dx2 = dx * dx;
+                            if (dx2 + dy2 <= 1.0)
                             {
-                                _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0]*interpolI+_textureBuffer[4*(j*resX+i)+0]*interpol;
-                                _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1]*interpolI+_textureBuffer[4*(j*resX+i)+1]*interpol;
-                                _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2]*interpolI+_textureBuffer[4*(j*resX+i)+2]*interpol;
+                                _textureBuffer[4 * (j * resX + i) + 0] =
+                                    rgbData[3 * p + 0] * interpolI + _textureBuffer[4 * (j * resX + i) + 0] * interpol;
+                                _textureBuffer[4 * (j * resX + i) + 1] =
+                                    rgbData[3 * p + 1] * interpolI + _textureBuffer[4 * (j * resX + i) + 1] * interpol;
+                                _textureBuffer[4 * (j * resX + i) + 2] =
+                                    rgbData[3 * p + 2] * interpolI + _textureBuffer[4 * (j * resX + i) + 2] * interpol;
                             }
                         }
                         p++;
                     }
                 }
                 else
-                    p+=sizeX;
+                    p += sizeX;
             }
         }
         else
         {
-            for (int j=posY;j<posY+sizeY;j++)
+            for (int j = posY; j < posY + sizeY; j++)
             {
-                if ( (j>=0)&&(j<resY) )
+                if ((j >= 0) && (j < resY))
                 {
-                    for (int i=posX;i<posX+sizeX;i++)
+                    for (int i = posX; i < posX + sizeX; i++)
                     {
-                        if ( (i>=0)&&(i<resX) )
+                        if ((i >= 0) && (i < resX))
                         {
-                            _textureBuffer[4*(j*resX+i)+0]=rgbData[3*p+0]*interpolI+_textureBuffer[4*(j*resX+i)+0]*interpol;
-                            _textureBuffer[4*(j*resX+i)+1]=rgbData[3*p+1]*interpolI+_textureBuffer[4*(j*resX+i)+1]*interpol;
-                            _textureBuffer[4*(j*resX+i)+2]=rgbData[3*p+2]*interpolI+_textureBuffer[4*(j*resX+i)+2]*interpol;
+                            _textureBuffer[4 * (j * resX + i) + 0] =
+                                rgbData[3 * p + 0] * interpolI + _textureBuffer[4 * (j * resX + i) + 0] * interpol;
+                            _textureBuffer[4 * (j * resX + i) + 1] =
+                                rgbData[3 * p + 1] * interpolI + _textureBuffer[4 * (j * resX + i) + 1] * interpol;
+                            _textureBuffer[4 * (j * resX + i) + 2] =
+                                rgbData[3 * p + 2] * interpolI + _textureBuffer[4 * (j * resX + i) + 2] * interpol;
                         }
                         p++;
                     }
                 }
                 else
-                    p+=sizeX;
+                    p += sizeX;
             }
         }
     }
-    _changedFlag=true;
-    _currentTextureContentUniqueId=_textureContentUniqueId++;
-    return(true);
+    _changedFlag = true;
+    _currentTextureContentUniqueId = _textureContentUniqueId++;
+    return (true);
 }
 
-void CTextureObject::serialize(CSer& ar)
+void CTextureObject::serialize(CSer &ar)
 {
     if (ar.isBinary())
     {
         if (ar.isStoring())
-        {       // Storing
+        { // Storing
             ar.storeDataName("Ipa");
             ar << _objectID << _textureSize[0] << _textureSize[1];
             ar.flush();
@@ -470,27 +477,28 @@ void CTextureObject::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Bst");
-            unsigned char nothing=0;
-            SIM_SET_CLEAR_BIT(nothing,0,_providedImageWasRGBA);
+            unsigned char nothing = 0;
+            SIM_SET_CLEAR_BIT(nothing, 0, _providedImageWasRGBA);
             ar << nothing;
             ar.flush();
 
             if (App::currentWorld->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
             { // undo/redo serialization:
                 ar.storeDataName("Img");
-                ar << App::currentWorld->undoBufferContainer->undoBufferArrays.addTextureBuffer(_textureBuffer,App::currentWorld->undoBufferContainer->getNextBufferId());
+                ar << App::currentWorld->undoBufferContainer->undoBufferArrays.addTextureBuffer(
+                    _textureBuffer, App::currentWorld->undoBufferContainer->getNextBufferId());
                 ar.flush();
             }
             else
             { // normal serialization
                 ar.storeDataName("Img");
-                for (int i=0;i<_textureSize[0]*_textureSize[1];i++)
+                for (int i = 0; i < _textureSize[0] * _textureSize[1]; i++)
                 {
-                    ar << _textureBuffer[4*i+0];
-                    ar << _textureBuffer[4*i+1];
-                    ar << _textureBuffer[4*i+2];
+                    ar << _textureBuffer[4 * i + 0];
+                    ar << _textureBuffer[4 * i + 1];
+                    ar << _textureBuffer[4 * i + 2];
                     if (_providedImageWasRGBA)
-                        ar << _textureBuffer[4*i+3];
+                        ar << _textureBuffer[4 * i + 3];
                 }
                 ar.flush();
             }
@@ -498,67 +506,68 @@ void CTextureObject::serialize(CSer& ar)
             ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
-        {       // Loading
+        { // Loading
             int byteQuantity;
-            std::string theName="";
-            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            std::string theName = "";
+            while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
-                theName=ar.readDataName();
-                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                theName = ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT) != 0)
                 {
-                    bool noHit=true;
-                    if (theName.compare("Ipa")==0)
+                    bool noHit = true;
+                    if (theName.compare("Ipa") == 0)
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         ar >> _objectID >> _textureSize[0] >> _textureSize[1];
                     }
-                    if (theName.compare("Gon")==0)
+                    if (theName.compare("Gon") == 0)
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         ar >> _objectName;
                     }
-                    if (theName=="Bst")
+                    if (theName == "Bst")
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        _providedImageWasRGBA=SIM_IS_BIT_SET(nothing,0);
+                        _providedImageWasRGBA = SIM_IS_BIT_SET(nothing, 0);
                     }
                     if (App::currentWorld->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
                     { // undo/redo serialization
-                        if (theName.compare("Img")==0)
+                        if (theName.compare("Img") == 0)
                         {
-                            noHit=false;
+                            noHit = false;
                             ar >> byteQuantity;
                             int id;
                             ar >> id;
-                            App::currentWorld->undoBufferContainer->undoBufferArrays.getTextureBuffer(id,_textureBuffer);
-                            _changedFlag=true;
-                            _currentTextureContentUniqueId=_textureContentUniqueId++;
+                            App::currentWorld->undoBufferContainer->undoBufferArrays.getTextureBuffer(id,
+                                                                                                      _textureBuffer);
+                            _changedFlag = true;
+                            _currentTextureContentUniqueId = _textureContentUniqueId++;
                         }
                     }
                     else
                     { // normal serialization
-                        if (theName=="Img")
+                        if (theName == "Img")
                         {
-                            noHit=false;
+                            noHit = false;
                             ar >> byteQuantity;
-                            _textureBuffer.resize(4*_textureSize[0]*_textureSize[1],0);
-                            for (int i=0;i<_textureSize[0]*_textureSize[1];i++)
+                            _textureBuffer.resize(4 * _textureSize[0] * _textureSize[1], 0);
+                            for (int i = 0; i < _textureSize[0] * _textureSize[1]; i++)
                             {
-                                ar >> _textureBuffer[4*i+0];
-                                ar >> _textureBuffer[4*i+1];
-                                ar >> _textureBuffer[4*i+2];
+                                ar >> _textureBuffer[4 * i + 0];
+                                ar >> _textureBuffer[4 * i + 1];
+                                ar >> _textureBuffer[4 * i + 2];
                                 if (_providedImageWasRGBA)
-                                    ar >> _textureBuffer[4*i+3];
+                                    ar >> _textureBuffer[4 * i + 3];
                                 else
-                                    _textureBuffer[4*i+3]=255;
+                                    _textureBuffer[4 * i + 3] = 255;
                             }
-                            _changedFlag=true;
-                            _currentTextureContentUniqueId=_textureContentUniqueId++;
+                            _changedFlag = true;
+                            _currentTextureContentUniqueId = _textureContentUniqueId++;
                         }
                     }
                     if (noHit)
@@ -571,38 +580,39 @@ void CTextureObject::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {
-            ar.xmlAddNode_string("name",_objectName.c_str());
-            ar.xmlAddNode_int("id",_objectID);
-            ar.xmlAddNode_ints("resolution",_textureSize,2);
-            ar.xmlAddNode_bool("rgba",_providedImageWasRGBA);
-            if (ar.xmlSaveDataInline(_textureSize[0]*_textureSize[1]*4))
+            ar.xmlAddNode_string("name", _objectName.c_str());
+            ar.xmlAddNode_int("id", _objectID);
+            ar.xmlAddNode_ints("resolution", _textureSize, 2);
+            ar.xmlAddNode_bool("rgba", _providedImageWasRGBA);
+            if (ar.xmlSaveDataInline(_textureSize[0] * _textureSize[1] * 4))
             {
-                std::string str(base64_encode(&_textureBuffer[0],_textureSize[0]*_textureSize[1]*4));
-                ar.xmlAddNode_string("data_base64Coded",str.c_str());
+                std::string str(base64_encode(&_textureBuffer[0], _textureSize[0] * _textureSize[1] * 4));
+                ar.xmlAddNode_string("data_base64Coded", str.c_str());
             }
             else
-                ar.xmlAddNode_imageFile("file",(std::string("texture_")+_objectName).c_str(),&_textureBuffer[0],_textureSize[0],_textureSize[1],true);
+                ar.xmlAddNode_imageFile("file", (std::string("texture_") + _objectName).c_str(), &_textureBuffer[0],
+                                        _textureSize[0], _textureSize[1], true);
         }
         else
         {
-            ar.xmlGetNode_string("name",_objectName);
-            ar.xmlGetNode_int("id",_objectID);
-            ar.xmlGetNode_ints("resolution",_textureSize,2);
-            ar.xmlGetNode_bool("rgba",_providedImageWasRGBA);
+            ar.xmlGetNode_string("name", _objectName);
+            ar.xmlGetNode_int("id", _objectID);
+            ar.xmlGetNode_ints("resolution", _textureSize, 2);
+            ar.xmlGetNode_bool("rgba", _providedImageWasRGBA);
             std::string str;
-            if (ar.xmlGetNode_string("data_base64Coded",str,false))
-                str=base64_decode(str);
+            if (ar.xmlGetNode_string("data_base64Coded", str, false))
+                str = base64_decode(str);
             else
             {
                 std::vector<unsigned char> img;
-                ar.xmlGetNode_imageFile("file",img);
+                ar.xmlGetNode_imageFile("file", img);
                 str.resize(img.size());
-                for (size_t i=0;i<img.size();i++)
-                    str[i]=img[i];
+                for (size_t i = 0; i < img.size(); i++)
+                    str[i] = img[i];
             }
-            _textureBuffer.resize(4*_textureSize[0]*_textureSize[1],0);
-            for (size_t i=0;i<_textureSize[0]*_textureSize[1]*4;i++)
-                _textureBuffer[i]=str[i];
+            _textureBuffer.resize(4 * _textureSize[0] * _textureSize[1], 0);
+            for (size_t i = 0; i < _textureSize[0] * _textureSize[1] * 4; i++)
+                _textureBuffer[i] = str[i];
         }
     }
 }

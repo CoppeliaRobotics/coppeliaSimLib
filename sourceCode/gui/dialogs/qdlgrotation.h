@@ -5,8 +5,9 @@
 #include <dlgEx.h>
 #include <simMath/7Vector.h>
 
-namespace Ui {
-    class CQDlgRotation;
+namespace Ui
+{
+class CQDlgRotation;
 }
 
 class QComboBox;
@@ -15,7 +16,7 @@ class CQDlgRotation : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgRotation(QWidget *parent = 0);
     ~CQDlgRotation();
 
@@ -23,27 +24,26 @@ public:
 
     void cancelEvent();
 
-
-protected:
-    void _enableCoordinatePart(bool enableState,bool enableButtons,bool alsoRadioButtons);
-    void _enableTransformationPart(bool enableState,bool enableButtons,bool alsoRadioButtons);
+  protected:
+    void _enableCoordinatePart(bool enableState, bool enableButtons, bool alsoRadioButtons);
+    void _enableTransformationPart(bool enableState, bool enableButtons, bool alsoRadioButtons);
     void _setDefaultValuesCoordinatePart(bool alsoRadioButtons);
     void _setDefaultValuesTransformationPart(bool alsoRadioButtons);
     void _setValuesTransformationPart(bool alsoRadioButtons);
 
     // Coord part
-    bool _setCoord_userUnit(double newValueInUserUnit,int index);
-    C7Vector _getNewTransf(const C7Vector& transf,double newValueInUserUnit,int index);
+    bool _setCoord_userUnit(double newValueInUserUnit, int index);
+    C7Vector _getNewTransf(const C7Vector &transf, double newValueInUserUnit, int index);
     bool _applyCoord();
 
     // Transf part
     bool _applyTransformation(int axis);
-    void _transform(C7Vector& tr,bool self,int axis);
+    void _transform(C7Vector &tr, bool self, int axis);
 
-    static int coordMode; //0=abs,1=rel to parent
+    static int coordMode; // 0=abs,1=rel to parent
     static double rotAngles[3];
-    static int transfMode; //0=abs,1=rel to parent,2=rel to self
-    static int currentTab; //0=mouse transl., 1=pos, 2=transl., 3=scaling
+    static int transfMode; // 0=abs,1=rel to parent,2=rel to self
+    static int currentTab; // 0=mouse transl., 1=pos, 2=transl., 3=scaling
 
     static int manipulationModePermission;
     static int manipulationRotationRelativeTo;
@@ -52,7 +52,7 @@ protected:
 
     int lastLastSelectionID;
 
-private slots:
+  private slots:
     void on_qqCoordWorld_clicked();
 
     void on_qqCoordParent_clicked();
@@ -96,10 +96,9 @@ private slots:
     void on_qqOrG_clicked();
     void on_qqOrCombo_activated(int index);
 
-
-private:
-    void _selectItemOfCombobox(QComboBox* theBox,int itemData);
-    int _getIndexOfComboboxItemWithData(QComboBox* theBox,int itemData);
+  private:
+    void _selectItemOfCombobox(QComboBox *theBox, int itemData);
+    int _getIndexOfComboboxItemWithData(QComboBox *theBox, int itemData);
 
     Ui::CQDlgRotation *ui;
 };

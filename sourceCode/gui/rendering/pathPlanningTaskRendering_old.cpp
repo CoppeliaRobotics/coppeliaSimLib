@@ -20,9 +20,9 @@ See the GNU General Public License for more details.
 
 #include <pathPlanningTaskRendering_old.h>
 
-void displayPathPlanningTask(const C3Vector* corners)
+void displayPathPlanningTask(const C3Vector *corners)
 {
-    ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorCyan);
+    ogl::setMaterialColor(sim_colorcomponent_emission, ogl::colorCyan);
     ogl::buffer.clear();
     ogl::addBuffer3DPoints(corners[0].data);
     ogl::addBuffer3DPoints(corners[2].data);
@@ -34,7 +34,7 @@ void displayPathPlanningTask(const C3Vector* corners)
     ogl::addBuffer3DPoints(corners[7].data);
     ogl::addBuffer3DPoints(corners[5].data);
     ogl::addBuffer3DPoints(corners[1].data);
-    ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,nullptr);
+    ogl::drawRandom3dLines(&ogl::buffer[0], (int)ogl::buffer.size() / 3, true, nullptr);
     ogl::buffer.clear();
     ogl::addBuffer3DPoints(corners[4].data);
     ogl::addBuffer3DPoints(corners[5].data);
@@ -42,6 +42,6 @@ void displayPathPlanningTask(const C3Vector* corners)
     ogl::addBuffer3DPoints(corners[7].data);
     ogl::addBuffer3DPoints(corners[2].data);
     ogl::addBuffer3DPoints(corners[3].data);
-    ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,nullptr);
+    ogl::drawRandom3dLines(&ogl::buffer[0], (int)ogl::buffer.size() / 3, false, nullptr);
     ogl::buffer.clear();
 }

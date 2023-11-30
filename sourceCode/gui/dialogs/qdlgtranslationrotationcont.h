@@ -5,15 +5,16 @@
 #include <dlgEx.h>
 #include <QVBoxLayout>
 
-namespace Ui {
-    class CQDlgTranslationRotationCont;
+namespace Ui
+{
+class CQDlgTranslationRotationCont;
 }
 
 class CQDlgTranslationRotationCont : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgTranslationRotationCont(QWidget *parent = 0);
     ~CQDlgTranslationRotationCont();
 
@@ -21,17 +22,17 @@ public:
     void cancelEvent();
     void okEvent();
 
-    QVBoxLayout* bl;
+    QVBoxLayout *bl;
 
     int currentPage;
     int desiredPage;
 
-    CDlgEx* pageDlgs[2];
+    CDlgEx *pageDlgs[2];
     int originalHeights[2];
 
-private slots:
+  private slots:
 
-private:
+  private:
     Ui::CQDlgTranslationRotationCont *ui;
 };
 

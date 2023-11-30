@@ -4,14 +4,14 @@
 #include <QTime>
 #include <QThread>
 #ifndef WIN_SIM
-    #include <unistd.h>
-    #include <pthread.h>
+#include <unistd.h>
+#include <pthread.h>
 #endif
 
 // FULLY STATIC CLASS
-class VThread  
+class VThread
 {
-public:
+  public:
     static void launchThread(VTHREAD_START_ADDRESS startAddress);
     static void endThread();
     static void launchQtThread(SIMPLE_VTHREAD_START_ADDRESS startAddress);
@@ -25,12 +25,12 @@ public:
     static void unsetUiThread();
     static bool isSimThread();
     static bool isUiThread();
-    static bool areThreadIdsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB);
+    static bool areThreadIdsSame(VTHREAD_ID_TYPE threadA, VTHREAD_ID_TYPE threadB);
     static VTHREAD_ID_TYPE getCurrentThreadId();
     static void switchThread();
     static void sleep(int ms);
 
-private:
+  private:
     static bool _simThreadSet;
     static bool _uiThreadSet;
     static VTHREAD_ID_TYPE _simThreadId;
@@ -38,4 +38,3 @@ private:
     static VMutex _lock;
     static std::vector<VTHREAD_ID_TYPE> _apiQueriedThreadIds;
 };
-

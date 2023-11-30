@@ -4,15 +4,16 @@
 
 #include <vDialog.h>
 
-namespace Ui {
-    class CQDlgTextureSelection;
+namespace Ui
+{
+class CQDlgTextureSelection;
 }
 
 class CQDlgTextureSelection : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgTextureSelection(QWidget *parent = 0);
     ~CQDlgTextureSelection();
 
@@ -23,12 +24,12 @@ public:
 
     int selectedTextureObject;
 
-private slots:
+  private slots:
     void on_qqOkCancel_accepted();
 
     void on_qqOkCancel_rejected();
 
-private:
+  private:
     Ui::CQDlgTextureSelection *ui;
 };
 

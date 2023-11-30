@@ -6,20 +6,21 @@
 #include <QListWidgetItem>
 #include <QShortcut>
 
-namespace Ui {
-    class CQDlgGraphs;
+namespace Ui
+{
+class CQDlgGraphs;
 }
 
 class CQDlgGraphs : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgGraphs(QWidget *parent = 0);
     ~CQDlgGraphs();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
 
     void cancelEvent();
 
@@ -31,10 +32,10 @@ public:
     bool inListSelectionRoutine;
     bool noListSelectionAllowed;
 
-    QShortcut* delKeyShortcut;
-    QShortcut* backspaceKeyShortcut;
+    QShortcut *delKeyShortcut;
+    QShortcut *backspaceKeyShortcut;
 
-private slots:
+  private slots:
     void onDeletePressed();
     void on_qqAddNewDataStream_clicked();
 
@@ -80,7 +81,7 @@ private slots:
 
     void on_qqRemoveAll_clicked();
 
-private:
+  private:
     Ui::CQDlgGraphs *ui;
 };
 

@@ -13,63 +13,62 @@ VMutex::~VMutex()
 {
 }
 
-void VMutex::setName(const char* name)
+void VMutex::setName(const char *name)
 {
-    _name=name;
+    _name = name;
 }
 
-void VMutex::_msg(const char* location,const char* info) const
+void VMutex::_msg(const char *location, const char *info) const
 {
     std::string loc("unknown");
-    if (location!=nullptr)
-        loc=location;
+    if (location != nullptr)
+        loc = location;
     if (VThread::isSimThread())
-        printf("SIM thread: VMutex '%s', location '%s': %s\n",_name.c_str(),loc.c_str(),info);
+        printf("SIM thread: VMutex '%s', location '%s': %s\n", _name.c_str(), loc.c_str(), info);
     else
-        printf("GUI thread: VMutex '%s', location '%s': %s\n",_name.c_str(),loc.c_str(),info);
+        printf("GUI thread: VMutex '%s', location '%s': %s\n", _name.c_str(), loc.c_str(), info);
 }
 
 // Recursive here:
-void VMutex::lock(const char* location/*=nullptr*/)
+void VMutex::lock(const char *location /*=nullptr*/)
 {
-    if (_name.size()>0)
+    if (_name.size() > 0)
     {
-        _msg(location,"locking...");
-        if (location!=nullptr)
-            _location=location;
+        _msg(location, "locking...");
+        if (location != nullptr)
+            _location = location;
     }
     else
         _location.clear();
     _recursiveMutex.lock();
-    if (_name.size()>0)
-        _msg(location,"locked.");
+    if (_name.size() > 0)
+        _msg(location, "locked.");
 }
 
 bool VMutex::tryLock()
 {
-    return(_recursiveMutex.tryLock(0));
+    return (_recursiveMutex.tryLock(0));
 }
 
 void VMutex::unlock()
 {
     _recursiveMutex.unlock();
-    if (_name.size()>0)
+    if (_name.size() > 0)
     {
-        _msg(_location.c_str(),"unlocked.");
+        _msg(_location.c_str(), "unlocked.");
         _location.clear();
     }
 }
 
-
 // Non-recursive here:
-void VMutex::lock_simple(const char* location)
+void VMutex::lock_simple(const char *location)
 {
     _simpleMutex.lock();
 }
 
 bool VMutex::tryLock_simple()
 {
-    return(_simpleMutex.tryLock(0));
+    return (_simpleMutex.tryLock(0));
 }
 
 void VMutex::unlock_simple()

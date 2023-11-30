@@ -3,15 +3,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgProximitySensors;
+namespace Ui
+{
+class CQDlgProximitySensors;
 }
 
 class CQDlgProximitySensors : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgProximitySensors(QWidget *parent = 0);
     ~CQDlgProximitySensors();
 
@@ -21,7 +22,7 @@ public:
 
     bool inMainRefreshRoutine;
 
-private slots:
+  private slots:
     void on_qqExplicitHandling_clicked();
 
     void on_qqSensorTypeCombo_currentIndexChanged(int index);
@@ -42,7 +43,7 @@ private slots:
 
     void on_qqApplyColors_clicked();
 
-private:
+  private:
     Ui::CQDlgProximitySensors *ui;
 };
 

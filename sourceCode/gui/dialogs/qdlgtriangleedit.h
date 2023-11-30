@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgTriangleEdit;
+namespace Ui
+{
+class CQDlgTriangleEdit;
 }
 
 class CQDlgTriangleEdit : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgTriangleEdit(QWidget *parent = 0);
     ~CQDlgTriangleEdit();
 
@@ -20,7 +21,7 @@ public:
 
     void cancelEvent();
 
-private slots:
+  private slots:
     void on_qqMakeShape_clicked();
 
     void on_qqMakeCuboid_clicked();
@@ -37,7 +38,7 @@ private slots:
 
     void on_qqInvertSelection_clicked();
 
-private:
+  private:
     Ui::CQDlgTriangleEdit *ui;
 };
 

@@ -5,20 +5,21 @@
 #include <dlgEx.h>
 #include <QListWidgetItem>
 
-namespace Ui {
-    class CQDlgScripts;
+namespace Ui
+{
+class CQDlgScripts;
 }
 
 class CQDlgScripts : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgScripts(QWidget *parent = 0);
     ~CQDlgScripts();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
 
     void updateObjectsInList();
     int getSelectedObjectID();
@@ -29,7 +30,7 @@ public:
 
     static int scriptViewMode;
 
-private slots:
+  private slots:
     void onDeletePressed();
 
     void on_qqScriptList_itemSelectionChanged();
@@ -46,7 +47,7 @@ private slots:
 
     void on_qqTreeTraversalDirection_currentIndexChanged(int index);
 
-private:
+  private:
     Ui::CQDlgScripts *ui;
 };
 

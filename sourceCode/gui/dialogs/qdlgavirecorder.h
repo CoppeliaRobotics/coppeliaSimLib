@@ -4,21 +4,22 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgAviRecorder;
+namespace Ui
+{
+class CQDlgAviRecorder;
 }
 
 class CQDlgAviRecorder : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgAviRecorder(QWidget *parent = 0);
     ~CQDlgAviRecorder();
 
     void refresh();
     bool inRefreshRoutine;
-private slots:
+  private slots:
     void on_launchAtSimulationStart_clicked();
 
     void on_recordNow_clicked();
@@ -43,7 +44,7 @@ private slots:
 
     void on_recordWindowInstead_clicked();
 
-private:
+  private:
     Ui::CQDlgAviRecorder *ui;
 };
 

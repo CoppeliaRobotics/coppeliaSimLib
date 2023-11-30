@@ -4,20 +4,21 @@
 #include <dlgEx.h>
 #include <QListWidgetItem>
 
-namespace Ui {
-    class CQDlgCollections;
+namespace Ui
+{
+class CQDlgCollections;
 }
 
 class CQDlgCollections : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgCollections(QWidget *parent = 0);
     ~CQDlgCollections();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
 
     void initializationEvent();
 
@@ -30,9 +31,9 @@ public:
     int getSelectedGroupID();
     void selectGroup(int groupID);
     int getAllowedOpType(int desiredOp);
-    void doTheOperation(int opType,bool additive);
+    void doTheOperation(int opType, bool additive);
 
-private slots:
+  private slots:
 
     void on_qqNewCollection_clicked();
 
@@ -62,7 +63,7 @@ private slots:
 
     void on_qqSubtract_clicked();
 
-private:
+  private:
     Ui::CQDlgCollections *ui;
 };
 

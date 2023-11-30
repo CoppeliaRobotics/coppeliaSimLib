@@ -5,11 +5,11 @@
 
 class CPathPoint_old
 {
-public:
+  public:
     CPathPoint_old();
     virtual ~CPathPoint_old();
 
-    void setTransformation(const C7Vector& tr,int attributes);
+    void setTransformation(const C7Vector &tr, int attributes);
     C7Vector getTransformation();
     void setMaxRelAbsVelocity(double t);
     double getMaxRelAbsVelocity();
@@ -20,7 +20,7 @@ public:
     void setAuxChannels(const double c[4]);
     void getAuxChannels(double c[4]);
 
-protected:
+  protected:
     C7Vector _transformation;
     double _maxRelAbsVelocity;
     double _onSpotDistance;

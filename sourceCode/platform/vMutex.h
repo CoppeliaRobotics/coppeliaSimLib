@@ -16,19 +16,19 @@ typedef QWaitCondition WWaitCondition;
 
 class VMutex
 {
-public:
+  public:
     VMutex();
     virtual ~VMutex();
 
-    void setName(const char* name);
+    void setName(const char *name);
 
     // When using recursive mutexes:
-    void lock(const char* location=nullptr);
+    void lock(const char *location = nullptr);
     bool tryLock();
     void unlock();
 
     // When using non-recursive mutexes:
-    void lock_simple(const char* location);
+    void lock_simple(const char *location);
     bool tryLock_simple();
     void unlock_simple();
 
@@ -36,8 +36,8 @@ public:
     void wait_simple();
     void wakeAll_simple();
 
-private:
-    void _msg(const char* location,const char* info) const;
+  private:
+    void _msg(const char *location, const char *info) const;
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     WMutex _recursiveMutex;
@@ -49,4 +49,3 @@ private:
     std::string _location;
     std::string _name;
 };
-

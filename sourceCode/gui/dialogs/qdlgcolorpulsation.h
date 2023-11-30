@@ -5,15 +5,16 @@
 #include <vDialog.h>
 #include <sceneObject.h>
 
-namespace Ui {
-    class CQDlgColorPulsation;
+namespace Ui
+{
+class CQDlgColorPulsation;
 }
 
 class CQDlgColorPulsation : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgColorPulsation(QWidget *parent = 0);
     ~CQDlgColorPulsation();
 
@@ -28,7 +29,7 @@ public:
     double pulsationPhase;
     double pulsationRatio;
 
-private slots:
+  private slots:
     void on_qqEnablePulsation_clicked();
 
     void on_qqRealTime_clicked();
@@ -45,7 +46,7 @@ private slots:
 
     void on_qqOkCancel_rejected();
 
-private:
+  private:
     Ui::CQDlgColorPulsation *ui;
 };
 

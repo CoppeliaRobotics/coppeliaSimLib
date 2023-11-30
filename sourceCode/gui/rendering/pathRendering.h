@@ -21,4 +21,4 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-void displayPath(CPath_old* path,CViewableBase* renderingObject,int displayAttrib);
+void displayPath(CPath_old *path, CViewableBase *renderingObject, int displayAttrib);

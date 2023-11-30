@@ -3,15 +3,15 @@
 class CSerialPort
 {
 
-public:
+  public:
     CSerialPort(bool wasOpenedFromAScript);
     ~CSerialPort();
 
-    bool open(const char* portString,int nBaud);
+    bool open(const char *portString, int nBaud);
     bool close();
 
-    int readData(void *buffer,int limit);
-    int sendData(const char *buffer,int size);
+    int readData(void *buffer, int limit);
+    int sendData(const char *buffer, int size);
     int readDataWaiting();
 
     int getPortHandle();
@@ -20,7 +20,7 @@ public:
     void setPortNumber_backwardCompatibility(int nb);
     int getPortNumber_backwardCompatibility();
 
-protected:
+  protected:
     int _portHandle;
     bool _wasOpenedFromAScript;
     int _portNumber_backwardCompatibility;

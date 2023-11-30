@@ -4,24 +4,25 @@
 
 class CColorObject
 {
-public:
+  public:
     CColorObject();
     virtual ~CColorObject();
 
     void setDefaultValues();
     void setColorsAllBlack();
-    void setColor(const float theColor[3],unsigned char colorMode);
-    void setColor(float r,float g,float b,unsigned char colorMode);
-    void pushShapeColorChangeEvent(int objectHandle,int colorIndex);
-    static void pushColorChangeEvent(int objectHandle,float col1[9],float col2[9]=nullptr,float col3[9]=nullptr,float col4[9]=nullptr);
+    void setColor(const float theColor[3], unsigned char colorMode);
+    void setColor(float r, float g, float b, unsigned char colorMode);
+    void pushShapeColorChangeEvent(int objectHandle, int colorIndex);
+    static void pushColorChangeEvent(int objectHandle, float col1[9], float col2[9] = nullptr, float col3[9] = nullptr,
+                                     float col4[9] = nullptr);
     void getNewColors(float cols[9]) const;
-    void copyYourselfInto(CColorObject* it) const;
-    void serialize(CSer& ar,int objType); // 0=3d mesh, 1=3d lines, 2=3d points, 3=3d light, 4=2d thing
+    void copyYourselfInto(CColorObject *it) const;
+    void serialize(CSer &ar, int objType); // 0=3d mesh, 1=3d lines, 2=3d points, 3=3d light, 4=2d thing
 
-    void getColor(float col[3],unsigned char colorMode) const;
+    void getColor(float col[3], unsigned char colorMode) const;
     void getColors(float col[15]) const;
-    const float* getColorsPtr() const;
-    float* getColorsPtr();
+    const float *getColorsPtr() const;
+    float *getColorsPtr();
     bool getTranslucid() const;
     float getOpacity() const;
     int getShininess() const;
@@ -43,11 +44,11 @@ public:
     void setTranslucid(bool e);
     void setOpacity(float e);
     void setShininess(int e);
-    void setColorName(const char* nm);
-    void setExtensionString(const char* nm);
+    void setColorName(const char *nm);
+    void setExtensionString(const char *nm);
 
-private:
-    bool _isSame(const CColorObject* it) const;
+  private:
+    bool _isSame(const CColorObject *it) const;
     std::string _getPatternStringFromPatternId_backwardCompatibility_3_2_2016(int id);
 
     float _colors[15];
@@ -63,9 +64,9 @@ private:
     float _flashPhase;
     bool _flash;
 
-    #ifdef SIM_WITH_GUI
-    public:
-        void makeCurrentColor(bool useAuxiliaryComponent) const;
-        void makeCurrentColor2(bool forceNonTransparent,bool useAuxiliaryComponent) const;
-    #endif
+#ifdef SIM_WITH_GUI
+  public:
+    void makeCurrentColor(bool useAuxiliaryComponent) const;
+    void makeCurrentColor2(bool forceNonTransparent, bool useAuxiliaryComponent) const;
+#endif
 };

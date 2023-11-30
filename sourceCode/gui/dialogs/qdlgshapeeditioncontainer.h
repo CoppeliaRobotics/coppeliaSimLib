@@ -5,15 +5,16 @@
 #include <dlgEx.h>
 #include <QVBoxLayout>
 
-namespace Ui {
-    class CQDlgShapeEditionContainer;
+namespace Ui
+{
+class CQDlgShapeEditionContainer;
 }
 
 class CQDlgShapeEditionContainer : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgShapeEditionContainer(QWidget *parent = 0);
     ~CQDlgShapeEditionContainer();
 
@@ -21,21 +22,21 @@ public:
     void cancelEvent();
     void okEvent();
 
-    QVBoxLayout* bl;
+    QVBoxLayout *bl;
     int currentPage;
     int desiredPage;
 
-    CDlgEx* pageDlgs[3];
+    CDlgEx *pageDlgs[3];
     int originalHeights[3];
 
-private slots:
+  private slots:
     void on_qqTriangleMode_clicked();
 
     void on_qqVertexMode_clicked();
 
     void on_qqEdgeMode_clicked();
 
-private:
+  private:
     Ui::CQDlgShapeEditionContainer *ui;
 };
 

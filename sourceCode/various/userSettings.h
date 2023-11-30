@@ -4,7 +4,7 @@
 
 class CUserSettings
 {
-public:
+  public:
     CUserSettings();
     virtual ~CUserSettings();
 
@@ -12,7 +12,7 @@ public:
     bool getUndoRedoEnabled();
     bool getUndoRedoOnlyPartialWithCameras();
 
-    void saveUserSettings(bool outputMsgs=true);
+    void saveUserSettings(bool outputMsgs = true);
     void loadUserSettings();
 
     void setTranslationStepSize(double s);
@@ -23,7 +23,6 @@ public:
     void setIdleFps(int fps);
     void setIdleFps_session(int fps);
     int getAbortScriptExecutionTiming();
-
 
     int getNextFreeServerPortToUse();
     void setNextFreeServerPortToUse(int p);
@@ -153,8 +152,8 @@ public:
     int floatingLicensePort;
     bool keepDongleOpen;
 
-private:
-    void _setIntVector3(int v[3],int a,int b,int c);
+  private:
+    void _setIntVector3(int v[3], int a, int b, int c);
     bool _undoRedoEnabled;
     bool _undoRedoOnlyPartialWithCameras;
     double _translationStepSize;

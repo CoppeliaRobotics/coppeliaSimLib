@@ -6,54 +6,53 @@
 #include <qdlgcolorpulsation.h>
 #include <guiApp.h>
 
-CQDlgMaterial::CQDlgMaterial(QWidget *parent) :
-    CDlgEx(parent),
-    ui(new Ui::CQDlgMaterial)
+CQDlgMaterial::CQDlgMaterial(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgMaterial)
 {
-    _dlgType=MATERIAL_DLG;
+    _dlgType = MATERIAL_DLG;
     ui->setupUi(this);
-    inMainRefreshRoutine=false;
-    _lastSelectedObjectID=App::currentWorld->sceneObjects->getLastSelectionHandle();
-    _objectSelectionSize=App::currentWorld->sceneObjects->getSelectionCount();
+    inMainRefreshRoutine = false;
+    _lastSelectedObjectID = App::currentWorld->sceneObjects->getLastSelectionHandle();
+    _objectSelectionSize = App::currentWorld->sceneObjects->getSelectionCount();
 
-    if (GuiApp::mainWindow!=nullptr)
+    if (GuiApp::mainWindow != nullptr)
         GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
 }
 
 CQDlgMaterial::~CQDlgMaterial()
 {
     delete ui;
-    if (GuiApp::mainWindow!=nullptr)
+    if (GuiApp::mainWindow != nullptr)
         GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
 }
 
 void CQDlgMaterial::refresh()
 {
-    inMainRefreshRoutine=true;
-    int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-    CColorObject* vc=GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
-    bool simStopped=App::currentWorld->simulation->isSimulationStopped();
-    ui->qqAmbientAdjust->setEnabled(simStopped&&(allowedParts&1));
-    ui->qqSpecularAdjust->setEnabled(simStopped&&(allowedParts&4));
-    ui->qqEmissiveAdjust->setEnabled(simStopped&&(allowedParts&8));
-    ui->qqAuxiliaryAdjust->setEnabled(simStopped&&(allowedParts&16));
+    inMainRefreshRoutine = true;
+    int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels,
+                          // 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
+    CColorObject *vc = GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, &allowedParts);
+    bool simStopped = App::currentWorld->simulation->isSimulationStopped();
+    ui->qqAmbientAdjust->setEnabled(simStopped && (allowedParts & 1));
+    ui->qqSpecularAdjust->setEnabled(simStopped && (allowedParts & 4));
+    ui->qqEmissiveAdjust->setEnabled(simStopped && (allowedParts & 8));
+    ui->qqAuxiliaryAdjust->setEnabled(simStopped && (allowedParts & 16));
     ui->qqAuxiliaryAdjust->setVisible(App::userSettings->showOldDlgs);
     ui->qqPulsationAdjust->setVisible(App::userSettings->showOldDlgs);
-    ui->qqPulsationAdjust->setEnabled(simStopped&&(allowedParts&32));
-    ui->qqShininess->setEnabled(simStopped&&(allowedParts&64));
-    ui->qqOpacityEnable->setEnabled(simStopped&&(allowedParts&128));
-    ui->qqColorName->setEnabled(simStopped&&(allowedParts&256));
-    ui->qqExtensionString->setEnabled(simStopped&&(allowedParts&512));
+    ui->qqPulsationAdjust->setEnabled(simStopped && (allowedParts & 32));
+    ui->qqShininess->setEnabled(simStopped && (allowedParts & 64));
+    ui->qqOpacityEnable->setEnabled(simStopped && (allowedParts & 128));
+    ui->qqColorName->setEnabled(simStopped && (allowedParts & 256));
+    ui->qqExtensionString->setEnabled(simStopped && (allowedParts & 512));
 
-    if (allowedParts&64)
-        ui->qqShininess->setText(utils::getIntString(false,vc->getShininess()).c_str());
+    if (allowedParts & 64)
+        ui->qqShininess->setText(utils::getIntString(false, vc->getShininess()).c_str());
     else
         ui->qqShininess->setText("");
-    if (allowedParts&128)
+    if (allowedParts & 128)
     {
         ui->qqOpacityEnable->setChecked(vc->getTranslucid());
         ui->qqOpacity->setEnabled(vc->getTranslucid());
-        ui->qqOpacity->setText(utils::get0To1String(false,vc->getOpacity()).c_str());
+        ui->qqOpacity->setText(utils::get0To1String(false, vc->getOpacity()).c_str());
     }
     else
     {
@@ -62,70 +61,70 @@ void CQDlgMaterial::refresh()
         ui->qqOpacity->setText("");
     }
 
-    if (allowedParts&256)
+    if (allowedParts & 256)
         ui->qqColorName->setText(vc->getColorName().c_str());
     else
         ui->qqColorName->setText("");
 
-    if (allowedParts&512)
+    if (allowedParts & 512)
         ui->qqExtensionString->setText(vc->getExtensionString().c_str());
     else
         ui->qqExtensionString->setText("");
 
-    inMainRefreshRoutine=false;
+    inMainRefreshRoutine = false;
 }
 
 bool CQDlgMaterial::needsDestruction()
 {
     if (!isLinkedDataValid())
-        return(true);
-    return(CDlgEx::needsDestruction());
+        return (true);
+    return (CDlgEx::needsDestruction());
 }
 
 bool CQDlgMaterial::isLinkedDataValid()
 {
-    if (_lastSelectedObjectID!=App::currentWorld->sceneObjects->getLastSelectionHandle())
-        return(false);
-    if (_objectSelectionSize!=App::currentWorld->sceneObjects->getSelectionCount())
-        return(false);
+    if (_lastSelectedObjectID != App::currentWorld->sceneObjects->getLastSelectionHandle())
+        return (false);
+    if (_objectSelectionSize != App::currentWorld->sceneObjects->getSelectionCount())
+        return (false);
     if (!App::currentWorld->simulation->isSimulationStopped())
-        return(false);
-    return(GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,nullptr)!=nullptr);
+        return (false);
+    return (GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, nullptr) != nullptr);
 }
 
-void CQDlgMaterial::displayMaterialDlg(int objType,int objID1,int objID2,QWidget* theParentWindow)
+void CQDlgMaterial::displayMaterialDlg(int objType, int objID1, int objID2, QWidget *theParentWindow)
 {
-    if (GuiApp::mainWindow==nullptr)
+    if (GuiApp::mainWindow == nullptr)
         return;
     GuiApp::mainWindow->dlgCont->close(MATERIAL_DLG);
     GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
     if (GuiApp::mainWindow->dlgCont->openOrBringToFront(MATERIAL_DLG))
     {
-        CQDlgMaterial* mat=(CQDlgMaterial*)GuiApp::mainWindow->dlgCont->getDialog(MATERIAL_DLG);
-        if (mat!=nullptr)
-            mat->_initializeDlg(objType,objID1,objID2);
+        CQDlgMaterial *mat = (CQDlgMaterial *)GuiApp::mainWindow->dlgCont->getDialog(MATERIAL_DLG);
+        if (mat != nullptr)
+            mat->_initializeDlg(objType, objID1, objID2);
     }
 }
 
-void CQDlgMaterial::displayMaterialDlgModal(int objType,int objID1,int objID2,QWidget* theParentWindow)
+void CQDlgMaterial::displayMaterialDlgModal(int objType, int objID1, int objID2, QWidget *theParentWindow)
 {
-    if (GuiApp::mainWindow==nullptr)
+    if (GuiApp::mainWindow == nullptr)
         return;
     GuiApp::mainWindow->dlgCont->close(MATERIAL_DLG);
     GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
 
     CQDlgMaterial it(theParentWindow);
-    it._initializeDlg(objType,objID1,objID2);
+    it._initializeDlg(objType, objID1, objID2);
     it.makeDialogModal();
 }
 
-void CQDlgMaterial::_initializeDlg(int objType,int objID1,int objID2)
+void CQDlgMaterial::_initializeDlg(int objType, int objID1, int objID2)
 {
-    _objType=objType;
-    _objID1=objID1;
-    _objID2=objID2;
+    _objType = objType;
+    _objID1 = objID1;
+    _objID2 = objID2;
     std::string str;
-    GuiApp::getRGBPointerFromItem(_objType,_objID1,_objID2,-1,&str);
+    GuiApp::getRGBPointerFromItem(_objType, _objID1, _objID2, -1, &str);
     setWindowTitle(str.c_str());
     refresh();
 }
@@ -133,15 +132,15 @@ void CQDlgMaterial::_initializeDlg(int objType,int objID1,int objID2)
 void CQDlgMaterial::_adjustCol(int colComponent)
 {
     if (!isModal())
-        CQDlgColor::displayDlg(_objType,_objID1,_objID2,colComponent,GuiApp::mainWindow,true,false,true);
+        CQDlgColor::displayDlg(_objType, _objID1, _objID2, colComponent, GuiApp::mainWindow, true, false, true);
     else
     {
-        CQDlgColor::displayDlgModal(_objType,_objID1,_objID2,colComponent,this,true,false,true);
-        float* col=GuiApp::getRGBPointerFromItem(_objType,_objID1,_objID2,colComponent,nullptr);
-        if (col!=nullptr)
+        CQDlgColor::displayDlgModal(_objType, _objID1, _objID2, colComponent, this, true, false, true);
+        float *col = GuiApp::getRGBPointerFromItem(_objType, _objID1, _objID2, colComponent, nullptr);
+        if (col != nullptr)
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_ITEMRGB_COLORGUITRIGGEREDCMD;
+            cmd.cmdId = SET_ITEMRGB_COLORGUITRIGGEREDCMD;
             cmd.intParams.push_back(_objType);
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);
@@ -156,8 +155,8 @@ void CQDlgMaterial::_adjustCol(int colComponent)
 }
 
 void CQDlgMaterial::cancelEvent()
-{ // We just hide the dialog and destroy it at next rendering pass
-    if (((QDialog*)this)->isModal()) // this condition and next line on 31/3/2013: on Linux the dlg couldn't be closed!
+{                                     // We just hide the dialog and destroy it at next rendering pass
+    if (((QDialog *)this)->isModal()) // this condition and next line on 31/3/2013: on Linux the dlg couldn't be closed!
         defaultModalDialogEndRoutine(false);
     else
         CDlgEx::cancelEvent();
@@ -165,7 +164,7 @@ void CQDlgMaterial::cancelEvent()
 
 bool CQDlgMaterial::doesInstanceSwitchRequireDestruction()
 {
-    return(true);
+    return (true);
 }
 
 void CQDlgMaterial::on_qqAmbientAdjust_clicked()
@@ -189,21 +188,23 @@ void CQDlgMaterial::on_qqPulsationAdjust_clicked()
     {
         if (isLinkedDataValid())
         {
-            int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            CColorObject* it=GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
-            if (allowedParts&32)
+            int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux
+                                  // channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
+            CColorObject *it =
+                GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, &allowedParts);
+            if (allowedParts & 32)
             {
                 CQDlgColorPulsation theDialog(this);
-                theDialog.pulsationEnabled=it->getFlash();
-                theDialog.pulsationRealTime=!it->getUseSimulationTime();
-                theDialog.pulsationFrequency=it->getFlashFrequency();
-                theDialog.pulsationPhase=it->getFlashPhase();
-                theDialog.pulsationRatio=it->getFlashRatio();
+                theDialog.pulsationEnabled = it->getFlash();
+                theDialog.pulsationRealTime = !it->getUseSimulationTime();
+                theDialog.pulsationFrequency = it->getFlashFrequency();
+                theDialog.pulsationPhase = it->getFlashPhase();
+                theDialog.pulsationRatio = it->getFlashRatio();
                 theDialog.refresh();
-                if (theDialog.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL)
+                if (theDialog.makeDialogModal() != VDIALOG_MODAL_RETURN_CANCEL)
                 {
                     SSimulationThreadCommand cmd;
-                    cmd.cmdId=SET_PULSATIONPARAMS_MATERIALGUITRIGGEREDCMD;
+                    cmd.cmdId = SET_PULSATIONPARAMS_MATERIALGUITRIGGEREDCMD;
                     cmd.intParams.push_back(_objType);
                     cmd.intParams.push_back(_objID1);
                     cmd.intParams.push_back(_objID2);
@@ -229,15 +230,16 @@ void CQDlgMaterial::on_qqShininess_editingFinished()
     {
         if (isLinkedDataValid())
         {
-            int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+            int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux
+                                  // channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
+            GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, &allowedParts);
             bool ok;
-            int newVal=(int)GuiApp::getEvalInt(ui->qqShininess->text().toStdString().c_str(), &ok);
-            if (ok&&(allowedParts&64))
+            int newVal = (int)GuiApp::getEvalInt(ui->qqShininess->text().toStdString().c_str(), &ok);
+            if (ok && (allowedParts & 64))
             {
-                int s=tt::getLimitedInt(0,128,newVal);
+                int s = tt::getLimitedInt(0, 128, newVal);
                 SSimulationThreadCommand cmd;
-                cmd.cmdId=SET_SHININESS_MATERIALGUITRIGGEREDCMD;
+                cmd.cmdId = SET_SHININESS_MATERIALGUITRIGGEREDCMD;
                 cmd.intParams.push_back(_objType);
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
@@ -256,12 +258,13 @@ void CQDlgMaterial::on_qqOpacityEnable_clicked()
     {
         if (isLinkedDataValid())
         {
-            int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
-            if (allowedParts&128)
+            int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux
+                                  // channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
+            GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, &allowedParts);
+            if (allowedParts & 128)
             {
                 SSimulationThreadCommand cmd;
-                cmd.cmdId=TOGGLE_TRANSPARENCY_MATERIALGUITRIGGEREDCMD;
+                cmd.cmdId = TOGGLE_TRANSPARENCY_MATERIALGUITRIGGEREDCMD;
                 cmd.intParams.push_back(_objType);
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
@@ -281,15 +284,16 @@ void CQDlgMaterial::on_qqOpacity_editingFinished()
     {
         if (isLinkedDataValid())
         {
-            int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
+            int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux
+                                  // channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
+            GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, &allowedParts);
             bool ok;
-            double newVal=GuiApp::getEvalDouble(ui->qqOpacity->text().toStdString().c_str(), &ok);
-            if (ok&&(allowedParts&128))
+            double newVal = GuiApp::getEvalDouble(ui->qqOpacity->text().toStdString().c_str(), &ok);
+            if (ok && (allowedParts & 128))
             {
-                double s=tt::getLimitedFloat(0.0,1.0,newVal);
+                double s = tt::getLimitedFloat(0.0, 1.0, newVal);
                 SSimulationThreadCommand cmd;
-                cmd.cmdId=SET_TRANSPARENCYFACT_MATERIALGUITRIGGEREDCMD;
+                cmd.cmdId = SET_TRANSPARENCYFACT_MATERIALGUITRIGGEREDCMD;
                 cmd.intParams.push_back(_objType);
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
@@ -310,14 +314,15 @@ void CQDlgMaterial::on_qqColorName_editingFinished()
     {
         if (isLinkedDataValid())
         {
-            int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
-            if (allowedParts&256)
+            int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux
+                                  // channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
+            GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, &allowedParts);
+            if (allowedParts & 256)
             {
                 std::string nm(ui->qqColorName->text().toStdString());
-                tt::removeIllegalCharacters(nm,false);
+                tt::removeIllegalCharacters(nm, false);
                 SSimulationThreadCommand cmd;
-                cmd.cmdId=SET_NAME_MATERIALGUITRIGGEREDCMD;
+                cmd.cmdId = SET_NAME_MATERIALGUITRIGGEREDCMD;
                 cmd.intParams.push_back(_objType);
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);
@@ -329,7 +334,6 @@ void CQDlgMaterial::on_qqColorName_editingFinished()
         }
     }
 }
-
 
 void CQDlgMaterial::on_qqAuxiliaryAdjust_clicked()
 {
@@ -344,13 +348,14 @@ void CQDlgMaterial::on_qqExtensionString_editingFinished()
     {
         if (isLinkedDataValid())
         {
-            int allowedParts=0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
-            GuiApp::getVisualParamPointerFromItem(_objType,_objID1,_objID2,nullptr,&allowedParts);
-            if (allowedParts&512)
+            int allowedParts = 0; // Bit-coded: 1=ambient/difuse, 2=diffuse(light only) 4=spec, 8=emiss., 16=aux
+                                  // channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
+            GuiApp::getVisualParamPointerFromItem(_objType, _objID1, _objID2, nullptr, &allowedParts);
+            if (allowedParts & 512)
             {
                 std::string nm(ui->qqExtensionString->text().toStdString());
                 SSimulationThreadCommand cmd;
-                cmd.cmdId=SET_EXTSTRING_MATERIALGUITRIGGEREDCMD;
+                cmd.cmdId = SET_EXTSTRING_MATERIALGUITRIGGEREDCMD;
                 cmd.intParams.push_back(_objType);
                 cmd.intParams.push_back(_objID1);
                 cmd.intParams.push_back(_objID2);

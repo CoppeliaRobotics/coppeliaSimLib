@@ -9,10 +9,11 @@ CGhostObjectContainer::CGhostObjectContainer()
 
 CGhostObjectContainer::~CGhostObjectContainer()
 { // beware, the current world could be nullptr
-    removeGhost(-1,-1);
+    removeGhost(-1, -1);
 }
 
-int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOptions,double theStartTime,double theEndTime,const float theColor[12])
+int CGhostObjectContainer::addGhost(int theGroupId, int theObjectHandle, int theOptions, double theStartTime,
+                                    double theEndTime, const float theColor[12])
 {
     // options: bit0 set (1): model instead of object
     // options: bit1 set (2): real-time playback
@@ -21,51 +22,54 @@ int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOp
     // options: bit4 set (16): ghost is invisible (maybe temporarily)
     // options: bit5 set (32): backface culling (when using custom colors only)
 
-    int retVal=-1;
-    std::vector<bool> freeSpot(_allObjects.size()+1,true);
-    for (size_t i=0;i<_allObjects.size();i++)
+    int retVal = -1;
+    std::vector<bool> freeSpot(_allObjects.size() + 1, true);
+    for (size_t i = 0; i < _allObjects.size(); i++)
     {
-        if ((_allObjects[i]->groupId==theGroupId)&&(_allObjects[i]->ghostId<int(freeSpot.size())))
-            freeSpot[_allObjects[i]->ghostId]=false;
+        if ((_allObjects[i]->groupId == theGroupId) && (_allObjects[i]->ghostId < int(freeSpot.size())))
+            freeSpot[_allObjects[i]->ghostId] = false;
     }
-    int nextGhostId=0;
-    for (size_t i=0;i<freeSpot.size();i++)
+    int nextGhostId = 0;
+    for (size_t i = 0; i < freeSpot.size(); i++)
     {
         if (freeSpot[i])
         {
-            nextGhostId=int(i);
+            nextGhostId = int(i);
             break;
         }
     }
 
     std::vector<int> rootSel;
     rootSel.push_back(theObjectHandle);
-    if ((theOptions&1)!=0)
+    if ((theOptions & 1) != 0)
         App::currentWorld->sceneObjects->addModelObjects(rootSel);
 
-    std::vector<CShape*> objsToAdd;
-    for (size_t i=0;i<rootSel.size();i++)
+    std::vector<CShape *> objsToAdd;
+    for (size_t i = 0; i < rootSel.size(); i++)
     {
-        CShape* obj=App::currentWorld->sceneObjects->getShapeFromHandle(rootSel[i]);
-        if (obj!=nullptr)
+        CShape *obj = App::currentWorld->sceneObjects->getShapeFromHandle(rootSel[i]);
+        if (obj != nullptr)
             objsToAdd.push_back(obj);
     }
 
-    for (size_t i=0;i<objsToAdd.size();i++)
+    for (size_t i = 0; i < objsToAdd.size(); i++)
     {
-        CShape* obj=objsToAdd[i];
-        if (obj->getShouldObjectBeDisplayed(-1,0)||(theOptions&8))
+        CShape *obj = objsToAdd[i];
+        if (obj->getShouldObjectBeDisplayed(-1, 0) || (theOptions & 8))
         { // only visible objects... unless we force it with bit3 (8)
-            CGhostObject* ghost=new CGhostObject(theGroupId,obj->getObjectHandle(),obj->getCumulativeTransformation(),theOptions,theStartTime,theEndTime,theColor);
-            ghost->ghostId=nextGhostId;
-            retVal=nextGhostId;
+            CGhostObject *ghost =
+                new CGhostObject(theGroupId, obj->getObjectHandle(), obj->getCumulativeTransformation(), theOptions,
+                                 theStartTime, theEndTime, theColor);
+            ghost->ghostId = nextGhostId;
+            retVal = nextGhostId;
             _allObjects.push_back(ghost);
         }
     }
-    return(retVal);
+    return (retVal);
 }
 
-int CGhostObjectContainer::modifyGhost(int groupId,int ghostId,int operation,double floatValue,int theOptions,int theOptionsMask,const double* colorOrTransformation)
+int CGhostObjectContainer::modifyGhost(int groupId, int ghostId, int operation, double floatValue, int theOptions,
+                                       int theOptionsMask, const double *colorOrTransformation)
 {
     // operation:
     // 0: returns the number of the specified ghost occurences (if ghost(s) exist(s)), otherwise 0
@@ -84,121 +88,121 @@ int CGhostObjectContainer::modifyGhost(int groupId,int ghostId,int operation,dou
     // 13: change color of the specified ghosts. Check Lua function: it uses this value
     // 14: sets the transparency factor for the specified ghosts
 
-    if (operation==1)
+    if (operation == 1)
     {
-        return(removeGhost(groupId,ghostId));
+        return (removeGhost(groupId, ghostId));
     }
-    if ((operation>=11)&&(operation<=13)&&(colorOrTransformation==nullptr))
-        return(-1);
+    if ((operation >= 11) && (operation <= 13) && (colorOrTransformation == nullptr))
+        return (-1);
     C7Vector transf;
-    if ((operation>=11)&&(operation<=12))
+    if ((operation >= 11) && (operation <= 12))
     {
         transf.X.setData(colorOrTransformation);
         // the quaternions are differently ordered at the interfaces!
-        transf.Q(0)=colorOrTransformation[6];
-        transf.Q(1)=colorOrTransformation[3];
-        transf.Q(2)=colorOrTransformation[4];
-        transf.Q(3)=colorOrTransformation[5];
+        transf.Q(0) = colorOrTransformation[6];
+        transf.Q(1) = colorOrTransformation[3];
+        transf.Q(2) = colorOrTransformation[4];
+        transf.Q(3) = colorOrTransformation[5];
     }
-    int retVal=0;
-    if ((operation==0)||((operation>=2)&&(operation<=14)))
+    int retVal = 0;
+    if ((operation == 0) || ((operation >= 2) && (operation <= 14)))
     {
-        for (size_t i=0;i<_allObjects.size();i++)
+        for (size_t i = 0; i < _allObjects.size(); i++)
         {
-            if ( (_allObjects[i]->groupId==groupId)&&((_allObjects[i]->ghostId==ghostId)||(ghostId==-1)) )
+            if ((_allObjects[i]->groupId == groupId) && ((_allObjects[i]->ghostId == ghostId) || (ghostId == -1)))
             {
                 retVal++;
-                if (operation==2)
-                    _allObjects[i]->startTime=floatValue;
-                if (operation==3)
-                    _allObjects[i]->endTime=floatValue;
-                if (operation==4)
-                    _allObjects[i]->startTime+=floatValue;
-                if (operation==5)
-                    _allObjects[i]->endTime+=floatValue;
-                if (operation==6)
+                if (operation == 2)
+                    _allObjects[i]->startTime = floatValue;
+                if (operation == 3)
+                    _allObjects[i]->endTime = floatValue;
+                if (operation == 4)
+                    _allObjects[i]->startTime += floatValue;
+                if (operation == 5)
+                    _allObjects[i]->endTime += floatValue;
+                if (operation == 6)
                 {
-                    _allObjects[i]->startTime+=floatValue;
-                    _allObjects[i]->endTime+=floatValue;
+                    _allObjects[i]->startTime += floatValue;
+                    _allObjects[i]->endTime += floatValue;
                 }
-                if (operation==7)
-                    _allObjects[i]->startTime*=floatValue;
-                if (operation==8)
-                    _allObjects[i]->endTime*=floatValue;
-                if (operation==9)
+                if (operation == 7)
+                    _allObjects[i]->startTime *= floatValue;
+                if (operation == 8)
+                    _allObjects[i]->endTime *= floatValue;
+                if (operation == 9)
                 {
-                    _allObjects[i]->startTime*=floatValue;
-                    _allObjects[i]->endTime*=floatValue;
+                    _allObjects[i]->startTime *= floatValue;
+                    _allObjects[i]->endTime *= floatValue;
                 }
-                if (operation==10)
-                    _allObjects[i]->modifyAttributes(theOptions,theOptionsMask);
-                if (operation==11)
-                    _allObjects[i]->tr=transf*_allObjects[i]->tr;
-                if (operation==12)
-                    _allObjects[i]->tr=_allObjects[i]->tr*transf;
-                if (operation==13)
+                if (operation == 10)
+                    _allObjects[i]->modifyAttributes(theOptions, theOptionsMask);
+                if (operation == 11)
+                    _allObjects[i]->tr = transf * _allObjects[i]->tr;
+                if (operation == 12)
+                    _allObjects[i]->tr = _allObjects[i]->tr * transf;
+                if (operation == 13)
                 {
-                    for (int j=0;j<12;j++)
-                        _allObjects[i]->color[j]=colorOrTransformation[j];
+                    for (int j = 0; j < 12; j++)
+                        _allObjects[i]->color[j] = colorOrTransformation[j];
                 }
-                if (operation==14)
-                    _allObjects[i]->transparencyFactor=int(floatValue*255.1);
+                if (operation == 14)
+                    _allObjects[i]->transparencyFactor = int(floatValue * 255.1);
             }
         }
     }
-    return(retVal);
+    return (retVal);
 }
 
-int CGhostObjectContainer::removeGhost(int groupId,int ghostId)
+int CGhostObjectContainer::removeGhost(int groupId, int ghostId)
 {
-    int retVal=0;
-    if (groupId==-1)
+    int retVal = 0;
+    if (groupId == -1)
     { // remove all ghosts:
-        retVal=(int)_allObjects.size();
-        for (int i=0;i<int(_allObjects.size());i++)
+        retVal = (int)_allObjects.size();
+        for (int i = 0; i < int(_allObjects.size()); i++)
             delete _allObjects[i];
         _allObjects.clear();
     }
     else
     { // remove ghosts that match the groupId and the ghostId
-        size_t i=0;
-        while (i<_allObjects.size())
+        size_t i = 0;
+        while (i < _allObjects.size())
         {
-            if ( (_allObjects[i]->groupId==groupId)&&((_allObjects[i]->ghostId==ghostId)||(ghostId==-1)) )
+            if ((_allObjects[i]->groupId == groupId) && ((_allObjects[i]->ghostId == ghostId) || (ghostId == -1)))
             {
                 delete _allObjects[i];
-                _allObjects.erase(_allObjects.begin()+i);
+                _allObjects.erase(_allObjects.begin() + i);
                 retVal++;
             }
             else
                 i++;
         }
     }
-    return(retVal);
+    return (retVal);
 }
 
 void CGhostObjectContainer::announceObjectWillBeErased(int objID)
 { // Never called from copy buffer!
-    size_t i=0;
-    while (i<_allObjects.size())
+    size_t i = 0;
+    while (i < _allObjects.size())
     {
-        if (_allObjects[i]->objectHandle==objID)
+        if (_allObjects[i]->objectHandle == objID)
         {
             delete _allObjects[i];
-            _allObjects.erase(_allObjects.begin()+i);
+            _allObjects.erase(_allObjects.begin() + i);
         }
         else
             i++;
     }
 }
 
-void CGhostObjectContainer::performObjectLoadingMapping(const std::map<int,int>* map)
+void CGhostObjectContainer::performObjectLoadingMapping(const std::map<int, int> *map)
 {
-    for (size_t i=0;i<_allObjects.size();i++)
-        _allObjects[i]->objectHandle=CWorld::getLoadingMapping(map,_allObjects[i]->objectHandle);
+    for (size_t i = 0; i < _allObjects.size(); i++)
+        _allObjects[i]->objectHandle = CWorld::getLoadingMapping(map, _allObjects[i]->objectHandle);
 }
 
-void CGhostObjectContainer::serialize(CSer& ar)
+void CGhostObjectContainer::serialize(CSer &ar)
 {
     if (ar.isBinary())
     {
@@ -206,7 +210,7 @@ void CGhostObjectContainer::serialize(CSer& ar)
         {
             ar.storeDataName("_02");
             ar << int(_allObjects.size());
-            for (size_t i=0;i<_allObjects.size();i++)
+            for (size_t i = 0; i < _allObjects.size(); i++)
             {
                 ar << _allObjects[i]->groupId;
                 ar << _allObjects[i]->ghostId;
@@ -215,115 +219,116 @@ void CGhostObjectContainer::serialize(CSer& ar)
                 ar << _allObjects[i]->startTime;
                 ar << _allObjects[i]->endTime;
                 ar << _allObjects[i]->transparencyFactor;
-                for (int j=0;j<12;j++)
+                for (int j = 0; j < 12; j++)
                     ar << _allObjects[i]->color[j];
                 ar << _allObjects[i]->tr.X(0) << _allObjects[i]->tr.X(1) << _allObjects[i]->tr.X(2);
-                ar << _allObjects[i]->tr.Q(0) << _allObjects[i]->tr.Q(1) << _allObjects[i]->tr.Q(2) << _allObjects[i]->tr.Q(3);
+                ar << _allObjects[i]->tr.Q(0) << _allObjects[i]->tr.Q(1) << _allObjects[i]->tr.Q(2)
+                   << _allObjects[i]->tr.Q(3);
             }
             ar.flush();
-
 
             ar.storeDataName(SER_NEXT_STEP);
         }
         else
-        {       // Loading
-            removeGhost(-1,-1);
+        { // Loading
+            removeGhost(-1, -1);
             int byteQuantity;
-            std::string theName="";
-            std::vector<CGhostObject*> ghosts;
-            while (theName.compare(SER_NEXT_STEP)!=0)
+            std::string theName = "";
+            std::vector<CGhostObject *> ghosts;
+            while (theName.compare(SER_NEXT_STEP) != 0)
             {
-                theName=ar.readDataName();
-                if (theName.compare(SER_NEXT_STEP)!=0)
+                theName = ar.readDataName();
+                if (theName.compare(SER_NEXT_STEP) != 0)
                 {
-                    bool noHit=true;
-                    if (theName.compare("V01")==0)
+                    bool noHit = true;
+                    if (theName.compare("V01") == 0)
                     { // for backward compatibility
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         int ghostCnt;
                         ar >> ghostCnt;
-                        for (int i=0;i<ghostCnt;i++)
+                        for (int i = 0; i < ghostCnt; i++)
                         {
-                            CGhostObject* go=new CGhostObject();
-                            float bla,bli,blo,blu;
+                            CGhostObject *go = new CGhostObject();
+                            float bla, bli, blo, blu;
                             ar >> go->groupId;
                             ar >> go->ghostId;
                             ar >> go->objectHandle;
                             ar >> go->options;
                             ar >> bla;
-                            go->startTime=(double)bla;
+                            go->startTime = (double)bla;
                             ar >> bla;
-                            go->endTime=(double)bla;
-                            for (int j=0;j<12;j++)
+                            go->endTime = (double)bla;
+                            for (int j = 0; j < 12; j++)
                             {
                                 ar >> bla;
-                                go->color[j]=(double)bla;;
+                                go->color[j] = (double)bla;
+                                ;
                             }
                             ar >> bla >> bli >> blo;
-                            go->tr.X(0)=(double)bla;
-                            go->tr.X(1)=(double)bli;
-                            go->tr.X(2)=(double)blo;
+                            go->tr.X(0) = (double)bla;
+                            go->tr.X(1) = (double)bli;
+                            go->tr.X(2) = (double)blo;
                             ar >> bla >> bli >> blo >> blu;
-                            go->tr.Q(0)=(double)bla;
-                            go->tr.Q(1)=(double)bli;
-                            go->tr.Q(2)=(double)blo;
-                            go->tr.Q(3)=(double)blu;
+                            go->tr.Q(0) = (double)bla;
+                            go->tr.Q(1) = (double)bli;
+                            go->tr.Q(2) = (double)blo;
+                            go->tr.Q(3) = (double)blu;
                             ghosts.push_back(go);
                         }
                     }
-                    if (theName.compare("V02")==0)
+                    if (theName.compare("V02") == 0)
                     { // for backward comp. (flt->dbl)
-                        for (size_t i=0;i<ghosts.size();i++)
+                        for (size_t i = 0; i < ghosts.size(); i++)
                             delete ghosts[i];
                         ghosts.clear();
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         int ghostCnt;
                         ar >> ghostCnt;
-                        for (int i=0;i<ghostCnt;i++)
+                        for (int i = 0; i < ghostCnt; i++)
                         {
-                            CGhostObject* go=new CGhostObject();
+                            CGhostObject *go = new CGhostObject();
                             ar >> go->groupId;
                             ar >> go->ghostId;
                             ar >> go->objectHandle;
                             ar >> go->options;
-                            float bla,bli,blo,blu;
+                            float bla, bli, blo, blu;
                             ar >> bla >> bli;
-                            go->startTime=(double)bla;
-                            go->endTime=(double)bli;
+                            go->startTime = (double)bla;
+                            go->endTime = (double)bli;
                             ar >> go->transparencyFactor;
-                            for (int j=0;j<12;j++)
+                            for (int j = 0; j < 12; j++)
                             {
                                 ar >> bla;
-                                go->color[j]=(double)bla;
+                                go->color[j] = (double)bla;
                             }
                             ar >> bla >> bli >> blo;
-                            go->tr.X(0)=(double)bla;
-                            go->tr.X(1)=(double)bli;
-                            go->tr.X(2)=(double)blo;
+                            go->tr.X(0) = (double)bla;
+                            go->tr.X(1) = (double)bli;
+                            go->tr.X(2) = (double)blo;
                             ar >> bla >> bli >> blo >> blu;
-                            go->tr.Q(0)=(double)bla;
-                            go->tr.Q(1)=(double)bli;
-                            go->tr.Q(2)=(double)blo;
-                            go->tr.Q(3)=(double)blu;
+                            go->tr.Q(0) = (double)bla;
+                            go->tr.Q(1) = (double)bli;
+                            go->tr.Q(2) = (double)blo;
+                            go->tr.Q(3) = (double)blu;
                             go->tr.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
                             ghosts.push_back(go);
                         }
                     }
 
-                    if (theName.compare("_02")==0)
+                    if (theName.compare("_02") == 0)
                     {
-                        for (size_t i=0;i<ghosts.size();i++)
+                        for (size_t i = 0; i < ghosts.size(); i++)
                             delete ghosts[i];
                         ghosts.clear();
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         int ghostCnt;
                         ar >> ghostCnt;
-                        for (int i=0;i<ghostCnt;i++)
+                        for (int i = 0; i < ghostCnt; i++)
                         {
-                            CGhostObject* go=new CGhostObject();
+                            CGhostObject *go = new CGhostObject();
                             ar >> go->groupId;
                             ar >> go->ghostId;
                             ar >> go->objectHandle;
@@ -331,7 +336,7 @@ void CGhostObjectContainer::serialize(CSer& ar)
                             ar >> go->startTime;
                             ar >> go->endTime;
                             ar >> go->transparencyFactor;
-                            for (int j=0;j<12;j++)
+                            for (int j = 0; j < 12; j++)
                                 ar >> go->color[j];
                             ar >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
                             ar >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
@@ -344,36 +349,36 @@ void CGhostObjectContainer::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
-            _allObjects.assign(ghosts.begin(),ghosts.end());
-            if ( (_allObjects.size()!=0)&&CSimFlavor::getBoolVal(18) )
-                App::logMsg(sim_verbosity_errors,"Contains ghosts...");
+            _allObjects.assign(ghosts.begin(), ghosts.end());
+            if ((_allObjects.size() != 0) && CSimFlavor::getBoolVal(18))
+                App::logMsg(sim_verbosity_errors, "Contains ghosts...");
         }
     }
     else
     {
         if (ar.isStoring())
         {
-            for (size_t i=0;i<_allObjects.size();i++)
+            for (size_t i = 0; i < _allObjects.size(); i++)
             {
                 ar.xmlPushNewNode("ghost");
 
-                ar.xmlAddNode_int("id",_allObjects[i]->ghostId);
-                ar.xmlAddNode_int("groupId",_allObjects[i]->groupId);
-                ar.xmlAddNode_int("objectHandle",_allObjects[i]->objectHandle);
-                ar.xmlAddNode_int("options",_allObjects[i]->options);
-                ar.xmlAddNode_int("options",(int)_allObjects[i]->transparencyFactor);
-                ar.xmlAddNode_2float("startEndTime",_allObjects[i]->startTime,_allObjects[i]->endTime);
+                ar.xmlAddNode_int("id", _allObjects[i]->ghostId);
+                ar.xmlAddNode_int("groupId", _allObjects[i]->groupId);
+                ar.xmlAddNode_int("objectHandle", _allObjects[i]->objectHandle);
+                ar.xmlAddNode_int("options", _allObjects[i]->options);
+                ar.xmlAddNode_int("options", (int)_allObjects[i]->transparencyFactor);
+                ar.xmlAddNode_2float("startEndTime", _allObjects[i]->startTime, _allObjects[i]->endTime);
 
                 ar.xmlPushNewNode("color");
-                ar.xmlAddNode_floats("ambient",_allObjects[i]->color+0,3);
-                ar.xmlAddNode_floats("diffuse",_allObjects[i]->color+3,3);
-                ar.xmlAddNode_floats("specular",_allObjects[i]->color+6,3);
-                ar.xmlAddNode_floats("emission",_allObjects[i]->color+9,3);
+                ar.xmlAddNode_floats("ambient", _allObjects[i]->color + 0, 3);
+                ar.xmlAddNode_floats("diffuse", _allObjects[i]->color + 3, 3);
+                ar.xmlAddNode_floats("specular", _allObjects[i]->color + 6, 3);
+                ar.xmlAddNode_floats("emission", _allObjects[i]->color + 9, 3);
                 ar.xmlPopNode();
 
                 ar.xmlPushNewNode("pose");
-                ar.xmlAddNode_floats("position",_allObjects[i]->tr.X.data,3);
-                ar.xmlAddNode_floats("quaternion",_allObjects[i]->tr.Q.data,4);
+                ar.xmlAddNode_floats("position", _allObjects[i]->tr.X.data, 3);
+                ar.xmlAddNode_floats("quaternion", _allObjects[i]->tr.Q.data, 4);
                 ar.xmlPopNode();
 
                 ar.xmlPopNode();
@@ -381,41 +386,41 @@ void CGhostObjectContainer::serialize(CSer& ar)
         }
         else
         {
-            if (ar.xmlPushChildNode("ghost",false))
+            if (ar.xmlPushChildNode("ghost", false))
             {
                 while (true)
                 {
-                    CGhostObject* go=new CGhostObject();
+                    CGhostObject *go = new CGhostObject();
 
-                    ar.xmlGetNode_int("id",go->ghostId);
-                    ar.xmlGetNode_int("groupId",go->groupId);
-                    ar.xmlGetNode_int("objectHandle",go->objectHandle);
-                    ar.xmlGetNode_int("options",go->options);
+                    ar.xmlGetNode_int("id", go->ghostId);
+                    ar.xmlGetNode_int("groupId", go->groupId);
+                    ar.xmlGetNode_int("objectHandle", go->objectHandle);
+                    ar.xmlGetNode_int("options", go->options);
                     int tmp;
-                    ar.xmlGetNode_int("options",tmp);
-                    go->transparencyFactor=(unsigned char)tmp;
-                    ar.xmlGetNode_2float("startEndTime",go->startTime,go->endTime);
+                    ar.xmlGetNode_int("options", tmp);
+                    go->transparencyFactor = (unsigned char)tmp;
+                    ar.xmlGetNode_2float("startEndTime", go->startTime, go->endTime);
 
                     if (ar.xmlPushChildNode("color"))
                     {
-                        ar.xmlGetNode_floats("ambient",go->color+0,3);
-                        ar.xmlGetNode_floats("diffuse",go->color+3,3);
-                        ar.xmlGetNode_floats("specular",go->color+6,3);
-                        ar.xmlGetNode_floats("emission",go->color+9,3);
+                        ar.xmlGetNode_floats("ambient", go->color + 0, 3);
+                        ar.xmlGetNode_floats("diffuse", go->color + 3, 3);
+                        ar.xmlGetNode_floats("specular", go->color + 6, 3);
+                        ar.xmlGetNode_floats("emission", go->color + 9, 3);
                         ar.xmlPopNode();
                     }
 
                     if (ar.xmlPushChildNode("pose"))
                     {
-                        ar.xmlGetNode_floats("position",go->tr.X.data,3);
-                        ar.xmlGetNode_floats("quaternion",go->tr.Q.data,4);
+                        ar.xmlGetNode_floats("position", go->tr.X.data, 3);
+                        ar.xmlGetNode_floats("quaternion", go->tr.Q.data, 4);
                         go->tr.Q.normalize(); // just in case
                         ar.xmlPopNode();
                     }
 
                     _allObjects.push_back(go);
 
-                    if (!ar.xmlPushSiblingNode("ghost",false))
+                    if (!ar.xmlPushSiblingNode("ghost", false))
                         break;
                 }
                 ar.xmlPopNode();
@@ -425,40 +430,42 @@ void CGhostObjectContainer::serialize(CSer& ar)
 }
 
 #ifdef SIM_WITH_GUI
-void CGhostObjectContainer::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib)
+void CGhostObjectContainer::renderYour3DStuff_nonTransparent(CViewableBase *renderingObject, int displayAttrib)
 {
-    if ((displayAttrib&sim_displayattribute_noghosts)==0)
+    if ((displayAttrib & sim_displayattribute_noghosts) == 0)
     {
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            for (size_t i=0;i<_allObjects.size();i++)
+            for (size_t i = 0; i < _allObjects.size(); i++)
             {
-                if (_allObjects[i]->transparencyFactor==0)
-                    _allObjects[i]->render(displayAttrib,App::currentWorld->simulation->getSimulationTime(),App::currentWorld->simulation->getSimulationTime_real());
+                if (_allObjects[i]->transparencyFactor == 0)
+                    _allObjects[i]->render(displayAttrib, App::currentWorld->simulation->getSimulationTime(),
+                                           App::currentWorld->simulation->getSimulationTime_real());
             }
         }
     }
 }
 
-void CGhostObjectContainer::renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib)
+void CGhostObjectContainer::renderYour3DStuff_transparent(CViewableBase *renderingObject, int displayAttrib)
 {
-    if ((displayAttrib&sim_displayattribute_noghosts)==0)
+    if ((displayAttrib & sim_displayattribute_noghosts) == 0)
     {
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            for (size_t i=0;i<_allObjects.size();i++)
+            for (size_t i = 0; i < _allObjects.size(); i++)
             {
-                if (_allObjects[i]->transparencyFactor!=0)
-                    _allObjects[i]->render(displayAttrib,App::currentWorld->simulation->getSimulationTime(),App::currentWorld->simulation->getSimulationTime_real());
+                if (_allObjects[i]->transparencyFactor != 0)
+                    _allObjects[i]->render(displayAttrib, App::currentWorld->simulation->getSimulationTime(),
+                                           App::currentWorld->simulation->getSimulationTime_real());
             }
         }
     }
 }
 
-void CGhostObjectContainer::renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib)
+void CGhostObjectContainer::renderYour3DStuff_overlay(CViewableBase *renderingObject, int displayAttrib)
 {
-//  if ((displayAttrib&sim_displayattribute_noghosts)==0)
-//  {
-//  }
+    //  if ((displayAttrib&sim_displayattribute_noghosts)==0)
+    //  {
+    //  }
 }
 #endif

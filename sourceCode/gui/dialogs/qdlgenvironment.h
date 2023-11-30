@@ -4,21 +4,22 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgEnvironment;
+namespace Ui
+{
+class CQDlgEnvironment;
 }
 
 class CQDlgEnvironment : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgEnvironment(QWidget *parent = 0);
     ~CQDlgEnvironment();
 
     void refresh();
 
-private slots:
+  private slots:
     void on_qqBackgroundColorUp_clicked();
 
     void on_qqBackgroundColorDown_clicked();
@@ -35,7 +36,7 @@ private slots:
 
     void on_qqAcknowledgments_textChanged();
 
-private:
+  private:
     Ui::CQDlgEnvironment *ui;
 };
 

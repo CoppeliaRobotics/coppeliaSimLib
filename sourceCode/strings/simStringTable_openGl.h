@@ -41,8 +41,6 @@
 #define IDSOGL_VISION_U_SENSOR "Vision_sensor"
 #define IDSOGL_SKYBOX_DO_NOT_RENAME "Skybox"
 
-
-
 #define IDSOGL_X "x"
 #define IDSOGL_Y "y"
 #define IDSOGL_Z "z"

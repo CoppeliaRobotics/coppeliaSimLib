@@ -9,40 +9,42 @@
 
 class CHolonomicPathPlanning_old : public CPathPlanning_old
 {
-public:
-    CHolonomicPathPlanning_old(int theStartDummyID,int theGoalDummyID,
-                            int theRobotCollectionID,int theObstacleCollectionID,int ikGroupID,
-                            int thePlanningType,double theAngularCoeff,
-                            double theStepSize,
-                            const double theSearchMinVal[4],const double theSearchRange[4],
-                            const int theDirectionConstraints[4],const double clearanceAndMaxDistance[2],const C3Vector& gammaAxis);
+  public:
+    CHolonomicPathPlanning_old(int theStartDummyID, int theGoalDummyID, int theRobotCollectionID,
+                               int theObstacleCollectionID, int ikGroupID, int thePlanningType, double theAngularCoeff,
+                               double theStepSize, const double theSearchMinVal[4], const double theSearchRange[4],
+                               const int theDirectionConstraints[4], const double clearanceAndMaxDistance[2],
+                               const C3Vector &gammaAxis);
     virtual ~CHolonomicPathPlanning_old();
 
     // Following functions are inherited from CPathPlanning:
     int searchPath(int maxTimePerPass);
     bool setPartialPath();
-    int smoothFoundPath(int steps,int maxTimePerPass);
-    void getPathData(std::vector<double>& data);
+    int smoothFoundPath(int steps, int maxTimePerPass);
+    void getPathData(std::vector<double> &data);
 
-    void getSearchTreeData(std::vector<double>& data,bool fromStart);
+    void getSearchTreeData(std::vector<double> &data, bool fromStart);
 
     void setAngularCoefficient(double coeff);
     void setStepSize(double size);
 
-    std::vector<CHolonomicPathNode_old*> fromStart;
-    std::vector<CHolonomicPathNode_old*> fromGoal;
-    std::vector<CHolonomicPathNode_old*> foundPath;
+    std::vector<CHolonomicPathNode_old *> fromStart;
+    std::vector<CHolonomicPathNode_old *> fromGoal;
+    std::vector<CHolonomicPathNode_old *> foundPath;
 
-private:
-    bool doCollide(double* dist);
+  private:
+    bool doCollide(double *dist);
 
-    CHolonomicPathNode_old* getClosestNode(std::vector<CHolonomicPathNode_old*>& nodes,CHolonomicPathNode_old* sample);
-    CHolonomicPathNode_old* extend(std::vector<CHolonomicPathNode_old*>* nodeList,CHolonomicPathNode_old* toBeExtended,CHolonomicPathNode_old* extention,bool connect,CXDummy* dummy);
-    int getVector(CHolonomicPathNode_old* fromPoint,CHolonomicPathNode_old* toPoint,double vect[7],double e,double& artificialLength,bool dontDivide);
-    bool addVector(C3Vector& pos,C4Vector& orient,double vect[7]);
+    CHolonomicPathNode_old *getClosestNode(std::vector<CHolonomicPathNode_old *> &nodes,
+                                           CHolonomicPathNode_old *sample);
+    CHolonomicPathNode_old *extend(std::vector<CHolonomicPathNode_old *> *nodeList,
+                                   CHolonomicPathNode_old *toBeExtended, CHolonomicPathNode_old *extention,
+                                   bool connect, CXDummy *dummy);
+    int getVector(CHolonomicPathNode_old *fromPoint, CHolonomicPathNode_old *toPoint, double vect[7], double e,
+                  double &artificialLength, bool dontDivide);
+    bool addVector(C3Vector &pos, C4Vector &orient, double vect[7]);
     bool areDirectionConstraintsRespected(double vect[7]);
     bool areSomeValuesForbidden(double values[7]);
-
 
     int startDummyID;
     int goalDummyID;

@@ -6,28 +6,29 @@
 #include <proximitySensor.h>
 #include <mill.h>
 
-namespace Ui {
-    class CQDlgDetectionVolume;
+namespace Ui
+{
+class CQDlgDetectionVolume;
 }
 
 class CQDlgDetectionVolume : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgDetectionVolume(QWidget *parent = 0);
     ~CQDlgDetectionVolume();
 
     void refresh();
     void cancelEvent();
 
-    CConvexVolume* getCurrentConvexVolume();
+    CConvexVolume *getCurrentConvexVolume();
 
     bool inMainRefreshRoutine;
 
     static bool showVolumeWindow;
 
-private slots:
+  private slots:
     void on_qqOffset_editingFinished();
 
     void on_qqRadius_editingFinished();
@@ -58,7 +59,7 @@ private slots:
 
     void on_qqApplyAll_clicked();
 
-private:
+  private:
     Ui::CQDlgDetectionVolume *ui;
 };
 

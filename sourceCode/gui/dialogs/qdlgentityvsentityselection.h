@@ -5,15 +5,16 @@
 #include <vDialog.h>
 #include <QComboBox>
 
-namespace Ui {
-    class CQDlgEntityVsEntitySelection;
+namespace Ui
+{
+class CQDlgEntityVsEntitySelection;
 }
 
 class CQDlgEntityVsEntitySelection : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgEntityVsEntitySelection(QWidget *parent = 0);
     ~CQDlgEntityVsEntitySelection();
 
@@ -26,14 +27,14 @@ public:
     int entity1;
     int entity2;
 
-private slots:
+  private slots:
     void on_qqOkCancel_accepted();
 
     void on_qqOkCancel_rejected();
 
-private:
-    void fillComboWithCollisionEntities(QComboBox* combo,bool insertAllAtBeginning);
-    void fillComboWithDistanceEntities(QComboBox* combo,bool insertAllAtBeginning);
+  private:
+    void fillComboWithCollisionEntities(QComboBox *combo, bool insertAllAtBeginning);
+    void fillComboWithDistanceEntities(QComboBox *combo, bool insertAllAtBeginning);
     bool checkSelectionValidity();
     Ui::CQDlgEntityVsEntitySelection *ui;
 };

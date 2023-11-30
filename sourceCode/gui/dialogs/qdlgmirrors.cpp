@@ -8,13 +8,11 @@
 #include <simStrings.h>
 #include <guiApp.h>
 
-CQDlgMirrors::CQDlgMirrors(QWidget *parent) :
-    CDlgEx(parent),
-    ui(new Ui::CQDlgMirrors)
+CQDlgMirrors::CQDlgMirrors(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgMirrors)
 {
-    _dlgType=MIRROR_DLG;
+    _dlgType = MIRROR_DLG;
     ui->setupUi(this);
-    inMainRefreshRoutine=false;
+    inMainRefreshRoutine = false;
 }
 
 CQDlgMirrors::~CQDlgMirrors()
@@ -30,12 +28,12 @@ void CQDlgMirrors::cancelEvent()
 
 void CQDlgMirrors::refresh()
 {
-    inMainRefreshRoutine=true;
-    QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditMode=GuiApp::getEditModeType()==NO_EDIT_MODE;
-    bool noEditModeAndNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
+    inMainRefreshRoutine = true;
+    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
+    bool noEditModeAndNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
 
-    CMirror* it=App::currentWorld->sceneObjects->getLastSelectionMirror();
+    CMirror *it = App::currentWorld->sceneObjects->getLastSelectionMirror();
 
     ui->qqDisableAllMirrors->setEnabled(noEditMode);
     ui->qqDisableAllClippingPlanes->setEnabled(noEditMode);
@@ -43,70 +41,69 @@ void CQDlgMirrors::refresh()
     ui->qqDisableAllMirrors->setChecked(App::currentWorld->mainSettings->mirrorsDisabled);
     ui->qqDisableAllClippingPlanes->setChecked(App::currentWorld->mainSettings->clippingPlanesDisabled);
 
+    ui->qqEnabled->setEnabled((it != nullptr) && noEditModeAndNoSim);
+    ui->qqWidth->setEnabled((it != nullptr) && noEditModeAndNoSim);
+    ui->qqHeight->setEnabled((it != nullptr) && noEditModeAndNoSim);
+    ui->qqReflectance->setEnabled((it != nullptr) && it->getIsMirror() && noEditModeAndNoSim);
+    ui->qqColor->setEnabled((it != nullptr) && noEditModeAndNoSim);
 
-    ui->qqEnabled->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
-    ui->qqWidth->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
-    ui->qqHeight->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
-    ui->qqReflectance->setEnabled((it!=nullptr)&&it->getIsMirror()&&noEditModeAndNoSim);
-    ui->qqColor->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqIsMirror->setEnabled((it != nullptr) && noEditModeAndNoSim);
+    ui->qqIsClippingPlane->setEnabled((it != nullptr) && noEditModeAndNoSim);
 
-    ui->qqIsMirror->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
-    ui->qqIsClippingPlane->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
-
-    ui->qqEntityCombo->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqEntityCombo->setEnabled((it != nullptr) && noEditModeAndNoSim);
     ui->qqEntityCombo->clear();
 
-    if (it!=nullptr)
+    if (it != nullptr)
     {
-        ui->qqEnabled->setChecked(it->getActive()&&noEditModeAndNoSim);
+        ui->qqEnabled->setChecked(it->getActive() && noEditModeAndNoSim);
 
-        ui->qqWidth->setText(utils::getSizeString(false,it->getMirrorWidth()).c_str());
-        ui->qqHeight->setText(utils::getSizeString(false,it->getMirrorHeight()).c_str());
-        ui->qqReflectance->setText(utils::get0To1String(false,it->getReflectance()).c_str());
+        ui->qqWidth->setText(utils::getSizeString(false, it->getMirrorWidth()).c_str());
+        ui->qqHeight->setText(utils::getSizeString(false, it->getMirrorHeight()).c_str());
+        ui->qqReflectance->setText(utils::get0To1String(false, it->getReflectance()).c_str());
         ui->qqIsMirror->setChecked(it->getIsMirror());
         ui->qqIsClippingPlane->setChecked(!it->getIsMirror());
 
         if (!it->getIsMirror())
         {
 
-            ui->qqEntityCombo->addItem(IDS_ALL_VISIBLE_OBJECTS_IN_SCENE,QVariant(-1));
+            ui->qqEntityCombo->addItem(IDS_ALL_VISIBLE_OBJECTS_IN_SCENE, QVariant(-1));
 
             std::vector<std::string> names;
             std::vector<int> ids;
 
             // Now collections:
-            for (size_t i=0;i<App::currentWorld->collections->getObjectCount();i++)
+            for (size_t i = 0; i < App::currentWorld->collections->getObjectCount(); i++)
             {
-                CCollection* it=App::currentWorld->collections->getObjectFromIndex(i);
-                std::string name(tt::decorateString("[",IDSN_COLLECTION,"] "));
-                name+=it->getCollectionName();
+                CCollection *it = App::currentWorld->collections->getObjectFromIndex(i);
+                std::string name(tt::decorateString("[", IDSN_COLLECTION, "] "));
+                name += it->getCollectionName();
                 names.push_back(name);
                 ids.push_back(it->getCollectionHandle());
             }
-            tt::orderStrings(names,ids);
-            for (int i=0;i<int(names.size());i++)
-                ui->qqEntityCombo->addItem(names[i].c_str(),QVariant(ids[i]));
+            tt::orderStrings(names, ids);
+            for (int i = 0; i < int(names.size()); i++)
+                ui->qqEntityCombo->addItem(names[i].c_str(), QVariant(ids[i]));
 
             names.clear();
             ids.clear();
 
             // Now objects:
-            for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
             {
-                CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                std::string name(tt::decorateString("[",IDS_OBJECT,"] "));
-                name+=it->getObjectAlias_printPath();
+                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+                std::string name(tt::decorateString("[", IDS_OBJECT, "] "));
+                name += it->getObjectAlias_printPath();
                 names.push_back(name);
                 ids.push_back(it->getObjectHandle());
             }
-            tt::orderStrings(names,ids);
-            for (int i=0;i<int(names.size());i++)
-                ui->qqEntityCombo->addItem(names[i].c_str(),QVariant(ids[i]));
+            tt::orderStrings(names, ids);
+            for (int i = 0; i < int(names.size()); i++)
+                ui->qqEntityCombo->addItem(names[i].c_str(), QVariant(ids[i]));
 
             // Select current item:
-            for (int i=0;i<ui->qqEntityCombo->count();i++)
+            for (int i = 0; i < ui->qqEntityCombo->count(); i++)
             {
-                if (ui->qqEntityCombo->itemData(i).toInt()==it->getClippingObjectOrCollection())
+                if (ui->qqEntityCombo->itemData(i).toInt() == it->getClippingObjectOrCollection())
                 {
                     ui->qqEntityCombo->setCurrentIndex(i);
                     break;
@@ -125,14 +122,15 @@ void CQDlgMirrors::refresh()
     }
 
     selectLineEdit(lineEditToSelect);
-    inMainRefreshRoutine=false;
+    inMainRefreshRoutine = false;
 }
 
 void CQDlgMirrors::on_qqEnabled_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_ENABLED_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        App::appendSimulationThreadCommand(TOGGLE_ENABLED_MIRRORGUITRIGGEREDCMD,
+                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -145,10 +143,11 @@ void CQDlgMirrors::on_qqWidth_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqWidth->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqWidth->text().toStdString().c_str(), &ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_WIDTH_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_WIDTH_MIRRORGUITRIGGEREDCMD,
+                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -162,10 +161,11 @@ void CQDlgMirrors::on_qqHeight_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqHeight->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqHeight->text().toStdString().c_str(), &ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_HEIGHT_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_HEIGHT_MIRRORGUITRIGGEREDCMD,
+                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -176,17 +176,19 @@ void CQDlgMirrors::on_qqColor_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CMirror* it=App::currentWorld->sceneObjects->getLastSelectionMirror();
-        if (it!=nullptr)
+        CMirror *it = App::currentWorld->sceneObjects->getLastSelectionMirror();
+        if (it != nullptr)
         {
             if (it->getIsMirror())
-                CQDlgColor::displayDlg(COLOR_ID_MIRROR,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,0,GuiApp::mainWindow);
+                CQDlgColor::displayDlg(COLOR_ID_MIRROR, App::currentWorld->sceneObjects->getLastSelectionHandle(), -1,
+                                       0, GuiApp::mainWindow);
             else
-                CQDlgMaterial::displayMaterialDlg(COLOR_ID_CLIPPINGPLANE,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,GuiApp::mainWindow);
+                CQDlgMaterial::displayMaterialDlg(COLOR_ID_CLIPPINGPLANE,
+                                                  App::currentWorld->sceneObjects->getLastSelectionHandle(), -1,
+                                                  GuiApp::mainWindow);
         }
     }
 }
-
 
 void CQDlgMirrors::on_qqReflectance_editingFinished()
 {
@@ -195,10 +197,11 @@ void CQDlgMirrors::on_qqReflectance_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqReflectance->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqReflectance->text().toStdString().c_str(), &ok);
         if (ok)
         {
-            App::appendSimulationThreadCommand(SET_REFLECTANCE_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_REFLECTANCE_MIRRORGUITRIGGEREDCMD,
+                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -209,7 +212,8 @@ void CQDlgMirrors::on_qqIsMirror_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_MIRRORFUNC_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        App::appendSimulationThreadCommand(SET_MIRRORFUNC_MIRRORGUITRIGGEREDCMD,
+                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -219,7 +223,8 @@ void CQDlgMirrors::on_qqIsClippingPlane_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(SET_CLIPPINGFUNC_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle());
+        App::appendSimulationThreadCommand(SET_CLIPPINGFUNC_MIRRORGUITRIGGEREDCMD,
+                                           App::currentWorld->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -231,8 +236,9 @@ void CQDlgMirrors::on_qqEntityCombo_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            int objID=ui->qqEntityCombo->itemData(ui->qqEntityCombo->currentIndex()).toInt();
-            App::appendSimulationThreadCommand(SET_CLIPPINGENTITY_MIRRORGUITRIGGEREDCMD,App::currentWorld->sceneObjects->getLastSelectionHandle(),objID);
+            int objID = ui->qqEntityCombo->itemData(ui->qqEntityCombo->currentIndex()).toInt();
+            App::appendSimulationThreadCommand(SET_CLIPPINGENTITY_MIRRORGUITRIGGEREDCMD,
+                                               App::currentWorld->sceneObjects->getLastSelectionHandle(), objID);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }

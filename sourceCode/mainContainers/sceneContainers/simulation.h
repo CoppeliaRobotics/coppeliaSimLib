@@ -8,7 +8,7 @@
 
 class CSimulation
 {
-public:
+  public:
     CSimulation();
     virtual ~CSimulation();
     void simulationAboutToStart();
@@ -23,7 +23,7 @@ public:
     void advanceSimulationByOneStep();
     void setIsRealTimeSimulation(bool realTime);
     bool getIsRealTimeSimulation() const;
-    void serialize(CSer& ar);
+    void serialize(CSer &ar);
 
     double getSimulationTime() const;
     double getSimulationTime_real() const;
@@ -37,7 +37,6 @@ public:
     bool didStopRequestCounterChangeSinceSimulationStart() const;
 
     void pushGenesisEvents() const;
-
 
     bool canGoSlower() const;
     bool canGoFaster() const;
@@ -63,12 +62,11 @@ public:
     void setFullscreenAtSimulationStart(bool f);
     bool getFullscreenAtSimulationStart() const;
 
-
     bool isRealTimeCalculationStepNeeded() const;
 
     void setSimulationState(int state);
 
-    bool getInfo(std::string& txtLeft,std::string& txtRight,int& index) const;
+    bool getInfo(std::string &txtLeft, std::string &txtRight, int &index) const;
 
     void setPauseAtError(bool br);
     bool getPauseAtError() const;
@@ -81,18 +79,18 @@ public:
 
 #ifdef SIM_WITH_GUI
     bool processCommand(int commandID);
-    bool showAndHandleEmergencyStopButton(bool showState,const char* scriptName);
+    bool showAndHandleEmergencyStopButton(bool showState, const char *scriptName);
     void keyPress(int key);
-    void addMenu(VMenu* menu);
+    void addMenu(VMenu *menu);
 #endif
 
-private:
+  private:
     double _getNewTimeStep(int newSpeedModifierCount) const;
     bool _goFasterOrSlower(int action);
     void _setSimulationTime(double t);
     void _clearSimulationTimeHistory();
-    void _addToSimulationTimeHistory(double simTime,double simTimeReal);
-    bool _getSimulationTimeHistoryDurations(double& simTime,double& simTimeReal) const;
+    void _addToSimulationTimeHistory(double simTime, double simTimeReal);
+    bool _getSimulationTimeHistoryDurations(double &simTime, double &simTimeReal) const;
 
     double _getSpeedModifier_forRealTimeCoefficient() const;
 
@@ -117,7 +115,6 @@ private:
     int _speedModifierCount;
     int _desiredFasterOrSlowerSpeed;
 
-
     int timeInMsWhenStopWasPressed;
 
     bool _realTimeSimulation;
@@ -129,9 +126,9 @@ private:
     bool _pauseOnErrorRequested;
     bool _hierarchyWasEnabledBeforeSimulation;
 
-
     int _simulationState;
-    bool _requestToStop; // Indicates a passage from paused to stop (but through running!). Check the simulation state diagram!!
+    bool _requestToStop;  // Indicates a passage from paused to stop (but through running!). Check the simulation state
+                          // diagram!!
     bool _requestToPause; // added on 2010/01/13 (simPauseSimulation didn't work in the first simulation pass)
 
     // Following is needed to determine if we are really in real-time mode

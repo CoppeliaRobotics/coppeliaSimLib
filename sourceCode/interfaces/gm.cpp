@@ -10,7 +10,7 @@ CGm::~CGm()
 {
 }
 
-void CGm::ll(const char*)
+void CGm::ll(const char *)
 {
 }
 

@@ -2,19 +2,20 @@
 
 #include <vector>
 
-class COutsideCommandQueueForScript  
+class COutsideCommandQueueForScript
 {
-public:
+  public:
     COutsideCommandQueueForScript();
     virtual ~COutsideCommandQueueForScript();
 
-    bool addCommand(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const double* aux2Vals,int aux2Count);
-//  int extractOneCommand(int auxVals[4]);
-    int extractOneCommand(int auxVals[4],double aux2Vals[8],int& aux2Count);
+    bool addCommand(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, const double *aux2Vals,
+                    int aux2Count);
+    //  int extractOneCommand(int auxVals[4]);
+    int extractOneCommand(int auxVals[4], double aux2Vals[8], int &aux2Count);
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationEnded();
 
-private:
+  private:
     void _checkSelections();
     std::vector<int> commands; // for each command, there are 4 auxiliary values, and 8 aux2 values!
     std::vector<int> auxValues;

@@ -8,112 +8,112 @@
 #include <app.h>
 #include <vDateTime.h>
 #ifdef SIM_WITH_GUI
-    #include <guiApp.h>
+#include <guiApp.h>
 #endif
 
 CEmbeddedScriptContainer::CEmbeddedScriptContainer()
 {
-    _sysFuncAndHookCnt_event=0;
-    _sysFuncAndHookCnt_dyn=0;
-    _sysFuncAndHookCnt_contact=0;
-    _sysFuncAndHookCnt_joint=0;
-    insertDefaultScript(sim_scripttype_mainscript,false,true);
+    _sysFuncAndHookCnt_event = 0;
+    _sysFuncAndHookCnt_dyn = 0;
+    _sysFuncAndHookCnt_contact = 0;
+    _sysFuncAndHookCnt_joint = 0;
+    insertDefaultScript(sim_scripttype_mainscript, false, true);
 }
 
 CEmbeddedScriptContainer::~CEmbeddedScriptContainer()
 { // beware, the current world could be nullptr
     removeAllScripts();
-    for (size_t i=0;i<_callbackStructureToDestroyAtEndOfSimulation_new.size();i++)
+    for (size_t i = 0; i < _callbackStructureToDestroyAtEndOfSimulation_new.size(); i++)
         delete _callbackStructureToDestroyAtEndOfSimulation_new[i];
-    for (size_t i=0;i<_callbackStructureToDestroyAtEndOfSimulation_old.size();i++)
+    for (size_t i = 0; i < _callbackStructureToDestroyAtEndOfSimulation_old.size(); i++)
         delete _callbackStructureToDestroyAtEndOfSimulation_old[i];
     broadcastDataContainer.eraseAllObjects();
 }
 
 int CEmbeddedScriptContainer::getSysFuncAndHookCnt(int sysCall) const
 {
-    if (sysCall==sim_syscb_event)
-        return(_sysFuncAndHookCnt_event);
-    if (sysCall==sim_syscb_dyn)
-        return(_sysFuncAndHookCnt_dyn);
-    if (sysCall==sim_syscb_contact)
-        return(_sysFuncAndHookCnt_contact);
-    if (sysCall==sim_syscb_joint)
-        return(_sysFuncAndHookCnt_joint);
-    return(0);
+    if (sysCall == sim_syscb_event)
+        return (_sysFuncAndHookCnt_event);
+    if (sysCall == sim_syscb_dyn)
+        return (_sysFuncAndHookCnt_dyn);
+    if (sysCall == sim_syscb_contact)
+        return (_sysFuncAndHookCnt_contact);
+    if (sysCall == sim_syscb_joint)
+        return (_sysFuncAndHookCnt_joint);
+    return (0);
 }
 
-void CEmbeddedScriptContainer::setSysFuncAndHookCnt(int sysCall,int cnt)
+void CEmbeddedScriptContainer::setSysFuncAndHookCnt(int sysCall, int cnt)
 {
-    if (sysCall==sim_syscb_event)
-        _sysFuncAndHookCnt_event=cnt;
-    if (sysCall==sim_syscb_dyn)
-        _sysFuncAndHookCnt_dyn=cnt;
-    if (sysCall==sim_syscb_contact)
-        _sysFuncAndHookCnt_contact=cnt;
-    if (sysCall==sim_syscb_joint)
-        _sysFuncAndHookCnt_joint=cnt;
+    if (sysCall == sim_syscb_event)
+        _sysFuncAndHookCnt_event = cnt;
+    if (sysCall == sim_syscb_dyn)
+        _sysFuncAndHookCnt_dyn = cnt;
+    if (sysCall == sim_syscb_contact)
+        _sysFuncAndHookCnt_contact = cnt;
+    if (sysCall == sim_syscb_joint)
+        _sysFuncAndHookCnt_joint = cnt;
 }
 
 void CEmbeddedScriptContainer::simulationAboutToStart()
 {
     broadcastDataContainer.simulationAboutToStart();
-    for (size_t i=0;i<allScripts.size();i++)
+    for (size_t i = 0; i < allScripts.size(); i++)
         allScripts[i]->simulationAboutToStart();
 }
 
 void CEmbeddedScriptContainer::simulationEnded()
 {
-    for (size_t i=0;i<allScripts.size();i++)
+    for (size_t i = 0; i < allScripts.size(); i++)
         allScripts[i]->simulationEnded();
 
     broadcastDataContainer.simulationEnded();
     removeDestroyedScripts(sim_scripttype_mainscript);
     removeDestroyedScripts(sim_scripttype_childscript);
-    for (size_t i=0;i<_callbackStructureToDestroyAtEndOfSimulation_new.size();i++)
+    for (size_t i = 0; i < _callbackStructureToDestroyAtEndOfSimulation_new.size(); i++)
         delete _callbackStructureToDestroyAtEndOfSimulation_new[i];
     _callbackStructureToDestroyAtEndOfSimulation_new.clear();
-    for (size_t i=0;i<_callbackStructureToDestroyAtEndOfSimulation_old.size();i++)
+    for (size_t i = 0; i < _callbackStructureToDestroyAtEndOfSimulation_old.size(); i++)
         delete _callbackStructureToDestroyAtEndOfSimulation_old[i];
     _callbackStructureToDestroyAtEndOfSimulation_old.clear();
-//  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
-//  {
-//  }
+    //  if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+    //  {
+    //  }
 }
 
 void CEmbeddedScriptContainer::simulationAboutToEnd()
 {
-    for (size_t i=0;i<allScripts.size();i++)
+    for (size_t i = 0; i < allScripts.size(); i++)
         allScripts[i]->simulationAboutToEnd();
 }
 
-void CEmbeddedScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(SScriptCallBack* object)
+void CEmbeddedScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(SScriptCallBack *object)
 {
     _callbackStructureToDestroyAtEndOfSimulation_new.push_back(object);
 }
-void CEmbeddedScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack* object)
+void CEmbeddedScriptContainer::addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack *object)
 {
     _callbackStructureToDestroyAtEndOfSimulation_old.push_back(object);
 }
 
 void CEmbeddedScriptContainer::resetScriptFlagCalledInThisSimulationStep()
 {
-    for (size_t i=0;i<allScripts.size();i++)
+    for (size_t i = 0; i < allScripts.size(); i++)
         allScripts[i]->resetCalledInThisSimulationStep();
 }
 
 int CEmbeddedScriptContainer::getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts)
 {
-    int cnt=0;
-    for (size_t i=0;i<allScripts.size();i++)
+    int cnt = 0;
+    for (size_t i = 0; i < allScripts.size(); i++)
     {
         if (allScripts[i]->getCalledInThisSimulationStep())
         {
             if (onlySimulationScripts)
             {
-                if (allScripts[i]->getScriptType()==sim_scripttype_mainscript)
+                if (allScripts[i]->getScriptType() == sim_scripttype_mainscript)
                     cnt++;
-                if (allScripts[i]->getScriptType()==sim_scripttype_childscript)
+                if (allScripts[i]->getScriptType() == sim_scripttype_childscript)
                 {
                     if (!allScripts[i]->getThreadedExecution_oldThreads()) // ignore old threaded scripts
                         cnt++;
@@ -123,61 +123,62 @@ int CEmbeddedScriptContainer::getCalledScriptsCountInThisSimulationStep(bool onl
                 cnt++;
         }
     }
-    return(cnt);
+    return (cnt);
 }
 
 int CEmbeddedScriptContainer::removeDestroyedScripts(int scriptType)
 {
     TRACE_INTERNAL;
-    int retVal=0;
-    for (int i=0;i<int(allScripts.size());i++)
+    int retVal = 0;
+    for (int i = 0; i < int(allScripts.size()); i++)
     {
-        if ( (allScripts[i]->getScriptType()==scriptType)&&allScripts[i]->getFlaggedForDestruction() )
+        if ((allScripts[i]->getScriptType() == scriptType) && allScripts[i]->getFlaggedForDestruction())
         {
-            if ( (!allScripts[i]->getThreadedExecution_oldThreads())||(!allScripts[i]->getThreadedExecutionIsUnderWay_oldThreads()) )
+            if ((!allScripts[i]->getThreadedExecution_oldThreads()) ||
+                (!allScripts[i]->getThreadedExecutionIsUnderWay_oldThreads()))
             {
                 retVal++;
-                CScriptObject* it=allScripts[i];
+                CScriptObject *it = allScripts[i];
                 it->resetScript(); // should not be done in the destructor!
-                allScripts.erase(allScripts.begin()+i);
+                allScripts.erase(allScripts.begin() + i);
                 i--;
-                CScriptObject::destroy(it,true);
+                CScriptObject::destroy(it, true);
             }
         }
     }
-    return(retVal);
+    return (retVal);
 }
 
 void CEmbeddedScriptContainer::removeAllScripts()
 {
     TRACE_INTERNAL;
-    while (allScripts.size()>0)
+    while (allScripts.size() > 0)
     {
-        CScriptObject* it=allScripts[0];
+        CScriptObject *it = allScripts[0];
         it->resetScript(); // should not be done in the destructor!
         allScripts.erase(allScripts.begin());
-        CScriptObject::destroy(it,true);
+        CScriptObject::destroy(it, true);
     }
 }
 
 void CEmbeddedScriptContainer::killAllSimulationLuaStates()
 {
-    for (size_t i=0;i<allScripts.size();i++)
+    for (size_t i = 0; i < allScripts.size(); i++)
     {
         if (allScripts[i]->isSimulationScript())
             allScripts[i]->resetScript();
     }
 }
 
-void CEmbeddedScriptContainer::announceObjectWillBeErased(const CSceneObject* object)
+void CEmbeddedScriptContainer::announceObjectWillBeErased(const CSceneObject *object)
 { // Never called from copy buffer!
-    size_t i=0;
-    while (i<allScripts.size())
+    size_t i = 0;
+    while (i < allScripts.size())
     {
-        if (allScripts[i]->announceSceneObjectWillBeErased(object,false))
+        if (allScripts[i]->announceSceneObjectWillBeErased(object, false))
         {
             if (removeScript(allScripts[i]->getScriptHandle()))
-                i=0; // ordering may have changed
+                i = 0; // ordering may have changed
             else
                 i++;
         }
@@ -188,159 +189,161 @@ void CEmbeddedScriptContainer::announceObjectWillBeErased(const CSceneObject* ob
 
 bool CEmbeddedScriptContainer::removeScript_safe(int scriptHandle)
 { // removal may happen in a delayed fashion
-    CScriptObject* it=getScriptFromHandle(scriptHandle);
-    if (it==nullptr)
-        return(false);
-    int res=it->flagScriptForRemoval();
-    if (res==0)
-        return(false);
-    if (res==2)
+    CScriptObject *it = getScriptFromHandle(scriptHandle);
+    if (it == nullptr)
+        return (false);
+    int res = it->flagScriptForRemoval();
+    if (res == 0)
+        return (false);
+    if (res == 2)
         removeScript(scriptHandle);
-    return(true);
+    return (true);
 }
 
 bool CEmbeddedScriptContainer::removeScript(int scriptHandle)
 {
     TRACE_INTERNAL;
-    for (size_t i=0;i<allScripts.size();i++)
+    for (size_t i = 0; i < allScripts.size(); i++)
     {
-        if (allScripts[i]->getScriptHandle()==scriptHandle)
+        if (allScripts[i]->getScriptHandle() == scriptHandle)
         {
-            CScriptObject* it=allScripts[i];
+            CScriptObject *it = allScripts[i];
             it->resetScript(); // should not be done in the destructor!
-            allScripts.erase(allScripts.begin()+i);
-            CScriptObject::destroy(it,true);
+            allScripts.erase(allScripts.begin() + i);
+            CScriptObject::destroy(it, true);
             App::worldContainer->setModificationFlag(16384);
             break;
         }
     }
-    #ifdef SIM_WITH_GUI
-        GuiApp::setFullDialogRefreshFlag();
-    #endif
-    return(true);
+#ifdef SIM_WITH_GUI
+    GuiApp::setFullDialogRefreshFlag();
+#endif
+    return (true);
 }
 
-CScriptObject* CEmbeddedScriptContainer::getScriptFromHandle(int scriptHandle) const
+CScriptObject *CEmbeddedScriptContainer::getScriptFromHandle(int scriptHandle) const
 {
-    CScriptObject* retVal=nullptr;
-    for (size_t i=0;i<allScripts.size();i++)
+    CScriptObject *retVal = nullptr;
+    for (size_t i = 0; i < allScripts.size(); i++)
     {
-        if (allScripts[i]->getScriptHandle()==scriptHandle)
+        if (allScripts[i]->getScriptHandle() == scriptHandle)
         {
-            retVal=allScripts[i];
+            retVal = allScripts[i];
             break;
         }
     }
-    return(retVal);
+    return (retVal);
 }
 
 int CEmbeddedScriptContainer::getObjectHandleFromScriptHandle(int scriptHandle) const
 {
-    CScriptObject* script=getScriptFromHandle(scriptHandle);
-    if (script!=nullptr)
-        return(script->getObjectHandleThatScriptIsAttachedTo(-1));
-    return(-1);
+    CScriptObject *script = getScriptFromHandle(scriptHandle);
+    if (script != nullptr)
+        return (script->getObjectHandleThatScriptIsAttachedTo(-1));
+    return (-1);
 }
 
-CScriptObject* CEmbeddedScriptContainer::getScriptFromObjectAttachedTo(int scriptType,int objectHandle) const
+CScriptObject *CEmbeddedScriptContainer::getScriptFromObjectAttachedTo(int scriptType, int objectHandle) const
 {
-    CScriptObject* retVal=nullptr;
-    if (objectHandle>=0)
+    CScriptObject *retVal = nullptr;
+    if (objectHandle >= 0)
     {
-        for (size_t i=0;i<allScripts.size();i++)
+        for (size_t i = 0; i < allScripts.size(); i++)
         {
-            if (allScripts[i]->getObjectHandleThatScriptIsAttachedTo(scriptType)==objectHandle)
+            if (allScripts[i]->getObjectHandleThatScriptIsAttachedTo(scriptType) == objectHandle)
             {
-                retVal=allScripts[i];
+                retVal = allScripts[i];
                 break;
             }
         }
     }
-    return(retVal);
+    return (retVal);
 }
 
-int CEmbeddedScriptContainer::getScriptsFromObjectAttachedTo(int objectHandle,std::vector<CScriptObject*>& scripts) const
+int CEmbeddedScriptContainer::getScriptsFromObjectAttachedTo(int objectHandle,
+                                                             std::vector<CScriptObject *> &scripts) const
 {
     scripts.clear();
-    CScriptObject* it=getScriptFromObjectAttachedTo(sim_scripttype_childscript,objectHandle);
-    if (it!=nullptr)
+    CScriptObject *it = getScriptFromObjectAttachedTo(sim_scripttype_childscript, objectHandle);
+    if (it != nullptr)
         scripts.push_back(it);
-    it=getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objectHandle);
-    if (it!=nullptr)
+    it = getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, objectHandle);
+    if (it != nullptr)
         scripts.push_back(it);
-    return(int(scripts.size()));
+    return (int(scripts.size()));
 }
 
-CScriptObject* CEmbeddedScriptContainer::getMainScript() const
+CScriptObject *CEmbeddedScriptContainer::getMainScript() const
 {
-    for (size_t i=0;i<allScripts.size();i++)
+    for (size_t i = 0; i < allScripts.size(); i++)
     {
-        if (allScripts[i]->getScriptType()==sim_scripttype_mainscript)
-            return(allScripts[i]);
+        if (allScripts[i]->getScriptType() == sim_scripttype_mainscript)
+            return (allScripts[i]);
     }
-    return(nullptr);
+    return (nullptr);
 }
 
-int CEmbeddedScriptContainer::insertScript(CScriptObject* script)
+int CEmbeddedScriptContainer::insertScript(CScriptObject *script)
 {
     allScripts.push_back(script);
     App::worldContainer->setModificationFlag(8192);
-    return(script->getScriptHandle());
+    return (script->getScriptHandle());
 }
 
-int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,bool lua,bool oldThreadedScript/*=false*/)
-{ 
-    if (scriptType!=sim_scripttype_childscript)
-        oldThreadedScript=false; // just to make sure
-    int retVal=-1;
-    std::string filenameAndPath(App::folders->getSystemPath()+"/");
+int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded, bool lua,
+                                                  bool oldThreadedScript /*=false*/)
+{
+    if (scriptType != sim_scripttype_childscript)
+        oldThreadedScript = false; // just to make sure
+    int retVal = -1;
+    std::string filenameAndPath(App::folders->getSystemPath() + "/");
 
-    if (scriptType==sim_scripttype_mainscript)
+    if (scriptType == sim_scripttype_mainscript)
     {
-        CScriptObject* defScript=new CScriptObject(scriptType);
-        retVal=insertScript(defScript);
+        CScriptObject *defScript = new CScriptObject(scriptType);
+        retVal = insertScript(defScript);
         defScript->setScriptText(DEFAULT_MAINSCRIPT_CODE);
-        filenameAndPath="";
+        filenameAndPath = "";
     }
-    if (scriptType==sim_scripttype_childscript)
+    if (scriptType == sim_scripttype_childscript)
     {
         if (oldThreadedScript)
-            filenameAndPath+=DEFAULT_THREADEDCHILDSCRIPTOLD;
+            filenameAndPath += DEFAULT_THREADEDCHILDSCRIPTOLD;
         else
         {
             if (threaded)
-                filenameAndPath+=DEFAULT_THREADEDCHILDSCRIPT;
+                filenameAndPath += DEFAULT_THREADEDCHILDSCRIPT;
             else
-                filenameAndPath+=DEFAULT_NONTHREADEDCHILDSCRIPT;
+                filenameAndPath += DEFAULT_NONTHREADEDCHILDSCRIPT;
         }
     }
-    if (scriptType==sim_scripttype_customizationscript)
+    if (scriptType == sim_scripttype_customizationscript)
     {
         if (threaded)
-            filenameAndPath+=DEFAULT_THREADEDCUSTOMIZATIONSCRIPT;
+            filenameAndPath += DEFAULT_THREADEDCUSTOMIZATIONSCRIPT;
         else
-            filenameAndPath+=DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT;
+            filenameAndPath += DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT;
     }
 
-    if (filenameAndPath.size()>0)
+    if (filenameAndPath.size() > 0)
     {
         if (lua)
-            filenameAndPath+=".lua";
+            filenameAndPath += ".lua";
         else
-            filenameAndPath+=".py";
+            filenameAndPath += ".py";
         if (VFile::doesFileExist(filenameAndPath.c_str()))
         {
             try
             {
-                VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-                VArchive archive(&file,VArchive::LOAD);
-                unsigned int archiveLength=(unsigned int)file.getLength();
-                char* defaultScript=new char[archiveLength+1];
-                for (int i=0;i<int(archiveLength);i++)
+                VFile file(filenameAndPath.c_str(), VFile::READ | VFile::SHARE_DENY_NONE);
+                VArchive archive(&file, VArchive::LOAD);
+                unsigned int archiveLength = (unsigned int)file.getLength();
+                char *defaultScript = new char[archiveLength + 1];
+                for (int i = 0; i < int(archiveLength); i++)
                     archive >> defaultScript[i];
-                defaultScript[archiveLength]=0;
-                CScriptObject* defScript=new CScriptObject(scriptType);
-                retVal=insertScript(defScript);
+                defaultScript[archiveLength] = 0;
+                CScriptObject *defScript = new CScriptObject(scriptType);
+                retVal = insertScript(defScript);
                 defScript->setScriptText(defaultScript);
                 if (oldThreadedScript)
                 {
@@ -351,12 +354,13 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,b
                 archive.close();
                 file.close();
             }
-            catch(VFILE_EXCEPTION_TYPE e)
+            catch (VFILE_EXCEPTION_TYPE e)
             {
                 VFile::reportAndHandleFileExceptionError(e);
-                char defaultMessage[]="Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
-                CScriptObject* defScript=new CScriptObject(scriptType);
-                retVal=insertScript(defScript);
+                char defaultMessage[] = "Default script file could not be found!"; // do not use comments ("--"), we
+                                                                                   // want to cause an execution error!
+                CScriptObject *defScript = new CScriptObject(scriptType);
+                retVal = insertScript(defScript);
                 defScript->setScriptText(defaultMessage);
                 if (oldThreadedScript)
                 {
@@ -367,9 +371,10 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,b
         }
         else
         {
-            char defaultMessage[]="Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
-            CScriptObject* defScript=new CScriptObject(scriptType);
-            retVal=insertScript(defScript);
+            char defaultMessage[] = "Default script file could not be found!"; // do not use comments ("--"), we want to
+                                                                               // cause an execution error!
+            CScriptObject *defScript = new CScriptObject(scriptType);
+            retVal = insertScript(defScript);
             defScript->setScriptText(defaultMessage);
             if (oldThreadedScript)
             {
@@ -378,44 +383,45 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType,bool threaded,b
             }
         }
     }
-    #ifdef SIM_WITH_GUI
-        GuiApp::setLightDialogRefreshFlag();
-    #endif
-    return(retVal);
+#ifdef SIM_WITH_GUI
+    GuiApp::setLightDialogRefreshFlag();
+#endif
+    return (retVal);
 }
 
-void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch/*=nullptr*/,int scriptToExclude/*=-1*/)
+void CEmbeddedScriptContainer::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack,
+                                           CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
 { // with objectBranch!=nullptr, will return the branch starting at objectBranch up to the main script
     TRACE_INTERNAL;
     if (!App::userSettings->enableOldScriptTraversal)
     {
-        bool doNotInterrupt=!CScriptObject::isSystemCallbackInterruptible(callType);
+        bool doNotInterrupt = !CScriptObject::isSystemCallbackInterruptible(callType);
         if (CScriptObject::isSystemCallbackInReverseOrder(callType))
         { // reverse order
             if (!App::currentWorld->simulation->isSimulationStopped())
             {
-                CScriptObject* script=getMainScript();
-                if ( (script!=nullptr)&&(script->hasSystemFunctionOrHook(callType)||script->getOldCallMode()) )
+                CScriptObject *script = getMainScript();
+                if ((script != nullptr) && (script->hasSystemFunctionOrHook(callType) || script->getOldCallMode()))
                 {
-                    if (script->getScriptHandle()!=scriptToExclude)
-                        script->systemCallMainScript(callType,inStack,outStack);
+                    if (script->getScriptHandle() != scriptToExclude)
+                        script->systemCallMainScript(callType, inStack, outStack);
                 }
             }
-            if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
-                callChildAndEmbeddedScripts(-1,callType,inStack,outStack,objectBranch,scriptToExclude);
+            if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
+                callChildAndEmbeddedScripts(-1, callType, inStack, outStack, objectBranch, scriptToExclude);
         }
         else
         { // regular. From unimportant, to important
-            callChildAndEmbeddedScripts(-1,callType,inStack,outStack,objectBranch,scriptToExclude);
-            if ( doNotInterrupt||(outStack==nullptr)||(outStack->getStackSize()==0) )
+            callChildAndEmbeddedScripts(-1, callType, inStack, outStack, objectBranch, scriptToExclude);
+            if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
             {
                 if (!App::currentWorld->simulation->isSimulationStopped())
                 {
-                    CScriptObject* script=getMainScript();
-                    if ( (script!=nullptr)&&(script->hasSystemFunctionOrHook(callType)||script->getOldCallMode()) )
+                    CScriptObject *script = getMainScript();
+                    if ((script != nullptr) && (script->hasSystemFunctionOrHook(callType) || script->getOldCallMode()))
                     {
-                        if (script->getScriptHandle()!=scriptToExclude)
-                            script->systemCallMainScript(callType,inStack,outStack);
+                        if (script->getScriptHandle() != scriptToExclude)
+                            script->systemCallMainScript(callType, inStack, outStack);
                     }
                 }
             }
@@ -425,14 +431,14 @@ void CEmbeddedScriptContainer::callScripts(int callType,CInterfaceStack* inStack
     { // for backward compatibility:
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
-            CScriptObject* script=getMainScript();
-            if (script!=nullptr)
+            CScriptObject *script = getMainScript();
+            if (script != nullptr)
             {
-                script->systemCallMainScript(callType,inStack,outStack);
-                callChildAndEmbeddedScripts(sim_scripttype_childscript,callType,inStack,outStack,nullptr);
+                script->systemCallMainScript(callType, inStack, outStack);
+                callChildAndEmbeddedScripts(sim_scripttype_childscript, callType, inStack, outStack, nullptr);
             }
         }
-        callChildAndEmbeddedScripts(sim_scripttype_customizationscript,callType,inStack,outStack,nullptr);
+        callChildAndEmbeddedScripts(sim_scripttype_customizationscript, callType, inStack, outStack, nullptr);
     }
 }
 
@@ -442,25 +448,29 @@ void CEmbeddedScriptContainer::handleDataCallbacks()
     _getScriptsToExecute(scriptHandles, -1);
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
-        CScriptObject* it = getScriptFromHandle(scriptHandles[i]);
-        if (it!=nullptr)
+        CScriptObject *it = getScriptFromHandle(scriptHandles[i]);
+        if (it != nullptr)
         { // could have been erased in the mean time! noooo!
-            if ( (it->getScriptType() == sim_scripttype_customizationscript) || (!App::currentWorld->simulation->isSimulationStopped()) )
+            if ((it->getScriptType() == sim_scripttype_customizationscript) ||
+                (!App::currentWorld->simulation->isSimulationStopped()))
             {
-                CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo(-1));
+                CSceneObject *obj =
+                    App::currentWorld->sceneObjects->getObjectFromHandle(it->getObjectHandleThatScriptIsAttachedTo(-1));
                 if (obj != nullptr)
                 {
                     std::map<std::string, bool> dataItems;
                     if (obj->getAndClearCustomDataEvents(dataItems))
                     {
-                        CInterfaceStack* stack=App::worldContainer->interfaceStackContainer->createStack();
+                        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
                         stack->pushTableOntoStack();
-                        for (const auto& r : dataItems)
+                        for (const auto &r : dataItems)
                             stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
                         it->systemCallScript(sim_syscb_data, stack, nullptr);
                         if (it->getScriptType() == sim_scripttype_childscript)
-                        { // check and handle a possible customization script here (the data is cleared when fetched the first time)
-                            CScriptObject* it2 = getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, obj->getObjectHandle());
+                        { // check and handle a possible customization script here (the data is cleared when fetched the
+                          // first time)
+                            CScriptObject *it2 = getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,
+                                                                               obj->getObjectHandle());
                             if (it2 != nullptr)
                                 it2->systemCallScript(sim_syscb_data, stack, nullptr);
                         }
@@ -473,44 +483,45 @@ void CEmbeddedScriptContainer::handleDataCallbacks()
 }
 
 int CEmbeddedScriptContainer::getEquivalentScriptExecPriority_old(int objectHandle) const
-{ // for backward compatibility
-    int retVal=-1; // no script attached
-    CScriptObject* it=getScriptFromObjectAttachedTo(sim_scripttype_childscript,objectHandle);
-    if (it!=nullptr)
-        retVal=it->getExecutionPriority_old();
-    it=getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,objectHandle);
-    if (it!=nullptr)
-        retVal=it->getExecutionPriority_old();
-    return(retVal);
+{                    // for backward compatibility
+    int retVal = -1; // no script attached
+    CScriptObject *it = getScriptFromObjectAttachedTo(sim_scripttype_childscript, objectHandle);
+    if (it != nullptr)
+        retVal = it->getExecutionPriority_old();
+    it = getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, objectHandle);
+    if (it != nullptr)
+        retVal = it->getExecutionPriority_old();
+    return (retVal);
 }
 
 void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved_old(int modelBase)
 {
-    CSceneObject* obj=App::currentWorld->sceneObjects->getObjectFromHandle(modelBase);
-    if (obj!=nullptr)
+    CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(modelBase);
+    if (obj != nullptr)
     {
-        std::vector<CSceneObject*> toExplore;
+        std::vector<CSceneObject *> toExplore;
         toExplore.push_back(obj);
-        while (toExplore.size()!=0)
+        while (toExplore.size() != 0)
         {
-            obj=toExplore[toExplore.size()-1];
+            obj = toExplore[toExplore.size() - 1];
             toExplore.pop_back();
-            CScriptObject* it=getScriptFromObjectAttachedTo(sim_scripttype_customizationscript,obj->getObjectHandle());
-            if (it!=nullptr)
+            CScriptObject *it =
+                getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, obj->getObjectHandle());
+            if (it != nullptr)
             {
                 if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
                     it->resetScript();
             }
-            for (size_t i=0;i<obj->getChildCount();i++)
+            for (size_t i = 0; i < obj->getChildCount(); i++)
                 toExplore.push_back(obj->getChildFromIndex(i));
         }
     }
     else
     {
-        for (size_t i=0;i<allScripts.size();i++)
+        for (size_t i = 0; i < allScripts.size(); i++)
         {
-            CScriptObject* it=allScripts[i];
-            if (it->getScriptType()==sim_scripttype_customizationscript)
+            CScriptObject *it = allScripts[i];
+            if (it->getScriptType() == sim_scripttype_customizationscript)
             {
                 if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
                     it->resetScript();
@@ -519,120 +530,125 @@ void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved_old(int modelBase)
     }
 }
 
-size_t CEmbeddedScriptContainer::_getScriptsToExecute(std::vector<int>& scriptHandles,int scriptType) const
+size_t CEmbeddedScriptContainer::_getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType) const
 { // returns all non-disabled scripts, from leaf to root. With scriptType==-1, returns child and customization scripts
-    std::vector<CSceneObject*> objects;
-    std::vector<CSceneObject*> objectsNormalPriority;
-    std::vector<CSceneObject*> objectsLastPriority;
-    for (size_t i=0;i<App::currentWorld->sceneObjects->getOrphanCount();i++)
+    std::vector<CSceneObject *> objects;
+    std::vector<CSceneObject *> objectsNormalPriority;
+    std::vector<CSceneObject *> objectsLastPriority;
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getOrphanCount(); i++)
     {
-        CSceneObject* it=App::currentWorld->sceneObjects->getOrphanFromIndex(i);
-        if (it->getScriptExecPriority()==sim_scriptexecorder_first)
+        CSceneObject *it = App::currentWorld->sceneObjects->getOrphanFromIndex(i);
+        if (it->getScriptExecPriority() == sim_scriptexecorder_first)
             objects.push_back(it);
-        if (it->getScriptExecPriority()==sim_scriptexecorder_normal)
+        if (it->getScriptExecPriority() == sim_scriptexecorder_normal)
             objectsNormalPriority.push_back(it);
-        if (it->getScriptExecPriority()==sim_scriptexecorder_last)
+        if (it->getScriptExecPriority() == sim_scriptexecorder_last)
             objectsLastPriority.push_back(it);
     }
-    objects.insert(objects.end(),objectsNormalPriority.begin(),objectsNormalPriority.end());
-    objects.insert(objects.end(),objectsLastPriority.begin(),objectsLastPriority.end());
-    for (size_t i=0;i<objects.size();i++)
-        objects[i]->getScriptsToExecute(scriptHandles,scriptType);
-    return(scriptHandles.size());
+    objects.insert(objects.end(), objectsNormalPriority.begin(), objectsNormalPriority.end());
+    objects.insert(objects.end(), objectsLastPriority.begin(), objectsLastPriority.end());
+    for (size_t i = 0; i < objects.size(); i++)
+        objects[i]->getScriptsToExecute(scriptHandles, scriptType);
+    return (scriptHandles.size());
 }
 
-int CEmbeddedScriptContainer::_getScriptsToExecute_old(int scriptType,std::vector<CScriptObject*>& scripts,std::vector<int>& uniqueIds) const
+int CEmbeddedScriptContainer::_getScriptsToExecute_old(int scriptType, std::vector<CScriptObject *> &scripts,
+                                                       std::vector<int> &uniqueIds) const
 {
-    std::vector<CSceneObject*> orderFirst;
-    std::vector<CSceneObject*> orderNormal;
-    std::vector<CSceneObject*> orderLast;
-    std::vector<std::vector<CSceneObject*>* > toHandle;
+    std::vector<CSceneObject *> orderFirst;
+    std::vector<CSceneObject *> orderNormal;
+    std::vector<CSceneObject *> orderLast;
+    std::vector<std::vector<CSceneObject *> *> toHandle;
     toHandle.push_back(&orderFirst);
     toHandle.push_back(&orderNormal);
     toHandle.push_back(&orderLast);
-    if ( (scriptType!=sim_scripttype_customizationscript)||App::userSettings->runCustomizationScripts )
+    if ((scriptType != sim_scripttype_customizationscript) || App::userSettings->runCustomizationScripts)
     {
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getOrphanCount();i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getOrphanCount(); i++)
         {
-            CSceneObject* it=App::currentWorld->sceneObjects->getOrphanFromIndex(i);
+            CSceneObject *it = App::currentWorld->sceneObjects->getOrphanFromIndex(i);
             toHandle[it->getScriptExecutionOrder_old(scriptType)]->push_back(it);
         }
-        for (size_t i=0;i<toHandle.size();i++)
+        for (size_t i = 0; i < toHandle.size(); i++)
         {
-            for (size_t j=0;j<toHandle[i]->size();j++)
-                toHandle[i]->at(j)->getScriptsToExecute_old(scriptType,sim_scripttreetraversal_reverse,scripts,uniqueIds);
+            for (size_t j = 0; j < toHandle[i]->size(); j++)
+                toHandle[i]->at(j)->getScriptsToExecute_old(scriptType, sim_scripttreetraversal_reverse, scripts,
+                                                            uniqueIds);
         }
     }
-    return(int(scripts.size()));
+    return (int(scripts.size()));
 }
 
 bool CEmbeddedScriptContainer::shouldTemporarilySuspendMainScript()
 {
-    bool retVal=false;
+    bool retVal = false;
     std::vector<int> scriptHandles;
-    _getScriptsToExecute(scriptHandles,-1);
-    for (size_t i=0;i<scriptHandles.size();i++)
+    _getScriptsToExecute(scriptHandles, -1);
+    for (size_t i = 0; i < scriptHandles.size(); i++)
     {
-        CScriptObject* it=getScriptFromHandle(scriptHandles[i]);
-        if (it!=nullptr)
+        CScriptObject *it = getScriptFromHandle(scriptHandles[i]);
+        if (it != nullptr)
         { // could have been erased in the mean time!
             if (it->shouldTemporarilySuspendMainScript())
-                retVal=true;
+                retVal = true;
         }
     }
-    return(retVal);
+    return (retVal);
 }
 
-int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,CSceneObject* objectBranch/*=nullptr*/,int scriptToExclude/*=-1*/)
+int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType, int callTypeOrResumeLocation,
+                                                          CInterfaceStack *inStack, CInterfaceStack *outStack,
+                                                          CSceneObject *objectBranch /*=nullptr*/,
+                                                          int scriptToExclude /*=-1*/)
 { // ignores the main script. See mainly callScripts instead
-    int cnt=0;
+    int cnt = 0;
     if (!App::userSettings->enableOldScriptTraversal)
     {
         std::vector<int> scriptHandles;
-        if (objectBranch==nullptr)
-            _getScriptsToExecute(scriptHandles,scriptType);
+        if (objectBranch == nullptr)
+            _getScriptsToExecute(scriptHandles, scriptType);
         else
-            objectBranch->getScriptsToExecute_branch(scriptHandles,scriptType);
+            objectBranch->getScriptsToExecute_branch(scriptHandles, scriptType);
         if (CScriptObject::isSystemCallbackInReverseOrder(callTypeOrResumeLocation))
-            std::reverse(scriptHandles.begin(),scriptHandles.end());
-        bool canInterrupt=CScriptObject::isSystemCallbackInterruptible(callTypeOrResumeLocation);
-        for (size_t i=0;i<scriptHandles.size();i++)
+            std::reverse(scriptHandles.begin(), scriptHandles.end());
+        bool canInterrupt = CScriptObject::isSystemCallbackInterruptible(callTypeOrResumeLocation);
+        for (size_t i = 0; i < scriptHandles.size(); i++)
         {
-            CScriptObject* script=getScriptFromHandle(scriptHandles[i]);
-            if ( (script!=nullptr)&&(script->getScriptHandle()!=scriptToExclude) )
+            CScriptObject *script = getScriptFromHandle(scriptHandles[i]);
+            if ((script != nullptr) && (script->getScriptHandle() != scriptToExclude))
             { // the script could have been erased in the mean time
                 if (script->getThreadedExecution_oldThreads())
                 { // is an old, threaded script
-                    if (callTypeOrResumeLocation==sim_scriptthreadresume_launch)
+                    if (callTypeOrResumeLocation == sim_scriptthreadresume_launch)
                     {
                         if (script->launchThreadedChildScript_oldThreads())
                             cnt++;
                     }
                     else
-                        cnt+=script->resumeThreadedChildScriptIfLocationMatch_oldThreads(callTypeOrResumeLocation);
+                        cnt += script->resumeThreadedChildScriptIfLocationMatch_oldThreads(callTypeOrResumeLocation);
                 }
-                else if (script->hasSystemFunctionOrHook(callTypeOrResumeLocation)||script->getOldCallMode())
+                else if (script->hasSystemFunctionOrHook(callTypeOrResumeLocation) || script->getOldCallMode())
                 { // has the function
-                    if (script->systemCallScript(callTypeOrResumeLocation,inStack,outStack)==1)
+                    if (script->systemCallScript(callTypeOrResumeLocation, inStack, outStack) == 1)
                     {
                         cnt++;
-                        if ( canInterrupt&&(outStack!=nullptr)&&(outStack->getStackSize()!=0) )
+                        if (canInterrupt && (outStack != nullptr) && (outStack->getStackSize() != 0))
                             break;
                     }
                 }
                 else
                 { // has not the function. Check if we need to support old callbacks:
-                    int compatCall=-1;
-                    if (callTypeOrResumeLocation==sim_syscb_dyn)
-                        compatCall=sim_syscb_dyncallback;
-                    if (callTypeOrResumeLocation==sim_syscb_contact)
-                        compatCall=sim_syscb_contactcallback;
-                    if ( (compatCall!=-1)&&script->hasSystemFunctionOrHook(compatCall) )
+                    int compatCall = -1;
+                    if (callTypeOrResumeLocation == sim_syscb_dyn)
+                        compatCall = sim_syscb_dyncallback;
+                    if (callTypeOrResumeLocation == sim_syscb_contact)
+                        compatCall = sim_syscb_contactcallback;
+                    if ((compatCall != -1) && script->hasSystemFunctionOrHook(compatCall))
                     {
-                        if (script->systemCallScript(compatCall,inStack,outStack)==1)
+                        if (script->systemCallScript(compatCall, inStack, outStack) == 1)
                         {
                             cnt++;
-                            if ( canInterrupt&&(outStack!=nullptr)&&(outStack->getStackSize()!=0) )
+                            if (canInterrupt && (outStack != nullptr) && (outStack->getStackSize() != 0))
                                 break;
                         }
                     }
@@ -642,58 +658,63 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
     }
     else
     { // old routine
-        std::vector<CScriptObject*> scripts;
+        std::vector<CScriptObject *> scripts;
         std::vector<int> uniqueIds;
-        _getScriptsToExecute_old(scriptType,scripts,uniqueIds);
-        for (size_t i=0;i<scripts.size();i++)
+        _getScriptsToExecute_old(scriptType, scripts, uniqueIds);
+        for (size_t i = 0; i < scripts.size(); i++)
         {
             if (getScriptFromHandle(uniqueIds[i]))
             { // the script could have been erased in the mean time
-                CScriptObject* script=scripts[i];
+                CScriptObject *script = scripts[i];
                 if (!script->getScriptIsDisabled())
                 {
-                    if (scriptType==sim_scripttype_customizationscript)
+                    if (scriptType == sim_scripttype_customizationscript)
                     {
-                        bool doIt=true;
-                        if ( (callTypeOrResumeLocation==sim_syscb_dyncallback)&&(!script->hasSystemFunctionOrHook(sim_syscb_dyncallback)) )
-                            doIt=false;
-                        if ( (callTypeOrResumeLocation==sim_syscb_contactcallback)&&(!script->hasSystemFunctionOrHook(sim_syscb_contactcallback)) )
-                            doIt=false;
+                        bool doIt = true;
+                        if ((callTypeOrResumeLocation == sim_syscb_dyncallback) &&
+                            (!script->hasSystemFunctionOrHook(sim_syscb_dyncallback)))
+                            doIt = false;
+                        if ((callTypeOrResumeLocation == sim_syscb_contactcallback) &&
+                            (!script->hasSystemFunctionOrHook(sim_syscb_contactcallback)))
+                            doIt = false;
                         if (doIt)
                         {
-                            if (script->systemCallScript(callTypeOrResumeLocation,inStack,outStack)==1)
+                            if (script->systemCallScript(callTypeOrResumeLocation, inStack, outStack) == 1)
                             {
                                 cnt++;
-                                if (callTypeOrResumeLocation==sim_syscb_contactcallback)
+                                if (callTypeOrResumeLocation == sim_syscb_contactcallback)
                                     break;
                             }
                         }
                     }
-                    else if ((scriptType&sim_scripttype_childscript)!=0)
+                    else if ((scriptType & sim_scripttype_childscript) != 0)
                     {
                         if (script->getThreadedExecution_oldThreads())
                         {
-                            if (callTypeOrResumeLocation==sim_scriptthreadresume_launch)
+                            if (callTypeOrResumeLocation == sim_scriptthreadresume_launch)
                             {
                                 if (script->launchThreadedChildScript_oldThreads())
                                     cnt++;
                             }
                             else
-                                cnt+=script->resumeThreadedChildScriptIfLocationMatch_oldThreads(callTypeOrResumeLocation);
+                                cnt += script->resumeThreadedChildScriptIfLocationMatch_oldThreads(
+                                    callTypeOrResumeLocation);
                         }
                         else
                         {
-                            bool doIt=true;
-                            if ( (callTypeOrResumeLocation==sim_syscb_dyncallback)&&(!script->hasSystemFunctionOrHook(sim_syscb_dyncallback)) )
-                                doIt=false;
-                            if ( (callTypeOrResumeLocation==sim_syscb_contactcallback)&&(!script->hasSystemFunctionOrHook(sim_syscb_contactcallback)) )
-                                doIt=false;
+                            bool doIt = true;
+                            if ((callTypeOrResumeLocation == sim_syscb_dyncallback) &&
+                                (!script->hasSystemFunctionOrHook(sim_syscb_dyncallback)))
+                                doIt = false;
+                            if ((callTypeOrResumeLocation == sim_syscb_contactcallback) &&
+                                (!script->hasSystemFunctionOrHook(sim_syscb_contactcallback)))
+                                doIt = false;
                             if (doIt)
                             {
-                                if (script->systemCallScript(callTypeOrResumeLocation,inStack,outStack)==1)
+                                if (script->systemCallScript(callTypeOrResumeLocation, inStack, outStack) == 1)
                                 {
                                     cnt++;
-                                    if (callTypeOrResumeLocation==sim_syscb_contactcallback)
+                                    if (callTypeOrResumeLocation == sim_syscb_contactcallback)
                                         break;
                                 }
                             }
@@ -704,15 +725,17 @@ int CEmbeddedScriptContainer::callChildAndEmbeddedScripts(int scriptType,int cal
         }
     }
 
-    return(cnt);
+    return (cnt);
 }
 
-bool CEmbeddedScriptContainer::addCommandToOutsideCommandQueues(int commandID,int auxVal1,int auxVal2,int auxVal3,int auxVal4,const double aux2Vals[8],int aux2Count)
+bool CEmbeddedScriptContainer::addCommandToOutsideCommandQueues(int commandID, int auxVal1, int auxVal2, int auxVal3,
+                                                                int auxVal4, const double aux2Vals[8], int aux2Count)
 {
-    for (size_t i=0;i<allScripts.size();i++)
+    for (size_t i = 0; i < allScripts.size(); i++)
     {
         if (!allScripts[i]->getFlaggedForDestruction())
-            allScripts[i]->addCommandToOutsideCommandQueue(commandID,auxVal1,auxVal2,auxVal3,auxVal4,aux2Vals,aux2Count);
+            allScripts[i]->addCommandToOutsideCommandQueue(commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals,
+                                                           aux2Count);
     }
-    return(true);
+    return (true);
 }

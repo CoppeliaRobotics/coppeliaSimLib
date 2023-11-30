@@ -17,35 +17,35 @@ void CPointCloudContainer_old::simulationEnded()
     eraseAllObjects(true);
 }
 
-CPtCloud_old* CPointCloudContainer_old::getObject(int objectID)
+CPtCloud_old *CPointCloudContainer_old::getObject(int objectID)
 {
-    for (int i=0;i<int(_allObjects.size());i++)
+    for (int i = 0; i < int(_allObjects.size()); i++)
     {
-        if (_allObjects[i]->getObjectID()==objectID)
-            return(_allObjects[i]);
+        if (_allObjects[i]->getObjectID() == objectID)
+            return (_allObjects[i]);
     }
-    return(nullptr);
+    return (nullptr);
 }
 
-int CPointCloudContainer_old::addObject(CPtCloud_old* it)
+int CPointCloudContainer_old::addObject(CPtCloud_old *it)
 {
-    int newID=0;
+    int newID = 0;
     newID++;
-    while (getObject(newID)!=nullptr)
+    while (getObject(newID) != nullptr)
         newID++;
     it->setObjectID(newID);
     it->setObjectUniqueId();
     _allObjects.push_back(it);
     it->pushAddEvent();
-    return(newID);
+    return (newID);
 }
 
 void CPointCloudContainer_old::eraseAllObjects(bool onlyNonPersistentOnes)
 {
-    size_t i=0;
-    while (i<_allObjects.size())
+    size_t i = 0;
+    while (i < _allObjects.size())
     {
-        if ( (!onlyNonPersistentOnes)||(!_allObjects[i]->isPersistent()) )
+        if ((!onlyNonPersistentOnes) || (!_allObjects[i]->isPersistent()))
             removeObject(_allObjects[i]->getObjectID());
         else
             i++;
@@ -54,28 +54,29 @@ void CPointCloudContainer_old::eraseAllObjects(bool onlyNonPersistentOnes)
 
 bool CPointCloudContainer_old::removeObject(int objectID)
 {
-    for (size_t i=0;i<_allObjects.size();i++)
+    for (size_t i = 0; i < _allObjects.size(); i++)
     {
-        if (_allObjects[i]->getObjectID()==objectID)
+        if (_allObjects[i]->getObjectID() == objectID)
         {
             if (App::worldContainer->getEventsEnabled())
             {
-                App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTREMOVED,_allObjects[i]->getObjectUniqueId(),nullptr,false);
+                App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTREMOVED, _allObjects[i]->getObjectUniqueId(),
+                                                 nullptr, false);
                 App::worldContainer->pushEvent();
             }
 
             delete _allObjects[i];
-            _allObjects.erase(_allObjects.begin()+i);
-            return(true);
+            _allObjects.erase(_allObjects.begin() + i);
+            return (true);
         }
     }
-    return(false);
+    return (false);
 }
 
 void CPointCloudContainer_old::announceObjectWillBeErased(int objID)
 { // Never called from copy buffer!
-    size_t i=0;
-    while (i<_allObjects.size())
+    size_t i = 0;
+    while (i < _allObjects.size())
     {
         if (_allObjects[i]->announceObjectWillBeErased(objID))
             removeObject(_allObjects[i]->getObjectID());
@@ -86,28 +87,28 @@ void CPointCloudContainer_old::announceObjectWillBeErased(int objID)
 
 void CPointCloudContainer_old::pushGenesisEvents()
 {
-    for (size_t i=0;i<_allObjects.size();i++)
+    for (size_t i = 0; i < _allObjects.size(); i++)
         _allObjects[i]->pushAddEvent();
 }
 
 #ifdef SIM_WITH_GUI
-void CPointCloudContainer_old::renderYour3DStuff_nonTransparent(CViewableBase* renderingObject,int displayAttrib)
+void CPointCloudContainer_old::renderYour3DStuff_nonTransparent(CViewableBase *renderingObject, int displayAttrib)
 {
-    if ((displayAttrib&sim_displayattribute_nopointclouds)==0)
+    if ((displayAttrib & sim_displayattribute_nopointclouds) == 0)
         drawAll(displayAttrib);
 }
 
-void CPointCloudContainer_old::renderYour3DStuff_transparent(CViewableBase* renderingObject,int displayAttrib)
+void CPointCloudContainer_old::renderYour3DStuff_transparent(CViewableBase *renderingObject, int displayAttrib)
 {
 }
 
-void CPointCloudContainer_old::renderYour3DStuff_overlay(CViewableBase* renderingObject,int displayAttrib)
+void CPointCloudContainer_old::renderYour3DStuff_overlay(CViewableBase *renderingObject, int displayAttrib)
 {
 }
 
 void CPointCloudContainer_old::drawAll(int displayAttrib)
 {
-    for (size_t i=0;i<_allObjects.size();i++)
+    for (size_t i = 0; i < _allObjects.size(); i++)
         _allObjects[i]->draw(displayAttrib);
 }
 #endif

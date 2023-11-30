@@ -7,38 +7,41 @@
 
 #ifdef WIN_SIM
 #include <windows.h>
-#define FC_DTRDSR       0x01
-#define FC_RTSCTS       0x02
-#define FC_XONXOFF      0x04
-#define ASCII_BEL       0x07
-#define ASCII_BS        0x08
-#define ASCII_LF        0x0A
-#define ASCII_CR        0x0D
-#define ASCII_XON       0x11
-#define ASCII_XOFF      0x13
+#define FC_DTRDSR 0x01
+#define FC_RTSCTS 0x02
+#define FC_XONXOFF 0x04
+#define ASCII_BEL 0x07
+#define ASCII_BS 0x08
+#define ASCII_LF 0x0A
+#define ASCII_CR 0x0D
+#define ASCII_XON 0x11
+#define ASCII_XOFF 0x13
 
 class CSerialPortWin
 {
 
-public:
+  public:
     CSerialPortWin();
     ~CSerialPortWin();
 
-    int Open(const char* portString,int nBaud);
+    int Open(const char *portString, int nBaud);
     int Close();
 
-    int ReadData(char *buffer,int limit);
-    int SendData(const char *buffer,int size);
+    int ReadData(char *buffer, int limit);
+    int SendData(const char *buffer, int size);
     int ReadDataWaiting();
 
-    int IsOpened(){return(m_bOpened);}
+    int IsOpened()
+    {
+        return (m_bOpened);
+    }
     int getPortHandle();
 
-protected:
+  protected:
     int WriteCommByte(unsigned char ucByte);
 
-    void* m_hIDComDev;
-    OVERLAPPED m_OverlappedRead,m_OverlappedWrite;
+    void *m_hIDComDev;
+    OVERLAPPED m_OverlappedRead, m_OverlappedWrite;
 
     int m_bOpened;
     int _portHandle;

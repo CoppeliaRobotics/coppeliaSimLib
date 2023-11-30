@@ -10,9 +10,9 @@
 
 class CSimQApp : public QAPP
 {
-public:
-    CSimQApp(int& argc ,char** argv);
+  public:
+    CSimQApp(int &argc, char **argv);
     virtual ~CSimQApp();
 
-    bool notify(QObject* object,QEvent* event);
+    bool notify(QObject *object, QEvent *event);
 };

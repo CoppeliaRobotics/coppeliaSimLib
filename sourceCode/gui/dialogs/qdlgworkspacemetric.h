@@ -5,15 +5,16 @@
 #include "vDialog.h"
 #include <QAbstractButton>
 
-namespace Ui {
-    class CQDlgWorkSpaceMetric;
+namespace Ui
+{
+class CQDlgWorkSpaceMetric;
 }
 
 class CQDlgWorkSpaceMetric : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgWorkSpaceMetric(QWidget *parent = 0);
     ~CQDlgWorkSpaceMetric();
 
@@ -24,7 +25,7 @@ public:
 
     float data[4];
 
-private slots:
+  private slots:
     void on_qqClose_clicked(QAbstractButton *button);
 
     void on_qqX_editingFinished();
@@ -35,7 +36,7 @@ private slots:
 
     void on_qqAbg_editingFinished();
 
-private:
+  private:
     Ui::CQDlgWorkSpaceMetric *ui;
 };
 

@@ -5,20 +5,21 @@
 #include <dlgEx.h>
 #include <QListWidgetItem>
 
-namespace Ui {
-    class CQDlgDistances;
+namespace Ui
+{
+class CQDlgDistances;
 }
 
 class CQDlgDistances : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgDistances(QWidget *parent = 0);
     ~CQDlgDistances();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
 
     void cancelEvent();
 
@@ -27,7 +28,7 @@ public:
     void selectObjectInList(int objectID);
     bool inSelectionRoutine;
 
-private slots:
+  private slots:
     void onDeletePressed();
     void on_qqAddNewObject_clicked();
 
@@ -49,7 +50,7 @@ private slots:
 
     void on_qqAdjustSegmentColor_clicked();
 
-private:
+  private:
     Ui::CQDlgDistances *ui;
 };
 

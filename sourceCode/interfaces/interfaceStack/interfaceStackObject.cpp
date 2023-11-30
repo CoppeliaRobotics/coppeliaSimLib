@@ -16,74 +16,74 @@ CInterfaceStackObject::~CInterfaceStackObject()
 
 int CInterfaceStackObject::getObjectType() const
 {
-    return(_objectType);
+    return (_objectType);
 }
 
-void CInterfaceStackObject::printContent(int spaces,std::string& buffer) const
+void CInterfaceStackObject::printContent(int spaces, std::string &buffer) const
 {
 }
 
-CInterfaceStackObject* CInterfaceStackObject::copyYourself() const
+CInterfaceStackObject *CInterfaceStackObject::copyYourself() const
 {
-    return(nullptr);
+    return (nullptr);
 }
 
 std::string CInterfaceStackObject::getObjectData() const
 {
-    return("");
+    return ("");
 }
 
-void CInterfaceStackObject::addCborObjectData(CCbor* cborObj) const
+void CInterfaceStackObject::addCborObjectData(CCbor *cborObj) const
 {
 }
 
-unsigned int CInterfaceStackObject::createFromData(const char* /*data*/,const unsigned char /*version*/)
+unsigned int CInterfaceStackObject::createFromData(const char * /*data*/, const unsigned char /*version*/)
 {
-    return(0);
+    return (0);
 }
 
-CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* data,unsigned int& retOffset,const unsigned char version)
+CInterfaceStackObject *CInterfaceStackObject::createFromDataStatic(const char *data, unsigned int &retOffset,
+                                                                   const unsigned char version)
 {
-    CInterfaceStackObject* obj=nullptr;
-    char t=data[0];
-    retOffset=1;
-    if (t==sim_stackitem_null)
-        obj=new CInterfaceStackNull();
-    if (t==sim_stackitem_double)
+    CInterfaceStackObject *obj = nullptr;
+    char t = data[0];
+    retOffset = 1;
+    if (t == sim_stackitem_null)
+        obj = new CInterfaceStackNull();
+    if (t == sim_stackitem_double)
     {
-        obj=new CInterfaceStackNumber(0.0);
-        retOffset+=obj->createFromData(data+retOffset,version);
-        if (version==0)
+        obj = new CInterfaceStackNumber(0.0);
+        retOffset += obj->createFromData(data + retOffset, version);
+        if (version == 0)
         { // when Lua didn't have an int type yet
-            double v=((CInterfaceStackNumber*)obj)->getValue();
-            long long int w=(long long int)v;
-            if (v==(double)w)
+            double v = ((CInterfaceStackNumber *)obj)->getValue();
+            long long int w = (long long int)v;
+            if (v == (double)w)
             {
                 delete obj;
-                obj=new CInterfaceStackInteger(w);
+                obj = new CInterfaceStackInteger(w);
             }
         }
     }
-    if (t==sim_stackitem_integer)
+    if (t == sim_stackitem_integer)
     {
-        obj=new CInterfaceStackInteger(0);
-        retOffset+=obj->createFromData(data+retOffset,version);
+        obj = new CInterfaceStackInteger(0);
+        retOffset += obj->createFromData(data + retOffset, version);
     }
-    if (t==sim_stackitem_bool)
+    if (t == sim_stackitem_bool)
     {
-        obj=new CInterfaceStackBool(false);
-        retOffset+=obj->createFromData(data+retOffset,version);
+        obj = new CInterfaceStackBool(false);
+        retOffset += obj->createFromData(data + retOffset, version);
     }
-    if (t==sim_stackitem_string)
+    if (t == sim_stackitem_string)
     {
-        obj=new CInterfaceStackString(nullptr,0);
-        retOffset+=obj->createFromData(data+retOffset,version);
+        obj = new CInterfaceStackString(nullptr, 0);
+        retOffset += obj->createFromData(data + retOffset, version);
     }
-    if (t==sim_stackitem_table)
+    if (t == sim_stackitem_table)
     {
-        obj=new CInterfaceStackTable();
-        retOffset+=obj->createFromData(data+retOffset,version);
+        obj = new CInterfaceStackTable();
+        retOffset += obj->createFromData(data + retOffset, version);
     }
-    return(obj);
+    return (obj);
 }
-

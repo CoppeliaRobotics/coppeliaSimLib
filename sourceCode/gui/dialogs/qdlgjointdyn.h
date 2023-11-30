@@ -4,22 +4,23 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgJointDyn;
+namespace Ui
+{
+class CQDlgJointDyn;
 }
 
 class CQDlgJointDyn : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgJointDyn(QWidget *parent = 0);
     ~CQDlgJointDyn();
 
     void refresh();
     void cancelEvent();
 
-private slots:
+  private slots:
     void on_qqApplyParams_clicked();
     void on_qqForceMode_force_editingFinished();
     void on_qqVelocityMode_velocity_editingFinished();
@@ -50,7 +51,7 @@ private slots:
 
     void on_qqVelocityMode_maxJerk_editingFinished();
 
-private:
+  private:
     bool inMainRefreshRoutine;
 
     Ui::CQDlgJointDyn *ui;

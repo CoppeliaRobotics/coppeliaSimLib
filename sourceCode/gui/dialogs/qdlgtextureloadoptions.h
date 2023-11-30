@@ -4,15 +4,16 @@
 
 #include <vDialog.h>
 
-namespace Ui {
-    class CQDlgTextureLoadOptions;
+namespace Ui
+{
+class CQDlgTextureLoadOptions;
 }
 
 class CQDlgTextureLoadOptions : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgTextureLoadOptions(QWidget *parent = 0);
     ~CQDlgTextureLoadOptions();
 
@@ -24,7 +25,7 @@ public:
     static int scaleTo;
     static bool scale;
 
-private slots:
+  private slots:
 
     void on_qqOk_accepted();
 
@@ -40,7 +41,7 @@ private slots:
 
     void on_qq128_clicked();
 
-private:
+  private:
     Ui::CQDlgTextureLoadOptions *ui;
 };
 

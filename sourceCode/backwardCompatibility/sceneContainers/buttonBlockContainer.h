@@ -2,16 +2,14 @@
 
 #include <buttonBlock.h>
 #ifdef SIM_WITH_GUI
-    #include <vMenubar.h>
+#include <vMenubar.h>
 #endif
 
-
-const int INFO_BOX_ROW_COUNT=20;
+const int INFO_BOX_ROW_COUNT = 20;
 
 class CButtonBlockContainer
 {
-public:
-
+  public:
     CButtonBlockContainer(bool mainContainer);
     virtual ~CButtonBlockContainer();
 
@@ -20,19 +18,19 @@ public:
     void simulationAboutToStart();
     void simulationEnded();
 
-    CButtonBlock* getButtonBlockWithID(int id);
+    CButtonBlock *getButtonBlockWithID(int id);
     void removeAllBlocks(bool alsoSystemBlocks);
     void announceObjectWillBeErased(int objID);
     void setTextureDependencies();
 
-    void insertBlock(CButtonBlock* theNewBlock,bool objectIsACopy);
-    void insertBlockWithSuffixOffset(CButtonBlock* theNewBlock,bool objectIsACopy,int suffixOffset);
-    void getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix) const;
-    bool canSuffix1BeSetToSuffix2(int suffix1,int suffix2) const;
-    void setSuffix1ToSuffix2(int suffix1,int suffix2);
+    void insertBlock(CButtonBlock *theNewBlock, bool objectIsACopy);
+    void insertBlockWithSuffixOffset(CButtonBlock *theNewBlock, bool objectIsACopy, int suffixOffset);
+    void getMinAndMaxNameSuffixes(int &minSuffix, int &maxSuffix) const;
+    bool canSuffix1BeSetToSuffix2(int suffix1, int suffix2) const;
+    void setSuffix1ToSuffix2(int suffix1, int suffix2);
 
-    CButtonBlock* getBlockWithID(int id);
-    CButtonBlock* getBlockWithName(std::string name);
+    CButtonBlock *getBlockWithID(int id);
+    CButtonBlock *getBlockWithName(std::string name);
     bool removeBlockFromID(int id);
 
     bool doesBlockIDExist(int id);
@@ -41,7 +39,7 @@ public:
     void removeFromSelection(int pos);
     void xorAddToSelection(int pos);
     bool isInSelection(int pos);
-    void setViewSizeAndPosition(int sX,int sY,int pX,int pY);
+    void setViewSizeAndPosition(int sX, int sY, int pX, int pY);
 
     void aSceneObjectWasSelected(int objID);
     void sendBlockToFront(int blockID);
@@ -67,22 +65,22 @@ public:
     bool editMode;
     bool buttonsLocked;
     std::vector<int> selectedButtons;
-    std::vector<CButtonBlock*> allBlocks;
+    std::vector<CButtonBlock *> allBlocks;
     int shiftSelectionStart;
 
 #ifdef SIM_WITH_GUI
-    void displayAllBlocks(int currentView,bool dialogsHaveFocus);
-    bool mouseDown(int xCoord,int yCoord,int currentView,int selectionStatus);
-    bool mouseDownTest(int xCoord,int yCoord,int currentView);
-    bool leftMouseButtonDoubleClick(int xCoord,int yCoord,int currentView);
-    bool mouseUp(int xCoord,int yCoord,int currentView);
-    bool mouseMove(int xCoord,int yCoord);
+    void displayAllBlocks(int currentView, bool dialogsHaveFocus);
+    bool mouseDown(int xCoord, int yCoord, int currentView, int selectionStatus);
+    bool mouseDownTest(int xCoord, int yCoord, int currentView);
+    bool leftMouseButtonDoubleClick(int xCoord, int yCoord, int currentView);
+    bool mouseUp(int xCoord, int yCoord, int currentView);
+    bool mouseMove(int xCoord, int yCoord);
     void onKeyDown(unsigned int key);
     void looseFocus();
-    void setEditBoxEdition(int block,int button,bool applyChangesIfLeavingEditMode);
+    void setEditBoxEdition(int block, int button, bool applyChangesIfLeavingEditMode);
     bool getEditBoxEdition();
-    CSoftButton* getInfoBoxButton(int index,int subIndex);
-    CButtonBlockContainer* loadSystemButtonBlocks(std::string fullPathAndFilename);
+    CSoftButton *getInfoBoxButton(int index, int subIndex);
+    CButtonBlockContainer *loadSystemButtonBlocks(std::string fullPathAndFilename);
     void setButtonEditMode_editMode(bool isOn);
     bool getButtonEditMode_editMode();
     void copyBlockInEdition_editMode();
@@ -93,14 +91,14 @@ public:
     int getBlockInEdition();
     int getCaughtElements();
     void clearCaughtElements(int keepMask);
-    CButtonBlock* getCopyOfBlock_forEditMode();
+    CButtonBlock *getCopyOfBlock_forEditMode();
 #endif
 
-private:
+  private:
     int _blockInEditMode;
-    CButtonBlock* copyOfBlock_forEditMode;
-    CButtonBlock* infoBox;
-    int infoBoxButtonHandlers[INFO_BOX_ROW_COUNT*2];
+    CButtonBlock *copyOfBlock_forEditMode;
+    CButtonBlock *infoBox;
+    int infoBoxButtonHandlers[INFO_BOX_ROW_COUNT * 2];
 
     int newSceneProcedurePasses;
     int _lastBlockIdInFront;

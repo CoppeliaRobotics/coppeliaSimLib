@@ -21,4 +21,4 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-void displayMirror(CMirror* mirror,CViewableBase* renderingObject,int displayAttrib);
+void displayMirror(CMirror *mirror, CViewableBase *renderingObject, int displayAttrib);

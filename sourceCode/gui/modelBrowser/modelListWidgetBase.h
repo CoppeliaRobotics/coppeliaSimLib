@@ -6,10 +6,10 @@ class CModelListWidgetBase : public QListWidget
 {
     Q_OBJECT
 
-public:
+  public:
     CModelListWidgetBase();
     virtual ~CModelListWidgetBase();
 
-protected:
+  protected:
     void updateGeometries();
 };

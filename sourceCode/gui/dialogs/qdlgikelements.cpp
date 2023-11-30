@@ -7,24 +7,22 @@
 #include <simStrings.h>
 #include <guiApp.h>
 
-bool CQDlgIkElements::_invalid=false;
-int CQDlgIkElements::_ikGroupHandle=-1;
+bool CQDlgIkElements::_invalid = false;
+int CQDlgIkElements::_ikGroupHandle = -1;
 
-CQDlgIkElements::CQDlgIkElements(QWidget *parent) :
-    CDlgEx(parent),
-    ui(new Ui::CQDlgIkElements)
+CQDlgIkElements::CQDlgIkElements(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgIkElements)
 {
-    _dlgType=IKELEMENT_DLG;
+    _dlgType = IKELEMENT_DLG;
     ui->setupUi(this);
-    inMainRefreshRoutine=false;
-    inListSelectionRoutine=false;
-    noListSelectionAllowed=false;
-    QShortcut* shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
-    connect(shortcut,SIGNAL(activated()), this, SLOT(onDeletePressed()));
-    QShortcut* shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
-    connect(shortcut2,SIGNAL(activated()), this, SLOT(onDeletePressed()));
-    _ikGroupHandle=-1;
-    if (GuiApp::mainWindow!=nullptr)
+    inMainRefreshRoutine = false;
+    inListSelectionRoutine = false;
+    noListSelectionAllowed = false;
+    QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(onDeletePressed()));
+    QShortcut *shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
+    connect(shortcut2, SIGNAL(activated()), this, SLOT(onDeletePressed()));
+    _ikGroupHandle = -1;
+    if (GuiApp::mainWindow != nullptr)
         GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
 }
 
@@ -35,114 +33,114 @@ CQDlgIkElements::~CQDlgIkElements()
 
 void CQDlgIkElements::cancelEvent()
 { // We just hide the dialog and destroy it at next rendering pass
-    _ikGroupHandle=-1;
+    _ikGroupHandle = -1;
     CDlgEx::cancelEvent();
 }
 
 void CQDlgIkElements::updateObjectsInList()
 {
-    noListSelectionAllowed=true;
+    noListSelectionAllowed = true;
     ui->qqList->clear();
-    CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
-    if (ikGroup!=nullptr)
+    CIkGroup_old *ikGroup = App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
+    if (ikGroup != nullptr)
     {
-        for (size_t i=0;i<ikGroup->getIkElementCount();i++)
+        for (size_t i = 0; i < ikGroup->getIkElementCount(); i++)
         {
-            CIkElement_old* ikElement=ikGroup->getIkElementFromIndex(i);
-            int tooltipID=ikElement->getTipHandle();
-            int elementID=ikElement->getObjectHandle();
-            CDummy* theTooltip=App::currentWorld->sceneObjects->getDummyFromHandle(tooltipID);
-            QListWidgetItem* itm=new QListWidgetItem(theTooltip->getObjectAlias_printPath().c_str());
-            itm->setData(Qt::UserRole,QVariant(elementID));
-            itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+            CIkElement_old *ikElement = ikGroup->getIkElementFromIndex(i);
+            int tooltipID = ikElement->getTipHandle();
+            int elementID = ikElement->getObjectHandle();
+            CDummy *theTooltip = App::currentWorld->sceneObjects->getDummyFromHandle(tooltipID);
+            QListWidgetItem *itm = new QListWidgetItem(theTooltip->getObjectAlias_printPath().c_str());
+            itm->setData(Qt::UserRole, QVariant(elementID));
+            itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
             ui->qqList->addItem(itm);
         }
     }
-    noListSelectionAllowed=false;
+    noListSelectionAllowed = false;
 }
 
 int CQDlgIkElements::getSelectedObjectID()
 {
-    QList<QListWidgetItem*> sel=ui->qqList->selectedItems();
-    if (sel.size()>0)
-        return(sel.at(0)->data(Qt::UserRole).toInt());
-    return(-1);
+    QList<QListWidgetItem *> sel = ui->qqList->selectedItems();
+    if (sel.size() > 0)
+        return (sel.at(0)->data(Qt::UserRole).toInt());
+    return (-1);
 }
 
 void CQDlgIkElements::selectObjectInList(int objectID)
 {
-    noListSelectionAllowed=true;
-    for (int i=0;i<ui->qqList->count();i++)
+    noListSelectionAllowed = true;
+    for (int i = 0; i < ui->qqList->count(); i++)
     {
-        QListWidgetItem* it=ui->qqList->item(i);
-        if (it!=nullptr)
+        QListWidgetItem *it = ui->qqList->item(i);
+        if (it != nullptr)
         {
-            if (it->data(Qt::UserRole).toInt()==objectID)
+            if (it->data(Qt::UserRole).toInt() == objectID)
             {
                 it->setSelected(true);
                 break;
             }
         }
     }
-    noListSelectionAllowed=false;
+    noListSelectionAllowed = false;
 }
 
 bool CQDlgIkElements::needsDestruction()
 {
     if (!isLinkedDataValid())
-        return(true);
-    return(CDlgEx::needsDestruction());
+        return (true);
+    return (CDlgEx::needsDestruction());
 }
 
 void CQDlgIkElements::_initialize(int ikGroupHandle)
 {
-    _ikGroupHandle=ikGroupHandle;
-    CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
-    if (ikGroup!=nullptr)
+    _ikGroupHandle = ikGroupHandle;
+    CIkGroup_old *ikGroup = App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
+    if (ikGroup != nullptr)
     {
         std::string titleText("IK Group (");
-        titleText+=ikGroup->getObjectName();
-        titleText+=")";
+        titleText += ikGroup->getObjectName();
+        titleText += ")";
         setWindowTitle(titleText.c_str());
     }
-    _invalid=false;
+    _invalid = false;
     refresh();
 }
 
 bool CQDlgIkElements::isLinkedDataValid()
 {
     if (!App::currentWorld->simulation->isSimulationStopped())
-        return(false);
-    if (GuiApp::getEditModeType()!=NO_EDIT_MODE)
-        return(false);
-    if (App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle)!=nullptr)
-        return(!_invalid);
-    return(false);
+        return (false);
+    if (GuiApp::getEditModeType() != NO_EDIT_MODE)
+        return (false);
+    if (App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle) != nullptr)
+        return (!_invalid);
+    return (false);
 }
 
-void CQDlgIkElements::display(int ikGroupHandle,QWidget* theParentWindow)
+void CQDlgIkElements::display(int ikGroupHandle, QWidget *theParentWindow)
 {
-    if (GuiApp::mainWindow==nullptr)
+    if (GuiApp::mainWindow == nullptr)
         return;
     GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
     if (GuiApp::mainWindow->dlgCont->openOrBringToFront(IKELEMENT_DLG))
     {
-        CQDlgIkElements* dlg=(CQDlgIkElements*)GuiApp::mainWindow->dlgCont->getDialog(IKELEMENT_DLG);
-        if (dlg!=nullptr)
+        CQDlgIkElements *dlg = (CQDlgIkElements *)GuiApp::mainWindow->dlgCont->getDialog(IKELEMENT_DLG);
+        if (dlg != nullptr)
             dlg->_initialize(ikGroupHandle);
     }
 }
 
 bool CQDlgIkElements::doesInstanceSwitchRequireDestruction()
 {
-    return(true);
+    return (true);
 }
 
-void CQDlgIkElements::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
+void CQDlgIkElements::dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
 {
-    if ( (cmdIn!=nullptr)&&(cmdIn->intParams[0]==_dlgType) )
+    if ((cmdIn != nullptr) && (cmdIn->intParams[0] == _dlgType))
     {
-        if (cmdIn->intParams[1]==0)
+        if (cmdIn->intParams[1] == 0)
         {
             selectObjectInList(cmdIn->intParams[2]);
             refresh();
@@ -152,14 +150,15 @@ void CQDlgIkElements::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThread
 
 void CQDlgIkElements::refresh()
 {
-    inMainRefreshRoutine=true;
-    QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditModeNoSim=(GuiApp::getEditModeType()==NO_EDIT_MODE)&&App::currentWorld->simulation->isSimulationStopped();
+    inMainRefreshRoutine = true;
+    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    bool noEditModeNoSim =
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
     if (!isLinkedDataValid())
         return;
-    CIkGroup_old* ikGroup=App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
-    int elementID=getSelectedObjectID();
-    CIkElement_old* it=ikGroup->getIkElementFromHandle(elementID);
+    CIkGroup_old *ikGroup = App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
+    int elementID = getSelectedObjectID();
+    CIkElement_old *it = ikGroup->getIkElementFromHandle(elementID);
 
     if (!inListSelectionRoutine)
     {
@@ -167,80 +166,80 @@ void CQDlgIkElements::refresh()
         selectObjectInList(elementID);
     }
 
-    ui->qqActive->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqBaseCombo->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqX->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqY->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqZ->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqAlphaBeta->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqGamma->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqRelativeCombo->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqPrecisionLinear->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqPrecisionAngular->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqWeightLinear->setEnabled((it!=nullptr)&&noEditModeNoSim);
-    ui->qqWeightAngular->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqActive->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqBaseCombo->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqX->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqY->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqZ->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqAlphaBeta->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqGamma->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqRelativeCombo->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqPrecisionLinear->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqPrecisionAngular->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqWeightLinear->setEnabled((it != nullptr) && noEditModeNoSim);
+    ui->qqWeightAngular->setEnabled((it != nullptr) && noEditModeNoSim);
 
-    ui->qqActive->setChecked((it!=nullptr)&&it->getEnabled());
+    ui->qqActive->setChecked((it != nullptr) && it->getEnabled());
     ui->qqBaseCombo->clear();
-    ui->qqX->setChecked((it!=nullptr)&&(it->getConstraints()&sim_ik_x_constraint));
-    ui->qqY->setChecked((it!=nullptr)&&(it->getConstraints()&sim_ik_y_constraint));
-    ui->qqZ->setChecked((it!=nullptr)&&(it->getConstraints()&sim_ik_z_constraint));
-    ui->qqAlphaBeta->setChecked((it!=nullptr)&&(it->getConstraints()&sim_ik_alpha_beta_constraint));
-    ui->qqGamma->setChecked((it!=nullptr)&&(it->getConstraints()&sim_ik_gamma_constraint));
+    ui->qqX->setChecked((it != nullptr) && (it->getConstraints() & sim_ik_x_constraint));
+    ui->qqY->setChecked((it != nullptr) && (it->getConstraints() & sim_ik_y_constraint));
+    ui->qqZ->setChecked((it != nullptr) && (it->getConstraints() & sim_ik_z_constraint));
+    ui->qqAlphaBeta->setChecked((it != nullptr) && (it->getConstraints() & sim_ik_alpha_beta_constraint));
+    ui->qqGamma->setChecked((it != nullptr) && (it->getConstraints() & sim_ik_gamma_constraint));
     ui->qqRelativeCombo->clear();
 
     std::vector<std::string> names;
     std::vector<int> ids;
 
     ui->qqTipCombo->clear();
-    for (size_t i=0;i<App::currentWorld->sceneObjects->getDummyCount();i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getDummyCount(); i++)
     {
-        CDummy* it2=App::currentWorld->sceneObjects->getDummyFromIndex(i);
+        CDummy *it2 = App::currentWorld->sceneObjects->getDummyFromIndex(i);
         names.push_back(it2->getObjectAlias_printPath());
         ids.push_back(it2->getObjectHandle());
     }
-    tt::orderStrings(names,ids);
-    for (size_t i=0;i<names.size();i++)
-        ui->qqTipCombo->addItem(names[i].c_str(),QVariant(ids[i]));
+    tt::orderStrings(names, ids);
+    for (size_t i = 0; i < names.size(); i++)
+        ui->qqTipCombo->addItem(names[i].c_str(), QVariant(ids[i]));
 
-    if (it!=nullptr)
+    if (it != nullptr)
     {
-        CDummy* tip=App::currentWorld->sceneObjects->getDummyFromHandle(it->getTipHandle());
-        if (tip==nullptr)
+        CDummy *tip = App::currentWorld->sceneObjects->getDummyFromHandle(it->getTipHandle());
+        if (tip == nullptr)
             ui->qqTargetString->setText("");
         else
         {
-            CDummy* target=App::currentWorld->sceneObjects->getDummyFromHandle(tip->getLinkedDummyHandle());
-            if (target==nullptr)
+            CDummy *target = App::currentWorld->sceneObjects->getDummyFromHandle(tip->getLinkedDummyHandle());
+            if (target == nullptr)
                 ui->qqTargetString->setText("tip dummy is not linked!");
             else
             {
-                if (tip->getDummyType()!=sim_dummy_linktype_ik_tip_target)
+                if (tip->getDummyType() != sim_dummy_linktype_ik_tip_target)
                     ui->qqTargetString->setText("wrong dummy link type!");
                 else
                     ui->qqTargetString->setText(target->getObjectAlias_printPath().c_str());
             }
         }
 
-        CDummy* tooltip=App::currentWorld->sceneObjects->getDummyFromHandle(it->getTipHandle());
-        ui->qqBaseCombo->addItem(IDSN_WORLD,QVariant(-1));
+        CDummy *tooltip = App::currentWorld->sceneObjects->getDummyFromHandle(it->getTipHandle());
+        ui->qqBaseCombo->addItem(IDSN_WORLD, QVariant(-1));
         names.clear();
         ids.clear();
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
         {
-            CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromIndex(i);
+            CSceneObject *it2 = App::currentWorld->sceneObjects->getObjectFromIndex(i);
             if (tooltip->hasAncestor(it2))
             {
                 names.push_back(it2->getObjectAlias_printPath());
                 ids.push_back(it2->getObjectHandle());
             }
         }
-        tt::orderStrings(names,ids);
-        for (size_t i=0;i<names.size();i++)
-            ui->qqBaseCombo->addItem(names[i].c_str(),QVariant(ids[i]));
-        for (int i=0;i<ui->qqBaseCombo->count();i++)
+        tt::orderStrings(names, ids);
+        for (size_t i = 0; i < names.size(); i++)
+            ui->qqBaseCombo->addItem(names[i].c_str(), QVariant(ids[i]));
+        for (int i = 0; i < ui->qqBaseCombo->count(); i++)
         {
-            if (ui->qqBaseCombo->itemData(i).toInt()==it->getBase())
+            if (ui->qqBaseCombo->itemData(i).toInt() == it->getBase())
             {
                 ui->qqBaseCombo->setCurrentIndex(i);
                 break;
@@ -249,32 +248,32 @@ void CQDlgIkElements::refresh()
 
         names.clear();
         ids.clear();
-        ui->qqRelativeCombo->addItem(IDSN_SAME_AS_BASE,QVariant(-1));
-        for (size_t i=0;i<App::currentWorld->sceneObjects->getObjectCount();i++)
+        ui->qqRelativeCombo->addItem(IDSN_SAME_AS_BASE, QVariant(-1));
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
         {
-            CSceneObject* it2=App::currentWorld->sceneObjects->getObjectFromIndex(i);
-            if ( (it2->getObjectType()==sim_object_dummy_type)&&(it2!=tooltip) )
+            CSceneObject *it2 = App::currentWorld->sceneObjects->getObjectFromIndex(i);
+            if ((it2->getObjectType() == sim_object_dummy_type) && (it2 != tooltip))
             {
                 names.push_back(it2->getObjectAlias_printPath());
                 ids.push_back(it2->getObjectHandle());
             }
         }
-        tt::orderStrings(names,ids);
-        for (size_t i=0;i<names.size();i++)
-            ui->qqRelativeCombo->addItem(names[i].c_str(),QVariant(ids[i]));
-        for (int i=0;i<ui->qqRelativeCombo->count();i++)
+        tt::orderStrings(names, ids);
+        for (size_t i = 0; i < names.size(); i++)
+            ui->qqRelativeCombo->addItem(names[i].c_str(), QVariant(ids[i]));
+        for (int i = 0; i < ui->qqRelativeCombo->count(); i++)
         {
-            if (ui->qqRelativeCombo->itemData(i).toInt()==it->getAlternativeBaseForConstraints())
+            if (ui->qqRelativeCombo->itemData(i).toInt() == it->getAlternativeBaseForConstraints())
             {
                 ui->qqRelativeCombo->setCurrentIndex(i);
                 break;
             }
         }
 
-        ui->qqPrecisionLinear->setText(utils::getPosString(false,it->getMinLinearPrecision()).c_str());
-        ui->qqPrecisionAngular->setText(utils::getAngleString(false,it->getMinAngularPrecision()).c_str());
-        ui->qqWeightLinear->setText(utils::getSizeString(false,it->getPositionWeight()).c_str());
-        ui->qqWeightAngular->setText(utils::getSizeString(false,it->getOrientationWeight()).c_str());
+        ui->qqPrecisionLinear->setText(utils::getPosString(false, it->getMinLinearPrecision()).c_str());
+        ui->qqPrecisionAngular->setText(utils::getAngleString(false, it->getMinAngularPrecision()).c_str());
+        ui->qqWeightLinear->setText(utils::getSizeString(false, it->getPositionWeight()).c_str());
+        ui->qqWeightAngular->setText(utils::getSizeString(false, it->getOrientationWeight()).c_str());
     }
     else
     {
@@ -286,16 +285,17 @@ void CQDlgIkElements::refresh()
     }
 
     selectLineEdit(lineEditToSelect);
-    inMainRefreshRoutine=false;
+    inMainRefreshRoutine = false;
 }
 
 void CQDlgIkElements::onDeletePressed()
 {
-    if (focusWidget()==ui->qqList)
+    if (focusWidget() == ui->qqList)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            App::appendSimulationThreadCommand(REMOVE_ELEMENT_IKELEMENTGUITRIGGEREDCMD,_ikGroupHandle,getSelectedObjectID());
+            App::appendSimulationThreadCommand(REMOVE_ELEMENT_IKELEMENTGUITRIGGEREDCMD, _ikGroupHandle,
+                                               getSelectedObjectID());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -306,7 +306,8 @@ void CQDlgIkElements::on_qqAddNewElement_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(ADD_ELEMENT_IKELEMENTGUITRIGGEREDCMD,_ikGroupHandle,ui->qqTipCombo->itemData(ui->qqTipCombo->currentIndex()).toInt());
+        App::appendSimulationThreadCommand(ADD_ELEMENT_IKELEMENTGUITRIGGEREDCMD, _ikGroupHandle,
+                                           ui->qqTipCombo->itemData(ui->qqTipCombo->currentIndex()).toInt());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -316,9 +317,9 @@ void CQDlgIkElements::on_qqList_itemSelectionChanged()
 {
     if (!noListSelectionAllowed)
     {
-        inListSelectionRoutine=true;
+        inListSelectionRoutine = true;
         refresh();
-        inListSelectionRoutine=false;
+        inListSelectionRoutine = false;
     }
 }
 
@@ -326,7 +327,8 @@ void CQDlgIkElements::on_qqActive_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        App::appendSimulationThreadCommand(TOGGLE_ACTIVE_IKELEMENTGUITRIGGEREDCMD,_ikGroupHandle,getSelectedObjectID());
+        App::appendSimulationThreadCommand(TOGGLE_ACTIVE_IKELEMENTGUITRIGGEREDCMD, _ikGroupHandle,
+                                           getSelectedObjectID());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -339,7 +341,7 @@ void CQDlgIkElements::on_qqBaseCombo_currentIndexChanged(int index)
         IF_UI_EVENT_CAN_READ_DATA
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_BASE_IKELEMENTGUITRIGGEREDCMD;
+            cmd.cmdId = SET_BASE_IKELEMENTGUITRIGGEREDCMD;
             cmd.intParams.push_back(_ikGroupHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(ui->qqBaseCombo->itemData(ui->qqBaseCombo->currentIndex()).toInt());
@@ -355,7 +357,7 @@ void CQDlgIkElements::on_qqX_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         SSimulationThreadCommand cmd;
-        cmd.cmdId=TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD;
+        cmd.cmdId = TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD;
         cmd.intParams.push_back(_ikGroupHandle);
         cmd.intParams.push_back(getSelectedObjectID());
         cmd.intParams.push_back(sim_ik_x_constraint);
@@ -370,7 +372,7 @@ void CQDlgIkElements::on_qqY_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         SSimulationThreadCommand cmd;
-        cmd.cmdId=TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD;
+        cmd.cmdId = TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD;
         cmd.intParams.push_back(_ikGroupHandle);
         cmd.intParams.push_back(getSelectedObjectID());
         cmd.intParams.push_back(sim_ik_y_constraint);
@@ -385,7 +387,7 @@ void CQDlgIkElements::on_qqZ_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         SSimulationThreadCommand cmd;
-        cmd.cmdId=TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD;
+        cmd.cmdId = TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD;
         cmd.intParams.push_back(_ikGroupHandle);
         cmd.intParams.push_back(getSelectedObjectID());
         cmd.intParams.push_back(sim_ik_z_constraint);
@@ -400,7 +402,7 @@ void CQDlgIkElements::on_qqAlphaBeta_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         SSimulationThreadCommand cmd;
-        cmd.cmdId=TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD;
+        cmd.cmdId = TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD;
         cmd.intParams.push_back(_ikGroupHandle);
         cmd.intParams.push_back(getSelectedObjectID());
         cmd.intParams.push_back(sim_ik_alpha_beta_constraint);
@@ -415,7 +417,7 @@ void CQDlgIkElements::on_qqGamma_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         SSimulationThreadCommand cmd;
-        cmd.cmdId=TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD;
+        cmd.cmdId = TOGGLE_CONSTRAINT_IKELEMENTGUITRIGGEREDCMD;
         cmd.intParams.push_back(_ikGroupHandle);
         cmd.intParams.push_back(getSelectedObjectID());
         cmd.intParams.push_back(sim_ik_gamma_constraint);
@@ -432,7 +434,7 @@ void CQDlgIkElements::on_qqRelativeCombo_currentIndexChanged(int index)
         IF_UI_EVENT_CAN_READ_DATA
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_REFERENCEFRAME_IKELEMENTGUITRIGGEREDCMD;
+            cmd.cmdId = SET_REFERENCEFRAME_IKELEMENTGUITRIGGEREDCMD;
             cmd.intParams.push_back(_ikGroupHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(ui->qqRelativeCombo->itemData(ui->qqRelativeCombo->currentIndex()).toInt());
@@ -450,11 +452,11 @@ void CQDlgIkElements::on_qqPrecisionLinear_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqPrecisionLinear->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqPrecisionLinear->text().toStdString().c_str(), &ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_PRECISION_IKELEMENTGUITRIGGEREDCMD;
+            cmd.cmdId = SET_PRECISION_IKELEMENTGUITRIGGEREDCMD;
             cmd.intParams.push_back(_ikGroupHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(0); // linear
@@ -473,15 +475,15 @@ void CQDlgIkElements::on_qqPrecisionAngular_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqPrecisionAngular->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqPrecisionAngular->text().toStdString().c_str(), &ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_PRECISION_IKELEMENTGUITRIGGEREDCMD;
+            cmd.cmdId = SET_PRECISION_IKELEMENTGUITRIGGEREDCMD;
             cmd.intParams.push_back(_ikGroupHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(1); // angular
-            cmd.doubleParams.push_back(newVal*degToRad);
+            cmd.doubleParams.push_back(newVal * degToRad);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -496,11 +498,11 @@ void CQDlgIkElements::on_qqWeightLinear_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqWeightLinear->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqWeightLinear->text().toStdString().c_str(), &ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_WEIGHT_IKELEMENTGUITRIGGEREDCMD;
+            cmd.cmdId = SET_WEIGHT_IKELEMENTGUITRIGGEREDCMD;
             cmd.intParams.push_back(_ikGroupHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(0); // linear
@@ -519,11 +521,11 @@ void CQDlgIkElements::on_qqWeightAngular_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqWeightAngular->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqWeightAngular->text().toStdString().c_str(), &ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_WEIGHT_IKELEMENTGUITRIGGEREDCMD;
+            cmd.cmdId = SET_WEIGHT_IKELEMENTGUITRIGGEREDCMD;
             cmd.intParams.push_back(_ikGroupHandle);
             cmd.intParams.push_back(getSelectedObjectID());
             cmd.intParams.push_back(1); // angular

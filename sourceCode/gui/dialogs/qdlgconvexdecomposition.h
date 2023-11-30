@@ -4,15 +4,16 @@
 #include <vDialog.h>
 #include <simLib/simTypes.h>
 
-namespace Ui {
-    class CQDlgConvexDecomposition;
+namespace Ui
+{
+class CQDlgConvexDecomposition;
 }
 
 class CQDlgConvexDecomposition : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgConvexDecomposition(QWidget *parent = 0);
     ~CQDlgConvexDecomposition();
 
@@ -20,7 +21,6 @@ public:
     void okEvent();
 
     void refresh();
-
 
     bool useHACD;
 
@@ -48,8 +48,7 @@ public:
     int maxNumVerticesPerCH;
     double minVolumePerCH;
 
-
-private slots:
+  private slots:
 
     void on_qqOkCancel_accepted();
     void on_qqOkCancel_rejected();
@@ -76,7 +75,7 @@ private slots:
     void on_qqHACD_clicked();
     void on_qqVHACD_clicked();
 
-private:
+  private:
     Ui::CQDlgConvexDecomposition *ui;
 };
 

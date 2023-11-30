@@ -5,11 +5,11 @@
 
 class CSimRecorder
 {
-public:
-    CSimRecorder(const char* initialPath);
+  public:
+    CSimRecorder(const char *initialPath);
     virtual ~CSimRecorder();
 
-    bool recordFrameIfNeeded(int resX,int resY,int posX,int posY);
+    bool recordFrameIfNeeded(int resX, int resY, int posX, int posY);
     bool willNextFrameBeRecorded();
     bool getIsRecording();
     bool startRecording(bool manualStart);
@@ -19,11 +19,11 @@ public:
     void setFrameRate(int fps);
     int getFrameRate();
     int getFrameCount();
-    void setPath(const char* path);
-    void setPathAndFilename(const char* pathAndF); // when set via API
+    void setPath(const char *path);
+    void setPathAndFilename(const char *pathAndF); // when set via API
     void setRecorderEnabled(bool e);
     bool getRecorderEnabled();
-    std::string getPath(char* userSet);
+    std::string getPath(char *userSet);
     void setShowCursor(bool show);
     bool getShowCursor();
     void setShowButtonStates(bool show);
@@ -31,8 +31,8 @@ public:
     bool getManualStart();
     bool getHideInfoTextAndStatusBar();
     void setHideInfoTextAndStatusBar(bool hide);
-    void setRecordingSizeChanged(int newXsize,int newYsize);
-    void getRecordingSize(int& x, int&y);
+    void setRecordingSizeChanged(int newXsize, int newYsize);
+    void getRecordingSize(int &x, int &y);
     void setAutoFrameRate(bool a);
     bool getAutoFrameRate();
 
@@ -45,8 +45,7 @@ public:
 
     void setShowSavedMessage(bool s);
 
-protected:
-
+  protected:
     bool _isRecording;
     int _frameCount;
     int _simulationFrameCount;
@@ -71,6 +70,6 @@ protected:
 
     bool _aviGenInitialized;
 
-    unsigned char* _buffer;
-    unsigned char* _tempBuffer;
+    unsigned char *_buffer;
+    unsigned char *_tempBuffer;
 };

@@ -5,22 +5,23 @@
 
 class CSceneObject;
 
-class CDrawingObject  
+class CDrawingObject
 {
-public:
-    CDrawingObject(int theObjectType,double size,double duplicateTolerance,int sceneObjId,int maxItemCount,int creatorHandle);
+  public:
+    CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId, int maxItemCount,
+                   int creatorHandle);
     virtual ~CDrawingObject();
 
     void setObjectId(int newId);
     void setObjectUniqueId();
     long long int getObjectUid() const;
     int getObjectId() const;
-    bool addItem(const double* itemData);
-    void addItems(const double* itemData,size_t itemCnt);
-    void setItems(const double* itemData,size_t itemCnt);
+    bool addItem(const double *itemData);
+    void addItems(const double *itemData, size_t itemCnt);
+    void setItems(const double *itemData, size_t itemCnt);
     int getObjectType() const;
-    bool announceObjectWillBeErased(const CSceneObject* object);
-    bool announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript);
+    bool announceObjectWillBeErased(const CSceneObject *object);
+    bool announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     void pushAddEvent();
     void pushAppendNewPointEvent();
@@ -32,11 +33,11 @@ public:
     int getStartItem() const;
     int getExpectedFloatsPerItem() const;
 
-    std::vector<double>* getDataPtr();
+    std::vector<double> *getDataPtr();
 
-    #ifdef SIM_WITH_GUI
-        void draw(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM);
-    #endif
+#ifdef SIM_WITH_GUI
+    void draw(bool overlay, bool transparentObject, int displayAttrib, const C4X4Matrix &cameraCTM);
+#endif
 
     CColorObject color;
 
@@ -46,9 +47,9 @@ public:
     int otherFloatsPerItem; // sizes and/or transparency
     int floatsPerItem;
 
-protected:
+  protected:
     void _initBufferedEventData();
-    void _getEventData(std::vector<float>& vertices,std::vector<float>& quaternions,std::vector<float>& colors) const;
+    void _getEventData(std::vector<float> &vertices, std::vector<float> &quaternions, std::vector<float> &colors) const;
 
     void _setItemSizes();
 

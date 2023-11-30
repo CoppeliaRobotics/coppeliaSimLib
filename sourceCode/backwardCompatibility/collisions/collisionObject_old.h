@@ -5,16 +5,16 @@
 
 class CCollisionObject_old
 {
-public:
+  public:
     CCollisionObject_old();
-    CCollisionObject_old(int entity1Handle,int entity2Handle);
+    CCollisionObject_old(int entity1Handle, int entity2Handle);
     virtual ~CCollisionObject_old();
 
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationEnded();
 
-    bool isSame(int entity1Handle,int entity2Handle) const;
+    bool isSame(int entity1Handle, int entity2Handle) const;
     void clearCollisionResult();
     bool handleCollision();
     int readCollision(int collObjHandles[2]) const;
@@ -23,14 +23,15 @@ public:
     double getCalculationTime() const;
     std::string getUniquePersistentIdString() const;
     void _clearCollisionResult();
-    void _setCollisionResult(bool result,int calcTime,int obj1Handle,int obj2Handle,const std::vector<double>& intersect);
+    void _setCollisionResult(bool result, int calcTime, int obj1Handle, int obj2Handle,
+                             const std::vector<double> &intersect);
 
-    void serialize(CSer& ar);
-    void performObjectLoadingMapping(const std::map<int,int>* map);
-    void performCollectionLoadingMapping(const std::map<int,int>* map);
-    bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
-    bool announceCollectionWillBeErased(int collectionHandle,bool copyBuffer);
-    CCollisionObject_old* copyYourself();
+    void serialize(CSer &ar);
+    void performObjectLoadingMapping(const std::map<int, int> *map);
+    void performCollectionLoadingMapping(const std::map<int, int> *map);
+    bool announceObjectWillBeErased(int objectHandle, bool copyBuffer);
+    bool announceCollectionWillBeErased(int collectionHandle, bool copyBuffer);
+    CCollisionObject_old *copyYourself();
     int getCollisionColor(int entityHandle) const;
     bool canComputeCollisionContour() const;
     std::string getObjectDescriptiveName() const;
@@ -44,23 +45,23 @@ public:
     bool getExhaustiveDetection() const;
     bool getExplicitHandling() const;
     int getContourWidth() const;
-    const std::vector<double>* getIntersections() const;
+    const std::vector<double> *getIntersections() const;
 
-    CColorObject* getContourColor();
+    CColorObject *getContourColor();
 
     bool setObjectHandle(int newHandle);
-    bool setObjectName(const char* newName,bool check);
+    bool setObjectName(const char *newName, bool check);
     bool setColliderChangesColor(bool changes);
     bool setCollideeChangesColor(bool changes);
     bool setExhaustiveDetection(bool exhaustive);
     bool setExplicitHandling(bool explicitHandl);
     bool setContourWidth(int w);
-    bool setIntersections(const std::vector<double>* intersections=nullptr);
+    bool setIntersections(const std::vector<double> *intersections = nullptr);
 
-    #ifdef SIM_WITH_GUI
-        void displayCollisionContour();
-    #endif
-private:
+#ifdef SIM_WITH_GUI
+    void displayCollisionContour();
+#endif
+  private:
     void _commonInit();
 
     std::string _uniquePersistentIdString;

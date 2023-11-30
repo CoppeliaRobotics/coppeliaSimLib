@@ -11,23 +11,24 @@ struct SFileOrFolder
     unsigned long long int lastWriteTime;
 };
 
-class VFileFinder  
+class VFileFinder
 {
-public:
+  public:
     VFileFinder();
     virtual ~VFileFinder();
 
-    int searchFiles(const char* pathWithoutTerminalSlash,const char* extension,const char* filter);
-    int searchFolders(const char* pathWithoutTerminalSlash);
-    int searchFilesOrFolders(const char* pathWithoutTerminalSlash);
-    static int countFiles(const char* pathWithoutTerminalSlash);
-    static int countFolders(const char* pathWithoutTerminalSlash);
-    static int countFilesWithPrefix(const char* pathWithoutTerminalSlash,const char* prefix);
+    int searchFiles(const char *pathWithoutTerminalSlash, const char *extension, const char *filter);
+    int searchFolders(const char *pathWithoutTerminalSlash);
+    int searchFilesOrFolders(const char *pathWithoutTerminalSlash);
+    static int countFiles(const char *pathWithoutTerminalSlash);
+    static int countFolders(const char *pathWithoutTerminalSlash);
+    static int countFilesWithPrefix(const char *pathWithoutTerminalSlash, const char *prefix);
 
-    SFileOrFolder* getFoundItem(int index);
+    SFileOrFolder *getFoundItem(int index);
 
-private:
-    int _searchFilesOrFolders(const char* pathWithoutTerminalSlash,const char* extension,int mode,const char* filter); // mode=0 --> file, mode=1 --> folder, mode=2 --> file and folder
+  private:
+    int _searchFilesOrFolders(const char *pathWithoutTerminalSlash, const char *extension, int mode,
+                              const char *filter); // mode=0 --> file, mode=1 --> folder, mode=2 --> file and folder
 
     std::vector<SFileOrFolder> _searchResult;
 };

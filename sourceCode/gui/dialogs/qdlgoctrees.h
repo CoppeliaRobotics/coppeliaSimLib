@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgOctrees;
+namespace Ui
+{
+class CQDlgOctrees;
 }
 
 class CQDlgOctrees : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgOctrees(QWidget *parent = 0);
     ~CQDlgOctrees();
 
@@ -20,7 +21,7 @@ public:
 
     void cancelEvent();
 
-private slots:
+  private slots:
     void on_qqSize_editingFinished();
 
     void on_qqColor_clicked();
@@ -41,7 +42,7 @@ private slots:
 
     void on_qqEmissiveColor_clicked();
 
-private:
+  private:
     Ui::CQDlgOctrees *ui;
 };
 

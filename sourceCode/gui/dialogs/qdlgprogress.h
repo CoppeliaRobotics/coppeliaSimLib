@@ -4,21 +4,22 @@
 #include <QDialog>
 #include <simLib/simTypes.h>
 
-namespace Ui {
-    class CQDlgProgress;
+namespace Ui
+{
+class CQDlgProgress;
 }
 
 class CQDlgProgress : public QDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgProgress(QWidget *parent = 0);
     ~CQDlgProgress();
 
-    void updateProgress(double p,const char* txt);
+    void updateProgress(double p, const char *txt);
 
-private:
+  private:
     Ui::CQDlgProgress *ui;
 };
 

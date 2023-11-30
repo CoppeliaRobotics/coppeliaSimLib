@@ -5,8 +5,9 @@
 #include <simMath/7Vector.h>
 #include <sceneObject.h>
 
-enum { /* Mujoco dummy double params */
-    simi_mujoco_dummy_range1=0,
+enum
+{ /* Mujoco dummy double params */
+    simi_mujoco_dummy_range1 = 0,
     simi_mujoco_dummy_range2,
     simi_mujoco_dummy_solreflimit1,
     simi_mujoco_dummy_solreflimit2,
@@ -21,20 +22,20 @@ enum { /* Mujoco dummy double params */
     simi_mujoco_dummy_damping,
 };
 
-enum { /* Mujoco dummy int params */
-    simi_mujoco_dummy_bitcoded=0,
+enum
+{ /* Mujoco dummy int params */
+    simi_mujoco_dummy_bitcoded = 0,
     simi_mujoco_dummy_proxyjointid,
 };
 
-enum { /* Mujoco dummy bool params */
-    simi_mujoco_dummy_limited=1,
+enum
+{ /* Mujoco dummy bool params */
+    simi_mujoco_dummy_limited = 1,
 };
-
 
 class CDummy : public CSceneObject
 {
-public:
-
+  public:
     CDummy();
     virtual ~CDummy();
 
@@ -42,20 +43,20 @@ public:
     void connect_oldIk();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev) const;
-    CSceneObject* copyYourself();
+    void addSpecializedObjectEventData(CCbor *ev) const;
+    CSceneObject *copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer& ar);
-    void announceCollectionWillBeErased(int groupID,bool copyBuffer);
-    void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
-    void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    void performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int,int>* map);
+    void serialize(CSer &ar);
+    void announceCollectionWillBeErased(int groupID, bool copyBuffer);
+    void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
+    void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
+    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -65,9 +66,9 @@ public:
     bool isPotentiallyCollidable() const;
     bool isPotentiallyMeasurable() const;
     bool isPotentiallyDetectable() const;
-    void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
-    void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
+    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
+    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
 
     bool getFreeOnPathTrajectory() const;
     double getVirtualDistanceOffsetOnPath() const;
@@ -81,33 +82,33 @@ public:
     int getDummyType() const;
     std::string getAssemblyTag() const;
 
-    CColorObject* getDummyColor();
-    void loadUnknownObjectType(CSer& ar);
+    CColorObject *getDummyColor();
+    void loadUnknownObjectType(CSer &ar);
 
     bool setAssignedToParentPath(bool assigned);
     bool setAssignedToParentPathOrientation(bool assigned);
-    void setLinkedDummyHandle(int handle,bool check);
-    bool setDummyType(int lt,bool check);
+    void setLinkedDummyHandle(int handle, bool check);
+    bool setDummyType(int lt, bool check);
     void setDummySize(double s);
-    void setAssemblyTag(const char* tag);
+    void setAssemblyTag(const char *tag);
     void setFreeOnPathTrajectory(bool isFree);
     void setVirtualDistanceOffsetOnPath(double off);
     void setVirtualDistanceOffsetOnPath_variationWhenCopy(double off);
 
-    double getEngineFloatParam(int what,bool* ok) const;
-    int getEngineIntParam(int what,bool* ok) const;
-    bool getEngineBoolParam(int what,bool* ok) const;
-    bool setEngineFloatParam(int what,double v);
-    bool setEngineIntParam(int what,int v);
-    bool setEngineBoolParam(int what,bool v);
+    double getEngineFloatParam(int what, bool *ok) const;
+    int getEngineIntParam(int what, bool *ok) const;
+    bool getEngineBoolParam(int what, bool *ok) const;
+    bool setEngineFloatParam(int what, double v);
+    bool setEngineIntParam(int what, int v);
+    bool setEngineBoolParam(int what, bool v);
 
-    void copyEnginePropertiesTo(CDummy* target);
+    void copyEnginePropertiesTo(CDummy *target);
 
-protected:
-    void getMujocoFloatParams(std::vector<double>& p) const;
-    void getMujocoIntParams(std::vector<int>& p) const;
-    void setMujocoFloatParams(const std::vector<double>& p,bool reflectToLinkedDummy=true);
-    void setMujocoIntParams(const std::vector<int>& p,bool reflectToLinkedDummy=true);
+  protected:
+    void getMujocoFloatParams(std::vector<double> &p) const;
+    void getMujocoIntParams(std::vector<int> &p) const;
+    void setMujocoFloatParams(const std::vector<double> &p, bool reflectToLinkedDummy = true);
+    void setMujocoIntParams(const std::vector<int> &p, bool reflectToLinkedDummy = true);
 
     void _reflectPropToLinkedDummy() const;
     void _setLinkedDummyHandle_sendOldIk(int h) const;
@@ -130,8 +131,8 @@ protected:
     std::vector<double> _mujocoFloatParams;
     std::vector<int> _mujocoIntParams;
 
-    #ifdef SIM_WITH_GUI
-    public:
-        void display(CViewableBase* renderingObject,int displayAttrib);
-    #endif
+#ifdef SIM_WITH_GUI
+  public:
+    void display(CViewableBase *renderingObject, int displayAttrib);
+#endif
 };

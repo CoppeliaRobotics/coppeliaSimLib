@@ -5,16 +5,16 @@
 
 class CDistanceObject_old
 {
-public:
+  public:
     CDistanceObject_old();
-    CDistanceObject_old(int entity1Handle,int entity2Handle);
+    CDistanceObject_old(int entity1Handle, int entity2Handle);
     virtual ~CDistanceObject_old();
 
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationEnded();
 
-    bool isSame(int entity1Handle,int entity2Handle) const;
+    bool isSame(int entity1Handle, int entity2Handle) const;
     bool getDistanceResult(double dist[7]) const;
     double getCalculationTime() const;
     double readDistance() const;
@@ -23,12 +23,12 @@ public:
     void clearDistanceResult();
     double handleDistance();
 
-    void serialize(CSer& ar);
-    void performObjectLoadingMapping(const std::map<int,int>* map);
-    void performCollectionLoadingMapping(const std::map<int,int>* map);
-    bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
-    bool announceCollectionWillBeErased(int collectionHandle,bool copyBuffer);
-    CDistanceObject_old* copyYourself();
+    void serialize(CSer &ar);
+    void performObjectLoadingMapping(const std::map<int, int> *map);
+    void performCollectionLoadingMapping(const std::map<int, int> *map);
+    bool announceObjectWillBeErased(int objectHandle, bool copyBuffer);
+    bool announceCollectionWillBeErased(int collectionHandle, bool copyBuffer);
+    CDistanceObject_old *copyYourself();
 
     int getObjectHandle() const;
     int getEntity1Handle() const;
@@ -40,21 +40,21 @@ public:
     bool getExplicitHandling() const;
     int getSegmentWidth() const;
 
-    CColorObject* getSegmentColor();
+    CColorObject *getSegmentColor();
 
     bool setObjectHandle(int newHandle);
     bool setThresholdEnabled(bool enabled);
     bool setDisplaySegment(bool display);
     bool setExplicitHandling(bool explicitHandl);
-    bool setObjectName(const char* newName,bool check);
+    bool setObjectName(const char *newName, bool check);
     bool setThreshold(double tr);
     bool setSegmentWidth(int w);
 
-    #ifdef SIM_WITH_GUI
-        void displayDistanceSegment();
-    #endif
+#ifdef SIM_WITH_GUI
+    void displayDistanceSegment();
+#endif
 
-private:
+  private:
     void _commonInit();
 
     int _entity1Handle;

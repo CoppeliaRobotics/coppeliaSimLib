@@ -4,21 +4,22 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgFog;
+namespace Ui
+{
+class CQDlgFog;
 }
 
 class CQDlgFog : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgFog(QWidget *parent = 0);
     ~CQDlgFog();
 
     void refresh();
 
-private slots:
+  private slots:
     void on_qqFogEnabled_clicked();
 
     void on_qqLinear_clicked();
@@ -35,7 +36,7 @@ private slots:
 
     void on_qqAdjustColor_clicked();
 
-private:
+  private:
     Ui::CQDlgFog *ui;
 };
 

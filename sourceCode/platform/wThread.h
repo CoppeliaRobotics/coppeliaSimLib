@@ -5,15 +5,15 @@
 class Thread : public QThread
 {
     Q_OBJECT
-public:
+  public:
     Thread();
     virtual ~Thread();
-    static unsigned int(*startAddress)(void*);
+    static unsigned int (*startAddress)(void *);
     static volatile bool startAddressIsFree;
 
-private slots:
+  private slots:
     void threadFinished();
 
-protected:
+  protected:
     void run();
 };

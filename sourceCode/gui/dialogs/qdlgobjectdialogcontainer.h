@@ -4,35 +4,36 @@
 #include <dlgEx.h>
 #include <QVBoxLayout>
 
-namespace Ui {
-    class CQDlgObjectDialogContainer;
+namespace Ui
+{
+class CQDlgObjectDialogContainer;
 }
 
 class CQDlgObjectDialogContainer : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgObjectDialogContainer(QWidget *parent = 0);
     ~CQDlgObjectDialogContainer();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
 
-    QVBoxLayout* bl;
+    QVBoxLayout *bl;
     int objTypeDlg;
     int currentPage;
     int desiredPage;
 
-    CDlgEx* pageDlgs[2];
+    CDlgEx *pageDlgs[2];
     int originalHeights[2];
 
-private slots:
+  private slots:
     void on_qqObjectProp_clicked();
 
     void on_qqCommonProp_clicked();
 
-private:
+  private:
     Ui::CQDlgObjectDialogContainer *ui;
 };
 

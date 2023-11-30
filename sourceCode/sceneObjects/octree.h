@@ -10,26 +10,25 @@ class CPointCloud;
 
 class COcTree : public CSceneObject
 {
-public:
-
+  public:
     COcTree();
     virtual ~COcTree();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev) const;
-    CSceneObject* copyYourself();
+    void addSpecializedObjectEventData(CCbor *ev) const;
+    CSceneObject *copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer& ar);
-    void announceCollectionWillBeErased(int groupID,bool copyBuffer);
-    void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
-    void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    void performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int,int>* map);
+    void serialize(CSer &ar);
+    void announceCollectionWillBeErased(int groupID, bool copyBuffer);
+    void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
+    void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
+    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -40,10 +39,10 @@ public:
     bool isPotentiallyMeasurable() const;
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
-    void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
-    void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
+    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
 
-    void performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
+    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
 
     // Various functions
     void setCellSize(double theNewSize);
@@ -51,23 +50,25 @@ public:
     void setCellSizeForDisplay(double theNewSizeForDisplay);
     double getCellSizeForDisplay() const;
 
-    void insertPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree,const unsigned char* optionalColors3,bool colorsAreIndividual,const unsigned int* optionalTags,unsigned int theTagWhenOptionalTagsIsNull);
-    void insertShape(CShape* shape,unsigned int theTag);
-    void insertOctree(const COcTree* octree,unsigned int theTag);
-    void insertDummy(const CDummy* dummy,unsigned int theTag);
-    void insertPointCloud(const CPointCloud* pointCloud,unsigned int theTag);
-    void insertOctree(const void* octree2Info,const C7Vector& octree2Tr,unsigned int theTag);
-    void insertObjects(const std::vector<int>& sel);
-    void insertObject(const CSceneObject* obj,unsigned int theTag);
+    void insertPoints(const double *pts, int ptsCnt, bool ptsAreRelativeToOctree, const unsigned char *optionalColors3,
+                      bool colorsAreIndividual, const unsigned int *optionalTags,
+                      unsigned int theTagWhenOptionalTagsIsNull);
+    void insertShape(CShape *shape, unsigned int theTag);
+    void insertOctree(const COcTree *octree, unsigned int theTag);
+    void insertDummy(const CDummy *dummy, unsigned int theTag);
+    void insertPointCloud(const CPointCloud *pointCloud, unsigned int theTag);
+    void insertOctree(const void *octree2Info, const C7Vector &octree2Tr, unsigned int theTag);
+    void insertObjects(const std::vector<int> &sel);
+    void insertObject(const CSceneObject *obj, unsigned int theTag);
 
-    void subtractPoints(const double* pts,int ptsCnt,bool ptsAreRelativeToOctree);
-    void subtractShape(CShape* shape);
-    void subtractOctree(const COcTree* octree);
-    void subtractDummy(const CDummy* dummy);
-    void subtractPointCloud(const CPointCloud* pointCloud);
-    void subtractOctree(const void* octree2Info,const C7Vector& octree2Tr);
-    void subtractObjects(const std::vector<int>& sel);
-    void subtractObject(const CSceneObject* obj);
+    void subtractPoints(const double *pts, int ptsCnt, bool ptsAreRelativeToOctree);
+    void subtractShape(CShape *shape);
+    void subtractOctree(const COcTree *octree);
+    void subtractDummy(const CDummy *dummy);
+    void subtractPointCloud(const CPointCloud *pointCloud);
+    void subtractOctree(const void *octree2Info, const C7Vector &octree2Tr);
+    void subtractObjects(const std::vector<int> &sel);
+    void subtractObject(const CSceneObject *obj);
 
     void clear();
     bool getShowOctree() const;
@@ -82,20 +83,20 @@ public:
     void setSaveCalculationStructure(bool s);
     int getPointSize() const;
     void setPointSize(int s);
-    const std::vector<double>* getCubePositions() const;
-    std::vector<double>* getCubePositions();
-    const void* getOctreeInfo() const;
-    void* getOctreeInfo();
-    CColorObject* getColor();
+    const std::vector<double> *getCubePositions() const;
+    std::vector<double> *getCubePositions();
+    const void *getOctreeInfo() const;
+    void *getOctreeInfo();
+    CColorObject *getColor();
 
     void setVertexBufferId(int id);
     int getVertexBufferId() const;
     void setNormalBufferId(int id);
     int getNormalBufferId() const;
-    float* getCubeVertices();
-    float* getColors();
+    float *getCubeVertices();
+    float *getColors();
 
-protected:
+  protected:
     void _updateOctreeEvent() const;
     void _readPositionsAndColorsAndSetDimensions();
 
@@ -103,7 +104,7 @@ protected:
     CColorObject color;
     double _cellSize;
     int _pointSize;
-    void* _octreeInfo;
+    void *_octreeInfo;
     std::vector<double> _voxelPositions;
     std::vector<float> _colors;
     std::vector<unsigned char> _colorsByte;
@@ -114,13 +115,13 @@ protected:
     bool _colorIsEmissive;
 
     // following only for display:
-    float _cubeVertices[24*3];
+    float _cubeVertices[24 * 3];
     double _cellSizeForDisplay;
     int _vertexBufferId;
     int _normalBufferId;
 
-    #ifdef SIM_WITH_GUI
-    public:
-        void display(CViewableBase* renderingObject,int displayAttrib);
-    #endif
+#ifdef SIM_WITH_GUI
+  public:
+    void display(CViewableBase *renderingObject, int displayAttrib);
+#endif
 };

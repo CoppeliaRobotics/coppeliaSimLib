@@ -4,22 +4,23 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgSimulation;
+namespace Ui
+{
+class CQDlgSimulation;
 }
 
 class CQDlgSimulation : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgSimulation(QWidget *parent = 0);
     ~CQDlgSimulation();
 
     void refresh();
 
     bool inMainRefreshRoutine;
-private slots:
+  private slots:
     void on_qqTimeStep_editingFinished();
     void on_qqScriptExecutionPasses_editingFinished();
     void on_qqRealTime_clicked();
@@ -40,7 +41,7 @@ private slots:
     void on_qqGravityZ_editingFinished();
     void on_qqDynTimeStep_editingFinished();
 
-private:
+  private:
     Ui::CQDlgSimulation *ui;
 };
 

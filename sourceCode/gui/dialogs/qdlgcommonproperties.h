@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgCommonProperties;
+namespace Ui
+{
+class CQDlgCommonProperties;
 }
 
 class CQDlgCommonProperties : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgCommonProperties(QWidget *parent = 0);
     ~CQDlgCommonProperties();
 
@@ -24,7 +25,7 @@ public:
     double scalingState;
     bool inMainRefreshRoutine;
 
-private slots:
+  private slots:
     void on_qqSelectable_clicked();
 
     void on_qqSelectBaseInstead_clicked();
@@ -92,7 +93,7 @@ private slots:
 
     void on_qqNotMoveable_clicked();
 
-private:
+  private:
     Ui::CQDlgCommonProperties *ui;
 };
 

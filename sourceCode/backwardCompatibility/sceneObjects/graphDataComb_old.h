@@ -5,8 +5,7 @@
 
 class CGraphDataComb_old
 {
-public:
-
+  public:
     CGraphDataComb_old();
     virtual ~CGraphDataComb_old();
 
@@ -25,27 +24,27 @@ public:
     void setName(std::string theName);
     void setLabel(bool l);
     bool getLabel();
-    void serialize(CSer& ar);
-    CGraphDataComb_old* copyYourself();
+    void serialize(CSer &ar);
+    CGraphDataComb_old *copyYourself();
 
     void setCurveRelativeToWorld(bool relToWorld);
     bool getCurveRelativeToWorld();
 
-    // Variables which need to be serialized & copied 
+    // Variables which need to be serialized & copied
     int data[3];
     CColorObject curveColor;
 
-protected:
-    // Variables which need to be serialized & copied 
+  protected:
+    // Variables which need to be serialized & copied
     std::string name;
     int identifier;
     bool visible;
     bool visibleOnTopOfEverything; // only for 3D curves!
-    double threeDCurveWidth; // only for 3D curves!
+    double threeDCurveWidth;       // only for 3D curves!
     bool linkPoints;
     bool label;
     bool _curveRelativeToWorld; // only for 3D curves!
 
-private:
+  private:
     int _lifeID;
 };

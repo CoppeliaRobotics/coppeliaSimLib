@@ -5,15 +5,16 @@
 #include <vDialog.h>
 #include <simMath/3Vector.h>
 
-namespace Ui {
-    class CQDlgPrimitives;
+namespace Ui
+{
+class CQDlgPrimitives;
 }
 
 class CQDlgPrimitives : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgPrimitives(QWidget *parent = 0);
     ~CQDlgPrimitives();
 
@@ -22,7 +23,7 @@ public:
     void cancelEvent();
     void okEvent();
 
-    void initialize(int type,const C3Vector* sizes);
+    void initialize(int type, const C3Vector *sizes);
     void _correctDependentValues();
 
     int primitiveType;
@@ -41,7 +42,7 @@ public:
     bool sizesAreLocked;
     double density;
 
-private slots:
+  private slots:
     void on_qqXSize_editingFinished();
     void on_qqYSize_editingFinished();
     void on_qqZSize_editingFinished();
@@ -59,7 +60,7 @@ private slots:
 
     void on_qqDynamic_clicked();
 
-private:
+  private:
     Ui::CQDlgPrimitives *ui;
 };
 

@@ -5,15 +5,16 @@
 #include <dlgEx.h>
 #include <path_old.h>
 
-namespace Ui {
-    class CQDlgPaths;
+namespace Ui
+{
+class CQDlgPaths;
 }
 
 class CQDlgPaths : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgPaths(QWidget *parent = 0);
     ~CQDlgPaths();
 
@@ -23,10 +24,10 @@ public:
 
     bool inMainRefreshRoutine;
 
-    CPathCont_old* getPathCont();
-    CPath_old* getPath();
+    CPathCont_old *getPathCont();
+    CPath_old *getPath();
 
-private slots:
+  private slots:
     void on_qqShowOrientation_clicked();
 
     void on_qqShowPathLine_clicked();
@@ -47,7 +48,7 @@ private slots:
 
     void on_qqCreateEquivalentObject_clicked();
 
-private:
+  private:
     Ui::CQDlgPaths *ui;
 };
 

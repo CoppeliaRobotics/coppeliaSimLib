@@ -6,7 +6,7 @@
 class CStatusBar : public QPlainTextEdit
 {
     Q_OBJECT
-public:
+  public:
     CStatusBar();
     virtual ~CStatusBar();
 

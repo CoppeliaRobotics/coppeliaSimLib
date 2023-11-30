@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgLights;
+namespace Ui
+{
+class CQDlgLights;
 }
 
 class CQDlgLights : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgLights(QWidget *parent = 0);
     ~CQDlgLights();
 
@@ -20,7 +21,7 @@ public:
 
     void cancelEvent();
 
-private slots:
+  private slots:
     void on_qqEnabled_clicked();
 
     void on_qqLocal_clicked();
@@ -41,7 +42,7 @@ private slots:
 
     void on_qqSpotCutoff_editingFinished();
 
-private:
+  private:
     Ui::CQDlgLights *ui;
 };
 

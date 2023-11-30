@@ -4,11 +4,11 @@
 
 class CBezierPathPoint_old : public CPathPoint_old
 {
-public:
-    CBezierPathPoint_old(const C7Vector& transf);
+  public:
+    CBezierPathPoint_old(const C7Vector &transf);
     virtual ~CBezierPathPoint_old();
 
-    CBezierPathPoint_old* copyYourself();
+    CBezierPathPoint_old *copyYourself();
 
     double cumulativeLength;
     double segmentLength;

@@ -8,8 +8,8 @@
 
 class CInterfaceStack
 {
-public:
-    CInterfaceStack(int a,int b,const char* c);
+  public:
+    CInterfaceStack(int a, int b, const char *c);
     virtual ~CInterfaceStack();
 
     void setId(int id);
@@ -17,80 +17,79 @@ public:
     void clear();
 
     // C interface (creation):
-    CInterfaceStack* copyYourself() const;
-    void copyFrom(const CInterfaceStack* source);
+    CInterfaceStack *copyYourself() const;
+    void copyFrom(const CInterfaceStack *source);
 
-    void pushObjectOntoStack(CInterfaceStackObject* obj,bool toFront=false);
-    void pushNullOntoStack(bool toFront=false);
-    void pushBoolOntoStack(bool v,bool toFront=false);
-    void pushFloatOntoStack(float v,bool toFront=false);
-    void pushDoubleOntoStack(double v,bool toFront=false);
-    void pushInt32OntoStack(int v,bool toFront=false);
-    void pushInt64OntoStack(long long int v,bool toFront=false);
-    void pushStringOntoStack(const char* str,size_t l=0,bool toFront=false);
-    void pushUCharArrayOntoStack(const unsigned char* arr,size_t l,bool toFront=false);
-    void pushInt32ArrayOntoStack(const int* arr,size_t l,bool toFront=false);
-    void pushInt64ArrayOntoStack(const long long int* arr,size_t l,bool toFront=false);
-    void pushFloatArrayOntoStack(const float* arr,size_t l,bool toFront=false);
-    void pushDoubleArrayOntoStack(const double* arr,size_t l,bool toFront=false);
+    void pushObjectOntoStack(CInterfaceStackObject *obj, bool toFront = false);
+    void pushNullOntoStack(bool toFront = false);
+    void pushBoolOntoStack(bool v, bool toFront = false);
+    void pushFloatOntoStack(float v, bool toFront = false);
+    void pushDoubleOntoStack(double v, bool toFront = false);
+    void pushInt32OntoStack(int v, bool toFront = false);
+    void pushInt64OntoStack(long long int v, bool toFront = false);
+    void pushStringOntoStack(const char *str, size_t l = 0, bool toFront = false);
+    void pushUCharArrayOntoStack(const unsigned char *arr, size_t l, bool toFront = false);
+    void pushInt32ArrayOntoStack(const int *arr, size_t l, bool toFront = false);
+    void pushInt64ArrayOntoStack(const long long int *arr, size_t l, bool toFront = false);
+    void pushFloatArrayOntoStack(const float *arr, size_t l, bool toFront = false);
+    void pushDoubleArrayOntoStack(const double *arr, size_t l, bool toFront = false);
 
-    void insertKeyNullIntoStackTable(const char* key);
-    void insertKeyBoolIntoStackTable(const char* key,bool value);
-    void insertKeyFloatIntoStackTable(const char* key,float value);
-    void insertKeyDoubleIntoStackTable(const char* key,double value);
-    void insertKeyInt32IntoStackTable(const char* key,int value);
-    void insertKeyInt64IntoStackTable(const char* key,long long int value);
-    void insertKeyStringIntoStackTable(const char* key,const char* value,size_t l=0);
-    void insertKeyInt32ArrayIntoStackTable(const char* key,const int* arr,size_t l);
-    void insertKeyInt64ArrayIntoStackTable(const char* key,const long long int* arr,size_t l);
-    void insertKeyFloatArrayIntoStackTable(const char* key,const float* arr,size_t l);
-    void insertKeyDoubleArrayIntoStackTable(const char* key,const double* arr,size_t l);
+    void insertKeyNullIntoStackTable(const char *key);
+    void insertKeyBoolIntoStackTable(const char *key, bool value);
+    void insertKeyFloatIntoStackTable(const char *key, float value);
+    void insertKeyDoubleIntoStackTable(const char *key, double value);
+    void insertKeyInt32IntoStackTable(const char *key, int value);
+    void insertKeyInt64IntoStackTable(const char *key, long long int value);
+    void insertKeyStringIntoStackTable(const char *key, const char *value, size_t l = 0);
+    void insertKeyInt32ArrayIntoStackTable(const char *key, const int *arr, size_t l);
+    void insertKeyInt64ArrayIntoStackTable(const char *key, const long long int *arr, size_t l);
+    void insertKeyFloatArrayIntoStackTable(const char *key, const float *arr, size_t l);
+    void insertKeyDoubleArrayIntoStackTable(const char *key, const double *arr, size_t l);
 
     void pushTableOntoStack();
     bool insertDataIntoStackTable();
-    bool pushTableFromBuffer(const char* data,unsigned int l);
-
+    bool pushTableFromBuffer(const char *data, unsigned int l);
 
     // C interface (read-out)
     int getStackSize() const;
     void popStackValue(int cnt);
     bool moveStackItemToTop(int cIndex);
     int getStackItemType(int cIndex);
-    CInterfaceStackObject* getStackObjectFromIndex(size_t index) const;
-    CInterfaceStackObject* detachStackObjectFromIndex(size_t index);
-    bool getStackBoolValue(bool& theValue) const;
-    bool getStackStrictDoubleValue(double& theValue) const;
-    bool getStackStrictInt64Value(long long int& theValue) const;
-    bool getStackDoubleValue(double& theValue) const;
-    bool getStackFloatValue(float& theValue) const;
-    bool getStackInt64Value(long long int& theValue) const;
-    bool getStackInt32Value(int& theValue) const;
-    bool getStackStringValue(std::string& theValue) const;
+    CInterfaceStackObject *getStackObjectFromIndex(size_t index) const;
+    CInterfaceStackObject *detachStackObjectFromIndex(size_t index);
+    bool getStackBoolValue(bool &theValue) const;
+    bool getStackStrictDoubleValue(double &theValue) const;
+    bool getStackStrictInt64Value(long long int &theValue) const;
+    bool getStackDoubleValue(double &theValue) const;
+    bool getStackFloatValue(float &theValue) const;
+    bool getStackInt64Value(long long int &theValue) const;
+    bool getStackInt32Value(int &theValue) const;
+    bool getStackStringValue(std::string &theValue) const;
     bool isStackValueNull() const;
     int getStackTableInfo(int infoType) const;
-    bool getStackUCharArray(unsigned char* array,int count) const;
-    bool getStackInt32Array(int* array,int count) const;
-    bool getStackInt64Array(long long int* array,int count) const;
-    bool getStackFloatArray(float* array,int count) const;
-    bool getStackDoubleArray(double* array,int count) const;
+    bool getStackUCharArray(unsigned char *array, int count) const;
+    bool getStackInt32Array(int *array, int count) const;
+    bool getStackInt64Array(long long int *array, int count) const;
+    bool getStackFloatArray(float *array, int count) const;
+    bool getStackDoubleArray(double *array, int count) const;
     bool unfoldStackTable();
-    CInterfaceStackObject* getStackMapObject(const char* fieldName) const;
-    bool getStackMapBoolValue(const char* fieldName,bool& val) const;
-    bool getStackMapStrictDoubleValue(const char* fieldName,double& val) const;
-    bool getStackMapStrictInt64Value(const char* fieldName,long long int& val) const;
-    bool getStackMapDoubleValue(const char* fieldName,double& val) const;
-    bool getStackMapFloatValue(const char* fieldName,float& val) const;
-    bool getStackMapInt64Value(const char* fieldName,long long int& val) const;
-    bool getStackMapInt32Value(const char* fieldName,int& val) const;
-    bool getStackMapStringValue(const char* fieldName,std::string& val) const;
-    bool getStackMapFloatArray(const char* fieldName,float* array,int count) const;
-    bool getStackMapDoubleArray(const char* fieldName,double* array,int count) const;
+    CInterfaceStackObject *getStackMapObject(const char *fieldName) const;
+    bool getStackMapBoolValue(const char *fieldName, bool &val) const;
+    bool getStackMapStrictDoubleValue(const char *fieldName, double &val) const;
+    bool getStackMapStrictInt64Value(const char *fieldName, long long int &val) const;
+    bool getStackMapDoubleValue(const char *fieldName, double &val) const;
+    bool getStackMapFloatValue(const char *fieldName, float &val) const;
+    bool getStackMapInt64Value(const char *fieldName, long long int &val) const;
+    bool getStackMapInt32Value(const char *fieldName, int &val) const;
+    bool getStackMapStringValue(const char *fieldName, std::string &val) const;
+    bool getStackMapFloatArray(const char *fieldName, float *array, int count) const;
+    bool getStackMapDoubleArray(const char *fieldName, double *array, int count) const;
     std::string getBufferFromTable() const;
     std::string getCborEncodedBuffer(int options) const;
 
-    void printContent(int cIndex,std::string& buffer) const;
+    void printContent(int cIndex, std::string &buffer) const;
 
-protected:
+  protected:
     int _interfaceStackId;
-    std::vector<CInterfaceStackObject*> _stackObjects;
+    std::vector<CInterfaceStackObject *> _stackObjects;
 };

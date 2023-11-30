@@ -4,156 +4,159 @@
 #include <vFile.h>
 #include <QDataStream>
 
-class VArchive  
+class VArchive
 {
-public:
-    VArchive(VFile* file,unsigned short flag);
+  public:
+    VArchive(VFile *file, unsigned short flag);
     virtual ~VArchive();
 
-    void writeLine(const std::string& line); // Will add char(10) and char(13)
-    void writeString(const std::string& str); // Will not add char(10) or char(13)
-    bool readSingleLine(unsigned int& actualPosition,std::string& line,bool doNotReplaceTabsWithOneSpace);
-    bool readMultiLine(unsigned int& actualPosition,std::string& line,bool doNotReplaceTabsWithOneSpace,const char* multilineSeparator);
+    void writeLine(const std::string &line);  // Will add char(10) and char(13)
+    void writeString(const std::string &str); // Will not add char(10) or char(13)
+    bool readSingleLine(unsigned int &actualPosition, std::string &line, bool doNotReplaceTabsWithOneSpace);
+    bool readMultiLine(unsigned int &actualPosition, std::string &line, bool doNotReplaceTabsWithOneSpace,
+                       const char *multilineSeparator);
 
-    VFile* getFile();
+    VFile *getFile();
     bool isStoring();
     bool isLoading();
     void close();
 
-    inline VArchive& operator<< (const std::string& v)
+    inline VArchive &operator<<(const std::string &v)
     {
         (*_theArchive) << v.length();
         _theArchive->writeRawData(v.data(), v.length());
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator<< (const int& v)
+    inline VArchive &operator<<(const int &v)
     {
         (*_theArchive) << v;
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator<< (const unsigned int& v)
+    inline VArchive &operator<<(const unsigned int &v)
     {
         (*_theArchive) << v;
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator<< (const float& v)
+    inline VArchive &operator<<(const float &v)
     {
         (*_theArchive) << v;
-        return(*this);
+        return (*this);
     }
 
-    VArchive& operator<< (const double& v)
+    VArchive &operator<<(const double &v)
     {
-        // Very special here (because of the strange thing with _theArchive->setFloatingPointPrecision(QDataStream::SinglePrecision) )
-        (*_theArchive) << ((unsigned char*)&v)[0];
-        (*_theArchive) << ((unsigned char*)&v)[1];
-        (*_theArchive) << ((unsigned char*)&v)[2];
-        (*_theArchive) << ((unsigned char*)&v)[3];
-        (*_theArchive) << ((unsigned char*)&v)[4];
-        (*_theArchive) << ((unsigned char*)&v)[5];
-        (*_theArchive) << ((unsigned char*)&v)[6];
-        (*_theArchive) << ((unsigned char*)&v)[7];
-        return(*this);
+        // Very special here (because of the strange thing with
+        // _theArchive->setFloatingPointPrecision(QDataStream::SinglePrecision) )
+        (*_theArchive) << ((unsigned char *)&v)[0];
+        (*_theArchive) << ((unsigned char *)&v)[1];
+        (*_theArchive) << ((unsigned char *)&v)[2];
+        (*_theArchive) << ((unsigned char *)&v)[3];
+        (*_theArchive) << ((unsigned char *)&v)[4];
+        (*_theArchive) << ((unsigned char *)&v)[5];
+        (*_theArchive) << ((unsigned char *)&v)[6];
+        (*_theArchive) << ((unsigned char *)&v)[7];
+        return (*this);
     }
 
-    inline VArchive& operator<< (const unsigned short& v)
+    inline VArchive &operator<<(const unsigned short &v)
     {
         (*_theArchive) << v;
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator<< (const unsigned char& v)
+    inline VArchive &operator<<(const unsigned char &v)
     {
         (*_theArchive) << quint8(v);
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator<< (const char& v)
+    inline VArchive &operator<<(const char &v)
     {
         (*_theArchive) << qint8(v);
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator<< (const signed char& v)
+    inline VArchive &operator<<(const signed char &v)
     {
         (*_theArchive) << qint8(v);
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator>> (std::string& v)
+    inline VArchive &operator>>(std::string &v)
     {
         size_t l;
         (*_theArchive) >> l;
         v.resize(l);
         _theArchive->readRawData(&v[0], l);
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator>> (int& v)
+    inline VArchive &operator>>(int &v)
     {
         (*_theArchive) >> v;
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator>> (unsigned int& v)
+    inline VArchive &operator>>(unsigned int &v)
     {
         (*_theArchive) >> v;
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator>> (float& v)
+    inline VArchive &operator>>(float &v)
     {
         (*_theArchive) >> v;
-        return(*this);
+        return (*this);
     }
 
-    VArchive& operator>> (double& v)
+    VArchive &operator>>(double &v)
     {
-        // Very special here (because of the strange thing with _theArchive->setFloatingPointPrecision(QDataStream::SinglePrecision) )
-        (*_theArchive) >> ((unsigned char*)&v)[0];
-        (*_theArchive) >> ((unsigned char*)&v)[1];
-        (*_theArchive) >> ((unsigned char*)&v)[2];
-        (*_theArchive) >> ((unsigned char*)&v)[3];
-        (*_theArchive) >> ((unsigned char*)&v)[4];
-        (*_theArchive) >> ((unsigned char*)&v)[5];
-        (*_theArchive) >> ((unsigned char*)&v)[6];
-        (*_theArchive) >> ((unsigned char*)&v)[7];
-        return(*this);
+        // Very special here (because of the strange thing with
+        // _theArchive->setFloatingPointPrecision(QDataStream::SinglePrecision) )
+        (*_theArchive) >> ((unsigned char *)&v)[0];
+        (*_theArchive) >> ((unsigned char *)&v)[1];
+        (*_theArchive) >> ((unsigned char *)&v)[2];
+        (*_theArchive) >> ((unsigned char *)&v)[3];
+        (*_theArchive) >> ((unsigned char *)&v)[4];
+        (*_theArchive) >> ((unsigned char *)&v)[5];
+        (*_theArchive) >> ((unsigned char *)&v)[6];
+        (*_theArchive) >> ((unsigned char *)&v)[7];
+        return (*this);
     }
 
-    inline VArchive& operator>> (unsigned short& v)
-    {
-        (*_theArchive) >> v;
-        return(*this);
-    }
-
-    inline VArchive& operator>> (unsigned char& v)
+    inline VArchive &operator>>(unsigned short &v)
     {
         (*_theArchive) >> v;
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator>> (signed char& v)
+    inline VArchive &operator>>(unsigned char &v)
     {
         (*_theArchive) >> v;
-        return(*this);
+        return (*this);
     }
 
-    inline VArchive& operator>> (char& v)
+    inline VArchive &operator>>(signed char &v)
     {
-        (*_theArchive) >> ((qint8*)(&v))[0];
-        return(*this);
+        (*_theArchive) >> v;
+        return (*this);
     }
 
-private:
-    QDataStream* _theArchive;
-    VFile* _theFile;
+    inline VArchive &operator>>(char &v)
+    {
+        (*_theArchive) >> ((qint8 *)(&v))[0];
+        return (*this);
+    }
+
+  private:
+    QDataStream *_theArchive;
+    VFile *_theFile;
     bool _loading;
 
-public:
+  public:
     static unsigned short LOAD;
     static unsigned short STORE;
 };

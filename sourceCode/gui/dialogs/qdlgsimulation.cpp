@@ -5,16 +5,14 @@
 #include <utils.h>
 #include <simStrings.h>
 #ifdef SIM_WITH_GUI
-    #include <guiApp.h>
+#include <guiApp.h>
 #endif
 
-CQDlgSimulation::CQDlgSimulation(QWidget *parent) :
-    CDlgEx(parent),
-    ui(new Ui::CQDlgSimulation)
+CQDlgSimulation::CQDlgSimulation(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgSimulation)
 {
-    _dlgType=SIMULATION_DLG;
+    _dlgType = SIMULATION_DLG;
     ui->setupUi(this);
-    inMainRefreshRoutine=false;
+    inMainRefreshRoutine = false;
 }
 
 CQDlgSimulation::~CQDlgSimulation()
@@ -24,46 +22,49 @@ CQDlgSimulation::~CQDlgSimulation()
 
 void CQDlgSimulation::refresh()
 {
-    inMainRefreshRoutine=true;
-    QLineEdit* lineEditToSelect=getSelectedLineEdit();
-    bool noEditMode=GuiApp::getEditModeType()==NO_EDIT_MODE;
-    bool noEditModeNoSim=noEditMode&&App::currentWorld->simulation->isSimulationStopped();
+    inMainRefreshRoutine = true;
+    QLineEdit *lineEditToSelect = getSelectedLineEdit();
+    bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
+    bool noEditModeNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
 
     ui->qqTimeStep->setEnabled(noEditModeNoSim);
     ui->qqFullscreen->setEnabled(noEditModeNoSim);
     ui->qqScriptExecutionPasses->setEnabled(noEditModeNoSim);
     ui->qqRealTime->setEnabled(noEditModeNoSim);
-    ui->qqMultiplicationCoefficient->setEnabled(noEditModeNoSim&&App::currentWorld->simulation->getIsRealTimeSimulation());
-    ui->qqPauseTime->setEnabled(noEditModeNoSim&&App::currentWorld->simulation->getPauseAtSpecificTime());
+    ui->qqMultiplicationCoefficient->setEnabled(noEditModeNoSim &&
+                                                App::currentWorld->simulation->getIsRealTimeSimulation());
+    ui->qqPauseTime->setEnabled(noEditModeNoSim && App::currentWorld->simulation->getPauseAtSpecificTime());
     ui->qqPauseWhenTimeHigher->setEnabled(noEditModeNoSim);
     ui->qqPauseOnScriptError->setEnabled(noEditModeNoSim);
     ui->qqResetScene->setEnabled(noEditMode);
     ui->qqRemoveNewObjects->setEnabled(noEditMode);
 
-    ui->qqEngineCombo->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
-    ui->qqContactPoints->setEnabled(noEditMode&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
-    ui->qqAdjustEngine->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
-    ui->qqDynTimeStep->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
-    ui->qqGravityX->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
-    ui->qqGravityY->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
-    ui->qqGravityZ->setEnabled(noEditModeNoSim&&App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqEngineCombo->setEnabled(noEditModeNoSim && App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqContactPoints->setEnabled(noEditMode && App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqAdjustEngine->setEnabled(noEditModeNoSim && App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqDynTimeStep->setEnabled(noEditModeNoSim && App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqGravityX->setEnabled(noEditModeNoSim && App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqGravityY->setEnabled(noEditModeNoSim && App::currentWorld->dynamicsContainer->getDynamicsEnabled());
+    ui->qqGravityZ->setEnabled(noEditModeNoSim && App::currentWorld->dynamicsContainer->getDynamicsEnabled());
 
     ui->qqRealTime->setChecked(App::currentWorld->simulation->getIsRealTimeSimulation());
-    ui->qqTimeStep->setText(utils::getTimeString(true,App::currentWorld->simulation->getTimeStep()).c_str());
+    ui->qqTimeStep->setText(utils::getTimeString(true, App::currentWorld->simulation->getTimeStep()).c_str());
     ui->qqFullscreen->setChecked(App::currentWorld->simulation->getFullscreenAtSimulationStart());
 
-    ui->qqScriptExecutionPasses->setText(utils::getIntString(false,App::currentWorld->simulation->getPassesPerRendering()).c_str());
-    ui->qqMultiplicationCoefficient->setText(utils::getMultString(false,App::currentWorld->simulation->getRealTimeCoeff()).c_str());
+    ui->qqScriptExecutionPasses->setText(
+        utils::getIntString(false, App::currentWorld->simulation->getPassesPerRendering()).c_str());
+    ui->qqMultiplicationCoefficient->setText(
+        utils::getMultString(false, App::currentWorld->simulation->getRealTimeCoeff()).c_str());
 
     ui->qqResetScene->setChecked(App::currentWorld->simulation->getResetSceneAtSimulationEnd());
     ui->qqRemoveNewObjects->setChecked(App::currentWorld->simulation->getRemoveNewObjectsAtSimulationEnd());
 
-    ui->qqPauseTime->setText(utils::getTimeString(true,App::currentWorld->simulation->getPauseTime()).c_str());
+    ui->qqPauseTime->setText(utils::getTimeString(true, App::currentWorld->simulation->getPauseTime()).c_str());
     ui->qqPauseWhenTimeHigher->setChecked(App::currentWorld->simulation->getPauseAtSpecificTime());
     ui->qqPauseOnScriptError->setChecked(App::currentWorld->simulation->getPauseAtError());
 
-
-    if (App::currentWorld->dynamicsContainer->getSettingsAreDefault()&&App::currentWorld->simulation->getSettingsAreDefault())
+    if (App::currentWorld->dynamicsContainer->getSettingsAreDefault() &&
+        App::currentWorld->simulation->getSettingsAreDefault())
         ui->qqInfo->setText("");
     else
     {
@@ -72,41 +73,46 @@ void CQDlgSimulation::refresh()
     }
     ui->qqEnabled->setChecked(App::currentWorld->dynamicsContainer->getDynamicsEnabled());
     ui->qqEngineCombo->clear();
-    ui->qqEngineCombo->addItem(IDS_BULLET_2_78,0);
-    ui->qqEngineCombo->addItem(IDS_BULLET_2_83,1);
-    ui->qqEngineCombo->addItem(IDS_ODE,2);
-    ui->qqEngineCombo->addItem(IDS_VORTEX,3);
-    ui->qqEngineCombo->addItem(IDS_NEWTON,4);
-    ui->qqEngineCombo->addItem(IDS_MUJOCO,5);
+    ui->qqEngineCombo->addItem(IDS_BULLET_2_78, 0);
+    ui->qqEngineCombo->addItem(IDS_BULLET_2_83, 1);
+    ui->qqEngineCombo->addItem(IDS_ODE, 2);
+    ui->qqEngineCombo->addItem(IDS_VORTEX, 3);
+    ui->qqEngineCombo->addItem(IDS_NEWTON, 4);
+    ui->qqEngineCombo->addItem(IDS_MUJOCO, 5);
 #ifdef HAS_PHYSX
-    ui->qqEngineCombo->addItem(IDS_PHYSX,6);
+    ui->qqEngineCombo->addItem(IDS_PHYSX, 6);
 #endif
     int ver;
-    int eng=App::currentWorld->dynamicsContainer->getDynamicEngineType(&ver);
-    if ( (eng==sim_physics_bullet)&&(ver==0) )
+    int eng = App::currentWorld->dynamicsContainer->getDynamicEngineType(&ver);
+    if ((eng == sim_physics_bullet) && (ver == 0))
         ui->qqEngineCombo->setCurrentIndex(0);
-    if ( (eng==sim_physics_bullet)&&(ver==283) )
+    if ((eng == sim_physics_bullet) && (ver == 283))
         ui->qqEngineCombo->setCurrentIndex(1);
-    if (eng==sim_physics_ode)
+    if (eng == sim_physics_ode)
         ui->qqEngineCombo->setCurrentIndex(2);
-    if (eng==sim_physics_vortex)
+    if (eng == sim_physics_vortex)
         ui->qqEngineCombo->setCurrentIndex(3);
-    if (eng==sim_physics_newton)
+    if (eng == sim_physics_newton)
         ui->qqEngineCombo->setCurrentIndex(4);
-    if (eng==sim_physics_mujoco)
+    if (eng == sim_physics_mujoco)
         ui->qqEngineCombo->setCurrentIndex(5);
-    if (eng==sim_physics_physx)
+    if (eng == sim_physics_physx)
         ui->qqEngineCombo->setCurrentIndex(6);
-    ui->qqDynamicsDtLabel->setText((std::string("Dynamics dt (effective dt=")+utils::getDoubleString(false,App::currentWorld->dynamicsContainer->getEffectiveStepSize()*1000.0,1,3)+"ms)").c_str());
-    ui->qqDynTimeStep->setText(utils::getTimeString(true,App::currentWorld->dynamicsContainer->getDesiredStepSize()).c_str());
+    ui->qqDynamicsDtLabel->setText(
+        (std::string("Dynamics dt (effective dt=") +
+         utils::getDoubleString(false, App::currentWorld->dynamicsContainer->getEffectiveStepSize() * 1000.0, 1, 3) +
+         "ms)")
+            .c_str());
+    ui->qqDynTimeStep->setText(
+        utils::getTimeString(true, App::currentWorld->dynamicsContainer->getDesiredStepSize()).c_str());
     ui->qqContactPoints->setChecked(App::currentWorld->dynamicsContainer->getDisplayContactPoints());
     C3Vector accel(App::currentWorld->dynamicsContainer->getGravity());
-    ui->qqGravityX->setText(utils::getGravityString(true,accel(0)).c_str());
-    ui->qqGravityY->setText(utils::getGravityString(true,accel(1)).c_str());
-    ui->qqGravityZ->setText(utils::getGravityString(true,accel(2)).c_str());
+    ui->qqGravityX->setText(utils::getGravityString(true, accel(0)).c_str());
+    ui->qqGravityY->setText(utils::getGravityString(true, accel(1)).c_str());
+    ui->qqGravityZ->setText(utils::getGravityString(true, accel(2)).c_str());
 
     selectLineEdit(lineEditToSelect);
-    inMainRefreshRoutine=false;
+    inMainRefreshRoutine = false;
 }
 
 void CQDlgSimulation::on_qqTimeStep_editingFinished()
@@ -118,11 +124,11 @@ void CQDlgSimulation::on_qqTimeStep_editingFinished()
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
-            double newVal=GuiApp::getEvalDouble(ui->qqTimeStep->text().toStdString().c_str(), &ok);
+            double newVal = GuiApp::getEvalDouble(ui->qqTimeStep->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 SSimulationThreadCommand cmd;
-                cmd.cmdId=SET_TIMESTEP_SIMULATIONGUITRIGGEREDCMD;
+                cmd.cmdId = SET_TIMESTEP_SIMULATIONGUITRIGGEREDCMD;
                 cmd.doubleParams.push_back(newVal);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -141,10 +147,10 @@ void CQDlgSimulation::on_qqScriptExecutionPasses_editingFinished()
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
-            int newVal=(int)GuiApp::getEvalInt(ui->qqScriptExecutionPasses->text().toStdString().c_str(), &ok);
+            int newVal = (int)GuiApp::getEvalInt(ui->qqScriptExecutionPasses->text().toStdString().c_str(), &ok);
             if (ok)
             {
-                App::appendSimulationThreadCommand(SET_PPF_SIMULATIONGUITRIGGEREDCMD,newVal);
+                App::appendSimulationThreadCommand(SET_PPF_SIMULATIONGUITRIGGEREDCMD, newVal);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -174,10 +180,10 @@ void CQDlgSimulation::on_qqMultiplicationCoefficient_editingFinished()
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
-            double newVal=GuiApp::getEvalDouble(ui->qqMultiplicationCoefficient->text().toStdString().c_str(), &ok);
+            double newVal = GuiApp::getEvalDouble(ui->qqMultiplicationCoefficient->text().toStdString().c_str(), &ok);
             if (ok)
             {
-                App::appendSimulationThreadCommand(SET_REALTIMEFACTOR_SIMULATIONGUITRIGGEREDCMD,-1,-1,newVal);
+                App::appendSimulationThreadCommand(SET_REALTIMEFACTOR_SIMULATIONGUITRIGGEREDCMD, -1, -1, newVal);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -204,11 +210,11 @@ void CQDlgSimulation::on_qqPauseTime_editingFinished()
         if (App::currentWorld->simulation->isSimulationStopped())
         {
             bool ok;
-            double newVal=GuiApp::getEvalDouble(ui->qqPauseTime->text().toStdString().c_str(), &ok);
+            double newVal = GuiApp::getEvalDouble(ui->qqPauseTime->text().toStdString().c_str(), &ok);
             if (ok)
             {
                 SSimulationThreadCommand cmd;
-                cmd.cmdId=SET_PAUSETIME_SIMULATIONGUITRIGGEREDCMD;
+                cmd.cmdId = SET_PAUSETIME_SIMULATIONGUITRIGGEREDCMD;
                 cmd.doubleParams.push_back(newVal);
                 App::appendSimulationThreadCommand(cmd);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -274,25 +280,25 @@ void CQDlgSimulation::on_qqEngineCombo_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            int index=ui->qqEngineCombo->itemData(ui->qqEngineCombo->currentIndex()).toInt();
-            int ver=0;
-            int eng=0;
-            if ((index==0)||(index==1))
-                eng=sim_physics_bullet;
-            if (index==1)
-                ver=283;
-            if (index==2)
-                eng=sim_physics_ode;
-            if (index==3)
-                eng=sim_physics_vortex;
-            if (index==4)
-                eng=sim_physics_newton;
-            if (index==5)
-                eng=sim_physics_mujoco;
-            if (index==6)
-                eng=sim_physics_physx;
+            int index = ui->qqEngineCombo->itemData(ui->qqEngineCombo->currentIndex()).toInt();
+            int ver = 0;
+            int eng = 0;
+            if ((index == 0) || (index == 1))
+                eng = sim_physics_bullet;
+            if (index == 1)
+                ver = 283;
+            if (index == 2)
+                eng = sim_physics_ode;
+            if (index == 3)
+                eng = sim_physics_vortex;
+            if (index == 4)
+                eng = sim_physics_newton;
+            if (index == 5)
+                eng = sim_physics_mujoco;
+            if (index == 6)
+                eng = sim_physics_physx;
 
-            App::appendSimulationThreadCommand(SET_ENGINE_DYNAMICSGUITRIGGEREDCMD,eng,ver);
+            App::appendSimulationThreadCommand(SET_ENGINE_DYNAMICSGUITRIGGEREDCMD, eng, ver);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(REFRESH_TOOLBARS_GUITRIGGEREDCMD);
@@ -315,7 +321,7 @@ void CQDlgSimulation::on_qqAdjustEngine_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         SSimulationThreadCommand cmd;
-        cmd.cmdId=SET_ENGINEPARAMS_DYNAMICSGUITRIGGEREDCMD;
+        cmd.cmdId = SET_ENGINEPARAMS_DYNAMICSGUITRIGGEREDCMD;
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -329,13 +335,13 @@ void CQDlgSimulation::on_qqGravityX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqGravityX->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqGravityX->text().toStdString().c_str(), &ok);
         if (ok)
         {
-            C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
-            vect(0)=newVal;
+            C3Vector vect = App::currentWorld->dynamicsContainer->getGravity();
+            vect(0) = newVal;
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_GRAVITY_DYNAMICSGUITRIGGEREDCMD;
+            cmd.cmdId = SET_GRAVITY_DYNAMICSGUITRIGGEREDCMD;
             cmd.posParams.push_back(vect);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -351,13 +357,13 @@ void CQDlgSimulation::on_qqGravityY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqGravityY->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqGravityY->text().toStdString().c_str(), &ok);
         if (ok)
         {
-            C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
-            vect(1)=newVal;
+            C3Vector vect = App::currentWorld->dynamicsContainer->getGravity();
+            vect(1) = newVal;
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_GRAVITY_DYNAMICSGUITRIGGEREDCMD;
+            cmd.cmdId = SET_GRAVITY_DYNAMICSGUITRIGGEREDCMD;
             cmd.posParams.push_back(vect);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -373,13 +379,13 @@ void CQDlgSimulation::on_qqGravityZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqGravityZ->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqGravityZ->text().toStdString().c_str(), &ok);
         if (ok)
         {
-            C3Vector vect=App::currentWorld->dynamicsContainer->getGravity();
-            vect(2)=newVal;
+            C3Vector vect = App::currentWorld->dynamicsContainer->getGravity();
+            vect(2) = newVal;
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_GRAVITY_DYNAMICSGUITRIGGEREDCMD;
+            cmd.cmdId = SET_GRAVITY_DYNAMICSGUITRIGGEREDCMD;
             cmd.posParams.push_back(vect);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -395,11 +401,11 @@ void CQDlgSimulation::on_qqDynTimeStep_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         bool ok;
-        double newVal=GuiApp::getEvalDouble(ui->qqDynTimeStep->text().toStdString().c_str(), &ok);
+        double newVal = GuiApp::getEvalDouble(ui->qqDynTimeStep->text().toStdString().c_str(), &ok);
         if (ok)
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_TIMESTEP_DYNAMICSGUITRIGGEREDCMD;
+            cmd.cmdId = SET_TIMESTEP_DYNAMICSGUITRIGGEREDCMD;
             cmd.doubleParams.push_back(newVal);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

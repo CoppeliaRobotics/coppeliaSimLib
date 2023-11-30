@@ -4,22 +4,30 @@
 
 class VPoint
 {
-public:
-    VPoint()    {}
-    VPoint(int initX,int initY) { x=initX; y=initY; }
-    virtual ~VPoint()   {}
-    int x,y;
+  public:
+    VPoint()
+    {
+    }
+    VPoint(int initX, int initY)
+    {
+        x = initX;
+        y = initY;
+    }
+    virtual ~VPoint()
+    {
+    }
+    int x, y;
 };
 
-class CSoftButton  
+class CSoftButton
 {
-public:
-    CSoftButton(std::string theLabel,int w,int h,int theLength,int theHeight);
+  public:
+    CSoftButton(std::string theLabel, int w, int h, int theLength, int theHeight);
     virtual ~CSoftButton();
 
     void announceSceneObjectWillBeErased(int objID);
-    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
-    void performSceneObjectLoadingMapping(const std::map<int,int>* map);
+    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
+    void performSceneObjectLoadingMapping(const std::map<int, int> *map);
     void setTextureDependencies(int buttonBlockID);
 
     float backgroundColor[3];
@@ -31,7 +39,7 @@ public:
     int xPos;
     int yPos;
 
-    void serialize(CSer& ar);
+    void serialize(CSer &ar);
 
     void setSliderPos(double pos);
     double getSliderPos();
@@ -43,7 +51,7 @@ public:
     int getButtonType();
     void enableArray(bool enable);
     bool isArrayEnabled();
-    bool setArrayColor(int x,int y,const float col[3]);
+    bool setArrayColor(int x, int y, const float col[3]);
     int getLength();
     void adjustLength(int newLength);
     int getHeight();
@@ -51,15 +59,15 @@ public:
     void setAttributes(int attr);
     int getAttributes();
     int getUniqueID();
-    void setTextureProperty(CTextureProperty* tp);
+    void setTextureProperty(CTextureProperty *tp);
     void removeVisionSensorTexture();
-    CTextureProperty* getTextureProperty();
-    float* arrayColors; // not serialized, but copied!
+    CTextureProperty *getTextureProperty();
+    float *arrayColors; // not serialized, but copied!
 
-    CSoftButton* copyYourself();
+    CSoftButton *copyYourself();
 
-private:
-    CTextureProperty* _textureProperty;
+  private:
+    CTextureProperty *_textureProperty;
     int _buttonAttributes;
     int length;
     int height;
@@ -77,8 +85,8 @@ private:
 
     static int _nextButtonUniqueID;
 #ifdef SIM_WITH_GUI
-public:
-    void drawArray(VPoint p,VPoint s);
+  public:
+    void drawArray(VPoint p, VPoint s);
 
 #endif
 };

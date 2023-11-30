@@ -11,7 +11,7 @@ struct SCamBuff
 
 class CUndoBufferCameras
 {
-public:
+  public:
     CUndoBufferCameras();
     virtual ~CUndoBufferCameras();
 
@@ -20,9 +20,9 @@ public:
     void storeCameras();
     void releaseCameras();
 
-private:
-    std::map<std::string,SCamBuff> _cameraBuffers;
-    std::map<std::string,SCamBuff> _preRestoreCameraBuffers;
-    std::map<std::string,SCamBuff> _cameraProxyBuffers;
-    std::map<std::string,SCamBuff> _preRestoreCameraProxyBuffers;
+  private:
+    std::map<std::string, SCamBuff> _cameraBuffers;
+    std::map<std::string, SCamBuff> _preRestoreCameraBuffers;
+    std::map<std::string, SCamBuff> _cameraProxyBuffers;
+    std::map<std::string, SCamBuff> _preRestoreCameraProxyBuffers;
 };

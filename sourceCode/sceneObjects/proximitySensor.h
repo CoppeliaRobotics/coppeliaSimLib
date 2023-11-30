@@ -3,38 +3,37 @@
 #include <sceneObject.h>
 #include <convexVolume.h>
 
-class CProxSensor : public CSceneObject  
+class CProxSensor : public CSceneObject
 {
-public:
-
+  public:
     CProxSensor();
     CProxSensor(int theType);
     virtual ~CProxSensor();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev) const;
-    CSceneObject* copyYourself();
+    void addSpecializedObjectEventData(CCbor *ev) const;
+    CSceneObject *copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer& ar);
-    void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
-    void announceCollectionWillBeErased(int groupID,bool copyBuffer);
-    void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
-    void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int,int>* map);
+    void serialize(CSer &ar);
+    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void announceCollectionWillBeErased(int groupID, bool copyBuffer);
+    void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
+    void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
+    void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
+    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
-    bool getSensingVolumeBoundingBox(C3Vector& minV,C3Vector& maxV) const;
-    void getSensingVolumeOBB(C7Vector& tr,C3Vector& halfSizes);
+    bool getSensingVolumeBoundingBox(C3Vector &minV, C3Vector &maxV) const;
+    void getSensingVolumeOBB(C7Vector &tr, C3Vector &halfSizes);
     bool isPotentiallyCollidable() const;
     bool isPotentiallyMeasurable() const;
     bool isPotentiallyDetectable() const;
@@ -46,12 +45,12 @@ public:
     void setSensableObject(int objectID);
     int getSensableObject();
 
-    bool handleSensor(bool exceptExplicitHandling,int& detectedObjectHandle,C3Vector& detectedNormalVector);
+    bool handleSensor(bool exceptExplicitHandling, int &detectedObjectHandle, C3Vector &detectedNormalVector);
     void resetSensor(bool exceptExplicitHandling);
-    int readSensor(C3Vector& detectPt,int& detectedObjectHandle,C3Vector& detectedNormalVector);
+    int readSensor(C3Vector &detectPt, int &detectedObjectHandle, C3Vector &detectedNormalVector);
 
     void commonInit();
-    bool getSensedData(C3Vector& pt);
+    bool getSensedData(C3Vector &pt);
     void setClosestObjectMode(bool closestObjMode);
     bool getClosestObjectMode();
     void setProxSensorSize(double newSize);
@@ -89,8 +88,8 @@ public:
     int getRandomizedDetectionCountForDetection() const;
 
     void calculateFreshRandomizedRays();
-    const std::vector<C3Vector>* getPointerToRandomizedRays() const;
-    std::vector<double>* getPointerToRandomizedRayDetectionStates();
+    const std::vector<C3Vector> *getPointerToRandomizedRays() const;
+    std::vector<double> *getPointerToRandomizedRayDetectionStates();
 
     double getCalculationTime() const;
     C3Vector getDetectedPoint() const;
@@ -98,14 +97,13 @@ public:
     std::string getSensableObjectLoadAlias() const;
     std::string getSensableObjectLoadName_old() const;
 
-    CColorObject* getColor(int index);
+    CColorObject *getColor(int index);
 
     std::vector<double> cutEdges; // Only used for sensor cutting debugging
 
-    CConvexVolume* convexVolume;
+    CConvexVolume *convexVolume;
 
-protected:
-
+  protected:
     // Variables which need to be serialized & copied
     CColorObject volumeColor;
     CColorObject detectionRayColor;
@@ -141,8 +139,8 @@ protected:
     std::string _sensableObjectLoadAlias;
     std::string _sensableObjectLoadName_old;
 
-    #ifdef SIM_WITH_GUI
-    public:
-        void display(CViewableBase* renderingObject,int displayAttrib);
-    #endif
+#ifdef SIM_WITH_GUI
+  public:
+    void display(CViewableBase *renderingObject, int displayAttrib);
+#endif
 };

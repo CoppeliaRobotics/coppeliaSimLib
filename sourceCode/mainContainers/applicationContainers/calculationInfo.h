@@ -6,7 +6,7 @@
 
 class CCalculationInfo
 {
-public:
+  public:
     CCalculationInfo();
     virtual ~CCalculationInfo();
     void simulationAboutToStart();
@@ -30,7 +30,7 @@ public:
     void clearRenderingTime();
 
     void dynamicsStart();
-    void dynamicsEnd(int calcPasses,bool dynamicContent);
+    void dynamicsEnd(int calcPasses, bool dynamicContent);
 
     void simulationPassStart();
     void simulationPassEnd();
@@ -46,7 +46,7 @@ public:
     void printInformation();
 #endif
 
-private:
+  private:
     int _mainScriptDuration;
     int _simulationScriptExecCount;
 

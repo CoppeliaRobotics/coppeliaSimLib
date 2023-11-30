@@ -6,27 +6,28 @@
 #include <ikGroup_old.h>
 #include <QAbstractButton>
 
-namespace Ui {
-    class CQDlgIkElements;
+namespace Ui
+{
+class CQDlgIkElements;
 }
 
 class CQDlgIkElements : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgIkElements(QWidget *parent = 0);
     ~CQDlgIkElements();
 
     void cancelEvent();
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
     bool needsDestruction();
     bool isLinkedDataValid();
     bool doesInstanceSwitchRequireDestruction();
 
     void _initialize(int ikGroupHandle);
-    static void display(int ikGroupHandle,QWidget* theParentWindow);
+    static void display(int ikGroupHandle, QWidget *theParentWindow);
 
     void updateObjectsInList();
     int getSelectedObjectID();
@@ -39,7 +40,7 @@ public:
     static int _ikGroupHandle;
     static bool _invalid;
 
-private slots:
+  private slots:
     void onDeletePressed();
 
     void on_qqAddNewElement_clicked();
@@ -70,7 +71,7 @@ private slots:
 
     void on_qqWeightAngular_editingFinished();
 
-private:
+  private:
     Ui::CQDlgIkElements *ui;
 };
 

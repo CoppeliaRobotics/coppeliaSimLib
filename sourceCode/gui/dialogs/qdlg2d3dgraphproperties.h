@@ -6,22 +6,23 @@
 #include <QListWidgetItem>
 #include <QAbstractButton>
 
-namespace Ui {
-    class CQDlg2D3DGraphProperties;
+namespace Ui
+{
+class CQDlg2D3DGraphProperties;
 }
 
 class CQDlg2D3DGraphProperties : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlg2D3DGraphProperties(QWidget *parent = 0);
     ~CQDlg2D3DGraphProperties();
 
     void cancelEvent();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
 
     void updateObjectsInList();
     int getSelectedObjectID();
@@ -31,11 +32,10 @@ public:
     bool isLinkedDataValid();
     bool doesInstanceSwitchRequireDestruction();
 
-    void _initialize(int graphHandle,bool xyGraph);
-    static void display(int graphHandle,bool xyGraph,QWidget* theParentWindow);
+    void _initialize(int graphHandle, bool xyGraph);
+    static void display(int graphHandle, bool xyGraph, QWidget *theParentWindow);
 
-
-private slots:
+  private slots:
     void onDeletePressed();
 
     void on_qqAddNewCurve_clicked();
@@ -62,7 +62,7 @@ private slots:
 
     void on_qqAlwaysOnTop_clicked();
 
-private:
+  private:
     int _graphHandle;
     bool _inListSelectionRoutine;
     bool _xyGraph;

@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgShapes;
+namespace Ui
+{
+class CQDlgShapes;
 }
 
 class CQDlgShapes : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgShapes(QWidget *parent = 0);
     ~CQDlgShapes();
 
@@ -20,7 +21,7 @@ public:
 
     void cancelEvent();
 
-private slots:
+  private slots:
     void on_qqBackfaceCulling_clicked();
 
     void on_qqWireframe_clicked();
@@ -49,7 +50,7 @@ private slots:
 
     void on_qqEditMultishape_clicked();
 
-private:
+  private:
     Ui::CQDlgShapes *ui;
 };
 

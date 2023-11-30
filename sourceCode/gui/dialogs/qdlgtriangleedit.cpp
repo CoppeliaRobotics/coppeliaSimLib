@@ -5,9 +5,7 @@
 #include <boost/lexical_cast.hpp>
 #include <guiApp.h>
 
-CQDlgTriangleEdit::CQDlgTriangleEdit(QWidget *parent) :
-    CDlgEx(parent),
-    ui(new Ui::CQDlgTriangleEdit)
+CQDlgTriangleEdit::CQDlgTriangleEdit(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgTriangleEdit)
 {
     ui->setupUi(this);
 }
@@ -25,14 +23,17 @@ void CQDlgTriangleEdit::cancelEvent()
 
 void CQDlgTriangleEdit::refresh()
 {
-    std::string tmp=std::string(IDS_TOTAL_TRIANGLES)+": "+boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize())+"/"+
-        boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()/3);
+    std::string tmp = std::string(IDS_TOTAL_TRIANGLES) + ": " +
+                      boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()) +
+                      "/" +
+                      boost::lexical_cast<std::string>(
+                          GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize() / 3);
     ui->qqInfo->setText(tmp.c_str());
-    ui->qqMakeShape->setEnabled(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0);
-    ui->qqMakeCuboid->setEnabled(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0);
-    ui->qqMakeCylinder->setEnabled(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0);
-    ui->qqMakeSphere->setEnabled(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0);
-    ui->qqFlip->setEnabled(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()!=0);
+    ui->qqMakeShape->setEnabled(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0);
+    ui->qqMakeCuboid->setEnabled(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0);
+    ui->qqMakeCylinder->setEnabled(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0);
+    ui->qqMakeSphere->setEnabled(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0);
+    ui->qqFlip->setEnabled(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0);
     ui->qqSubdivide->setEnabled(true);
 }
 
@@ -99,8 +100,8 @@ void CQDlgTriangleEdit::on_qqInvertSelection_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        for (int i=0;i<GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize()/3;i++)
-            GuiApp::mainWindow->editModeContainer->getShapeEditMode()->xorAddItemToEditModeBuffer(i,true);
+        for (int i = 0; i < GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionIndicesSize() / 3; i++)
+            GuiApp::mainWindow->editModeContainer->getShapeEditMode()->xorAddItemToEditModeBuffer(i, true);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

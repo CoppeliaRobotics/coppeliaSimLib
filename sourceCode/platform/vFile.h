@@ -1,28 +1,28 @@
 #pragma once
 
 #include <exception>
-#define VFILE_EXCEPTION_TYPE std::exception&
+#define VFILE_EXCEPTION_TYPE std::exception &
 #include <QFile>
 #include <QDir>
 typedef QFile WFile;
 
-class VFile  
+class VFile
 {
-public:
-    VFile(const char* filename,unsigned short flags,bool dontThrow=false);
-    VFile(const char* filename); // opens a Qt resource files
+  public:
+    VFile(const char *filename, unsigned short flags, bool dontThrow = false);
+    VFile(const char *filename); // opens a Qt resource files
     virtual ~VFile();
 
     static void reportAndHandleFileExceptionError(VFILE_EXCEPTION_TYPE e);
-    static bool createFolder(const char* pathAndName);
-    static bool doesFileExist(const char* filenameAndPath);
-    static bool doesFolderExist(const char* foldernameAndPath); // no final slash!
-    static void eraseFile(const char* filenameAndPath);
-    static int eraseFilesWithPrefix(const char* pathWithoutTerminalSlash,const char* prefix);
+    static bool createFolder(const char *pathAndName);
+    static bool doesFileExist(const char *filenameAndPath);
+    static bool doesFolderExist(const char *foldernameAndPath); // no final slash!
+    static void eraseFile(const char *filenameAndPath);
+    static int eraseFilesWithPrefix(const char *pathWithoutTerminalSlash, const char *prefix);
 
     quint64 getLength();
     void close();
-    WFile* getFile();
+    WFile *getFile();
     bool flush();
     std::string getPathAndFilename();
 
@@ -31,9 +31,9 @@ public:
     static unsigned short READ;
     static unsigned short SHARE_DENY_NONE;
 
-private:
-    static bool _doesFileOrFolderExist(const char* filenameOrFoldernameAndPath,bool checkForFolder);
+  private:
+    static bool _doesFileOrFolderExist(const char *filenameOrFoldernameAndPath, bool checkForFolder);
 
     std::string _pathAndFilename;
-    WFile* _theFile;
+    WFile *_theFile;
 };

@@ -5,33 +5,33 @@
 
 class CSceneObject;
 
-class CViewSelector  
+class CViewSelector
 {
-public:
+  public:
     CViewSelector();
     virtual ~CViewSelector();
 
     void newSceneProcedure();
     void setUpDefaultValues();
     void render();
-    void setViewSizeAndPosition(int sizeX,int sizeY,int posX,int posY);
+    void setViewSizeAndPosition(int sizeX, int sizeY, int posX, int posY);
     int getObjectIndexInViewSelection(int mousePos[2]);
 
-    bool leftMouseButtonDown(int x,int y,int selectionStatus);
-    void leftMouseButtonUp(int x,int y);
-    void mouseMove(int x,int y,bool passiveAndFocused);
-    int getCursor(int x,int y);
-    CSceneObject* getViewableObject(int x,int y);
-    bool rightMouseButtonDown(int x,int y);
-    void rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* mainWindow);
-    bool leftMouseButtonDoubleClick(int x,int y,int selectionStatus);
-    void setViewSelectionInfo(int objType,int viewInd,int subViewInd);
+    bool leftMouseButtonDown(int x, int y, int selectionStatus);
+    void leftMouseButtonUp(int x, int y);
+    void mouseMove(int x, int y, bool passiveAndFocused);
+    int getCursor(int x, int y);
+    CSceneObject *getViewableObject(int x, int y);
+    bool rightMouseButtonDown(int x, int y);
+    void rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainWindow);
+    bool leftMouseButtonDoubleClick(int x, int y, int selectionStatus);
+    void setViewSelectionInfo(int objType, int viewInd, int subViewInd);
     void keyPress(int key);
-    bool processCommand(int commandID,int subViewIndex);
+    bool processCommand(int commandID, int subViewIndex);
     int getCaughtElements();
     void clearCaughtElements(int keepMask);
 
-private:
+  private:
     int viewSize[2];
     int viewPosition[2];
     int mouseDownRelativePosition[2];

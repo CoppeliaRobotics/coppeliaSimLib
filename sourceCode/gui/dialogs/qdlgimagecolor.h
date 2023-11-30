@@ -4,15 +4,16 @@
 #include <vDialog.h>
 #include <simLib/simTypes.h>
 
-namespace Ui {
-    class CQDlgImageColor;
+namespace Ui
+{
+class CQDlgImageColor;
 }
 
 class CQDlgImageColor : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgImageColor(QWidget *parent = 0);
     ~CQDlgImageColor();
 
@@ -26,7 +27,7 @@ public:
     double green;
     double blue;
 
-private slots:
+  private slots:
     void on_qqFromFogColor_clicked();
 
     void on_qqRed_editingFinished();
@@ -39,7 +40,7 @@ private slots:
 
     void on_qqOkCancel_rejected();
 
-private:
+  private:
     Ui::CQDlgImageColor *ui;
 };
 

@@ -8,22 +8,22 @@
 struct SPluginCallback
 {
     std::string funcName;
-    void(*callback)(struct SScriptCallBack* p);
+    void (*callback)(struct SScriptCallBack *p);
 };
 
 class CPluginCallbackContainer
 {
-public:
+  public:
     CPluginCallbackContainer();
     virtual ~CPluginCallbackContainer();
 
-    SPluginCallback* getCallbackFromName(const char* name);
-    SPluginCallback* getCallbackFromIndex(size_t ind);
+    SPluginCallback *getCallbackFromName(const char *name);
+    SPluginCallback *getCallbackFromIndex(size_t ind);
 
     void clear();
-    bool addCallback(const char* funcName,void(*callback)(struct SScriptCallBack* cb));
+    bool addCallback(const char *funcName, void (*callback)(struct SScriptCallBack *cb));
 
-protected:
+  protected:
     std::vector<SPluginCallback> _allCallbacks_vect;
-    std::map<std::string,size_t> _allCallbacks_map;
+    std::map<std::string, size_t> _allCallbacks_map;
 };

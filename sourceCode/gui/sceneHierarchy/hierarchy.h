@@ -5,51 +5,53 @@
 #include <hierarchyElement.h>
 #include <vMenubar.h>
 
-class CHierarchy  
+class CHierarchy
 {
-public:
+  public:
     CHierarchy();
     virtual ~CHierarchy();
 
     void newSceneProcedure();
-    void setRenderingSizeAndPosition(int xSize,int ySize,int xPos,int yPos);
+    void setRenderingSizeAndPosition(int xSize, int ySize, int xPos, int yPos);
     bool render();
     void removeAll();
     void setUpDefaultValues();
     void rebuildHierarchy();
-    bool leftMouseDown(int x,int y,int selectionStatus);
-    void leftMouseUp(int x,int y);
-    bool rightMouseDown(int x,int y);
-    void rightMouseUp(int x,int y,int absX,int absY,QWidget* mainWindow);
-    void mouseMove(int x,int y,bool passiveAndFocused);
-    bool mouseWheel(int deltaZ,int x,int y);
-    bool leftMouseDblClick(int x,int y,int selectionStatus);
+    bool leftMouseDown(int x, int y, int selectionStatus);
+    void leftMouseUp(int x, int y);
+    bool rightMouseDown(int x, int y);
+    void rightMouseUp(int x, int y, int absX, int absY, QWidget *mainWindow);
+    void mouseMove(int x, int y, bool passiveAndFocused);
+    bool mouseWheel(int deltaZ, int x, int y);
+    bool leftMouseDblClick(int x, int y, int selectionStatus);
     void validateViewPosition();
 
     void setRebuildHierarchyFlag();
     void setRefreshViewFlag();
     void setResetViewFlag();
 
-    void addMenu(VMenu* menu);
+    void addMenu(VMenu *menu);
     bool processCommand(int commandID);
     void looseFocus();
     void keyPress(int key);
-    int getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[2],int hSliderTopLeft[2],int hSliderBottomRight[2],double prop[2]);
+    int getSliderPositions(int vSliderTopLeft[2], int vSliderBottomRight[2], int hSliderTopLeft[2],
+                           int hSliderBottomRight[2], double prop[2]);
 
     std::string getEditedLabel();
     void setEditionLabel(std::string txt);
-    int getInflateActionObjectID(int mousePositionX,int mousePositionY);
-    int getScriptActionObjectID(int mousePositionX,int mousePositionY);
-    int getScriptParameterActionObjectID(int mousePositionX,int mousePositionY);
-    int getTextActionObjectID(int mousePositionX,int mousePositionY);
-    int getLineObjectID(int mousePositionY,int textPosStart[2]);
-    int getSimulationActionObjectID(int mousePositionX,int mousePositionY);
+    int getInflateActionObjectID(int mousePositionX, int mousePositionY);
+    int getScriptActionObjectID(int mousePositionX, int mousePositionY);
+    int getScriptParameterActionObjectID(int mousePositionX, int mousePositionY);
+    int getTextActionObjectID(int mousePositionX, int mousePositionY);
+    int getLineObjectID(int mousePositionY, int textPosStart[2]);
+    int getSimulationActionObjectID(int mousePositionX, int mousePositionY);
 
-    int getActionObjectID(int mousePositionY,int tolerance);
-    int getActionObjectID_icon(int mousePositionX,int mousePositionY,bool ignoreXPositionAndCheckLineInstead=false);
-    int getActionModelID_icon(int mousePositionX,int mousePositionY);
-    void getActionObjectIDs(int mouseDownPositionY,int mouseUpPositionY,int tolerance,std::vector<int>* toBeSelected);
-    void drawEditionLabel(int textPosX,int textPosY);
+    int getActionObjectID(int mousePositionY, int tolerance);
+    int getActionObjectID_icon(int mousePositionX, int mousePositionY, bool ignoreXPositionAndCheckLineInstead = false);
+    int getActionModelID_icon(int mousePositionX, int mousePositionY);
+    void getActionObjectIDs(int mouseDownPositionY, int mouseUpPositionY, int tolerance,
+                            std::vector<int> *toBeSelected);
+    void drawEditionLabel(int textPosX, int textPosY);
 
     int getCaughtElements();
     void clearCaughtElements(int keepMask);
@@ -68,11 +70,11 @@ public:
     std::string editionText;
     int editionTextEditPos;
 
-private:
+  private:
     int _caughtElements;
     int renderingSize[2];
     int renderingPosition[2];
-    std::vector<CHierarchyElement*> rootElements;
+    std::vector<CHierarchyElement *> rootElements;
     int mouseDownRelativePosition[2];
     int mouseRelativePosition[2];
     int previousMouseRelativePosition[2];

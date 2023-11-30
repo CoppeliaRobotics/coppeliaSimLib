@@ -21,4 +21,4 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-void displayDistance(CDistanceObject_old* dist,int segWidth,const double* distResult);
+void displayDistance(CDistanceObject_old *dist, int segWidth, const double *distResult);

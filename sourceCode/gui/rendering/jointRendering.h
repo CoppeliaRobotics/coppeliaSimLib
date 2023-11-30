@@ -21,5 +21,5 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,double sizeParam);
-void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib);
+void _displayJoint(CJoint *joint, int displayAttrib, bool partOne, double sizeParam);
+void displayJoint(CJoint *joint, CViewableBase *renderingObject, int displayAttrib);

@@ -5,15 +5,16 @@
 #include <QAbstractButton>
 #include <simLib/simTypes.h>
 
-namespace Ui {
-    class CQDlgSlider;
+namespace Ui
+{
+class CQDlgSlider;
 }
 
 class CQDlgSlider : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgSlider(QWidget *parent = 0);
     ~CQDlgSlider();
 
@@ -26,13 +27,13 @@ public:
     int triCnt;
     double decimationPercent;
 
-private slots:
+  private slots:
 
     void on_qqOkCancelButtons_accepted();
     void on_qqOkCancelButtons_rejected();
     void on_qqSlider_sliderMoved(int position);
 
-private:
+  private:
     void _displayDecimationText();
     Ui::CQDlgSlider *ui;
 };

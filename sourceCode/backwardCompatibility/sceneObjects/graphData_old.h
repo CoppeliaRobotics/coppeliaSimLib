@@ -5,9 +5,9 @@
 
 class CGraphData_old
 {
-public:
+  public:
     CGraphData_old();
-    CGraphData_old(int theDataType,int theDataObjectID,int theDataObjectAuxID);
+    CGraphData_old(int theDataType, int theDataObjectID, int theDataObjectAuxID);
     virtual ~CGraphData_old();
 
     // Various
@@ -35,10 +35,12 @@ public:
     void setDerivativeIntegralAndCumulative(int val);
     int getDerivativeIntegralAndCumulative() const;
 
-    void setValue(const C7Vector* graphCTM,int absIndex,bool firstValue,bool cyclic,double range,const std::vector<double>& times);
-    void setValueDirect(int absIndex,double theValue,bool firstValue,bool cyclic,double range,const std::vector<double>& times);
-    bool getValue(int absIndex,double& v) const;
-    bool getValueRaw(int absIndex,double& v) const;
+    void setValue(const C7Vector *graphCTM, int absIndex, bool firstValue, bool cyclic, double range,
+                  const std::vector<double> &times);
+    void setValueDirect(int absIndex, double theValue, bool firstValue, bool cyclic, double range,
+                        const std::vector<double> &times);
+    bool getValue(int absIndex, double &v) const;
+    bool getValueRaw(int absIndex, double &v) const;
 
     int getDataLength();
     void setUserData(double data);
@@ -47,26 +49,26 @@ public:
     void setMovingAverageCount(int c);
     int getMovingAverageCount() const;
 
-    void serialize(CSer& ar,void* it);
-    CGraphData_old* copyYourself();
-    void performObjectLoadingMapping(const std::map<int,int>* map);
-    void performCollisionLoadingMapping(const std::map<int,int>* map);
-    void performDistanceLoadingMapping(const std::map<int,int>* map);
-    void performIkLoadingMapping(const std::map<int,int>* map);
-    bool announceObjectWillBeErased(int objID,bool copyBuffer);
-    bool announceCollisionWillBeErased(int collisionID,bool copyBuffer);
-    bool announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    bool announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
-    
-    // Variables which need to be serialized & copied 
+    void serialize(CSer &ar, void *it);
+    CGraphData_old *copyYourself();
+    void performObjectLoadingMapping(const std::map<int, int> *map);
+    void performCollisionLoadingMapping(const std::map<int, int> *map);
+    void performDistanceLoadingMapping(const std::map<int, int> *map);
+    void performIkLoadingMapping(const std::map<int, int> *map);
+    bool announceObjectWillBeErased(int objID, bool copyBuffer);
+    bool announceCollisionWillBeErased(int collisionID, bool copyBuffer);
+    bool announceDistanceWillBeErased(int distanceID, bool copyBuffer);
+    bool announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
+
+    // Variables which need to be serialized & copied
     float ambientColor[3];
 
-protected:
-    // Variables which need to be serialized & copied 
-    std::vector <double> _floatData;
-    std::vector <double> _transformedFloatData;
-    std::vector <unsigned char> _floatDataValidFlags;
-    std::vector <unsigned char> _transformedFloatDataValidFlags;
+  protected:
+    // Variables which need to be serialized & copied
+    std::vector<double> _floatData;
+    std::vector<double> _transformedFloatData;
+    std::vector<unsigned char> _floatDataValidFlags;
+    std::vector<unsigned char> _transformedFloatDataValidFlags;
     int dataType;
     int dataObjectID;
     int dataObjectAuxID;
@@ -79,8 +81,7 @@ protected:
     int _derivativeIntegralAndCumulative;
     std::string name;
 
-
-private:
+  private:
     int _lifeID;
     double _userData;
     bool _userDataValid;

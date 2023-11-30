@@ -4,15 +4,16 @@
 
 #include <vDialog.h>
 
-namespace Ui {
-    class CQDlgOpenGlSettings;
+namespace Ui
+{
+class CQDlgOpenGlSettings;
 }
 
 class CQDlgOpenGlSettings : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgOpenGlSettings(QWidget *parent = 0);
     ~CQDlgOpenGlSettings();
 
@@ -24,16 +25,16 @@ public:
     int offscreenContextType;
     int fboType;
     int vboOperation;
-//    int exclusiveGuiRendering;
-//    bool compatibilityTweak1;
-//    bool glFinish_normal;
-//    bool glFinish_visionSensors;
-//    int glVersionMajor;
-//    int glVersionMinor;
+    //    int exclusiveGuiRendering;
+    //    bool compatibilityTweak1;
+    //    bool glFinish_normal;
+    //    bool glFinish_visionSensors;
+    //    int glVersionMajor;
+    //    int glVersionMinor;
     int idleFps;
-//    bool forceExt;
+    //    bool forceExt;
 
-private slots:
+  private slots:
 
     void on_qqOk_accepted();
 
@@ -51,21 +52,21 @@ private slots:
 
     void on_qqFboQt_clicked();
 
-//    void on_qqGuiRenderingOnly_clicked();
+    //    void on_qqGuiRenderingOnly_clicked();
 
-//    void on_qqCompatibilityTweak1_clicked();
+    //    void on_qqCompatibilityTweak1_clicked();
 
-//    void on_qqUsingGlFinish_clicked();
+    //    void on_qqUsingGlFinish_clicked();
 
-//    void on_qqUsingGlFinishVisionSensors_clicked();
+    //    void on_qqUsingGlFinishVisionSensors_clicked();
 
-//    void on_qqMajorOpenGlVersion_editingFinished();
+    //    void on_qqMajorOpenGlVersion_editingFinished();
 
-//    void on_qqMinorOpenGlVersion_editingFinished();
+    //    void on_qqMinorOpenGlVersion_editingFinished();
 
     void on_qqIdleFps_editingFinished();
 
-//    void on_qqForceExt_clicked();
+    //    void on_qqForceExt_clicked();
 
     void on_qqVboDefault_clicked();
 
@@ -73,7 +74,7 @@ private slots:
 
     void on_qqVboEnabled_clicked();
 
-private:
+  private:
     Ui::CQDlgOpenGlSettings *ui;
 };
 

@@ -5,34 +5,36 @@
 
 class CScriptCustomFunction
 {
-public:
-    CScriptCustomFunction(const char* theFullFunctionName,const char* theCallTips,void(*callBack)(struct SScriptCallBack* cb),bool pluginFunction);
+  public:
+    CScriptCustomFunction(const char *theFullFunctionName, const char *theCallTips,
+                          void (*callBack)(struct SScriptCallBack *cb), bool pluginFunction);
 
     virtual ~CScriptCustomFunction();
-    
+
     bool getUsesStackToExchangeData() const;
     std::string getFunctionName() const;
-    bool isFunctionNameSame(const char* fullName) const;
-    bool isPluginNameSame(const char* plugName) const;
+    bool isFunctionNameSame(const char *fullName) const;
+    bool isPluginNameSame(const char *plugName) const;
     std::string getPluginName() const;
     std::string getCallTips() const;
     int getFunctionID() const;
     void setFunctionID(int newID);
-    static std::string _getFunctionNameFromFull(const char* fullName);
-    static std::string _getPluginNameFromFull(const char* fullName);
+    static std::string _getFunctionNameFromFull(const char *fullName);
+    static std::string _getPluginNameFromFull(const char *fullName);
     bool hasCallback() const;
     bool hasCalltipsAndSyntaxHighlighing() const;
     bool hasAutocompletion() const;
     bool isDeprecated() const;
 
-    void(*callBackFunction_new)(struct SScriptCallBack* p);
+    void (*callBackFunction_new)(struct SScriptCallBack *p);
     std::vector<int> inputArgTypes;
 
     // Old:
-    CScriptCustomFunction(const char* theFullFunctionName,const char* theCallTips,std::vector<int>& theInputArgTypes,void(*callBack)(struct SLuaCallBack* p));
-    void(*callBackFunction_old)(struct SLuaCallBack* p);
+    CScriptCustomFunction(const char *theFullFunctionName, const char *theCallTips, std::vector<int> &theInputArgTypes,
+                          void (*callBack)(struct SLuaCallBack *p));
+    void (*callBackFunction_old)(struct SLuaCallBack *p);
 
-protected:
+  protected:
     std::string pluginName;
     std::string functionName;
     std::string callTips;

@@ -5,15 +5,16 @@
 #include <vDialog.h>
 #include <QComboBox>
 
-namespace Ui {
-    class CQDlgDataStreamSelection;
+namespace Ui
+{
+class CQDlgDataStreamSelection;
 }
 
 class CQDlgDataStreamSelection : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgDataStreamSelection(QWidget *parent = 0);
     ~CQDlgDataStreamSelection();
 
@@ -26,9 +27,9 @@ public:
     int box1Id;
     int box2Id;
 
-    void addElementToCombobox(QComboBox* box,int dataType);
+    void addElementToCombobox(QComboBox *box, int dataType);
 
-private slots:
+  private slots:
     void on_qqTypeCombo_currentIndexChanged(int index);
 
     void on_qqItemCombo_currentIndexChanged(int index);
@@ -37,7 +38,7 @@ private slots:
 
     void on_qqOkCancel_rejected();
 
-private:
+  private:
     Ui::CQDlgDataStreamSelection *ui;
 };
 

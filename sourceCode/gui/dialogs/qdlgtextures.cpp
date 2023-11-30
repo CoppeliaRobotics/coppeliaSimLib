@@ -14,15 +14,13 @@
 #include <vMessageBox.h>
 #include <guiApp.h>
 
-CQDlgTextures::CQDlgTextures(QWidget *parent) :
-    CDlgEx(parent),
-    ui(new Ui::CQDlgTextures)
+CQDlgTextures::CQDlgTextures(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlgTextures)
 {
-    _dlgType=TEXTURE_DLG;
+    _dlgType = TEXTURE_DLG;
     ui->setupUi(this);
-    if (GuiApp::mainWindow!=nullptr)
+    if (GuiApp::mainWindow != nullptr)
         GuiApp::mainWindow->dlgCont->close(TEXTURE_DLG);
-    inMainRefreshRoutine=false;
+    inMainRefreshRoutine = false;
 }
 
 CQDlgTextures::~CQDlgTextures()
@@ -34,53 +32,59 @@ void CQDlgTextures::refresh()
 {
     if (!isLinkedDataValid())
         return;
-    inMainRefreshRoutine=true;
-    QLineEdit* lineEditToSelect=getSelectedLineEdit();
+    inMainRefreshRoutine = true;
+    QLineEdit *lineEditToSelect = getSelectedLineEdit();
     bool applyTexture3D;
-    CMesh* geom=nullptr;
-    CTextureProperty* tp=GuiApp::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,nullptr,&applyTexture3D,nullptr,&geom);
-    bool simStopped=App::currentWorld->simulation->isSimulationStopped();
-    bool usingFixedTextureCoordinates=false;
-    bool forbidU=false;
-    bool forbidV=false;
+    CMesh *geom = nullptr;
+    CTextureProperty *tp =
+        GuiApp::getTexturePropertyPointerFromItem(_objType, _objID1, _objID2, nullptr, &applyTexture3D, nullptr, &geom);
+    bool simStopped = App::currentWorld->simulation->isSimulationStopped();
+    bool usingFixedTextureCoordinates = false;
+    bool forbidU = false;
+    bool forbidV = false;
 
     if (applyTexture3D)
     {
-        if (tp!=nullptr)
+        if (tp != nullptr)
         {
-            usingFixedTextureCoordinates=tp->getFixedCoordinates();
-            forbidU=(tp->getTextureMapMode()==sim_texturemap_cylinder)||(tp->getTextureMapMode()==sim_texturemap_sphere);
-            forbidV=(tp->getTextureMapMode()==sim_texturemap_sphere);
+            usingFixedTextureCoordinates = tp->getFixedCoordinates();
+            forbidU = (tp->getTextureMapMode() == sim_texturemap_cylinder) ||
+                      (tp->getTextureMapMode() == sim_texturemap_sphere);
+            forbidV = (tp->getTextureMapMode() == sim_texturemap_sphere);
         }
     }
 
     // Common part (plus select/remove, enabled later)
-    ui->qqLoad->setEnabled((tp==nullptr)&&simStopped);
-    ui->qqInterpolate->setEnabled((tp!=nullptr)&&simStopped);
+    ui->qqLoad->setEnabled((tp == nullptr) && simStopped);
+    ui->qqInterpolate->setEnabled((tp != nullptr) && simStopped);
 
     // 3D part only:
-    ui->qqX->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqY->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqZ->setEnabled((tp!=nullptr)&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqU->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidU));
-    ui->qqV->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidV));
-    ui->qqRepeatU->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidU));
-    ui->qqRepeatV->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidV));
-    ui->qqAlpha->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqBeta->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqGamma->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqApplyMode->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D);
-    ui->qqMapMode->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D);
+    ui->qqX->setEnabled((tp != nullptr) && simStopped && applyTexture3D && (!usingFixedTextureCoordinates));
+    ui->qqY->setEnabled((tp != nullptr) && simStopped && applyTexture3D && (!usingFixedTextureCoordinates));
+    ui->qqZ->setEnabled((tp != nullptr) && applyTexture3D && (!usingFixedTextureCoordinates));
+    ui->qqU->setEnabled((tp != nullptr) && simStopped && applyTexture3D && (!usingFixedTextureCoordinates) &&
+                        (!forbidU));
+    ui->qqV->setEnabled((tp != nullptr) && simStopped && applyTexture3D && (!usingFixedTextureCoordinates) &&
+                        (!forbidV));
+    ui->qqRepeatU->setEnabled((tp != nullptr) && simStopped && applyTexture3D && (!usingFixedTextureCoordinates) &&
+                              (!forbidU));
+    ui->qqRepeatV->setEnabled((tp != nullptr) && simStopped && applyTexture3D && (!usingFixedTextureCoordinates) &&
+                              (!forbidV));
+    ui->qqAlpha->setEnabled((tp != nullptr) && simStopped && applyTexture3D && (!usingFixedTextureCoordinates));
+    ui->qqBeta->setEnabled((tp != nullptr) && simStopped && applyTexture3D && (!usingFixedTextureCoordinates));
+    ui->qqGamma->setEnabled((tp != nullptr) && simStopped && applyTexture3D && (!usingFixedTextureCoordinates));
+    ui->qqApplyMode->setEnabled((tp != nullptr) && simStopped && applyTexture3D);
+    ui->qqMapMode->setEnabled((tp != nullptr) && simStopped && applyTexture3D);
 
     ui->qqApplyMode->clear();
     ui->qqMapMode->clear();
 
-    if (tp!=nullptr)
+    if (tp != nullptr)
     {
         C7Vector v(tp->getTextureRelativeConfig());
         C3Vector euler(v.Q.getEulerAngles());
-        double scalingX,scalingY;
-        tp->getTextureScaling(scalingX,scalingY);
+        double scalingX, scalingY;
+        tp->getTextureScaling(scalingX, scalingY);
         if (applyTexture3D)
         {
             if (usingFixedTextureCoordinates)
@@ -94,47 +98,47 @@ void CQDlgTextures::refresh()
 
                 ui->qqU->setText("");
                 ui->qqV->setText("");
-                ui->qqMapMode->addItem("imported",QVariant(-1));
+                ui->qqMapMode->addItem("imported", QVariant(-1));
             }
             else
             {
-                ui->qqX->setText(utils::getPosString(true,v.X(0)).c_str());
-                ui->qqY->setText(utils::getPosString(true,v.X(1)).c_str());
-                ui->qqZ->setText(utils::getPosString(true,v.X(2)).c_str());
-                ui->qqAlpha->setText(utils::getAngleString(true,euler(0)).c_str());
-                ui->qqBeta->setText(utils::getAngleString(true,euler(1)).c_str());
-                ui->qqGamma->setText(utils::getAngleString(true,euler(2)).c_str());
+                ui->qqX->setText(utils::getPosString(true, v.X(0)).c_str());
+                ui->qqY->setText(utils::getPosString(true, v.X(1)).c_str());
+                ui->qqZ->setText(utils::getPosString(true, v.X(2)).c_str());
+                ui->qqAlpha->setText(utils::getAngleString(true, euler(0)).c_str());
+                ui->qqBeta->setText(utils::getAngleString(true, euler(1)).c_str());
+                ui->qqGamma->setText(utils::getAngleString(true, euler(2)).c_str());
 
-                ui->qqU->setText(utils::get0To1String(false,scalingX).c_str());
-                ui->qqV->setText(utils::get0To1String(false,scalingY).c_str());
+                ui->qqU->setText(utils::get0To1String(false, scalingX).c_str());
+                ui->qqV->setText(utils::get0To1String(false, scalingY).c_str());
             }
             ui->qqRepeatU->setChecked(tp->getRepeatU());
             ui->qqRepeatV->setChecked(tp->getRepeatV());
 
-            ui->qqMapMode->addItem("projection",QVariant(sim_texturemap_plane));
-            ui->qqMapMode->addItem("cylinder",QVariant(sim_texturemap_cylinder));
-            ui->qqMapMode->addItem("sphere",QVariant(sim_texturemap_sphere));
-            ui->qqMapMode->addItem("cube",QVariant(sim_texturemap_cube));
+            ui->qqMapMode->addItem("projection", QVariant(sim_texturemap_plane));
+            ui->qqMapMode->addItem("cylinder", QVariant(sim_texturemap_cylinder));
+            ui->qqMapMode->addItem("sphere", QVariant(sim_texturemap_sphere));
+            ui->qqMapMode->addItem("cube", QVariant(sim_texturemap_cube));
 
-            ui->qqApplyMode->addItem("modulate",QVariant(0));
-            ui->qqApplyMode->addItem("decal",QVariant(1));
-            ui->qqApplyMode->addItem("add",QVariant(2));
-// for now          ui->qqApplyMode->addItem("blend",QVariant(3));
-            for (int i=0;i<ui->qqMapMode->count();i++)
+            ui->qqApplyMode->addItem("modulate", QVariant(0));
+            ui->qqApplyMode->addItem("decal", QVariant(1));
+            ui->qqApplyMode->addItem("add", QVariant(2));
+            // for now          ui->qqApplyMode->addItem("blend",QVariant(3));
+            for (int i = 0; i < ui->qqMapMode->count(); i++)
             {
-                int mm=tp->getTextureMapMode();
+                int mm = tp->getTextureMapMode();
                 if (usingFixedTextureCoordinates)
-                    mm=-1;
-                if (ui->qqMapMode->itemData(i).toInt()==mm)
+                    mm = -1;
+                if (ui->qqMapMode->itemData(i).toInt() == mm)
                 {
                     ui->qqMapMode->setCurrentIndex(i);
                     break;
                 }
             }
-            for (int i=0;i<ui->qqApplyMode->count();i++)
+            for (int i = 0; i < ui->qqApplyMode->count(); i++)
             {
-                int mm=tp->getApplyMode();
-                if (ui->qqApplyMode->itemData(i).toInt()==mm)
+                int mm = tp->getApplyMode();
+                if (ui->qqApplyMode->itemData(i).toInt() == mm)
                 {
                     ui->qqApplyMode->setCurrentIndex(i);
                     break;
@@ -161,31 +165,32 @@ void CQDlgTextures::refresh()
         ui->qqApplyMode->setCurrentIndex(tp->getApplyMode());
         ui->qqRemoveSelect->setText(IDS_REMOVE_TEXTURE);
         ui->qqRemoveSelect->setEnabled(true);
-        std::string textureName=IDS_TEXTURE_NAME_NONE;
-        if (tp->getTextureObjectID()>SIM_IDEND_SCENEOBJECT)
+        std::string textureName = IDS_TEXTURE_NAME_NONE;
+        if (tp->getTextureObjectID() > SIM_IDEND_SCENEOBJECT)
         { // we have a static texture
-            CTextureObject* to=App::currentWorld->textureContainer->getObject(tp->getTextureObjectID());
-            if (to!=nullptr)
+            CTextureObject *to = App::currentWorld->textureContainer->getObject(tp->getTextureObjectID());
+            if (to != nullptr)
             {
-                textureName=to->getObjectName();
-                int sx,sy;
-                to->getTextureSize(sx,sy);
-                textureName+=" [";
-                textureName+=boost::lexical_cast<std::string>(sx)+"x"+boost::lexical_cast<std::string>(sy)+"] ";
-                textureName+=tt::decorateString(" (",IDSN_STATIC_TEXTURE,")");
+                textureName = to->getObjectName();
+                int sx, sy;
+                to->getTextureSize(sx, sy);
+                textureName += " [";
+                textureName += boost::lexical_cast<std::string>(sx) + "x" + boost::lexical_cast<std::string>(sy) + "] ";
+                textureName += tt::decorateString(" (", IDSN_STATIC_TEXTURE, ")");
             }
         }
         else
         { // we have a dynamic texture
-            CVisionSensor* rs=App::currentWorld->sceneObjects->getVisionSensorFromHandle(tp->getTextureObjectID());
-            if (rs!=nullptr)
+            CVisionSensor *rs = App::currentWorld->sceneObjects->getVisionSensorFromHandle(tp->getTextureObjectID());
+            if (rs != nullptr)
             {
-                textureName=rs->getObjectAlias_printPath();
+                textureName = rs->getObjectAlias_printPath();
                 int s[2];
                 rs->getResolution(s);
-                textureName+=" [";
-                textureName+=boost::lexical_cast<std::string>(s[0])+"x"+boost::lexical_cast<std::string>(s[1])+"] ";
-                textureName+=tt::decorateString(" (",IDSN_DYNAMIC_TEXTURE,")");
+                textureName += " [";
+                textureName +=
+                    boost::lexical_cast<std::string>(s[0]) + "x" + boost::lexical_cast<std::string>(s[1]) + "] ";
+                textureName += tt::decorateString(" (", IDSN_DYNAMIC_TEXTURE, ")");
             }
         }
         ui->qqTextureName->setText(textureName.c_str());
@@ -198,7 +203,8 @@ void CQDlgTextures::refresh()
     else
     {
         // Check if there are already existing textures:
-        ui->qqRemoveSelect->setEnabled( (App::currentWorld->textureContainer->getObjectAtIndex(0)!=nullptr)||(App::currentWorld->sceneObjects->getVisionSensorCount()!=0) );
+        ui->qqRemoveSelect->setEnabled((App::currentWorld->textureContainer->getObjectAtIndex(0) != nullptr) ||
+                                       (App::currentWorld->sceneObjects->getVisionSensorCount() != 0));
         ui->qqTextureCoordinates->setText(IDS_TEXTURE_NAME_NONE); // Actually just "none"
 
         ui->qqX->setText("");
@@ -217,103 +223,104 @@ void CQDlgTextures::refresh()
         ui->qqRemoveSelect->setText(IDS_SELECT_TEXTURE_FROM_EXISTING);
     }
     selectLineEdit(lineEditToSelect);
-    inMainRefreshRoutine=false;
+    inMainRefreshRoutine = false;
 }
 
 bool CQDlgTextures::needsDestruction()
 {
     if (!isLinkedDataValid())
-        return(true);
-    return(CDlgEx::needsDestruction());
+        return (true);
+    return (CDlgEx::needsDestruction());
 }
 
 bool CQDlgTextures::isLinkedDataValid()
 {
     if (!App::currentWorld->simulation->isSimulationStopped())
-        return(false);
-    if (_objType==TEXTURE_ID_SIMPLE_SHAPE)
+        return (false);
+    if (_objType == TEXTURE_ID_SIMPLE_SHAPE)
     {
-        if (App::currentWorld->sceneObjects->getLastSelectionHandle()!=_objID1)
-            return(false);
+        if (App::currentWorld->sceneObjects->getLastSelectionHandle() != _objID1)
+            return (false);
     }
-    if (_objType==TEXTURE_ID_COMPOUND_SHAPE)
+    if (_objType == TEXTURE_ID_COMPOUND_SHAPE)
     {
-        if (GuiApp::mainWindow->editModeContainer->getEditModeObjectID()!=_objID1)
-            return(false);
-        if (GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex()!=_objID2)
-            return(false);
+        if (GuiApp::mainWindow->editModeContainer->getEditModeObjectID() != _objID1)
+            return (false);
+        if (GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex() !=
+            _objID2)
+            return (false);
     }
-    if (_objType==TEXTURE_ID_OPENGL_GUI_BACKGROUND)
+    if (_objType == TEXTURE_ID_OPENGL_GUI_BACKGROUND)
     {
-        if (App::currentWorld->buttonBlockContainer->getBlockInEdition()!=_objID1)
-            return(false);
-        if (App::currentWorld->buttonBlockContainer->selectedButtons.size()>0)
-            return(false);
+        if (App::currentWorld->buttonBlockContainer->getBlockInEdition() != _objID1)
+            return (false);
+        if (App::currentWorld->buttonBlockContainer->selectedButtons.size() > 0)
+            return (false);
     }
-    if (_objType==TEXTURE_ID_OPENGL_GUI_BUTTON)
+    if (_objType == TEXTURE_ID_OPENGL_GUI_BUTTON)
     {
-        if (App::currentWorld->buttonBlockContainer->getBlockInEdition()!=_objID1)
-            return(false);
-        CButtonBlock* itBlock=App::currentWorld->buttonBlockContainer->getBlockWithID(_objID1);
-        if (itBlock==nullptr)
-            return(false);
-        if (App::currentWorld->buttonBlockContainer->selectedButtons.size()<=0)
-            return(false);
-        int butt=App::currentWorld->buttonBlockContainer->selectedButtons[App::currentWorld->buttonBlockContainer->selectedButtons.size()-1];
+        if (App::currentWorld->buttonBlockContainer->getBlockInEdition() != _objID1)
+            return (false);
+        CButtonBlock *itBlock = App::currentWorld->buttonBlockContainer->getBlockWithID(_objID1);
+        if (itBlock == nullptr)
+            return (false);
+        if (App::currentWorld->buttonBlockContainer->selectedButtons.size() <= 0)
+            return (false);
+        int butt = App::currentWorld->buttonBlockContainer
+                       ->selectedButtons[App::currentWorld->buttonBlockContainer->selectedButtons.size() - 1];
         VPoint size;
         itBlock->getBlockSize(size);
-        CSoftButton* itButton=itBlock->getButtonAtPos(butt%size.x,butt/size.x);
-        if (itButton==nullptr)
-            return(false);
-        if (itButton->buttonID!=_objID2)
-            return(false);
+        CSoftButton *itButton = itBlock->getButtonAtPos(butt % size.x, butt / size.x);
+        if (itButton == nullptr)
+            return (false);
+        if (itButton->buttonID != _objID2)
+            return (false);
     }
 
     bool isValid;
-    GuiApp::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,nullptr,nullptr,&isValid,nullptr);
-    return(isValid);
+    GuiApp::getTexturePropertyPointerFromItem(_objType, _objID1, _objID2, nullptr, nullptr, &isValid, nullptr);
+    return (isValid);
 }
 
-
-void CQDlgTextures::displayDlg(int objType,int objID1,int objID2,QWidget* theParentWindow)
+void CQDlgTextures::displayDlg(int objType, int objID1, int objID2, QWidget *theParentWindow)
 {
-    if (GuiApp::mainWindow==nullptr)
+    if (GuiApp::mainWindow == nullptr)
         return;
     GuiApp::mainWindow->dlgCont->close(TEXTURE_DLG);
     if (GuiApp::mainWindow->dlgCont->openOrBringToFront(TEXTURE_DLG))
     {
-        CQDlgTextures* tex=(CQDlgTextures*)GuiApp::mainWindow->dlgCont->getDialog(TEXTURE_DLG);
-        if (tex!=nullptr)
-            tex->_initializeDlg(objType,objID1,objID2);
+        CQDlgTextures *tex = (CQDlgTextures *)GuiApp::mainWindow->dlgCont->getDialog(TEXTURE_DLG);
+        if (tex != nullptr)
+            tex->_initializeDlg(objType, objID1, objID2);
     }
 }
 
-void CQDlgTextures::_initializeDlg(int objType,int objID1,int objID2)
+void CQDlgTextures::_initializeDlg(int objType, int objID1, int objID2)
 {
-    _objType=objType;
-    _objID1=objID1;
-    _objID2=objID2;
+    _objType = objType;
+    _objID1 = objID1;
+    _objID2 = objID2;
     std::string str;
-    GuiApp::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,&str,nullptr,nullptr,nullptr);
+    GuiApp::getTexturePropertyPointerFromItem(_objType, _objID1, _objID2, &str, nullptr, nullptr, nullptr);
     setWindowTitle(str.c_str());
     refresh();
 }
 
 void CQDlgTextures::_setTextureConfig(int index)
 {
-    QLineEdit* ww[6]={ui->qqX,ui->qqY,ui->qqZ,ui->qqAlpha,ui->qqBeta,ui->qqGamma};
+    QLineEdit *ww[6] = {ui->qqX, ui->qqY, ui->qqZ, ui->qqAlpha, ui->qqBeta, ui->qqGamma};
     bool ok;
-    double newVal=GuiApp::getEvalDouble(ww[index]->text().toStdString().c_str(), &ok);
+    double newVal = GuiApp::getEvalDouble(ww[index]->text().toStdString().c_str(), &ok);
     if (ok)
     {
         SSimulationThreadCommand cmd;
-        cmd.cmdId=SET_3DCONFIG_TEXTUREGUITRIGGEREDCMD;
+        cmd.cmdId = SET_3DCONFIG_TEXTUREGUITRIGGEREDCMD;
         cmd.intParams.push_back(_objType);
         cmd.intParams.push_back(_objID1);
         cmd.intParams.push_back(_objID2);
         cmd.intParams.push_back(index);
-        if (index>=3)
-            newVal*=degToRad;
+        if (index >= 3)
+            newVal *= degToRad;
         cmd.doubleParams.push_back(newVal);
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -323,13 +330,13 @@ void CQDlgTextures::_setTextureConfig(int index)
 
 void CQDlgTextures::_setTextureScaling(int index)
 {
-    QLineEdit* ww[2]={ui->qqU,ui->qqV};
+    QLineEdit *ww[2] = {ui->qqU, ui->qqV};
     bool ok;
-    double newVal=GuiApp::getEvalDouble(ww[index]->text().toStdString().c_str(), &ok);
+    double newVal = GuiApp::getEvalDouble(ww[index]->text().toStdString().c_str(), &ok);
     if (ok)
     {
         SSimulationThreadCommand cmd;
-        cmd.cmdId=SET_SCALING_TEXTUREGUITRIGGEREDCMD;
+        cmd.cmdId = SET_SCALING_TEXTUREGUITRIGGEREDCMD;
         cmd.intParams.push_back(_objType);
         cmd.intParams.push_back(_objID1);
         cmd.intParams.push_back(_objID2);
@@ -346,7 +353,7 @@ void CQDlgTextures::_setTextureBooleanProperty(int index)
     if (!isLinkedDataValid())
         return;
     SSimulationThreadCommand cmd;
-    cmd.cmdId=TOGGLE_BOOLPROP_TEXTUREGUITRIGGEREDCMD;
+    cmd.cmdId = TOGGLE_BOOLPROP_TEXTUREGUITRIGGEREDCMD;
     cmd.intParams.push_back(_objType);
     cmd.intParams.push_back(_objID1);
     cmd.intParams.push_back(_objID2);
@@ -357,8 +364,9 @@ void CQDlgTextures::_setTextureBooleanProperty(int index)
 }
 
 void CQDlgTextures::cancelEvent() // this was empty before VDialog wrap thing
-{ // We just hide the dialog and destroy it at next rendering pass
-    if (isModal()) // this condition and next line on 20/5/2013: on Linux the dlg couldn't be closed! Thanks to Ulrich Schwesinger
+{                                 // We just hide the dialog and destroy it at next rendering pass
+    if (isModal()) // this condition and next line on 20/5/2013: on Linux the dlg couldn't be closed! Thanks to Ulrich
+                   // Schwesinger
         defaultModalDialogEndRoutine(false);
     else
         CDlgEx::cancelEvent();
@@ -366,7 +374,7 @@ void CQDlgTextures::cancelEvent() // this was empty before VDialog wrap thing
 
 bool CQDlgTextures::doesInstanceSwitchRequireDestruction()
 {
-    return(true);
+    return (true);
 }
 
 void CQDlgTextures::on_qqAlpha_editingFinished()
@@ -477,16 +485,17 @@ void CQDlgTextures::on_qqRemoveSelect_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CTextureProperty* tp=GuiApp::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,nullptr,nullptr,nullptr,nullptr);
-        int tObject=-1; // means remove
-        if (tp==nullptr)
+        CTextureProperty *tp =
+            GuiApp::getTexturePropertyPointerFromItem(_objType, _objID1, _objID2, nullptr, nullptr, nullptr, nullptr);
+        int tObject = -1; // means remove
+        if (tp == nullptr)
         { // add an existing texture
             CQDlgTextureSelection dlg(this);
             dlg.makeDialogModal();
-            tObject=dlg.selectedTextureObject;
+            tObject = dlg.selectedTextureObject;
         }
         SSimulationThreadCommand cmd;
-        cmd.cmdId=SELECT_REMOVE_TEXTUREGUITRIGGEREDCMD;
+        cmd.cmdId = SELECT_REMOVE_TEXTUREGUITRIGGEREDCMD;
         cmd.intParams.push_back(_objType);
         cmd.intParams.push_back(_objID1);
         cmd.intParams.push_back(_objID2);
@@ -502,54 +511,61 @@ void CQDlgTextures::on_qqLoad_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         std::string tst(App::folders->getTexturesPath());
-        std::string filenameAndPath=GuiApp::uiThread->getOpenFileName(this,0,"Loading texture...",tst.c_str(),"",true,"Image files","tga","jpg","jpeg","png","gif","bmp","tiff");
-        if (filenameAndPath.length()!=0)
+        std::string filenameAndPath =
+            GuiApp::uiThread->getOpenFileName(this, 0, "Loading texture...", tst.c_str(), "", true, "Image files",
+                                              "tga", "jpg", "jpeg", "png", "gif", "bmp", "tiff");
+        if (filenameAndPath.length() != 0)
         {
             if (VFile::doesFileExist(filenameAndPath.c_str()))
             {
                 CQDlgTextureLoadOptions dlg(GuiApp::mainWindow);
                 dlg.refresh();
                 dlg.makeDialogModal();
-                int scaleTo=0;
+                int scaleTo = 0;
                 if (dlg.scale)
-                    scaleTo=dlg.scaleTo;
-                App::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD,DIRECTORY_ID_TEXTURE,-1,0.0,0.0,App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                int resX,resY,n;
-                unsigned char* data=CImageLoaderSaver::load(filenameAndPath.c_str(),&resX,&resY,&n,0,scaleTo);
-                if ( (n<3)||(n>4) )
+                    scaleTo = dlg.scaleTo;
+                App::appendSimulationThreadCommand(SET_CURRENTDIRECTORY_GUITRIGGEREDCMD, DIRECTORY_ID_TEXTURE, -1, 0.0,
+                                                   0.0, App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
+                int resX, resY, n;
+                unsigned char *data = CImageLoaderSaver::load(filenameAndPath.c_str(), &resX, &resY, &n, 0, scaleTo);
+                if ((n < 3) || (n > 4))
                 {
                     delete[] data;
-                    data=nullptr;
+                    data = nullptr;
                 }
-                if (data==nullptr)
-                    GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow,"Texture",IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                if (data == nullptr)
+                    GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow, "Texture",
+                                                          IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED, VMESSAGEBOX_OKELI,
+                                                          VMESSAGEBOX_REPLY_OK);
                 else
                 {
                     // Check if the resolution is a power of 2:
-                    int oResX=resX;
-                    int oResY=resY;
-                    oResX&=(32768-1);
-                    oResY&=(32768-1);
-                    unsigned short tmp=32768;
-                    while (tmp!=1)
+                    int oResX = resX;
+                    int oResY = resY;
+                    oResX &= (32768 - 1);
+                    oResY &= (32768 - 1);
+                    unsigned short tmp = 32768;
+                    while (tmp != 1)
                     {
-                        if (oResX&tmp)
-                            oResX&=tmp;
-                        if (oResY&tmp)
-                            oResY&=tmp;
-                        tmp/=2;
+                        if (oResX & tmp)
+                            oResX &= tmp;
+                        if (oResY & tmp)
+                            oResY &= tmp;
+                        tmp /= 2;
                     }
-                    if ((oResX!=resX)||(oResY!=resY))
-                        GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow,"Texture",IDS_TEXTURE_RESOLUTION_NOT_POWER_OF_TWO_WARNING,VMESSAGEBOX_OKELI,VMESSAGEBOX_REPLY_OK);
+                    if ((oResX != resX) || (oResY != resY))
+                        GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, "Texture",
+                                                             IDS_TEXTURE_RESOLUTION_NOT_POWER_OF_TWO_WARNING,
+                                                             VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
                     SSimulationThreadCommand cmd;
-                    cmd.cmdId=LOAD_ANDAPPLY_TEXTUREGUITRIGGEREDCMD;
+                    cmd.cmdId = LOAD_ANDAPPLY_TEXTUREGUITRIGGEREDCMD;
                     cmd.intParams.push_back(_objType);
                     cmd.intParams.push_back(_objID1);
                     cmd.intParams.push_back(_objID2);
                     cmd.intParams.push_back(resX);
                     cmd.intParams.push_back(resY);
                     cmd.intParams.push_back(n);
-                    cmd.uint8Params.assign(data,data+n*resX*resY);
+                    cmd.uint8Params.assign(data, data + n * resX * resY);
                     cmd.stringParams.push_back(App::folders->getNameFromFull(filenameAndPath.c_str()).c_str());
                     App::appendSimulationThreadCommand(cmd);
                     App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -566,9 +582,9 @@ void CQDlgTextures::on_qqMapMode_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_WRITE_DATA
         {
-            int mode=ui->qqMapMode->itemData(ui->qqMapMode->currentIndex()).toInt();
+            int mode = ui->qqMapMode->itemData(ui->qqMapMode->currentIndex()).toInt();
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_MAPPINGMODE_TEXTUREGUITRIGGEREDCMD;
+            cmd.cmdId = SET_MAPPINGMODE_TEXTUREGUITRIGGEREDCMD;
             cmd.intParams.push_back(_objType);
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);
@@ -586,9 +602,9 @@ void CQDlgTextures::on_qqApplyMode_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_READ_DATA
         {
-            int mode=ui->qqApplyMode->itemData(ui->qqApplyMode->currentIndex()).toInt();
+            int mode = ui->qqApplyMode->itemData(ui->qqApplyMode->currentIndex()).toInt();
             SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_APPLYMODE_TEXTUREGUITRIGGEREDCMD;
+            cmd.cmdId = SET_APPLYMODE_TEXTUREGUITRIGGEREDCMD;
             cmd.intParams.push_back(_objType);
             cmd.intParams.push_back(_objID1);
             cmd.intParams.push_back(_objID2);

@@ -4,7 +4,7 @@
 
 class CPathPointManipulation_old
 {
-public:
+  public:
     CPathPointManipulation_old();
     virtual ~CPathPointManipulation_old();
 
@@ -18,13 +18,13 @@ public:
     void addPathPointToSelection_nonEditMode(int pathPointIdentifier);
     void xorAddPathPointToSelection_nonEditMode(int pathPointIdentifier);
 
-    std::vector<int>* getPointerToSelectedPathPointIndices_nonEditMode();
+    std::vector<int> *getPointerToSelectedPathPointIndices_nonEditMode();
     void clearPathPointIndices_nonEditMode();
-    bool isPathPointIndexSelected_nonEditMode(int index,bool removeIfYes);
+    bool isPathPointIndexSelected_nonEditMode(int index, bool removeIfYes);
     int getUniqueSelectedPathId_nonEditMode();
     int getSelectedPathPointIndicesSize_nonEditMode();
 
-private:
+  private:
     bool _simulationStopped;
     std::vector<int> _selectedPathPointIndices_nonEditMode;
     int _uniqueSelectedPathID_nonEditMode;

@@ -6,15 +6,16 @@
 #include <visionSensor.h>
 #include <thumbnail.h>
 
-namespace Ui {
-    class CQDlgModelThumbnail;
+namespace Ui
+{
+class CQDlgModelThumbnail;
 }
 
 class CQDlgModelThumbnail : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgModelThumbnail(QWidget *parent = 0);
     ~CQDlgModelThumbnail();
 
@@ -24,7 +25,7 @@ public:
     void initialize();
     void actualizeBitmap();
 
-    CVisionSensor* rs;
+    CVisionSensor *rs;
     double rotX;
     double rotY;
     double zoom;
@@ -38,7 +39,7 @@ public:
     int modelBaseDummyID;
     bool thumbnailIsFromFile;
 
-private slots:
+  private slots:
     void on_qqFromFile_clicked();
 
     void on_qqZoomP_clicked();
@@ -69,7 +70,7 @@ private slots:
 
     void on_qqAntialiasing_clicked(bool checked);
 
-private:
+  private:
     Ui::CQDlgModelThumbnail *ui;
 };
 

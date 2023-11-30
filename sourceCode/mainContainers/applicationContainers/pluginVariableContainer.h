@@ -13,17 +13,17 @@ struct SPluginVariable
 
 class CPluginVariableContainer
 {
-public:
+  public:
     CPluginVariableContainer();
     virtual ~CPluginVariableContainer();
 
-    SPluginVariable* getVariableFromName(const char* name);
-    SPluginVariable* getVariableFromIndex(size_t ind);
+    SPluginVariable *getVariableFromName(const char *name);
+    SPluginVariable *getVariableFromIndex(size_t ind);
 
     void clear();
-    bool addVariable(const char* varName,const char* varValue,int stackHandle=-1);
+    bool addVariable(const char *varName, const char *varValue, int stackHandle = -1);
 
-protected:
+  protected:
     std::vector<SPluginVariable> _allVariables_vect;
-    std::map<std::string,size_t> _allVariables_map;
+    std::map<std::string, size_t> _allVariables_map;
 };

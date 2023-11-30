@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgVisionSensors;
+namespace Ui
+{
+class CQDlgVisionSensors;
 }
 
 class CQDlgVisionSensors : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgVisionSensors(QWidget *parent = 0);
     ~CQDlgVisionSensors();
 
@@ -22,7 +23,7 @@ public:
 
     bool inMainRefreshRoutine;
 
-private slots:
+  private slots:
     void on_qqExplicitHandling_clicked();
 
     void on_qqExternalInput_clicked();
@@ -61,7 +62,7 @@ private slots:
 
     void on_qqRenderModeCombo_currentIndexChanged(int index);
 
-private:
+  private:
     Ui::CQDlgVisionSensors *ui;
 };
 

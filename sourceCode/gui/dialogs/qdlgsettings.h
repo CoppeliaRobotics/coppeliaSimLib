@@ -4,10 +4,10 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgSettings;
+namespace Ui
+{
+class CQDlgSettings;
 }
-
 
 class QComboBox;
 
@@ -15,13 +15,13 @@ class CQDlgSettings : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgSettings(QWidget *parent = 0);
     ~CQDlgSettings();
 
     void refresh();
 
-private slots:
+  private slots:
     void on_translationStepSize_activated(int index);
 
     void on_rotationStepSize_activated(int index);
@@ -38,11 +38,11 @@ private slots:
 
     void on_qqHideHierarchy_clicked();
 
-private:
+  private:
     Ui::CQDlgSettings *ui;
 
-    void _selectItemOfCombobox(QComboBox* theBox,int itemData);
-    int _getIndexOfComboboxItemWithData(QComboBox* theBox,int itemData);
+    void _selectItemOfCombobox(QComboBox *theBox, int itemData);
+    int _getIndexOfComboboxItemWithData(QComboBox *theBox, int itemData);
 };
 
 #endif // QDLGSETTINGS_H

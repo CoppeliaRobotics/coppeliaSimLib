@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgTextures;
+namespace Ui
+{
+class CQDlgTextures;
 }
 
 class CQDlgTextures : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgTextures(QWidget *parent = 0);
     ~CQDlgTextures();
 
@@ -31,10 +32,10 @@ public:
     void _setTextureScaling(int index);
     void _setTextureBooleanProperty(int index);
 
-    static void displayDlg(int objType,int objID1,int objID2,QWidget* theParentWindow);
-    void _initializeDlg(int objType,int objID1,int objID2);
+    static void displayDlg(int objType, int objID1, int objID2, QWidget *theParentWindow);
+    void _initializeDlg(int objType, int objID1, int objID2);
 
-private slots:
+  private slots:
     void on_qqAlpha_editingFinished();
 
     void on_qqBeta_editingFinished();
@@ -65,7 +66,7 @@ private slots:
 
     void on_qqApplyMode_currentIndexChanged(int index);
 
-private:
+  private:
     Ui::CQDlgTextures *ui;
 
     bool inMainRefreshRoutine;

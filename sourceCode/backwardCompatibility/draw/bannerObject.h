@@ -3,10 +3,11 @@
 #include <colorObject.h>
 #include <simMath/4X4Matrix.h>
 
-class CBannerObject  
+class CBannerObject
 {
-public:
-    CBannerObject(const char* label,int options,int sceneObjID,const double relConfig[6],const float labelCol[12],const float backCol[12],double height);
+  public:
+    CBannerObject(const char *label, int options, int sceneObjID, const double relConfig[6], const float labelCol[12],
+                  const float backCol[12], double height);
     virtual ~CBannerObject();
 
     void setObjectID(int newID);
@@ -23,14 +24,15 @@ public:
     bool isVisible();
     bool toggleVisibility();
 
-    #ifdef SIM_WITH_GUI
-        void draw3DStuff(bool overlay,bool transparentObject,int displayAttrib,const C4X4Matrix& cameraCTM,const int windowSize[2],double verticalViewSizeOrAngle,bool perspective);
-    #endif
+#ifdef SIM_WITH_GUI
+    void draw3DStuff(bool overlay, bool transparentObject, int displayAttrib, const C4X4Matrix &cameraCTM,
+                     const int windowSize[2], double verticalViewSizeOrAngle, bool perspective);
+#endif
 
     CColorObject color;
     CColorObject backColor;
 
-protected:
+  protected:
     std::string _label;
     int _objectID;
     int _sceneObjectID;

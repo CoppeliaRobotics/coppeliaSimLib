@@ -21,4 +21,5 @@ See the GNU General Public License for more details.
 #include <app.h>
 #include <rendering.h>
 
-void displayView(CSView* view,CSceneObject* it,int mainWindowXPos,bool clipWithMainWindowXPos,bool drawText,bool passiveSubView);
+void displayView(CSView *view, CSceneObject *it, int mainWindowXPos, bool clipWithMainWindowXPos, bool drawText,
+                 bool passiveSubView);

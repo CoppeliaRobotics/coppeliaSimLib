@@ -4,15 +4,16 @@
 
 #include <vDialog.h>
 
-namespace Ui {
-    class CQDlgDetectableProperties;
+namespace Ui
+{
+class CQDlgDetectableProperties;
 }
 
 class CQDlgDetectableProperties : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgDetectableProperties(QWidget *parent = 0);
     ~CQDlgDetectableProperties();
 
@@ -24,7 +25,7 @@ public:
 
     int objectProperties;
 
-private slots:
+  private slots:
     void on_qqUltrasonic_clicked();
 
     void on_qqInductive_clicked();
@@ -39,7 +40,7 @@ private slots:
 
     void on_qqOkCancel_rejected();
 
-private:
+  private:
     Ui::CQDlgDetectableProperties *ui;
 };
 

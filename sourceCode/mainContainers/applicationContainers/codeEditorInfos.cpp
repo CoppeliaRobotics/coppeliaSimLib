@@ -11,26 +11,26 @@ CCodeEditorInfos::~CCodeEditorInfos()
     clear();
 }
 
-SCodeEditorInfo* CCodeEditorInfos::getInfoFromNamespace(const char* ns)
+SCodeEditorInfo *CCodeEditorInfos::getInfoFromNamespace(const char *ns)
 {
-    SCodeEditorInfo* retVal=nullptr;
-    auto it=_allInfos.find(ns);
-    if (it!=_allInfos.end())
-        retVal=&it->second;
-    return(retVal);
+    SCodeEditorInfo *retVal = nullptr;
+    auto it = _allInfos.find(ns);
+    if (it != _allInfos.end())
+        retVal = &it->second;
+    return (retVal);
 }
 
-void CCodeEditorInfos::setInfo(const char* namespaceAndVersion,const char* info,std::string* errorString/*=nullptr*/)
+void CCodeEditorInfos::setInfo(const char *namespaceAndVersion, const char *info, std::string *errorString /*=nullptr*/)
 {
     SCodeEditorInfo nf;
-    SCodeEditorInfo* nsinfo=getInfoFromNamespace(namespaceAndVersion);
-    if (nsinfo==nullptr)
+    SCodeEditorInfo *nsinfo = getInfoFromNamespace(namespaceAndVersion);
+    if (nsinfo == nullptr)
     {
-        nf.funcs=new CCodeEditorFunctions();
-        nf.vars=new CCodeEditorVariables();
-        _allInfos[namespaceAndVersion]=nf;
-        auto it=_allInfos.find(namespaceAndVersion);
-        nsinfo=&it->second;
+        nf.funcs = new CCodeEditorFunctions();
+        nf.vars = new CCodeEditorVariables();
+        _allInfos[namespaceAndVersion] = nf;
+        auto it = _allInfos.find(namespaceAndVersion);
+        nsinfo = &it->second;
     }
     else
     {
@@ -38,26 +38,26 @@ void CCodeEditorInfos::setInfo(const char* namespaceAndVersion,const char* info,
         nsinfo->vars->clear();
     }
 
-    bool res=nsinfo->funcs->set(info);
-    res=res&&nsinfo->vars->set(info);
+    bool res = nsinfo->funcs->set(info);
+    res = res && nsinfo->vars->set(info);
 
     if (!res)
     {
         removeInfo(namespaceAndVersion);
-        if (errorString!=nullptr)
-            errorString[0]=SIM_ERROR_INVALID_INFO_STRING;
+        if (errorString != nullptr)
+            errorString[0] = SIM_ERROR_INVALID_INFO_STRING;
     }
-/*    else
-    {
-        nsinfo->funcs->print();
-        nsinfo->vars->print();
-    }*/
+    /*    else
+        {
+            nsinfo->funcs->print();
+            nsinfo->vars->print();
+        }*/
 }
 
-void CCodeEditorInfos::removeInfo(const char* ns)
+void CCodeEditorInfos::removeInfo(const char *ns)
 {
-    auto it=_allInfos.find(ns);
-    if (it!=_allInfos.end())
+    auto it = _allInfos.find(ns);
+    if (it != _allInfos.end())
     {
         delete it->second.funcs;
         delete it->second.vars;
@@ -67,7 +67,7 @@ void CCodeEditorInfos::removeInfo(const char* ns)
 
 void CCodeEditorInfos::clear()
 {
-    for (auto it=_allInfos.begin();it!=_allInfos.end();it++)
+    for (auto it = _allInfos.begin(); it != _allInfos.end(); it++)
     {
         delete it->second.funcs;
         delete it->second.vars;
@@ -75,31 +75,33 @@ void CCodeEditorInfos::clear()
     _allInfos.clear();
 }
 
-void CCodeEditorInfos::insertWhatStartsSame(const char* txt,std::set<std::string>& v,int what,const CScriptObject* requestOrigin) const
+void CCodeEditorInfos::insertWhatStartsSame(const char *txt, std::set<std::string> &v, int what,
+                                            const CScriptObject *requestOrigin) const
 {
-    for (auto it=_allInfos.begin();it!=_allInfos.end();it++)
+    for (auto it = _allInfos.begin(); it != _allInfos.end(); it++)
     {
-        if ( (requestOrigin==nullptr)||(requestOrigin->wasModulePreviouslyUsed(it->first.c_str()))||(it->first=="") )
+        if ((requestOrigin == nullptr) || (requestOrigin->wasModulePreviouslyUsed(it->first.c_str())) ||
+            (it->first == ""))
         { // only if that item was previously required by that script
-            if ((what&1)!=0)
-                it->second.funcs->insertWhatStartsSame(txt,v);
-            if ((what&2)!=0)
-                it->second.vars->insertWhatStartsSame(txt,v);
+            if ((what & 1) != 0)
+                it->second.funcs->insertWhatStartsSame(txt, v);
+            if ((what & 2) != 0)
+                it->second.vars->insertWhatStartsSame(txt, v);
         }
     }
 }
 
-std::string CCodeEditorInfos::getFunctionCalltip(const char* txt,const CScriptObject* requestOrigin) const
+std::string CCodeEditorInfos::getFunctionCalltip(const char *txt, const CScriptObject *requestOrigin) const
 {
     std::string retVal;
-    for (auto it=_allInfos.begin();it!=_allInfos.end();it++)
+    for (auto it = _allInfos.begin(); it != _allInfos.end(); it++)
     {
-        if ( (requestOrigin==nullptr)||(requestOrigin->wasModulePreviouslyUsed(it->first.c_str())) )
+        if ((requestOrigin == nullptr) || (requestOrigin->wasModulePreviouslyUsed(it->first.c_str())))
         { // only if that item was previously required by that script
-            retVal=it->second.funcs->getFunctionCalltip(txt);
-            if (retVal.size()!=0)
+            retVal = it->second.funcs->getFunctionCalltip(txt);
+            if (retVal.size() != 0)
                 break;
         }
     }
-    return(retVal);
+    return (retVal);
 }

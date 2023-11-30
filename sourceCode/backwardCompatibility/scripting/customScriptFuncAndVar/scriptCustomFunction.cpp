@@ -1,19 +1,20 @@
 #include <scriptCustomFunction.h>
 
-CScriptCustomFunction::CScriptCustomFunction(const char* theFullFunctionName,const char* theCallTips,void(*callBack)(struct SScriptCallBack* cb),bool pluginFunction)
+CScriptCustomFunction::CScriptCustomFunction(const char *theFullFunctionName, const char *theCallTips,
+                                             void (*callBack)(struct SScriptCallBack *cb), bool pluginFunction)
 { // the new way, called through simRegisterScriptCallbackFunction
-    useStackToExchangeData=true;
-    _functionIsDefinedInScript=false;
-    if (theFullFunctionName!=nullptr)
+    useStackToExchangeData = true;
+    _functionIsDefinedInScript = false;
+    if (theFullFunctionName != nullptr)
     {
-        functionName=_getFunctionNameFromFull(theFullFunctionName);
-        pluginName=_getPluginNameFromFull(theFullFunctionName);
+        functionName = _getFunctionNameFromFull(theFullFunctionName);
+        pluginName = _getPluginNameFromFull(theFullFunctionName);
     }
-    _functionIsDefinedInScript=!pluginFunction;
-    if (theCallTips!=nullptr)
-        callTips=theCallTips;
-    callBackFunction_old=nullptr;
-    callBackFunction_new=callBack;
+    _functionIsDefinedInScript = !pluginFunction;
+    if (theCallTips != nullptr)
+        callTips = theCallTips;
+    callBackFunction_old = nullptr;
+    callBackFunction_new = callBack;
 }
 
 CScriptCustomFunction::~CScriptCustomFunction()
@@ -22,101 +23,102 @@ CScriptCustomFunction::~CScriptCustomFunction()
 
 bool CScriptCustomFunction::hasCallback() const
 {
-    return( (callBackFunction_old!=nullptr)||(callBackFunction_new!=nullptr) );
+    return ((callBackFunction_old != nullptr) || (callBackFunction_new != nullptr));
 }
 
 bool CScriptCustomFunction::hasCalltipsAndSyntaxHighlighing() const
 {
-    return(callTips.length()>0);
+    return (callTips.length() > 0);
 }
 
 bool CScriptCustomFunction::hasAutocompletion() const
 {
-//    return( (callTips.length()>0)&&(hasCallback()||_functionIsDefinedInScript) );
-    return(callTips.length()>0);
+    //    return( (callTips.length()>0)&&(hasCallback()||_functionIsDefinedInScript) );
+    return (callTips.length() > 0);
 }
 
 bool CScriptCustomFunction::isDeprecated() const
 {
-//    return( (callTips.length()==0)||( (!hasCallback())&&(!_functionIsDefinedInScript) ) );
-    return(callTips.length()==0);
+    //    return( (callTips.length()==0)||( (!hasCallback())&&(!_functionIsDefinedInScript) ) );
+    return (callTips.length() == 0);
 }
 
 bool CScriptCustomFunction::getUsesStackToExchangeData() const
 {
-    return(useStackToExchangeData);
+    return (useStackToExchangeData);
 }
 
-bool CScriptCustomFunction::isFunctionNameSame(const char* fullName) const
+bool CScriptCustomFunction::isFunctionNameSame(const char *fullName) const
 {
     std::string funcName(_getFunctionNameFromFull(fullName));
-    return(functionName.compare(funcName)==0);
+    return (functionName.compare(funcName) == 0);
 }
 
-bool CScriptCustomFunction::isPluginNameSame(const char* plugName) const
+bool CScriptCustomFunction::isPluginNameSame(const char *plugName) const
 {
-    return(pluginName.compare(plugName)==0);
+    return (pluginName.compare(plugName) == 0);
 }
 
 std::string CScriptCustomFunction::getFunctionName() const
 {
-    return(functionName);
+    return (functionName);
 }
 
 std::string CScriptCustomFunction::getPluginName() const
 {
-    return(pluginName);
+    return (pluginName);
 }
 
 std::string CScriptCustomFunction::getCallTips() const
 {
-    return(callTips);
+    return (callTips);
 }
 
 int CScriptCustomFunction::getFunctionID() const
 {
-    return(functionID);
+    return (functionID);
 }
 
 void CScriptCustomFunction::setFunctionID(int newID)
 {
-    functionID=newID;
+    functionID = newID;
 }
 
-std::string CScriptCustomFunction::_getFunctionNameFromFull(const char* fullName)
+std::string CScriptCustomFunction::_getFunctionNameFromFull(const char *fullName)
 {
     std::string f(fullName);
-    size_t p=f.find('@');
-    if (p==std::string::npos)
-        return(f);
-    std::string subF(f.begin(),f.begin()+p);
-    return(subF);
+    size_t p = f.find('@');
+    if (p == std::string::npos)
+        return (f);
+    std::string subF(f.begin(), f.begin() + p);
+    return (subF);
 }
 
-std::string CScriptCustomFunction::_getPluginNameFromFull(const char* fullName)
+std::string CScriptCustomFunction::_getPluginNameFromFull(const char *fullName)
 {
     std::string f(fullName);
-    size_t p=f.find('@');
-    if (p==std::string::npos)
-        return("");
-    std::string subF(f.begin()+p+1,f.end());
-    return(subF);
+    size_t p = f.find('@');
+    if (p == std::string::npos)
+        return ("");
+    std::string subF(f.begin() + p + 1, f.end());
+    return (subF);
 }
 
-CScriptCustomFunction::CScriptCustomFunction(const char* theFullFunctionName,const char* theCallTips,std::vector<int>& theInputArgTypes,void(*callBack)(struct SLuaCallBack* p))
+CScriptCustomFunction::CScriptCustomFunction(const char *theFullFunctionName, const char *theCallTips,
+                                             std::vector<int> &theInputArgTypes,
+                                             void (*callBack)(struct SLuaCallBack *p))
 { // old
-    useStackToExchangeData=false;
-    _functionIsDefinedInScript=false;
-    if (theFullFunctionName!=nullptr)
+    useStackToExchangeData = false;
+    _functionIsDefinedInScript = false;
+    if (theFullFunctionName != nullptr)
     {
-        functionName=_getFunctionNameFromFull(theFullFunctionName);
-        pluginName=_getPluginNameFromFull(theFullFunctionName);
+        functionName = _getFunctionNameFromFull(theFullFunctionName);
+        pluginName = _getPluginNameFromFull(theFullFunctionName);
     }
-    if (theCallTips!=nullptr)
-        callTips=theCallTips;
-    for (size_t i=0;i<theInputArgTypes.size();i++)
+    if (theCallTips != nullptr)
+        callTips = theCallTips;
+    for (size_t i = 0; i < theInputArgTypes.size(); i++)
         inputArgTypes.push_back(theInputArgTypes[i]);
-    callBackFunction_new=nullptr;
-    callBackFunction_old=callBack;
+    callBackFunction_new = nullptr;
+    callBackFunction_old = callBack;
 }
-

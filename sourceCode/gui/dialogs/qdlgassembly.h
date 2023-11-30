@@ -6,15 +6,16 @@
 #include <sceneObject.h>
 #include <QAbstractButton>
 
-namespace Ui {
-    class CQDlgAssembly;
+namespace Ui
+{
+class CQDlgAssembly;
 }
 
 class CQDlgAssembly : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgAssembly(QWidget *parent = 0);
     ~CQDlgAssembly();
 
@@ -23,8 +24,8 @@ public:
 
     void refresh();
 
-    CSceneObject* obj;
-private slots:
+    CSceneObject *obj;
+  private slots:
     void on_qqChildMatchValue_editingFinished();
 
     void on_qqParentMatchValue_editingFinished();
@@ -35,7 +36,7 @@ private slots:
 
     void on_qqHasMatrix_clicked();
 
-private:
+  private:
     Ui::CQDlgAssembly *ui;
 };
 

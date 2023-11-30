@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgEdgeEdit;
+namespace Ui
+{
+class CQDlgEdgeEdit;
 }
 
 class CQDlgEdgeEdit : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgEdgeEdit(QWidget *parent = 0);
     ~CQDlgEdgeEdit();
 
@@ -20,7 +21,7 @@ public:
 
     void cancelEvent();
 
-private slots:
+  private slots:
     void on_qqShowHiddenEdges_clicked();
 
     void on_qqAutoFollowing_clicked();
@@ -35,7 +36,7 @@ private slots:
 
     void on_qqInvertSelection_clicked();
 
-private:
+  private:
     Ui::CQDlgEdgeEdit *ui;
 };
 

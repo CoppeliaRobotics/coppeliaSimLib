@@ -3,40 +3,40 @@
 
 class CXSceneObject
 {
-public:
+  public:
 };
 
 class CXShape : public CXSceneObject
 {
-public:
+  public:
 };
 
 class CXJoint : public CXSceneObject
 {
-public:
+  public:
 };
 
 class CXForceSensor : public CXSceneObject
 {
-public:
+  public:
 };
 
 class CXDummy : public CXSceneObject
 {
-public:
+  public:
 };
 
 class CXGeomProxy
 {
-public:
+  public:
 };
 
 class CXGeomWrap
 {
-public:
+  public:
 };
 
 class CXGeometric
 {
-public:
+  public:
 };

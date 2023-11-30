@@ -5,26 +5,26 @@
 #include <utils.h>
 #include <global.h>
 #ifdef SIM_WITH_GUI
-    #include <guiApp.h>
+#include <guiApp.h>
 #endif
 
 CCollection::CCollection(int creatorHandle)
 {
-    _collectionHandle=-1;
-    _creatorHandle=creatorHandle;
-    _overridesObjectMainProperties=false;
-    _uniquePersistentIdString=utils::generateUniqueAlphaNumericString();
+    _collectionHandle = -1;
+    _creatorHandle = creatorHandle;
+    _overridesObjectMainProperties = false;
+    _uniquePersistentIdString = utils::generateUniqueAlphaNumericString();
 }
 
 CCollection::~CCollection()
 {
-    while (_collectionElements.size()>0)
+    while (_collectionElements.size() > 0)
         _removeCollectionElementFromHandle(_collectionElements[0]->getElementHandle());
 }
 
 void CCollection::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    //_initialValuesInitialized=true;
+  //_initialValuesInitialized=true;
 }
 
 void CCollection::simulationAboutToStart()
@@ -33,48 +33,50 @@ void CCollection::simulationAboutToStart()
 }
 
 void CCollection::simulationEnded()
-{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it ended). For thoses situations there is the initializeInitialValues routine!
-    //if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
-    //{
-    //}
-    //_initialValuesInitialized=false;
+{ // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
+  // ended). For thoses situations there is the initializeInitialValues routine!
+  // if (_initialValuesInitialized&&App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+  //{
+  //}
+  //_initialValuesInitialized=false;
 }
 
 bool CCollection::isObjectInCollection(int objectHandle) const
 {
-    for (size_t i=0;i<_collectionObjects.size();i++)
+    for (size_t i = 0; i < _collectionObjects.size(); i++)
     {
-        if (_collectionObjects[i]==objectHandle)
-            return(true);
+        if (_collectionObjects[i] == objectHandle)
+            return (true);
     }
-    return(false);
+    return (false);
 }
 
-void CCollection::addCollectionElement(CCollectionElement* collectionElement)
+void CCollection::addCollectionElement(CCollectionElement *collectionElement)
 {
-    int i=0;
-    while (getElementFromHandle(i)!=nullptr)
+    int i = 0;
+    while (getElementFromHandle(i) != nullptr)
         i++;
     collectionElement->setElementHandle(i);
     _addCollectionElement(collectionElement);
     actualizeCollection();
-    #ifdef SIM_WITH_GUI
-        GuiApp::setFullDialogRefreshFlag();
-    #endif
+#ifdef SIM_WITH_GUI
+    GuiApp::setFullDialogRefreshFlag();
+#endif
 }
 
 bool CCollection::actualizeCollection()
-{   // return value false means that this collection is empty
-    bool retVal=false;
+{ // return value false means that this collection is empty
+    bool retVal = false;
     // First we remove all collection elements which are not valid anymore:
     {
-        size_t i=0;
-        while (i<getElementCount())
+        size_t i = 0;
+        while (i < getElementCount())
         {
-            CSceneObject* it=App::currentWorld->sceneObjects->getObjectFromHandle(getElementFromIndex(i)->getMainObject());
-            if (it==nullptr)
+            CSceneObject *it =
+                App::currentWorld->sceneObjects->getObjectFromHandle(getElementFromIndex(i)->getMainObject());
+            if (it == nullptr)
             {
-                if (getElementFromIndex(i)->getElementType()!=sim_collectionelement_all)
+                if (getElementFromIndex(i)->getElementType() != sim_collectionelement_all)
                     _removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
                 else
                     i++;
@@ -84,31 +86,31 @@ bool CCollection::actualizeCollection()
         }
     }
     // Now we have to take care of the GROUP_EVERYTHING type:
-    if (_creatorHandle==-2)
+    if (_creatorHandle == -2)
     { // only for old collections (i.e. those created via the GUI)
-        bool removeAll=true;
-        for (size_t i=0;i<getElementCount();i++)
+        bool removeAll = true;
+        for (size_t i = 0; i < getElementCount(); i++)
         {
-            if (getElementFromIndex(i)->getElementType()!=sim_collectionelement_all)
-                removeAll=false;
+            if (getElementFromIndex(i)->getElementType() != sim_collectionelement_all)
+                removeAll = false;
         }
         if (removeAll)
         {
-            while (getElementCount()>0)
+            while (getElementCount() > 0)
                 _removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
         }
     }
     // Is this collection still valid?
-    if (getElementCount()!=0)
+    if (getElementCount() != 0)
     {
-        retVal=true;
+        retVal = true;
         // Now we set-up the object list:
         std::vector<int> objs;
-        for (size_t i=0;i<getElementCount();i++)
+        for (size_t i = 0; i < getElementCount(); i++)
             getElementFromIndex(i)->addOrRemoveYourObjects(&objs);
         _updateCollectionObjects_(objs);
     }
-    return(retVal);
+    return (retVal);
 }
 
 void CCollection::removeCollectionElementFromHandle(int collectionElementHandle)
@@ -117,23 +119,25 @@ void CCollection::removeCollectionElementFromHandle(int collectionElementHandle)
     actualizeCollection();
 }
 
-bool CCollection::announceScriptStateWillBeErased(int scriptHandle,bool simulationScript,bool sceneSwitchPersistentScript)
+bool CCollection::announceScriptStateWillBeErased(int scriptHandle, bool simulationScript,
+                                                  bool sceneSwitchPersistentScript)
 { // Return value true means that this collection needs to be erased
-    return( (!sceneSwitchPersistentScript)&&(_creatorHandle==scriptHandle) );
+    return ((!sceneSwitchPersistentScript) && (_creatorHandle == scriptHandle));
 }
 
-bool CCollection::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
+bool CCollection::announceObjectWillBeErased(int objectHandle, bool copyBuffer)
 { // Return value true means that this collection is empty
-    bool retVal=false;
-    size_t initialSubGroupListSize=getElementCount();
+    bool retVal = false;
+    size_t initialSubGroupListSize = getElementCount();
     {
-        size_t i=0;
-        while (i<getElementCount())
+        size_t i = 0;
+        while (i < getElementCount())
         {
-            if ( (getElementFromIndex(i)->getMainObject()==objectHandle) ) //  GROUP_EVERYTHING is handled a little bit further down
+            if ((getElementFromIndex(i)->getMainObject() ==
+                 objectHandle)) //  GROUP_EVERYTHING is handled a little bit further down
             {
                 _removeCollectionElementFromHandle(getElementFromIndex(i)->getElementHandle());
-                i=0;
+                i = 0;
             }
             else
                 i++;
@@ -141,98 +145,98 @@ bool CCollection::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
     }
 
     // Now we have to take care of the GROUP_EVERYTHING type:
-    bool removeAll=true;
-    for (size_t i=0;i<getElementCount();i++)
+    bool removeAll = true;
+    for (size_t i = 0; i < getElementCount(); i++)
     {
-        if (getElementFromIndex(i)->getElementType()!=sim_collectionelement_all)
-            removeAll=false;
+        if (getElementFromIndex(i)->getElementType() != sim_collectionelement_all)
+            removeAll = false;
     }
     if (removeAll)
     {
-        while (getElementCount()>0)
+        while (getElementCount() > 0)
             _removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
     }
 
-    if ( (getElementCount()!=initialSubGroupListSize)&&copyBuffer )
-        retVal=true; // (during copy/paste, only intact collections should be copied!)
+    if ((getElementCount() != initialSubGroupListSize) && copyBuffer)
+        retVal = true; // (during copy/paste, only intact collections should be copied!)
     else
-        retVal=(getElementCount()==0);
+        retVal = (getElementCount() == 0);
 
     if (!retVal)
-    {   //We also remove that object from the object list:
+    { // We also remove that object from the object list:
         std::vector<int> objs(_collectionObjects);
-        for (size_t i=0;i<objs.size();i++)
+        for (size_t i = 0; i < objs.size(); i++)
         {
-            if (objs[i]==objectHandle)
+            if (objs[i] == objectHandle)
             {
-                objs.erase(objs.begin()+i);
+                objs.erase(objs.begin() + i);
                 break;
             }
         }
         _updateCollectionObjects_(objs);
     }
 
-    return(retVal);
+    return (retVal);
 }
 
-bool CCollection::setCollectionName(const char* newName,bool check)
+bool CCollection::setCollectionName(const char *newName, bool check)
 {
-    CCollection* it=nullptr;
+    CCollection *it = nullptr;
     if (check)
-        it=App::currentWorld->collections->getObjectFromHandle(_collectionHandle);
+        it = App::currentWorld->collections->getObjectFromHandle(_collectionHandle);
     std::string nn;
-    if (it!=this)
-        nn=newName;
+    if (it != this)
+        nn = newName;
     else
     { // object is in world
         std::string nm(newName);
-        tt::removeIllegalCharacters(nm,true);
-        if (nm.size()>0)
+        tt::removeIllegalCharacters(nm, true);
+        if (nm.size() > 0)
         {
-            if (getCollectionName()!=nm)
+            if (getCollectionName() != nm)
             {
-                while (App::currentWorld->collections->getObjectFromName(nm.c_str())!=nullptr)
-                    nm=tt::generateNewName_hashOrNoHash(nm.c_str(),!tt::isHashFree(nm.c_str()));
-                nn=nm;
+                while (App::currentWorld->collections->getObjectFromName(nm.c_str()) != nullptr)
+                    nm = tt::generateNewName_hashOrNoHash(nm.c_str(), !tt::isHashFree(nm.c_str()));
+                nn = nm;
             }
         }
     }
-    bool diff=false;
-    if (nn.size()>0)
+    bool diff = false;
+    if (nn.size() > 0)
     {
-        diff=(_collectionName!=nn);
+        diff = (_collectionName != nn);
         if (diff)
-            _collectionName=nn;
+            _collectionName = nn;
     }
 
-    #ifdef SIM_WITH_GUI
-        if (diff)
-            GuiApp::setFullDialogRefreshFlag();
-    #endif
-    return(diff);
+#ifdef SIM_WITH_GUI
+    if (diff)
+        GuiApp::setFullDialogRefreshFlag();
+#endif
+    return (diff);
 }
 
-void CCollection::performObjectLoadingMapping(const std::map<int,int>* map)
+void CCollection::performObjectLoadingMapping(const std::map<int, int> *map)
 {
-    for (size_t i=0;i<getElementCount();i++)
+    for (size_t i = 0; i < getElementCount(); i++)
         getElementFromIndex(i)->performObjectLoadingMapping(map);
     actualizeCollection();
 }
 
-CCollection* CCollection::copyYourself() const
+CCollection *CCollection::copyYourself() const
 {
-    CCollection* newCollection=new CCollection(-2);
-    newCollection->_collectionHandle=_collectionHandle; // important for copy operations connections
-    newCollection->_collectionName=_collectionName;
-    for (size_t i=0;i<getElementCount();i++)
+    CCollection *newCollection = new CCollection(-2);
+    newCollection->_collectionHandle = _collectionHandle; // important for copy operations connections
+    newCollection->_collectionName = _collectionName;
+    for (size_t i = 0; i < getElementCount(); i++)
         newCollection->_addCollectionElement(getElementFromIndex(i)->copyYourself());
-    newCollection->_overridesObjectMainProperties=_overridesObjectMainProperties;
-    return(newCollection);
+    newCollection->_overridesObjectMainProperties = _overridesObjectMainProperties;
+    return (newCollection);
 }
 
 void CCollection::emptyCollection()
 {
-    while (getElementCount()>0)
+    while (getElementCount() > 0)
         _removeCollectionElementFromHandle(getElementFromIndex(0)->getElementHandle());
     _collectionObjects.clear();
     actualizeCollection();
@@ -240,33 +244,33 @@ void CCollection::emptyCollection()
 
 int CCollection::getCreatorHandle() const
 {
-    return(_creatorHandle);
+    return (_creatorHandle);
 }
 
 std::string CCollection::getUniquePersistentIdString() const
 {
-    return(_uniquePersistentIdString);
+    return (_uniquePersistentIdString);
 }
 
 size_t CCollection::getSceneObjectCountInCollection() const
 {
-    return(_collectionObjects.size());
+    return (_collectionObjects.size());
 }
 
 int CCollection::getSceneObjectHandleFromIndex(size_t index) const
 {
-    int retVal=-1;
-    if (index<_collectionObjects.size())
-        retVal=_collectionObjects[index];
-    return(retVal);
+    int retVal = -1;
+    if (index < _collectionObjects.size())
+        retVal = _collectionObjects[index];
+    return (retVal);
 }
 
-void CCollection::serialize(CSer& ar)
+void CCollection::serialize(CSer &ar)
 {
     if (ar.isBinary())
     {
         if (ar.isStoring())
-        {       // Storing
+        { // Storing
             ar.storeDataName("Grn");
             ar << _collectionName;
             ar.flush();
@@ -276,8 +280,8 @@ void CCollection::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Par");
-            unsigned char nothing=0;
-            SIM_SET_CLEAR_BIT(nothing,0,_overridesObjectMainProperties);
+            unsigned char nothing = 0;
+            SIM_SET_CLEAR_BIT(nothing, 0, _overridesObjectMainProperties);
             ar << nothing;
             ar.flush();
 
@@ -285,7 +289,7 @@ void CCollection::serialize(CSer& ar)
             ar << _uniquePersistentIdString;
             ar.flush();
 
-            for (size_t i=0;i<getElementCount();i++)
+            for (size_t i = 0; i < getElementCount(); i++)
             {
                 ar.storeDataName("Asg");
                 ar.setCountingMode();
@@ -297,46 +301,46 @@ void CCollection::serialize(CSer& ar)
             ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
-        {   // Loading
+        { // Loading
             int byteQuantity;
-            std::string theName="";
-            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            std::string theName = "";
+            while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
-                theName=ar.readDataName();
-                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                theName = ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT) != 0)
                 {
-                    bool noHit=true;
-                    if (theName.compare("Grn")==0)
+                    bool noHit = true;
+                    if (theName.compare("Grn") == 0)
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         ar >> _collectionName;
                     }
-                    if (theName.compare("Gix")==0)
+                    if (theName.compare("Gix") == 0)
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         ar >> _collectionHandle;
                     }
-                    if (theName.compare("Asg")==0)
+                    if (theName.compare("Asg") == 0)
                     {
-                        noHit=false;
-                        ar >> byteQuantity; 
-                        CCollectionElement* it=new CCollectionElement(0,0,false);
+                        noHit = false;
+                        ar >> byteQuantity;
+                        CCollectionElement *it = new CCollectionElement(0, 0, false);
                         it->serialize(ar);
                         _addCollectionElement(it);
                     }
-                    if (theName=="Par")
+                    if (theName == "Par")
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        _overridesObjectMainProperties=SIM_IS_BIT_SET(nothing,0);
+                        _overridesObjectMainProperties = SIM_IS_BIT_SET(nothing, 0);
                     }
-                    if (theName.compare("Uis")==0)
+                    if (theName.compare("Uis") == 0)
                     {
-                        noHit=false;
+                        noHit = false;
                         ar >> byteQuantity;
                         ar >> _uniquePersistentIdString;
                     }
@@ -348,30 +352,32 @@ void CCollection::serialize(CSer& ar)
     }
     else
     {
-        bool exhaustiveXml=( (ar.getFileType()!=CSer::filetype_csim_xml_simplescene_file)&&(ar.getFileType()!=CSer::filetype_csim_xml_simplemodel_file) );
+        bool exhaustiveXml = ((ar.getFileType() != CSer::filetype_csim_xml_simplescene_file) &&
+                              (ar.getFileType() != CSer::filetype_csim_xml_simplemodel_file));
         if (ar.isStoring())
         {
             if (exhaustiveXml)
-                ar.xmlAddNode_int("handle",_collectionHandle);
+                ar.xmlAddNode_int("handle", _collectionHandle);
 
             if (exhaustiveXml)
-                ar.xmlAddNode_string("name",_collectionName.c_str());
+                ar.xmlAddNode_string("name", _collectionName.c_str());
             else
-                ar.xmlAddNode_string("name",("@collection@"+_collectionName).c_str());
+                ar.xmlAddNode_string("name", ("@collection@" + _collectionName).c_str());
 
             ar.xmlPushNewNode("switches");
-            ar.xmlAddNode_bool("overrideProperties",_overridesObjectMainProperties);
+            ar.xmlAddNode_bool("overrideProperties", _overridesObjectMainProperties);
             ar.xmlPopNode();
 
             if (exhaustiveXml)
             {
-                std::string str(base64_encode((unsigned char*)_uniquePersistentIdString.c_str(),_uniquePersistentIdString.size()));
-                ar.xmlAddNode_string("uniquePersistentIdString_base64Coded",str.c_str());
+                std::string str(base64_encode((unsigned char *)_uniquePersistentIdString.c_str(),
+                                              _uniquePersistentIdString.size()));
+                ar.xmlAddNode_string("uniquePersistentIdString_base64Coded", str.c_str());
             }
 
-            for (size_t i=0;i<getElementCount();i++)
+            for (size_t i = 0; i < getElementCount(); i++)
             {
-                ar.xmlAddNode_comment(" 'item' tag: at least one of such tag is required ",exhaustiveXml);
+                ar.xmlAddNode_comment(" 'item' tag: at least one of such tag is required ", exhaustiveXml);
                 ar.xmlPushNewNode("item");
                 getElementFromIndex(i)->serialize(ar);
                 ar.xmlPopNode();
@@ -380,33 +386,35 @@ void CCollection::serialize(CSer& ar)
         else
         {
             if (exhaustiveXml)
-                ar.xmlGetNode_int("handle",_collectionHandle);
+                ar.xmlGetNode_int("handle", _collectionHandle);
 
-            if ( ar.xmlGetNode_string("name",_collectionName,exhaustiveXml)&&(!exhaustiveXml) )
+            if (ar.xmlGetNode_string("name", _collectionName, exhaustiveXml) && (!exhaustiveXml))
             {
-                _collectionLoadName=_collectionName;
-                if (_collectionName.find("@collection@")==0)
-                    _collectionName.assign(_collectionLoadName.begin()+strlen("@collection@"),_collectionLoadName.end());
-                tt::removeIllegalCharacters(_collectionName,true);
+                _collectionLoadName = _collectionName;
+                if (_collectionName.find("@collection@") == 0)
+                    _collectionName.assign(_collectionLoadName.begin() + strlen("@collection@"),
+                                           _collectionLoadName.end());
+                tt::removeIllegalCharacters(_collectionName, true);
             }
 
-            if (ar.xmlPushChildNode("switches",exhaustiveXml))
+            if (ar.xmlPushChildNode("switches", exhaustiveXml))
             {
-                ar.xmlGetNode_bool("overrideProperties",_overridesObjectMainProperties,exhaustiveXml);
+                ar.xmlGetNode_bool("overrideProperties", _overridesObjectMainProperties, exhaustiveXml);
                 ar.xmlPopNode();
             }
 
-            if (exhaustiveXml&&ar.xmlGetNode_string("uniquePersistentIdString_base64Coded",_uniquePersistentIdString))
-                _uniquePersistentIdString=base64_decode(_uniquePersistentIdString);
+            if (exhaustiveXml &&
+                ar.xmlGetNode_string("uniquePersistentIdString_base64Coded", _uniquePersistentIdString))
+                _uniquePersistentIdString = base64_decode(_uniquePersistentIdString);
 
-            if (ar.xmlPushChildNode("item",exhaustiveXml))
+            if (ar.xmlPushChildNode("item", exhaustiveXml))
             {
                 while (true)
                 {
-                    CCollectionElement* it=new CCollectionElement(0,0,false);
+                    CCollectionElement *it = new CCollectionElement(0, 0, false);
                     it->serialize(ar);
                     _addCollectionElement(it);
-                    if (!ar.xmlPushSiblingNode("item",false))
+                    if (!ar.xmlPushSiblingNode("item", false))
                         break;
                 }
                 ar.xmlPopNode();
@@ -415,82 +423,82 @@ void CCollection::serialize(CSer& ar)
     }
 }
 
-void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectHandles)
+void CCollection::_updateCollectionObjects_(const std::vector<int> &sceneObjectHandles)
 {
-    _collectionObjects.assign(sceneObjectHandles.begin(),sceneObjectHandles.end());
+    _collectionObjects.assign(sceneObjectHandles.begin(), sceneObjectHandles.end());
 }
 
 std::string CCollection::getCollectionLoadName() const
 {
-    return(_collectionLoadName);
+    return (_collectionLoadName);
 }
 
 bool CCollection::getOverridesObjectMainProperties() const
 {
-    return(_overridesObjectMainProperties);
+    return (_overridesObjectMainProperties);
 }
 
 size_t CCollection::getElementCount() const
 {
-    return(_collectionElements.size());
+    return (_collectionElements.size());
 }
 
-CCollectionElement* CCollection::getElementFromIndex(size_t index) const
+CCollectionElement *CCollection::getElementFromIndex(size_t index) const
 {
-    CCollectionElement* retVal=nullptr;
-    if (index<_collectionElements.size())
-        retVal=_collectionElements[index];
-    return(retVal);
+    CCollectionElement *retVal = nullptr;
+    if (index < _collectionElements.size())
+        retVal = _collectionElements[index];
+    return (retVal);
 }
 
-CCollectionElement* CCollection::getElementFromHandle(int collectionElementHandle) const
+CCollectionElement *CCollection::getElementFromHandle(int collectionElementHandle) const
 {
-    for (size_t i=0;i<_collectionElements.size();i++)
+    for (size_t i = 0; i < _collectionElements.size(); i++)
     {
-        if (_collectionElements[i]->getElementHandle()==collectionElementHandle)
-            return(_collectionElements[i]);
+        if (_collectionElements[i]->getElementHandle() == collectionElementHandle)
+            return (_collectionElements[i]);
     }
-    return(nullptr);
+    return (nullptr);
 }
 
 int CCollection::getCollectionHandle() const
 {
-    return(_collectionHandle);
+    return (_collectionHandle);
 }
 
 std::string CCollection::getCollectionName() const
 {
-    return(_collectionName);
+    return (_collectionName);
 }
 
 bool CCollection::setOverridesObjectMainProperties(bool o)
 {
-    bool diff=(_overridesObjectMainProperties!=o);
+    bool diff = (_overridesObjectMainProperties != o);
     if (diff)
-        _overridesObjectMainProperties=o;
-    return(diff);
+        _overridesObjectMainProperties = o;
+    return (diff);
 }
 
 bool CCollection::setCollectionHandle(int newHandle)
 {
-    bool diff=(_collectionHandle!=newHandle);
-    _collectionHandle=newHandle;
-    return(diff);
+    bool diff = (_collectionHandle != newHandle);
+    _collectionHandle = newHandle;
+    return (diff);
 }
 
-void CCollection::_addCollectionElement(CCollectionElement* collectionElement)
+void CCollection::_addCollectionElement(CCollectionElement *collectionElement)
 {
     _collectionElements.push_back(collectionElement);
 }
 
 void CCollection::_removeCollectionElementFromHandle(int collectionElementHandle)
 {
-    for (size_t i=0;i<_collectionElements.size();i++)
+    for (size_t i = 0; i < _collectionElements.size(); i++)
     {
-        if (_collectionElements[i]->getElementHandle()==collectionElementHandle)
+        if (_collectionElements[i]->getElementHandle() == collectionElementHandle)
         {
             delete _collectionElements[i];
-            _collectionElements.erase(_collectionElements.begin()+i);
+            _collectionElements.erase(_collectionElements.begin() + i);
             break;
         }
     }

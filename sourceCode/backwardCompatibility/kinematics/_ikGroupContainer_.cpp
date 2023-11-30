@@ -7,97 +7,97 @@ _CIkGroupContainer_::_CIkGroupContainer_()
 
 _CIkGroupContainer_::~_CIkGroupContainer_()
 {
-    while (_ikGroups.size()!=0)
+    while (_ikGroups.size() != 0)
         _removeIkGroup(_ikGroups[0]->getObjectHandle());
 }
 
 size_t _CIkGroupContainer_::getObjectCount() const
 {
-    return(_ikGroups.size());
+    return (_ikGroups.size());
 }
 
-CIkGroup_old* _CIkGroupContainer_::getObjectFromHandle(int ikGroupHandle) const
+CIkGroup_old *_CIkGroupContainer_::getObjectFromHandle(int ikGroupHandle) const
 {
-     for (size_t i=0;i<_ikGroups.size();i++)
-     {
-        if (_ikGroups[i]->getObjectHandle()==ikGroupHandle)
-            return(_ikGroups[i]);
-     }
-     return(nullptr);
-}
-
-CIkGroup_old* _CIkGroupContainer_::getObjectFromIndex(size_t index) const
-{
-    CIkGroup_old* retVal=nullptr;
-    if (index<_ikGroups.size())
-        retVal=_ikGroups[index];
-    return(retVal);
-}
-
-CIkGroup_old* _CIkGroupContainer_::getObjectFromName(const char* ikGroupName) const
-{
-    for (size_t i=0;i<_ikGroups.size();i++)
+    for (size_t i = 0; i < _ikGroups.size(); i++)
     {
-        if (_ikGroups[i]->getObjectName().compare(ikGroupName)==0)
-            return(_ikGroups[i]);
+        if (_ikGroups[i]->getObjectHandle() == ikGroupHandle)
+            return (_ikGroups[i]);
     }
-    return(nullptr);
+    return (nullptr);
 }
 
-void _CIkGroupContainer_::_addIkGroup(CIkGroup_old* anIkGroup)
+CIkGroup_old *_CIkGroupContainer_::getObjectFromIndex(size_t index) const
+{
+    CIkGroup_old *retVal = nullptr;
+    if (index < _ikGroups.size())
+        retVal = _ikGroups[index];
+    return (retVal);
+}
+
+CIkGroup_old *_CIkGroupContainer_::getObjectFromName(const char *ikGroupName) const
+{
+    for (size_t i = 0; i < _ikGroups.size(); i++)
+    {
+        if (_ikGroups[i]->getObjectName().compare(ikGroupName) == 0)
+            return (_ikGroups[i]);
+    }
+    return (nullptr);
+}
+
+void _CIkGroupContainer_::_addIkGroup(CIkGroup_old *anIkGroup)
 {
     _ikGroups.push_back(anIkGroup);
 }
 
 void _CIkGroupContainer_::_removeIkGroup(int ikGroupHandle)
 {
-    for (size_t i=0;i<_ikGroups.size();i++)
+    for (size_t i = 0; i < _ikGroups.size(); i++)
     {
-        if (_ikGroups[i]->getObjectHandle()==ikGroupHandle)
+        if (_ikGroups[i]->getObjectHandle() == ikGroupHandle)
         {
             delete _ikGroups[i];
-            _ikGroups.erase(_ikGroups.begin()+i);
+            _ikGroups.erase(_ikGroups.begin() + i);
             break;
         }
     }
 }
 
-bool _CIkGroupContainer_::shiftIkGroup(int ikGroupHandle,bool shiftUp)
+bool _CIkGroupContainer_::shiftIkGroup(int ikGroupHandle, bool shiftUp)
 {
-    bool diff=false;
-    CIkGroup_old* it=getObjectFromHandle(ikGroupHandle);
-    for (size_t i=0;i<_ikGroups.size();i++)
+    bool diff = false;
+    CIkGroup_old *it = getObjectFromHandle(ikGroupHandle);
+    for (size_t i = 0; i < _ikGroups.size(); i++)
     {
-        CIkGroup_old* ikg=_ikGroups[i];
+        CIkGroup_old *ikg = _ikGroups[i];
         if (shiftUp)
         {
-            if ( (ikg->getObjectHandle()==ikGroupHandle)&&(i>0) )
+            if ((ikg->getObjectHandle() == ikGroupHandle) && (i > 0))
             {
-                _ikGroups.erase(_ikGroups.begin()+i);
-                _ikGroups.insert(_ikGroups.begin()+i-1,it);
-                diff=true;
+                _ikGroups.erase(_ikGroups.begin() + i);
+                _ikGroups.insert(_ikGroups.begin() + i - 1, it);
+                diff = true;
                 break;
             }
         }
         else
         {
-            if ( (ikg->getObjectHandle()==ikGroupHandle)&&(i<_ikGroups.size()-1) )
+            if ((ikg->getObjectHandle() == ikGroupHandle) && (i < _ikGroups.size() - 1))
             {
-                _ikGroups.erase(_ikGroups.begin()+i);
-                _ikGroups.insert(_ikGroups.begin()+i+1,it);
-                diff=true;
+                _ikGroups.erase(_ikGroups.begin() + i);
+                _ikGroups.insert(_ikGroups.begin() + i + 1, it);
+                diff = true;
                 break;
             }
         }
     }
     if (diff)
-        _shiftIkGroup_send(ikGroupHandle,shiftUp);
-    return(diff);
+        _shiftIkGroup_send(ikGroupHandle, shiftUp);
+    return (diff);
 }
 
-void _CIkGroupContainer_::_shiftIkGroup_send(int ikGroupHandle,bool shiftUp)
+void _CIkGroupContainer_::_shiftIkGroup_send(int ikGroupHandle, bool shiftUp)
 {
-    int h=ikGroupHandle;
+    int h = ikGroupHandle;
     if (!shiftUp)
-        h=-1-h;
+        h = -1 - h;
 }

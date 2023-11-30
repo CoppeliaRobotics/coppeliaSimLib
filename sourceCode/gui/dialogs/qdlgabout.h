@@ -3,15 +3,16 @@
 #include <vDialog.h>
 #include <QAbstractButton>
 
-namespace Ui {
-    class CQDlgAbout;
+namespace Ui
+{
+class CQDlgAbout;
 }
 
 class CQDlgAbout : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgAbout(QWidget *parent = 0);
     ~CQDlgAbout();
 
@@ -19,11 +20,10 @@ public:
     void okEvent();
     void initializationEvent();
 
-private slots:
+  private slots:
     void on_qqClose_clicked(QAbstractButton *button);
 
-private:
+  private:
     Ui::CQDlgAbout *ui;
-
 };
 #endif // QDLGABOUT_H

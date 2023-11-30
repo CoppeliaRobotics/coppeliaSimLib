@@ -6,19 +6,20 @@
 
 class CInterfaceStackObject
 {
-public:
+  public:
     CInterfaceStackObject();
     virtual ~CInterfaceStackObject();
 
-    virtual CInterfaceStackObject* copyYourself() const;
-    virtual void printContent(int spaces,std::string& buffer) const;
+    virtual CInterfaceStackObject *copyYourself() const;
+    virtual void printContent(int spaces, std::string &buffer) const;
     virtual std::string getObjectData() const;
-    virtual void addCborObjectData(CCbor* cborObj) const;
-    virtual unsigned int createFromData(const char* data,const unsigned char version);
-    static CInterfaceStackObject* createFromDataStatic(const char* data,unsigned int& retOffset,unsigned char version);
+    virtual void addCborObjectData(CCbor *cborObj) const;
+    virtual unsigned int createFromData(const char *data, const unsigned char version);
+    static CInterfaceStackObject *createFromDataStatic(const char *data, unsigned int &retOffset,
+                                                       unsigned char version);
 
     int getObjectType() const;
 
-protected:
+  protected:
     int _objectType;
 };

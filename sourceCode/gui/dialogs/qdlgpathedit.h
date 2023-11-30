@@ -5,15 +5,16 @@
 #include <dlgEx.h>
 #include <path_old.h>
 
-namespace Ui {
-    class CQDlgPathEdit;
+namespace Ui
+{
+class CQDlgPathEdit;
 }
 
 class CQDlgPathEdit : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgPathEdit(QWidget *parent = 0);
     ~CQDlgPathEdit();
 
@@ -21,9 +22,9 @@ public:
     void cancelEvent();
     void okEvent();
 
-    CPathCont_old* getPathCont();
+    CPathCont_old *getPathCont();
 
-private slots:
+  private slots:
     void on_qqClosed_clicked();
 
     void on_qqFlat_clicked();
@@ -58,7 +59,7 @@ private slots:
 
     void on_qqMakeDummies_clicked();
 
-private:
+  private:
     Ui::CQDlgPathEdit *ui;
 };
 

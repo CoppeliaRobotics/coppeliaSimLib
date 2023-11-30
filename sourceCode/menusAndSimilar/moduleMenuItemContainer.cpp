@@ -2,46 +2,46 @@
 #include <moduleMenuItemContainer.h>
 #include <global.h>
 #ifdef SIM_WITH_GUI
-    #include <guiApp.h>
+#include <guiApp.h>
 #endif
 
 CModuleMenuItemContainer::CModuleMenuItemContainer()
 {
 #ifdef SIM_WITH_GUI
-    _menuHandle=nullptr;
+    _menuHandle = nullptr;
 #endif
 }
 
 CModuleMenuItemContainer::~CModuleMenuItemContainer()
 {
-    for (size_t i=0;i<_allItems.size();i++)
+    for (size_t i = 0; i < _allItems.size(); i++)
         delete _allItems[i];
 }
 
-CModuleMenuItem* CModuleMenuItemContainer::getItemFromHandle(int h) const
+CModuleMenuItem *CModuleMenuItemContainer::getItemFromHandle(int h) const
 {
-    CModuleMenuItem* retVal=nullptr;
-    for (size_t i=0;i<_allItems.size();i++)
+    CModuleMenuItem *retVal = nullptr;
+    for (size_t i = 0; i < _allItems.size(); i++)
     {
-        if (_allItems[i]->getHandle()==h)
-            return(_allItems[i]);
+        if (_allItems[i]->getHandle() == h)
+            return (_allItems[i]);
     }
-    return(nullptr);
+    return (nullptr);
 }
 
 size_t CModuleMenuItemContainer::getItemCount() const
 {
-    return(_allItems.size());
+    return (_allItems.size());
 }
 
 void CModuleMenuItemContainer::removeMenuItem(int h)
 {
-    for (size_t i=0;i<_allItems.size();i++)
+    for (size_t i = 0; i < _allItems.size(); i++)
     {
-        if (_allItems[i]->getHandle()==h)
+        if (_allItems[i]->getHandle() == h)
         {
             delete _allItems[i];
-            _allItems.erase(_allItems.begin()+i);
+            _allItems.erase(_allItems.begin() + i);
             return;
         }
     }
@@ -49,9 +49,9 @@ void CModuleMenuItemContainer::removeMenuItem(int h)
 
 void CModuleMenuItemContainer::announceScriptStateWillBeErased(int scriptHandle)
 {
-    for (size_t i=0;i<_allItems.size();i++)
+    for (size_t i = 0; i < _allItems.size(); i++)
     {
-        if (_allItems[i]->getScriptHandle()==scriptHandle)
+        if (_allItems[i]->getScriptHandle() == scriptHandle)
         {
             removeMenuItem(_allItems[i]->getHandle());
             i--;
@@ -59,28 +59,28 @@ void CModuleMenuItemContainer::announceScriptStateWillBeErased(int scriptHandle)
     }
 }
 
-int CModuleMenuItemContainer::addMenuItem(const char* item,int scriptHandle)
+int CModuleMenuItemContainer::addMenuItem(const char *item, int scriptHandle)
 {
-    int h=UI_MODULE_MENU_CMDS_START;
-    while (getItemFromHandle(h)!=nullptr)
+    int h = UI_MODULE_MENU_CMDS_START;
+    while (getItemFromHandle(h) != nullptr)
         h++;
-    CModuleMenuItem* it=new CModuleMenuItem(item,scriptHandle);
+    CModuleMenuItem *it = new CModuleMenuItem(item, scriptHandle);
     it->setHandle(h);
     _allItems.push_back(it);
-    return(h);
+    return (h);
 }
 
 void CModuleMenuItemContainer::_orderItems()
 {
     while (true)
     {
-        bool swapped=false;
-        for (size_t i=0;i<_allItems.size()-1;i++)
+        bool swapped = false;
+        for (size_t i = 0; i < _allItems.size() - 1; i++)
         {
-            if (_allItems[i]->getPath().compare(_allItems[i+1]->getPath())>0)
+            if (_allItems[i]->getPath().compare(_allItems[i + 1]->getPath()) > 0)
             {
-                std::iter_swap(_allItems.begin()+i,_allItems.begin()+i+1);
-                swapped=true;
+                std::iter_swap(_allItems.begin() + i, _allItems.begin() + i + 1);
+                swapped = true;
             }
         }
         if (!swapped)
@@ -91,49 +91,51 @@ void CModuleMenuItemContainer::_orderItems()
 #ifdef SIM_WITH_GUI
 bool CModuleMenuItemContainer::processCommand(int commandID)
 {
-    for (size_t i=0;i<_allItems.size();i++)
+    for (size_t i = 0; i < _allItems.size(); i++)
     {
-        CModuleMenuItem* it=_allItems[i];
-        if ( (it->getHandle()==commandID)&&(it->getScriptHandle()!=-1) )
+        CModuleMenuItem *it = _allItems[i];
+        if ((it->getHandle() == commandID) && (it->getScriptHandle() != -1))
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=CALL_MODULE_ENTRY_CMD;
+            cmd.cmdId = CALL_MODULE_ENTRY_CMD;
             cmd.intParams.push_back(it->getScriptHandle());
             cmd.intParams.push_back(commandID);
             App::appendSimulationThreadCommand(cmd);
-            return(true);
+            return (true);
         }
     }
 
     if (App::worldContainer->addOnScriptContainer->processCommand(commandID))
-        return(true);
+        return (true);
     else
     {
-        for (size_t i=0;i<_allItems.size();i++)
+        for (size_t i = 0; i < _allItems.size(); i++)
         {
-            CModuleMenuItem* it=_allItems[i];
-            if (it->getHandle()==commandID)
+            CModuleMenuItem *it = _allItems[i];
+            if (it->getHandle() == commandID)
             {
-                int data[4]={commandID,it->getState(),0,0};
-                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_menuitemselected,data);
+                int data[4] = {commandID, it->getState(), 0, 0};
+                App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
+                    sim_message_eventcallback_menuitemselected, data);
 
-                App::worldContainer->pluginContainer->uiCallAllPlugins(sim_message_eventcallback_menuitemselected,data);
-                return(true);
+                App::worldContainer->pluginContainer->uiCallAllPlugins(sim_message_eventcallback_menuitemselected,
+                                                                       data);
+                return (true);
             }
         }
     }
-    return(false);
+    return (false);
 }
 
-bool CModuleMenuItemContainer::addMenus(VMenu* myMenu)
+bool CModuleMenuItemContainer::addMenus(VMenu *myMenu)
 {
     _orderItems();
-    std::vector<VMenu*> m;
+    std::vector<VMenu *> m;
     m.push_back(myMenu);
     std::vector<std::string> l;
     l.push_back("0");
-    for (size_t i=0;i<_allItems.size();i++)
-        _allItems[i]->addMenu(m,l);
-    return(true);
+    for (size_t i = 0; i < _allItems.size(); i++)
+        _allItems[i]->addMenu(m, l);
+    return (true);
 }
 #endif

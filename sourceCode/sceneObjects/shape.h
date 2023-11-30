@@ -4,48 +4,48 @@
 #include <mesh.h>
 #include <dummy.h>
 
-class CShape : public CSceneObject  
+class CShape : public CSceneObject
 {
-public:
-
+  public:
     CShape();
-    CShape(const std::vector<double>& allHeights,int xSize,int ySize,double dx,double zSize); // heightfield
-    CShape(const C7Vector& transformation,const std::vector<double>& vertices,const std::vector<int>& indices,const std::vector<double>* optNormals,const std::vector<float>* optTexCoords,int options); // mesh
+    CShape(const std::vector<double> &allHeights, int xSize, int ySize, double dx, double zSize); // heightfield
+    CShape(const C7Vector &transformation, const std::vector<double> &vertices, const std::vector<int> &indices,
+           const std::vector<double> *optNormals, const std::vector<float> *optTexCoords, int options); // mesh
     virtual ~CShape();
 
-    void replaceMesh(CMeshWrapper* newMesh,bool keepMeshAttributes);
-    CMeshWrapper* detachMesh();
+    void replaceMesh(CMeshWrapper *newMesh, bool keepMeshAttributes);
+    CMeshWrapper *detachMesh();
     bool computeMassAndInertia(double density);
 
     void invertFrontBack();
 
     int getMeshModificationCounter();
-    CMeshWrapper* getMesh() const;
-    CMesh* getSingleMesh() const;
+    CMeshWrapper *getMesh() const;
+    CMesh *getSingleMesh() const;
 
-    void* _meshCalculationStructure;
+    void *_meshCalculationStructure;
     int _meshModificationCounter;
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev) const;
-    CSceneObject* copyYourself();
-    void copyAttributesTo(CShape* target);
+    void addSpecializedObjectEventData(CCbor *ev) const;
+    CSceneObject *copyYourself();
+    void copyAttributesTo(CShape *target);
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    bool scaleObjectNonIsometrically(double x,double y,double z);
-    void serialize(CSer& ar);
-    void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
-    void announceCollectionWillBeErased(int groupID,bool copyBuffer);
-    void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
-    void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int,int>* map);
+    bool scaleObjectNonIsometrically(double x, double y, double z);
+    void serialize(CSer &ar);
+    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void announceCollectionWillBeErased(int groupID, bool copyBuffer);
+    void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
+    void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
+    void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
+    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -69,21 +69,19 @@ public:
     void setRespondableSuspendCount(int cnt);
     void decrementRespondableSuspendCount();
 
-
     bool getHideEdgeBorders_OLD() const;
     void setHideEdgeBorders_OLD(bool v);
     int getEdgeWidth_DEPRECATED() const;
     void setEdgeWidth_DEPRECATED(int w);
     bool getShapeWireframe_OLD() const;
     void setShapeWireframe_OLD(bool w);
-    CDynMaterialObject* getDynMaterial();
-    void setDynMaterial(CDynMaterialObject* mat);
+    CDynMaterialObject *getDynMaterial();
+    void setDynMaterial(CDynMaterialObject *mat);
 
-    void display_extRenderer(CViewableBase* renderingObject,int displayAttrib);
+    void display_extRenderer(CViewableBase *renderingObject, int displayAttrib);
 
     // Overridden from CSceneObject:
-    bool setParent(CSceneObject* newParent);
-
+    bool setParent(CSceneObject *newParent);
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization();
 
@@ -95,13 +93,13 @@ public:
     void setDynKinematic(bool kin);
 
     C3Vector getInitialDynamicLinearVelocity();
-    void setInitialDynamicLinearVelocity(const C3Vector& vel);
+    void setInitialDynamicLinearVelocity(const C3Vector &vel);
     C3Vector getInitialDynamicAngularVelocity();
-    void setInitialDynamicAngularVelocity(const C3Vector& vel);
+    void setInitialDynamicAngularVelocity(const C3Vector &vel);
     bool isCompound() const;
-    void setColor(const char* colorName,int colorComponent,float r,float g,float b);
-    void setColor(const char* colorName,int colorComponent,const float* rgbData);
-    bool getColor(const char* colorName,int colorComponent,float* rgbData);
+    void setColor(const char *colorName, int colorComponent, float r, float g, float b);
+    void setColor(const char *colorName, int colorComponent, const float *rgbData);
+    bool getColor(const char *colorName, int colorComponent, float *rgbData);
     void setRespondable(bool r);
     bool getRespondable();
     void setDynamicCollisionMask(unsigned short m);
@@ -110,33 +108,31 @@ public:
     bool getSetAutomaticallyToNonStaticIfGetsParent();
     void setSetAutomaticallyToNonStaticIfGetsParent(bool autoNonStatic);
 
-
-
-    void setDynamicVelocity(const C3Vector& linearV,const C3Vector& angularV);
+    void setDynamicVelocity(const C3Vector &linearV, const C3Vector &angularV);
     C3Vector getDynamicLinearVelocity();
     C3Vector getDynamicAngularVelocity();
-    void addAdditionalForceAndTorque(const C3Vector& f,const C3Vector& t);
+    void addAdditionalForceAndTorque(const C3Vector &f, const C3Vector &t);
     void clearAdditionalForce();
     void clearAdditionalTorque();
     void clearAdditionalForceAndTorque();
     C3Vector getAdditionalForce();
     C3Vector getAdditionalTorque();
 
-    CSceneObject* getLastParentForLocalGlobalRespondable();
+    CSceneObject *getLastParentForLocalGlobalRespondable();
     void clearLastParentForLocalGlobalRespondable();
 
     // Distance measurement functions
-    bool getShapeShapeDistance_IfSmaller(CShape* it,double &dist,double ray[7],int buffer[2]);
-    bool getDistanceToDummy_IfSmaller(CDummy* it,double &dist,double ray[7],int& buffer);
+    bool getShapeShapeDistance_IfSmaller(CShape *it, double &dist, double ray[7], int buffer[2]);
+    bool getDistanceToDummy_IfSmaller(CDummy *it, double &dist, double ray[7], int &buffer);
 
     // Collision detection functions
     bool isMeshCalculationStructureInitialized();
     void initializeMeshCalculationStructureIfNeeded();
     void removeMeshCalculationStructure();
-    bool doesShapeCollideWithShape(CShape* collidee,std::vector<double>* intersections);
+    bool doesShapeCollideWithShape(CShape *collidee, std::vector<double> *intersections);
 
-    bool relocateFrame(const char* mode,const C7Vector* tr=nullptr);
-    bool alignBB(const char* mode,const C7Vector* tr=nullptr);
+    bool relocateFrame(const char *mode, const C7Vector *tr = nullptr);
+    bool alignBB(const char *mode, const C7Vector *tr = nullptr);
     C7Vector getCumulCenteredMeshFrame() const;
 
     void setInsideAndOutsideFacesSameColor_DEPRECATED(bool s);
@@ -148,12 +144,12 @@ public:
     void setRigidBodyWasAlreadyPutToSleepOnce(bool s);
     bool getRigidBodyWasAlreadyPutToSleepOnce();
 
-protected:
-    CMeshWrapper* _mesh;
-    void _serializeMesh(CSer& ar);
+  protected:
+    CMeshWrapper *_mesh;
+    void _serializeMesh(CSer &ar);
 
     unsigned short _dynamicCollisionMask;
-    CSceneObject* _lastParentForLocalGlobalRespondable;
+    CSceneObject *_lastParentForLocalGlobalRespondable;
 
     // Variables which need to be serialized
     bool _startInDynamicSleeping;
@@ -165,7 +161,7 @@ protected:
     bool _setAutomaticallyToNonStaticIfGetsParent;
     C3Vector _initialDynamicLinearVelocity;
     C3Vector _initialDynamicAngularVelocity;
-    CDynMaterialObject* _dynMaterial;
+    CDynMaterialObject *_dynMaterial;
 
     // other variables:
     C3Vector _dynamicLinearVelocity;
@@ -179,11 +175,10 @@ protected:
     C3Vector _initialInitialDynamicLinearVelocity;
     C3Vector _initialInitialDynamicAngularVelocity;
 
-
-    #ifdef SIM_WITH_GUI
-    public:
-        void display(CViewableBase* renderingObject,int displayAttrib);
-        void displayInertia(CViewableBase* renderingObject,double size,bool persp);
-        void displayFrames(CViewableBase* renderingObject,double size,bool persp);
-    #endif
+#ifdef SIM_WITH_GUI
+  public:
+    void display(CViewableBase *renderingObject, int displayAttrib);
+    void displayInertia(CViewableBase *renderingObject, double size, bool persp);
+    void displayFrames(CViewableBase *renderingObject, double size, bool persp);
+#endif
 };

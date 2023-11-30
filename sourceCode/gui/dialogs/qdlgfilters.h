@@ -5,20 +5,21 @@
 #include "dlgEx.h"
 #include <QListWidgetItem>
 
-namespace Ui {
-    class CQDlgFilters;
+namespace Ui
+{
+class CQDlgFilters;
 }
 
 class CQDlgFilters : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgFilters(QWidget *parent = 0);
     ~CQDlgFilters();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
+    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
     void cancelEvent();
 
     void updateObjectsInList();
@@ -29,7 +30,7 @@ public:
     bool inMainRefreshRoutine;
     int currentComboIndex;
 
-private slots:
+  private slots:
     void onDeletePressed();
 
     void on_qqFilterCombo_currentIndexChanged(int index);
@@ -48,7 +49,7 @@ private slots:
 
     void on_qqApply_clicked();
 
-private:
+  private:
     Ui::CQDlgFilters *ui;
 };
 

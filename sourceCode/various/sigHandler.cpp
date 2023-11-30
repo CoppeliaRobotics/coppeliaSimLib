@@ -1,29 +1,30 @@
-// Adapted code courtesy of "Tibo" from here: https://stackoverflow.com/questions/7581343/how-to-catch-ctrlc-on-windows-and-linux-with-qt
+// Adapted code courtesy of "Tibo" from here:
+// https://stackoverflow.com/questions/7581343/how-to-catch-ctrlc-on-windows-and-linux-with-qt
 
 #include <sigHandler.h>
 #include <iostream>
 #include <set>
 #include <app.h>
 #ifndef _WIN32
-    #include <signal.h>
+#include <signal.h>
 #else
-    #include <windows.h>
+#include <windows.h>
 #endif //!_WIN32
 #ifdef SIM_WITH_GUI
-    #include <guiApp.h>
+#include <guiApp.h>
 #endif
 
 // There can be only ONE SignalHandler per process
-//SignalHandler* g_handler(nullptr);
+// SignalHandler* g_handler(nullptr);
 #ifdef _WIN32
-    BOOL WINAPI WIN32_handleFunc(DWORD);
-    int WIN32_physicalToLogical(DWORD);
-    DWORD WIN32_logicalToPhysical(int);
-    std::set<int> g_registry;
+BOOL WINAPI WIN32_handleFunc(DWORD);
+int WIN32_physicalToLogical(DWORD);
+DWORD WIN32_logicalToPhysical(int);
+std::set<int> g_registry;
 #else //_WIN32
-    void POSIX_handleFunc(int);
-    int POSIX_physicalToLogical(int);
-    int POSIX_logicalToPhysical(int);
+void POSIX_handleFunc(int);
+int POSIX_physicalToLogical(int);
+int POSIX_logicalToPhysical(int);
 #endif //_WIN32
 bool handleSignal(int signal);
 
@@ -33,7 +34,7 @@ SignalHandler::SignalHandler(int mask) : _mask(mask), _restoremask(0)
     SetConsoleCtrlHandler(WIN32_handleFunc, TRUE);
 #endif //_WIN32
 
-    for (int i=0;i<numSignals;i++)
+    for (int i = 0; i < numSignals; i++)
     {
         int logical = 0x1 << i;
         if (_mask & logical)
@@ -68,7 +69,7 @@ SignalHandler::~SignalHandler()
 #ifdef _WIN32
     SetConsoleCtrlHandler(WIN32_handleFunc, FALSE);
 #else
-    for (int i=0;i<numSignals;i++)
+    for (int i = 0; i < numSignals; i++)
     {
         int logical = 0x1 << i;
         if (_restoremask & logical)
@@ -93,9 +94,12 @@ DWORD WIN32_logicalToPhysical(int signal)
 {
     switch (signal)
     {
-    case SignalHandler::SIG_INT: return CTRL_C_EVENT;
-    case SignalHandler::SIG_TERM: return CTRL_BREAK_EVENT;
-    case SignalHandler::SIG_CLOSE: return CTRL_CLOSE_EVENT;
+    case SignalHandler::SIG_INT:
+        return CTRL_C_EVENT;
+    case SignalHandler::SIG_TERM:
+        return CTRL_BREAK_EVENT;
+    case SignalHandler::SIG_CLOSE:
+        return CTRL_CLOSE_EVENT;
     default:
         return ~(unsigned int)0; // SIG_ERR = -1
     }
@@ -105,12 +109,16 @@ int POSIX_logicalToPhysical(int signal)
 {
     switch (signal)
     {
-    case SignalHandler::SIG_INT: return SIGINT;
-    case SignalHandler::SIG_TERM: return SIGTERM;
+    case SignalHandler::SIG_INT:
+        return SIGINT;
+    case SignalHandler::SIG_TERM:
+        return SIGTERM;
     // In case the client asks for a SIG_CLOSE handler, accept and
     // bind it to a SIGTERM. Anyway the signal will never be raised
-    case SignalHandler::SIG_CLOSE: return SIGTERM;
-    case SignalHandler::SIG_RELOAD: return SIGHUP;
+    case SignalHandler::SIG_CLOSE:
+        return SIGTERM;
+    case SignalHandler::SIG_RELOAD:
+        return SIGHUP;
     default:
         return -1; // SIG_ERR = -1
     }
@@ -122,9 +130,12 @@ int WIN32_physicalToLogical(DWORD signal)
 {
     switch (signal)
     {
-    case CTRL_C_EVENT: return SignalHandler::SIG_INT;
-    case CTRL_BREAK_EVENT: return SignalHandler::SIG_TERM;
-    case CTRL_CLOSE_EVENT: return SignalHandler::SIG_CLOSE;
+    case CTRL_C_EVENT:
+        return SignalHandler::SIG_INT;
+    case CTRL_BREAK_EVENT:
+        return SignalHandler::SIG_TERM;
+    case CTRL_CLOSE_EVENT:
+        return SignalHandler::SIG_CLOSE;
     default:
         return SignalHandler::SIG_UNHANDLED;
     }
@@ -134,15 +145,17 @@ int POSIX_physicalToLogical(int signal)
 {
     switch (signal)
     {
-    case SIGINT: return SignalHandler::SIG_INT;
-    case SIGTERM: return SignalHandler::SIG_TERM;
-    case SIGHUP: return SignalHandler::SIG_RELOAD;
+    case SIGINT:
+        return SignalHandler::SIG_INT;
+    case SIGTERM:
+        return SignalHandler::SIG_TERM;
+    case SIGHUP:
+        return SignalHandler::SIG_RELOAD;
     default:
         return SignalHandler::SIG_UNHANDLED;
     }
 }
 #endif //_WIN32
-
 
 #ifdef _WIN32
 BOOL WINAPI WIN32_handleFunc(DWORD signal)
@@ -168,13 +181,13 @@ void POSIX_handleFunc(int signal)
 
 bool handleSignal(int signal)
 {
-    App::logMsg(sim_verbosity_loadinfos|sim_verbosity_onlyterminal,"external exit request: %i",signal);
-    #ifdef SIM_WITH_GUI
-        SSimulationThreadCommand cmd;
-        cmd.cmdId=EXIT_REQUEST_CMD;
-        App::appendSimulationThreadCommand(cmd);
-    #else
-        App::postExitRequest();
-    #endif
+    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "external exit request: %i", signal);
+#ifdef SIM_WITH_GUI
+    SSimulationThreadCommand cmd;
+    cmd.cmdId = EXIT_REQUEST_CMD;
+    App::appendSimulationThreadCommand(cmd);
+#else
+    App::postExitRequest();
+#endif
     return true; // don't propagate the signal further
 }

@@ -2,30 +2,30 @@
 
 #include <sceneObject.h>
 
-class CForceSensor : public CSceneObject  
+class CForceSensor : public CSceneObject
 {
-public:
+  public:
     CForceSensor();
     virtual ~CForceSensor();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor* ev) const;
-    CSceneObject* copyYourself();
+    void addSpecializedObjectEventData(CCbor *ev) const;
+    CSceneObject *copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);
-    void serialize(CSer& ar);
-    void announceObjectWillBeErased(const CSceneObject* object,bool copyBuffer);
-    void announceCollectionWillBeErased(int groupID,bool copyBuffer);
-    void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
-    void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
-    void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
-    void performObjectLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollectionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performCollisionLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performDistanceLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performIkLoadingMapping(const std::map<int,int>* map,bool loadingAmodel);
-    void performTextureObjectLoadingMapping(const std::map<int,int>* map);
-    void performDynMaterialObjectLoadingMapping(const std::map<int,int>* map);
+    void serialize(CSer &ar);
+    void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
+    void announceCollectionWillBeErased(int groupID, bool copyBuffer);
+    void announceCollisionWillBeErased(int collisionID, bool copyBuffer);
+    void announceDistanceWillBeErased(int distanceID, bool copyBuffer);
+    void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
+    void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void performTextureObjectLoadingMapping(const std::map<int, int> *map);
+    void performDynMaterialObjectLoadingMapping(const std::map<int, int> *map);
     void simulationAboutToStart();
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
@@ -37,24 +37,23 @@ public:
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
 
-
     // Overridden from CSceneObject:
-    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent,bool* available=nullptr) const;
+    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent, bool *available = nullptr) const;
     virtual C7Vector getFullLocalTransformation() const;
 
     void commonInit();
 
-    void setIntrinsicTransformationError(const C7Vector& tr);
+    void setIntrinsicTransformationError(const C7Vector &tr);
 
-    void addCumulativeForcesAndTorques(const C3Vector& f,const C3Vector& t,int countForAverage);
+    void addCumulativeForcesAndTorques(const C3Vector &f, const C3Vector &t, int countForAverage);
     void setForceAndTorqueNotValid();
 
-    bool getDynamicForces(C3Vector& f,bool dynamicStepValue) const;
-    bool getDynamicTorques(C3Vector& t,bool dynamicStepValue) const;
+    bool getDynamicForces(C3Vector &f, bool dynamicStepValue) const;
+    bool getDynamicTorques(C3Vector &t, bool dynamicStepValue) const;
 
     double getDynamicPositionError() const;
     double getDynamicOrientationError() const;
-    void getDynamicErrorsFull(C3Vector& linear,C3Vector& angular) const;
+    void getDynamicErrorsFull(C3Vector &linear, C3Vector &angular) const;
 
     bool getStillAutomaticallyBreaking();
     void setForceThreshold(double t);
@@ -77,16 +76,16 @@ public:
     void setForceSensorSize(double s);
     double getForceSensorSize() const;
 
-    CColorObject* getColor(bool part2);
+    CColorObject *getColor(bool part2);
 
-protected:
+  protected:
     void _computeFilteredValues();
     void _handleSensorBreaking();
 
     double _forceThreshold;
     double _torqueThreshold;
     int _valueCountForFilter;
-    int _filterType; //0=average, 1=median
+    int _filterType; // 0=average, 1=median
     bool _forceThresholdEnabled;
     bool _torqueThresholdEnabled;
     bool _stillAutomaticallyBreaking;
@@ -114,12 +113,12 @@ protected:
     C3Vector _lastTorque_dynStep;
     bool _lastForceAndTorqueValid_dynStep;
 
-    C3Vector _filteredDynamicForces; // do not serialize! (but initialize appropriately)
+    C3Vector _filteredDynamicForces;  // do not serialize! (but initialize appropriately)
     C3Vector _filteredDynamicTorques; // do not serialize! (but initialize appropriately)
     bool _filteredValuesAreValid;
 
-    #ifdef SIM_WITH_GUI
-    public:
-        void display(CViewableBase* renderingObject,int displayAttrib);
-    #endif
+#ifdef SIM_WITH_GUI
+  public:
+    void display(CViewableBase *renderingObject, int displayAttrib);
+#endif
 };

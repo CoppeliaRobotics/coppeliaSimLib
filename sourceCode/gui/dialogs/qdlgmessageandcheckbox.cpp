@@ -3,10 +3,11 @@
 #include <ui_qdlgmessageandcheckbox.h>
 #include <app.h>
 
-CQDlgMessageAndCheckbox::CQDlgMessageAndCheckbox(QWidget *parent) : VDialog(parent,QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgMessageAndCheckbox)
+CQDlgMessageAndCheckbox::CQDlgMessageAndCheckbox(QWidget *parent)
+    : VDialog(parent, QT_MODAL_DLG_STYLE), ui(new Ui::CQDlgMessageAndCheckbox)
 {
     ui->setupUi(this);
-    checkboxState=false;
+    checkboxState = false;
 }
 
 CQDlgMessageAndCheckbox::~CQDlgMessageAndCheckbox()
@@ -16,12 +17,12 @@ CQDlgMessageAndCheckbox::~CQDlgMessageAndCheckbox()
 
 void CQDlgMessageAndCheckbox::cancelEvent()
 {
-//  defaultModalDialogEndRoutine(false);
+    //  defaultModalDialogEndRoutine(false);
 }
 
 void CQDlgMessageAndCheckbox::okEvent()
 {
-//  defaultModalDialogEndRoutine(true);
+    //  defaultModalDialogEndRoutine(true);
 }
 
 void CQDlgMessageAndCheckbox::refresh()
@@ -34,7 +35,7 @@ void CQDlgMessageAndCheckbox::refresh()
 
 void CQDlgMessageAndCheckbox::on_qqCheckbox_clicked()
 {
-    checkboxState=!checkboxState;
+    checkboxState = !checkboxState;
     refresh();
 }
 

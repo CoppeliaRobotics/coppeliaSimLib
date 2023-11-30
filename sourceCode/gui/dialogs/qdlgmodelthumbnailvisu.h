@@ -5,29 +5,30 @@
 #include <vDialog.h>
 #include <thumbnail.h>
 
-namespace Ui {
-    class CQDlgModelThumbnailVisu;
+namespace Ui
+{
+class CQDlgModelThumbnailVisu;
 }
 
 class CQDlgModelThumbnailVisu : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgModelThumbnailVisu(QWidget *parent = 0);
     ~CQDlgModelThumbnailVisu();
 
     void cancelEvent();
     void okEvent();
 
-    void applyThumbnail(const CThumbnail* thumbnail);
+    void applyThumbnail(const CThumbnail *thumbnail);
 
-private slots:
+  private slots:
     void on_qqYesNo_accepted();
 
     void on_qqYesNo_rejected();
 
-private:
+  private:
     Ui::CQDlgModelThumbnailVisu *ui;
 };
 

@@ -4,15 +4,16 @@
 
 #include <dlgEx.h>
 
-namespace Ui {
-    class CQDlgPointclouds;
+namespace Ui
+{
+class CQDlgPointclouds;
 }
 
 class CQDlgPointclouds : public CDlgEx
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgPointclouds(QWidget *parent = 0);
     ~CQDlgPointclouds();
 
@@ -20,7 +21,7 @@ public:
 
     void cancelEvent();
 
-private slots:
+  private slots:
     void on_qqMaxCellSize_editingFinished();
 
     void on_qqColor_clicked();
@@ -39,7 +40,7 @@ private slots:
 
     void on_qqBuildResolution_editingFinished();
 
-//  void on_qqReconstructCalcStructure_clicked();
+    //  void on_qqReconstructCalcStructure_clicked();
 
     void on_qqNoOctreeStructure_clicked();
 
@@ -53,7 +54,7 @@ private slots:
 
     void on_qqInsertionTolerance_editingFinished();
 
-private:
+  private:
     Ui::CQDlgPointclouds *ui;
 };
 

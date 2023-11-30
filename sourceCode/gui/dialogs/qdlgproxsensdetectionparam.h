@@ -4,15 +4,16 @@
 #include <vDialog.h>
 #include <simLib/simTypes.h>
 
-namespace Ui {
-    class CQDlgProxSensDetectionParam;
+namespace Ui
+{
+class CQDlgProxSensDetectionParam;
 }
 
 class CQDlgProxSensDetectionParam : public VDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CQDlgProxSensDetectionParam(QWidget *parent = 0);
     ~CQDlgProxSensDetectionParam();
 
@@ -26,14 +27,14 @@ public:
     bool fast;
     bool limitedAngle;
     double angle;
-//    bool occlusionCheck;
+    //    bool occlusionCheck;
     bool distanceContraint;
     double minimumDistance;
     bool randomizedDetection;
     int rayCount;
     int rayDetectionCount;
 
-private slots:
+  private slots:
     void on_qqFrontFace_clicked();
 
     void on_qqBackFace_clicked();
@@ -44,7 +45,7 @@ private slots:
 
     void on_qqAngle_editingFinished();
 
-//    void on_qqOcclusionCheck_clicked();
+    //    void on_qqOcclusionCheck_clicked();
 
     void on_qqMinDistEnabled_clicked();
 
@@ -58,7 +59,7 @@ private slots:
 
     void on_qqOkCancel_rejected();
 
-private:
+  private:
     Ui::CQDlgProxSensDetectionParam *ui;
 };
 

@@ -21,19 +21,21 @@ See the GNU General Public License for more details.
 #include <pathRendering.h>
 #include <guiApp.h>
 
-void displayPath(CPath_old* path,CViewableBase* renderingObject,int displayAttrib)
+void displayPath(CPath_old *path, CViewableBase *renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
-    _commonStart(path,renderingObject);
+    _commonStart(path, renderingObject);
 
-    C3Vector normalVectorForLinesAndPoints(path->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
+    C3Vector normalVectorForLinesAndPoints(path->getFullCumulativeTransformation().Q.getInverse() *
+                                           C3Vector::unitZVector);
 
     // Object display:
-    if ( path->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib)||( (GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->editModeContainer->getEditModePath_old()==path) ) )
+    if (path->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(), displayAttrib) ||
+        ((GuiApp::mainWindow != nullptr) && (GuiApp::mainWindow->editModeContainer->getEditModePath_old() == path)))
     {
-        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
         {
-            if (path->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (path->getObjectProperty() & sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(path->getModelSelectionHandle());
             else
                 glLoadName(path->getObjectHandle());
@@ -41,30 +43,32 @@ void displayPath(CPath_old* path,CViewableBase* renderingObject,int displayAttri
         else
             glLoadName(-1);
 
-        if ( (displayAttrib&sim_displayattribute_forcewireframe)&&(displayAttrib&sim_displayattribute_renderpass) )
-            glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
+        if ((displayAttrib & sim_displayattribute_forcewireframe) && (displayAttrib & sim_displayattribute_renderpass))
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        if ( (GuiApp::mainWindow!=nullptr)&&(GuiApp::mainWindow->editModeContainer->getEditModePath_old()==path) )
-            GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->render(true,0,false,path->getObjectHandle());
+        if ((GuiApp::mainWindow != nullptr) && (GuiApp::mainWindow->editModeContainer->getEditModePath_old() == path))
+            GuiApp::mainWindow->editModeContainer->getEditModePathContainer_old()->render(true, 0, false,
+                                                                                          path->getObjectHandle());
         else
         {
             _enableAuxClippingPlanes(path->getObjectHandle());
-            if ((displayAttrib&sim_displayattribute_forvisionsensor)==0)
+            if ((displayAttrib & sim_displayattribute_forvisionsensor) == 0)
             {
-                bool isUniqueSelectedPath=false;
-                if (GuiApp::mainWindow!=nullptr)
-                    isUniqueSelectedPath=GuiApp::mainWindow->editModeContainer->pathPointManipulation->getUniqueSelectedPathId_nonEditMode()!=-1;
-                path->pathContainer->render(false,displayAttrib,isUniqueSelectedPath,path->getObjectHandle());
+                bool isUniqueSelectedPath = false;
+                if (GuiApp::mainWindow != nullptr)
+                    isUniqueSelectedPath = GuiApp::mainWindow->editModeContainer->pathPointManipulation
+                                               ->getUniqueSelectedPathId_nonEditMode() != -1;
+                path->pathContainer->render(false, displayAttrib, isUniqueSelectedPath, path->getObjectHandle());
             }
 
             if (path->getShapingEnabled())
             {
-                path->getShapingColor()->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
+                path->getShapingColor()->makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
                 glBegin(GL_TRIANGLES);
-                for (int i=0;i<int(path->_pathShapeIndices.size());i++)
+                for (int i = 0; i < int(path->_pathShapeIndices.size()); i++)
                 {
-                    glNormal3dv(&path->_pathShapeNormals[3*i]);
-                    glVertex3dv(&path->_pathShapeVertices[3*(path->_pathShapeIndices[i])]);
+                    glNormal3dv(&path->_pathShapeNormals[3 * i]);
+                    glVertex3dv(&path->_pathShapeVertices[3 * (path->_pathShapeIndices[i])]);
                 }
                 glEnd();
             }
@@ -75,5 +79,5 @@ void displayPath(CPath_old* path,CViewableBase* renderingObject,int displayAttri
     }
 
     // At the end of every scene object display routine:
-    _commonFinish(path,renderingObject);
+    _commonFinish(path, renderingObject);
 }

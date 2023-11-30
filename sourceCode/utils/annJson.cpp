@@ -3,172 +3,177 @@
 #include <utils.h>
 #include <cmath>
 
-CAnnJson::CAnnJson(QJsonObject* mainObject)
+CAnnJson::CAnnJson(QJsonObject *mainObject)
 {
-    _mainObject=mainObject;
-    _cnt=0;
+    _mainObject = mainObject;
+    _cnt = 0;
 }
 
 CAnnJson::~CAnnJson()
 {
 }
 
-std::string CAnnJson::_nbKey(const char* key)
+std::string CAnnJson::_nbKey(const char *key)
 {
     std::string retVal("__key");
-    retVal+=utils::getIntString(false,_cnt++,4);
-    retVal+="__";
-    retVal+=key;
-    return(retVal);
+    retVal += utils::getIntString(false, _cnt++, 4);
+    retVal += "__";
+    retVal += key;
+    return (retVal);
 }
 
-void CAnnJson::_addAnnotation(const char* nbKey,const char* annotation)
+void CAnnJson::_addAnnotation(const char *nbKey, const char *annotation)
 {
-    if (annotation!=nullptr)
-        _keysAndAnnotations[nbKey]=annotation;
+    if (annotation != nullptr)
+        _keysAndAnnotations[nbKey] = annotation;
     else
-        _keysAndAnnotations[nbKey]="";
+        _keysAndAnnotations[nbKey] = "";
 }
 
-void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const QJsonObject& value,const char* annotation/*=nullptr*/)
+void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, const QJsonObject &value,
+                       const char *annotation /*=nullptr*/)
 {
     std::string l(_nbKey(key));
-    jsonObj[l.c_str()]=value;
-    _addAnnotation(l.c_str(),annotation);
+    jsonObj[l.c_str()] = value;
+    _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const QJsonArray& value,const char* annotation/*=nullptr*/)
+void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, const QJsonArray &value,
+                       const char *annotation /*=nullptr*/)
 {
     std::string l(_nbKey(key));
-    jsonObj[l.c_str()]=value;
-    _addAnnotation(l.c_str(),annotation);
+    jsonObj[l.c_str()] = value;
+    _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,bool value,const char* annotation/*=nullptr*/)
+void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, bool value, const char *annotation /*=nullptr*/)
 {
     std::string l(_nbKey(key));
-    jsonObj[l.c_str()]=value;
-    _addAnnotation(l.c_str(),annotation);
+    jsonObj[l.c_str()] = value;
+    _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,int value,const char* annotation/*=nullptr*/)
+void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, int value, const char *annotation /*=nullptr*/)
 {
     std::string l(_nbKey(key));
-    jsonObj[l.c_str()]=value;
-    _addAnnotation(l.c_str(),annotation);
+    jsonObj[l.c_str()] = value;
+    _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,double value,const char* annotation/*=nullptr*/)
+void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, double value, const char *annotation /*=nullptr*/)
 {
-    value=utils::getDoubleFromString(utils::getDoubleEString(false,value).c_str(),1e308);
+    value = utils::getDoubleFromString(utils::getDoubleEString(false, value).c_str(), 1e308);
     std::string l(_nbKey(key));
-    jsonObj[l.c_str()]=value;
-    _addAnnotation(l.c_str(),annotation);
+    jsonObj[l.c_str()] = value;
+    _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const double* v,size_t cnt,const char* annotation/*=nullptr*/)
+void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, const double *v, size_t cnt,
+                       const char *annotation /*=nullptr*/)
 {
     QJsonArray arr;
-    for (size_t i=0;i<cnt;i++)
-        arr.push_back(utils::getDoubleFromString(utils::getDoubleEString(false,v[i]).c_str(),1e308));
+    for (size_t i = 0; i < cnt; i++)
+        arr.push_back(utils::getDoubleFromString(utils::getDoubleEString(false, v[i]).c_str(), 1e308));
     std::string l(_nbKey(key));
-    jsonObj[l.c_str()]=arr;
-    _addAnnotation(l.c_str(),annotation);
+    jsonObj[l.c_str()] = arr;
+    _addAnnotation(l.c_str(), annotation);
 }
 
-void CAnnJson::addJson(QJsonObject& jsonObj,const char* key,const char* value,const char* annotation/*=nullptr*/)
+void CAnnJson::addJson(QJsonObject &jsonObj, const char *key, const char *value, const char *annotation /*=nullptr*/)
 {
     std::string l(_nbKey(key));
-    jsonObj[l.c_str()]=value;
-    _addAnnotation(l.c_str(),annotation);
+    jsonObj[l.c_str()] = value;
+    _addAnnotation(l.c_str(), annotation);
 }
 
-QJsonObject* CAnnJson::getMainObject()
+QJsonObject *CAnnJson::getMainObject()
 {
-    return(_mainObject);
+    return (_mainObject);
 }
 
-void CAnnJson::setMainObject(QJsonObject* obj)
+void CAnnJson::setMainObject(QJsonObject *obj)
 {
-    _mainObject=obj;
+    _mainObject = obj;
 }
 
-std::string CAnnJson::stripComments(const char* jsonTxt)
+std::string CAnnJson::stripComments(const char *jsonTxt)
 {
     std::string input(jsonTxt);
     std::string retVal;
     std::string line;
-    while (utils::extractLine(input,line))
+    while (utils::extractLine(input, line))
     {
         utils::removeComments(line);
-        retVal+=line+"\n";
+        retVal += line + "\n";
     }
-    return(retVal);
+    return (retVal);
 }
 
-bool CAnnJson::getValue(QJsonObject& jsonObj,const char* key,QJsonValue::Type type,QJsonValue& value,std::string* errMsg/*=nullptr*/)
+bool CAnnJson::getValue(QJsonObject &jsonObj, const char *key, QJsonValue::Type type, QJsonValue &value,
+                        std::string *errMsg /*=nullptr*/)
 {
-    bool retVal=false;
+    bool retVal = false;
     std::string msg;
     if (jsonObj.contains(key))
     {
-        if (jsonObj[key].type()==type)
+        if (jsonObj[key].type() == type)
         {
-            value=jsonObj[key];
-            retVal=true;
+            value = jsonObj[key];
+            retVal = true;
         }
         else
-            msg=std::string("Key '")+key+"' has not correct type and will be ignored.";
+            msg = std::string("Key '") + key + "' has not correct type and will be ignored.";
     }
     else
-        msg=std::string("Key '")+key+"' was not found and will be ignored.";
-    if ( (!retVal)&&(errMsg!=nullptr) )
+        msg = std::string("Key '") + key + "' was not found and will be ignored.";
+    if ((!retVal) && (errMsg != nullptr))
     {
-        if (errMsg->size()>0)
-            errMsg[0]+="\n";
-        errMsg[0]+=msg;
+        if (errMsg->size() > 0)
+            errMsg[0] += "\n";
+        errMsg[0] += msg;
     }
-    return(retVal);
+    return (retVal);
 }
 
-bool CAnnJson::getValue(QJsonObject& jsonObj,const char* key,double* vals,size_t cnt,std::string* errMsg/*=nullptr*/)
+bool CAnnJson::getValue(QJsonObject &jsonObj, const char *key, double *vals, size_t cnt,
+                        std::string *errMsg /*=nullptr*/)
 {
-    bool retVal=false;
+    bool retVal = false;
     std::string msg;
     if (jsonObj.contains(key))
     {
-        if (jsonObj[key].type()==QJsonValue::Array)
+        if (jsonObj[key].type() == QJsonValue::Array)
         {
-            QJsonArray arr=jsonObj[key].toArray();
-            if (arr.size()>=cnt)
+            QJsonArray arr = jsonObj[key].toArray();
+            if (arr.size() >= cnt)
             {
-                retVal=true;
-                for (size_t i=0;i<cnt;i++)
+                retVal = true;
+                for (size_t i = 0; i < cnt; i++)
                 {
-                    if (arr[int(i)].type()==QJsonValue::Double)
-                        vals[i]=arr[int(i)].toDouble();
+                    if (arr[int(i)].type() == QJsonValue::Double)
+                        vals[i] = arr[int(i)].toDouble();
                     else
                     {
-                        msg=std::string("Key '")+key+"' contains items with wrong type and will be ignored.";
+                        msg = std::string("Key '") + key + "' contains items with wrong type and will be ignored.";
                         break;
                     }
                 }
             }
             else
-                msg=std::string("Key '")+key+"' has not correct size and will be ignored.";
+                msg = std::string("Key '") + key + "' has not correct size and will be ignored.";
         }
         else
-            msg=std::string("Key '")+key+"' has not correct type and will be ignored.";
+            msg = std::string("Key '") + key + "' has not correct type and will be ignored.";
     }
     else
-        msg=std::string("Key '")+key+"' was not found and will be ignored.";
-    if ( (!retVal)&&(errMsg!=nullptr) )
+        msg = std::string("Key '") + key + "' was not found and will be ignored.";
+    if ((!retVal) && (errMsg != nullptr))
     {
-        if (errMsg->size()>0)
-            errMsg[0]+="\n";
-        errMsg[0]+=msg;
+        if (errMsg->size() > 0)
+            errMsg[0] += "\n";
+        errMsg[0] += msg;
     }
-    return(retVal);
+    return (retVal);
 }
 
 std::string CAnnJson::getAnnotatedString()
@@ -177,23 +182,23 @@ std::string CAnnJson::getAnnotatedString()
     std::string json(doc.toJson(QJsonDocument::Indented).toStdString());
     std::string retVal;
     std::string line;
-    while (utils::extractLine(json,line))
+    while (utils::extractLine(json, line))
     {
-        size_t p1=line.find("__key");
-        if (p1!=std::string::npos)
+        size_t p1 = line.find("__key");
+        if (p1 != std::string::npos)
         {
-            size_t p2=line.find("__",p1+2);
-            size_t p3=line.find("\"",p2);
-            std::string nbKey(line.begin()+p1,line.begin()+p3);
-            std::string key(line.begin()+p2+2,line.begin()+p3);
-            line.replace(p1,p3-p1,key);
-            if (_keysAndAnnotations[nbKey].size()>0)
+            size_t p2 = line.find("__", p1 + 2);
+            size_t p3 = line.find("\"", p2);
+            std::string nbKey(line.begin() + p1, line.begin() + p3);
+            std::string key(line.begin() + p2 + 2, line.begin() + p3);
+            line.replace(p1, p3 - p1, key);
+            if (_keysAndAnnotations[nbKey].size() > 0)
             {
-                line+="    //";
-                line+=_keysAndAnnotations[nbKey];
+                line += "    //";
+                line += _keysAndAnnotations[nbKey];
             }
         }
-        retVal+=line+"\n";
+        retVal += line + "\n";
     }
-    return(retVal);
+    return (retVal);
 }

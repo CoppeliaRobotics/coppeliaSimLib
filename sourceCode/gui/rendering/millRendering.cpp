@@ -21,19 +21,20 @@ See the GNU General Public License for more details.
 #include <millRendering.h>
 #include <guiApp.h>
 
-void displayMill(CMill* mill,CViewableBase* renderingObject,int displayAttrib)
+void displayMill(CMill *mill, CViewableBase *renderingObject, int displayAttrib)
 {
     // At the beginning of every scene object display routine:
-    _commonStart(mill,renderingObject);
+    _commonStart(mill, renderingObject);
 
-    C3Vector normalVectorForLinesAndPoints(mill->getFullCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
+    C3Vector normalVectorForLinesAndPoints(mill->getFullCumulativeTransformation().Q.getInverse() *
+                                           C3Vector::unitZVector);
 
     // Display the object:
-    if (mill->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
+    if (mill->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(), displayAttrib))
     {
-        if ((GuiApp::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE_OLD)==0)
+        if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
         {
-            if (mill->getObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
+            if (mill->getObjectProperty() & sim_objectproperty_selectmodelbaseinstead)
                 glLoadName(mill->getModelSelectionHandle());
             else
                 glLoadName(mill->getObjectHandle());
@@ -42,32 +43,35 @@ void displayMill(CMill* mill,CViewableBase* renderingObject,int displayAttrib)
             glLoadName(-1);
 
         _enableAuxClippingPlanes(mill->getObjectHandle());
-        bool wire=false;
-        if ( (displayAttrib&sim_displayattribute_forcewireframe)&&(displayAttrib&sim_displayattribute_renderpass) )
+        bool wire = false;
+        if ((displayAttrib & sim_displayattribute_forcewireframe) && (displayAttrib & sim_displayattribute_renderpass))
         {
-            wire=true;
-            glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
+            wire = true;
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
 
         int _milledObjectCount;
-        if (mill->getMilledCount(_milledObjectCount)&&(_milledObjectCount>0))
-            mill->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
+        if (mill->getMilledCount(_milledObjectCount) && (_milledObjectCount > 0))
+            mill->getColor(true)->makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
         else
-            mill->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
-        double _size=mill->getSize();
-        ogl::drawBox(_size/2.0,_size/2.0,_size/2.0,!wire,normalVectorForLinesAndPoints.data);
+            mill->getColor(false)->makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
+        double _size = mill->getSize();
+        ogl::drawBox(_size / 2.0, _size / 2.0, _size / 2.0, !wire, normalVectorForLinesAndPoints.data);
 
-        if (mill->convexVolume->volumeEdges.size()!=0)
-            ogl::drawRandom3dLines(&mill->convexVolume->volumeEdges[0],(int)mill->convexVolume->volumeEdges.size()/3,false,normalVectorForLinesAndPoints.data);
+        if (mill->convexVolume->volumeEdges.size() != 0)
+            ogl::drawRandom3dLines(&mill->convexVolume->volumeEdges[0], (int)mill->convexVolume->volumeEdges.size() / 3,
+                                   false, normalVectorForLinesAndPoints.data);
 
-        ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorRed);
+        ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorRed);
 
-        if (mill->convexVolume->normalsInside.size()!=0)
-            ogl::drawRandom3dLines(&mill->convexVolume->normalsInside[0],(int)mill->convexVolume->normalsInside.size()/3,false,normalVectorForLinesAndPoints.data);
+        if (mill->convexVolume->normalsInside.size() != 0)
+            ogl::drawRandom3dLines(&mill->convexVolume->normalsInside[0],
+                                   (int)mill->convexVolume->normalsInside.size() / 3, false,
+                                   normalVectorForLinesAndPoints.data);
 
         _disableAuxClippingPlanes();
     }
 
     // At the end of every scene object display routine:
-    _commonFinish(mill,renderingObject);
+    _commonFinish(mill, renderingObject);
 }
