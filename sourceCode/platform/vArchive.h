@@ -23,8 +23,8 @@ class VArchive
 
     inline VArchive &operator<<(const std::string &v)
     {
-        (*_theArchive) << v.length();
-        _theArchive->writeRawData(v.data(), v.length());
+        (*_theArchive) << int(v.length());
+        _theArchive->writeRawData(v.data(), int(v.length()));
         return (*this);
     }
 
@@ -87,9 +87,9 @@ class VArchive
 
     inline VArchive &operator>>(std::string &v)
     {
-        size_t l;
+        int l;
         (*_theArchive) >> l;
-        v.resize(l);
+        v.resize(size_t(l));
         _theArchive->readRawData(&v[0], l);
         return (*this);
     }
