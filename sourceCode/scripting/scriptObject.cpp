@@ -3074,9 +3074,10 @@ void CScriptObject::printInterpreterStack() const
 
 void CScriptObject::loadPluginFuncsAndVars(CPlugin *plug)
 {
+    static std::set<std::string> failedLuaExecs;
     luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
 
-    _execSimpleString_safe_lua(L, "__tmploadPluginFuncsAndVars1={}");
+    _execSimpleString_safe_lua(L, "__tmploadPluginFuncsAndVars1 = {}");
 
     // Now load the callbacks into Lua state:
     CPluginCallbackContainer *cbCont = plug->getPluginCallbackContainer();
@@ -3093,7 +3094,7 @@ void CScriptObject::loadPluginFuncsAndVars(CPlugin *plug)
             luaWrap_lua_setfield(L, -2, "__tmploadPluginFuncsAndVars2");
             luaWrap_lua_pop(L, 1); // pop table of globals
             std::string tmp("__tmploadPluginFuncsAndVars1." + dat->funcName +
-                            "=__tmploadPluginFuncsAndVars2 __tmploadPluginFuncsAndVars2=nil");
+                            "=__tmploadPluginFuncsAndVars2 __tmploadPluginFuncsAndVars2 = nil");
             _execSimpleString_safe_lua(L, tmp.c_str());
         }
         else
@@ -3108,13 +3109,30 @@ void CScriptObject::loadPluginFuncsAndVars(CPlugin *plug)
         SPluginVariable *dat = varCont->getVariableFromIndex(index++);
         if (dat != nullptr)
         {
+            // Following just a simple way to make sure cascaded namespaces exist
+            std::string varName(dat->varName);
+            std::string totVar("__tmploadPluginFuncsAndVars1.");
+            while (varName.find(".") != std::string::npos)
+            {
+                std::string wordd(utils::extractWord(varName, "."));
+                totVar += wordd;
+                wordd = "if ( " + totVar + " == nil) then boom = boom + 1 end";
+                if (0 != _execSimpleString_safe_lua(L, wordd.c_str()))
+                {
+                    wordd = totVar + " = {}";
+                    _execSimpleString_safe_lua(L, wordd.c_str());
+                }
+                totVar += ".";
+            }
+
             std::string variableName("__tmploadPluginFuncsAndVars1." + dat->varName);
             if (dat->stackHandle <= 0)
             { // simple variable
-                std::string tmp(variableName + "=" + dat->varValue);
-                if ((0 != _execSimpleString_safe_lua(L, tmp.c_str())) && (_scriptType == sim_scripttype_sandboxscript))
-                { // warning only with sandbox scripts
-                    tmp = "failed executing '" + tmp + "'";
+                std::string tmp(variableName + " = " + dat->varValue);
+                if ( (0 != _execSimpleString_safe_lua(L, tmp.c_str())) && (failedLuaExecs.find(tmp) == failedLuaExecs.end()) )
+                { // warning only once
+                    failedLuaExecs.insert(tmp);
+                    tmp = "failed executing '" + tmp + "' (plugin '" + plug->getName() + "')";
                     App::logScriptMsg(this, sim_verbosity_scriptwarnings, tmp.c_str());
                 }
             }

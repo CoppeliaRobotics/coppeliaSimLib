@@ -52,30 +52,35 @@ unsigned short utils::getCRC(const std::string &data)
     return (getCRC((char *)(&data[0]), int(data.length())));
 }
 
+std::string utils::extractWord(std::string &str, const char* separationWord)
+{
+    std::string retVal;
+    size_t p = str.find(separationWord);
+    if (p == std::string::npos)
+    {
+        retVal = str;
+        str.clear();
+    }
+    else
+    {
+        retVal = str.substr(0, p);
+        str.erase(0, p + 1);
+    }
+    return retVal;
+}
+
 bool utils::extractCommaSeparatedWord(std::string &line, std::string &word)
 { // Returns true if a word could be extracted
-    word = "";
-    while ((line.length() != 0) && (line[0] != ','))
-    {
-        word.append(line.begin(), line.begin() + 1);
-        line.erase(line.begin());
-    }
-    if ((line.length() != 0) && (line[0] == ','))
-        line.erase(line.begin());
-    return (word.length() != 0);
+    bool retVal = (line.size() > 0);
+    word = extractWord(line, ",");
+    return retVal;
 }
 
 bool utils::extractSpaceSeparatedWord(std::string &line, std::string &word)
 { // Returns true if a word could be extracted
-    word = "";
-    while ((line.length() != 0) && (line[0] != ' '))
-    {
-        word.append(line.begin(), line.begin() + 1);
-        line.erase(line.begin());
-    }
-    if ((line.length() != 0) && (line[0] == ' '))
-        line.erase(line.begin());
-    return (word.length() != 0);
+    bool retVal = (line.size() > 0);
+    word = extractWord(line, " ");
+    return retVal;
 }
 
 bool utils::extractLine(std::string &multiline, std::string &line)
