@@ -15,8 +15,8 @@ class utils
     static bool extractCommaSeparatedWord(std::string &line, std::string &word);
     static bool extractSpaceSeparatedWord(std::string &line, std::string &word);
     static bool extractLine(std::string &multiline, std::string &line);
-    static std::string getLightEncodedString(const char *ss);
-    static std::string getLightDecodedString(const char *ss);
+    static std::string getLightEncodedString(const std::string &ss);
+    static std::string getLightDecodedString(const std::string &ss);
     static bool removeSpacesAtBeginningAndEnd(std::string &line);
     static std::string getFormattedString(const char *a = nullptr, const char *b = nullptr, const char *c = nullptr,
                                           const char *d = nullptr, const char *e = nullptr, const char *f = nullptr,
@@ -26,6 +26,9 @@ class utils
     static void scaleColorUp_(float *rgb);
     static std::string decode64(const std::string &data);
     static std::string encode64(const std::string &data);
+    static std::string toHex(const char* buffer, size_t length);
+    static std::string fromHex(const char* hexString);
+    static std::string xorHexStrings(const char* a, const char* b, bool repeatShortStringToSameSize);
     static std::string generateUniqueString();
     static std::string generateUniqueAlphaNumericString();
     static bool isAlphaNumeric(const std::string &str);

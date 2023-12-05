@@ -102,17 +102,17 @@ bool utils::extractLine(std::string &multiline, std::string &line)
     }
 }
 
-std::string utils::getLightEncodedString(const char *ss)
-{ // ss can contain any char, also 0!
+std::string utils::getLightEncodedString(const std::string &ss)
+{ // ss can contain any char
     std::string txt(ss);
     std::string s;
-    for (int i = 0; i < int(txt.length()); i++)
+    for (size_t i = 0; i < txt.length(); i++)
     {
         int n[2];
         n[0] = (unsigned char)(txt[i]) + i;
         n[1] = n[0] / 16;
         n[0] -= n[1] * 16;
-        for (int j = 0; j < 2; j++)
+        for (size_t j = 0; j < 2; j++)
         {
             int t = n[1 - j];
             if (t > 9)
@@ -124,14 +124,14 @@ std::string utils::getLightEncodedString(const char *ss)
     return (s);
 }
 
-std::string utils::getLightDecodedString(const char *ss)
-{ // return string can contain any char, also 0!
+std::string utils::getLightDecodedString(const std::string &ss)
+{ // return string can contain any char
     std::string txt(ss);
     std::string s;
-    for (int i = 0; i < int(txt.length()) / 2; i++)
+    for (size_t i = 0; i < txt.length() / 2; i++)
     {
         int v = 0;
-        for (int j = 0; j < 2; j++)
+        for (size_t j = 0; j < 2; j++)
         {
             int w;
             char a = txt[2 * i + j];
@@ -144,7 +144,7 @@ std::string utils::getLightDecodedString(const char *ss)
             else
                 v += w;
         }
-        v -= i;
+        v -= int(i);
         s += char(v);
     }
     return (s);
@@ -234,6 +234,81 @@ std::string utils::encode64(const std::string &data)
     QByteArray arr(data.c_str(), data.size());
     return (arr.toBase64().toStdString());
     // return(base64_encode((const unsigned char*)data.c_str(),(unsigned int)data.size()));
+}
+
+std::string utils::toHex(const char* buffer, size_t length)
+{
+    std::stringstream ss;
+    ss << std::hex << std::setfill('0');
+    for (size_t i = 0; i < length; ++i)
+        ss << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(buffer[i]));
+    return ss.str();
+}
+
+std::string utils::fromHex(const char* hexString)
+{
+    std::string result;
+    size_t length = std::strlen(hexString);
+    result.reserve(length / 2);
+    for (size_t i = 0; i < length; i += 2)
+    {
+        std::string byteString = std::string(hexString + i, 2);
+        char byte = static_cast<char>(std::stoul(byteString, nullptr, 16));
+        result.push_back(byte);
+    }
+    return result;
+}
+
+std::string hexToBinary(const std::string& hex)
+{ // returns a string of type "1000101010100011"
+    std::string binary;
+    for (unsigned char c : hex)
+    {
+        int value = (c >= '0' && c <= '9') ? (c - '0') : (c - 'A' + 10);
+        for (int i = 3; i >= 0; --i)
+            binary.push_back((value & (1 << i)) ? '1' : '0');
+    }
+    return binary;
+}
+
+std::string binaryToHex(const std::string& binary)
+{ // binary should be a string of type "1000101010100011"
+    std::stringstream ss;
+    for (size_t i = 0; i < binary.size(); i += 4)
+    {
+        int value = 0;
+        for (size_t j = 0; j < 4; ++j)
+            value = (value << 1) + (binary[i + j] - '0');
+        ss << std::hex << std::uppercase << value;
+    }
+    return ss.str();
+}
+
+std::string utils::xorHexStrings(const char* a, const char* b, bool repeatShortStringToSameSize)
+{ // ret is also hex
+    std::string aa(a);
+    std::string bb(b);
+    if (repeatShortStringToSameSize)
+    {
+        if (bb.size() > aa.size())
+        {
+            size_t diff = bb.size() - aa.size();
+            for (size_t i = 0; i < diff; i++)
+                aa += aa[i];
+        }
+        if (aa.size() > bb.size())
+        {
+            size_t diff = aa.size() - bb.size();
+            for (size_t i = 0; i < diff; i++)
+                bb += bb[i];
+        }
+    }
+    std::string binaryA = hexToBinary(aa);
+    std::string binaryB = hexToBinary(bb);
+    std::string resultBinary;
+    for (size_t i = 0; i < binaryA.size(); ++i)
+        resultBinary.push_back((binaryA[i] == binaryB[i]) ? '0' : '1');
+    return binaryToHex(resultBinary);
 }
 
 std::string utils::generateUniqueString()

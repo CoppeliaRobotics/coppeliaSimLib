@@ -102,6 +102,12 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
     if (cmdIn->cmdId == CHKFLTLIC_UITHREADCMD)
         cmdOut->intParams.push_back(CSimFlavor::getIntVal(3));
 
+    if (cmdIn->cmdId == RG_UITHREADCMD)
+    {
+        CSimFlavor::setHld(GuiApp::mainWindow);
+        CSimFlavor::run(11);
+    }
+
     if ((GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == MENUBAR_COLOR_UITHREADCMD))
     {
         QMenuBar *menubar = GuiApp::mainWindow->menuBar();

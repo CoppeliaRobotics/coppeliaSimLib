@@ -121,7 +121,7 @@ bool CHelpMenu::processCommand(int commandID)
     if (CSimFlavor::getBoolVal(13) && (commandID == EK_CMD))
     {
         CSimFlavor::setHld(GuiApp::mainWindow);
-        CSimFlavor::ekd();
+        CSimFlavor::run(11);
         return (true);
     }
     return (false);

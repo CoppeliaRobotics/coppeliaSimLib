@@ -242,7 +242,7 @@ bool CFileOperations::saveScene(const char *pathAndFilename, bool setCurrentDir,
                                 std::string *errorStr /*=nullptr*/)
 {
     bool retVal = false;
-    if (CSimFlavor::getBoolVal(16)) // saving a scene to buffer not for player version
+    if (CSimFlavor::getBoolVal(16))
     {
 #ifdef SIM_WITH_GUI
         if (GuiApp::mainWindow != nullptr)
@@ -606,32 +606,10 @@ void CFileOperations::addMenu(VMenu *menu)
 
     menu->appendMenuItem(fileOpOk, false, FILE_OPERATION_CLOSE_SCENE_FOCMD, IDS_CLOSE_SCENE_MENU_ITEM);
 
-    if ((CSimFlavor::getIntVal(2) == -1) || (CSimFlavor::getIntVal(2) == 1))
+    if (CSimFlavor::getIntVal(2) != 0)
     {
         menu->appendMenuSeparator();
-        menu->appendMenuItem(fileOpOk, false, FILE_OPERATION_SAVE_SCENE_FOCMD, IDS_SAVE_SCENE_MENU_ITEM);
-        VMenu *saveSceneMenu = new VMenu();
-        saveSceneMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD,
-                                      IDS_SCENE_AS_CSIM___MENU_ITEM);
-        VMenu *saveSceneAsXmlMenu = new VMenu();
-        saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD,
-                                           IDS_SCENE_AS_XML___MENU_ITEM);
-        saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD,
-                                           IDS_SCENE_AS_SIMPLEXML___MENU_ITEM);
-        saveSceneMenu->appendMenuAndDetach(saveSceneAsXmlMenu, fileOpOk, IDS_SAVE_SCENE_AS_XML_MENU_ITEM);
-        menu->appendMenuAndDetach(saveSceneMenu, fileOpOk, IDS_SAVE_SCENE_AS_MENU_ITEM);
-        VMenu *saveModelMenu = new VMenu();
-        saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false, FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD,
-                                      IDS_MODEL_AS_CSIM___MENU_ITEM);
-        saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false, FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD,
-                                      IDS_MODEL_AS_XML___MENU_ITEM);
-        menu->appendMenuAndDetach(saveModelMenu, fileOpOk && justModelSelected, IDS_SAVE_MODEL_AS_MENU_ITEM);
-    }
-
-    if (CSimFlavor::getIntVal(2) == 2)
-    {
-        menu->appendMenuSeparator();
-        if (CSimFlavor::getBoolVal(16))
+        if ( CSimFlavor::getBoolVal(16) || (CSimFlavor::getIntVal(2) == -1) )
         {
             menu->appendMenuItem(fileOpOk, false, FILE_OPERATION_SAVE_SCENE_FOCMD, IDS_SAVE_SCENE_MENU_ITEM);
             VMenu *saveSceneMenu = new VMenu();
@@ -653,7 +631,7 @@ void CFileOperations::addMenu(VMenu *menu)
             menu->appendMenuAndDetach(saveModelMenu, fileOpOk && justModelSelected, IDS_SAVE_MODEL_AS_MENU_ITEM);
         }
         else
-            menu->appendMenuItem(false, false, 0, CSimFlavor::getStringVal(10).c_str());
+            menu->appendMenuItem(CSimFlavor::getBoolVal(20), false, FILE_OPERATION_RG, CSimFlavor::getStringVal(10).c_str());
     }
 
     if ((CSimFlavor::getIntVal(2) == -1) || (CSimFlavor::getIntVal(2) == 1) || (CSimFlavor::getIntVal(2) == 2))
@@ -1616,6 +1594,18 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
+        return (true);
+    }
+
+    if (cmd.cmdId == FILE_OPERATION_RG)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread
+            SUIThreadCommand cmdIn;
+            SUIThreadCommand cmdOut;
+            cmdIn.cmdId = RG_UITHREADCMD;
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
+        }
         return (true);
     }
 #endif

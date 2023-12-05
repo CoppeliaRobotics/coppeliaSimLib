@@ -31,10 +31,6 @@ void CSimFlavor::setHld(void *w)
 {
 }
 
-void CSimFlavor::ekd()
-{
-}
-
 void CSimFlavor::run(int w)
 {
 }

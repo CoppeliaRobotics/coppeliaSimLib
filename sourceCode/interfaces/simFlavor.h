@@ -10,7 +10,6 @@ class CSimFlavor
     static void getAboutStr(std::string &title, std::string &txt);
     static int handleReadOpenFile(int f, char *b);
     static void setHld(void *w);
-    static void ekd();
     static void run(int w);
     static int getIntVal(int w);
     static int getIntVal_2int(int w, int v1, int v2);
