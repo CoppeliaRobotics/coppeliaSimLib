@@ -609,29 +609,32 @@ void CFileOperations::addMenu(VMenu *menu)
     if (CSimFlavor::getIntVal(2) != 0)
     {
         menu->appendMenuSeparator();
-        if ( CSimFlavor::getBoolVal(16) || (CSimFlavor::getIntVal(2) == -1) )
-        {
-            menu->appendMenuItem(fileOpOk, false, FILE_OPERATION_SAVE_SCENE_FOCMD, IDS_SAVE_SCENE_MENU_ITEM);
-            VMenu *saveSceneMenu = new VMenu();
-            saveSceneMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD,
-                                          IDS_SCENE_AS_CSIM___MENU_ITEM);
-            VMenu *saveSceneAsXmlMenu = new VMenu();
-            saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD,
-                                               IDS_SCENE_AS_XML___MENU_ITEM);
-            saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false, FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD,
-                                               IDS_SCENE_AS_SIMPLEXML___MENU_ITEM);
-            saveSceneMenu->appendMenuAndDetach(saveSceneAsXmlMenu, fileOpOk, IDS_SAVE_SCENE_AS_XML_MENU_ITEM);
-            menu->appendMenuAndDetach(saveSceneMenu, fileOpOk, IDS_SAVE_SCENE_AS_MENU_ITEM);
+        bool r = ( CSimFlavor::getBoolVal(16) || (CSimFlavor::getIntVal(2) == -1) );
+        menu->appendMenuItem(fileOpOk, false,
+                             r ? FILE_OPERATION_SAVE_SCENE_FOCMD : FILE_OPERATION_RG,
+                             IDS_SAVE_SCENE_MENU_ITEM);
+        VMenu *saveSceneMenu = new VMenu();
+        saveSceneMenu->appendMenuItem(fileOpOk, false,
+                                      r ? FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD : FILE_OPERATION_RG,
+                                      IDS_SCENE_AS_CSIM___MENU_ITEM);
+        VMenu *saveSceneAsXmlMenu = new VMenu();
+        saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false,
+                                           r ? FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD : FILE_OPERATION_RG,
+                                           IDS_SCENE_AS_XML___MENU_ITEM);
+        saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false,
+                                           r ? FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD : FILE_OPERATION_RG,
+                                           IDS_SCENE_AS_SIMPLEXML___MENU_ITEM);
+        saveSceneMenu->appendMenuAndDetach(saveSceneAsXmlMenu, fileOpOk, IDS_SAVE_SCENE_AS_XML_MENU_ITEM);
+        menu->appendMenuAndDetach(saveSceneMenu, fileOpOk, IDS_SAVE_SCENE_AS_MENU_ITEM);
 
-            VMenu *saveModelMenu = new VMenu();
-            saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false, FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD,
-                                          IDS_MODEL_AS_CSIM___MENU_ITEM);
-            saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false,
-                                          FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD, IDS_MODEL_AS_XML___MENU_ITEM);
-            menu->appendMenuAndDetach(saveModelMenu, fileOpOk && justModelSelected, IDS_SAVE_MODEL_AS_MENU_ITEM);
-        }
-        else
-            menu->appendMenuItem(CSimFlavor::getBoolVal(20), false, FILE_OPERATION_RG, CSimFlavor::getStringVal(10).c_str());
+        VMenu *saveModelMenu = new VMenu();
+        saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false,
+                                      r ? FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD : FILE_OPERATION_RG,
+                                      IDS_MODEL_AS_CSIM___MENU_ITEM);
+        saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false,
+                                      r ? FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD : FILE_OPERATION_RG,
+                                      IDS_MODEL_AS_XML___MENU_ITEM);
+        menu->appendMenuAndDetach(saveModelMenu, fileOpOk && justModelSelected, IDS_SAVE_MODEL_AS_MENU_ITEM);
     }
 
     if ((CSimFlavor::getIntVal(2) == -1) || (CSimFlavor::getIntVal(2) == 1) || (CSimFlavor::getIntVal(2) == 2))
