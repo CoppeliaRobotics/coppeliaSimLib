@@ -80,11 +80,10 @@ void CSimThread::handleExtCalls()
     _handleSimulationThreadCommands(); // Handle delayed SIM commands
 }
 
-void CSimThread::appendSimulationThreadCommand(SSimulationThreadCommand cmd, int executionDelay /*=0*/)
+void CSimThread::appendSimulationThreadCommand(SSimulationThreadCommand cmd, double executionDelay /*=0.0*/)
 { // CALLED FROM ANY THREAD
     cmd.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
-    cmd.postTime = (int)VDateTime::getTimeInMs();
-    cmd.execDelay = executionDelay;
+    cmd.execTime = VDateTime::getTime() + executionDelay;
 #ifdef SIM_WITH_GUI
     _mutex.lock("CSimThread::appendSimulationThreadCommand");
     _simulationThreadCommands_tmp.push_back(cmd);
@@ -114,25 +113,20 @@ void CSimThread::_handleSimulationThreadCommands()
         while (_simulationThreadCommands.size() > 0)
         {
             SSimulationThreadCommand cmd = _simulationThreadCommands[0];
-            if (cmd.execDelay != 0)
-            {
-                if (VDateTime::getTimeDiffInMs(cmd.postTime) > cmd.execDelay)
-                    cmd.execDelay = 0; // delay triggered!
-            }
-            if (cmd.execDelay != 0)
-            {
-                delayedCommands.push_back(cmd);
-                _simulationThreadCommands.erase(_simulationThreadCommands.begin());
-            }
-            else
+
+            if (cmd.execTime <= VDateTime::getTime())
             {
                 _executeSimulationThreadCommand(cmd);
                 _simulationThreadCommands.erase(_simulationThreadCommands.begin());
             }
+            else
+            {
+                delayedCommands.push_back(cmd);
+                _simulationThreadCommands.erase(_simulationThreadCommands.begin());
+            }
         }
         // Now append the delayed commands:
-        _simulationThreadCommands.insert(_simulationThreadCommands.end(), delayedCommands.begin(),
-                                         delayedCommands.end());
+        _simulationThreadCommands.insert(_simulationThreadCommands.end(), delayedCommands.begin(), delayedCommands.end());
     }
 }
 
@@ -146,7 +140,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == EXIT_REQUEST_CMD)
     {
 #ifdef SIM_WITH_GUI
-        int dl = 0;
+        double dl = 0.0;
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId = CHKFLTLIC_UITHREADCMD;
@@ -164,7 +158,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         break;
                 }
             }
-            dl = 3000;
+            dl = 3.0;
         }
         cmd.cmdId = FINAL_EXIT_REQUEST_CMD;
         appendSimulationThreadCommand(cmd, dl);
@@ -180,7 +174,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == MEMORIZE_UNDO_STATE_IF_NEEDED_CMD)
     {
         App::currentWorld->undoBufferContainer->memorizeStateIfNeeded();
-        App::appendSimulationThreadCommand(cmd, 200);
+        App::appendSimulationThreadCommand(cmd, 0.2);
     }
 
     if (cmd.cmdId == CHKLICM_CMD)
@@ -199,7 +193,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 #endif
             }
         }
-        App::appendSimulationThreadCommand(cmd, CSimFlavor::getIntVal(4));
+        App::appendSimulationThreadCommand(cmd, double(CSimFlavor::getIntVal(4)));
     }
 
 #ifdef SIM_WITH_GUI
@@ -214,7 +208,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
             GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
         }
-        appendSimulationThreadCommand(cmd, 300);
+        appendSimulationThreadCommand(cmd, 0.3);
     }
 #endif
 
@@ -245,6 +239,21 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
             GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
         }
+    }
+    if (cmd.cmdId == PLUS_RG_CMD)
+    {
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId = RG_UITHREADCMD;
+        {
+            // Following instruction very important in the function below tries to lock resources (or a plugin it
+            // calls!):
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
+        }
+        int dl = CSimFlavor::getIntVal(5);
+        if (dl > 0)
+            appendSimulationThreadCommand(cmd, double(dl));
     }
     if (cmd.cmdId == SET_SHAPE_TRANSPARENCY_CMD)
     {
@@ -599,7 +608,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             (GuiApp::mainWindow != nullptr))
         {
             App::currentWorld->dynamicsContainer->displayWarningsIfNeeded();
-            App::appendSimulationThreadCommand(cmd, 500);
+            App::appendSimulationThreadCommand(cmd, 0.5);
         }
     }
 
@@ -4563,7 +4572,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
         noEditMode)
     {
         // First repost a same command:
-        App::appendSimulationThreadCommand(cmd, 1000);
+        App::appendSimulationThreadCommand(cmd, 1.0);
         if (VDateTime::getSecondsSince1970() > (App::currentWorld->environment->autoSaveLastSaveTimeInSecondsSince1970 +
                                                 App::userSettings->autoSaveDelay * 60))
         {
@@ -4581,7 +4590,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
         }
     }
     else
-        App::appendSimulationThreadCommand(cmd, 1000); // repost the same message a bit later
+        App::appendSimulationThreadCommand(cmd, 1.0); // repost the same message a bit later
 }
 
 #ifdef SIM_WITH_GUI

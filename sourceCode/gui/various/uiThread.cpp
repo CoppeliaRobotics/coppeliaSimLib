@@ -102,10 +102,16 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
     if (cmdIn->cmdId == CHKFLTLIC_UITHREADCMD)
         cmdOut->intParams.push_back(CSimFlavor::getIntVal(3));
 
-    if (cmdIn->cmdId == RG_UITHREADCMD)
+    if (cmdIn->cmdId == KY_UITHREADCMD)
     {
         CSimFlavor::setHld(GuiApp::mainWindow);
         CSimFlavor::run(11);
+    }
+
+    if (cmdIn->cmdId == RG_UITHREADCMD)
+    {
+        CSimFlavor::setHld(GuiApp::mainWindow);
+        CSimFlavor::run(12);
     }
 
     if ((GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == MENUBAR_COLOR_UITHREADCMD))

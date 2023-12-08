@@ -45,8 +45,8 @@ class App
 
     static void appendSimulationThreadCommand(int cmdId, int intP1 = -1, int intP2 = -1, double floatP1 = 0.0,
                                               double floatP2 = 0.0, const char *stringP1 = nullptr,
-                                              const char *stringP2 = nullptr, int executionDelay = 0);
-    static void appendSimulationThreadCommand(SSimulationThreadCommand cmd, int executionDelay = 0);
+                                              const char *stringP2 = nullptr, double executionDelay = 0.0);
+    static void appendSimulationThreadCommand(SSimulationThreadCommand cmd, double executionDelay = 0.0);
 
     static std::string getApplicationArgument(int index);
     static void setApplicationArgument(int index, std::string arg);

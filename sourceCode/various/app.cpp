@@ -100,6 +100,7 @@ void App::setAppStage(int s)
 
 void App::init(const char *appDir, int)
 {
+    CSimFlavor::run(13);
     if (appDir)
         _applicationDir = appDir;
     else
@@ -203,10 +204,10 @@ void App::init(const char *appDir, int)
     // Prepare a few recurrent triggers:
     SSimulationThreadCommand cmd;
     cmd.cmdId = AUTO_SAVE_SCENE_CMD;
-    App::appendSimulationThreadCommand(cmd, 2000);
+    App::appendSimulationThreadCommand(cmd, 2.0);
     cmd.cmdId = MEMORIZE_UNDO_STATE_IF_NEEDED_CMD;
     cmd.intParams.clear();
-    App::appendSimulationThreadCommand(cmd, 2200);
+    App::appendSimulationThreadCommand(cmd, 2.2);
 #endif
 }
 
@@ -1054,7 +1055,7 @@ bool App::getExitRequest()
 }
 
 void App::appendSimulationThreadCommand(int cmdId, int intP1, int intP2, double floatP1, double floatP2,
-                                        const char *stringP1, const char *stringP2, int executionDelay)
+                                        const char *stringP1, const char *stringP2, double executionDelay)
 { // convenience function. All args have default values except for the first
     SSimulationThreadCommand cmd;
     cmd.cmdId = cmdId;
@@ -1073,10 +1074,10 @@ void App::appendSimulationThreadCommand(int cmdId, int intP1, int intP2, double 
     appendSimulationThreadCommand(cmd, executionDelay);
 }
 
-void App::appendSimulationThreadCommand(SSimulationThreadCommand cmd, int executionDelay /*=0*/)
+void App::appendSimulationThreadCommand(SSimulationThreadCommand cmd, double executionDelay /*=0.0*/)
 {
     static std::vector<SSimulationThreadCommand> delayed_cmd;
-    static std::vector<int> delayed_delay;
+    static std::vector<double> delayed_delay;
     if (simThread != nullptr)
     {
         if (delayed_cmd.size() != 0)

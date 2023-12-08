@@ -611,28 +611,28 @@ void CFileOperations::addMenu(VMenu *menu)
         menu->appendMenuSeparator();
         bool r = ( CSimFlavor::getBoolVal(16) || (CSimFlavor::getIntVal(2) == -1) );
         menu->appendMenuItem(fileOpOk, false,
-                             r ? FILE_OPERATION_SAVE_SCENE_FOCMD : FILE_OPERATION_RG,
+                             r ? FILE_OPERATION_SAVE_SCENE_FOCMD : FILE_OPERATION_KY,
                              IDS_SAVE_SCENE_MENU_ITEM);
         VMenu *saveSceneMenu = new VMenu();
         saveSceneMenu->appendMenuItem(fileOpOk, false,
-                                      r ? FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD : FILE_OPERATION_RG,
+                                      r ? FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD : FILE_OPERATION_KY,
                                       IDS_SCENE_AS_CSIM___MENU_ITEM);
         VMenu *saveSceneAsXmlMenu = new VMenu();
         saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false,
-                                           r ? FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD : FILE_OPERATION_RG,
+                                           r ? FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD : FILE_OPERATION_KY,
                                            IDS_SCENE_AS_XML___MENU_ITEM);
         saveSceneAsXmlMenu->appendMenuItem(fileOpOk, false,
-                                           r ? FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD : FILE_OPERATION_RG,
+                                           r ? FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD : FILE_OPERATION_KY,
                                            IDS_SCENE_AS_SIMPLEXML___MENU_ITEM);
         saveSceneMenu->appendMenuAndDetach(saveSceneAsXmlMenu, fileOpOk, IDS_SAVE_SCENE_AS_XML_MENU_ITEM);
         menu->appendMenuAndDetach(saveSceneMenu, fileOpOk, IDS_SAVE_SCENE_AS_MENU_ITEM);
 
         VMenu *saveModelMenu = new VMenu();
         saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false,
-                                      r ? FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD : FILE_OPERATION_RG,
+                                      r ? FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD : FILE_OPERATION_KY,
                                       IDS_MODEL_AS_CSIM___MENU_ITEM);
         saveModelMenu->appendMenuItem(fileOpOk && justModelSelected, false,
-                                      r ? FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD : FILE_OPERATION_RG,
+                                      r ? FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD : FILE_OPERATION_KY,
                                       IDS_MODEL_AS_XML___MENU_ITEM);
         menu->appendMenuAndDetach(saveModelMenu, fileOpOk && justModelSelected, IDS_SAVE_MODEL_AS_MENU_ITEM);
     }
@@ -1600,13 +1600,13 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
         return (true);
     }
 
-    if (cmd.cmdId == FILE_OPERATION_RG)
+    if (cmd.cmdId == FILE_OPERATION_KY)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread
             SUIThreadCommand cmdIn;
             SUIThreadCommand cmdOut;
-            cmdIn.cmdId = RG_UITHREADCMD;
+            cmdIn.cmdId = KY_UITHREADCMD;
             GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
         }
         return (true);

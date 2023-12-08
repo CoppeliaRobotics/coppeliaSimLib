@@ -312,23 +312,31 @@ void GuiApp::runGui(int options)
         SSimulationThreadCommand cmd;
         CSimFlavor::run(4);
         cmd.cmdId = PLUS_CVU_CMD;
-        App::appendSimulationThreadCommand(cmd, 1500);
+        App::appendSimulationThreadCommand(cmd, 1.5);
         cmd.cmdId = PLUS_HVUD_CMD;
-        App::appendSimulationThreadCommand(cmd, 20000);
+        App::appendSimulationThreadCommand(cmd, 20.0);
+    }
+
+    int dl = CSimFlavor::getIntVal(5);
+    if (dl > 0)
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId = PLUS_RG_CMD;
+        App::appendSimulationThreadCommand(cmd, double(dl));
     }
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = REFRESH_DIALOGS_CMD;
-        App::appendSimulationThreadCommand(cmd, 1000);
+        App::appendSimulationThreadCommand(cmd, 1.0);
         cmd.cmdId = DISPLAY_WARNING_IF_DEBUGGING_CMD;
-        App::appendSimulationThreadCommand(cmd, 3000);
+        App::appendSimulationThreadCommand(cmd, 3.0);
     }
 
     CSimFlavor::run(7);
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = CHKLICM_CMD;
-        App::appendSimulationThreadCommand(cmd, 5000);
+        App::appendSimulationThreadCommand(cmd, 5.0);
     }
 
     App::setAppStage(App::appstage_guiInit2Done); // now let the SIM thread run freely

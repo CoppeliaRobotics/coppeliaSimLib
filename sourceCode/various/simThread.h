@@ -11,8 +11,7 @@ struct SSimulationThreadCommand
 {
     int cmdId;
     int sceneUniqueId;
-    int postTime;
-    int execDelay;
+    double execTime;
     std::vector<bool> boolParams;
     std::vector<int> intParams;
     std::vector<quint64> uint64Params;
@@ -37,7 +36,7 @@ class CSimThread : public QObject
     virtual ~CSimThread();
     void handleExtCalls();
     void executeMessages();
-    void appendSimulationThreadCommand(SSimulationThreadCommand cmd, int executionDelay = 0);
+    void appendSimulationThreadCommand(SSimulationThreadCommand cmd, double executionDelay = 0.0);
 
   private:
     QEventLoop _eventLoop;

@@ -661,7 +661,7 @@ void CWorld::simulationAboutToStart()
 #ifdef SIM_WITH_GUI
     SSimulationThreadCommand cmd;
     cmd.cmdId = DISPLAY_VARIOUS_WARNING_MESSAGES_DURING_SIMULATION_CMD;
-    App::appendSimulationThreadCommand(cmd, 1000);
+    App::appendSimulationThreadCommand(cmd, 1.0);
 #endif
 
 #ifdef SIM_WITH_GUI
