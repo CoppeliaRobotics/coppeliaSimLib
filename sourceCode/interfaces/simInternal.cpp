@@ -5516,7 +5516,9 @@ int simAddLog_internal(const char *pluginName, int verbosityLevel, const char *l
     }
     else
     {
-        if (App::logPluginMsg(pluginName, verbosityLevel, logMsg))
+        if (strcmp(logMsg, "starting a remote API server on port 19997") == 0) // suppress that msg from legacy remote API
+            retVal = 1;
+        else if (App::logPluginMsg(pluginName, verbosityLevel, logMsg))
             retVal = 1;
     }
     return (retVal);
