@@ -116,7 +116,7 @@
      <rect>
       <x>10</x>
       <y>25</y>
-      <width>401</width>
+      <width>391</width>
       <height>18</height>
      </rect>
     </property>
@@ -132,7 +132,7 @@
      <rect>
       <x>10</x>
       <y>45</y>
-      <width>251</width>
+      <width>241</width>
       <height>18</height>
      </rect>
     </property>
@@ -148,7 +148,7 @@
      <rect>
       <x>260</x>
       <y>45</y>
-      <width>151</width>
+      <width>141</width>
       <height>18</height>
      </rect>
     </property>
@@ -156,7 +156,7 @@
      <enum>Qt::StrongFocus</enum>
     </property>
     <property name="text">
-     <string>Shape textures disabled</string>
+     <string>Shape text. disabled</string>
     </property>
    </widget>
   </widget>

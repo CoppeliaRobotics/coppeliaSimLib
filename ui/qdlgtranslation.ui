@@ -29,7 +29,7 @@
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>0</number>
    </property>
    <property name="elideMode">
     <enum>Qt::ElideNone</enum>
@@ -84,7 +84,7 @@
       <rect>
        <x>10</x>
        <y>60</y>
-       <width>121</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -123,7 +123,7 @@
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>211</width>
+       <width>201</width>
        <height>18</height>
       </rect>
      </property>
@@ -187,7 +187,7 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>91</width>
+       <width>81</width>
        <height>18</height>
       </rect>
      </property>
@@ -200,7 +200,7 @@
       <rect>
        <x>100</x>
        <y>10</y>
-       <width>81</width>
+       <width>71</width>
        <height>18</height>
       </rect>
      </property>
@@ -1654,7 +1654,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>91</width>
+       <width>82</width>
        <height>18</height>
       </rect>
      </property>
@@ -1667,7 +1667,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>91</width>
+       <width>82</width>
        <height>18</height>
       </rect>
      </property>
@@ -1680,7 +1680,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>60</y>
-       <width>91</width>
+       <width>82</width>
        <height>18</height>
       </rect>
      </property>
@@ -1693,7 +1693,7 @@ selection</string>
       <rect>
        <x>130</x>
        <y>10</y>
-       <width>121</width>
+       <width>131</width>
        <height>18</height>
       </rect>
      </property>
@@ -2663,7 +2663,7 @@ selelection</string>
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>91</width>
+       <width>82</width>
        <height>18</height>
       </rect>
      </property>
@@ -2686,7 +2686,7 @@ selelection</string>
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>91</width>
+       <width>82</width>
        <height>18</height>
       </rect>
      </property>
@@ -2699,7 +2699,7 @@ selelection</string>
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>91</width>
+       <width>81</width>
        <height>18</height>
       </rect>
      </property>
@@ -2712,7 +2712,7 @@ selelection</string>
       <rect>
        <x>100</x>
        <y>10</y>
-       <width>81</width>
+       <width>71</width>
        <height>18</height>
       </rect>
      </property>
@@ -2741,7 +2741,7 @@ selelection</string>
       <rect>
        <x>10</x>
        <y>60</y>
-       <width>91</width>
+       <width>82</width>
        <height>18</height>
       </rect>
      </property>
@@ -2764,7 +2764,7 @@ selelection</string>
       <rect>
        <x>180</x>
        <y>10</y>
-       <width>121</width>
+       <width>111</width>
        <height>18</height>
       </rect>
      </property>
@@ -4162,7 +4162,7 @@ selelection</string>
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>111</width>
+       <width>121</width>
        <height>18</height>
       </rect>
      </property>
@@ -4175,7 +4175,7 @@ selelection</string>
       <rect>
        <x>140</x>
        <y>10</y>
-       <width>111</width>
+       <width>121</width>
        <height>18</height>
       </rect>
      </property>
@@ -4194,7 +4194,7 @@ selelection</string>
       <rect>
        <x>270</x>
        <y>10</y>
-       <width>121</width>
+       <width>131</width>
        <height>18</height>
       </rect>
      </property>
@@ -4682,7 +4682,7 @@ position</string>
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>81</width>
+       <width>70</width>
        <height>18</height>
       </rect>
      </property>
@@ -4695,7 +4695,7 @@ position</string>
       <rect>
        <x>10</x>
        <y>60</y>
-       <width>81</width>
+       <width>70</width>
        <height>18</height>
       </rect>
      </property>
@@ -4708,7 +4708,7 @@ position</string>
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>81</width>
+       <width>70</width>
        <height>18</height>
       </rect>
      </property>

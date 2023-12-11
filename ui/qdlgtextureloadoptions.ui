@@ -53,9 +53,9 @@
    <widget class="QRadioButton" name="qq256">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>45</y>
-      <width>201</width>
+      <width>190</width>
       <height>17</height>
      </rect>
     </property>
@@ -69,9 +69,9 @@
    <widget class="QRadioButton" name="qq512">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>65</y>
-      <width>201</width>
+      <width>190</width>
       <height>17</height>
      </rect>
     </property>
@@ -85,9 +85,9 @@
    <widget class="QRadioButton" name="qq1024">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>85</y>
-      <width>201</width>
+      <width>190</width>
       <height>17</height>
      </rect>
     </property>
@@ -101,9 +101,9 @@
    <widget class="QRadioButton" name="qq2048">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>105</y>
-      <width>201</width>
+      <width>190</width>
       <height>17</height>
      </rect>
     </property>
@@ -117,9 +117,9 @@
    <widget class="QRadioButton" name="qq128">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>25</y>
-      <width>201</width>
+      <width>190</width>
       <height>17</height>
      </rect>
     </property>

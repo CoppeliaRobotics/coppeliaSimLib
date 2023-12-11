@@ -105,7 +105,7 @@
      <rect>
       <x>10</x>
       <y>85</y>
-      <width>151</width>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -131,7 +131,7 @@
      <rect>
       <x>10</x>
       <y>130</y>
-      <width>191</width>
+      <width>181</width>
       <height>18</height>
      </rect>
     </property>
@@ -145,9 +145,9 @@
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>322</x>
       <y>45</y>
-      <width>21</width>
+      <width>16</width>
       <height>18</height>
      </rect>
     </property>
@@ -161,9 +161,9 @@
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>322</x>
       <y>25</y>
-      <width>21</width>
+      <width>16</width>
       <height>18</height>
      </rect>
     </property>
@@ -179,7 +179,7 @@
      <rect>
       <x>10</x>
       <y>65</y>
-      <width>151</width>
+      <width>161</width>
       <height>18</height>
      </rect>
     </property>
@@ -202,7 +202,7 @@
      <rect>
       <x>200</x>
       <y>110</y>
-      <width>141</width>
+      <width>131</width>
       <height>18</height>
      </rect>
     </property>
@@ -218,7 +218,7 @@
      <rect>
       <x>10</x>
       <y>110</y>
-      <width>141</width>
+      <width>181</width>
       <height>18</height>
      </rect>
     </property>
@@ -250,7 +250,7 @@
      <rect>
       <x>200</x>
       <y>130</y>
-      <width>121</width>
+      <width>131</width>
       <height>18</height>
      </rect>
     </property>
@@ -266,7 +266,7 @@
      <rect>
       <x>340</x>
       <y>130</y>
-      <width>71</width>
+      <width>61</width>
       <height>18</height>
      </rect>
     </property>
@@ -330,7 +330,7 @@
      <rect>
       <x>10</x>
       <y>25</y>
-      <width>121</width>
+      <width>111</width>
       <height>18</height>
      </rect>
     </property>
@@ -343,7 +343,7 @@
      <rect>
       <x>10</x>
       <y>45</y>
-      <width>171</width>
+      <width>271</width>
       <height>18</height>
      </rect>
     </property>

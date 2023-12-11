@@ -19,9 +19,9 @@
   <widget class="QLabel" name="splashImage">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>560</width>
+     <x>-5</x>
+     <y>-5</y>
+     <width>570</width>
      <height>236</height>
     </rect>
    </property>
@@ -33,6 +33,9 @@
    </property>
    <property name="text">
     <string>TextLabel</string>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QLabel" name="info">
@@ -48,7 +51,7 @@
     <string>TextLabel</string>
    </property>
    <property name="alignment">
-    <set>Qt::AlignCenter</set>
+    <set>Qt::AlignHCenter|Qt::AlignTop</set>
    </property>
    <property name="wordWrap">
     <bool>false</bool>

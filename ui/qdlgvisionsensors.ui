@@ -36,7 +36,7 @@
      <rect>
       <x>10</x>
       <y>25</y>
-      <width>201</width>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -52,7 +52,7 @@
      <rect>
       <x>10</x>
       <y>45</y>
-      <width>201</width>
+      <width>191</width>
       <height>18</height>
      </rect>
     </property>
@@ -68,7 +68,7 @@
      <rect>
       <x>10</x>
       <y>105</y>
-      <width>241</width>
+      <width>230</width>
       <height>18</height>
      </rect>
     </property>
@@ -99,9 +99,9 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>315</x>
+      <x>317</x>
       <y>105</y>
-      <width>21</width>
+      <width>16</width>
       <height>18</height>
      </rect>
     </property>
@@ -127,7 +127,7 @@
      <rect>
       <x>10</x>
       <y>125</y>
-      <width>241</width>
+      <width>230</width>
       <height>18</height>
      </rect>
     </property>
@@ -148,9 +148,9 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>315</x>
+      <x>317</x>
       <y>145</y>
-      <width>21</width>
+      <width>16</width>
       <height>18</height>
      </rect>
     </property>
@@ -176,7 +176,7 @@
      <rect>
       <x>10</x>
       <y>145</y>
-      <width>241</width>
+      <width>230</width>
       <height>18</height>
      </rect>
     </property>
@@ -205,7 +205,7 @@
      <rect>
       <x>210</x>
       <y>25</y>
-      <width>201</width>
+      <width>192</width>
       <height>18</height>
      </rect>
     </property>
@@ -221,7 +221,7 @@
      <rect>
       <x>210</x>
       <y>45</y>
-      <width>201</width>
+      <width>192</width>
       <height>18</height>
      </rect>
     </property>
@@ -237,7 +237,7 @@
      <rect>
       <x>210</x>
       <y>65</y>
-      <width>201</width>
+      <width>192</width>
       <height>18</height>
      </rect>
     </property>
@@ -1280,7 +1280,7 @@
     <rect>
      <x>10</x>
      <y>205</y>
-     <width>101</width>
+     <width>111</width>
      <height>18</height>
     </rect>
    </property>

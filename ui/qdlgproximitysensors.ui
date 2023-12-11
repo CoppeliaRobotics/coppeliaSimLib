@@ -39,7 +39,7 @@
      <rect>
       <x>10</x>
       <y>25</y>
-      <width>131</width>
+      <width>121</width>
       <height>18</height>
      </rect>
     </property>
@@ -55,7 +55,7 @@
      <rect>
       <x>140</x>
       <y>25</y>
-      <width>111</width>
+      <width>101</width>
       <height>20</height>
      </rect>
     </property>
@@ -188,7 +188,7 @@
    <widget class="QLineEdit" name="qqPointSize">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>325</x>
       <y>25</y>
       <width>76</width>
       <height>18</height>

@@ -67,7 +67,7 @@
       <rect>
        <x>10</x>
        <y>25</y>
-       <width>71</width>
+       <width>60</width>
        <height>18</height>
       </rect>
      </property>
@@ -90,7 +90,7 @@
       <rect>
        <x>10</x>
        <y>45</y>
-       <width>71</width>
+       <width>60</width>
        <height>18</height>
       </rect>
      </property>
@@ -123,7 +123,7 @@
       <rect>
        <x>10</x>
        <y>65</y>
-       <width>71</width>
+       <width>60</width>
        <height>18</height>
       </rect>
      </property>
@@ -168,7 +168,7 @@
       <rect>
        <x>10</x>
        <y>65</y>
-       <width>41</width>
+       <width>62</width>
        <height>18</height>
       </rect>
      </property>
@@ -181,7 +181,7 @@
       <rect>
        <x>10</x>
        <y>25</y>
-       <width>41</width>
+       <width>62</width>
        <height>18</height>
       </rect>
      </property>
@@ -214,7 +214,7 @@
       <rect>
        <x>10</x>
        <y>45</y>
-       <width>41</width>
+       <width>62</width>
        <height>18</height>
       </rect>
      </property>
@@ -270,7 +270,7 @@
      <rect>
       <x>10</x>
       <y>65</y>
-      <width>141</width>
+      <width>132</width>
       <height>18</height>
      </rect>
     </property>
@@ -283,7 +283,7 @@
      <rect>
       <x>10</x>
       <y>45</y>
-      <width>141</width>
+      <width>132</width>
       <height>18</height>
      </rect>
     </property>
@@ -296,7 +296,7 @@
      <rect>
       <x>150</x>
       <y>45</y>
-      <width>261</width>
+      <width>250</width>
       <height>18</height>
      </rect>
     </property>
@@ -309,7 +309,7 @@
      <rect>
       <x>150</x>
       <y>65</y>
-      <width>261</width>
+      <width>250</width>
       <height>18</height>
      </rect>
     </property>
@@ -322,7 +322,7 @@
      <rect>
       <x>10</x>
       <y>25</y>
-      <width>141</width>
+      <width>132</width>
       <height>18</height>
      </rect>
     </property>
@@ -335,7 +335,7 @@
      <rect>
       <x>150</x>
       <y>25</y>
-      <width>251</width>
+      <width>250</width>
       <height>18</height>
      </rect>
     </property>

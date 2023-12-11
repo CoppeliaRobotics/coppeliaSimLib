@@ -56,7 +56,7 @@
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>181</width>
+       <width>171</width>
        <height>18</height>
       </rect>
      </property>
@@ -69,7 +69,7 @@
       <rect>
        <x>310</x>
        <y>10</y>
-       <width>101</width>
+       <width>91</width>
        <height>18</height>
       </rect>
      </property>
@@ -88,7 +88,7 @@
       <rect>
        <x>310</x>
        <y>60</y>
-       <width>81</width>
+       <width>91</width>
        <height>18</height>
       </rect>
      </property>
@@ -136,7 +136,7 @@
       <rect>
        <x>210</x>
        <y>60</y>
-       <width>81</width>
+       <width>91</width>
        <height>18</height>
       </rect>
      </property>
@@ -155,7 +155,7 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>91</width>
+       <width>81</width>
        <height>18</height>
       </rect>
      </property>
@@ -168,7 +168,7 @@
       <rect>
        <x>10</x>
        <y>60</y>
-       <width>111</width>
+       <width>101</width>
        <height>18</height>
       </rect>
      </property>
@@ -200,7 +200,7 @@
       <rect>
        <x>100</x>
        <y>10</y>
-       <width>71</width>
+       <width>81</width>
        <height>18</height>
       </rect>
      </property>
@@ -693,7 +693,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>60</y>
-       <width>111</width>
+       <width>122</width>
        <height>18</height>
       </rect>
      </property>
@@ -754,7 +754,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>111</width>
+       <width>122</width>
        <height>18</height>
       </rect>
      </property>
@@ -790,7 +790,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>111</width>
+       <width>122</width>
        <height>18</height>
       </rect>
      </property>
@@ -818,7 +818,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>60</y>
-       <width>111</width>
+       <width>102</width>
        <height>18</height>
       </rect>
      </property>
@@ -831,7 +831,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>91</width>
+       <width>81</width>
        <height>18</height>
       </rect>
      </property>
@@ -1360,7 +1360,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>111</width>
+       <width>102</width>
        <height>18</height>
       </rect>
      </property>
@@ -1373,7 +1373,7 @@ selection</string>
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>111</width>
+       <width>102</width>
        <height>18</height>
       </rect>
      </property>
