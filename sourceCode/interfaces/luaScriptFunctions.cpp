@@ -14074,7 +14074,10 @@ int _simExecuteScriptString(luaWrap_lua_State *L)
     {
         std::string stringToExecute(luaWrap_lua_tostring(L, 1));
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
-        int retVal = simExecuteScriptString_internal(luaToInt(L, 2), stringToExecute.c_str(), stack->getId());
+        int scriptID = luaToInt(L, 2);
+        if (scriptID == sim_handle_self)
+            scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        int retVal = simExecuteScriptString_internal(scriptID, stringToExecute.c_str(), stack->getId());
         if (retVal >= 0)
         {
             luaWrap_lua_pushinteger(L, retVal);
