@@ -120,7 +120,6 @@ bool CHelpMenu::processCommand(int commandID)
     }
     if (CSimFlavor::getBoolVal(13) && (commandID == EK_CMD))
     {
-        CSimFlavor::setHld(GuiApp::mainWindow);
         CSimFlavor::run(11);
         return (true);
     }

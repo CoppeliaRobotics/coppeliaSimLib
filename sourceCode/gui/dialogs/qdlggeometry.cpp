@@ -13,7 +13,7 @@ CQDlgGeometry::CQDlgGeometry(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlg
     _dlgType = GEOMETRY_DLG;
     ui->setupUi(this);
     _shapeHandle = -1;
-    if (GuiApp::mainWindow != nullptr)
+    if (GuiApp::canShowDialogs())
         GuiApp::mainWindow->dlgCont->close(GEOMETRY_DLG);
 }
 

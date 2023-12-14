@@ -26,7 +26,7 @@ CQDlg2D3DGraphProperties::CQDlg2D3DGraphProperties(QWidget *parent)
     CEditBoxDelegate *delegate = new CEditBoxDelegate();
     ui->qqList->setItemDelegate(delegate);
     _graphHandle = -1;
-    if (GuiApp::mainWindow != nullptr)
+    if (GuiApp::canShowDialogs())
         GuiApp::mainWindow->dlgCont->close(GRAPH2DAND3DCURVES_DLG);
 }
 

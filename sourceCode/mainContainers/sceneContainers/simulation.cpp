@@ -1279,7 +1279,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (VThread::isUiThread())
         {
-            if (GuiApp::mainWindow != nullptr)
+            if (GuiApp::canShowDialogs())
                 GuiApp::mainWindow->dlgCont->toggle(SIMULATION_DLG);
         }
         return (true);
@@ -1291,7 +1291,7 @@ bool CSimulation::showAndHandleEmergencyStopButton(bool showState, const char *s
 {
     TRACE_INTERNAL;
     bool retVal = false;
-    if (GuiApp::mainWindow != nullptr)
+    if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
         bool res = GuiApp::uiThread->showOrHideEmergencyStop(showState, scriptName);
         if (showState && res)
@@ -1360,7 +1360,7 @@ void CSimulation::addMenu(VMenu *menu)
                          !GuiApp::mainWindow->getOpenGlDisplayEnabled(), SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,
                          "Toggle visualization", true);
     menu->appendMenuSeparator();
-    if (GuiApp::mainWindow != nullptr)
+    if (GuiApp::canShowDialogs())
         menu->appendMenuItem(true, GuiApp::mainWindow->dlgCont->isVisible(SIMULATION_DLG), TOGGLE_SIMULATION_DLG_CMD,
                              IDSN_SIMULATION_SETTINGS, true);
 }

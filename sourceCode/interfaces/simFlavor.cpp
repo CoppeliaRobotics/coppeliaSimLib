@@ -27,10 +27,6 @@ int CSimFlavor::handleReadOpenFile(int f, char *b)
     return (-1);
 }
 
-void CSimFlavor::setHld(void *w)
-{
-}
-
 void CSimFlavor::run(int w)
 {
 }

@@ -28,6 +28,7 @@ class GuiApp
     static void setDefaultMouseMode();             // helper
     static bool isFullScreen();                    // helper
     static void setFullScreen(bool f);             // helper
+    static bool canShowDialogs();
     static bool getShowInertias();
     static void setShowInertias(bool show);
     static bool canDisassemble(int objectHandle);

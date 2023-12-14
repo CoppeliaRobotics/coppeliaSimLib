@@ -1100,6 +1100,16 @@ void CMainWindow::_createDefaultToolBars()
         _toolbarActionPageSelector->setCheckable(true);
         connect(_toolbarActionPageSelector, SIGNAL(triggered()), _signalMapper, SLOT(map()));
         _signalMapper->setMapping(_toolbarActionPageSelector, PAGE_SELECTOR_CMD);
+
+        QWidget *spacer = new QWidget();
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        _toolbar1->addWidget(spacer);
+
+        _toolbar1->addWidget(new QLabel(CSimFlavor::getStringVal(21).c_str()));
+
+        spacer = new QWidget();
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        _toolbar1->addWidget(spacer);
     }
     if ((_toolbar2 == nullptr) && (GuiApp::operationalUIParts & sim_gui_toolbar2))
     {

@@ -2430,7 +2430,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old *> &ptCont, bool pathEditMo
         {
             std::vector<bool> selS(ptCont.size(), false);
 #ifdef SIM_WITH_GUI
-            if (GuiApp::mainWindow != nullptr)
+            if (GuiApp::canShowDialogs())
             {
                 std::vector<int> *selP = GuiApp::mainWindow->editModeContainer->pathPointManipulation
                                              ->getPointerToSelectedPathPointIndices_nonEditMode();

@@ -604,8 +604,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == DISPLAY_VARIOUS_WARNING_MESSAGES_DURING_SIMULATION_CMD)
     {
-        if ((!App::currentWorld->simulation->isSimulationStopped()) && (!GuiApp::isFullScreen()) &&
-            (GuiApp::mainWindow != nullptr))
+        if ((!App::currentWorld->simulation->isSimulationStopped()) && GuiApp::canShowDialogs())
         {
             App::currentWorld->dynamicsContainer->displayWarningsIfNeeded();
             App::appendSimulationThreadCommand(cmd, 0.5);

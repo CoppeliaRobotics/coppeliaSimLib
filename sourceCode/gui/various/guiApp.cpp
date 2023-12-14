@@ -655,6 +655,15 @@ void GuiApp::setFullScreen(bool f)
 #endif
 }
 
+bool GuiApp::canShowDialogs()
+{
+    bool retVal = false;
+#ifdef SIM_WITH_GUI
+    retVal = (GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()) && ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0);
+#endif
+    return retVal;
+}
+
 bool GuiApp::getShowInertias()
 {
     return (_showInertias);

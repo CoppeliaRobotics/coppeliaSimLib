@@ -628,7 +628,7 @@ void CWorld::simulationAboutToStart()
     if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
     {
 #ifdef SIM_WITH_GUI
-        if (GuiApp::mainWindow != nullptr)
+        if (GuiApp::canShowDialogs())
             GuiApp::uiThread->messageBox_warning(
                 GuiApp::mainWindow, "Warning",
                 "The 'Geometric' plugin could not be initialized. Collision detection, distance calculation, and "
@@ -667,7 +667,7 @@ void CWorld::simulationAboutToStart()
 #ifdef SIM_WITH_GUI
     GuiApp::setToolbarRefreshFlag();
     GuiApp::setFullDialogRefreshFlag();
-    if (GuiApp::mainWindow != nullptr)
+    if (GuiApp::canShowDialogs())
         GuiApp::mainWindow->simulationRecorder->startRecording(false);
 #endif
 }

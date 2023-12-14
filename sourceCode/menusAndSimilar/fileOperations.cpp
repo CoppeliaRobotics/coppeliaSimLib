@@ -1619,94 +1619,97 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
         { // we are NOT in the UI thread. We execute the command now:
             bool displayed = false;
 #ifdef SIM_WITH_GUI
-            int ci = -1;
-            int si = -1;
-            int ei = -1;
-            if (GuiApp::mainWindow != nullptr)
-                GuiApp::mainWindow->simulationRecorder->stopRecording(false);
+            if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
+            {
+                int ci = -1;
+                int si = -1;
+                int ei = -1;
+                if (GuiApp::canShowDialogs())
+                    GuiApp::mainWindow->simulationRecorder->stopRecording(false);
 
-            ci = App::worldContainer->getInstanceIndexOfASceneNotYetSaved(
-                App::currentWorld->environment->getSceneLocked());
-            if (!App::currentWorld->simulation->isSimulationStopped())
-                si = App::worldContainer->getCurrentWorldIndex();
-            if (GuiApp::getEditModeType() != NO_EDIT_MODE)
-                ei = App::worldContainer->getCurrentWorldIndex();
+                ci = App::worldContainer->getInstanceIndexOfASceneNotYetSaved(
+                    App::currentWorld->environment->getSceneLocked());
+                if (!App::currentWorld->simulation->isSimulationStopped())
+                    si = App::worldContainer->getCurrentWorldIndex();
+                if (GuiApp::getEditModeType() != NO_EDIT_MODE)
+                    ei = App::worldContainer->getCurrentWorldIndex();
 
-            if (!App::currentWorld->environment->getSceneLocked())
-            {
-                if (App::currentWorld->undoBufferContainer->isSceneSaveMaybeNeededFlagSet())
-                    ci = App::worldContainer->getCurrentWorldIndex();
-            }
-            if ((ei == App::worldContainer->getCurrentWorldIndex()) && (!displayed))
-            {
-                if (VMESSAGEBOX_REPLY_OK == GuiApp::uiThread->messageBox_warning(
-                                                GuiApp::mainWindow, IDSN_EXIT, IDS_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE,
-                                                VMESSAGEBOX_OK_CANCEL, VMESSAGEBOX_REPLY_OK))
+                if (!App::currentWorld->environment->getSceneLocked())
                 {
-                    if (GuiApp::mainWindow != nullptr)
-                        GuiApp::mainWindow->editModeContainer->processCommand(
-                            ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD, nullptr);
-                    ei = -1;
+                    if (App::currentWorld->undoBufferContainer->isSceneSaveMaybeNeededFlagSet())
+                        ci = App::worldContainer->getCurrentWorldIndex();
                 }
-                else
-                    displayed = true;
-            }
-            if ((si == App::worldContainer->getCurrentWorldIndex()) && (!displayed))
-            {
-                if (VMESSAGEBOX_REPLY_OK == GuiApp::uiThread->messageBox_warning(
-                                                GuiApp::mainWindow, IDSN_EXIT, IDS_SIMULATION_STILL_RUNNING_MESSAGE,
-                                                VMESSAGEBOX_OK_CANCEL, VMESSAGEBOX_REPLY_OK))
-                    App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request, 0, 0, 0,
-                                                                           0, nullptr, 0);
-                displayed = true;
-            }
-            if ((ci == App::worldContainer->getCurrentWorldIndex()) && (!displayed))
-            {
-                unsigned short action = VMESSAGEBOX_REPLY_NO;
-                if (CSimFlavor::getBoolVal(16))
-                    action = GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_SAVE,
-                                                                  IDS_WANNA_SAVE_THE_SCENE_WARNING,
-                                                                  VMESSAGEBOX_YES_NO_CANCEL, VMESSAGEBOX_REPLY_NO);
-                if (action == VMESSAGEBOX_REPLY_YES)
+                if ((ei == App::worldContainer->getCurrentWorldIndex()) && (!displayed))
                 {
-                    if (_saveSceneWithDialogAndEverything()) // will call save as if needed!
-                        action = VMESSAGEBOX_REPLY_NO;
-                }
-                if (action == VMESSAGEBOX_REPLY_NO)
-                {
-                    App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
-                    ci = App::worldContainer->getInstanceIndexOfASceneNotYetSaved(false);
-                }
-                else
-                    displayed = true;
-            }
-            if ((ei != -1) && (!displayed))
-            {
-                GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_EXIT,
-                                                     IDS_ANOTHER_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE, VMESSAGEBOX_OKELI,
-                                                     VMESSAGEBOX_REPLY_OK);
-                App::worldContainer->switchToWorld(ei);
-                displayed = true;
-            }
-            if ((si != -1) && (!displayed))
-            {
-                GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_EXIT,
-                                                     IDS_ANOTHER_SIMULATION_STILL_RUNNING_MESSAGE, VMESSAGEBOX_OKELI,
-                                                     VMESSAGEBOX_REPLY_OK);
-                App::worldContainer->switchToWorld(si);
-                displayed = true;
-            }
-            if ((ci != -1) && (!displayed))
-            {
-                if (CSimFlavor::getBoolVal(16))
-                {
-                    if (VMESSAGEBOX_REPLY_CANCEL == GuiApp::uiThread->messageBox_warning(
-                                                        GuiApp::mainWindow, IDSN_SAVE,
-                                                        IDS_ANOTHER_INSTANCE_STILL_NOT_SAVED_WANNA_LEAVE_ANYWAY_MESSAGE,
-                                                        VMESSAGEBOX_OK_CANCEL, VMESSAGEBOX_REPLY_OK))
+                    if (VMESSAGEBOX_REPLY_OK == GuiApp::uiThread->messageBox_warning(
+                                                    GuiApp::mainWindow, IDSN_EXIT, IDS_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE,
+                                                    VMESSAGEBOX_OK_CANCEL, VMESSAGEBOX_REPLY_OK))
                     {
-                        App::worldContainer->switchToWorld(ci);
+                        if (GuiApp::mainWindow != nullptr)
+                            GuiApp::mainWindow->editModeContainer->processCommand(
+                                ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD, nullptr);
+                        ei = -1;
+                    }
+                    else
                         displayed = true;
+                }
+                if ((si == App::worldContainer->getCurrentWorldIndex()) && (!displayed))
+                {
+                    if (VMESSAGEBOX_REPLY_OK == GuiApp::uiThread->messageBox_warning(
+                                                    GuiApp::mainWindow, IDSN_EXIT, IDS_SIMULATION_STILL_RUNNING_MESSAGE,
+                                                    VMESSAGEBOX_OK_CANCEL, VMESSAGEBOX_REPLY_OK))
+                        App::worldContainer->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request, 0, 0, 0,
+                                                                               0, nullptr, 0);
+                    displayed = true;
+                }
+                if ((ci == App::worldContainer->getCurrentWorldIndex()) && (!displayed))
+                {
+                    unsigned short action = VMESSAGEBOX_REPLY_NO;
+                    if (CSimFlavor::getBoolVal(16))
+                        action = GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_SAVE,
+                                                                      IDS_WANNA_SAVE_THE_SCENE_WARNING,
+                                                                      VMESSAGEBOX_YES_NO_CANCEL, VMESSAGEBOX_REPLY_NO);
+                    if (action == VMESSAGEBOX_REPLY_YES)
+                    {
+                        if (_saveSceneWithDialogAndEverything()) // will call save as if needed!
+                            action = VMESSAGEBOX_REPLY_NO;
+                    }
+                    if (action == VMESSAGEBOX_REPLY_NO)
+                    {
+                        App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+                        ci = App::worldContainer->getInstanceIndexOfASceneNotYetSaved(false);
+                    }
+                    else
+                        displayed = true;
+                }
+                if ((ei != -1) && (!displayed))
+                {
+                    GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_EXIT,
+                                                         IDS_ANOTHER_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE, VMESSAGEBOX_OKELI,
+                                                         VMESSAGEBOX_REPLY_OK);
+                    App::worldContainer->switchToWorld(ei);
+                    displayed = true;
+                }
+                if ((si != -1) && (!displayed))
+                {
+                    GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_EXIT,
+                                                         IDS_ANOTHER_SIMULATION_STILL_RUNNING_MESSAGE, VMESSAGEBOX_OKELI,
+                                                         VMESSAGEBOX_REPLY_OK);
+                    App::worldContainer->switchToWorld(si);
+                    displayed = true;
+                }
+                if ((ci != -1) && (!displayed))
+                {
+                    if (CSimFlavor::getBoolVal(16))
+                    {
+                        if (VMESSAGEBOX_REPLY_CANCEL == GuiApp::uiThread->messageBox_warning(
+                                                            GuiApp::mainWindow, IDSN_SAVE,
+                                                            IDS_ANOTHER_INSTANCE_STILL_NOT_SAVED_WANNA_LEAVE_ANYWAY_MESSAGE,
+                                                            VMESSAGEBOX_OK_CANCEL, VMESSAGEBOX_REPLY_OK))
+                        {
+                            App::worldContainer->switchToWorld(ci);
+                            displayed = true;
+                        }
                     }
                 }
             }

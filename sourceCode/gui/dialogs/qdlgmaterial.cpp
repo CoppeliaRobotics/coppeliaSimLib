@@ -14,14 +14,14 @@ CQDlgMaterial::CQDlgMaterial(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlg
     _lastSelectedObjectID = App::currentWorld->sceneObjects->getLastSelectionHandle();
     _objectSelectionSize = App::currentWorld->sceneObjects->getSelectionCount();
 
-    if (GuiApp::mainWindow != nullptr)
+    if (GuiApp::canShowDialogs())
         GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
 }
 
 CQDlgMaterial::~CQDlgMaterial()
 {
     delete ui;
-    if (GuiApp::mainWindow != nullptr)
+    if (GuiApp::canShowDialogs())
         GuiApp::mainWindow->dlgCont->close(COLOR_DLG);
 }
 

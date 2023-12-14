@@ -18,7 +18,7 @@ CQDlgTextures::CQDlgTextures(QWidget *parent) : CDlgEx(parent), ui(new Ui::CQDlg
 {
     _dlgType = TEXTURE_DLG;
     ui->setupUi(this);
-    if (GuiApp::mainWindow != nullptr)
+    if (GuiApp::canShowDialogs())
         GuiApp::mainWindow->dlgCont->close(TEXTURE_DLG);
     inMainRefreshRoutine = false;
 }

@@ -22,7 +22,7 @@ CQDlgIkElements::CQDlgIkElements(QWidget *parent) : CDlgEx(parent), ui(new Ui::C
     QShortcut *shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
     connect(shortcut2, SIGNAL(activated()), this, SLOT(onDeletePressed()));
     _ikGroupHandle = -1;
-    if (GuiApp::mainWindow != nullptr)
+    if (GuiApp::canShowDialogs())
         GuiApp::mainWindow->dlgCont->close(IKELEMENT_DLG);
 }
 

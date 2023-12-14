@@ -59,7 +59,7 @@ bool CUiThread::executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadComm
 
 void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
 { // called by the UI thread.
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()) && (cmdIn->cmdId == PLUS_HVUD_CMD_UITHREADCMD))
+    if (GuiApp::canShowDialogs() && (cmdIn->cmdId == PLUS_HVUD_CMD_UITHREADCMD))
     {
         std::string txt(CSimFlavor::getStringVal(9));
         if (txt.length() != 0)
@@ -73,7 +73,6 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
 
     if (cmdIn->cmdId == PLUS_CVU_CMD_UITHREADCMD)
     {
-        CSimFlavor::setHld(GuiApp::mainWindow);
         CSimFlavor::run(6);
     }
 
@@ -104,17 +103,17 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
 
     if (cmdIn->cmdId == KY_UITHREADCMD)
     {
-        CSimFlavor::setHld(GuiApp::mainWindow);
-        CSimFlavor::run(11);
+        if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
+            CSimFlavor::run(11);
     }
 
     if (cmdIn->cmdId == RG_UITHREADCMD)
     {
-        CSimFlavor::setHld(GuiApp::mainWindow);
-        CSimFlavor::run(12);
+        if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
+            CSimFlavor::run(12);
     }
 
-    if ((GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == MENUBAR_COLOR_UITHREADCMD))
+    if (GuiApp::canShowDialogs() && (cmdIn->cmdId == MENUBAR_COLOR_UITHREADCMD))
     {
         QMenuBar *menubar = GuiApp::mainWindow->menuBar();
         if (menubar != nullptr)
@@ -136,10 +135,10 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
         }
     }
 
-    if ((GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == SHOW_HIDE_EMERGENCY_STOP_BUTTON_UITHREADCMD))
+    if (GuiApp::canShowDialogs() && (cmdIn->cmdId == SHOW_HIDE_EMERGENCY_STOP_BUTTON_UITHREADCMD))
         cmdOut->boolParams.push_back(showOrHideEmergencyStop(cmdIn->boolParams[0], cmdIn->stringParams[0].c_str()));
 
-    if ((!GuiApp::isFullScreen()) && (GuiApp::mainWindow != nullptr) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == DISPLAY_MESH_DECIMATION_DIALOG_UITHREADCMD))
     {
         CQDlgSlider theDialog(GuiApp::mainWindow);
@@ -152,14 +151,14 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
         cmdOut->floatParams.push_back(theDialog.decimationPercent);
     }
 
-    if ((!GuiApp::isFullScreen()) && (GuiApp::mainWindow != nullptr) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == DISPLAY_OR_HIDE_PROGRESS_DIALOG_UITHREADCMD))
         showOrHideProgressBar(cmdIn->boolParams[0], cmdIn->floatParams[0], cmdIn->stringParams[0].c_str());
 
     if (cmdIn->cmdId == COPY_TEXT_TO_CLIPBOARD_UITHREADCMD)
         VVarious::copyTextToClipboard(cmdIn->stringParams[0].c_str());
 
-    if ((!GuiApp::isFullScreen()) && (GuiApp::mainWindow != nullptr) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == DISPLAY_CONVEX_DECOMPOSITION_DIALOG_UITHREADCMD))
     {
         CQDlgConvexDecomposition theDialog(GuiApp::mainWindow);
@@ -222,29 +221,30 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
         cmdOut->floatParams.push_back(theDialog.minVolumePerCH);
     }
 
+    if (cmdIn->cmdId == INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD)
+    {
+        App::worldContainer->pluginContainer->uiCallAllPlugins(0);
+
+        // Old:
+        int auxData[4] = {0, 0, 0, 0};
+        App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
+            sim_message_eventcallback_uipass, auxData);
+    }
+    if (cmdIn->cmdId == CALL_PLUGIN_INITUI_FROM_UITHREAD_UITHREADCMD)
+    {
+        CPlugin *it = App::worldContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
+        if (it != nullptr)
+            it->init_ui();
+    }
+    if (cmdIn->cmdId == CALL_PLUGIN_CLEANUPUI_FROM_UITHREAD_UITHREADCMD)
+    {
+        CPlugin *it = App::worldContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
+        if (it != nullptr)
+            it->cleanup_ui();
+    }
+
     if (GuiApp::mainWindow != nullptr)
     {
-        if (cmdIn->cmdId == INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD)
-        {
-            App::worldContainer->pluginContainer->uiCallAllPlugins(0);
-
-            // Old:
-            int auxData[4] = {0, 0, 0, 0};
-            App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
-                sim_message_eventcallback_uipass, auxData);
-        }
-        if (cmdIn->cmdId == CALL_PLUGIN_INITUI_FROM_UITHREAD_UITHREADCMD)
-        {
-            CPlugin *it = App::worldContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
-            if (it != nullptr)
-                it->init_ui();
-        }
-        if (cmdIn->cmdId == CALL_PLUGIN_CLEANUPUI_FROM_UITHREAD_UITHREADCMD)
-        {
-            CPlugin *it = App::worldContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
-            if (it != nullptr)
-                it->cleanup_ui();
-        }
         if (cmdIn->cmdId == INSTANCE_ABOUT_TO_BE_CREATED_UITHREADCMD)
             GuiApp::mainWindow->newInstanceAboutToBeCreated();
         if (cmdIn->cmdId == INSTANCE_WAS_JUST_CREATED_UITHREADCMD)
@@ -281,13 +281,13 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
     if ((GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == TOGGLE_VISUALIZATION_UITHREADCMD))
         GuiApp::mainWindow->setOpenGlDisplayEnabled(!GuiApp::mainWindow->getOpenGlDisplayEnabled());
 
-    if ((GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == OPEN_OR_CLOSE_UITHREADCMD))
+    if (GuiApp::canShowDialogs() && (cmdIn->cmdId == OPEN_OR_CLOSE_UITHREADCMD))
         GuiApp::mainWindow->dlgCont->processCommand(cmdIn->intParams[0]);
 
     if ((GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == CREATE_DEFAULT_MENU_BAR_UITHREADCMD))
         GuiApp::mainWindow->createDefaultMenuBar();
 
-    if ((!GuiApp::isFullScreen()) && (GuiApp::mainWindow != nullptr) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == KEEP_THUMBNAIL_QUESTION_DLG_UITHREADCMD))
     {
         CQDlgModelThumbnailVisu dlg;
@@ -295,7 +295,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
         cmdOut->boolParams.push_back(dlg.makeDialogModal() != VDIALOG_MODAL_RETURN_CANCEL);
     }
 
-    if ((!GuiApp::isFullScreen()) && (GuiApp::mainWindow != nullptr) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == SELECT_THUMBNAIL_DLG_UITHREADCMD))
     {
         CQDlgModelThumbnail dlg;
@@ -321,7 +321,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
             cmdOut->boolParams.push_back(false);
         }
     }
-    if ((!GuiApp::isFullScreen()) && (GuiApp::mainWindow != nullptr) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == HEIGHTFIELD_DIMENSION_DLG_UITHREADCMD))
     {
         CQDlgHeightfieldDimension theDialog(GuiApp::mainWindow);
@@ -333,7 +333,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
         cmdOut->floatParams.push_back(theDialog.xSize);
         cmdOut->floatParams.push_back(theDialog.zScaling);
     }
-    if ((!GuiApp::isFullScreen()) && (GuiApp::mainWindow != nullptr) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD))
     {
         CSceneObject *object = App::currentWorld->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
@@ -358,7 +358,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
             App::appendSimulationThreadCommand(cmd);
         }
     }
-    if ((!GuiApp::isFullScreen()) && (GuiApp::mainWindow != nullptr) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == OPEN_MODAL_MODEL_PROPERTIES_UITHREADCMD))
     {
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
@@ -380,7 +380,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
         (cmdIn->cmdId < MAIN_WINDOW_END_MWUITHREADCMD))
         GuiApp::mainWindow->executeCommand(cmdIn, cmdOut);
 
-    if ((!GuiApp::isFullScreen()) && (GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == DISPLAY_FILE_DLG_UITHREADCMD))
+    if (GuiApp::canShowDialogs() && (cmdIn->cmdId == DISPLAY_FILE_DLG_UITHREADCMD))
         cmdOut->stringParams.push_back(getOpenOrSaveFileName_api(
             cmdIn->intParams[0], cmdIn->stringParams[0].c_str(), cmdIn->stringParams[1].c_str(),
             cmdIn->stringParams[2].c_str(), cmdIn->stringParams[3].c_str(), cmdIn->stringParams[4].c_str()));
@@ -391,18 +391,18 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
     if ((GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == CALL_DIALOG_FUNCTION_UITHREADCMD))
         GuiApp::mainWindow->callDialogFunction(cmdIn, cmdOut);
 
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == DISPLAY_MSG_WITH_CHECKBOX_UITHREADCMD))
         cmdOut->boolParams.push_back(messageBox_checkbox((QWidget *)cmdIn->objectParams[0],
                                                          cmdIn->stringParams[0].c_str(), cmdIn->stringParams[1].c_str(),
                                                          cmdIn->stringParams[2].c_str(), cmdIn->boolParams[0]));
 
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()) && (cmdIn->cmdId == DISPLAY_MSGBOX_UITHREADCMD))
+    if (GuiApp::canShowDialogs() && (cmdIn->cmdId == DISPLAY_MSGBOX_UITHREADCMD))
         cmdOut->uintParams.push_back(_messageBox(cmdIn->intParams[0], (QWidget *)cmdIn->objectParams[0],
                                                  cmdIn->stringParams[0].c_str(), cmdIn->stringParams[1].c_str(),
                                                  cmdIn->uintParams[0], cmdIn->uintParams[1]));
 
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()) && (cmdIn->cmdId == DISPLAY_SAVE_DLG_UITHREADCMD))
+    if (GuiApp::canShowDialogs() && (cmdIn->cmdId == DISPLAY_SAVE_DLG_UITHREADCMD))
         cmdOut->stringParams.push_back(getSaveFileName(
             (QWidget *)cmdIn->objectParams[0], cmdIn->uintParams[0], cmdIn->stringParams[0].c_str(),
             cmdIn->stringParams[1].c_str(), cmdIn->stringParams[2].c_str(), cmdIn->boolParams[0],
@@ -411,7 +411,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
             cmdIn->stringParams[9].c_str(), cmdIn->stringParams[10].c_str(), cmdIn->stringParams[11].c_str(),
             cmdIn->stringParams[12].c_str(), cmdIn->stringParams[13].c_str()));
 
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == DLG_INPUT_GET_FLOAT_UITHREADCMD))
     {
         cmdOut->floatParams.push_back(0.0);
@@ -421,7 +421,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
                                 cmdIn->floatParams[2], cmdIn->intParams[0], &cmdOut->floatParams[0]));
     }
 
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()) && (cmdIn->cmdId == DISPLAY_OPEN_DLG_UITHREADCMD))
+    if (GuiApp::canShowDialogs() && (cmdIn->cmdId == DISPLAY_OPEN_DLG_UITHREADCMD))
         cmdOut->stringParams.push_back(getOpenFileName(
             (QWidget *)cmdIn->objectParams[0], cmdIn->uintParams[0], cmdIn->stringParams[0].c_str(),
             cmdIn->stringParams[1].c_str(), cmdIn->stringParams[2].c_str(), cmdIn->boolParams[0],
@@ -430,7 +430,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
             cmdIn->stringParams[9].c_str(), cmdIn->stringParams[10].c_str(), cmdIn->stringParams[11].c_str(),
             cmdIn->stringParams[12].c_str(), cmdIn->stringParams[13].c_str()));
 
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == DISPLAY_OPEN_DLG_MULTIFILE_UITHREADCMD))
         getOpenFileNames(cmdOut->stringParams, (QWidget *)cmdIn->objectParams[0], cmdIn->uintParams[0],
                          cmdIn->stringParams[0].c_str(), cmdIn->stringParams[1].c_str(), cmdIn->stringParams[2].c_str(),
@@ -440,11 +440,11 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
                          cmdIn->stringParams[10].c_str(), cmdIn->stringParams[11].c_str(),
                          cmdIn->stringParams[12].c_str(), cmdIn->stringParams[13].c_str());
 
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()) &&
+    if ((GuiApp::mainWindow != nullptr) &&
         (cmdIn->cmdId == SET_FILEDIALOG_NATIVE_UITHREADCMD))
         setFileDialogsNative(cmdIn->intParams[0]);
 
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()) &&
+    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == SHOW_PRIMITIVE_SHAPE_DLG_UITHREADCMD))
     {
         C3Vector sizes;
@@ -481,7 +481,7 @@ void CUiThread::showOrHideProgressBar(bool show, double pos, const char *txt)
         p = pos;
     if (txt != nullptr)
         t = txt;
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()))
+    if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
@@ -520,7 +520,7 @@ bool CUiThread::showOrHideEmergencyStop(bool show, const char *txt)
 {
     TRACE_INTERNAL;
     bool retVal = false; // button was pressed
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()))
+    if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
         static CQDlgStopScripts *_emergencyStopDlg = nullptr;
         if (show)
@@ -617,7 +617,7 @@ std::string CUiThread::getOpenOrSaveFileName_api(int mode, const char *title, co
 { // mode= 1: save, 0: load single, >1: load multiple
     TRACE_INTERNAL;
     std::string retVal;
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()))
+    if (GuiApp::canShowDialogs())
     {
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
@@ -679,40 +679,65 @@ unsigned short CUiThread::messageBox_informationSystemModal(void *parentWidget, 
                                                             unsigned short flags, unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
-    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-    return (_messageBox(4, parentWidget, title, message, flags, defaultAnswer));
+    unsigned short retVal = defaultAnswer;
+    if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
+    {
+        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+        retVal = _messageBox(4, parentWidget, title, message, flags, defaultAnswer);
+    }
+    return retVal;
 }
 
 unsigned short CUiThread::messageBox_information(void *parentWidget, const char *title, const char *message,
                                                  unsigned short flags, unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
-    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-    return (_messageBox(0, parentWidget, title, message, flags, defaultAnswer));
+    unsigned short retVal = defaultAnswer;
+    if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
+    {
+        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+        retVal = _messageBox(0, parentWidget, title, message, flags, defaultAnswer);
+    }
+    return retVal;
 }
 
 unsigned short CUiThread::messageBox_question(void *parentWidget, const char *title, const char *message,
                                               unsigned short flags, unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
-    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-    return (_messageBox(1, parentWidget, title, message, flags, defaultAnswer));
+    unsigned short retVal = defaultAnswer;
+    if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
+    {
+        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+        retVal = _messageBox(1, parentWidget, title, message, flags, defaultAnswer);
+    }
+    return retVal;
 }
 
 unsigned short CUiThread::messageBox_warning(void *parentWidget, const char *title, const char *message,
                                              unsigned short flags, unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
-    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-    return (_messageBox(2, parentWidget, title, message, flags, defaultAnswer));
+    unsigned short retVal = defaultAnswer;
+    if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
+    {
+        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+        retVal = _messageBox(2, parentWidget, title, message, flags, defaultAnswer);
+    }
+    return retVal;
 }
 
 unsigned short CUiThread::messageBox_critical(void *parentWidget, const char *title, const char *message,
                                               unsigned short flags, unsigned short defaultAnswer)
 {
     TRACE_INTERNAL;
-    SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-    return (_messageBox(3, parentWidget, title, message, flags, defaultAnswer));
+    unsigned short retVal = defaultAnswer;
+    if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
+    {
+        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+        retVal = _messageBox(3, parentWidget, title, message, flags, defaultAnswer);
+    }
+    return retVal;
 }
 
 unsigned short CUiThread::_messageBox(int type, void *parentWidget, const char *title, const char *message,
@@ -720,7 +745,7 @@ unsigned short CUiThread::_messageBox(int type, void *parentWidget, const char *
 { // type: 0=info, 1=question, 2=warning, 3=critical, 4=info, system modal
     TRACE_INTERNAL;
     unsigned short retVal = VMESSAGEBOX_REPLY_ERROR;
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()))
+    if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
@@ -760,7 +785,7 @@ bool CUiThread::messageBox_checkbox(void *parentWidget, const char *title, const
 {
     TRACE_INTERNAL;
     bool retVal = false;
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()))
+    if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
@@ -833,7 +858,7 @@ bool CUiThread::getOpenFileNames(std::vector<std::string> &files, void *parentWi
 {
     TRACE_INTERNAL;
     bool retVal = false;
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()))
+    if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
@@ -901,7 +926,7 @@ std::string CUiThread::getOpenFileName(void *parentWidget, unsigned short option
 {
     TRACE_INTERNAL;
     std::string retVal;
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()))
+    if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
@@ -950,7 +975,7 @@ std::string CUiThread::getSaveFileName(void *parentWidget, unsigned short option
 {
     TRACE_INTERNAL;
     std::string retVal;
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()))
+    if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
@@ -995,7 +1020,7 @@ bool CUiThread::dialogInputGetFloat(void *parentWidget, const char *title, const
 {
     TRACE_INTERNAL;
     bool retVal = false;
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()))
+    if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
@@ -1031,7 +1056,7 @@ bool CUiThread::showPrimitiveShapeDialog(int type, const C3Vector *optionalSizes
 {
     TRACE_INTERNAL;
     bool retVal = false;
-    if ((GuiApp::mainWindow != nullptr) && (!GuiApp::isFullScreen()))
+    if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
         { // we are in the UI thread. We execute the command now:
