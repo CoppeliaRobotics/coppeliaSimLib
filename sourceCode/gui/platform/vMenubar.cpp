@@ -110,3 +110,9 @@ void VMenubar::clear()
 
     _qMenubar->clear();
 }
+
+QMenuBar* VMenubar::getQMenubar()
+{
+    return _qMenubar;
+}
+

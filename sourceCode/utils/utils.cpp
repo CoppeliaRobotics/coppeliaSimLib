@@ -64,7 +64,7 @@ std::string utils::extractWord(std::string &str, const char* separationWord)
     else
     {
         retVal = str.substr(0, p);
-        str.erase(0, p + 1);
+        str.erase(0, p + strlen(separationWord));
     }
     return retVal;
 }
@@ -236,10 +236,12 @@ std::string utils::encode64(const std::string &data)
     // return(base64_encode((const unsigned char*)data.c_str(),(unsigned int)data.size()));
 }
 
-std::string utils::toHex(const char* buffer, size_t length)
-{
+std::string utils::toHex(const char* buffer, size_t length /*= 0*/)
+{ // text string with length == 0
     std::stringstream ss;
     ss << std::hex << std::setfill('0');
+    if (length == 0)
+        length = strlen(buffer);
     for (size_t i = 0; i < length; ++i)
         ss << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(buffer[i]));
     return ss.str();

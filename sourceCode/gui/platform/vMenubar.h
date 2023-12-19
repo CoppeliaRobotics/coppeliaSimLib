@@ -32,6 +32,7 @@ class VMenubar
     void appendMenuItem(bool enabled, bool checkMark, int commandID, const char *label, bool showCheckmarkSpot = false);
     void appendMenuSeparator();
     void clear();
+    QMenuBar* getQMenubar();
 
     static int memorizedCommand;
     static bool doNotExecuteCommandButMemorizeIt;

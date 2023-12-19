@@ -908,6 +908,8 @@ void CMainWindow::createDefaultMenuBar()
                                           (std::string(IDS_HELP_MENU_ITEM) + DUMMY_SPACE_QMENUBAR_QT5).c_str());
             connect(_helpSystemMenu->getQMenu(), SIGNAL(aboutToShow()), this, SLOT(_aboutToShowHelpSystemMenu()));
         }
+
+        _menubar->getQMenubar()->setCornerWidget(new QLabel(CSimFlavor::getStringVal(21).c_str()));
     }
     refreshDimensions();
 }

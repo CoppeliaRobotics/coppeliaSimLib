@@ -26,7 +26,7 @@ class utils
     static void scaleColorUp_(float *rgb);
     static std::string decode64(const std::string &data);
     static std::string encode64(const std::string &data);
-    static std::string toHex(const char* buffer, size_t length);
+    static std::string toHex(const char* buffer, size_t length = 0);
     static std::string fromHex(const char* hexString);
     static std::string xorHexStrings(const char* a, const char* b, bool repeatShortStringToSameSize);
     static std::string generateUniqueString();
