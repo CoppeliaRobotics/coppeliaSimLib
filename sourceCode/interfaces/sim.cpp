@@ -2,6 +2,10 @@
 #include <simInternal.h>
 #include <app.h>
 
+SIM_DLLEXPORT void simRegCallback(int index, void *callback)
+{
+    simRegCallback_internal(index, callback);
+}
 SIM_DLLEXPORT void simRunGui(int options)
 {
     simRunGui_internal(options);

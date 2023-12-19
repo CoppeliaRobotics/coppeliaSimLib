@@ -908,8 +908,6 @@ void CMainWindow::createDefaultMenuBar()
                                           (std::string(IDS_HELP_MENU_ITEM) + DUMMY_SPACE_QMENUBAR_QT5).c_str());
             connect(_helpSystemMenu->getQMenu(), SIGNAL(aboutToShow()), this, SLOT(_aboutToShowHelpSystemMenu()));
         }
-
-        _menubar->getQMenubar()->setCornerWidget(new QLabel(CSimFlavor::getStringVal(21).c_str()));
     }
     refreshDimensions();
 }
@@ -1107,7 +1105,8 @@ void CMainWindow::_createDefaultToolBars()
         spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         _toolbar1->addWidget(spacer);
 
-        _toolbar1->addWidget(new QLabel(CSimFlavor::getStringVal(21).c_str()));
+        _toolbarLabel = new QLabel(CSimFlavor::getStringVal(21).c_str());
+        _toolbar1->addWidget(_toolbarLabel);
 
         spacer = new QWidget();
         spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -1630,6 +1629,8 @@ void CMainWindow::_actualizetoolbarButtonState()
 
         _toolbarActionToggleVisualization->setChecked(!getOpenGlDisplayEnabled());
         _toolbarActionPageSelector->setChecked(oglSurface->isPageSelectionActive());
+
+        _toolbarLabel->setText(CSimFlavor::getStringVal(21).c_str());
     }
     if (_toolbar2 != nullptr)
     { // We enable/disable some buttons:

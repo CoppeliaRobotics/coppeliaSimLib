@@ -58,6 +58,8 @@ VFile *App::_consoleMsgsFile = nullptr;
 VArchive *App::_consoleMsgsArchive = nullptr;
 SignalHandler *App::_sigHandler = nullptr;
 CGm *App::gm = nullptr;
+std::vector<void*> App::callbacks;
+
 
 #ifdef WIN_SIM
 LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)

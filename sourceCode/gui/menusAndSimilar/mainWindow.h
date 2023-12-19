@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QToolBar>
 #include <QComboBox>
+#include <QLabel>
 #include <QToolButton>
 #include <QSignalMapper>
 #include <QSplitter>
@@ -199,6 +200,7 @@ class CMainWindow : public QMainWindow
 
     QToolBar *_toolbar1;
     QToolBar *_toolbar2;
+    QLabel *_toolbarLabel;
     QAction *_toolbarActionCameraShift;
     QAction *_toolbarActionCameraRotate;
     QAction *_toolbarActionCameraZoom;

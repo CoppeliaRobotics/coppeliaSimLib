@@ -11,6 +11,7 @@ int getCurrentScriptNameIndex_cSide();
 std::string getIndexAdjustedObjectName(const char *nm);
 void setLastInfo(const char *infoStr);
 
+void simRegCallback_internal(int index, void *callback);
 void simRunGui_internal(int options);
 int simInitialize_internal(const char *appDir, int options);
 int simDeinitialize_internal();

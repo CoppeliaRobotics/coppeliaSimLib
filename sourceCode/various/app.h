@@ -94,6 +94,8 @@ class App
     static CWorldContainer *worldContainer;
     static CWorld *currentWorld; // actually worldContainer->currentWorld
     static CGm *gm;
+    static std::vector<void*> callbacks;
+
 #ifndef SIM_WITH_GUI
     static CSimQApp *qtApp;
 #endif

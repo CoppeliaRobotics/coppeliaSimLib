@@ -113,6 +113,7 @@ void _raiseErrorIfNeeded(luaWrap_lua_State *L, const char *functionName, const c
     _raiseErrorIfNeeded(L, functionName.c_str(), errorString.c_str(), cSideErrorOrWarningReporting)
 
 const SLuaCommands simLuaCommands[] = {
+    {"ccallback0", _ccallback0},
     {"loadPlugin", _loadPlugin},
     {"unloadPlugin", _unloadPlugin},
     {"registerCodeEditorInfos", _registerCodeEditorInfos},
@@ -2523,6 +2524,35 @@ int _simGenericFunctionHandler(luaWrap_lua_State *L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(outputArgCount);
+}
+
+typedef bool (*cb_t)(int);
+
+int _ccallback0(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("ccallback0");
+
+    if ( (App::callbacks.size() > 0) && (App::callbacks[0] != nullptr) )
+    {
+        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+        CScriptObject::buildFromInterpreterStack_lua(L, stack, 1, 0);
+
+        bool res = ((cb_t)App::callbacks[0])(stack->getId());
+        if (res)
+        {
+            CScriptObject::buildOntoInterpreterStack_lua(L, stack, false);
+            int s = stack->getStackSize();
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+            LUA_END(s);
+        }
+        else
+            errorString = SIM_ERROR_CSIDE_CALLBACK_SIGNALED_ERROR;
+    }
+    else
+        errorString = SIM_ERROR_CSIDE_CALLBACK_NOT_REGISTERED;
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _loadPlugin(luaWrap_lua_State *L)

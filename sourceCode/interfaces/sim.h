@@ -223,6 +223,7 @@ SIM_DLLEXPORT int simCreateShape(int options, double shadingAngle, const double 
                                  const unsigned char *texture, const int *textureRes);
 
 // non documented functions, mainly for the dynamics plugins:
+SIM_DLLEXPORT void simRegCallback(int index, void *callback);
 SIM_DLLEXPORT void simRunGui(int options);
 SIM_DLLEXPORT int simInitialize(const char *appDir, int options);
 SIM_DLLEXPORT int simDeinitialize();

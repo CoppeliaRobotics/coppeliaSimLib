@@ -77,6 +77,13 @@ int simPostExitRequest_internal()
     return (1);
 }
 
+void simRegCallback_internal(int index, void *callback)
+{
+    while (index >= int(App::callbacks.size()))
+        App::callbacks.push_back(nullptr);
+    App::callbacks[index] = callback;
+}
+
 void simRunGui_internal(int options)
 {
 #ifdef SIM_WITH_GUI

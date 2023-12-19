@@ -179,6 +179,8 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_RUCKIG_OBJECT_INEXISTANT "Ruckig object does not exist."
 #define SIM_ERROR_RUCKIG_CYCLETIME_ERROR "specified cycle time is not a multiple of the base cycle time."
 #define SIM_ERROR_STRING_NOT_RECOGNIZED_AS_FUNC_OR_CONST "string not recognized as function or constant."
+#define SIM_ERROR_CSIDE_CALLBACK_NOT_REGISTERED "c side callback not registered."
+#define SIM_ERROR_CSIDE_CALLBACK_SIGNALED_ERROR "c side callback signaled error."
 
 // Class is fully static
 class CApiErrors
