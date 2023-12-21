@@ -5855,7 +5855,9 @@ int _simTest(luaWrap_lua_State *L)
         std::string cmd = luaWrap_lua_tostring(L, 1);
         if (cmd.compare("showSimpleDlg") == 0)
         {
+#ifdef SIM_WITH_GUI
             GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, "Test dlg", "some text", VMESSAGEBOX_YES_NO_CANCEL, VMESSAGEBOX_REPLY_NO);
+#endif
         }
 
         if (cmd.compare("sim.getGeodesicInfo") == 0)
