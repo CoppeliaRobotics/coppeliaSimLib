@@ -9,11 +9,3 @@ CGm::CGm()
 CGm::~CGm()
 {
 }
-
-void CGm::ll(const char *)
-{
-}
-
-void CGm::rl()
-{
-}

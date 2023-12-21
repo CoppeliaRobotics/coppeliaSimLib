@@ -1431,8 +1431,8 @@ enum
 
     //----------------------
     START_SIMPLUS_CMDS = 9500,
-    PLUS_CVU_CMD,
     PLUS_HVUD_CMD,
+    PLUS_LR_CMD,
     PLUS_RG_CMD,
     OUTSIDE_CUSTOMIZED_COMMANDS_START_CMD = 10000
     // 100000-200000 for cmds from UI to SIM

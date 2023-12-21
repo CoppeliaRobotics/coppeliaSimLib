@@ -59,23 +59,6 @@ bool CUiThread::executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadComm
 
 void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut)
 { // called by the UI thread.
-    if (GuiApp::canShowDialogs() && (cmdIn->cmdId == PLUS_HVUD_CMD_UITHREADCMD))
-    {
-        std::string txt(CSimFlavor::getStringVal(9));
-        if (txt.length() != 0)
-        {
-            if ((!App::userSettings->doNotShowUpdateCheckMessage) && (!App::userSettings->suppressStartupDialogs))
-                GuiApp::uiThread->messageBox_informationSystemModal(
-                    GuiApp::mainWindow, "Update information", txt.c_str(), VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
-            App::logMsg(sim_verbosity_msgs, txt.c_str());
-        }
-    }
-
-    if (cmdIn->cmdId == PLUS_CVU_CMD_UITHREADCMD)
-    {
-        CSimFlavor::run(6);
-    }
-
     if ((cmdIn->cmdId > PLUGIN_START_PLUGUITHREADCMD) && (cmdIn->cmdId < PLUGIN_END_PLUGUITHREADCMD))
     {
         if (cmdIn->cmdId == PLUGIN_LOAD_AND_START_PLUGUITHREADCMD)
@@ -98,13 +81,13 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
                                              cmdIn->intParams[0], cmdIn->boolParams[0], cmdIn->boolParams[1],
                                              cmdIn->boolParams[2], cmdIn->boolParams[3]));
 
-    if (cmdIn->cmdId == CHKFLTLIC_UITHREADCMD)
-        cmdOut->intParams.push_back(CSimFlavor::getIntVal(3));
-
     if (cmdIn->cmdId == KY_UITHREADCMD)
     {
         if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
+        {
             CSimFlavor::run(11);
+            App::appendSimulationThreadCommand(PLUS_LR_CMD);
+        }
     }
 
     if (cmdIn->cmdId == RG_UITHREADCMD)

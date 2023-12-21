@@ -307,16 +307,6 @@ void GuiApp::runGui(int options)
 
     _loadLegacyPlugins();
 
-    if (CSimFlavor::getBoolVal(17))
-    {
-        SSimulationThreadCommand cmd;
-        CSimFlavor::run(4);
-        cmd.cmdId = PLUS_CVU_CMD;
-        App::appendSimulationThreadCommand(cmd, 1.5);
-        cmd.cmdId = PLUS_HVUD_CMD;
-        App::appendSimulationThreadCommand(cmd, 20.0);
-    }
-
     int dl = CSimFlavor::getIntVal(5);
     if (dl > 0)
     {
@@ -332,15 +322,7 @@ void GuiApp::runGui(int options)
         App::appendSimulationThreadCommand(cmd, 3.0);
     }
 
-    CSimFlavor::run(7);
-    {
-        SSimulationThreadCommand cmd;
-        cmd.cmdId = CHKLICM_CMD;
-        App::appendSimulationThreadCommand(cmd, 5.0);
-    }
-
     App::setAppStage(App::appstage_guiInit2Done); // now let the SIM thread run freely
-
     {
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
@@ -349,9 +331,6 @@ void GuiApp::runGui(int options)
     }
 
     qtApp->exec(); // sits here until quit
-
-    CSimFlavor::run(8);
-    CSimFlavor::run(5);
 
     // Send the last "instancePass" message to all old plugins:
     int auxData[4] = {0, 0, 0, 0};

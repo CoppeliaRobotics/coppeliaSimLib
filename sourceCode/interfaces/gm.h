@@ -7,7 +7,4 @@ class CGm : public QObject
   public:
     CGm();
     ~CGm();
-
-    void ll(const char *);
-    void rl();
 };

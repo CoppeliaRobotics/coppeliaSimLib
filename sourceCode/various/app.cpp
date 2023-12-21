@@ -103,6 +103,7 @@ void App::setAppStage(int s)
 void App::init(const char *appDir, int)
 {
     CSimFlavor::run(13);
+    gm = new CGm();
     if (appDir)
         _applicationDir = appDir;
     else
@@ -165,7 +166,6 @@ void App::init(const char *appDir, int)
     worldContainer->initialize();
     CFileOperations::createNewScene(false);
 
-    gm = new CGm();
     if ((App::getConsoleVerbosity() >= sim_verbosity_trace) && (!App::userSettings->suppressStartupDialogs))
         App::logMsg(sim_verbosity_warnings, "tracing is turned on: this might lead to drastic performance loss.");
 
@@ -202,6 +202,20 @@ void App::init(const char *appDir, int)
         cont.writeData("SIMSETTINGS_SIM_CRASHED", "yes", true);
     }
 
+    CSimFlavor::run(3);
+    if (CSimFlavor::getBoolVal(17))
+    {
+        CSimFlavor::run(4);
+        SSimulationThreadCommand cmd;
+        cmd.cmdId = PLUS_HVUD_CMD;
+        App::appendSimulationThreadCommand(cmd, 20.0);
+    }
+    {
+        SSimulationThreadCommand cmd;
+        cmd.cmdId = CHKLICM_CMD;
+        App::appendSimulationThreadCommand(cmd, 5.0);
+    }
+
 #ifdef SIM_WITH_GUI
     // Prepare a few recurrent triggers:
     SSimulationThreadCommand cmd;
@@ -215,6 +229,8 @@ void App::init(const char *appDir, int)
 
 void App::cleanup()
 {
+    CSimFlavor::run(5);
+
     delete gm;
     gm = nullptr;
 

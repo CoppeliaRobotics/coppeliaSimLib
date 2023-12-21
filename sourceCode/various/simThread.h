@@ -43,7 +43,6 @@ class CSimThread : public QObject
     void _handleSimulationThreadCommands();
     void _executeSimulationThreadCommand(SSimulationThreadCommand cmd);
 
-    std::vector<SSimulationThreadCommand> _simulationThreadCommands_tmp;
     std::vector<SSimulationThreadCommand> _simulationThreadCommands;
     void _handleAutoSaveSceneCommand(SSimulationThreadCommand cmd);
 #ifdef SIM_WITH_GUI

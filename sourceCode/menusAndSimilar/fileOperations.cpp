@@ -26,7 +26,6 @@
 void CFileOperations::createNewScene(bool keepCurrentScene)
 {
     TRACE_INTERNAL;
-    CSimFlavor::run(2);
     if (keepCurrentScene)
         App::worldContainer->createNewWorld();
     else
@@ -76,7 +75,6 @@ bool CFileOperations::loadScene(const char *pathAndFilename, bool setCurrentDir,
     if ((pathAndFilename == nullptr) || (strlen(pathAndFilename) != 0))
     {
         int result = -3;
-        CSimFlavor::run(2);
         App::currentWorld->sceneObjects->deselectObjects();
         App::currentWorld->simulation->stopSimulation(); // should be anyway stopped!
         if ((pathAndFilename == nullptr) || VFile::doesFileExist(pathAndFilename))
@@ -164,7 +162,6 @@ bool CFileOperations::loadModel(const char *pathAndFilename, bool setCurrentDir,
 {
     TRACE_INTERNAL;
     int result = -3;
-    CSimFlavor::run(2);
     if ((pathAndFilename == nullptr) || VFile::doesFileExist(pathAndFilename))
     {
         App::currentWorld->sceneObjects->deselectObjects();
@@ -934,7 +931,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::logMsg(sim_verbosity_msgs, tt::decorateString("", IDSNS_LOADING_SCENE, "...").c_str());
-                CSimFlavor::run(2);
                 std::string ext[4];
                 for (int i = 0; i < 4; i++)
                     ext[i] = CSimFlavor::getStringVal_int(1, i);
@@ -994,7 +990,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
         { // execute the command only when simulation is not running and not in an edit mode
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                CSimFlavor::run(2);
                 CPersistentDataContainer cont;
                 std::string filenameAndPath;
                 int recentScenesCnt = 0;
@@ -1052,7 +1047,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CSimFlavor::run(2);
             std::string ext[4];
             for (int i = 0; i < 4; i++)
                 ext[i] = CSimFlavor::getStringVal_int(2, i);

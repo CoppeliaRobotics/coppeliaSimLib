@@ -86,10 +86,10 @@ void CSimThread::appendSimulationThreadCommand(SSimulationThreadCommand cmd, dou
     cmd.execTime = VDateTime::getTime() + executionDelay;
 #ifdef SIM_WITH_GUI
     _mutex.lock("CSimThread::appendSimulationThreadCommand");
-    _simulationThreadCommands_tmp.push_back(cmd);
+    _simulationThreadCommands.push_back(cmd);
     _mutex.unlock();
 #else
-    _simulationThreadCommands_tmp.push_back(cmd);
+    _simulationThreadCommands.push_back(cmd);
 #endif
 }
 
@@ -97,36 +97,21 @@ void CSimThread::_handleSimulationThreadCommands()
 { // CALLED ONLY FROM THE MAIN SIMULATION THREAD
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-#ifdef SIM_WITH_GUI
-        _mutex.lock("CSimThread::_handleSimulationThreadCommands");
-        for (size_t i = 0; i < _simulationThreadCommands_tmp.size(); i++)
-            _simulationThreadCommands.push_back(_simulationThreadCommands_tmp[i]);
-        _simulationThreadCommands_tmp.clear();
-        _mutex.unlock();
-#else
-        for (size_t i = 0; i < _simulationThreadCommands_tmp.size(); i++)
-            _simulationThreadCommands.push_back(_simulationThreadCommands_tmp[i]);
-        _simulationThreadCommands_tmp.clear();
-#endif
-
-        std::vector<SSimulationThreadCommand> delayedCommands;
-        while (_simulationThreadCommands.size() > 0)
+        for (size_t i = 0; i < _simulationThreadCommands.size(); i++)
         {
-            SSimulationThreadCommand cmd = _simulationThreadCommands[0];
-
+            SSimulationThreadCommand cmd = _simulationThreadCommands[i];
             if (cmd.execTime <= VDateTime::getTime())
             {
+#ifdef SIM_WITH_GUI
+                _mutex.lock("CSimThread::_handleSimulationThreadCommands");
+                _simulationThreadCommands.erase(_simulationThreadCommands.begin() + i);
+                _mutex.unlock();
+#else
+                _simulationThreadCommands.erase(_simulationThreadCommands.begin() + i);
+#endif
                 _executeSimulationThreadCommand(cmd);
-                _simulationThreadCommands.erase(_simulationThreadCommands.begin());
-            }
-            else
-            {
-                delayedCommands.push_back(cmd);
-                _simulationThreadCommands.erase(_simulationThreadCommands.begin());
             }
         }
-        // Now append the delayed commands:
-        _simulationThreadCommands.insert(_simulationThreadCommands.end(), delayedCommands.begin(), delayedCommands.end());
     }
 }
 
@@ -139,33 +124,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == EXIT_REQUEST_CMD)
     {
-#ifdef SIM_WITH_GUI
-        double dl = 0.0;
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId = CHKFLTLIC_UITHREADCMD;
-        GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
-        int res = cmdOut.intParams[0];
-        if (res > 0)
-        {
-            if (res != 1)
-            {
-                while (true)
-                {
-                    cmdOut.intParams.clear();
-                    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
-                    if (cmdOut.intParams[0] != 2)
-                        break;
-                }
-            }
-            dl = 3.0;
-        }
-        cmd.cmdId = FINAL_EXIT_REQUEST_CMD;
-        appendSimulationThreadCommand(cmd, dl);
-#else
         cmd.cmdId = FINAL_EXIT_REQUEST_CMD;
         appendSimulationThreadCommand(cmd);
-#endif
     }
 
     if (cmd.cmdId == AUTO_SAVE_SCENE_CMD)
@@ -188,8 +148,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 App::logMsg(sim_verbosity_errors, v.c_str());
 #ifdef SIM_WITH_GUI
-                GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow, CSimFlavor::getStringVal(20).c_str(),
-                                                      v.c_str(), VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
+                if (GuiApp::canShowDialogs())
+                    GuiApp::uiThread->messageBox_critical(GuiApp::mainWindow, CSimFlavor::getStringVal(20).c_str(), v.c_str(), VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
 #endif
             }
         }
@@ -216,28 +176,17 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         return;
 
 #ifdef SIM_WITH_GUI
-    if (cmd.cmdId == PLUS_CVU_CMD)
-    {
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId = PLUS_CVU_CMD_UITHREADCMD;
-        {
-            // Following instruction very important in the function below tries to lock resources (or a plugin it
-            // calls!):
-            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
-        }
-    }
     if (cmd.cmdId == PLUS_HVUD_CMD)
     {
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId = PLUS_HVUD_CMD_UITHREADCMD;
+        if (GuiApp::canShowDialogs())
         {
-            // Following instruction very important in the function below tries to lock resources (or a plugin it
-            // calls!):
-            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
+            std::string txt(CSimFlavor::getStringVal(9));
+            if (txt.length() != 0)
+            {
+                if ( (!App::userSettings->doNotShowUpdateCheckMessage) && (!App::userSettings->suppressStartupDialogs) )
+                    GuiApp::uiThread->messageBox_informationSystemModal(GuiApp::mainWindow, "Update information", txt.c_str(), VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
+                App::logMsg(sim_verbosity_msgs, txt.c_str());
+            }
         }
     }
     if (cmd.cmdId == PLUS_RG_CMD)
@@ -254,6 +203,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         int dl = CSimFlavor::getIntVal(5);
         if (dl > 0)
             appendSimulationThreadCommand(cmd, double(dl));
+    }
+    if (cmd.cmdId == PLUS_LR_CMD)
+    {
+        CSimFlavor::run(6);
     }
     if (cmd.cmdId == SET_SHAPE_TRANSPARENCY_CMD)
     {

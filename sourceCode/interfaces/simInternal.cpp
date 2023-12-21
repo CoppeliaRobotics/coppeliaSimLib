@@ -2691,6 +2691,19 @@ int simGetBoolParam_internal(int parameter)
 #endif
             return (retVal);
         }
+        if (parameter == sim_boolparam_cansave)
+        {
+            int retVal = 0;
+            if (App::currentWorld->simulation->isSimulationStopped() && CSimFlavor::getBoolVal(16))
+            {
+                retVal = 1;
+#ifdef SIM_WITH_GUI
+                if (GuiApp::getEditModeType() != NO_EDIT_MODE)
+                    retVal = 0;
+#endif
+            }
+            return retVal;
+        }
         if (parameter == sim_boolparam_headless)
         {
 #ifdef SIM_WITH_GUI

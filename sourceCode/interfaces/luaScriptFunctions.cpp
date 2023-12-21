@@ -835,6 +835,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.boolparam_video_recording_triggered", sim_boolparam_video_recording_triggered},
     {"sim.boolparam_fullscreen", sim_boolparam_fullscreen},
     {"sim.boolparam_headless", sim_boolparam_headless},
+    {"sim.boolparam_cansave", sim_boolparam_cansave},
     {"sim.boolparam_hierarchy_toolbarbutton_enabled", sim_boolparam_hierarchy_toolbarbutton_enabled},
     {"sim.boolparam_browser_toolbarbutton_enabled", sim_boolparam_browser_toolbarbutton_enabled},
     {"sim.boolparam_objectshift_toolbarbutton_enabled", sim_boolparam_objectshift_toolbarbutton_enabled},
@@ -5852,6 +5853,11 @@ int _simTest(luaWrap_lua_State *L)
     if (checkInputArguments(L, nullptr, lua_arg_string, 0))
     {
         std::string cmd = luaWrap_lua_tostring(L, 1);
+        if (cmd.compare("showSimpleDlg") == 0)
+        {
+            GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, "Test dlg", "some text", VMESSAGEBOX_YES_NO_CANCEL, VMESSAGEBOX_REPLY_NO);
+        }
+
         if (cmd.compare("sim.getGeodesicInfo") == 0)
         { // pt1,pt2,vertices,indices(can be {}),maxEdge,debugShape
             C3Vector pt1, pt2;
