@@ -52,6 +52,8 @@
         return (p);                                                                                                    \
     } while (0)
 
+typedef int (*_ccallback_t)(int);
+
 void _reportWarningsIfNeeded(luaWrap_lua_State *L, const char *functionName, const char *warningString,
                              bool cSideErrorOrWarningReporting)
 {
@@ -114,6 +116,9 @@ void _raiseErrorIfNeeded(luaWrap_lua_State *L, const char *functionName, const c
 
 const SLuaCommands simLuaCommands[] = {
     {"ccallback0", _ccallback0},
+    {"ccallback1", _ccallback1},
+    {"ccallback2", _ccallback2},
+    {"ccallback3", _ccallback3},
     {"loadPlugin", _loadPlugin},
     {"unloadPlugin", _unloadPlugin},
     {"registerCodeEditorInfos", _registerCodeEditorInfos},
@@ -2527,20 +2532,34 @@ int _simGenericFunctionHandler(luaWrap_lua_State *L)
     LUA_END(outputArgCount);
 }
 
-typedef bool (*cb_t)(int);
-
 int _ccallback0(luaWrap_lua_State *L)
 {
+    return(_ccallback(L, 0));
+}
+int _ccallback1(luaWrap_lua_State *L)
+{
+    return(_ccallback(L, 1));
+}
+int _ccallback2(luaWrap_lua_State *L)
+{
+    return(_ccallback(L, 2));
+}
+int _ccallback3(luaWrap_lua_State *L)
+{
+    return(_ccallback(L, 3));
+}
+int _ccallback(luaWrap_lua_State *L, size_t index)
+{
     TRACE_LUA_API;
-    LUA_START("ccallback0");
+    LUA_START(std::string("ccallback") + std::to_string(index));
 
-    if ( (App::callbacks.size() > 0) && (App::callbacks[0] != nullptr) )
+    if ( (App::callbacks.size() > index) && (App::callbacks[index] != nullptr) )
     {
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
         CScriptObject::buildFromInterpreterStack_lua(L, stack, 1, 0);
 
-        bool res = ((cb_t)App::callbacks[0])(stack->getId());
-        if (res)
+        int res = ((_ccallback_t)App::callbacks[index])(stack->getId());
+        if (res != 0)
         {
             CScriptObject::buildOntoInterpreterStack_lua(L, stack, false);
             int s = stack->getStackSize();

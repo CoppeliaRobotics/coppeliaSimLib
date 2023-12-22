@@ -77,7 +77,11 @@ int _genericFunctionHandler(luaWrap_lua_State *L, void (*callback)(struct SScrip
 const extern SLuaCommands simLuaCommands[];
 const extern SLuaVariables simLuaVariables[];
 
+extern int _ccallback(luaWrap_lua_State *L, size_t index);
 extern int _ccallback0(luaWrap_lua_State *L);
+extern int _ccallback1(luaWrap_lua_State *L);
+extern int _ccallback2(luaWrap_lua_State *L);
+extern int _ccallback3(luaWrap_lua_State *L);
 extern int _loadPlugin(luaWrap_lua_State *L);
 extern int _unloadPlugin(luaWrap_lua_State *L);
 extern int _registerCodeEditorInfos(luaWrap_lua_State *L);
