@@ -178,15 +178,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 #ifdef SIM_WITH_GUI
     if (cmd.cmdId == PLUS_HVUD_CMD)
     {
-        if (GuiApp::canShowDialogs())
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId = UDC_UITHREADCMD;
         {
-            std::string txt(CSimFlavor::getStringVal(9));
-            if (txt.length() != 0)
-            {
-                if ( (!App::userSettings->doNotShowUpdateCheckMessage) && (!App::userSettings->suppressStartupDialogs) )
-                    GuiApp::uiThread->messageBox_informationSystemModal(GuiApp::mainWindow, "Update information", txt.c_str(), VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
-                App::logMsg(sim_verbosity_msgs, txt.c_str());
-            }
+            // Following instruction very important in the function below tries to lock resources (or a plugin it
+            // calls!):
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+            GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
         }
     }
     if (cmd.cmdId == PLUS_RG_CMD)

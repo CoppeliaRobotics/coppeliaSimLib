@@ -90,6 +90,20 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
         }
     }
 
+    if (cmdIn->cmdId == UDC_UITHREADCMD)
+    {
+        if (GuiApp::canShowDialogs())
+        {
+            std::string txt(CSimFlavor::getStringVal(9));
+            if (txt.length() != 0)
+            {
+                if ( (!App::userSettings->doNotShowUpdateCheckMessage) && (!App::userSettings->suppressStartupDialogs) )
+                    GuiApp::uiThread->messageBox_informationSystemModal(GuiApp::mainWindow, "Update information", txt.c_str(), VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
+                App::logMsg(sim_verbosity_msgs, txt.c_str());
+            }
+        }
+    }
+
     if (cmdIn->cmdId == RG_UITHREADCMD)
     {
         if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
