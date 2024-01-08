@@ -190,12 +190,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == PLUS_RG_CMD)
     {
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId = RG_UITHREADCMD;
         {
-            // Following instruction very important in the function below tries to lock resources (or a plugin it
-            // calls!):
+            SUIThreadCommand cmdIn;
+            SUIThreadCommand cmdOut;
+            cmdIn.cmdId = RG_UITHREADCMD;
             SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
             GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
         }

@@ -851,6 +851,16 @@ bool CFileOperations::processCommand(int commandID)
 { // Return value is true if the command belonged to file menu and was executed
     if ((commandID > FILE_OPERATION_START_FOCMD) && (commandID < FILE_OPERATION_END_FOCMD))
     {
+        if ( (commandID == FILE_OPERATION_SAVE_SCENE_FOCMD) ||
+           (commandID == FILE_OPERATION_SAVE_SCENE_AS_CSIM_FOCMD) ||
+           (commandID == FILE_OPERATION_SAVE_SCENE_AS_EXXML_FOCMD) ||
+           (commandID == FILE_OPERATION_SAVE_SCENE_AS_SIMPLEXML_FOCMD) ||
+           (commandID == FILE_OPERATION_SAVE_MODEL_AS_CSIM_FOCMD) ||
+           (commandID == FILE_OPERATION_SAVE_MODEL_AS_EXXML_FOCMD) )
+        {
+            CSimFlavor::run(14);
+        }
+
         SSimulationThreadCommand cmd;
         cmd.cmdId = commandID;
         App::appendSimulationThreadCommand(cmd);
@@ -1085,12 +1095,9 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
         if (App::currentWorld->simulation->isSimulationStopped() && (GuiApp::getEditModeType() == NO_EDIT_MODE))
         { // execute the command only when simulation is not running and not in an edit mode
             if (!VThread::isUiThread())
-            {                                        // we are NOT in the UI thread. We execute the command now:
                 _saveSceneWithDialogAndEverything(); // will call save as if needed!
-            }
             else
-                App::appendSimulationThreadCommand(
-                    cmd); // We are in the UI thread. Execute the command via the main thread
+                App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
         return (true);
     }
@@ -1112,8 +1119,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
                 _saveSceneAsWithDialogAndEverything(filetype);
             }
             else
-                App::appendSimulationThreadCommand(
-                    cmd); // We are in the UI thread. Execute the command via the main thread
+                App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
         return (true);
     }
@@ -1326,8 +1332,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
                                                          VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
             }
             else
-                App::appendSimulationThreadCommand(
-                    cmd); // We are in the UI thread. Execute the command via the main thread
+                App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
         return (true);
     }
@@ -1574,8 +1579,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
                         {
                             App::folders->setOtherFilesPath(
                                 App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
-                            App::worldContainer->pluginContainer->dyn_serializeDynamicContent(filenameAndPath.c_str(),
-                                                                                              10000000);
+                            App::worldContainer->pluginContainer->dyn_serializeDynamicContent(filenameAndPath.c_str(), 10000000);
                             App::logMsg(sim_verbosity_msgs, "done.");
                         }
                         else
