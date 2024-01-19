@@ -97,7 +97,8 @@ void CSimThread::_handleSimulationThreadCommands()
 { // CALLED ONLY FROM THE MAIN SIMULATION THREAD
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        for (size_t i = 0; i < _simulationThreadCommands.size(); i++)
+        int i = 0;
+        while (i < _simulationThreadCommands.size())
         {
             SSimulationThreadCommand cmd = _simulationThreadCommands[i];
             if (cmd.execTime <= VDateTime::getTime())
@@ -111,6 +112,8 @@ void CSimThread::_handleSimulationThreadCommands()
 #endif
                 _executeSimulationThreadCommand(cmd);
             }
+            else
+                i++;
         }
     }
 }

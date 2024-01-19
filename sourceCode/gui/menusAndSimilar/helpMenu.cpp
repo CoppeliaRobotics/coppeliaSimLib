@@ -104,7 +104,7 @@ bool CHelpMenu::processCommand(int commandID)
     }
     if (commandID == DISABLE_FRUSTUM_CULLING_DEBUG_CMD)
     {
-        IF_UI_EVENT_CAN_READ_DATA_CMD("DISABLE_FRUSTUM_CULLING_DEBUG_CMD")
+        IF_UI_EVENT_CAN_READ_DATA
         {
             CViewableBase::setFrustumCullingEnabled(!CViewableBase::getFrustumCullingEnabled());
         }
@@ -112,7 +112,7 @@ bool CHelpMenu::processCommand(int commandID)
     }
     if (commandID == DISABLE_DISTANCE_CACHING_DEBUG_CMD)
     {
-        IF_UI_EVENT_CAN_READ_DATA_CMD("DISABLE_DISTANCE_CACHING_DEBUG_CMD")
+        IF_UI_EVENT_CAN_READ_DATA
         {
             CDistanceRoutine::setDistanceCachingEnabled(!CDistanceRoutine::getDistanceCachingEnabled());
         }

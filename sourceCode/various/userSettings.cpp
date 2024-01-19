@@ -72,6 +72,8 @@
 #define _USR_ENABLE_OLD_RENDERABLE "enableOldRenderableBehaviour"
 #define _USR_BUGFIX1 "bugFix1"
 #define _USR_COMPATIBILITYFIX1 "compatibilityFix1"
+#define _USR_READDELAY "readDelay"
+#define _USR_WRITEDELAY "writeDelay"
 #define _USR_SUPPORT_old_THREADED_SCRIPTS "keepOldThreadedScripts"
 #define _USR_SUPPORT_old_API_NOTATION "supportOldApiNotation"
 #define _USR_ENABLE_old_MIRROR_OBJECTS "enableOldMirrorObjects"
@@ -149,6 +151,8 @@
 #define _USR_FLOAT_LICENSE_SERVER_ADDRESS "floatingLicenseServer"
 #define _USR_FLOAT_LICENSE_SERVER_PORT "floatingLicensePort"
 #define _USR_KEEP_DONGLE_OPEN "keepDongleOpen"
+
+#define _USR_MEM "mem"
 
 CUserSettings::CUserSettings()
 {
@@ -271,6 +275,8 @@ CUserSettings::CUserSettings()
     threadedScriptsStoppingGraceTime = 0;
     bugFix1 = 1000;
     compatibilityFix1 = false;
+    readDelay = -500;
+    writeDelay = 1000;
 
     // Various section:
     // *****************************
@@ -308,6 +314,7 @@ CUserSettings::CUserSettings()
     floatingLicenseServer = "127.0.0.1";
     floatingLicensePort = 20249;
     keepDongleOpen = false;
+
 
     loadUserSettings();
 }
@@ -602,6 +609,8 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         // c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
         // c.addBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal,"");
         // c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
+        c.addInteger(_USR_READDELAY, readDelay, "");
+        c.addInteger(_USR_WRITEDELAY, writeDelay, "");
 
         c.addRandomLine("");
         c.addRandomLine("");
@@ -650,6 +659,16 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
             c.addBoolean(_USR_FLOAT_LICENSE_ENABLED, floatingLicenseEnabled, "");
             c.addString(_USR_FLOAT_LICENSE_SERVER_ADDRESS, floatingLicenseServer, "");
             c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT, floatingLicensePort, "");
+        }
+
+        if (mem.size() != 0)
+        {
+            c.addRandomLine("");
+            c.addRandomLine("");
+
+            c.addRandomLine("// Other");
+            c.addRandomLine("// =================================================");
+            c.addString(_USR_MEM, mem, "");
         }
 
         std::string file(CFolderSystem::getUserSettingsPath());
@@ -856,6 +875,8 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_THREADED_SCRIPTS_GRACE_TIME, threadedScriptsStoppingGraceTime);
     c.getInteger(_USR_BUGFIX1, bugFix1);
     c.getBoolean(_USR_COMPATIBILITYFIX1, compatibilityFix1);
+    c.getInteger(_USR_READDELAY, readDelay);
+    c.getInteger(_USR_WRITEDELAY, writeDelay);
 
     // Various section:
     // *****************************
@@ -909,6 +930,11 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_FLOAT_LICENSE_ENABLED, floatingLicenseEnabled);
     c.getString(_USR_FLOAT_LICENSE_SERVER_ADDRESS, floatingLicenseServer);
     c.getInteger(_USR_FLOAT_LICENSE_SERVER_PORT, floatingLicensePort);
+
+    // Other section:
+    // *****************************
+    c.getString(_USR_MEM, mem);
+
 
     std::string tmp("user settings file is ");
     tmp += file;

@@ -10,16 +10,12 @@
 // If the GUI wants to write to shared resources, use following:
 // (there is no guarantee that the access to the resources will be obtained!)
 #define IF_UI_EVENT_CAN_WRITE_DATA                                                                                     \
-    for (CSimAndUiThreadSync uiEventWriteData(__func__); uiEventWriteData.uiThread_tryToLockForUiEventWrite(800);)
-#define IF_UI_EVENT_CAN_WRITE_DATA_CMD(funcName)                                                                       \
-    for (CSimAndUiThreadSync uiEventWriteData(funcName); uiEventWriteData.uiThread_tryToLockForUiEventWrite(800);)
+    for (CSimAndUiThreadSync uiEventWriteData(__func__); uiEventWriteData.uiThread_tryToLockForUiEventWrite(1);)
 
 // If the GUI wants to read shared resources, use following:
 // (there is no guarantee that the access to the resources will be obtained!)
 #define IF_UI_EVENT_CAN_READ_DATA                                                                                      \
-    for (CSimAndUiThreadSync uiEventReadData(__func__); uiEventReadData.uiThread_tryToLockForUiEventRead(5);)
-#define IF_UI_EVENT_CAN_READ_DATA_CMD(funcName)                                                                        \
-    for (CSimAndUiThreadSync uiEventReadData(funcName); uiEventReadData.uiThread_tryToLockForUiEventRead(5);)
+    for (CSimAndUiThreadSync uiEventReadData(__func__); uiEventReadData.uiThread_tryToLockForUiEventRead(1);)
 #define IF_UI_EVENT_CAN_READ_DATA_NO_WAIT                                                                              \
     for (CSimAndUiThreadSync uiEventReadData(__func__); uiEventReadData.uiThread_tryToLockForUiEventRead(0);)
 
@@ -46,7 +42,6 @@
     for (CSimAndUiThreadSync readData(__func__); readData.simOrUiThread_tryToLockForRead_cApi();)
 #else
 #define IF_UI_EVENT_CAN_WRITE_DATA
-#define IF_UI_EVENT_CAN_WRITE_DATA_CMD(funcName)
 #define IF_UI_EVENT_CAN_READ_DATA
 #define IF_UI_EVENT_CAN_READ_DATA_CMD(funcName)
 #define IF_UI_EVENT_CAN_READ_DATA_NO_WAIT

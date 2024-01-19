@@ -9,8 +9,8 @@ class CSimAndUiThreadSync
     CSimAndUiThreadSync(const char *functionName);
     virtual ~CSimAndUiThreadSync();
 
-    bool uiThread_tryToLockForUiEventRead(int maxTime);
-    bool uiThread_tryToLockForUiEventWrite(int maxTime);
+    bool uiThread_tryToLockForUiEventRead(int mode);
+    bool uiThread_tryToLockForUiEventWrite(int mode);
 
     void simThread_lockForSimThreadWrite();
     void simThread_temporarilyAllowUiThreadToReadAndWrite();

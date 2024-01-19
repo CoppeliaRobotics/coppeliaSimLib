@@ -58,6 +58,8 @@ class CUserSettings
     int timeInMsForUndoRedoTooLongWarning;
     int bugFix1;
     bool compatibilityFix1;
+    int readDelay;
+    int writeDelay;
 
     bool middleMouseButtonSwitchesModes;
     bool navigationBackwardCompatibility;
@@ -151,6 +153,8 @@ class CUserSettings
     std::string floatingLicenseServer;
     int floatingLicensePort;
     bool keepDongleOpen;
+
+    std::string mem;
 
   private:
     void _setIntVector3(int v[3], int a, int b, int c);

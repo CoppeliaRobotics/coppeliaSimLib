@@ -75,8 +75,22 @@ CSimAndUiThreadSync::~CSimAndUiThreadSync()
     }
 }
 
-bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
-{                  // called by the UI thread only!
+bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int mode)
+{  // mode: 0=minimal wait, 1=wait
+    int maxTime = 0;
+    bool alwaysPass = false;
+    if (mode == 1)
+    {
+        maxTime = 100;
+        if (App::userSettings != nullptr)
+            maxTime = App::userSettings->readDelay;
+    }
+    if (maxTime < 0)
+    {
+        maxTime = abs(maxTime);
+        alwaysPass = true;
+    }
+
     _lockType = 0; // UI READ
 
     if (!VThread::isUiThread())
@@ -118,11 +132,24 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
         GuiApp::qtApp->processEvents(); // default
     }
 
-    return (_lockFunctionResult > 0);
+    return ((_lockFunctionResult > 0) || alwaysPass);
 }
 
-bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int maxTime)
-{                  // called by the UI thread only!
+bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int mode)
+{  // mode: 0=minimal wait, 1=wait
+    int maxTime = 0;
+    bool alwaysPass = false;
+    if (mode == 1)
+    {
+        maxTime = 800;
+        if (App::userSettings != nullptr)
+            maxTime = App::userSettings->writeDelay;
+    }
+    if (maxTime < 0)
+    {
+        maxTime = abs(maxTime);
+        alwaysPass = true;
+    }
     _lockType = 1; // UI WRITE
     if (!VThread::isUiThread())
         App::beep(); // we are NOT in the UI thread. This is a bug!
@@ -160,7 +187,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventWrite(int maxTime)
 
     _ui_writeRequest = false; // reset the write request
 
-    return (_ui_writeLevel > 0);
+    return ( (_ui_writeLevel > 0) || alwaysPass);
 }
 
 void CSimAndUiThreadSync::simThread_lockForSimThreadWrite()
@@ -191,7 +218,7 @@ bool CSimAndUiThreadSync::simOrUiThread_tryToLockForWrite_cApi()
 { // called by the SIM or UI thread, from the C API!
     if (VThread::isUiThread())
     {
-        return (uiThread_tryToLockForUiEventWrite(800));
+        return (uiThread_tryToLockForUiEventWrite(1));
     }
     else
     {
@@ -207,7 +234,7 @@ bool CSimAndUiThreadSync::simOrUiThread_tryToLockForRead_cApi()
 { // called by the SIM or UI thread, from the C API!
     if (VThread::isUiThread())
     {
-        return (uiThread_tryToLockForUiEventRead(5));
+        return (uiThread_tryToLockForUiEventRead(1));
     }
     else
     {
