@@ -2103,6 +2103,8 @@ bool CMesh::serialize(CSer &ar, const char *shapeName, const C7Vector &parentCum
                     }
                 }
             }
+            if (App::userSettings->disableVisibleEdges)
+                _visibleEdges = false;
             /* Needed to fix models and scenes just after release V4.5.1, rev0
             if ( _convex && (CMeshRoutines::getConvexType(_vertices,_indices,0.015)!=0) )
             {
@@ -2289,6 +2291,8 @@ bool CMesh::serialize(CSer &ar, const char *shapeName, const C7Vector &parentCum
                     checkIfConvex();
                 }
             }
+            if (App::userSettings->disableVisibleEdges)
+                _visibleEdges = false;
         }
     }
     return (hasNewBBFrameAndSize);

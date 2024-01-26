@@ -66,6 +66,7 @@ class CUserSettings
     double colorAdjust_backCompatibility;
     bool specificGpuTweak;
     bool disableOpenGlBasedCustomUi;
+    bool disableVisibleEdges;
     bool showOldDlgs;
     bool enableOldRenderableBehaviour;
     bool keepOldThreadedScripts;

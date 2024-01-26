@@ -817,10 +817,10 @@ void CSer::_getFileOpenInfoAndError(int fileType, int result, int serializationV
         infoStr[0] += _filename;
         if (result > -3)
         {
-            infoStr[0] += "\nSerialization version is " + std::to_string(serializationVersion) + ".";
+            infoStr[0] += ". Serialization version is " + std::to_string(serializationVersion) + ". ";
             if (coppeliaSimVersionThatWroteThis != 0)
             {
-                infoStr[0] += "\nFile was previously written with CoppeliaSim version ";
+                infoStr[0] += "File was previously written with CoppeliaSim version ";
                 int v = coppeliaSimVersionThatWroteThis;
                 infoStr[0] += char('0') + (unsigned char)(v / 10000);
                 infoStr[0] += '.';

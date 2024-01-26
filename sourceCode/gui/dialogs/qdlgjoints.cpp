@@ -175,21 +175,11 @@ void CQDlgJoints::refresh()
             else
                 ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_MOTION_MODE, QVariant(sim_jointmode_motion_deprecated));
         }
-        /*
-                ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_KINEMATIC_MODE,QVariant(sim_jointmode_kinematic));
-                ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_IK_MODE,QVariant(sim_jointmode_ik_deprecated));
-                if (!spherical)
-                {
-                    ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_DEPENDENT_MODE,QVariant(sim_jointmode_dependent));
-                    ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_MOTION_MODE,QVariant(sim_jointmode_motion_deprecated));
-                }
-                ui->qqJointModeCombo->addItem(IDSN_JOINT_IS_IN_DYNAMIC_MODE,QVariant(sim_jointmode_dynamic));
-                */
+        int val = 0;
+        if (it->getHybridFunctionality_old())
+            val = sim_jointmode_hybrid_deprecated;
         for (int i = 0; i < ui->qqJointModeCombo->count(); i++)
         {
-            int val = 0;
-            if (it->getHybridFunctionality_old())
-                val = sim_jointmode_hybrid_deprecated;
             if (ui->qqJointModeCombo->itemData(i).toInt() == (it->getJointMode() | val))
             {
                 ui->qqJointModeCombo->setCurrentIndex(i);

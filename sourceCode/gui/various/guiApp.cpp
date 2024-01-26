@@ -86,6 +86,9 @@ double GuiApp::getEvalDouble(const char *str, bool *ok /*= nullptr*/)
     double retVal = 0.0;
     int top = luaWrap_lua_gettop(L);
     std::string s(str);
+    utils::removeSpacesAtBeginningAndEnd(s);
+    if ( (s.size() >= 1) && (s[0] == '+') )
+        s.erase(s.begin());
     if (s.find("=") == std::string::npos)
     {
         s = "return (" + s;

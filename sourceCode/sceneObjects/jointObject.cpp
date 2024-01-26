@@ -288,7 +288,7 @@ CJoint::~CJoint()
 
 void CJoint::setHybridFunctionality_old(bool h)
 {
-    if ((_jointType != sim_joint_spherical_subtype) && (_jointMode != sim_jointmode_dynamic))
+    if ( ((_jointType != sim_joint_spherical_subtype) && (_jointMode != sim_jointmode_dynamic)) || (!h) )
     {
         bool diff = (_jointHasHybridFunctionality != h);
         if (diff)

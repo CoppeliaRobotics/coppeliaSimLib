@@ -292,7 +292,7 @@ bool CFileOperations::saveScene(const char *pathAndFilename, bool setCurrentDir,
 
                 if (infoStr != nullptr)
                 {
-                    infoStr[0] += "\n";
+                    infoStr[0] += ". ";
                     infoStr[0] += IDSNS_SERIALIZATION_VERSION_IS;
                     infoStr[0] += " ";
                     if ((serObj->getFileType() == CSer::filetype_csim_xml_xscene_file) ||
@@ -539,7 +539,10 @@ void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPat
 void CFileOperations::keyPress(int key)
 {
     if (key == CTRL_S_KEY)
-        processCommand(FILE_OPERATION_SAVE_SCENE_FOCMD);
+    {
+        bool r = ( CSimFlavor::getBoolVal(16) || (CSimFlavor::getIntVal(2) == -1) );
+        processCommand(r ? FILE_OPERATION_SAVE_SCENE_FOCMD : FILE_OPERATION_KY);
+    }
     if (key == CTRL_O_KEY)
         processCommand(FILE_OPERATION_OPEN_SCENE_FOCMD);
     if (key == CTRL_W_KEY)
