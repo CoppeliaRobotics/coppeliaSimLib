@@ -2117,18 +2117,18 @@ int CScriptObject::_callScriptFunction(int sysCallType, const char *functionName
 
         stack->pushTableOntoStack();
 
-        stack->pushStringOntoStack("id", 0); // key or index
-        stack->pushStringOntoStack("systemCall", 0);
+        stack->pushTextOntoStack("id"); // key or index
+        stack->pushTextOntoStack("systemCall");
         stack->insertDataIntoStackTable();
 
-        stack->pushStringOntoStack("data", 0);
+        stack->pushTextOntoStack("data");
         stack->pushTableOntoStack();
 
-        stack->pushStringOntoStack("callType", 0); // key or index
+        stack->pushTextOntoStack("callType"); // key or index
         stack->pushInt32OntoStack(sysCallType);
         stack->insertDataIntoStackTable();
 
-        stack->pushStringOntoStack("script", 0); // key or index
+        stack->pushTextOntoStack("script"); // key or index
         stack->pushInt32OntoStack(_scriptHandle);
         stack->insertDataIntoStackTable();
 
@@ -2164,7 +2164,7 @@ int CScriptObject::_callScriptFunc(const char *functionName, const CInterfaceSta
         { // in case we have a function that is not global
             std::string globalVar(func.begin(), func.begin() + ppos);
             luaWrap_lua_getglobal(L, globalVar.c_str());
-            if (luaWrap_lua_istable(L, -1))
+            if (luaWrap_lua_isnonbuffertable(L, -1))
             {
                 func.assign(func.begin() + ppos + 1, func.end());
                 size_t ppos = func.find('.');
@@ -2175,7 +2175,7 @@ int CScriptObject::_callScriptFunc(const char *functionName, const CInterfaceSta
                     luaWrap_lua_remove(L, -2);
                     func.erase(func.begin(), func.begin() + ppos + 1);
                     ppos = func.find('.');
-                    if (!luaWrap_lua_istable(L, -1))
+                    if (!luaWrap_lua_isnonbuffertable(L, -1))
                     {
                         funcDoesNotExist = true;
                         break;
@@ -2267,7 +2267,7 @@ int CScriptObject::callCustomScriptFunction(const char *functionName, CInterface
                 inStack = App::worldContainer->interfaceStackContainer->createStackCopy(inOutStack);
             else
                 inStack = App::worldContainer->interfaceStackContainer->createStack();
-            inStack->pushStringOntoStack(functionName, 0, true);
+            inStack->pushTextOntoStack(functionName, true);
             retVal = _callScriptFunction(-1, "sysCall_ext", inStack, outStack, &errMsg);
             App::worldContainer->interfaceStackContainer->destroyStack(inStack);
         }
@@ -2362,7 +2362,7 @@ bool CScriptObject::_execScriptString(const char *scriptString, CInterfaceStack 
             if (outStack != nullptr)
             {
                 outStack->clear();
-                outStack->pushStringOntoStack(errMsg.c_str(), 0);
+                outStack->pushTextOntoStack(errMsg.c_str());
             }
         }
         else
@@ -2385,7 +2385,7 @@ bool CScriptObject::_execScriptString(const char *scriptString, CInterfaceStack 
         if (outStack != nullptr)
         {
             outStack->clear();
-            outStack->pushStringOntoStack(errMsg.c_str(), 0);
+            outStack->pushTextOntoStack(errMsg.c_str());
         }
     }
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
@@ -2705,7 +2705,7 @@ bool CScriptObject::_initInterpreterState(std::string *errorMsg)
     std::string cur_path = getSearchPath_lua() + ";" + luaWrap_lua_tostring(L, -1);
     boost::replace_all(cur_path, "\\", "/");
     luaWrap_lua_pop(L, 1);
-    luaWrap_lua_pushstring(L, cur_path.c_str());
+    luaWrap_lua_pushtext(L, cur_path.c_str());
     luaWrap_lua_setfield(L, -2, "path");
     luaWrap_lua_pop(L, 1);
     // --------------------------------------------
@@ -2717,7 +2717,7 @@ bool CScriptObject::_initInterpreterState(std::string *errorMsg)
     cur_path = getSearchCPath_lua() + ";" + luaWrap_lua_tostring(L, -1);
     boost::replace_all(cur_path, "\\", "/");
     luaWrap_lua_pop(L, 1);
-    luaWrap_lua_pushstring(L, cur_path.c_str());
+    luaWrap_lua_pushtext(L, cur_path.c_str());
     luaWrap_lua_setfield(L, -2, "cpath");
     luaWrap_lua_pop(L, 1);
     // --------------------------------------------
@@ -3064,7 +3064,7 @@ void CScriptObject::printInterpreterStack() const
             printf("number: %f\n", luaWrap_lua_tonumber(L, i));
         if (luaWrap_lua_isstring(L, i))
             printf("string: %s\n", luaWrap_lua_tostring(L, i));
-        if (luaWrap_lua_istable(L, i))
+        if (luaWrap_lua_isnonbuffertable(L, i))
             printf("table\n");
         if (luaWrap_lua_isfunction(L, i))
             printf("function\n");
@@ -3089,7 +3089,7 @@ void CScriptObject::loadPluginFuncsAndVars(CPlugin *plug)
         {
             std::string idName(plug->getName() + "@" + dat->funcName);
             luaWrap_lua_rawgeti(L, luaWrapGet_LUA_REGISTRYINDEX(), luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
-            luaWrap_lua_pushstring(L, idName.c_str());
+            luaWrap_lua_pushtext(L, idName.c_str());
             luaWrap_lua_pushcclosure(L, _simGenericFunctionHandler, 1);
             luaWrap_lua_setfield(L, -2, "__tmploadPluginFuncsAndVars2");
             luaWrap_lua_pop(L, 1); // pop table of globals
@@ -3178,7 +3178,7 @@ void CScriptObject::registerPluginFunctions()
                 luaWrap_lua_rawgeti(L, luaWrapGet_LUA_REGISTRYINDEX(),
                                     luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
                 luaWrap_lua_pushinteger(L, functionID + 1);
-                //                luaWrap_lua_pushstring(L,functionName.c_str());
+                //                luaWrap_lua_pushtext(L,functionName.c_str());
                 luaWrap_lua_pushcclosure(L, _simGenericFunctionHandler, 1);
                 luaWrap_lua_setfield(L, -2, "__iuafkjsdgoi158zLK");
                 luaWrap_lua_pop(L, 1); // pop table of globals
@@ -3707,26 +3707,25 @@ CInterfaceStackTable *CScriptObject::_generateTableMapFromInterpreterStack_lua(v
         { // the key is a number
             double key = luaWrap_lua_tonumber(L, -1);
             CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
-            table->appendMapObject(key, obj);
+            table->appendMapObject_object(key, obj);
         }
         else if (t == sim_stackitem_integer)
         { // the key is an integer
             long long int key = luaWrap_lua_tointeger(L, -1);
             CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
-            table->appendMapObject(key, obj);
+            table->appendMapObject_object(key, obj);
         }
         else if (t == sim_stackitem_bool)
         { // the key is a bool
             bool key = luaWrap_lua_toboolean(L, -1) != 0;
             CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
-            table->appendMapObject(key, obj);
+            table->appendMapObject_object(key, obj);
         }
         else if (t == sim_stackitem_string)
         { // the key is a string
-            size_t l;
-            std::string key = luaWrap_lua_tolstring(L, -1, &l);
+            const char* txtStr = luaWrap_lua_tostring(L, -1);
             CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
-            table->appendMapObject(key.c_str(), l, obj);
+            table->appendMapObject_object(txtStr, obj);
         }
         else
         { // the key is something weird, e.g. a table, a thread, etc. Convert this to a string:
@@ -3749,7 +3748,7 @@ CInterfaceStackTable *CScriptObject::_generateTableMapFromInterpreterStack_lua(v
             str += num;
             str += ">";
             CInterfaceStackObject *obj = _generateObjectFromInterpreterStack_lua(L, -2, visitedTables);
-            table->appendMapObject(str.c_str(), 0, obj);
+            table->appendMapObject_object(str.c_str(), obj);
         }
         luaWrap_lua_pop(L, 2); // pop 2 values (key+value)
         // stack now contains at -1 the key, at -2 the table
@@ -3794,37 +3793,47 @@ CInterfaceStackObject *CScriptObject::_generateObjectFromInterpreterStack_lua(vo
     else if (t == sim_stackitem_string)
     {
         size_t l;
-        const char *c = luaWrap_lua_tolstring(L, index, &l);
-        return (new CInterfaceStackString(c, l));
+        const char *c = luaWrap_lua_tobuffer(L, index, &l);
+//        if (CCbor::isText(c, l))
+//            return (new CInterfaceStackString(c)); // text
+        return (new CInterfaceStackString(c, l, false));
     }
     else if (t == sim_stackitem_table)
     { // this part is more tricky:
-        // Following to avoid getting trapped in circular references:
-        void *p = (void *)luaWrap_lua_topointer(L, index);
-        std::map<void *, bool>::iterator it = visitedTables.find(p);
-        CInterfaceStackTable *table = nullptr;
-        if (it != visitedTables.end())
-        { // we have a circular reference!
-            table = new CInterfaceStackTable();
-            table->setCircularRef();
+        if (luaWrap_lua_isbuffer(L, index))
+        { // this is a buffer
+            size_t l;
+            const char *c = luaWrap_lua_tobuffer(L, index, &l);
+            return (new CInterfaceStackString(c, l, true));
         }
         else
-        {
-            visitedTables[p] = true;
-            int tableValueCnt = _countInterpreterStackTableEntries_lua(L, index);
-            int arraySize = int(luaWrap_lua_rawlen(L, index));
-            if (tableValueCnt == arraySize)
-            { // we have an array (or keys that go from "1" to arraySize):
-                table = _generateTableArrayFromInterpreterStack_lua(L, index, visitedTables);
+        { // Following to avoid getting trapped in circular references:
+            void *p = (void *)luaWrap_lua_topointer(L, index);
+            std::map<void *, bool>::iterator it = visitedTables.find(p);
+            CInterfaceStackTable *table = nullptr;
+            if (it != visitedTables.end())
+            { // we have a circular reference!
+                table = new CInterfaceStackTable();
+                table->setCircularRef();
             }
             else
-            { // we have a more complex table, a map, where the keys are specific:
-                table = _generateTableMapFromInterpreterStack_lua(L, index, visitedTables);
+            {
+                visitedTables[p] = true;
+                int tableValueCnt = _countInterpreterStackTableEntries_lua(L, index);
+                int arraySize = int(luaWrap_lua_rawlen(L, index));
+                if (tableValueCnt == arraySize)
+                { // we have an array (or keys that go from "1" to arraySize):
+                    table = _generateTableArrayFromInterpreterStack_lua(L, index, visitedTables);
+                }
+                else
+                { // we have a more complex table, a map, where the keys are specific:
+                    table = _generateTableMapFromInterpreterStack_lua(L, index, visitedTables);
+                }
+                it = visitedTables.find(p);
+                visitedTables.erase(it);
             }
-            it = visitedTables.find(p);
-            visitedTables.erase(it);
+            return (table);
         }
-        return (table);
     }
     else
     { // following types translate to strings (i.e. can't be handled outside of the Lua state)
@@ -3844,7 +3853,7 @@ CInterfaceStackObject *CScriptObject::_generateObjectFromInterpreterStack_lua(vo
             str = "<UNKNOWNTYPE ";
         str += num;
         str += ">";
-        return (new CInterfaceStackString(str.c_str(), 0));
+        return (new CInterfaceStackString(str.c_str()));
     }
 }
 
@@ -3857,25 +3866,22 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void *LL, CInterfaceStackObjec
     else if (t == sim_stackitem_bool)
         luaWrap_lua_pushboolean(L, ((CInterfaceStackBool *)obj)->getValue());
     else if (t == sim_stackitem_double)
-    {
-#ifdef LUA_STACK_COMPATIBILITY_MODE
-        double v = ((CInterfaceStackNumber *)obj)->getValue();
-        long long int w = (long long int)v;
-        if (v == (double)w)
-            luaWrap_lua_pushinteger(L, w);
-        else
-            luaWrap_lua_pushnumber(L, v);
-#else
         luaWrap_lua_pushnumber(L, ((CInterfaceStackNumber *)obj)->getValue());
-#endif
-    }
     else if (t == sim_stackitem_integer)
         luaWrap_lua_pushinteger(L, ((CInterfaceStackInteger *)obj)->getValue());
     else if (t == sim_stackitem_string)
     {
         size_t l;
         const char *str = ((CInterfaceStackString *)obj)->getValue(&l);
-        luaWrap_lua_pushlstring(L, str, l);
+        if ( ((CInterfaceStackString *)obj)->isBuffer() )
+            luaWrap_lua_pushbuffer(L, str, l);
+        else
+        {
+            if ( ((CInterfaceStackString *)obj)->isText() )
+                luaWrap_lua_pushtext(L, str);
+            else
+                luaWrap_lua_pushbinarystring(L, str, l);
+        }
     }
     else if (t == sim_stackitem_table)
     {
@@ -3898,17 +3904,22 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void *LL, CInterfaceStackObjec
                 double numberKey;
                 long long int integerKey;
                 bool boolKey;
-                int keyType;
-                CInterfaceStackObject *tobj =
-                    table->getMapItemAtIndex(i, stringKey, numberKey, integerKey, boolKey, keyType);
+                int keyType = -1;
+                CInterfaceStackObject *tobj = table->getMapItemAtIndex(i, stringKey, numberKey, integerKey, boolKey, keyType);
                 if (keyType == sim_stackitem_string)
-                    luaWrap_lua_pushlstring(L, stringKey.c_str(), stringKey.size());
-                if (keyType == sim_stackitem_double)
+                    luaWrap_lua_pushbinarystring(L, stringKey.c_str(), stringKey.size());
+                else if (keyType == sim_stackitem_double)
                     luaWrap_lua_pushnumber(L, numberKey);
-                if (keyType == sim_stackitem_integer)
+                else if (keyType == sim_stackitem_integer)
                     luaWrap_lua_pushinteger(L, integerKey);
-                if (keyType == sim_stackitem_bool)
+                else if (keyType == sim_stackitem_bool)
                     luaWrap_lua_pushboolean(L, boolKey);
+                else
+                { // we have an invalid key
+                    std::string s(utils::generateUniqueAlphaNumericString());
+                    s += " (Invalid key)";
+                    luaWrap_lua_pushtext(L, s.c_str());
+                }
                 _pushOntoInterpreterStack_lua(L, tobj);
                 luaWrap_lua_settable(L, -3);
             }
@@ -8133,7 +8144,7 @@ int CScriptObject::setScriptVariable_old(const char *variableName, CInterfaceSta
     { // in case we have a variable that is not global
         std::string globalVar(var.begin(), var.begin() + ppos);
         luaWrap_lua_getglobal(L, globalVar.c_str());
-        if (luaWrap_lua_istable(L, -1))
+        if (luaWrap_lua_isnonbuffertable(L, -1))
         {
             var.assign(var.begin() + ppos + 1, var.end());
             size_t ppos = var.find('.');
@@ -8145,7 +8156,7 @@ int CScriptObject::setScriptVariable_old(const char *variableName, CInterfaceSta
                 luaWrap_lua_remove(L, -2);
                 var.erase(var.begin(), var.begin() + ppos + 1);
                 ppos = var.find('.');
-                if (!luaWrap_lua_istable(L, -1))
+                if (!luaWrap_lua_isnonbuffertable(L, -1))
                 {
                     badVar = true;
                     break;
@@ -8242,7 +8253,7 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char *arrayName, const char
 
     // First check if the table where we want to append a value exists. If not, or not a table, create it!
     luaWrap_lua_getglobal(L, arrayName);
-    if (!luaWrap_lua_istable(L, -1))
+    if (!luaWrap_lua_isnonbuffertable(L, -1))
     { // the table is inexistant
         luaWrap_lua_newtable(L);
         luaWrap_lua_setglobal(L, arrayName);
@@ -8260,7 +8271,7 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char *arrayName, const char
     }
     else
     { // keyed value:
-        luaWrap_lua_pushstring(L, keyName);
+        luaWrap_lua_pushtext(L, keyName);
     }
 
     // Now push the value, which might itself be a table:
@@ -8285,7 +8296,7 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char *arrayName, const char
                 luaWrap_lua_pushnumber(L, ((double *)data)[i]);
             if (w == sim_script_arg_string)
             {
-                luaWrap_lua_pushstring(L, data + stringOff);
+                luaWrap_lua_pushtext(L, data + stringOff);
                 stringOff += int(strlen(data + stringOff)) + 1;
             }
             luaWrap_lua_rawseti(L, newTablePos, i + 1);
@@ -8304,9 +8315,9 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char *arrayName, const char
         if (w == sim_script_arg_double)
             luaWrap_lua_pushnumber(L, ((double *)data)[0]);
         if (w == sim_script_arg_string)
-            luaWrap_lua_pushstring(L, data);
+            luaWrap_lua_pushtext(L, data);
         if (w == sim_script_arg_charbuff)
-            luaWrap_lua_pushlstring(L, data, what[1]);
+            luaWrap_lua_pushbuffer(L, data, what[1]);
     }
 
     // Finally, insert the value in the table:

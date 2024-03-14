@@ -1745,97 +1745,97 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                 CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
                 inStack->pushTableOntoStack();
 
-                inStack->pushStringOntoStack("mode", 0);
+                inStack->pushTextOntoStack("mode");
                 inStack->pushInt32OntoStack(sim_jointmode_dynamic);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("first", 0);
+                inStack->pushTextOntoStack("first");
                 inStack->pushBoolOntoStack((flags & 1) != 0);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("revolute", 0);
+                inStack->pushTextOntoStack("revolute");
                 inStack->pushBoolOntoStack(rev);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("cyclic", 0);
+                inStack->pushTextOntoStack("cyclic");
                 inStack->pushBoolOntoStack(cycl);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("handle", 0);
+                inStack->pushTextOntoStack("handle");
                 inStack->pushInt32OntoStack(getObjectHandle());
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("lowLimit", 0);
+                inStack->pushTextOntoStack("lowLimit");
                 inStack->pushFloatOntoStack(lowL);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("highLimit", 0);
+                inStack->pushTextOntoStack("highLimit");
                 inStack->pushFloatOntoStack(highL);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("passCnt", 0);
+                inStack->pushTextOntoStack("passCnt");
                 inStack->pushInt32OntoStack(loopCnt);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("totalPasses", 0);
+                inStack->pushTextOntoStack("totalPasses");
                 inStack->pushInt32OntoStack(totalLoops);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("currentPos", 0); // deprecated
+                inStack->pushTextOntoStack("currentPos"); // deprecated
                 inStack->pushFloatOntoStack(currentPosVelAccel[0]);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("pos", 0);
+                inStack->pushTextOntoStack("pos");
                 inStack->pushFloatOntoStack(currentPosVelAccel[0]);
                 inStack->insertDataIntoStackTable();
                 if (rk4 > 0)
                 {
-                    inStack->pushStringOntoStack("rk4pass", 0);
+                    inStack->pushTextOntoStack("rk4pass");
                     inStack->pushInt32OntoStack(rk4);
                     inStack->insertDataIntoStackTable();
                 }
                 double cv = _velCalc_vel;
                 if ((flags & 2) != 0)
                     cv = currentPosVelAccel[1];
-                inStack->pushStringOntoStack("currentVel", 0); // deprecated
+                inStack->pushTextOntoStack("currentVel"); // deprecated
                 inStack->pushFloatOntoStack(cv);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("vel", 0);
+                inStack->pushTextOntoStack("vel");
                 inStack->pushFloatOntoStack(cv);
                 inStack->insertDataIntoStackTable();
                 if ((flags & 4) != 0)
                 {
-                    inStack->pushStringOntoStack("accel", 0);
+                    inStack->pushTextOntoStack("accel");
                     inStack->pushFloatOntoStack(currentPosVelAccel[2]);
                     inStack->insertDataIntoStackTable();
                 }
-                inStack->pushStringOntoStack("targetPos", 0);
+                inStack->pushTextOntoStack("targetPos");
                 inStack->pushFloatOntoStack(_targetPos);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("errorValue", 0); // deprecated
+                inStack->pushTextOntoStack("errorValue"); // deprecated
                 inStack->pushFloatOntoStack(errorV);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("error", 0);
+                inStack->pushTextOntoStack("error");
                 inStack->pushFloatOntoStack(errorV);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("effort", 0);
+                inStack->pushTextOntoStack("effort");
                 inStack->pushFloatOntoStack(effort);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("dynStepSize", 0); // deprecated
+                inStack->pushTextOntoStack("dynStepSize"); // deprecated
                 inStack->pushFloatOntoStack(dynStepSize);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("dt", 0);
+                inStack->pushTextOntoStack("dt");
                 inStack->pushFloatOntoStack(dynStepSize);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("targetVel", 0);
+                inStack->pushTextOntoStack("targetVel");
                 inStack->pushFloatOntoStack(_targetVel);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("maxForce", 0); // deprecated
+                inStack->pushTextOntoStack("maxForce"); // deprecated
                 inStack->pushFloatOntoStack(fabs(_targetForce));
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("force", 0);
+                inStack->pushTextOntoStack("force");
                 inStack->pushFloatOntoStack(_targetForce);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("velUpperLimit", 0); // deprecated
+                inStack->pushTextOntoStack("velUpperLimit"); // deprecated
                 inStack->pushFloatOntoStack(_maxVelAccelJerk[0]);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("maxVel", 0);
+                inStack->pushTextOntoStack("maxVel");
                 inStack->pushFloatOntoStack(_maxVelAccelJerk[0]);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("maxAccel", 0);
+                inStack->pushTextOntoStack("maxAccel");
                 inStack->pushFloatOntoStack(_maxVelAccelJerk[1]);
                 inStack->insertDataIntoStackTable();
-                inStack->pushStringOntoStack("maxJerk", 0);
+                inStack->pushTextOntoStack("maxJerk");
                 inStack->pushFloatOntoStack(_maxVelAccelJerk[2]);
                 inStack->insertDataIntoStackTable();
                 CInterfaceStack *outStack = App::worldContainer->interfaceStackContainer->createStack();
@@ -1906,72 +1906,72 @@ void CJoint::handleMotion()
             // Prepare the in/out stacks:
             CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
-            inStack->pushStringOntoStack("mode", 0);
+            inStack->pushTextOntoStack("mode");
             inStack->pushInt32OntoStack(sim_jointmode_kinematic);
             inStack->insertDataIntoStackTable();
-            inStack->pushStringOntoStack("revolute", 0);
+            inStack->pushTextOntoStack("revolute");
             inStack->pushBoolOntoStack(rev);
             inStack->insertDataIntoStackTable();
-            inStack->pushStringOntoStack("cyclic", 0);
+            inStack->pushTextOntoStack("cyclic");
             inStack->pushBoolOntoStack(_isCyclic && rev);
             inStack->insertDataIntoStackTable();
-            inStack->pushStringOntoStack("handle", 0);
+            inStack->pushTextOntoStack("handle");
             inStack->pushInt32OntoStack(_objectHandle);
             inStack->insertDataIntoStackTable();
-            inStack->pushStringOntoStack("lowLimit", 0);
+            inStack->pushTextOntoStack("lowLimit");
             inStack->pushFloatOntoStack(_posMin);
             inStack->insertDataIntoStackTable();
-            inStack->pushStringOntoStack("highLimit", 0);
+            inStack->pushTextOntoStack("highLimit");
             inStack->pushFloatOntoStack(_posMin + _posRange);
             inStack->insertDataIntoStackTable();
 
-            inStack->pushStringOntoStack("currentPos", 0); // deprecated
+            inStack->pushTextOntoStack("currentPos"); // deprecated
             inStack->pushFloatOntoStack(_pos);
             inStack->insertDataIntoStackTable();
-            inStack->pushStringOntoStack("pos", 0);
+            inStack->pushTextOntoStack("pos");
             inStack->pushFloatOntoStack(_pos);
             inStack->insertDataIntoStackTable();
 
-            inStack->pushStringOntoStack("currentVel", 0); // deprecated
+            inStack->pushTextOntoStack("currentVel"); // deprecated
             inStack->pushFloatOntoStack(_velCalc_vel);
             inStack->insertDataIntoStackTable();
-            inStack->pushStringOntoStack("vel", 0);
+            inStack->pushTextOntoStack("vel");
             inStack->pushFloatOntoStack(_velCalc_vel);
             inStack->insertDataIntoStackTable();
 
             if ((_kinematicMotionType & 3) == 1)
             {
-                inStack->pushStringOntoStack("targetPos", 0);
+                inStack->pushTextOntoStack("targetPos");
                 inStack->pushFloatOntoStack(_targetPos);
                 inStack->insertDataIntoStackTable();
             }
             if ((_kinematicMotionType & 3) == 2)
             {
-                inStack->pushStringOntoStack("targetVel", 0);
+                inStack->pushTextOntoStack("targetVel");
                 inStack->pushFloatOntoStack(_targetVel);
                 inStack->insertDataIntoStackTable();
             }
 
             if ((_kinematicMotionType & 16) != 0)
             {
-                inStack->pushStringOntoStack("initVel", 0);
+                inStack->pushTextOntoStack("initVel");
                 inStack->pushFloatOntoStack(_kinematicMotionInitVel);
                 inStack->insertDataIntoStackTable();
             }
 
-            inStack->pushStringOntoStack("errorValue", 0); // deprecated
+            inStack->pushTextOntoStack("errorValue"); // deprecated
             inStack->pushFloatOntoStack(errorV);
             inStack->insertDataIntoStackTable();
-            inStack->pushStringOntoStack("error", 0);
+            inStack->pushTextOntoStack("error");
             inStack->pushFloatOntoStack(errorV);
             inStack->insertDataIntoStackTable();
-            inStack->pushStringOntoStack("maxVel", 0);
+            inStack->pushTextOntoStack("maxVel");
             inStack->pushFloatOntoStack(_maxVelAccelJerk[0]);
             inStack->insertDataIntoStackTable();
-            inStack->pushStringOntoStack("maxAccel", 0);
+            inStack->pushTextOntoStack("maxAccel");
             inStack->pushFloatOntoStack(_maxVelAccelJerk[1]);
             inStack->insertDataIntoStackTable();
-            inStack->pushStringOntoStack("maxJerk", 0);
+            inStack->pushTextOntoStack("maxJerk");
             inStack->pushFloatOntoStack(_maxVelAccelJerk[2]);
             inStack->insertDataIntoStackTable();
 

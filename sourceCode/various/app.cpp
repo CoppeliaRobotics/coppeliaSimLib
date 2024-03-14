@@ -326,7 +326,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     {
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
-        stack->pushStringOntoStack("sel", 0);
+        stack->pushTextOntoStack("sel");
         std::vector<int> sel;
         currentWorld->sceneObjects->getSelectedObjectHandles(sel);
         stack->pushInt32ArrayOntoStack(sel.data(), sel.size());

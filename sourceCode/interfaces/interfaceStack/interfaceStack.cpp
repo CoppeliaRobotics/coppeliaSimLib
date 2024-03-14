@@ -563,12 +563,28 @@ void CInterfaceStack::pushInt64OntoStack(long long int v, bool toFront /*=false*
         _stackObjects.push_back(new CInterfaceStackInteger(v));
 }
 
-void CInterfaceStack::pushStringOntoStack(const char *str, size_t l /*=0*/, bool toFront /*=false*/)
+void CInterfaceStack::pushBufferOntoStack(const char *buff, size_t buffLength, bool toFront /*=false*/)
 {
     if (toFront)
-        _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackString(str, l));
+        _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackString(buff, buffLength, true));
     else
-        _stackObjects.push_back(new CInterfaceStackString(str, l));
+        _stackObjects.push_back(new CInterfaceStackString(buff, buffLength, true));
+}
+
+void CInterfaceStack::pushBinaryStringOntoStack(const char *buff, size_t buffLength, bool toFront /*=false*/)
+{
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackString(buff, buffLength, false));
+    else
+        _stackObjects.push_back(new CInterfaceStackString(buff, buffLength, false));
+}
+
+void CInterfaceStack::pushTextOntoStack(const char *str, bool toFront /*=false*/)
+{
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackString(str));
+    else
+        _stackObjects.push_back(new CInterfaceStackString(str));
 }
 
 void CInterfaceStack::pushInt32ArrayOntoStack(const int *arr, size_t l, bool toFront /*=false*/)
@@ -623,77 +639,91 @@ void CInterfaceStack::pushDoubleArrayOntoStack(const double *arr, size_t l, bool
 
 void CInterfaceStack::insertKeyNullIntoStackTable(const char *key)
 {
-    pushStringOntoStack(key, 0);
+    pushTextOntoStack(key);
     pushNullOntoStack();
     insertDataIntoStackTable();
 }
 
 void CInterfaceStack::insertKeyBoolIntoStackTable(const char *key, bool value)
 {
-    pushStringOntoStack(key, 0);
+    pushTextOntoStack(key);
     pushBoolOntoStack(value);
     insertDataIntoStackTable();
 }
 
 void CInterfaceStack::insertKeyFloatIntoStackTable(const char *key, float value)
 {
-    pushStringOntoStack(key, 0);
+    pushTextOntoStack(key);
     pushFloatOntoStack(value);
     insertDataIntoStackTable();
 }
 
 void CInterfaceStack::insertKeyDoubleIntoStackTable(const char *key, double value)
 {
-    pushStringOntoStack(key, 0);
+    pushTextOntoStack(key);
     pushDoubleOntoStack(value);
     insertDataIntoStackTable();
 }
 
 void CInterfaceStack::insertKeyInt32IntoStackTable(const char *key, int value)
 {
-    pushStringOntoStack(key, 0);
+    pushTextOntoStack(key);
     pushInt32OntoStack(value);
     insertDataIntoStackTable();
 }
 
 void CInterfaceStack::insertKeyInt64IntoStackTable(const char *key, long long int value)
 {
-    pushStringOntoStack(key, 0);
+    pushTextOntoStack(key);
     pushInt64OntoStack(value);
     insertDataIntoStackTable();
 }
 
-void CInterfaceStack::insertKeyStringIntoStackTable(const char *key, const char *value, size_t l /*=0*/)
+void CInterfaceStack::insertKeyTextIntoStackTable(const char *key, const char *value)
 {
-    pushStringOntoStack(key, 0);
-    pushStringOntoStack(value, l);
+    pushTextOntoStack(key);
+    pushTextOntoStack(value);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyBinaryStringIntoStackTable(const char *key, const char *value, size_t l)
+{
+    pushTextOntoStack(key);
+    pushBinaryStringOntoStack(value, l);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyBufferIntoStackTable(const char *key, const char *value, size_t l)
+{
+    pushTextOntoStack(key);
+    pushBufferOntoStack(value, l);
     insertDataIntoStackTable();
 }
 
 void CInterfaceStack::insertKeyInt32ArrayIntoStackTable(const char *key, const int *arr, size_t l)
 {
-    pushStringOntoStack(key, 0);
+    pushTextOntoStack(key);
     pushInt32ArrayOntoStack(arr, l);
     insertDataIntoStackTable();
 }
 
 void CInterfaceStack::insertKeyInt64ArrayIntoStackTable(const char *key, const long long int *arr, size_t l)
 {
-    pushStringOntoStack(key, 0);
+    pushTextOntoStack(key);
     pushInt64ArrayOntoStack(arr, l);
     insertDataIntoStackTable();
 }
 
 void CInterfaceStack::insertKeyFloatArrayIntoStackTable(const char *key, const float *arr, size_t l)
 {
-    pushStringOntoStack(key, 0);
+    pushTextOntoStack(key);
     pushFloatArrayOntoStack(arr, l);
     insertDataIntoStackTable();
 }
 
 void CInterfaceStack::insertKeyDoubleArrayIntoStackTable(const char *key, const double *arr, size_t l)
 {
-    pushStringOntoStack(key, 0);
+    pushTextOntoStack(key);
     pushDoubleArrayOntoStack(arr, l);
     insertDataIntoStackTable();
 }
@@ -728,7 +758,7 @@ bool CInterfaceStack::pushTableFromBuffer(const char *data, unsigned int l)
     {
         unsigned char version = data[0]; // the version of the pack format
         unsigned int w = 0;
-        if (CInterfaceStackTable::checkCreateFromData(data + 1, w, l - 1))
+        if (CInterfaceStackTable::checkCreateFromData(data + 1, w, l - 1, version))
         {
             CInterfaceStackTable *table = new CInterfaceStackTable();
             table->createFromData(data + 1, version);
@@ -748,10 +778,17 @@ std::string CInterfaceStack::getBufferFromTable() const
         if (it->getObjectType() == sim_stackitem_table)
         {
             CInterfaceStackTable *table = (CInterfaceStackTable *)it;
-            retVal = 'm' + table->getObjectData();
-            retVal[0] = 5; // this is the version of the pack format. 0 was when all numbers would be packed as double
-                           // (Lua5.1) 1-4 are reserved in order to detect other non-CoppeliaSim formats, check sim.lua
-                           // for details make sure not to use any byte that could be a first byte in a cbor string!
+            // Following is the version of the pack format. 0 was when all numbers would be packed as double
+            // (Lua5.1) 1-4 are reserved in order to detect other non-CoppeliaSim formats, check sim.lua
+            // for details.
+            // 5 was when there was no differentiation between strings and buffers.
+            // Make sure not to use any byte value that could be a first byte in a cbor string!
+#ifdef SIMPACKTABLE_UNIFORMSTRING
+            unsigned char version = 5;
+#else
+            unsigned char version = 6;
+#endif
+            retVal = (char)version + table->getObjectData();
         }
     }
     return (retVal);

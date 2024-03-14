@@ -4485,12 +4485,12 @@ int simDisplayDialog_internal(const char *titleText, const char *mainText, int d
     {
 #ifdef SIM_WITH_GUI
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
-        stack->pushStringOntoStack(titleText, 0);
-        stack->pushStringOntoStack(mainText, 0);
+        stack->pushTextOntoStack(titleText);
+        stack->pushTextOntoStack(mainText);
         stack->pushInt32OntoStack(dialogType);
         stack->pushBoolOntoStack(false);
         if (initialText != nullptr)
-            stack->pushStringOntoStack(initialText, 0);
+            stack->pushTextOntoStack(initialText);
         simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript, "sim.displayDialog", stack->getId());
         int retVal;
         stack->getStackInt32Value(retVal);

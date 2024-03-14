@@ -649,7 +649,7 @@ void CWorldContainer::dispatchEvents()
             std::vector<unsigned char> ev;
             _events->swapWithEmptyBuffer(&ev);
             CInterfaceStack *stack = interfaceStackContainer->createStack();
-            stack->pushStringOntoStack((char *)ev.data(), ev.size());
+            stack->pushBufferOntoStack((char *)ev.data(), ev.size());
             _eventMutex.unlock(); // below might lead to a deadlock if _eventMutex still locked
             int auxData[2];
             auxData[0] = evCnt;

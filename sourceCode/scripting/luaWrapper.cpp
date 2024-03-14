@@ -1,5 +1,6 @@
 #include <luaWrapper.h>
 #include <simLib/simConst.h>
+#include <app.h>
 
 int luaWrapGet_LUA_MULTRET()
 {
@@ -91,14 +92,9 @@ void luaWrap_lua_pushinteger(luaWrap_lua_State *L, luaWrap_lua_Integer n)
     lua_pushinteger((lua_State *)L, n);
 }
 
-void luaWrap_lua_pushstring(luaWrap_lua_State *L, const char *str)
+void luaWrap_lua_pushtext(luaWrap_lua_State *L, const char *str)
 {
     lua_pushstring((lua_State *)L, str);
-}
-
-void luaWrap_lua_pushlstring(luaWrap_lua_State *L, const char *str, size_t l)
-{
-    lua_pushlstring((lua_State *)L, str, l);
 }
 
 void luaWrap_lua_pushcclosure(luaWrap_lua_State *L, luaWrap_lua_CFunction func, int n)
@@ -144,13 +140,9 @@ const void *luaWrap_lua_topointer(luaWrap_lua_State *L, int idx)
 }
 
 const char *luaWrap_lua_tostring(luaWrap_lua_State *L, int idx)
-{
-    return (lua_tostring((lua_State *)L, idx));
-}
-
-const char *luaWrap_lua_tolstring(luaWrap_lua_State *L, int idx, size_t *len)
-{
-    return (lua_tolstring((lua_State *)L, idx, len));
+{ // buffer-tolerant
+    size_t len;
+    return luaWrap_lua_tobuffer(L, idx, &len);
 }
 
 int luaWrap_lua_isnumber(luaWrap_lua_State *L, int idx)
@@ -164,8 +156,13 @@ int luaWrap_lua_isinteger(luaWrap_lua_State *L, int idx)
 }
 
 int luaWrap_lua_isstring(luaWrap_lua_State *L, int idx)
-{
-    return (lua_isstring((lua_State *)L, idx));
+{ // buffer-tolerant
+    int retVal = 0;
+    if (luaWrap_lua_isbuffer(L, idx))
+        retVal = 1;
+    else
+        retVal = lua_isstring((lua_State *)L, idx);
+    return retVal;
 }
 
 bool luaWrap_lua_isboolean(luaWrap_lua_State *L, int idx)
@@ -178,9 +175,14 @@ bool luaWrap_lua_isnil(luaWrap_lua_State *L, int idx)
     return (lua_isnil((lua_State *)L, idx));
 }
 
-bool luaWrap_lua_istable(luaWrap_lua_State *L, int idx)
+int luaWrap_lua_getmetatable(luaWrap_lua_State *L, int idx)
 {
-    return (lua_istable((lua_State *)L, idx));
+    return (lua_getmetatable((lua_State *)L, idx));
+}
+
+int luaWrap_lua_rawequal(luaWrap_lua_State *L, int idx1, int idx2)
+{
+    return (lua_rawequal((lua_State *)L, idx1, idx2));
 }
 
 bool luaWrap_lua_isfunction(luaWrap_lua_State *L, int idx)
@@ -369,4 +371,75 @@ int luaWrap_lua_stype(luaWrap_lua_State *L, int idx)
 int luaWrap_lua_error(luaWrap_lua_State *L)
 {
     return (lua_error((lua_State *)L));
+}
+
+bool luaWrap_lua_isgeneraltable(luaWrap_lua_State *L, int idx)
+{
+    return (lua_istable((lua_State *)L, idx));
+}
+
+bool luaWrap_lua_isnonbuffertable(luaWrap_lua_State *L, int idx)
+{
+    bool retVal = false;
+    if (lua_istable((lua_State *)L, idx))
+        retVal = !luaWrap_lua_isbuffer(L, idx);
+    return retVal;
+}
+
+bool luaWrap_lua_isbuffer(luaWrap_lua_State *L, int idx)
+{
+    bool retVal = false;
+    if (lua_istable((lua_State *)L, idx))
+    {
+        lua_pushstring((lua_State *)L, "__buff__");
+        if (idx < 0)
+            idx--;
+        lua_rawget((lua_State *)L, idx);
+        retVal = (lua_isstring((lua_State *)L, -1) != 0);
+        lua_pop((lua_State *)L, 1);
+    }
+    return retVal;
+}
+
+const char *luaWrap_lua_tobuffer(luaWrap_lua_State *L, int idx, size_t *len)
+{
+    if (idx < 0)
+        idx = lua_gettop((lua_State *)L) + idx + 1;
+    if (lua_isstring((lua_State *)L, idx))
+        return (lua_tolstring((lua_State *)L, idx, len));
+    if (lua_istable((lua_State *)L, idx))
+    {
+        if (lua_getmetatable((lua_State *)L, idx))
+        { // cannot lua_getfield here, since that triggers the __index metamethod
+            lua_pushstring((lua_State *)L, "__buff__");
+            lua_rawget((lua_State *)L, idx);
+            if (lua_isstring((lua_State *)L, -1) != 0)
+            { // we have a buffer, we replace it with its equivalent string
+                lua_replace((lua_State *)L, idx);
+                const char* buffer = lua_tolstring((lua_State *)L, idx, len);
+                lua_pop((lua_State *)L, 1); // pop the metatable (lua_replace poped the string)
+                return buffer;
+            }
+            lua_pop((lua_State *)L, 2); // pop the field and the metatable
+        }
+    }
+    len[0] = 0;
+    return nullptr;
+}
+
+void luaWrap_lua_pushbuffer(luaWrap_lua_State *L, const char *str, size_t l)
+{
+    if (App::userSettings->noBuffers)
+        lua_pushlstring((lua_State *)L, str, l); // old, no difference between strings and buffers
+    else
+    {
+        lua_getglobal((lua_State *)L, "tobuffer");
+        lua_pushlstring((lua_State *)L, str, l);
+        lua_pcall((lua_State *)L, 1, 1, 0);
+    }
+}
+
+void luaWrap_lua_pushbinarystring(luaWrap_lua_State *L, const char *str, size_t l)
+{
+    lua_pushlstring((lua_State *)L, str, l);
 }

@@ -1365,7 +1365,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
                         files += filenamesAndPaths[i];
                     }
                     CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
-                    stack->pushStringOntoStack(files.c_str(), 0);
+                    stack->pushTextOntoStack(files.c_str());
                     App::worldContainer->sandboxScript->executeScriptString("simAssimp=require('simAssimp')", nullptr);
                     App::worldContainer->sandboxScript->callCustomScriptFunction("simAssimp.importShapesDlg", stack);
                     App::worldContainer->interfaceStackContainer->destroyStack(stack);
@@ -1439,7 +1439,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
                             App::folders->getPathFromFull(filenameAndPath.c_str()).c_str());
 
                         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
-                        stack->pushStringOntoStack(filenameAndPath.c_str(), 0);
+                        stack->pushTextOntoStack(filenameAndPath.c_str());
                         stack->pushTableOntoStack();
                         int cnt = 1;
                         for (size_t i = 0; i < sel.size(); i++)

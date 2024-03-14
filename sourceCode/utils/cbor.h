@@ -18,7 +18,7 @@ class CCbor
     virtual ~CCbor();
 
     void swapWithEmptyBuffer(std::vector<unsigned char> *emptyBuff);
-    bool isText(const char *v, size_t l);
+    static bool isText(const char *v, size_t l);
 
     void appendInt(long long int v);
     void appendUCharArray(const unsigned char *v, size_t cnt);
@@ -52,7 +52,7 @@ class CCbor
     void openKeyMap(const char *key);
     void closeArrayOrMap();
 
-    void appendLuaString(const std::string &v);
+    void appendLuaString(const std::string &v, bool isBuffer, bool isText);
     void appendRaw(const unsigned char *v, size_t l);
 
     void createEvent(const char *event, const char *fieldName, const char *objType, long long int uid, int handle,

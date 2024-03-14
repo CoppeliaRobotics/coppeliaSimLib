@@ -106,7 +106,7 @@ void _raiseErrorIfNeeded(luaWrap_lua_State *L, const char *functionName, const c
     msg += functionName;
     msg += ": ";
     msg += errStr;
-    luaWrap_lua_pushstring(L, msg.c_str());
+    luaWrap_lua_pushtext(L, msg.c_str());
 
     luaWrap_lua_error(L); // does a long jump and never returns
 }
@@ -1954,14 +1954,14 @@ void _registerTableFunction(luaWrap_lua_State *L, char const *const tableName, c
 {
     luaWrap_lua_rawgeti(L, luaWrapGet_LUA_REGISTRYINDEX(), luaWrapGet_LUA_RIDX_GLOBALS()); // table of globals
     luaWrap_lua_getfield(L, -1, tableName);
-    if (!luaWrap_lua_istable(L, -1))
+    if (!luaWrap_lua_isgeneraltable(L, -1))
     { // we first need to create the table
         luaWrap_lua_createtable(L, 0, 1);
         luaWrap_lua_setfield(L, -3, tableName);
         luaWrap_lua_pop(L, 1);
         luaWrap_lua_getfield(L, -1, tableName);
     }
-    luaWrap_lua_pushstring(L, functionName);
+    luaWrap_lua_pushtext(L, functionName);
     luaWrap_lua_pushcfunction(L, functionCallback);
     luaWrap_lua_settable(L, -3);
     luaWrap_lua_pop(L, 1);
@@ -2107,18 +2107,18 @@ void pushStringTableOntoStack(luaWrap_lua_State *L, const std::vector<std::strin
     int newTablePos = luaWrap_lua_gettop(L);
     for (size_t i = 0; i < stringTable.size(); i++)
     {
-        luaWrap_lua_pushstring(L, stringTable[i].c_str());
+        luaWrap_lua_pushtext(L, stringTable[i].c_str());
         luaWrap_lua_rawseti(L, newTablePos, (int)i + 1);
     }
 }
 
-void pushLStringTableOntoStack(luaWrap_lua_State *L, const std::vector<std::string> &stringTable)
+void pushBufferTableOntoStack(luaWrap_lua_State *L, const std::vector<std::string> &stringTable)
 {
     luaWrap_lua_newtable(L);
     int newTablePos = luaWrap_lua_gettop(L);
     for (size_t i = 0; i < stringTable.size(); i++)
     {
-        luaWrap_lua_pushlstring(L, stringTable[i].c_str(), stringTable[i].size());
+        luaWrap_lua_pushbuffer(L, stringTable[i].c_str(), stringTable[i].size());
         luaWrap_lua_rawseti(L, newTablePos, (int)i + 1);
     }
 }
@@ -2169,7 +2169,7 @@ int checkOneGeneralInputArgument(luaWrap_lua_State *L, int index, int type, int 
     if (cnt_orZeroIfNotTable != 0) // was >=1 until 18/2/2016
     {
         // We check if we really have a table at that position:
-        if (!luaWrap_lua_istable(L, index))
+        if (!luaWrap_lua_isnonbuffertable(L, index))
         {
             if (errStr != nullptr)
                 errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
@@ -2218,7 +2218,11 @@ bool checkOneInputArgument(luaWrap_lua_State *L, int index, int type, std::strin
         if (!luaWrap_lua_isnumber(L, index))
         {
             if (errStr != nullptr)
-                errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
+            {
+                std::ostringstream oss;
+                oss << "argument " << index << " is not a number.";
+                errStr[0] = oss.str();
+            }
             return (false); // error
         }
         return (true);
@@ -2228,7 +2232,11 @@ bool checkOneInputArgument(luaWrap_lua_State *L, int index, int type, std::strin
         if (!luaWrap_lua_isinteger(L, index))
         {
             if (errStr != nullptr)
-                errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
+            {
+                std::ostringstream oss;
+                oss << "argument " << index << " is not an integer.";
+                errStr[0] = oss.str();
+            }
             return (false); // error
         }
         return (true);
@@ -2242,27 +2250,42 @@ bool checkOneInputArgument(luaWrap_lua_State *L, int index, int type, std::strin
         if (!luaWrap_lua_isnil(L, index))
         {
             if (errStr != nullptr)
-                errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
+            {
+                std::ostringstream oss;
+                oss << "argument " << index << " is expected to be nil.";
+                errStr[0] = oss.str();
+            }
             return (false);
         }
         return (true);
     }
     if (type == lua_arg_string)
-    {
-        if (!luaWrap_lua_isstring(L, index))
+    { // lua_arg_string and lua_arg_buffer are the same!
+        bool retVal = false;
+        if (luaWrap_lua_isstring(L, index))
+            retVal = true;
+        else
         {
-            if (errStr != nullptr)
-                errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
-            return (false); // error
+            retVal = luaWrap_lua_isbuffer(L, index);
+            if ( (!retVal) && (errStr != nullptr) )
+            {
+                std::ostringstream oss;
+                oss << "argument " << index << " is not a string/buffer.";
+                errStr[0] = oss.str();
+            }
         }
-        return (true);
+        return retVal;
     }
     if (type == lua_arg_table)
     {
-        if (!luaWrap_lua_istable(L, index))
+        if (!luaWrap_lua_isnonbuffertable(L, index))
         {
             if (errStr != nullptr)
-                errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
+            {
+                std::ostringstream oss;
+                oss << "argument " << index << " is not a table.";
+                errStr[0] = oss.str();
+            }
             return (false); // error
         }
         return (true);
@@ -2272,7 +2295,11 @@ bool checkOneInputArgument(luaWrap_lua_State *L, int index, int type, std::strin
         if (!luaWrap_lua_isfunction(L, index))
         {
             if (errStr != nullptr)
-                errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
+            {
+                std::ostringstream oss;
+                oss << "argument " << index << " is not a function.";
+                errStr[0] = oss.str();
+            }
             return (false); // error
         }
         return (true);
@@ -2282,14 +2309,15 @@ bool checkOneInputArgument(luaWrap_lua_State *L, int index, int type, std::strin
         if (!luaWrap_lua_isuserdata(L, index))
         {
             if (errStr != nullptr)
-                errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
+            {
+                std::ostringstream oss;
+                oss << "argument " << index << " is not userdata.";
+                errStr[0] = oss.str();
+            }
             return (false); // error
         }
         return (true);
     }
-    // Here we have a table
-    if (errStr != nullptr)
-        errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
     return (false);
 }
 
@@ -2616,7 +2644,7 @@ int _unloadPlugin(luaWrap_lua_State *L)
     LUA_START("unloadPlugin");
 
     errorString = SIM_ERROR_INVALID_PLUGIN;
-    if (luaWrap_lua_istable(L, 1))
+    if (luaWrap_lua_isnonbuffertable(L, 1))
     {
         int options = 0;
         if (luaWrap_lua_isinteger(L, 2))
@@ -2757,7 +2785,7 @@ int _auxFunc(luaWrap_lua_State *L)
                     }
                 }
 #endif
-                luaWrap_lua_pushlstring(L, (const char *)buff.data(), res[0] * res[1] * 3);
+                luaWrap_lua_pushbuffer(L, (const char *)buff.data(), res[0] * res[1] * 3);
                 pushIntTableOntoStack(L, 2, res);
                 LUA_END(2);
             }
@@ -2793,7 +2821,7 @@ int _auxFunc(luaWrap_lua_State *L)
         {
             if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_integer, 0))
             {
-                luaWrap_lua_pushstring(L, CSimFlavor::getStringVal_int(3, luaWrap_lua_tointeger(L, 2)).c_str());
+                luaWrap_lua_pushtext(L, CSimFlavor::getStringVal_int(3, luaWrap_lua_tointeger(L, 2)).c_str());
                 LUA_END(1);
             }
         }
@@ -3129,7 +3157,7 @@ int _simGetVisionSensorImg(luaWrap_lua_State *L)
                                 size[0] = resolution[0];
                             if (size[1] == 0)
                                 size[1] = resolution[1];
-                            luaWrap_lua_pushlstring(L, (const char *)img, s * size[0] * size[1]);
+                            luaWrap_lua_pushbuffer(L, (const char *)img, s * size[0] * size[1]);
                             delete[]((char *)img);
                             pushIntTableOntoStack(L, 2, resolution);
                             LUA_END(2);
@@ -3163,7 +3191,7 @@ int _simSetVisionSensorImg(luaWrap_lua_State *L)
                 if (luaWrap_lua_isstring(L, 2))
                 {
                     size_t l;
-                    unsigned char *img = (unsigned char *)luaWrap_lua_tolstring(L, 2, &l);
+                    unsigned char *img = (unsigned char *)luaWrap_lua_tobuffer(L, 2, &l);
 
                     int options = 0;
                     int pos[2] = {0, 0};
@@ -3248,7 +3276,7 @@ int _simGetVisionSensorDepth(luaWrap_lua_State *L)
                             size[0] = resolution[0];
                         if (size[1] == 0)
                             size[1] = resolution[1];
-                        luaWrap_lua_pushlstring(L, (const char *)depth, size[0] * size[1] * sizeof(float));
+                        luaWrap_lua_pushbuffer(L, (const char *)depth, size[0] * size[1] * sizeof(float));
                         delete[]((char *)depth);
                         pushIntTableOntoStack(L, 2, resolution);
                         LUA_END(2);
@@ -3464,11 +3492,11 @@ int _simCheckVisionSensorEx(luaWrap_lua_State *L)
                     unsigned char *buff2 = new unsigned char[res[0] * res[1] * 3];
                     for (size_t i = 0; i < res[0] * res[1] * 3; i++)
                         buff2[i] = (unsigned char)(buffer[i] * 255.1);
-                    luaWrap_lua_pushlstring(L, (const char *)buff2, res[0] * res[1] * 3);
+                    luaWrap_lua_pushbuffer(L, (const char *)buff2, res[0] * res[1] * 3);
                     delete[] buff2;
                 }
                 else
-                    luaWrap_lua_pushlstring(L, (const char *)buffer, res[0] * res[1] * sizeof(float));
+                    luaWrap_lua_pushbuffer(L, (const char *)buffer, res[0] * res[1] * sizeof(float));
             }
             else
             {
@@ -3717,7 +3745,7 @@ int _simSetObjectPosition(luaWrap_lua_State *L)
     TRACE_LUA_API;
     LUA_START("sim.setObjectPosition");
 
-    if (luaWrap_lua_istable(L, 2))
+    if (luaWrap_lua_isnonbuffertable(L, 2))
     {
         if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 3,
                                 lua_arg_integer | lua_arg_optional, 0))
@@ -3749,7 +3777,7 @@ int _simSetObjectOrientation(luaWrap_lua_State *L)
     TRACE_LUA_API;
     LUA_START("sim.setObjectOrientation");
 
-    if (luaWrap_lua_istable(L, 2))
+    if (luaWrap_lua_isnonbuffertable(L, 2))
     {
         if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_number, 3,
                                 lua_arg_integer | lua_arg_optional, 0))
@@ -4517,7 +4545,7 @@ int _simSetObjectMatrix(luaWrap_lua_State *L)
     TRACE_LUA_API;
     LUA_START("sim.setObjectMatrix");
 
-    if (luaWrap_lua_istable(L, 2))
+    if (luaWrap_lua_isnonbuffertable(L, 2))
     {
         if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_number, 12,
                                 lua_arg_integer | lua_arg_optional, 0))
@@ -4571,7 +4599,7 @@ int _simSetObjectPose(luaWrap_lua_State *L)
     TRACE_LUA_API;
     LUA_START("sim.setObjectPose");
 
-    if (luaWrap_lua_istable(L, 2))
+    if (luaWrap_lua_isnonbuffertable(L, 2))
     {
         if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_number, 7,
                                 lua_arg_integer | lua_arg_optional, 0))
@@ -5252,7 +5280,7 @@ int _simGetStringParam(luaWrap_lua_State *L)
                 App::worldContainer->getScriptFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
             if (it != nullptr)
                 s = it->getAddOnFilePath();
-            luaWrap_lua_pushstring(L, s.c_str());
+            luaWrap_lua_pushtext(L, s.c_str());
             LUA_END(1);
         }
         else
@@ -5260,7 +5288,7 @@ int _simGetStringParam(luaWrap_lua_State *L)
             char *s = simGetStringParam_internal(param);
             if (s != nullptr)
             {
-                luaWrap_lua_pushstring(L, s);
+                luaWrap_lua_pushtext(L, s);
                 delete[] s;
                 LUA_END(1);
             }
@@ -5409,7 +5437,7 @@ int _simGetObjectAlias(luaWrap_lua_State *L)
             char *name = simGetObjectAlias_internal(luaToInt(L, 1), options);
             if (name != nullptr)
             {
-                luaWrap_lua_pushstring(L, name);
+                luaWrap_lua_pushtext(L, name);
                 simReleaseBuffer_internal(name);
                 LUA_END(1);
             }
@@ -5487,7 +5515,7 @@ int _simLoadScene(luaWrap_lua_State *L)
         if (checkInputArguments(L, &errorString, lua_arg_string, 0))
         {
             size_t dataLength;
-            const char *data = ((char *)luaWrap_lua_tolstring(L, 1, &dataLength));
+            const char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength));
             if (dataLength < 1000)
                 retVal = simLoadScene_internal(luaWrap_lua_tostring(L, 1)); // loading from file
             else
@@ -5557,7 +5585,7 @@ int _simSaveScene(luaWrap_lua_State *L)
                 GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
 #endif
                 setLastInfo(infoStr.c_str());
-                luaWrap_lua_pushlstring(L, &buffer[0], buffer.size());
+                luaWrap_lua_pushbuffer(L, &buffer[0], buffer.size());
                 LUA_END(1);
             }
             setLastInfo(infoStr.c_str());
@@ -5586,7 +5614,7 @@ int _simLoadModel(luaWrap_lua_State *L)
             if (res == 2)
                 onlyThumbnails = luaToBool(L, 2);
             size_t dataLength;
-            const char *data = ((char *)luaWrap_lua_tolstring(L, 1, &dataLength));
+            const char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength));
             if (dataLength < 1000)
             { // loading from file:
                 std::string path(data, dataLength);
@@ -5610,7 +5638,7 @@ int _simLoadModel(luaWrap_lua_State *L)
                                          .copyUncompressedImageToBuffer(buff);
                         if (opRes)
                         {
-                            luaWrap_lua_pushlstring(L, buff, 128 * 128 * 4);
+                            luaWrap_lua_pushbuffer(L, buff, 128 * 128 * 4);
                             delete[] buff;
                             LUA_END(1);
                         }
@@ -5640,7 +5668,7 @@ int _simLoadModel(luaWrap_lua_State *L)
                                          .copyUncompressedImageToBuffer(buff);
                         if (opRes)
                         {
-                            luaWrap_lua_pushlstring(L, buff, 128 * 128 * 4);
+                            luaWrap_lua_pushbuffer(L, buff, 128 * 128 * 4);
                             delete[] buff;
                             LUA_END(1);
                         }
@@ -5692,7 +5720,7 @@ int _simSaveModel(luaWrap_lua_State *L)
                             {
                                 App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection);
                                 setLastInfo(infoStr.c_str());
-                                luaWrap_lua_pushlstring(L, &buffer[0], buffer.size());
+                                luaWrap_lua_pushbuffer(L, &buffer[0], buffer.size());
                                 LUA_END(1);
                             }
                         }
@@ -5739,7 +5767,7 @@ int _simSetObjectSel(luaWrap_lua_State *L)
     int argCnt = luaWrap_lua_gettop(L);
     if (argCnt >= 1)
     {
-        if (luaWrap_lua_istable(L, 1))
+        if (luaWrap_lua_isnonbuffertable(L, 1))
         {
             int objCnt = (int)luaWrap_lua_rawlen(L, 1);
             if ((objCnt == 0) || checkInputArguments(L, &errorString, lua_arg_integer, objCnt))
@@ -5836,7 +5864,7 @@ int _simGetExtensionString(luaWrap_lua_State *L)
             char *str = simGetExtensionString_internal(objHandle, index, key.c_str());
             if (str != nullptr)
             {
-                luaWrap_lua_pushstring(L, str);
+                luaWrap_lua_pushtext(L, str);
                 simReleaseBuffer_internal(str);
                 LUA_END(1);
             }
@@ -6000,7 +6028,7 @@ int _simTextEditorClose(luaWrap_lua_State *L)
             std::string txt;
             if (GuiApp::mainWindow->codeEditorContainer->close(handle, posAndSize, &txt, nullptr))
             {
-                luaWrap_lua_pushstring(L, txt.c_str());
+                luaWrap_lua_pushtext(L, txt.c_str());
                 pushIntTableOntoStack(L, 2, posAndSize + 0);
                 pushIntTableOntoStack(L, 2, posAndSize + 2);
                 LUA_END(3);
@@ -6058,7 +6086,7 @@ int _simTextEditorGetInfo(luaWrap_lua_State *L)
             {
                 int posAndSize[4];
                 std::string txt = GuiApp::mainWindow->codeEditorContainer->getText(handle, posAndSize);
-                luaWrap_lua_pushstring(L, txt.c_str());
+                luaWrap_lua_pushtext(L, txt.c_str());
                 pushIntTableOntoStack(L, 2, posAndSize + 0);
                 pushIntTableOntoStack(L, 2, posAndSize + 2);
                 luaWrap_lua_pushboolean(L, state != 0);
@@ -6144,7 +6172,7 @@ int _simGetStackTraceback(luaWrap_lua_State *L)
         retVal = it->getAndClearLastStackTraceback();
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushstring(L, retVal.c_str());
+    luaWrap_lua_pushtext(L, retVal.c_str());
     LUA_END(1);
 }
 
@@ -6157,7 +6185,7 @@ int _simSetNamedStringParam(luaWrap_lua_State *L)
     {
         std::string paramName(luaWrap_lua_tostring(L, 1));
         size_t l;
-        const char *data = ((char *)luaWrap_lua_tolstring(L, 2, &l));
+        const char *data = ((char *)luaWrap_lua_tobuffer(L, 2, &l));
         retVal = simSetNamedStringParam_internal(paramName.c_str(), data, int(l));
         if (retVal >= 0)
         {
@@ -6180,7 +6208,7 @@ int _simGetNamedStringParam(luaWrap_lua_State *L)
         char *stringParam = simGetNamedStringParam_internal(paramName.c_str(), &l);
         if (stringParam != nullptr)
         {
-            luaWrap_lua_pushlstring(L, stringParam, l);
+            luaWrap_lua_pushbuffer(L, stringParam, l);
             delete[] stringParam;
             LUA_END(1);
         }
@@ -6461,12 +6489,12 @@ int _simSaveImage(luaWrap_lua_State *L)
     TRACE_LUA_API;
     LUA_START("sim.saveImage");
 
-    int retVal = -1;
+    std::string retBuffer;
     if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 2, lua_arg_number, 0, lua_arg_string, 0,
                             lua_arg_number, 0))
     {
         size_t dataLength;
-        char *data = ((char *)luaWrap_lua_tolstring(L, 1, &dataLength));
+        char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength));
         std::string img(data, dataLength);
         int res[2];
         getIntsFromTable(L, 2, 2, res);
@@ -6484,21 +6512,13 @@ int _simSaveImage(luaWrap_lua_State *L)
             {
                 if (filename.size() > 0)
                 {
+                    bool err;
                     if (filename[0] != '.')
-                        retVal = simSaveImage_internal((unsigned char *)&img[0], res, options, filename.c_str(),
-                                                       quality, nullptr);
+                        err = (1 != simSaveImage_internal((unsigned char *)&img[0], res, options, filename.c_str(), quality, nullptr));
                     else
-                    { // we save to memory:
-                        std::string buffer;
-                        retVal = CImageLoaderSaver::save((unsigned char *)&img[0], res, options, filename.c_str(),
-                                                         quality, &buffer);
-                        if (retVal)
-                        {
-                            luaWrap_lua_pushlstring(L, &buffer[0], buffer.size());
-                            LUA_END(1);
-                        }
-                        LUA_END(0);
-                    }
+                        err = !CImageLoaderSaver::save((unsigned char *)&img[0], res, options, filename.c_str(), quality, &retBuffer); // to memory
+                    if (err)
+                        errorString = SIM_ERROR_OPERATION_FAILED;
                 }
                 else
                     errorString = SIM_ERROR_INVALID_ARGUMENT;
@@ -6511,7 +6531,7 @@ int _simSaveImage(luaWrap_lua_State *L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
+    luaWrap_lua_pushbuffer(L, &retBuffer[0], retBuffer.size());
     LUA_END(1);
 }
 
@@ -6524,7 +6544,7 @@ int _simLoadImage(luaWrap_lua_State *L)
     {
         int options = luaToInt(L, 1);
         size_t dataLength;
-        char *data = ((char *)luaWrap_lua_tolstring(L, 2, &dataLength));
+        char *data = ((char *)luaWrap_lua_tobuffer(L, 2, &dataLength));
         int resol[2];
         unsigned char *img = nullptr;
         if ((dataLength > 4) && (data[0] == '@') && (data[1] == 'm') && (data[2] == 'e') && (data[3] == 'm'))
@@ -6539,7 +6559,7 @@ int _simLoadImage(luaWrap_lua_State *L)
             int s = resol[0] * resol[1] * 3;
             if (options & 1)
                 s = resol[0] * resol[1] * 4;
-            luaWrap_lua_pushlstring(L, (const char *)img, s);
+            luaWrap_lua_pushbuffer(L, (const char *)img, s);
             delete[]((char *)img);
             pushIntTableOntoStack(L, 2, resol);
             LUA_END(2);
@@ -6559,7 +6579,7 @@ int _simGetScaledImage(luaWrap_lua_State *L)
                             0))
     {
         size_t dataLength;
-        char *data = ((char *)luaWrap_lua_tolstring(L, 1, &dataLength));
+        char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength));
         std::string imgIn(data, dataLength);
         int resIn[2];
         getIntsFromTable(L, 2, 2, resIn);
@@ -6580,7 +6600,7 @@ int _simGetScaledImage(luaWrap_lua_State *L)
                     int s = resOut[0] * resOut[1] * 3;
                     if (options & 2)
                         s = resOut[0] * resOut[1] * 4;
-                    luaWrap_lua_pushlstring(L, (const char *)imgOut, s);
+                    luaWrap_lua_pushbuffer(L, (const char *)imgOut, s);
                     delete[]((char *)imgOut);
                     pushIntTableOntoStack(L, 2, resOut);
                     LUA_END(2);
@@ -6606,7 +6626,7 @@ int _simTransformImage(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 2, lua_arg_number, 0))
     {
         size_t dataLength;
-        char *data = ((char *)luaWrap_lua_tolstring(L, 1, &dataLength));
+        char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength));
         int resol[2];
         getIntsFromTable(L, 2, 2, resol);
         int options = luaToInt(L, 3);
@@ -6705,7 +6725,7 @@ int _simPackInt32Table(luaWrap_lua_State *L)
 
     if (luaWrap_lua_gettop(L) > 0)
     {
-        if (luaWrap_lua_istable(L, 1))
+        if (luaWrap_lua_isnonbuffertable(L, 1))
         {
             int startIndex = 0;
             int count = 0;
@@ -6740,7 +6760,7 @@ int _simPackInt32Table(luaWrap_lua_State *L)
                             data[4 * i + 3] = ((char *)&v)[3];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushlstring(L, (const char *)data, count * sizeof(int));
+                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(int));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -6764,7 +6784,7 @@ int _simPackUInt32Table(luaWrap_lua_State *L)
 
     if (luaWrap_lua_gettop(L) > 0)
     {
-        if (luaWrap_lua_istable(L, 1))
+        if (luaWrap_lua_isnonbuffertable(L, 1))
         {
             int startIndex = 0;
             int count = 0;
@@ -6799,7 +6819,7 @@ int _simPackUInt32Table(luaWrap_lua_State *L)
                             data[4 * i + 3] = ((char *)&v)[3];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushlstring(L, (const char *)data, count * sizeof(unsigned int));
+                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(unsigned int));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -6823,7 +6843,7 @@ int _simPackFloatTable(luaWrap_lua_State *L)
 
     if (luaWrap_lua_gettop(L) > 0)
     {
-        if (luaWrap_lua_istable(L, 1))
+        if (luaWrap_lua_isnonbuffertable(L, 1))
         {
             int startIndex = 0;
             int count = 0;
@@ -6858,7 +6878,7 @@ int _simPackFloatTable(luaWrap_lua_State *L)
                             data[4 * i + 3] = ((char *)&v)[3];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushlstring(L, (const char *)data, count * sizeof(float));
+                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(float));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -6882,7 +6902,7 @@ int _simPackDoubleTable(luaWrap_lua_State *L)
 
     if (luaWrap_lua_gettop(L) > 0)
     {
-        if (luaWrap_lua_istable(L, 1))
+        if (luaWrap_lua_isnonbuffertable(L, 1))
         {
             int startIndex = 0;
             int count = 0;
@@ -6921,7 +6941,7 @@ int _simPackDoubleTable(luaWrap_lua_State *L)
                             data[sizeof(double) * i + 7] = ((char *)&v)[7];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushlstring(L, (const char *)data, count * sizeof(double));
+                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(double));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -6945,7 +6965,7 @@ int _simPackUInt8Table(luaWrap_lua_State *L)
 
     if (luaWrap_lua_gettop(L) > 0)
     {
-        if (luaWrap_lua_istable(L, 1))
+        if (luaWrap_lua_isnonbuffertable(L, 1))
         {
             int startIndex = 0;
             int count = 0;
@@ -6977,7 +6997,7 @@ int _simPackUInt8Table(luaWrap_lua_State *L)
                             data[i] = ((char *)&v)[0];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushlstring(L, (const char *)data, count * sizeof(char));
+                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(char));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -7001,7 +7021,7 @@ int _simPackUInt16Table(luaWrap_lua_State *L)
 
     if (luaWrap_lua_gettop(L) > 0)
     {
-        if (luaWrap_lua_istable(L, 1))
+        if (luaWrap_lua_isnonbuffertable(L, 1))
         {
             int startIndex = 0;
             int count = 0;
@@ -7034,7 +7054,7 @@ int _simPackUInt16Table(luaWrap_lua_State *L)
                             data[2 * i + 1] = ((char *)&v)[1];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushlstring(L, (const char *)data, count * sizeof(short));
+                        luaWrap_lua_pushbuffer(L, (const char *)data, count * sizeof(short));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -7080,7 +7100,7 @@ int _simUnpackInt32Table(luaWrap_lua_State *L)
                         additionalCharOffset = luaToInt(L, 4);
 
                     size_t dataLength;
-                    char *data = ((char *)luaWrap_lua_tolstring(L, 1, &dataLength)) + additionalCharOffset;
+                    char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
                     dataLength = sizeof(int) * ((dataLength - additionalCharOffset) / sizeof(int));
                     int packetCount = int(dataLength / sizeof(int));
                     if (count == 0)
@@ -7143,7 +7163,7 @@ int _simUnpackUInt32Table(luaWrap_lua_State *L)
                         additionalCharOffset = luaToInt(L, 4);
 
                     size_t dataLength;
-                    char *data = ((char *)luaWrap_lua_tolstring(L, 1, &dataLength)) + additionalCharOffset;
+                    char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
                     dataLength = sizeof(unsigned int) * ((dataLength - additionalCharOffset) / sizeof(unsigned int));
                     int packetCount = int(dataLength / sizeof(unsigned int));
                     if (count == 0)
@@ -7206,7 +7226,7 @@ int _simUnpackFloatTable(luaWrap_lua_State *L)
                         additionalCharOffset = luaToInt(L, 4);
 
                     size_t dataLength;
-                    char *data = ((char *)luaWrap_lua_tolstring(L, 1, &dataLength)) + additionalCharOffset;
+                    char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
                     dataLength = sizeof(float) * ((dataLength - additionalCharOffset) / sizeof(float));
                     int packetCount = int(dataLength / sizeof(float));
                     if (count == 0)
@@ -7269,7 +7289,7 @@ int _simUnpackDoubleTable(luaWrap_lua_State *L)
                         additionalCharOffset = luaToInt(L, 4);
 
                     size_t dataLength;
-                    char *data = ((char *)luaWrap_lua_tolstring(L, 1, &dataLength)) + additionalCharOffset;
+                    char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
                     dataLength = sizeof(double) * ((dataLength - additionalCharOffset) / sizeof(double));
                     int packetCount = int(dataLength / sizeof(double));
                     if (count == 0)
@@ -7329,7 +7349,7 @@ int _simUnpackUInt8Table(luaWrap_lua_State *L)
                     count = luaToInt(L, 3);
 
                 size_t dataLength;
-                const char *data = (char *)luaWrap_lua_tolstring(L, 1, &dataLength);
+                const char *data = (char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
                 int packetCount = (int)dataLength;
                 if (count == 0)
                     count = int(1999999999);
@@ -7387,7 +7407,7 @@ int _simUnpackUInt16Table(luaWrap_lua_State *L)
                         additionalCharOffset = luaToInt(L, 4);
 
                     size_t dataLength;
-                    char *data = ((char *)luaWrap_lua_tolstring(L, 1, &dataLength)) + additionalCharOffset;
+                    char *data = ((char *)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
                     dataLength = 2 * ((dataLength - additionalCharOffset) / 2);
                     int packetCount = (int)dataLength / 2;
                     if (count == 0)
@@ -7439,7 +7459,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const float *data = (const float *)luaWrap_lua_tolstring(L, 1, &dataLength);
+            const float *data = (const float *)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % sizeof(float));
             dataLength /= sizeof(float);
@@ -7480,7 +7500,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (unsigned char)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7531,7 +7551,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * 3);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * 3);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7570,7 +7590,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (char)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7609,7 +7629,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (uint16_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(uint16_t));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(uint16_t));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7648,7 +7668,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (int16_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(int16_t));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(int16_t));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7687,7 +7707,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (uint32_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(uint32_t));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(uint32_t));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7728,7 +7748,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (int32_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(int32_t));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(int32_t));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7745,7 +7765,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                         for (size_t i = 0; i < dataLength; i++)
                             dat[i] = data[i] * mult + off;
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(float));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(float));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7762,7 +7782,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                         for (size_t i = 0; i < dataLength; i++)
                             dat[i] = (double)(data[i] * mult + off);
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(double));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(double));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7776,7 +7796,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const double *data = (const double *)luaWrap_lua_tolstring(L, 1, &dataLength);
+            const double *data = (const double *)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % sizeof(double));
             dataLength /= sizeof(double);
@@ -7817,7 +7837,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (unsigned char)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7868,7 +7888,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * 3);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * 3);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7907,7 +7927,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (char)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7946,7 +7966,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (uint16_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(uint16_t));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(uint16_t));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -7985,7 +8005,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (int16_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(int16_t));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(int16_t));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8024,7 +8044,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (uint32_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(uint32_t));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(uint32_t));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8065,7 +8085,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (int32_t)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(int32_t));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(int32_t));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8104,7 +8124,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (float)(data[i] * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(float));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(float));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8121,7 +8141,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                         for (size_t i = 0; i < dataLength; i++)
                             dat[i] = data[i] * mult + off;
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength * sizeof(double));
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength * sizeof(double));
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8135,7 +8155,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tolstring(L, 1, &dataLength);
+            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % 3);
             dataLength /= 3;
@@ -8178,7 +8198,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, 3 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, 3 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8218,7 +8238,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, 3 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, 3 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8232,7 +8252,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tolstring(L, 1, &dataLength);
+            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % 4);
             dataLength /= 4;
@@ -8274,7 +8294,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, 3 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, 3 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8318,7 +8338,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, 4 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, 4 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8332,7 +8352,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tolstring(L, 1, &dataLength);
+            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % 4);
             dataLength /= 4;
@@ -8374,7 +8394,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, 3 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, 3 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8418,7 +8438,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, 4 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, 4 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8432,7 +8452,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tolstring(L, 1, &dataLength);
+            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             if (dataLength != 0)
             {
@@ -8453,7 +8473,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             stringTable.push_back(astr);
                             of += splitSize;
                         }
-                        pushLStringTableOntoStack(L, stringTable);
+                        pushBufferTableOntoStack(L, stringTable);
                         LUA_END(1);
                     }
                 }
@@ -8461,7 +8481,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                 {
                     std::string inDat(data, data + dataLength);
                     std::string outDat(utils::encode64(inDat));
-                    luaWrap_lua_pushlstring(L, outDat.c_str(), outDat.length());
+                    luaWrap_lua_pushbuffer(L, outDat.c_str(), outDat.length());
                     LUA_END(1);
                 }
                 if (outFormat == sim_buffer_uint8)
@@ -8488,7 +8508,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                                 dat[i] = (unsigned char)(double(data[i]) * mult + off);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8526,7 +8546,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, 3 * dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, 3 * dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8540,7 +8560,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
             double mult = luaToDouble(L, 3);
             double off = luaToDouble(L, 4);
             bool noScalingNorOffset = ((mult == 1.0) && (off == 0.0));
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tolstring(L, 1, &dataLength);
+            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             dataLength -= (dataLength % 3);
             dataLength /= 3;
@@ -8577,7 +8597,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                             }
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, dataLength);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, dataLength);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8588,7 +8608,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
         }
         if (inFormat == sim_buffer_base64)
         {
-            const unsigned char *data = (const unsigned char *)luaWrap_lua_tolstring(L, 1, &dataLength);
+            const unsigned char *data = (const unsigned char *)luaWrap_lua_tobuffer(L, 1, &dataLength);
             something = true;
             if (dataLength != 0)
             {
@@ -8596,7 +8616,7 @@ int _simTransformBuffer(luaWrap_lua_State *L)
                 {
                     std::string inDat(data, data + dataLength);
                     std::string outDat(utils::decode64(inDat));
-                    luaWrap_lua_pushlstring(L, outDat.c_str(), outDat.length());
+                    luaWrap_lua_pushbuffer(L, outDat.c_str(), outDat.length());
                     LUA_END(1);
                 }
                 errorString = SIM_ERROR_INVALID_FORMAT;
@@ -8622,8 +8642,8 @@ int _simCombineRgbImages(luaWrap_lua_State *L)
                             lua_arg_number, 0))
     {
         size_t img1Length, img2Length;
-        char *img1 = (char *)luaWrap_lua_tolstring(L, 1, &img1Length);
-        char *img2 = (char *)luaWrap_lua_tolstring(L, 3, &img2Length);
+        char *img1 = (char *)luaWrap_lua_tobuffer(L, 1, &img1Length);
+        char *img2 = (char *)luaWrap_lua_tobuffer(L, 3, &img2Length);
         int res1[2];
         int res2[2];
         getIntsFromTable(L, 2, 2, res1);
@@ -8641,7 +8661,7 @@ int _simCombineRgbImages(luaWrap_lua_State *L)
                         dat[i] = img1[i];
                     for (size_t i = 0; i < size_t(res2[0] * res2[1] * 3); i++)
                         dat[l + i] = img2[i];
-                    luaWrap_lua_pushlstring(L, (const char *)dat, (res1[0] * res1[1] + res2[0] * res2[1]) * 3);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, (res1[0] * res1[1] + res2[0] * res2[1]) * 3);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8664,7 +8684,7 @@ int _simCombineRgbImages(luaWrap_lua_State *L)
                         for (size_t i = 0; i < size_t(res2[0] * 3); i++)
                             dat[off3 + i] = img2[off2 + i];
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)dat, (res1[0] * res1[1] + res2[0] * res2[1]) * 3);
+                    luaWrap_lua_pushbuffer(L, (const char *)dat, (res1[0] * res1[1] + res2[0] * res2[1]) * 3);
                     delete[] dat;
                     LUA_END(1);
                 }
@@ -8824,7 +8844,7 @@ int _simAddDrawingObjectItem(luaWrap_lua_State *L)
                 if (res == 2)
                 { // append data from string
                     size_t dataLength;
-                    const char *data = luaWrap_lua_tolstring(L, 2, &dataLength);
+                    const char *data = luaWrap_lua_tobuffer(L, 2, &dataLength);
                     size_t itemCnt = (dataLength / sizeof(float)) / d;
                     if (itemCnt > 0)
                     {
@@ -8922,7 +8942,7 @@ int _simAddParticleObject(luaWrap_lua_State *L)
             errorString = SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS;
         else
         {
-            if ((!luaWrap_lua_isnil(L, 4)) && ((!luaWrap_lua_istable(L, 4)) || (int(luaWrap_lua_rawlen(L, 4)) < 3)))
+            if ((!luaWrap_lua_isnil(L, 4)) && ((!luaWrap_lua_isnonbuffertable(L, 4)) || (int(luaWrap_lua_rawlen(L, 4)) < 3)))
                 errorString = SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG;
             else
             {
@@ -9227,7 +9247,7 @@ int _simSetStringSignal(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_string, 0))
     {
         size_t dataLength;
-        const char *data = luaWrap_lua_tolstring(L, 2, &dataLength);
+        const char *data = luaWrap_lua_tobuffer(L, 2, &dataLength);
         setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),
                                    CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
@@ -9252,7 +9272,7 @@ int _simGetStringSignal(luaWrap_lua_State *L)
         char *str = simGetStringSignal_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &stringLength);
         if (str != nullptr)
         {
-            luaWrap_lua_pushlstring(L, str, stringLength);
+            luaWrap_lua_pushbuffer(L, str, stringLength);
             simReleaseBuffer_internal(str);
             LUA_END(1);
         }
@@ -9292,7 +9312,7 @@ int _simGetSignalName(luaWrap_lua_State *L)
         char *str = simGetSignalName_internal(luaToInt(L, 1), luaToInt(L, 2));
         if (str != nullptr)
         {
-            luaWrap_lua_pushstring(L, str);
+            luaWrap_lua_pushtext(L, str);
             simReleaseBuffer_internal(str);
             LUA_END(1);
         }
@@ -9879,7 +9899,7 @@ int _simSerialOpen(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0))
     {
         size_t dataLength;
-        const char *portName = luaWrap_lua_tolstring(L, 1, &dataLength);
+        const char *portName = luaWrap_lua_tobuffer(L, 1, &dataLength);
         int baudrate = luaToInt(L, 2);
         retVal = App::worldContainer->serialPortContainer->serialPortOpen(true, portName, baudrate);
     }
@@ -9911,7 +9931,7 @@ int _simSerialSend(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
     {
         size_t dataLength;
-        char *data = (char *)luaWrap_lua_tolstring(L, 2, &dataLength);
+        char *data = (char *)luaWrap_lua_tobuffer(L, 2, &dataLength);
         retVal = simSerialSend_internal(luaToInt(L, 1), data, (int)dataLength);
     }
 
@@ -9933,7 +9953,7 @@ int _simSerialRead(luaWrap_lua_State *L)
         int nb = simSerialRead_internal(luaToInt(L, 1), (char *)data.c_str(), (int)maxLength);
         if (nb > 0)
         {
-            luaWrap_lua_pushlstring(L, data.c_str(), nb);
+            luaWrap_lua_pushbuffer(L, data.c_str(), nb);
             LUA_END(1);
         }
     }
@@ -10226,7 +10246,7 @@ int _simExportMesh(luaWrap_lua_State *L)
         int options = luaToInt(L, 3);
         double scalingFactor = luaToDouble(L, 4);
         int elementCount = 15487;
-        if ((luaWrap_lua_gettop(L) >= 6) && luaWrap_lua_istable(L, 5) && luaWrap_lua_istable(L, 6))
+        if ((luaWrap_lua_gettop(L) >= 6) && luaWrap_lua_isnonbuffertable(L, 5) && luaWrap_lua_isnonbuffertable(L, 6))
         {
             int ve = (int)luaWrap_lua_rawlen(L, 5);
             int ie = (int)luaWrap_lua_rawlen(L, 6);
@@ -10258,7 +10278,7 @@ int _simExportMesh(luaWrap_lua_State *L)
                 if (!error)
                 {
                     luaWrap_lua_rawgeti(L, 5, i + 1);
-                    if (luaWrap_lua_istable(L, -1))
+                    if (luaWrap_lua_isnonbuffertable(L, -1))
                     {
                         int vl = (int)luaWrap_lua_rawlen(L, -1);
                         if (checkOneGeneralInputArgument(L, luaWrap_lua_gettop(L), lua_arg_number, vl, false, false,
@@ -10278,7 +10298,7 @@ int _simExportMesh(luaWrap_lua_State *L)
                 if (!error)
                 {
                     luaWrap_lua_rawgeti(L, 6, i + 1);
-                    if (luaWrap_lua_istable(L, -1))
+                    if (luaWrap_lua_isnonbuffertable(L, -1))
                     {
                         int vl = (int)luaWrap_lua_rawlen(L, -1);
                         if (checkOneGeneralInputArgument(L, luaWrap_lua_gettop(L), lua_arg_number, vl, false, false,
@@ -10332,7 +10352,7 @@ int _simCreateShape(luaWrap_lua_State *L)
 
         int vl = 2;
         int il = 2;
-        if ((luaWrap_lua_gettop(L) >= 4) && luaWrap_lua_istable(L, 3) && luaWrap_lua_istable(L, 4))
+        if ((luaWrap_lua_gettop(L) >= 4) && luaWrap_lua_isnonbuffertable(L, 3) && luaWrap_lua_isnonbuffertable(L, 4))
         {
             vl = (int)luaWrap_lua_rawlen(L, 3);
             il = (int)luaWrap_lua_rawlen(L, 4);
@@ -10374,7 +10394,7 @@ int _simCreateShape(luaWrap_lua_State *L)
                 res = checkOneGeneralInputArgument(L, 7, lua_arg_string, 0, true, true, &errorString);
                 size_t l;
                 if (res == 2)
-                    img = (unsigned char *)luaWrap_lua_tolstring(L, 7, &l);
+                    img = (unsigned char *)luaWrap_lua_tobuffer(L, 7, &l);
                 res = checkOneGeneralInputArgument(L, 8, lua_arg_integer, 2, true, true, &errorString);
                 if (res == 2)
                     getIntsFromTable(L, 8, 2, resol);
@@ -10726,7 +10746,7 @@ int _simCameraFitToView(luaWrap_lua_State *L)
         int options = 0;
         double scaling = 1.0;
         int tableLen = 2;
-        if (luaWrap_lua_istable(L, 2))
+        if (luaWrap_lua_isnonbuffertable(L, 2))
         {
             tableLen = int(luaWrap_lua_rawlen(L, 2));
             int *buffer = new int[tableLen];
@@ -10890,7 +10910,7 @@ int _simGetObjectStringParam(luaWrap_lua_State *L)
         char *strBuff = simGetObjectStringParam_internal(luaToInt(L, 1), luaToInt(L, 2), &paramLength);
         if (strBuff != nullptr)
         {
-            luaWrap_lua_pushlstring(L, strBuff, paramLength);
+            luaWrap_lua_pushbuffer(L, strBuff, paramLength);
             delete[] strBuff;
             LUA_END(1);
         }
@@ -10909,7 +10929,7 @@ int _simSetObjectStringParam(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_string, 0))
     {
         size_t dataLength;
-        char *data = (char *)luaWrap_lua_tolstring(L, 3, &dataLength);
+        char *data = (char *)luaWrap_lua_tobuffer(L, 3, &dataLength);
         retVal = simSetObjectStringParam_internal(luaToInt(L, 1), luaToInt(L, 2), data, (int)dataLength);
     }
 
@@ -10974,7 +10994,7 @@ int _simGetScriptStringParam(luaWrap_lua_State *L)
         char *strBuff = simGetScriptStringParam_internal(scriptID, luaToInt(L, 2), &paramLength);
         if (strBuff != nullptr)
         {
-            luaWrap_lua_pushlstring(L, strBuff, paramLength);
+            luaWrap_lua_pushbuffer(L, strBuff, paramLength);
             delete[] strBuff;
             LUA_END(1);
         }
@@ -10996,7 +11016,7 @@ int _simSetScriptStringParam(luaWrap_lua_State *L)
         if (scriptID == sim_handle_self)
             scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         size_t dataLength;
-        char *data = (char *)luaWrap_lua_tolstring(L, 3, &dataLength);
+        char *data = (char *)luaWrap_lua_tobuffer(L, 3, &dataLength);
         retVal = simSetScriptStringParam_internal(scriptID, luaToInt(L, 2), data, (int)dataLength);
     }
 
@@ -11164,7 +11184,7 @@ int _simPersistentDataWrite(luaWrap_lua_State *L)
             if (res == 2)
                 options = luaToInt(L, 3);
             size_t dataLength;
-            char *data = (char *)luaWrap_lua_tolstring(L, 2, &dataLength);
+            char *data = (char *)luaWrap_lua_tobuffer(L, 2, &dataLength);
             retVal = simPersistentDataWrite_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), data,
                                                      (int)dataLength, options);
         }
@@ -11187,7 +11207,7 @@ int _simPersistentDataRead(luaWrap_lua_State *L)
 
         if (str != nullptr)
         {
-            luaWrap_lua_pushlstring(L, str, stringLength);
+            luaWrap_lua_pushbuffer(L, str, stringLength);
             simReleaseBuffer_internal(str);
             LUA_END(1);
         }
@@ -11449,7 +11469,7 @@ int _simSetObjectQuaternion(luaWrap_lua_State *L)
     TRACE_LUA_API;
     LUA_START("sim.setObjectQuaternion");
 
-    if (luaWrap_lua_istable(L, 2))
+    if (luaWrap_lua_isnonbuffertable(L, 2))
     {
         if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_number, 4,
                                 lua_arg_integer | lua_arg_optional, 0))
@@ -11928,7 +11948,7 @@ int _simPushUserEvent(luaWrap_lua_State *L)
         std::string eventStr(luaWrap_lua_tostring(L, 1));
         int handle = luaToInt(L, 2);
         long long int uid = luaWrap_lua_tointeger(L, 3);
-        if (luaWrap_lua_istable(L, 4))
+        if (luaWrap_lua_isnonbuffertable(L, 4))
         {
             int options = 0; // bit0: mergeable
             int res = checkOneGeneralInputArgument(L, 5, lua_arg_integer, 0, true, true, &errorString);
@@ -11961,7 +11981,7 @@ int _simBroadcastMsg(luaWrap_lua_State *L)
     TRACE_LUA_API;
     LUA_START("sim.broadcastMsg");
 
-    if (luaWrap_lua_istable(L, 1))
+    if (luaWrap_lua_isnonbuffertable(L, 1))
     {
         int options = 0;
         int res = checkOneGeneralInputArgument(L, 2, lua_arg_integer, 0, true, true, &errorString);
@@ -12037,7 +12057,7 @@ int _simGetGenesisEvents(luaWrap_lua_State *L)
 
     std::vector<unsigned char> genesisEvents;
     App::worldContainer->getGenesisEvents(&genesisEvents, nullptr);
-    luaWrap_lua_pushlstring(L, (char *)genesisEvents.data(), genesisEvents.size());
+    luaWrap_lua_pushbuffer(L, (char *)genesisEvents.data(), genesisEvents.size());
     LUA_END(1);
 
     //    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -12240,7 +12260,7 @@ int _simReadTexture(luaWrap_lua_State *L)
                                     simReadTexture_internal(textureId, options, posX, posY, sizeX, sizeY);
                                 if (textureData != nullptr)
                                 { // here we return RGB data in a string
-                                    luaWrap_lua_pushlstring(L, (char *)textureData, sizeX * sizeY * 3);
+                                    luaWrap_lua_pushbuffer(L, (char *)textureData, sizeX * sizeY * 3);
                                     simReleaseBuffer_internal(textureData);
                                     LUA_END(1);
                                 }
@@ -12271,7 +12291,7 @@ int _simWriteTexture(luaWrap_lua_State *L)
         int textureId = luaToInt(L, 1);
         int options = luaToInt(L, 2);
         size_t dataLength;
-        char *data = (char *)luaWrap_lua_tolstring(L, 3, &dataLength);
+        char *data = (char *)luaWrap_lua_tobuffer(L, 3, &dataLength);
         if (dataLength >= 3)
         {
             int posX = 0;
@@ -12468,7 +12488,7 @@ int _simWriteCustomDataBlock(luaWrap_lua_State *L)
             size_t dataLength = 0;
             char *data = nullptr;
             if (res == 2)
-                data = (char *)luaWrap_lua_tolstring(L, 3, &dataLength);
+                data = (char *)luaWrap_lua_tobuffer(L, 3, &dataLength);
             retVal = simWriteCustomDataBlock_internal(objectHandle, dataName.c_str(), data, (int)dataLength);
         }
     }
@@ -12494,7 +12514,7 @@ int _simReadCustomDataBlock(luaWrap_lua_State *L)
         char *data = simReadCustomDataBlock_internal(objectHandle, dataName.c_str(), &dataLength);
         if (data != nullptr)
         {
-            luaWrap_lua_pushlstring(L, (const char *)data, dataLength);
+            luaWrap_lua_pushbuffer(L, (const char *)data, dataLength);
             simReleaseBuffer_internal(data);
             LUA_END(1);
         }
@@ -13099,7 +13119,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State *L)
             if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_string, 0))
             {
                 size_t dataLength;
-                const char *data = luaWrap_lua_tolstring(L, 3, &dataLength);
+                const char *data = luaWrap_lua_tobuffer(L, 3, &dataLength);
                 int ptCnt = (dataLength / sizeof(float)) / 3;
                 pts.resize(ptCnt * 3);
                 if (options & 2)
@@ -13111,7 +13131,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State *L)
                         pts[i] = double(((float *)data)[i]);
                     if (res == 2)
                     {
-                        data = luaWrap_lua_tolstring(L, 4, &dataLength);
+                        data = luaWrap_lua_tobuffer(L, 4, &dataLength);
                         _cols.resize(v);
                         for (int i = 0; i < std::min<int>(v, int(dataLength)); i++)
                             _cols[i] = ((unsigned char *)data)[i];
@@ -13129,7 +13149,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State *L)
                             std::vector<unsigned int> _tags;
                             if (res == 2)
                             {
-                                data = luaWrap_lua_tolstring(L, 5, &dataLength);
+                                data = luaWrap_lua_tobuffer(L, 5, &dataLength);
                                 _tags.resize(v / 3);
                                 for (int i = 0; i < std::min<int>(v / 3, int(dataLength / sizeof(int))); i++)
                                     _tags[i] = ((unsigned int *)data)[i];
@@ -13245,7 +13265,7 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State *L)
             if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_string, 0))
             {
                 size_t dataLength;
-                const char *data = luaWrap_lua_tolstring(L, 3, &dataLength);
+                const char *data = luaWrap_lua_tobuffer(L, 3, &dataLength);
                 int ptCnt = int((dataLength / sizeof(float))) / 3;
                 pts.resize(ptCnt * 3);
                 if (options & 2)
@@ -13257,7 +13277,7 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State *L)
                         pts[i] = double(((float *)data)[i]);
                     if (res == 2)
                     {
-                        data = luaWrap_lua_tolstring(L, 4, &dataLength);
+                        data = luaWrap_lua_tobuffer(L, 4, &dataLength);
                         _cols.resize(v);
                         for (int i = 0; i < std::min<int>(v, int(dataLength)); i++)
                             _cols[i] = ((unsigned char *)data)[i];
@@ -13596,7 +13616,7 @@ int _simPackTable(luaWrap_lua_State *L)
 
     if (luaWrap_lua_gettop(L) >= 1)
     {
-        if (luaWrap_lua_istable(L, 1))
+        if (luaWrap_lua_isnonbuffertable(L, 1))
         {
             int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, 0, true, true, &errorString);
             if (res >= 0)
@@ -13613,7 +13633,7 @@ int _simPackTable(luaWrap_lua_State *L)
                     s = stack->getCborEncodedBuffer(1);
                 if (scheme == 2)
                     s = stack->getCborEncodedBuffer(0); // doubles coded as double
-                luaWrap_lua_pushlstring(L, s.c_str(), s.length());
+                luaWrap_lua_pushbuffer(L, s.c_str(), s.length());
                 App::worldContainer->interfaceStackContainer->destroyStack(stack);
                 LUA_END(1);
             }
@@ -13636,7 +13656,7 @@ int _simUnpackTable(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         size_t l;
-        const char *s = luaWrap_lua_tolstring(L, 1, &l);
+        const char *s = luaWrap_lua_tobuffer(L, 1, &l);
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
         if (stack->pushTableFromBuffer(s, (unsigned int)l))
         {
@@ -13833,7 +13853,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                 if (it != nullptr)
                 {
                     std::string str(it->getAssemblyMatchValues(childAttr));
-                    luaWrap_lua_pushstring(L, str.c_str());
+                    luaWrap_lua_pushtext(L, str.c_str());
                     LUA_END(1);
                 }
                 else
@@ -13849,7 +13869,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                 int res[2];
                 getIntsFromTable(L, 3, 2, res);
                 size_t imgLen;
-                const char *img = luaWrap_lua_tolstring(L, 2, &imgLen);
+                const char *img = luaWrap_lua_tobuffer(L, 2, &imgLen);
                 if (imgLen == size_t(3 * res[0] * res[1]))
                 {
                     std::vector<int> lines;
@@ -13882,7 +13902,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                             img2[y * res[0] * 3 + 3 * x + 2] = qBlue(rgb);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)&img2[0], res[0] * res[1] * 3);
+                    luaWrap_lua_pushbuffer(L, (const char *)&img2[0], res[0] * res[1] * 3);
                     LUA_END(1);
                 }
             }
@@ -13895,7 +13915,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                 int res[2];
                 getIntsFromTable(L, 3, 2, res);
                 size_t imgLen;
-                const char *img = luaWrap_lua_tolstring(L, 2, &imgLen);
+                const char *img = luaWrap_lua_tobuffer(L, 2, &imgLen);
                 if (imgLen == size_t(3 * res[0] * res[1]))
                 {
                     std::vector<int> rects;
@@ -13928,7 +13948,7 @@ int _simAuxFunc(luaWrap_lua_State *L)
                             img2[y * res[0] * 3 + 3 * x + 2] = qBlue(rgb);
                         }
                     }
-                    luaWrap_lua_pushlstring(L, (const char *)&img2[0], res[0] * res[1] * 3);
+                    luaWrap_lua_pushbuffer(L, (const char *)&img2[0], res[0] * res[1] * 3);
                     LUA_END(1);
                 }
             }
@@ -13948,7 +13968,7 @@ int _simSetReferencedHandles(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int objHandle = luaToInt(L, 1);
-        if (luaWrap_lua_istable(L, 2))
+        if (luaWrap_lua_isnonbuffertable(L, 2))
         {
             int cnt = (int)luaWrap_lua_rawlen(L, 2);
             if (cnt > 0)
@@ -14020,7 +14040,7 @@ int _simGetGraphCurve(luaWrap_lua_State *L)
             if (graph->getGraphCurveData(graphType, index, label, xVals, yVals, curveType, col, minMax, curveId,
                                          curveWidth))
             {
-                luaWrap_lua_pushstring(L, label.c_str());
+                luaWrap_lua_pushtext(L, label.c_str());
                 luaWrap_lua_pushinteger(L, curveType);
                 pushFloatTableOntoStack(L, 3, col);
                 if (xVals.size() > 0)
@@ -14097,10 +14117,10 @@ int _simGetShapeViz(luaWrap_lua_State *L)
             delete[] info.normals;
             if (ret > 1)
             {
-                stack->pushStringOntoStack("texture", 0);
+                stack->pushTextOntoStack("texture");
                 stack->pushTableOntoStack();
 
-                stack->insertKeyStringIntoStackTable("texture", info.texture,
+                stack->insertKeyBufferIntoStackTable("texture", info.texture,
                                                      4 * info.textureRes[0] * info.textureRes[1]);
                 stack->insertKeyInt32ArrayIntoStackTable("resolution", info.textureRes, 2);
                 stack->insertKeyFloatArrayIntoStackTable("coordinates", info.textureCoords,
@@ -14203,7 +14223,7 @@ int _simGetApiInfo(luaWrap_lua_State *L)
         char *str = simGetApiInfo_internal(luaToInt(L, 1), apiWord.c_str());
         if (str != nullptr)
         {
-            luaWrap_lua_pushstring(L, str);
+            luaWrap_lua_pushtext(L, str);
             simReleaseBuffer_internal(str);
             LUA_END(1);
         }
@@ -14225,7 +14245,7 @@ int _simGetPluginName(luaWrap_lua_State *L)
         char *name = simGetPluginName_internal(luaToInt(L, 1), &version);
         if (name != nullptr)
         {
-            luaWrap_lua_pushstring(L, name);
+            luaWrap_lua_pushtext(L, name);
             simReleaseBuffer_internal(name);
             luaWrap_lua_pushinteger(L, (int)version);
             LUA_END(2);
@@ -14252,7 +14272,7 @@ int _simGetPluginInfo(luaWrap_lua_State *L)
         {
             if ((infoType == sim_plugininfo_extversionstr) || (infoType == sim_plugininfo_builddatestr))
             {
-                luaWrap_lua_pushstring(L, stringInfo);
+                luaWrap_lua_pushtext(L, stringInfo);
                 delete[] stringInfo;
                 LUA_END(1);
             }
@@ -14318,7 +14338,7 @@ int _simGetLastInfo(luaWrap_lua_State *L)
         inf = info;
         delete[] info;
     }
-    luaWrap_lua_pushstring(L, inf.c_str());
+    luaWrap_lua_pushtext(L, inf.c_str());
     LUA_END(1);
 }
 
@@ -15809,7 +15829,7 @@ void pushCorrectTypeOntoLuaStack_old(luaWrap_lua_State *L, const std::string &bu
         luaWrap_lua_pushnumber(L, floatVal);
     }
     if (t == 4)
-        luaWrap_lua_pushlstring(L, buff.c_str(), buff.length());
+        luaWrap_lua_pushbuffer(L, buff.c_str(), buff.length());
 }
 
 int getCorrectType_old(const std::string &buff)
@@ -15993,7 +16013,7 @@ bool readCustomFunctionDataFromStack_old(luaWrap_lua_State *L, int ind, int data
     if (dataType & sim_script_arg_table)
     { // we have to read a table:
         dataType ^= sim_script_arg_table;
-        if (!luaWrap_lua_istable(L, ind))
+        if (!luaWrap_lua_isnonbuffertable(L, ind))
             return (true); // this is not a table
         int dataSize = int(luaWrap_lua_rawlen(L, ind));
         std::vector<char> boolV;
@@ -16113,7 +16133,7 @@ bool readCustomFunctionDataFromStack_old(luaWrap_lua_State *L, int ind, int data
             if (!luaWrap_lua_isstring(L, ind))
                 return (true); // we don't have the correct data type
             size_t dataLength;
-            char *data = (char *)luaWrap_lua_tolstring(L, ind, &dataLength);
+            char *data = (char *)luaWrap_lua_tobuffer(L, ind, &dataLength);
             inCharVector.push_back(std::string(data, dataLength));
             inInfoVector[inInfoVector.size() - 2] = dataType;
             inInfoVector[inInfoVector.size() - 1] = int(dataLength);
@@ -16130,7 +16150,7 @@ void writeCustomFunctionDataOntoStack_old(luaWrap_lua_State *L, int dataType, in
 {
     if (((dataType | sim_script_arg_table) - sim_script_arg_table) == sim_script_arg_charbuff)
     { // special handling here
-        luaWrap_lua_pushlstring(L, charData + charDataPos, dataSize);
+        luaWrap_lua_pushbuffer(L, charData + charDataPos, dataSize);
         charDataPos += dataSize;
     }
     else
@@ -16158,7 +16178,7 @@ void writeCustomFunctionDataOntoStack_old(luaWrap_lua_State *L, int dataType, in
                 luaWrap_lua_pushnumber(L, doubleData[doubleDataPos++]);
             else if (dataType == sim_script_arg_string)
             {
-                luaWrap_lua_pushstring(L, stringData + stringDataPos);
+                luaWrap_lua_pushtext(L, stringData + stringDataPos);
                 stringDataPos += (int)strlen(stringData + stringDataPos) +
                                  1; // Thanks to Ulrich Schwesinger for noticing a bug here!
             }
@@ -16213,7 +16233,7 @@ int _simOpenTextEditor(luaWrap_lua_State *L)
                 char *outText = simOpenTextEditor_internal(initText.c_str(), _xml, various);
                 if (outText != nullptr)
                 {
-                    luaWrap_lua_pushstring(L, outText);
+                    luaWrap_lua_pushtext(L, outText);
                     delete[] outText;
                     pushIntTableOntoStack(L, 2, various + 0);
                     pushIntTableOntoStack(L, 2, various + 2);
@@ -16271,7 +16291,7 @@ int _simCloseTextEditor(luaWrap_lua_State *L)
             if (it != nullptr)
             {
                 CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
-                stack->pushStringOntoStack(txt.c_str(), txt.size());
+                stack->pushTextOntoStack(txt.c_str());
                 stack->pushInt32ArrayOntoStack(posAndSize + 0, 2);
                 stack->pushInt32ArrayOntoStack(posAndSize + 2, 2);
                 it->callCustomScriptFunction(cb.c_str(), stack);
@@ -16759,7 +16779,7 @@ int _sim_moveToJointPos_1(luaWrap_lua_State *L)
 { // for backward compatibility with simMoveToJointPositions on old threaded scripts
     TRACE_LUA_API;
     LUA_START("sim._moveToJointPos_1");
-    if (!((!luaWrap_lua_istable(L, 1)) || (!luaWrap_lua_istable(L, 2)) ||
+    if (!((!luaWrap_lua_isnonbuffertable(L, 1)) || (!luaWrap_lua_isnonbuffertable(L, 2)) ||
           (luaWrap_lua_rawlen(L, 1) > luaWrap_lua_rawlen(L, 2)) || (luaWrap_lua_rawlen(L, 1) == 0)))
     { // Ok we have 2 tables with same sizes.
         int tableLen = (int)luaWrap_lua_rawlen(L, 1);
@@ -16771,7 +16791,7 @@ int _sim_moveToJointPos_1(luaWrap_lua_State *L)
         bool foundError = false;
         // Now check the other arguments:
         int res;
-        if (luaWrap_lua_istable(L, 3))
+        if (luaWrap_lua_isnonbuffertable(L, 3))
             sameTimeFinish = false; // we do not finish at the same time!
         if (!foundError)            // velocity or velocities argument (not optional!):
         {
@@ -17358,7 +17378,7 @@ int _simAddSceneCustomData(luaWrap_lua_State *L)
     {
         int headerNumber = luaToInt(L, 1);
         size_t dataLength;
-        char *data = (char *)luaWrap_lua_tolstring(L, 2, &dataLength);
+        char *data = (char *)luaWrap_lua_tobuffer(L, 2, &dataLength);
         retVal = simAddSceneCustomData_internal(headerNumber, data, (int)dataLength);
     }
 
@@ -17384,7 +17404,7 @@ int _simGetSceneCustomData(luaWrap_lua_State *L)
                 delete[] data;
             else
             {
-                luaWrap_lua_pushlstring(L, data, dataLength);
+                luaWrap_lua_pushbuffer(L, data, dataLength);
                 delete[] data;
                 LUA_END(1);
             }
@@ -17406,7 +17426,7 @@ int _simAddObjectCustomData(luaWrap_lua_State *L)
         int objectHandle = luaToInt(L, 1);
         int headerNumber = luaToInt(L, 2);
         size_t dataLength;
-        char *data = (char *)luaWrap_lua_tolstring(L, 3, &dataLength);
+        char *data = (char *)luaWrap_lua_tobuffer(L, 3, &dataLength);
         retVal = simAddObjectCustomData_internal(objectHandle, headerNumber, data, (int)dataLength);
     }
 
@@ -17433,7 +17453,7 @@ int _simGetObjectCustomData(luaWrap_lua_State *L)
                 delete[] data;
             else
             {
-                luaWrap_lua_pushlstring(L, data, dataLength);
+                luaWrap_lua_pushbuffer(L, data, dataLength);
                 delete[] data;
                 LUA_END(1);
             }
@@ -17641,7 +17661,7 @@ int _simGetUIButtonLabel(luaWrap_lua_State *L)
         char *label = simGetUIButtonLabel_internal(luaToInt(L, 1), luaToInt(L, 2));
         if (label != nullptr)
         {
-            luaWrap_lua_pushstring(L, label);
+            luaWrap_lua_pushtext(L, label);
             simReleaseBuffer_internal(label);
             LUA_END(1);
         }
@@ -18153,7 +18173,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State *L)
                         std::string a;
                         a.assign(p, l);
                         if (returnString)
-                            luaWrap_lua_pushlstring(L, a.c_str(), a.length());
+                            luaWrap_lua_pushbuffer(L, a.c_str(), a.length());
                         else
                             pushCorrectTypeOntoLuaStack_old(L, a);
                         simReleaseBuffer_internal(p);
@@ -18215,7 +18235,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State *L)
                                 stack->pushFloatOntoStack(v);
                             }
                             if (t == 4)
-                                stack->pushStringOntoStack(retParams[i].c_str(), 0);
+                                stack->pushTextOntoStack(retParams[i].c_str());
                             if (stack->getStackSize() < 2)
                                 stack->pushNullOntoStack();
                             stack->insertDataIntoStackTable();
@@ -18266,7 +18286,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State *L)
         {
             std::string parameterName(luaWrap_lua_tostring(L, 2));
             size_t parameterValueLength;
-            char *parameterValue = (char *)luaWrap_lua_tolstring(L, 3, &parameterValueLength);
+            char *parameterValue = (char *)luaWrap_lua_tobuffer(L, 3, &parameterValueLength);
             if ((handle != sim_handle_tree) && (handle != sim_handle_chain))
             {
                 retVal = simSetScriptSimulationParameter_internal(handle, parameterName.c_str(), parameterValue,
@@ -18337,7 +18357,7 @@ int _simGetNameSuffix(luaWrap_lua_State *L)
         std::string name(tt::getNameWithoutSuffixNumber(nameWithSuffix.c_str(), true));
         int suffixNumber = tt::getNameSuffixNumber(nameWithSuffix.c_str(), true);
         luaWrap_lua_pushinteger(L, suffixNumber);
-        luaWrap_lua_pushstring(L, name.c_str());
+        luaWrap_lua_pushtext(L, name.c_str());
         LUA_END(2);
     }
 
@@ -18723,7 +18743,7 @@ int _simCheckIkGroup(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
-        if (luaWrap_lua_istable(L, 2))
+        if (luaWrap_lua_isnonbuffertable(L, 2))
         {
             int jointCnt = (int)luaWrap_lua_rawlen(L, 2);
             int *handles = new int[jointCnt];
@@ -19161,7 +19181,7 @@ int _simTubeRead(luaWrap_lua_State *L)
         char *data = simTubeRead_internal(luaToInt(L, 1), &dataLength);
         if (data)
         {
-            luaWrap_lua_pushlstring(L, (const char *)data, dataLength);
+            luaWrap_lua_pushbuffer(L, (const char *)data, dataLength);
             delete[] data;
             LUA_END(1);
         }
@@ -19216,7 +19236,7 @@ int _simTubeWrite(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
     {
         size_t dataLength;
-        char *data = (char *)luaWrap_lua_tolstring(L, 2, &dataLength);
+        char *data = (char *)luaWrap_lua_tobuffer(L, 2, &dataLength);
         retVal = simTubeWrite_internal(luaToInt(L, 1), data, (int)dataLength);
     }
 
@@ -19278,7 +19298,7 @@ int _simSendData(luaWrap_lua_State *L)
                     else
                     {
                         size_t dataLength;
-                        char *data = (char *)luaWrap_lua_tolstring(L, 4, &dataLength);
+                        char *data = (char *)luaWrap_lua_tobuffer(L, 4, &dataLength);
                         if (dataLength < 1)
                             errorString = SIM_ERROR_INVALID_DATA;
                         else
@@ -19468,10 +19488,10 @@ int _simReceiveData(luaWrap_lua_State *L)
                 antennaHandle, theDataLength, index, theSenderID, theDataHeader, theDataName);
             if (data0 != nullptr)
             {
-                luaWrap_lua_pushlstring(L, data0, theDataLength);
+                luaWrap_lua_pushbuffer(L, data0, theDataLength);
                 luaWrap_lua_pushinteger(L, theSenderID);
                 luaWrap_lua_pushinteger(L, theDataHeader);
-                luaWrap_lua_pushstring(L, theDataName.c_str());
+                luaWrap_lua_pushtext(L, theDataName.c_str());
                 LUA_END(4);
             }
         }
@@ -20061,7 +20081,7 @@ int _simGetUserParameter(luaWrap_lua_State *L)
                 std::string a;
                 a.assign(p, l);
                 if (returnString)
-                    luaWrap_lua_pushlstring(L, a.c_str(), a.length());
+                    luaWrap_lua_pushbuffer(L, a.c_str(), a.length());
                 else
                     pushCorrectTypeOntoLuaStack_old(L, a);
                 simReleaseBuffer_internal(p);
@@ -20091,7 +20111,7 @@ int _simSetUserParameter(luaWrap_lua_State *L)
         }
         std::string parameterName(luaWrap_lua_tostring(L, 2));
         size_t parameterValueLength;
-        char *parameterValue = (char *)luaWrap_lua_tolstring(L, 3, &parameterValueLength);
+        char *parameterValue = (char *)luaWrap_lua_tobuffer(L, 3, &parameterValueLength);
         retVal = simSetUserParameter_internal(handle, parameterName.c_str(), parameterValue, (int)parameterValueLength);
     }
 
@@ -20387,7 +20407,7 @@ int _simGetCollectionName(luaWrap_lua_State *L)
         char *name = simGetCollectionName_internal(luaToInt(L, 1));
         if (name != nullptr)
         {
-            luaWrap_lua_pushstring(L, name);
+            luaWrap_lua_pushtext(L, name);
             simReleaseBuffer_internal(name);
             LUA_END(1);
         }
@@ -20985,7 +21005,7 @@ int _simGetObjectName(luaWrap_lua_State *L)
         char *name = simGetObjectName_internal(luaToInt(L, 1));
         if (name != nullptr)
         {
-            luaWrap_lua_pushstring(L, name);
+            luaWrap_lua_pushtext(L, name);
             simReleaseBuffer_internal(name);
             LUA_END(1);
         }
@@ -21022,7 +21042,7 @@ int _simGetScriptName(luaWrap_lua_State *L)
         char *name = simGetScriptName_internal(a);
         if (name != nullptr)
         {
-            luaWrap_lua_pushstring(L, name);
+            luaWrap_lua_pushtext(L, name);
             simReleaseBuffer_internal(name);
             LUA_END(1);
         }
@@ -21117,7 +21137,7 @@ int _simGetObjectConfiguration(luaWrap_lua_State *L)
         if (data != nullptr)
         {
             int dataSize = ((int *)data)[0] + 4;
-            luaWrap_lua_pushlstring(L, data, dataSize);
+            luaWrap_lua_pushbuffer(L, data, dataSize);
             delete[] data;
             LUA_END(1);
         }
@@ -21136,7 +21156,7 @@ int _simSetObjectConfiguration(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         size_t l;
-        const char *data = luaWrap_lua_tolstring(L, 1, &l);
+        const char *data = luaWrap_lua_tobuffer(L, 1, &l);
         retVal = simSetObjectConfiguration_internal(data);
     }
 
@@ -21168,7 +21188,7 @@ int _simGetConfigurationTree(luaWrap_lua_State *L)
             if (data != nullptr)
             {
                 int dataSize = ((int *)data)[0] + 4;
-                luaWrap_lua_pushlstring(L, data, dataSize);
+                luaWrap_lua_pushbuffer(L, data, dataSize);
                 delete[] data;
                 LUA_END(1);
             }
@@ -21188,7 +21208,7 @@ int _simSetConfigurationTree(luaWrap_lua_State *L)
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
         size_t l;
-        const char *data = luaWrap_lua_tolstring(L, 1, &l);
+        const char *data = luaWrap_lua_tobuffer(L, 1, &l);
         retVal = simSetConfigurationTree_internal(data);
     }
 
@@ -21329,7 +21349,7 @@ int _simGetLastError(luaWrap_lua_State *L)
     CScriptObject *it = App::worldContainer->getScriptFromHandle(scriptHandle);
     if (it != nullptr)
     {
-        luaWrap_lua_pushstring(L, it->getAndClearLastError_old().c_str());
+        luaWrap_lua_pushtext(L, it->getAndClearLastError_old().c_str());
         LUA_END(1);
     }
 
@@ -21374,7 +21394,7 @@ int _simFileDialog(luaWrap_lua_State *L)
                                                    extName.c_str(), ext.c_str());
         if (pathAndName != nullptr)
         {
-            luaWrap_lua_pushstring(L, pathAndName);
+            luaWrap_lua_pushtext(L, pathAndName);
             simReleaseBuffer_internal(pathAndName);
             LUA_END(1);
         }
@@ -21430,7 +21450,7 @@ int _simAddObjectToSelection(luaWrap_lua_State *L)
     else
     {
         // We check if we have a table at position 1:
-        if (!luaWrap_lua_istable(L, 1))
+        if (!luaWrap_lua_isnonbuffertable(L, 1))
         {                                                                              // It is not a table!
             if (checkInputArguments(L, nullptr, lua_arg_number, 0, lua_arg_number, 0)) // we don't generate an error
                 retVal = simAddObjectToSelection_internal(luaToInt(L, 1), luaToInt(L, 2));
@@ -21489,7 +21509,7 @@ int _simRemoveObjectFromSelection(luaWrap_lua_State *L)
     else
     {
         // We check if we have a table at position 1:
-        if (!luaWrap_lua_istable(L, 1))
+        if (!luaWrap_lua_isnonbuffertable(L, 1))
         {                                                                              // It is not a table!
             if (checkInputArguments(L, nullptr, lua_arg_number, 0, lua_arg_number, 0)) // we don't generate an error
                 retVal = simRemoveObjectFromSelection_internal(luaToInt(L, 1), luaToInt(L, 2));
@@ -21935,7 +21955,7 @@ int _simGetVisionSensorImage(luaWrap_lua_State *L)
                                         int vvv = sizeX * sizeY * valPerPix;
                                         for (int i = 0; i < vvv; i++)
                                             str[i] = char(buffer[i] * 255.0001);
-                                        luaWrap_lua_pushlstring(L, (const char *)str, vvv);
+                                        luaWrap_lua_pushbuffer(L, (const char *)str, vvv);
                                         delete[]((char *)str);
                                     }
                                     delete[]((char *)buffer);
@@ -21987,7 +22007,7 @@ int _simSetVisionSensorImage(luaWrap_lua_State *L)
                 rendSens->getResolution(res);
                 // We check if we have a table or string at position 2:
                 bool notTableNorString = true;
-                if (luaWrap_lua_istable(L, 2))
+                if (luaWrap_lua_isnonbuffertable(L, 2))
                 { // Ok we have a table. Now what size is it?
                     notTableNorString = false;
                     if (setDepthBufferInstead)
@@ -22025,7 +22045,7 @@ int _simSetVisionSensorImage(luaWrap_lua_State *L)
                     notTableNorString = false;
                     // Now we check if the provided string has correct size:
                     size_t dataLength;
-                    char *data = (char *)luaWrap_lua_tolstring(L, 2, &dataLength);
+                    char *data = (char *)luaWrap_lua_tobuffer(L, 2, &dataLength);
                     if (setDepthBufferInstead)
                     {
                         if (int(dataLength) >= res[0] * res[1] * sizeof(float))
@@ -22139,7 +22159,7 @@ int _simGetVisionSensorCharImage(luaWrap_lua_State *L)
                                         else
                                             vvv = sizeX * sizeY * 4;
                                     }
-                                    luaWrap_lua_pushlstring(L, (const char *)buffer, vvv);
+                                    luaWrap_lua_pushbuffer(L, (const char *)buffer, vvv);
                                     delete[]((char *)buffer);
                                     luaWrap_lua_pushinteger(L, reso[0]);
                                     luaWrap_lua_pushinteger(L, reso[1]);
@@ -22191,7 +22211,7 @@ int _simSetVisionSensorCharImage(luaWrap_lua_State *L)
                 { // Ok we have a string. Now what size is it?
                     // Now we check if the provided string has correct size:
                     size_t dataLength;
-                    char *data = (char *)luaWrap_lua_tolstring(L, 2, &dataLength);
+                    char *data = (char *)luaWrap_lua_tobuffer(L, 2, &dataLength);
                     if (int(dataLength) >= res[0] * res[1] * valPerPix)
                     {
                         if (rendSens->setExternalCharImage_old((unsigned char *)data, valPerPix == 1, noProcessing))
@@ -22274,7 +22294,7 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State *L)
                                         buffer[i] = n + fmn * buffer[i];
                                 }
                                 if (returnString)
-                                    luaWrap_lua_pushlstring(L, (char *)buffer, sizeX * sizeY * sizeof(float));
+                                    luaWrap_lua_pushbuffer(L, (char *)buffer, sizeX * sizeY * sizeof(float));
                                 else
                                     pushFloatTableOntoStack(L, sizeX * sizeY, buffer);
                                 delete[]((char *)buffer);
@@ -22538,7 +22558,7 @@ int _simCreateMeshShape(luaWrap_lua_State *L)
 
         int vl = 2;
         int il = 2;
-        if ((luaWrap_lua_gettop(L) >= 4) && luaWrap_lua_istable(L, 3) && luaWrap_lua_istable(L, 4))
+        if ((luaWrap_lua_gettop(L) >= 4) && luaWrap_lua_isnonbuffertable(L, 3) && luaWrap_lua_isnonbuffertable(L, 4))
         {
             vl = (int)luaWrap_lua_rawlen(L, 3);
             il = (int)luaWrap_lua_rawlen(L, 4);

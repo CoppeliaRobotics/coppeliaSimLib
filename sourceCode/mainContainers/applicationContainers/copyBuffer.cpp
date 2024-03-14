@@ -234,12 +234,12 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     std::vector<int> hand;
     for (size_t i = 0; i < objectCopy.size(); i++)
         hand.push_back(objectCopy[i]->getObjectHandle());
-    stack->pushStringOntoStack("objects", 0);
+    stack->pushTextOntoStack("objects");
     stack->pushInt32ArrayOntoStack(hand.data(), hand.size());
     stack->insertDataIntoStackTable();
 
     // Following for backward compatibility:
-    stack->pushStringOntoStack("objectHandles", 0);
+    stack->pushTextOntoStack("objectHandles");
     stack->pushTableOntoStack();
     for (size_t i = 0; i < objectCopy.size(); i++)
     {
@@ -286,12 +286,12 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int> *sel, bool fromLockedSce
     CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
     stack->pushTableOntoStack();
 
-    stack->pushStringOntoStack("objects", 0);
+    stack->pushTextOntoStack("objects");
     stack->pushInt32ArrayOntoStack(sel->data(), sel->size());
     stack->insertDataIntoStackTable();
 
     // Following for backward compatibility:
-    stack->pushStringOntoStack("objectHandles", 0);
+    stack->pushTextOntoStack("objectHandles");
     stack->pushTableOntoStack();
     for (size_t i = 0; i < sel->size(); i++)
     {

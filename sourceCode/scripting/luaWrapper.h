@@ -52,8 +52,9 @@ void luaWrap_lua_pushnil(luaWrap_lua_State *L);
 void luaWrap_lua_pushboolean(luaWrap_lua_State *L, int b);
 void luaWrap_lua_pushinteger(luaWrap_lua_State *L, luaWrap_lua_Integer n);
 void luaWrap_lua_pushnumber(luaWrap_lua_State *L, luaWrap_lua_Number n);
-void luaWrap_lua_pushstring(luaWrap_lua_State *L, const char *str);
-void luaWrap_lua_pushlstring(luaWrap_lua_State *L, const char *str, size_t l);
+void luaWrap_lua_pushtext(luaWrap_lua_State *L, const char *str);
+void luaWrap_lua_pushbuffer(luaWrap_lua_State *L, const char *str, size_t l); // replaces luaWrap_lua_pushlstring !
+void luaWrap_lua_pushbinarystring(luaWrap_lua_State *L, const char *str, size_t l); // is actually luaWrap_lua_pushlstring, for very special cases !
 void luaWrap_lua_pushcclosure(luaWrap_lua_State *L, luaWrap_lua_CFunction func, int n);
 void luaWrap_lua_pushvalue(luaWrap_lua_State *L, int idx);
 void luaWrap_lua_pushcfunction(luaWrap_lua_State *L, luaWrap_lua_CFunction func);
@@ -63,13 +64,17 @@ luaWrap_lua_Number luaWrap_lua_tonumber(luaWrap_lua_State *L, int idx);
 int luaWrap_lua_toboolean(luaWrap_lua_State *L, int idx);
 const void *luaWrap_lua_topointer(luaWrap_lua_State *L, int idx);
 const char *luaWrap_lua_tostring(luaWrap_lua_State *L, int idx);
-const char *luaWrap_lua_tolstring(luaWrap_lua_State *L, int idx, size_t *len);
+const char *luaWrap_lua_tobuffer(luaWrap_lua_State *L, int idx, size_t *len); // replaces luaWrap_lua_tolstring
 int luaWrap_lua_isnumber(luaWrap_lua_State *L, int idx);
 int luaWrap_lua_isinteger(luaWrap_lua_State *L, int idx);
 int luaWrap_lua_isstring(luaWrap_lua_State *L, int idx);
 bool luaWrap_lua_isnil(luaWrap_lua_State *L, int idx);
 bool luaWrap_lua_isboolean(luaWrap_lua_State *L, int idx);
-bool luaWrap_lua_istable(luaWrap_lua_State *L, int idx);
+bool luaWrap_lua_isgeneraltable(luaWrap_lua_State *L, int idx);  // a random table, including metatable or 'buffer' metatable
+bool luaWrap_lua_isnonbuffertable(luaWrap_lua_State *L, int idx); // a table that is not a 'buffer' metatable
+bool luaWrap_lua_isbuffer(luaWrap_lua_State *L, int idx); // a buffer (a 'buffer' metatable)
+int luaWrap_lua_getmetatable(luaWrap_lua_State *L, int idx);
+int luaWrap_lua_rawequal(luaWrap_lua_State *L, int idx1, int idx2);
 bool luaWrap_lua_isfunction(luaWrap_lua_State *L, int idx);
 int luaWrap_lua_getstack(luaWrap_lua_State *L, int level, luaWrap_lua_Debug *deb);
 int luaWrap_lua_getinfo(luaWrap_lua_State *L, const char *what, luaWrap_lua_Debug *deb);

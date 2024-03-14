@@ -47,13 +47,13 @@ void CInterfaceStackBool::addCborObjectData(CCbor *cborObj) const
     cborObj->appendBool(_value);
 }
 
-unsigned int CInterfaceStackBool::createFromData(const char *data, const unsigned char /*version*/)
+unsigned int CInterfaceStackBool::createFromData(const char *data, unsigned char /*version*/)
 {
     _value = (data[0] != 0);
     return (1);
 }
 
-bool CInterfaceStackBool::checkCreateFromData(const char *data, unsigned int &w, unsigned int l)
+bool CInterfaceStackBool::checkCreateFromData(const char *data, unsigned int &w, unsigned int l, unsigned char version)
 {
     if (l < 1)
         return (false);

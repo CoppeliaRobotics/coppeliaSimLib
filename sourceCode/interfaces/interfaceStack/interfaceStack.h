@@ -27,7 +27,9 @@ class CInterfaceStack
     void pushDoubleOntoStack(double v, bool toFront = false);
     void pushInt32OntoStack(int v, bool toFront = false);
     void pushInt64OntoStack(long long int v, bool toFront = false);
-    void pushStringOntoStack(const char *str, size_t l = 0, bool toFront = false);
+    void pushBufferOntoStack(const char *buff, size_t buffLength, bool toFront = false);
+    void pushBinaryStringOntoStack(const char *buff, size_t buffLength, bool toFront = false);
+    void pushTextOntoStack(const char *str, bool toFront = false);
     void pushUCharArrayOntoStack(const unsigned char *arr, size_t l, bool toFront = false);
     void pushInt32ArrayOntoStack(const int *arr, size_t l, bool toFront = false);
     void pushInt64ArrayOntoStack(const long long int *arr, size_t l, bool toFront = false);
@@ -40,7 +42,9 @@ class CInterfaceStack
     void insertKeyDoubleIntoStackTable(const char *key, double value);
     void insertKeyInt32IntoStackTable(const char *key, int value);
     void insertKeyInt64IntoStackTable(const char *key, long long int value);
-    void insertKeyStringIntoStackTable(const char *key, const char *value, size_t l = 0);
+    void insertKeyTextIntoStackTable(const char *key, const char *value);
+    void insertKeyBinaryStringIntoStackTable(const char *key, const char *value, size_t l);
+    void insertKeyBufferIntoStackTable(const char *key, const char *value, size_t l);
     void insertKeyInt32ArrayIntoStackTable(const char *key, const int *arr, size_t l);
     void insertKeyInt64ArrayIntoStackTable(const char *key, const long long int *arr, size_t l);
     void insertKeyFloatArrayIntoStackTable(const char *key, const float *arr, size_t l);

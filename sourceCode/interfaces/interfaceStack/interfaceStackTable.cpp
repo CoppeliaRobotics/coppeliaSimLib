@@ -343,22 +343,22 @@ void CInterfaceStackTable::insertArrayObject(CInterfaceStackObject *obj, size_t 
         _tableObjects.insert(_tableObjects.begin() + pos, obj);
 }
 
-void CInterfaceStackTable::appendMapObject(const char *key, size_t keyL, CInterfaceStackObject *obj)
+void CInterfaceStackTable::appendMapObject_object(const char *key, CInterfaceStackObject *obj)
 {
-    appendArrayOrMapObject(new CInterfaceStackString(key, keyL), obj);
+    appendArrayOrMapObject(new CInterfaceStackString(key), obj);
 }
 
-void CInterfaceStackTable::appendMapObject(double key, CInterfaceStackObject *obj)
+void CInterfaceStackTable::appendMapObject_object(double key, CInterfaceStackObject *obj)
 {
     appendArrayOrMapObject(new CInterfaceStackNumber(key), obj);
 }
 
-void CInterfaceStackTable::appendMapObject(long long int key, CInterfaceStackObject *obj)
+void CInterfaceStackTable::appendMapObject_object(long long int key, CInterfaceStackObject *obj)
 {
     appendArrayOrMapObject(new CInterfaceStackInteger(key), obj);
 }
 
-void CInterfaceStackTable::appendMapObject(bool key, CInterfaceStackObject *obj)
+void CInterfaceStackTable::appendMapObject_object(bool key, CInterfaceStackObject *obj)
 {
     appendArrayOrMapObject(new CInterfaceStackBool(key), obj);
 }
@@ -435,10 +435,23 @@ void CInterfaceStackTable::appendArrayObject_int64(long long int value)
     appendArrayObject(new CInterfaceStackInteger(value));
 }
 
-void CInterfaceStackTable::appendArrayObject_string(const char *value, size_t l, bool cborCoded /*=false*/)
+void CInterfaceStackTable::appendArrayObject_buffer(const char *value, size_t l, bool cborCoded /*=false*/)
 {
-    CInterfaceStackString *str = new CInterfaceStackString(value, l);
+    CInterfaceStackString *str = new CInterfaceStackString(value, l, true);
     str->setCborCoded(cborCoded);
+    appendArrayObject(str);
+}
+
+void CInterfaceStackTable::appendArrayObject_binaryString(const char *value, size_t l, bool cborCoded /*=false*/)
+{
+    CInterfaceStackString *str = new CInterfaceStackString(value, l, false);
+    str->setCborCoded(cborCoded);
+    appendArrayObject(str);
+}
+
+void CInterfaceStackTable::appendArrayObject_text(const char *txtStr)
+{
+    CInterfaceStackString *str = new CInterfaceStackString(txtStr);
     appendArrayObject(str);
 }
 
@@ -470,75 +483,84 @@ void CInterfaceStackTable::appendArrayObject_doubleArray(const double *arr, size
     appendArrayObject(newObj);
 }
 
-void CInterfaceStackTable::appendMapObject_stringNull(const char *key)
+void CInterfaceStackTable::appendMapObject_null(const char *key)
 {
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), new CInterfaceStackNull());
+    appendArrayOrMapObject(new CInterfaceStackString(key), new CInterfaceStackNull());
 }
 
-void CInterfaceStackTable::appendMapObject_stringBool(const char *key, bool value)
+void CInterfaceStackTable::appendMapObject_bool(const char *key, bool value)
 {
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), new CInterfaceStackBool(value));
+    appendArrayOrMapObject(new CInterfaceStackString(key), new CInterfaceStackBool(value));
 }
 
-void CInterfaceStackTable::appendMapObject_stringFloat(const char *key, float value)
+void CInterfaceStackTable::appendMapObject_float(const char *key, float value)
 {
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), new CInterfaceStackNumber(double(value)));
+    appendArrayOrMapObject(new CInterfaceStackString(key), new CInterfaceStackNumber(double(value)));
 }
 
-void CInterfaceStackTable::appendMapObject_stringDouble(const char *key, double value)
+void CInterfaceStackTable::appendMapObject_double(const char *key, double value)
 {
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), new CInterfaceStackNumber(value));
+    appendArrayOrMapObject(new CInterfaceStackString(key), new CInterfaceStackNumber(value));
 }
 
-void CInterfaceStackTable::appendMapObject_stringInt32(const char *key, int value)
+void CInterfaceStackTable::appendMapObject_int32(const char *key, int value)
 {
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), new CInterfaceStackInteger((long long int)(value)));
+    appendArrayOrMapObject(new CInterfaceStackString(key), new CInterfaceStackInteger((long long int)(value)));
 }
 
-void CInterfaceStackTable::appendMapObject_stringInt64(const char *key, long long int value)
+void CInterfaceStackTable::appendMapObject_int64(const char *key, long long int value)
 {
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), new CInterfaceStackInteger(value));
+    appendArrayOrMapObject(new CInterfaceStackString(key), new CInterfaceStackInteger(value));
 }
 
-void CInterfaceStackTable::appendMapObject_stringString(const char *key, const char *value, size_t l,
+void CInterfaceStackTable::appendMapObject_buffer(const char *key, const char *value, size_t l,
                                                         bool cborCoded /*=false*/)
 {
-    CInterfaceStackString *str = new CInterfaceStackString(value, l);
+    CInterfaceStackString *str = new CInterfaceStackString(value, l, true);
     str->setCborCoded(cborCoded);
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), str);
+    appendArrayOrMapObject(new CInterfaceStackString(key), str);
 }
 
-void CInterfaceStackTable::appendMapObject_stringInt32Array(const char *key, const int *arr, size_t l)
+void CInterfaceStackTable::appendMapObject_binaryString(const char *key, const char *value, size_t l,
+                                                        bool cborCoded /*=false*/)
+{
+    CInterfaceStackString *str = new CInterfaceStackString(value, l, false);
+    str->setCborCoded(cborCoded);
+    appendArrayOrMapObject(new CInterfaceStackString(key), str);
+}
+
+void CInterfaceStackTable::appendMapObject_text(const char *key, const char *txtStr)
+{
+    CInterfaceStackString *str = new CInterfaceStackString(txtStr);
+    appendArrayOrMapObject(new CInterfaceStackString(key), str);
+}
+
+void CInterfaceStackTable::appendMapObject_int32Array(const char *key, const int *arr, size_t l)
 {
     CInterfaceStackTable *obj = new CInterfaceStackTable();
     obj->setInt32Array(arr, l);
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), obj);
+    appendArrayOrMapObject(new CInterfaceStackString(key), obj);
 }
 
-void CInterfaceStackTable::appendMapObject_stringInt64Array(const char *key, const long long int *arr, size_t l)
+void CInterfaceStackTable::appendMapObject_int64Array(const char *key, const long long int *arr, size_t l)
 {
     CInterfaceStackTable *obj = new CInterfaceStackTable();
     obj->setInt64Array(arr, l);
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), obj);
+    appendArrayOrMapObject(new CInterfaceStackString(key), obj);
 }
 
-void CInterfaceStackTable::appendMapObject_stringFloatArray(const char *key, const float *arr, size_t l)
+void CInterfaceStackTable::appendMapObject_floatArray(const char *key, const float *arr, size_t l)
 {
     CInterfaceStackTable *obj = new CInterfaceStackTable();
     obj->setFloatArray(arr, l);
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), obj);
+    appendArrayOrMapObject(new CInterfaceStackString(key), obj);
 }
 
-void CInterfaceStackTable::appendMapObject_stringDoubleArray(const char *key, const double *arr, size_t l)
+void CInterfaceStackTable::appendMapObject_doubleArray(const char *key, const double *arr, size_t l)
 {
     CInterfaceStackTable *obj = new CInterfaceStackTable();
     obj->setDoubleArray(arr, l);
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), obj);
-}
-
-void CInterfaceStackTable::appendMapObject_stringObject(const char *key, CInterfaceStackObject *obj)
-{
-    appendArrayOrMapObject(new CInterfaceStackString(key, 0), obj);
+    appendArrayOrMapObject(new CInterfaceStackString(key), obj);
 }
 
 void CInterfaceStackTable::removeArrayItemAtIndex(size_t ind)
@@ -579,10 +601,15 @@ CInterfaceStackObject *CInterfaceStackTable::getMapItemAtIndex(size_t ind, std::
     if (keyType == sim_stackitem_string)
     {
         CInterfaceStackString *keyObj = (CInterfaceStackString *)_tableObjects[2 * ind + 0];
-        size_t l;
-        const char *c = keyObj->getValue(&l);
-        if (l > 0)
-            stringKey.assign(c, c + l);
+        if (!keyObj->isBuffer())
+        {
+            size_t l;
+            const char *c = keyObj->getValue(&l);
+            if (l > 0)
+                stringKey.assign(c, c + l);
+        }
+        else
+            keyType == sim_stackitem_table; // not a valid key
     }
     return (_tableObjects[2 * ind + 1]);
 }
@@ -763,14 +790,7 @@ std::string CInterfaceStackTable::getObjectData() const
     {
         for (size_t i = 0; i < _tableObjects.size(); i++)
         {
-#ifdef LUA_STACK_COMPATIBILITY_MODE
-            if (_tableObjects[i]->getObjectType() == sim_stackitem_integer)
-                retVal.push_back((char)sim_stackitem_double);
-            else
-                retVal.push_back((char)_tableObjects[i]->getObjectType());
-#else
             retVal.push_back((char)_tableObjects[i]->getObjectType());
-#endif
             retVal += _tableObjects[i]->getObjectData();
         }
     }
@@ -795,11 +815,7 @@ std::string CInterfaceStackTable::getObjectData() const
             else if (key->getObjectType() == sim_stackitem_double)
                 numberKeys.push_back(std::make_pair(((CInterfaceStackNumber *)key)->getValue(), i));
             else if (key->getObjectType() == sim_stackitem_integer)
-#ifdef LUA_STACK_COMPATIBILITY_MODE
-                numberKeys.push_back(std::make_pair((double)((CInterfaceStackInteger *)key)->getValue(), i));
-#else
                 integerKeys.push_back(std::make_pair(((CInterfaceStackInteger *)key)->getValue(), i));
-#endif
             else if (key->getObjectType() == sim_stackitem_string)
                 stringKeys.push_back(std::make_pair(((CInterfaceStackString *)key)->getValue(nullptr), i));
             else
@@ -807,14 +823,7 @@ std::string CInterfaceStackTable::getObjectData() const
                 retVal.push_back((char)key->getObjectType());
                 retVal += key->getObjectData();
                 CInterfaceStackObject *obj = _tableObjects[2 * i + 1];
-#ifdef LUA_STACK_COMPATIBILITY_MODE
-                if (obj->getObjectType() == sim_stackitem_integer)
-                    retVal.push_back(sim_stackitem_double);
-                else
-                    retVal.push_back((char)obj->getObjectType());
-#else
                 retVal.push_back((char)obj->getObjectType());
-#endif
                 retVal += obj->getObjectData();
             }
         }
@@ -823,28 +832,14 @@ std::string CInterfaceStackTable::getObjectData() const
         { // the key is 'false'
             retVal.push_back((char)sim_stackitem_bool);
             retVal += _tableObjects[2 * boolFalse + 0]->getObjectData();
-#ifdef LUA_STACK_COMPATIBILITY_MODE
-            if (_tableObjects[2 * boolFalse + 1]->getObjectType() == sim_stackitem_integer)
-                retVal.push_back((char)sim_stackitem_double);
-            else
-                retVal.push_back((char)_tableObjects[2 * boolFalse + 1]->getObjectType());
-#else
             retVal.push_back((char)_tableObjects[2 * boolFalse + 1]->getObjectType());
-#endif
             retVal += _tableObjects[2 * boolFalse + 1]->getObjectData();
         }
         if (boolTrue >= 0)
         { // the key is 'true'
             retVal.push_back((char)sim_stackitem_bool);
             retVal += _tableObjects[2 * boolTrue + 0]->getObjectData();
-#ifdef LUA_STACK_COMPATIBILITY_MODE
-            if (_tableObjects[2 * boolTrue + 1]->getObjectType() == sim_stackitem_integer)
-                retVal.push_back((char)sim_stackitem_double);
-            else
-                retVal.push_back((char)_tableObjects[2 * boolTrue + 1]->getObjectType());
-#else
             retVal.push_back((char)_tableObjects[2 * boolTrue + 1]->getObjectType());
-#endif
             retVal += _tableObjects[2 * boolTrue + 1]->getObjectData();
         }
         std::sort(numberKeys.begin(), numberKeys.end());
@@ -855,14 +850,7 @@ std::string CInterfaceStackTable::getObjectData() const
             int ind = numberKeys[i].second;
             retVal.push_back((char)sim_stackitem_double);
             retVal += _tableObjects[2 * ind + 0]->getObjectData();
-#ifdef LUA_STACK_COMPATIBILITY_MODE
-            if (_tableObjects[2 * ind + 1]->getObjectType() == sim_stackitem_integer)
-                retVal.push_back((char)sim_stackitem_double);
-            else
-                retVal.push_back((char)_tableObjects[2 * ind + 1]->getObjectType());
-#else
             retVal.push_back((char)_tableObjects[2 * ind + 1]->getObjectType());
-#endif
             retVal += _tableObjects[2 * ind + 1]->getObjectData();
         }
         for (size_t i = 0; i < integerKeys.size(); i++)
@@ -870,14 +858,7 @@ std::string CInterfaceStackTable::getObjectData() const
             int ind = integerKeys[i].second;
             retVal.push_back((char)sim_stackitem_integer);
             retVal += _tableObjects[2 * ind + 0]->getObjectData();
-#ifdef LUA_STACK_COMPATIBILITY_MODE
-            if (_tableObjects[2 * ind + 1]->getObjectType() == sim_stackitem_integer)
-                retVal.push_back((char)sim_stackitem_double);
-            else
-                retVal.push_back((char)_tableObjects[2 * ind + 1]->getObjectType());
-#else
             retVal.push_back((char)_tableObjects[2 * ind + 1]->getObjectType());
-#endif
             retVal += _tableObjects[2 * ind + 1]->getObjectData();
         }
         for (size_t i = 0; i < stringKeys.size(); i++)
@@ -885,14 +866,7 @@ std::string CInterfaceStackTable::getObjectData() const
             int ind = stringKeys[i].second;
             retVal.push_back((char)sim_stackitem_string);
             retVal += _tableObjects[2 * ind + 0]->getObjectData();
-#ifdef LUA_STACK_COMPATIBILITY_MODE
-            if (_tableObjects[2 * ind + 1]->getObjectType() == sim_stackitem_integer)
-                retVal.push_back((char)sim_stackitem_double);
-            else
-                retVal.push_back((char)_tableObjects[2 * ind + 1]->getObjectType());
-#else
             retVal.push_back((char)_tableObjects[2 * ind + 1]->getObjectType());
-#endif
             retVal += _tableObjects[2 * ind + 1]->getObjectData();
         }
     }
@@ -994,7 +968,7 @@ void CInterfaceStackTable::addCborObjectData(CCbor *cborObj) const
     cborObj->closeArrayOrMap();
 }
 
-unsigned int CInterfaceStackTable::createFromData(const char *data, const unsigned char version)
+unsigned int CInterfaceStackTable::createFromData(const char *data, unsigned char version)
 {
     unsigned int retVal = 0;
     _isTableArray = ((data[retVal] & 1) != 0);
@@ -1015,7 +989,7 @@ unsigned int CInterfaceStackTable::createFromData(const char *data, const unsign
     return (retVal);
 }
 
-bool CInterfaceStackTable::checkCreateFromData(const char *data, unsigned int &w, unsigned int l)
+bool CInterfaceStackTable::checkCreateFromData(const char *data, unsigned int &w, unsigned int l, unsigned char version)
 {
     unsigned int m;
     if (l < sizeof(m) + 1)
@@ -1032,17 +1006,17 @@ bool CInterfaceStackTable::checkCreateFromData(const char *data, unsigned int &w
         bool res = false;
         unsigned int v = 0;
         if (t == sim_stackitem_null)
-            res = CInterfaceStackNull::checkCreateFromData(data + w, v, l - w);
+            res = CInterfaceStackNull::checkCreateFromData(data + w, v, l - w, version);
         if (t == sim_stackitem_double)
-            res = CInterfaceStackNumber::checkCreateFromData(data + w, v, l - w);
+            res = CInterfaceStackNumber::checkCreateFromData(data + w, v, l - w, version);
         if (t == sim_stackitem_integer)
-            res = CInterfaceStackInteger::checkCreateFromData(data + w, v, l - w);
+            res = CInterfaceStackInteger::checkCreateFromData(data + w, v, l - w, version);
         if (t == sim_stackitem_bool)
-            res = CInterfaceStackBool::checkCreateFromData(data + w, v, l - w);
+            res = CInterfaceStackBool::checkCreateFromData(data + w, v, l - w, version);
         if (t == sim_stackitem_string)
-            res = CInterfaceStackString::checkCreateFromData(data + w, v, l - w);
+            res = CInterfaceStackString::checkCreateFromData(data + w, v, l - w, version);
         if (t == sim_stackitem_table)
-            res = CInterfaceStackTable::checkCreateFromData(data + w, v, l - w);
+            res = CInterfaceStackTable::checkCreateFromData(data + w, v, l - w, version);
         if (!res)
             return (false);
         w += v;

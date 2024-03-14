@@ -38,16 +38,9 @@ void CInterfaceStackInteger::printContent(int spaces, std::string &buffer) const
 std::string CInterfaceStackInteger::getObjectData() const
 {
     std::string retVal;
-#ifdef LUA_STACK_COMPATIBILITY_MODE
-    double v = (double)_value;
-    char *tmp = (char *)(&v);
-    for (size_t i = 0; i < sizeof(v); i++)
-        retVal.push_back(tmp[i]);
-#else
     char *tmp = (char *)(&_value);
     for (size_t i = 0; i < sizeof(_value); i++)
         retVal.push_back(tmp[i]);
-#endif
     return (retVal);
 }
 
@@ -56,7 +49,7 @@ void CInterfaceStackInteger::addCborObjectData(CCbor *cborObj) const
     cborObj->appendInt(_value);
 }
 
-unsigned int CInterfaceStackInteger::createFromData(const char *data, const unsigned char /*version*/)
+unsigned int CInterfaceStackInteger::createFromData(const char *data, unsigned char /*version*/)
 {
     char *tmp = (char *)(&_value);
     for (size_t i = 0; i < sizeof(_value); i++)
@@ -64,7 +57,7 @@ unsigned int CInterfaceStackInteger::createFromData(const char *data, const unsi
     return (sizeof(_value));
 }
 
-bool CInterfaceStackInteger::checkCreateFromData(const char *data, unsigned int &w, unsigned int l)
+bool CInterfaceStackInteger::checkCreateFromData(const char *data, unsigned int &w, unsigned int l, unsigned char version)
 {
     if (l < sizeof(long long int))
         return (false);

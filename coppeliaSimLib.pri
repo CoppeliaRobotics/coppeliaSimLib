@@ -23,7 +23,7 @@ QT += printsupport
 QT += network
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x050000
-#commented on 16.06.2023 DEFINES += LUA_STACK_COMPATIBILITY_MODE # 06.11.2020, will avoid using Lua INTEGER values at interfaces (using DOUBLE type instead)
+DEFINES += SIMPACKTABLE_UNIFORMSTRING # 12.03.2024, avoids packing the 'buffer'/'string' differentiation byte TEMPORARILY, until we switch to a non-compatible serialization version (now 25/24/18)
 
 WITH_GUI {
     QT      += widgets

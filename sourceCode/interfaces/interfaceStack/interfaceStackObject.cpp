@@ -77,7 +77,7 @@ CInterfaceStackObject *CInterfaceStackObject::createFromDataStatic(const char *d
     }
     if (t == sim_stackitem_string)
     {
-        obj = new CInterfaceStackString(nullptr, 0);
+        obj = new CInterfaceStackString(nullptr);
         retOffset += obj->createFromData(data + retOffset, version);
     }
     if (t == sim_stackitem_table)

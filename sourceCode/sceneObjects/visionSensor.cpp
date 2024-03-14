@@ -2271,7 +2271,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             inStack->pushTableOntoStack();
             inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
 
-            inStack->pushStringOntoStack("packedPackets", 0);
+            inStack->pushTextOntoStack("packedPackets");
             inStack->pushTableOntoStack();
             for (size_t i = 0; i < sensorAuxiliaryResult.size(); i++)
             {
@@ -2282,10 +2282,10 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                     dat.resize(sensorAuxiliaryResult[i].size());
                     for (size_t j = 0; j < sensorAuxiliaryResult[i].size(); j++)
                         dat[j] = (float)sensorAuxiliaryResult[i][j];
-                    inStack->pushStringOntoStack((char *)dat.data(), dat.size() * sizeof(float));
+                    inStack->pushBufferOntoStack((char *)dat.data(), dat.size() * sizeof(float));
                 }
                 else
-                    inStack->pushStringOntoStack("", 0);
+                    inStack->pushBufferOntoStack("", 0);
                 inStack->insertDataIntoStackTable();
             }
             inStack->insertDataIntoStackTable();

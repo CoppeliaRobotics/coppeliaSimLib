@@ -225,12 +225,12 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject *newObj
 
         std::vector<int> hand;
         hand.push_back(newObject->getObjectHandle());
-        stack->pushStringOntoStack("objects", 0);
+        stack->pushTextOntoStack("objects");
         stack->pushInt32ArrayOntoStack(hand.data(), hand.size());
         stack->insertDataIntoStackTable();
 
         // Following for backward compatibility:
-        stack->pushStringOntoStack("objectHandles", 0);
+        stack->pushTextOntoStack("objectHandles");
         stack->pushTableOntoStack();
         stack->pushInt32OntoStack(1); // key or index
         stack->pushInt32OntoStack(newObject->getObjectHandle());
@@ -270,16 +270,16 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, 
         {
             stack->pushTableOntoStack();
 
-            stack->pushStringOntoStack("objects", 0);
+            stack->pushTextOntoStack("objects");
             stack->pushInt32ArrayOntoStack(objectHandles.data(), objectHandles.size());
             stack->insertDataIntoStackTable();
 
-            stack->pushStringOntoStack("allObjects", 0);
+            stack->pushTextOntoStack("allObjects");
             stack->pushBoolOntoStack(objectHandles.size() == getObjectCount());
             stack->insertDataIntoStackTable();
 
             // Following for backward compatibility:
-            stack->pushStringOntoStack("objectHandles", 0);
+            stack->pushTextOntoStack("objectHandles");
             stack->pushTableOntoStack();
             for (size_t i = 0; i < objectHandles.size(); i++)
             {

@@ -60,6 +60,7 @@ class CUserSettings
     bool compatibilityFix1;
     int readDelay;
     int writeDelay;
+    bool noBuffers; // no difference between strings and buffers in Lua, false since V4.7
 
     bool middleMouseButtonSwitchesModes;
     bool navigationBackwardCompatibility;

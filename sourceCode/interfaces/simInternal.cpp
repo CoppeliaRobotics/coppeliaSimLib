@@ -13177,7 +13177,7 @@ int simPushStringOntoStack_internal(int stackHandle, const char *value, int stri
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
-            stack->pushStringOntoStack(value, size_t(stringSize));
+            stack->pushBinaryStringOntoStack(value, size_t(stringSize));
             return (1);
         }
         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
@@ -15100,7 +15100,7 @@ int simExecuteScriptString_internal(int scriptHandle, const char *stringToExecut
                             if (script->getScriptState() == CScriptObject::scriptState_initialized)
                             {
                                 CInterfaceStack *tmpStack = App::worldContainer->interfaceStackContainer->createStack();
-                                tmpStack->pushStringOntoStack(stringToExec.c_str());
+                                tmpStack->pushTextOntoStack(stringToExec.c_str());
                                 retVal = script->callCustomScriptFunction("_evalExecRet", tmpStack);
                                 if (stack != nullptr)
                                     stack->copyFrom(tmpStack);
@@ -15399,7 +15399,7 @@ int simEventNotification_internal(const char *event)
                                         App::worldContainer->interfaceStackContainer->createStack();
                                     int posAndSize[4];
                                     std::string txt = GuiApp::mainWindow->codeEditorContainer->getText(h, posAndSize);
-                                    stack->pushStringOntoStack(txt.c_str(), 0);
+                                    stack->pushTextOntoStack(txt.c_str());
                                     stack->pushInt32ArrayOntoStack(posAndSize + 0, 2);
                                     stack->pushInt32ArrayOntoStack(posAndSize + 2, 2);
                                     simCallScriptFunctionEx_internal(callingScript, data, stack->getId());

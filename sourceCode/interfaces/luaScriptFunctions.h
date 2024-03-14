@@ -14,6 +14,7 @@ enum
     lua_arg_integer,
     lua_arg_bool,
     lua_arg_string,
+    lua_arg_buffer = lua_arg_string,
     lua_arg_function,
     lua_arg_userdata,
     lua_arg_table,
@@ -47,7 +48,7 @@ void pushIntTableOntoStack(luaWrap_lua_State *L, size_t intCount, const int *arr
 void pushUIntTableOntoStack(luaWrap_lua_State *L, size_t intCount, const unsigned int *arrayField);
 void pushUCharTableOntoStack(luaWrap_lua_State *L, size_t intCount, const unsigned char *arrayField);
 void pushStringTableOntoStack(luaWrap_lua_State *L, const std::vector<std::string> &stringTable);
-void pushLStringTableOntoStack(luaWrap_lua_State *L, const std::vector<std::string> &stringTable);
+void pushBufferTableOntoStack(luaWrap_lua_State *L, const std::vector<std::string> &stringTable);
 
 int luaToInt(luaWrap_lua_State *L, int pos);
 double luaToDouble(luaWrap_lua_State *L, int pos);

@@ -54,7 +54,7 @@ void CInterfaceStackNumber::addCborObjectData(CCbor *cborObj) const
     cborObj->appendDouble(_value);
 }
 
-unsigned int CInterfaceStackNumber::createFromData(const char *data, const unsigned char /*version*/)
+unsigned int CInterfaceStackNumber::createFromData(const char *data, unsigned char /*version*/)
 {
     char *tmp = (char *)(&_value);
     for (size_t i = 0; i < sizeof(_value); i++)
@@ -62,7 +62,7 @@ unsigned int CInterfaceStackNumber::createFromData(const char *data, const unsig
     return (sizeof(_value));
 }
 
-bool CInterfaceStackNumber::checkCreateFromData(const char *data, unsigned int &w, unsigned int l)
+bool CInterfaceStackNumber::checkCreateFromData(const char *data, unsigned int &w, unsigned int l, unsigned char version)
 {
     if (l < sizeof(double))
         return (false);

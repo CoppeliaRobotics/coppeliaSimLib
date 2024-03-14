@@ -1631,12 +1631,12 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         std::vector<int> hand;
         for (size_t i = 0; i < loadedObjectList.size(); i++)
             hand.push_back(loadedObjectList[i]->getObjectHandle());
-        stack->pushStringOntoStack("objects", 0);
+        stack->pushTextOntoStack("objects");
         stack->pushInt32ArrayOntoStack(hand.data(), hand.size());
         stack->insertDataIntoStackTable();
 
         // Following for backward compatibility:
-        stack->pushStringOntoStack("objectHandles", 0);
+        stack->pushTextOntoStack("objectHandles");
         stack->pushTableOntoStack();
         for (size_t i = 0; i < loadedObjectList.size(); i++)
         {

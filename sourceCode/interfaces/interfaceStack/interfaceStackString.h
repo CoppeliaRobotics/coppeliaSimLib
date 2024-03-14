@@ -6,7 +6,8 @@
 class CInterfaceStackString : public CInterfaceStackObject
 {
   public:
-    CInterfaceStackString(const char *str, size_t l);
+    CInterfaceStackString(const char *str); // text string
+    CInterfaceStackString(const char *str, size_t strLength, bool isBuffer); // binary string or buffer
     virtual ~CInterfaceStackString();
 
     CInterfaceStackObject *copyYourself() const;
@@ -14,12 +15,16 @@ class CInterfaceStackString : public CInterfaceStackObject
     std::string getObjectData() const;
     void setCborCoded(bool coded);
     void addCborObjectData(CCbor *cborObj) const;
-    unsigned int createFromData(const char *data, const unsigned char version);
-    static bool checkCreateFromData(const char *data, unsigned int &w, unsigned int l);
+    unsigned int createFromData(const char *data, unsigned char version);
+    static bool checkCreateFromData(const char *data, unsigned int &w, unsigned int l, unsigned char version);
 
     const char *getValue(size_t *l) const;
+    bool isBuffer() const;
+    bool isText() const;
 
   protected:
     std::string _value;
+    bool _isText;
+    bool _isBuffer; // string vs buffer
     bool _cborCoded;
 };

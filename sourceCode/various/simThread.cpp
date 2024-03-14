@@ -304,7 +304,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
-            inStack->pushStringOntoStack("handle", 0);
+            inStack->pushTextOntoStack("handle");
             inStack->pushInt32OntoStack(cmd.intParams[1]);
             inStack->insertDataIntoStackTable();
             script->systemCallScript(sim_syscb_moduleentry, inStack, nullptr);
@@ -568,10 +568,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
-        stack->insertKeyStringIntoStackTable("id", "dragEnterEvent");
-        stack->pushStringOntoStack("data");
+        stack->insertKeyTextIntoStackTable("id", "dragEnterEvent");
+        stack->pushTextOntoStack("data");
         stack->pushTableOntoStack();
-        stack->insertKeyStringIntoStackTable("mimeText", cmd.stringParams[0].c_str());
+        stack->insertKeyTextIntoStackTable("mimeText", cmd.stringParams[0].c_str());
         stack->insertDataIntoStackTable();
         stack->pushInt32OntoStack(-1, false);
         App::worldContainer->broadcastMsg(stack, -1, 0);
@@ -581,10 +581,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
-        stack->insertKeyStringIntoStackTable("id", "dragLeaveEvent");
-        stack->pushStringOntoStack("data");
+        stack->insertKeyTextIntoStackTable("id", "dragLeaveEvent");
+        stack->pushTextOntoStack("data");
         stack->pushTableOntoStack();
-        stack->insertKeyStringIntoStackTable("mimeText", cmd.stringParams[0].c_str());
+        stack->insertKeyTextIntoStackTable("mimeText", cmd.stringParams[0].c_str());
         stack->insertDataIntoStackTable();
         stack->pushInt32OntoStack(-1, false);
         App::worldContainer->broadcastMsg(stack, -1, 0);
@@ -594,10 +594,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
-        stack->insertKeyStringIntoStackTable("id", "dragDropEvent");
-        stack->pushStringOntoStack("data");
+        stack->insertKeyTextIntoStackTable("id", "dragDropEvent");
+        stack->pushTextOntoStack("data");
         stack->pushTableOntoStack();
-        stack->insertKeyStringIntoStackTable("mimeText", cmd.stringParams[0].c_str());
+        stack->insertKeyTextIntoStackTable("mimeText", cmd.stringParams[0].c_str());
         stack->insertDataIntoStackTable();
         stack->pushInt32OntoStack(-1, false);
         App::worldContainer->broadcastMsg(stack, -1, 0);

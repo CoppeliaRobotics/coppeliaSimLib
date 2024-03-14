@@ -288,7 +288,7 @@ void CCbor::appendRaw(const unsigned char *v, size_t l)
     _buff.insert(_buff.end(), v, v + l);
 }
 
-void CCbor::appendLuaString(const std::string &v)
+void CCbor::appendLuaString(const std::string &v, bool isBuffer, bool isText)
 {
     std::string suff;
     if (v.size() >= 6)
@@ -298,11 +298,27 @@ void CCbor::appendLuaString(const std::string &v)
     else if (suff == "@:dat:")
         appendBuff((unsigned char *)v.c_str(), v.size() - 6);
     else
-    {
+    { // following modified on 12.03.2024 (buffer/string/text differentiation)
+        if (isBuffer)
+            appendBuff((unsigned char *)v.c_str(), v.size());
+        else
+        {
+            if (isText)
+                appendString(v.c_str(), int(v.size()));
+            else
+            { // we have a binary string (could contain text chars only):
+                if (CCbor::isText(v.c_str(), int(v.size())))
+                    appendString(v.c_str(), int(v.size()));
+                else
+                    appendBuff((unsigned char *)v.c_str(), v.size());
+            }
+        }
+        /*
         if (isText(v.c_str(), int(v.size())))
             appendString(v.c_str(), int(v.size()));
         else
             appendBuff((unsigned char *)v.c_str(), v.size());
+            */
     }
 }
 
