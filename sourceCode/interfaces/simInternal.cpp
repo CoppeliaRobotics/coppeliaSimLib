@@ -13168,6 +13168,26 @@ int simPushDoubleOntoStack_internal(int stackHandle, double value)
     return (-1);
 }
 
+int simPushTextOntoStack_internal(int stackHandle, const char *value)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack != nullptr)
+        {
+            stack->pushTextOntoStack(value);
+            return (1);
+        }
+        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        return (-1);
+    }
+
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
 int simPushStringOntoStack_internal(int stackHandle, const char *value, int stringSize)
 {
     C_API_START;
@@ -13177,7 +13197,30 @@ int simPushStringOntoStack_internal(int stackHandle, const char *value, int stri
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
         if (stack != nullptr)
         {
-            stack->pushBinaryStringOntoStack(value, size_t(stringSize));
+            if (stringSize == 0)
+                stack->pushTextOntoStack(value);
+            else
+                stack->pushBinaryStringOntoStack(value, size_t(stringSize));
+            return (1);
+        }
+        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        return (-1);
+    }
+
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+int simPushBufferOntoStack_internal(int stackHandle, const char *value, int stringSize)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack != nullptr)
+        {
+            stack->pushBufferOntoStack(value, size_t(stringSize));
             return (1);
         }
         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
@@ -13410,6 +13453,35 @@ int simGetStackItemType_internal(int stackHandle, int cIndex)
                 cIndex = stack->getStackSize() + cIndex;
             if ((cIndex >= 0) && (stack->getStackSize() > cIndex))
                 return (stack->getStackItemType(cIndex));
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_INDEX);
+            return (-1);
+        }
+        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_HANDLE);
+        return (-1);
+    }
+
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+int simGetStackStringType_internal(int stackHandle, int cIndex)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->getStack(stackHandle);
+        if (stack != nullptr)
+        {
+            if (cIndex < 0)
+                cIndex = stack->getStackSize() + cIndex;
+            if ((cIndex >= 0) && (stack->getStackSize() > cIndex))
+            {
+                if (stack->getStackItemType(cIndex) == sim_stackitem_string)
+                    return (stack->getStackStringType(cIndex));
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_NOT_A_STRING);
+                return (-1);
+            }
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_INDEX);
             return (-1);
         }

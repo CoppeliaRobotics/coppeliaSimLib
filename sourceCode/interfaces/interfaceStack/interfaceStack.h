@@ -59,6 +59,7 @@ class CInterfaceStack
     void popStackValue(int cnt);
     bool moveStackItemToTop(int cIndex);
     int getStackItemType(int cIndex);
+    int getStackStringType(int cIndex);
     CInterfaceStackObject *getStackObjectFromIndex(size_t index) const;
     CInterfaceStackObject *detachStackObjectFromIndex(size_t index);
     bool getStackBoolValue(bool &theValue) const;

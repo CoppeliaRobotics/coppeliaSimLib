@@ -624,9 +624,17 @@ SIM_DLLEXPORT int simPushDoubleOntoStack(int stackHandle, double value)
 {
     return (simPushDoubleOntoStack_internal(stackHandle, value));
 }
+SIM_DLLEXPORT int simPushTextOntoStack(int stackHandle, const char *value)
+{
+    return (simPushTextOntoStack_internal(stackHandle, value));
+}
 SIM_DLLEXPORT int simPushStringOntoStack(int stackHandle, const char *value, int stringSize)
 {
     return (simPushStringOntoStack_internal(stackHandle, value, stringSize));
+}
+SIM_DLLEXPORT int simPushBufferOntoStack(int stackHandle, const char *value, int stringSize)
+{
+    return (simPushBufferOntoStack_internal(stackHandle, value, stringSize));
 }
 SIM_DLLEXPORT int simPushUInt8TableOntoStack(int stackHandle, const unsigned char *values, int valueCnt)
 {
@@ -671,6 +679,10 @@ SIM_DLLEXPORT int simMoveStackItemToTop(int stackHandle, int cIndex)
 SIM_DLLEXPORT int simGetStackItemType(int stackHandle, int cIndex)
 {
     return (simGetStackItemType_internal(stackHandle, cIndex));
+}
+SIM_DLLEXPORT int simGetStackStringType(int stackHandle, int cIndex)
+{
+    return (simGetStackStringType_internal(stackHandle, cIndex));
 }
 SIM_DLLEXPORT int simGetStackBoolValue(int stackHandle, bool *boolValue)
 {

@@ -95,9 +95,28 @@ bool CInterfaceStack::moveStackItemToTop(int cIndex)
 int CInterfaceStack::getStackItemType(int cIndex)
 {
     if ((cIndex < 0) || (cIndex >= (int)_stackObjects.size()))
-        return (false);
+        return (-1);
     CInterfaceStackObject *it = _stackObjects[cIndex];
     return (it->getObjectType());
+}
+
+int CInterfaceStack::getStackStringType(int cIndex)
+{
+    int retVal = -1;
+    if ((cIndex >= 0) && (cIndex < (int)_stackObjects.size()))
+    {
+        CInterfaceStackObject *it = _stackObjects[cIndex];
+        if (it->getObjectType() == sim_stackitem_string)
+        {
+            CInterfaceStackString* str = (CInterfaceStackString*)it;
+            retVal = sim_string_binary;
+            if (str->isText())
+                retVal = sim_string_text;
+            if (str->isBuffer())
+                retVal = sim_string_buffer;
+        }
+    }
+    return retVal;
 }
 
 CInterfaceStackObject *CInterfaceStack::getStackObjectFromIndex(size_t index) const

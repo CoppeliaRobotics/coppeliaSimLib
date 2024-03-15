@@ -117,6 +117,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_TEXTURE_INEXISTANT "texture does not exist."
 #define SIM_ERROR_BAD_INDICES "bad indices."
 #define SIM_ERROR_BAD_VERTICES "bad vertices."
+#define SIM_ERROR_NOT_A_STRING "not a string."
 
 #define SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS "the function requires more arguments."
 #define SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG "one of the function's argument type is not correct."
