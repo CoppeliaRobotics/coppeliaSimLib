@@ -11,7 +11,7 @@
 #include <guiApp.h>
 #endif
 
-int CSer::SER_SERIALIZATION_VERSION = 26;
+int CSer::SER_SERIALIZATION_VERSION = 25;
         // 9 since 2008/09/01,
         // 15 since 2010/04/17 (after removal of CGeomCont and cloning option for geom resources)
         // 16 since 2012/11/10 (after rewritten shape and geometric classes. We do not support serialization version 14 and earlier anymore!)
@@ -23,8 +23,7 @@ int CSer::SER_SERIALIZATION_VERSION = 26;
         // 22 since 2019/04/29 (Striped away some backward compatibility features)
         // 23 since 2021/03/08 (not a big diff. in format, more in content (e.g. Lua5.3, main script using require, etc.))
         // 24 since 2022/12/02, V4.5.1 (float --> double)
-        // 25 since 2023/07/09, V4.5 (float no more supported)
-        // 26 since 2024/03/12, V4.7 (buffer/string differentiation in Lua)
+        // 25 since 2023/07/09, V4.5 (float no more supported when writing)
 
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS = 24; // means: files written with this can be read by older CoppeliaSim with serialization THE_NUMBER
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ = 18; // means: this executable can read versions >=THE_NUMBER

@@ -23,7 +23,7 @@ void CInterfaceStackNull::printContent(int spaces, std::string &buffer) const
     buffer += "nullptr\n";
 }
 
-std::string CInterfaceStackNull::getObjectData() const
+std::string CInterfaceStackNull::getObjectData(std::string & /*auxInfos*/) const
 {
     return ("");
 }
@@ -33,8 +33,9 @@ void CInterfaceStackNull::addCborObjectData(CCbor *cborObj) const
     cborObj->appendNull();
 }
 
-unsigned int CInterfaceStackNull::createFromData(const char * /*data*/, unsigned char /*version*/)
+unsigned int CInterfaceStackNull::createFromData(const char * /*data*/, unsigned char /*version*/, std::vector<CInterfaceStackObject*> &allCreatedObjects)
 {
+    allCreatedObjects.push_back(this);
     return (0);
 }
 

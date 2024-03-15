@@ -23,7 +23,6 @@ QT += printsupport
 QT += network
 
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x050000
-DEFINES += SIMPACKTABLE_UNIFORMSTRING # 12.03.2024, avoids packing the 'buffer'/'string' differentiation byte TEMPORARILY, until we switch to a non-compatible serialization version (now 25/24/18)
 
 WITH_GUI {
     QT      += widgets

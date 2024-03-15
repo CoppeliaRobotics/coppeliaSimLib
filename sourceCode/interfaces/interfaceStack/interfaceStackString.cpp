@@ -29,6 +29,12 @@ void CInterfaceStackString::setCborCoded(bool coded)
     _cborCoded = coded;
 }
 
+void CInterfaceStackString::setAuxData(unsigned char opt)
+{
+    _isBuffer = (opt & 1);
+    _isText = (opt & 2);
+}
+
 const char *CInterfaceStackString::getValue(size_t *l) const
 {
     if (l != nullptr)
@@ -71,7 +77,7 @@ void CInterfaceStackString::printContent(int spaces, std::string &buffer) const
         { // a random string can also contain actual text
             if (CCbor::isText(_value.c_str(), _value.size()))
             {
-                buffer += "BINARY STRING (detected text): " + _value;
+                buffer += "BINARY STRING <text data>: " + _value;
                 buffer += "\n";
             }
             else
@@ -80,18 +86,15 @@ void CInterfaceStackString::printContent(int spaces, std::string &buffer) const
     }
 }
 
-std::string CInterfaceStackString::getObjectData() const
+std::string CInterfaceStackString::getObjectData(std::string &auxInfos) const
 {
     std::string retVal;
-#ifdef SIMPACKTABLE_UNIFORMSTRING
-#else
     unsigned char bb = 0;
     if (_isBuffer)
         bb |= 1;
     if (_isText)
         bb |= 2;
-    retVal.push_back(bb);
-#endif
+    auxInfos.push_back((char)bb);
     unsigned int l = (unsigned int)_value.size();
     char *tmp = (char *)(&l);
     for (size_t i = 0; i < sizeof(l); i++)
@@ -109,17 +112,12 @@ void CInterfaceStackString::addCborObjectData(CCbor *cborObj) const
         cborObj->appendLuaString(_value, _isBuffer, _isText);
 }
 
-unsigned int CInterfaceStackString::createFromData(const char *data, unsigned char version)
+unsigned int CInterfaceStackString::createFromData(const char *data, unsigned char /*version*/, std::vector<CInterfaceStackObject*> &allCreatedObjects)
 {
+    allCreatedObjects.push_back(this);
     size_t p = 0;
     _isBuffer = false;
     _isText = false;
-    if (version >= 6)
-    {
-        _isBuffer = (data[0] & 1);
-        _isText = (data[0] & 2);
-        p++;
-    }
     unsigned int l;
     char *tmp = (char *)(&l);
     for (size_t i = 0; i < sizeof(l); i++)
@@ -131,17 +129,14 @@ unsigned int CInterfaceStackString::createFromData(const char *data, unsigned ch
 
 bool CInterfaceStackString::checkCreateFromData(const char *data, unsigned int &w, unsigned int l, unsigned char version)
 {
-    unsigned int off = 0;
-    if (version >= 6)
-        off = 1;
     unsigned int m;
-    if (l < sizeof(m) + off)
+    if (l < sizeof(m))
         return (false);
     char *tmp = (char *)(&m);
     for (size_t i = 0; i < sizeof(m); i++)
-        tmp[i] = data[off + i];
-    if (l < off + sizeof(m) + m)
+        tmp[i] = data[i];
+    if (l < sizeof(m) + m)
         return (false);
-    w = off + sizeof(m) + m;
+    w = sizeof(m) + m;
     return (true);
 }

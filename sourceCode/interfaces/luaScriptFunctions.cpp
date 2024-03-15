@@ -12515,6 +12515,7 @@ int _simReadCustomDataBlock(luaWrap_lua_State *L)
         if (data != nullptr)
         {
             luaWrap_lua_pushbuffer(L, (const char *)data, dataLength);
+//            luaWrap_lua_pushbinarystring(L, (const char *)data, dataLength);
             simReleaseBuffer_internal(data);
             LUA_END(1);
         }

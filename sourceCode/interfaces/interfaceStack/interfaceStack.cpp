@@ -779,8 +779,23 @@ bool CInterfaceStack::pushTableFromBuffer(const char *data, unsigned int l)
         unsigned int w = 0;
         if (CInterfaceStackTable::checkCreateFromData(data + 1, w, l - 1, version))
         {
+            std::vector<CInterfaceStackObject*> allCreatedObjects;
             CInterfaceStackTable *table = new CInterfaceStackTable();
-            table->createFromData(data + 1, version);
+            int mainDataSize = 1 + table->createFromData(data + 1, version, allCreatedObjects);
+            // printf("Main dataSize: %i, total size: %i\n", mainDataSize, l);
+            // handle aux. data, for now only for strings:
+            if (mainDataSize < l)
+            {
+                size_t strCnt = 0;
+                for (size_t i = 0; i < allCreatedObjects.size(); i++)
+                {
+                    if (allCreatedObjects[i]->getObjectType() == sim_stackitem_string)
+                    {
+                        ((CInterfaceStackString*)allCreatedObjects[i])->setAuxData((unsigned char)data[mainDataSize + strCnt]);
+                        strCnt ++;
+                    }
+                }
+            }
             _stackObjects.push_back(table);
             return (true);
         }
@@ -800,14 +815,14 @@ std::string CInterfaceStack::getBufferFromTable() const
             // Following is the version of the pack format. 0 was when all numbers would be packed as double
             // (Lua5.1) 1-4 are reserved in order to detect other non-CoppeliaSim formats, check sim.lua
             // for details.
-            // 5 was when there was no differentiation between strings and buffers.
             // Make sure not to use any byte value that could be a first byte in a cbor string!
-#ifdef SIMPACKTABLE_UNIFORMSTRING
             unsigned char version = 5;
-#else
-            unsigned char version = 6;
-#endif
-            retVal = (char)version + table->getObjectData();
+            std::string auxInfos;
+            retVal = (char)version + table->getObjectData(auxInfos);
+            // Following are auxiliary string infos (text/binary string/buffer) we append to the end, in order
+            // to keep backward compatible. The aux infos can be any byte value, except for 255. One aux. value
+            // per string object:
+            retVal += auxInfos + (char)255;
         }
     }
     return (retVal);

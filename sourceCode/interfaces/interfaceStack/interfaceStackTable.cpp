@@ -769,7 +769,7 @@ void CInterfaceStackTable::printContent(int spaces, std::string &buffer) const
     }
 }
 
-std::string CInterfaceStackTable::getObjectData() const
+std::string CInterfaceStackTable::getObjectData(std::string &auxInfos) const
 {
     std::string retVal;
 
@@ -791,7 +791,7 @@ std::string CInterfaceStackTable::getObjectData() const
         for (size_t i = 0; i < _tableObjects.size(); i++)
         {
             retVal.push_back((char)_tableObjects[i]->getObjectType());
-            retVal += _tableObjects[i]->getObjectData();
+            retVal += _tableObjects[i]->getObjectData(auxInfos);
         }
     }
     else
@@ -821,26 +821,26 @@ std::string CInterfaceStackTable::getObjectData() const
             else
             { // should normally not happen. We push unordered
                 retVal.push_back((char)key->getObjectType());
-                retVal += key->getObjectData();
+                retVal += key->getObjectData(auxInfos);
                 CInterfaceStackObject *obj = _tableObjects[2 * i + 1];
                 retVal.push_back((char)obj->getObjectType());
-                retVal += obj->getObjectData();
+                retVal += obj->getObjectData(auxInfos);
             }
         }
 
         if (boolFalse >= 0)
         { // the key is 'false'
             retVal.push_back((char)sim_stackitem_bool);
-            retVal += _tableObjects[2 * boolFalse + 0]->getObjectData();
+            retVal += _tableObjects[2 * boolFalse + 0]->getObjectData(auxInfos);
             retVal.push_back((char)_tableObjects[2 * boolFalse + 1]->getObjectType());
-            retVal += _tableObjects[2 * boolFalse + 1]->getObjectData();
+            retVal += _tableObjects[2 * boolFalse + 1]->getObjectData(auxInfos);
         }
         if (boolTrue >= 0)
         { // the key is 'true'
             retVal.push_back((char)sim_stackitem_bool);
-            retVal += _tableObjects[2 * boolTrue + 0]->getObjectData();
+            retVal += _tableObjects[2 * boolTrue + 0]->getObjectData(auxInfos);
             retVal.push_back((char)_tableObjects[2 * boolTrue + 1]->getObjectType());
-            retVal += _tableObjects[2 * boolTrue + 1]->getObjectData();
+            retVal += _tableObjects[2 * boolTrue + 1]->getObjectData(auxInfos);
         }
         std::sort(numberKeys.begin(), numberKeys.end());
         std::sort(integerKeys.begin(), integerKeys.end());
@@ -849,25 +849,25 @@ std::string CInterfaceStackTable::getObjectData() const
         {
             int ind = numberKeys[i].second;
             retVal.push_back((char)sim_stackitem_double);
-            retVal += _tableObjects[2 * ind + 0]->getObjectData();
+            retVal += _tableObjects[2 * ind + 0]->getObjectData(auxInfos);
             retVal.push_back((char)_tableObjects[2 * ind + 1]->getObjectType());
-            retVal += _tableObjects[2 * ind + 1]->getObjectData();
+            retVal += _tableObjects[2 * ind + 1]->getObjectData(auxInfos);
         }
         for (size_t i = 0; i < integerKeys.size(); i++)
         {
             int ind = integerKeys[i].second;
             retVal.push_back((char)sim_stackitem_integer);
-            retVal += _tableObjects[2 * ind + 0]->getObjectData();
+            retVal += _tableObjects[2 * ind + 0]->getObjectData(auxInfos);
             retVal.push_back((char)_tableObjects[2 * ind + 1]->getObjectType());
-            retVal += _tableObjects[2 * ind + 1]->getObjectData();
+            retVal += _tableObjects[2 * ind + 1]->getObjectData(auxInfos);
         }
         for (size_t i = 0; i < stringKeys.size(); i++)
         {
             int ind = stringKeys[i].second;
             retVal.push_back((char)sim_stackitem_string);
-            retVal += _tableObjects[2 * ind + 0]->getObjectData();
+            retVal += _tableObjects[2 * ind + 0]->getObjectData(auxInfos);
             retVal.push_back((char)_tableObjects[2 * ind + 1]->getObjectType());
-            retVal += _tableObjects[2 * ind + 1]->getObjectData();
+            retVal += _tableObjects[2 * ind + 1]->getObjectData(auxInfos);
         }
     }
     return (retVal);
@@ -968,8 +968,9 @@ void CInterfaceStackTable::addCborObjectData(CCbor *cborObj) const
     cborObj->closeArrayOrMap();
 }
 
-unsigned int CInterfaceStackTable::createFromData(const char *data, unsigned char version)
+unsigned int CInterfaceStackTable::createFromData(const char *data, unsigned char version, std::vector<CInterfaceStackObject*> &allCreatedObjects)
 {
+    allCreatedObjects.push_back(this);
     unsigned int retVal = 0;
     _isTableArray = ((data[retVal] & 1) != 0);
     _isCircularRef = ((data[retVal] & 2) != 0);
@@ -982,7 +983,7 @@ unsigned int CInterfaceStackTable::createFromData(const char *data, unsigned cha
     for (size_t i = 0; i < l; i++)
     {
         unsigned int r = 0;
-        CInterfaceStackObject *obj = CInterfaceStackObject::createFromDataStatic(data + retVal, r, version);
+        CInterfaceStackObject *obj = CInterfaceStackObject::createFromDataStatic(data + retVal, r, version, allCreatedObjects);
         _tableObjects.push_back(obj);
         retVal += r;
     }

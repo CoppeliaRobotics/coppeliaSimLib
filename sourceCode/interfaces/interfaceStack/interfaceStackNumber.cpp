@@ -40,7 +40,7 @@ void CInterfaceStackNumber::printContent(int spaces, std::string &buffer) const
     buffer += "\n";
 }
 
-std::string CInterfaceStackNumber::getObjectData() const
+std::string CInterfaceStackNumber::getObjectData(std::string & /*auxInfos*/) const
 {
     std::string retVal;
     char *tmp = (char *)(&_value);
@@ -54,8 +54,9 @@ void CInterfaceStackNumber::addCborObjectData(CCbor *cborObj) const
     cborObj->appendDouble(_value);
 }
 
-unsigned int CInterfaceStackNumber::createFromData(const char *data, unsigned char /*version*/)
+unsigned int CInterfaceStackNumber::createFromData(const char *data, unsigned char /*version*/, std::vector<CInterfaceStackObject*> &allCreatedObjects)
 {
+    allCreatedObjects.push_back(this);
     char *tmp = (char *)(&_value);
     for (size_t i = 0; i < sizeof(_value); i++)
         tmp[i] = data[i];
