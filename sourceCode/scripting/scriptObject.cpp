@@ -8317,7 +8317,7 @@ int CScriptObject::appendTableEntry_DEPRECATED(const char *arrayName, const char
         if (w == sim_script_arg_string)
             luaWrap_lua_pushtext(L, data);
         if (w == sim_script_arg_charbuff)
-            luaWrap_lua_pushbuffer(L, data, what[1]);
+            luaWrap_lua_pushbinarystring(L, data, what[1]); // push binary string for backw. comp.
     }
 
     // Finally, insert the value in the table:

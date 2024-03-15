@@ -15830,7 +15830,7 @@ void pushCorrectTypeOntoLuaStack_old(luaWrap_lua_State *L, const std::string &bu
         luaWrap_lua_pushnumber(L, floatVal);
     }
     if (t == 4)
-        luaWrap_lua_pushbuffer(L, buff.c_str(), buff.length());
+        luaWrap_lua_pushbinarystring(L, buff.c_str(), buff.length()); // push binary string for backw. comp.
 }
 
 int getCorrectType_old(const std::string &buff)
@@ -16151,7 +16151,7 @@ void writeCustomFunctionDataOntoStack_old(luaWrap_lua_State *L, int dataType, in
 {
     if (((dataType | sim_script_arg_table) - sim_script_arg_table) == sim_script_arg_charbuff)
     { // special handling here
-        luaWrap_lua_pushbuffer(L, charData + charDataPos, dataSize);
+        luaWrap_lua_pushbinarystring(L, charData + charDataPos, dataSize); // push binary string for backw. comp.
         charDataPos += dataSize;
     }
     else
@@ -17405,7 +17405,7 @@ int _simGetSceneCustomData(luaWrap_lua_State *L)
                 delete[] data;
             else
             {
-                luaWrap_lua_pushbuffer(L, data, dataLength);
+                luaWrap_lua_pushbinarystring(L, data, dataLength); // push binary string for backw. comp.
                 delete[] data;
                 LUA_END(1);
             }
@@ -17454,7 +17454,7 @@ int _simGetObjectCustomData(luaWrap_lua_State *L)
                 delete[] data;
             else
             {
-                luaWrap_lua_pushbuffer(L, data, dataLength);
+                luaWrap_lua_pushbinarystring(L, data, dataLength); // push binary string for backw. comp.
                 delete[] data;
                 LUA_END(1);
             }
@@ -18174,7 +18174,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State *L)
                         std::string a;
                         a.assign(p, l);
                         if (returnString)
-                            luaWrap_lua_pushbuffer(L, a.c_str(), a.length());
+                            luaWrap_lua_pushbinarystring(L, a.c_str(), a.length()); // push binary string for backw. comp.
                         else
                             pushCorrectTypeOntoLuaStack_old(L, a);
                         simReleaseBuffer_internal(p);
@@ -19182,7 +19182,7 @@ int _simTubeRead(luaWrap_lua_State *L)
         char *data = simTubeRead_internal(luaToInt(L, 1), &dataLength);
         if (data)
         {
-            luaWrap_lua_pushbuffer(L, (const char *)data, dataLength);
+            luaWrap_lua_pushbinarystring(L, (const char *)data, dataLength); // push binary string for backw. comp.
             delete[] data;
             LUA_END(1);
         }
@@ -19489,7 +19489,7 @@ int _simReceiveData(luaWrap_lua_State *L)
                 antennaHandle, theDataLength, index, theSenderID, theDataHeader, theDataName);
             if (data0 != nullptr)
             {
-                luaWrap_lua_pushbuffer(L, data0, theDataLength);
+                luaWrap_lua_pushbinarystring(L, data0, theDataLength); // push binary string for backw. comp.
                 luaWrap_lua_pushinteger(L, theSenderID);
                 luaWrap_lua_pushinteger(L, theDataHeader);
                 luaWrap_lua_pushtext(L, theDataName.c_str());
@@ -20082,7 +20082,7 @@ int _simGetUserParameter(luaWrap_lua_State *L)
                 std::string a;
                 a.assign(p, l);
                 if (returnString)
-                    luaWrap_lua_pushbuffer(L, a.c_str(), a.length());
+                    luaWrap_lua_pushbinarystring(L, a.c_str(), a.length()); // push binary string for backw. comp.
                 else
                     pushCorrectTypeOntoLuaStack_old(L, a);
                 simReleaseBuffer_internal(p);
