@@ -429,14 +429,14 @@ const char *luaWrap_lua_tobuffer(luaWrap_lua_State *L, int idx, size_t *len)
 
 void luaWrap_lua_pushbuffer(luaWrap_lua_State *L, const char *str, size_t l)
 {
-    if (App::userSettings->noBuffers)
-        lua_pushlstring((lua_State *)L, str, l); // old, no difference between strings and buffers
-    else
+    if (App::userSettings->useBuffers)
     {
         lua_getglobal((lua_State *)L, "tobuffer");
         lua_pushlstring((lua_State *)L, str, l);
         lua_pcall((lua_State *)L, 1, 1, 0);
     }
+    else
+        luaWrap_lua_pushbinarystring(L, str, l); // old, no difference between strings and buffers
 }
 
 void luaWrap_lua_pushbinarystring(luaWrap_lua_State *L, const char *str, size_t l)

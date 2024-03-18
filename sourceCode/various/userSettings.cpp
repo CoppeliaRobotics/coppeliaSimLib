@@ -75,7 +75,8 @@
 #define _USR_COMPATIBILITYFIX1 "compatibilityFix1"
 #define _USR_READDELAY "readDelay"
 #define _USR_WRITEDELAY "writeDelay"
-#define _USR_NOBUFFERS "noBuffers"
+#define _USR_USEBUFFERS "useBuffers"
+#define _USR_NOBUFFERSWITHSIMREADCUSTOMDATABLOCK "noBuffersWithSimReadCustomDataBlock"
 #define _USR_SUPPORT_old_THREADED_SCRIPTS "keepOldThreadedScripts"
 #define _USR_SUPPORT_old_API_NOTATION "supportOldApiNotation"
 #define _USR_ENABLE_old_MIRROR_OBJECTS "enableOldMirrorObjects"
@@ -280,7 +281,9 @@ CUserSettings::CUserSettings()
     compatibilityFix1 = false;
     readDelay = -500;
     writeDelay = 1000;
-    noBuffers = false;
+    useBuffers = true;
+    noBuffersWithSimReadCustomDataBlock = false;
+
 
     // Various section:
     // *****************************
@@ -617,6 +620,9 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         // c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
         c.addInteger(_USR_READDELAY, readDelay, "");
         c.addInteger(_USR_WRITEDELAY, writeDelay, "");
+        c.addBoolean(_USR_USEBUFFERS, useBuffers, "");
+        c.addBoolean(_USR_NOBUFFERSWITHSIMREADCUSTOMDATABLOCK, noBuffersWithSimReadCustomDataBlock, "");
+
 
         c.addRandomLine("");
         c.addRandomLine("");
@@ -884,7 +890,9 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_COMPATIBILITYFIX1, compatibilityFix1);
     c.getInteger(_USR_READDELAY, readDelay);
     c.getInteger(_USR_WRITEDELAY, writeDelay);
-    c.getBoolean(_USR_NOBUFFERS, noBuffers);
+    c.getBoolean(_USR_USEBUFFERS, useBuffers);
+    c.getBoolean(_USR_NOBUFFERSWITHSIMREADCUSTOMDATABLOCK, noBuffersWithSimReadCustomDataBlock);
+
 
     // Various section:
     // *****************************

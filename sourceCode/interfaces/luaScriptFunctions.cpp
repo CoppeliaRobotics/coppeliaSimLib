@@ -2731,6 +2731,11 @@ int _auxFunc(luaWrap_lua_State *L)
             if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_string, 0))
                 CSimFlavor::getIntVal_str(3, luaWrap_lua_tostring(L, 2));
         }
+        if (cmd.compare("useBuffers") == 0)
+        {
+            luaWrap_lua_pushboolean(L, App::userSettings->useBuffers);
+            LUA_END(1);
+        }
         //*
         if (cmd.compare("fetchframe") == 0)
         {
@@ -12514,8 +12519,10 @@ int _simReadCustomDataBlock(luaWrap_lua_State *L)
         char *data = simReadCustomDataBlock_internal(objectHandle, dataName.c_str(), &dataLength);
         if (data != nullptr)
         {
-            luaWrap_lua_pushbuffer(L, (const char *)data, dataLength);
-//            luaWrap_lua_pushbinarystring(L, (const char *)data, dataLength);
+            if (App::userSettings->noBuffersWithSimReadCustomDataBlock)
+                luaWrap_lua_pushbinarystring(L, (const char *)data, dataLength);
+            else
+                luaWrap_lua_pushbuffer(L, (const char *)data, dataLength);
             simReleaseBuffer_internal(data);
             LUA_END(1);
         }
