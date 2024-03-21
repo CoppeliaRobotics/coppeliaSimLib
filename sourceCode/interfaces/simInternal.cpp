@@ -6111,14 +6111,7 @@ int simSetModelProperty_internal(int objectHandle, int modelProperty)
             return (-1);
         }
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        if ((modelProperty & sim_modelproperty_not_model) != 0)
-            it->setModelBase(false);
-        else
-        {
-            if (!it->getModelBase())
-                it->setModelBase(true);
-            it->setModelProperty(modelProperty);
-        }
+        it->setModelProperty(modelProperty);
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -12021,12 +12014,14 @@ char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int
         }
 
         std::string rrr;
+        bool hand = false;
         if ((objectHandle >= SIM_IDSTART_SCENEOBJECT) && (objectHandle <= SIM_IDEND_SCENEOBJECT))
         { // Here we have an object
             if (!doesObjectExist(__func__, objectHandle))
                 return (nullptr);
             CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
             rrr = it->readCustomDataBlock(useTempBuffer, tagName);
+            hand = true;
         }
 
         if (objectHandle == sim_handle_scene)
@@ -12035,17 +12030,26 @@ char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int
                 rrr = App::currentWorld->customSceneData_tempData.getData(tagName);
             else
                 rrr = App::currentWorld->customSceneData.getData(tagName);
+            hand = true;
         }
 
         if (objectHandle == sim_handle_app)
-            rrr = App::worldContainer->customAppData.getData(tagName); // here we have the app
-
-        if (rrr.size() > 0)
         {
-            retBuffer = new char[rrr.size()];
-            for (size_t i = 0; i < rrr.size(); i++)
-                retBuffer[i] = rrr[i];
-            dataSize[0] = int(rrr.size());
+            rrr = App::worldContainer->customAppData.getData(tagName); // here we have the app
+            hand = true;
+        }
+
+        if (hand)
+        {
+            if ( (rrr.size() > 0) || (!App::userSettings->nilReturnWithSimReadCustomDataBlock) )
+            {
+                retBuffer = new char[rrr.size()];
+                for (size_t i = 0; i < rrr.size(); i++)
+                    retBuffer[i] = rrr[i];
+                dataSize[0] = int(rrr.size());
+            }
+            else
+                return nullptr;
         }
 
         // ---------------------- Old -----------------------------
@@ -12101,6 +12105,7 @@ char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount)
         char *retBuffer = nullptr;
         tagCount[0] = 0;
         std::string tags;
+        bool hand = false;
         if ((objectHandle >= SIM_IDSTART_SCENEOBJECT) && (objectHandle <= SIM_IDEND_SCENEOBJECT))
         { // here we have an object
             if (!doesObjectExist(__func__, objectHandle))
@@ -12111,6 +12116,7 @@ char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount)
             tagCount[0] += int(tc);
             tags += it->getAllCustomDataBlockTags(true, &tc);
             tagCount[0] += int(tc);
+            hand = true;
         }
 
         if (objectHandle == sim_handle_scene)
@@ -12120,6 +12126,7 @@ char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount)
             tagCount[0] += int(tc);
             tags += App::currentWorld->customSceneData_tempData.getAllTags(&tc);
             tagCount[0] += int(tc);
+            hand = true;
         }
 
         if (objectHandle == sim_handle_app)
@@ -12127,13 +12134,19 @@ char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount)
             size_t tc;
             tags = App::worldContainer->customAppData.getAllTags(&tc);
             tagCount[0] += int(tc);
+            hand = true;
         }
 
-        if (tagCount[0] > 0)
+        if (hand)
         {
-            retBuffer = new char[tags.size()];
-            for (size_t i = 0; i < tags.size(); i++)
-                retBuffer[i] = tags[i];
+            if ( (tagCount[0] > 0) || (!App::userSettings->nilReturnWithSimReadCustomDataBlockTags) )
+            {
+                retBuffer = new char[tags.size()];
+                for (size_t i = 0; i < tags.size(); i++)
+                    retBuffer[i] = tags[i];
+            }
+            else
+                return nullptr;
         }
 
         // ---------------------- Old -----------------------------

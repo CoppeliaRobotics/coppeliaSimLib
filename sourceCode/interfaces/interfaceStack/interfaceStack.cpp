@@ -772,31 +772,39 @@ bool CInterfaceStack::insertDataIntoStackTable()
 }
 
 bool CInterfaceStack::pushTableFromBuffer(const char *data, unsigned int l)
-{
-    if ((data != nullptr) && (l > 0))
+{ // since 20.03.2024: empty buffer results in an empty table
+    if (data != nullptr)
     {
-        unsigned char version = data[0]; // the version of the pack format
-        unsigned int w = 0;
-        if (CInterfaceStackTable::checkCreateFromData(data + 1, w, l - 1, version))
+        if (l > 0)
         {
-            std::vector<CInterfaceStackObject*> allCreatedObjects;
-            CInterfaceStackTable *table = new CInterfaceStackTable();
-            int mainDataSize = 1 + table->createFromData(data + 1, version, allCreatedObjects);
-            // printf("Main dataSize: %i, total size: %i\n", mainDataSize, l);
-            // handle aux. data, for now only for strings:
-            if (mainDataSize < l)
+            unsigned char version = data[0]; // the version of the pack format
+            unsigned int w = 0;
+            if (CInterfaceStackTable::checkCreateFromData(data + 1, w, l - 1, version))
             {
-                size_t strCnt = 0;
-                for (size_t i = 0; i < allCreatedObjects.size(); i++)
+                std::vector<CInterfaceStackObject*> allCreatedObjects;
+                CInterfaceStackTable *table = new CInterfaceStackTable();
+                int mainDataSize = 1 + table->createFromData(data + 1, version, allCreatedObjects);
+                // printf("Main dataSize: %i, total size: %i\n", mainDataSize, l);
+                // handle aux. data, for now only for strings:
+                if (mainDataSize < l)
                 {
-                    if (allCreatedObjects[i]->getObjectType() == sim_stackitem_string)
+                    size_t strCnt = 0;
+                    for (size_t i = 0; i < allCreatedObjects.size(); i++)
                     {
-                        ((CInterfaceStackString*)allCreatedObjects[i])->setAuxData((unsigned char)data[mainDataSize + strCnt]);
-                        strCnt ++;
+                        if (allCreatedObjects[i]->getObjectType() == sim_stackitem_string)
+                        {
+                            ((CInterfaceStackString*)allCreatedObjects[i])->setAuxData((unsigned char)data[mainDataSize + strCnt]);
+                            strCnt ++;
+                        }
                     }
                 }
+                _stackObjects.push_back(table);
+                return (true);
             }
-            _stackObjects.push_back(table);
+        }
+        else
+        {
+            _stackObjects.push_back(new CInterfaceStackTable());
             return (true);
         }
     }

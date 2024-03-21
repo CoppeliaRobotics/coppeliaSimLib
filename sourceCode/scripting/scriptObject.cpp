@@ -9202,6 +9202,18 @@ void CScriptObject::_adjustScriptText17_old(CScriptObject *scriptObject, bool do
 
 void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
 {
+    /*
+    if (_containsScriptText_old(scriptObject, "sim.getStringSignal"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getStringSignal...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlock"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlock...");
+    if (_containsScriptText_old(scriptObject, "sim.getNamedStringParam"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getNamedStringParam...");
+    if (_containsScriptText_old(scriptObject, "sim.getScriptStringParam"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptStringParam...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlockTags"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlockTags...");
+*/
     /* Explicit requires:
     std::string tmp;
     _scriptText.insert(0,"\n");

@@ -82,7 +82,7 @@ CSceneObject::CSceneObject()
 
     _customObjectData_old = nullptr;
     _localObjectSpecialProperty = 0;
-    _modelProperty = 0; // By default, the main properties are not overriden! (0 means we inherit from parents)
+    _modelProperty = sim_modelproperty_not_model;
 
     _dynamicSimulationIconCode = sim_dynamicsimicon_none;
 
@@ -510,7 +510,7 @@ void CSceneObject::recomputeModelInfluencedValues(int overrideFlags /*=-1*/)
         if (_parentObject == nullptr)
         {
             if (_modelBase)
-                overrideFlags = _modelProperty;
+                overrideFlags = (_modelProperty | sim_modelproperty_not_model) - sim_modelproperty_not_model;
             else
                 overrideFlags = 0;
         }
@@ -523,7 +523,7 @@ void CSceneObject::recomputeModelInfluencedValues(int overrideFlags /*=-1*/)
     if (overrideFlags != -2)
     {
         if (_modelBase)
-            overrideFlags |= _modelProperty;
+            overrideFlags |= ((_modelProperty | sim_modelproperty_not_model) - sim_modelproperty_not_model);
         _calculatedModelProperty = overrideFlags;
         _setModelInvisible((_calculatedModelProperty & sim_modelproperty_not_visible) != 0);
 
@@ -763,9 +763,14 @@ void CSceneObject::setModelBase(bool m)
             ev->appendKeyBool(cmd, m);
             App::worldContainer->pushEvent();
         }
-        _modelProperty = 0; // Nothing is overridden!
+        bool diff2 = false;
+        if (_modelBase)
+            diff2 = setModelProperty(0);
+        else
+            diff2 = setModelProperty(sim_modelproperty_not_model);
         _modelAcknowledgement = "";
-        recomputeModelInfluencedValues();
+        if (!diff2)
+            recomputeModelInfluencedValues();
     }
 }
 
@@ -834,9 +839,18 @@ int CSceneObject::getCumulativeObjectSpecialProperty()
     return (p);
 }
 
-void CSceneObject::setModelProperty(int prop)
+bool CSceneObject::setModelProperty(int prop)
 { // model properties are actually override properties. This func. returns the local value
-    if (_modelProperty != prop)
+    bool wm = true;
+    if (prop & sim_modelproperty_not_model)
+    {
+        prop = sim_modelproperty_not_model;
+        wm = false;
+    }
+    if (wm != _modelBase)
+        setModelBase(wm);
+    bool diff = (_modelProperty != prop);
+    if (diff)
     {
         _modelProperty = prop;
         if (_isInScene && App::worldContainer->getEventsEnabled())
@@ -848,6 +862,7 @@ void CSceneObject::setModelProperty(int prop)
         }
         recomputeModelInfluencedValues();
     }
+    return diff;
 }
 
 int CSceneObject::getModelProperty() const
@@ -3235,9 +3250,20 @@ void CSceneObject::serialize(CSer &ar)
                     ar.xmlPopNode();
                 }
 
+                if (ar.xmlPushChildNode("switches", exhaustiveXml))
+                {
+                    ar.xmlGetNode_bool("modelBase", _modelBase, exhaustiveXml);
+                    ar.xmlGetNode_bool("ignoredByViewFitting", _ignoredByViewFitting_backCompat, false);
+                    ar.xmlPopNode();
+
+                    if (_modelBase)
+                        _modelProperty = 0;
+                    else
+                        _modelProperty = sim_modelproperty_not_model;
+                }
+
                 if (ar.xmlPushChildNode("localModelProperty", exhaustiveXml))
                 {
-                    _modelProperty = 0;
                     ar.xmlGetNode_flags("notCollidable", _modelProperty, sim_modelproperty_not_collidable,
                                         exhaustiveXml);
                     ar.xmlGetNode_flags("notMeasurable", _modelProperty, sim_modelproperty_not_measurable,
@@ -3255,13 +3281,6 @@ void CSceneObject::serialize(CSer &ar)
                                         exhaustiveXml);
                     ar.xmlGetNode_flags("notShowAsInsideModel", _modelProperty, sim_modelproperty_not_showasinsidemodel,
                                         exhaustiveXml);
-                    ar.xmlPopNode();
-                }
-
-                if (ar.xmlPushChildNode("switches", exhaustiveXml))
-                {
-                    ar.xmlGetNode_bool("modelBase", _modelBase, exhaustiveXml);
-                    ar.xmlGetNode_bool("ignoredByViewFitting", _ignoredByViewFitting_backCompat, false);
                     ar.xmlPopNode();
                 }
 

@@ -276,8 +276,7 @@ class CScriptObject
     COutsideCommandQueueForScript *_outsideCommandQueue;
     std::unordered_set<std::string> _previouslyUsedModules; // needed for the code editor syntax and calltips
 
-    void
-        *_interpreterState; // !! _interpreterState is not the same for a script when in normal or inside a coroutine !!
+    void *_interpreterState; // !! _interpreterState is not the same for a script when in normal or inside a coroutine !!
 
     int _numberOfPasses;
 

@@ -191,7 +191,7 @@ class CSceneObject
 
     void setLocalObjectSpecialProperty(int prop);
     int getLocalObjectSpecialProperty() const;
-    void setModelProperty(int prop);
+    bool setModelProperty(int prop);
     int getModelProperty() const;
     int getCumulativeModelProperty();
     int getCumulativeObjectSpecialProperty();

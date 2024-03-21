@@ -7111,24 +7111,32 @@ int _simUnpackInt32Table(luaWrap_lua_State *L)
                     if (count == 0)
                         count = int(1999999999);
 
-                    if ((startIndex >= 0) && (startIndex < packetCount))
-                    {
-                        if (startIndex + count > packetCount)
-                            count = packetCount - startIndex;
-
-                        int *theInts = new int[count];
-                        for (int i = 0; i < int(count); i++)
-                        {
-                            int v;
-                            ((char *)&v)[0] = data[sizeof(int) * (i + startIndex) + 0];
-                            ((char *)&v)[1] = data[sizeof(int) * (i + startIndex) + 1];
-                            ((char *)&v)[2] = data[sizeof(int) * (i + startIndex) + 2];
-                            ((char *)&v)[3] = data[sizeof(int) * (i + startIndex) + 3];
-                            theInts[i] = v;
-                        }
-                        pushIntTableOntoStack(L, count, theInts);
-                        delete[] theInts;
+                    if (dataLength == 0)
+                    { // since 20.03.2024: empty buffer results in an empty table
+                        luaWrap_lua_newtable(L);
                         LUA_END(1);
+                    }
+                    else
+                    {
+                        if ((startIndex >= 0) && (startIndex < packetCount))
+                        {
+                            if (startIndex + count > packetCount)
+                                count = packetCount - startIndex;
+
+                            int *theInts = new int[count];
+                            for (int i = 0; i < int(count); i++)
+                            {
+                                int v;
+                                ((char *)&v)[0] = data[sizeof(int) * (i + startIndex) + 0];
+                                ((char *)&v)[1] = data[sizeof(int) * (i + startIndex) + 1];
+                                ((char *)&v)[2] = data[sizeof(int) * (i + startIndex) + 2];
+                                ((char *)&v)[3] = data[sizeof(int) * (i + startIndex) + 3];
+                                theInts[i] = v;
+                            }
+                            pushIntTableOntoStack(L, count, theInts);
+                            delete[] theInts;
+                            LUA_END(1);
+                        }
                     }
                 }
             }
@@ -7174,24 +7182,32 @@ int _simUnpackUInt32Table(luaWrap_lua_State *L)
                     if (count == 0)
                         count = int(1999999999);
 
-                    if ((startIndex >= 0) && (startIndex < packetCount))
-                    {
-                        if (startIndex + count > packetCount)
-                            count = packetCount - startIndex;
-
-                        unsigned int *theInts = new unsigned int[count];
-                        for (int i = 0; i < int(count); i++)
-                        {
-                            unsigned int v;
-                            ((char *)&v)[0] = data[sizeof(unsigned int) * (i + startIndex) + 0];
-                            ((char *)&v)[1] = data[sizeof(unsigned int) * (i + startIndex) + 1];
-                            ((char *)&v)[2] = data[sizeof(unsigned int) * (i + startIndex) + 2];
-                            ((char *)&v)[3] = data[sizeof(unsigned int) * (i + startIndex) + 3];
-                            theInts[i] = v;
-                        }
-                        pushUIntTableOntoStack(L, count, theInts);
-                        delete[] theInts;
+                    if (dataLength == 0)
+                    { // since 20.03.2024: empty buffer results in an empty table
+                        luaWrap_lua_newtable(L);
                         LUA_END(1);
+                    }
+                    else
+                    {
+                        if ((startIndex >= 0) && (startIndex < packetCount))
+                        {
+                            if (startIndex + count > packetCount)
+                                count = packetCount - startIndex;
+
+                            unsigned int *theInts = new unsigned int[count];
+                            for (int i = 0; i < int(count); i++)
+                            {
+                                unsigned int v;
+                                ((char *)&v)[0] = data[sizeof(unsigned int) * (i + startIndex) + 0];
+                                ((char *)&v)[1] = data[sizeof(unsigned int) * (i + startIndex) + 1];
+                                ((char *)&v)[2] = data[sizeof(unsigned int) * (i + startIndex) + 2];
+                                ((char *)&v)[3] = data[sizeof(unsigned int) * (i + startIndex) + 3];
+                                theInts[i] = v;
+                            }
+                            pushUIntTableOntoStack(L, count, theInts);
+                            delete[] theInts;
+                            LUA_END(1);
+                        }
                     }
                 }
             }
@@ -7237,24 +7253,32 @@ int _simUnpackFloatTable(luaWrap_lua_State *L)
                     if (count == 0)
                         count = int(1999999999);
 
-                    if ((startIndex >= 0) && (startIndex < packetCount))
-                    {
-                        if (startIndex + count > packetCount)
-                            count = packetCount - startIndex;
-
-                        float *theFloats = new float[count];
-                        for (int i = 0; i < int(count); i++)
-                        {
-                            float v;
-                            ((char *)&v)[0] = data[sizeof(float) * (i + startIndex) + 0];
-                            ((char *)&v)[1] = data[sizeof(float) * (i + startIndex) + 1];
-                            ((char *)&v)[2] = data[sizeof(float) * (i + startIndex) + 2];
-                            ((char *)&v)[3] = data[sizeof(float) * (i + startIndex) + 3];
-                            theFloats[i] = v;
-                        }
-                        pushFloatTableOntoStack(L, count, theFloats);
-                        delete[] theFloats;
+                    if (dataLength == 0)
+                    { // since 20.03.2024: empty buffer results in an empty table
+                        luaWrap_lua_newtable(L);
                         LUA_END(1);
+                    }
+                    else
+                    {
+                        if ((startIndex >= 0) && (startIndex < packetCount))
+                        {
+                            if (startIndex + count > packetCount)
+                                count = packetCount - startIndex;
+
+                            float *theFloats = new float[count];
+                            for (int i = 0; i < int(count); i++)
+                            {
+                                float v;
+                                ((char *)&v)[0] = data[sizeof(float) * (i + startIndex) + 0];
+                                ((char *)&v)[1] = data[sizeof(float) * (i + startIndex) + 1];
+                                ((char *)&v)[2] = data[sizeof(float) * (i + startIndex) + 2];
+                                ((char *)&v)[3] = data[sizeof(float) * (i + startIndex) + 3];
+                                theFloats[i] = v;
+                            }
+                            pushFloatTableOntoStack(L, count, theFloats);
+                            delete[] theFloats;
+                            LUA_END(1);
+                        }
                     }
                 }
             }
@@ -7300,28 +7324,36 @@ int _simUnpackDoubleTable(luaWrap_lua_State *L)
                     if (count == 0)
                         count = int(1999999999);
 
-                    if ((startIndex >= 0) && (startIndex < packetCount))
-                    {
-                        if (startIndex + count > packetCount)
-                            count = packetCount - startIndex;
-
-                        double *theDoubles = new double[count];
-                        for (int i = 0; i < int(count); i++)
-                        {
-                            double v;
-                            ((char *)&v)[0] = data[sizeof(double) * (i + startIndex) + 0];
-                            ((char *)&v)[1] = data[sizeof(double) * (i + startIndex) + 1];
-                            ((char *)&v)[2] = data[sizeof(double) * (i + startIndex) + 2];
-                            ((char *)&v)[3] = data[sizeof(double) * (i + startIndex) + 3];
-                            ((char *)&v)[4] = data[sizeof(double) * (i + startIndex) + 4];
-                            ((char *)&v)[5] = data[sizeof(double) * (i + startIndex) + 5];
-                            ((char *)&v)[6] = data[sizeof(double) * (i + startIndex) + 6];
-                            ((char *)&v)[7] = data[sizeof(double) * (i + startIndex) + 7];
-                            theDoubles[i] = v;
-                        }
-                        pushDoubleTableOntoStack(L, count, theDoubles);
-                        delete[] theDoubles;
+                    if (dataLength == 0)
+                    { // since 20.03.2024: empty buffer results in an empty table
+                        luaWrap_lua_newtable(L);
                         LUA_END(1);
+                    }
+                    else
+                    {
+                        if ((startIndex >= 0) && (startIndex < packetCount))
+                        {
+                            if (startIndex + count > packetCount)
+                                count = packetCount - startIndex;
+
+                            double *theDoubles = new double[count];
+                            for (int i = 0; i < int(count); i++)
+                            {
+                                double v;
+                                ((char *)&v)[0] = data[sizeof(double) * (i + startIndex) + 0];
+                                ((char *)&v)[1] = data[sizeof(double) * (i + startIndex) + 1];
+                                ((char *)&v)[2] = data[sizeof(double) * (i + startIndex) + 2];
+                                ((char *)&v)[3] = data[sizeof(double) * (i + startIndex) + 3];
+                                ((char *)&v)[4] = data[sizeof(double) * (i + startIndex) + 4];
+                                ((char *)&v)[5] = data[sizeof(double) * (i + startIndex) + 5];
+                                ((char *)&v)[6] = data[sizeof(double) * (i + startIndex) + 6];
+                                ((char *)&v)[7] = data[sizeof(double) * (i + startIndex) + 7];
+                                theDoubles[i] = v;
+                            }
+                            pushDoubleTableOntoStack(L, count, theDoubles);
+                            delete[] theDoubles;
+                            LUA_END(1);
+                        }
                     }
                 }
             }
@@ -7359,21 +7391,29 @@ int _simUnpackUInt8Table(luaWrap_lua_State *L)
                 if (count == 0)
                     count = int(1999999999);
 
-                if ((startIndex >= 0) && (startIndex < packetCount))
-                {
-                    if (startIndex + count > packetCount)
-                        count = packetCount - startIndex;
-
-                    int *theBytes = new int[count];
-                    for (int i = 0; i < count; i++)
-                    {
-                        unsigned char v;
-                        ((char *)&v)[0] = data[i + startIndex];
-                        theBytes[i] = v;
-                    }
-                    pushIntTableOntoStack(L, count, theBytes);
-                    delete[] theBytes;
+                if (dataLength == 0)
+                { // since 20.03.2024: empty buffer results in an empty table
+                    luaWrap_lua_newtable(L);
                     LUA_END(1);
+                }
+                else
+                {
+                    if ((startIndex >= 0) && (startIndex < packetCount))
+                    {
+                        if (startIndex + count > packetCount)
+                            count = packetCount - startIndex;
+
+                        int *theBytes = new int[count];
+                        for (int i = 0; i < count; i++)
+                        {
+                            unsigned char v;
+                            ((char *)&v)[0] = data[i + startIndex];
+                            theBytes[i] = v;
+                        }
+                        pushIntTableOntoStack(L, count, theBytes);
+                        delete[] theBytes;
+                        LUA_END(1);
+                    }
                 }
             }
         }
@@ -7418,22 +7458,30 @@ int _simUnpackUInt16Table(luaWrap_lua_State *L)
                     if (count == 0)
                         count = int(1999999999);
 
-                    if ((startIndex >= 0) && (startIndex < packetCount))
-                    {
-                        if (startIndex + count > packetCount)
-                            count = packetCount - startIndex;
-
-                        int *theWords = new int[count];
-                        for (int i = 0; i < int(count); i++)
-                        {
-                            unsigned short v;
-                            ((char *)&v)[0] = data[2 * (i + startIndex) + 0];
-                            ((char *)&v)[1] = data[2 * (i + startIndex) + 1];
-                            theWords[i] = v;
-                        }
-                        pushIntTableOntoStack(L, count, theWords);
-                        delete[] theWords;
+                    if (dataLength == 0)
+                    { // since 20.03.2024: empty buffer results in an empty table
+                        luaWrap_lua_newtable(L);
                         LUA_END(1);
+                    }
+                    else
+                    {
+                        if ((startIndex >= 0) && (startIndex < packetCount))
+                        {
+                            if (startIndex + count > packetCount)
+                                count = packetCount - startIndex;
+
+                            int *theWords = new int[count];
+                            for (int i = 0; i < int(count); i++)
+                            {
+                                unsigned short v;
+                                ((char *)&v)[0] = data[2 * (i + startIndex) + 0];
+                                ((char *)&v)[1] = data[2 * (i + startIndex) + 1];
+                                theWords[i] = v;
+                            }
+                            pushIntTableOntoStack(L, count, theWords);
+                            delete[] theWords;
+                            LUA_END(1);
+                        }
                     }
                 }
             }
