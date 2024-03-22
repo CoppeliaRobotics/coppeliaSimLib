@@ -2620,10 +2620,12 @@ void CSceneObject::serialize(CSer &ar)
                         ar >> _localObjectSpecialProperty;
                     }
                     if (theName.compare("Mpo") == 0)
-                    { // from 2010/08/06
+                    {
                         noHit = false;
                         ar >> byteQuantity;
                         ar >> _modelProperty;
+                        if (!_modelBase)
+                            _modelProperty = sim_modelproperty_not_model;
                     }
                     if (theName.compare("Lar") == 0)
                     {
