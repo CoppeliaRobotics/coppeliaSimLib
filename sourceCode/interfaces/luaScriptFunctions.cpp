@@ -12572,8 +12572,10 @@ int _simReadCustomDataBlock(luaWrap_lua_State *L)
             else
                 luaWrap_lua_pushbuffer(L, (const char *)data, dataLength);
             simReleaseBuffer_internal(data);
-            LUA_END(1);
         }
+        else
+            luaWrap_lua_pushnil(L);
+        LUA_END(1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

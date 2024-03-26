@@ -3,6 +3,10 @@ TEMPLATE = lib
 DEFINES += SIM_MATH_DOUBLE # math and vector classes
 #DEFINES += HAS_PHYSX
 
+!USE_DEFAULT_DESTDIR {
+    DESTDIR = $$PWD/"../"
+}
+
 CONFIG += USES_QGLWIDGET
 USES_QGLWIDGET {
     DEFINES += USES_QGLWIDGET
@@ -46,6 +50,8 @@ WITH_GUI {
     QMAKE_CXXFLAGS += -O2
     QMAKE_CXXFLAGS += -fp:precise
     QMAKE_CXXFLAGS += -we4715 # "error when no return value"
+    #QMAKE_CXXFLAGS += -Zi
+    #QMAKE_LFLAGS += -DEBUG
 
     QMAKE_CFLAGS_WARN_ON = -W3
     QMAKE_CFLAGS_WARN_ON += -wd4100 # "unreferenced formal parameter"

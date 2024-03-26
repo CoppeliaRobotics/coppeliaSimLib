@@ -12047,6 +12047,7 @@ char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int
                 for (size_t i = 0; i < rrr.size(); i++)
                     retBuffer[i] = rrr[i];
                 dataSize[0] = int(rrr.size());
+                return retBuffer;
             }
             else
                 return nullptr;
@@ -12089,8 +12090,8 @@ char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int
                 retBuffer = _extractCustomDataFromBuffer(buffer, tagName, dataSize);
             }
         }
-        // ---------------------- Old -----------------------------
         return (retBuffer);
+        // ---------------------- Old -----------------------------
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
