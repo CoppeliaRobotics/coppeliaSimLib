@@ -12041,7 +12041,7 @@ char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int
 
         if (hand)
         {
-            if ( (rrr.size() > 0) || (!App::userSettings->nilReturnWithSimReadCustomDataBlock) )
+            if (rrr.size() > 0)
             {
                 retBuffer = new char[rrr.size()];
                 for (size_t i = 0; i < rrr.size(); i++)

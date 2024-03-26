@@ -62,7 +62,6 @@ class CUserSettings
     int writeDelay;
     bool useBuffers; // differentiate binary strings and buffers in Lua, true since V4.7
     bool noBuffersWithSimReadCustomDataBlock;
-    bool nilReturnWithSimReadCustomDataBlock;
     bool nilReturnWithSimReadCustomDataBlockTags;
 
     bool middleMouseButtonSwitchesModes;
