@@ -11210,12 +11210,11 @@ int _simGetJointForce(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
-        double jointF[1];
-        if (simGetJointForce_internal(luaToInt(L, 1), jointF) > 0)
-        {
-            luaWrap_lua_pushnumber(L, jointF[0]);
-            LUA_END(1);
-        }
+        double jointF;
+        if (simGetJointForce_internal(luaToInt(L, 1), &jointF) <= 0)
+            jointF = 0.0;
+        luaWrap_lua_pushnumber(L, jointF);
+        LUA_END(1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
