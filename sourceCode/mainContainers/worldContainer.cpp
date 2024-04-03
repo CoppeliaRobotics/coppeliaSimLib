@@ -383,13 +383,13 @@ void CWorldContainer::getAllSceneNames(std::vector<std::string> &l) const
 
 CScriptObject *CWorldContainer::getScriptFromHandle(int scriptHandle) const
 {
-    CScriptObject *retVal = currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
-    if (retVal == nullptr)
-    {
+    CScriptObject *retVal = nullptr;
+    if ( (currentWorld != nullptr) && (currentWorld->embeddedScriptContainer != nullptr) )
+        retVal = currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+    if ( (retVal == nullptr) && (addOnScriptContainer != nullptr) )
         retVal = addOnScriptContainer->getAddOnFromID(scriptHandle);
-        if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptHandle() == scriptHandle))
-            retVal = sandboxScript;
-    }
+    if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptHandle() == scriptHandle))
+        retVal = sandboxScript;
     return (retVal);
 }
 

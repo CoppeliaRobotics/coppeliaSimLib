@@ -32,6 +32,12 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _scriptHandle = _nextScriptHandle++;
     if (_nextScriptHandle > SIM_IDEND_LUASCRIPT)
         _nextScriptHandle = SIM_IDSTART_LUASCRIPT;
+    while ( (App::worldContainer != nullptr) && (App::worldContainer->getScriptFromHandle(_scriptHandle) != nullptr) )
+    {
+        _scriptHandle ++;
+        if (_scriptHandle > SIM_IDEND_LUASCRIPT)
+            _scriptHandle = SIM_IDSTART_LUASCRIPT;
+    }
     _objectHandleAttachedTo = -1;
     _scriptText = "";
     _scriptTextExec = "";
