@@ -350,7 +350,6 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlguserparameters.cpp
         sourceCode/gui/dialogs/qdlgforcesensors.cpp
         sourceCode/gui/dialogs/qdlgprimitives.cpp
-        sourceCode/gui/dialogs/qdlgconvexdecomposition.cpp
         sourceCode/gui/dialogs/qdlgvisionsensors.cpp
         sourceCode/gui/dialogs/qdlgimagecolor.cpp
         sourceCode/gui/dialogs/qdlgshapes.cpp

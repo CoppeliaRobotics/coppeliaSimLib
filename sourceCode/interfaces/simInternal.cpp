@@ -8790,6 +8790,7 @@ int simGetObjectFloatParam_internal(int objectHandle, int parameterID, double *p
         CPathPlanningTask *pathPlanningObject = App::currentWorld->pathPlanning->getObject(objectHandle);
         CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(objectHandle);
         CDummy *dummy = App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
+        COcTree *octree = App::currentWorld->sceneObjects->getOctreeFromHandle(objectHandle);
         if (parameterID < sim_objparam_end)
         { // for all scene objects
             CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -8843,6 +8844,14 @@ int simGetObjectFloatParam_internal(int objectHandle, int parameterID, double *p
                     parameter[0] = it->getSizeFactor();
                     retVal = 1;
                 }
+            }
+        }
+        if (octree != nullptr)
+        {
+            if (parameterID == sim_octreefloatparam_voxelsize)
+            {
+                parameter[0] = octree->getCellSize();
+                retVal = 1;
             }
         }
         if (light != nullptr)
@@ -9304,6 +9313,7 @@ int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double pa
         CPathPlanningTask *pathPlanningObject = App::currentWorld->pathPlanning->getObject(objectHandle);
         CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(objectHandle);
         CDummy *dummy = App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
+        COcTree *octree = App::currentWorld->sceneObjects->getOctreeFromHandle(objectHandle);
         if (parameterID < sim_objparam_end)
         { // for all scene objects
             CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
@@ -9319,6 +9329,14 @@ int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double pa
                     it->setSizeFactor(parameter);
                     retVal = 1;
                 }
+            }
+        }
+        if (octree != nullptr)
+        {
+            if (parameterID == sim_octreefloatparam_voxelsize)
+            {
+                octree->setCellSize(parameter);
+                retVal = 1;
             }
         }
         if (light != nullptr)
@@ -12245,6 +12263,8 @@ int simGetShapeGeomInfo_internal(int shapeHandle, int *intData, double *floatDat
                 retVal |= 1;
                 if (shape->getMesh()->isPure())
                     retVal |= 2;
+                if (shape->getMesh()->isConvex())
+                    retVal |= 4;
             }
         }
         return (retVal);

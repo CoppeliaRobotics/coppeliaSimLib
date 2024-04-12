@@ -492,9 +492,7 @@ class CPluginContainer
 
     CPlugin *currentOpenGl3Plugin;
 
-    CPlugin *currentQHullPlugin;
-
-    CPlugin *currentConvexDecomposePlugin;
+    CPlugin *currentConvexPlugin;
 
     CPlugin *currentMeshDecimationPlugin;
 

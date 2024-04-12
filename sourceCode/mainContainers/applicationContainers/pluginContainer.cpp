@@ -25,8 +25,7 @@
 #define SIMCODEEDITOR_DEFAULT "simCodeEditor"
 #define SIMRUCKIG_DEFAULT "simRuckig"
 #define SIMASSIMP_DEFAULT "simAssimp"
-#define SIMQHULL_DEFAULT "simQHull"
-#define SIMCONVEXDECOMPOSE_DEFAULT "simConvexDecompose"
+#define SIMCONVEX_DEFAULT "simConvex"
 #define SIMOPENMESH_DEFAULT "simOpenMesh"
 #define SIMPOVRAY_DEFAULT "simPovRay"
 #define SIMOPENGL3_DEFAULT "simOpenGL3"
@@ -51,8 +50,7 @@ CPluginContainer::CPluginContainer()
     currentExternalRendererPlugin = nullptr;
     currentPovRayPlugin = nullptr;
     currentOpenGl3Plugin = nullptr;
-    currentQHullPlugin = nullptr;
-    currentConvexDecomposePlugin = nullptr;
+    currentConvexPlugin = nullptr;
     currentMeshDecimationPlugin = nullptr;
 
     ikEnvironment = -1;
@@ -490,33 +488,33 @@ bool CPluginContainer::extRenderer(int msg, void *data)
 
 bool CPluginContainer::qhull(void *data)
 {
-    if (currentQHullPlugin == nullptr)
-        currentQHullPlugin = _tryToLoadPluginOnce(SIMQHULL_DEFAULT);
+    if (currentConvexPlugin == nullptr)
+        currentConvexPlugin = _tryToLoadPluginOnce(SIMCONVEX_DEFAULT);
 
     bool retVal = false;
-    if (currentQHullPlugin != nullptr)
+    if (currentConvexPlugin != nullptr)
     {
-        currentQHullPlugin->pushCurrentPlugin();
-        currentQHullPlugin->qhullAddr(data);
-        currentQHullPlugin->popCurrentPlugin();
+        currentConvexPlugin->pushCurrentPlugin();
+        currentConvexPlugin->qhullAddr(data);
+        currentConvexPlugin->popCurrentPlugin();
         retVal = true;
     }
     else
-        App::logMsg(sim_verbosity_errors, "QHull plugin was not found.");
+        App::logMsg(sim_verbosity_errors, "simConvex plugin was not found.");
     return (retVal);
 }
 
 bool CPluginContainer::hacd(void *data)
 {
-    if (currentConvexDecomposePlugin == nullptr)
-        currentConvexDecomposePlugin = _tryToLoadPluginOnce(SIMCONVEXDECOMPOSE_DEFAULT);
+    if (currentConvexPlugin == nullptr)
+        currentConvexPlugin = _tryToLoadPluginOnce(SIMCONVEX_DEFAULT);
 
     bool retVal = false;
-    if (currentConvexDecomposePlugin != nullptr)
+    if (currentConvexPlugin != nullptr)
     {
-        currentConvexDecomposePlugin->pushCurrentPlugin();
-        currentConvexDecomposePlugin->hacdAddr(data);
-        currentConvexDecomposePlugin->popCurrentPlugin();
+        currentConvexPlugin->pushCurrentPlugin();
+        currentConvexPlugin->hacdAddr(data);
+        currentConvexPlugin->popCurrentPlugin();
         retVal = true;
     }
     return (retVal);
@@ -524,15 +522,15 @@ bool CPluginContainer::hacd(void *data)
 
 bool CPluginContainer::vhacd(void *data)
 {
-    if (currentConvexDecomposePlugin == nullptr)
-        currentConvexDecomposePlugin = _tryToLoadPluginOnce(SIMCONVEXDECOMPOSE_DEFAULT);
+    if (currentConvexPlugin == nullptr)
+        currentConvexPlugin = _tryToLoadPluginOnce(SIMCONVEX_DEFAULT);
 
     bool retVal = false;
-    if (currentConvexDecomposePlugin != nullptr)
+    if (currentConvexPlugin != nullptr)
     {
-        currentConvexDecomposePlugin->pushCurrentPlugin();
-        currentConvexDecomposePlugin->vhacdAddr(data);
-        currentConvexDecomposePlugin->popCurrentPlugin();
+        currentConvexPlugin->pushCurrentPlugin();
+        currentConvexPlugin->vhacdAddr(data);
+        currentConvexPlugin->popCurrentPlugin();
         retVal = true;
     }
     return (retVal);

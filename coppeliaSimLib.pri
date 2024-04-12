@@ -274,7 +274,6 @@ WITH_GUI {
     $$PWD/ui/qdlguserparameters.ui \
     $$PWD/ui/qdlgforcesensors.ui \
     $$PWD/ui/qdlgprimitives.ui \
-    $$PWD/ui/qdlgconvexdecomposition.ui \
     $$PWD/ui/qdlgvisionsensors.ui \
     $$PWD/ui/qdlgimagecolor.ui \
     $$PWD/ui/qdlgshapes.ui \
@@ -613,7 +612,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlguserparameters.h \
         $$PWD/sourceCode/gui/dialogs/qdlgforcesensors.h \
         $$PWD/sourceCode/gui/dialogs/qdlgprimitives.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgconvexdecomposition.h \
         $$PWD/sourceCode/gui/dialogs/qdlgvisionsensors.h \
         $$PWD/sourceCode/gui/dialogs/qdlgimagecolor.h \
         $$PWD/sourceCode/gui/dialogs/qdlgshapes.h \
@@ -994,7 +992,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlguserparameters.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgforcesensors.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgprimitives.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgconvexdecomposition.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgvisionsensors.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgimagecolor.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgshapes.cpp \

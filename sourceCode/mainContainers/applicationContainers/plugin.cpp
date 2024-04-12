@@ -51,9 +51,9 @@ CPlugin::CPlugin(const char *filename, const char *pluginnamespaceAndVersion, in
     ruckigPlugin_pos = nullptr;
     povRayAddr = nullptr;
     openGl3Addr = nullptr;
-    qhullAddr = nullptr;
     hacdAddr = nullptr;
     vhacdAddr = nullptr;
+    qhullAddr = nullptr;
     decimatorAddr = nullptr;
     bullet278_engine = nullptr;
     bullet283_engine = nullptr;
@@ -104,9 +104,7 @@ CPlugin::~CPlugin()
     if (openGl3Addr != nullptr) // also check constructor above
         App::worldContainer->pluginContainer->currentOpenGl3Plugin = nullptr;
     if (qhullAddr != nullptr) // also check constructor above
-        App::worldContainer->pluginContainer->currentQHullPlugin = nullptr;
-    if (hacdAddr != nullptr) // also check constructor above
-        App::worldContainer->pluginContainer->currentConvexDecomposePlugin = nullptr;
+        App::worldContainer->pluginContainer->currentConvexPlugin = nullptr;
     if (decimatorAddr != nullptr) // also check constructor above
         App::worldContainer->pluginContainer->currentMeshDecimationPlugin = nullptr;
     _pluginCallbackContainer.clear();
@@ -526,14 +524,11 @@ void CPlugin::_loadAuxEntryPoints()
     if (openGl3Addr != nullptr)
         App::worldContainer->pluginContainer->currentOpenGl3Plugin = this;
 
-    qhullAddr = (ptrQhull)(VVarious::resolveLibraryFuncName(instance, "simQhull"));
-    if (qhullAddr != nullptr)
-        App::worldContainer->pluginContainer->currentQHullPlugin = this;
-
     hacdAddr = (ptrHACD)(VVarious::resolveLibraryFuncName(instance, "simHACD"));
     vhacdAddr = (ptrVHACD)(VVarious::resolveLibraryFuncName(instance, "simVHACD"));
-    if ((hacdAddr != nullptr) && (vhacdAddr != nullptr))
-        App::worldContainer->pluginContainer->currentConvexDecomposePlugin = this;
+    qhullAddr = (ptrQhull)(VVarious::resolveLibraryFuncName(instance, "simQhull"));
+    if ((hacdAddr != nullptr) && (vhacdAddr != nullptr) && (qhullAddr != nullptr))
+        App::worldContainer->pluginContainer->currentConvexPlugin = this;
 
     decimatorAddr = (ptrMeshDecimator)(VVarious::resolveLibraryFuncName(instance, "simDecimateMesh"));
     if (decimatorAddr != nullptr)

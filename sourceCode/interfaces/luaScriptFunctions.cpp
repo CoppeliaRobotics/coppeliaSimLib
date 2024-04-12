@@ -1310,6 +1310,9 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.mirrorfloatparam_height", sim_mirrorfloatparam_height},
     {"sim.mirrorfloatparam_reflectance", sim_mirrorfloatparam_reflectance},
     {"sim.mirrorintparam_enable", sim_mirrorintparam_enable},
+    // oc trees
+    {"sim.octreefloatparam_voxelsize", sim_octreefloatparam_voxelsize},
+
     // Bullet engine params
     {"sim.bullet_global_internalscalingfactor", sim_bullet_global_internalscalingfactor},
     {"sim.bullet_global_collisionmarginfactor", sim_bullet_global_collisionmarginfactor},

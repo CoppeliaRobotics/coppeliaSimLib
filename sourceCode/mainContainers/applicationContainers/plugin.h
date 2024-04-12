@@ -666,10 +666,9 @@ class CPlugin
 
     ptrExtRenderer openGl3Addr;
 
-    ptrQhull qhullAddr;
-
     ptrHACD hacdAddr;
     ptrVHACD vhacdAddr;
+    ptrQhull qhullAddr;
 
     ptrMeshDecimator decimatorAddr;
 

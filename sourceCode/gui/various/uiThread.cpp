@@ -16,7 +16,6 @@
 #include <qdlgslider.h>
 #include <qdlgslider2.h>
 #include <vFileDialog.h>
-#include <qdlgconvexdecomposition.h>
 #include <qdlgopenglsettings.h>
 #include <qdlgmessageandcheckbox.h>
 #include <qdlgmodelthumbnailvisu.h>
@@ -136,87 +135,11 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
         cmdOut->boolParams.push_back(showOrHideEmergencyStop(cmdIn->boolParams[0], cmdIn->stringParams[0].c_str()));
 
     if (GuiApp::canShowDialogs() &&
-        (cmdIn->cmdId == DISPLAY_MESH_DECIMATION_DIALOG_UITHREADCMD))
-    {
-        CQDlgSlider theDialog(GuiApp::mainWindow);
-        theDialog.opMode = 0;
-        theDialog.triCnt = cmdIn->intParams[0];
-        theDialog.decimationPercent = cmdIn->floatParams[0];
-        theDialog.refresh();
-        bool cancel = (theDialog.makeDialogModal() == VDIALOG_MODAL_RETURN_CANCEL);
-        cmdOut->boolParams.push_back(!cancel);
-        cmdOut->floatParams.push_back(theDialog.decimationPercent);
-    }
-
-    if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == DISPLAY_OR_HIDE_PROGRESS_DIALOG_UITHREADCMD))
         showOrHideProgressBar(cmdIn->boolParams[0], cmdIn->floatParams[0], cmdIn->stringParams[0].c_str());
 
     if (cmdIn->cmdId == COPY_TEXT_TO_CLIPBOARD_UITHREADCMD)
         VVarious::copyTextToClipboard(cmdIn->stringParams[0].c_str());
-
-    if (GuiApp::canShowDialogs() &&
-        (cmdIn->cmdId == DISPLAY_CONVEX_DECOMPOSITION_DIALOG_UITHREADCMD))
-    {
-        CQDlgConvexDecomposition theDialog(GuiApp::mainWindow);
-        if (cmdIn->boolParams.size() > 0)
-        { // we want to apply the values passed as initial dialog settings:
-            theDialog.addExtraDistPoints = cmdIn->boolParams[0];
-            theDialog.addFacesPoints = cmdIn->boolParams[1];
-            theDialog.nClusters = cmdIn->intParams[0];
-            theDialog.maxHullVertices = cmdIn->intParams[1];
-            theDialog.maxConcavity = cmdIn->floatParams[0];
-            theDialog.smallClusterThreshold = cmdIn->floatParams[1];
-            theDialog.maxTrianglesInDecimatedMesh = cmdIn->intParams[2];
-            theDialog.maxConnectDist = cmdIn->floatParams[2];
-            // reserved=cmdIn->boolParams[2];
-            // reserved=cmdIn->boolParams[3];
-            // reserved=cmdIn->intParams[3];
-            // reserved=cmdIn->boolParams[4];
-            theDialog.useHACD = cmdIn->boolParams[5];
-            theDialog.resolution = cmdIn->intParams[4];
-            theDialog.depth = cmdIn->intParams[5];
-            theDialog.concavity = cmdIn->floatParams[3];
-            theDialog.planeDownsampling = cmdIn->intParams[6];
-            theDialog.convexHullDownsampling = cmdIn->intParams[7];
-            theDialog.alpha = cmdIn->floatParams[4];
-            theDialog.beta = cmdIn->floatParams[5];
-            theDialog.gamma = cmdIn->floatParams[6];
-            theDialog.pca = cmdIn->boolParams[6];
-            theDialog.voxelBasedMode = cmdIn->boolParams[7];
-            theDialog.maxNumVerticesPerCH = cmdIn->intParams[8];
-            theDialog.minVolumePerCH = cmdIn->floatParams[7];
-        }
-
-        theDialog.refresh();
-        bool cancel = (theDialog.makeDialogModal() == VDIALOG_MODAL_RETURN_CANCEL);
-
-        cmdOut->boolParams.push_back(theDialog.addExtraDistPoints);
-        cmdOut->boolParams.push_back(theDialog.addFacesPoints);
-        cmdOut->intParams.push_back(theDialog.nClusters);
-        cmdOut->intParams.push_back(theDialog.maxHullVertices);
-        cmdOut->floatParams.push_back(theDialog.maxConcavity);
-        cmdOut->floatParams.push_back(theDialog.smallClusterThreshold);
-        cmdOut->intParams.push_back(theDialog.maxTrianglesInDecimatedMesh);
-        cmdOut->floatParams.push_back(theDialog.maxConnectDist);
-        cmdOut->boolParams.push_back(true);
-        cmdOut->boolParams.push_back(false);
-        cmdOut->intParams.push_back(4); // previously maxIterations
-        cmdOut->boolParams.push_back(cancel);
-        cmdOut->boolParams.push_back(theDialog.useHACD);
-        cmdOut->intParams.push_back(theDialog.resolution);
-        cmdOut->intParams.push_back(theDialog.depth);
-        cmdOut->floatParams.push_back(theDialog.concavity);
-        cmdOut->intParams.push_back(theDialog.planeDownsampling);
-        cmdOut->intParams.push_back(theDialog.convexHullDownsampling);
-        cmdOut->floatParams.push_back(theDialog.alpha);
-        cmdOut->floatParams.push_back(theDialog.beta);
-        cmdOut->floatParams.push_back(theDialog.gamma);
-        cmdOut->boolParams.push_back(theDialog.pca);
-        cmdOut->boolParams.push_back(theDialog.voxelBasedMode);
-        cmdOut->intParams.push_back(theDialog.maxNumVerticesPerCH);
-        cmdOut->floatParams.push_back(theDialog.minVolumePerCH);
-    }
 
     if (cmdIn->cmdId == INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD)
     {

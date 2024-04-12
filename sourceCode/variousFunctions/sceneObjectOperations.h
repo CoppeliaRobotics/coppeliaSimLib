@@ -25,7 +25,6 @@ class CSceneObjectOperations
     static void _ungroupShape(CShape *it, std::vector<CShape *> &newShapes);
     static CShape *_mergeShapes(const std::vector<CShape *> &allShapesToMerge);
     static bool _divideShape(CShape *it, std::vector<CShape *> &newShapes);
-    static CMesh *_generateConvexHull(int shapeHandle);
     static CShape *_morphToConvexDecomposed(CShape *it, size_t nClusters, double maxConcavity, bool addExtraDistPoints,
                                             bool addFacesPoints, double maxConnectDist,
                                             size_t maxTrianglesInDecimatedMesh, size_t maxHullVertices,

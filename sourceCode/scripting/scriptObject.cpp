@@ -4562,8 +4562,6 @@ const SNewApiMapping _simApiMapping[] = {
     "sim.groupShapes",
     "simUngroupShape",
     "sim.ungroupShape",
-    "simConvexDecompose",
-    "sim.convexDecompose",
     "simAddGhost",
     "sim.addGhost",
     "simModifyGhost",
