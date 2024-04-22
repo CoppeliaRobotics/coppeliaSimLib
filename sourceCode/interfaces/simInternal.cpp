@@ -1640,14 +1640,22 @@ int simGetObjectChild_internal(int objectHandle, int index)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (!doesObjectExist(__func__, objectHandle))
-        {
-            return (-1);
-        }
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal = -1;
-        if (int(it->getChildCount()) > index)
-            retVal = it->getChildFromIndex(index)->getObjectHandle();
+        if (objectHandle == sim_handle_scene)
+        {
+            CSceneObject *it = App::currentWorld->sceneObjects->getOrphanFromIndex(index);
+            if (it != nullptr)
+                retVal = it->getObjectHandle();
+        }
+        else
+        {
+            if (doesObjectExist(__func__, objectHandle))
+            {
+                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+                if (int(it->getChildCount()) > index)
+                    retVal = it->getChildFromIndex(index)->getObjectHandle();
+            }
+        }
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
