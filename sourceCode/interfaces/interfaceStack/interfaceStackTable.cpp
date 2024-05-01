@@ -609,7 +609,7 @@ CInterfaceStackObject *CInterfaceStackTable::getMapItemAtIndex(size_t ind, std::
                 stringKey.assign(c, c + l);
         }
         else
-            keyType == sim_stackitem_table; // not a valid key
+            keyType = sim_stackitem_table; // not a valid key
     }
     return (_tableObjects[2 * ind + 1]);
 }

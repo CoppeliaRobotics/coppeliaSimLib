@@ -1407,7 +1407,6 @@ int simSetJointTargetPosition_internal(int objectHandle, double targetPosition)
             }
             else
                 it->setKinematicMotionType(0, true); // reset
-            return (-1);
         }
         return (1);
     }
@@ -15708,9 +15707,9 @@ double _simGetMass_internal(const void *geomInfo)
 double _simGetLocalInertiaInfo_internal(const void *object, double *pos, double *quat, double *diag)
 { // returns the diag inertia (with mass!)
     CShape *shape = (CShape *)object;
+    double mass = shape->getMesh()->getMass();
     C3Vector diagI;
     C7Vector localTr(shape->getMesh()->getDiagonalInertiaInfo(diagI));
-    double mass = shape->getMesh()->getMass();
     if (App::currentWorld->dynamicsContainer->getComputeInertias())
     {
         if (shape->getMesh()->isPure())
@@ -15866,10 +15865,22 @@ void _simGetObjectCumulativeTransformation_internal(const void *object, double *
 {
     C_API_START;
     C7Vector tr;
+    CSceneObject* obj = (CSceneObject*)object;
     if (excludeFirstJointTransformation != 0)
-        tr = ((CSceneObject *)object)->getCumulativeTransformation();
+        tr = obj->getCumulativeTransformation();
     else
-        tr = ((CSceneObject *)object)->getFullCumulativeTransformation();
+        tr = obj->getFullCumulativeTransformation();
+
+    if (obj->getObjectType() == sim_object_shape_type)
+    {
+        CShape* shape = (CShape*)obj;
+        if (shape->getMesh()->getPurePrimitiveType() == sim_primitiveshape_heightfield)
+        { // Special handling with Heightfields (all data for physics engines need to be centered with heightfields)
+            tr *= shape->getMesh()->getBB(nullptr);
+        }
+    }
+
+
     if (pos != nullptr)
         tr.X.getData(pos);
     if (quat != nullptr)

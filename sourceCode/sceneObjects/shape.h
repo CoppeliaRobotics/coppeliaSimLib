@@ -8,7 +8,7 @@ class CShape : public CSceneObject
 {
   public:
     CShape();
-    CShape(const std::vector<double> &allHeights, int xSize, int ySize, double dx, double zSize); // heightfield
+    CShape(const std::vector<double> &allHeights, int xSize, int ySize, double dx, double minH, double maxH); // heightfield
     CShape(const C7Vector &transformation, const std::vector<double> &vertices, const std::vector<int> &indices,
            const std::vector<double> *optNormals, const std::vector<float> *optTexCoords, int options); // mesh
     virtual ~CShape();

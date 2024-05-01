@@ -9288,6 +9288,7 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
     // if (getLanguage()==sim_lang_lua)
     //    _scriptText.insert(0,"--lua\n\n");
 
+
     if (_containsScriptText_old(scriptObject, "sim.dummyintparam_link_type"))
         App::logMsg(sim_verbosity_errors, "Contains sim.dummyintparam_link_type...");
 

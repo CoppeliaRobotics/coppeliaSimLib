@@ -436,7 +436,7 @@ int CFileOperations::createHeightfield(int xSize, double pointSpacing,
                 minHeight = readData[i]->at(j);
         }
     }
-    CShape *shape = new CShape(allHeights, xSize, ySize, pointSpacing, maxHeight - minHeight);
+    CShape *shape = new CShape(allHeights, xSize, ySize, pointSpacing, minHeight, maxHeight);
 
     if (options & 4)
         shape->getSingleMesh()->setPurePrimitiveType(sim_primitiveshape_none, 1.0, 1.0, 1.0);

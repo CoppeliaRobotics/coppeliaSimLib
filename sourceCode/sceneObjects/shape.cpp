@@ -19,7 +19,7 @@ CShape::CShape()
     commonInit();
 }
 
-CShape::CShape(const std::vector<double> &allHeights, int xSize, int ySize, double dx, double zSize)
+CShape::CShape(const std::vector<double> &allHeights, int xSize, int ySize, double dx, double minH, double maxH)
 { // heightfields
     commonInit();
 
@@ -55,8 +55,7 @@ CShape::CShape(const std::vector<double> &allHeights, int xSize, int ySize, doub
 
     CMesh *newMesh = new CMesh(_localTransformation, vertices, indices, nullptr, nullptr, 0);
     replaceMesh(newMesh, false);
-    newMesh->setPurePrimitiveType(sim_primitiveshape_heightfield, double(xSize - 1) * dx, double(ySize - 1) * dx,
-                                  zSize);
+    newMesh->setPurePrimitiveType(sim_primitiveshape_heightfield, double(xSize - 1) * dx, double(ySize - 1) * dx, maxH - minH);
     std::vector<double> heightsInCorrectOrder;
     for (int i = 0; i < ySize; i++)
     {
@@ -64,7 +63,7 @@ CShape::CShape(const std::vector<double> &allHeights, int xSize, int ySize, doub
         // for (int j=xSize-1;j>=0;j--)
         //  heightsInCorrectOrder.push_back(allHeights[i*xSize+j]);
         for (int j = 0; j < xSize; j++)
-            heightsInCorrectOrder.push_back(allHeights[i * xSize + j]);
+            heightsInCorrectOrder.push_back(allHeights[i * xSize + j]); //  + (minH + maxH) * 0.5
     }
     newMesh->setHeightfieldData(heightsInCorrectOrder, xSize, ySize);
 }

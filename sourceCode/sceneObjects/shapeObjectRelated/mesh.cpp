@@ -814,6 +814,19 @@ double *CMesh::getHeightfieldData(int &xCount, int &yCount, double &minHeight, d
         if (_heightfieldHeights[i] > maxHeight)
             maxHeight = _heightfieldHeights[i];
     }
+    /* testing:
+    static std::vector<double> _hf;
+    double m = (minHeight + maxHeight) * 0.5;
+    _hf.assign(_heightfieldHeights.begin(), _heightfieldHeights.end());
+    for (size_t i = 0; i < _hf.size(); i++)
+        _hf[i] -= m;
+    minHeight -= m;
+    maxHeight -= m;
+    return (&_hf[0]);
+
+    //printf("_bbFrame: %f, %f, %f\n", _bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2));
+    //printf("_iFrame: %f, %f, %f\n", _iFrame.X(0), _iFrame.X(1), _iFrame.X(2));
+    //*/
     return (&_heightfieldHeights[0]);
 }
 

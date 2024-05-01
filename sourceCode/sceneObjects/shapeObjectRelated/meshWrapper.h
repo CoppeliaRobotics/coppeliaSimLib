@@ -120,8 +120,7 @@ class CMeshWrapper
     C3Vector _com;       // Center of mass, relative to _iFrame
     C3X3Matrix _iMatrix; // Mass-less inertia matrix, expressed in the _iFrame
     C3Vector _pmi;       // Principal moment of inertia (calculated from _iMatrix), expressed in the _iFrame
-    C4Vector
-        _pmiRotFrame;  // Frame of the principal moment of inertia (calculated from _iMatrix), expressed in the _iFrame
+    C4Vector _pmiRotFrame;  // Frame of the principal moment of inertia (calculated from _iMatrix), expressed in the _iFrame
     C7Vector _bbFrame; // Ref. frame of the bounding box and vertices, relative to _iFrame
     C3Vector _bbSize;  // Size of the bounding box, relative to _iFrame
 
