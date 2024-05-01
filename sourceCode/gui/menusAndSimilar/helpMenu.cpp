@@ -60,16 +60,16 @@ bool CHelpMenu::processCommand(int commandID)
 
         if (((SIM_PROGRAM_REVISION_NB % 2) > 0) || (!GuiApp::isOnline()))
         {
-            std::string tmp(App::folders->getResourcesPath() + "/helpFiles/index.html");
+            std::string tmp(App::folders->getResourcesPath() + "/manual/index.html");
             App::logMsg(sim_verbosity_msgs, "Opening the locally stored user manual...");
             VVarious::openOfflineUrl(tmp.c_str());
         }
         else
         {
             App::logMsg(sim_verbosity_msgs,
-                        "Opening the online user manual at https://coppeliarobotics.com/helpFiles/index.html... if "
+                        "Opening the online user manual at https://manual.coppeliarobotics.com/index.html... if "
                         "this fails, check the locally stored user manual.");
-            VVarious::openOnlineUrl("https://coppeliarobotics.com/helpFiles/index.html");
+            VVarious::openOnlineUrl("https://manual.coppeliarobotics.com/index.html");
         }
         return (true);
     }

@@ -4939,7 +4939,7 @@ int simGetObjectHandleEx_internal(const char *objectAlias, int index, int proxy,
                         "displayed anymore. Additionally, sim.getObject is preferred over sim.getObjectHandle.";
                     additionalMessage_backCompatibility +=
                         "\nMake sure to read the following page for additional details: "
-                        "https://www.coppeliarobotics.com/helpFiles/en/accessingSceneObjects.htm";
+                        "https://www.manual.coppeliarobotics.com/en/accessingSceneObjects.htm";
                 }
             }
             else
