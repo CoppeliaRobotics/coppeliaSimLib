@@ -30,7 +30,7 @@ void CQDlgPointclouds::refresh()
     bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
     bool noEditModeAndNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
 
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionAPointCloud();
+    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_pointcloud_type);
     size_t objCnt = App::currentWorld->sceneObjects->getSelectionCount();
     bool octreeStruct = false;
     CPointCloud *it = App::currentWorld->sceneObjects->getLastSelectionPointCloud();

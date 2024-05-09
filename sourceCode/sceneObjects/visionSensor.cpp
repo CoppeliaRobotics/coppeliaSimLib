@@ -1069,7 +1069,7 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
 
 void CVisionSensor::_extRenderer_prepareLights()
 { // Set-up the lights:
-    for (size_t li = 0; li < App::currentWorld->sceneObjects->getLightCount(); li++)
+    for (size_t li = 0; li < App::currentWorld->sceneObjects->getObjectCount(sim_object_light_type); li++)
     {
         CLight *light = App::currentWorld->sceneObjects->getLightFromIndex(li);
         if (light->getLightActive())
@@ -1753,7 +1753,7 @@ int CVisionSensor::_getActiveMirrors(int entityID, bool detectAll,
                                      bool overrideRenderableFlagsForNonCollections, int rendAttrib,
                                      std::vector<int> &activeMirrors)
 {
-    if (App::currentWorld->sceneObjects->getMirrorCount() == 0)
+    if (App::currentWorld->sceneObjects->getObjectCount(sim_object_mirror_type) == 0)
         return (0);
     if (App::currentWorld->mainSettings->mirrorsDisabled)
         return (0);
@@ -2174,11 +2174,11 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         }
     }
 
-    CScriptObject *script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+    CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
         sim_scripttype_childscript, _objectHandle);
     if ((script != nullptr) && (!script->hasSystemFunctionOrHook(sim_syscb_vision)))
         script = nullptr;
-    CScriptObject *cScript = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+    CScriptObject *cScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
         sim_scripttype_customizationscript, _objectHandle);
     if ((cScript != nullptr) && (!cScript->hasSystemFunctionOrHook(sim_syscb_vision)))
         cScript = nullptr;

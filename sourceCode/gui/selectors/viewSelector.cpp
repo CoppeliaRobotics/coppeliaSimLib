@@ -389,8 +389,8 @@ bool CViewSelector::processCommand(int commandID, int subViewIndex)
             CSView *subView = view->getView(size_t(subViewIndex));
             if (subView == nullptr)
                 return (true);
-            int cameraNb = (int)App::currentWorld->sceneObjects->getCameraCount();
-            int rendSensNb = (int)App::currentWorld->sceneObjects->getVisionSensorCount();
+            int cameraNb = (int)App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type);
+            int rendSensNb = (int)App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type);
 
             if (cameraNb + rendSensNb > 0)
                 GuiApp::mainWindow->oglSurface->startViewSelection(VIEWABLE_VIEW_SELECT_MODE, subViewIndex);

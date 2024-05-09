@@ -2127,7 +2127,7 @@ void CCamera::lookIn(int windowSize[2], CSView *subView, bool drawText, bool pas
 void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int navigationMode, int currentWinSize[2],
                              CSView *subView)
 {
-    if (App::currentWorld->sceneObjects->getMirrorCount() == 0)
+    if (App::currentWorld->sceneObjects->getObjectCount(sim_object_mirror_type) == 0)
         return;
 
     C7Vector camTr(getFullCumulativeTransformation());
@@ -2141,7 +2141,7 @@ void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int 
 
     std::vector<int> allMirrors;
     std::vector<double> allMirrorDist;
-    for (size_t mir = 0; mir < App::currentWorld->sceneObjects->getMirrorCount(); mir++)
+    for (size_t mir = 0; mir < App::currentWorld->sceneObjects->getObjectCount(sim_object_mirror_type); mir++)
     {
         CMirror *myMirror = App::currentWorld->sceneObjects->getMirrorFromIndex(mir);
         C7Vector mmtr(myMirror->getFullCumulativeTransformation());
@@ -2355,7 +2355,7 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex, int resolution[2], 
 
 void CCamera::_extRenderer_prepareLights()
 { // Set-up the lights:
-    for (size_t li = 0; li < App::currentWorld->sceneObjects->getLightCount(); li++)
+    for (size_t li = 0; li < App::currentWorld->sceneObjects->getObjectCount(sim_object_light_type); li++)
     {
         CLight *light = App::currentWorld->sceneObjects->getLightFromIndex(li);
         if (light->getLightActive())
@@ -2636,7 +2636,7 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
                     _currentPerspective); // those objects are overlay
             if (getInternalRendering())
             { // Now we display all graphs' 3D curves that should appear on top of everything:
-                for (size_t i = 0; i < App::currentWorld->sceneObjects->getGraphCount(); i++)
+                for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_graph_type); i++)
                 {
                     CGraph *it = App::currentWorld->sceneObjects->getGraphFromIndex(i);
                     if (it != nullptr)
@@ -2671,8 +2671,7 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
             {
                 // Wireless communication activities:
                 if ((displayAttrib & sim_displayattribute_dynamiccontentonly) == 0)
-                    App::currentWorld->embeddedScriptContainer->broadcastDataContainer.visualizeCommunications(
-                        (int)VDateTime::getTimeInMs());
+                    App::currentWorld->sceneObjects->embeddedScriptContainer->broadcastDataContainer.visualizeCommunications((int)VDateTime::getTimeInMs());
             }
         }
     }

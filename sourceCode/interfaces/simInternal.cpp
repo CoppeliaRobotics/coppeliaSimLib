@@ -659,9 +659,22 @@ int simGetObject_internal(const char *objectPath, int index, int proxy, int opti
         const CSceneObject *emittingObj = nullptr;
         if (prox == nullptr)
         {
-            int objHandle =
-                App::currentWorld->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
-            emittingObj = App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
+            if (_currentScriptHandle <= SIM_IDEND_SCENEOBJECT)
+            {
+                CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(_currentScriptHandle);
+                if (it != nullptr)
+                {
+                    if (it->scriptObject->getParentIsProxy())
+                        emittingObj = it->getParent();
+                    else
+                        emittingObj = it;
+                }
+            }
+            else
+            { // legacy child+customization scripts (and main script)
+                int objHandle = App::currentWorld->sceneObjects->embeddedScriptContainer->getObjectHandleFromScriptHandle(_currentScriptHandle);
+                emittingObj = App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
+            }
         }
         else
             emittingObj = prox;
@@ -720,25 +733,27 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char *
     {
         CScriptObject *it = nullptr;
         if (scriptType == sim_scripttype_mainscript)
-            it = App::currentWorld->embeddedScriptContainer->getMainScript();
+            it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (scriptType == sim_scripttype_sandboxscript)
             it = App::worldContainer->sandboxScript;
         if (scriptType == sim_scripttype_childscript)
         {
             if ((objectHandle < 0) && (scriptName != nullptr))
                 objectHandle = simGetObjectHandleEx_internal(scriptName, -1, -1, 0);
-            it = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,
+            it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,
                                                                                            objectHandle);
         }
         if (scriptType == sim_scripttype_customizationscript)
         {
             if ((objectHandle < 0) && (scriptName != nullptr))
                 objectHandle = simGetObjectHandleEx_internal(scriptName, -1, -1, 0);
-            it = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_customizationscript, objectHandle);
         }
         if ((scriptType == sim_scripttype_addonscript) && (scriptName != nullptr))
             it = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName);
+        if (it == nullptr)
+            it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(objectHandle);
         if ((it != nullptr) && (!it->getFlaggedForDestruction()))
             return (it->getScriptHandle());
         return (-1);
@@ -2465,7 +2480,7 @@ int simSetBoolParam_internal(int parameter, bool boolState)
             (parameter == sim_boolparam_force_calcstruct_all))
         {
             int displayAttrib = sim_displayattribute_renderpass;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getShapeCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
             {
                 int shapeHandle = App::currentWorld->sceneObjects->getShapeFromIndex(i)->getObjectHandle();
                 CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
@@ -3832,7 +3847,7 @@ int simSetFloatParam_internal(int parameter, double floatState)
             if (App::currentWorld->environment == nullptr)
                 return (-1);
             App::currentWorld->environment->setCalculationMaxTriangleSize(floatState);
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getShapeCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
             {
                 CShape *sh = App::currentWorld->sceneObjects->getShapeFromIndex(i);
                 sh->removeMeshCalculationStructure();
@@ -3844,7 +3859,7 @@ int simSetFloatParam_internal(int parameter, double floatState)
             if (App::currentWorld->environment == nullptr)
                 return (-1);
             App::currentWorld->environment->setCalculationMinRelTriangleSize(floatState);
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getShapeCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
             {
                 CShape *sh = App::currentWorld->sceneObjects->getShapeFromIndex(i);
                 sh->removeMeshCalculationStructure();
@@ -4528,7 +4543,7 @@ int simHandleProximitySensor_internal(int sensorHandle, double *detectedPoint, i
             int detectedObjectID = -1;
             C3Vector detectedSurfaceNormal;
             double allSmallestL = DBL_MAX;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getProximitySensorCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_proximitysensor_type); i++)
             {
                 int detectedObj;
                 C3Vector detectedSurf;
@@ -4634,10 +4649,10 @@ int simResetScript_internal(int scriptHandle)
     {
         if (scriptHandle == sim_handle_all)
         {
-            App::currentWorld->embeddedScriptContainer->killAllSimulationLuaStates();
+            App::currentWorld->sceneObjects->embeddedScriptContainer->killAllSimulationLuaStates();
             return (1);
         }
-        CScriptObject *it = App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -4657,7 +4672,7 @@ int simAssociateScriptWithObject_internal(int scriptHandle, int associatedObject
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        CScriptObject *it = App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptHandle);
         if (it != nullptr)
         {
             if ((it->getScriptType() == sim_scripttype_childscript) ||
@@ -4680,11 +4695,11 @@ int simAssociateScriptWithObject_internal(int scriptHandle, int associatedObject
                             CScriptObject *currentSimilarObj = nullptr;
                             if (it->getScriptType() == sim_scripttype_childscript)
                                 currentSimilarObj =
-                                    App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                                    App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                                         sim_scripttype_childscript, associatedObjectHandle);
                             if (it->getScriptType() == sim_scripttype_customizationscript)
                                 currentSimilarObj =
-                                    App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                                    App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                                         sim_scripttype_customizationscript, associatedObjectHandle);
                             if (currentSimilarObj == nullptr)
                             {
@@ -4730,7 +4745,7 @@ int simAddScript_internal(int scriptProperty)
                 it->setExecuteJustOnce_oldThreads(true);
             }
         }
-        int retVal = App::currentWorld->embeddedScriptContainer->insertScript(it);
+        int retVal = App::currentWorld->sceneObjects->embeddedScriptContainer->insertScript(it);
 #ifdef SIM_WITH_GUI
         GuiApp::setFullDialogRefreshFlag();
 #endif
@@ -4753,13 +4768,13 @@ int simRemoveScript_internal(int scriptHandle)
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SIMULATION_NOT_STOPPED);
                 return (-1);
             }
-            App::currentWorld->embeddedScriptContainer->removeAllScripts();
+            App::currentWorld->sceneObjects->embeddedScriptContainer->removeAllScripts();
 #ifdef SIM_WITH_GUI
             GuiApp::setFullDialogRefreshFlag();
 #endif
             return (1);
         }
-        CScriptObject *it = App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -4769,7 +4784,7 @@ int simRemoveScript_internal(int scriptHandle)
         if (GuiApp::mainWindow != nullptr)
             GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle, nullptr, true);
 #endif
-        App::currentWorld->embeddedScriptContainer->removeScript_safe(scriptHandle);
+        App::currentWorld->sceneObjects->embeddedScriptContainer->removeScript_safe(scriptHandle);
 #ifdef SIM_WITH_GUI
         GuiApp::setFullDialogRefreshFlag();
 #endif
@@ -4792,7 +4807,7 @@ int simResetProximitySensor_internal(int sensorHandle)
                 return (-1);
             }
         }
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getProximitySensorCount(); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_proximitysensor_type); i++)
         {
             CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromIndex(i);
             if (sensorHandle >= 0)
@@ -5076,7 +5091,7 @@ int simRegisterScriptFuncHook_internal(int scriptHandle, const char *funcToHook,
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        CScriptObject *it = App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         if (it != nullptr)
             retVal = it->registerFunctionHook(funcToHook, userFunction, executeBefore);
         else
@@ -5302,7 +5317,7 @@ int simHandleGraph_internal(int graphHandle, double simulationTime)
         }
         if (graphHandle < 0)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getGraphCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_graph_type); i++)
             {
                 CGraph *it = App::currentWorld->sceneObjects->getGraphFromIndex(i);
                 if ((!it->getExplicitHandling()) || (graphHandle == sim_handle_all))
@@ -5338,7 +5353,7 @@ int simResetGraph_internal(int graphHandle)
         }
         if (graphHandle < 0)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getGraphCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_graph_type); i++)
             {
                 CGraph *it = App::currentWorld->sceneObjects->getGraphFromIndex(i);
                 if ((!it->getExplicitHandling()) || (graphHandle == sim_handle_all))
@@ -5665,6 +5680,8 @@ int simCopyPasteObjects_internal(int *objectHandles, int objectCount, int option
 
             if (options & 1)
                 App::currentWorld->sceneObjects->addModelObjects(sel);
+            if ((options & 2) == 0)
+                App::currentWorld->sceneObjects->addCompatibilityScripts(sel);
             App::worldContainer->copyBuffer->memorizeBuffer();
             App::worldContainer->copyBuffer->copyCurrentSelection(
                 &sel, App::currentWorld->environment->getSceneLocked(), options >> 1);
@@ -6845,7 +6862,7 @@ int simSetShapeColor_internal(int shapeHandle, const char *colorName, int colorC
             return (-1);
         if (shapeHandle == sim_handle_all)
         { // deprecated functionality
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getShapeCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
             {
                 CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
                 it->setColor(colorName, colorComponent, rgbData);
@@ -7492,6 +7509,21 @@ int simCreateDummy_internal(double size, const float *reserved)
             it->getDummyColor()->setColor(reserved + 6, sim_colorcomponent_specular);
             it->getDummyColor()->setColor(reserved + 9, sim_colorcomponent_emission);
         }
+        App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
+        int retVal = it->getObjectHandle();
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return (-1);
+}
+
+int simCreateScript_internal(int scriptType,const char* scriptText, int options)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        CScript *it = new CScript(scriptType, scriptText, options);
         App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
         return (retVal);
@@ -9979,7 +10011,7 @@ int simGetScriptInt32Param_internal(int scriptHandle, int parameterID, int *para
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CScriptObject *it = App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -10031,7 +10063,7 @@ int simSetScriptInt32Param_internal(int scriptHandle, int parameterID, int param
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CScriptObject *it = App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -10071,7 +10103,7 @@ char *simGetScriptStringParam_internal(int scriptHandle, int parameterID, int *p
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CScriptObject *it = App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -10127,7 +10159,7 @@ int simSetScriptStringParam_internal(int scriptHandle, int parameterID, const ch
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CScriptObject *it = App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -10362,7 +10394,7 @@ int simIsHandle_internal(int generalObjectHandle, int generalObjectType)
             (App::currentWorld->collections->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_script_type)) &&
-            (App::worldContainer->getScriptFromHandle(generalObjectHandle) != nullptr))
+            (App::worldContainer->getScriptObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_texture_type)) &&
             (App::currentWorld->textureContainer->getObject(generalObjectHandle) != nullptr))
@@ -10406,7 +10438,7 @@ int simHandleVisionSensor_internal(int visionSensorHandle, double **auxValues, i
         if (auxValuesCount != nullptr)
             auxValuesCount[0] = nullptr;
         int retVal = 0;
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getVisionSensorCount(); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type); i++)
         {
             CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
             if (visionSensorHandle >= 0)
@@ -10505,7 +10537,7 @@ int simResetVisionSensor_internal(int visionSensorHandle)
                 return (-1);
             }
         }
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getVisionSensorCount(); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type); i++)
         {
             CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
             if (visionSensorHandle >= 0)
@@ -11299,7 +11331,7 @@ int simInitScript_internal(int scriptHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CScriptObject *it = App::worldContainer->getScriptFromHandle(scriptHandle);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         if (it != nullptr)
         {
             it->resetScript();
@@ -11368,7 +11400,7 @@ int simCheckExecAuthorization_internal(const char *what, const char *args, int s
             std::string x, y;
             if (h >= 0)
             {
-                it = App::worldContainer->getScriptFromHandle(h);
+                it = App::worldContainer->getScriptObjectFromHandle(h);
                 if (it != nullptr)
                 {
                     x = x + args + " ";
@@ -11953,67 +11985,70 @@ int simWriteCustomDataBlock_internal(int objectHandle, const char *tagName, cons
             // ---------------------- Old -----------------------------
         }
 
-        // ---------------------- Old -----------------------------
-        if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
-        { // here we have a script
-            if (!App::userSettings->compatibilityFix1)
-            {
-                std::string tmp(
-                    "targeting a script is not supported anymore. Please adjust your code. Temporarily (until next "
-                    "release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
-                tmp += App::folders->getUserSettingsPath() + "/usrset.txt";
-                CApiErrors::setLastWarningOrError(__func__, tmp.c_str());
-                return (-1);
-            }
-
-            CScriptObject *script = App::worldContainer->getScriptFromHandle(objectHandle);
-            if (script != nullptr)
+        if (!App::userSettings->useSceneObjectScripts)
+        {
+            // ---------------------- Old -----------------------------
+            if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
             { // here we have a script
-                if (useTempBuffer)
+                if (!App::userSettings->compatibilityFix1)
                 {
-                    if (strlen(tagName) != 0)
+                    std::string tmp(
+                        "targeting a script is not supported anymore. Please adjust your code. Temporarily (until next "
+                        "release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
+                    tmp += App::folders->getUserSettingsPath() + "/usrset.txt";
+                    CApiErrors::setLastWarningOrError(__func__, tmp.c_str());
+                    return (-1);
+                }
+
+                CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(objectHandle);
+                if (script != nullptr)
+                { // here we have a script
+                    if (useTempBuffer)
                     {
-                        int l = script->getObjectCustomDataLength_tempData_old(356248756);
-                        if (l > 0)
+                        if (strlen(tagName) != 0)
                         {
-                            buffer.resize(l, ' ');
-                            script->getObjectCustomData_tempData_old(356248756, &buffer[0]);
+                            int l = script->getObjectCustomDataLength_tempData_old(356248756);
+                            if (l > 0)
+                            {
+                                buffer.resize(l, ' ');
+                                script->getObjectCustomData_tempData_old(356248756, &buffer[0]);
+                            }
+                            int extractedBufSize;
+                            delete[] _extractCustomDataFromBuffer(buffer, tagName, &extractedBufSize);
+                            _appendCustomDataToBuffer(buffer, tagName, data, dataSize);
+                            if (buffer.size() > 0)
+                                script->setObjectCustomData_tempData_old(356248756, &buffer[0], (int)buffer.size());
+                            else
+                                script->setObjectCustomData_tempData_old(356248756, nullptr, 0);
                         }
-                        int extractedBufSize;
-                        delete[] _extractCustomDataFromBuffer(buffer, tagName, &extractedBufSize);
-                        _appendCustomDataToBuffer(buffer, tagName, data, dataSize);
-                        if (buffer.size() > 0)
-                            script->setObjectCustomData_tempData_old(356248756, &buffer[0], (int)buffer.size());
                         else
                             script->setObjectCustomData_tempData_old(356248756, nullptr, 0);
                     }
                     else
-                        script->setObjectCustomData_tempData_old(356248756, nullptr, 0);
-                }
-                else
-                {
-                    if (strlen(tagName) != 0)
                     {
-                        int l = script->getObjectCustomDataLength_old(356248756);
-                        if (l > 0)
+                        if (strlen(tagName) != 0)
                         {
-                            buffer.resize(l, ' ');
-                            script->getObjectCustomData_old(356248756, &buffer[0]);
+                            int l = script->getObjectCustomDataLength_old(356248756);
+                            if (l > 0)
+                            {
+                                buffer.resize(l, ' ');
+                                script->getObjectCustomData_old(356248756, &buffer[0]);
+                            }
+                            int extractedBufSize;
+                            delete[] _extractCustomDataFromBuffer(buffer, tagName, &extractedBufSize);
+                            _appendCustomDataToBuffer(buffer, tagName, data, dataSize);
+                            if (buffer.size() > 0)
+                                script->setObjectCustomData_old(356248756, &buffer[0], (int)buffer.size());
+                            else
+                                script->setObjectCustomData_old(356248756, nullptr, 0);
                         }
-                        int extractedBufSize;
-                        delete[] _extractCustomDataFromBuffer(buffer, tagName, &extractedBufSize);
-                        _appendCustomDataToBuffer(buffer, tagName, data, dataSize);
-                        if (buffer.size() > 0)
-                            script->setObjectCustomData_old(356248756, &buffer[0], (int)buffer.size());
                         else
                             script->setObjectCustomData_old(356248756, nullptr, 0);
                     }
-                    else
-                        script->setObjectCustomData_old(356248756, nullptr, 0);
                 }
             }
+            // ---------------------- Old -----------------------------
         }
-        // ---------------------- Old -----------------------------
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -12078,45 +12113,48 @@ char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int
                 return nullptr;
         }
 
-        // ---------------------- Old -----------------------------
-        if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
-        { // here we have a script
-            if (!App::userSettings->compatibilityFix1)
-            {
-                std::string tmp(
-                    "targeting a script is not supported anymore. Please adjust your code. Temporarily (until next "
-                    "release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
-                tmp += App::folders->getUserSettingsPath() + "/usrset.txt";
-                CApiErrors::setLastWarningOrError(__func__, tmp.c_str());
-                return (nullptr);
-            }
-            CScriptObject *script = App::worldContainer->getScriptFromHandle(objectHandle);
-            if (script != nullptr)
-            {
-                std::vector<char> buffer;
-                if (useTempBuffer)
+        if (!App::userSettings->useSceneObjectScripts)
+        {
+            // ---------------------- Old -----------------------------
+            if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
+            { // here we have a script
+                if (!App::userSettings->compatibilityFix1)
                 {
-                    int l = script->getObjectCustomDataLength_tempData_old(356248756);
-                    if (l > 0)
-                    {
-                        buffer.resize(l, ' ');
-                        script->getObjectCustomData_tempData_old(356248756, &buffer[0]);
-                    }
+                    std::string tmp(
+                        "targeting a script is not supported anymore. Please adjust your code. Temporarily (until next "
+                        "release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
+                    tmp += App::folders->getUserSettingsPath() + "/usrset.txt";
+                    CApiErrors::setLastWarningOrError(__func__, tmp.c_str());
+                    return (nullptr);
                 }
-                else
+                CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(objectHandle);
+                if (script != nullptr)
                 {
-                    int l = script->getObjectCustomDataLength_old(356248756);
-                    if (l > 0)
+                    std::vector<char> buffer;
+                    if (useTempBuffer)
                     {
-                        buffer.resize(l, ' ');
-                        script->getObjectCustomData_old(356248756, &buffer[0]);
+                        int l = script->getObjectCustomDataLength_tempData_old(356248756);
+                        if (l > 0)
+                        {
+                            buffer.resize(l, ' ');
+                            script->getObjectCustomData_tempData_old(356248756, &buffer[0]);
+                        }
                     }
+                    else
+                    {
+                        int l = script->getObjectCustomDataLength_old(356248756);
+                        if (l > 0)
+                        {
+                            buffer.resize(l, ' ');
+                            script->getObjectCustomData_old(356248756, &buffer[0]);
+                        }
+                    }
+                    retBuffer = _extractCustomDataFromBuffer(buffer, tagName, dataSize);
                 }
-                retBuffer = _extractCustomDataFromBuffer(buffer, tagName, dataSize);
             }
+            // ---------------------- Old -----------------------------
         }
         return (retBuffer);
-        // ---------------------- Old -----------------------------
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
@@ -12175,58 +12213,60 @@ char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount)
                 return nullptr;
         }
 
-        // ---------------------- Old -----------------------------
-        if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
-        { // here we have a script
-            std::vector<std::string> allTags;
-            if (!App::userSettings->compatibilityFix1)
-            {
-                std::string tmp(
-                    "targeting a script is not supported anymore. Please adjust your code. Temporarily (until next "
-                    "release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
-                tmp += App::folders->getUserSettingsPath() + "/usrset.txt";
-                CApiErrors::setLastWarningOrError(__func__, tmp.c_str());
-                return (nullptr);
-            }
-            CScriptObject *script = App::worldContainer->getScriptFromHandle(objectHandle);
-            if (script != nullptr)
-            {
-                std::vector<char> buffer;
-                int l = script->getObjectCustomDataLength_tempData_old(356248756);
-                if (l > 0)
+        if (!App::userSettings->useSceneObjectScripts)
+        {
+            // ---------------------- Old -----------------------------
+            if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
+            { // here we have a script
+                std::vector<std::string> allTags;
+                if (!App::userSettings->compatibilityFix1)
                 {
-                    buffer.resize(l, ' ');
-                    script->getObjectCustomData_tempData_old(356248756, &buffer[0]);
-                    _extractCustomDataTagsFromBuffer(buffer, allTags);
+                    std::string tmp(
+                        "targeting a script is not supported anymore. Please adjust your code. Temporarily (until next "
+                        "release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
+                    tmp += App::folders->getUserSettingsPath() + "/usrset.txt";
+                    CApiErrors::setLastWarningOrError(__func__, tmp.c_str());
+                    return (nullptr);
                 }
+                CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(objectHandle);
+                if (script != nullptr)
+                {
+                    std::vector<char> buffer;
+                    int l = script->getObjectCustomDataLength_tempData_old(356248756);
+                    if (l > 0)
+                    {
+                        buffer.resize(l, ' ');
+                        script->getObjectCustomData_tempData_old(356248756, &buffer[0]);
+                        _extractCustomDataTagsFromBuffer(buffer, allTags);
+                    }
 
-                l = script->getObjectCustomDataLength_old(356248756);
-                if (l > 0)
+                    l = script->getObjectCustomDataLength_old(356248756);
+                    if (l > 0)
+                    {
+                        buffer.resize(l, ' ');
+                        script->getObjectCustomData_old(356248756, &buffer[0]);
+                        _extractCustomDataTagsFromBuffer(buffer, allTags);
+                    }
+                }
+                if (allTags.size() > 0)
                 {
-                    buffer.resize(l, ' ');
-                    script->getObjectCustomData_old(356248756, &buffer[0]);
-                    _extractCustomDataTagsFromBuffer(buffer, allTags);
+                    tagCount[0] = int(allTags.size());
+                    int totChars = 0;
+                    for (size_t i = 0; i < allTags.size(); i++)
+                        totChars += (int)allTags[i].length() + 1;
+                    retBuffer = new char[totChars];
+                    totChars = 0;
+                    for (size_t i = 0; i < allTags.size(); i++)
+                    {
+                        for (size_t j = 0; j < allTags[i].length(); j++)
+                            retBuffer[totChars + j] = allTags[i][j];
+                        retBuffer[totChars + allTags[i].length()] = 0;
+                        totChars += (int)allTags[i].length() + 1;
+                    }
                 }
             }
-            if (allTags.size() > 0)
-            {
-                tagCount[0] = int(allTags.size());
-                int totChars = 0;
-                for (size_t i = 0; i < allTags.size(); i++)
-                    totChars += (int)allTags[i].length() + 1;
-                retBuffer = new char[totChars];
-                totChars = 0;
-                for (size_t i = 0; i < allTags.size(); i++)
-                {
-                    for (size_t j = 0; j < allTags[i].length(); j++)
-                        retBuffer[totChars + j] = allTags[i][j];
-                    retBuffer[totChars + allTags[i].length()] = 0;
-                    totChars += (int)allTags[i].length() + 1;
-                }
-            }
+            // ---------------------- Old -----------------------------
         }
-        // ---------------------- Old -----------------------------
-
         return (retBuffer);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -12813,8 +12853,6 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType, const char *functio
     CScriptObject *script = nullptr;
     std::string funcName;
 
-    // printf("f: %s\n",functionNameAtScriptName);
-
     int handleFlags = scriptHandleOrType & 0x0ff00000;
     scriptHandleOrType = scriptHandleOrType & 0x000fffff;
 
@@ -12831,49 +12869,61 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType, const char *functio
         funcNameAtScriptName.resize(funcNameAtScriptName.size() - 7);
     }
 
-    if (scriptHandleOrType >= SIM_IDSTART_LUASCRIPT)
-    { // script is identified by its ID
-
+    if (App::userSettings->useSceneObjectScripts)
+    {
         size_t p = funcNameAtScriptName.rfind('@'); // back compat.
         if (p != std::string::npos)
             funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
         else
             funcName = funcNameAtScriptName;
-        script = App::worldContainer->getScriptFromHandle(scriptHandleOrType);
+        script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
     }
     else
-    { // script is identified by a script type and sometimes also a script name
-        std::string scriptName;
-        size_t p = funcNameAtScriptName.rfind('@'); // back compat.
-        if (p != std::string::npos)
-        {
-            scriptName.assign(funcNameAtScriptName.begin() + p + 1, funcNameAtScriptName.end());
-            funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
+    {
+        if (scriptHandleOrType >= SIM_IDSTART_LUASCRIPT)
+        { // script is identified by its ID
+            size_t p = funcNameAtScriptName.rfind('@'); // back compat.
+            if (p != std::string::npos)
+                funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
+            else
+                funcName = funcNameAtScriptName;
+            script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
         }
         else
-            funcName = funcNameAtScriptName;
-        if (scriptHandleOrType == sim_scripttype_mainscript)
-            script = App::currentWorld->embeddedScriptContainer->getMainScript();
-        if (scriptHandleOrType == sim_scripttype_sandboxscript)
-            script = App::worldContainer->sandboxScript;
-        if (scriptHandleOrType == sim_scripttype_addonscript)
-            script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
-        if ((scriptHandleOrType == sim_scripttype_childscript) ||
-            (scriptHandleOrType == (sim_scripttype_childscript | sim_scripttype_threaded_old)) ||
-            (scriptHandleOrType == sim_scripttype_customizationscript))
-        {
-            int objId = -1;
-            CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromPath(nullptr, scriptName.c_str(), 0);
-            if (obj != nullptr)
-                objId = obj->getObjectHandle();
+        { // script is identified by a script type and sometimes also a script name
+            App::logMsg(sim_verbosity_warnings, "C API call to 'simCallScriptFunctionEx': support for legacy call arguments will be dropped in next release. Please adjust your code.");
+            std::string scriptName;
+            size_t p = funcNameAtScriptName.rfind('@'); // back compat.
+            if (p != std::string::npos)
+            {
+                scriptName.assign(funcNameAtScriptName.begin() + p + 1, funcNameAtScriptName.end());
+                funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
+            }
             else
-                objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-            if (scriptHandleOrType == sim_scripttype_customizationscript)
-                script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_customizationscript, objId);
-            else
-                script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_childscript, objId);
+                funcName = funcNameAtScriptName;
+            if (scriptHandleOrType == sim_scripttype_mainscript)
+                script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+            if (scriptHandleOrType == sim_scripttype_sandboxscript)
+                script = App::worldContainer->sandboxScript;
+            if (scriptHandleOrType == sim_scripttype_addonscript)
+                script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
+            if ((scriptHandleOrType == sim_scripttype_childscript) ||
+                (scriptHandleOrType == (sim_scripttype_childscript | sim_scripttype_threaded_old)) ||
+                (scriptHandleOrType == sim_scripttype_customizationscript))
+            {
+                int objId = -1;
+                CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromPath(nullptr, scriptName.c_str(), 0);
+                if (obj != nullptr)
+                    objId = obj->getObjectHandle();
+                else
+                    objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
+                if (scriptHandleOrType == sim_scripttype_customizationscript)
+                    script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                        sim_scripttype_customizationscript, objId);
+                else
+                    script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                        sim_scripttype_childscript, objId);
+            }
         }
     }
 
@@ -15121,55 +15171,68 @@ int simExecuteScriptString_internal(int scriptHandle, const char *stringToExecut
             strAtScriptName.resize(strAtScriptName.size() - 7);
         }
 
-        if (scriptHandle >= SIM_IDSTART_LUASCRIPT)
-        {                                          // script is identified by its ID
+        if (App::userSettings->useSceneObjectScripts)
+        {
             size_t p = strAtScriptName.rfind('@'); // back compat.
             if (p != std::string::npos)
                 stringToExec.assign(strAtScriptName.begin(), strAtScriptName.begin() + p);
             else
                 stringToExec = strAtScriptName;
-            script = App::worldContainer->getScriptFromHandle(scriptHandle);
+            script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         }
         else
-        { // script is identified by its type
-            std::string scriptName;
-            size_t p = strAtScriptName.rfind('@'); // back compat.
-            if (p != std::string::npos)
-            {
-                scriptName.assign(strAtScriptName.begin() + p + 1, strAtScriptName.end());
-                stringToExec.assign(strAtScriptName.begin(), strAtScriptName.begin() + p);
+        {
+            if (scriptHandle >= SIM_IDSTART_LUASCRIPT)
+            {                                          // script is identified by its ID
+                size_t p = strAtScriptName.rfind('@'); // back compat.
+                if (p != std::string::npos)
+                    stringToExec.assign(strAtScriptName.begin(), strAtScriptName.begin() + p);
+                else
+                    stringToExec = strAtScriptName;
+                script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
             }
             else
-                stringToExec = strAtScriptName;
-
-            if (scriptHandle == sim_scripttype_mainscript)
-                script = App::currentWorld->embeddedScriptContainer->getMainScript();
-            if (scriptHandle == sim_scripttype_addonscript)
-            {
-                if (scriptName.size() > 0)
-                    script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
-            }
-            if (scriptHandle == sim_scripttype_sandboxscript)
-                script = App::worldContainer->sandboxScript;
-            if ((scriptHandle == sim_scripttype_childscript) || (scriptHandle == sim_scripttype_customizationscript))
-            {
-                if (scriptName.size() > 0)
+            { // script is identified by its type
+                App::logMsg(sim_verbosity_warnings, "C API call to 'simExecuteScriptString': support for legacy call arguments will be dropped in next release. Please adjust your code.");
+                std::string scriptName;
+                size_t p = strAtScriptName.rfind('@'); // back compat.
+                if (p != std::string::npos)
                 {
-                    int objId = -1;
-                    CSceneObject *obj =
-                        App::currentWorld->sceneObjects->getObjectFromPath(nullptr, scriptName.c_str(), 0);
-                    if (obj != nullptr)
-                        objId = obj->getObjectHandle();
-                    else
-                        objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-                    script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_childscript, objId);
-                    if (scriptHandle == sim_scripttype_customizationscript)
-                        script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                            sim_scripttype_customizationscript, objId);
-                    else
-                        script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                    scriptName.assign(strAtScriptName.begin() + p + 1, strAtScriptName.end());
+                    stringToExec.assign(strAtScriptName.begin(), strAtScriptName.begin() + p);
+                }
+                else
+                    stringToExec = strAtScriptName;
+
+                if (scriptHandle == sim_scripttype_mainscript)
+                    script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+                if (scriptHandle == sim_scripttype_addonscript)
+                {
+                    if (scriptName.size() > 0)
+                        script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
+                }
+                if (scriptHandle == sim_scripttype_sandboxscript)
+                    script = App::worldContainer->sandboxScript;
+                if ((scriptHandle == sim_scripttype_childscript) || (scriptHandle == sim_scripttype_customizationscript))
+                {
+                    if (scriptName.size() > 0)
+                    {
+                        int objId = -1;
+                        CSceneObject *obj =
+                            App::currentWorld->sceneObjects->getObjectFromPath(nullptr, scriptName.c_str(), 0);
+                        if (obj != nullptr)
+                            objId = obj->getObjectHandle();
+                        else
+                            objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
+                        script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                             sim_scripttype_childscript, objId);
+                        if (scriptHandle == sim_scripttype_customizationscript)
+                            script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                                sim_scripttype_customizationscript, objId);
+                        else
+                            script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                                sim_scripttype_childscript, objId);
+                    }
                 }
             }
         }
@@ -15267,7 +15330,7 @@ char *simGetApiFunc_internal(int scriptHandle, const char *apiWord)
     {
         CScriptObject *script = nullptr;
         if (scriptHandle >= SIM_IDSTART_LUASCRIPT)
-            script = App::worldContainer->getScriptFromHandle(scriptHandle);
+            script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         std::string apiW(apiWord);
         bool funcs = true;
         bool vars = true;
@@ -15313,7 +15376,7 @@ char *simGetApiInfo_internal(int scriptHandle, const char *apiWord)
     {
         CScriptObject *script = nullptr;
         if (scriptHandle >= SIM_IDSTART_LUASCRIPT)
-            script = App::worldContainer->getScriptFromHandle(scriptHandle);
+            script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
         if (strlen(apiWord) > 0)
         {
             std::string tip(CScriptObject::getFunctionCalltip(apiWord, script));
@@ -16115,35 +16178,35 @@ int _simGetObjectListSize_internal(int objType)
 {
     C_API_START;
     if (objType == sim_object_shape_type)
-        return (int(App::currentWorld->sceneObjects->getShapeCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type)));
     if (objType == sim_object_joint_type)
-        return (int(App::currentWorld->sceneObjects->getJointCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type)));
     if (objType == sim_handle_all)
         return (int(App::currentWorld->sceneObjects->getObjectCount())); // we put it also here for faster access!
     if (objType == sim_object_dummy_type)
-        return (int(App::currentWorld->sceneObjects->getDummyCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type)));
     if (objType == sim_object_octree_type)
-        return (int(App::currentWorld->sceneObjects->getOctreeCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_octree_type)));
     if (objType == sim_object_pointcloud_type)
-        return (int(App::currentWorld->sceneObjects->getPointCloudCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_pointcloud_type)));
     if (objType == sim_object_graph_type)
-        return (int(App::currentWorld->sceneObjects->getGraphCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_graph_type)));
     if (objType == sim_object_camera_type)
-        return (int(App::currentWorld->sceneObjects->getCameraCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type)));
     if (objType == sim_object_proximitysensor_type)
-        return (int(App::currentWorld->sceneObjects->getProximitySensorCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_proximitysensor_type)));
     if (objType == sim_object_path_type)
-        return (int(App::currentWorld->sceneObjects->getPathCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_path_type)));
     if (objType == sim_object_visionsensor_type)
-        return (int(App::currentWorld->sceneObjects->getVisionSensorCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type)));
     if (objType == sim_object_mill_type)
-        return (int(App::currentWorld->sceneObjects->getMillCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_mill_type)));
     if (objType == sim_object_forcesensor_type)
-        return (int(App::currentWorld->sceneObjects->getForceSensorCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_forcesensor_type)));
     if (objType == sim_object_light_type)
-        return (int(App::currentWorld->sceneObjects->getLightCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_light_type)));
     if (objType == sim_object_mirror_type)
-        return (int(App::currentWorld->sceneObjects->getMirrorCount()));
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_mirror_type)));
     if (objType == -1)
         return (int(App::currentWorld->sceneObjects->getOrphanCount()));
     return (int(App::currentWorld->sceneObjects->getObjectCount()));

@@ -373,12 +373,12 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera)
     bool canAddCustomizationScript = false;
     if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
     {
-        canAddChildScript = (App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+        canAddChildScript = (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                                  sim_scripttype_childscript,
                                  App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) == nullptr) &&
                             App::currentWorld->simulation->isSimulationStopped();
         canAddCustomizationScript =
-            (App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                  sim_scripttype_customizationscript,
                  App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) == nullptr) &&
             App::currentWorld->simulation->isSimulationStopped();
@@ -509,40 +509,71 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera)
             pathM->appendMenuItem(true, false, ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD, IDS_CIRCLE_TYPE_MENU_ITEM);
             menu->appendMenuAndDetach(pathM, true, IDSN_PATH);
 
-            VMenu *childScript = new VMenu();
-            VMenu *childScriptNonThreaded = new VMenu();
-            childScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_LUA_ACCMD,
-                                                   "Lua");
-            childScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_PYTHON_ACCMD,
-                                                   "Python");
-            childScript->appendMenuAndDetach(childScriptNonThreaded, canAddChildScript, "Non threaded");
-            VMenu *childScriptThreaded = new VMenu();
-            childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD, "Lua");
-            childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD,
-                                                "Python");
-            if (App::userSettings->keepOldThreadedScripts)
-                childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_oldTHREADED_CHILD_SCRIPT_LUA_ACCMD,
-                                                    "Lua (deprecated, compatibility version)");
-            childScript->appendMenuAndDetach(childScriptThreaded, canAddChildScript, "Threaded");
-            menu->appendMenuAndDetach(childScript, canAddChildScript, "Associated child script");
+            if (App::userSettings->useSceneObjectScripts)
+            {
+                VMenu *script = new VMenu();
 
-            VMenu *customizationScript = new VMenu();
-            VMenu *customizationScriptNonThreaded = new VMenu();
-            customizationScriptNonThreaded->appendMenuItem(
-                true, false, ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD, "Lua");
-            customizationScriptNonThreaded->appendMenuItem(
-                true, false, ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD, "Python");
-            customizationScript->appendMenuAndDetach(customizationScriptNonThreaded, canAddCustomizationScript,
-                                                     "Non threaded");
-            VMenu *customizationScriptThreaded = new VMenu();
-            customizationScriptThreaded->appendMenuItem(
-                true, false, ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD, "Lua");
-            customizationScriptThreaded->appendMenuItem(
-                true, false, ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD, "Python");
-            customizationScript->appendMenuAndDetach(customizationScriptThreaded, canAddCustomizationScript,
-                                                     "Threaded");
-            menu->appendMenuAndDetach(customizationScript, canAddCustomizationScript,
-                                      "Associated customization script");
+                VMenu *childScript = new VMenu();
+                VMenu *childScriptNonThreaded = new VMenu();
+                childScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_LUA_ACCMD, "Lua");
+                childScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_PYTHON_ACCMD, "Python");
+                childScript->appendMenuAndDetach(childScriptNonThreaded, true, "Non threaded");
+                VMenu *childScriptThreaded = new VMenu();
+                childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD, "Lua");
+                childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD, "Python");
+                childScript->appendMenuAndDetach(childScriptThreaded, true, "Threaded");
+                script->appendMenuAndDetach(childScript, true, "child script");
+
+                VMenu *customizationScript = new VMenu();
+                VMenu *customizationScriptNonThreaded = new VMenu();
+                customizationScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD, "Lua");
+                customizationScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD, "Python");
+                customizationScript->appendMenuAndDetach(customizationScriptNonThreaded, true, "Non threaded");
+                VMenu *customizationScriptThreaded = new VMenu();
+                customizationScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD, "Lua");
+                customizationScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD, "Python");
+                customizationScript->appendMenuAndDetach(customizationScriptThreaded, true, "Threaded");
+                script->appendMenuAndDetach(customizationScript, true, "customization script");
+
+                menu->appendMenuAndDetach(script, true, "Script");
+            }
+            else
+            {
+                VMenu *childScript = new VMenu();
+                VMenu *childScriptNonThreaded = new VMenu();
+                childScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_LUA_ACCMD,
+                                                       "Lua");
+                childScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_PYTHON_ACCMD,
+                                                       "Python");
+                childScript->appendMenuAndDetach(childScriptNonThreaded, canAddChildScript, "Non threaded");
+                VMenu *childScriptThreaded = new VMenu();
+                childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD, "Lua");
+                childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD,
+                                                    "Python");
+                if (App::userSettings->keepOldThreadedScripts)
+                    childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_oldTHREADED_CHILD_SCRIPT_LUA_ACCMD,
+                                                        "Lua (deprecated, compatibility version)");
+                childScript->appendMenuAndDetach(childScriptThreaded, canAddChildScript, "Threaded");
+                menu->appendMenuAndDetach(childScript, canAddChildScript, "Associated child script");
+
+                VMenu *customizationScript = new VMenu();
+                VMenu *customizationScriptNonThreaded = new VMenu();
+                customizationScriptNonThreaded->appendMenuItem(
+                    true, false, ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD, "Lua");
+                customizationScriptNonThreaded->appendMenuItem(
+                    true, false, ADD_COMMANDS_ADD_NON_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD, "Python");
+                customizationScript->appendMenuAndDetach(customizationScriptNonThreaded, canAddCustomizationScript,
+                                                         "Non threaded");
+                VMenu *customizationScriptThreaded = new VMenu();
+                customizationScriptThreaded->appendMenuItem(
+                    true, false, ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD, "Lua");
+                customizationScriptThreaded->appendMenuItem(
+                    true, false, ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD, "Python");
+                customizationScript->appendMenuAndDetach(customizationScriptThreaded, canAddCustomizationScript,
+                                                         "Threaded");
+                menu->appendMenuAndDetach(customizationScript, canAddCustomizationScript,
+                                          "Associated customization script");
+            }
         }
     }
 }
@@ -850,21 +881,25 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
-            {
-                bool isLua = (commandID < ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
-                bool isThreaded = (commandID == ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD) ||
-                                  (commandID == ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
-                int scriptID = App::currentWorld->embeddedScriptContainer->insertDefaultScript(
-                    sim_scripttype_childscript, isThreaded, isLua,
-                    commandID == ADD_COMMANDS_ADD_oldTHREADED_CHILD_SCRIPT_LUA_ACCMD);
-                CScriptObject *script = App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
-                if (script != nullptr)
-                    script->setObjectHandleThatScriptIsAttachedTo(
-                        App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
-                App::undoRedo_sceneChanged("");
-                GuiApp::setFullDialogRefreshFlag();
+            bool isLua = (commandID < ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
+            bool isThreaded = (commandID == ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD) || (commandID == ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
+            if (App::userSettings->useSceneObjectScripts)
+                App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_childscript, isThreaded, isLua);
+            else
+            { // legacy scripts
+                if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
+                {
+                    int scriptID = App::currentWorld->sceneObjects->embeddedScriptContainer->insertDefaultScript(
+                        sim_scripttype_childscript, isThreaded, isLua,
+                        commandID == ADD_COMMANDS_ADD_oldTHREADED_CHILD_SCRIPT_LUA_ACCMD);
+                    CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
+                    if (script != nullptr)
+                        script->setObjectHandleThatScriptIsAttachedTo(
+                            App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
+                }
             }
+            App::undoRedo_sceneChanged("");
+            GuiApp::setFullDialogRefreshFlag();
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -880,20 +915,24 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
-            {
-                bool isLua = (commandID <= ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD);
-                bool isThreaded = (commandID == ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD) ||
-                                  (commandID == ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD);
-                int scriptID = App::currentWorld->embeddedScriptContainer->insertDefaultScript(
-                    sim_scripttype_customizationscript, isThreaded, isLua);
-                CScriptObject *script = App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
-                if (script != nullptr)
-                    script->setObjectHandleThatScriptIsAttachedTo(
-                        App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
-                App::undoRedo_sceneChanged("");
-                GuiApp::setFullDialogRefreshFlag();
+            bool isLua = (commandID <= ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD);
+            bool isThreaded = (commandID == ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD) || (commandID == ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD);
+            if (App::userSettings->useSceneObjectScripts)
+                App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_customizationscript, isThreaded, isLua);
+            else
+            { // legacy scripts
+                if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
+                {
+                    int scriptID = App::currentWorld->sceneObjects->embeddedScriptContainer->insertDefaultScript(
+                        sim_scripttype_customizationscript, isThreaded, isLua);
+                    CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
+                    if (script != nullptr)
+                        script->setObjectHandleThatScriptIsAttachedTo(
+                            App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0));
+                }
             }
+            App::undoRedo_sceneChanged("");
+            GuiApp::setFullDialogRefreshFlag();
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -957,7 +996,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
 
             // Following 3 on 24/3/2017
             CScriptObject *scriptObj = new CScriptObject(sim_scripttype_customizationscript);
-            App::currentWorld->embeddedScriptContainer->insertScript(scriptObj);
+            App::currentWorld->sceneObjects->embeddedScriptContainer->insertScript(scriptObj);
             scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
             scriptObj->setScriptText("graph=require('graph_customization')");
             newObject->setScriptExecPriority(sim_scriptexecorder_last);

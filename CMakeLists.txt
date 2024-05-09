@@ -293,6 +293,7 @@ if(WITH_GUI)
         sourceCode/gui/rendering/forceSensorRendering.cpp
         sourceCode/gui/rendering/proximitySensorRendering.cpp
         sourceCode/gui/rendering/dummyRendering.cpp
+        sourceCode/gui/rendering/scriptRendering.cpp
         sourceCode/gui/rendering/lightRendering.cpp
         sourceCode/gui/rendering/pointCloudRendering.cpp
         sourceCode/gui/rendering/octreeRendering.cpp
@@ -339,12 +340,13 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgcollisions.cpp
         sourceCode/gui/dialogs/qdlgdistances.cpp
         sourceCode/gui/dialogs/qdlgentityvsentityselection.cpp
-        sourceCode/gui/dialogs/qdlgscripts.cpp
+        sourceCode/gui/dialogs/qdlgoldscripts.cpp
         sourceCode/gui/dialogs/qdlgscaling.cpp
         sourceCode/gui/dialogs/qdlgcameras.cpp
         sourceCode/gui/dialogs/qdlglights.cpp
         sourceCode/gui/dialogs/qdlgmirrors.cpp
         sourceCode/gui/dialogs/qdlgdummies.cpp
+        sourceCode/gui/dialogs/qdlgscripts.cpp
         sourceCode/gui/dialogs/qdlgoctrees.cpp
         sourceCode/gui/dialogs/qdlgpointclouds.cpp
         sourceCode/gui/dialogs/qdlguserparameters.cpp
@@ -523,6 +525,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/sceneObjects/jointObject.cpp
     sourceCode/sceneObjects/camera.cpp
     sourceCode/sceneObjects/dummy.cpp
+    sourceCode/sceneObjects/script.cpp
     sourceCode/sceneObjects/octree.cpp
     sourceCode/sceneObjects/pointCloud.cpp
     sourceCode/sceneObjects/forceSensor.cpp

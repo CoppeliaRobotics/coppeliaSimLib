@@ -38,7 +38,7 @@ void CSimThread::executeMessages()
       // appropriately
         if (App::currentWorld->simulation->isSimulationStopped())
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getCameraCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type); i++)
             {
                 CCamera *it = App::currentWorld->sceneObjects->getCameraFromIndex(i);
                 it->handleCameraTracking();
@@ -47,7 +47,7 @@ void CSimThread::executeMessages()
         // OLD:
         if (App::currentWorld->simulation->isSimulationStopped())
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getPathCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_path_type); i++)
             {
                 CPath_old *it = App::currentWorld->sceneObjects->getPathFromIndex(i);
                 it->resetPath();
@@ -299,7 +299,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == CALL_MODULE_ENTRY_CMD)
     {
-        CScriptObject *script = App::worldContainer->getScriptFromHandle(cmd.intParams[0]);
+        CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(cmd.intParams[0]);
         if (script != nullptr)
         {
             CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
@@ -317,7 +317,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == CALL_USER_CONFIG_CALLBACK_CMD)
     {
-        CScriptObject *script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_customizationscript, cmd.intParams[0]);
         if ((script != nullptr) && (script->hasSystemFunctionOrHook(sim_syscb_userconfig)))
         { // we have a user config callback
@@ -343,10 +343,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == OPEN_SCRIPT_EDITOR_CMD)
     {
-        if (GuiApp::getEditModeType() == NO_EDIT_MODE)
+        if ( (GuiApp::getEditModeType() == NO_EDIT_MODE) && (GuiApp::mainWindow != nullptr) )
         {
-            CScriptObject *it = App::worldContainer->getScriptFromHandle(cmd.intParams[0]);
-            if ((it != nullptr) && (GuiApp::mainWindow != nullptr))
+            CScriptObject *it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
+            if (it != nullptr)
             {
                 if (it->getScriptType() == sim_scripttype_customizationscript)
                     GuiApp::mainWindow->codeEditorContainer->openCustomizationScript(cmd.intParams[0], -1);
@@ -1754,6 +1754,31 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (it != nullptr)
             it->setAttenuationFactor(QUADRATIC_ATTENUATION, cmd.doubleParams[0]);
     }
+
+    if (cmd.cmdId == SET_SIZE_SCRIPTGUITRIGGEREDCMD)
+    {
+        CScript *it = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
+        if (it != nullptr)
+            it->setScriptSize(cmd.doubleParams[0]);
+    }
+    if (cmd.cmdId == APPLY_VISUALPROP_SCRIPTGUITRIGGEREDCMD)
+    {
+        CScript *it = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
+        if (it != nullptr)
+        {
+            for (size_t i = 1; i < cmd.intParams.size(); i++)
+            {
+                CScript *it2 = App::currentWorld->sceneObjects->getScriptFromHandle(cmd.intParams[i]);
+                if (it2 != nullptr)
+                {
+                    it->getScriptColor()->copyYourselfInto(it2->getScriptColor());
+                    it2->setScriptSize(it->getScriptSize());
+                }
+            }
+        }
+    }
+
+
 
     if (cmd.cmdId == SET_SIZE_DUMMYGUITRIGGEREDCMD)
     {
@@ -3274,18 +3299,17 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD)
     {
         int scriptID = cmd.intParams[0];
-        CScriptObject *script = App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
+        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
         if (script != nullptr)
         {
             if (GuiApp::mainWindow != nullptr)
                 GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID, nullptr, true);
-            App::currentWorld->embeddedScriptContainer->removeScript(scriptID);
+            App::currentWorld->sceneObjects->embeddedScriptContainer->removeScript(scriptID);
         }
     }
     if (cmd.cmdId == TOGGLE_DISABLED_SCRIPTGUITRIGGEREDCMD)
     {
-        int scriptID = cmd.intParams[0];
-        CScriptObject *it = App::worldContainer->getScriptFromHandle(scriptID);
+        CScriptObject *it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             if (it->getScriptType() == sim_scripttype_customizationscript)
@@ -3293,10 +3317,16 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             it->setScriptIsDisabled(!it->getScriptIsDisabled());
         }
     }
+    if (cmd.cmdId == TOGGLE_PARENTPROXY_SCRIPTGUITRIGGEREDCMD)
+    {
+        CScriptObject *it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
+        if (it != nullptr)
+            it->setParentIsProxy(!it->getParentIsProxy());
+    }
     if (cmd.cmdId == TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD)
     {
         int scriptID = cmd.intParams[0];
-        CScriptObject *it = App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
+        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
         if ((it != nullptr) && it->getThreadedExecution_oldThreads())
             it->setExecuteJustOnce_oldThreads(!it->getExecuteJustOnce_oldThreads());
     }
@@ -3305,13 +3335,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
             it->setScriptExecPriority(cmd.intParams[1]);
-    }
-    if (cmd.cmdId == SET_TREETRAVERSALDIR_SCRIPTGUITRIGGEREDCMD)
-    {
-        int scriptID = cmd.intParams[0];
-        CScriptObject *it = App::worldContainer->getScriptFromHandle(scriptID);
-        if (it != nullptr)
-            it->setTreeTraversalDirection(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_ALL_SCRIPTSIMULPARAMETERGUITRIGGEREDCMD)
     {

@@ -35,9 +35,9 @@ void CQDlgJoints::refresh()
     QLineEdit *lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionAJoint();
-    bool bigSel = (App::currentWorld->sceneObjects->isLastSelectionAJoint() &&
-                   (App::currentWorld->sceneObjects->getJointCountInSelection() > 1));
+    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_joint_type);
+    bool bigSel = (App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_joint_type) &&
+                   (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_joint_type) > 1));
     bool revolute = false;
     bool prismatic = false;
     bool spherical = false;
@@ -346,7 +346,7 @@ void CQDlgJoints::on_qqAdjustDependency_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::currentWorld->sceneObjects->isLastSelectionAJoint())
+        if (App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_joint_type))
         {
             CQDlgDependencyEquation theDialog(this);
             theDialog.refresh();

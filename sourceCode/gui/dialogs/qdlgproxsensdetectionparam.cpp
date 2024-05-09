@@ -38,6 +38,12 @@ void CQDlgProxSensDetectionParam::refresh()
     ui->qqMinDistEnabled->setChecked(distanceContraint);
     ui->qqMinDist->setEnabled(distanceContraint);
     ui->qqMinDist->setText(utils::getSizeString(false, minimumDistance).c_str());
+
+
+    ui->qqRayCount->setVisible(App::userSettings->showOldDlgs);
+    ui->qqRandomizedDetectionCount->setVisible(App::userSettings->showOldDlgs);
+    ui->qqRand1->setVisible(App::userSettings->showOldDlgs);
+    ui->qqRand2->setVisible(App::userSettings->showOldDlgs);
     ui->qqRayCount->setEnabled(randomizedDetection);
     ui->qqRandomizedDetectionCount->setEnabled(randomizedDetection);
     if (randomizedDetection)

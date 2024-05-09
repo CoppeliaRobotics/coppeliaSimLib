@@ -263,12 +263,13 @@ WITH_GUI {
     $$PWD/ui/qdlgcollisions.ui \
     $$PWD/ui/qdlgdistances.ui \
     $$PWD/ui/qdlgentityvsentityselection.ui \
-    $$PWD/ui/qdlgscripts.ui \
+    $$PWD/ui/qdlgoldscripts.ui \
     $$PWD/ui/qdlgscaling.ui \
     $$PWD/ui/qdlgcameras.ui \
     $$PWD/ui/qdlglights.ui \
     $$PWD/ui/qdlgmirrors.ui \
     $$PWD/ui/qdlgdummies.ui \
+    $$PWD/ui/qdlgscripts.ui \
     $$PWD/ui/qdlgoctrees.ui \
     $$PWD/ui/qdlgpointclouds.ui \
     $$PWD/ui/qdlguserparameters.ui \
@@ -406,6 +407,7 @@ HEADERS += $$PWD/sourceCode/sceneObjects/related/sceneObject.h \
 HEADERS += $$PWD/sourceCode/sceneObjects/jointObject.h \
     $$PWD/sourceCode/sceneObjects/camera.h \
     $$PWD/sourceCode/sceneObjects/dummy.h \
+    $$PWD/sourceCode/sceneObjects/script.h \
     $$PWD/sourceCode/sceneObjects/octree.h \
     $$PWD/sourceCode/sceneObjects/pointCloud.h \
     $$PWD/sourceCode/sceneObjects/forceSensor.h \
@@ -546,6 +548,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/rendering/forceSensorRendering.h \
         $$PWD/sourceCode/gui/rendering/proximitySensorRendering.h \
         $$PWD/sourceCode/gui/rendering/dummyRendering.h \
+        $$PWD/sourceCode/gui/rendering/scriptRendering.h \
         $$PWD/sourceCode/gui/rendering/lightRendering.h \
         $$PWD/sourceCode/gui/rendering/pointCloudRendering.h \
         $$PWD/sourceCode/gui/rendering/octreeRendering.h \
@@ -601,12 +604,13 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgcollisions.h \
         $$PWD/sourceCode/gui/dialogs/qdlgdistances.h \
         $$PWD/sourceCode/gui/dialogs/qdlgentityvsentityselection.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgscripts.h \
+        $$PWD/sourceCode/gui/dialogs/qdlgoldscripts.h \
         $$PWD/sourceCode/gui/dialogs/qdlgscaling.h \
         $$PWD/sourceCode/gui/dialogs/qdlgcameras.h \
         $$PWD/sourceCode/gui/dialogs/qdlglights.h \
         $$PWD/sourceCode/gui/dialogs/qdlgmirrors.h \
         $$PWD/sourceCode/gui/dialogs/qdlgdummies.h \
+        $$PWD/sourceCode/gui/dialogs/qdlgscripts.h \
         $$PWD/sourceCode/gui/dialogs/qdlgoctrees.h \
         $$PWD/sourceCode/gui/dialogs/qdlgpointclouds.h \
         $$PWD/sourceCode/gui/dialogs/qdlguserparameters.h \
@@ -785,6 +789,7 @@ SOURCES += $$PWD/sourceCode/sceneObjects/related/sceneObject.cpp \
 SOURCES += $$PWD/sourceCode/sceneObjects/jointObject.cpp \
     $$PWD/sourceCode/sceneObjects/camera.cpp \
     $$PWD/sourceCode/sceneObjects/dummy.cpp \
+    $$PWD/sourceCode/sceneObjects/script.cpp \
     $$PWD/sourceCode/sceneObjects/octree.cpp \
     $$PWD/sourceCode/sceneObjects/pointCloud.cpp \
     $$PWD/sourceCode/sceneObjects/forceSensor.cpp \
@@ -925,6 +930,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/rendering/forceSensorRendering.cpp \
         $$PWD/sourceCode/gui/rendering/proximitySensorRendering.cpp \
         $$PWD/sourceCode/gui/rendering/dummyRendering.cpp \
+        $$PWD/sourceCode/gui/rendering/scriptRendering.cpp \
         $$PWD/sourceCode/gui/rendering/lightRendering.cpp \
         $$PWD/sourceCode/gui/rendering/pointCloudRendering.cpp \
         $$PWD/sourceCode/gui/rendering/octreeRendering.cpp \
@@ -981,12 +987,13 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgcollisions.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgdistances.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgentityvsentityselection.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgscripts.cpp \
+        $$PWD/sourceCode/gui/dialogs/qdlgoldscripts.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgscaling.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgcameras.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlglights.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgmirrors.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgdummies.cpp \
+        $$PWD/sourceCode/gui/dialogs/qdlgscripts.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgoctrees.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgpointclouds.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlguserparameters.cpp \

@@ -10,6 +10,7 @@
 #define IDSOGL_PATH "Path"
 #define IDSOGL_JOINT "Joint"
 #define IDSOGL_DUMMY "Dummy"
+#define IDSOGL_SCRIPT "Script"
 #define IDSOGL_OCTREE "OcTree"
 #define IDSOGL_POINTCLOUD "PointCloud"
 #define IDSOGL_GRAPH "Graph"

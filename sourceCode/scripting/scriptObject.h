@@ -31,6 +31,7 @@ class CSceneObject;
 
 class CScriptObject
 {
+    friend class CScript;
   public:
     enum
     {
@@ -42,11 +43,12 @@ class CScriptObject
         scriptState_suspended = 16 // only add-ons
     };
 
-    CScriptObject(int scriptTypeOrMinusOneForSerialization);
+    CScriptObject(int scriptType);
     virtual ~CScriptObject();
 
     static void destroy(CScriptObject *obj, bool registeredObject);
 
+    int setHandle();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
     void simulationAboutToEnd();
@@ -61,6 +63,7 @@ class CScriptObject
     std::string getScriptName() const;
 
     CScriptObject *copyYourself();
+
     void serialize(CSer &ar);
     void performSceneObjectLoadingMapping(const std::map<int, int> *map);
     bool announceSceneObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
@@ -86,6 +89,7 @@ class CScriptObject
 
     void terminateScriptExecutionExternally(bool generateErrorMsg);
 
+    void setIsSceneObjectScript(bool s);
     bool resetScript();
     bool initScript();
     bool hasInterpreterState() const;
@@ -95,13 +99,13 @@ class CScriptObject
     bool isSceneSwitchPersistentScript() const;
     int getNumberOfPasses() const;
     void setNumberOfPasses(int p);
-    void setTreeTraversalDirection(int dir);
-    int getTreeTraversalDirection() const;
     void flagForDestruction();
     bool getFlaggedForDestruction() const;
     int getScriptType() const;
     void setScriptIsDisabled(bool isDisabled);
     bool getScriptIsDisabled() const;
+    void setParentIsProxy(bool isDisabled);
+    bool getParentIsProxy() const;
     void setAutoRestartOnError(bool restart);
     bool getScriptEnabledAndNoErrorRaised() const;
     void getPreviousEditionWindowPosAndSize(int posAndSize[4]) const;
@@ -251,11 +255,12 @@ class CScriptObject
 
     int _scriptHandle; // is unique since 25.11.2022
     int _scriptType;
+    bool _sceneObjectScript;
+    bool _parentIsProxy;
     bool _scriptIsDisabled;
     bool _autoRestartOnError;
     int _scriptState;
     int _executionDepth;
-    int _treeTraversalDirection;
     int _objectHandleAttachedTo;
     int _autoStartAddOn;
     int _addOnUiMenuHandle;
@@ -296,7 +301,7 @@ class CScriptObject
     std::string _addOnPathAndName;
     std::mt19937 _randGen;
 
-    bool _initialValuesInitialized;
+    bool _scriptObjectInitialValuesInitialized;
     int _previousEditionWindowPosAndSize[4];
 
     std::string _filenameForExternalScriptEditor;

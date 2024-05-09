@@ -63,6 +63,8 @@ class CUserSettings
     bool useBuffers; // differentiate binary strings and buffers in Lua, true since V4.7
     bool noBuffersWithSimReadCustomDataBlock;
     bool nilReturnWithSimReadCustomDataBlockTags;
+    bool useSceneObjectScripts;
+    int scriptConversion;
 
     bool middleMouseButtonSwitchesModes;
     bool navigationBackwardCompatibility;
@@ -74,7 +76,6 @@ class CUserSettings
     bool enableOldRenderableBehaviour;
     bool keepOldThreadedScripts;
     bool enableOldMirrorObjects;
-    bool enableOldScriptTraversal;
     int allowOldEduRelease;
     int threadedScriptsStoppingGraceTime;
     bool supportOldApiNotation;

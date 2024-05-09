@@ -32,7 +32,7 @@ void CQDlgPaths::refresh()
     QLineEdit *lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionAPath();
+    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_path_type);
 
     CPath_old *path = App::currentWorld->sceneObjects->getLastSelectionPath();
     CPathCont_old *pathCont = nullptr;

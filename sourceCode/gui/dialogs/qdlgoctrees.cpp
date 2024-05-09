@@ -30,7 +30,7 @@ void CQDlgOctrees::refresh()
     bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
     bool noEditModeAndNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
 
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionAnOctree();
+    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_octree_type);
     size_t objCnt = App::currentWorld->sceneObjects->getSelectionCount();
     COcTree *it = App::currentWorld->sceneObjects->getLastSelectionOctree();
 

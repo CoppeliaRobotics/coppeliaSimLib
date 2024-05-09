@@ -163,8 +163,8 @@ void CProxSensor::commonInit()
     _hideDetectionRay = false;
 
     _randomizedDetection = false;
-    _randomizedDetectionSampleCount = 20;
-    _randomizedDetectionCountForDetection = 5;
+    _randomizedDetectionSampleCount = 1;
+    _randomizedDetectionCountForDetection = 1;
 
     _proxSensorSize = 0.01;
     _showVolume = true;
@@ -873,11 +873,11 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectH
     _calcTimeInMs = VDateTime::getTimeDiffInMs(stTime);
     if (_sensorResultValid && _detectedPointValid)
     {
-        CScriptObject *script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_childscript, _objectHandle);
         if ((script != nullptr) && (!script->hasSystemFunctionOrHook(sim_syscb_trigger)))
             script = nullptr;
-        CScriptObject *cScript = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+        CScriptObject *cScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_customizationscript, _objectHandle);
         if ((cScript != nullptr) && (!cScript->hasSystemFunctionOrHook(sim_syscb_trigger)))
             cScript = nullptr;

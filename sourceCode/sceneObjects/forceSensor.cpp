@@ -276,11 +276,11 @@ void CForceSensor::_handleSensorBreaking()
             _currentThresholdViolationCount = 0;
         if (_currentThresholdViolationCount >= _consecutiveThresholdViolationsForBreaking)
         { // we need to break something!
-            CScriptObject *script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_childscript, _objectHandle);
             if ((script != nullptr) && (!script->hasSystemFunctionOrHook(sim_syscb_trigger)))
                 script = nullptr;
-            CScriptObject *cScript = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            CScriptObject *cScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_customizationscript, _objectHandle);
             if ((cScript != nullptr) && (!cScript->hasSystemFunctionOrHook(sim_syscb_trigger)))
                 cScript = nullptr;

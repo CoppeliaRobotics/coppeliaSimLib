@@ -83,6 +83,8 @@ class CSceneObject
     virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent, bool *available = nullptr) const;
     virtual C7Vector getFullLocalTransformation() const;
     virtual bool setParent(CSceneObject *parent);
+    virtual void setObjectHandle(int newObjectHandle);
+    virtual bool canDestroyNow(bool inSafePlace);
 
     void setRestoreToDefaultLights(bool s);
     bool getRestoreToDefaultLights() const;
@@ -113,7 +115,6 @@ class CSceneObject
     C7Vector getCumulativeTransformation() const;
     C7Vector getFullCumulativeTransformation() const;
 
-    void setObjectHandle(int newObjectHandle);
     void setChildOrder(int order);
     void setExtensionString(const char *str);
     void setVisibilityLayer(unsigned short l);
@@ -130,11 +131,8 @@ class CSceneObject
     void setIsInScene(bool s);
     void setParentPtr(CSceneObject *parent);
 
-    size_t getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType);
-    size_t getScriptsToExecute_branch(std::vector<int> &scriptHandles, int scriptType);
-    int getScriptExecutionOrder_old(int scriptType) const;
-    int getScriptsToExecute_old(int scriptType, int parentTraversalDirection, std::vector<CScriptObject *> &scripts,
-                                std::vector<int> &uniqueIds);
+    size_t getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts);
+    size_t getScriptsToExecute_branch(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts);
 
     void scalePosition(double scalingFactor);
     void getAllObjectsRecursive(std::vector<CSceneObject *> *objectList, bool baseIncluded = true,

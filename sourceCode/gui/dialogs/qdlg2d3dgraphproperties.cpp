@@ -183,7 +183,7 @@ void CQDlg2D3DGraphProperties::refresh()
 void CQDlg2D3DGraphProperties::updateObjectsInList()
 {
     ui->qqList->clear();
-    if (!App::currentWorld->sceneObjects->isLastSelectionAGraph())
+    if (!App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_graph_type))
         return;
     CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
     if (_xyGraph)

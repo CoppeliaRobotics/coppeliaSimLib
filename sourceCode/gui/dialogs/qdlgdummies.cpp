@@ -32,8 +32,8 @@ void CQDlgDummies::refresh()
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionADummy();
-    bool bigSel = (App::currentWorld->sceneObjects->getDummyCountInSelection() > 1);
+    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_dummy_type);
+    bool bigSel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_dummy_type) > 1);
     CDummy *it = App::currentWorld->sceneObjects->getLastSelectionDummy();
 
     ui->qqSize->setEnabled(sel && noEditModeNoSim);
@@ -98,7 +98,7 @@ void CQDlgDummies::refresh()
         {
             std::vector<std::string> names;
             std::vector<int> ids;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getDummyCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type); i++)
             {
                 CDummy *it2 = App::currentWorld->sceneObjects->getDummyFromIndex(i);
                 if (it2 != it)

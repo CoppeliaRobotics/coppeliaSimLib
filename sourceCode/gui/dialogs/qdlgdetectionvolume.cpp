@@ -35,13 +35,13 @@ void CQDlgDetectionVolume::refresh()
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
-    bool prox = App::currentWorld->sceneObjects->isLastSelectionAProxSensor();
-    bool mill = App::currentWorld->sceneObjects->isLastSelectionAMill();
+    bool prox = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_proximitysensor_type);
+    bool mill = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_mill_type);
     bool ssel = false;
     if (prox)
-        ssel = (App::currentWorld->sceneObjects->getProxSensorCountInSelection() > 1);
+        ssel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_proximitysensor_type) > 1);
     if (mill)
-        ssel = (App::currentWorld->sceneObjects->getMillCountInSelection() > 1);
+        ssel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_mill_type) > 1);
     CConvexVolume *cv = nullptr;
     CProxSensor *proxIt = App::currentWorld->sceneObjects->getLastSelectionProxSensor();
     CMill *millIt = App::currentWorld->sceneObjects->getLastSelectionMill();

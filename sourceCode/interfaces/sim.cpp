@@ -849,6 +849,10 @@ SIM_DLLEXPORT int simCreateShape(int options, double shadingAngle, const double 
     return (simCreateShape_internal(options, shadingAngle, vertices, verticesSize, indices, indicesSize, normals,
                                     textureCoords, texture, textureRes));
 }
+SIM_DLLEXPORT int simCreateScript(int scriptType,const char* scriptText, int options)
+{
+    return simCreateScript_internal(scriptType, scriptText, options);
+}
 SIM_DLLEXPORT void _simSetDynamicSimulationIconCode(void *object, int code)
 {
     return (_simSetDynamicSimulationIconCode_internal(object, code));

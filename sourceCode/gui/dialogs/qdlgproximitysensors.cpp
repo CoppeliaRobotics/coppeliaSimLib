@@ -35,8 +35,8 @@ void CQDlgProximitySensors::refresh()
 
     CProxSensor *it = App::currentWorld->sceneObjects->getLastSelectionProxSensor();
 
-    bool isSensor = App::currentWorld->sceneObjects->isLastSelectionAProxSensor();
-    bool manySensors = App::currentWorld->sceneObjects->getProxSensorCountInSelection() > 1;
+    bool isSensor = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_proximitysensor_type);
+    bool manySensors = App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_proximitysensor_type) > 1;
     bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
     bool noEditModeAndNoSim = noEditMode && App::currentWorld->simulation->isSimulationStopped();
     //  bool noSim=App::currentWorld->simulation->isSimulationStopped();
@@ -151,7 +151,7 @@ void CQDlgProximitySensors::on_qqApplyMain_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CProxSensor *last = App::currentWorld->sceneObjects->getLastSelectionProxSensor();
-        if ((last != nullptr) && (App::currentWorld->sceneObjects->getProxSensorCountInSelection() >= 2))
+        if ((last != nullptr) && (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_proximitysensor_type) >= 2))
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId = APPLY_DETECTIONVOLUMEGUITRIGGEREDCMD;

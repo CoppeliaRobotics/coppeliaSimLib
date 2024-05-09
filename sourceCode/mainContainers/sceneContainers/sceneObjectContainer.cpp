@@ -16,6 +16,7 @@
 
 CSceneObjectContainer::CSceneObjectContainer()
 {
+    embeddedScriptContainer = new CEmbeddedScriptContainer();
     _objectActualizationEnabled = true;
     _nextObjectHandle = SIM_IDSTART_SCENEOBJECT;
     _objectCreationCounter = 0;
@@ -24,20 +25,36 @@ CSceneObjectContainer::CSceneObjectContainer()
 }
 
 CSceneObjectContainer::~CSceneObjectContainer()
-{                           // beware, the current world could be nullptr
+{ // beware, the current world could be nullptr
+    for (size_t i = 0; i < _delayedDestructionObjects.size(); i++)
+        delete _delayedDestructionObjects[i];
     eraseAllObjects(false); // should already have been done
     for (size_t i = 0; i < _allObjects.size(); i++)
         _removeObject(_allObjects[i]);
+    delete embeddedScriptContainer;
 }
 
 void CSceneObjectContainer::simulationAboutToStart()
 {
     for (size_t i = 0; i < getObjectCount(); i++)
         getObjectFromIndex(i)->simulationAboutToStart();
+    embeddedScriptContainer->simulationAboutToStart();
+}
+
+void CSceneObjectContainer::simulationAboutToEnd()
+{
+    embeddedScriptContainer->simulationAboutToEnd(); // destroys the main script (and subsequently all child scripts)
+
+    for (size_t i = 0; i < getObjectCount(sim_object_script_type); i++)
+    {
+        CScript* it = getScriptFromIndex(i);
+        it->scriptObject->simulationAboutToEnd(); // destroys child script states
+    }
 }
 
 void CSceneObjectContainer::simulationEnded()
 {
+    embeddedScriptContainer->simulationEnded();
     for (size_t i = 0; i < getObjectCount(); i++)
         getObjectFromIndex(i)->simulationEnded_restoreHierarchy();
 
@@ -58,6 +75,7 @@ void CSceneObjectContainer::simulationEnded()
 void CSceneObjectContainer::announceObjectWillBeErased(const CSceneObject *object)
 {
     TRACE_INTERNAL;
+    embeddedScriptContainer->announceObjectWillBeErased(object);
     for (size_t i = 0; i < getObjectCount(); i++)
     {
         CSceneObject *it = getObjectFromIndex(i);
@@ -340,16 +358,79 @@ void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallba
     _nextObjectHandle = SIM_IDSTART_SCENEOBJECT;
 }
 
+int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool lua)
+{
+    int retVal = -1;
+    std::string filenameAndPath(App::folders->getSystemPath() + "/");
+
+    if (scriptType == sim_scripttype_mainscript)
+        retVal = embeddedScriptContainer->insertDefaultScript(scriptType, threaded, lua);
+    else
+    {
+        if (scriptType == sim_scripttype_childscript)
+        {
+            if (threaded)
+                filenameAndPath += DEFAULT_THREADEDCHILDSCRIPT;
+            else
+                filenameAndPath += DEFAULT_NONTHREADEDCHILDSCRIPT;
+        }
+        if (scriptType == sim_scripttype_customizationscript)
+        {
+            if (threaded)
+                filenameAndPath += DEFAULT_THREADEDCUSTOMIZATIONSCRIPT;
+            else
+                filenameAndPath += DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT;
+        }
+
+        if (filenameAndPath.size() > 0)
+        {
+            if (lua)
+                filenameAndPath += ".lua";
+            else
+                filenameAndPath += ".py";
+            std::string scriptTxt;
+            if (VFile::doesFileExist(filenameAndPath.c_str()))
+            {
+                try
+                {
+                    VFile file(filenameAndPath.c_str(), VFile::READ | VFile::SHARE_DENY_NONE);
+                    VArchive archive(&file, VArchive::LOAD);
+                    size_t archiveLength = file.getLength();
+                    scriptTxt.resize(archiveLength);
+                    for (size_t i = 0; i < archiveLength; i++)
+                        archive >> scriptTxt[i];
+                    archive.close();
+                    file.close();
+                }
+                catch (VFILE_EXCEPTION_TYPE e)
+                {
+                    VFile::reportAndHandleFileExceptionError(e);
+                    scriptTxt = "Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
+                }
+            }
+            else
+                scriptTxt = "Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
+
+            CScript* it = new CScript(scriptType, scriptTxt.c_str(), 0);
+            retVal = addObjectToScene(it, false, true);
+        }
+    #ifdef SIM_WITH_GUI
+        GuiApp::setLightDialogRefreshFlag();
+    #endif
+    }
+    return (retVal);
+}
+
 void CSceneObjectContainer::actualizeObjectInformation()
 {
     if (_objectActualizationEnabled)
     {
         // We actualize the direct linked joint list of each joint:
-        for (size_t i = 0; i < getJointCount(); i++)
+        for (size_t i = 0; i < getObjectCount(sim_object_joint_type); i++)
         {
             CJoint *it = getJointFromIndex(i);
             std::vector<CJoint *> joints;
-            for (size_t j = 0; j < getJointCount(); j++)
+            for (size_t j = 0; j < getObjectCount(sim_object_joint_type); j++)
             {
                 CJoint *anAct = getJointFromIndex(j);
                 if (anAct != it)
@@ -367,7 +448,7 @@ void CSceneObjectContainer::actualizeObjectInformation()
 
         App::currentWorld->collections->actualizeAllCollections();
 
-        for (size_t i = 0; i < getShapeCount(); i++)
+        for (size_t i = 0; i < getObjectCount(sim_object_shape_type); i++)
             getShapeFromIndex(i)->clearLastParentForLocalGlobalRespondable();
 
         App::currentWorld->textureContainer->updateAllDependencies();
@@ -475,6 +556,7 @@ void CSceneObjectContainer::removeSceneDependencies()
 {
     for (size_t i = 0; i < getObjectCount(); i++)
         getObjectFromIndex(i)->removeSceneDependencies();
+    embeddedScriptContainer->removeAllScripts();
 }
 
 void CSceneObjectContainer::checkObjectIsInstanciated(CSceneObject *obj, const char *location) const
@@ -683,6 +765,14 @@ CSceneObject *CSceneObjectContainer::readSceneObject(CSer &ar, const char *name,
             noHit = false;
             return (myNewObject);
         }
+        if (theName.compare(SER_SCRIPT) == 0)
+        {
+            ar >> byteQuantity;
+            CScript *myNewObject = new CScript();
+            myNewObject->serialize(ar);
+            noHit = false;
+            return (myNewObject);
+        }
         if (theName.compare(SER_PROXIMITYSENSOR) == 0)
         {
             ar >> byteQuantity;
@@ -869,6 +959,8 @@ void CSceneObjectContainer::writeSceneObject(CSer &ar, CSceneObject *it)
             ar.storeDataName(SER_POINTCLOUD);
         if (it->getObjectType() == sim_object_dummy_type)
             ar.storeDataName(SER_DUMMY);
+        if (it->getObjectType() == sim_object_script_type)
+            ar.storeDataName(SER_SCRIPT);
         if (it->getObjectType() == sim_object_proximitysensor_type)
             ar.storeDataName(SER_PROXIMITYSENSOR);
         if (it->getObjectType() == sim_object_visionsensor_type)
@@ -1139,16 +1231,14 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer &ar, const CScene
         obj->serialize(ar);
     }
 
-    CScriptObject *script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-        sim_scripttype_childscript, object->getObjectHandle());
+    CScriptObject *script = embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, object->getObjectHandle());
     if (script != nullptr)
     {
         ar.xmlPushNewNode("childScript");
         script->serialize(ar);
         ar.xmlPopNode();
     }
-    script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-        sim_scripttype_customizationscript, object->getObjectHandle());
+    script = embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, object->getObjectHandle());
     if (script != nullptr)
     {
         ar.xmlPushNewNode("customizationScript");
@@ -1566,6 +1656,28 @@ void CSceneObjectContainer::addModelObjects(std::vector<int> &selection) const
                     selection.insert(selection.begin(), it2->getObjectHandle());
                     objectsInOutputList.insert(it2->getObjectHandle());
                 }
+            }
+        }
+    }
+}
+
+void CSceneObjectContainer::addCompatibilityScripts(std::vector<int> &selection) const
+{
+    std::unordered_set<int> objectsInOutputList;
+    for (size_t i = 0; i < selection.size(); i++)
+    {
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(selection[i]);
+        objectsInOutputList.insert(it->getObjectHandle());
+    }
+    for (size_t i = 0; i < _scriptList.size(); i++)
+    {
+        CScript* s = _scriptList[i];
+        if (objectsInOutputList.find(s->getObjectHandle()) == objectsInOutputList.end())
+        { // script not in selection
+            if (s->scriptObject->getParentIsProxy())
+            { // script in compatibility mode
+                objectsInOutputList.insert(s->getObjectHandle());
+                selection.push_back(s->getObjectHandle());
             }
         }
     }
@@ -2435,6 +2547,8 @@ void CSceneObjectContainer::_addObject(CSceneObject *object)
         _jointList.push_back((CJoint *)object);
     if (t == sim_object_dummy_type)
         _dummyList.push_back((CDummy *)object);
+    if (t == sim_object_script_type)
+        _scriptList.push_back((CScript *)object);
     if (t == sim_object_graph_type)
         _graphList.push_back((CGraph *)object);
     if (t == sim_object_light_type)
@@ -2474,6 +2588,170 @@ void CSceneObjectContainer::_addObject(CSceneObject *object)
     _objectCreationCounter++;
 }
 
+void CSceneObjectContainer::removeDelayedDestructionObjects()
+{
+    for (int i = 0; i < int(_delayedDestructionObjects.size()); i++)
+    {
+        if (_delayedDestructionObjects[i]->canDestroyNow(true))
+        {
+            delete _delayedDestructionObjects[i];
+            i--;
+        }
+    }
+}
+
+size_t CSceneObjectContainer::getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts) const
+{ // returns all non-disabled scripts, from leaf to root. With scriptType==-1, returns child and customization scripts
+    std::vector<CSceneObject *> objects;
+    std::vector<CSceneObject *> objectsNormalPriority;
+    std::vector<CSceneObject *> objectsLastPriority;
+    for (size_t i = 0; i < getOrphanCount(); i++)
+    {
+        CSceneObject *it = getOrphanFromIndex(i);
+        if (it->getScriptExecPriority() == sim_scriptexecorder_first)
+            objects.push_back(it);
+        if (it->getScriptExecPriority() == sim_scriptexecorder_normal)
+            objectsNormalPriority.push_back(it);
+        if (it->getScriptExecPriority() == sim_scriptexecorder_last)
+            objectsLastPriority.push_back(it);
+    }
+    objects.insert(objects.end(), objectsNormalPriority.begin(), objectsNormalPriority.end());
+    objects.insert(objects.end(), objectsLastPriority.begin(), objectsLastPriority.end());
+    for (size_t i = 0; i < objects.size(); i++)
+        objects[i]->getScriptsToExecute(scriptHandles, scriptType, legacyEmbeddedScripts);
+    return (scriptHandles.size());
+}
+
+void CSceneObjectContainer::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
+{
+    bool doNotInterrupt = !CScriptObject::isSystemCallbackInterruptible(callType);
+    if (CScriptObject::isSystemCallbackInReverseOrder(callType))
+    { // reverse order
+
+        // main script
+        if (!App::currentWorld->simulation->isSimulationStopped())
+        {
+            CScriptObject *script = embeddedScriptContainer->getMainScript();
+            if ((script != nullptr) && (script->hasSystemFunctionOrHook(callType) || script->getOldCallMode()))
+            {
+                if (script->getScriptHandle() != scriptToExclude)
+                    script->systemCallMainScript(callType, inStack, outStack);
+            }
+        }
+
+        // child + customization scripts (legacy + new):
+        if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
+            callScripts_noMainScript(-1, callType, inStack, outStack, objectBranch, scriptToExclude);
+    }
+    else
+    { // regular order, from unimportant, to most important
+
+        // child + customization scripts (legacy + new):
+        callScripts_noMainScript(-1, callType, inStack, outStack, objectBranch, scriptToExclude);
+
+        // main script
+        if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
+        {
+            if (!App::currentWorld->simulation->isSimulationStopped())
+            {
+                CScriptObject *script = embeddedScriptContainer->getMainScript();
+                if ((script != nullptr) && (script->hasSystemFunctionOrHook(callType) || script->getOldCallMode()))
+                {
+                    if (script->getScriptHandle() != scriptToExclude)
+                        script->systemCallMainScript(callType, inStack, outStack);
+                }
+            }
+        }
+    }
+}
+
+int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
+{
+    int retVal = 0;
+    bool doNotInterrupt = !CScriptObject::isSystemCallbackInterruptible(callType);
+    if (CScriptObject::isSystemCallbackInReverseOrder(callType))
+    { // reverse order
+
+        retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
+
+        if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
+            retVal += embeddedScriptContainer->callScripts_noMainScript(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
+    }
+    else
+    { // regular order, from unimportant, to most important
+
+        retVal += embeddedScriptContainer->callScripts_noMainScript(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
+
+        if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
+            retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
+    }
+    return retVal;
+}
+
+
+int CSceneObjectContainer::_callScripts(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack,
+                                           CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
+{ // with objectBranch!=nullptr, will return the branch starting at objectBranch up to the main script
+    TRACE_INTERNAL;
+
+    int cnt = 0;
+
+    std::vector<int> scriptHandles;
+    if (objectBranch == nullptr)
+        getScriptsToExecute(scriptHandles, scriptType, false);
+    else
+        objectBranch->getScriptsToExecute_branch(scriptHandles, scriptType, false);
+    if (CScriptObject::isSystemCallbackInReverseOrder(callType))
+        std::reverse(scriptHandles.begin(), scriptHandles.end());
+    bool canInterrupt = CScriptObject::isSystemCallbackInterruptible(callType);
+    for (size_t i = 0; i < scriptHandles.size(); i++)
+    {
+        CScript *script = getScriptFromHandle(scriptHandles[i]);
+        if ((script != nullptr) && (scriptHandles[i] != scriptToExclude))
+        { // the script could have been erased in the mean time
+            if (script->scriptObject->getThreadedExecution_oldThreads())
+            { // is an old, threaded script
+                if (callType == sim_scriptthreadresume_launch)
+                {
+                    if (script->scriptObject->launchThreadedChildScript_oldThreads())
+                        cnt++;
+                }
+                else
+                    cnt += script->scriptObject->resumeThreadedChildScriptIfLocationMatch_oldThreads(callType);
+            }
+            else if (script->scriptObject->hasSystemFunctionOrHook(callType) || script->scriptObject->getOldCallMode())
+            { // has the function
+                if (script->scriptObject->systemCallScript(callType, inStack, outStack) == 1)
+                {
+                    cnt++;
+                    if (canInterrupt && (outStack != nullptr) && (outStack->getStackSize() != 0))
+                        break;
+                }
+            }
+            else
+            { // has not the function. Check if we need to support old callbacks:
+                int compatCall = -1;
+                if (callType == sim_syscb_dyn)
+                    compatCall = sim_syscb_dyncallback;
+                if (callType == sim_syscb_contact)
+                    compatCall = sim_syscb_contactcallback;
+                if ((compatCall != -1) && script->scriptObject->hasSystemFunctionOrHook(compatCall))
+                {
+                    if (script->scriptObject->systemCallScript(compatCall, inStack, outStack) == 1)
+                    {
+                        cnt++;
+                        if (canInterrupt && (outStack != nullptr) && (outStack->getStackSize() != 0))
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    return cnt;
+}
+
+
 void CSceneObjectContainer::_removeObject(CSceneObject *object)
 { // Overridden from _CSceneObjectContainer_
     object->setIsInScene(false);
@@ -2501,6 +2779,8 @@ void CSceneObjectContainer::_removeObject(CSceneObject *object)
         list = (std::vector<CSceneObject *> *)&_jointList;
     if (t == sim_object_dummy_type)
         list = (std::vector<CSceneObject *> *)&_dummyList;
+    if (t == sim_object_script_type)
+        list = (std::vector<CSceneObject *> *)&_scriptList;
     if (t == sim_object_graph_type)
         list = (std::vector<CSceneObject *> *)&_graphList;
     if (t == sim_object_light_type)
@@ -2545,7 +2825,10 @@ void CSceneObjectContainer::_removeObject(CSceneObject *object)
     _objectHandleMap.erase(object->getObjectHandle());
     _objectNameMap_old.erase(object->getObjectName_old());
     _objectAltNameMap_old.erase(object->getObjectAltName_old());
-    delete object;
+    if (object->canDestroyNow(false))
+        delete object;
+    else
+        _delayedDestructionObjects.push_back(object);
     _handleOrderIndexOfOrphans();
 
     actualizeObjectInformation();
@@ -2594,9 +2877,45 @@ bool CSceneObjectContainer::doesObjectExist(const CSceneObject *obj) const
     return (false);
 }
 
-size_t CSceneObjectContainer::getObjectCount() const
+size_t CSceneObjectContainer::getObjectCount(int type /* = -1 */) const
 {
-    return (_allObjects.size());
+    size_t retVal = 0;
+    if (type == -1)
+        retVal = _allObjects.size();
+    else
+    {
+        if (type == sim_object_joint_type)
+            retVal = _jointList.size();
+        if (type == sim_object_dummy_type)
+            retVal = _dummyList.size();
+        if (type == sim_object_script_type)
+            retVal = _scriptList.size();
+        if (type == sim_object_mirror_type)
+            retVal = _mirrorList.size();
+        if (type == sim_object_graph_type)
+            retVal = _graphList.size();
+        if (type == sim_object_light_type)
+            retVal = _lightList.size();
+        if (type == sim_object_camera_type)
+            retVal = _cameraList.size();
+        if (type == sim_object_proximitysensor_type)
+            retVal = _proximitySensorList.size();
+        if (type == sim_object_visionsensor_type)
+            retVal = _visionSensorList.size();
+        if (type == sim_object_shape_type)
+            retVal = _shapeList.size();
+        if (type == sim_object_path_type)
+            retVal = _pathList.size();
+        if (type == sim_object_mill_type)
+            retVal = _millList.size();
+        if (type == sim_object_forcesensor_type)
+            retVal = _forceSensorList.size();
+        if (type == sim_object_octree_type)
+            retVal = _octreeList.size();
+        if (type == sim_object_pointcloud_type)
+            retVal = _pointCloudList.size();
+    }
+    return retVal;
 }
 
 CSceneObject *CSceneObjectContainer::getObjectFromIndex(size_t index) const
@@ -2679,6 +2998,14 @@ CDummy *CSceneObjectContainer::getDummyFromIndex(size_t index) const
     CDummy *retVal = nullptr;
     if (index < _dummyList.size())
         retVal = _dummyList[index];
+    return (retVal);
+}
+
+CScript *CSceneObjectContainer::getScriptFromIndex(size_t index) const
+{
+    CScript *retVal = nullptr;
+    if (index < _scriptList.size())
+        retVal = _scriptList[index];
     return (retVal);
 }
 
@@ -2784,6 +3111,31 @@ CDummy *CSceneObjectContainer::getDummyFromHandle(int objectHandle) const
     CSceneObject *it = getObjectFromHandle(objectHandle);
     if ((it != nullptr) && (it->getObjectType() == sim_object_dummy_type))
         retVal = (CDummy *)it;
+    return (retVal);
+}
+
+CScriptObject *CSceneObjectContainer::getScriptObjectFromHandle(int handle) const
+{
+    CScriptObject *retVal = nullptr;
+    if (handle <= SIM_IDEND_SCENEOBJECT)
+    { // scene object scripts
+        CScript* it = getScriptFromHandle(handle);
+        if (it != nullptr)
+            retVal = it->scriptObject;
+    }
+    else
+    { // main script (and old non-scene object scripts)
+        retVal = embeddedScriptContainer->getScriptObjectFromHandle(handle);
+    }
+    return (retVal);
+}
+
+CScript *CSceneObjectContainer::getScriptFromHandle(int objectHandle) const
+{
+    CScript *retVal = nullptr;
+    CSceneObject *it = getObjectFromHandle(objectHandle);
+    if ((it != nullptr) && (it->getObjectType() == sim_object_script_type))
+        retVal = (CScript *)it;
     return (retVal);
 }
 
@@ -2904,7 +3256,7 @@ CGraph *CSceneObjectContainer::getGraphFromHandle(int objectHandle) const
     return (retVal);
 }
 
-size_t CSceneObjectContainer::getShapeCountInSelection(const std::vector<int> *selection /*=nullptr*/) const
+size_t CSceneObjectContainer::getObjectCountInSelection(int objectType /*=-1*/, const std::vector<int> *selection /*=nullptr*/) const
 {
     size_t counter = 0;
     const std::vector<int> *sel = &_selectedObjectHandles;
@@ -2912,8 +3264,8 @@ size_t CSceneObjectContainer::getShapeCountInSelection(const std::vector<int> *s
         sel = selection;
     for (size_t i = 0; i < sel->size(); i++)
     {
-        CShape *it = getShapeFromHandle(sel->at(i));
-        if (it != nullptr)
+        CSceneObject *it = getObjectFromHandle(sel->at(i));
+        if ( (it != nullptr) && ( (objectType == -1) || (it->getObjectType() == objectType) ) )
             counter++;
     }
     return (counter);
@@ -2937,127 +3289,7 @@ size_t CSceneObjectContainer::getSimpleShapeCountInSelection(const std::vector<i
     return (counter);
 }
 
-size_t CSceneObjectContainer::getJointCountInSelection(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    for (size_t i = 0; i < sel->size(); i++)
-    {
-        CJoint *it = getJointFromHandle(sel->at(i));
-        if (it != nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getGraphCountInSelection(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    for (size_t i = 0; i < sel->size(); i++)
-    {
-        CGraph *it = getGraphFromHandle(sel->at(i));
-        if (it != nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getDummyCountInSelection(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    for (size_t i = 0; i < sel->size(); i++)
-    {
-        CDummy *it = getDummyFromHandle(sel->at(i));
-        if (it != nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getProxSensorCountInSelection(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    for (size_t i = 0; i < sel->size(); i++)
-    {
-        CProxSensor *it = getProximitySensorFromHandle(sel->at(i));
-        if (it != nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getVisionSensorCountInSelection(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    for (size_t i = 0; i < sel->size(); i++)
-    {
-        CVisionSensor *it = getVisionSensorFromHandle(sel->at(i));
-        if (it != nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getPathCountInSelection(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    for (size_t i = 0; i < sel->size(); i++)
-    {
-        CPath_old *it = getPathFromHandle(sel->at(i));
-        if (it != nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getMillCountInSelection(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    for (size_t i = 0; i < sel->size(); i++)
-    {
-        CMill *it = getMillFromHandle(sel->at(i));
-        if (it != nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-size_t CSceneObjectContainer::getForceSensorCountInSelection(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    for (size_t i = 0; i < sel->size(); i++)
-    {
-        CForceSensor *it = getForceSensorFromHandle(sel->at(i));
-        if (it != nullptr)
-            counter++;
-    }
-    return (counter);
-}
-
-bool CSceneObjectContainer::isLastSelectionAnOctree(const std::vector<int> *selection /*=nullptr*/) const
+bool CSceneObjectContainer::isLastSelectionOfType(int objectType, const std::vector<int> *selection /*=nullptr*/) const
 {
     size_t counter = 0;
     const std::vector<int> *sel = &_selectedObjectHandles;
@@ -3065,36 +3297,8 @@ bool CSceneObjectContainer::isLastSelectionAnOctree(const std::vector<int> *sele
         sel = selection;
     if (sel->size() == 0)
         return (false);
-    COcTree *it = getOctreeFromHandle(sel->at(sel->size() - 1));
-    if (it != nullptr)
-        return (true);
-    return (false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAPointCloud(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    if (sel->size() == 0)
-        return (false);
-    CPointCloud *it = getPointCloudFromHandle(sel->at(sel->size() - 1));
-    if (it != nullptr)
-        return (true);
-    return (false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAShape(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    if (sel->size() == 0)
-        return (false);
-    CShape *it = getShapeFromHandle(sel->at(sel->size() - 1));
-    if (it != nullptr)
+    CSceneObject *it = getObjectFromHandle(sel->at(sel->size() - 1));
+    if ( (it != nullptr) && (it->getObjectType() == objectType) )
         return (true);
     return (false);
 }
@@ -3113,118 +3317,6 @@ bool CSceneObjectContainer::isLastSelectionASimpleShape(const std::vector<int> *
         if (!it->isCompound())
             return (true);
     }
-    return (false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAJoint(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    if (sel->size() == 0)
-        return (false);
-    CJoint *it = getJointFromHandle(sel->at(sel->size() - 1));
-    if (it != nullptr)
-        return (true);
-    return (false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAGraph(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    if (sel->size() == 0)
-        return (false);
-    CGraph *it = getGraphFromHandle(sel->at(sel->size() - 1));
-    if (it != nullptr)
-        return (true);
-    return (false);
-}
-
-bool CSceneObjectContainer::isLastSelectionADummy(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    if (sel->size() == 0)
-        return (false);
-    CDummy *it = getDummyFromHandle(sel->at(sel->size() - 1));
-    if (it != nullptr)
-        return (true);
-    return (false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAProxSensor(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    if (sel->size() == 0)
-        return (false);
-    CProxSensor *it = getProximitySensorFromHandle(sel->at(sel->size() - 1));
-    if (it != nullptr)
-        return (true);
-    return (false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAVisionSensor(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    if (sel->size() == 0)
-        return (false);
-    CVisionSensor *it = getVisionSensorFromHandle(sel->at(sel->size() - 1));
-    if (it != nullptr)
-        return (true);
-    return (false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAPath(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    if (sel->size() == 0)
-        return (false);
-    CPath_old *it = getPathFromHandle(sel->at(sel->size() - 1));
-    if (it != nullptr)
-        return (true);
-    return (false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAMill(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    if (sel->size() == 0)
-        return (false);
-    CMill *it = getMillFromHandle(sel->at(sel->size() - 1));
-    if (it != nullptr)
-        return (true);
-    return (false);
-}
-
-bool CSceneObjectContainer::isLastSelectionAForceSensor(const std::vector<int> *selection /*=nullptr*/) const
-{
-    size_t counter = 0;
-    const std::vector<int> *sel = &_selectedObjectHandles;
-    if (selection != nullptr)
-        sel = selection;
-    if (sel->size() == 0)
-        return (false);
-    CForceSensor *it = getForceSensorFromHandle(sel->at(sel->size() - 1));
-    if (it != nullptr)
-        return (true);
     return (false);
 }
 
@@ -3334,6 +3426,17 @@ CDummy *CSceneObjectContainer::getLastSelectionDummy() const
     {
         if (it->getObjectType() == sim_object_dummy_type)
             return ((CDummy *)it);
+    }
+    return (nullptr);
+}
+
+CScript *CSceneObjectContainer::getLastSelectionScript() const
+{
+    CSceneObject *it = getLastSelectionObject();
+    if (it != nullptr)
+    {
+        if (it->getObjectType() == sim_object_script_type)
+            return ((CScript *)it);
     }
     return (nullptr);
 }
@@ -3530,51 +3633,6 @@ bool CSceneObjectContainer::isObjectInSelection(int objectHandle, const std::vec
     return (false);
 }
 
-size_t CSceneObjectContainer::getJointCount() const
-{
-    return (_jointList.size());
-}
-
-size_t CSceneObjectContainer::getDummyCount() const
-{
-    return (_dummyList.size());
-}
-
-size_t CSceneObjectContainer::getMirrorCount() const
-{
-    return (_mirrorList.size());
-}
-
-size_t CSceneObjectContainer::getGraphCount() const
-{
-    return (_graphList.size());
-}
-
-size_t CSceneObjectContainer::getLightCount() const
-{
-    return (_lightList.size());
-}
-
-size_t CSceneObjectContainer::getCameraCount() const
-{
-    return (_cameraList.size());
-}
-
-size_t CSceneObjectContainer::getProximitySensorCount() const
-{
-    return (_proximitySensorList.size());
-}
-
-size_t CSceneObjectContainer::getVisionSensorCount() const
-{
-    return (_visionSensorList.size());
-}
-
-size_t CSceneObjectContainer::getShapeCount() const
-{
-    return (_shapeList.size());
-}
-
 size_t CSceneObjectContainer::getSimpleShapeCount() const
 {
     size_t counter = 0;
@@ -3589,32 +3647,7 @@ size_t CSceneObjectContainer::getSimpleShapeCount() const
 
 size_t CSceneObjectContainer::getCompoundShapeCount() const
 {
-    return (getShapeCount() - getSimpleShapeCount());
-}
-
-size_t CSceneObjectContainer::getPathCount() const
-{
-    return (_pathList.size());
-}
-
-size_t CSceneObjectContainer::getMillCount() const
-{
-    return (_millList.size());
-}
-
-size_t CSceneObjectContainer::getForceSensorCount() const
-{
-    return (_forceSensorList.size());
-}
-
-size_t CSceneObjectContainer::getOctreeCount() const
-{
-    return (_octreeList.size());
-}
-
-size_t CSceneObjectContainer::getPointCloudCount() const
-{
-    return (_pointCloudList.size());
+    return (getObjectCount(sim_object_shape_type) - getSimpleShapeCount());
 }
 
 size_t CSceneObjectContainer::getOrphanCount() const
@@ -3869,4 +3902,26 @@ CSceneObject *CSceneObjectContainer::_getObjectInTree(const CSceneObject *treeBa
             return (r);
     }
     return (nullptr);
+}
+
+void CSceneObjectContainer::resetScriptFlagCalledInThisSimulationStep()
+{
+    embeddedScriptContainer->resetScriptFlagCalledInThisSimulationStep();
+    for (size_t i = 0; i < _scriptList.size(); i++)
+        _scriptList[i]->scriptObject->resetCalledInThisSimulationStep();
+}
+
+int CSceneObjectContainer::getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts)
+{
+    int cnt = embeddedScriptContainer->getCalledScriptsCountInThisSimulationStep(onlySimulationScripts);
+
+    for (size_t i = 0; i < _scriptList.size(); i++)
+    {
+        if (_scriptList[i]->scriptObject->getCalledInThisSimulationStep())
+        {
+            if ((!onlySimulationScripts) || (_scriptList[i]->scriptObject->getScriptType() == sim_scripttype_childscript))
+                cnt++;
+        }
+    }
+    return (cnt);
 }

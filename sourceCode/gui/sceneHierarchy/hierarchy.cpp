@@ -1151,7 +1151,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
     int scriptID = getScriptActionObjectID(mouseDownRelativePosition[0], mouseDownRelativePosition[1]);
     if (scriptID != -1)
     {
-        CScriptObject *it = App::currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptID);
+        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
         if (it != nullptr)
         {
             // Process the command via the simulation thread (delayed):
@@ -1190,6 +1190,17 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
                     App::currentWorld->sceneObjects->addObjectToSelection(objID);
                     GuiApp::setFullDialogRefreshFlag();
                     GuiApp::mainWindow->dlgCont->processCommand(OPEN_OBJECT_DLG_OBJECT_SPECIFIC_PART_CMD);
+
+                    CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(objID);
+                    if (it != nullptr)
+                    {
+                        // Process the command via the simulation thread (delayed):
+                        SSimulationThreadCommand cmd;
+                        cmd.cmdId = OPEN_SCRIPT_EDITOR_CMD;
+                        cmd.intParams.push_back(objID);
+                        App::appendSimulationThreadCommand(cmd);
+                    }
+
                 }
                 else
                 { // World object!
@@ -1535,8 +1546,8 @@ void CHierarchy::addMenu(VMenu *menu)
     {
         int h = App::currentWorld->sceneObjects->getLastSelectionHandle();
         CScriptObject *childS =
-            App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, h);
-        CScriptObject *custS = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, h);
+        CScriptObject *custS = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_customizationscript, h);
         if ((childS != nullptr) || (custS != nullptr))
         {
@@ -1641,10 +1652,10 @@ bool CHierarchy::processCommand(int commandID)
         int h = App::currentWorld->sceneObjects->getLastSelectionHandle();
         CScriptObject *s = nullptr;
         if (commandID == RESTART_CHILD_SCRIPT_CMD)
-            s = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,
+            s = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,
                                                                                           h);
         else
-            s = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            s = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_customizationscript, h);
         cmd.intParams.push_back(s->getScriptHandle());
         App::appendSimulationThreadCommand(cmd);
@@ -1658,7 +1669,7 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
 {
     std::vector<int>
         positions; // contains only objects that have a dummy linking to another, as child (or the dummy itself)
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getDummyCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type); i++)
     {
         CDummy *dummy = App::currentWorld->sceneObjects->getDummyFromIndex(i);
         if ((dummy->getLinkedDummyHandle() != -1) && (dummy->getDummyType() != sim_dummytype_default) &&

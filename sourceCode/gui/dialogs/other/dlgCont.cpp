@@ -57,8 +57,9 @@ void CDlgCont::initialize(QWidget *pWindow)
     dialogs.push_back(new CToolDlgWrapper(COLLISION_DLG, 0));
     dialogs.push_back(new CToolDlgWrapper(DISTANCE_DLG, 0));
     dialogs.push_back(new CToolDlgWrapper(IK_DLG, 0));
-    dialogs.push_back(new CToolDlgWrapper(LUA_SCRIPT_DLG, 0));
+    dialogs.push_back(new CToolDlgWrapper(OLD_LUA_SCRIPT_DLG, 0));
     dialogs.push_back(new CToolDlgWrapper(DUMMY_DLG, 0));
+    dialogs.push_back(new CToolDlgWrapper(SCRIPT_DLG, 0));
     dialogs.push_back(new CToolDlgWrapper(LAYERS_DLG, 0));
     dialogs.push_back(new CToolDlgWrapper(DYNAMICS_DLG, 0));
     dialogs.push_back(new CToolDlgWrapper(PATH_DLG, 0));
@@ -320,8 +321,9 @@ void CDlgCont::addMenu(VMenu *menu)
                                  GuiApp::mainWindow->dlgCont->isVisible(CALCULATION_DLG_OLD),
                                  TOGGLE_CALCULATION_DLG_CMD_OLD, "Old dialogs", true);
         menu->appendMenuSeparator();
-        menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(LUA_SCRIPT_DLG),
-                             TOGGLE_LUA_SCRIPT_DLG_CMD, IDSN_SCRIPTS, true);
+        if (!App::userSettings->useSceneObjectScripts)
+            menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(OLD_LUA_SCRIPT_DLG), TOGGLE_OLD_LUA_SCRIPT_DLG_CMD, "Scripts", true);
+
         if (App::userSettings->showOldDlgs)
             menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(COLLECTION_DLG),
                                  TOGGLE_COLLECTION_DLG_CMD, IDSN_COLLECTIONS, true);
@@ -510,6 +512,11 @@ bool CDlgCont::processCommand(int commandID)
             openOrBringToFront(DUMMY_DLG);
             return (true);
         }
+        if (commandID == OPEN_SCRIPT_DLG_CMD)
+        {
+            openOrBringToFront(SCRIPT_DLG);
+            return (true);
+        }
         if (commandID == OPEN_JOINT_DLG_CMD)
         {
             openOrBringToFront(JOINT_DLG);
@@ -590,9 +597,9 @@ bool CDlgCont::processCommand(int commandID)
             toggle(FORCE_SENSOR_DLG);
             return (true);
         }
-        if (commandID == TOGGLE_LUA_SCRIPT_DLG_CMD)
+        if (commandID == TOGGLE_OLD_LUA_SCRIPT_DLG_CMD)
         {
-            toggle(LUA_SCRIPT_DLG);
+            toggle(OLD_LUA_SCRIPT_DLG);
             return (true);
         }
         if (commandID == TOGGLE_SETTINGS_DLG_CMD)
@@ -603,6 +610,11 @@ bool CDlgCont::processCommand(int commandID)
         if (commandID == TOGGLE_DUMMY_DLG_CMD)
         {
             toggle(DUMMY_DLG);
+            return (true);
+        }
+        if (commandID == TOGGLE_SCRIPT_DLG_CMD)
+        {
+            toggle(SCRIPT_DLG);
             return (true);
         }
         if (commandID == TOGGLE_DISTANCE_DLG_CMD)

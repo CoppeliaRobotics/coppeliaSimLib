@@ -1158,12 +1158,15 @@ void CMainWindow::_createDefaultToolBars()
             _signalMapper->setMapping(_toolbarActionCollections, TOGGLE_COLLECTION_DLG_CMD);
         }
 
-        if (CSimFlavor::getBoolVal(12))
+        if (!App::userSettings->useSceneObjectScripts)
         {
-            _toolbarActionScripts = _toolbar2->addAction(QIcon(":/toolbarFiles/scripts.png"), tr(IDSN_SCRIPTS));
-            _toolbarActionScripts->setCheckable(true);
-            connect(_toolbarActionScripts, SIGNAL(triggered()), _signalMapper, SLOT(map()));
-            _signalMapper->setMapping(_toolbarActionScripts, TOGGLE_LUA_SCRIPT_DLG_CMD);
+            if (CSimFlavor::getBoolVal(12))
+            {
+                _toolbarActionScripts = _toolbar2->addAction(QIcon(":/toolbarFiles/scripts.png"), "Scripts");
+                _toolbarActionScripts->setCheckable(true);
+                connect(_toolbarActionScripts, SIGNAL(triggered()), _signalMapper, SLOT(map()));
+                _signalMapper->setMapping(_toolbarActionScripts, TOGGLE_OLD_LUA_SCRIPT_DLG_CMD);
+            }
         }
 
         if (CSimFlavor::getBoolVal(12))
@@ -1643,18 +1646,21 @@ void CMainWindow::_actualizetoolbarButtonState()
                                                              noSelector);
         if (CSimFlavor::getBoolVal(12) && App::userSettings->showOldDlgs)
             _toolbarActionCollections->setEnabled(noEditMode && noSelector);
-        if (CSimFlavor::getBoolVal(12))
-            _toolbarActionScripts->setEnabled(noEditMode && noSelector);
+        if (!App::userSettings->useSceneObjectScripts)
+        {
+            if (CSimFlavor::getBoolVal(12))
+                _toolbarActionScripts->setEnabled(noEditMode && noSelector);
+        }
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionShapeEdition->setEnabled((noSelector && (selS == 1) &&
-                                                    App::currentWorld->sceneObjects->isLastSelectionAShape() &&
+                                                    App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_shape_type) &&
                                                     App::currentWorld->simulation->isSimulationStopped() &&
                                                     (editModeContainer->getEditModeType() == NO_EDIT_MODE)) ||
                                                    (editModeContainer->getEditModeType() & SHAPE_EDIT_MODE) ||
                                                    (editModeContainer->getEditModeType() & MULTISHAPE_EDIT_MODE));
         if (CSimFlavor::getBoolVal(12) && App::userSettings->showOldDlgs)
             _toolbarActionPathEdition->setEnabled((noSelector && (selS == 1) &&
-                                                   App::currentWorld->sceneObjects->isLastSelectionAPath() &&
+                                                   App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_path_type) &&
                                                    App::currentWorld->simulation->isSimulationStopped() &&
                                                    (editModeContainer->getEditModeType() == NO_EDIT_MODE)) ||
                                                   (editModeContainer->getEditModeType() & PATH_EDIT_MODE_OLD));
@@ -1679,8 +1685,11 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionCalculationModules_OLD->setChecked(dlgCont->isVisible(CALCULATION_DLG_OLD));
         if (CSimFlavor::getBoolVal(12) && App::userSettings->showOldDlgs)
             _toolbarActionCollections->setChecked(dlgCont->isVisible(COLLECTION_DLG));
-        if (CSimFlavor::getBoolVal(12))
-            _toolbarActionScripts->setChecked(dlgCont->isVisible(LUA_SCRIPT_DLG));
+        if (!App::userSettings->useSceneObjectScripts)
+        {
+            if (CSimFlavor::getBoolVal(12))
+                _toolbarActionScripts->setChecked(dlgCont->isVisible(OLD_LUA_SCRIPT_DLG));
+        }
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionShapeEdition->setChecked(editModeContainer->getEditModeType() & SHAPE_EDIT_MODE);
         if (CSimFlavor::getBoolVal(12) && App::userSettings->showOldDlgs)
@@ -2087,7 +2096,8 @@ void CMainWindow::closeTemporarilyDialogsForPageSelector()
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG, _dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(ENVIRONMENT_DLG, _dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG, _dialogsClosedTemporarily_pageSelector);
-        _closeDialogTemporarilyIfOpened(LUA_SCRIPT_DLG, _dialogsClosedTemporarily_pageSelector);
+        if (!App::userSettings->useSceneObjectScripts)
+            _closeDialogTemporarilyIfOpened(OLD_LUA_SCRIPT_DLG, _dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(OBJECT_DLG, _dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(CALCULATION_DLG_OLD, _dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(TRANSLATION_ROTATION_DLG, _dialogsClosedTemporarily_pageSelector);
@@ -2137,7 +2147,8 @@ void CMainWindow::closeTemporarilyDialogsForViewSelector()
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG, _dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(ENVIRONMENT_DLG, _dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG, _dialogsClosedTemporarily_viewSelector);
-        _closeDialogTemporarilyIfOpened(LUA_SCRIPT_DLG, _dialogsClosedTemporarily_viewSelector);
+        if (!App::userSettings->useSceneObjectScripts)
+            _closeDialogTemporarilyIfOpened(OLD_LUA_SCRIPT_DLG, _dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(OBJECT_DLG, _dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(CALCULATION_DLG_OLD, _dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(TRANSLATION_ROTATION_DLG, _dialogsClosedTemporarily_viewSelector);
@@ -2206,7 +2217,8 @@ void CMainWindow::closeTemporarilyNonEditModeDialogs()
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG, _dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(ENVIRONMENT_DLG, _dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(COLLECTION_DLG, _dialogsClosedTemporarily_editModes);
-        _closeDialogTemporarilyIfOpened(LUA_SCRIPT_DLG, _dialogsClosedTemporarily_editModes);
+        if (!App::userSettings->useSceneObjectScripts)
+            _closeDialogTemporarilyIfOpened(OLD_LUA_SCRIPT_DLG, _dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(OBJECT_DLG, _dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(CALCULATION_DLG_OLD, _dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(BROWSER_DLG, _dialogsClosedTemporarily_editModes);

@@ -326,7 +326,7 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase *viewable)
         std::vector<CLight *> lList;
         if (lightHandle == -1)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getLightCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_light_type); i++)
             {
                 CLight *light = App::currentWorld->sceneObjects->getLightFromIndex(i);
                 lList.push_back(light);
@@ -452,7 +452,7 @@ void _prepareOrEnableAuxClippingPlanes(bool prepare, int objID)
     if (App::currentWorld->mainSettings->clippingPlanesDisabled)
         return;
     int cpi = 0;
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getMirrorCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_mirror_type); i++)
     {
         if (cpi < 5)
         {

@@ -18,9 +18,10 @@ class CEmbeddedScriptContainer
     void announceObjectWillBeErased(const CSceneObject *object);
     bool removeScript_safe(int scriptHandle);
     bool removeScript(int scriptHandle);
+    void extractScript(int scriptHandle);
     int insertScript(CScriptObject *script);
     int getObjectHandleFromScriptHandle(int scriptHandle) const;
-    CScriptObject *getScriptFromHandle(int scriptHandle) const;
+    CScriptObject *getScriptObjectFromHandle(int scriptHandle) const;
     CScriptObject *getMainScript() const;
     CScriptObject *getScriptFromObjectAttachedTo(int scriptType, int objectHandle) const;
 
@@ -39,15 +40,13 @@ class CEmbeddedScriptContainer
     bool addCommandToOutsideCommandQueues(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4,
                                           const double aux2Vals[8], int aux2Count);
 
-    int callChildAndEmbeddedScripts(int scriptType, int callTypeOrResumeLocation, CInterfaceStack *inStack,
+    int callScripts_noMainScript(int scriptType, int callTypeOrResumeLocation, CInterfaceStack *inStack,
                                     CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr,
                                     int scriptToExclude = -1);
     bool shouldTemporarilySuspendMainScript();
     int getSysFuncAndHookCnt(int sysCall) const;
     void setSysFuncAndHookCnt(int sysCall, int cnt);
 
-    void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack,
-                     CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     void sceneOrModelAboutToBeSaved_old(int modelBase);
     int getEquivalentScriptExecPriority_old(int objectHandle) const;
     void handleDataCallbacks();
@@ -57,10 +56,6 @@ class CEmbeddedScriptContainer
     CBroadcastDataContainer broadcastDataContainer;
 
   protected:
-    size_t _getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType) const;
-    int _getScriptsToExecute_old(int scriptType, std::vector<CScriptObject *> &scripts,
-                                 std::vector<int> &uniqueIds) const;
-
     int _sysFuncAndHookCnt_event;
     int _sysFuncAndHookCnt_dyn;
     int _sysFuncAndHookCnt_contact;

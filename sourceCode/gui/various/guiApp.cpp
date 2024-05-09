@@ -966,6 +966,14 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
         if (it != nullptr)
             return ((CColorObject *)it->getDummyColor());
     }
+    if (objType == COLOR_ID_SCRIPT)
+    {
+        _auxDlgTitle->assign("Script");
+        _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
+        CScript *it = App::currentWorld->sceneObjects->getScriptFromHandle(objID1);
+        if (it != nullptr)
+            return ((CColorObject *)it->getScriptColor());
+    }
     if (objType == COLOR_ID_VISIONSENSOR)
     {
         _auxDlgTitle->assign("Vision sensor");

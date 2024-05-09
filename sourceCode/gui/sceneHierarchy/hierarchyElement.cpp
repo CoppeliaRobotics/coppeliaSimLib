@@ -369,7 +369,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
     {
         bool hasScript = false;
         // Child scripts:
-        CScriptObject *script = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_childscript, it->getObjectHandle());
         if (script != nullptr)
         {
@@ -405,7 +405,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
         }
 
         // Customization scripts:
-        CScriptObject *customizationScript = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+        CScriptObject *customizationScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_customizationscript, it->getObjectHandle());
         if (customizationScript != nullptr)
         {
@@ -429,7 +429,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
             localOffset += HIERARCHY_ICON_WIDTH * GuiApp::sc;
         }
 
-        if (hasScript)
+        //if (hasScript)
         { // User params:
             CUserParameters *params = it->getUserScriptParameterObject();
             if (((params != nullptr) && (params->userParamEntries.size() > 0)) ||
@@ -456,7 +456,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
     }
     else
     { // This is for the main script (pseudo object "world"):
-        CScriptObject *script = App::currentWorld->embeddedScriptContainer->getMainScript();
+        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (script != nullptr)
         {
             if (!dontDisplay)
@@ -737,6 +737,13 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tP
                     objectOrWorldIconID = GRAPH_TREE_PICTURE;
                 if (type == sim_object_dummy_type)
                     objectOrWorldIconID = DUMMY_TREE_PICTURE;
+                if (type == sim_object_script_type)
+                {
+                    if (((CScript *)it)->scriptObject->getScriptType() == sim_scripttype_childscript)
+                        objectOrWorldIconID = SCRIPT_TREE_PICTURE;
+                    else
+                        objectOrWorldIconID = CUSTOMIZATIONSCRIPT_PICTURE;
+                }
                 if (type == sim_object_pointcloud_type)
                     objectOrWorldIconID = POINTCLOUD_TREE_PICTURE;
                 if (type == sim_object_octree_type)

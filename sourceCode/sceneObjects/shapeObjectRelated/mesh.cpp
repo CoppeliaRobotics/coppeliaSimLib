@@ -698,9 +698,12 @@ bool CMesh::getColor(const char *colorName, int colorComponent, float *rgbData, 
                 rgbDataOffset += 3;
             return (true);
         }
-        if (colorComponent == 4)
+        if (colorComponent == sim_colorcomponent_transparency)
         {
-            rgbData[rgbDataOffset + 0] = color.getOpacity();
+            if (color.getTranslucid())
+                rgbData[rgbDataOffset + 0] = color.getOpacity();
+            else
+                rgbData[rgbDataOffset + 0] = 1.0;
             if (compoundColors)
                 rgbDataOffset += 1;
             return (true);

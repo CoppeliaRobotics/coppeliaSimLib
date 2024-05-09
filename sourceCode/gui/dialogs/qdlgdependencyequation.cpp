@@ -53,7 +53,7 @@ void CQDlgDependencyEquation::refresh()
         std::vector<int> ids;
 
         // Joints:
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getJointCount(); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type); i++)
         {
             CJoint *it2 = App::currentWorld->sceneObjects->getJointFromIndex(i);
             if ((it2 != it) && (it2->getJointType() != sim_joint_spherical_subtype))

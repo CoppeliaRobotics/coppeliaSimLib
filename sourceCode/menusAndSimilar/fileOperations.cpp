@@ -282,7 +282,7 @@ bool CFileOperations::saveScene(const char *pathAndFilename, bool setCurrentDir,
                 if (!simpleXml) // because lossy
                     App::currentWorld->mainSettings->setScenePathAndName(_pathAndFilename.c_str());
 
-                App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(-1);
+                App::currentWorld->sceneObjects->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(-1);
 
                 if (changeSceneUniqueId)
                     App::currentWorld->environment->generateNewUniquePersistentIdString();
@@ -310,7 +310,7 @@ bool CFileOperations::saveScene(const char *pathAndFilename, bool setCurrentDir,
         { // saving to buffer...
             CSer serObj(saveBuffer[0], CSer::filetype_csim_bin_scene_buff);
             retVal = serObj.writeOpenBinary(App::userSettings->compressFiles);
-            App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(-1);
+            App::currentWorld->sceneObjects->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(-1);
             App::currentWorld->saveScene(serObj);
             serObj.writeClose();
         }
@@ -327,7 +327,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID, const char *pathAndFilenam
     bool retVal = false;
     if (CSimFlavor::getBoolVal(16) || (saveBuffer != nullptr))
     {
-        App::currentWorld->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(modelBaseDummyID);
+        App::currentWorld->sceneObjects->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(modelBaseDummyID);
         std::vector<int> sel;
         sel.push_back(modelBaseDummyID);
 

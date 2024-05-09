@@ -91,7 +91,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     ids.clear();
 
     // Now shapes:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getShapeCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
     {
         CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_SHAPE, "] "));
@@ -107,7 +107,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     ids.clear();
 
     // Now Octrees:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getOctreeCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_octree_type); i++)
     {
         COcTree *it = App::currentWorld->sceneObjects->getOctreeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_OCTREE, "] "));
@@ -123,7 +123,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     ids.clear();
 
     // Now Point clouds:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getPointCloudCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_pointcloud_type); i++)
     {
         CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_POINTCLOUD, "] "));
@@ -139,7 +139,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     ids.clear();
 
     // Now dummies:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getDummyCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type); i++)
     {
         CDummy *it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_DUMMY, "] "));
@@ -181,7 +181,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     ids.clear();
 
     // Now shapes:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getShapeCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
     {
         CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_SHAPE, "] "));
@@ -197,7 +197,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     ids.clear();
 
     // Now Octrees:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getOctreeCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_octree_type); i++)
     {
         COcTree *it = App::currentWorld->sceneObjects->getOctreeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_OCTREE, "] "));
@@ -213,7 +213,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     ids.clear();
 
     // Now Point clouds:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getPointCloudCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_pointcloud_type); i++)
     {
         CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_POINTCLOUD, "] "));
@@ -229,7 +229,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     ids.clear();
 
     // Now dummies:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getDummyCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type); i++)
     {
         CDummy *it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_DUMMY, "] "));

@@ -5,6 +5,7 @@
 #include <proximitySensor.h>
 #include <visionSensor.h>
 #include <camera.h>
+#include <script.h>
 #include <graph.h>
 #include <path_old.h>
 #include <mirror.h>
@@ -15,6 +16,7 @@
 #include <sceneObject.h>
 #include <jointObject.h>
 #include <sceneObject.h>
+#include <embeddedScriptContainer.h>
 
 class CJoint;
 class CDummy;
@@ -48,7 +50,7 @@ class CSceneObjectContainer
 
     bool doesObjectExist(const CSceneObject *obj) const;
     int getObjectSequence(const CSceneObject *object) const;
-    size_t getObjectCount() const;
+    size_t getObjectCount(int type = -1) const;
     CSceneObject *getObjectFromIndex(size_t index) const;
     CSceneObject *getObjectFromHandle(int objectHandle) const;
     CSceneObject *getObjectFromUid(long long int objectUid) const;
@@ -60,25 +62,13 @@ class CSceneObjectContainer
     int getObjects_hierarchyOrder(std::vector<CSceneObject *> &allObjects);
 
     size_t getOrphanCount() const;
-    size_t getJointCount() const;
-    size_t getDummyCount() const;
-    size_t getMirrorCount() const;
-    size_t getGraphCount() const;
-    size_t getLightCount() const;
-    size_t getCameraCount() const;
-    size_t getProximitySensorCount() const;
-    size_t getVisionSensorCount() const;
-    size_t getShapeCount() const;
     size_t getSimpleShapeCount() const;
     size_t getCompoundShapeCount() const;
-    size_t getPathCount() const;
-    size_t getMillCount() const;
-    size_t getForceSensorCount() const;
-    size_t getOctreeCount() const;
-    size_t getPointCloudCount() const;
+
     CSceneObject *getOrphanFromIndex(size_t index) const;
     CJoint *getJointFromIndex(size_t index) const;
     CDummy *getDummyFromIndex(size_t index) const;
+    CScript *getScriptFromIndex(size_t index) const;
     CMirror *getMirrorFromIndex(size_t index) const;
     CGraph *getGraphFromIndex(size_t index) const;
     CLight *getLightFromIndex(size_t index) const;
@@ -91,7 +81,11 @@ class CSceneObjectContainer
     CForceSensor *getForceSensorFromIndex(size_t index) const;
     COcTree *getOctreeFromIndex(size_t index) const;
     CPointCloud *getPointCloudFromIndex(size_t index) const;
+
+    CScriptObject *getScriptObjectFromHandle(int handle) const;
+
     CDummy *getDummyFromHandle(int objectHandle) const;
+    CScript *getScriptFromHandle(int objectHandle) const;
     CJoint *getJointFromHandle(int objectHandle) const;
     CMirror *getMirrorFromHandle(int objectHandle) const;
     COcTree *getOctreeFromHandle(int objectHandle) const;
@@ -118,6 +112,7 @@ class CSceneObjectContainer
     int getLastSelectionHandle(const std::vector<int> *selection = nullptr) const;
     bool isObjectInSelection(int objectHandle, const std::vector<int> *selection = nullptr) const;
     void popLastSelection();
+
     CSceneObject *getLastSelectionObject(const std::vector<int> *selection = nullptr) const;
     CMirror *getLastSelectionMirror() const;
     COcTree *getLastSelectionOctree() const;
@@ -128,43 +123,35 @@ class CSceneObjectContainer
     CCamera *getLastSelectionCamera() const;
     CLight *getLastSelectionLight() const;
     CDummy *getLastSelectionDummy() const;
+    CScript *getLastSelectionScript() const;
     CProxSensor *getLastSelectionProxSensor() const;
     CVisionSensor *getLastSelectionVisionSensor() const;
     CPath_old *getLastSelectionPath() const;
     CMill *getLastSelectionMill() const;
     CForceSensor *getLastSelectionForceSensor() const;
-    size_t getShapeCountInSelection(const std::vector<int> *selection = nullptr) const;
+
+    size_t getObjectCountInSelection(int objectType = -1, const std::vector<int> *selection = nullptr) const;
     size_t getSimpleShapeCountInSelection(const std::vector<int> *selection = nullptr) const;
-    size_t getJointCountInSelection(const std::vector<int> *selection = nullptr) const;
-    size_t getGraphCountInSelection(const std::vector<int> *selection = nullptr) const;
-    size_t getDummyCountInSelection(const std::vector<int> *selection = nullptr) const;
-    size_t getProxSensorCountInSelection(const std::vector<int> *selection = nullptr) const;
-    size_t getVisionSensorCountInSelection(const std::vector<int> *selection = nullptr) const;
-    size_t getPathCountInSelection(const std::vector<int> *selection = nullptr) const;
-    size_t getMillCountInSelection(const std::vector<int> *selection = nullptr) const;
-    size_t getForceSensorCountInSelection(const std::vector<int> *selection = nullptr) const;
-    bool isLastSelectionAnOctree(const std::vector<int> *selection = nullptr) const;
-    bool isLastSelectionAPointCloud(const std::vector<int> *selection = nullptr) const;
-    bool isLastSelectionAShape(const std::vector<int> *selection = nullptr) const;
+
+    bool isLastSelectionOfType(int objectType, const std::vector<int> *selection = nullptr) const;
     bool isLastSelectionASimpleShape(const std::vector<int> *selection = nullptr) const;
-    bool isLastSelectionAJoint(const std::vector<int> *selection = nullptr) const;
-    bool isLastSelectionAGraph(const std::vector<int> *selection = nullptr) const;
-    bool isLastSelectionADummy(const std::vector<int> *selection = nullptr) const;
-    bool isLastSelectionAProxSensor(const std::vector<int> *selection = nullptr) const;
-    bool isLastSelectionAVisionSensor(const std::vector<int> *selection = nullptr) const;
-    bool isLastSelectionAPath(const std::vector<int> *selection = nullptr) const;
-    bool isLastSelectionAMill(const std::vector<int> *selection = nullptr) const;
-    bool isLastSelectionAForceSensor(const std::vector<int> *selection = nullptr) const;
 
     void buildOrUpdate_oldIk();
     void connect_oldIk();
     void remove_oldIk();
 
     void simulationAboutToStart();
+    void simulationAboutToEnd();
     void simulationEnded();
 
     void announceObjectWillBeErased(const CSceneObject *object);
     void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+
+    void removeDelayedDestructionObjects();
+
+    size_t getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts) const;
+    void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
+    int callScripts_noMainScript(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
 
     // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);
@@ -173,8 +160,9 @@ class CSceneObjectContainer
     void announceDistanceWillBeErased(int distanceHandle);
 
     int addObjectToScene(CSceneObject *newObject, bool objectIsACopy, bool generateAfterCreateCallback);
-    int addObjectToSceneWithSuffixOffset(CSceneObject *newObject, bool objectIsACopy, int suffixOffset,
-                                         bool generateAfterCreateCallback);
+    int addObjectToSceneWithSuffixOffset(CSceneObject *newObject, bool objectIsACopy, int suffixOffset, bool generateAfterCreateCallback);
+    int addDefaultScript(int scriptType, bool threaded, bool lua);
+
     void eraseObject(CSceneObject *it, bool generateBeforeAfterDeleteCallback);
     void eraseObjects(const std::vector<int> &objectHandles, bool generateBeforeAfterDeleteCallback);
     void eraseAllObjects(bool generateBeforeAfterDeleteCallback);
@@ -222,6 +210,7 @@ class CSceneObjectContainer
     int getHighestObjectHandle() const;
 
     void addModelObjects(std::vector<int> &selection) const;
+    void addCompatibilityScripts(std::vector<int> &selection) const;
 
     // Selection:
     bool isSelectionSame(std::vector<int> &sel, bool actualize) const;
@@ -233,6 +222,11 @@ class CSceneObjectContainer
     void removeObjectFromSelection(int objectHandle);
     void xorAddObjectToSelection(int objectHandle);
     void removeFromSelectionAllExceptModelBase(bool keepObjectsSelectedThatAreNotBuiltOnAModelBase);
+
+    void resetScriptFlagCalledInThisSimulationStep();
+    int getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts);
+
+    CEmbeddedScriptContainer *embeddedScriptContainer;
 
   protected:
     void _handleOrderIndexOfOrphans();
@@ -247,6 +241,7 @@ class CSceneObjectContainer
     void _removeObject(CSceneObject *object);
 
   private:
+    int _callScripts(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     CShape *_readSimpleXmlShape(CSer &ar, C7Vector &desiredLocalFrame);
     CShape *_createSimpleXmlShape(CSer &ar, bool noHeightfield, const char *itemType, bool checkSibling);
     void _writeSimpleXmlShape(CSer &ar, CShape *shape);
@@ -259,6 +254,8 @@ class CSceneObjectContainer
     int _objectDestructionCounter;
     int _hierarchyChangeCounter;
 
+    std::vector<CSceneObject *> _delayedDestructionObjects;
+
     std::vector<CSceneObject *> _orphanObjects;
 
     std::vector<CSceneObject *> _allObjects;                  // only used for iterating in a RANDOM manner over objects
@@ -269,6 +266,7 @@ class CSceneObjectContainer
     // only used for iterating in a RANDOM manner over specific objects:
     std::vector<CJoint *> _jointList;
     std::vector<CDummy *> _dummyList;
+    std::vector<CScript *> _scriptList;
     std::vector<CGraph *> _graphList;
     std::vector<CLight *> _lightList;
     std::vector<CCamera *> _cameraList;

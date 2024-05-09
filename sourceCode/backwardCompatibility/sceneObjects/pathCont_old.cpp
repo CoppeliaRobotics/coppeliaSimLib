@@ -1569,7 +1569,7 @@ void CPathCont_old::setPosition(double p)
         _startPosition = _getInterpolatedBezierCurvePoint(ind, t).X;
     // Following is not elegant at all. Change later! (maybe simply merge the CPathCont_old and CPath_old)
     CPath_old *parentPathObject = nullptr;
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getPathCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_path_type); i++)
     {
         parentPathObject = App::currentWorld->sceneObjects->getPathFromIndex(i);
         if (parentPathObject != nullptr)

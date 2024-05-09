@@ -204,7 +204,7 @@ void CQDlgTextures::refresh()
     {
         // Check if there are already existing textures:
         ui->qqRemoveSelect->setEnabled((App::currentWorld->textureContainer->getObjectAtIndex(0) != nullptr) ||
-                                       (App::currentWorld->sceneObjects->getVisionSensorCount() != 0));
+                                       (App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type) != 0));
         ui->qqTextureCoordinates->setText(IDS_TEXTURE_NAME_NONE); // Actually just "none"
 
         ui->qqX->setText("");

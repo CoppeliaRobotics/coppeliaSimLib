@@ -1,9 +1,7 @@
-
 #ifndef QDLGSCRIPTS_H
 #define QDLGSCRIPTS_H
 
 #include <dlgEx.h>
-#include <QListWidgetItem>
 
 namespace Ui
 {
@@ -19,35 +17,25 @@ class CQDlgScripts : public CDlgEx
     ~CQDlgScripts();
 
     void refresh();
-    void dialogCallbackFunc(const SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
 
-    void updateObjectsInList();
-    int getSelectedObjectID();
-    void selectObjectInList(int objectID);
-    bool inSelectionRoutine;
-    bool rebuildingRoutine;
+    void cancelEvent();
+
     bool inMainRefreshRoutine;
 
-    static int scriptViewMode;
-
   private slots:
-    void onDeletePressed();
+    void on_qqSize_editingFinished();
 
-    void on_qqScriptList_itemSelectionChanged();
+    void on_qqColor_clicked();
 
-    void on_qqScriptList_itemDoubleClicked(QListWidgetItem *item);
+    void on_qqApplyMainProperties_clicked();
 
     void on_qqDisabled_clicked();
 
-    void on_qqExecuteOnce_clicked();
+    void on_qqParentProxy_clicked();
 
     void on_qqExecutionOrder_currentIndexChanged(int index);
 
-    void on_qqCombo_currentIndexChanged(int index);
-
-    void on_qqTreeTraversalDirection_currentIndexChanged(int index);
-
-  private:
+private:
     Ui::CQDlgScripts *ui;
 };
 

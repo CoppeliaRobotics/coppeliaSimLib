@@ -192,7 +192,7 @@ void CQDlgIkElements::refresh()
     std::vector<int> ids;
 
     ui->qqTipCombo->clear();
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getDummyCount(); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type); i++)
     {
         CDummy *it2 = App::currentWorld->sceneObjects->getDummyFromIndex(i);
         names.push_back(it2->getObjectAlias_printPath());

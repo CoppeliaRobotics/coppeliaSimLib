@@ -50,11 +50,13 @@ void CQDlgCommonProperties::refresh()
     bool isPurePrimitive = false;
     bool isPath = false;
     bool isGraph = false;
+    bool isScript = false;
     bool bigSel = App::currentWorld->sceneObjects->getSelectionCount() >= 2;
     if (objIsSelected)
     {
         isMirror = (ls->getObjectType() == sim_object_mirror_type);
         isDummy = (ls->getObjectType() == sim_object_dummy_type);
+        isScript = (ls->getObjectType() == sim_object_script_type);
         isOctree = (ls->getObjectType() == sim_object_octree_type);
         isPointcloud = (ls->getObjectType() == sim_object_pointcloud_type);
         isShape = (ls->getObjectType() == sim_object_shape_type);
@@ -199,7 +201,7 @@ void CQDlgCommonProperties::refresh()
         // Cameras:
         names.clear();
         ids.clear();
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getCameraCount(); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type); i++)
         {
             CCamera *it2 = App::currentWorld->sceneObjects->getCameraFromIndex(i);
             std::string name(tt::decorateString("[", IDSN_CAMERA, "] "));
@@ -214,7 +216,7 @@ void CQDlgCommonProperties::refresh()
         // Vision sensors:
         names.clear();
         ids.clear();
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getVisionSensorCount(); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type); i++)
         {
             CVisionSensor *it2 = App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
             std::string name(tt::decorateString("[", IDSN_VISION_SENSOR, "] "));
@@ -248,8 +250,7 @@ void CQDlgCommonProperties::refresh()
         ui->qqEditModelProperties->setEnabled(false);
     }
 
-    ui->qqApplySpecialProperties->setEnabled(bigSel &&
-                                             noEditModeNoSim); //(isShape||isPath||isDummy||isGraph||isMirror)));
+    ui->qqApplySpecialProperties->setEnabled(bigSel && noEditModeNoSim);
     ui->qqEditDetectableDetails->setVisible(App::userSettings->showOldDlgs);
     ui->qqRenderable->setVisible(App::userSettings->showOldDlgs);
     if (ls != nullptr)

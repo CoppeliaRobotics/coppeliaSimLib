@@ -54,13 +54,15 @@ class CWorldContainer
     bool switchToWorld(int worldIndex);
     bool isWorldSwitchingLocked() const;
     void getAllSceneNames(std::vector<std::string> &l) const;
-    CScriptObject *getScriptFromHandle(int scriptHandle) const;
+
+    CScriptObject *getScriptObjectFromHandle(int scriptHandle) const;
+    void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
+    void broadcastMsg(CInterfaceStack *inStack, int emittingScriptHandle, int options);
 
     int getSysFuncAndHookCnt(int sysCall) const;
 
-    void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack,
-                     CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
-    void broadcastMsg(CInterfaceStack *inStack, int emittingScriptHandle, int options);
     bool shouldTemporarilySuspendMainScript();
     void pushSceneObjectRemoveEvent(const CSceneObject *object);
 
@@ -84,9 +86,6 @@ class CWorldContainer
     void simulationAboutToStep();
     void simulationAboutToEnd();
     void simulationEnded(bool removeNewObjects);
-
-    void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
-    void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     CCopyBuffer *copyBuffer;
     CPersistentDataContainer *persistentDataContainer;

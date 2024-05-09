@@ -321,7 +321,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
         worldContainer->dispatchEvents();
         worldContainer->callScripts(sim_syscb_nonsimulation, nullptr, nullptr);
     }
-    App::currentWorld->embeddedScriptContainer->handleDataCallbacks();
+    App::currentWorld->sceneObjects->embeddedScriptContainer->handleDataCallbacks();
     if (currentWorld->sceneObjects->hasSelectionChanged())
     {
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
@@ -336,7 +336,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     }
     if (currentWorld->simulation->isSimulationPaused())
     {
-        CScriptObject *mainScript = currentWorld->embeddedScriptContainer->getMainScript();
+        CScriptObject *mainScript = currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (mainScript != nullptr)
         {
             worldContainer->dispatchEvents();
@@ -374,11 +374,11 @@ void App::loop(void (*callback)(), bool stepIfRunning)
             if ((!App::worldContainer->shouldTemporarilySuspendMainScript()) ||
                 App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart())
             {
-                CScriptObject *it = App::currentWorld->embeddedScriptContainer->getMainScript();
+                CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
                 if (it != nullptr)
                 {
                     App::worldContainer->calcInfo->simulationPassStart();
-                    App::currentWorld->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(
+                    App::currentWorld->sceneObjects->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(
                         App::currentWorld->simulation->getSimulationTime()); // remove invalid elements
                     CThreadPool_old::prepareAllThreadsForResume_calledBeforeMainScript();
                     it->systemCallMainScript(-1, nullptr, nullptr);
@@ -394,8 +394,9 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     }
     //*******************************
 
-    currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
-    currentWorld->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
+    currentWorld->sceneObjects->removeDelayedDestructionObjects();
+    currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
+    currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
 
     // Keep for backward compatibility:
     if (!currentWorld->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts

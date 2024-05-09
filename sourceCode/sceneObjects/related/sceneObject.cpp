@@ -1346,6 +1346,8 @@ CSceneObject *CSceneObject::copyYourself()
         theNewObject = new CGraph();
     if (getObjectType() == sim_object_dummy_type)
         theNewObject = new CDummy();
+    if (getObjectType() == sim_object_script_type)
+        theNewObject = new CScript();
     if (getObjectType() == sim_object_proximitysensor_type)
         theNewObject = new CProxSensor();
     if (getObjectType() == sim_object_camera_type)
@@ -1917,29 +1919,7 @@ std::string CSceneObject::getUniquePersistentIdString() const
     return (_uniquePersistentIdString);
 }
 
-int CSceneObject::getScriptExecutionOrder_old(int scriptType) const
-{ // old, for backward compatibility (19.09.2022)
-    if (scriptType == sim_scripttype_customizationscript)
-    {
-        CScriptObject *it = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-            sim_scripttype_customizationscript, _objectHandle);
-        if (it != nullptr)
-            return (it->getExecutionPriority_old());
-    }
-    else if ((scriptType & sim_scripttype_childscript) != 0)
-    {
-        CScriptObject *it = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-            sim_scripttype_childscript, _objectHandle);
-        if (it != nullptr)
-        {
-            if (it->getThreadedExecution_oldThreads() == ((scriptType & sim_scripttype_threaded_old) != 0))
-                return (it->getExecutionPriority_old());
-        }
-    }
-    return (sim_scriptexecorder_normal);
-}
-
-size_t CSceneObject::getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType)
+size_t CSceneObject::getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts)
 { // returns all non-disabled scripts, from leaf to root. With scriptType==-1, returns child and customization scripts
     size_t retVal = 0;
     if ((getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0)
@@ -1962,19 +1942,24 @@ size_t CSceneObject::getScriptsToExecute(std::vector<int> &scriptHandles, int sc
         children.insert(children.end(), childrenNormalPriority.begin(), childrenNormalPriority.end());
         children.insert(children.end(), childrenLastPriority.begin(), childrenLastPriority.end());
         for (size_t i = 0; i < children.size(); i++)
-            retVal += children[i]->getScriptsToExecute(scriptHandles, scriptType);
+            retVal += children[i]->getScriptsToExecute(scriptHandles, scriptType, legacyEmbeddedScripts);
 
         // now itself:
         if (!App::currentWorld->simulation->isSimulationStopped())
         {
             if ((scriptType == -1) || ((scriptType & 0x0f) == sim_scripttype_childscript))
             { // child script
-                CScriptObject *it = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_childscript, _objectHandle);
+                CScriptObject *it = nullptr;
+                if (legacyEmbeddedScripts)
+                    it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, _objectHandle);
+                else
+                {
+                    if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_childscript) )
+                        it = ((CScript*)this)->scriptObject;
+                }
                 if ((it != nullptr) && (!it->getScriptIsDisabled()))
                 {
-                    if ((scriptType == -1) ||
-                        (it->getThreadedExecution_oldThreads() == ((scriptType & sim_scripttype_threaded_old) != 0)))
+                    if ((scriptType == -1) || (it->getThreadedExecution_oldThreads() == ((scriptType & sim_scripttype_threaded_old) != 0)))
                     { // take also old, threaded scripts into account!
                         scriptHandles.push_back(it->getScriptHandle());
                         retVal++;
@@ -1984,8 +1969,14 @@ size_t CSceneObject::getScriptsToExecute(std::vector<int> &scriptHandles, int sc
         }
         if ((scriptType == -1) || (scriptType == sim_scripttype_customizationscript))
         { // customization script
-            CScriptObject *it = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                sim_scripttype_customizationscript, _objectHandle);
+            CScriptObject *it = nullptr;
+            if (legacyEmbeddedScripts)
+                it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, _objectHandle);
+            else
+            {
+                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_customizationscript) )
+                    it = ((CScript*)this)->scriptObject;
+            }
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
             {
                 scriptHandles.push_back(it->getScriptHandle());
@@ -1996,7 +1987,7 @@ size_t CSceneObject::getScriptsToExecute(std::vector<int> &scriptHandles, int sc
     return (retVal);
 }
 
-size_t CSceneObject::getScriptsToExecute_branch(std::vector<int> &scriptHandles, int scriptType)
+size_t CSceneObject::getScriptsToExecute_branch(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts)
 { // returns all non-disabled scripts, from leaf to root, in that branch. With scriptType==-1, returns child and
   // customization scripts
     size_t retVal = 0;
@@ -2006,8 +1997,14 @@ size_t CSceneObject::getScriptsToExecute_branch(std::vector<int> &scriptHandles,
         {
             if ((scriptType == -1) || (scriptType == sim_scripttype_childscript))
             { // child script
-                CScriptObject *it = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_childscript, _objectHandle);
+                CScriptObject *it = nullptr;
+                if (legacyEmbeddedScripts)
+                    it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, _objectHandle);
+                else
+                {
+                    if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_childscript) )
+                        it = ((CScript*)this)->scriptObject;
+                }
                 if ((it != nullptr) && (!it->getScriptIsDisabled()))
                 {
                     scriptHandles.push_back(it->getScriptHandle());
@@ -2017,8 +2014,14 @@ size_t CSceneObject::getScriptsToExecute_branch(std::vector<int> &scriptHandles,
         }
         if ((scriptType == -1) || (scriptType == sim_scripttype_customizationscript))
         { // customization script
-            CScriptObject *it = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                sim_scripttype_customizationscript, _objectHandle);
+            CScriptObject *it = nullptr;
+            if (legacyEmbeddedScripts)
+                it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, _objectHandle);
+            else
+            {
+                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_customizationscript) )
+                    it = ((CScript*)this)->scriptObject;
+            }
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
             {
                 scriptHandles.push_back(it->getScriptHandle());
@@ -2028,73 +2031,8 @@ size_t CSceneObject::getScriptsToExecute_branch(std::vector<int> &scriptHandles,
     }
     CSceneObject *parent = getParent();
     if (parent != nullptr)
-        retVal += parent->getScriptsToExecute_branch(scriptHandles, scriptType);
+        retVal += parent->getScriptsToExecute_branch(scriptHandles, scriptType, legacyEmbeddedScripts);
     return (retVal);
-}
-
-int CSceneObject::getScriptsToExecute_old(int scriptType, int parentTraversalDirection,
-                                          std::vector<CScriptObject *> &scripts, std::vector<int> &uniqueIds)
-{
-    int cnt = 0;
-    CScriptObject *attachedScript = nullptr;
-    if (scriptType == sim_scripttype_customizationscript)
-        attachedScript = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-            sim_scripttype_customizationscript, _objectHandle);
-    else if ((scriptType & sim_scripttype_childscript) != 0)
-    {
-        attachedScript = App::currentWorld->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-            sim_scripttype_childscript, _objectHandle);
-        if (attachedScript != nullptr)
-        {
-            if (attachedScript->getThreadedExecution_oldThreads() != ((scriptType & sim_scripttype_threaded_old) != 0))
-                attachedScript = nullptr;
-        }
-    }
-    int traversalDir = parentTraversalDirection;
-    if (attachedScript != nullptr)
-    {
-        int tdir = attachedScript->getTreeTraversalDirection();
-        if (tdir != sim_scripttreetraversal_parent)
-            traversalDir = tdir;
-    }
-
-    if ((getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0)
-    {
-        if ((traversalDir == sim_scripttreetraversal_forward) && (attachedScript != nullptr) &&
-            (!attachedScript->getScriptIsDisabled()))
-        {
-            cnt++;
-            scripts.push_back(attachedScript);
-            uniqueIds.push_back(attachedScript->getScriptHandle());
-        }
-
-        std::vector<CSceneObject *> orderFirst;
-        std::vector<CSceneObject *> orderNormal;
-        std::vector<CSceneObject *> orderLast;
-        std::vector<std::vector<CSceneObject *> *> toHandle;
-        toHandle.push_back(&orderFirst);
-        toHandle.push_back(&orderNormal);
-        toHandle.push_back(&orderLast);
-        for (size_t i = 0; i < getChildCount(); i++)
-        {
-            CSceneObject *it = getChildFromIndex(i);
-            toHandle[it->getScriptExecutionOrder_old(scriptType)]->push_back(it);
-        }
-        for (size_t i = 0; i < toHandle.size(); i++)
-        {
-            for (size_t j = 0; j < toHandle[i]->size(); j++)
-                cnt += toHandle[i]->at(j)->getScriptsToExecute_old(scriptType, traversalDir, scripts, uniqueIds);
-        }
-
-        if ((traversalDir == sim_scripttreetraversal_reverse) && (attachedScript != nullptr) &&
-            (!attachedScript->getScriptIsDisabled()))
-        {
-            cnt++;
-            scripts.push_back(attachedScript);
-            uniqueIds.push_back(attachedScript->getScriptHandle());
-        }
-    }
-    return (cnt);
 }
 
 void CSceneObject::_setLocalTransformation_send(const C7Vector &tr) const
@@ -4609,6 +4547,11 @@ void CSceneObject::setChildOrder(int order)
             App::worldContainer->pushEvent();
         }
     }
+}
+
+bool CSceneObject::canDestroyNow(bool inSafePlace)
+{
+    return true; // can be overridden
 }
 
 void CSceneObject::setObjectHandle(int newObjectHandle)

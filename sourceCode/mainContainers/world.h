@@ -7,7 +7,6 @@
 #include <simulation.h>
 #include <buttonBlockContainer.h>
 #include <outsideCommandQueue.h>
-#include <embeddedScriptContainer.h>
 #include <customData.h>
 #include <customData_old.h>
 #include <cacheCont.h>
@@ -78,6 +77,9 @@ class CWorld
     void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
+    CScriptObject *getScriptObjectFromHandle(int scriptHandle) const;
+    void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
+
     void pushGenesisEvents();
 
     // Old:
@@ -97,7 +99,6 @@ class CWorld
     CEnvironment *environment;
     CPageContainer *pageContainer;
     CMainSettings *mainSettings;
-    CEmbeddedScriptContainer *embeddedScriptContainer;
     CTextureContainer *textureContainer;
     CSimulation *simulation;
     CCustomData customSceneData;

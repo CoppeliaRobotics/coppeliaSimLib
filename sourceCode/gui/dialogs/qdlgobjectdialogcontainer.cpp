@@ -6,6 +6,7 @@
 #include <qdlgcameras.h>
 #include <qdlglights.h>
 #include <qdlgdummies.h>
+#include <qdlgscripts.h>
 #include <qdlgoctrees.h>
 #include <qdlgpointclouds.h>
 #include <qdlgforcesensors.h>
@@ -115,6 +116,8 @@ void CQDlgObjectDialogContainer::refresh()
             title = IDSN_CAMERA;
         if (t == sim_object_dummy_type)
             title = IDSN_DUMMY;
+        if (t == sim_object_script_type)
+            title = IDSN_SCRIPT;
         if (t == sim_object_proximitysensor_type)
             title = IDSN_PROXIMITY_SENSOR;
         if (t == sim_object_path_type)
@@ -168,6 +171,8 @@ void CQDlgObjectDialogContainer::refresh()
                 pageDlgs[currentPage] = new CQDlgCameras();
             if (objTypeDlg == sim_object_dummy_type)
                 pageDlgs[currentPage] = new CQDlgDummies();
+            if (objTypeDlg == sim_object_script_type)
+                pageDlgs[currentPage] = new CQDlgScripts();
             if (objTypeDlg == sim_object_proximitysensor_type)
                 pageDlgs[currentPage] = new CQDlgProximitySensors();
             if (objTypeDlg == sim_object_graph_type)

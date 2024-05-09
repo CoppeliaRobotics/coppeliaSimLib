@@ -15,7 +15,7 @@
 #include <qdlgcollections.h>
 #include <qdlgcollisions.h>
 #include <qdlgdistances.h>
-#include <qdlgscripts.h>
+#include <qdlgoldscripts.h>
 #include <qdlgcameras.h>
 #include <qdlglights.h>
 #include <qdlgdummies.h>
@@ -133,8 +133,8 @@ void CToolDlgWrapper::setVisible(bool visible, QWidget *parentWindow)
                 toolDialog = new CQDlgFog(GuiApp::mainWindow);
             if (dialogType == COLLECTION_DLG)
                 toolDialog = new CQDlgCollections(GuiApp::mainWindow);
-            if (dialogType == LUA_SCRIPT_DLG)
-                toolDialog = new CQDlgScripts(GuiApp::mainWindow);
+            if (dialogType == OLD_LUA_SCRIPT_DLG)
+                toolDialog = new CQDlgOldScripts(GuiApp::mainWindow);
             if (dialogType == TEXTURE_DLG)
                 toolDialog = new CQDlgTextures(GuiApp::mainWindow);
             if (dialogType == GEOMETRY_DLG)

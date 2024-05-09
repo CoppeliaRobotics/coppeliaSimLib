@@ -381,11 +381,11 @@ void CWorldContainer::getAllSceneNames(std::vector<std::string> &l) const
         l.push_back(VVarious::splitPath_fileBase(_worlds[i]->mainSettings->getScenePathAndName().c_str()));
 }
 
-CScriptObject *CWorldContainer::getScriptFromHandle(int scriptHandle) const
+CScriptObject *CWorldContainer::getScriptObjectFromHandle(int scriptHandle) const
 {
     CScriptObject *retVal = nullptr;
-    if ( (currentWorld != nullptr) && (currentWorld->embeddedScriptContainer != nullptr) )
-        retVal = currentWorld->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
+    if (currentWorld != nullptr)
+        retVal = currentWorld->getScriptObjectFromHandle(scriptHandle);
     if ( (retVal == nullptr) && (addOnScriptContainer != nullptr) )
         retVal = addOnScriptContainer->getAddOnFromID(scriptHandle);
     if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptHandle() == scriptHandle))
@@ -395,7 +395,7 @@ CScriptObject *CWorldContainer::getScriptFromHandle(int scriptHandle) const
 
 int CWorldContainer::getSysFuncAndHookCnt(int sysCall) const
 {
-    int retVal = currentWorld->embeddedScriptContainer->getSysFuncAndHookCnt(sysCall);
+    int retVal = currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sysCall);
     retVal += addOnScriptContainer->getSysFuncAndHookCnt(sysCall);
     if (sandboxScript != nullptr)
     {
@@ -405,8 +405,7 @@ int CWorldContainer::getSysFuncAndHookCnt(int sysCall) const
     return (retVal);
 }
 
-void CWorldContainer::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack,
-                                  CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
+void CWorldContainer::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
     bool doNotInterrupt = !CScriptObject::isSystemCallbackInterruptible(callType);
@@ -420,13 +419,16 @@ void CWorldContainer::callScripts(int callType, CInterfaceStack *inStack, CInter
         }
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
             addOnScriptContainer->callScripts(callType, inStack, outStack, scriptToExclude);
-        if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            currentWorld->embeddedScriptContainer->callScripts(callType, inStack, outStack, objectBranch,
-                                                               scriptToExclude);
+        if (currentWorld != nullptr)
+        {
+            if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
+                currentWorld->callScripts(callType, inStack, outStack, objectBranch, scriptToExclude);
+        }
     }
     else
     { // regular order, from unimportant, to most important
-        currentWorld->embeddedScriptContainer->callScripts(callType, inStack, outStack, objectBranch, scriptToExclude);
+        if (currentWorld != nullptr)
+            currentWorld->callScripts(callType, inStack, outStack, objectBranch, scriptToExclude);
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
             addOnScriptContainer->callScripts(callType, inStack, outStack, scriptToExclude);
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
@@ -468,7 +470,7 @@ bool CWorldContainer::shouldTemporarilySuspendMainScript()
         retVal = true;
 
     // Child scripts & customization scripts:
-    if (currentWorld->embeddedScriptContainer->shouldTemporarilySuspendMainScript())
+    if (currentWorld->sceneObjects->embeddedScriptContainer->shouldTemporarilySuspendMainScript())
         retVal = true;
 
     // Add-on scripts:

@@ -78,10 +78,11 @@
 #define _USR_USEBUFFERS "useBuffers"
 #define _USR_NOBUFFERSWITHSIMREADCUSTOMDATABLOCK "noBuffersWithSimReadCustomDataBlock"
 #define _USR_NILRETURNWITHSIMREADCUSTOMDATABLOCKTAGS "nilReturnWithSimReadCustomDataBlockTags"
+#define _USR_USESCENEOBJECTSCRIPTS "useSceneObjectScripts"
+#define _USR_SCRIPTCONVERSION "scriptConversion"
 #define _USR_SUPPORT_old_THREADED_SCRIPTS "keepOldThreadedScripts"
 #define _USR_SUPPORT_old_API_NOTATION "supportOldApiNotation"
 #define _USR_ENABLE_old_MIRROR_OBJECTS "enableOldMirrorObjects"
-#define _USR_ENABLE_OLD_SCRIPT_TRAVERSAL "enableOldScriptTraversal"
 #define _USR_ALLOW_old_EDU_RELEASE "allowOldEduRelease"
 #define _USR_THREADED_SCRIPTS_GRACE_TIME "threadedScriptsStoppingGraceTime"
 
@@ -274,7 +275,6 @@ CUserSettings::CUserSettings()
     enableOldRenderableBehaviour = false;
     keepOldThreadedScripts = false;
     supportOldApiNotation = true;
-    enableOldScriptTraversal = false;
     enableOldMirrorObjects = false;
     allowOldEduRelease = -1;
     threadedScriptsStoppingGraceTime = 0;
@@ -285,6 +285,10 @@ CUserSettings::CUserSettings()
     useBuffers = true;
     noBuffersWithSimReadCustomDataBlock = false;
     nilReturnWithSimReadCustomDataBlockTags = false;
+    useSceneObjectScripts = true;
+    scriptConversion = 0;
+
+
 
     // Various section:
     // *****************************
@@ -617,13 +621,16 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         // c.addBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS,keepOldThreadedScripts,"");
         c.addBoolean(_USR_SUPPORT_old_API_NOTATION, supportOldApiNotation, "");
         // c.addBoolean(_USR_ENABLE_old_MIRROR_OBJECTS,enableOldMirrorObjects,"");
-        // c.addBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL,enableOldScriptTraversal,"");
         // c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
         c.addInteger(_USR_READDELAY, readDelay, "");
         c.addInteger(_USR_WRITEDELAY, writeDelay, "");
         c.addBoolean(_USR_USEBUFFERS, useBuffers, "");
         c.addBoolean(_USR_NOBUFFERSWITHSIMREADCUSTOMDATABLOCK, noBuffersWithSimReadCustomDataBlock, "");
         c.addBoolean(_USR_NILRETURNWITHSIMREADCUSTOMDATABLOCKTAGS, nilReturnWithSimReadCustomDataBlockTags, "");
+        c.addBoolean(_USR_USESCENEOBJECTSCRIPTS, useSceneObjectScripts, "");
+        c.addInteger(_USR_SCRIPTCONVERSION, scriptConversion, "-1: convert to old scripts, 1: convert to new script objects");
+
+
 
         c.addRandomLine("");
         c.addRandomLine("");
@@ -883,7 +890,6 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_ENABLE_OLD_RENDERABLE, enableOldRenderableBehaviour);
     c.getBoolean(_USR_SUPPORT_old_THREADED_SCRIPTS, keepOldThreadedScripts);
     c.getBoolean(_USR_SUPPORT_old_API_NOTATION, supportOldApiNotation);
-    c.getBoolean(_USR_ENABLE_OLD_SCRIPT_TRAVERSAL, enableOldScriptTraversal);
     c.getBoolean(_USR_ENABLE_old_MIRROR_OBJECTS, enableOldMirrorObjects);
     c.getInteger(_USR_ALLOW_old_EDU_RELEASE, allowOldEduRelease);
     c.getInteger(_USR_THREADED_SCRIPTS_GRACE_TIME, threadedScriptsStoppingGraceTime);
@@ -894,6 +900,8 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_USEBUFFERS, useBuffers);
     c.getBoolean(_USR_NOBUFFERSWITHSIMREADCUSTOMDATABLOCK, noBuffersWithSimReadCustomDataBlock);
     c.getBoolean(_USR_NILRETURNWITHSIMREADCUSTOMDATABLOCKTAGS, nilReturnWithSimReadCustomDataBlockTags);
+    c.getBoolean(_USR_USESCENEOBJECTSCRIPTS, useSceneObjectScripts);
+    c.getInteger(_USR_SCRIPTCONVERSION, scriptConversion);
 
 
     // Various section:

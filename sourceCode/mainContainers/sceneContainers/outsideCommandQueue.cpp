@@ -18,8 +18,8 @@ bool COutsideCommandQueue::addCommand(int commandID, int auxVal1, int auxVal2, i
 { // the queue can't be bigger than 64! (for now)
     // Only for Lua now
     // For the Lua-API:
-    if (App::currentWorld->embeddedScriptContainer != nullptr)
-        App::currentWorld->embeddedScriptContainer->addCommandToOutsideCommandQueues(
+    if (App::currentWorld->sceneObjects->embeddedScriptContainer != nullptr)
+        App::currentWorld->sceneObjects->embeddedScriptContainer->addCommandToOutsideCommandQueues(
             commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals, aux2Count);
     return (true);
 }

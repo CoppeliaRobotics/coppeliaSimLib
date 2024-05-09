@@ -832,7 +832,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double &va
         {
             bool validData = false;
             double totV = 0.0;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getMillCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_mill_type); i++)
             {
                 double v;
                 CMill *it = App::currentWorld->sceneObjects->getMillFromIndex(i);
@@ -1635,42 +1635,42 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index, int dataIndex
     // HERE WE HAVE ALL SCENEOBJECT SUB-CATEGORIES (IMPORTANT TO PUT THEM BEFORE SCENEOBJECT IN GENERAL!)
     if ((dataIndex > GRAPH_SCENEOBJECT_JOINT_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_JOINT_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getJointCount()))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getJointFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_PATH_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_PATH_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getPathCount()))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_path_type)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getPathFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_PROXSENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_PROXSENSOR_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getProximitySensorCount()))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_proximitysensor_type)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getProximitySensorFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_MILL_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_MILL_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getMillCount()))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_mill_type)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getMillFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_FORCESENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_FORCESENSOR_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getForceSensorCount()))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_forcesensor_type)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getForceSensorFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_VISIONSENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_VISIONSENSOR_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getVisionSensorCount()))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getVisionSensorFromIndex(index)->getObjectHandle();
         return (true);

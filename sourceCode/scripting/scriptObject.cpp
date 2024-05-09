@@ -27,17 +27,10 @@
 int CScriptObject::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
 std::vector<int> CScriptObject::_externalScriptCalls;
 
-CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
-{
-    _scriptHandle = _nextScriptHandle++;
-    if (_nextScriptHandle > SIM_IDEND_LUASCRIPT)
-        _nextScriptHandle = SIM_IDSTART_LUASCRIPT;
-    while ( (App::worldContainer != nullptr) && (App::worldContainer->getScriptFromHandle(_scriptHandle) != nullptr) )
-    {
-        _scriptHandle ++;
-        if (_scriptHandle > SIM_IDEND_LUASCRIPT)
-            _scriptHandle = SIM_IDSTART_LUASCRIPT;
-    }
+CScriptObject::CScriptObject(int scriptType)
+{ // scriptType to -1 for serialization
+    _sceneObjectScript = false;
+    _parentIsProxy = false;
     _objectHandleAttachedTo = -1;
     _scriptText = "";
     _scriptTextExec = "";
@@ -79,18 +72,18 @@ CScriptObject::CScriptObject(int scriptTypeOrMinusOneForSerialization)
     _flaggedForDestruction = false;
     _executionDepth = 0;
     _autoStartAddOn = -1;
-    _treeTraversalDirection = 0; // reverse by default
     _previousEditionWindowPosAndSize[0] = 50;
     _previousEditionWindowPosAndSize[1] = 50;
     _previousEditionWindowPosAndSize[2] = 1000;
     _previousEditionWindowPosAndSize[3] = 800;
     _outsideCommandQueue = new COutsideCommandQueueForScript();
-    _scriptType = scriptTypeOrMinusOneForSerialization;
+    _scriptType = scriptType;
     _containedSystemCallbacks.resize(sim_syscb_endoflist, false);
     _timeOfScriptExecutionStart = -1;
     _interpreterState = nullptr;
 
     _loadBufferResult_lua = -1;
+    setHandle();
 }
 
 CScriptObject::~CScriptObject()
@@ -103,6 +96,20 @@ CScriptObject::~CScriptObject()
     delete _scriptParameters_backCompatibility;
     delete _customObjectData_old;
     delete _customObjectData_tempData_old;
+}
+
+int CScriptObject::setHandle()
+{
+    _scriptHandle = _nextScriptHandle++;
+    if (_nextScriptHandle > SIM_IDEND_LUASCRIPT)
+        _nextScriptHandle = SIM_IDSTART_LUASCRIPT;
+    while ( (App::currentWorld != nullptr) && (App::currentWorld->sceneObjects != nullptr) && (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(_scriptHandle) != nullptr) )
+    {
+        _scriptHandle ++;
+        if (_scriptHandle > SIM_IDEND_LUASCRIPT)
+            _scriptHandle = SIM_IDSTART_LUASCRIPT;
+    }
+    return _scriptHandle;
 }
 
 void CScriptObject::initSandbox()
@@ -130,8 +137,7 @@ void CScriptObject::destroy(CScriptObject *obj, bool registeredObject)
             if (VFile::doesFileExist(fname.c_str()))
                 VFile::eraseFile(fname.c_str());
         }
-        App::worldContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->isSimulationScript(),
-                                                        obj->isSceneSwitchPersistentScript());
+        App::worldContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->isSimulationScript(), obj->isSceneSwitchPersistentScript());
     }
     delete obj;
 }
@@ -1096,7 +1102,7 @@ void CScriptObject::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     if (isSimulationScript())
     {
-        _initialValuesInitialized = true;
+        _scriptObjectInitialValuesInitialized = true;
         if (_outsideCommandQueue != nullptr)
             _outsideCommandQueue->initializeInitialValues(simulationAlreadyRunning);
     }
@@ -1126,27 +1132,17 @@ void CScriptObject::simulationEnded()
         if (_outsideCommandQueue != nullptr)
             _outsideCommandQueue->simulationEnded();
         _scriptTextExec.clear();
-        if (_initialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
+        if (_scriptObjectInitialValuesInitialized && App::currentWorld->simulation->getResetSceneAtSimulationEnd())
         {
         }
-        _initialValuesInitialized = false;
+        _scriptObjectInitialValuesInitialized = false;
     }
 }
 
 void CScriptObject::simulationAboutToEnd()
-{ // Added this on 7/8/2014.
+{
     if (isSimulationScript())
         resetScript(); // this has to happen while simulation is still running!!
-}
-
-void CScriptObject::setTreeTraversalDirection(int dir)
-{
-    _treeTraversalDirection = tt::getLimitedInt(sim_scripttreetraversal_reverse, sim_scripttreetraversal_parent, dir);
-}
-
-int CScriptObject::getTreeTraversalDirection() const
-{
-    return (_treeTraversalDirection);
 }
 
 void CScriptObject::setScriptIsDisabled(bool isDisabled)
@@ -1157,6 +1153,16 @@ void CScriptObject::setScriptIsDisabled(bool isDisabled)
 bool CScriptObject::getScriptIsDisabled() const
 {
     return (_scriptIsDisabled);
+}
+
+void CScriptObject::setParentIsProxy(bool isProxy)
+{
+    _parentIsProxy = isProxy;
+}
+
+bool CScriptObject::getParentIsProxy() const
+{
+    return (_parentIsProxy);
 }
 
 void CScriptObject::setAutoRestartOnError(bool restart)
@@ -1437,23 +1443,21 @@ int CScriptObject::systemCallMainScript(int optionalCallType, const CInterfaceSt
     {
         if (optionalCallType == -1)
         {
-            App::currentWorld->embeddedScriptContainer->resetScriptFlagCalledInThisSimulationStep();
+            App::currentWorld->sceneObjects->resetScriptFlagCalledInThisSimulationStep();
             int startT = int(VDateTime::getTimeInMs());
 
             if (App::currentWorld->simulation->getSimulationState() == sim_simulation_advancing_firstafterstop)
                 retVal = systemCallScript(sim_syscb_init, inStack, outStack);
 
             retVal = systemCallScript(sim_syscb_actuation, inStack, outStack);
-            App::worldContainer
-                ->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
+            App::worldContainer->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
             retVal = systemCallScript(sim_syscb_sensing, inStack, outStack);
 
             if (App::currentWorld->simulation->getSimulationState() == sim_simulation_advancing_lastbeforestop)
                 retVal = systemCallScript(sim_syscb_cleanup, inStack, outStack);
 
             App::worldContainer->calcInfo->setMainScriptExecutionTime(int(VDateTime::getTimeInMs()) - startT);
-            App::worldContainer->calcInfo->setSimulationScriptExecCount(
-                App::currentWorld->embeddedScriptContainer->getCalledScriptsCountInThisSimulationStep(true));
+            App::worldContainer->calcInfo->setSimulationScriptExecCount(App::currentWorld->sceneObjects->getCalledScriptsCountInThisSimulationStep(true));
         }
         else
             retVal = systemCallScript(optionalCallType, inStack, outStack);
@@ -2414,6 +2418,11 @@ bool CScriptObject::isSceneSwitchPersistentScript() const
     return ((_scriptType == sim_scripttype_sandboxscript) || (_scriptType == sim_scripttype_addonscript));
 }
 
+void CScriptObject::setIsSceneObjectScript(bool s)
+{
+    _sceneObjectScript = s;
+}
+
 bool CScriptObject::resetScript()
 {
     bool retVal = _killInterpreterState();
@@ -2495,13 +2504,15 @@ bool CScriptObject::_killInterpreterState()
 CScriptObject *CScriptObject::copyYourself()
 {
     CScriptObject *it = new CScriptObject(_scriptType);
+
+    it->_scriptType = _scriptType;
     // it->_scriptHandle=_scriptHandle;
     it->_objectHandleAttachedTo = _objectHandleAttachedTo;
     it->_threadedExecution_oldThreads = _threadedExecution_oldThreads;
     it->_scriptIsDisabled = _scriptIsDisabled;
-    it->_treeTraversalDirection = _treeTraversalDirection;
+    it->_parentIsProxy = _parentIsProxy;
     it->setScriptText(getScriptText());
-    it->_initialValuesInitialized = _initialValuesInitialized;
+    it->_scriptObjectInitialValuesInitialized = _scriptObjectInitialValuesInitialized;
     it->_scriptExecPriority = _scriptExecPriority;
 
     it->_executeJustOnce_oldThreads = _executeJustOnce_oldThreads;
@@ -2760,7 +2771,7 @@ void CScriptObject::_hookFunction_lua(void *LL, void *arr)
 {
     TRACE_INTERNAL;
     luaWrap_lua_State *L = (luaWrap_lua_State *)LL;
-    CScriptObject *it = App::worldContainer->getScriptFromHandle(getScriptHandleFromInterpreterState_lua(L));
+    CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(getScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
 
@@ -2927,9 +2938,9 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
             App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_event, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
         else if (_scriptType != sim_scripttype_sandboxscript)
-            App::currentWorld->embeddedScriptContainer->setSysFuncAndHookCnt(
+            App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_event,
-                App::currentWorld->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
+                App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
     }
     if ((sysCall == sim_syscb_dyn) || (sysCall == -1))
     {
@@ -2939,8 +2950,8 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
             App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_dyn, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
         else if (_scriptType != sim_scripttype_sandboxscript)
-            App::currentWorld->embeddedScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_dyn, App::currentWorld->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
+            App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(
+                sim_syscb_dyn, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
     }
     if ((sysCall == sim_syscb_contact) || (sysCall == -1))
     {
@@ -2951,9 +2962,9 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
                 sim_syscb_contact,
                 App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
         else if (_scriptType != sim_scripttype_sandboxscript)
-            App::currentWorld->embeddedScriptContainer->setSysFuncAndHookCnt(
+            App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_contact,
-                App::currentWorld->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
+                App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
     }
     if ((sysCall == sim_syscb_joint) || (sysCall == -1))
     {
@@ -2963,9 +2974,9 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
             App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_joint, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
         else if (_scriptType != sim_scripttype_sandboxscript)
-            App::currentWorld->embeddedScriptContainer->setSysFuncAndHookCnt(
+            App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_joint,
-                App::currentWorld->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
+                App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
     }
 }
 
@@ -3314,11 +3325,11 @@ void CScriptObject::serialize(CSer &ar)
             ar.flush();
 
             // Keep following close to the beginning!
-            ar.storeDataName(
-                "Va3"); // this is also used as a marked for the color correction introduced in V3.1.4 and later!
+            ar.storeDataName("Va3"); // this is also used as a marked for the color correction introduced in V3.1.4 and later!
             nothing = 0;
             SIM_SET_CLEAR_BIT(nothing, 0, true); // needed for a code correction
             // reserved, was: SIM_SET_CLEAR_BIT(nothing,1,!_disableCustomizationScriptWithError);
+            SIM_SET_CLEAR_BIT(nothing, 2, _parentIsProxy);
             ar << nothing;
             ar.flush();
 
@@ -3327,9 +3338,7 @@ void CScriptObject::serialize(CSer &ar)
             ar << _executionPriority_old;
             ar.flush();
 
-            ar.storeDataName("Ttd");
-            ar << _treeTraversalDirection;
-            ar.flush();
+            // ar.storeDataName("Ttd");  reserved
 
             std::string stt(_scriptText);
 
@@ -3384,13 +3393,6 @@ void CScriptObject::serialize(CSer &ar)
                         ar >> byteQuantity;
                         int dummy;
                         ar >> dummy >> _objectHandleAttachedTo >> _scriptType;
-                    }
-
-                    if (theName.compare("Ttd") == 0)
-                    {
-                        noHit = false;
-                        ar >> byteQuantity;
-                        ar >> _treeTraversalDirection;
                     }
 
                     if (theName.compare("Seo") == 0)
@@ -3461,6 +3463,7 @@ void CScriptObject::serialize(CSer &ar)
                         ar >> nothing;
                         backwardCompatibilityCorrectionNeeded_8_11_2014 = !SIM_IS_BIT_SET(nothing, 0);
                         backwardCompatibilityCorrectionNeeded_13_10_2014 = false;
+                        _parentIsProxy = SIM_IS_BIT_SET(nothing, 2);
                     }
                     if (theName.compare("Prm") == 0)
                     {
@@ -3563,13 +3566,13 @@ void CScriptObject::serialize(CSer &ar)
             if (exhaustiveXml || (_scriptType == sim_scripttype_childscript))
                 ar.xmlAddNode_bool("threadedExecution", _threadedExecution_oldThreads);
             ar.xmlAddNode_bool("enabled", !_scriptIsDisabled);
+            ar.xmlAddNode_bool("parentIsProxy", _parentIsProxy);
             if (exhaustiveXml || (_scriptType == sim_scripttype_childscript))
                 ar.xmlAddNode_bool("executeOnce", _executeJustOnce_oldThreads);
             ar.xmlPopNode();
 
             ar.xmlAddNode_comment(" 'executionOrder' tag: for backward compatibility only ", exhaustiveXml);
             ar.xmlAddNode_int("executionOrder", _executionPriority_old); // for backward compatibility 19.09.2022
-            ar.xmlAddNode_int("treeTraversalDirection", _treeTraversalDirection);
 
             std::string tmp(_scriptText.c_str());
             boost::replace_all(tmp, "\r\n", "\n");
@@ -3606,6 +3609,7 @@ void CScriptObject::serialize(CSer &ar)
                     ar.xmlGetNode_bool("threadedExecution", _threadedExecution_oldThreads, exhaustiveXml);
                 if (ar.xmlGetNode_bool("enabled", _scriptIsDisabled, exhaustiveXml))
                     _scriptIsDisabled = !_scriptIsDisabled;
+                ar.xmlGetNode_bool("parentIsProxy", _parentIsProxy, exhaustiveXml);
                 if (exhaustiveXml)
                     ar.xmlGetNode_bool("isDefaultMainScript", _mainScriptIsDefaultMainScript_old, false);
                 if (exhaustiveXml || (_scriptType == sim_scripttype_childscript))
@@ -3613,9 +3617,7 @@ void CScriptObject::serialize(CSer &ar)
                 ar.xmlPopNode();
             }
 
-            ar.xmlGetNode_int("executionOrder", _executionPriority_old,
-                              exhaustiveXml); // for backward compatibility 19.09.2022
-            ar.xmlGetNode_int("treeTraversalDirection", _treeTraversalDirection, exhaustiveXml);
+            ar.xmlGetNode_int("executionOrder", _executionPriority_old, exhaustiveXml); // for backward compatibility 19.09.2022
 
             if (ar.xmlGetNode_cdata("scriptText", _scriptText, exhaustiveXml) &&
                 (_scriptType == sim_scripttype_mainscript) &&

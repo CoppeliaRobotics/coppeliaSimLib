@@ -246,6 +246,7 @@
 #define IDSN_JOINT "Joint"
 #define IDSN_CAMERA "Camera"
 #define IDSN_DUMMY "Dummy"
+#define IDSN_SCRIPT "Script"
 #define IDSN_PROXIMITY_SENSOR "Proximity sensor"
 #define IDSN_PATH "Path"
 #define IDSN_VISION_SENSOR "Vision sensor"
@@ -329,8 +330,6 @@
 #define IDSN_COLLISION_OBJECT_SELECTION_OF_ENTITIES "Collision Object, Selection of Entities"
 #define IDSN_DISTANCE_OBJECT_SELECTION_OF_ENTITIES "Distance Object, Selection of Entities"
 #define IDSN_OBSTACLE_AVOIDANCE_SELECTION_OF_ENTITIES "Obstacle avoidance, Selection of Entities"
-
-#define IDSN_SCRIPTS "Scripts"
 
 #define IDSN_ENVIRONMENT "Environment"
 
@@ -496,8 +495,6 @@
 
 #define IDS_MAKE_CYLINDER_WITH_SELECTED_TRIANGLES_MENU_ITEM "Make cylinder with selected triangles"
 #define IDSN_SELECT_ALL_MENU_ITEM "Select all"
-
-#define IDSN_REMOVE_MENU_ITEM "Remove"
 
 #define IDSNS_SELECTING_ALL_OBJECTS "Selecting all objects..."
 #define IDSNS_SELECTING_ALL_TRIANGLES "Selecting all triangles..."

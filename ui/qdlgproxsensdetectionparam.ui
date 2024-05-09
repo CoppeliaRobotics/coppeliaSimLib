@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>203</height>
+    <height>140</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -116,82 +116,63 @@
     </rect>
    </property>
   </widget>
-  <widget class="QGroupBox" name="aaaaa">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>100</y>
-     <width>411</width>
-     <height>71</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Randomized ray detection</string>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>25</y>
-      <width>221</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Ray count</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqRayCount">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>25</y>
-      <width>56</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>45</y>
-      <width>221</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Ray detections count for triggering</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqRandomizedDetectionCount">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>45</y>
-      <width>56</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
   <widget class="QDialogButtonBox" name="qqOkCancel">
    <property name="geometry">
     <rect>
      <x>15</x>
-     <y>170</y>
+     <y>105</y>
      <width>401</width>
      <height>32</height>
     </rect>
    </property>
    <property name="standardButtons">
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="qqRand2">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>90</y>
+     <width>111</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Count for triggering</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqRandomizedDetectionCount">
+   <property name="geometry">
+    <rect>
+     <x>360</x>
+     <y>90</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqRayCount">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>90</y>
+     <width>56</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="qqRand1">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>90</y>
+     <width>151</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Randomized ray, ray count</string>
    </property>
   </widget>
  </widget>
