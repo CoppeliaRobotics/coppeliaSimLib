@@ -285,7 +285,7 @@ CUserSettings::CUserSettings()
     useBuffers = true;
     noBuffersWithSimReadCustomDataBlock = false;
     nilReturnWithSimReadCustomDataBlockTags = false;
-    useSceneObjectScripts = true;
+    useSceneObjectScripts = false; // set to true with V4.8
     scriptConversion = 0;
 
 

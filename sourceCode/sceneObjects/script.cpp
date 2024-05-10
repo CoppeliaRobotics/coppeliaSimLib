@@ -88,7 +88,7 @@ bool CScript::canDestroyNow(bool inSafePlace)
             if (retVal)
             {
                 scriptObject->resetScript();
-                CScriptObject::destroy(scriptObject, true);
+                CScriptObject::destroy(scriptObject, true, false);
                 scriptObject = nullptr;
                 App::worldContainer->setModificationFlag(16384);
             }
@@ -358,6 +358,8 @@ void CScript::performObjectLoadingMapping(const std::map<int, int> *map, bool lo
 void CScript::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
+    if (scriptObject != nullptr)
+        App::worldContainer->announceScriptWillBeErased(_objectHandle, scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
 }
 

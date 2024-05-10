@@ -125,7 +125,7 @@ void CScriptObject::initSandbox()
     }
 }
 
-void CScriptObject::destroy(CScriptObject *obj, bool registeredObject)
+void CScriptObject::destroy(CScriptObject *obj, bool registeredObject, bool announceScriptDestruction /*= true*/)
 {
     if (registeredObject)
     {
@@ -137,7 +137,8 @@ void CScriptObject::destroy(CScriptObject *obj, bool registeredObject)
             if (VFile::doesFileExist(fname.c_str()))
                 VFile::eraseFile(fname.c_str());
         }
-        App::worldContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->isSimulationScript(), obj->isSceneSwitchPersistentScript());
+        if (announceScriptDestruction)
+            App::worldContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->isSimulationScript(), obj->isSceneSwitchPersistentScript());
     }
     delete obj;
 }

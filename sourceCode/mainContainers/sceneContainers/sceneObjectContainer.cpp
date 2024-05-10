@@ -79,8 +79,7 @@ void CSceneObjectContainer::announceObjectWillBeErased(const CSceneObject *objec
     for (size_t i = 0; i < getObjectCount(); i++)
     {
         CSceneObject *it = getObjectFromIndex(i);
-        if (it != object)
-            it->announceObjectWillBeErased(object, false);
+        it->announceObjectWillBeErased(object, false); // also send this to self
     }
 }
 
@@ -2595,6 +2594,7 @@ void CSceneObjectContainer::removeDelayedDestructionObjects()
         if (_delayedDestructionObjects[i]->canDestroyNow(true))
         {
             delete _delayedDestructionObjects[i];
+            _delayedDestructionObjects.erase(_delayedDestructionObjects.begin() + size_t(i));
             i--;
         }
     }

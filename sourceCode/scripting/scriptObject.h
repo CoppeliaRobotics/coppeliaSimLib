@@ -46,7 +46,7 @@ class CScriptObject
     CScriptObject(int scriptType);
     virtual ~CScriptObject();
 
-    static void destroy(CScriptObject *obj, bool registeredObject);
+    static void destroy(CScriptObject *obj, bool registeredObject, bool announceScriptDestruction = true);
 
     int setHandle();
     void initializeInitialValues(bool simulationAlreadyRunning);

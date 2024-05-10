@@ -753,7 +753,34 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char *
         if ((scriptType == sim_scripttype_addonscript) && (scriptName != nullptr))
             it = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName);
         if (it == nullptr)
+        { // new scripts:
             it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(objectHandle);
+            if (it != nullptr)
+            {
+                if (it->getScriptType() != scriptType)
+                    it = nullptr;
+            }
+            else
+            {
+                CSceneObject* o = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+                if (o != nullptr)
+                {
+                    for (size_t i = 0; i < o->getChildCount(); i++)
+                    {
+                        CSceneObject* c = o->getChildFromIndex(i);
+                        if (c->getObjectType() == sim_object_script_type)
+                        {
+                            CScript* s = (CScript*)c;
+                            if (s->scriptObject->getScriptType() == scriptType)
+                            {
+                                it = s->scriptObject;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if ((it != nullptr) && (!it->getFlaggedForDestruction()))
             return (it->getScriptHandle());
         return (-1);
@@ -11990,16 +12017,6 @@ int simWriteCustomDataBlock_internal(int objectHandle, const char *tagName, cons
             // ---------------------- Old -----------------------------
             if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
             { // here we have a script
-                if (!App::userSettings->compatibilityFix1)
-                {
-                    std::string tmp(
-                        "targeting a script is not supported anymore. Please adjust your code. Temporarily (until next "
-                        "release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
-                    tmp += App::folders->getUserSettingsPath() + "/usrset.txt";
-                    CApiErrors::setLastWarningOrError(__func__, tmp.c_str());
-                    return (-1);
-                }
-
                 CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(objectHandle);
                 if (script != nullptr)
                 { // here we have a script
@@ -12118,15 +12135,6 @@ char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int
             // ---------------------- Old -----------------------------
             if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
             { // here we have a script
-                if (!App::userSettings->compatibilityFix1)
-                {
-                    std::string tmp(
-                        "targeting a script is not supported anymore. Please adjust your code. Temporarily (until next "
-                        "release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
-                    tmp += App::folders->getUserSettingsPath() + "/usrset.txt";
-                    CApiErrors::setLastWarningOrError(__func__, tmp.c_str());
-                    return (nullptr);
-                }
                 CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(objectHandle);
                 if (script != nullptr)
                 {
@@ -12219,15 +12227,6 @@ char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount)
             if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
             { // here we have a script
                 std::vector<std::string> allTags;
-                if (!App::userSettings->compatibilityFix1)
-                {
-                    std::string tmp(
-                        "targeting a script is not supported anymore. Please adjust your code. Temporarily (until next "
-                        "release), you can keep backward compatibility by adding 'compatibilityFix1=true' in ");
-                    tmp += App::folders->getUserSettingsPath() + "/usrset.txt";
-                    CApiErrors::setLastWarningOrError(__func__, tmp.c_str());
-                    return (nullptr);
-                }
                 CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(objectHandle);
                 if (script != nullptr)
                 {
