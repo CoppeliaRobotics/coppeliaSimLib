@@ -1,4 +1,4 @@
-#include <qdlgScripts.h>
+#include <qdlgscripts.h>
 #include <ui_qdlgscripts.h>
 #include <qdlgmaterial.h>
 #include <utils.h>
