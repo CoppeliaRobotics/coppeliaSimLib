@@ -633,12 +633,20 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_PRIMITIVE_SHAPE);
 
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             CShape *newShape = addPrimitive_withDialog(commandID, nullptr);
             int shapeHandle = -1;
             if (newShape != nullptr)
                 shapeHandle = newShape->getObjectHandle();
             if (shapeHandle != -1)
             {
+                if (sel != nullptr)
+                {
+                    App::currentWorld->sceneObjects->setObjectParent(newShape, sel, true);
+                    sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+                }
                 App::currentWorld->sceneObjects->deselectObjects();
                 App::currentWorld->sceneObjects->selectObject(shapeHandle);
                 App::undoRedo_sceneChanged("");
@@ -681,6 +689,9 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_JOINT);
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             CJoint *newObject = nullptr;
             if (commandID == ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD)
                 newObject = new CJoint(sim_joint_revolute_subtype);
@@ -689,6 +700,11 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             if (commandID == ADD_COMMANDS_ADD_SPHERICAL_JOINT_ACCMD)
                 newObject = new CJoint(sim_joint_spherical_subtype);
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
+            if (sel != nullptr)
+            {
+                App::currentWorld->sceneObjects->setObjectParent(newObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
             App::undoRedo_sceneChanged("");
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs, "done.");
@@ -714,6 +730,9 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             CGraph *graph = App::currentWorld->sceneObjects->getGraphFromHandle(lo);
             if (graph != nullptr)
                 return (true);
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             CCamera *myNewCamera = nullptr;
             CLight *myNewLight = nullptr;
             if ((commandID == ADD_COMMANDS_ADD_PERSPECTIVE_CAMERA_ACCMD) ||
@@ -744,6 +763,12 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 addedObject = myNewLight;
             addedObject->setLocalTransformation(C3Vector(0.0, 0.0, 1.0));
             addedObject->setLocalTransformation(C4Vector(piValue * 0.5, 0.0, 0.0));
+            if (sel != nullptr)
+            {
+                App::currentWorld->sceneObjects->setObjectParent(addedObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
+
             if (camera != nullptr)
             {
                 if (myNewCamera != nullptr)
@@ -788,12 +813,21 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_MIRROR);
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             CMirror *newObject = new CMirror();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
             App::currentWorld->sceneObjects->setObjectAbsoluteOrientation(newObject->getObjectHandle(),
                                                                           C3Vector(piValD2, 0.0, 0.0));
             App::currentWorld->sceneObjects->setObjectAbsolutePosition(
                 newObject->getObjectHandle(), C3Vector(0.0, 0.0, newObject->getMirrorHeight() * 0.5));
+
+            if (sel != nullptr)
+            {
+                App::currentWorld->sceneObjects->setObjectParent(newObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs, "done.");
@@ -811,8 +845,16 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_DUMMY);
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             CDummy *newObject = new CDummy();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
+            if (sel != nullptr)
+            {
+                App::currentWorld->sceneObjects->setObjectParent(newObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs, "done.");
@@ -830,8 +872,16 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_AN_OCTREE);
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             COcTree *newObject = new COcTree();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
+            if (sel != nullptr)
+            {
+                App::currentWorld->sceneObjects->setObjectParent(newObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs, "done.");
@@ -849,6 +899,9 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_POINTCLOUD);
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             CPointCloud *newObject = new CPointCloud();
             /*
                         std::vector<double> v;
@@ -864,6 +917,11 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                         newObject->insertPoints(&v[0],v.size()/3,true,nullptr);
                         //*/
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
+            if (sel != nullptr)
+            {
+                App::currentWorld->sceneObjects->setObjectParent(newObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs, "done.");
@@ -884,7 +942,20 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             bool isLua = (commandID < ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
             bool isThreaded = (commandID == ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD) || (commandID == ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
             if (App::userSettings->useSceneObjectScripts)
-                App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_childscript, isThreaded, isLua);
+            {
+                CSceneObject* sel = nullptr;
+                if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                    sel = App::currentWorld->sceneObjects->getLastSelectionObject();
+                int scriptHandle = App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_childscript, isThreaded, isLua);
+                if ( (sel != nullptr) && (scriptHandle != -1) )
+                {
+                    CSceneObject* script = App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
+                    App::currentWorld->sceneObjects->setObjectParent(script, sel, true);
+                    sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+                    App::currentWorld->sceneObjects->deselectObjects();
+                    App::currentWorld->sceneObjects->selectObject(scriptHandle);
+                }
+            }
             else
             { // legacy scripts
                 if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
@@ -948,6 +1019,9 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_PATH);
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             std::string txt;
             if (commandID == ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD)
                 txt += "local "
@@ -975,6 +1049,12 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 opt += 2;
             txt += std::to_string(opt) + ",100)\nsim.setObjectSelection({path})";
             App::worldContainer->sandboxScript->executeScriptString(txt.c_str(), nullptr);
+            if ( (sel != nullptr) && (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1) )
+            {
+                CSceneObject* path = App::currentWorld->sceneObjects->getLastSelectionObject();
+                App::currentWorld->sceneObjects->setObjectParent(path, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
             App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs, "done.");
         }
@@ -991,16 +1071,34 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_GRAPH);
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             CGraph *newObject = new CGraph();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
 
-            // Following 3 on 24/3/2017
-            CScriptObject *scriptObj = new CScriptObject(sim_scripttype_customizationscript);
-            App::currentWorld->sceneObjects->embeddedScriptContainer->insertScript(scriptObj);
-            scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
-            scriptObj->setScriptText("graph=require('graph_customization')");
-            newObject->setScriptExecPriority(sim_scriptexecorder_last);
+            if (App::userSettings->useSceneObjectScripts)
+            {
+                CScript *script = new CScript(sim_scripttype_customizationscript, "graph=require('graph_customization')", 0);
+                script->setScriptExecPriority(sim_scriptexecorder_last);
+                App::currentWorld->sceneObjects->addObjectToScene(script, false, true);
+                App::currentWorld->sceneObjects->setObjectParent(script, newObject, true);
+                newObject->setObjectProperty(newObject->getObjectProperty() | sim_objectproperty_collapsed);
+            }
+            else
+            {
+                CScriptObject *scriptObj = new CScriptObject(sim_scripttype_customizationscript);
+                App::currentWorld->sceneObjects->embeddedScriptContainer->insertScript(scriptObj);
+                scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
+                scriptObj->setScriptText("graph=require('graph_customization')");
+                newObject->setScriptExecPriority(sim_scriptexecorder_last);
+            }
 
+            if (sel != nullptr)
+            {
+                App::currentWorld->sceneObjects->setObjectParent(newObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
             App::undoRedo_sceneChanged("");
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs, "done.");
@@ -1019,37 +1117,49 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_VISION_SENSOR);
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             CVisionSensor *newObject = new CVisionSensor();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
             newObject->setPerspective(commandID == ADD_COMMANDS_ADD_VISION_SENSOR_PERSPECTIVE_ACCMD);
-            bool isSet = false;
-            if (subView != nullptr)
+            if (sel != nullptr)
             {
-                C7Vector m;
-                int lo = subView->getLinkedObjectID();
-                CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(lo);
-                CVisionSensor *sens = App::currentWorld->sceneObjects->getVisionSensorFromHandle(lo);
-                isSet = ((camera != nullptr) || (sens != nullptr));
-                if (isSet)
-                {
-                    if (camera != nullptr)
-                        m = camera->getLocalTransformation();
-                    if (sens != nullptr)
-                        m = sens->getLocalTransformation();
-                    newObject->setLocalTransformation(m);
-                    C3Vector hs(newObject->getBBHSize());
-                    double averageSize = (hs(0) + hs(1) + hs(2)) / 1.5;
-                    double shiftForward;
-                    if (camera != nullptr)
-                        shiftForward = camera->getNearClippingPlane() + hs(2) * 2.0 + 3.0 * averageSize;
-                    if (sens != nullptr)
-                        shiftForward = sens->getNearClippingPlane() + hs(2) * 2.0 + 3.0 * averageSize;
-                    m.X += (m.Q.getAxis(2) * shiftForward);
-                    newObject->setLocalTransformation(m.X);
-                }
-            }
-            if (!isSet)
                 newObject->setLocalTransformation(C3Vector(0.0, 0.0, newObject->getVisionSensorSize() * 2.0));
+                App::currentWorld->sceneObjects->setObjectParent(newObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
+            else
+            {
+                bool isSet = false;
+                if (subView != nullptr)
+                {
+                    C7Vector m;
+                    int lo = subView->getLinkedObjectID();
+                    CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(lo);
+                    CVisionSensor *sens = App::currentWorld->sceneObjects->getVisionSensorFromHandle(lo);
+                    isSet = ((camera != nullptr) || (sens != nullptr));
+                    if (isSet)
+                    {
+                        if (camera != nullptr)
+                            m = camera->getLocalTransformation();
+                        if (sens != nullptr)
+                            m = sens->getLocalTransformation();
+                        newObject->setLocalTransformation(m);
+                        C3Vector hs(newObject->getBBHSize());
+                        double averageSize = (hs(0) + hs(1) + hs(2)) / 1.5;
+                        double shiftForward;
+                        if (camera != nullptr)
+                            shiftForward = camera->getNearClippingPlane() + hs(2) * 2.0 + 3.0 * averageSize;
+                        if (sens != nullptr)
+                            shiftForward = sens->getNearClippingPlane() + hs(2) * 2.0 + 3.0 * averageSize;
+                        m.X += (m.Q.getAxis(2) * shiftForward);
+                        newObject->setLocalTransformation(m.X);
+                    }
+                }
+                if (!isSet)
+                    newObject->setLocalTransformation(C3Vector(0.0, 0.0, newObject->getVisionSensorSize() * 2.0));
+            }
             App::undoRedo_sceneChanged("");
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs, "done.");
@@ -1068,8 +1178,16 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_FORCE_SENSOR);
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             CForceSensor *newObject = new CForceSensor();
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
+            if (sel != nullptr)
+            {
+                App::currentWorld->sceneObjects->setObjectParent(newObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
             App::undoRedo_sceneChanged("");
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs, "done.");
@@ -1092,6 +1210,9 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_PROXIMITY_SENSOR);
+            CSceneObject* sel = nullptr;
+            if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                sel = App::currentWorld->sceneObjects->getLastSelectionObject();
             CProxSensor *newObject = nullptr;
             if (commandID == ADD_COMMANDS_ADD_RANDOMIZED_RAY_PROXSENSOR_ACCMD)
             {
@@ -1102,6 +1223,11 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 newObject = new CProxSensor(commandID - ADD_COMMANDS_ADD_PYRAMID_PROXSENSOR_ACCMD +
                                             sim_proximitysensor_pyramid_subtype);
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
+            if (sel != nullptr)
+            {
+                App::currentWorld->sceneObjects->setObjectParent(newObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
             App::undoRedo_sceneChanged("");
             App::currentWorld->sceneObjects->selectObject(newObject->getObjectHandle());
             App::logMsg(sim_verbosity_msgs, "done.");
