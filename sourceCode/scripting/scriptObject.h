@@ -94,6 +94,7 @@ class CScriptObject
     bool initScript();
     bool hasInterpreterState() const;
     bool getIsUpToDate();
+    void doNotIssueScriptStateWillBeErased();
     bool isSimulationScript() const;
     bool isEmbeddedScript() const;
     bool isSceneSwitchPersistentScript() const;
@@ -266,6 +267,7 @@ class CScriptObject
     int _addOnUiMenuHandle;
     int _scriptExecPriority; // only for add-ons. Not saved
     std::string _addOnFilePath;
+    bool _scriptStateErasedMsg;
 
     bool _calledInThisSimulationStep;
 

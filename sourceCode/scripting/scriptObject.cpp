@@ -29,6 +29,7 @@ std::vector<int> CScriptObject::_externalScriptCalls;
 
 CScriptObject::CScriptObject(int scriptType)
 { // scriptType to -1 for serialization
+    _scriptStateErasedMsg = true;
     _sceneObjectScript = false;
     _parentIsProxy = false;
     _objectHandleAttachedTo = -1;
@@ -2450,6 +2451,11 @@ bool CScriptObject::getIsUpToDate()
     return (retVal);
 }
 
+void CScriptObject::doNotIssueScriptStateWillBeErased()
+{
+    _scriptStateErasedMsg = false;
+}
+
 bool CScriptObject::_killInterpreterState()
 {
     bool retVal = (_scriptState != scriptState_unloaded);
@@ -2462,8 +2468,8 @@ bool CScriptObject::_killInterpreterState()
             // if (_scriptType==sim_scripttype_addonfunction) // Not needed
             // if (_scriptType==sim_scripttype_sandboxscript) // Not needed
         }
-        App::worldContainer->announceScriptStateWillBeErased(_scriptHandle, isSimulationScript(),
-                                                             isSceneSwitchPersistentScript());
+        if (_scriptStateErasedMsg)
+            App::worldContainer->announceScriptStateWillBeErased(_scriptHandle, isSimulationScript(), isSceneSwitchPersistentScript());
         luaWrap_lua_close((luaWrap_lua_State *)_interpreterState);
         _interpreterState = nullptr;
     }
@@ -2699,6 +2705,7 @@ int CScriptObject::getLanguage()
 
 bool CScriptObject::_initInterpreterState(std::string *errorMsg)
 {
+    _scriptStateErasedMsg = true;
     _previouslyUsedModules.clear();
     _calledInThisSimulationStep = false;
     _randGen.seed(123456);

@@ -775,8 +775,7 @@ void CWorldContainer::announceScriptWillBeErased(int scriptHandle, bool simulati
 {
     // Inform plugins about this event:
     int pluginData[4] = {scriptHandle, 0, 0, 0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
-        sim_message_eventcallback_scriptdestroyed, pluginData);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptdestroyed, pluginData);
 
     currentWorld->announceScriptWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
 }

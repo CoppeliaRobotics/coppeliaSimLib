@@ -359,7 +359,11 @@ void CScript::announceObjectWillBeErased(const CSceneObject *object, bool copyBu
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     if (scriptObject != nullptr)
+    {
+        App::worldContainer->announceScriptStateWillBeErased(_objectHandle, scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+        scriptObject->doNotIssueScriptStateWillBeErased();
         App::worldContainer->announceScriptWillBeErased(_objectHandle, scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+    }
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
 }
 
