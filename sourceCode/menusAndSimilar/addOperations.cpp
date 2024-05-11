@@ -950,7 +950,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 if ( (sel != nullptr) && (scriptHandle != -1) )
                 {
                     CSceneObject* script = App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
-                    App::currentWorld->sceneObjects->setObjectParent(script, sel, true);
+                    App::currentWorld->sceneObjects->setObjectParent(script, sel, false);
                     sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
                     App::currentWorld->sceneObjects->deselectObjects();
                     App::currentWorld->sceneObjects->selectObject(scriptHandle);

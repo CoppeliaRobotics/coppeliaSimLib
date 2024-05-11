@@ -2863,7 +2863,7 @@ int _simHandleChildScripts(luaWrap_lua_State *L)
     {
         int callType = luaToInt(L, 1);
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(currentScriptID);
+        CScriptObject *it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(currentScriptID);
         if (it != nullptr)
         {
             if (it->getScriptType() == sim_scripttype_mainscript)
@@ -2896,7 +2896,7 @@ int _simHandleEmbeddedScripts(luaWrap_lua_State *L)
     {
         int callType = luaToInt(L, 1);
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(currentScriptID);
+        CScriptObject *it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(currentScriptID);
         if (it != nullptr)
         {
             if (it->getScriptType() == sim_scripttype_mainscript)
@@ -5357,8 +5357,8 @@ int _simRemoveObjects(luaWrap_lua_State *L)
         {
             handles.resize(cnt);
             getIntsFromTable(L, 1, cnt, &handles[0]);
-            int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-            CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+            //int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            //CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
             simRemoveObjects_internal(&handles[0], cnt);
         }
     }

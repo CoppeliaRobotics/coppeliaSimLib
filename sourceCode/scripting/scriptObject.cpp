@@ -24,12 +24,14 @@
 // Old:
 #include <threadPool_old.h>
 
+#define INITIALLY_SUSPEND_LOADED_SCRIPTS true
 int CScriptObject::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
 std::vector<int> CScriptObject::_externalScriptCalls;
 
 CScriptObject::CScriptObject(int scriptType)
 { // scriptType to -1 for serialization
     _scriptStateErasedMsg = true;
+    _tempSuspended = false;
     _sceneObjectScript = false;
     _parentIsProxy = false;
     _objectHandleAttachedTo = -1;
@@ -989,6 +991,11 @@ void CScriptObject::setOldCallMode()
     _compatibilityMode_oldLua = true;
 }
 
+void CScriptObject::setTemporarilySuspended(bool s)
+{
+    _tempSuspended = s;
+}
+
 std::string CScriptObject::getAndClearLastStackTraceback()
 {
     std::string retVal = _lastStackTraceback;
@@ -1474,7 +1481,8 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
                                     bool addOnManuallyStarted /*=false*/)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
     TRACE_INTERNAL;
-
+    if (_tempSuspended)
+        return 0;
     if ((_scriptType == sim_scripttype_addonscript) && (_scriptState == scriptState_unloaded) &&
         (callType != sim_syscb_info))
     {
@@ -3381,6 +3389,7 @@ void CScriptObject::serialize(CSer &ar)
         }
         else
         { // Loading
+            _tempSuspended = INITIALLY_SUSPEND_LOADED_SCRIPTS;
             int byteQuantity;
             std::string theName = "";
             bool backwardCompatibility_7_8_2014 = false;
@@ -3600,6 +3609,7 @@ void CScriptObject::serialize(CSer &ar)
         }
         else
         {
+            _tempSuspended = INITIALLY_SUSPEND_LOADED_SCRIPTS;
             int previousScriptHandle = -1;
             if (exhaustiveXml)
             {

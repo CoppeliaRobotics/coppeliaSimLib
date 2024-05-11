@@ -26,11 +26,7 @@ CSceneObjectContainer::CSceneObjectContainer()
 
 CSceneObjectContainer::~CSceneObjectContainer()
 { // beware, the current world could be nullptr
-    for (size_t i = 0; i < _delayedDestructionObjects.size(); i++)
-        delete _delayedDestructionObjects[i];
-    eraseAllObjects(false); // should already have been done
-    for (size_t i = 0; i < _allObjects.size(); i++)
-        _removeObject(_allObjects[i]);
+    eraseAllObjects(true); // should already have been done
     delete embeddedScriptContainer;
 }
 
@@ -338,13 +334,21 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, 
 
 void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallback)
 {
+    removeSceneDependencies();
+
 #ifdef SIM_WITH_GUI
     if (GuiApp::mainWindow != nullptr)
         GuiApp::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD, nullptr);
 #endif
     std::vector<int> l;
     for (size_t i = 0; i < getObjectCount(); i++)
-        l.push_back(getObjectFromIndex(i)->getObjectHandle());
+    {
+        int objHandle = getObjectFromIndex(i)->getObjectHandle();
+        CScript* script = getScriptFromHandle(objHandle);
+        if (script != nullptr)
+            script->scriptObject->setTemporarilySuspended(true);
+        l.push_back(objHandle);
+    }
     eraseObjects(l, generateBeforeAfterDeleteCallback);
     // ideally we want to always use different object handles so that if the user erases an object and
     // creates a new one just after, the erased object's handle is not reused. That's why we have
@@ -355,6 +359,15 @@ void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallba
     // So, finally, when the whole scene gets emptied at least we make sure that all handles
     // start from the beginning:
     _nextObjectHandle = SIM_IDSTART_SCENEOBJECT;
+
+    for (size_t i = 0; i < getObjectCount(); i++)
+    {
+        int objHandle = getObjectFromIndex(i)->getObjectHandle();
+        CScript* script = getScriptFromHandle(objHandle);
+        if (script != nullptr)
+            script->scriptObject->setTemporarilySuspended(true);
+    }
+    while (removeDelayedDestructionObjects()); // wait until all scripts are effectively destroyed
 }
 
 int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool lua)
@@ -2587,7 +2600,7 @@ void CSceneObjectContainer::_addObject(CSceneObject *object)
     _objectCreationCounter++;
 }
 
-void CSceneObjectContainer::removeDelayedDestructionObjects()
+bool CSceneObjectContainer::removeDelayedDestructionObjects()
 {
     for (int i = 0; i < int(_delayedDestructionObjects.size()); i++)
     {
@@ -2598,6 +2611,7 @@ void CSceneObjectContainer::removeDelayedDestructionObjects()
             i--;
         }
     }
+    return (_delayedDestructionObjects.size() != 0);
 }
 
 size_t CSceneObjectContainer::getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts) const
@@ -3120,7 +3134,15 @@ CScriptObject *CSceneObjectContainer::getScriptObjectFromHandle(int handle) cons
     if (handle <= SIM_IDEND_SCENEOBJECT)
     { // scene object scripts
         CScript* it = getScriptFromHandle(handle);
-        if (it != nullptr)
+        if (it == nullptr)
+        {
+            for (size_t i = 0; i < _delayedDestructionObjects.size(); i++)
+            { // do not forget delayed destruction objects!!
+                if ( (_delayedDestructionObjects[i]->getObjectHandle() == handle) && (_delayedDestructionObjects[i]->getObjectType() == sim_object_script_type) )
+                    retVal = ((CScript*)_delayedDestructionObjects[i])->scriptObject;
+            }
+        }
+        else
             retVal = it->scriptObject;
     }
     else

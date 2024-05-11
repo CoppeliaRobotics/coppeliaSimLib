@@ -358,7 +358,7 @@ void CScript::performObjectLoadingMapping(const std::map<int, int> *map, bool lo
 void CScript::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    if (scriptObject != nullptr)
+    if ( (scriptObject != nullptr) && (object == this) )
     {
         App::worldContainer->announceScriptStateWillBeErased(_objectHandle, scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
         scriptObject->doNotIssueScriptStateWillBeErased();

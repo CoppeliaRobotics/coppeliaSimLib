@@ -88,7 +88,9 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
     environment->setSceneIsClosingFlag(true); // so that attached scripts can react to it
     // Important to empty objects first (since objCont->announce....willBeErase
     // might be called for already destroyed objects!)
-    sceneObjects->removeSceneDependencies();
+
+    sceneObjects->eraseAllObjects(true);
+
     collections->removeAllCollections();
     collections->setUpDefaultValues();
     ikGroups->removeAllIkGroups();
@@ -104,7 +106,6 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
     environment->setUpDefaultValues();
     pageContainer->emptySceneProcedure();
 
-    sceneObjects->eraseAllObjects(true); // false);
     simulation->setUpDefaultValues();
     pageContainer->emptySceneProcedure();
 
@@ -1807,6 +1808,16 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
             }
         }
         sceneObjects->eraseObjects(objectsToRemove, false);
+    }
+
+    // Enabled scripts (we previously don't wanted to have them react to object add event, etc., during the load operation)
+    for (size_t i = 0; i < loadedLuaScriptList.size(); i++)
+        loadedLuaScriptList[i]->setTemporarilySuspended(false);
+    for (size_t i = 0; i < loadedObjectList.size(); i++)
+    {
+        CSceneObject* it = loadedObjectList[i];
+        if (it->getObjectType() == sim_object_script_type)
+            ((CScript*)it)->scriptObject->setTemporarilySuspended(false);
     }
     return (true);
 }

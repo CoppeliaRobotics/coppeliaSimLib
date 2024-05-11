@@ -134,6 +134,7 @@ class CScriptObject
     bool hasSystemFunctionOrHook(int callType) const;
     bool getOldCallMode() const;
     void setOldCallMode();
+    void setTemporarilySuspended(bool s);
 
     std::string getFilenameForExternalScriptEditor();
     void fromFileToBuffer(); // when using an external editor
@@ -256,6 +257,7 @@ class CScriptObject
 
     int _scriptHandle; // is unique since 25.11.2022
     int _scriptType;
+    bool _tempSuspended;
     bool _sceneObjectScript;
     bool _parentIsProxy;
     bool _scriptIsDisabled;

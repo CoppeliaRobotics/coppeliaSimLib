@@ -224,7 +224,6 @@ SIM_DLLEXPORT int simGetVisionSensorRes(int sensorHandle, int *resolution);
 SIM_DLLEXPORT int simCreateShape(int options, double shadingAngle, const double *vertices, int verticesSize,
                                  const int *indices, int indicesSize, const double *normals, const float *textureCoords,
                                  const unsigned char *texture, const int *textureRes);
-SIM_DLLEXPORT int simCreateScript(int scriptType,const char* scriptText, int options);
 
 // non documented functions, mainly for the dynamics plugins:
 SIM_DLLEXPORT void simRegCallback(int index, void *callback);
@@ -408,6 +407,8 @@ SIM_DLLEXPORT int simCheckVisionSensor_D(int visionSensorHandle, int entityHandl
 SIM_DLLEXPORT unsigned char *simGetVisionSensorImg_D(int sensorHandle, int options, double rgbaCutOff, const int *pos,
                                                      const int *size, int *resolution);
 SIM_DLLEXPORT int simCreateDummy_D(double size, const float *reserved);
+SIM_DLLEXPORT int simCreateScript(int scriptType,const char* scriptText, int options);
+
 SIM_DLLEXPORT int simCreateProximitySensor_D(int sensorType, int subType, int options, const int *intParams,
                                              const double *floatParams, const double *reserved);
 SIM_DLLEXPORT int simCreateForceSensor_D(int options, const int *intParams, const double *floatParams,
