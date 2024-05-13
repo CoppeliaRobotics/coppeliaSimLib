@@ -782,6 +782,13 @@ void CWorldContainer::simulationEnded(bool removeNewObjects)
     calcInfo->simulationEnded();
 }
 
+void CWorldContainer::announceObjectWillBeErased(const CSceneObject *object)
+{
+//    announceScriptStateWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+//    announceScriptWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+    currentWorld->announceObjectWillBeErased(object);
+}
+
 void CWorldContainer::announceScriptWillBeErased(int scriptHandle, int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     // Inform plugins about this event:

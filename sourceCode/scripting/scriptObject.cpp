@@ -2520,6 +2520,7 @@ CScriptObject *CScriptObject::copyYourself()
 
     it->_scriptType = _scriptType;
     // it->_scriptHandle=_scriptHandle;
+    it->_tempSuspended = true;
     it->_objectHandleAttachedTo = _objectHandleAttachedTo;
     it->_threadedExecution_oldThreads = _threadedExecution_oldThreads;
     it->_scriptIsDisabled = _scriptIsDisabled;

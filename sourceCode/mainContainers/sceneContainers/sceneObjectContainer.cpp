@@ -322,7 +322,7 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, 
 
     if (destroyNow_noCallbacks.size() + destroyNow_withCallbacks.size() > 0)
     {
-        deselectObjects();
+        //deselectObjects();
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
         if (destroyNow_withCallbacks.size() > 0)
         {
@@ -361,7 +361,7 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, 
             if (it != nullptr)
             {
                 // We announce the object will be erased:
-                App::currentWorld->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
+                App::worldContainer->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
                 App::worldContainer->pushSceneObjectRemoveEvent(it);
                 _removeObject(it);
             }
@@ -377,7 +377,7 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, 
             if (it != nullptr)
             {
                 // We announce the object will be erased:
-                App::currentWorld->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
+                App::worldContainer->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
                 App::worldContainer->pushSceneObjectRemoveEvent(it);
                 _removeObject(it);
             }

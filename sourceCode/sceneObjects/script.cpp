@@ -51,12 +51,6 @@ void CScript::_commonInit(int scriptType, const char* text, int options)
 
 CScript::~CScript()
 {
-    if (scriptObject != nullptr)
-    {
-        scriptObject->resetScript();
-        CScriptObject::destroy(scriptObject, true, false);
-        App::worldContainer->setModificationFlag(16384);
-    }
 }
 
 void CScript::setObjectHandle(int newObjectHandle)
@@ -73,12 +67,18 @@ bool CScript::canDestroyNow(bool inSafePlace)
     if (GuiApp::mainWindow != nullptr)
         GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(scriptObject->getScriptUid(), scriptObject->_previousEditionWindowPosAndSize, true);
 #endif
-    if ( (inSafePlace) && (scriptObject->_executionDepth == 0) )
+    if ( inSafePlace && (scriptObject->_executionDepth == 0) )
     {
         if (scriptObject->_scriptState == CScriptObject::scriptState_initialized)
             scriptObject->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
         scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
         retVal = true;
+    }
+    if (retVal)
+    {
+        scriptObject->resetScript();
+        CScriptObject::destroy(scriptObject, true, true);
+        App::worldContainer->setModificationFlag(16384);
     }
     return retVal;
 }
@@ -344,11 +344,6 @@ void CScript::performObjectLoadingMapping(const std::map<int, int> *map, bool lo
 void CScript::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    if ( (scriptObject != nullptr) && (object == this) )
-    {
-        App::worldContainer->announceScriptStateWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
-        App::worldContainer->announceScriptWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
-    }
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
 }
 

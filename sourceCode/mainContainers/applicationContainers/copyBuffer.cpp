@@ -223,6 +223,16 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
         &buttonBlockCopy, &luaScriptCopy, textureObjectCopy, dynMaterialObjectCopy, true, SIM_PROGRAM_VERSION_NB,
         false);
 
+    // Enabled scripts (we previously don't wanted to have them react to object add event, etc., during the load operation)
+    for (size_t i = 0; i < luaScriptCopy.size(); i++)
+        luaScriptCopy[i]->setTemporarilySuspended(false);
+    for (size_t i = 0; i < objectCopy.size(); i++)
+    {
+        CSceneObject* it = objectCopy[i];
+        if (it->getObjectType() == sim_object_script_type)
+            ((CScript*)it)->scriptObject->setTemporarilySuspended(false);
+    }
+
     if (selectionMode == 0)
         App::currentWorld->sceneObjects->deselectObjects();
     if ((selectionMode == 2) || (selectionMode == 3))
