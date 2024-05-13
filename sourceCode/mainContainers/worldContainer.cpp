@@ -387,8 +387,20 @@ CScriptObject *CWorldContainer::getScriptObjectFromHandle(int scriptHandle) cons
     if (currentWorld != nullptr)
         retVal = currentWorld->getScriptObjectFromHandle(scriptHandle);
     if ( (retVal == nullptr) && (addOnScriptContainer != nullptr) )
-        retVal = addOnScriptContainer->getAddOnFromID(scriptHandle);
+        retVal = addOnScriptContainer->getAddOnFromHandle(scriptHandle);
     if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptHandle() == scriptHandle))
+        retVal = sandboxScript;
+    return (retVal);
+}
+
+CScriptObject *CWorldContainer::getScriptObjectFromUid(int uid) const
+{
+    CScriptObject *retVal = nullptr;
+    if (currentWorld != nullptr)
+        retVal = currentWorld->getScriptObjectFromUid(uid);
+    if ( (retVal == nullptr) && (addOnScriptContainer != nullptr) )
+        retVal = addOnScriptContainer->getAddOnFromUid(uid);
+    if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptUid() == uid))
         retVal = sandboxScript;
     return (retVal);
 }
@@ -770,24 +782,22 @@ void CWorldContainer::simulationEnded(bool removeNewObjects)
     calcInfo->simulationEnded();
 }
 
-void CWorldContainer::announceScriptWillBeErased(int scriptHandle, bool simulationScript,
-                                                 bool sceneSwitchPersistentScript)
+void CWorldContainer::announceScriptWillBeErased(int scriptHandle, int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     // Inform plugins about this event:
-    int pluginData[4] = {scriptHandle, 0, 0, 0};
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptdestroyed, pluginData);
+    int pluginData[4] = {scriptHandle, scriptUid, 0, 0};
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptabouttobedestroyed, pluginData);
 
     currentWorld->announceScriptWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
-void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle, bool simulationScript,
-                                                      bool sceneSwitchPersistentScript)
+void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle, int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
-    pluginContainer->announceScriptStateWillBeErased(scriptHandle);
+    pluginContainer->announceScriptStateWillBeErased(scriptHandle, scriptUid);
     moduleMenuItemContainer->announceScriptStateWillBeErased(scriptHandle);
     currentWorld->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
 #ifdef SIM_WITH_GUI
     if (GuiApp::mainWindow != nullptr)
-        GuiApp::mainWindow->announceScriptStateWillBeErased(scriptHandle);
+        GuiApp::mainWindow->announceScriptStateWillBeErased(scriptHandle, scriptUid);
 #endif
 }

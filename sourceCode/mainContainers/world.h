@@ -78,6 +78,7 @@ class CWorld
     void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     CScriptObject *getScriptObjectFromHandle(int scriptHandle) const;
+    CScriptObject *getScriptObjectFromUid(int uid) const;
     void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
 
     void pushGenesisEvents();

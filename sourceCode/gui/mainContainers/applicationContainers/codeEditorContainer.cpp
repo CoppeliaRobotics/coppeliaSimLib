@@ -257,11 +257,11 @@ CCodeEditorContainer::~CCodeEditorContainer()
 {
 }
 
-void CCodeEditorContainer::announceScriptStateWillBeErased(int scriptHandle)
+void CCodeEditorContainer::announceScriptStateWillBeErased(int scriptHandle, int scriptUid)
 {
     for (size_t i = 0; i < _allEditors.size(); i++)
     {
-        if (_allEditors[i].callingScriptHandle == scriptHandle)
+        if (_allEditors[i].callingScriptUid == scriptUid)
         {
             int handle = _allEditors[i].handle;
             int pas[4];
@@ -317,7 +317,9 @@ int CCodeEditorContainer::open(const char *initText, const char *xml, int callin
                 SCodeEditor inf;
                 inf.handle = retVal;
                 inf.scriptHandle = -1;
+                inf.scriptUid = -1;
                 inf.callingScriptHandle = callingScriptHandle;
+                inf.callingScriptUid = it->getScriptUid();
                 inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
                 inf.openAcrossScenes = ((it->getScriptType() == sim_scripttype_sandboxscript) ||
                                         (it->getScriptType() == sim_scripttype_addonscript));
@@ -340,7 +342,7 @@ int CCodeEditorContainer::open(const char *initText, const char *xml, int callin
     return (retVal);
 }
 
-int CCodeEditorContainer::openSimulationScript(int scriptHandle, int callingScriptHandle)
+int CCodeEditorContainer::openSimulationScript(int scriptHandle)
 {
     int retVal = -1;
     CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
@@ -438,7 +440,9 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle, int callingScri
                     SCodeEditor inf;
                     inf.handle = retVal;
                     inf.scriptHandle = scriptHandle;
-                    inf.callingScriptHandle = callingScriptHandle;
+                    inf.scriptUid = it->getScriptUid();
+                    inf.callingScriptHandle = -1;
+                    inf.callingScriptUid = -1;
                     inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
                     inf.openAcrossScenes = false;
                     inf.closeAtSimulationEnd = false;
@@ -463,7 +467,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle, int callingScri
     return (retVal);
 }
 
-int CCodeEditorContainer::openCustomizationScript(int scriptHandle, int callingScriptHandle)
+int CCodeEditorContainer::openCustomizationScript(int scriptHandle)
 {
     int retVal = -1;
     if (App::userSettings->externalScriptEditor.size() == 0)
@@ -559,7 +563,9 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle, int callingS
                     SCodeEditor inf;
                     inf.handle = retVal;
                     inf.scriptHandle = scriptHandle;
-                    inf.callingScriptHandle = callingScriptHandle;
+                    inf.scriptUid = it->getScriptUid();
+                    inf.callingScriptHandle = -1;
+                    inf.callingScriptUid = -1;
                     inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
                     inf.openAcrossScenes = false;
                     inf.closeAtSimulationEnd = false;
@@ -653,7 +659,13 @@ int CCodeEditorContainer::openConsole(const char *title, int maxLines, int mode,
         SCodeEditor inf;
         inf.handle = retVal;
         inf.scriptHandle = -1;
+        inf.scriptUid = -1;
         inf.callingScriptHandle = callingScriptHandle;
+        CScriptObject* so = App::worldContainer->getScriptObjectFromHandle(callingScriptHandle);
+        if (so != nullptr)
+            inf.callingScriptUid = so->getScriptUid();
+        else
+            inf.callingScriptUid = -1;
         inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
         inf.openAcrossScenes = ((mode & 16) > 0);
         inf.closeAtSimulationEnd = ((mode & 1) > 0);
@@ -712,7 +724,9 @@ int CCodeEditorContainer::openTextEditor_old(const char *initText, const char *x
         SCodeEditor inf;
         inf.handle = retVal;
         inf.scriptHandle = -1;
+        inf.scriptUid = -1;
         inf.callingScriptHandle = requestOrigin->getScriptHandle();
+        inf.callingScriptUid = requestOrigin->getScriptUid();
         inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
         inf.openAcrossScenes = false;
         inf.closeAtSimulationEnd = requestOrigin->isSimulationScript();
@@ -802,16 +816,16 @@ void CCodeEditorContainer::applyChanges(int handle) const
     }
 }
 
-bool CCodeEditorContainer::closeFromScriptHandle(int scriptHandle, int posAndSize[4], bool ignoreChange)
+bool CCodeEditorContainer::closeFromScriptUid(int scriptUid, int posAndSize[4], bool ignoreChange)
 {
     if (App::userSettings->externalScriptEditor.size() == 0)
     {
         for (size_t i = 0; i < _allEditors.size(); i++)
         {
-            if (_allEditors[i].scriptHandle == scriptHandle)
+            if (_allEditors[i].scriptUid == scriptUid)
             {
                 std::string txt;
-                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
                 if (!ignoreChange)
                     applyChanges(_allEditors[i].handle);
                 int pas[4];

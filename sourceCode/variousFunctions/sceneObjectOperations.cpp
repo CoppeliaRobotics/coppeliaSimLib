@@ -366,8 +366,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (script != nullptr)
             {
                 if (GuiApp::mainWindow != nullptr)
-                    GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(), nullptr,
-                                                                                   true);
+                    GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(script->getScriptUid(), nullptr, true);
                 App::currentWorld->sceneObjects->embeddedScriptContainer->removeScript(script->getScriptHandle());
                 App::undoRedo_sceneChanged("");
                 GuiApp::setFullDialogRefreshFlag();
@@ -392,8 +391,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (script != nullptr)
             {
                 if (GuiApp::mainWindow != nullptr)
-                    GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(script->getScriptHandle(), nullptr,
-                                                                                   true);
+                    GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(script->getScriptUid(), nullptr, true);
                 App::currentWorld->sceneObjects->embeddedScriptContainer->removeScript(script->getScriptHandle());
                 App::undoRedo_sceneChanged("");
                 GuiApp::setFullDialogRefreshFlag();

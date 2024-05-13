@@ -301,10 +301,10 @@ void CMainWindow::initializeWindow()
                        App::userSettings->initWindowSize[0], App::userSettings->initWindowSize[1]);
 }
 
-void CMainWindow::announceScriptStateWillBeErased(int scriptHandle)
+void CMainWindow::announceScriptStateWillBeErased(int scriptHandle, int scriptUid)
 {
     if (codeEditorContainer != nullptr)
-        codeEditorContainer->announceScriptStateWillBeErased(scriptHandle);
+        codeEditorContainer->announceScriptStateWillBeErased(scriptHandle, scriptUid);
 }
 
 void CMainWindow::setProxSensorClickSelectDown(int v)

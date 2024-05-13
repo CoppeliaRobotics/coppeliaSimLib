@@ -43,7 +43,7 @@ class CMainWindow : public QMainWindow
     void executeCommand(SUIThreadCommand *cmdIn, SUIThreadCommand *cmdOut);
     void initializeWindow();
 
-    void announceScriptStateWillBeErased(int scriptHandle);
+    void announceScriptStateWillBeErased(int scriptHandle, int scriptUid);
 
     bool event(QEvent *event);
     void dragEnterEvent(QDragEnterEvent *dEvent);

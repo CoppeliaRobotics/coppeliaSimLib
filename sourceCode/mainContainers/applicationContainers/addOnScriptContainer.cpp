@@ -74,11 +74,21 @@ void CAddOnScriptContainer::simulationAboutToEnd()
         _addOns[i]->simulationAboutToEnd();
 }
 
-CScriptObject *CAddOnScriptContainer::getAddOnFromID(int scriptID) const
+CScriptObject *CAddOnScriptContainer::getAddOnFromHandle(int scriptHandle) const
 {
     for (size_t i = 0; i < _addOns.size(); i++)
     {
-        if (_addOns[i]->getScriptHandle() == scriptID)
+        if (_addOns[i]->getScriptHandle() == scriptHandle)
+            return (_addOns[i]);
+    }
+    return (nullptr);
+}
+
+CScriptObject *CAddOnScriptContainer::getAddOnFromUid(int uid) const
+{
+    for (size_t i = 0; i < _addOns.size(); i++)
+    {
+        if (_addOns[i]->getScriptUid() == uid)
             return (_addOns[i]);
     }
     return (nullptr);

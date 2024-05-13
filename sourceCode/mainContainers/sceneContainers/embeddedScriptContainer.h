@@ -22,6 +22,7 @@ class CEmbeddedScriptContainer
     int insertScript(CScriptObject *script);
     int getObjectHandleFromScriptHandle(int scriptHandle) const;
     CScriptObject *getScriptObjectFromHandle(int scriptHandle) const;
+    CScriptObject *getScriptObjectFromUid(int uid) const;
     CScriptObject *getMainScript() const;
     CScriptObject *getScriptFromObjectAttachedTo(int scriptType, int objectHandle) const;
 

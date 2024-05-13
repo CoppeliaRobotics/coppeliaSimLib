@@ -165,6 +165,9 @@ class CSceneObject
     int getCumulativeObjectProperty();
     void setModelBase(bool m);
 
+    void setDestructionFlags(int f);
+    int getDestructionFlags() const;
+
     void setObjectMovementPreferredAxes(int p);
     int getObjectMovementPreferredAxes() const;
 
@@ -334,6 +337,7 @@ class CSceneObject
     int _calculatedModelProperty;
     int _calculatedObjectProperty;
     std::string _modelAcknowledgement;
+    int _destructionFlags;
 
     // Old:
     std::string _objectName_old;

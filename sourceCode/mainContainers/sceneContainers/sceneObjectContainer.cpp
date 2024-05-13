@@ -273,33 +273,78 @@ void CSceneObjectContainer::eraseObject(CSceneObject *it, bool generateBeforeAft
     }
 }
 
-void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, bool generateBeforeAfterDeleteCallback)
-{
-    if (objectHandles.size() > 0)
+void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, bool generateBeforeAfterDeleteCallback, bool canDestroyComplexHere/* = false*/)
+{ // Objects and object groups are always destroyed in at least 2 phases, otherwise we get problems with scripts destroying themselves, etc.
+    // if canDestroyComplexHere is true, then will ignore objectHandles and generateBeforeAfterDeleteCallback (will work on objects with destruction flags != 0)
+    std::vector<int> destroyNow_noCallbacks;
+    std::vector<int> destroyNow_withCallbacks;
+    bool canDestroy = canDestroyComplexHere;
+    if (canDestroyComplexHere)
+    {
+        for (size_t i = 0; i < _allObjects.size(); i++)
+        {
+            CSceneObject *it = _allObjects[i];
+            int f = it->getDestructionFlags();
+            if (f != 0)
+            {
+                if (it->canDestroyNow(true))
+                {
+                    if (f & 2)
+                        destroyNow_withCallbacks.push_back(it->getObjectHandle());
+                    else
+                        destroyNow_noCallbacks.push_back(it->getObjectHandle());
+                }
+                else
+                    canDestroy = false;
+            }
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < objectHandles.size(); i++)
+        {
+            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
+            if (it != nullptr)
+            {
+                if (generateBeforeAfterDeleteCallback)
+                    it->setDestructionFlags(1 | 2);
+                else
+                    it->setDestructionFlags(1);
+            }
+        }
+    }
+
+    if (!canDestroy)
+    {
+        destroyNow_noCallbacks.clear();
+        destroyNow_withCallbacks.clear();
+    }
+
+    if (destroyNow_noCallbacks.size() + destroyNow_withCallbacks.size() > 0)
     {
         deselectObjects();
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
-        if (generateBeforeAfterDeleteCallback)
+        if (destroyNow_withCallbacks.size() > 0)
         {
             stack->pushTableOntoStack();
 
             stack->pushTextOntoStack("objects");
-            stack->pushInt32ArrayOntoStack(objectHandles.data(), objectHandles.size());
+            stack->pushInt32ArrayOntoStack(destroyNow_withCallbacks.data(), destroyNow_withCallbacks.size());
             stack->insertDataIntoStackTable();
 
             stack->pushTextOntoStack("allObjects");
-            stack->pushBoolOntoStack(objectHandles.size() == getObjectCount());
+            stack->pushBoolOntoStack(destroyNow_withCallbacks.size() == getObjectCount());
             stack->insertDataIntoStackTable();
 
             // Following for backward compatibility:
             stack->pushTextOntoStack("objectHandles");
             stack->pushTableOntoStack();
-            for (size_t i = 0; i < objectHandles.size(); i++)
+            for (size_t i = 0; i < destroyNow_withCallbacks.size(); i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
+                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(destroyNow_withCallbacks[i]);
                 if ((it != nullptr) && it->setBeforeDeleteCallbackSent())
                 { // send the message only once. This routine can be reentrant!
-                    stack->pushInt32OntoStack(objectHandles[i]); // key or index
+                    stack->pushInt32OntoStack(destroyNow_withCallbacks[i]); // key or index
                     stack->pushBoolOntoStack(true);
                     stack->insertDataIntoStackTable();
                 }
@@ -310,25 +355,35 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, 
             App::worldContainer->callScripts(sim_syscb_beforedelete, stack, nullptr);
         }
 
-        for (size_t i = 0; i < objectHandles.size(); i++)
+        for (size_t i = 0; i < destroyNow_withCallbacks.size(); i++)
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
+            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(destroyNow_withCallbacks[i]);
             if (it != nullptr)
             {
                 // We announce the object will be erased:
-                App::currentWorld->announceObjectWillBeErased(
-                    it); // this may trigger other "interesting" things, such as customization script runs, etc.
-                deselectObjects(); // to make sure, since above might have changed selection again
-
+                App::currentWorld->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
                 App::worldContainer->pushSceneObjectRemoveEvent(it);
                 _removeObject(it);
             }
         }
-        App::worldContainer->setModificationFlag(1); // object erased
 
-        if (generateBeforeAfterDeleteCallback)
+        if (destroyNow_withCallbacks.size() > 0)
             App::worldContainer->callScripts(sim_syscb_afterdelete, stack, nullptr);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
+
+        for (size_t i = 0; i < destroyNow_noCallbacks.size(); i++)
+        {
+            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(destroyNow_noCallbacks[i]);
+            if (it != nullptr)
+            {
+                // We announce the object will be erased:
+                App::currentWorld->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
+                App::worldContainer->pushSceneObjectRemoveEvent(it);
+                _removeObject(it);
+            }
+        }
+
+        App::worldContainer->setModificationFlag(1); // object erased
     }
 }
 
@@ -349,7 +404,8 @@ void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallba
             script->scriptObject->setTemporarilySuspended(true);
         l.push_back(objHandle);
     }
-    eraseObjects(l, generateBeforeAfterDeleteCallback);
+    eraseObjects(l, generateBeforeAfterDeleteCallback,false);
+    eraseObjects(l, generateBeforeAfterDeleteCallback,true);
     // ideally we want to always use different object handles so that if the user erases an object and
     // creates a new one just after, the erased object's handle is not reused. That's why we have
     // the _nextObjectHandle variable.
@@ -359,15 +415,6 @@ void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallba
     // So, finally, when the whole scene gets emptied at least we make sure that all handles
     // start from the beginning:
     _nextObjectHandle = SIM_IDSTART_SCENEOBJECT;
-
-    for (size_t i = 0; i < getObjectCount(); i++)
-    {
-        int objHandle = getObjectFromIndex(i)->getObjectHandle();
-        CScript* script = getScriptFromHandle(objHandle);
-        if (script != nullptr)
-            script->scriptObject->setTemporarilySuspended(true);
-    }
-    while (removeDelayedDestructionObjects()); // wait until all scripts are effectively destroyed
 }
 
 int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool lua)
@@ -1685,11 +1732,18 @@ void CSceneObjectContainer::addCompatibilityScripts(std::vector<int> &selection)
     {
         CScript* s = _scriptList[i];
         if (objectsInOutputList.find(s->getObjectHandle()) == objectsInOutputList.end())
-        { // script not in selection
-            if (s->scriptObject->getParentIsProxy())
-            { // script in compatibility mode
-                objectsInOutputList.insert(s->getObjectHandle());
-                selection.push_back(s->getObjectHandle());
+        { // script not (yet) in selection
+            CSceneObject* parent = s->getParent();
+            int p = -1;
+            if (parent != nullptr)
+                p = parent->getObjectHandle();
+            if (objectsInOutputList.find(p) != objectsInOutputList.end())
+            { // parent is in selection
+                if (s->scriptObject->getParentIsProxy())
+                { // script in compatibility mode. Ok, we add it (mainly for backw. compat. copy operations)
+                    objectsInOutputList.insert(s->getObjectHandle());
+                    selection.push_back(s->getObjectHandle());
+                }
             }
         }
     }
@@ -2600,20 +2654,6 @@ void CSceneObjectContainer::_addObject(CSceneObject *object)
     _objectCreationCounter++;
 }
 
-bool CSceneObjectContainer::removeDelayedDestructionObjects()
-{
-    for (int i = 0; i < int(_delayedDestructionObjects.size()); i++)
-    {
-        if (_delayedDestructionObjects[i]->canDestroyNow(true))
-        {
-            delete _delayedDestructionObjects[i];
-            _delayedDestructionObjects.erase(_delayedDestructionObjects.begin() + size_t(i));
-            i--;
-        }
-    }
-    return (_delayedDestructionObjects.size() != 0);
-}
-
 size_t CSceneObjectContainer::getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts) const
 { // returns all non-disabled scripts, from leaf to root. With scriptType==-1, returns child and customization scripts
     std::vector<CSceneObject *> objects;
@@ -2839,10 +2879,7 @@ void CSceneObjectContainer::_removeObject(CSceneObject *object)
     _objectHandleMap.erase(object->getObjectHandle());
     _objectNameMap_old.erase(object->getObjectName_old());
     _objectAltNameMap_old.erase(object->getObjectAltName_old());
-    if (object->canDestroyNow(false))
-        delete object;
-    else
-        _delayedDestructionObjects.push_back(object);
+    delete object;
     _handleOrderIndexOfOrphans();
 
     actualizeObjectInformation();
@@ -3134,20 +3171,31 @@ CScriptObject *CSceneObjectContainer::getScriptObjectFromHandle(int handle) cons
     if (handle <= SIM_IDEND_SCENEOBJECT)
     { // scene object scripts
         CScript* it = getScriptFromHandle(handle);
-        if (it == nullptr)
-        {
-            for (size_t i = 0; i < _delayedDestructionObjects.size(); i++)
-            { // do not forget delayed destruction objects!!
-                if ( (_delayedDestructionObjects[i]->getObjectHandle() == handle) && (_delayedDestructionObjects[i]->getObjectType() == sim_object_script_type) )
-                    retVal = ((CScript*)_delayedDestructionObjects[i])->scriptObject;
-            }
-        }
-        else
+        if (it != nullptr)
             retVal = it->scriptObject;
     }
     else
     { // main script (and old non-scene object scripts)
         retVal = embeddedScriptContainer->getScriptObjectFromHandle(handle);
+    }
+    return (retVal);
+}
+
+CScriptObject *CSceneObjectContainer::getScriptObjectFromUid(int uid) const
+{
+    CScriptObject *retVal = nullptr;
+    for (size_t i = 0; i < _scriptList.size(); i++)
+    {
+        CScript* it = _scriptList[i];
+        if (it->scriptObject->getScriptUid() == uid)
+        {
+            retVal = it->scriptObject;
+            break;
+        }
+    }
+    if (retVal == nullptr)
+    { // main script (and old non-scene object scripts)
+        retVal = embeddedScriptContainer->getScriptObjectFromUid(uid);
     }
     return (retVal);
 }

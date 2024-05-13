@@ -5264,7 +5264,7 @@ int simSetScriptText_internal(int scriptHandle, const char *scriptText)
 
 #ifdef SIM_WITH_GUI
         if (GuiApp::mainWindow != nullptr)
-            GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle, nullptr, true);
+            GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(it->getScriptUid(), nullptr, true);
 #endif
         it->setScriptText(scriptText);
         if ((it->getScriptType() != sim_scripttype_childscript) || (!it->getThreadedExecution_oldThreads()) ||
@@ -5297,7 +5297,7 @@ const char *simGetScriptText_internal(int scriptHandle)
 
 #ifdef SIM_WITH_GUI
         if (GuiApp::mainWindow != nullptr)
-            GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle, nullptr, false);
+            GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(it->getScriptUid(), nullptr, false);
         else
 #endif
             retVal = it->getScriptText();

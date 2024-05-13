@@ -28,6 +28,7 @@
 
 CSceneObject::CSceneObject()
 {
+    _destructionFlags = 0;
     _selected = false;
     _isInScene = false;
     _modelInvisible = false;
@@ -748,6 +749,16 @@ bool CSceneObject::isPotentiallyDetectable() const
 bool CSceneObject::isPotentiallyRenderable() const
 {
     return (false);
+}
+
+void CSceneObject::setDestructionFlags(int f)
+{
+    _destructionFlags = f;
+}
+
+int CSceneObject::getDestructionFlags() const
+{
+    return _destructionFlags;
 }
 
 void CSceneObject::setModelBase(bool m)

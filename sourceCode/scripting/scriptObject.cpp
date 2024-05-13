@@ -26,11 +26,12 @@
 
 #define INITIALLY_SUSPEND_LOADED_SCRIPTS true
 int CScriptObject::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
+int CScriptObject::_nextScriptUid = 0;
 std::vector<int> CScriptObject::_externalScriptCalls;
 
 CScriptObject::CScriptObject(int scriptType)
 { // scriptType to -1 for serialization
-    _scriptStateErasedMsg = true;
+    _scriptUid = _nextScriptUid++;
     _tempSuspended = false;
     _sceneObjectScript = false;
     _parentIsProxy = false;
@@ -141,7 +142,7 @@ void CScriptObject::destroy(CScriptObject *obj, bool registeredObject, bool anno
                 VFile::eraseFile(fname.c_str());
         }
         if (announceScriptDestruction)
-            App::worldContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->isSimulationScript(), obj->isSceneSwitchPersistentScript());
+            App::worldContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->getScriptUid(), obj->isSimulationScript(), obj->isSceneSwitchPersistentScript());
     }
     delete obj;
 }
@@ -1255,6 +1256,11 @@ int CScriptObject::getScriptHandle() const
     return (_scriptHandle);
 }
 
+int CScriptObject::getScriptUid() const
+{
+    return (_scriptUid);
+}
+
 size_t CScriptObject::getSimpleHash() const
 {
     std::hash<std::string> hasher;
@@ -1375,8 +1381,7 @@ bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject *object, 
         {
 #ifdef SIM_WITH_GUI
             if (GuiApp::mainWindow != nullptr)
-                GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(_scriptHandle,
-                                                                               _previousEditionWindowPosAndSize, true);
+                GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(_scriptUid, _previousEditionWindowPosAndSize, true);
 #endif
         }
     }
@@ -1387,8 +1392,7 @@ int CScriptObject::flagScriptForRemoval()
 { // retVal: 0--> cannot be removed, 1 --> will be removed in a delayed manner, 2--> can be removed now
 #ifdef SIM_WITH_GUI
     if (GuiApp::mainWindow != nullptr)
-        GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(_scriptHandle, _previousEditionWindowPosAndSize,
-                                                                       true);
+        GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(_scriptUid, _previousEditionWindowPosAndSize, true);
 #endif
 
     if (App::currentWorld->simulation->isSimulationStopped())
@@ -2459,11 +2463,6 @@ bool CScriptObject::getIsUpToDate()
     return (retVal);
 }
 
-void CScriptObject::doNotIssueScriptStateWillBeErased()
-{
-    _scriptStateErasedMsg = false;
-}
-
 bool CScriptObject::_killInterpreterState()
 {
     bool retVal = (_scriptState != scriptState_unloaded);
@@ -2476,8 +2475,7 @@ bool CScriptObject::_killInterpreterState()
             // if (_scriptType==sim_scripttype_addonfunction) // Not needed
             // if (_scriptType==sim_scripttype_sandboxscript) // Not needed
         }
-        if (_scriptStateErasedMsg)
-            App::worldContainer->announceScriptStateWillBeErased(_scriptHandle, isSimulationScript(), isSceneSwitchPersistentScript());
+        App::worldContainer->announceScriptStateWillBeErased(_scriptHandle, _scriptUid, isSimulationScript(), isSceneSwitchPersistentScript());
         luaWrap_lua_close((luaWrap_lua_State *)_interpreterState);
         _interpreterState = nullptr;
     }
@@ -2713,7 +2711,6 @@ int CScriptObject::getLanguage()
 
 bool CScriptObject::_initInterpreterState(std::string *errorMsg)
 {
-    _scriptStateErasedMsg = true;
     _previouslyUsedModules.clear();
     _calledInThisSimulationStep = false;
     _randGen.seed(123456);

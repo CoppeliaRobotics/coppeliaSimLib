@@ -55,6 +55,7 @@ class CScriptObject
     void simulationEnded();
 
     int getScriptHandle() const;
+    int getScriptUid() const;
     size_t getSimpleHash() const;
 
     std::string getDescriptiveName() const;
@@ -94,7 +95,6 @@ class CScriptObject
     bool initScript();
     bool hasInterpreterState() const;
     bool getIsUpToDate();
-    void doNotIssueScriptStateWillBeErased();
     bool isSimulationScript() const;
     bool isEmbeddedScript() const;
     bool isSceneSwitchPersistentScript() const;
@@ -255,7 +255,8 @@ class CScriptObject
     bool _execScriptString(const char *scriptString, CInterfaceStack *outStack);
     void _handleInfoCallback();
 
-    int _scriptHandle; // is unique since 25.11.2022
+    int _scriptHandle; // is unique since 25.11.2022. Unique across scenes for old script, but not for new scripts!
+    int _scriptUid; // unique across all scenes
     int _scriptType;
     bool _tempSuspended;
     bool _sceneObjectScript;
@@ -269,7 +270,6 @@ class CScriptObject
     int _addOnUiMenuHandle;
     int _scriptExecPriority; // only for add-ons. Not saved
     std::string _addOnFilePath;
-    bool _scriptStateErasedMsg;
 
     bool _calledInThisSimulationStep;
 
@@ -313,7 +313,8 @@ class CScriptObject
     std::vector<std::string> _functionHooks_after;
     int _initFunctionHookCount;
 
-    static int _nextScriptHandle;
+    static int _nextScriptHandle; // for old scripts
+    static int _nextScriptUid; // for all scripts
     static std::vector<int> _externalScriptCalls;
 
     // Lua specific:

@@ -349,9 +349,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (it != nullptr)
             {
                 if (it->getScriptType() == sim_scripttype_customizationscript)
-                    GuiApp::mainWindow->codeEditorContainer->openCustomizationScript(cmd.intParams[0], -1);
+                    GuiApp::mainWindow->codeEditorContainer->openCustomizationScript(cmd.intParams[0]);
                 else
-                    GuiApp::mainWindow->codeEditorContainer->openSimulationScript(cmd.intParams[0], -1);
+                    GuiApp::mainWindow->codeEditorContainer->openSimulationScript(cmd.intParams[0]);
             }
         }
     }
@@ -3303,7 +3303,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (script != nullptr)
         {
             if (GuiApp::mainWindow != nullptr)
-                GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID, nullptr, true);
+                GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(script->getScriptUid(), nullptr, true);
             App::currentWorld->sceneObjects->embeddedScriptContainer->removeScript(scriptID);
         }
     }

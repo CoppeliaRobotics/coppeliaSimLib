@@ -83,6 +83,7 @@ class CSceneObjectContainer
     CPointCloud *getPointCloudFromIndex(size_t index) const;
 
     CScriptObject *getScriptObjectFromHandle(int handle) const;
+    CScriptObject *getScriptObjectFromUid(int uid) const;
 
     CDummy *getDummyFromHandle(int objectHandle) const;
     CScript *getScriptFromHandle(int objectHandle) const;
@@ -147,8 +148,6 @@ class CSceneObjectContainer
     void announceObjectWillBeErased(const CSceneObject *object);
     void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
-    bool removeDelayedDestructionObjects();
-
     size_t getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts) const;
     void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     int callScripts_noMainScript(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
@@ -164,7 +163,7 @@ class CSceneObjectContainer
     int addDefaultScript(int scriptType, bool threaded, bool lua);
 
     void eraseObject(CSceneObject *it, bool generateBeforeAfterDeleteCallback);
-    void eraseObjects(const std::vector<int> &objectHandles, bool generateBeforeAfterDeleteCallback);
+    void eraseObjects(const std::vector<int> &objectHandles, bool generateBeforeAfterDeleteCallback, bool canDestroyComplexHere = false);
     void eraseAllObjects(bool generateBeforeAfterDeleteCallback);
     void actualizeObjectInformation();
     void enableObjectActualization(bool e);
@@ -253,8 +252,6 @@ class CSceneObjectContainer
     int _objectCreationCounter;
     int _objectDestructionCounter;
     int _hierarchyChangeCounter;
-
-    std::vector<CSceneObject *> _delayedDestructionObjects;
 
     std::vector<CSceneObject *> _orphanObjects;
 

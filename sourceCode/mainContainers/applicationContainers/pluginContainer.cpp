@@ -92,7 +92,7 @@ CPlugin *CPluginContainer::_tryToLoadPluginOnce(const char *namespaceAndVersion)
 
 CPlugin *CPluginContainer::loadAndInitPlugin(const char *namespaceAndVersion, int loadOrigin)
 { // namespaceAndVersion: e.g. simAssimp, simAssimp-2-78, etc.
-    // loadOrigin: -1: c++, otherwise script handle
+    // loadOrigin: -1: c++, otherwise script UID
     TRACE_INTERNAL;
     CPlugin *plug = getPluginFromName(namespaceAndVersion);
     if (plug == nullptr)
@@ -114,7 +114,7 @@ CPlugin *CPluginContainer::loadAndInitPlugin(const char *namespaceAndVersion, in
         std::string msgB("plugin ");
         msgB += std::string(namespaceAndVersion) + ": ";
         std::string msg(msgB + "loading...");
-        CScriptObject *scr = App::worldContainer->getScriptObjectFromHandle(loadOrigin);
+        CScriptObject *scr = App::worldContainer->getScriptObjectFromUid(loadOrigin);
         if (scr != nullptr)
             App::logScriptMsg(scr, sim_verbosity_loadinfos | sim_verbosity_onlyterminal, msg.c_str());
         else
@@ -170,13 +170,13 @@ CPlugin *CPluginContainer::loadAndInitPlugin(const char *namespaceAndVersion, in
     return (plug);
 }
 
-void CPluginContainer::announceScriptStateWillBeErased(int scriptHandle)
+void CPluginContainer::announceScriptStateWillBeErased(int scriptHandle, int scriptUid)
 {
-    int pluginData[4] = {scriptHandle, 0, 0, 0};
-    sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstatedestroyed, pluginData);
+    int pluginData[4] = {scriptHandle, scriptUid, 0, 0};
+    sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstateabouttobedestroyed, pluginData);
 
     for (size_t i = 0; i < _allPlugins.size(); i++)
-        _allPlugins[i]->removeDependency(scriptHandle);
+        _allPlugins[i]->removeDependency(scriptUid);
 }
 
 int CPluginContainer::addAndInitPlugin_old(const char *filename, const char *pluginName)
@@ -282,7 +282,7 @@ bool CPluginContainer::deinitAndUnloadPlugin(int handle, int unloadOrigin, bool 
             std::string msgB("plugin ");
             msgB += it->getName() + ": ";
             std::string msg(msgB + "cleanup...");
-            CScriptObject *scr = App::worldContainer->getScriptObjectFromHandle(unloadOrigin);
+            CScriptObject *scr = App::worldContainer->getScriptObjectFromUid(unloadOrigin);
             if (scr != nullptr)
                 App::logScriptMsg(scr, sim_verbosity_loadinfos | sim_verbosity_onlyterminal, msg.c_str());
             else

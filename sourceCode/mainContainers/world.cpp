@@ -1166,6 +1166,14 @@ CScriptObject *CWorld::getScriptObjectFromHandle(int scriptHandle) const
     return (retVal);
 }
 
+CScriptObject *CWorld::getScriptObjectFromUid(int uid) const
+{
+    CScriptObject *retVal = nullptr;
+    if (sceneObjects != nullptr)
+        retVal = sceneObjects->getScriptObjectFromUid(uid);
+    return (retVal);
+}
+
 void CWorld::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
@@ -1738,7 +1746,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
 
     // Convert old embedded scripts to script-type objects (or vice-versa):
     if (App::userSettings->scriptConversion == 1)
-    { // convert from old to new:
+    { // convert from old to new (except for very old threaded scripts (blue icon)):
         for (size_t i = 0; i < loadedObjectList.size(); i++)
         {
             CScriptObject* scriptObject = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, loadedObjectList[i]->getObjectHandle());

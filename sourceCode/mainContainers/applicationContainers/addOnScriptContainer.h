@@ -26,7 +26,8 @@ class CAddOnScriptContainer
     void simulationAboutToEnd();
     void loadAllAddOns();
     void removeAllAddOns();
-    CScriptObject *getAddOnFromID(int scriptID) const;
+    CScriptObject *getAddOnFromHandle(int scriptHandle) const;
+    CScriptObject *getAddOnFromUid(int uid) const;
     CScriptObject *getAddOnFromName(const char *name) const;
 
     int getSysFuncAndHookCnt(int sysCall) const;

@@ -4809,7 +4809,7 @@ int simRemoveScript_internal(int scriptHandle)
         }
 #ifdef SIM_WITH_GUI
         if (GuiApp::mainWindow != nullptr)
-            GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle, nullptr, true);
+            GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(it->getScriptUid(), nullptr, true);
 #endif
         App::currentWorld->sceneObjects->embeddedScriptContainer->removeScript_safe(scriptHandle);
 #ifdef SIM_WITH_GUI
@@ -15568,10 +15568,8 @@ int simEventNotification_internal(const char *event)
                             {
                                 if (strlen(data) != 0)
                                 {
-                                    int callingScript =
-                                        GuiApp::mainWindow->codeEditorContainer->getCallingScriptHandle(h);
-                                    CInterfaceStack *stack =
-                                        App::worldContainer->interfaceStackContainer->createStack();
+                                    int callingScript = GuiApp::mainWindow->codeEditorContainer->getCallingScriptHandle(h);
+                                    CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
                                     int posAndSize[4];
                                     std::string txt = GuiApp::mainWindow->codeEditorContainer->getText(h, posAndSize);
                                     stack->pushTextOntoStack(txt.c_str());

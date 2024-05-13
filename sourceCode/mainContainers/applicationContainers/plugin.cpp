@@ -34,8 +34,7 @@ CPlugin::CPlugin(const char *filename, const char *pluginnamespaceAndVersion, in
     }
     else
         _namespace.clear(); // old plugins
-    if (loadOrigin !=
-        -1) // plugins auto loaded by the system have no direct dependency: they simply can be loaded again on demand
+    if (loadOrigin != -1) // plugins auto loaded by the system have no direct dependency: they simply can be loaded again on demand
         _dependencies.insert(loadOrigin);
     extendedVersionInt = -1;
     _consoleVerbosity = sim_verbosity_useglobal;

@@ -255,6 +255,20 @@ CScriptObject *CEmbeddedScriptContainer::getScriptObjectFromHandle(int scriptHan
     return (retVal);
 }
 
+CScriptObject *CEmbeddedScriptContainer::getScriptObjectFromUid(int uid) const
+{
+    CScriptObject *retVal = nullptr;
+    for (size_t i = 0; i < allScripts.size(); i++)
+    {
+        if (allScripts[i]->getScriptUid() == uid)
+        {
+            retVal = allScripts[i];
+            break;
+        }
+    }
+    return (retVal);
+}
+
 int CEmbeddedScriptContainer::getObjectHandleFromScriptHandle(int scriptHandle) const
 {
     CScriptObject *script = getScriptObjectFromHandle(scriptHandle);

@@ -56,8 +56,9 @@ class CWorldContainer
     void getAllSceneNames(std::vector<std::string> &l) const;
 
     CScriptObject *getScriptObjectFromHandle(int scriptHandle) const;
-    void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
-    void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    CScriptObject *getScriptObjectFromUid(int uid) const;
+    void announceScriptWillBeErased(int scriptHandle, int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptStateWillBeErased(int scriptHandle, int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
     void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     void broadcastMsg(CInterfaceStack *inStack, int emittingScriptHandle, int options);
 

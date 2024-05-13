@@ -2619,20 +2619,18 @@ int _loadPlugin(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_string, 0))
     {
-        CScriptObject *it =
-            App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         std::string namespaceAndVersion(luaWrap_lua_tostring(L, 1));
         CPlugin *plug = App::worldContainer->pluginContainer->getPluginFromName(namespaceAndVersion.c_str());
 
-        if ((plug != nullptr) && (plug->hasDependency(it->getScriptHandle())))
+        if ((plug != nullptr) && (plug->hasDependency(it->getScriptUid())))
         { // that script already loaded that plugin. If the script state has been reset, we do not enter here
             luaWrap_lua_getglobal(L, SIM_PLUGIN_NAMESPACES);
             luaWrap_lua_getfield(L, -1, namespaceAndVersion.c_str());
             LUA_END(1);
         }
 
-        plug =
-            App::worldContainer->pluginContainer->loadAndInitPlugin(namespaceAndVersion.c_str(), it->getScriptHandle());
+        plug = App::worldContainer->pluginContainer->loadAndInitPlugin(namespaceAndVersion.c_str(), it->getScriptUid());
         if (plug != nullptr)
         { // success
             it->loadPluginFuncsAndVars(plug);
@@ -2658,8 +2656,7 @@ int _unloadPlugin(luaWrap_lua_State *L)
         int options = 0;
         if (luaWrap_lua_isinteger(L, 2))
             options = luaWrap_lua_tointeger(L, 2);
-        CScriptObject *it =
-            App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
         int pluginHandle = -1;
         luaWrap_lua_getfield(L, 1, "pluginHandle");
         if (luaWrap_lua_isinteger(L, -1))
@@ -2669,7 +2666,7 @@ int _unloadPlugin(luaWrap_lua_State *L)
         if (pluginHandle >= 0)
         {
             CPlugin *plug = App::worldContainer->pluginContainer->getPluginFromHandle(pluginHandle);
-            if ((plug != nullptr) && (plug->hasDependency(it->getScriptHandle())))
+            if ((plug != nullptr) && (plug->hasDependency(it->getScriptUid())))
             {
                 errorString.clear();
 
@@ -2677,8 +2674,7 @@ int _unloadPlugin(luaWrap_lua_State *L)
                 luaWrap_lua_pushnil(L);
                 luaWrap_lua_setfield(L, -2, plug->getName().c_str());
 
-                App::worldContainer->pluginContainer->deinitAndUnloadPlugin(pluginHandle, it->getScriptHandle(),
-                                                                            (options & 1) != 0);
+                App::worldContainer->pluginContainer->deinitAndUnloadPlugin(pluginHandle, it->getScriptUid(), (options & 1) != 0);
             }
         }
     }
@@ -5828,8 +5824,7 @@ int _simLaunchExecutable(luaWrap_lua_State *L)
                     App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
                 std::string what(it->getDescriptiveName());
                 what += " (via sim.launchExecutable)";
-                if (1 == simCheckExecAuthorization_internal(what.c_str(), (file + " " + args).c_str(),
-                                                            it->getScriptHandle()))
+                if (1 == simCheckExecAuthorization_internal(what.c_str(), (file + " " + args).c_str(), it->getScriptHandle()))
                 {
                     if (VVarious::executeExternalApplication(file.c_str(), args.c_str(),
                                                              App::folders->getExecutablePath().c_str(),

@@ -52,7 +52,11 @@ void CScript::_commonInit(int scriptType, const char* text, int options)
 CScript::~CScript()
 {
     if (scriptObject != nullptr)
-        delete scriptObject;
+    {
+        scriptObject->resetScript();
+        CScriptObject::destroy(scriptObject, true, false);
+        App::worldContainer->setModificationFlag(16384);
+    }
 }
 
 void CScript::setObjectHandle(int newObjectHandle)
@@ -65,34 +69,16 @@ void CScript::setObjectHandle(int newObjectHandle)
 bool CScript::canDestroyNow(bool inSafePlace)
 { // overridden from CSceneObject
     bool retVal = false;
-    if (scriptObject == nullptr)
-        retVal = true;
-    else
-    {
 #ifdef SIM_WITH_GUI
-        if (GuiApp::mainWindow != nullptr)
-            GuiApp::mainWindow->codeEditorContainer->closeFromScriptHandle(_objectHandle, scriptObject->_previousEditionWindowPosAndSize, true);
+    if (GuiApp::mainWindow != nullptr)
+        GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(scriptObject->getScriptUid(), scriptObject->_previousEditionWindowPosAndSize, true);
 #endif
-        if (scriptObject->_executionDepth == 0)
-        {
-            if (scriptObject->_scriptState == CScriptObject::scriptState_initialized)
-            {
-                if (inSafePlace)
-                {
-                    scriptObject->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-                    scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
-                }
-            }
-            else
-                retVal = true;
-            if (retVal)
-            {
-                scriptObject->resetScript();
-                CScriptObject::destroy(scriptObject, true, false);
-                scriptObject = nullptr;
-                App::worldContainer->setModificationFlag(16384);
-            }
-        }
+    if ( (inSafePlace) && (scriptObject->_executionDepth == 0) )
+    {
+        if (scriptObject->_scriptState == CScriptObject::scriptState_initialized)
+            scriptObject->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
+        scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
+        retVal = true;
     }
     return retVal;
 }
@@ -360,9 +346,8 @@ void CScript::announceObjectWillBeErased(const CSceneObject *object, bool copyBu
     // in the copyBuffer)
     if ( (scriptObject != nullptr) && (object == this) )
     {
-        App::worldContainer->announceScriptStateWillBeErased(_objectHandle, scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
-        scriptObject->doNotIssueScriptStateWillBeErased();
-        App::worldContainer->announceScriptWillBeErased(_objectHandle, scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+        App::worldContainer->announceScriptStateWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+        App::worldContainer->announceScriptWillBeErased(_objectHandle, scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
     }
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
 }
