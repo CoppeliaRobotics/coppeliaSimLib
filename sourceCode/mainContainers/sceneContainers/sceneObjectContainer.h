@@ -148,7 +148,9 @@ class CSceneObjectContainer
     void announceObjectWillBeErased(const CSceneObject *object);
     void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
-    size_t getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts) const;
+    void handleDataCallbacks();
+    bool shouldTemporarilySuspendMainScript();
+    size_t getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts, bool reverseOrder) const;
     void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     int callScripts_noMainScript(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
 

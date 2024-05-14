@@ -72,7 +72,6 @@
 #define _USR_SHOW_old_DLGS "showOldDlgs"
 #define _USR_ENABLE_OLD_RENDERABLE "enableOldRenderableBehaviour"
 #define _USR_BUGFIX1 "bugFix1"
-#define _USR_COMPATIBILITYFIX1 "compatibilityFix1"
 #define _USR_READDELAY "readDelay"
 #define _USR_WRITEDELAY "writeDelay"
 #define _USR_USEBUFFERS "useBuffers"
@@ -279,7 +278,6 @@ CUserSettings::CUserSettings()
     allowOldEduRelease = -1;
     threadedScriptsStoppingGraceTime = 0;
     bugFix1 = 1000;
-    compatibilityFix1 = false;
     readDelay = -500;
     writeDelay = 1000;
     useBuffers = true;
@@ -894,7 +892,6 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_ALLOW_old_EDU_RELEASE, allowOldEduRelease);
     c.getInteger(_USR_THREADED_SCRIPTS_GRACE_TIME, threadedScriptsStoppingGraceTime);
     c.getInteger(_USR_BUGFIX1, bugFix1);
-    c.getBoolean(_USR_COMPATIBILITYFIX1, compatibilityFix1);
     c.getInteger(_USR_READDELAY, readDelay);
     c.getInteger(_USR_WRITEDELAY, writeDelay);
     c.getBoolean(_USR_USEBUFFERS, useBuffers);

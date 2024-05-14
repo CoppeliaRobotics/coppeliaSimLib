@@ -18321,11 +18321,12 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State *L)
     {
         bool goOn = true;
         int handle = luaToInt(L, 1);
-        if (App::userSettings->useSceneObjectScripts && (handle <= SIM_IDEND_SCENEOBJECT) )
+        int selfScriptHandle = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        if (App::userSettings->useSceneObjectScripts && (selfScriptHandle <= SIM_IDEND_SCENEOBJECT) )
         {
             if (handle == sim_handle_self)
             {
-                handle = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                handle = selfScriptHandle;
                 CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(handle);
                 if (it != nullptr)
                 {
@@ -18343,7 +18344,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State *L)
         {
             if (handle == sim_handle_self)
             {
-                handle = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                handle = selfScriptHandle;
                 // Since this routine can also be called by customization scripts, check for that here:
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(handle);
                 if (it->getScriptType() == sim_scripttype_customizationscript)

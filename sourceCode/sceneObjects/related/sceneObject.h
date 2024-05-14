@@ -22,6 +22,12 @@ struct SCustomOriginalRefs
     std::string uniquePersistentIdString;
 };
 
+struct SScriptInfo
+{
+    int scriptHandle;
+    int depth;
+};
+
 class CShape;
 class CCustomData_old;
 class CViewableBase;
@@ -131,8 +137,9 @@ class CSceneObject
     void setIsInScene(bool s);
     void setParentPtr(CSceneObject *parent);
 
-    size_t getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts);
-    size_t getScriptsToExecute_branch(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts);
+    int getScriptsInTree(std::vector<SScriptInfo> & scripts, int scriptType, bool legacyEmbeddedScripts, int depth = 0);
+    void getScriptsInChain(std::vector<int> & scripts, int scriptType, bool legacyEmbeddedScripts);
+    size_t getAttachedScripts(std::vector<CScriptObject*> & scripts, int scriptType, bool legacyEmbeddedScripts);
 
     void scalePosition(double scalingFactor);
     void getAllObjectsRecursive(std::vector<CSceneObject *> *objectList, bool baseIncluded = true,

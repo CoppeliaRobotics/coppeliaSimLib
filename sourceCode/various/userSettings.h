@@ -57,7 +57,6 @@ class CUserSettings
     int autoSaveDelay;
     int timeInMsForUndoRedoTooLongWarning;
     int bugFix1;
-    bool compatibilityFix1;
     int readDelay;
     int writeDelay;
     bool useBuffers; // differentiate binary strings and buffers in Lua, true since V4.7

@@ -1930,12 +1930,55 @@ std::string CSceneObject::getUniquePersistentIdString() const
     return (_uniquePersistentIdString);
 }
 
-size_t CSceneObject::getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts)
-{ // returns all non-disabled scripts, from leaf to root. With scriptType==-1, returns child and customization scripts
-    size_t retVal = 0;
+int CSceneObject::getScriptsInTree(std::vector<SScriptInfo> & scripts, int scriptType, bool legacyEmbeddedScripts, int depth /* = 0 */)
+{ // For a given depth level, scripts are sorted from high to low priority. Will append to "scripts"
+    int maxDepth = -1;
     if ((getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0)
     {
-        // handle children first:
+        if (scriptType == sim_scripttype_customizationscript)
+        {
+            CScriptObject *it = nullptr;
+            if (legacyEmbeddedScripts)
+                it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, _objectHandle);
+            else
+            {
+                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_customizationscript) )
+                    it = ((CScript*)this)->scriptObject;
+            }
+            if ((it != nullptr) && (!it->getScriptIsDisabled()))
+            {
+                SScriptInfo s;
+                s.scriptHandle = it->getScriptHandle();
+                s.depth = depth;
+                scripts.push_back(s);
+                maxDepth = depth;
+            }
+        }
+
+        if ( ((scriptType & 0x0f) == sim_scripttype_childscript) && (!App::currentWorld->simulation->isSimulationStopped()) )
+        {
+            CScriptObject *it = nullptr;
+            if (legacyEmbeddedScripts)
+                it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, _objectHandle);
+            else
+            {
+                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_childscript) )
+                    it = ((CScript*)this)->scriptObject;
+            }
+            if ((it != nullptr) && (!it->getScriptIsDisabled()))
+            {
+                if ((scriptType == sim_scripttype_childscript) || (it->getThreadedExecution_oldThreads() == ((scriptType & sim_scripttype_threaded_old) != 0)))
+                { // take also old, threaded scripts into account!
+                    SScriptInfo s;
+                    s.scriptHandle = it->getScriptHandle();
+                    s.depth = depth;
+                    scripts.push_back(s);
+                    maxDepth = depth;
+                }
+            }
+        }
+
+        // Now the children themselves:
         std::vector<CSceneObject *> children;
         std::vector<CSceneObject *> childrenNormalPriority;
         std::vector<CSceneObject *> childrenLastPriority;
@@ -1953,97 +1996,129 @@ size_t CSceneObject::getScriptsToExecute(std::vector<int> &scriptHandles, int sc
         children.insert(children.end(), childrenNormalPriority.begin(), childrenNormalPriority.end());
         children.insert(children.end(), childrenLastPriority.begin(), childrenLastPriority.end());
         for (size_t i = 0; i < children.size(); i++)
-            retVal += children[i]->getScriptsToExecute(scriptHandles, scriptType, legacyEmbeddedScripts);
+            maxDepth = std::max<int>(maxDepth, children[i]->getScriptsInTree(scripts, scriptType, legacyEmbeddedScripts, depth + 1));
+    }
+    return maxDepth;
+}
 
-        // now itself:
-        if (!App::currentWorld->simulation->isSimulationStopped())
+size_t CSceneObject::getAttachedScripts(std::vector<CScriptObject*> & scripts, int scriptType, bool legacyEmbeddedScripts)
+{ // will append to "scripts"!
+    if (scriptType == -1)
+    {
+        getAttachedScripts(scripts, sim_scripttype_childscript, legacyEmbeddedScripts);
+        getAttachedScripts(scripts, sim_scripttype_customizationscript, legacyEmbeddedScripts);
+    }
+    else
+    {
+        if ((getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0)
         {
-            if ((scriptType == -1) || ((scriptType & 0x0f) == sim_scripttype_childscript))
-            { // child script
-                CScriptObject *it = nullptr;
-                if (legacyEmbeddedScripts)
-                    it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, _objectHandle);
-                else
+            if (legacyEmbeddedScripts)
+            {
+                CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
+                if ((it != nullptr) && (!it->getScriptIsDisabled()) && (!it->getThreadedExecution_oldThreads()))
                 {
-                    if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_childscript) )
-                        it = ((CScript*)this)->scriptObject;
+                    if (scriptType == sim_scripttype_customizationscript)
+                        scripts.push_back(it);
+                    if ( (scriptType == sim_scripttype_childscript) && (!App::currentWorld->simulation->isSimulationStopped()) )
+                        scripts.push_back(it);
                 }
-                if ((it != nullptr) && (!it->getScriptIsDisabled()))
+            }
+            else
+            {   // all scripts attached to this object:
+                std::vector<CScriptObject*> childrenNormalPriority;
+                std::vector<CScriptObject*> childrenLastPriority;
+                for (size_t i = 0; i < getChildCount(); i++)
                 {
-                    if ((scriptType == -1) || (it->getThreadedExecution_oldThreads() == ((scriptType & sim_scripttype_threaded_old) != 0)))
-                    { // take also old, threaded scripts into account!
-                        scriptHandles.push_back(it->getScriptHandle());
-                        retVal++;
+                    CSceneObject *c = getChildFromIndex(i);
+                    if (c->getObjectType() == sim_object_script_type)
+                    {
+                        CScript* it = (CScript*)c;
+                        if ( (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
+                        {
+                            int p = it->getScriptExecPriority();
+                            if (p == sim_scriptexecorder_first)
+                                scripts.push_back(it->scriptObject);
+                            if (p == sim_scriptexecorder_normal)
+                                childrenNormalPriority.push_back(it->scriptObject);
+                            if (p == sim_scriptexecorder_last)
+                                childrenLastPriority.push_back(it->scriptObject);
+                        }
+                    }
+                }
+                scripts.insert(scripts.end(), childrenNormalPriority.begin(), childrenNormalPriority.end());
+                scripts.insert(scripts.end(), childrenLastPriority.begin(), childrenLastPriority.end());
+            }
+        }
+    }
+    return scripts.size();
+}
+
+void CSceneObject::getScriptsInChain(std::vector<int> & scripts, int scriptType, bool legacyEmbeddedScripts)
+{ // We go from leaf to root, child, then customization scripts. For a given depth level, scripts are sorted from high to low priority
+    // will append to "scripts"
+    if (scriptType == -1)
+    {
+        getScriptsInChain(scripts, sim_scripttype_childscript, legacyEmbeddedScripts);
+        getScriptsInChain(scripts, sim_scripttype_customizationscript, legacyEmbeddedScripts);
+    }
+    else
+    {
+        scriptType = scriptType & 0x0f;
+        if ((getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0)
+        {
+            if (legacyEmbeddedScripts)
+            {
+                CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
+                if ((it != nullptr) && (!it->getScriptIsDisabled()) && (!it->getThreadedExecution_oldThreads()))
+                {
+                    if (scriptType == sim_scripttype_customizationscript)
+                        scripts.push_back(it->getScriptHandle());
+                    if ( (scriptType == sim_scripttype_childscript) && (!App::currentWorld->simulation->isSimulationStopped()) )
+                        scripts.push_back(it->getScriptHandle());
+                }
+            }
+            else
+            {   // all scripts attached to this object:
+                std::vector<int> childrenNormalPriority;
+                std::vector<int> childrenLastPriority;
+                for (size_t i = 0; i < getChildCount(); i++)
+                {
+                    CSceneObject *c = getChildFromIndex(i);
+                    if (c->getObjectType() == sim_object_script_type)
+                    {
+                        CScript* it = (CScript*)c;
+                        if ( (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
+                        {
+                            int p = it->getScriptExecPriority();
+                            if (p == sim_scriptexecorder_first)
+                                scripts.push_back(it->getObjectHandle());
+                            if (p == sim_scriptexecorder_normal)
+                                childrenNormalPriority.push_back(it->getObjectHandle());
+                            if (p == sim_scriptexecorder_last)
+                                childrenLastPriority.push_back(it->getObjectHandle());
+                        }
+                    }
+                }
+                scripts.insert(scripts.end(), childrenNormalPriority.begin(), childrenNormalPriority.end());
+                scripts.insert(scripts.end(), childrenLastPriority.begin(), childrenLastPriority.end());
+            }
+            CSceneObject *parent = getParent();
+            if (parent != nullptr)
+                parent->getScriptsInChain(scripts, scriptType, legacyEmbeddedScripts);
+            else
+            {
+                if (!legacyEmbeddedScripts)
+                {
+                    if (_objectType == sim_object_script_type)
+                    {
+                        CScript* it = (CScript*)this;
+                        if ( (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
+                            scripts.push_back(it->scriptObject->getScriptHandle());
                     }
                 }
             }
         }
-        if ((scriptType == -1) || (scriptType == sim_scripttype_customizationscript))
-        { // customization script
-            CScriptObject *it = nullptr;
-            if (legacyEmbeddedScripts)
-                it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, _objectHandle);
-            else
-            {
-                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_customizationscript) )
-                    it = ((CScript*)this)->scriptObject;
-            }
-            if ((it != nullptr) && (!it->getScriptIsDisabled()))
-            {
-                scriptHandles.push_back(it->getScriptHandle());
-                retVal++;
-            }
-        }
     }
-    return (retVal);
-}
-
-size_t CSceneObject::getScriptsToExecute_branch(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts)
-{ // returns all non-disabled scripts, from leaf to root, in that branch. With scriptType==-1, returns child and
-  // customization scripts
-    size_t retVal = 0;
-    if ((getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0)
-    {
-        if (!App::currentWorld->simulation->isSimulationStopped())
-        {
-            if ((scriptType == -1) || (scriptType == sim_scripttype_childscript))
-            { // child script
-                CScriptObject *it = nullptr;
-                if (legacyEmbeddedScripts)
-                    it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, _objectHandle);
-                else
-                {
-                    if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_childscript) )
-                        it = ((CScript*)this)->scriptObject;
-                }
-                if ((it != nullptr) && (!it->getScriptIsDisabled()))
-                {
-                    scriptHandles.push_back(it->getScriptHandle());
-                    retVal++;
-                }
-            }
-        }
-        if ((scriptType == -1) || (scriptType == sim_scripttype_customizationscript))
-        { // customization script
-            CScriptObject *it = nullptr;
-            if (legacyEmbeddedScripts)
-                it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, _objectHandle);
-            else
-            {
-                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_customizationscript) )
-                    it = ((CScript*)this)->scriptObject;
-            }
-            if ((it != nullptr) && (!it->getScriptIsDisabled()))
-            {
-                scriptHandles.push_back(it->getScriptHandle());
-                retVal++;
-            }
-        }
-    }
-    CSceneObject *parent = getParent();
-    if (parent != nullptr)
-        retVal += parent->getScriptsToExecute_branch(scriptHandles, scriptType, legacyEmbeddedScripts);
-    return (retVal);
 }
 
 void CSceneObject::_setLocalTransformation_send(const C7Vector &tr) const

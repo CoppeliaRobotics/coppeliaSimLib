@@ -482,7 +482,7 @@ bool CWorldContainer::shouldTemporarilySuspendMainScript()
         retVal = true;
 
     // Child scripts & customization scripts:
-    if (currentWorld->sceneObjects->embeddedScriptContainer->shouldTemporarilySuspendMainScript())
+    if (currentWorld->sceneObjects->shouldTemporarilySuspendMainScript())
         retVal = true;
 
     // Add-on scripts:

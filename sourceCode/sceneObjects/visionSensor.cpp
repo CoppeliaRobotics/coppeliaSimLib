@@ -2174,15 +2174,11 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         }
     }
 
-    CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-        sim_scripttype_childscript, _objectHandle);
-    if ((script != nullptr) && (!script->hasSystemFunctionOrHook(sim_syscb_vision)))
-        script = nullptr;
-    CScriptObject *cScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-        sim_scripttype_customizationscript, _objectHandle);
-    if ((cScript != nullptr) && (!cScript->hasSystemFunctionOrHook(sim_syscb_vision)))
-        cScript = nullptr;
-    if ((script != nullptr) || (cScript != nullptr))
+    std::vector<CScriptObject*> scripts;
+    getAttachedScripts(scripts, -1, true);
+    getAttachedScripts(scripts, -1, false);
+
+    if (scripts.size() > 0)
     {
         CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
         inStack->pushTableOntoStack();
@@ -2197,77 +2193,63 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         inStack->insertKeyFloatIntoStackTable("orthoSize", getOrthoViewSize());
         inStack->insertKeyBoolIntoStackTable("perspectiveOperation", getPerspective());
 
-        CInterfaceStack *outStack1 = App::worldContainer->interfaceStackContainer->createStack();
-        CInterfaceStack *outStack2 = App::worldContainer->interfaceStackContainer->createStack();
-        CInterfaceStack *outSt1 = outStack1;
-        CInterfaceStack *outSt2 = outStack2;
-        if (VThread::isSimThread())
-        { // we are in the main simulation thread. Call only scripts that live in the same thread
-            if ((script != nullptr) && (!script->getThreadedExecution_oldThreads()))
-                script->systemCallScript(sim_syscb_vision, inStack, outStack1);
-            if (cScript != nullptr)
-                cScript->systemCallScript(sim_syscb_vision, inStack, outStack2);
-        }
-        else
-        { // OLD: we are in the thread started by a threaded child script. Call only that script
-            if ((script != nullptr) && script->getThreadedExecution_oldThreads())
-            {
-                script->systemCallScript(sim_syscb_vision, inStack, nullptr);
-                outSt1 = inStack;
-            }
-        }
-
-        CInterfaceStack *outStacks[2] = {outSt1, outSt2};
-        for (size_t cnt = 0; cnt < 2; cnt++)
+        for (size_t i = 0; i < scripts.size(); i++)
         {
-            CInterfaceStack *outStack = outStacks[cnt];
-            if (outStack->getStackSize() >= 1)
+            CScriptObject* script = scripts[i];
+            if (script->hasSystemFunctionOrHook(sim_syscb_vision))
             {
-                outStack->moveStackItemToTop(0);
-                bool trig = false;
-                if (outStack->getStackMapBoolValue("trigger", trig))
-                    trigger = trig;
-                CInterfaceStackObject *obj = outStack->getStackMapObject("packedPackets");
-                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_table))
+                CInterfaceStack *outStack = App::worldContainer->interfaceStackContainer->createStack();
+                if (VThread::isSimThread())
+                { // we are in the main simulation thread. Call only scripts that live in the same thread
+                    if (!script->getThreadedExecution_oldThreads())
+                        script->systemCallScript(sim_syscb_vision, inStack, outStack);
+                }
+                else
+                { // OLD: we are in the thread started by a threaded child script. Call only that script
+                    if (script->getThreadedExecution_oldThreads())
+                        script->systemCallScript(sim_syscb_vision, inStack, nullptr);
+                }
+                if (outStack->getStackSize() >= 1)
                 {
-                    CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
-                    if (table->isTableArray())
+                    outStack->moveStackItemToTop(0);
+                    bool trig = false;
+                    if (outStack->getStackMapBoolValue("trigger", trig))
+                        trigger = trig;
+                    CInterfaceStackObject *obj = outStack->getStackMapObject("packedPackets");
+                    if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_table))
                     {
-                        for (size_t i = 0; i < table->getArraySize(); i++)
+                        CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
+                        if (table->isTableArray())
                         {
-                            CInterfaceStackObject *obj2 = table->getArrayItemAtIndex(i);
-                            if ((obj2 != nullptr) && (obj2->getObjectType() == sim_stackitem_string))
-                            { // the packed values are float, for backward compatibility
-                                CInterfaceStackString *buff = (CInterfaceStackString *)obj2;
-                                std::vector<float> data;
-                                size_t l;
-                                buff->getValue(&l);
-                                data.assign((float *)buff->getValue(nullptr),
-                                            ((float *)buff->getValue(nullptr)) + l / sizeof(float));
-                                std::vector<double> data2;
-                                data2.resize(data.size());
-                                for (size_t j = 0; j < data.size(); j++)
-                                    data2[j] = (double)data[j];
-                                sensorAuxiliaryResult.push_back(data2);
+                            for (size_t i = 0; i < table->getArraySize(); i++)
+                            {
+                                CInterfaceStackObject *obj2 = table->getArrayItemAtIndex(i);
+                                if ((obj2 != nullptr) && (obj2->getObjectType() == sim_stackitem_string))
+                                { // the packed values are float, for backward compatibility
+                                    CInterfaceStackString *buff = (CInterfaceStackString *)obj2;
+                                    std::vector<float> data;
+                                    size_t l;
+                                    buff->getValue(&l);
+                                    data.assign((float *)buff->getValue(nullptr),
+                                                ((float *)buff->getValue(nullptr)) + l / sizeof(float));
+                                    std::vector<double> data2;
+                                    data2.resize(data.size());
+                                    for (size_t j = 0; j < data.size(); j++)
+                                        data2[j] = (double)data[j];
+                                    sensorAuxiliaryResult.push_back(data2);
+                                }
                             }
                         }
                     }
                 }
+                App::worldContainer->interfaceStackContainer->destroyStack(outStack);
             }
         }
-        App::worldContainer->interfaceStackContainer->destroyStack(outStack2);
-        App::worldContainer->interfaceStackContainer->destroyStack(outStack1);
         App::worldContainer->interfaceStackContainer->destroyStack(inStack);
-    }
-    if (trigger)
-    {
-        if ((script != nullptr) && (!script->hasSystemFunctionOrHook(sim_syscb_trigger)))
-            script = nullptr;
-        if ((cScript != nullptr) && (!cScript->hasSystemFunctionOrHook(sim_syscb_trigger)))
-            cScript = nullptr;
-        if ((script != nullptr) || (cScript != nullptr))
+
+        if (trigger)
         {
-            CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
+            inStack = App::worldContainer->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
             inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
 
@@ -2290,42 +2272,36 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             }
             inStack->insertDataIntoStackTable();
 
-            CInterfaceStack *outStack1 = App::worldContainer->interfaceStackContainer->createStack();
-            CInterfaceStack *outStack2 = App::worldContainer->interfaceStackContainer->createStack();
-            CInterfaceStack *outSt1 = outStack1;
-            CInterfaceStack *outSt2 = outStack2;
-            if (VThread::isSimThread())
-            { // we are in the main simulation thread. Call only scripts that live in the same thread
-                if ((script != nullptr) && (!script->getThreadedExecution_oldThreads()))
-                    script->systemCallScript(sim_syscb_trigger, inStack, outStack1);
-                if (cScript != nullptr)
-                    cScript->systemCallScript(sim_syscb_trigger, inStack, outStack2);
-            }
-            else
-            { // we are in the thread started by a threaded child script. Call only that script
-                if ((script != nullptr) && script->getThreadedExecution_oldThreads())
-                {
-                    script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
-                    outSt1 = inStack;
-                }
-            }
-            CInterfaceStack *outStacks[2] = {outSt1, outSt2};
-            for (size_t cnt = 0; cnt < 2; cnt++)
+            for (size_t i = 0; i < scripts.size(); i++)
             {
-                CInterfaceStack *outStack = outStacks[cnt];
-                if (outStack->getStackSize() >= 1)
+                CScriptObject* script = scripts[i];
+                if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                 {
-                    outStack->moveStackItemToTop(0);
-                    bool trig = false;
-                    if (outStack->getStackMapBoolValue("trigger", trig))
-                        trigger = trig;
+                    CInterfaceStack *outStack = App::worldContainer->interfaceStackContainer->createStack();
+                    if (VThread::isSimThread())
+                    { // we are in the main simulation thread. Call only scripts that live in the same thread
+                        if (!script->getThreadedExecution_oldThreads())
+                            script->systemCallScript(sim_syscb_trigger, inStack, outStack);
+                    }
+                    else
+                    { // we are in the thread started by a threaded child script. Call only that script
+                        if (script->getThreadedExecution_oldThreads())
+                            script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
+                    }
+                    if (outStack->getStackSize() >= 1)
+                    {
+                        outStack->moveStackItemToTop(0);
+                        bool trig = false;
+                        if (outStack->getStackMapBoolValue("trigger", trig))
+                            trigger = trig;
+                    }
+                    App::worldContainer->interfaceStackContainer->destroyStack(outStack);
                 }
             }
-            App::worldContainer->interfaceStackContainer->destroyStack(outStack2);
-            App::worldContainer->interfaceStackContainer->destroyStack(outStack1);
             App::worldContainer->interfaceStackContainer->destroyStack(inStack);
         }
     }
+
     _inApplyFilterRoutine = false;
     return (trigger);
 }

@@ -426,7 +426,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
 void CEmbeddedScriptContainer::handleDataCallbacks()
 {
     std::vector<int> scriptHandles;
-    App::currentWorld->sceneObjects->getScriptsToExecute(scriptHandles, -1, true);
+    App::currentWorld->sceneObjects->getScriptsToExecute(scriptHandles, -1, true, false);
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
         CScriptObject *it = getScriptObjectFromHandle(scriptHandles[i]);
@@ -515,7 +515,7 @@ bool CEmbeddedScriptContainer::shouldTemporarilySuspendMainScript()
 {
     bool retVal = false;
     std::vector<int> scriptHandles;
-    App::currentWorld->sceneObjects->getScriptsToExecute(scriptHandles, -1, true);
+    App::currentWorld->sceneObjects->getScriptsToExecute(scriptHandles, -1, true, false);
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
         CScriptObject *it = getScriptObjectFromHandle(scriptHandles[i]);
@@ -535,12 +535,12 @@ int CEmbeddedScriptContainer::callScripts_noMainScript(int scriptType, int callT
 { // ignores the main script
     int cnt = 0;
     std::vector<int> scriptHandles;
+
     if (objectBranch == nullptr)
-        App::currentWorld->sceneObjects->getScriptsToExecute(scriptHandles, scriptType, true);
+        App::currentWorld->sceneObjects->getScriptsToExecute(scriptHandles, scriptType, true, CScriptObject::isSystemCallbackInReverseOrder(callTypeOrResumeLocation));
     else
-        objectBranch->getScriptsToExecute_branch(scriptHandles, scriptType, true);
-    if (CScriptObject::isSystemCallbackInReverseOrder(callTypeOrResumeLocation))
-        std::reverse(scriptHandles.begin(), scriptHandles.end());
+        objectBranch->getScriptsInChain(scriptHandles, scriptType, true);
+
     bool canInterrupt = CScriptObject::isSystemCallbackInterruptible(callTypeOrResumeLocation);
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {

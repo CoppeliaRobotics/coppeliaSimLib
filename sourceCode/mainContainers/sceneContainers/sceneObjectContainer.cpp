@@ -2654,9 +2654,59 @@ void CSceneObjectContainer::_addObject(CSceneObject *object)
     _objectCreationCounter++;
 }
 
-size_t CSceneObjectContainer::getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts) const
-{ // returns all non-disabled scripts, from leaf to root. With scriptType==-1, returns child and customization scripts
+void CSceneObjectContainer::handleDataCallbacks()
+{
+    std::vector<int> scriptHandles;
+    getScriptsToExecute(scriptHandles, -1, false, false);
+    for (size_t i = 0; i < scriptHandles.size(); i++)
+    {
+        CScriptObject *it = getScriptObjectFromHandle(scriptHandles[i]);
+        if (it != nullptr)
+        { // could have been erased in the mean time! noooo!
+            if ((it->getScriptType() == sim_scripttype_customizationscript) || (!App::currentWorld->simulation->isSimulationStopped()))
+            {
+                CSceneObject *obj = getScriptFromHandle(scriptHandles[i]);
+                if (obj != nullptr)
+                {
+                    std::map<std::string, bool> dataItems;
+                    if (obj->getAndClearCustomDataEvents(dataItems))
+                    {
+                        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+                        stack->pushTableOntoStack();
+                        for (const auto &r : dataItems)
+                            stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
+                        it->systemCallScript(sim_syscb_data, stack, nullptr);
+                        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+                    }
+                }
+            }
+        }
+    }
+    embeddedScriptContainer->handleDataCallbacks();
+}
+
+bool CSceneObjectContainer::shouldTemporarilySuspendMainScript()
+{
+    bool retVal = false;
+    std::vector<int> scriptHandles;
+    getScriptsToExecute(scriptHandles, -1, false, false);
+    for (size_t i = 0; i < scriptHandles.size(); i++)
+    {
+        CScriptObject *it = getScriptObjectFromHandle(scriptHandles[i]);
+        if (it != nullptr)
+        { // could have been erased in the mean time!
+            if (it->shouldTemporarilySuspendMainScript())
+                retVal = true;
+        }
+    }
+    bool b = embeddedScriptContainer->shouldTemporarilySuspendMainScript();
+    return (retVal | b);
+}
+
+size_t CSceneObjectContainer::getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts, bool reverseOrder) const
+{ // returns all non-disabled scripts, from leaf to root. With scriptType==-1, returns child and customization scripts (but ALL custom. execute last)
     std::vector<CSceneObject *> objects;
+
     std::vector<CSceneObject *> objectsNormalPriority;
     std::vector<CSceneObject *> objectsLastPriority;
     for (size_t i = 0; i < getOrphanCount(); i++)
@@ -2671,8 +2721,78 @@ size_t CSceneObjectContainer::getScriptsToExecute(std::vector<int> &scriptHandle
     }
     objects.insert(objects.end(), objectsNormalPriority.begin(), objectsNormalPriority.end());
     objects.insert(objects.end(), objectsLastPriority.begin(), objectsLastPriority.end());
-    for (size_t i = 0; i < objects.size(); i++)
-        objects[i]->getScriptsToExecute(scriptHandles, scriptType, legacyEmbeddedScripts);
+
+    std::vector<SScriptInfo> childScripts;
+    int childScriptsMaxDepth = -1;
+    if ( (scriptType == -1) || ((scriptType & 0x0f) == sim_scripttype_childscript) )
+    {
+        int t = scriptType;
+        if (t == -1)
+            t = sim_scripttype_childscript;
+        for (size_t i = 0; i < objects.size(); i++)
+            childScriptsMaxDepth = std::max<int>(childScriptsMaxDepth, objects[i]->getScriptsInTree(childScripts, t, legacyEmbeddedScripts, 0));
+    }
+
+    std::vector<SScriptInfo> customizationScripts;
+    int customizationScriptsMaxDepth = -1;
+    if ( (scriptType == -1) || (scriptType == sim_scripttype_customizationscript) )
+    {
+        for (size_t i = 0; i < objects.size(); i++)
+            customizationScriptsMaxDepth = std::max<int>(customizationScriptsMaxDepth, objects[i]->getScriptsInTree(customizationScripts, sim_scripttype_customizationscript, legacyEmbeddedScripts, 0));
+    }
+
+    if (childScriptsMaxDepth >= 0)
+    {
+        if (reverseOrder)
+        {
+            for (int depth = 0; depth <= childScriptsMaxDepth; depth++)
+            {
+                for (size_t i = 0; i < childScripts.size(); i++)
+                {
+                    if (childScripts[i].depth == depth)
+                        scriptHandles.push_back(childScripts[i].scriptHandle);
+                }
+            }
+        }
+        else
+        {
+            for (int depth = childScriptsMaxDepth; depth >= 0; depth--)
+            {
+                for (size_t i = 0; i < childScripts.size(); i++)
+                {
+                    if (childScripts[i].depth == depth)
+                        scriptHandles.push_back(childScripts[i].scriptHandle);
+                }
+            }
+        }
+    }
+
+    if (customizationScriptsMaxDepth >= 0)
+    {
+        if (reverseOrder)
+        {
+            for (int depth = 0; depth <= customizationScriptsMaxDepth; depth++)
+            {
+                for (size_t i = 0; i < customizationScripts.size(); i++)
+                {
+                    if (customizationScripts[i].depth == depth)
+                        scriptHandles.push_back(customizationScripts[i].scriptHandle);
+                }
+            }
+        }
+        else
+        {
+            for (int depth = customizationScriptsMaxDepth; depth >= 0; depth--)
+            {
+                for (size_t i = 0; i < customizationScripts.size(); i++)
+                {
+                    if (customizationScripts[i].depth == depth)
+                        scriptHandles.push_back(customizationScripts[i].scriptHandle);
+                }
+            }
+        }
+    }
+
     return (scriptHandles.size());
 }
 
@@ -2745,18 +2865,16 @@ int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType
 
 int CSceneObjectContainer::_callScripts(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack,
                                            CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
-{ // with objectBranch!=nullptr, will return the branch starting at objectBranch up to the main script
+{ // with objectBranch!=nullptr, will return the chain starting at objectBranch up to the main script
     TRACE_INTERNAL;
 
     int cnt = 0;
 
     std::vector<int> scriptHandles;
     if (objectBranch == nullptr)
-        getScriptsToExecute(scriptHandles, scriptType, false);
+        getScriptsToExecute(scriptHandles, scriptType, false, CScriptObject::isSystemCallbackInReverseOrder(callType));
     else
-        objectBranch->getScriptsToExecute_branch(scriptHandles, scriptType, false);
-    if (CScriptObject::isSystemCallbackInReverseOrder(callType))
-        std::reverse(scriptHandles.begin(), scriptHandles.end());
+        objectBranch->getScriptsInChain(scriptHandles, scriptType, false);
     bool canInterrupt = CScriptObject::isSystemCallbackInterruptible(callType);
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {

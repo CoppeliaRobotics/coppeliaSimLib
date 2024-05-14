@@ -369,8 +369,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
     {
         bool hasScript = false;
         // Child scripts:
-        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-            sim_scripttype_childscript, it->getObjectHandle());
+        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, it->getObjectHandle());
         if (script != nullptr)
         {
             hasScript = true;
