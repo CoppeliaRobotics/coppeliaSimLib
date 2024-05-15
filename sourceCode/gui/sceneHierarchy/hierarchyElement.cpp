@@ -787,10 +787,23 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tP
                     objectOrWorldIconID = DUMMY_TREE_PICTURE;
                 if (type == sim_object_script_type)
                 {
-                    if (((CScript *)it)->scriptObject->getScriptType() == sim_scripttype_childscript)
-                        objectOrWorldIconID = SCRIPT_TREE_PICTURE;
+                    CScriptObject* script = ((CScript *)it)->scriptObject;
+                    if (script->getScriptType() == sim_scripttype_childscript)
+                    {
+                        if ((!script->getScriptEnabledAndNoErrorRaised()) ||
+                            ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
+                            objectOrWorldIconID = SCRIPTDISABLED_PICTURE;
+                        else
+                            objectOrWorldIconID = SCRIPT_PICTURE;
+                    }
                     else
-                        objectOrWorldIconID = CUSTOMIZATIONSCRIPT_PICTURE;
+                    {
+                        if ((!script->getScriptEnabledAndNoErrorRaised()) ||
+                            ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
+                            objectOrWorldIconID = CUSTOMIZATIONSCRIPTDISABLED_PICTURE;
+                        else
+                            objectOrWorldIconID = CUSTOMIZATIONSCRIPT_PICTURE;
+                    }
                 }
                 if (type == sim_object_pointcloud_type)
                     objectOrWorldIconID = POINTCLOUD_TREE_PICTURE;

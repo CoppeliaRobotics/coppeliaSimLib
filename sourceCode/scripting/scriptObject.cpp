@@ -1327,10 +1327,13 @@ std::string CScriptObject::getShortDescriptiveName() const
             retVal += "???";
         else
             retVal += it->getObjectAlias_printPath();
-        if (_scriptType == sim_scripttype_childscript)
-            retVal += "@childScript";
-        else
-            retVal += "@customizationScript";
+        if (!_sceneObjectScript)
+        { // old scripts
+            if (_scriptType == sim_scripttype_childscript)
+                retVal += "@childScript";
+            else
+                retVal += "@customizationScript";
+        }
     }
     if (_scriptType == sim_scripttype_addonscript)
     {
