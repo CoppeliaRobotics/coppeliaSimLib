@@ -371,7 +371,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
         // Child scripts:
         CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, it->getObjectHandle());
         if (script != nullptr)
-        {
+        { // old script
             hasScript = true;
             if (!dontDisplay)
             {
@@ -407,7 +407,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
         CScriptObject *customizationScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_customizationscript, it->getObjectHandle());
         if (customizationScript != nullptr)
-        {
+        { // old script
             hasScript = true;
             if (!dontDisplay)
             {
@@ -460,7 +460,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
 
                 }
             }
-            if (newScript != nullptr)
+            if ( (newScript != nullptr) && (!newScript->getScriptIsDisabled()) )
             {
                 if (!dontDisplay)
                 {
@@ -478,26 +478,29 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
             }
             else
             {
-                CUserParameters *params = it->getUserScriptParameterObject();
-                if (((params != nullptr) && (params->userParamEntries.size() > 0)) ||
-                    ((customizationScript != nullptr) &&
-                     customizationScript->hasSystemFunctionOrHook(sim_syscb_userconfig)))
+                if (it->getObjectType() != sim_object_script_type)
                 {
-                    //                printf("Object %s, param1: %s,
-                    //                %i\n",it->getObjectAlias().c_str(),params->userParamEntries[0].name.c_str(),params->userParamEntries.size());
-                    if (!dontDisplay)
+                    CUserParameters *params = it->getUserScriptParameterObject();
+                    if (((params != nullptr) && (params->userParamEntries.size() > 0)) ||
+                        ((customizationScript != nullptr) &&
+                         customizationScript->hasSystemFunctionOrHook(sim_syscb_userconfig)))
                     {
-                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
-                        _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
-                                          HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
+                        //                printf("Object %s, param1: %s,
+                        //                %i\n",it->getObjectAlias().c_str(),params->userParamEntries[0].name.c_str(),params->userParamEntries.size());
+                        if (!dontDisplay)
+                        {
+                            App::worldContainer->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
+                            _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
+                                              HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
+                        }
+                        if (!forDragAndDrop)
+                        {
+                            hier->scriptParametersIconPosition.push_back(tPosX + localOffset);
+                            hier->scriptParametersIconPosition.push_back(tPosY);
+                            hier->scriptParametersIconPosition.push_back(objectID);
+                        }
+                        localOffset += (HIERARCHY_ICON_WIDTH + HIERARCHY_INTER_ICON_SPACING) * GuiApp::sc;
                     }
-                    if (!forDragAndDrop)
-                    {
-                        hier->scriptParametersIconPosition.push_back(tPosX + localOffset);
-                        hier->scriptParametersIconPosition.push_back(tPosY);
-                        hier->scriptParametersIconPosition.push_back(objectID);
-                    }
-                    localOffset += (HIERARCHY_ICON_WIDTH + HIERARCHY_INTER_ICON_SPACING) * GuiApp::sc;
                 }
             }
         }
