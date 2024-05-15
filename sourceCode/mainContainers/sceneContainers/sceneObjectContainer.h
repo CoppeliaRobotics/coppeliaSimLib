@@ -49,7 +49,7 @@ class CSceneObjectContainer
     virtual ~CSceneObjectContainer();
 
     bool doesObjectExist(const CSceneObject *obj) const;
-    int getObjectSequence(const CSceneObject *object) const;
+    int getObjectSequence(const CSceneObject *object, int* totalSiblings = nullptr) const;
     size_t getObjectCount(int type = -1) const;
     CSceneObject *getObjectFromIndex(size_t index) const;
     CSceneObject *getObjectFromHandle(int objectHandle) const;

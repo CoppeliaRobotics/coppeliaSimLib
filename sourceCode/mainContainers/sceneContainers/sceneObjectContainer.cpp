@@ -1399,22 +1399,23 @@ bool CSceneObjectContainer::setObjectSequence(CSceneObject *object, int order)
     CSceneObject *parent = object->getParent();
     if (parent == nullptr)
     {
-        order = std::min<int>(int(_orphanObjects.size()) - 1, order);
-        if (order < 0)
-            order = int(_orphanObjects.size()) - 1; // neg. value: put in last position
-        for (size_t i = 0; i < _orphanObjects.size(); i++)
+        if ( (order < int(_orphanObjects.size())) && (order >= -int(_orphanObjects.size())) )
         {
-            if (_orphanObjects[i] == object)
+            if (order < 0)
+                order += int(_orphanObjects.size()); // neg. value: counting from back
+            for (size_t i = 0; i < _orphanObjects.size(); i++)
             {
-                if (order != i)
+                if (_orphanObjects[i] == object)
                 {
-                    _orphanObjects.erase(_orphanObjects.begin() + i);
-                    _orphanObjects.insert(_orphanObjects.begin() + order, object);
-                    _handleOrderIndexOfOrphans();
+                    if (order != i)
+                    {
+                        _orphanObjects.erase(_orphanObjects.begin() + i);
+                        _orphanObjects.insert(_orphanObjects.begin() + order, object);
+                        _handleOrderIndexOfOrphans();
+                    }
                     retVal = true;
                     break;
                 }
-                break;
             }
         }
     }
@@ -3860,19 +3861,25 @@ void CSceneObjectContainer::_removeFromOrphanObjects(CSceneObject *object)
     }
 }
 
-int CSceneObjectContainer::getObjectSequence(const CSceneObject *object) const
+int CSceneObjectContainer::getObjectSequence(const CSceneObject *object, int* totalSiblings /*= nullptr*/) const
 {
     CSceneObject *parent = object->getParent();
     if (parent != nullptr)
-        return (parent->getChildSequence(object));
+        return (parent->getChildSequence(object, totalSiblings));
     else
     {
         for (size_t i = 0; i < _orphanObjects.size(); i++)
         {
             if (_orphanObjects[i] == object)
+            {
+                if (totalSiblings != nullptr)
+                    totalSiblings[0] = int(_orphanObjects.size());
                 return (int(i));
+            }
         }
     }
+    if (totalSiblings != nullptr)
+        totalSiblings[0] = 0;
     return (-1);
 }
 

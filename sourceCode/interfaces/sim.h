@@ -272,6 +272,9 @@ SIM_DLLEXPORT const void *_simGetIkGroupObject(int ikGroupID);
 SIM_DLLEXPORT int _simMpHandleIkGroupObject(const void *ikGroup);
 SIM_DLLEXPORT int _simGetJointDynCtrlMode(const void *joint);
 SIM_DLLEXPORT int simFloatingViewRemove(int floatingViewHandle);
+SIM_DLLEXPORT int simCreateScript(int scriptType,const char* scriptText, int options);
+SIM_DLLEXPORT int simGetObjectHierarchyOrder(int objectHandle, int* totalSiblings);
+SIM_DLLEXPORT int simSetObjectHierarchyOrder(int objectHandle, int order);
 
 // double precision functions (compatibility):
 SIM_DLLEXPORT int simSetArrayParam_D(int parameter, const double *arrayOfValues);
@@ -407,8 +410,6 @@ SIM_DLLEXPORT int simCheckVisionSensor_D(int visionSensorHandle, int entityHandl
 SIM_DLLEXPORT unsigned char *simGetVisionSensorImg_D(int sensorHandle, int options, double rgbaCutOff, const int *pos,
                                                      const int *size, int *resolution);
 SIM_DLLEXPORT int simCreateDummy_D(double size, const float *reserved);
-SIM_DLLEXPORT int simCreateScript(int scriptType,const char* scriptText, int options);
-
 SIM_DLLEXPORT int simCreateProximitySensor_D(int sensorType, int subType, int options, const int *intParams,
                                              const double *floatParams, const double *reserved);
 SIM_DLLEXPORT int simCreateForceSensor_D(int options, const int *intParams, const double *floatParams,

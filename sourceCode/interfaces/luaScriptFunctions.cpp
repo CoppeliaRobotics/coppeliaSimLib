@@ -455,6 +455,8 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.broadcastMsg", _simBroadcastMsg},
     {"sim.handleJointMotion", _simHandleJointMotion},
     {"sim.getVisionSensorRes", _simGetVisionSensorRes},
+    {"sim.getObjectHierarchyOrder", _simGetObjectHierarchyOrder},
+    {"sim.setObjectHierarchyOrder", _simSetObjectHierarchyOrder},
 
     {"sim.test", _simTest},
 
@@ -5058,6 +5060,41 @@ int _simGetObjectChild(luaWrap_lua_State *L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
     LUA_END(1);
+}
+
+int _simGetObjectHierarchyOrder(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectHierarchyOrder");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    {
+        int totalSiblings;
+        int order = simGetObjectHierarchyOrder_internal(luaToInt(L, 1), &totalSiblings);
+        if (order != -1)
+        {
+            luaWrap_lua_pushinteger(L, order);
+            luaWrap_lua_pushinteger(L, totalSiblings);
+            LUA_END(2);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, -1);
+    luaWrap_lua_pushinteger(L, 0);
+    LUA_END(2);
+}
+
+int _simSetObjectHierarchyOrder(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectHierarchyOrder");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+        simSetObjectHierarchyOrder_internal(luaToInt(L, 1), luaToInt(L, 2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simSetObjectParent(luaWrap_lua_State *L)

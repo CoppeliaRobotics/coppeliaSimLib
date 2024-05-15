@@ -515,6 +515,8 @@ int _simMpHandleIkGroupObject_internal(const void *ikGroup);
 double _simGetPureHollowScaling_internal(const void *geometric);
 void _simDynCallback_internal(const int *intData, const double *floatData);
 int simGetVisionSensorRes_internal(int visionSensorHandle, int *resolution);
+int simGetObjectHierarchyOrder_internal(int objectHandle, int* totalSiblings);
+int simSetObjectHierarchyOrder_internal(int objectHandle, int order);
 
 #include <simInternal-old.h>
 

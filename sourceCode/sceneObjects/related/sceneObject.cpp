@@ -4805,33 +4805,40 @@ void CSceneObject::handleOrderIndexOfChildren()
     }
 }
 
-int CSceneObject::getChildSequence(const CSceneObject *child) const
+int CSceneObject::getChildSequence(const CSceneObject *child, int* totalSiblings /*= nullptr*/) const
 {
     for (size_t i = 0; i < _childList.size(); i++)
     {
         if (_childList[i] == child)
+        {
+            if (totalSiblings != nullptr)
+                totalSiblings[0] = int(_childList.size());
             return (int(i));
+        }
     }
+    if (totalSiblings != nullptr)
+        totalSiblings[0] = 0;
     return (-1);
 }
 
 bool CSceneObject::setChildSequence(CSceneObject *child, int order)
 {
-    order = std::min<int>(int(_childList.size()) - 1, order);
-    if (order < 0)
-        order = int(_childList.size()) - 1; // neg. value: put in last position
-    for (size_t i = 0; i < _childList.size(); i++)
+    if ( (order < int(_childList.size())) && (order >= -int(_childList.size())) )
     {
-        if (_childList[i] == child)
+        if (order < 0)
+            order += int(_childList.size()); // neg. value: from back
+        for (size_t i = 0; i < _childList.size(); i++)
         {
-            if (order != i)
+            if (_childList[i] == child)
             {
-                _childList.erase(_childList.begin() + i);
-                _childList.insert(_childList.begin() + order, child);
-                handleOrderIndexOfChildren();
+                if (order != i)
+                {
+                    _childList.erase(_childList.begin() + i);
+                    _childList.insert(_childList.begin() + order, child);
+                    handleOrderIndexOfChildren();
+                }
                 return (true);
             }
-            break;
         }
     }
     return (false);

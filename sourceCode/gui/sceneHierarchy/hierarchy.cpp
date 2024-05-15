@@ -1536,12 +1536,18 @@ void CHierarchy::drawEditionLabel(int textPosX, int textPosY)
 
 void CHierarchy::addMenu(VMenu *menu)
 {
-    bool selection = App::currentWorld->sceneObjects->getSelectionCount() > 0;
+    int selCnt = App::currentWorld->sceneObjects->getSelectionCount();
+    bool selection = selCnt > 0;
     menu->appendMenuItem(true, false, EXPAND_HIERARCHY_CMD, "Expand all");
     menu->appendMenuItem(true, false, COLLAPSE_HIERARCHY_CMD, "Collapse all");
     menu->appendMenuItem(selection, false, EXPAND_SELECTED_HIERARCHY_CMD, IDS_EXPAND_SELECTED_TREE_MENU_ITEM);
     menu->appendMenuItem(selection, false, COLLAPSE_SELECTED_HIERARCHY_CMD, IDS_COLLAPSE_SELECTED_TREE_MENU_ITEM);
-    if ((App::currentWorld->sceneObjects->getSelectionCount() == 1) &&
+    menu->appendMenuSeparator();
+    menu->appendMenuItem(selCnt == 1, false, MOVE_UP_HIERARCHY_CMD, "Move selected object up");
+    menu->appendMenuItem(selCnt == 1, false, MOVE_DOWN_HIERARCHY_CMD, "Move selected object down");
+    menu->appendMenuSeparator();
+
+    if ((selCnt == 1) &&
         (App::userSettings->externalScriptEditor.size() > 0))
     {
         int h = App::currentWorld->sceneObjects->getLastSelectionHandle();
@@ -1589,6 +1595,36 @@ bool CHierarchy::processCommand(int commandID)
         }
         return (true);
     }
+    if ((commandID == MOVE_UP_HIERARCHY_CMD) || (commandID == MOVE_DOWN_HIERARCHY_CMD))
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            CSceneObject* it = App::currentWorld->sceneObjects->getLastSelectionObject();
+
+            int order = App::currentWorld->sceneObjects->getObjectSequence(it);
+            if (commandID == MOVE_UP_HIERARCHY_CMD)
+                order--;
+            else
+                order++;
+            if ((order >= 0) && (App::currentWorld->sceneObjects->setObjectSequence(it, order)))
+            {
+                if (commandID == MOVE_UP_HIERARCHY_CMD)
+                    App::logMsg(sim_verbosity_msgs, "Object moved up in scene hierarchy.");
+                else
+                    App::logMsg(sim_verbosity_msgs, "Object moved down in scene hierarchy.");
+                App::undoRedo_sceneChanged("");
+            }
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId = commandID;
+            App::appendSimulationThreadCommand(cmd);
+        }
+        return (true);
+    }
+
+
     if ((commandID == EXPAND_SELECTED_HIERARCHY_CMD) || (commandID == COLLAPSE_SELECTED_HIERARCHY_CMD))
     {
         if (!VThread::isUiThread())

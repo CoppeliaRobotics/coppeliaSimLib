@@ -317,8 +317,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == CALL_USER_CONFIG_CALLBACK_CMD)
     {
-        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-            sim_scripttype_customizationscript, cmd.intParams[0]);
+
+        CScriptObject *script = App::currentWorld->sceneObjects->getScriptObjectFromHandle(cmd.intParams[0]);
         if ((script != nullptr) && (script->hasSystemFunctionOrHook(sim_syscb_userconfig)))
         { // we have a user config callback
             script->systemCallScript(sim_syscb_userconfig, nullptr, nullptr);
@@ -485,6 +485,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if ((cmd.cmdId == EXPAND_SELECTED_HIERARCHY_CMD) || (cmd.cmdId == COLLAPSE_SELECTED_HIERARCHY_CMD))
             GuiApp::mainWindow->oglSurface->hierarchy->processCommand(cmd.cmdId);
         if ((cmd.cmdId >= HIERARCHY_COLORING_NONE_CMD) && (cmd.cmdId <= HIERARCHY_COLORING_BLUE_CMD))
+            GuiApp::mainWindow->oglSurface->hierarchy->processCommand(cmd.cmdId);
+        if ((cmd.cmdId == MOVE_UP_HIERARCHY_CMD) || (cmd.cmdId == MOVE_DOWN_HIERARCHY_CMD))
             GuiApp::mainWindow->oglSurface->hierarchy->processCommand(cmd.cmdId);
     }
 

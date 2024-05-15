@@ -424,6 +424,8 @@ extern int _simHandleJointMotion(luaWrap_lua_State *L);
 extern int _simGetVisionSensorRes(luaWrap_lua_State *L);
 extern int _simGetMatrixInverse(luaWrap_lua_State *L);
 extern int _simGetPoseInverse(luaWrap_lua_State *L);
+extern int _simGetObjectHierarchyOrder(luaWrap_lua_State *L);
+extern int _simSetObjectHierarchyOrder(luaWrap_lua_State *L);
 
 // DEPRECATED
 void moduleCommonPart_old(luaWrap_lua_State *L, int action, std::string *errorString);

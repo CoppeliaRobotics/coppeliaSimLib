@@ -266,7 +266,7 @@ class CSceneObject
     void addChild(CSceneObject *child);
     bool removeChild(const CSceneObject *child);
     void handleOrderIndexOfChildren();
-    int getChildSequence(const CSceneObject *child) const;
+    int getChildSequence(const CSceneObject *child, int* totalSiblings = nullptr) const;
     bool setChildSequence(CSceneObject *child, int order);
 
     void setHierarchyColorIndex(int c);

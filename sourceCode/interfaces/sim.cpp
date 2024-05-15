@@ -1009,6 +1009,21 @@ SIM_DLLEXPORT float *simCheckVisionSensorEx(int visionSensorHandle, int entityHa
 {
     return (simCheckVisionSensorEx_internal(visionSensorHandle, entityHandle, returnImage));
 }
+SIM_DLLEXPORT int simCreateScript(int scriptType,const char* scriptText, int options)
+{
+    return simCreateScript_internal(scriptType, scriptText, options);
+}
+SIM_DLLEXPORT int simGetObjectHierarchyOrder(int objectHandle, int* totalSiblings)
+{
+    return simGetObjectHierarchyOrder_internal(objectHandle, totalSiblings);
+}
+SIM_DLLEXPORT int simSetObjectHierarchyOrder(int objectHandle, int order)
+{
+    return simSetObjectHierarchyOrder_internal(objectHandle, order);
+}
+
+
+
 
 SIM_DLLEXPORT int simSetArrayParam_D(int parameter, const double *arrayOfValues)
 {
@@ -1448,10 +1463,6 @@ SIM_DLLEXPORT unsigned char *simGetVisionSensorImg_D(int sensorHandle, int optio
 SIM_DLLEXPORT int simCreateDummy_D(double size, const float *reserved)
 {
     return (simCreateDummy_internal(size, reserved));
-}
-SIM_DLLEXPORT int simCreateScript(int scriptType,const char* scriptText, int options)
-{
-    return simCreateScript_internal(scriptType, scriptText, options);
 }
 SIM_DLLEXPORT int simCreateForceSensor_D(int options, const int *intParams, const double *floatParams,
                                          const double *reserved)

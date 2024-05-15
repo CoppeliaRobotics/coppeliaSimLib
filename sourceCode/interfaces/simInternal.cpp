@@ -1703,6 +1703,47 @@ int simGetObjectChild_internal(int objectHandle, int index)
     return (-1);
 }
 
+int simGetObjectHierarchyOrder_internal(int objectHandle, int* totalSiblings)
+{ // totalSiblings can be nullptr
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        if (totalSiblings != nullptr)
+            totalSiblings[0] = 0;
+        if (doesObjectExist(__func__, objectHandle))
+        {
+            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            retVal = App::currentWorld->sceneObjects->getObjectSequence(it, totalSiblings);
+        }
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+int simSetObjectHierarchyOrder_internal(int objectHandle, int order)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        if (doesObjectExist(__func__, objectHandle))
+        {
+            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+            if (App::currentWorld->sceneObjects->setObjectSequence(it, order))
+                retVal = 0;
+            else
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OPERATION_FAILED);
+        }
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
 int simSetObjectParent_internal(int objectHandle, int parentObjectHandle, bool keepInPlace)
 {
     C_API_START;
