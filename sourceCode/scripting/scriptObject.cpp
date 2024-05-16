@@ -1165,6 +1165,11 @@ bool CScriptObject::getScriptIsDisabled() const
     return (_scriptIsDisabled);
 }
 
+bool CScriptObject::getScriptHasError() const
+{
+    return (_scriptState & scriptState_error);
+}
+
 void CScriptObject::setParentIsProxy(bool isProxy)
 {
     _parentIsProxy = isProxy;
@@ -1180,18 +1185,15 @@ void CScriptObject::setAutoRestartOnError(bool restart)
     _autoRestartOnError = restart;
 }
 
-bool CScriptObject::getScriptEnabledAndNoErrorRaised() const
+bool CScriptObject::getScriptDisabledAndNoErrorRaised() const
 {
-    if (_scriptIsDisabled)
-        return (false);
-    if ((_scriptState & scriptState_error) != 0)
-        return (false);
+    bool disabled = _scriptIsDisabled;
     if (_scriptType == sim_scripttype_customizationscript)
     {
         if (!App::userSettings->runCustomizationScripts)
-            return (false);
+            disabled = true;
     }
-    return (true);
+    return (disabled && ((_scriptState & scriptState_error) == 0));
 }
 
 int CScriptObject::getScriptType() const

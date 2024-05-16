@@ -60,8 +60,11 @@
         <file>targaFiles/convexs.tga</file>
         <file>targaFiles/customizationScript.tga</file>
         <file>targaFiles/customizationScriptDisabled.tga</file>
+        <file>targaFiles/customizationScriptError.tga</file>
         <file>targaFiles/scriptDisabled.tga</file>
+        <file>targaFiles/scriptError.tga</file>
         <file>targaFiles/scriptthreadedDisabled.tga</file>
+        <file>targaFiles/scriptthreadedError.tga</file>
         <file>targaFiles/octree.tga</file>
         <file>targaFiles/pointcloud.tga</file>
     </qresource>

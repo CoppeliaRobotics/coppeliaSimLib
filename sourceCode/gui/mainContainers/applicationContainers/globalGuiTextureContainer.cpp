@@ -114,11 +114,17 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
     dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/scriptDisabled.tga", xres, yres, rgba, nullptr);
     addObject(SCRIPTDISABLED_PICTURE, xres, yres, rgba, false, true, dat);
     delete[] dat;
+    dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/scriptError.tga", xres, yres, rgba, nullptr);
+    addObject(SCRIPTERROR_PICTURE, xres, yres, rgba, false, true, dat);
+    delete[] dat;
     dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/scriptthreaded.tga", xres, yres, rgba, nullptr);
     addObject(SCRIPT_THREADED_PICTURE, xres, yres, rgba, false, true, dat);
     delete[] dat;
     dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/scriptthreadedDisabled.tga", xres, yres, rgba, nullptr);
     addObject(SCRIPTDISABLED_THREADED_PICTURE, xres, yres, rgba, false, true, dat);
+    delete[] dat;
+    dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/scriptthreadedError.tga", xres, yres, rgba, nullptr);
+    addObject(SCRIPTERROR_THREADED_PICTURE, xres, yres, rgba, false, true, dat);
     delete[] dat;
     dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/userParameters.tga", xres, yres, rgba, nullptr);
     addObject(USER_PARAMETERS_PICTURE, xres, yres, rgba, false, true, dat);
@@ -153,9 +159,11 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
     dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/customizationScript.tga", xres, yres, rgba, nullptr);
     addObject(CUSTOMIZATIONSCRIPT_PICTURE, xres, yres, rgba, false, true, dat);
     delete[] dat;
-    dat =
-        CImageLoaderSaver::loadQTgaImageData(":/targaFiles/customizationScriptDisabled.tga", xres, yres, rgba, nullptr);
+    dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/customizationScriptDisabled.tga", xres, yres, rgba, nullptr);
     addObject(CUSTOMIZATIONSCRIPTDISABLED_PICTURE, xres, yres, rgba, false, true, dat);
+    delete[] dat;
+    dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/customizationScriptError.tga", xres, yres, rgba, nullptr);
+    addObject(CUSTOMIZATIONSCRIPTERROR_PICTURE, xres, yres, rgba, false, true, dat);
     delete[] dat;
 
     // Cursors:

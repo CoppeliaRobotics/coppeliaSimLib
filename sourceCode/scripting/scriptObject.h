@@ -103,12 +103,13 @@ class CScriptObject
     void flagForDestruction();
     bool getFlaggedForDestruction() const;
     int getScriptType() const;
-    void setScriptIsDisabled(bool isDisabled);
-    bool getScriptIsDisabled() const;
     void setParentIsProxy(bool isDisabled);
     bool getParentIsProxy() const;
     void setAutoRestartOnError(bool restart);
-    bool getScriptEnabledAndNoErrorRaised() const;
+    void setScriptIsDisabled(bool isDisabled);
+    bool getScriptIsDisabled() const;
+    bool getScriptHasError() const;
+    bool getScriptDisabledAndNoErrorRaised() const;
     void getPreviousEditionWindowPosAndSize(int posAndSize[4]) const;
     void setPreviousEditionWindowPosAndSize(const int posAndSize[4]);
 

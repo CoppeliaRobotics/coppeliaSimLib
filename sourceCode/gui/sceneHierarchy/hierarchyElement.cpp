@@ -368,28 +368,36 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
     if (it != nullptr)
     {
         bool hasScript = false;
-        // Child scripts:
+        // Old Child scripts:
         CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, it->getObjectHandle());
         if (script != nullptr)
-        { // old script
+        {
             hasScript = true;
             if (!dontDisplay)
             {
                 if (script->getThreadedExecution_oldThreads())
                 {
-                    if ((!script->getScriptEnabledAndNoErrorRaised()) ||
-                        ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
+                    if (script->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
                         App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_THREADED_PICTURE);
                     else
-                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_THREADED_PICTURE);
+                    {
+                        if (script->getScriptHasError())
+                            App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTERROR_THREADED_PICTURE);
+                        else
+                            App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_THREADED_PICTURE);
+                    }
                 }
                 else
                 {
-                    if ((!script->getScriptEnabledAndNoErrorRaised()) ||
-                        ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
+                    if (script->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
                         App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_PICTURE);
                     else
-                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_PICTURE);
+                    {
+                        if (script->getScriptHasError())
+                            App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTERROR_PICTURE);
+                        else
+                            App::worldContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_PICTURE);
+                    }
                 }
                 _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
                                   HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
@@ -403,19 +411,23 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
             localOffset += HIERARCHY_ICON_WIDTH * GuiApp::sc;
         }
 
-        // Customization scripts:
+        // Old Customization scripts:
         CScriptObject *customizationScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_customizationscript, it->getObjectHandle());
         if (customizationScript != nullptr)
-        { // old script
+        {
             hasScript = true;
             if (!dontDisplay)
             {
-                if ((!customizationScript->getScriptEnabledAndNoErrorRaised()) ||
-                    ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
+                if (customizationScript->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
                     App::worldContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPTDISABLED_PICTURE);
                 else
-                    App::worldContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPT_PICTURE);
+                {
+                    if (customizationScript->getScriptHasError())
+                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPTERROR_PICTURE);
+                    else
+                        App::worldContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPT_PICTURE);
+                }
                 _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
                                   HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
             }
@@ -436,7 +448,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
                 CScript* so = (CScript*)it;
                 if (so->scriptObject->getScriptType() == sim_scripttype_customizationscript)
                 {
-                    if (so->scriptObject->hasSystemFunctionOrHook(sim_syscb_userconfig))
+                    if ((!so->scriptObject->getScriptIsDisabled()) && (!so->scriptObject->getScriptHasError()) && so->scriptObject->hasSystemFunctionOrHook(sim_syscb_userconfig))
                         newScript = so->scriptObject;
                 }
             }
@@ -450,7 +462,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
                         CScript* so = (CScript*)ch;
                         if (so->scriptObject->getScriptType() == sim_scripttype_customizationscript)
                         {
-                            if (so->scriptObject->hasSystemFunctionOrHook(sim_syscb_userconfig))
+                            if ((!so->scriptObject->getScriptIsDisabled()) && (!so->scriptObject->getScriptHasError()) && so->scriptObject->hasSystemFunctionOrHook(sim_syscb_userconfig))
                             {
                                 newScript = so->scriptObject;
                                 break;
@@ -460,7 +472,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
 
                 }
             }
-            if ( (newScript != nullptr) && (!newScript->getScriptIsDisabled()) )
+            if (newScript != nullptr)
             {
                 if (!dontDisplay)
                 {
@@ -793,19 +805,27 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tP
                     CScriptObject* script = ((CScript *)it)->scriptObject;
                     if (script->getScriptType() == sim_scripttype_childscript)
                     {
-                        if ((!script->getScriptEnabledAndNoErrorRaised()) ||
-                            ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
+                        if (script->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
                             objectOrWorldIconID = SCRIPTDISABLED_PICTURE;
                         else
-                            objectOrWorldIconID = SCRIPT_PICTURE;
+                        {
+                            if (script->getScriptHasError())
+                                objectOrWorldIconID = SCRIPTERROR_PICTURE;
+                            else
+                                objectOrWorldIconID = SCRIPT_PICTURE;
+                        }
                     }
                     else
                     {
-                        if ((!script->getScriptEnabledAndNoErrorRaised()) ||
-                            ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
+                        if (script->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
                             objectOrWorldIconID = CUSTOMIZATIONSCRIPTDISABLED_PICTURE;
                         else
-                            objectOrWorldIconID = CUSTOMIZATIONSCRIPT_PICTURE;
+                        {
+                            if (script->getScriptHasError())
+                                objectOrWorldIconID = CUSTOMIZATIONSCRIPTERROR_PICTURE;
+                            else
+                                objectOrWorldIconID = CUSTOMIZATIONSCRIPT_PICTURE;
+                        }
                     }
                 }
                 if (type == sim_object_pointcloud_type)
