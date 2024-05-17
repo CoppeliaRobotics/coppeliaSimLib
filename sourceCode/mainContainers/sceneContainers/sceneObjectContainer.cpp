@@ -127,7 +127,6 @@ int CSceneObjectContainer::addObjectToScene(CSceneObject *newObject, bool object
 int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject *newObject, bool objectIsACopy,
                                                             int suffixOffset, bool generateAfterCreateCallback)
 {
-    int objectHandle;
     App::currentWorld->environment->setSceneCanBeDiscardedWhenNewSceneOpened(false); // 4/3/2012
 
     std::string newObjName = newObject->getObjectName_old();
@@ -204,9 +203,15 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject *newObj
     //          newObjAltName=tt::generateNewName_noHash(newObjAltName);
     newObject->setObjectAltName_direct_old(newObjAltName.c_str());
 
-    // Give the object a new handle
-    objectHandle = _nextObjectHandle;
+    int objectHandle = _nextObjectHandle;
+#if SIM_PROGRAM_VERSION_NB < 40800
+    // We make sure that new script objects do not have a handle below sim_scripttype_sandboxscript+1, so that we
+    // can still allow the legacy call arguments for V4.7 with simCallScriptFunction, simCallScriptFunctionEx, simExecuteScriptString,
+    // before dropping the legacy call argument support with V4.8 and later
+    while ( (getObjectFromHandle(objectHandle) != nullptr) || ((newObject->getObjectType() == sim_object_script_type) && (objectHandle <= sim_scripttype_sandboxscript)) )
+#else
     while (getObjectFromHandle(objectHandle) != nullptr)
+#endif
     {
         objectHandle++;
         if (objectHandle >= (SIM_IDEND_SCENEOBJECT - SIM_IDSTART_SCENEOBJECT))

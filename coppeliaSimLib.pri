@@ -3,6 +3,10 @@ TEMPLATE = lib
 DEFINES += SIM_MATH_DOUBLE # math and vector classes
 #DEFINES += HAS_PHYSX
 
+#note: with CoppeliaSim V4.8, remove sections related to: SIM_PROGRAM_VERSION_NB < 40800
+#note: with CoppeliaSim V4.8, hardcode useSceneObjectScripts = true
+
+
 !USE_DEFAULT_DESTDIR {
     DESTDIR = $$PWD/"../"
 }

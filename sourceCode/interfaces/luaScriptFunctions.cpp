@@ -11656,10 +11656,14 @@ int _simCallScriptFunction(luaWrap_lua_State *L)
         int scriptHandleOrType = luaToInt(L, 2);
         if (scriptHandleOrType == sim_handle_self)
             scriptHandleOrType = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        if (App::userSettings->useSceneObjectScripts && (scriptHandleOrType <= SIM_IDEND_SCENEOBJECT))
+
+#if SIM_PROGRAM_VERSION_NB < 40800
+        if (scriptHandleOrType > sim_scripttype_sandboxscript)
         {
+#endif
             funcName = luaWrap_lua_tostring(L, 1);
             script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
+#if SIM_PROGRAM_VERSION_NB < 40800
         }
         else
         {
@@ -11705,6 +11709,7 @@ int _simCallScriptFunction(luaWrap_lua_State *L)
                     script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptDescription.c_str());
             }
         }
+#endif
 
         if (script != nullptr)
         {
@@ -14281,11 +14286,10 @@ int _simExecuteScriptString(luaWrap_lua_State *L)
         int scriptID = luaToInt(L, 2);
         if (scriptID == sim_handle_self)
             scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        if (!App::userSettings->useSceneObjectScripts)
-        {
+#if SIM_PROGRAM_VERSION_NB < 40800
             if (scriptID < SIM_IDSTART_LUASCRIPT)
                 warningString = "support for legacy call arguments will be dropped in next release. Please adjust your code.";
-        }
+#endif
         int retVal = simExecuteScriptString_internal(scriptID, stringToExecute.c_str(), stack->getId());
         if (retVal >= 0)
         {

@@ -12909,14 +12909,17 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType, const char *functio
         funcNameAtScriptName.resize(funcNameAtScriptName.size() - 7);
     }
 
-    if (App::userSettings->useSceneObjectScripts)
+#if SIM_PROGRAM_VERSION_NB < 40800
+    if (scriptHandleOrType > sim_scripttype_sandboxscript)
     {
+#endif
         size_t p = funcNameAtScriptName.rfind('@'); // back compat.
         if (p != std::string::npos)
             funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
         else
             funcName = funcNameAtScriptName;
         script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
+#if SIM_PROGRAM_VERSION_NB < 40800
     }
     else
     {
@@ -12966,6 +12969,7 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType, const char *functio
             }
         }
     }
+#endif
 
     std::string tmp("External call to simCallScriptFunction failed ('");
     tmp += functionNameAtScriptName;
@@ -15211,14 +15215,17 @@ int simExecuteScriptString_internal(int scriptHandle, const char *stringToExecut
             strAtScriptName.resize(strAtScriptName.size() - 7);
         }
 
-        if (App::userSettings->useSceneObjectScripts)
+#if SIM_PROGRAM_VERSION_NB < 40800
+        if (scriptHandle > sim_scripttype_sandboxscript)
         {
+#endif
             size_t p = strAtScriptName.rfind('@'); // back compat.
             if (p != std::string::npos)
                 stringToExec.assign(strAtScriptName.begin(), strAtScriptName.begin() + p);
             else
                 stringToExec = strAtScriptName;
             script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+#if SIM_PROGRAM_VERSION_NB < 40800
         }
         else
         {
@@ -15276,6 +15283,7 @@ int simExecuteScriptString_internal(int scriptHandle, const char *stringToExecut
                 }
             }
         }
+#endif
 
         if (script != nullptr)
         {

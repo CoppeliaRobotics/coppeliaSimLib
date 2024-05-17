@@ -1677,8 +1677,10 @@ int simCallScriptFunction_internal(int scriptHandleOrType, const char *functionN
     CScriptObject *script = nullptr;
 
     std::string funcName;
-    if ((scriptHandleOrType >= SIM_IDSTART_LUASCRIPT) || App::userSettings->useSceneObjectScripts)
+#if SIM_PROGRAM_VERSION_NB < 40800
+    if (scriptHandleOrType > sim_scripttype_sandboxscript)
     { // script is identified by its ID
+#endif
         std::string funcNameAtScriptName(functionNameAtScriptName);
         size_t p = funcNameAtScriptName.find('@');
         if (p != std::string::npos)
@@ -1686,6 +1688,7 @@ int simCallScriptFunction_internal(int scriptHandleOrType, const char *functionN
         else
             funcName = funcNameAtScriptName;
         script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
+#if SIM_PROGRAM_VERSION_NB < 40800
     }
     else
     { // script is identified by a script type and sometimes also a script name
@@ -1743,6 +1746,7 @@ int simCallScriptFunction_internal(int scriptHandleOrType, const char *functionN
             }
         }
     }
+#endif
 
     if (script != nullptr)
     {
