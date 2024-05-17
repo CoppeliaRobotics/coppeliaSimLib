@@ -75,8 +75,6 @@
 #define _USR_READDELAY "readDelay"
 #define _USR_WRITEDELAY "writeDelay"
 #define _USR_USEBUFFERS "useBuffers"
-#define _USR_NOBUFFERSWITHSIMREADCUSTOMDATABLOCK "noBuffersWithSimReadCustomDataBlock"
-#define _USR_NILRETURNWITHSIMREADCUSTOMDATABLOCKTAGS "nilReturnWithSimReadCustomDataBlockTags"
 #define _USR_USESCENEOBJECTSCRIPTS "useSceneObjectScripts"
 #define _USR_SCRIPTCONVERSION "scriptConversion"
 #define _USR_SUPPORT_old_THREADED_SCRIPTS "keepOldThreadedScripts"
@@ -281,8 +279,6 @@ CUserSettings::CUserSettings()
     readDelay = -500;
     writeDelay = 1000;
     useBuffers = true;
-    noBuffersWithSimReadCustomDataBlock = false;
-    nilReturnWithSimReadCustomDataBlockTags = false;
     useSceneObjectScripts = false; // set to true with V4.8
     scriptConversion = 0;
 
@@ -623,8 +619,6 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         c.addInteger(_USR_READDELAY, readDelay, "");
         c.addInteger(_USR_WRITEDELAY, writeDelay, "");
         c.addBoolean(_USR_USEBUFFERS, useBuffers, "");
-        c.addBoolean(_USR_NOBUFFERSWITHSIMREADCUSTOMDATABLOCK, noBuffersWithSimReadCustomDataBlock, "");
-        c.addBoolean(_USR_NILRETURNWITHSIMREADCUSTOMDATABLOCKTAGS, nilReturnWithSimReadCustomDataBlockTags, "");
         c.addBoolean(_USR_USESCENEOBJECTSCRIPTS, useSceneObjectScripts, "");
         c.addInteger(_USR_SCRIPTCONVERSION, scriptConversion, "-1: convert to old scripts, 1: convert to new script objects");
 
@@ -895,8 +889,6 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_READDELAY, readDelay);
     c.getInteger(_USR_WRITEDELAY, writeDelay);
     c.getBoolean(_USR_USEBUFFERS, useBuffers);
-    c.getBoolean(_USR_NOBUFFERSWITHSIMREADCUSTOMDATABLOCK, noBuffersWithSimReadCustomDataBlock);
-    c.getBoolean(_USR_NILRETURNWITHSIMREADCUSTOMDATABLOCKTAGS, nilReturnWithSimReadCustomDataBlockTags);
     c.getBoolean(_USR_USESCENEOBJECTSCRIPTS, useSceneObjectScripts);
     c.getInteger(_USR_SCRIPTCONVERSION, scriptConversion);
 

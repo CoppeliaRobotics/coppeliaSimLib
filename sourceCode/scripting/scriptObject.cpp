@@ -9311,6 +9311,17 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
     // if (getLanguage()==sim_lang_lua)
     //    _scriptText.insert(0,"--lua\n\n");
 
+//    _replaceScriptText_old(scriptObject, "sim.readCustomDataBlock", "sim.readCustomBufferData");
+//    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
+
+
+
+    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlock"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlock...");
+    if (_containsScriptText_old(scriptObject, "sim.writeCustomDataBlock"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.writeCustomDataBlock...");
+    if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlockTags"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlockTags...");
 
     if (_containsScriptText_old(scriptObject, "sim.dummyintparam_link_type"))
         App::logMsg(sim_verbosity_errors, "Contains sim.dummyintparam_link_type...");

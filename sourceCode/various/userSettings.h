@@ -60,8 +60,6 @@ class CUserSettings
     int readDelay;
     int writeDelay;
     bool useBuffers; // differentiate binary strings and buffers in Lua, true since V4.7
-    bool noBuffersWithSimReadCustomDataBlock;
-    bool nilReturnWithSimReadCustomDataBlockTags;
     bool useSceneObjectScripts;
     int scriptConversion;
 

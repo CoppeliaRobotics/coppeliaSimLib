@@ -12252,7 +12252,7 @@ char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount)
 
         if (hand)
         {
-            if ( (tagCount[0] > 0) || (!App::userSettings->nilReturnWithSimReadCustomDataBlockTags) )
+            if (tagCount[0] > 0)
             {
                 retBuffer = new char[tags.size()];
                 for (size_t i = 0; i < tags.size(); i++)

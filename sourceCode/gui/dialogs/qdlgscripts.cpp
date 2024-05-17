@@ -41,6 +41,7 @@ void CQDlgScripts::refresh()
     ui->qqExecutionOrder->clear();
     ui->qqExecutionOrder->setEnabled(sel && noEditModeNoSim);
     ui->qqDisabled->setEnabled(sel && noEditModeNoSim);
+    ui->qqParentProxy->setVisible(sel && it->scriptObject->getParentIsProxy());
     ui->qqParentProxy->setEnabled(sel && noEditModeNoSim);
 
     if (sel)

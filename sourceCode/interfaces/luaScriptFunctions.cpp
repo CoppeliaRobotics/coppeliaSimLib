@@ -6240,7 +6240,7 @@ int _simGetNamedStringParam(luaWrap_lua_State *L)
         char *stringParam = simGetNamedStringParam_internal(paramName.c_str(), &l);
         if (stringParam != nullptr)
         {
-            luaWrap_lua_pushbuffer(L, stringParam, l);
+            luaWrap_lua_pushbinarystring(L, stringParam, l);
             delete[] stringParam;
             LUA_END(1);
         }
@@ -9352,7 +9352,7 @@ int _simGetStringSignal(luaWrap_lua_State *L)
         char *str = simGetStringSignal_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &stringLength);
         if (str != nullptr)
         {
-            luaWrap_lua_pushbuffer(L, str, stringLength);
+            luaWrap_lua_pushbinarystring(L, str, stringLength);
             simReleaseBuffer_internal(str);
             LUA_END(1);
         }
@@ -11099,7 +11099,7 @@ int _simGetScriptStringParam(luaWrap_lua_State *L)
         char *strBuff = simGetScriptStringParam_internal(scriptID, luaToInt(L, 2), &paramLength);
         if (strBuff != nullptr)
         {
-            luaWrap_lua_pushbuffer(L, strBuff, paramLength);
+            luaWrap_lua_pushbinarystring(L, strBuff, paramLength);
             delete[] strBuff;
             LUA_END(1);
         }
@@ -12633,10 +12633,7 @@ int _simReadCustomDataBlock(luaWrap_lua_State *L)
         char *data = simReadCustomDataBlock_internal(objectHandle, dataName.c_str(), &dataLength);
         if (data != nullptr)
         {
-            if (App::userSettings->noBuffersWithSimReadCustomDataBlock)
-                luaWrap_lua_pushbinarystring(L, (const char *)data, dataLength);
-            else
-                luaWrap_lua_pushbuffer(L, (const char *)data, dataLength);
+            luaWrap_lua_pushbinarystring(L, (const char *)data, dataLength);
             simReleaseBuffer_internal(data);
         }
         else
