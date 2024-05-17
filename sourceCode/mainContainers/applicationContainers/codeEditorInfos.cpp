@@ -11,25 +11,25 @@ CCodeEditorInfos::~CCodeEditorInfos()
     clear();
 }
 
-SCodeEditorInfo *CCodeEditorInfos::getInfoFromNamespace(const char *ns)
+SCodeEditorInfo *CCodeEditorInfos::getInfoFromFilename(const char *filename)
 {
     SCodeEditorInfo *retVal = nullptr;
-    auto it = _allInfos.find(ns);
+    auto it = _allInfos.find(filename);
     if (it != _allInfos.end())
         retVal = &it->second;
     return (retVal);
 }
 
-void CCodeEditorInfos::setInfo(const char *namespaceAndVersion, const char *info, std::string *errorString /*=nullptr*/)
+void CCodeEditorInfos::setInfo(const char *filename, const char *info, std::string *errorString /*=nullptr*/)
 {
     SCodeEditorInfo nf;
-    SCodeEditorInfo *nsinfo = getInfoFromNamespace(namespaceAndVersion);
+    SCodeEditorInfo *nsinfo = getInfoFromFilename(filename);
     if (nsinfo == nullptr)
     {
         nf.funcs = new CCodeEditorFunctions();
         nf.vars = new CCodeEditorVariables();
-        _allInfos[namespaceAndVersion] = nf;
-        auto it = _allInfos.find(namespaceAndVersion);
+        _allInfos[filename] = nf;
+        auto it = _allInfos.find(filename);
         nsinfo = &it->second;
     }
     else
@@ -43,7 +43,7 @@ void CCodeEditorInfos::setInfo(const char *namespaceAndVersion, const char *info
 
     if (!res)
     {
-        removeInfo(namespaceAndVersion);
+        removeInfo(filename);
         if (errorString != nullptr)
             errorString[0] = SIM_ERROR_INVALID_INFO_STRING;
     }
@@ -54,9 +54,9 @@ void CCodeEditorInfos::setInfo(const char *namespaceAndVersion, const char *info
         }*/
 }
 
-void CCodeEditorInfos::removeInfo(const char *ns)
+void CCodeEditorInfos::removeInfo(const char *filename)
 {
-    auto it = _allInfos.find(ns);
+    auto it = _allInfos.find(filename);
     if (it != _allInfos.end())
     {
         delete it->second.funcs;
@@ -75,13 +75,11 @@ void CCodeEditorInfos::clear()
     _allInfos.clear();
 }
 
-void CCodeEditorInfos::insertWhatStartsSame(const char *txt, std::set<std::string> &v, int what,
-                                            const CScriptObject *requestOrigin) const
+void CCodeEditorInfos::insertWhatStartsSame(const char *txt, std::set<std::string> &v, int what, const CScriptObject *requestOrigin) const
 {
     for (auto it = _allInfos.begin(); it != _allInfos.end(); it++)
     {
-        if ((requestOrigin == nullptr) || (requestOrigin->wasModulePreviouslyUsed(it->first.c_str())) ||
-            (it->first == ""))
+        if ((requestOrigin == nullptr) || (requestOrigin->wasModulePreviouslyUsed(it->first.c_str())) || (it->first == ""))
         { // only if that item was previously required by that script
             if ((what & 1) != 0)
                 it->second.funcs->insertWhatStartsSame(txt, v);
@@ -96,7 +94,7 @@ std::string CCodeEditorInfos::getFunctionCalltip(const char *txt, const CScriptO
     std::string retVal;
     for (auto it = _allInfos.begin(); it != _allInfos.end(); it++)
     {
-        if ((requestOrigin == nullptr) || (requestOrigin->wasModulePreviouslyUsed(it->first.c_str())))
+        if ((requestOrigin == nullptr) || (requestOrigin->wasModulePreviouslyUsed(it->first.c_str())) || (it->first == ""))
         { // only if that item was previously required by that script
             retVal = it->second.funcs->getFunctionCalltip(txt);
             if (retVal.size() != 0)
