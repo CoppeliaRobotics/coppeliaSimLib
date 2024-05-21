@@ -17,7 +17,8 @@ class CCustomData
 
     bool setData(const char *tag, const char *data, size_t dataLen);
     std::string getData(const char *tag) const;
-    void getAndClearDataEvents(std::map<std::string, bool> &dataEvents); // different from below cbor events
+    void getDataEvents(std::map<std::string, bool> &dataEvents); // different from below cbor events
+    void clearDataEvents(); // different from below cbor events
     std::string getAllTags(size_t *cnt) const;
     size_t getDataCount() const;
     void copyYourselfInto(CCustomData &theCopy) const;

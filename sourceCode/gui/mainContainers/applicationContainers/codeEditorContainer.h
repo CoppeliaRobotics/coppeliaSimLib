@@ -50,7 +50,6 @@ class CCodeEditorContainer
     void applyChanges(int handle) const;
     bool closeFromScriptUid(int scriptUid, int posAndSize[4], bool ignoreChange);
     void restartScript(int handle) const;
-    void resetScript(int scriptHandle) const;
     int getCallingScriptHandle(int handle) const;
     bool getCloseAfterCallbackCalled(int handle) const;
     void simulationAboutToStart() const;

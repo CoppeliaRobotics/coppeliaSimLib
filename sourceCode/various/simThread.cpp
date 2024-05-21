@@ -501,8 +501,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == RESTART_SCRIPT_CMD)
     {
-        if (GuiApp::mainWindow != nullptr)
-            GuiApp::mainWindow->codeEditorContainer->resetScript(cmd.intParams[0]);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(cmd.intParams[0]);
+        if ((it != nullptr) && it->resetScript())
+        {
+            std::string msg(it->getDescriptiveName());
+            msg += " was reset.";
+            App::logMsg(sim_verbosity_msgs, msg.c_str());
+        }
     }
 
     if ((cmd.cmdId > VIEW_FUNCTIONS_START_VFCMD) && (cmd.cmdId < VIEW_FUNCTIONS_END_VFCMD))

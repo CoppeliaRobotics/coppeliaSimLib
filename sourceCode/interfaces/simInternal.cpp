@@ -726,7 +726,7 @@ int simGetObjectFromUid_internal(long long int uid, int options)
 }
 
 int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char *scriptName)
-{
+{ // with new scripts, objectHandle should be -1
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -736,19 +736,22 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char *
             it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (scriptType == sim_scripttype_sandboxscript)
             it = App::worldContainer->sandboxScript;
-        if (scriptType == sim_scripttype_childscript)
-        {
+        if ( (scriptType == sim_scripttype_childscript) || (scriptType == sim_scripttype_customizationscript) )
+        { // deprecated with new scripts
             if ((objectHandle < 0) && (scriptName != nullptr))
-                objectHandle = simGetObjectHandleEx_internal(scriptName, -1, -1, 0);
-            it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,
-                                                                                           objectHandle);
-        }
-        if (scriptType == sim_scripttype_customizationscript)
-        {
-            if ((objectHandle < 0) && (scriptName != nullptr))
-                objectHandle = simGetObjectHandleEx_internal(scriptName, -1, -1, 0);
-            it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                sim_scripttype_customizationscript, objectHandle);
+                objectHandle = simGetObjectHandleEx_internal(scriptName, -1, -1, 0); // deprecated usage
+            it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, objectHandle);
+            if (it == nullptr)
+            {
+                CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+                if (obj != nullptr)
+                {
+                    std::vector<CScriptObject*> scripts;
+                    obj->getAttachedScripts(scripts, scriptType, false);
+                    if (scripts.size() > 0)
+                        it = scripts[0];
+                }
+            }
         }
         if ((scriptType == sim_scripttype_addonscript) && (scriptName != nullptr))
             it = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName);

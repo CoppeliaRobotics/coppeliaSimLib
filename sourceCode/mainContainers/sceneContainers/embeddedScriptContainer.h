@@ -50,7 +50,6 @@ class CEmbeddedScriptContainer
 
     void sceneOrModelAboutToBeSaved_old(int modelBase);
     int getEquivalentScriptExecPriority_old(int objectHandle) const;
-    void handleDataCallbacks();
 
     std::vector<CScriptObject *> allScripts;
 

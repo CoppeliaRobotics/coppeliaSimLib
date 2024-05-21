@@ -1686,31 +1686,8 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
             script->setScriptText(t.c_str());
         }
     }
-    // Following for backward compatibility for force/torque sensor filters:
-    for (size_t i = 0; i < sceneObjects->getObjectCount(sim_object_forcesensor_type); i++)
-    {
-        CForceSensor *it = sceneObjects->getForceSensorFromIndex(i);
-        if (it->getStillAutomaticallyBreaking())
-        {
-            CScriptObject *script = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                sim_scripttype_customizationscript, it->getObjectHandle());
-            std::string txt("function sysCall_trigger(inData)\n    -- callback function automatically added for "
-                            "backward compatibility\n    sim.breakForceSensor(inData.handle)\nend\n\n");
-            if (script == nullptr)
-            {
-                txt = std::string("function sysCall_init()\nend\n\n") + txt;
-                script = new CScriptObject(sim_scripttype_customizationscript);
-                sceneObjects->embeddedScriptContainer->insertScript(script);
-                script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
-            }
-            std::string t(script->getScriptText());
-            t = txt + t;
-            script->setScriptText(t.c_str());
-        }
-    }
 
-    // Following for backward compatibility (Lua script parameters are now attached to objects, and not scripts
-    // anymore):
+    // Following for backward compatibility (Lua script parameters are now attached to objects, and not scripts anymore):
     for (size_t i = 0; i < loadedLuaScriptList.size(); i++)
     {
         CScriptObject *script = sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(loadedLuaScriptList[i]->getScriptHandle());

@@ -3620,7 +3620,7 @@ int _simGetScript(luaWrap_lua_State *L)
                     scriptName = luaWrap_lua_tostring(L, 3);
             }
             if ((scriptType == sim_scripttype_childscript) || (scriptType == sim_scripttype_customizationscript))
-            {
+            { // deprecated with new scripts
                 if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer, 0))
                     objectHandle = luaToInt(L, 2);
             }

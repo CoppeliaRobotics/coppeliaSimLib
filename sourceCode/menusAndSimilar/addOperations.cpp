@@ -369,20 +369,6 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera)
     }
 
     // subView can be null
-    bool canAddChildScript = false;
-    bool canAddCustomizationScript = false;
-    if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
-    {
-        canAddChildScript = (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                                 sim_scripttype_childscript,
-                                 App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) == nullptr) &&
-                            App::currentWorld->simulation->isSimulationStopped();
-        canAddCustomizationScript =
-            (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                 sim_scripttype_customizationscript,
-                 App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) == nullptr) &&
-            App::currentWorld->simulation->isSimulationStopped();
-    }
 
     bool linkedObjIsInexistentOrNotGraphNorRenderingSens = true;
     if (subView != nullptr)
@@ -510,7 +496,7 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera)
             menu->appendMenuAndDetach(pathM, true, IDSN_PATH);
 
             if (App::userSettings->useSceneObjectScripts)
-            {
+            { // new scripts
                 VMenu *script = new VMenu();
 
                 VMenu *childScript = new VMenu();
@@ -538,7 +524,22 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera)
                 menu->appendMenuAndDetach(script, true, "Script");
             }
             else
-            {
+            { // old scripts
+                bool canAddChildScript = false;
+                bool canAddCustomizationScript = false;
+                if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
+                {
+                    canAddChildScript = (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                                             sim_scripttype_childscript,
+                                             App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) == nullptr) &&
+                                        App::currentWorld->simulation->isSimulationStopped();
+                    canAddCustomizationScript =
+                        (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                             sim_scripttype_customizationscript,
+                             App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) == nullptr) &&
+                        App::currentWorld->simulation->isSimulationStopped();
+                }
+
                 VMenu *childScript = new VMenu();
                 VMenu *childScriptNonThreaded = new VMenu();
                 childScriptNonThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_LUA_ACCMD,

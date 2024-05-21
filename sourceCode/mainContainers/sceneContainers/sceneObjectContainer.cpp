@@ -1127,6 +1127,13 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer &ar, CSc
                 obj = myNewObject;
                 addObjectToScene(obj, false, true);
             }
+            if (nm.compare("script") == 0)
+            {
+                CScript *myNewObject = new CScript();
+                myNewObject->serialize(ar);
+                obj = myNewObject;
+                addObjectToScene(obj, false, true);
+            }
             if (nm.compare("proximitySensor") == 0)
             {
                 CProxSensor *myNewObject = new CProxSensor();
@@ -1250,6 +1257,12 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer &ar, const CScene
     {
         CDummy *obj = (CDummy *)object;
         ar.xmlPushNewNode("dummy");
+        obj->serialize(ar);
+    }
+    if (object->getObjectType() == sim_object_script_type)
+    {
+        CScript *obj = (CScript *)object;
+        ar.xmlPushNewNode("script");
         obj->serialize(ar);
     }
     if (object->getObjectType() == sim_object_proximitysensor_type)
@@ -2662,33 +2675,25 @@ void CSceneObjectContainer::_addObject(CSceneObject *object)
 
 void CSceneObjectContainer::handleDataCallbacks()
 {
-    std::vector<int> scriptHandles;
-    getScriptsToExecute(scriptHandles, -1, false, false);
-    for (size_t i = 0; i < scriptHandles.size(); i++)
+    for (size_t j = 0; j < _allObjects.size(); j++)
     {
-        CScriptObject *it = getScriptObjectFromHandle(scriptHandles[i]);
-        if (it != nullptr)
-        { // could have been erased in the mean time! noooo!
-            if ((it->getScriptType() == sim_scripttype_customizationscript) || (!App::currentWorld->simulation->isSimulationStopped()))
-            {
-                CSceneObject *obj = getScriptFromHandle(scriptHandles[i]);
-                if (obj != nullptr)
-                {
-                    std::map<std::string, bool> dataItems;
-                    if (obj->getAndClearCustomDataEvents(dataItems))
-                    {
-                        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
-                        stack->pushTableOntoStack();
-                        for (const auto &r : dataItems)
-                            stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
-                        it->systemCallScript(sim_syscb_data, stack, nullptr);
-                        App::worldContainer->interfaceStackContainer->destroyStack(stack);
-                    }
-                }
-            }
+        CSceneObject* obj = _allObjects[j];
+        std::map<std::string, bool> dataItems;
+        if (obj->getCustomDataEvents(dataItems))
+        {
+            std::vector<CScriptObject*> scripts;
+            obj->getAttachedScripts(scripts, -1, true);
+            obj->getAttachedScripts(scripts, -1, false);
+            CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+            stack->pushTableOntoStack();
+            for (const auto &r : dataItems)
+                stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
+            for (size_t i = 0; i < scripts.size(); i++)
+                scripts[i]->systemCallScript(sim_syscb_data, stack, nullptr);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
+        obj->clearCustomDataEvents();
     }
-    embeddedScriptContainer->handleDataCallbacks();
 }
 
 bool CSceneObjectContainer::shouldTemporarilySuspendMainScript()

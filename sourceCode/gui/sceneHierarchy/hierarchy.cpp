@@ -1547,23 +1547,32 @@ void CHierarchy::addMenu(VMenu *menu)
     menu->appendMenuItem(selCnt == 1, false, MOVE_DOWN_HIERARCHY_CMD, "Move selected object down");
     menu->appendMenuSeparator();
 
-    if ((selCnt == 1) &&
-        (App::userSettings->externalScriptEditor.size() > 0))
+    if ((selCnt == 1) && (App::userSettings->externalScriptEditor.size() > 0))
     {
         int h = App::currentWorld->sceneObjects->getLastSelectionHandle();
-        CScriptObject *childS =
-            App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, h);
-        CScriptObject *custS = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-            sim_scripttype_customizationscript, h);
-        if ((childS != nullptr) || (custS != nullptr))
-        {
+        CScript *script = App::currentWorld->sceneObjects->getScriptFromHandle(h);
+        if (script != nullptr)
+        { // new scripts
+            bool enabled = (!script->scriptObject->getScriptIsDisabled()) && ((script->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0);
+            enabled = enabled && (script->scriptObject->getScriptState() >= CScriptObject::scriptState_initialized);
             menu->appendMenuSeparator();
-            if (childS != nullptr)
-                menu->appendMenuItem(App::currentWorld->simulation->getSimulationState() != sim_simulation_stopped,
-                                     false, RESTART_CHILD_SCRIPT_CMD, "Restart child script");
-            if (custS != nullptr)
-                menu->appendMenuItem(true, false, RESTART_CUSTOMIZATION_SCRIPT_CMD, "Restart customization script");
+            menu->appendMenuItem(enabled, false, RESTART_SCRIPT_CMD, "Restart script");
             menu->appendMenuSeparator();
+        }
+        else
+        { // old scripts
+            CScriptObject *childS = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, h);
+            CScriptObject *custS = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, h);
+            if ((childS != nullptr) || (custS != nullptr))
+            {
+                menu->appendMenuSeparator();
+                if (childS != nullptr)
+                    menu->appendMenuItem(App::currentWorld->simulation->getSimulationState() != sim_simulation_stopped,
+                                         false, RESTART_CHILD_SCRIPT_CMD, "Restart child script");
+                if (custS != nullptr)
+                    menu->appendMenuItem(true, false, RESTART_CUSTOMIZATION_SCRIPT_CMD, "Restart customization script");
+                menu->appendMenuSeparator();
+            }
         }
     }
 }
@@ -1681,19 +1690,20 @@ bool CHierarchy::processCommand(int commandID)
         return (true);
     }
 
-    if ((commandID == RESTART_CHILD_SCRIPT_CMD) || (commandID == RESTART_CUSTOMIZATION_SCRIPT_CMD))
+    if ((commandID == RESTART_CHILD_SCRIPT_CMD) || (commandID == RESTART_CUSTOMIZATION_SCRIPT_CMD) || (commandID == RESTART_SCRIPT_CMD))
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = RESTART_SCRIPT_CMD;
         int h = App::currentWorld->sceneObjects->getLastSelectionHandle();
         CScriptObject *s = nullptr;
         if (commandID == RESTART_CHILD_SCRIPT_CMD)
-            s = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript,
-                                                                                          h);
+            s = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, h);
+        if (commandID == RESTART_CUSTOMIZATION_SCRIPT_CMD)
+            s = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, h);
+        if (s == nullptr)
+            cmd.intParams.push_back(h);
         else
-            s = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                sim_scripttype_customizationscript, h);
-        cmd.intParams.push_back(s->getScriptHandle());
+            cmd.intParams.push_back(s->getScriptHandle());
         App::appendSimulationThreadCommand(cmd);
         return (true);
     }

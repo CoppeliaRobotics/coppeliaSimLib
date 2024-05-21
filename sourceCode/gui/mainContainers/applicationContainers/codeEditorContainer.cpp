@@ -761,8 +761,15 @@ bool CCodeEditorContainer::close(int handle, int posAndSize[4], std::string *txt
                 {
                     applyChanges(_allEditors[i].handle);
                     if (_allEditors[i].restartScriptWhenClosing)
-                        resetScript(
-                            _allEditors[i].scriptHandle); // this can also trigger closing of another editor, see below
+                    {
+                        CScriptObject *itt = App::worldContainer->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
+                        if ((itt != nullptr) && itt->resetScript())
+                        {
+                            std::string msg(itt->getDescriptiveName());
+                            msg += " was reset.";
+                            App::logMsg(sim_verbosity_msgs, msg.c_str());
+                        }
+                    }
                 }
             }
             int pas[4];
@@ -870,22 +877,16 @@ void CCodeEditorContainer::restartScript(int handle) const
                 if ((it != nullptr) && (!it->getThreadedExecution_oldThreads()))
                 {
                     applyChanges(_allEditors[i].handle);
-                    resetScript(_allEditors[i].scriptHandle);
+                    if (it->resetScript())
+                    {
+                        std::string msg(it->getDescriptiveName());
+                        msg += " was reset.";
+                        App::logMsg(sim_verbosity_msgs, msg.c_str());
+                    }
                 }
             }
             break;
         }
-    }
-}
-
-void CCodeEditorContainer::resetScript(int scriptHandle) const
-{
-    CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
-    if ((it != nullptr) && it->resetScript())
-    {
-        std::string msg(it->getDescriptiveName());
-        msg += " was reset.";
-        App::logMsg(sim_verbosity_msgs, msg.c_str());
     }
 }
 

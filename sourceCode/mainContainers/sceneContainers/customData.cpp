@@ -68,7 +68,8 @@ bool CCustomData::setData(const char *tag, const char *data, size_t dataLen)
             }
             _data[size_t(f)].tag = tag;
             _data[size_t(f)].data.assign(data, dataLen);
-            _dataEvents[tag] = true;
+            if (diff)
+                _dataEvents[tag] = true;
         }
     }
     return (diff);
@@ -249,9 +250,13 @@ void CCustomData::appendEventData(CCbor *ev) const
         ev->appendKeyBuff(_data[i].tag.c_str(), (unsigned char *)_data[i].data.c_str(), _data[i].data.size());
 }
 
-void CCustomData::getAndClearDataEvents(std::map<std::string, bool> &dataEvents)
+void CCustomData::getDataEvents(std::map<std::string, bool> &dataEvents)
 {
     for (const auto &it : _dataEvents)
         dataEvents[it.first] = it.second;
+}
+
+void CCustomData::clearDataEvents()
+{
     _dataEvents.clear();
 }

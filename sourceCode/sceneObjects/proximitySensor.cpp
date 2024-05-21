@@ -871,17 +871,13 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectH
     _detectedObjectHandle = detectedObjectHandle;
     _detectedNormalVector = detectedNormalVector;
     _calcTimeInMs = VDateTime::getTimeDiffInMs(stTime);
-    if (_sensorResultValid && _detectedPointValid)
+    if (_sensorResultValid && _detectedPointValid && VThread::isSimThread())
     {
-        CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-            sim_scripttype_childscript, _objectHandle);
-        if ((script != nullptr) && (!script->hasSystemFunctionOrHook(sim_syscb_trigger)))
-            script = nullptr;
-        CScriptObject *cScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-            sim_scripttype_customizationscript, _objectHandle);
-        if ((cScript != nullptr) && (!cScript->hasSystemFunctionOrHook(sim_syscb_trigger)))
-            cScript = nullptr;
-        if ((script != nullptr) || (cScript != nullptr))
+        std::vector<CScriptObject*> scripts;
+        getAttachedScripts(scripts, -1, true);
+        getAttachedScripts(scripts, -1, false);
+
+        if (scripts.size() > 0)
         {
             CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
@@ -891,39 +887,29 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectH
             inStack->insertKeyDoubleArrayIntoStackTable("detectedPoint", _detectedPoint.data, 3);
             inStack->insertKeyDoubleArrayIntoStackTable("normalVector", _detectedNormalVector.data, 3);
 
-            CInterfaceStack *outStack1 = App::worldContainer->interfaceStackContainer->createStack();
-            CInterfaceStack *outStack2 = App::worldContainer->interfaceStackContainer->createStack();
-            CInterfaceStack *outSt1 = outStack1;
-            CInterfaceStack *outSt2 = outStack2;
-            if (VThread::isSimThread())
-            { // we are in the main simulation thread. Call only scripts that live in the same thread
-                if ((script != nullptr) && (!script->getThreadedExecution_oldThreads()))
-                    script->systemCallScript(sim_syscb_trigger, inStack, outStack1);
-                if (cScript != nullptr)
-                    cScript->systemCallScript(sim_syscb_trigger, inStack, outStack2);
-            }
-            else
-            { // we are in the thread started by a threaded child script (OLD). Call only that script
-                if ((script != nullptr) && script->getThreadedExecution_oldThreads())
-                {
-                    script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
-                    outSt1 = inStack;
-                }
-            }
-            CInterfaceStack *outStacks[2] = {outSt1, outSt2};
-            for (size_t cnt = 0; cnt < 2; cnt++)
+            for (size_t i = 0; i < scripts.size(); i++)
             {
-                CInterfaceStack *outStack = outStacks[cnt];
-                if (outStack->getStackSize() >= 1)
+                CScriptObject* script = scripts[i];
+                if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                 {
-                    outStack->moveStackItemToTop(0);
-                    bool trig = false;
-                    if (outStack->getStackMapBoolValue("trigger", trig))
-                        _detectedPointValid = trig;
+                    bool hasTriggerWord = false;
+                    CInterfaceStack *outStack = App::worldContainer->interfaceStackContainer->createStack();
+                    script->systemCallScript(sim_syscb_trigger, inStack, outStack);
+                    if (outStack->getStackSize() >= 1)
+                    {
+                        outStack->moveStackItemToTop(0);
+                        bool trig = false;
+                        if (outStack->getStackMapBoolValue("trigger", trig))
+                        {
+                            hasTriggerWord = true;
+                            _detectedPointValid = trig;
+                        }
+                    }
+                    App::worldContainer->interfaceStackContainer->destroyStack(outStack);
+                    if (hasTriggerWord)
+                        break;
                 }
             }
-            App::worldContainer->interfaceStackContainer->destroyStack(outStack2);
-            App::worldContainer->interfaceStackContainer->destroyStack(outStack1);
             App::worldContainer->interfaceStackContainer->destroyStack(inStack);
         }
     }

@@ -357,7 +357,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     }
 
     if (commandID == SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CHILD_SCRIPT_SOOCMD)
-    {
+    { // Old scripts
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id = App::currentWorld->sceneObjects->getLastSelectionHandle();
@@ -382,7 +382,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
     }
 
     if (commandID == SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CUSTOMIZATION_SCRIPT_SOOCMD)
-    {
+    { // Old scripts
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id = App::currentWorld->sceneObjects->getLastSelectionHandle();
@@ -1418,19 +1418,6 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
     }
 
     bool lastSelIsPath = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_path_type);
-    bool hasChildScriptAttached = false;
-    bool hasCustomizationScriptAttached = false;
-    if (selItems == 1)
-    {
-        hasChildScriptAttached =
-            (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                 sim_scripttype_childscript, App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) !=
-             nullptr);
-        hasCustomizationScriptAttached =
-            (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                 sim_scripttype_customizationscript,
-                 App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) != nullptr);
-    }
 
     if (GuiApp::getEditModeType() == NO_EDIT_MODE)
     {
@@ -1455,7 +1442,23 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
 
         if (CSimFlavor::getBoolVal(12))
         {
-            if (!App::userSettings->useSceneObjectScripts)
+            // To remove all scripts:
+            // ------------------------
+            bool hasChildScriptAttached = false;
+            bool hasCustomizationScriptAttached = false;
+            if (selItems == 1)
+            {
+                hasChildScriptAttached =
+                    (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                         sim_scripttype_childscript, App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) !=
+                     nullptr);
+                hasCustomizationScriptAttached =
+                    (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                         sim_scripttype_customizationscript,
+                         App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) != nullptr);
+            }
+
+            if (hasChildScriptAttached || hasCustomizationScriptAttached)
             {
                 VMenu *removing = new VMenu();
                 removing->appendMenuItem(hasChildScriptAttached && noSim, false,
@@ -1464,9 +1467,11 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
                 removing->appendMenuItem(hasCustomizationScriptAttached && noSim, false,
                                          SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CUSTOMIZATION_SCRIPT_SOOCMD,
                                          "Associated customization script");
-                menu->appendMenuAndDetach(removing, (hasChildScriptAttached || hasCustomizationScriptAttached) && noSim, "Remove");
+                menu->appendMenuAndDetach(removing, noSim, "Remove");
                 menu->appendMenuSeparator();
             }
+            // ------------------------
+
 
             VMenu *grouping = new VMenu();
             grouping->appendMenuItem((shapeCnt > 1) && noSim, false, SCENE_OBJECT_OPERATION_GROUP_SHAPES_SOOCMD,

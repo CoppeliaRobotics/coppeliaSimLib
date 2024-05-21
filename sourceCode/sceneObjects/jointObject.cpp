@@ -1855,10 +1855,9 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                         script->hasSystemFunctionOrHook(sim_syscb_jointcallback))
                         script->systemCallScript(sim_syscb_jointcallback, inStack, outStack);
                 }
-                // Now the regular callback:
+                // Now the regular callback (with old and new scripts):
                 if ((outStack->getStackSize() == 0) && (_dynCtrlMode == sim_jointdynctrl_callback))
-                    App::worldContainer->callScripts(sim_syscb_joint, inStack, outStack,
-                                                     this); // this should only work with the callback mode! (and not
+                    App::worldContainer->callScripts(sim_syscb_joint, inStack, outStack, this); // this should only work with the callback mode! (and not
                                                             // with the old hybrid pos callback mode)
 
                 // 3. Set default values:

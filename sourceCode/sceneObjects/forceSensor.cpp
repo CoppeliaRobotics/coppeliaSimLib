@@ -276,15 +276,10 @@ void CForceSensor::_handleSensorBreaking()
             _currentThresholdViolationCount = 0;
         if (_currentThresholdViolationCount >= _consecutiveThresholdViolationsForBreaking)
         { // we need to break something!
-            CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                sim_scripttype_childscript, _objectHandle);
-            if ((script != nullptr) && (!script->hasSystemFunctionOrHook(sim_syscb_trigger)))
-                script = nullptr;
-            CScriptObject *cScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                sim_scripttype_customizationscript, _objectHandle);
-            if ((cScript != nullptr) && (!cScript->hasSystemFunctionOrHook(sim_syscb_trigger)))
-                cScript = nullptr;
-            if ((script != nullptr) || (cScript != nullptr))
+            std::vector<CScriptObject*> scripts;
+            getAttachedScripts(scripts, -1, true);
+            getAttachedScripts(scripts, -1, false);
+            if (scripts.size() > 0)
             {
                 CInterfaceStack *inStack = App::worldContainer->interfaceStackContainer->createStack();
                 inStack->pushTableOntoStack();
@@ -293,11 +288,15 @@ void CForceSensor::_handleSensorBreaking()
                 inStack->insertKeyDoubleArrayIntoStackTable("torque", _lastTorque_dynStep.data, 3);
                 inStack->insertKeyDoubleArrayIntoStackTable("filteredForce", _filteredDynamicForces.data, 3);
                 inStack->insertKeyDoubleArrayIntoStackTable("filteredTorque", _filteredDynamicTorques.data, 3);
-                // we are in the main simulation thread. Call only scripts that live in the same thread
-                if ((script != nullptr) && (!script->getThreadedExecution_oldThreads()))
-                    script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
-                if (cScript != nullptr)
-                    cScript->systemCallScript(sim_syscb_trigger, inStack, nullptr);
+                for (size_t i = 0; i < scripts.size(); i++)
+                {
+                    CScriptObject* script = scripts[i];
+                    if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
+                    {
+                        if (!script->getThreadedExecution_oldThreads())
+                            script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
+                    }
+                }
                 App::worldContainer->interfaceStackContainer->destroyStack(inStack);
             }
             _currentThresholdViolationCount = 0;
