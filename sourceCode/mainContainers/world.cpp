@@ -1731,7 +1731,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
             {
                 sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
                 CScript* script = new CScript(scriptObject);
-     //           scriptObject->setParentIsProxy(true);
+                scriptObject->setParentIsProxy(true);
                 script->setVisibilityLayer(0);
                 sceneObjects->addObjectToScene(script, false, false);
                 sceneObjects->setObjectParent(script, loadedObjectList[i], false);
@@ -1751,7 +1751,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
             {
                 sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
                 CScript* script = new CScript(scriptObject);
-   //             scriptObject->setParentIsProxy(true);
+                scriptObject->setParentIsProxy(true);
                 script->setVisibilityLayer(0);
                 sceneObjects->addObjectToScene(script, false, false);
                 sceneObjects->setObjectParent(script, loadedObjectList[i], false);
