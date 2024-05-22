@@ -46,6 +46,7 @@ bool App::_exitRequest = false;
 volatile int App::_appStage = App::appstage_none;
 std::string App::_consoleLogFilterStr;
 std::string App::_startupScriptString;
+std::map<std::string, std::map<int, std::map<std::string, bool>>> App::_logOnceMessages;
 long long int App::_nextUniqueId = 0;
 std::string App::_applicationDir;
 std::vector<std::string> App::_applicationArguments;
@@ -778,6 +779,13 @@ void App::__logMsg(const char *originName, int verbosityLevel, const char *msg, 
     if (!inside)
     {
         int realVerbosityLevel = verbosityLevel & 0x0fff;
+
+        if (verbosityLevel & sim_verbosity_once)
+        {
+            if (_logOnceMessages[originName][realVerbosityLevel][msg]) return;
+            else _logOnceMessages[originName][realVerbosityLevel][msg] = true;
+        }
+
         inside = true;
 
         bool decorateMsg = ((verbosityLevel & sim_verbosity_undecorated) == 0) &&
