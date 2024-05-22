@@ -146,12 +146,12 @@ class CSceneObject
                                 bool start = true) const;
     void getChain(std::vector<CSceneObject *> &objectList, bool tipIncluded = true, bool start = true) const;
 
-    void setReferencedHandles(size_t cnt, const int *handles);
-    size_t getReferencedHandlesCount() const;
-    size_t getReferencedHandles(int *handles) const;
-    void setReferencedOriginalHandles(int cnt, const int *handles);
-    size_t getReferencedOriginalHandlesCount() const;
-    size_t getReferencedOriginalHandles(int *handles) const;
+    void setReferencedHandles(size_t cnt, const int *handles, const char* tag);
+    size_t getReferencedHandlesCount(const char* tag) const;
+    size_t getReferencedHandles(int *handles, const char* tag) const;
+    void setReferencedOriginalHandles(int cnt, const int *handles, const char* tag);
+    size_t getReferencedOriginalHandlesCount(const char* tag) const;
+    size_t getReferencedOriginalHandles(int *handles, const char* tag) const;
     void checkReferencesToOriginal(const std::map<std::string, int> &allUniquePersistentIdStrings);
 
     CSceneObject *getFirstParentInSelection(const std::vector<CSceneObject *> *sel) const;
@@ -407,8 +407,8 @@ class CSceneObject
     CCustomData _customObjectData;
     CCustomData _customObjectData_tempData; // this one is not serialized (but copied)!
     CCustomData_old *_customObjectData_old;
-    std::vector<SCustomRefs> _customReferencedHandles;
-    std::vector<SCustomOriginalRefs> _customReferencedOriginalHandles;
+    std::map<std::string, std::vector<SCustomRefs>> _customReferencedHandles;
+    std::map<std::string, std::vector<SCustomOriginalRefs>> _customReferencedOriginalHandles;
     CUserParameters *_userScriptParameters;
 
     // Other variables

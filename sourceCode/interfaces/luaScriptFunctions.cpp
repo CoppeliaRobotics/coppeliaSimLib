@@ -845,6 +845,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.boolparam_fullscreen", sim_boolparam_fullscreen},
     {"sim.boolparam_headless", sim_boolparam_headless},
     {"sim.boolparam_cansave", sim_boolparam_cansave},
+    {"sim.boolparam_usingscriptobjects", sim_boolparam_usingscriptobjects},
     {"sim.boolparam_hierarchy_toolbarbutton_enabled", sim_boolparam_hierarchy_toolbarbutton_enabled},
     {"sim.boolparam_browser_toolbarbutton_enabled", sim_boolparam_browser_toolbarbutton_enabled},
     {"sim.boolparam_objectshift_toolbarbutton_enabled", sim_boolparam_objectshift_toolbarbutton_enabled},
@@ -14104,6 +14105,9 @@ int _simSetReferencedHandles(luaWrap_lua_State *L)
         if (luaWrap_lua_isnonbuffertable(L, 2))
         {
             int cnt = (int)luaWrap_lua_rawlen(L, 2);
+            std::string tag("");
+            if (checkInputArguments(L, nullptr, lua_arg_number, 0, lua_arg_integer, cnt, lua_arg_string, 0))
+                tag = luaWrap_lua_tostring(L, 3);
             if (cnt > 0)
             {
                 if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_integer, cnt))
@@ -14111,13 +14115,13 @@ int _simSetReferencedHandles(luaWrap_lua_State *L)
                     std::vector<int> handles;
                     handles.resize(cnt);
                     getIntsFromTable(L, 2, cnt, &handles[0]);
-                    retVal = simSetReferencedHandles_internal(objHandle, cnt, &handles[0], nullptr, nullptr);
+                    retVal = simSetReferencedHandles_internal(objHandle, cnt, &handles[0], tag.c_str(), nullptr);
                 }
                 else
                     errorString = SIM_ERROR_INVALID_ARGUMENT;
             }
             else
-                retVal = simSetReferencedHandles_internal(objHandle, 0, nullptr, nullptr, nullptr);
+                retVal = simSetReferencedHandles_internal(objHandle, 0, nullptr, tag.c_str(), nullptr);
         }
         else
             errorString = SIM_ERROR_INVALID_ARGUMENT;
@@ -14135,9 +14139,12 @@ int _simGetReferencedHandles(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
+        std::string tag("");
+        if (checkInputArguments(L, nullptr, lua_arg_number, 0, lua_arg_string, 0))
+            tag = luaWrap_lua_tostring(L, 2);
         int objHandle = luaToInt(L, 1);
         int *handles;
-        int cnt = simGetReferencedHandles_internal(objHandle, &handles, nullptr, nullptr);
+        int cnt = simGetReferencedHandles_internal(objHandle, &handles, tag.c_str(), nullptr);
         if (cnt >= 0)
         {
             pushIntTableOntoStack(L, cnt, handles);

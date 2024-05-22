@@ -1063,22 +1063,29 @@ void CSceneObject::announceCollectionWillBeErased(int collectionID, bool copyBuf
     // This routine can be called for sceneObjects-objects, but also for objects
     // in the copy-buffer!! So never make use of any
     // 'ct::sceneObjects->getObject(id)'-call or similar
-    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
+
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
-        if (_customReferencedHandles[i].generalObjectType == sim_appobj_collection_type)
+        for (size_t i = 0; i < it->second.size(); i++)
         {
-            if (_customReferencedHandles[i].generalObjectHandle == collectionID)
-                _customReferencedHandles[i].generalObjectHandle = -1;
+            if (it->second[i].generalObjectType == sim_appobj_collection_type)
+            {
+                if (it->second[i].generalObjectHandle == collectionID)
+                    it->second[i].generalObjectHandle = -1;
+            }
         }
     }
     if (!copyBuffer)
     {
-        for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+        for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
-            if (_customReferencedOriginalHandles[i].generalObjectType == sim_appobj_collection_type)
+            for (size_t i = 0; i < it->second.size(); i++)
             {
-                if (_customReferencedOriginalHandles[i].generalObjectHandle == collectionID)
-                    _customReferencedOriginalHandles[i].generalObjectHandle = -1;
+                if (it->second[i].generalObjectType == sim_appobj_collection_type)
+                {
+                    if (it->second[i].generalObjectHandle == collectionID)
+                        it->second[i].generalObjectHandle = -1;
+                }
             }
         }
     }
@@ -1089,22 +1096,28 @@ void CSceneObject::announceCollisionWillBeErased(int collisionID, bool copyBuffe
     // This routine can be called for sceneObjects-objects, but also for objects
     // in the copy-buffer!! So never make use of any
     // 'ct::sceneObjects->getObject(id)'-call or similar
-    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
-        if (_customReferencedHandles[i].generalObjectType == sim_appobj_collision_type)
+        for (size_t i = 0; i < it->second.size(); i++)
         {
-            if (_customReferencedHandles[i].generalObjectHandle == collisionID)
-                _customReferencedHandles[i].generalObjectHandle = -1;
+            if (it->second[i].generalObjectType == sim_appobj_collision_type)
+            {
+                if (it->second[i].generalObjectHandle == collisionID)
+                    it->second[i].generalObjectHandle = -1;
+            }
         }
     }
     if (!copyBuffer)
     {
-        for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+        for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
-            if (_customReferencedOriginalHandles[i].generalObjectType == sim_appobj_collision_type)
+            for (size_t i = 0; i < it->second.size(); i++)
             {
-                if (_customReferencedOriginalHandles[i].generalObjectHandle == collisionID)
-                    _customReferencedOriginalHandles[i].generalObjectHandle = -1;
+                if (it->second[i].generalObjectType == sim_appobj_collision_type)
+                {
+                    if (it->second[i].generalObjectHandle == collisionID)
+                        it->second[i].generalObjectHandle = -1;
+                }
             }
         }
     }
@@ -1114,41 +1127,52 @@ void CSceneObject::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
     // This routine can be called for sceneObjects-objects, but also for objects
     // in the copy-buffer!! So never make use of any
     // 'ct::sceneObjects->getObject(id)'-call or similar
-    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
-        if (_customReferencedHandles[i].generalObjectType == sim_appobj_distance_type)
+        for (size_t i = 0; i < it->second.size(); i++)
         {
-            if (_customReferencedHandles[i].generalObjectHandle == distanceID)
-                _customReferencedHandles[i].generalObjectHandle = -1;
+            if (it->second[i].generalObjectType == sim_appobj_distance_type)
+            {
+                if (it->second[i].generalObjectHandle == distanceID)
+                    it->second[i].generalObjectHandle = -1;
+            }
         }
     }
     if (!copyBuffer)
     {
-        for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+        for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
-            if (_customReferencedOriginalHandles[i].generalObjectType == sim_appobj_distance_type)
+            for (size_t i = 0; i < it->second.size(); i++)
             {
-                if (_customReferencedOriginalHandles[i].generalObjectHandle == distanceID)
-                    _customReferencedOriginalHandles[i].generalObjectHandle = -1;
+                if (it->second[i].generalObjectType == sim_appobj_distance_type)
+                {
+                    if (it->second[i].generalObjectHandle == distanceID)
+                        it->second[i].generalObjectHandle = -1;
+                }
             }
         }
     }
 }
 void CSceneObject::performIkLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
 {
-    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
-        if (_customReferencedHandles[i].generalObjectType == sim_appobj_ik_type)
-            _customReferencedHandles[i].generalObjectHandle =
-                CWorld::getLoadingMapping(map, _customReferencedHandles[i].generalObjectHandle);
+        for (size_t i = 0; i < it->second.size(); i++)
+        {
+            if (it->second[i].generalObjectType == sim_appobj_ik_type)
+                it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+        }
     }
     if (!loadingAmodel)
     {
-        for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+        for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
-            if (_customReferencedOriginalHandles[i].generalObjectType == sim_appobj_ik_type)
-                _customReferencedOriginalHandles[i].generalObjectHandle =
-                    CWorld::getLoadingMapping(map, _customReferencedOriginalHandles[i].generalObjectHandle);
+            for (size_t i = 0; i < it->second.size(); i++)
+            {
+                if (it->second[i].generalObjectType == sim_appobj_ik_type)
+                    it->second[i].generalObjectHandle =
+                        CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+            }
         }
     }
 }
@@ -1157,57 +1181,72 @@ void CSceneObject::performCollectionLoadingMapping(const std::map<int, int> *map
 {
     if ((_authorizedViewableObjects >= 0) && (_authorizedViewableObjects > SIM_IDEND_SCENEOBJECT))
         _authorizedViewableObjects = CWorld::getLoadingMapping(map, _authorizedViewableObjects);
-    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
-        if (_customReferencedHandles[i].generalObjectType == sim_appobj_collection_type)
-            _customReferencedHandles[i].generalObjectHandle =
-                CWorld::getLoadingMapping(map, _customReferencedOriginalHandles[i].generalObjectHandle);
+        for (size_t i = 0; i < it->second.size(); i++)
+        {
+            if (it->second[i].generalObjectType == sim_appobj_collection_type)
+                it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+        }
     }
     if (!loadingAmodel)
     {
-        for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+        for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
-            if (_customReferencedOriginalHandles[i].generalObjectType == sim_appobj_collection_type)
-                _customReferencedOriginalHandles[i].generalObjectHandle =
-                    CWorld::getLoadingMapping(map, _customReferencedHandles[i].generalObjectHandle);
+            for (size_t i = 0; i < it->second.size(); i++)
+            {
+                if (it->second[i].generalObjectType == sim_appobj_collection_type)
+                    it->second[i].generalObjectHandle =
+                        CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+            }
         }
     }
 }
 
 void CSceneObject::performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
 {
-    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
-        if (_customReferencedHandles[i].generalObjectType == sim_appobj_collision_type)
-            _customReferencedHandles[i].generalObjectHandle =
-                CWorld::getLoadingMapping(map, _customReferencedHandles[i].generalObjectHandle);
+        for (size_t i = 0; i < it->second.size(); i++)
+        {
+            if (it->second[i].generalObjectType == sim_appobj_collision_type)
+                it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+        }
     }
     if (!loadingAmodel)
     {
-        for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+        for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
-            if (_customReferencedOriginalHandles[i].generalObjectType == sim_appobj_collision_type)
-                _customReferencedOriginalHandles[i].generalObjectHandle =
-                    CWorld::getLoadingMapping(map, _customReferencedOriginalHandles[i].generalObjectHandle);
+            for (size_t i = 0; i < it->second.size(); i++)
+            {
+                if (it->second[i].generalObjectType == sim_appobj_collision_type)
+                    it->second[i].generalObjectHandle =
+                        CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+            }
         }
     }
 }
 
 void CSceneObject::performDistanceLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
 {
-    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
-        if (_customReferencedHandles[i].generalObjectType == sim_appobj_distance_type)
-            _customReferencedHandles[i].generalObjectHandle =
-                CWorld::getLoadingMapping(map, _customReferencedHandles[i].generalObjectHandle);
+        for (size_t i = 0; i < it->second.size(); i++)
+        {
+            if (it->second[i].generalObjectType == sim_appobj_distance_type)
+                it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+        }
     }
     if (!loadingAmodel)
     {
-        for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+        for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
-            if (_customReferencedOriginalHandles[i].generalObjectType == sim_appobj_distance_type)
-                _customReferencedOriginalHandles[i].generalObjectHandle =
-                    CWorld::getLoadingMapping(map, _customReferencedOriginalHandles[i].generalObjectHandle);
+            for (size_t i = 0; i < it->second.size(); i++)
+            {
+                if (it->second[i].generalObjectType == sim_appobj_distance_type)
+                    it->second[i].generalObjectHandle =
+                        CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+            }
         }
     }
 }
@@ -1434,9 +1473,10 @@ CSceneObject *CSceneObject::copyYourself()
     if (_userScriptParameters != nullptr)
         theNewObject->_userScriptParameters = _userScriptParameters->copyYourself();
 
-    theNewObject->_customReferencedHandles.assign(_customReferencedHandles.begin(), _customReferencedHandles.end());
-    theNewObject->_customReferencedOriginalHandles.assign(_customReferencedOriginalHandles.begin(),
-                                                          _customReferencedOriginalHandles.end());
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
+        theNewObject->_customReferencedHandles[it->first].assign(it->second.begin(), it->second.end());
+    for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
+        theNewObject->_customReferencedOriginalHandles[it->first].assign(it->second.begin(), it->second.end());
 
     // Important:
     theNewObject->_parentObjectHandle_forSerializationOnly =
@@ -2177,8 +2217,7 @@ void CSceneObject::serialize(CSer &ar)
     {
         if (ar.isStoring())
         { // Storing
-            // KEEP FOLLOWING ALWAYS AT THE BEGINNING!!!!!!! (3do)
-            ar.storeDataName("3do"); // 3D object identifier, added on 2009/12/09. Needed for forward compatibility when
+            ar.storeDataName("3do"); // Scene object identifier. Needed for forward compatibility when
                                      // trying to load an object type that doesn't yet exist!
             ar << ((unsigned char)57) << ((unsigned char)58) << ((unsigned char)59);
             ar.flush();
@@ -2335,31 +2374,76 @@ void CSceneObject::serialize(CSer &ar)
                     _userScriptParameters->serialize(ar);
             }
 
-            if (_customReferencedHandles.size() > 0)
+            // _customReferencedHandles with tag "" handled separately, for backw. comp.
+            auto it = _customReferencedHandles.find("");
+            if (it != _customReferencedHandles.end())
             {
-                ar.storeDataName("Crh");
-                ar << int(_customReferencedHandles.size());
-                for (size_t i = 0; i < _customReferencedHandles.size(); i++)
+                if (it->second.size() > 0)
                 {
-                    ar << _customReferencedHandles[i].generalObjectType;
-                    ar << _customReferencedHandles[i].generalObjectHandle;
-                    ar << int(0);
+                    ar.storeDataName("Crh");
+                    ar << int(it->second.size());
+                    for (size_t i = 0; i < it->second.size(); i++)
+                    {
+                        ar << it->second[i].generalObjectType;
+                        ar << it->second[i].generalObjectHandle;
+                        ar << int(0);
+                    }
+                    ar.flush();
                 }
-                ar.flush();
             }
 
-            if (_customReferencedOriginalHandles.size() > 0)
+            // _customReferencedOriginalHandles with tag "" handled separately, for backw. comp.
+            auto itt = _customReferencedOriginalHandles.find("");
+            if (itt != _customReferencedOriginalHandles.end())
             {
-                ar.storeDataName("Orh");
-                ar << int(_customReferencedOriginalHandles.size());
-                for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+                if (itt->second.size() > 0)
                 {
-                    ar << _customReferencedOriginalHandles[i].generalObjectType;
-                    ar << _customReferencedOriginalHandles[i].generalObjectHandle;
-                    if (_customReferencedOriginalHandles[i].generalObjectHandle >= 0)
-                        ar << _customReferencedOriginalHandles[i].uniquePersistentIdString;
+                    ar.storeDataName("Orh");
+                    ar << int(itt->second.size());
+                    for (size_t i = 0; i < itt->second.size(); i++)
+                    {
+                        ar << itt->second[i].generalObjectType;
+                        ar << itt->second[i].generalObjectHandle;
+                        if (itt->second[i].generalObjectHandle >= 0)
+                            ar << itt->second[i].uniquePersistentIdString;
+                    }
+                    ar.flush();
                 }
-                ar.flush();
+            }
+
+            for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
+            {
+                if (it->first != "")
+                {
+                    if (it->second.size() > 0)
+                    {
+                        ar.storeDataName("Cr2");
+                        ar << it->first;
+                        ar << int(it->second.size());
+                        for (size_t i = 0; i < it->second.size(); i++)
+                            ar << it->second[i].generalObjectHandle;
+                        ar.flush();
+                    }
+                }
+            }
+
+            for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
+            {
+                if (it->first != "")
+                {
+                    if (it->second.size() > 0)
+                    {
+                        ar.storeDataName("Or2");
+                        ar << it->first;
+                        ar << int(it->second.size());
+                        for (size_t i = 0; i < it->second.size(); i++)
+                        {
+                            ar << it->second[i].generalObjectHandle;
+                            ar << it->second[i].uniquePersistentIdString;
+                        }
+                        ar.flush();
+                    }
+                }
             }
 
             ar.storeDataName("Ack");
@@ -2744,26 +2828,30 @@ void CSceneObject::serialize(CSer &ar)
                         }
                     }
                     if (theName.compare("Crh") == 0)
-                    {
+                    { // treat tag "" separately, for backw. compatibility
                         noHit = false;
                         ar >> byteQuantity;
                         int cnt, dummy;
                         ar >> cnt;
+                        _customReferencedHandles.insert({"", {}});
+                        auto it = _customReferencedHandles.find("");
                         for (int i = 0; i < cnt; i++)
                         {
                             SCustomRefs r;
                             ar >> r.generalObjectType;
                             ar >> r.generalObjectHandle;
                             ar >> dummy;
-                            _customReferencedHandles.push_back(r);
+                            it->second.push_back(r);
                         }
                     }
                     if (theName.compare("Orh") == 0)
-                    {
+                    { // treat tag "" separately, for backw. compatibility
                         noHit = false;
                         ar >> byteQuantity;
                         int cnt;
                         ar >> cnt;
+                        _customReferencedOriginalHandles.insert({"", {}});
+                        auto it = _customReferencedOriginalHandles.find("");
                         for (int i = 0; i < cnt; i++)
                         {
                             SCustomOriginalRefs r;
@@ -2771,9 +2859,47 @@ void CSceneObject::serialize(CSer &ar)
                             ar >> r.generalObjectHandle;
                             if (r.generalObjectHandle >= 0)
                                 ar >> r.uniquePersistentIdString;
-                            _customReferencedOriginalHandles.push_back(r);
+                            it->second.push_back(r);
                         }
                     }
+                    if (theName.compare("Cr2") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        std::string key;
+                        ar >> key;
+                        int cnt;
+                        ar >> cnt;
+                        _customReferencedHandles.insert({key.c_str(), {}});
+                        auto it = _customReferencedHandles.find(key.c_str());
+                        for (int i = 0; i < cnt; i++)
+                        {
+                            SCustomRefs r;
+                            r.generalObjectType = sim_appobj_object_type;
+                            ar >> r.generalObjectHandle;
+                            it->second.push_back(r);
+                        }
+                    }
+                    if (theName.compare("Or2") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        std::string key;
+                        ar >> key;
+                        int cnt;
+                        ar >> cnt;
+                        _customReferencedOriginalHandles.insert({key.c_str(), {}});
+                        auto it = _customReferencedOriginalHandles.find(key.c_str());
+                        for (int i = 0; i < cnt; i++)
+                        {
+                            SCustomOriginalRefs r;
+                            r.generalObjectType = sim_appobj_object_type;
+                            ar >> r.generalObjectHandle;
+                            ar >> r.uniquePersistentIdString;
+                            it->second.push_back(r);
+                        }
+                    }
+
                     if (theName.compare("Sfa") == 0)
                     { // for backward comp. (flt->dbl)
                         noHit = false;
@@ -3103,41 +3229,95 @@ void CSceneObject::serialize(CSer &ar)
                     _userScriptParameters->serialize(ar);
                     ar.xmlPopNode();
                 }
-                if (_customReferencedHandles.size() > 0)
+
+                // _customReferencedHandles with tag "" handled separately, for backw. comp.
+                auto it = _customReferencedHandles.find("");
+                if (it != _customReferencedHandles.end())
                 {
-                    ar.xmlPushNewNode("customReferencedHandles");
-                    ar.xmlAddNode_int("count", int(_customReferencedHandles.size()));
-                    std::vector<int> tmp;
-                    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
-                        tmp.push_back(_customReferencedHandles[i].generalObjectType);
-                    ar.xmlAddNode_ints("generalObjectTypes", &tmp[0], tmp.size());
-                    tmp.clear();
-                    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
-                        tmp.push_back(_customReferencedHandles[i].generalObjectHandle);
-                    ar.xmlAddNode_ints("generalObjectHandles", &tmp[0], tmp.size());
-                    ar.xmlPopNode();
+                    if (it->second.size() > 0)
+                    {
+                        ar.xmlPushNewNode("customReferencedHandles");
+                        ar.xmlAddNode_int("count", int(it->second.size()));
+                        std::vector<int> tmp;
+                        for (size_t i = 0; i < it->second.size(); i++)
+                            tmp.push_back(it->second[i].generalObjectType);
+                        ar.xmlAddNode_ints("generalObjectTypes", &tmp[0], tmp.size());
+                        tmp.clear();
+                        for (size_t i = 0; i < it->second.size(); i++)
+                            tmp.push_back(it->second[i].generalObjectHandle);
+                        ar.xmlAddNode_ints("generalObjectHandles", &tmp[0], tmp.size());
+                        ar.xmlPopNode();
+                    }
                 }
 
-                if (_customReferencedOriginalHandles.size() > 0)
+                for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
                 {
-                    ar.xmlPushNewNode("customReferencedOriginalHandles");
-                    ar.xmlAddNode_int("count", int(_customReferencedOriginalHandles.size()));
-                    std::vector<int> tmp;
-                    for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
-                        tmp.push_back(_customReferencedOriginalHandles[i].generalObjectType);
-                    ar.xmlAddNode_ints("generalObjectTypes", &tmp[0], tmp.size());
-                    tmp.clear();
-                    for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
-                        tmp.push_back(_customReferencedOriginalHandles[i].generalObjectHandle);
-                    ar.xmlAddNode_ints("generalObjectHandles", &tmp[0], tmp.size());
-                    std::vector<std::string> sTmp;
-                    for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
-                        sTmp.push_back(base64_encode(
-                            (unsigned char *)_customReferencedOriginalHandles[i].uniquePersistentIdString.c_str(),
-                            _customReferencedOriginalHandles[i].uniquePersistentIdString.size()));
-                    ar.xmlAddNode_strings("uniquePersistentIdString_base64Coded", sTmp);
+                    if (it->first != "")
+                    {
+                        if (it->second.size() > 0)
+                        {
+                            ar.xmlPushNewNode("customTaggedReferencedHandles");
+                            ar.xmlAddNode_string("tag", it->first.c_str());
+                            ar.xmlAddNode_int("count", int(it->second.size()));
+                            std::vector<int> tmp;
+                            for (size_t i = 0; i < it->second.size(); i++)
+                                tmp.push_back(it->second[i].generalObjectHandle);
+                            ar.xmlAddNode_ints("objectHandles", &tmp[0], tmp.size());
+                            ar.xmlPopNode();
+                        }
+                    }
+                }
 
-                    ar.xmlPopNode();
+                // _customReferencedOriginalHandles with tag "" handled separately, for backw. comp.
+                auto itt = _customReferencedOriginalHandles.find("");
+                if (itt != _customReferencedOriginalHandles.end())
+                {
+                    if (itt->second.size() > 0)
+                    {
+                        ar.xmlPushNewNode("customReferencedOriginalHandles");
+                        ar.xmlAddNode_int("count", int(itt->second.size()));
+                        std::vector<int> tmp;
+                        for (size_t i = 0; i < itt->second.size(); i++)
+                            tmp.push_back(itt->second[i].generalObjectType);
+                        ar.xmlAddNode_ints("generalObjectTypes", &tmp[0], tmp.size());
+                        tmp.clear();
+                        for (size_t i = 0; i < itt->second.size(); i++)
+                            tmp.push_back(itt->second[i].generalObjectHandle);
+                        ar.xmlAddNode_ints("generalObjectHandles", &tmp[0], tmp.size());
+                        std::vector<std::string> sTmp;
+                        for (size_t i = 0; i < itt->second.size(); i++)
+                            sTmp.push_back(base64_encode(
+                                (unsigned char *)itt->second[i].uniquePersistentIdString.c_str(),
+                                itt->second[i].uniquePersistentIdString.size()));
+                        ar.xmlAddNode_strings("uniquePersistentIdString_base64Coded", sTmp);
+
+                        ar.xmlPopNode();
+                    }
+                }
+
+                for (auto itt = _customReferencedOriginalHandles.begin(); itt != _customReferencedOriginalHandles.end(); ++itt)
+                {
+                    if (itt->first != "")
+                    {
+                        if (itt->second.size() > 0)
+                        {
+                            ar.xmlPushNewNode("customTaggedReferencedOriginalHandles");
+                            ar.xmlAddNode_string("tag", itt->first.c_str());
+                            ar.xmlAddNode_int("count", int(itt->second.size()));
+                            std::vector<int> tmp;
+                            for (size_t i = 0; i < itt->second.size(); i++)
+                                tmp.push_back(itt->second[i].generalObjectHandle);
+                            ar.xmlAddNode_ints("objectHandles", &tmp[0], tmp.size());
+                            std::vector<std::string> sTmp;
+                            for (size_t i = 0; i < itt->second.size(); i++)
+                                sTmp.push_back(base64_encode(
+                                    (unsigned char *)itt->second[i].uniquePersistentIdString.c_str(),
+                                    itt->second[i].uniquePersistentIdString.size()));
+                            ar.xmlAddNode_strings("uniquePersistentIdString_base64Coded", sTmp);
+
+                            ar.xmlPopNode();
+                        }
+                    }
                 }
             }
 
@@ -3423,6 +3603,8 @@ void CSceneObject::serialize(CSer &ar)
                     ar.xmlGetNode_int("count", cnt);
                     std::vector<int> ot;
                     std::vector<int> oh;
+                    _customReferencedHandles.insert({"", {}});
+                    auto it = _customReferencedHandles.find("");
                     if (cnt > 0)
                     {
                         ot.resize(cnt, -1);
@@ -3434,7 +3616,33 @@ void CSceneObject::serialize(CSer &ar)
                             SCustomRefs r;
                             r.generalObjectType = ot[i];
                             r.generalObjectHandle = oh[i];
-                            _customReferencedHandles.push_back(r);
+                            it->second.push_back(r);
+                        }
+                    }
+                    ar.xmlPopNode();
+                }
+
+                if (exhaustiveXml && ar.xmlPushChildNode("customTaggedReferencedHandles", false))
+                {
+                    std::string key;
+                    ar.xmlGetNode_string("tag", key);
+                    int cnt;
+                    ar.xmlGetNode_int("count", cnt);
+                    std::vector<int> ot;
+                    std::vector<int> oh;
+                    _customReferencedHandles.insert({key.c_str(), {}});
+                    auto it = _customReferencedHandles.find(key.c_str());
+                    if (cnt > 0)
+                    {
+                        ot.resize(cnt, sim_appobj_object_type);
+                        oh.resize(cnt, -1);
+                        ar.xmlGetNode_ints("objectHandles", &oh[0], cnt);
+                        for (int i = 0; i < cnt; i++)
+                        {
+                            SCustomRefs r;
+                            r.generalObjectType = ot[i];
+                            r.generalObjectHandle = oh[i];
+                            it->second.push_back(r);
                         }
                     }
                     ar.xmlPopNode();
@@ -3447,6 +3655,8 @@ void CSceneObject::serialize(CSer &ar)
                     std::vector<int> ot;
                     std::vector<int> oh;
                     std::vector<std::string> oi;
+                    _customReferencedOriginalHandles.insert({"", {}});
+                    auto it = _customReferencedOriginalHandles.find("");
                     if (cnt > 0)
                     {
                         ot.resize(cnt, -1);
@@ -3461,7 +3671,36 @@ void CSceneObject::serialize(CSer &ar)
                             r.generalObjectHandle = oh[i];
                             if (r.generalObjectHandle >= 0)
                                 r.uniquePersistentIdString = base64_decode(oi[i]);
-                            _customReferencedOriginalHandles.push_back(r);
+                            it->second.push_back(r);
+                        }
+                    }
+                    ar.xmlPopNode();
+                }
+                if (exhaustiveXml && ar.xmlPushChildNode("customTaggedReferencedOriginalHandles", false))
+                {
+                    std::string key;
+                    ar.xmlGetNode_string("tag", key);
+                    int cnt;
+                    ar.xmlGetNode_int("count", cnt);
+                    std::vector<int> ot;
+                    std::vector<int> oh;
+                    std::vector<std::string> oi;
+                    _customReferencedOriginalHandles.insert({key.c_str(), {}});
+                    auto it = _customReferencedOriginalHandles.find(key.c_str());
+                    if (cnt > 0)
+                    {
+                        ot.resize(cnt, sim_appobj_object_type);
+                        oh.resize(cnt, -1);
+                        ar.xmlGetNode_ints("objectHandles", &oh[0], cnt);
+                        ar.xmlGetNode_strings("uniquePersistentIdString_base64Coded", oi);
+                        for (int i = 0; i < cnt; i++)
+                        {
+                            SCustomOriginalRefs r;
+                            r.generalObjectType = ot[i];
+                            r.generalObjectHandle = oh[i];
+                            if (r.generalObjectHandle >= 0)
+                                r.uniquePersistentIdString = base64_decode(oi[i]);
+                            it->second.push_back(r);
                         }
                     }
                     ar.xmlPopNode();
@@ -3490,19 +3729,25 @@ void CSceneObject::performObjectLoadingMapping(const std::map<int, int> *map, bo
     if ((_authorizedViewableObjects >= 0) && (_authorizedViewableObjects <= SIM_IDEND_SCENEOBJECT))
         _authorizedViewableObjects = CWorld::getLoadingMapping(map, _authorizedViewableObjects);
 
-    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
-        if (_customReferencedHandles[i].generalObjectType == sim_appobj_object_type)
-            _customReferencedHandles[i].generalObjectHandle =
-                CWorld::getLoadingMapping(map, _customReferencedHandles[i].generalObjectHandle);
+        for (size_t i = 0; i < it->second.size(); i++)
+        {
+            if (it->second[i].generalObjectType == sim_appobj_object_type)
+                it->second[i].generalObjectHandle =
+                    CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+        }
     }
     if (!loadingAmodel)
     {
-        for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+        for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
-            if (_customReferencedOriginalHandles[i].generalObjectType == sim_appobj_object_type)
-                _customReferencedOriginalHandles[i].generalObjectHandle =
-                    CWorld::getLoadingMapping(map, _customReferencedOriginalHandles[i].generalObjectHandle);
+            for (size_t i = 0; i < it->second.size(); i++)
+            {
+                if (it->second[i].generalObjectType == sim_appobj_object_type)
+                    it->second[i].generalObjectHandle =
+                        CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
+            }
         }
     }
 }
@@ -3545,22 +3790,28 @@ void CSceneObject::announceObjectWillBeErased(const CSceneObject *object, bool c
         }
         removeChild(object);
     }
-    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
-        if (_customReferencedHandles[i].generalObjectType == sim_appobj_object_type)
+        for (size_t i = 0; i < it->second.size(); i++)
         {
-            if (_customReferencedHandles[i].generalObjectHandle == object->getObjectHandle())
-                _customReferencedHandles[i].generalObjectHandle = -1;
+            if (it->second[i].generalObjectType == sim_appobj_object_type)
+            {
+                if (it->second[i].generalObjectHandle == object->getObjectHandle())
+                    it->second[i].generalObjectHandle = -1;
+            }
         }
     }
     if (!copyBuffer)
     {
-        for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+        for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
-            if (_customReferencedOriginalHandles[i].generalObjectType == sim_appobj_object_type)
+            for (size_t i = 0; i < it->second.size(); i++)
             {
-                if (_customReferencedOriginalHandles[i].generalObjectHandle == object->getObjectHandle())
-                    _customReferencedOriginalHandles[i].generalObjectHandle = -1;
+                if (it->second[i].generalObjectType == sim_appobj_object_type)
+                {
+                    if (it->second[i].generalObjectHandle == object->getObjectHandle())
+                        it->second[i].generalObjectHandle = -1;
+                }
             }
         }
     }
@@ -3576,155 +3827,219 @@ void CSceneObject::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
     // This routine can be called for sceneObjects-objects, but also for objects
     // in the copy-buffer!! So never make use of any
     // 'ct::sceneObjects->getObject(id)'-call or similar
-    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
     {
-        if (_customReferencedHandles[i].generalObjectType == sim_appobj_ik_type)
+        for (size_t i = 0; i < it->second.size(); i++)
         {
-            if (_customReferencedHandles[i].generalObjectHandle == ikGroupID)
-                _customReferencedHandles[i].generalObjectHandle = -1;
+            if (it->second[i].generalObjectType == sim_appobj_ik_type)
+            {
+                if (it->second[i].generalObjectHandle == ikGroupID)
+                    it->second[i].generalObjectHandle = -1;
+            }
         }
     }
     if (!copyBuffer)
     {
-        for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+        for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
         {
-            if (_customReferencedOriginalHandles[i].generalObjectType == sim_appobj_ik_type)
+            for (size_t i = 0; i < it->second.size(); i++)
             {
-                if (_customReferencedOriginalHandles[i].generalObjectHandle == ikGroupID)
-                    _customReferencedOriginalHandles[i].generalObjectHandle = -1;
+                if (it->second[i].generalObjectType == sim_appobj_ik_type)
+                {
+                    if (it->second[i].generalObjectHandle == ikGroupID)
+                        it->second[i].generalObjectHandle = -1;
+                }
             }
         }
     }
 }
 
-void CSceneObject::setReferencedHandles(size_t cnt, const int *handles)
+void CSceneObject::setReferencedHandles(size_t cnt, const int *handles, const char* tag)
 {
-    _customReferencedHandles.clear();
-    for (int i = 0; i < cnt; i++)
+    if (tag == nullptr)
+        _customReferencedHandles.clear();
+    else
     {
-        SCustomRefs r;
-        r.generalObjectType = sim_appobj_object_type;
-        r.generalObjectHandle = -1;
-        if (handles[i] >= 0)
+        auto it = _customReferencedHandles.find(tag);
+        if (it != _customReferencedHandles.end())
+            it->second.clear();
+        else
         {
-            if (App::currentWorld->sceneObjects->getObjectFromHandle(handles[i]) != nullptr)
-                r.generalObjectHandle = handles[i];
-            else
+            if (cnt != 0)
             {
-                if (App::currentWorld->collisions->getObjectFromHandle(handles[i]) != nullptr)
-                {
-                    r.generalObjectType = sim_appobj_collision_type;
-                    r.generalObjectHandle = handles[i];
-                }
-                if (App::currentWorld->distances->getObjectFromHandle(handles[i]) != nullptr)
-                {
-                    r.generalObjectType = sim_appobj_distance_type;
-                    r.generalObjectHandle = handles[i];
-                }
-                if (App::currentWorld->ikGroups->getObjectFromHandle(handles[i]) != nullptr)
-                {
-                    r.generalObjectType = sim_appobj_ik_type;
-                    r.generalObjectHandle = handles[i];
-                }
-                if (App::currentWorld->collections->getObjectFromHandle(handles[i]) != nullptr)
-                {
-                    r.generalObjectType = sim_appobj_collection_type;
-                    r.generalObjectHandle = handles[i];
-                }
+                _customReferencedHandles.insert({tag, {}});
+                it = _customReferencedHandles.find(tag);
             }
         }
-        _customReferencedHandles.push_back(r);
+        if (cnt != 0)
+        {
+            for (int i = 0; i < cnt; i++)
+            {
+                SCustomRefs r;
+                r.generalObjectType = sim_appobj_object_type;
+                r.generalObjectHandle = -1;
+                if (handles[i] >= 0)
+                {
+                    if (App::currentWorld->sceneObjects->getObjectFromHandle(handles[i]) != nullptr)
+                        r.generalObjectHandle = handles[i];
+                    else
+                    { // backw. compatibility:
+                        if (App::currentWorld->collisions->getObjectFromHandle(handles[i]) != nullptr)
+                        {
+                            r.generalObjectType = sim_appobj_collision_type;
+                            r.generalObjectHandle = handles[i];
+                        }
+                        if (App::currentWorld->distances->getObjectFromHandle(handles[i]) != nullptr)
+                        {
+                            r.generalObjectType = sim_appobj_distance_type;
+                            r.generalObjectHandle = handles[i];
+                        }
+                        if (App::currentWorld->ikGroups->getObjectFromHandle(handles[i]) != nullptr)
+                        {
+                            r.generalObjectType = sim_appobj_ik_type;
+                            r.generalObjectHandle = handles[i];
+                        }
+                        if (App::currentWorld->collections->getObjectFromHandle(handles[i]) != nullptr)
+                        {
+                            r.generalObjectType = sim_appobj_collection_type;
+                            r.generalObjectHandle = handles[i];
+                        }
+                    }
+                }
+                it->second.push_back(r);
+            }
+        }
     }
 }
 
-size_t CSceneObject::getReferencedHandlesCount() const
+size_t CSceneObject::getReferencedHandlesCount(const char* tag) const
 {
-    return (_customReferencedHandles.size());
+    size_t retVal = 0;
+    auto it = _customReferencedHandles.find(tag);
+    if (it != _customReferencedHandles.end())
+        retVal = it->second.size();
+    return retVal;
 }
 
-size_t CSceneObject::getReferencedHandles(int *handles) const
+size_t CSceneObject::getReferencedHandles(int *handles, const char* tag) const
 {
-    for (size_t i = 0; i < _customReferencedHandles.size(); i++)
-        handles[i] = _customReferencedHandles[i].generalObjectHandle;
-    return (_customReferencedHandles.size());
-}
-
-void CSceneObject::setReferencedOriginalHandles(int cnt, const int *handles)
-{
-    _customReferencedOriginalHandles.clear();
-    for (int i = 0; i < cnt; i++)
+    size_t retVal = 0;
+    auto it = _customReferencedHandles.find(tag);
+    if (it != _customReferencedHandles.end())
     {
-        SCustomOriginalRefs r;
-        r.generalObjectType = sim_appobj_object_type;
-        r.generalObjectHandle = -1;
-        if (handles[i] >= 0)
+        retVal = it->second.size();
+        for (size_t i = 0; i < retVal; i++)
+            handles[i] = it->second[i].generalObjectHandle;
+    }
+    return retVal;
+}
+
+void CSceneObject::setReferencedOriginalHandles(int cnt, const int *handles, const char* tag)
+{
+    if (tag == nullptr)
+        _customReferencedOriginalHandles.clear();
+    else
+    {
+        auto it = _customReferencedOriginalHandles.find(tag);
+        if (it != _customReferencedOriginalHandles.end())
+            it->second.clear();
+        else
         {
-            if (App::currentWorld->sceneObjects->getObjectFromHandle(handles[i]) != nullptr)
+            if (cnt != 0)
             {
-                r.generalObjectHandle = handles[i];
-                r.uniquePersistentIdString =
-                    App::currentWorld->sceneObjects->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
-            }
-            else
-            {
-                if (App::currentWorld->collisions->getObjectFromHandle(handles[i]) != nullptr)
-                {
-                    r.generalObjectType = sim_appobj_collision_type;
-                    r.generalObjectHandle = handles[i];
-                    r.uniquePersistentIdString =
-                        App::currentWorld->collisions->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
-                }
-                if (App::currentWorld->distances->getObjectFromHandle(handles[i]) != nullptr)
-                {
-                    r.generalObjectType = sim_appobj_distance_type;
-                    r.generalObjectHandle = handles[i];
-                    r.uniquePersistentIdString =
-                        App::currentWorld->distances->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
-                }
-                if (App::currentWorld->ikGroups->getObjectFromHandle(handles[i]) != nullptr)
-                {
-                    r.generalObjectType = sim_appobj_ik_type;
-                    r.generalObjectHandle = handles[i];
-                    r.uniquePersistentIdString =
-                        App::currentWorld->ikGroups->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
-                }
-                if (App::currentWorld->collections->getObjectFromHandle(handles[i]) != nullptr)
-                {
-                    r.generalObjectType = sim_appobj_collection_type;
-                    r.generalObjectHandle = handles[i];
-                    r.uniquePersistentIdString =
-                        App::currentWorld->collections->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
-                }
+                _customReferencedOriginalHandles.insert({tag, {}});
+                it = _customReferencedOriginalHandles.find(tag);
             }
         }
-        _customReferencedOriginalHandles.push_back(r);
+        if (cnt != 0)
+        {
+            for (int i = 0; i < cnt; i++)
+            {
+                SCustomOriginalRefs r;
+                r.generalObjectType = sim_appobj_object_type;
+                r.generalObjectHandle = -1;
+                if (handles[i] >= 0)
+                {
+                    if (App::currentWorld->sceneObjects->getObjectFromHandle(handles[i]) != nullptr)
+                    {
+                        r.generalObjectHandle = handles[i];
+                        r.uniquePersistentIdString =
+                            App::currentWorld->sceneObjects->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                    }
+                    else
+                    { // backw. compatibility
+                        if (App::currentWorld->collisions->getObjectFromHandle(handles[i]) != nullptr)
+                        {
+                            r.generalObjectType = sim_appobj_collision_type;
+                            r.generalObjectHandle = handles[i];
+                            r.uniquePersistentIdString =
+                                App::currentWorld->collisions->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                        }
+                        if (App::currentWorld->distances->getObjectFromHandle(handles[i]) != nullptr)
+                        {
+                            r.generalObjectType = sim_appobj_distance_type;
+                            r.generalObjectHandle = handles[i];
+                            r.uniquePersistentIdString =
+                                App::currentWorld->distances->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                        }
+                        if (App::currentWorld->ikGroups->getObjectFromHandle(handles[i]) != nullptr)
+                        {
+                            r.generalObjectType = sim_appobj_ik_type;
+                            r.generalObjectHandle = handles[i];
+                            r.uniquePersistentIdString =
+                                App::currentWorld->ikGroups->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                        }
+                        if (App::currentWorld->collections->getObjectFromHandle(handles[i]) != nullptr)
+                        {
+                            r.generalObjectType = sim_appobj_collection_type;
+                            r.generalObjectHandle = handles[i];
+                            r.uniquePersistentIdString =
+                                App::currentWorld->collections->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                        }
+                    }
+                }
+                it->second.push_back(r);
+            }
+        }
     }
 }
 
-size_t CSceneObject::getReferencedOriginalHandlesCount() const
+size_t CSceneObject::getReferencedOriginalHandlesCount(const char* tag) const
 {
-    return (_customReferencedOriginalHandles.size());
+    size_t retVal = 0;
+    auto it = _customReferencedOriginalHandles.find(tag);
+    if (it != _customReferencedOriginalHandles.end())
+        retVal = it->second.size();
+    return retVal;
 }
 
-size_t CSceneObject::getReferencedOriginalHandles(int *handles) const
+size_t CSceneObject::getReferencedOriginalHandles(int *handles, const char* tag) const
 {
-    for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
-        handles[i] = _customReferencedOriginalHandles[i].generalObjectHandle;
-    return (_customReferencedOriginalHandles.size());
+    size_t retVal = 0;
+    auto it = _customReferencedOriginalHandles.find(tag);
+    if (it != _customReferencedOriginalHandles.end())
+    {
+        retVal = it->second.size();
+        for (size_t i = 0; i < retVal; i++)
+            handles[i] = it->second[i].generalObjectHandle;
+    }
+    return retVal;
 }
 
 void CSceneObject::checkReferencesToOriginal(const std::map<std::string, int> &allUniquePersistentIdStrings)
 {
-    for (size_t i = 0; i < _customReferencedOriginalHandles.size(); i++)
+    for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
     {
-        if (_customReferencedOriginalHandles[i].generalObjectHandle >= 0)
+        for (size_t i = 0; i < it->second.size(); i++)
         {
-            std::map<std::string, int>::const_iterator it =
-                allUniquePersistentIdStrings.find(_customReferencedOriginalHandles[i].uniquePersistentIdString);
-            if (it != allUniquePersistentIdStrings.end())
-                _customReferencedOriginalHandles[i].generalObjectHandle = it->second;
-            else
-                _customReferencedOriginalHandles[i].generalObjectHandle = -1;
+            if (it->second[i].generalObjectHandle >= 0)
+            {
+                auto itt = allUniquePersistentIdStrings.find(it->second[i].uniquePersistentIdString);
+                if (itt != allUniquePersistentIdStrings.end())
+                    it->second[i].generalObjectHandle = itt->second;
+                else
+                    it->second[i].generalObjectHandle = -1;
+            }
         }
     }
 }

@@ -1731,10 +1731,15 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
             {
                 sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
                 CScript* script = new CScript(scriptObject);
-                scriptObject->setParentIsProxy(true);
+     //           scriptObject->setParentIsProxy(true);
                 script->setVisibilityLayer(0);
                 sceneObjects->addObjectToScene(script, false, false);
                 sceneObjects->setObjectParent(script, loadedObjectList[i], false);
+                if (loadedObjectList[i]->getChildCount() == 1)
+                {
+                    loadedObjectList[i]->setModelBase(true);
+                    loadedObjectList[i]->setObjectProperty(loadedObjectList[i]->getObjectProperty() | sim_objectproperty_collapsed);
+                }
                 sceneObjects->setObjectSequence(script, 0);
                 sceneObjects->setObjectAlias(script, "autoConvertedScript", false);
                 std::string nn("autoConvertedChildScript_");
@@ -1746,10 +1751,15 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
             {
                 sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
                 CScript* script = new CScript(scriptObject);
-                scriptObject->setParentIsProxy(true);
+   //             scriptObject->setParentIsProxy(true);
                 script->setVisibilityLayer(0);
                 sceneObjects->addObjectToScene(script, false, false);
                 sceneObjects->setObjectParent(script, loadedObjectList[i], false);
+                if (loadedObjectList[i]->getChildCount() == 1)
+                {
+                    loadedObjectList[i]->setModelBase(true);
+                    loadedObjectList[i]->setObjectProperty(loadedObjectList[i]->getObjectProperty() | sim_objectproperty_collapsed);
+                }
                 sceneObjects->setObjectSequence(script, 0);
                 sceneObjects->setObjectAlias(script, "autoConvertedScript", false);
                 std::string nn("autoConvertedCustomizationScript_");

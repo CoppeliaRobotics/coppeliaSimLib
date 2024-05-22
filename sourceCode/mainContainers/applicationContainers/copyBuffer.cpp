@@ -345,8 +345,8 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int> *sel, bool fromLockedSce
         }
         if ((options & 4) != 0)
         {
-            it->setReferencedHandles(0, nullptr);
-            it->setReferencedOriginalHandles(0, nullptr);
+            it->setReferencedHandles(0, nullptr, nullptr);
+            it->setReferencedOriginalHandles(0, nullptr, nullptr);
         }
         if ((options & 16) != 0)
         {

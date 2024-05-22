@@ -778,13 +778,13 @@ SIM_DLLEXPORT int simUnpackTable(int stackHandle, const char *buffer, int buffer
     return (simUnpackTable_internal(stackHandle, buffer, bufferSize));
 }
 SIM_DLLEXPORT int simSetReferencedHandles(int objectHandle, int count, const int *referencedHandles,
-                                          const int *reserved1, const int *reserved2)
+                                          const char *tag, const int *reserved2)
 {
-    return (simSetReferencedHandles_internal(objectHandle, count, referencedHandles, reserved1, reserved2));
+    return (simSetReferencedHandles_internal(objectHandle, count, referencedHandles, tag, reserved2));
 }
-SIM_DLLEXPORT int simGetReferencedHandles(int objectHandle, int **referencedHandles, int **reserved1, int **reserved2)
+SIM_DLLEXPORT int simGetReferencedHandles(int objectHandle, int **referencedHandles, const char *tag, int **reserved2)
 {
-    return (simGetReferencedHandles_internal(objectHandle, referencedHandles, reserved1, reserved2));
+    return (simGetReferencedHandles_internal(objectHandle, referencedHandles, tag, reserved2));
 }
 SIM_DLLEXPORT int simExecuteScriptString(int scriptHandle, const char *stringToExecute, int stackHandle)
 {

@@ -205,8 +205,8 @@ SIM_DLLEXPORT char *simOpenTextEditor(const char *initText, const char *xml, int
 SIM_DLLEXPORT char *simPackTable(int stackHandle, int *bufferSize);
 SIM_DLLEXPORT int simUnpackTable(int stackHandle, const char *buffer, int bufferSize);
 SIM_DLLEXPORT int simSetReferencedHandles(int objectHandle, int count, const int *referencedHandles,
-                                          const int *reserved1, const int *reserved2);
-SIM_DLLEXPORT int simGetReferencedHandles(int objectHandle, int **referencedHandles, int **reserved1, int **reserved2);
+                                          const char *tag, const int *reserved2);
+SIM_DLLEXPORT int simGetReferencedHandles(int objectHandle, int **referencedHandles, const char *tag, int **reserved2);
 SIM_DLLEXPORT int simExecuteScriptString(int scriptHandle, const char *stringToExecute, int stackHandle);
 SIM_DLLEXPORT char *simGetApiFunc(int scriptHandle, const char *apiWord);
 SIM_DLLEXPORT char *simGetApiInfo(int scriptHandleOrType, const char *apiWord);

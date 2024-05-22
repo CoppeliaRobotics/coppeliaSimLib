@@ -2784,6 +2784,13 @@ int simGetBoolParam_internal(int parameter)
 #endif
             return (retVal);
         }
+        if (parameter == sim_boolparam_usingscriptobjects)
+        {
+            int retVal = 0;
+            if (App::userSettings->useSceneObjectScripts)
+                retVal = 1;
+            return retVal;
+        }
         if (parameter == sim_boolparam_cansave)
         {
             int retVal = 0;
@@ -14904,7 +14911,7 @@ int simUnpackTable_internal(int stackHandle, const char *buffer, int bufferSize)
     return (-1);
 }
 
-int simSetReferencedHandles_internal(int objectHandle, int count, const int *referencedHandles, const int *reserved1,
+int simSetReferencedHandles_internal(int objectHandle, int count, const int *referencedHandles, const char *tag,
                                      const int *reserved2)
 {
     C_API_START;
@@ -14915,18 +14922,21 @@ int simSetReferencedHandles_internal(int objectHandle, int count, const int *ref
         objectHandle = objectHandle & 0xfffff;
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
+        std::string ttag("");
+        if (tag != nullptr)
+            ttag = tag;
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if ((handleFlags & sim_handleflag_keeporiginal) == 0)
-            it->setReferencedHandles(size_t(count), referencedHandles);
+            it->setReferencedHandles(size_t(count), referencedHandles, ttag.c_str());
         else
-            it->setReferencedOriginalHandles(count, referencedHandles);
+            it->setReferencedOriginalHandles(count, referencedHandles, ttag.c_str());
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
 }
 
-int simGetReferencedHandles_internal(int objectHandle, int **referencedHandles, int **reserved1, int **reserved2)
+int simGetReferencedHandles_internal(int objectHandle, int **referencedHandles, const char *tag, int **reserved2)
 {
     C_API_START;
 
@@ -14939,22 +14949,25 @@ int simGetReferencedHandles_internal(int objectHandle, int **referencedHandles, 
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         int *handles = nullptr;
         int cnt;
+        std::string ttag("");
+        if (tag != nullptr)
+            ttag = tag;
         if ((handleFlags & sim_handleflag_keeporiginal) == 0)
         {
-            cnt = int(it->getReferencedHandlesCount());
+            cnt = int(it->getReferencedHandlesCount(ttag.c_str()));
             if (cnt > 0)
             {
                 handles = new int[cnt];
-                it->getReferencedHandles(handles);
+                it->getReferencedHandles(handles, ttag.c_str());
             }
         }
         else
         {
-            cnt = int(it->getReferencedOriginalHandlesCount());
+            cnt = int(it->getReferencedOriginalHandlesCount(ttag.c_str()));
             if (cnt > 0)
             {
                 handles = new int[cnt];
-                it->getReferencedOriginalHandles(handles);
+                it->getReferencedOriginalHandles(handles, ttag.c_str());
             }
         }
         referencedHandles[0] = handles;

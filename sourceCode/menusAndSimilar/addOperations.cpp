@@ -1080,18 +1080,19 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
 
             if (App::userSettings->useSceneObjectScripts)
             {
-                CScript *script = new CScript(sim_scripttype_customizationscript, "graph=require('graph_customization')", 0);
+                CScript *script = new CScript(sim_scripttype_customizationscript, "graph = require('graph_customization-2')", 0);
                 script->setScriptExecPriority(sim_scriptexecorder_last);
                 App::currentWorld->sceneObjects->addObjectToScene(script, false, true);
                 App::currentWorld->sceneObjects->setObjectParent(script, newObject, true);
                 newObject->setObjectProperty(newObject->getObjectProperty() | sim_objectproperty_collapsed);
+                newObject->setModelBase(true);
             }
             else
             {
                 CScriptObject *scriptObj = new CScriptObject(sim_scripttype_customizationscript);
                 App::currentWorld->sceneObjects->embeddedScriptContainer->insertScript(scriptObj);
                 scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
-                scriptObj->setScriptText("graph=require('graph_customization')");
+                scriptObj->setScriptText("graph = require('graph_customization')");
                 newObject->setScriptExecPriority(sim_scriptexecorder_last);
             }
 

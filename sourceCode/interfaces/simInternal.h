@@ -401,9 +401,9 @@ int simCheckOctreePointOccupancy_internal(int octreeHandle, int options, const d
 char *simOpenTextEditor_internal(const char *initText, const char *xml, int *various);
 char *simPackTable_internal(int stackHandle, int *bufferSize);
 int simUnpackTable_internal(int stackHandle, const char *buffer, int bufferSize);
-int simSetReferencedHandles_internal(int objectHandle, int count, const int *referencedHandles, const int *reserved1,
+int simSetReferencedHandles_internal(int objectHandle, int count, const int *referencedHandles, const char *tag,
                                      const int *reserved2);
-int simGetReferencedHandles_internal(int objectHandle, int **referencedHandles, int **reserved1, int **reserved2);
+int simGetReferencedHandles_internal(int objectHandle, int **referencedHandles, const char *tag, int **reserved2);
 int simGetShapeViz_internal(int shapeHandle, int index, struct SShapeVizInfo *info);
 int simGetShapeVizf_internal(int shapeHandle, int index, struct SShapeVizInfof *info);
 int simExecuteScriptString_internal(int scriptHandle, const char *stringToExecute, int stackHandle);

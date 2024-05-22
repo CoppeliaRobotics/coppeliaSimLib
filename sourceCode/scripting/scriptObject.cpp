@@ -9314,6 +9314,31 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
 //    _replaceScriptText_old(scriptObject, "sim.readCustomDataBlock", "sim.readCustomBufferData");
 //    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
 
+    _replaceScriptText_old(scriptObject, "'.'", "'..'");
+    _replaceScriptText_old(scriptObject, "'./", "'../");
+    _replaceScriptText_old(scriptObject, "\".\"", "\"..\"");
+    _replaceScriptText_old(scriptObject, "\"./", "\"../");
+
+    _replaceScriptText_old(scriptObject, "'conveyor_customization-2'", "'conveyor_customization-3'");
+    _replaceScriptText_old(scriptObject, "\"conveyor_customization-2\"", "\"conveyor_customization-3\"");
+
+    _replaceScriptText_old(scriptObject, "'efficientconveyor_customization-2'", "'efficientconveyor_customization-3'");
+    _replaceScriptText_old(scriptObject, "\"efficientconveyor_customization-2\"", "\"efficientconveyor_customization-3\"");
+
+    _replaceScriptText_old(scriptObject, "'conveyorSystem_customization-2'", "'conveyorSystem_customization-3'");
+    _replaceScriptText_old(scriptObject, "\"conveyorSystem_customization-2\"", "\"conveyorSystem_customization-3\"");
+
+    _replaceScriptText_old(scriptObject, "'path_customization'", "'path_customization-2'");
+    _replaceScriptText_old(scriptObject, "\"path_customization\"", "\"path_customization-2\"");
+
+    _replaceScriptText_old(scriptObject, "'graph_customization'", "'graph_customization-2'");
+    _replaceScriptText_old(scriptObject, "\"graph_customization\"", "\"graph_customization-2\"");
+
+
+    if (_containsScriptText_old(scriptObject, "':"))
+        App::logMsg(sim_verbosity_errors, "Contains ': ");
+    if (_containsScriptText_old(scriptObject, "\":"))
+        App::logMsg(sim_verbosity_errors, "Contains \": ");
 
 
     if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlock"))
