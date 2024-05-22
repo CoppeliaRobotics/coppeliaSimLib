@@ -992,6 +992,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.verbosity_default", sim_verbosity_default},
     {"sim.verbosity_undecorated", sim_verbosity_undecorated},
     {"sim.verbosity_onlyterminal", sim_verbosity_onlyterminal},
+    {"sim.verbosity_once", sim_verbosity_once},
 
     // plugin info:
     {"sim.plugininfo_extversionstr", sim_plugininfo_extversionstr},

@@ -133,6 +133,7 @@ class App
     static volatile int _appStage;
     static std::string _consoleLogFilterStr;
     static std::string _startupScriptString;
+    static std::map<std::string /*originName*/, std::map<int /*verbosityLevel*/, std::map<std::string /*msg*/, bool>>> _logOnceMessages;
 
     static std::string _applicationDir;
 };
