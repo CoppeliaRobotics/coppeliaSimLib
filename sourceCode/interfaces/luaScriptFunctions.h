@@ -389,6 +389,7 @@ extern int _simHandleSensingStart(luaWrap_lua_State *L);
 extern int _simAuxFunc(luaWrap_lua_State *L);
 extern int _simSetReferencedHandles(luaWrap_lua_State *L);
 extern int _simGetReferencedHandles(luaWrap_lua_State *L);
+extern int _simGetReferencedHandlesTags(luaWrap_lua_State *L);
 extern int _simGetGraphCurve(luaWrap_lua_State *L);
 extern int _simGetGraphInfo(luaWrap_lua_State *L);
 extern int _simGetShapeViz(luaWrap_lua_State *L);

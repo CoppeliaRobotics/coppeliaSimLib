@@ -3934,6 +3934,15 @@ size_t CSceneObject::getReferencedHandles(int *handles, const char* tag) const
     return retVal;
 }
 
+void CSceneObject::getReferencedHandlesTags(std::vector<std::string>& tags) const
+{
+    for (auto it = _customReferencedHandles.begin(); it != _customReferencedHandles.end(); ++it)
+    {
+        if (it->second.size() > 0)
+            tags.push_back(it->first);
+    }
+}
+
 void CSceneObject::setReferencedOriginalHandles(int cnt, const int *handles, const char* tag)
 {
     if (tag == nullptr)
@@ -4024,6 +4033,15 @@ size_t CSceneObject::getReferencedOriginalHandles(int *handles, const char* tag)
             handles[i] = it->second[i].generalObjectHandle;
     }
     return retVal;
+}
+
+void CSceneObject::getReferencedOriginalHandlesTags(std::vector<std::string>& tags) const
+{
+    for (auto it = _customReferencedOriginalHandles.begin(); it != _customReferencedOriginalHandles.end(); ++it)
+    {
+        if (it->second.size() > 0)
+            tags.push_back(it->first);
+    }
 }
 
 void CSceneObject::checkReferencesToOriginal(const std::map<std::string, int> &allUniquePersistentIdStrings)

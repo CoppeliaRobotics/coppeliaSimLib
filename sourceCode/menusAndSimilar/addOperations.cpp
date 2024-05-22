@@ -1048,7 +1048,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             int opt = 0;
             if (commandID == ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD)
                 opt += 2;
-            txt += std::to_string(opt) + ",100)\nsim.setObjectSelection({path})";
+            txt += std::to_string(opt) + ",100)\nsim.setObjectSel({path})";
             App::worldContainer->sandboxScript->executeScriptString(txt.c_str(), nullptr);
             if ( (sel != nullptr) && (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1) )
             {
@@ -1080,7 +1080,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
 
             if (App::userSettings->useSceneObjectScripts)
             {
-                CScript *script = new CScript(sim_scripttype_customizationscript, "graph = require('graph_customization-2')", 0);
+                CScript *script = new CScript(sim_scripttype_customizationscript, "graph = require('models/graph_customization-2')", 0);
                 script->setScriptExecPriority(sim_scriptexecorder_last);
                 App::currentWorld->sceneObjects->addObjectToScene(script, false, true);
                 App::currentWorld->sceneObjects->setObjectParent(script, newObject, true);

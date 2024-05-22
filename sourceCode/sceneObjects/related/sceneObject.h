@@ -149,9 +149,11 @@ class CSceneObject
     void setReferencedHandles(size_t cnt, const int *handles, const char* tag);
     size_t getReferencedHandlesCount(const char* tag) const;
     size_t getReferencedHandles(int *handles, const char* tag) const;
+    void getReferencedHandlesTags(std::vector<std::string>& tags) const;
     void setReferencedOriginalHandles(int cnt, const int *handles, const char* tag);
     size_t getReferencedOriginalHandlesCount(const char* tag) const;
     size_t getReferencedOriginalHandles(int *handles, const char* tag) const;
+    void getReferencedOriginalHandlesTags(std::vector<std::string>& tags) const;
     void checkReferencesToOriginal(const std::map<std::string, int> &allUniquePersistentIdStrings);
 
     CSceneObject *getFirstParentInSelection(const std::vector<CSceneObject *> *sel) const;

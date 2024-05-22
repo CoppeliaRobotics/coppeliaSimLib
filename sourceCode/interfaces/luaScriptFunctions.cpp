@@ -424,6 +424,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.auxFunc", _simAuxFunc},
     {"sim.setReferencedHandles", _simSetReferencedHandles},
     {"sim.getReferencedHandles", _simGetReferencedHandles},
+    {"sim.getReferencedHandlesTags", _simGetReferencedHandlesTags},
     {"sim.getShapeViz", _simGetShapeViz},
     {"sim.executeScriptString", _simExecuteScriptString},
     {"sim.getApiFunc", _simGetApiFunc},
@@ -14151,6 +14152,34 @@ int _simGetReferencedHandles(luaWrap_lua_State *L)
             delete[] handles;
             LUA_END(1);
         }
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetReferencedHandlesTags(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getReferencedHandlesTags");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    {
+        int objHandle = luaToInt(L, 1);
+        int handleFlags = objHandle & 0xff00000;
+        objHandle = objHandle & 0xfffff;
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objHandle);
+        if (it != nullptr)
+        {
+            std::vector<std::string> tags;
+            if ((handleFlags & sim_handleflag_keeporiginal) == 0)
+                it->getReferencedHandlesTags(tags);
+            else
+                it->getReferencedOriginalHandlesTags(tags);
+            pushStringTableOntoStack(L, tags);
+            LUA_END(1);
+        }
+        else
+            errorString = SIM_ERROR_OBJECT_INEXISTANT;
     }
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);

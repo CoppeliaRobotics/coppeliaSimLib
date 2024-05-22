@@ -9319,20 +9319,20 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
     _replaceScriptText_old(scriptObject, "\".\"", "\"..\"");
     _replaceScriptText_old(scriptObject, "\"./", "\"../");
 
-    _replaceScriptText_old(scriptObject, "'conveyor_customization-2'", "'conveyor_customization-3'");
-    _replaceScriptText_old(scriptObject, "\"conveyor_customization-2\"", "\"conveyor_customization-3\"");
+    _replaceScriptText_old(scriptObject, "'conveyor_customization-2'", "'models/conveyor_customization-3'");
+    _replaceScriptText_old(scriptObject, "\"conveyor_customization-2\"", "\"models/conveyor_customization-3\"");
 
-    _replaceScriptText_old(scriptObject, "'efficientconveyor_customization-2'", "'efficientconveyor_customization-3'");
-    _replaceScriptText_old(scriptObject, "\"efficientconveyor_customization-2\"", "\"efficientconveyor_customization-3\"");
+    _replaceScriptText_old(scriptObject, "'efficientconveyor_customization-2'", "'models/efficientconveyor_customization-3'");
+    _replaceScriptText_old(scriptObject, "\"efficientconveyor_customization-2\"", "\"models/efficientconveyor_customization-3\"");
 
-    _replaceScriptText_old(scriptObject, "'conveyorSystem_customization-2'", "'conveyorSystem_customization-3'");
-    _replaceScriptText_old(scriptObject, "\"conveyorSystem_customization-2\"", "\"conveyorSystem_customization-3\"");
+    _replaceScriptText_old(scriptObject, "'conveyorSystem_customization-2'", "'models/conveyorSystem_customization-3'");
+    _replaceScriptText_old(scriptObject, "\"conveyorSystem_customization-2\"", "\"models/conveyorSystem_customization-3\"");
 
-    _replaceScriptText_old(scriptObject, "'path_customization'", "'path_customization-2'");
-    _replaceScriptText_old(scriptObject, "\"path_customization\"", "\"path_customization-2\"");
+    _replaceScriptText_old(scriptObject, "'path_customization'", "'models/path_customization-2'");
+    _replaceScriptText_old(scriptObject, "\"path_customization\"", "\"models/path_customization-2\"");
 
-    _replaceScriptText_old(scriptObject, "'graph_customization'", "'graph_customization-2'");
-    _replaceScriptText_old(scriptObject, "\"graph_customization\"", "\"graph_customization-2\"");
+    _replaceScriptText_old(scriptObject, "'graph_customization'", "'models/graph_customization-2'");
+    _replaceScriptText_old(scriptObject, "\"graph_customization\"", "\"models/graph_customization-2\"");
 
 
     if (_containsScriptText_old(scriptObject, "':"))
