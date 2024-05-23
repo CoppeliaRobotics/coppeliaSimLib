@@ -77,6 +77,7 @@
 #define _USR_USEBUFFERS "useBuffers"
 #define _USR_USESCENEOBJECTSCRIPTS "useSceneObjectScripts"
 #define _USR_SCRIPTCONVERSION "scriptConversion"
+#define _USR_NOTIFY_DEPRECATED "notifyDeprecated"
 #define _USR_SUPPORT_old_THREADED_SCRIPTS "keepOldThreadedScripts"
 #define _USR_SUPPORT_old_API_NOTATION "supportOldApiNotation"
 #define _USR_ENABLE_old_MIRROR_OBJECTS "enableOldMirrorObjects"
@@ -281,8 +282,7 @@ CUserSettings::CUserSettings()
     useBuffers = true;
     useSceneObjectScripts = false; // set to true with V4.8
     scriptConversion = 0;
-
-
+    notifyDeprecated = 0;
 
     // Various section:
     // *****************************
@@ -621,7 +621,7 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         c.addBoolean(_USR_USEBUFFERS, useBuffers, "");
         c.addBoolean(_USR_USESCENEOBJECTSCRIPTS, useSceneObjectScripts, "");
         c.addInteger(_USR_SCRIPTCONVERSION, scriptConversion, "-1: convert to old scripts, 1: convert to new script objects");
-
+        c.addInteger(_USR_NOTIFY_DEPRECATED, notifyDeprecated, "0: no notification, 1: simple notification, 2: exhaustive notification");
 
 
         c.addRandomLine("");
@@ -891,6 +891,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_USEBUFFERS, useBuffers);
     c.getBoolean(_USR_USESCENEOBJECTSCRIPTS, useSceneObjectScripts);
     c.getInteger(_USR_SCRIPTCONVERSION, scriptConversion);
+    c.getInteger(_USR_NOTIFY_DEPRECATED, notifyDeprecated);
 
 
     // Various section:

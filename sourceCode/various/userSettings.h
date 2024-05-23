@@ -62,6 +62,7 @@ class CUserSettings
     bool useBuffers; // differentiate binary strings and buffers in Lua, true since V4.7
     bool useSceneObjectScripts;
     int scriptConversion;
+    int notifyDeprecated;
 
     bool middleMouseButtonSwitchesModes;
     bool navigationBackwardCompatibility;

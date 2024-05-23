@@ -910,6 +910,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.intparam_objectcreationcounter", sim_intparam_objectcreationcounter},
     {"sim.intparam_objectdestructioncounter", sim_intparam_objectdestructioncounter},
     {"sim.intparam_hierarchychangecounter", sim_intparam_hierarchychangecounter},
+    {"sim.intparam_notifydeprecated", sim_intparam_notifydeprecated},
 
     // Float parameters:
     {"sim.floatparam_rand", sim_floatparam_rand},

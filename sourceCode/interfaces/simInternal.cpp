@@ -3585,6 +3585,11 @@ int simGetInt32Param_internal(int parameter, int *intState)
             intState[0] = App::currentWorld->sceneObjects->getHierarchyChangeCounter();
             return (1);
         }
+        if (parameter == sim_intparam_notifydeprecated)
+        {
+            intState[0] = App::userSettings->notifyDeprecated;
+            return (1);
+        }
         if (parameter == sim_intparam_bugfix1)
         {
             intState[0] = App::userSettings->bugFix1;
