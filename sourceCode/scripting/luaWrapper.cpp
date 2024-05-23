@@ -398,6 +398,27 @@ bool luaWrap_lua_isbuffer(luaWrap_lua_State *L, int idx)
         retVal = (lua_isstring((lua_State *)L, -1) != 0);
         lua_pop((lua_State *)L, 1);
     }
+
+/*  // following slower:
+    // check for buffer via public isbuffer() interface Lua function
+    int top = lua_gettop((lua_State *)L);
+    lua_getglobal((lua_State *)L, "isbuffer");
+    if (!lua_isfunction((lua_State *)L, -1))
+    {
+        lua_settop((lua_State *)L, top);
+        return false;
+    }
+    lua_pushvalue((lua_State *)L, idx < 0 ? idx - 1 : idx);
+    if (lua_pcall((lua_State *)L, 1, 1, 0) != LUA_OK)
+    {
+        lua_settop((lua_State *)L, top);
+        return false;
+    }
+    retVal = lua_toboolean((lua_State *)L, -1);
+    lua_pop((lua_State *)L, 1);
+    lua_settop((lua_State *)L, top);
+*/
+
     return retVal;
 }
 
@@ -407,6 +428,10 @@ const char *luaWrap_lua_tobuffer(luaWrap_lua_State *L, int idx, size_t *len)
         idx = lua_gettop((lua_State *)L) + idx + 1;
     if (lua_isstring((lua_State *)L, idx))
         return (lua_tolstring((lua_State *)L, idx, len));
+    if (luaWrap_lua_isbuffer(L, idx))
+        return luaL_tolstring((lua_State *)L, idx, len); // buffer has a __tostring metamethod
+
+    /* old:
     if (lua_istable((lua_State *)L, idx))
     {
         if (lua_getmetatable((lua_State *)L, idx))
@@ -423,6 +448,8 @@ const char *luaWrap_lua_tobuffer(luaWrap_lua_State *L, int idx, size_t *len)
             lua_pop((lua_State *)L, 2); // pop the field and the metatable
         }
     }
+    */
+
     len[0] = 0;
     return nullptr;
 }
