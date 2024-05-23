@@ -9313,7 +9313,7 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
 
 //    _replaceScriptText_old(scriptObject, "sim.readCustomDataBlock", "sim.readCustomBufferData");
 //    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
-
+/*
     _replaceScriptText_old(scriptObject, "'.'", "'..'");
     _replaceScriptText_old(scriptObject, "'./", "'../");
     _replaceScriptText_old(scriptObject, "\".\"", "\"..\"");
@@ -9334,11 +9334,11 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
     _replaceScriptText_old(scriptObject, "'graph_customization'", "'models/graph_customization-2'");
     _replaceScriptText_old(scriptObject, "\"graph_customization\"", "\"models/graph_customization-2\"");
 
-
     if (_containsScriptText_old(scriptObject, "':"))
         App::logMsg(sim_verbosity_errors, "Contains ': ");
     if (_containsScriptText_old(scriptObject, "\":"))
         App::logMsg(sim_verbosity_errors, "Contains \": ");
+*/
 
 
     if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlock"))

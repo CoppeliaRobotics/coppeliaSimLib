@@ -362,9 +362,9 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.readTexture", _simReadTexture},
     {"sim.writeTexture", _simWriteTexture},
     {"sim.createTexture", _simCreateTexture},
-    {"sim.writeCustomDataBlock", _simWriteCustomDataBlock},
-    {"sim.readCustomDataBlock", _simReadCustomDataBlock},
-    {"sim.readCustomDataBlockTags", _simReadCustomDataBlockTags},
+    {"sim.writeCustomStringData", _simWriteCustomStringData},
+    {"sim.readCustomStringData", _simReadCustomStringData},
+    {"sim.readCustomDataTags", _simReadCustomDataTags},
     {"sim.getShapeGeomInfo", _simGetShapeGeomInfo},
     {"sim.getObjectsInTree", _simGetObjectsInTree},
     {"sim.getObjects", _simGetObjects},
@@ -12583,10 +12583,10 @@ int _simCreateTexture(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simWriteCustomDataBlock(luaWrap_lua_State *L)
+int _simWriteCustomStringData(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.writeCustomDataBlock");
+    LUA_START("sim.writeCustomStringData");
 
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
@@ -12619,10 +12619,10 @@ int _simWriteCustomDataBlock(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simReadCustomDataBlock(luaWrap_lua_State *L)
+int _simReadCustomStringData(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.readCustomDataBlock");
+    LUA_START("sim.readCustomStringData");
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
     {
@@ -12653,11 +12653,12 @@ int _simReadCustomDataBlock(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simReadCustomDataBlockTags(luaWrap_lua_State *L)
+int _simReadCustomDataTags(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.readCustomDataBlockTags");
+    LUA_START("sim.readCustomDataTags");
 
+    std::vector<std::string> stringTable;
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int objectHandle = luaToInt(L, 1);
@@ -12674,22 +12675,19 @@ int _simReadCustomDataBlockTags(luaWrap_lua_State *L)
         char *data = simReadCustomDataBlockTags_internal(objectHandle, &tagCount);
         if (data != nullptr)
         {
-            std::vector<std::string> stringTable;
             size_t off = 0;
             for (int i = 0; i < tagCount; i++)
             {
                 stringTable.push_back(data + off);
                 off += strlen(data + off) + 1;
             }
-            pushStringTableOntoStack(L, stringTable);
             simReleaseBuffer_internal(data);
-
-            LUA_END(1);
         }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
+    pushStringTableOntoStack(L, stringTable);
+    LUA_END(1);
 }
 
 int _simGetShapeGeomInfo(luaWrap_lua_State *L)
@@ -14792,9 +14790,9 @@ const SLuaCommands simLuaCommandsOldApi[] =
         {"sim_old.simReadTexture", _simReadTexture},
         {"sim_old.simWriteTexture", _simWriteTexture},
         {"sim_old.simCreateTexture", _simCreateTexture},
-        {"sim_old.simWriteCustomDataBlock", _simWriteCustomDataBlock},
-        {"sim_old.simReadCustomDataBlock", _simReadCustomDataBlock},
-        {"sim_old.simReadCustomDataBlockTags", _simReadCustomDataBlockTags},
+        {"sim_old.simWriteCustomDataBlock", _simWriteCustomStringData},
+        {"sim_old.simReadCustomDataBlock", _simReadCustomStringData},
+        {"sim_old.simReadCustomDataBlockTags", _simReadCustomDataTags},
         {"sim_old.simGetShapeGeomInfo", _simGetShapeGeomInfo},
         {"sim_old.simGetObjectsInTree", _simGetObjectsInTree},
         {"sim_old.simSetObjectSizeValues", _simSetObjectSizeValues},

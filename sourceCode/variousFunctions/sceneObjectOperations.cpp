@@ -833,7 +833,6 @@ CShape *CSceneObjectOperations::_groupShapes(const std::vector<CShape *> &shapes
     for (size_t i = 0; i < shapesToGroup.size() - 1; i++)
         shapesToErase.push_back(shapesToGroup[i]->getObjectHandle());
     App::currentWorld->sceneObjects->eraseObjects(shapesToErase, true);
-
     return (lastSel);
 }
 
