@@ -60,26 +60,24 @@ void CScript::setObjectHandle(int newObjectHandle)
     scriptObject->_objectHandleAttachedTo = newObjectHandle;
 }
 
-bool CScript::canDestroyNow(bool inSafePlace)
+bool CScript::canDestroyNow()
 { // overridden from CSceneObject
-    bool retVal = false;
+    bool retVal = CSceneObject::canDestroyNow();
 #ifdef SIM_WITH_GUI
     if (GuiApp::mainWindow != nullptr)
         GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(scriptObject->getScriptUid(), scriptObject->_previousEditionWindowPosAndSize, true);
 #endif
-    if ( inSafePlace && (scriptObject->_executionDepth == 0) )
+    if ( retVal && (scriptObject->getExecutionDepth() == 0) )
     {
         if (scriptObject->_scriptState == CScriptObject::scriptState_initialized)
             scriptObject->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
         scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
-        retVal = true;
-    }
-    if (retVal)
-    {
         scriptObject->resetScript();
         CScriptObject::destroy(scriptObject, true, true);
         App::worldContainer->setModificationFlag(16384);
     }
+    else
+        retVal = false;
     return retVal;
 }
 

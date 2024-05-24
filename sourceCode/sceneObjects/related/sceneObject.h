@@ -90,7 +90,7 @@ class CSceneObject
     virtual C7Vector getFullLocalTransformation() const;
     virtual bool setParent(CSceneObject *parent);
     virtual void setObjectHandle(int newObjectHandle);
-    virtual bool canDestroyNow(bool inSafePlace);
+    virtual bool canDestroyNow();
 
     void setRestoreToDefaultLights(bool s);
     bool getRestoreToDefaultLights() const;
@@ -173,9 +173,6 @@ class CSceneObject
     int getObjectProperty() const;
     int getCumulativeObjectProperty();
     void setModelBase(bool m);
-
-    void setDestructionFlags(int f);
-    int getDestructionFlags() const;
 
     void setObjectMovementPreferredAxes(int p);
     int getObjectMovementPreferredAxes() const;
@@ -347,7 +344,6 @@ class CSceneObject
     int _calculatedModelProperty;
     int _calculatedObjectProperty;
     std::string _modelAcknowledgement;
-    int _destructionFlags;
 
     // Old:
     std::string _objectName_old;

@@ -165,7 +165,7 @@ class CSceneObjectContainer
     int addDefaultScript(int scriptType, bool threaded, bool lua);
 
     void eraseObject(CSceneObject *it, bool generateBeforeAfterDeleteCallback);
-    void eraseObjects(const std::vector<int> &objectHandles, bool generateBeforeAfterDeleteCallback, bool canDestroyComplexHere = false);
+    void eraseObjects(const std::vector<int> &objectHandles, bool generateBeforeAfterDeleteCallback);
     void eraseAllObjects(bool generateBeforeAfterDeleteCallback);
     void actualizeObjectInformation();
     void enableObjectActualization(bool e);

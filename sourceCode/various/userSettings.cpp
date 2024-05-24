@@ -282,7 +282,7 @@ CUserSettings::CUserSettings()
     useBuffers = true;
     useSceneObjectScripts = false; // set to true with V4.8
     scriptConversion = 0;
-    notifyDeprecated = 0;
+    notifyDeprecated = 1;
 
     // Various section:
     // *****************************

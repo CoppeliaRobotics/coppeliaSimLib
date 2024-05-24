@@ -395,8 +395,6 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     }
     //*******************************
 
-    std::vector<int> dummy;
-    currentWorld->sceneObjects->eraseObjects(dummy, false, true);
     currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
     currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
 

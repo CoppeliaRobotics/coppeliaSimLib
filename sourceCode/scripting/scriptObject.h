@@ -148,7 +148,8 @@ class CScriptObject
     int changeAutoYieldingForbidLevel(int dx, bool absolute);
     int getAutoYieldingForbidLevel() const;
     int changeOverallYieldingForbidLevel(int dx, bool absolute);
-    int getLanguage();
+    int getLanguage() const;
+    int getExecutionDepth() const;
 
     void loadPluginFuncsAndVars(CPlugin *plug);
 

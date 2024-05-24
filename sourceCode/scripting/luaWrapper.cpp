@@ -389,8 +389,15 @@ bool luaWrap_lua_isnonbuffertable(luaWrap_lua_State *L, int idx)
 bool luaWrap_lua_isbuffer(luaWrap_lua_State *L, int idx)
 {
     bool retVal = false;
-#if 0
-    // previous isbuffer code (inspecting .__buff__ field)
+
+    if (lua_getmetatable((lua_State *)L, idx))  // Get the metatable of the object at 'idx'
+    {
+        lua_getglobal((lua_State *)L, "__buffmetatable__");  // Get the global metatable
+        retVal = (lua_rawequal((lua_State *)L, -1, -2));  // Compare the two metatables
+        lua_pop((lua_State *)L, 2);  // Remove both metatables from the stack
+    }
+
+    /* old, less reliable way
     if (lua_istable((lua_State *)L, idx))
     {
         lua_pushstring((lua_State *)L, "__buff__");
@@ -400,47 +407,28 @@ bool luaWrap_lua_isbuffer(luaWrap_lua_State *L, int idx)
         retVal = (lua_isstring((lua_State *)L, -1) != 0);
         lua_pop((lua_State *)L, 1);
     }
-#elif 1
-    // new isbuffer code, inspecting metatable
-    if (lua_getmetatable((lua_State *)L, idx))  // Get the metatable of the object at 'idx'
-    {
-        lua_getglobal((lua_State *)L, "__buffmetatable__");  // Get the global metatable
-        if (lua_rawequal((lua_State *)L, -1, -2))  // Compare the two metatables
-        {
-            retVal = true;  // They are equal
-        }
-        lua_pop((lua_State *)L, 2);  // Remove both metatables from the stack
-    }
-#else
-    // isbuffer variant calling lua function isbuffer() (but this is slower)
-    int top = lua_gettop((lua_State *)L);
-    lua_getglobal((lua_State *)L, "isbuffer");
-    if (!lua_isfunction((lua_State *)L, -1))
-    {
-        lua_settop((lua_State *)L, top);
-        return false;
-    }
-    lua_pushvalue((lua_State *)L, idx < 0 ? idx - 1 : idx);
-    if (lua_pcall((lua_State *)L, 1, 1, 0) != LUA_OK)
-    {
-        lua_settop((lua_State *)L, top);
-        return false;
-    }
-    retVal = lua_toboolean((lua_State *)L, -1);
-    lua_pop((lua_State *)L, 1);
-    lua_settop((lua_State *)L, top);
-#endif
+    */
+
     return retVal;
 }
 
 const char *luaWrap_lua_tobuffer(luaWrap_lua_State *L, int idx, size_t *len)
 {
+    const char* retVal = nullptr;
+    len[0] = 0;
     if (idx < 0)
         idx = lua_gettop((lua_State *)L) + idx + 1;
+
     if (lua_isstring((lua_State *)L, idx))
-        return (lua_tolstring((lua_State *)L, idx, len));
-#if 0
-    // previous tobuffer code (inspecting .__buff__ field)
+        retVal = lua_tolstring((lua_State *)L, idx, len);
+
+    if (luaWrap_lua_isbuffer(L, idx))
+    {
+        retVal = luaL_tolstring((lua_State *)L, idx, len); // buffer has a __tostring metamethod
+        lua_pop((lua_State *)L, 1); // the metamethod adds a value to the stack
+    }
+
+    /* old, less reliable way
     if (lua_istable((lua_State *)L, idx))
     {
         if (lua_getmetatable((lua_State *)L, idx))
@@ -450,24 +438,16 @@ const char *luaWrap_lua_tobuffer(luaWrap_lua_State *L, int idx, size_t *len)
             if (lua_isstring((lua_State *)L, -1) != 0)
             { // we have a buffer, we replace it with its equivalent string
                 lua_replace((lua_State *)L, idx);
-                const char* buffer = lua_tolstring((lua_State *)L, idx, len);
+                retVal = lua_tolstring((lua_State *)L, idx, len);
                 lua_pop((lua_State *)L, 1); // pop the metatable (lua_replace poped the string)
-                return buffer;
             }
-            lua_pop((lua_State *)L, 2); // pop the field and the metatable
+            else
+                lua_pop((lua_State *)L, 2); // pop the field and the metatable
         }
     }
-#else
-    // new isbuffer code (using tostring())
-    if (luaWrap_lua_isbuffer(L, idx))
-    {
-        auto retval = luaL_tolstring((lua_State *)L, idx, len); // buffer has a __tostring metamethod
-        lua_pop((lua_State *)L, 1); // luaL_tolstring both returns and put results onto stack!
-        return retval;
-    }
-#endif
-    len[0] = 0;
-    return nullptr;
+    */
+
+    return retVal;
 }
 
 void luaWrap_lua_pushbuffer(luaWrap_lua_State *L, const char *str, size_t l)

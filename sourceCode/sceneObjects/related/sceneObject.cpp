@@ -28,7 +28,6 @@
 
 CSceneObject::CSceneObject()
 {
-    _destructionFlags = 0;
     _selected = false;
     _isInScene = false;
     _modelInvisible = false;
@@ -749,16 +748,6 @@ bool CSceneObject::isPotentiallyDetectable() const
 bool CSceneObject::isPotentiallyRenderable() const
 {
     return (false);
-}
-
-void CSceneObject::setDestructionFlags(int f)
-{
-    _destructionFlags = f;
-}
-
-int CSceneObject::getDestructionFlags() const
-{
-    return _destructionFlags;
 }
 
 void CSceneObject::setModelBase(bool m)
@@ -4974,9 +4963,21 @@ void CSceneObject::setChildOrder(int order)
     }
 }
 
-bool CSceneObject::canDestroyNow(bool inSafePlace)
-{
-    return true; // can be overridden
+bool CSceneObject::canDestroyNow()
+{ // can be overridden
+    bool retVal = true;
+
+    if ( (App::currentWorld!=nullptr) && (App::currentWorld->sceneObjects != nullptr) )
+    { // For old scripts
+        CScriptObject* it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, _objectHandle);
+        if ( (it != nullptr) && (it->getExecutionDepth() != 0) )
+            retVal = false;
+        it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, _objectHandle);
+        if ( (it != nullptr) && (it->getExecutionDepth() != 0) )
+            retVal = false;
+    }
+
+    return retVal;
 }
 
 void CSceneObject::setObjectHandle(int newObjectHandle)

@@ -2689,7 +2689,7 @@ std::string CScriptObject::getSearchPath_python()
     return (retVal);
 }
 
-int CScriptObject::getLanguage()
+int CScriptObject::getLanguage() const
 {
     std::string l;
     std::string tmpCode(_scriptText);
@@ -2713,6 +2713,11 @@ int CScriptObject::getLanguage()
         }
     }
     return (retVal);
+}
+
+int CScriptObject::getExecutionDepth() const
+{
+    return(_executionDepth);
 }
 
 bool CScriptObject::_initInterpreterState(std::string *errorMsg)

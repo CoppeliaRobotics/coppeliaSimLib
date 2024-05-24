@@ -40,7 +40,7 @@ class CScript : public CSceneObject
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
     void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
     void setObjectHandle(int newObjectHandle);
-    bool canDestroyNow(bool inSafePlace);
+    bool canDestroyNow();
 
     double getScriptSize() const;
 

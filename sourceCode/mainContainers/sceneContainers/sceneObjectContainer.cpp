@@ -278,78 +278,41 @@ void CSceneObjectContainer::eraseObject(CSceneObject *it, bool generateBeforeAft
     }
 }
 
-void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, bool generateBeforeAfterDeleteCallback, bool canDestroyComplexHere/* = false*/)
-{ // Objects and object groups are always destroyed in at least 2 phases, otherwise we get problems with scripts destroying themselves, etc.
-    // if canDestroyComplexHere is true, then will ignore objectHandles and generateBeforeAfterDeleteCallback (will work on objects with destruction flags != 0)
-    std::vector<int> destroyNow_noCallbacks;
-    std::vector<int> destroyNow_withCallbacks;
-    bool canDestroy = canDestroyComplexHere;
-    if (canDestroyComplexHere)
+void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, bool generateBeforeAfterDeleteCallback)
+{
+    std::vector<int> toDestroy;
+    for (size_t i = 0; i < objectHandles.size(); i++)
     {
-        for (size_t i = 0; i < _allObjects.size(); i++)
-        {
-            CSceneObject *it = _allObjects[i];
-            int f = it->getDestructionFlags();
-            if (f != 0)
-            {
-                if (it->canDestroyNow(true))
-                {
-                    if (f & 2)
-                        destroyNow_withCallbacks.push_back(it->getObjectHandle());
-                    else
-                        destroyNow_noCallbacks.push_back(it->getObjectHandle());
-                }
-                else
-                    canDestroy = false;
-            }
-        }
-    }
-    else
-    {
-        for (size_t i = 0; i < objectHandles.size(); i++)
-        {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
-            if (it != nullptr)
-            {
-                if (generateBeforeAfterDeleteCallback)
-                    it->setDestructionFlags(1 | 2);
-                else
-                    it->setDestructionFlags(1);
-            }
-        }
+        CSceneObject *it = getObjectFromHandle(objectHandles[i]);
+        if (it->canDestroyNow())
+            toDestroy.push_back(objectHandles[i]);
     }
 
-    if (!canDestroy)
+    if (toDestroy.size() > 0)
     {
-        destroyNow_noCallbacks.clear();
-        destroyNow_withCallbacks.clear();
-    }
-
-    if (destroyNow_noCallbacks.size() + destroyNow_withCallbacks.size() > 0)
-    {
-        //deselectObjects();
-        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
-        if (destroyNow_withCallbacks.size() > 0)
+        CInterfaceStack *stack = nullptr;
+        if (generateBeforeAfterDeleteCallback)
         {
+            stack = App::worldContainer->interfaceStackContainer->createStack();
             stack->pushTableOntoStack();
 
             stack->pushTextOntoStack("objects");
-            stack->pushInt32ArrayOntoStack(destroyNow_withCallbacks.data(), destroyNow_withCallbacks.size());
+            stack->pushInt32ArrayOntoStack(toDestroy.data(), toDestroy.size());
             stack->insertDataIntoStackTable();
 
             stack->pushTextOntoStack("allObjects");
-            stack->pushBoolOntoStack(destroyNow_withCallbacks.size() == getObjectCount());
+            stack->pushBoolOntoStack(toDestroy.size() == getObjectCount());
             stack->insertDataIntoStackTable();
 
             // Following for backward compatibility:
             stack->pushTextOntoStack("objectHandles");
             stack->pushTableOntoStack();
-            for (size_t i = 0; i < destroyNow_withCallbacks.size(); i++)
+            for (size_t i = 0; i < toDestroy.size(); i++)
             {
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(destroyNow_withCallbacks[i]);
+                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(toDestroy[i]);
                 if ((it != nullptr) && it->setBeforeDeleteCallbackSent())
                 { // send the message only once. This routine can be reentrant!
-                    stack->pushInt32OntoStack(destroyNow_withCallbacks[i]); // key or index
+                    stack->pushInt32OntoStack(toDestroy[i]); // key or index
                     stack->pushBoolOntoStack(true);
                     stack->insertDataIntoStackTable();
                 }
@@ -360,9 +323,9 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, 
             App::worldContainer->callScripts(sim_syscb_beforedelete, stack, nullptr);
         }
 
-        for (size_t i = 0; i < destroyNow_withCallbacks.size(); i++)
+        for (size_t i = 0; i < toDestroy.size(); i++)
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(destroyNow_withCallbacks[i]);
+            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(toDestroy[i]);
             if (it != nullptr)
             {
                 // We announce the object will be erased:
@@ -372,24 +335,16 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int> &objectHandles, 
             }
         }
 
-        if (destroyNow_withCallbacks.size() > 0)
-            App::worldContainer->callScripts(sim_syscb_afterdelete, stack, nullptr);
-        App::worldContainer->interfaceStackContainer->destroyStack(stack);
-
-        for (size_t i = 0; i < destroyNow_noCallbacks.size(); i++)
+        if (generateBeforeAfterDeleteCallback)
         {
-            CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(destroyNow_noCallbacks[i]);
-            if (it != nullptr)
-            {
-                // We announce the object will be erased:
-                App::worldContainer->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
-                App::worldContainer->pushSceneObjectRemoveEvent(it);
-                _removeObject(it);
-            }
+            App::worldContainer->callScripts(sim_syscb_afterdelete, stack, nullptr);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
 
         App::worldContainer->setModificationFlag(1); // object erased
     }
+    if (toDestroy.size() != objectHandles.size())
+        App::logMsg(sim_verbosity_errors, "object removal can't be triggered from within the object itself: some objects were not removed.");
 }
 
 void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallback)
@@ -409,8 +364,7 @@ void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallba
             script->scriptObject->setTemporarilySuspended(true);
         l.push_back(objHandle);
     }
-    eraseObjects(l, generateBeforeAfterDeleteCallback,false);
-    eraseObjects(l, generateBeforeAfterDeleteCallback,true);
+    eraseObjects(l, generateBeforeAfterDeleteCallback);
     // ideally we want to always use different object handles so that if the user erases an object and
     // creates a new one just after, the erased object's handle is not reused. That's why we have
     // the _nextObjectHandle variable.
