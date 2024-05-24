@@ -395,6 +395,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     }
     //*******************************
 
+    currentWorld->sceneObjects->eraseObjects(nullptr, true); // remove objects that have a delayed destruction
     currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
     currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
 

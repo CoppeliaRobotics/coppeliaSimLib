@@ -119,7 +119,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         C7Vector tr(clones[i]->getLocalTransformation());
                         CSceneObject *parent(clones[i]->getParent());
                         int order = App::currentWorld->sceneObjects->getObjectSequence(clones[i]);
-                        App::currentWorld->sceneObjects->eraseObjects(objs, true);
+                        App::currentWorld->sceneObjects->eraseObjects(&objs, true);
                         App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(),
                                                                      2);
                         CSceneObject *newObj = App::currentWorld->sceneObjects->getLastSelectionObject();
@@ -756,7 +756,7 @@ void CSceneObjectOperations::_deleteObjects(std::vector<int> *selection)
 { // There are a few other spots where objects get deleted (e.g. the C-interface)
     TRACE_INTERNAL;
     App::currentWorld->sceneObjects->addModelObjects(selection[0]);
-    App::currentWorld->sceneObjects->eraseObjects(selection[0], true);
+    App::currentWorld->sceneObjects->eraseObjects(selection, true);
     App::currentWorld->sceneObjects->deselectObjects();
 }
 
@@ -832,7 +832,7 @@ CShape *CSceneObjectOperations::_groupShapes(const std::vector<CShape *> &shapes
     std::vector<int> shapesToErase;
     for (size_t i = 0; i < shapesToGroup.size() - 1; i++)
         shapesToErase.push_back(shapesToGroup[i]->getObjectHandle());
-    App::currentWorld->sceneObjects->eraseObjects(shapesToErase, true);
+    App::currentWorld->sceneObjects->eraseObjects(&shapesToErase, true);
     return (lastSel);
 }
 
@@ -1007,7 +1007,7 @@ CShape *CSceneObjectOperations::_mergeShapes(const std::vector<CShape *> &allSha
     std::vector<int> shapesToErase;
     for (size_t i = 0; i < allShapes.size() - 1; i++)
         shapesToErase.push_back(allShapes[i]->getObjectHandle());
-    App::currentWorld->sceneObjects->eraseObjects(shapesToErase, true);
+    App::currentWorld->sceneObjects->eraseObjects(&shapesToErase, true);
     App::currentWorld->textureContainer->updateAllDependencies();
     return (lastSel);
 }

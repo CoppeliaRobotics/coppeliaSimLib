@@ -9343,8 +9343,15 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
         App::logMsg(sim_verbosity_errors, "Contains ': ");
     if (_containsScriptText_old(scriptObject, "\":"))
         App::logMsg(sim_verbosity_errors, "Contains \": ");
-*/
+//*/
 
+//    if (_containsScriptText_old(scriptObject, "sim.removeObject("))
+//        App::logMsg(sim_verbosity_errors, "Contains sim.removeObject...");
+
+    if (_containsScriptText_old(scriptObject, "sim.removeObject"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.removeObject...");
+    if (_containsScriptText_old(scriptObject, "sim.removeModel"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.removeModel...");
 
     if (_containsScriptText_old(scriptObject, "sim.readCustomDataBlock"))
         App::logMsg(sim_verbosity_errors, "Contains sim.readCustomDataBlock...");

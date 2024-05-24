@@ -793,27 +793,30 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char *
 }
 
 int simRemoveObjects_internal(const int *objectHandles, int count)
-{
+{ // neg. count: delayed removal
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        // Memorize the selection:
+        bool delayed = (count < 0);
+        count = abs(count);
+
+/*        // Memorize the selection:
         std::vector<int> initSel;
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
             initSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-
+*/
         // Erase the objects:
         std::vector<int> sel;
         for (int i = 0; i < count; i++)
             sel.push_back(objectHandles[size_t(i)]);
-        App::currentWorld->sceneObjects->eraseObjects(sel, true);
-
+        App::currentWorld->sceneObjects->eraseObjects(&sel, true, delayed);
+/*
         // Restore the initial selection:
         App::currentWorld->sceneObjects->deselectObjects();
         for (size_t i = 0; i < initSel.size(); i++)
             App::currentWorld->sceneObjects->addObjectToSelection(initSel[i]);
-
+*/
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -821,11 +824,15 @@ int simRemoveObjects_internal(const int *objectHandles, int count)
 }
 
 int simRemoveModel_internal(int objectHandle)
-{
+{ // -objectHandle-1: delayed removal
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
+        bool delayed = (objectHandle < 0);
+        if (delayed)
+            objectHandle = -objectHandle - 1;
+
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         if (it == nullptr)
         {
@@ -838,22 +845,22 @@ int simRemoveModel_internal(int objectHandle)
             return (-1);
         }
 
-        // memorize current selection:
+/*        // memorize current selection:
         std::vector<int> initSel;
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
             initSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-
+*/
         // Erase the objects:
         std::vector<int> sel;
         sel.push_back(objectHandle);
         App::currentWorld->sceneObjects->addModelObjects(sel);
-        App::currentWorld->sceneObjects->eraseObjects(sel, true);
+        App::currentWorld->sceneObjects->eraseObjects(&sel, true, delayed);
 
-        // Restore the initial selection:
+/*        // Restore the initial selection:
         App::currentWorld->sceneObjects->deselectObjects();
         for (size_t i = 0; i < initSel.size(); i++)
             App::currentWorld->sceneObjects->addObjectToSelection(initSel[i]);
-
+*/
         return ((int)sel.size());
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);

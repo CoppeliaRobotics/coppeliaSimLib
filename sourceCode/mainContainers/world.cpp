@@ -739,7 +739,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
             if (!found)
                 toRemove.push_back(it->getObjectHandle());
         }
-        sceneObjects->eraseObjects(toRemove, true);
+        sceneObjects->eraseObjects(&toRemove, true);
         sceneObjects->setSelectedObjectHandles(savedSelection);
     }
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
@@ -1802,7 +1802,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                 }
             }
         }
-        sceneObjects->eraseObjects(objectsToRemove, false);
+        sceneObjects->eraseObjects(&objectsToRemove, false);
     }
 
     // Enabled scripts (we previously don't wanted to have them react to object add event, etc., during the load operation)

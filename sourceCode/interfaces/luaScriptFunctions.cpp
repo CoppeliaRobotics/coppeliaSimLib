@@ -5394,9 +5394,18 @@ int _simRemoveObjects(luaWrap_lua_State *L)
         {
             handles.resize(cnt);
             getIntsFromTable(L, 1, cnt, &handles[0]);
-            //int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-            //CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-            simRemoveObjects_internal(&handles[0], cnt);
+            bool delayed = false;
+            int res = checkOneGeneralInputArgument(L, 2, lua_arg_bool, 0, true, true, &errorString);
+            if (res >= 0)
+            {
+                if (res == 2)
+                    delayed = luaToBool(L, 2);
+                if (delayed)
+                    cnt = -cnt;
+                //int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                //CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                simRemoveObjects_internal(&handles[0], cnt);
+            }
         }
     }
 
@@ -5416,7 +5425,18 @@ int _simRemoveModel(luaWrap_lua_State *L)
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
         if (!it->getThreadedExecution_oldThreads())
-            retVal = simRemoveModel_internal(objId);
+        {
+            bool delayed = false;
+            int res = checkOneGeneralInputArgument(L, 2, lua_arg_bool, 0, true, true, &errorString);
+            if (res >= 0)
+            {
+                if (res == 2)
+                    delayed = luaToBool(L, 2);
+                if (delayed)
+                    objId = -objId;
+                retVal = simRemoveModel_internal(objId);
+            }
+        }
         else
         { // this script runs threaded and wants to destroy other objects. We need to make sure that it will only
           // destroy objects that do not have any scripts attached with a non-nullptr lua state:

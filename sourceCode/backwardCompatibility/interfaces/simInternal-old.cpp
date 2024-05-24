@@ -3304,7 +3304,7 @@ int simRemoveCollection_internal(int collectionHandle)
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::currentWorld->sceneObjects->deselectObjects();
-            App::currentWorld->sceneObjects->eraseObjects(sel, true);
+            App::currentWorld->sceneObjects->eraseObjects(&sel, true);
             App::currentWorld->collections->removeAllCollections();
             // Restore previous' selection state:
             for (size_t i = 0; i < memSel.size(); i++)
@@ -3325,7 +3325,7 @@ int simRemoveCollection_internal(int collectionHandle)
             for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
                 sel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::currentWorld->sceneObjects->deselectObjects();
-            App::currentWorld->sceneObjects->eraseObjects(sel, true);
+            App::currentWorld->sceneObjects->eraseObjects(&sel, true);
             App::currentWorld->collections->removeCollection(collectionHandle);
             // Restore previous' selection state:
             for (size_t i = 0; i < memSel.size(); i++)
@@ -4896,7 +4896,7 @@ int simDeleteSelectedObjects_internal()
         std::vector<int> sel;
         App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, -1, true);
         App::currentWorld->sceneObjects->deselectObjects();
-        App::currentWorld->sceneObjects->eraseObjects(sel, true);
+        App::currentWorld->sceneObjects->eraseObjects(&sel, true);
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);

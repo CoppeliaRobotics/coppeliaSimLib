@@ -20,7 +20,7 @@ CQDlgModelThumbnail::CQDlgModelThumbnail(QWidget *parent)
 
 CQDlgModelThumbnail::~CQDlgModelThumbnail()
 {
-    App::currentWorld->sceneObjects->eraseObject(rs, false); // oops, we are in the wrong thread here. Very dangerous
+    App::currentWorld->sceneObjects->eraseObject(rs, false, true); // delayed destruction
     delete ui;
 }
 
