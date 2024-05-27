@@ -85,12 +85,8 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
 
     if (notCalledFromUndoFunction)
         undoBufferContainer->emptySceneProcedure();
-    environment->setSceneIsClosingFlag(true); // so that attached scripts can react to it
-    // Important to empty objects first (since objCont->announce....willBeErase
-    // might be called for already destroyed objects!)
-
+    environment->setSceneIsClosingFlag(true);
     sceneObjects->eraseAllObjects(true);
-
     collections->removeAllCollections();
     collections->setUpDefaultValues();
     ikGroups->removeAllIkGroups();

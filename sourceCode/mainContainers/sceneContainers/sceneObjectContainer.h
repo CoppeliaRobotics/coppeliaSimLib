@@ -164,7 +164,7 @@ class CSceneObjectContainer
     int addObjectToSceneWithSuffixOffset(CSceneObject *newObject, bool objectIsACopy, int suffixOffset, bool generateAfterCreateCallback);
     int addDefaultScript(int scriptType, bool threaded, bool lua);
 
-    void eraseObject(CSceneObject *it, bool generateBeforeAfterDeleteCallback);
+    void eraseObject(CSceneObject *it, bool generateBeforeAfterDeleteCallback, bool delayed = false);
     void eraseObjects(const std::vector<int>* objectHandles, bool generateBeforeAfterDeleteCallback, bool delayed = false);
     void eraseAllObjects(bool generateBeforeAfterDeleteCallback);
     void actualizeObjectInformation();

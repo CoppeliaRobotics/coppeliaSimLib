@@ -268,13 +268,13 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject *newObj
     return (objectHandle);
 }
 
-void CSceneObjectContainer::eraseObject(CSceneObject *it, bool generateBeforeAfterDeleteCallback)
+void CSceneObjectContainer::eraseObject(CSceneObject *it, bool generateBeforeAfterDeleteCallback, bool delayed /*= false*/)
 {
     if (it != nullptr)
     {
         std::vector<int> l;
         l.push_back(it->getObjectHandle());
-        eraseObjects(&l, generateBeforeAfterDeleteCallback);
+        eraseObjects(&l, generateBeforeAfterDeleteCallback, delayed);
     }
 }
 
