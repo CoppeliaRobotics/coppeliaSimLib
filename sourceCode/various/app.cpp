@@ -186,8 +186,12 @@ void App::init(const char *appDir, int)
         worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(), nullptr);
         _startupScriptString.clear();
     }
-    worldContainer->addOnScriptContainer->loadAllAddOns();
-    worldContainer->addOnScriptContainer->callScripts(sim_syscb_init, nullptr, nullptr);
+
+    if (App::userSettings->runAddOns)
+    {
+        worldContainer->addOnScriptContainer->loadAllAddOns();
+        worldContainer->addOnScriptContainer->callScripts(sim_syscb_init, nullptr, nullptr);
+    }
     setAppStage(appstage_simRunning);
 
     if (!App::userSettings->doNotWritePersistentData)

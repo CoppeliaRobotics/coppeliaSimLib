@@ -1977,7 +1977,7 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo> & scripts, int scrip
                 it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, _objectHandle);
             else
             {
-                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_customizationscript) )
+                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject != nullptr) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_customizationscript) )
                     it = ((CScript*)this)->scriptObject;
             }
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
@@ -1997,7 +1997,7 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo> & scripts, int scrip
                 it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, _objectHandle);
             else
             {
-                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_childscript) )
+                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject != nullptr) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_childscript) )
                     it = ((CScript*)this)->scriptObject;
             }
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
@@ -2068,7 +2068,7 @@ size_t CSceneObject::getAttachedScripts(std::vector<CScriptObject*> & scripts, i
                     if (c->getObjectType() == sim_object_script_type)
                     {
                         CScript* it = (CScript*)c;
-                        if ( (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
+                        if ( (it->scriptObject != nullptr) && (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
                         {
                             int p = it->getScriptExecPriority();
                             if (p == sim_scriptexecorder_first)
@@ -2122,7 +2122,7 @@ void CSceneObject::getScriptsInChain(std::vector<int> & scripts, int scriptType,
                     if (c->getObjectType() == sim_object_script_type)
                     {
                         CScript* it = (CScript*)c;
-                        if ( (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
+                        if ( (it->scriptObject != nullptr) && (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
                         {
                             int p = it->getScriptExecPriority();
                             if (p == sim_scriptexecorder_first)
@@ -2147,7 +2147,7 @@ void CSceneObject::getScriptsInChain(std::vector<int> & scripts, int scriptType,
                     if (_objectType == sim_object_script_type)
                     {
                         CScript* it = (CScript*)this;
-                        if ( (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
+                        if ( (it->scriptObject != nullptr) && (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
                             scripts.push_back(it->scriptObject->getScriptHandle());
                     }
                 }

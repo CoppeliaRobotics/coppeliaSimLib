@@ -5435,6 +5435,8 @@ int _simRemoveModel(luaWrap_lua_State *L)
                 if (delayed)
                     objId = -objId;
                 retVal = simRemoveModel_internal(objId);
+                luaWrap_lua_pushinteger(L, retVal);
+                LUA_END(1);
             }
         }
         else
@@ -5461,7 +5463,11 @@ int _simRemoveModel(luaWrap_lua_State *L)
                         }
                     }
                     if (ok)
+                    {
                         retVal = simRemoveModel_internal(objId);
+                        luaWrap_lua_pushinteger(L, retVal);
+                        LUA_END(1);
+                    }
                     else
                         errorString = SIM_ERROR_THREADED_SCRIPT_DESTROYING_OBJECTS_WITH_ACTIVE_SCRIPTS;
                 }
@@ -5474,8 +5480,7 @@ int _simRemoveModel(luaWrap_lua_State *L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simGetObjectAlias(luaWrap_lua_State *L)

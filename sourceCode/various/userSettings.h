@@ -43,6 +43,7 @@ class CUserSettings
     bool compressFiles;
     int triCountInOBB;
     bool runCustomizationScripts;
+    bool runAddOns;
     bool test1;
     int macChildDialogType;
 

@@ -37,6 +37,8 @@
 #define _USR_UNDO_REDO_PARTIAL_WITH_CAMERAS "undoRedoOnlyPartialWithCameras"
 #define _USR_UNDO_REDO_LEVEL_COUNT "undoRedoLevelCount"
 #define _USR_RUN_CUSTOMIZATION_SCRIPTS "runCustomizationScripts"
+#define _USR_RUN_ADDONS "runAddOns"
+
 #define _USR_TEST1 "test1"
 #define _USR_MAC_CHILD_DIALOG_TYPE "macChildDialogType"
 #define _USR_DESKTOP_RECORDING_INDEX "desktopRecordingIndex"
@@ -298,6 +300,8 @@ CUserSettings::CUserSettings()
     triCountInOBB = 8; // gave best results in 2009/07/21
     identicalVertexTolerance = 0.000001;
     runCustomizationScripts = true;
+    runAddOns = true;
+
     test1 = false;
     macChildDialogType = -1; // default
     additionalLuaPath = "";
@@ -641,6 +645,9 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         c.addInteger(_USR_TRIANGLE_COUNT_IN_OBB, triCountInOBB, "");
         c.addFloat(_USR_IDENTICAL_VERTICES_TOLERANCE, identicalVertexTolerance, "");
         c.addBoolean(_USR_RUN_CUSTOMIZATION_SCRIPTS, runCustomizationScripts, "");
+        c.addBoolean(_USR_RUN_ADDONS, runAddOns, "");
+
+
         // c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
         // c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
         c.addString(_USR_ADDITIONAL_LUA_PATH, additionalLuaPath, "e.g. d:/myLuaRoutines");
@@ -910,6 +917,9 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_TRIANGLE_COUNT_IN_OBB, triCountInOBB);
     c.getFloat(_USR_IDENTICAL_VERTICES_TOLERANCE, identicalVertexTolerance);
     c.getBoolean(_USR_RUN_CUSTOMIZATION_SCRIPTS, runCustomizationScripts);
+    c.getBoolean(_USR_RUN_ADDONS, runAddOns);
+
+
     c.getBoolean(_USR_TEST1, test1);
     c.getInteger(_USR_MAC_CHILD_DIALOG_TYPE, macChildDialogType);
 #ifdef SIM_WITH_GUI

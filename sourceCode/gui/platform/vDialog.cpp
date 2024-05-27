@@ -4,10 +4,22 @@ Qt::WindowFlags VDialog::dialogStyle;
 
 VDialog::VDialog(QWidget *pParent) : QDialog(pParent, dialogStyle)
 {
+#ifdef MAC_SIM
+    setAttribute(Qt::WA_ShowWithoutActivating);
+#endif
+#ifdef LIN_SIM
+// no need it seems   setWindowFlags(windowFlags() |Qt::WindowDoesNotAcceptFocus);
+#endif
 }
 
 VDialog::VDialog(QWidget *pParent, Qt::WindowFlags specialFlags) : QDialog(pParent, specialFlags)
 {
+#ifdef MAC_SIM
+    setAttribute(Qt::WA_ShowWithoutActivating);
+#endif
+#ifdef LIN_SIM
+// no need it seems   setWindowFlags(windowFlags() |Qt::WindowDoesNotAcceptFocus);
+#endif
 }
 
 VDialog::~VDialog()

@@ -51,16 +51,6 @@ void CScript::_commonInit(int scriptType, const char* text, int options)
 
 CScript::~CScript()
 {
-#ifdef SIM_WITH_GUI
-    if (GuiApp::mainWindow != nullptr)
-        GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(scriptObject->getScriptUid(), scriptObject->_previousEditionWindowPosAndSize, true);
-#endif
-    if (scriptObject->_scriptState == CScriptObject::scriptState_initialized)
-        scriptObject->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-    scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
-    scriptObject->resetScript();
-    CScriptObject::destroy(scriptObject, true, false);
-    App::worldContainer->setModificationFlag(16384);
 }
 
 void CScript::setObjectHandle(int newObjectHandle)
@@ -72,6 +62,10 @@ void CScript::setObjectHandle(int newObjectHandle)
 
 bool CScript::canDestroyNow()
 { // overridden from CSceneObject
+#ifdef SIM_WITH_GUI
+    if (GuiApp::mainWindow != nullptr)
+        GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(scriptObject->getScriptUid(), scriptObject->_previousEditionWindowPosAndSize, true);
+#endif
     bool retVal = CSceneObject::canDestroyNow();
     if (scriptObject->getExecutionDepth() != 0)
         retVal = false;
@@ -79,6 +73,13 @@ bool CScript::canDestroyNow()
     {
         App::worldContainer->announceScriptStateWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
         App::worldContainer->announceScriptWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+        if (scriptObject->_scriptState == CScriptObject::scriptState_initialized)
+            scriptObject->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
+        scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
+        scriptObject->resetScript();
+        CScriptObject::destroy(scriptObject, true, true);
+        scriptObject = nullptr;
+        App::worldContainer->setModificationFlag(16384);
     }
     return retVal;
 }
