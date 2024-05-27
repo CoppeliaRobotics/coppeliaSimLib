@@ -9341,10 +9341,18 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
     _replaceScriptText_old(scriptObject, "\"graph_customization\"", "\"models/graph_customization-2\"");
 
 //*/
-    if (_containsScriptText_old(scriptObject, "':"))
-        App::logMsg(sim_verbosity_errors, "Contains ': ");
-    if (_containsScriptText_old(scriptObject, "\":"))
-        App::logMsg(sim_verbosity_errors, "Contains \": ");
+    if (_containsScriptText_old(scriptObject, "':'"))
+        App::logMsg(sim_verbosity_errors, "Contains ':' ");
+    if (_containsScriptText_old(scriptObject, "':/"))
+        App::logMsg(sim_verbosity_errors, "Contains ':/ ");
+    if (_containsScriptText_old(scriptObject, "'::"))
+        App::logMsg(sim_verbosity_errors, "Contains ':: ");
+    if (_containsScriptText_old(scriptObject, "\":\""))
+        App::logMsg(sim_verbosity_errors, "Contains \":\" ");
+    if (_containsScriptText_old(scriptObject, "\":/"))
+        App::logMsg(sim_verbosity_errors, "Contains \":/ ");
+    if (_containsScriptText_old(scriptObject, "\"::"))
+        App::logMsg(sim_verbosity_errors, "Contains \":: ");
 
     if (_containsScriptText_old(scriptObject, "sim.removeObject("))
         App::logMsg(sim_verbosity_errors, "Contains sim.removeObject...");

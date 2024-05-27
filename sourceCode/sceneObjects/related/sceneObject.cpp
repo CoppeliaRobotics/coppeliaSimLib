@@ -2617,8 +2617,6 @@ void CSceneObject::serialize(CSer &ar)
                         noHit = false;
                         ar >> byteQuantity;
                         ar >> _objectAlias;
-                        if (_objectAlias == "autoConvertedScript")
-                            _objectAlias = "Script";
                         _objectTempAlias = _objectAlias;
                         hasAlias = true;
                     }

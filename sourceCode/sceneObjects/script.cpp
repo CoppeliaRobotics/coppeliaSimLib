@@ -33,6 +33,7 @@ void CScript::_commonInit(int scriptType, const char* text, int options)
     scriptObject = new CScriptObject(scriptType);
     scriptObject->_scriptText = text;
     scriptObject->_sceneObjectScript = true;
+    scriptObject->setScriptIsDisabled(options & 1);
     _objectType = sim_object_script_type;
     _localObjectSpecialProperty = 0;
     _objectProperty |= sim_objectproperty_dontshowasinsidemodel;
@@ -71,15 +72,16 @@ bool CScript::canDestroyNow()
         retVal = false;
     if (retVal)
     {
-        App::worldContainer->announceScriptStateWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
-        App::worldContainer->announceScriptWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
         if (scriptObject->_scriptState == CScriptObject::scriptState_initialized)
             scriptObject->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
         scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
         scriptObject->resetScript();
+        // Announcements need to happen immediately after calling cleanup!
+        App::worldContainer->announceScriptStateWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+        App::worldContainer->announceScriptWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+        App::worldContainer->setModificationFlag(16384);
         CScriptObject::destroy(scriptObject, true, true);
         scriptObject = nullptr;
-        App::worldContainer->setModificationFlag(16384);
     }
     return retVal;
 }
