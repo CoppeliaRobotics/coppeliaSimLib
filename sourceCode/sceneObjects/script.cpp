@@ -59,7 +59,7 @@ CScript::~CScript()
         scriptObject->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
     scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
     scriptObject->resetScript();
-    CScriptObject::destroy(scriptObject, true, true);
+    CScriptObject::destroy(scriptObject, true, false);
     App::worldContainer->setModificationFlag(16384);
 }
 
@@ -75,6 +75,11 @@ bool CScript::canDestroyNow()
     bool retVal = CSceneObject::canDestroyNow();
     if (scriptObject->getExecutionDepth() != 0)
         retVal = false;
+    if (retVal)
+    {
+        App::worldContainer->announceScriptStateWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+        App::worldContainer->announceScriptWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+    }
     return retVal;
 }
 
