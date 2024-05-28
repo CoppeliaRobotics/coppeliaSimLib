@@ -801,23 +801,15 @@ int simRemoveObjects_internal(const int *objectHandles, int count)
         bool delayed = (count < 0);
         count = abs(count);
 
-/*        // Memorize the selection:
-        std::vector<int> initSel;
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getSelectionCount(); i++)
-            initSel.push_back(App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(i));
-*/
         // Erase the objects:
         std::vector<int> sel;
         for (int i = 0; i < count; i++)
             sel.push_back(objectHandles[size_t(i)]);
-        App::currentWorld->sceneObjects->eraseObjects(&sel, true, delayed);
-/*
-        // Restore the initial selection:
-        App::currentWorld->sceneObjects->deselectObjects();
-        for (size_t i = 0; i < initSel.size(); i++)
-            App::currentWorld->sceneObjects->addObjectToSelection(initSel[i]);
-*/
-        return (1);
+        if (App::currentWorld->sceneObjects->eraseObjects(&sel, true, delayed))
+            return (1);
+
+        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_FOUND_INVALID_HANDLES);
+        return (-1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);

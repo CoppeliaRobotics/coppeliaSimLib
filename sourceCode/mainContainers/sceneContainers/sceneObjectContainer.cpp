@@ -278,7 +278,7 @@ void CSceneObjectContainer::eraseObject(CSceneObject *it, bool generateBeforeAft
     }
 }
 
-void CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, bool generateBeforeAfterDeleteCallback, bool delayed /*= false*/)
+bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, bool generateBeforeAfterDeleteCallback, bool delayed /*= false*/)
 { // if objectHandles is nullptr, then objects marked as delayed deletion will be removed by generating the callbacks
     if (objectHandles == nullptr)
     {
@@ -296,11 +296,20 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
         else
         {
             std::vector<int> toDestroy;
+            std::vector<CSceneObject*> toDestroyPtr;
             for (size_t i = 0; i < objectHandles->size(); i++)
             {
                 CSceneObject *it = getObjectFromHandle(objectHandles->at(i));
-                if (it->canDestroyNow())
-                    toDestroy.push_back(objectHandles->at(i));
+                if (it != nullptr)
+                {
+                    if (it->canDestroyNow())
+                    {
+                        toDestroy.push_back(objectHandles->at(i));
+                        toDestroyPtr.push_back(it);
+                    }
+                }
+                else
+                    return false;
             }
 
             if (toDestroy.size() > 0)
@@ -322,12 +331,12 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                     // Following for backward compatibility:
                     stack->pushTextOntoStack("objectHandles");
                     stack->pushTableOntoStack();
-                    for (size_t i = 0; i < toDestroy.size(); i++)
+                    for (size_t i = 0; i < toDestroyPtr.size(); i++)
                     {
-                        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(toDestroy[i]);
+                        CSceneObject *it = toDestroyPtr[i];
                         if ((it != nullptr) && it->setBeforeDeleteCallbackSent())
                         { // send the message only once. This routine can be reentrant!
-                            stack->pushInt32OntoStack(toDestroy[i]); // key or index
+                            stack->pushInt32OntoStack(it->getObjectHandle()); // key or index
                             stack->pushBoolOntoStack(true);
                             stack->insertDataIntoStackTable();
                         }
@@ -338,9 +347,9 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                     App::worldContainer->callScripts(sim_syscb_beforedelete, stack, nullptr);
                 }
 
-                for (size_t i = 0; i < toDestroy.size(); i++)
+                for (size_t i = 0; i < toDestroyPtr.size(); i++)
                 {
-                    CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(toDestroy[i]);
+                    CSceneObject *it = toDestroyPtr[i];
                     if (it != nullptr)
                     {
                         // We announce the object will be erased:
@@ -362,6 +371,7 @@ void CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                 App::logMsg(sim_verbosity_errors, "object removal can't be triggered from within the object itself: some objects were not removed.");
         }
     }
+    return true;
 }
 
 void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallback)
