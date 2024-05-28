@@ -124,6 +124,7 @@ void CScriptObject::initSandbox()
         if (_initInterpreterState(nullptr))
             _raiseErrors_backCompatibility = true; // Old
         setScriptTextFromFile((App::folders->getPythonPath() + "/sandboxScript.py").c_str());
+        _lang = "python";
         systemCallScript(sim_syscb_init, nullptr, nullptr);
         App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox script initialized.");
     }
@@ -171,10 +172,12 @@ std::string CScriptObject::getFilenameForExternalScriptEditor()
         if (tmp.size() == 0)
             tmp = "newScene";
         _filenameForExternalScriptEditor += tmp + "-" + std::to_string(_scriptHandle);
-        if (getLanguage() == sim_lang_python)
+        if (getLang() == "python")
             _filenameForExternalScriptEditor += ".py";
-        else
+        else if (getLang() == "lua")
             _filenameForExternalScriptEditor += ".lua";
+        else
+            _filenameForExternalScriptEditor += ".txt";
         fromBufferToFile();
     }
     std::string fname = App::folders->getTempDataPath() + "/";
@@ -1646,116 +1649,97 @@ int CScriptObject::___loadCode(const char *code, const char *functionsToFind, st
     int retVal = -1;
 
     std::string _code(code);
-
-    std::string l;
-    std::string tmpCode(code);
-    int lineCnt = 0;
-    while (utils::extractLine(tmpCode, l))
+    if (_lang == "python")
     {
-        lineCnt++;
-        utils::removeSpacesAtBeginningAndEnd(l);
-        if (l.size() > 0)
+        int lineCnt = 0;
+        std::string l;
+        std::string tmpCode(code);
+        std::string t("wrapper='pythonWrapperV2'\n"); // default wrapper
+        bool stayIn = true;
+        while (stayIn && utils::extractLine(tmpCode, l))
         {
-            if (l[0] == '#')
+            lineCnt++;
+            utils::removeSpacesAtBeginningAndEnd(l);
+            if (l.size() != 0)
             {
-                l.erase(l.begin());
-                utils::removeSpacesAtBeginningAndEnd(l);
-                std::string w;
-                if ((utils::extractSpaceSeparatedWord(l, w) && (w == "python")))
-                {                                                 // ok, we have a python script
-                    std::string t("wrapper='pythonWrapperV2'\n"); // default wrapper
-                    bool stayIn = true;
-                    while (stayIn && utils::extractLine(tmpCode, l))
+                if (l[0] == '#')
+                {
+                    l.erase(l.begin());
+                    utils::removeSpacesAtBeginningAndEnd(l);
+                    if (l.find("luaExec ") == 0)
+                    {
+                        l.erase(l.begin(), l.begin() + 8);
+                        utils::removeSpacesAtBeginningAndEnd(l);
+                        t = t + l;
+                    }
+                    t = t + "\n";
+                }
+                else if (l.compare(0, 3, "'''") == 0)
+                {
+                    l.erase(l.begin(), l.begin() + 3);
+                    utils::removeSpacesAtBeginningAndEnd(l);
+                    bool isLua = ((l.find("luaExec ") == 0) || (l.compare("luaExec") == 0));
+                    bool stayIn2 = true;
+                    if (isLua)
+                    {
+                        l.erase(l.begin(), l.begin() + 7);
+                        size_t p = l.find("'''");
+                        if (p != std::string::npos)
+                        {
+                            stayIn2 = false;
+                            l.erase(l.begin() + p, l.end());
+                        }
+                        t = t + l;
+                    }
+                    t = t + "\n";
+                    while (stayIn2 && utils::extractLine(tmpCode, l))
                     {
                         lineCnt++;
-                        utils::removeSpacesAtBeginningAndEnd(l);
-                        if (l.size() != 0)
+                        if (!isLua)
                         {
-                            if (l[0] == '#')
-                            {
-                                l.erase(l.begin());
-                                utils::removeSpacesAtBeginningAndEnd(l);
-                                if (l.find("luaExec ") == 0)
-                                {
-                                    l.erase(l.begin(), l.begin() + 8);
-                                    utils::removeSpacesAtBeginningAndEnd(l);
-                                    t = t + l;
-                                }
-                                t = t + "\n";
-                            }
-                            else if (l.compare(0, 3, "'''") == 0)
-                            {
-                                l.erase(l.begin(), l.begin() + 3);
-                                utils::removeSpacesAtBeginningAndEnd(l);
-                                bool isLua = ((l.find("luaExec ") == 0) || (l.compare("luaExec") == 0));
-                                bool stayIn2 = true;
-                                if (isLua)
-                                {
-                                    l.erase(l.begin(), l.begin() + 7);
-                                    size_t p = l.find("'''");
-                                    if (p != std::string::npos)
-                                    {
-                                        stayIn2 = false;
-                                        l.erase(l.begin() + p, l.end());
-                                    }
-                                    t = t + l;
-                                }
-                                t = t + "\n";
-                                while (stayIn2 && utils::extractLine(tmpCode, l))
-                                {
-                                    lineCnt++;
-                                    if (!isLua)
-                                    {
-                                        utils::removeSpacesAtBeginningAndEnd(l);
-                                        isLua = ((l.find("luaExec ") == 0) || (l.compare("luaExec") == 0));
-                                        if (isLua)
-                                            l.erase(l.begin(), l.begin() + 7);
-                                    }
-                                    size_t p = l.find("'''");
-                                    if (p != std::string::npos)
-                                    {
-                                        stayIn2 = false;
-                                        l.erase(l.begin() + p, l.end());
-                                    }
-                                    if (isLua)
-                                        t = t + l;
-                                    t = t + "\n";
-                                }
-                            }
-                            else
-                            {
-                                if (l.find("include ") == 0)
-                                {
-                                    l.erase(l.begin(), l.begin() + 8);
-                                    utils::removeSpacesAtBeginningAndEnd(l);
-                                    if (l.size() > 0)
-                                        t = t + "pythonFile='" + l + ".py'\n";
-                                }
-                                else
-                                    lineCnt--;
-                                stayIn = false;
-                            }
+                            utils::removeSpacesAtBeginningAndEnd(l);
+                            isLua = ((l.find("luaExec ") == 0) || (l.compare("luaExec") == 0));
+                            if (isLua)
+                                l.erase(l.begin(), l.begin() + 7);
                         }
-                        else
-                            t = t + "\n";
+                        size_t p = l.find("'''");
+                        if (p != std::string::npos)
+                        {
+                            stayIn2 = false;
+                            l.erase(l.begin() + p, l.end());
+                        }
+                        if (isLua)
+                            t = t + l;
+                        t = t + "\n";
                     }
-                    for (int i = 0; i < lineCnt; i++)
-                        utils::extractLine(_code, l);
-                    for (int i = 0; i < lineCnt; i++)
-                        _code = "#\n" + _code;
-                    // printf("luaExec:\n%s\n",t.c_str());
-                    // printf("code:\n%s\n",_code.c_str());
-                    _code = t + "\nrequire(wrapper) pythonUserCode=[=[" + _code +
-                            "]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
-                    break;
                 }
                 else
-                    break;
+                {
+                    if (l.find("include ") == 0)
+                    {
+                        l.erase(l.begin(), l.begin() + 8);
+                        utils::removeSpacesAtBeginningAndEnd(l);
+                        if (l.size() > 0)
+                            t = t + "pythonFile='" + l + ".py'\n";
+                    }
+                    else
+                        lineCnt--;
+                    stayIn = false;
+                }
             }
             else
-                break;
+                t = t + "\n";
         }
+        for (int i = 0; i < lineCnt; i++)
+            utils::extractLine(_code, l);
+        for (int i = 0; i < lineCnt; i++)
+            _code = "#\n" + _code;
+        // printf("luaExec:\n%s\n",t.c_str());
+        // printf("code:\n%s\n",_code.c_str());
+        _code = t + "\nrequire(wrapper) pythonUserCode=[=[" + _code +
+                "]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
     }
+
 
     luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
     _raiseErrors_backCompatibility = true;
@@ -2690,57 +2674,76 @@ std::string CScriptObject::getSearchPath_python()
     return (retVal);
 }
 
-int CScriptObject::getLanguage() const
-{ // see also getLang
-    int retVal = sim_lang_undefined;
-    if (_lang.size() == 0)
+std::string CScriptObject::_removeLangTagInCode()
+{
+    std::string retVal;
+    std::string l;
+    std::string tmpCode(_scriptText);
+    while (utils::extractLine(tmpCode, l))
     {
-        std::string l;
-        std::string tmpCode(_scriptText);
-        retVal = sim_lang_lua;
-        while (utils::extractLine(tmpCode, l))
+        utils::removeSpacesAtBeginningAndEnd(l);
+        if ( (l.size() > 0) && (l[0] == '#') )
         {
+            l.erase(l.begin());
             utils::removeSpacesAtBeginningAndEnd(l);
-            if (l.size() > 0)
+            std::string w;
+            if ((utils::extractSpaceSeparatedWord(l, w) && (w == "python")))
             {
-                if (l[0] != '#')
-                    break;
-                else
+                retVal = w;
+                while (true)
                 {
-                    l.erase(l.begin());
+                    _scriptText = tmpCode;
+                    if (!utils::extractLine(tmpCode, l))
+                        break;
                     utils::removeSpacesAtBeginningAndEnd(l);
-                    std::string w;
-                    if ((utils::extractSpaceSeparatedWord(l, w) && (w == "python")))
-                        retVal = sim_lang_python;
-                    break;
+                    if (l.size() != 0)
+                        break;
                 }
+                break;
             }
         }
+        else if ( (l.size() > 1) && (l[0] == '-') && (l[1] == '-') )
+        {
+            l.erase(l.begin());
+            l.erase(l.begin());
+            utils::removeSpacesAtBeginningAndEnd(l);
+            std::string w;
+            if ((utils::extractSpaceSeparatedWord(l, w) && (w == "lua")))
+            {
+                retVal = w;
+                while (true)
+                {
+                    _scriptText = tmpCode;
+                    if (!utils::extractLine(tmpCode, l))
+                        break;
+                    utils::removeSpacesAtBeginningAndEnd(l);
+                    if (l.size() != 0)
+                        break;
+                }
+                break;
+            }
+        }
+        else if (l.size() > 0)
+            break;
     }
-    else
-    {
-        if (_lang == "lua")
-            retVal = sim_lang_lua;
-        if (_lang == "python")
-            retVal = sim_lang_python;
-    }
-    return (retVal);
+    return retVal;
 }
 
 std::string CScriptObject::getLang() const
-{ // see also getLanguage
+{
     return _lang;
 }
 
 void CScriptObject::setLang(const char* lang)
 {
-    _lang.clear();
     if (lang != nullptr)
     {
         _lang = lang;
-        if ( (_lang != "") && (_lang != "lua") && (_lang != "python") )
+        if ( (_lang != "lua") && (_lang != "python") )
             _scriptIsDisabled = true;
     }
+    else
+        _lang = "lua";
 }
 
 int CScriptObject::getExecutionDepth() const
@@ -3352,6 +3355,7 @@ bool CScriptObject::registerPluginVariables(bool onlyRequireStatements)
 
 void CScriptObject::serialize(CSer &ar)
 {
+    _removeLangTagInCode();
     if (ar.isBinary())
     {
         if (ar.isStoring())
@@ -3392,9 +3396,15 @@ void CScriptObject::serialize(CSer &ar)
 
             // ar.storeDataName("Ttd");  reserved
 
+            // We store the script in a light encoded way:
             std::string stt(_scriptText);
-
-            // We store scripts in a light encoded way:
+            // For backward comp:
+            // -----------------
+            if (_lang == "lua")
+                stt = "--lua\n" + stt;
+            else if (_lang == "python")
+                stt = "#python\n" + stt;
+            // -----------------
             ar.storeDataName("Ste");
             tt::lightEncodeBuffer(&stt[0], int(stt.length()));
             for (size_t i = 0; i < stt.length(); i++)
@@ -3421,7 +3431,7 @@ void CScriptObject::serialize(CSer &ar)
                     _customObjectData_old->serializeData(ar, nullptr, -1);
             }
 
-            ar.storeDataName("Lng");
+            ar.storeDataName("Lne");
             ar << _lang;
             ar.flush();
 
@@ -3460,7 +3470,7 @@ void CScriptObject::serialize(CSer &ar)
                     }
 
                     if (theName.compare("Ste") == 0)
-                    { // The script is stored encoded!
+                    {
                         noHit = false;
                         ar >> byteQuantity;
 
@@ -3474,6 +3484,12 @@ void CScriptObject::serialize(CSer &ar)
                                 _scriptText.erase(_scriptText.end() - 1); // to fix a compatibility bug
                         }
                         justLoadedCustomScriptBuffer = true;
+
+                        std::string tg(_removeLangTagInCode());
+                        if (tg == "python")
+                            _lang = tg;
+                        else
+                            _lang = "lua";
                     }
 
                     if (theName.compare("Pum") == 0)
@@ -3548,7 +3564,7 @@ void CScriptObject::serialize(CSer &ar)
                         _customObjectData_old->serializeData(ar, nullptr, -1);
                     }
 
-                    if (theName.compare("Lng") == 0)
+                    if (theName.compare("Lne") == 0)
                     {
                         noHit = false;
                         ar >> byteQuantity;
@@ -3592,7 +3608,7 @@ void CScriptObject::serialize(CSer &ar)
                 }
             }
 
-            if (getLanguage() == sim_lang_python)
+            if (getLang() == "python")
             {
                 if (ar.getSerializationVersionThatWroteThisFile() < 25)
                 { // make sure to use the old Python wrapper, with old Python scripts, for backward compatibility:
@@ -3639,6 +3655,13 @@ void CScriptObject::serialize(CSer &ar)
             ar.xmlAddNode_int("executionOrder", _executionPriority_old); // for backward compatibility 19.09.2022
 
             std::string tmp(_scriptText.c_str());
+            // For backw. comp.:
+            // -----------------
+            if (_lang == "lua")
+                tmp = "--lua\n" + tmp;
+            else if (_lang == "python")
+                tmp = "#python\n" + tmp;
+            // -----------------
             boost::replace_all(tmp, "\r\n", "\n");
             ar.xmlAddNode_comment(" 'scriptText' tag: best to use it with a CDATA section for readability ",
                                   exhaustiveXml);
@@ -3690,6 +3713,12 @@ void CScriptObject::serialize(CSer &ar)
                 (_scriptType == sim_scripttype_mainscript) &&
                 _mainScriptIsDefaultMainScript_old) // for backward compatibility 16.11.2020
                 _scriptText = DEFAULT_MAINSCRIPT_CODE;
+
+            std::string tg(_removeLangTagInCode());
+            if (tg == "python")
+                _lang = tg;
+            else
+                _lang = "lua";
 
             ar.xmlGetNode_string("lang", _lang);
 
@@ -9368,22 +9397,26 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
     _replaceScriptText_old(scriptObject, "\".\"", "\"..\"");
     _replaceScriptText_old(scriptObject, "\"./", "\"../");
 
-    _replaceScriptText_old(scriptObject, "'conveyor_customization-2'", "'models/conveyor_customization-3'");
-    _replaceScriptText_old(scriptObject, "\"conveyor_customization-2\"", "\"models/conveyor_customization-3\"");
+    _replaceScriptText_old(scriptObject, "'conveyor_customization-2'", "'models.conveyor_customization-3'");
+    _replaceScriptText_old(scriptObject, "\"conveyor_customization-2\"", "\"models.conveyor_customization-3\"");
 
-    _replaceScriptText_old(scriptObject, "'efficientconveyor_customization-2'", "'models/efficientconveyor_customization-3'");
-    _replaceScriptText_old(scriptObject, "\"efficientconveyor_customization-2\"", "\"models/efficientconveyor_customization-3\"");
+    _replaceScriptText_old(scriptObject, "'efficientconveyor_customization-2'", "'models.efficientconveyor_customization-3'");
+    _replaceScriptText_old(scriptObject, "\"efficientconveyor_customization-2\"", "\"models.efficientconveyor_customization-3\"");
 
-    _replaceScriptText_old(scriptObject, "'conveyorSystem_customization-2'", "'models/conveyorSystem_customization-3'");
-    _replaceScriptText_old(scriptObject, "\"conveyorSystem_customization-2\"", "\"models/conveyorSystem_customization-3\"");
+    _replaceScriptText_old(scriptObject, "'conveyorSystem_customization-2'", "'models.conveyorSystem_customization-3'");
+    _replaceScriptText_old(scriptObject, "\"conveyorSystem_customization-2\"", "\"models.conveyorSystem_customization-3\"");
 
-    _replaceScriptText_old(scriptObject, "'path_customization'", "'models/path_customization-2'");
-    _replaceScriptText_old(scriptObject, "\"path_customization\"", "\"models/path_customization-2\"");
+    _replaceScriptText_old(scriptObject, "'path_customization'", "'models.path_customization-2'");
+    _replaceScriptText_old(scriptObject, "\"path_customization\"", "\"models.path_customization-2\"");
 
-    _replaceScriptText_old(scriptObject, "'graph_customization'", "'models/graph_customization-2'");
-    _replaceScriptText_old(scriptObject, "\"graph_customization\"", "\"models/graph_customization-2\"");
+    _replaceScriptText_old(scriptObject, "'graph_customization'", "'models.graph_customization-2'");
+    _replaceScriptText_old(scriptObject, "\"graph_customization\"", "\"models.graph_customization-2\"");
 
 //*/
+
+
+    if (_containsScriptText_old(scriptObject, "models/"))
+        App::logMsg(sim_verbosity_errors, "Contains models/ ");
     if (_containsScriptText_old(scriptObject, "':'"))
         App::logMsg(sim_verbosity_errors, "Contains ':' ");
     if (_containsScriptText_old(scriptObject, "':/"))

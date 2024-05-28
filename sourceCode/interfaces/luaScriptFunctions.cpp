@@ -10711,7 +10711,7 @@ int _simCreateScript(luaWrap_lua_State *L)
             res = checkOneGeneralInputArgument(L, 4, lua_arg_string, 0, true, true, &errorString);
             if (res >= 0)
             {
-                std::string lang;
+                std::string lang("lua");
                 if (res == 2)
                     lang = luaWrap_lua_tostring(L, 4);
                 retVal = simCreateScript_internal(scriptType, txt.c_str(), options, lang.c_str());

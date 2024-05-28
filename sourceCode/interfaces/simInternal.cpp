@@ -4819,6 +4819,7 @@ int simAddScript_internal(int scriptProperty)
         if (scriptProperty & sim_scripttype_threaded_old)
             scriptType = scriptProperty - sim_scripttype_threaded_old;
         CScriptObject *it = new CScriptObject(scriptType);
+        it->setLang("lua");
         if (App::userSettings->keepOldThreadedScripts)
         {
             if (scriptProperty & sim_scripttype_threaded_old)
@@ -10129,7 +10130,11 @@ int simGetScriptInt32Param_internal(int scriptHandle, int parameterID, int *para
         }
         if (parameterID == sim_scriptintparam_lang)
         {
-            parameter[0] = it->getLanguage();
+            parameter[0] = -1;
+            if (it->getLang() == "lua")
+                parameter[0] = 0;
+            else if (it->getLang() == "python")
+                parameter[0] = 1;
             retVal = 1;
         }
 
@@ -10238,6 +10243,15 @@ int simSetScriptStringParam_internal(int scriptHandle, int parameterID, const ch
             it->setScriptText(s.c_str());
             retVal = 1;
         }
+        if (parameterID == sim_scriptstringparam_lang)
+        {
+            std::string s(parameter);
+            if (s.size() < parameterLength)
+                s.assign(parameter, parameter + parameterLength);
+            it->setLang(s.c_str());
+            retVal = 1;
+        }
+
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -12995,13 +13009,13 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType, const char *functio
             {
                 if (VThread::isSimThread())
                 {
-                    if (script->getLanguage() == sim_lang_lua)
+                    if (script->getLang() == "lua")
                     {
                         if (lang == sim_lang_python)
                             funcName +=
                                 "@python"; // explicit python when Lua script --> generates an error further down
                     }
-                    if (script->getLanguage() == sim_lang_python)
+                    if (script->getLang() == "python")
                     {
                         if (lang == sim_lang_lua)
                             funcName += "@lua"; // explicit lua when Python script
@@ -15317,11 +15331,11 @@ int simExecuteScriptString_internal(int scriptHandle, const char *stringToExecut
             {
                 if (VThread::isSimThread())
                 { // For now we don't allow non-main threads to call non-threaded scripts!
-                    if ((script->getLanguage() == sim_lang_lua) || (lang == sim_lang_lua))
+                    if ((script->getLang() == "lua") || (lang == sim_lang_lua))
                         retVal = script->executeScriptString(stringToExec.c_str(), stack);
                     else
                     {
-                        if (script->getLanguage() == sim_lang_python)
+                        if (script->getLang() == "python")
                         {
                             if (script->getScriptState() == CScriptObject::scriptState_initialized)
                             {

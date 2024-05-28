@@ -429,10 +429,17 @@ int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool 
 
         if (filenameAndPath.size() > 0)
         {
+            std::string lang;
             if (lua)
+            {
+                lang = "lua";
                 filenameAndPath += ".lua";
+            }
             else
+            {
+                lang = "python";
                 filenameAndPath += ".py";
+            }
             std::string scriptTxt;
             if (VFile::doesFileExist(filenameAndPath.c_str()))
             {
@@ -456,7 +463,7 @@ int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool 
             else
                 scriptTxt = "Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
 
-            CScript* it = new CScript(scriptType, scriptTxt.c_str(), 0, nullptr);
+            CScript* it = new CScript(scriptType, scriptTxt.c_str(), 0, lang.c_str());
             retVal = addObjectToScene(it, false, true);
         }
     #ifdef SIM_WITH_GUI

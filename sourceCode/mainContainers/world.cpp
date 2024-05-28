@@ -1674,6 +1674,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
             {
                 txt = std::string("function sysCall_init()\nend\n\n") + txt;
                 script = new CScriptObject(sim_scripttype_customizationscript);
+                script->setLang("lua");
                 sceneObjects->embeddedScriptContainer->insertScript(script);
                 script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
             }

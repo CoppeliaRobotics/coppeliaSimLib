@@ -335,6 +335,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
     if (scriptType == sim_scripttype_mainscript)
     {
         CScriptObject *defScript = new CScriptObject(scriptType);
+        defScript->setLang("lua");
         retVal = insertScript(defScript);
         defScript->setScriptText(DEFAULT_MAINSCRIPT_CODE);
         filenameAndPath = "";
@@ -361,10 +362,17 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
 
     if (filenameAndPath.size() > 0)
     {
+        std::string lang;
         if (lua)
+        {
+            lang = "lua";
             filenameAndPath += ".lua";
+        }
         else
+        {
+            lang = "python";
             filenameAndPath += ".py";
+        }
         if (VFile::doesFileExist(filenameAndPath.c_str()))
         {
             try
@@ -377,6 +385,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
                     archive >> defaultScript[i];
                 defaultScript[archiveLength] = 0;
                 CScriptObject *defScript = new CScriptObject(scriptType);
+                defScript->setLang(lang.c_str());
                 retVal = insertScript(defScript);
                 defScript->setScriptText(defaultScript);
                 if (oldThreadedScript)
@@ -394,6 +403,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
                 char defaultMessage[] = "Default script file could not be found!"; // do not use comments ("--"), we
                                                                                    // want to cause an execution error!
                 CScriptObject *defScript = new CScriptObject(scriptType);
+                defScript->setLang(lang.c_str());
                 retVal = insertScript(defScript);
                 defScript->setScriptText(defaultMessage);
                 if (oldThreadedScript)

@@ -392,16 +392,11 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle)
                                              toBoolStr(!((it->getScriptType() == sim_scripttype_mainscript) ||
                                                          it->getThreadedExecution_oldThreads())));
                     editorNode->SetAttribute("script-up-to-date", toBoolStr(it->getIsUpToDate()));
-                    if (it->getLanguage() == sim_lang_lua)
-                    {
-                        editorNode->SetAttribute("lang", "lua");
+                    editorNode->SetAttribute("lang", it->getLang().c_str());
+                    if (it->getLang() == "lua")
                         editorNode->SetAttribute("search-paths", it->getSearchPath_lua().c_str());
-                    }
-                    if (it->getLanguage() == sim_lang_python)
-                    {
-                        editorNode->SetAttribute("lang", "python");
+                    if (it->getLang() == "python")
                         editorNode->SetAttribute("search-paths", it->getSearchPath_python().c_str());
-                    }
                     int fontSize = 12;
 #ifdef MAC_SIM
                     fontSize = 16; // bigger fonts here
@@ -516,16 +511,11 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle)
                     editorNode->SetAttribute("can-restart-in-sim", "true");
                     editorNode->SetAttribute("can-restart-in-nosim", "true");
                     editorNode->SetAttribute("script-up-to-date", toBoolStr(it->getIsUpToDate()));
-                    if (it->getLanguage() == sim_lang_lua)
-                    {
-                        editorNode->SetAttribute("lang", "lua");
+                    editorNode->SetAttribute("lang", it->getLang().c_str());
+                    if (it->getLang() == "lua")
                         editorNode->SetAttribute("search-paths", it->getSearchPath_lua().c_str());
-                    }
-                    if (it->getLanguage() == sim_lang_python)
-                    {
-                        editorNode->SetAttribute("lang", "python");
+                    if (it->getLang() == "python")
                         editorNode->SetAttribute("search-paths", it->getSearchPath_python().c_str());
-                    }
                     int fontSize = 12;
 #ifdef MAC_SIM
                     fontSize = 16; // bigger fonts here

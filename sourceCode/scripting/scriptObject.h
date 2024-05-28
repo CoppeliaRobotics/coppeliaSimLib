@@ -148,7 +148,6 @@ class CScriptObject
     int changeAutoYieldingForbidLevel(int dx, bool absolute);
     int getAutoYieldingForbidLevel() const;
     int changeOverallYieldingForbidLevel(int dx, bool absolute);
-    int getLanguage() const;
     std::string getLang() const;
     void setLang(const char* lang);
     int getExecutionDepth() const;
@@ -245,6 +244,7 @@ class CScriptObject
     // *****************************************
 
   protected:
+    std::string _removeLangTagInCode();
     bool _initInterpreterState(std::string *errorMsg);
     bool _killInterpreterState();
     void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char *errMsg, bool runtimeError);

@@ -1080,7 +1080,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
 
             if (App::userSettings->useSceneObjectScripts)
             {
-                CScript *script = new CScript(sim_scripttype_customizationscript, "graph = require('models/graph_customization-2')", 0, nullptr);
+                CScript *script = new CScript(sim_scripttype_customizationscript, "graph = require('models.graph_customization-2')", 0, "lua");
                 script->setScriptExecPriority(sim_scriptexecorder_last);
                 App::currentWorld->sceneObjects->addObjectToScene(script, false, true);
                 App::currentWorld->sceneObjects->setObjectParent(script, newObject, true);
@@ -1093,6 +1093,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 App::currentWorld->sceneObjects->embeddedScriptContainer->insertScript(scriptObj);
                 scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
                 scriptObj->setScriptText("graph = require('graph_customization')");
+                scriptObj->setLang("lua");
                 newObject->setScriptExecPriority(sim_scriptexecorder_last);
             }
 

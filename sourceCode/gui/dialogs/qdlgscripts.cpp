@@ -46,6 +46,9 @@ void CQDlgScripts::refresh()
 
     if (sel)
     {
+        std::string lang(it->scriptObject->getLang());
+        lang = "Language: " + lang;
+        ui->qqLang->setText(lang.c_str());
         ui->qqSize->setText(utils::getSizeString(false, it->getScriptSize()).c_str());
 
         ui->qqExecutionOrder->addItem(IDSN_FIRST, QVariant(sim_scriptexecorder_first));
@@ -58,6 +61,7 @@ void CQDlgScripts::refresh()
     }
     else
     {
+        ui->qqLang->setText("Language: -");
         ui->qqSize->setText("");
 
         ui->qqDisabled->setChecked(false);

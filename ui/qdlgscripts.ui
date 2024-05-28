@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>168</height>
+    <height>147</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>80</y>
+     <y>60</y>
      <width>411</width>
      <height>51</height>
     </rect>
@@ -78,7 +78,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>140</y>
+     <y>120</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -536,8 +536,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>30</y>
-     <width>311</width>
+     <y>120</y>
+     <width>241</width>
      <height>18</height>
     </rect>
    </property>
@@ -545,14 +545,14 @@
     <enum>Qt::StrongFocus</enum>
    </property>
    <property name="text">
-    <string>Use parent as proxy (compatibility mode)</string>
+    <string>Use parent as proxy (comp. mode)</string>
    </property>
   </widget>
   <widget class="QComboBox" name="qqExecutionOrder">
    <property name="geometry">
     <rect>
      <x>240</x>
-     <y>50</y>
+     <y>30</y>
      <width>171</width>
      <height>18</height>
     </rect>
@@ -562,7 +562,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>50</y>
+     <y>30</y>
      <width>211</width>
      <height>18</height>
     </rect>
@@ -585,6 +585,19 @@
    </property>
    <property name="text">
     <string>Disabled</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="qqLang">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>10</y>
+     <width>181</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Language: lua</string>
    </property>
   </widget>
  </widget>
