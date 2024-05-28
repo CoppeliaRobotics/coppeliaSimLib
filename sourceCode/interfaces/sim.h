@@ -272,7 +272,7 @@ SIM_DLLEXPORT const void *_simGetIkGroupObject(int ikGroupID);
 SIM_DLLEXPORT int _simMpHandleIkGroupObject(const void *ikGroup);
 SIM_DLLEXPORT int _simGetJointDynCtrlMode(const void *joint);
 SIM_DLLEXPORT int simFloatingViewRemove(int floatingViewHandle);
-SIM_DLLEXPORT int simCreateScript(int scriptType,const char* scriptText, int options);
+SIM_DLLEXPORT int simCreateScript(int scriptType,const char* scriptText, int options, const char* lang);
 SIM_DLLEXPORT int simGetObjectHierarchyOrder(int objectHandle, int* totalSiblings);
 SIM_DLLEXPORT int simSetObjectHierarchyOrder(int objectHandle, int order);
 

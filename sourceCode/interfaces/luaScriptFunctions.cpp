@@ -766,6 +766,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.scriptstringparam_name", sim_scriptstringparam_name},
     {"sim.scriptstringparam_text", sim_scriptstringparam_text},
     {"sim.scriptstringparam_nameext", sim_scriptstringparam_nameext},
+    {"sim.scriptstringparam_lang",sim_scriptstringparam_lang},
     // script execution order:
     {"sim.scriptexecorder_first", sim_scriptexecorder_first},
     {"sim.scriptexecorder_normal", sim_scriptexecorder_normal},
@@ -5418,7 +5419,6 @@ int _simRemoveModel(luaWrap_lua_State *L)
     TRACE_LUA_API;
     LUA_START("sim.removeModel");
 
-    int retVal = -1; // error
     if (checkInputArguments(L, &errorString, lua_arg_number, 0))
     {
         int objId = luaToInt(L, 1);
@@ -5433,10 +5433,13 @@ int _simRemoveModel(luaWrap_lua_State *L)
                 if (res == 2)
                     delayed = luaToBool(L, 2);
                 if (delayed)
-                    objId = -objId;
-                retVal = simRemoveModel_internal(objId);
-                luaWrap_lua_pushinteger(L, retVal);
-                LUA_END(1);
+                    objId = -objId-1;
+                int retVal = simRemoveModel_internal(objId);
+                if (retVal >= 0)
+                {
+                    luaWrap_lua_pushinteger(L, retVal);
+                    LUA_END(1);
+                }
             }
         }
         else
@@ -5464,9 +5467,12 @@ int _simRemoveModel(luaWrap_lua_State *L)
                     }
                     if (ok)
                     {
-                        retVal = simRemoveModel_internal(objId);
-                        luaWrap_lua_pushinteger(L, retVal);
-                        LUA_END(1);
+                        int retVal = simRemoveModel_internal(objId);
+                        if (retVal >= 0)
+                        {
+                            luaWrap_lua_pushinteger(L, retVal);
+                            LUA_END(1);
+                        }
                     }
                     else
                         errorString = SIM_ERROR_THREADED_SCRIPT_DESTROYING_OBJECTS_WITH_ACTIVE_SCRIPTS;
@@ -10701,7 +10707,15 @@ int _simCreateScript(luaWrap_lua_State *L)
             int options = 0;
             if (res == 2)
                 options = luaToInt(L, 3);
-            retVal = simCreateScript_internal(scriptType, txt.c_str(), options);
+
+            res = checkOneGeneralInputArgument(L, 4, lua_arg_string, 0, true, true, &errorString);
+            if (res >= 0)
+            {
+                std::string lang;
+                if (res == 2)
+                    lang = luaWrap_lua_tostring(L, 4);
+                retVal = simCreateScript_internal(scriptType, txt.c_str(), options, lang.c_str());
+            }
         }
     }
 

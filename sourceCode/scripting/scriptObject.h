@@ -149,6 +149,8 @@ class CScriptObject
     int getAutoYieldingForbidLevel() const;
     int changeOverallYieldingForbidLevel(int dx, bool absolute);
     int getLanguage() const;
+    std::string getLang() const;
+    void setLang(const char* lang);
     int getExecutionDepth() const;
 
     void loadPluginFuncsAndVars(CPlugin *plug);
@@ -264,6 +266,7 @@ class CScriptObject
     bool _sceneObjectScript;
     bool _parentIsProxy;
     bool _scriptIsDisabled;
+    std::string _lang;
     bool _autoRestartOnError;
     int _scriptState;
     int _executionDepth;

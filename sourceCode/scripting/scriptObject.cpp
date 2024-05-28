@@ -2531,6 +2531,7 @@ CScriptObject *CScriptObject::copyYourself()
     it->_scriptIsDisabled = _scriptIsDisabled;
     it->_parentIsProxy = _parentIsProxy;
     it->setScriptText(getScriptText());
+    it->_lang = _lang;
     it->_scriptObjectInitialValuesInitialized = _scriptObjectInitialValuesInitialized;
     it->_scriptExecPriority = _scriptExecPriority;
 
@@ -2690,29 +2691,56 @@ std::string CScriptObject::getSearchPath_python()
 }
 
 int CScriptObject::getLanguage() const
-{
-    std::string l;
-    std::string tmpCode(_scriptText);
-    int retVal = sim_lang_lua;
-    while (utils::extractLine(tmpCode, l))
+{ // see also getLang
+    int retVal = sim_lang_undefined;
+    if (_lang.size() == 0)
     {
-        utils::removeSpacesAtBeginningAndEnd(l);
-        if (l.size() > 0)
+        std::string l;
+        std::string tmpCode(_scriptText);
+        retVal = sim_lang_lua;
+        while (utils::extractLine(tmpCode, l))
         {
-            if (l[0] != '#')
-                break;
-            else
+            utils::removeSpacesAtBeginningAndEnd(l);
+            if (l.size() > 0)
             {
-                l.erase(l.begin());
-                utils::removeSpacesAtBeginningAndEnd(l);
-                std::string w;
-                if ((utils::extractSpaceSeparatedWord(l, w) && (w == "python")))
-                    retVal = sim_lang_python;
-                break;
+                if (l[0] != '#')
+                    break;
+                else
+                {
+                    l.erase(l.begin());
+                    utils::removeSpacesAtBeginningAndEnd(l);
+                    std::string w;
+                    if ((utils::extractSpaceSeparatedWord(l, w) && (w == "python")))
+                        retVal = sim_lang_python;
+                    break;
+                }
             }
         }
     }
+    else
+    {
+        if (_lang == "lua")
+            retVal = sim_lang_lua;
+        if (_lang == "python")
+            retVal = sim_lang_python;
+    }
     return (retVal);
+}
+
+std::string CScriptObject::getLang() const
+{ // see also getLanguage
+    return _lang;
+}
+
+void CScriptObject::setLang(const char* lang)
+{
+    _lang.clear();
+    if (lang != nullptr)
+    {
+        _lang = lang;
+        if ( (_lang != "") && (_lang != "lua") && (_lang != "python") )
+            _scriptIsDisabled = true;
+    }
 }
 
 int CScriptObject::getExecutionDepth() const
@@ -3393,6 +3421,10 @@ void CScriptObject::serialize(CSer &ar)
                     _customObjectData_old->serializeData(ar, nullptr, -1);
             }
 
+            ar.storeDataName("Lng");
+            ar << _lang;
+            ar.flush();
+
             ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
@@ -3516,6 +3548,13 @@ void CScriptObject::serialize(CSer &ar)
                         _customObjectData_old->serializeData(ar, nullptr, -1);
                     }
 
+                    if (theName.compare("Lng") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        ar >> _lang;
+                    }
+
                     if (noHit)
                         ar.loadUnknownData();
                 }
@@ -3605,6 +3644,8 @@ void CScriptObject::serialize(CSer &ar)
                                   exhaustiveXml);
             ar.xmlAddNode_cdata("scriptText", tmp.c_str());
 
+            ar.xmlAddNode_string("lang", _lang.c_str());
+
             if (exhaustiveXml)
             {
                 if (_customObjectData_old != nullptr)
@@ -3649,6 +3690,8 @@ void CScriptObject::serialize(CSer &ar)
                 (_scriptType == sim_scripttype_mainscript) &&
                 _mainScriptIsDefaultMainScript_old) // for backward compatibility 16.11.2020
                 _scriptText = DEFAULT_MAINSCRIPT_CODE;
+
+            ar.xmlGetNode_string("lang", _lang);
 
             if (exhaustiveXml)
             {

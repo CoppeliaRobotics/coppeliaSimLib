@@ -1080,7 +1080,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
 
             if (App::userSettings->useSceneObjectScripts)
             {
-                CScript *script = new CScript(sim_scripttype_customizationscript, "graph = require('models/graph_customization-2')", 0);
+                CScript *script = new CScript(sim_scripttype_customizationscript, "graph = require('models/graph_customization-2')", 0, nullptr);
                 script->setScriptExecPriority(sim_scriptexecorder_last);
                 App::currentWorld->sceneObjects->addObjectToScene(script, false, true);
                 App::currentWorld->sceneObjects->setObjectParent(script, newObject, true);

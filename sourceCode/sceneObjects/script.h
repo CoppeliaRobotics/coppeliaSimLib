@@ -9,7 +9,7 @@ class CScript : public CSceneObject
   public:
     CScript();
     CScript(CScriptObject* scrObj);
-    CScript(int scriptType, const char* text, int options);
+    CScript(int scriptType, const char* text, int options, const char* lang);
     virtual ~CScript();
 
     // Following functions are inherited from CSceneObject
@@ -51,7 +51,7 @@ class CScript : public CSceneObject
     CScriptObject* scriptObject;
 
   protected:
-    void _commonInit(int scriptType, const char* text, int options);
+    void _commonInit(int scriptType, const char* text, int options, const char* lang);
 
     CColorObject _scriptColor;
     double _scriptSize;

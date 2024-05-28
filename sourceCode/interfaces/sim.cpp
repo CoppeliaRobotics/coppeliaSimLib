@@ -1009,9 +1009,9 @@ SIM_DLLEXPORT float *simCheckVisionSensorEx(int visionSensorHandle, int entityHa
 {
     return (simCheckVisionSensorEx_internal(visionSensorHandle, entityHandle, returnImage));
 }
-SIM_DLLEXPORT int simCreateScript(int scriptType,const char* scriptText, int options)
+SIM_DLLEXPORT int simCreateScript(int scriptType,const char* scriptText, int options, const char* lang)
 {
-    return simCreateScript_internal(scriptType, scriptText, options);
+    return simCreateScript_internal(scriptType, scriptText, options, lang);
 }
 SIM_DLLEXPORT int simGetObjectHierarchyOrder(int objectHandle, int* totalSiblings)
 {

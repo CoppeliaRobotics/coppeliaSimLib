@@ -275,7 +275,7 @@ int simRuckigStep_internal(int objHandle, double cycleTime, double *newPos, doub
                            double *syncTime, double *reserved1, int *reserved2);
 int simRuckigRemove_internal(int objHandle);
 int simCreateDummy_internal(double size, const float *reserved);
-int simCreateScript_internal(int scriptType,const char* scriptText, int options);
+int simCreateScript_internal(int scriptType,const char* scriptText, int options, const char* lang);
 int simGroupShapes_internal(const int *shapeHandles, int shapeCount);
 int *simUngroupShape_internal(int shapeHandle, int *shapeCount);
 int simCreateProximitySensor_internal(int sensorType, int subType, int options, const int *intParams,

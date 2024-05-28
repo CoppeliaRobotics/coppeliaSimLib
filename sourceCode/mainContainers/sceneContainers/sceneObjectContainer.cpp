@@ -446,7 +446,7 @@ int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool 
             else
                 scriptTxt = "Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
 
-            CScript* it = new CScript(scriptType, scriptTxt.c_str(), 0);
+            CScript* it = new CScript(scriptType, scriptTxt.c_str(), 0, nullptr);
             retVal = addObjectToScene(it, false, true);
         }
     #ifdef SIM_WITH_GUI

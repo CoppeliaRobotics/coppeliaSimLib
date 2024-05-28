@@ -12,28 +12,29 @@
 
 CScript::CScript()
 {
-    _commonInit(sim_scripttype_childscript, "", 0);
+    _commonInit(sim_scripttype_childscript, "", 0, nullptr);
 }
 
-CScript::CScript(int scriptType, const char* text, int options)
+CScript::CScript(int scriptType, const char* text, int options, const char* lang)
 {
-    _commonInit(scriptType, text, options);
+    _commonInit(scriptType, text, options, lang);
 }
 
 CScript::CScript(CScriptObject* scrObj)
 {
-    _commonInit(sim_scripttype_childscript, "", 0);
+    _commonInit(sim_scripttype_childscript, "", 0, nullptr);
     delete scriptObject;
     scriptObject = scrObj;
     scriptObject->_sceneObjectScript = true;
 }
 
-void CScript::_commonInit(int scriptType, const char* text, int options)
+void CScript::_commonInit(int scriptType, const char* text, int options, const char* lang)
 {
     scriptObject = new CScriptObject(scriptType);
     scriptObject->_scriptText = text;
     scriptObject->_sceneObjectScript = true;
     scriptObject->setScriptIsDisabled(options & 1);
+    scriptObject->setLang(lang);
     _objectType = sim_object_script_type;
     _localObjectSpecialProperty = 0;
     _objectProperty |= sim_objectproperty_dontshowasinsidemodel;

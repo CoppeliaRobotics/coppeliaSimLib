@@ -7607,13 +7607,13 @@ int simCreateDummy_internal(double size, const float *reserved)
     return (-1);
 }
 
-int simCreateScript_internal(int scriptType,const char* scriptText, int options)
+int simCreateScript_internal(int scriptType,const char* scriptText, int options, const char* lang)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CScript *it = new CScript(scriptType, scriptText, options);
+        CScript *it = new CScript(scriptType, scriptText, options, lang);
         App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
         return (retVal);
@@ -10199,44 +10199,26 @@ char *simGetScriptStringParam_internal(int scriptHandle, int parameterID, int *p
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
             return (nullptr);
         }
+        std::string s("__#*/-__");
         char *retVal = nullptr;
         if (parameterID == sim_scriptstringparam_name)
-        {
-            std::string s(it->getScriptName());
-            retVal = new char[s.length() + 1];
-            for (size_t i = 0; i < s.length(); i++)
-                retVal[i] = s[i];
-            retVal[s.length()] = 0;
-            parameterLength[0] = (int)s.length();
-        }
+            s = it->getScriptName();
         if (parameterID == sim_scriptstringparam_nameext)
-        {
-            std::string s(it->getShortDescriptiveName());
-            retVal = new char[s.length() + 1];
-            for (size_t i = 0; i < s.length(); i++)
-                retVal[i] = s[i];
-            retVal[s.length()] = 0;
-            parameterLength[0] = (int)s.length();
-        }
+            s = it->getShortDescriptiveName();
+        if (parameterID == sim_scriptstringparam_lang)
+            s = it->getLang();
         if (parameterID == sim_scriptstringparam_description)
-        {
-            std::string s(it->getDescriptiveName());
-            retVal = new char[s.length() + 1];
-            for (size_t i = 0; i < s.length(); i++)
-                retVal[i] = s[i];
-            retVal[s.length()] = 0;
-            parameterLength[0] = (int)s.length();
-        }
+            s = it->getDescriptiveName();
         if (parameterID == sim_scriptstringparam_text)
+            s = it->getScriptText();
+        if (s != "__#*/-__")
         {
-            std::string s(it->getScriptText());
             retVal = new char[s.length() + 1];
             for (size_t i = 0; i < s.length(); i++)
                 retVal[i] = s[i];
             retVal[s.length()] = 0;
             parameterLength[0] = (int)s.length();
         }
-
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
