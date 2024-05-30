@@ -295,21 +295,28 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
             _delayedDestructionObjects.insert(_delayedDestructionObjects.end(), objectHandles->begin(), objectHandles->end());
         else
         {
+            // make sure handles are valid:
+            std::unordered_set<CSceneObject*> visited;
+            for (size_t i = 0; i < objectHandles->size(); i++)
+            {
+                CSceneObject *it = getObjectFromHandle(objectHandles->at(i));
+                if ( (it != nullptr) && (visited.find(it) == visited.end()) )
+                    visited.insert(it);
+                else
+                    return false;
+            }
+
+            // Check what can be effectively destroyed
             std::vector<int> toDestroy;
             std::vector<CSceneObject*> toDestroyPtr;
             for (size_t i = 0; i < objectHandles->size(); i++)
             {
                 CSceneObject *it = getObjectFromHandle(objectHandles->at(i));
-                if (it != nullptr)
+                if (it->canDestroyNow())
                 {
-                    if (it->canDestroyNow())
-                    {
-                        toDestroy.push_back(objectHandles->at(i));
-                        toDestroyPtr.push_back(it);
-                    }
+                    toDestroy.push_back(objectHandles->at(i));
+                    toDestroyPtr.push_back(it);
                 }
-                else
-                    return false;
             }
 
             if (toDestroy.size() > 0)
@@ -1705,26 +1712,32 @@ void CSceneObjectContainer::deselectObjects()
 
 void CSceneObjectContainer::addModelObjects(std::vector<int> &selection) const
 {
-    std::unordered_set<int> objectsInOutputList;
+    std::vector<int> sel;
+    std::unordered_set<CSceneObject*> objectsInOutputList;
     for (size_t i = 0; i < selection.size(); i++)
     {
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(selection[i]);
-        objectsInOutputList.insert(it->getObjectHandle());
-        if (it->getModelBase())
+        if (objectsInOutputList.find(it) == objectsInOutputList.end())
         {
-            std::vector<CSceneObject *> newObjs;
-            it->getAllObjectsRecursive(&newObjs, false, true);
-            for (size_t j = 0; j < newObjs.size(); j++)
+            objectsInOutputList.insert(it);
+            sel.push_back(it->getObjectHandle());
+            if (it->getModelBase())
             {
-                CSceneObject *it2 = newObjs[j];
-                if (objectsInOutputList.find(it2->getObjectHandle()) == objectsInOutputList.end())
+                std::vector<CSceneObject *> newObjs;
+                it->getAllObjectsRecursive(&newObjs, false, true);
+                for (size_t j = 0; j < newObjs.size(); j++)
                 {
-                    selection.insert(selection.begin(), it2->getObjectHandle());
-                    objectsInOutputList.insert(it2->getObjectHandle());
+                    CSceneObject *it2 = newObjs[j];
+                    if (objectsInOutputList.find(it2) == objectsInOutputList.end())
+                    {
+                        objectsInOutputList.insert(it2);
+                        sel.push_back(it2->getObjectHandle());
+                    }
                 }
             }
         }
     }
+    selection.assign(sel.begin(), sel.end());
 }
 
 void CSceneObjectContainer::addCompatibilityScripts(std::vector<int> &selection) const

@@ -532,22 +532,6 @@
     <string>Apply to selection</string>
    </property>
   </widget>
-  <widget class="QCheckBox" name="qqParentProxy">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>120</y>
-     <width>241</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::StrongFocus</enum>
-   </property>
-   <property name="text">
-    <string>Use parent as proxy (comp. mode)</string>
-   </property>
-  </widget>
   <widget class="QComboBox" name="qqExecutionOrder">
    <property name="geometry">
     <rect>
@@ -598,6 +582,22 @@
    </property>
    <property name="text">
     <string>Language: lua</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="qqParentProxy">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>50</y>
+     <width>181</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Parent as proxy</string>
    </property>
   </widget>
  </widget>
