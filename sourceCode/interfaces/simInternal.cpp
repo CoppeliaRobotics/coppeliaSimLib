@@ -5816,11 +5816,19 @@ int simScaleObjects_internal(const int *objectHandles, int objectCount, double s
             return (-1);
         std::vector<int> sel;
         sel.assign(objectHandles, objectHandles + objectCount);
-        CSceneObjectOperations::scaleObjects(sel, scalingFactor, scalePositionsToo != 0);
+
+        int retVal = -1;
+        if (scalingFactor >= 0.0001)
+        {
+            CSceneObjectOperations::scaleObjects(sel, scalingFactor, scalePositionsToo != 0);
 #ifdef SIM_WITH_GUI
-        GuiApp::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
 #endif
-        return (1);
+            retVal = 1;
+        }
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_INPUT);
+        return retVal;
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (-1);
@@ -12473,7 +12481,8 @@ int simScaleObject_internal(int objectHandle, double xScale, double yScale, doub
         if (doesObjectExist(__func__, objectHandle))
         {
             CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            if (obj->scaleObjectNonIsometrically(xScale, yScale, zScale))
+
+            if ( (xScale >= 0.0001) && (yScale >= 0.0001) && (zScale >= 0.0001) && obj->scaleObjectNonIsometrically(xScale, yScale, zScale) )
                 return (1);
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_INPUT);
             return (-1);

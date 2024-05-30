@@ -2137,6 +2137,14 @@ bool CMesh::serialize(CSer &ar, const char *shapeName, const C7Vector &parentCum
                 printf("bad,fixed: %i,%i\n",++cnt,fcnt);
             }
             //*/
+
+            // Following to fix a bug:
+            if (_purePrimitiveXSizeOrDiameter < 0.0)
+                _purePrimitiveXSizeOrDiameter *= -1.0;
+            if (_purePrimitiveYSize < 0.0)
+                _purePrimitiveYSize *= -1.0;
+            if (_purePrimitiveZSizeOrHeight < 0.0)
+                _purePrimitiveZSizeOrHeight *= -1.0;
         }
     }
     else
@@ -2309,6 +2317,14 @@ bool CMesh::serialize(CSer &ar, const char *shapeName, const C7Vector &parentCum
             }
             if (App::userSettings->disableVisibleEdges)
                 _visibleEdges = false;
+
+            // Following to fix a bug:
+            if (_purePrimitiveXSizeOrDiameter < 0.0)
+                _purePrimitiveXSizeOrDiameter *= -1.0;
+            if (_purePrimitiveYSize < 0.0)
+                _purePrimitiveYSize *= -1.0;
+            if (_purePrimitiveZSizeOrHeight < 0.0)
+                _purePrimitiveZSizeOrHeight *= -1.0;
         }
     }
     return (hasNewBBFrameAndSize);
