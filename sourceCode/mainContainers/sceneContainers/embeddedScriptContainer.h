@@ -35,6 +35,7 @@ class CEmbeddedScriptContainer
     int removeDestroyedScripts(int scriptType);
     void resetScriptFlagCalledInThisSimulationStep();
     int getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts);
+    void setScriptsTemporarilySuspended(bool suspended);
 
     void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_new(SScriptCallBack *object);
     void addCallbackStructureObjectToDestroyAtTheEndOfSimulation_old(SLuaCallBack *object);

@@ -64,25 +64,28 @@ void CScript::setObjectHandle(int newObjectHandle)
 
 bool CScript::canDestroyNow()
 { // overridden from CSceneObject
-#ifdef SIM_WITH_GUI
-    if (GuiApp::mainWindow != nullptr)
-        GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(scriptObject->getScriptUid(), scriptObject->_previousEditionWindowPosAndSize, true);
-#endif
     bool retVal = CSceneObject::canDestroyNow();
-    if (scriptObject->getExecutionDepth() != 0)
-        retVal = false;
-    if (retVal)
+    if (scriptObject != nullptr)
     {
-        if (scriptObject->_scriptState == CScriptObject::scriptState_initialized)
-            scriptObject->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-        scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
-        scriptObject->resetScript();
-        // Announcements need to happen immediately after calling cleanup!
-        App::worldContainer->announceScriptStateWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
-        App::worldContainer->announceScriptWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
-        App::worldContainer->setModificationFlag(16384);
-        CScriptObject::destroy(scriptObject, true, true);
-        scriptObject = nullptr;
+#ifdef SIM_WITH_GUI
+        if (GuiApp::mainWindow != nullptr)
+            GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(scriptObject->getScriptUid(), scriptObject->_previousEditionWindowPosAndSize, true);
+#endif
+        if (scriptObject->getExecutionDepth() != 0)
+            retVal = false;
+        if (retVal)
+        {
+            if (scriptObject->_scriptState == CScriptObject::scriptState_initialized)
+                scriptObject->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
+            scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
+            scriptObject->resetScript();
+            // Announcements need to happen immediately after calling cleanup!
+            App::worldContainer->announceScriptStateWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+            App::worldContainer->announceScriptWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+            App::worldContainer->setModificationFlag(16384);
+            CScriptObject::destroy(scriptObject, true, true);
+            scriptObject = nullptr;
+        }
     }
     return retVal;
 }

@@ -2527,6 +2527,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (it != nullptr)
             it->scaleObjectNonIsometrically(cmd.doubleParams[0], cmd.doubleParams[1], cmd.doubleParams[2]);
     }
+    if (cmd.cmdId == COMMAND_QUEUE_UITRIGGEREDCMD)
+        App::currentWorld->outsideCommandQueue->addCommand(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], cmd.intParams[3], cmd.intParams[4], nullptr, 0);
     if (cmd.cmdId == TOGGLE_BOOLPROP_TEXTUREGUITRIGGEREDCMD)
     {
         CTextureProperty *it = GuiApp::getTexturePropertyPointerFromItem(

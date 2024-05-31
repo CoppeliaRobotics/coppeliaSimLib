@@ -282,7 +282,7 @@ CUserSettings::CUserSettings()
     readDelay = -500;
     writeDelay = 1000;
     useBuffers = true;
-    useSceneObjectScripts = false; // set to true with V4.8
+    useSceneObjectScripts = true;
     scriptConversion = 0;
     notifyDeprecated = 1;
 

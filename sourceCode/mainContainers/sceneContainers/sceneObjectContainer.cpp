@@ -480,6 +480,19 @@ int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool 
     return (retVal);
 }
 
+bool CSceneObjectContainer::addCommandToOutsideCommandQueues(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, const double aux2Vals[8], int aux2Count)
+{
+    if (embeddedScriptContainer != nullptr)
+        embeddedScriptContainer->addCommandToOutsideCommandQueues(commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals, aux2Count);
+    for (size_t i = 0; i < _scriptList.size(); i++)
+    {
+        CScript* it = _scriptList[i];
+        if (it->scriptObject != nullptr)
+            it->scriptObject->addCommandToOutsideCommandQueue(commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals, aux2Count);
+    }
+    return (true);
+}
+
 void CSceneObjectContainer::actualizeObjectInformation()
 {
     if (_objectActualizationEnabled)
@@ -2806,6 +2819,17 @@ size_t CSceneObjectContainer::getScriptsToExecute(std::vector<int> &scriptHandle
     }
 
     return (scriptHandles.size());
+}
+
+void CSceneObjectContainer::setScriptsTemporarilySuspended(bool suspended)
+{
+    embeddedScriptContainer->setScriptsTemporarilySuspended(suspended);
+    for (size_t i = 0; i < _scriptList.size(); i++)
+    {
+        CScript* it = _scriptList[i];
+        if (it->scriptObject != nullptr)
+            it->scriptObject->setTemporarilySuspended(suspended);
+    }
 }
 
 void CSceneObjectContainer::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)

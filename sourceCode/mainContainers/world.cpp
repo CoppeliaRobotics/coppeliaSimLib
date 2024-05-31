@@ -1766,6 +1766,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
             }
         }
     }
+
     if (App::userSettings->scriptConversion == -1)
     { // convert from new to old:
         std::vector<int> objectsToRemove;
@@ -1802,15 +1803,9 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         sceneObjects->eraseObjects(&objectsToRemove, false);
     }
 
-    // Enabled scripts (we previously don't wanted to have them react to object add event, etc., during the load operation)
-    for (size_t i = 0; i < loadedLuaScriptList.size(); i++)
-        loadedLuaScriptList[i]->setTemporarilySuspended(false);
-    for (size_t i = 0; i < loadedObjectList.size(); i++)
-    {
-        CSceneObject* it = loadedObjectList[i];
-        if (it->getObjectType() == sim_object_script_type)
-            ((CScript*)it)->scriptObject->setTemporarilySuspended(false);
-    }
+    // Enable scripts (we previously didn't want to have them react to object add event, etc., during the load operation)
+    sceneObjects->setScriptsTemporarilySuspended(false);
+
     return (true);
 }
 

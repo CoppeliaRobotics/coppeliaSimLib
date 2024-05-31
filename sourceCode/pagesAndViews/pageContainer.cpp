@@ -671,9 +671,16 @@ void CPageContainer::keyPress(int key, QWidget *mainWindow)
                                                                                    data);
     data[0] = key;
     data[1] = flags;
-    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_keypress,
-                                                                                   data); // for backward compatibility
-    App::currentWorld->outsideCommandQueue->addCommand(sim_message_keypress, key, flags, 0, 0, nullptr, 0);
+    App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_keypress, data); // for backward compatibility
+    // Also for backw. compat.:
+    SSimulationThreadCommand cmd;
+    cmd.cmdId = COMMAND_QUEUE_UITRIGGEREDCMD;
+    cmd.intParams.push_back(sim_message_keypress);
+    cmd.intParams.push_back(key);
+    cmd.intParams.push_back(flags);
+    cmd.intParams.push_back(0);
+    cmd.intParams.push_back(0);
+    App::appendSimulationThreadCommand(cmd);
 
     App::worldContainer->setModificationFlag(1024); // key was pressed
 }

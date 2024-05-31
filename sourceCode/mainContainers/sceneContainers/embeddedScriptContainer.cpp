@@ -228,6 +228,12 @@ bool CEmbeddedScriptContainer::removeScript(int scriptHandle)
     return (true);
 }
 
+void CEmbeddedScriptContainer::setScriptsTemporarilySuspended(bool suspended)
+{
+    for (size_t i = 0; i < allScripts.size(); i++)
+        allScripts[i]->setTemporarilySuspended(suspended);
+}
+
 void CEmbeddedScriptContainer::extractScript(int scriptHandle)
 {
     TRACE_INTERNAL;

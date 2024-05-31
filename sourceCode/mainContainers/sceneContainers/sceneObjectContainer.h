@@ -153,6 +153,7 @@ class CSceneObjectContainer
     size_t getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts, bool reverseOrder) const;
     void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     int callScripts_noMainScript(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
+    void setScriptsTemporarilySuspended(bool suspended);
 
     // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);
@@ -163,6 +164,8 @@ class CSceneObjectContainer
     int addObjectToScene(CSceneObject *newObject, bool objectIsACopy, bool generateAfterCreateCallback);
     int addObjectToSceneWithSuffixOffset(CSceneObject *newObject, bool objectIsACopy, int suffixOffset, bool generateAfterCreateCallback);
     int addDefaultScript(int scriptType, bool threaded, bool lua);
+    bool addCommandToOutsideCommandQueues(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, const double aux2Vals[8], int aux2Count);
+
 
     void eraseObject(CSceneObject *it, bool generateBeforeAfterDeleteCallback, bool delayed = false);
     bool eraseObjects(const std::vector<int>* objectHandles, bool generateBeforeAfterDeleteCallback, bool delayed = false);
