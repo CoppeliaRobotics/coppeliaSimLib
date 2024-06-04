@@ -40,7 +40,7 @@ void CQDlgScripts::refresh()
 
     ui->qqExecutionOrder->clear();
     ui->qqExecutionOrder->setEnabled(sel && noEditModeNoSim);
-    ui->qqDisabled->setEnabled(sel && noEditModeNoSim);
+    ui->qqEnabled->setEnabled(sel && noEditModeNoSim);
     ui->qqParentProxy->setVisible(sel && it->scriptObject->getParentIsProxy());
     ui->qqParentProxy->setEnabled(sel && noEditModeNoSim);
 
@@ -56,7 +56,7 @@ void CQDlgScripts::refresh()
         ui->qqExecutionOrder->addItem(IDSN_LAST, QVariant(sim_scriptexecorder_last));
         ui->qqExecutionOrder->setCurrentIndex(it->scriptObject->getScriptExecPriority());
 
-        ui->qqDisabled->setChecked(it->scriptObject->getScriptIsDisabled());
+        ui->qqEnabled->setChecked(!it->scriptObject->getScriptIsDisabled());
         ui->qqParentProxy->setChecked(it->scriptObject->getParentIsProxy());
     }
     else
@@ -64,7 +64,7 @@ void CQDlgScripts::refresh()
         ui->qqLang->setText("Language: -");
         ui->qqSize->setText("");
 
-        ui->qqDisabled->setChecked(false);
+        ui->qqEnabled->setChecked(false);
         ui->qqParentProxy->setChecked(false);
     }
 
@@ -115,14 +115,14 @@ void CQDlgScripts::on_qqApplyMainProperties_clicked()
     }
 }
 
-void CQDlgScripts::on_qqDisabled_clicked()
+void CQDlgScripts::on_qqEnabled_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
         CScript *it = App::currentWorld->sceneObjects->getLastSelectionScript();
         if (it != nullptr)
         {
-            App::appendSimulationThreadCommand(TOGGLE_DISABLED_SCRIPTGUITRIGGEREDCMD, it->getObjectHandle());
+            App::appendSimulationThreadCommand(TOGGLE_ENABLED_SCRIPTGUITRIGGEREDCMD, it->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);

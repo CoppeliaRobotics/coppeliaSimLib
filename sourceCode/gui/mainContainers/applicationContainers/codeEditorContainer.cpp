@@ -283,7 +283,7 @@ void CCodeEditorContainer::announceScriptStateWillBeErased(int scriptHandle, int
 int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
 {
     int retVal = -1;
-    CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptHandle);
+    CScriptObject *it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(scriptHandle);
     if (it != nullptr)
     {
         if (!App::currentWorld->environment->getSceneLocked())
@@ -793,6 +793,12 @@ void CCodeEditorContainer::applyChanges(int handle) const
     {
         for (size_t i = 0; i < App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
             App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i]->fromFileToBuffer();
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_script_type); i++)
+        {
+            CScript* it = App::currentWorld->sceneObjects->getScriptFromIndex(i);
+            if (it->scriptObject != nullptr)
+                it->scriptObject->fromFileToBuffer();
+        }
     }
     int sceneId = App::currentWorld->environment->getSceneUniqueID();
     for (size_t i = 0; i < _allEditors.size(); i++)
@@ -986,8 +992,7 @@ void CCodeEditorContainer::simulationAboutToStart() const
         {
             if ((_allEditors[i].sceneUniqueId == sceneId) && (_allEditors[i].scriptHandle >= 0))
             {
-                CScriptObject *it =
-                    App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
+                CScriptObject *it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
                 if ((it != nullptr) && ((it->getScriptType() == sim_scripttype_mainscript) ||
                                         (it->getScriptType() == sim_scripttype_childscript)))
                     applyChanges(_allEditors[i].handle);

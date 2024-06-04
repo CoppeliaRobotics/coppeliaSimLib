@@ -154,6 +154,8 @@ class CSceneObjectContainer
     void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     int callScripts_noMainScript(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     void setScriptsTemporarilySuspended(bool suspended);
+    int getSysFuncAndHookCnt(int sysCall) const;
+    void setSysFuncAndHookCnt(int sysCall, int cnt);
 
     // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);
@@ -287,4 +289,9 @@ class CSceneObjectContainer
 
     std::vector<int> _selectedObjectHandles;
     std::vector<int> _lastSelection; // to keep track of selection changes (async.)
+
+    int _sysFuncAndHookCnt_event;
+    int _sysFuncAndHookCnt_dyn;
+    int _sysFuncAndHookCnt_contact;
+    int _sysFuncAndHookCnt_joint;
 };

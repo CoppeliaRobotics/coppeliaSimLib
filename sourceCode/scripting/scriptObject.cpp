@@ -2993,9 +2993,12 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
             App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_event, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
         else if (_scriptType != sim_scripttype_sandboxscript)
-            App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_event,
-                App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
+        {
+            if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
+                App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_event, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_event) + dx);
+            else
+                App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_event, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
+        }
     }
     if ((sysCall == sim_syscb_dyn) || (sysCall == -1))
     {
@@ -3005,8 +3008,12 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
             App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_dyn, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
         else if (_scriptType != sim_scripttype_sandboxscript)
-            App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_dyn, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
+        {
+            if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
+                App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_dyn, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
+            else
+                App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_dyn, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
+        }
     }
     if ((sysCall == sim_syscb_contact) || (sysCall == -1))
     {
@@ -3017,9 +3024,12 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
                 sim_syscb_contact,
                 App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
         else if (_scriptType != sim_scripttype_sandboxscript)
-            App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_contact,
-                App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
+        {
+            if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
+                App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_contact, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
+            else
+                App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_contact, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
+        }
     }
     if ((sysCall == sim_syscb_joint) || (sysCall == -1))
     {
@@ -3029,9 +3039,12 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
             App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_joint, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
         else if (_scriptType != sim_scripttype_sandboxscript)
-            App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_joint,
-                App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
+        {
+            if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
+                App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_joint, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
+            else
+                App::currentWorld->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_joint, App::currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
+        }
     }
 }
 

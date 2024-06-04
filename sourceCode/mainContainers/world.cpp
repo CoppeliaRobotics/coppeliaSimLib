@@ -538,7 +538,7 @@ void CWorld::saveScene(CSer &ar)
     }
     // --------------------------
 
-    // We serialize the script objects (not the add-on scripts nor the sandbox script):
+    // We serialize the old scripts (not the add-on scripts nor the sandbox script):
     for (size_t i = 0; i < sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
     {
         CScriptObject *it = sceneObjects->embeddedScriptContainer->allScripts[i];
@@ -910,7 +910,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     }
     // -----------------
 
-    // We add all the scripts:
+    // We add all the old scripts:
     std::map<int, int> luaScriptMapping;
     for (size_t i = 0; i < loadedLuaScriptList->size(); i++)
     {
@@ -1894,13 +1894,13 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
         }
         sceneObjects->setObjectParent(it, pit, false);
         if (childScript != nullptr)
-        {
+        { // old scripts
             hasAScriptAttached = true;
             sceneObjects->embeddedScriptContainer->insertScript(childScript);
             childScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
         }
         if (customizationScript != nullptr)
-        {
+        { // old scripts
             hasAScriptAttached = true;
             sceneObjects->embeddedScriptContainer->insertScript(customizationScript);
             customizationScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());

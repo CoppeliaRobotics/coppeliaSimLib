@@ -3317,7 +3317,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             App::currentWorld->sceneObjects->embeddedScriptContainer->removeScript(scriptID);
         }
     }
-    if (cmd.cmdId == TOGGLE_DISABLED_SCRIPTGUITRIGGEREDCMD)
+    if (cmd.cmdId == TOGGLE_ENABLED_SCRIPTGUITRIGGEREDCMD)
     {
         CScriptObject *it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)

@@ -22,6 +22,10 @@ CSceneObjectContainer::CSceneObjectContainer()
     _objectCreationCounter = 0;
     _objectDestructionCounter = 0;
     _hierarchyChangeCounter = 0;
+    _sysFuncAndHookCnt_event = 0;
+    _sysFuncAndHookCnt_dyn = 0;
+    _sysFuncAndHookCnt_contact = 0;
+    _sysFuncAndHookCnt_joint = 0;
 }
 
 CSceneObjectContainer::~CSceneObjectContainer()
@@ -2830,6 +2834,32 @@ void CSceneObjectContainer::setScriptsTemporarilySuspended(bool suspended)
         if (it->scriptObject != nullptr)
             it->scriptObject->setTemporarilySuspended(suspended);
     }
+}
+
+int CSceneObjectContainer::getSysFuncAndHookCnt(int sysCall) const
+{
+    int retVal = embeddedScriptContainer->getSysFuncAndHookCnt(sysCall);
+    if (sysCall == sim_syscb_event)
+        retVal += _sysFuncAndHookCnt_event;
+    if (sysCall == sim_syscb_dyn)
+        retVal += _sysFuncAndHookCnt_dyn;
+    if (sysCall == sim_syscb_contact)
+        retVal += _sysFuncAndHookCnt_contact;
+    if (sysCall == sim_syscb_joint)
+        retVal += _sysFuncAndHookCnt_joint;
+    return retVal;
+}
+
+void CSceneObjectContainer::setSysFuncAndHookCnt(int sysCall, int cnt)
+{
+    if (sysCall == sim_syscb_event)
+        _sysFuncAndHookCnt_event = cnt;
+    if (sysCall == sim_syscb_dyn)
+        _sysFuncAndHookCnt_dyn = cnt;
+    if (sysCall == sim_syscb_contact)
+        _sysFuncAndHookCnt_contact = cnt;
+    if (sysCall == sim_syscb_joint)
+        _sysFuncAndHookCnt_joint = cnt;
 }
 
 void CSceneObjectContainer::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)

@@ -1147,7 +1147,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
     shiftSelectionStarted = false;
     shiftingAllowed = false;
 
-    // We check if we have to launch a script editor window:
+    // We check if we have to launch a script editor window (with old scripts):
     int scriptID = getScriptActionObjectID(mouseDownRelativePosition[0], mouseDownRelativePosition[1]);
     if (scriptID != -1)
     {
@@ -1193,7 +1193,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
 
                     CScript* it = App::currentWorld->sceneObjects->getScriptFromHandle(objID);
                     if (it != nullptr)
-                    {
+                    { // new scripts
                         // Process the command via the simulation thread (delayed):
                         SSimulationThreadCommand cmd;
                         cmd.cmdId = OPEN_SCRIPT_EDITOR_CMD;

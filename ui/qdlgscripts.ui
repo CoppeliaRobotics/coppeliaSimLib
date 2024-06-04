@@ -555,7 +555,7 @@
     <string>Execution priority</string>
    </property>
   </widget>
-  <widget class="QCheckBox" name="qqDisabled">
+  <widget class="QCheckBox" name="qqEnabled">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -568,7 +568,7 @@
     <enum>Qt::StrongFocus</enum>
    </property>
    <property name="text">
-    <string>Disabled</string>
+    <string>Enabled</string>
    </property>
   </widget>
   <widget class="QLabel" name="qqLang">
@@ -602,9 +602,9 @@
   </widget>
  </widget>
  <tabstops>
-  <tabstop>qqDisabled</tabstop>
-  <tabstop>qqParentProxy</tabstop>
+  <tabstop>qqEnabled</tabstop>
   <tabstop>qqExecutionOrder</tabstop>
+  <tabstop>qqParentProxy</tabstop>
   <tabstop>qqSize</tabstop>
   <tabstop>qqColor</tabstop>
   <tabstop>qqApplyMainProperties</tabstop>

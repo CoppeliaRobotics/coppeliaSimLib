@@ -407,7 +407,7 @@ CScriptObject *CWorldContainer::getScriptObjectFromUid(int uid) const
 
 int CWorldContainer::getSysFuncAndHookCnt(int sysCall) const
 {
-    int retVal = currentWorld->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sysCall);
+    int retVal = currentWorld->sceneObjects->getSysFuncAndHookCnt(sysCall);
     retVal += addOnScriptContainer->getSysFuncAndHookCnt(sysCall);
     if (sandboxScript != nullptr)
     {

@@ -29,7 +29,7 @@ class CQDlgScripts : public CDlgEx
 
     void on_qqApplyMainProperties_clicked();
 
-    void on_qqDisabled_clicked();
+    void on_qqEnabled_clicked();
 
     void on_qqParentProxy_clicked();
 

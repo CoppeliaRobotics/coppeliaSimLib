@@ -339,12 +339,11 @@ void COpenglWidget::wheelEvent(QWheelEvent *wEvent)
 void COpenglWidget::_wheelEvent(SMouseOrKeyboardOrResizeEvent e)
 {
     TRACE_INTERNAL;
-
     int x, y;
     _computeMousePos(e.x, e.y, x, y);
 
     if ((GuiApp::mainWindow->getMouseButtonState() & 13) == 0)
-    { // wheel only workes when no other button is down
+    { // wheel only works when no other button is down
         if ((disableWheelRotateForOne500ms == -1) || (VDateTime::getTimeDiffInMs(disableWheelRotateForOne500ms) > 300))
         { // when the middle mouse button was released, sometimes the wheel rotates involontarily
             disableWheelRotateForOne500ms = -1;

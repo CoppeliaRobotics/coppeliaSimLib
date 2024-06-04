@@ -990,7 +990,20 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             bool isLua = (commandID <= ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD);
             bool isThreaded = (commandID == ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD) || (commandID == ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD);
             if (App::userSettings->useSceneObjectScripts)
-                App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_customizationscript, isThreaded, isLua);
+            {
+                CSceneObject* sel = nullptr;
+                if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
+                    sel = App::currentWorld->sceneObjects->getLastSelectionObject();
+                int scriptHandle = App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_customizationscript, isThreaded, isLua);
+                if ( (sel != nullptr) && (scriptHandle != -1) )
+                {
+                    CSceneObject* script = App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
+                    App::currentWorld->sceneObjects->setObjectParent(script, sel, false);
+                    sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+                    App::currentWorld->sceneObjects->deselectObjects();
+                    App::currentWorld->sceneObjects->selectObject(scriptHandle);
+                }
+            }
             else
             { // legacy scripts
                 if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
