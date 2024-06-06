@@ -2182,6 +2182,9 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
 
     rebuildWorld_oldIk();
 
+    // Enable scripts (we previously didn't want to have them react to object add event, etc., during the load operation)
+    sceneObjects->setScriptsTemporarilySuspended(false);
+
     return (retVal);
 }
 

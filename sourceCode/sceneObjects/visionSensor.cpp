@@ -2600,7 +2600,7 @@ void CVisionSensor::serialize(CSer &ar)
                     if (coll != nullptr)
                         str = "@collection@" + coll->getCollectionName();
                 }
-                ar.xmlAddNode_comment(" 'renderableEntity' tag only used for backward compatibility, use instead "
+                ar.xmlAddNode_comment(" 'renderableEntity' tag only provided for backward compatibility, use instead "
                                       "'renderableObjectAlias' tag",
                                       exhaustiveXml);
                 ar.xmlAddNode_string("renderableEntity", str.c_str());

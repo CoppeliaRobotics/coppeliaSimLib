@@ -590,7 +590,7 @@ void CProxSensor::serialize(CSer &ar)
                     if (coll != nullptr)
                         str = "@collection@" + coll->getCollectionName();
                 }
-                ar.xmlAddNode_comment(" 'detectableEntity' tag only used for backward compatibility, use instead "
+                ar.xmlAddNode_comment(" 'detectableEntity' tag only provided for backward compatibility, use instead "
                                       "'detectableObjectAlias' tag",
                                       exhaustiveXml);
                 ar.xmlAddNode_string("detectableEntity", str.c_str());

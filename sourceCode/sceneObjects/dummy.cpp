@@ -684,7 +684,7 @@ void CDummy::serialize(CSer &ar)
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 ar.xmlAddNode_comment(
-                    " 'linkedDummy' tag only used for backward compatibility, use instead 'linkedDummyAlias' tag",
+                    " 'linkedDummy' tag only provided for backward compatibility, use instead 'linkedDummyAlias' tag",
                     exhaustiveXml);
                 ar.xmlAddNode_string("linkedDummy", str.c_str());
                 if (it != nullptr)

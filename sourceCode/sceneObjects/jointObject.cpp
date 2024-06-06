@@ -3242,7 +3242,7 @@ void CJoint::serialize(CSer &ar)
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 ar.xmlAddNode_comment(
-                    " 'dependentJoint' tag only used for backward compatibility, use instead 'dependentJointAlias' tag",
+                    " 'dependentJoint' tag only provided for backward compatibility, use instead 'dependentJointAlias' tag",
                     exhaustiveXml);
                 ar.xmlAddNode_string("dependentJoint", str.c_str());
                 if (it != nullptr)
@@ -3265,15 +3265,16 @@ void CJoint::serialize(CSer &ar)
             ar.xmlAddNode_comment(" 'velController' tag: can be 'none' or 'motionProfile' ", exhaustiveXml);
             ar.xmlAddNode_enum("velController", _dynVelocityCtrlType, 0, "none", 1, "motionProfile");
             ar.xmlAddNode_float("maxForce", _targetForce);
-            ar.xmlAddNode_comment(" 'upperVelocityLimit' tag only used for backward compatibility", exhaustiveXml);
+            ar.xmlAddNode_comment(" 'upperVelocityLimit' tag only provided for backward compatibility", exhaustiveXml);
             ar.xmlAddNode_float("upperVelocityLimit",
                                 _maxVelAccelJerk[0] * mult); // for backward compatibility (V4.3 and earlier)
             double P, I, D;
             getPid(P, I, D, sim_physics_bullet);
-            ar.xmlAddNode_comment(" 'pidValues' tag only used for backward compatibility", exhaustiveXml);
+            ar.xmlAddNode_comment(" 'pidValues' tag only provided for backward compatibility", exhaustiveXml);
             ar.xmlAddNode_3float("pidValues", P, I, D); // for backward compatibility (V4.3 and earlier)
             ar.xmlAddNode_2float("kcValues", _dynCtrl_kc[0], _dynCtrl_kc[1]);
 
+            ar.xmlAddNode_comment(" 'switches' tag only provided for backward compatibility", exhaustiveXml);
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("motorEnabled",
                                _dynCtrlMode != sim_jointdynctrl_free); // for backward compatibility (V4.3 and earlier)

@@ -1471,7 +1471,7 @@ void CCamera::serialize(CSer &ar)
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 ar.xmlAddNode_comment(
-                    " 'trackedObject' tag only used for backward compatibility, use instead 'trackedObjectAlias' tag",
+                    " 'trackedObject' tag only provided for backward compatibility, use instead 'trackedObjectAlias' tag",
                     exhaustiveXml);
                 ar.xmlAddNode_string("trackedObject", str.c_str());
                 if (it != nullptr)

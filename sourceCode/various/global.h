@@ -72,6 +72,7 @@
 #define SERX_OCTREE "octree"
 #define SERX_POINTCLOUD "pointCloud"
 #define SERX_DUMMY "dummy"
+#define SERX_SCRIPT "script"
 #define SERX_PROXIMITYSENSOR "proximitySensor"
 #define SERX_VISIONSENSOR "visionSensor"
 #define SERX_PATH_OLD "path"
@@ -90,7 +91,7 @@
 #define SERX_SCENE_CUSTOM_DATA_OLD "sceneCustomData"
 #define SERX_VIEWS "views"
 #define SERX_COLLECTION "collection"
-#define SERX_LUA_SCRIPT "script"
+#define SERX_LUA_SCRIPT "script" // legacy scripts
 
 #define IK_DIVISION_FACTOR 100.0 // needed for better stability of resolutions!
 #define SELECTION_BUFFER_SIZE                                                                                          \

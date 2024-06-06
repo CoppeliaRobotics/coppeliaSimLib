@@ -974,6 +974,13 @@ CSceneObject *CSceneObjectContainer::readSceneObject(CSer &ar, const char *name,
             ar.xmlPopNode();
             return (myNewObject);
         }
+        if (ar.xmlPushChildNode(SERX_SCRIPT, false))
+        {
+            CScript *myNewObject = new CScript();
+            myNewObject->serialize(ar);
+            ar.xmlPopNode();
+            return (myNewObject);
+        }
         if (ar.xmlPushChildNode(SERX_PROXIMITYSENSOR, false))
         {
             CProxSensor *myNewObject = new CProxSensor();
@@ -1073,6 +1080,8 @@ void CSceneObjectContainer::writeSceneObject(CSer &ar, CSceneObject *it)
             ar.xmlPushNewNode(SERX_POINTCLOUD);
         if (it->getObjectType() == sim_object_dummy_type)
             ar.xmlPushNewNode(SERX_DUMMY);
+        if (it->getObjectType() == sim_object_script_type)
+            ar.xmlPushNewNode(SERX_SCRIPT);
         if (it->getObjectType() == sim_object_proximitysensor_type)
             ar.xmlPushNewNode(SERX_PROXIMITYSENSOR);
         if (it->getObjectType() == sim_object_visionsensor_type)
@@ -1104,7 +1113,7 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer &ar, CSc
         else
             ar.xmlPushSiblingNode(nm.c_str(), false);
         std::string objNames(
-            "shape*joint*graph*camera*dummy*proximitySensor*visionSensor*forceSensor*path*light*ocTree*pointCloud");
+            "shape*joint*graph*camera*dummy*script*proximitySensor*visionSensor*forceSensor*path*light*ocTree*pointCloud");
         if (objNames.find(nm) != std::string::npos)
         {
             C7Vector desiredLocalFrame;
