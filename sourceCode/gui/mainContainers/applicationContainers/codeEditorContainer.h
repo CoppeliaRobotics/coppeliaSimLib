@@ -38,7 +38,7 @@ class CCodeEditorContainer
     void announceScriptStateWillBeErased(int scriptHandle, int scriptUid);
 
     int open(const char *initText, const char *xml, int callingScriptHandle); // func. sim.textEditorOpen
-    int openSimulationScript(int scriptHandle);      // main and child scripts
+    int openSimulationScript(int scriptHandle);      // main and simulation scripts
     int openCustomizationScript(int scriptHandle);   // customization scripts
     int openConsole(const char *title, int maxLines, int mode, const int position[2], const int size[2],
                     const int textColor[3], const int backColor[3], int callingScriptHandle);

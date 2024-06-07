@@ -2205,7 +2205,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                         script->systemCallScript(sim_syscb_vision, inStack, outStack);
                 }
                 else
-                { // OLD: we are in the thread started by a threaded child script. Call only that script
+                { // OLD: we are in the thread started by a threaded simulation script. Call only that script
                     if (script->getThreadedExecution_oldThreads())
                         script->systemCallScript(sim_syscb_vision, inStack, nullptr);
                 }
@@ -2284,7 +2284,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
                             script->systemCallScript(sim_syscb_trigger, inStack, outStack);
                     }
                     else
-                    { // we are in the thread started by a threaded child script. Call only that script
+                    { // we are in the thread started by a threaded simulation script. Call only that script
                         if (script->getThreadedExecution_oldThreads())
                             script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
                     }

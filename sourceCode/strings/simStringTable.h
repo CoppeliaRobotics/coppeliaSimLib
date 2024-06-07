@@ -125,7 +125,6 @@
 #define IDSN_RECORDER_INITIALIZATION_FAILED "Video compressor initialization failed."
 
 #define IDS_INSTANCES_MENU_ITEM "Scenes"            // modifiedOn 5/3/2012    "Instances"
-#define IDSN_INSTANCE "Scene"                       // modifiedOn 5/3/2012    "Instance"
 #define IDS_RECTANGLE_MENU_ITEM "Cuboid..."         // modifiedOn 25/2/2012
 #define IDSN_PRIMITIVE_RECTANGLE "Primitive cuboid" // modifiedOn 25/2/2012
 #define IDS_MAKE_RECTANGLE_WITH_SELECTED_TRIANGLES_MENU_ITEM                                                           \
@@ -134,11 +133,6 @@
     "The scene is still in edit mode. Do you want to end the edit mode and discard the changes?" // modifiedOn 5/3/2012
 #define IDS_ANOTHER_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE                                                                \
     "One or more scenes are still in edit mode. Please end all edit modes before leaving." // modifiedOn 5/3/2012
-#define IDS_MAINSCRIPT_EDITION_WARNING                                                                                 \
-    "You are about to edit the main script. This is not recommended for compatibility reasons since loaded models, "   \
-    "or models copied from a different scene might not operate as expected anymore in this scene. We rather recomend " \
-    "that you adjust a child script for the behaviour you wish to achieve. Do you want to proceed anyway?" // modifiedOn
-                                                                                                           // 5/3/2012
 #define IDS_TOOLBAR_TOOLTIP_VISUALIZE_DYNAMIC_CONTENT                                                                  \
     "Visualize and verify dynamic content (during simulation only)" // modifiedOn 23/02/2012
 #define IDS_ANOTHER_INSTANCE_STILL_NOT_SAVED_WANNA_LEAVE_ANYWAY_MESSAGE                                                \
@@ -587,9 +581,6 @@
 #define IDS_OVERALL_COLLISION_COUNT "Overall collision count"
 #define IDS_SIMULATION_TIME "Simulation time"
 #define IDS_USER_DATA "User data"
-
-#define IDS_SIMULATION_SCRIPTS "Simulation scripts"
-#define IDS_CUSTOMIZATION_SCRIPTS "Customization scripts"
 
 #define IDS_DONT_TRACK_OBJECT__MENU_ITEM "Don't track object '"
 

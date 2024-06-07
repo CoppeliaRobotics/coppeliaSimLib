@@ -319,7 +319,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     { // cmd.intParams[0] is an object handle
         CScriptObject *script = App::currentWorld->sceneObjects->getScriptObjectFromHandle(cmd.intParams[0]);
         if (script == nullptr)
-            script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, cmd.intParams[0]);
+            script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, cmd.intParams[0]);
         if ((script != nullptr) && (script->hasSystemFunctionOrHook(sim_syscb_userconfig)))
         { // we have a user config callback
             script->systemCallScript(sim_syscb_userconfig, nullptr, nullptr);
@@ -349,7 +349,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CScriptObject *it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
             if (it != nullptr)
             {
-                if (it->getScriptType() == sim_scripttype_customizationscript)
+                if (it->getScriptType() == sim_scripttype_customization)
                     GuiApp::mainWindow->codeEditorContainer->openCustomizationScript(cmd.intParams[0]);
                 else
                     GuiApp::mainWindow->codeEditorContainer->openSimulationScript(cmd.intParams[0]);
@@ -3322,16 +3322,53 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         CScriptObject *it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            if (it->getScriptType() == sim_scripttype_customizationscript)
+            if (it->getScriptType() == sim_scripttype_customization)
                 it->resetScript();
             it->setScriptIsDisabled(!it->getScriptIsDisabled());
         }
     }
-    if (cmd.cmdId == TOGGLE_PARENTPROXY_SCRIPTGUITRIGGEREDCMD)
+    if (cmd.cmdId == PARENTPROXY_OFF_SCRIPTGUITRIGGEREDCMD)
     {
         CScriptObject *it = App::currentWorld->getScriptObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setParentIsProxy(!it->getParentIsProxy());
+        {
+            it->setParentIsProxy(false);
+#ifdef SIM_WITH_GUI
+            if (GuiApp::mainWindow != nullptr)
+            {
+                unsigned short res = GuiApp::uiThread->messageBox_question(
+                    GuiApp::mainWindow, "Code conversion",
+                    "CoppeliaSim can try to adjust the code automatically, by mainly performing a simple string replacement:\n\n"
+                    "'.' and './' (and similar)    with    '..' and '../'\n"
+                    "'conveyor_customization-2'    with    'models.conveyor_customization-3'\n"
+                    "'efficientconveyor_customization-2'    with    'models.efficientconveyor_customization-3'\n"
+                    "'conveyorSystem_customization-2'    with    'models.conveyorSystem_customization-3'\n"
+                    "'path_customization'    with    'models.path_customization-2'\n"
+                    "'graph_customization'    with    'models.graph_customization-2'\n\n"
+                    "There might be other changes that are possibly required, and that will have to be handled manually. Also, all non-embedded code (i.e. external files) is not touched.\n"
+                    "Do you want to proceed?",
+                    VMESSAGEBOX_YES_NO, VMESSAGEBOX_REPLY_YES);
+                if (res == VMESSAGEBOX_REPLY_YES)
+                {
+                    GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(it->getScriptUid(), nullptr, true);
+                    it->replaceScriptText("'.'", "'..'");
+                    it->replaceScriptText("'./", "'../");
+                    it->replaceScriptText("\".\"", "\"..\"");
+                    it->replaceScriptText("\"./", "\"../");
+                    it->replaceScriptText("'conveyor_customization-2'", "'models.conveyor_customization-3'");
+                    it->replaceScriptText("\"conveyor_customization-2\"", "\"models.conveyor_customization-3\"");
+                    it->replaceScriptText("'efficientconveyor_customization-2'", "'models.efficientconveyor_customization-3'");
+                    it->replaceScriptText("\"efficientconveyor_customization-2\"", "\"models.efficientconveyor_customization-3\"");
+                    it->replaceScriptText("'conveyorSystem_customization-2'", "'models.conveyorSystem_customization-3'");
+                    it->replaceScriptText("\"conveyorSystem_customization-2\"", "\"models.conveyorSystem_customization-3\"");
+                    it->replaceScriptText("'path_customization'", "'models.path_customization-2'");
+                    it->replaceScriptText("\"path_customization\"", "\"models.path_customization-2\"");
+                    it->replaceScriptText("'graph_customization'", "'models.graph_customization-2'");
+                    it->replaceScriptText("\"graph_customization\"", "\"models.graph_customization-2\"");
+                }
+            }
+#endif
+        }
     }
     if (cmd.cmdId == TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD)
     {

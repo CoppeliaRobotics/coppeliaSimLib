@@ -143,7 +143,7 @@ int CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
         {
             std::string fp(App::folders->getAddOnPath() + "/");
             fp += foundItem->name;
-            CScriptObject *defScript = new CScriptObject(sim_scripttype_addonscript);
+            CScriptObject *defScript = new CScriptObject(sim_scripttype_addon);
             defScript->setLang(lang.c_str());
             if (defScript->setScriptTextFromFile(fp.c_str()))
             {
@@ -200,7 +200,7 @@ int CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
                 for (int i = 0; i < int(archiveLength); i++)
                     archive >> script[i];
                 script[archiveLength] = 0;
-                CScriptObject *defScript = new CScriptObject(sim_scripttype_addonscript);
+                CScriptObject *defScript = new CScriptObject(sim_scripttype_addon);
                 defScript->setLang(lang.c_str());
                 defScript->setAddOnFilePath(fp.c_str());
                 _insertAddOn(defScript);

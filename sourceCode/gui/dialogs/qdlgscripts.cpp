@@ -137,7 +137,7 @@ void CQDlgScripts::on_qqParentProxy_clicked()
         CScript *it = App::currentWorld->sceneObjects->getLastSelectionScript();
         if (it != nullptr)
         {
-            App::appendSimulationThreadCommand(TOGGLE_PARENTPROXY_SCRIPTGUITRIGGEREDCMD, it->getObjectHandle());
+            App::appendSimulationThreadCommand(PARENTPROXY_OFF_SCRIPTGUITRIGGEREDCMD, it->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);

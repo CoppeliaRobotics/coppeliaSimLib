@@ -398,9 +398,9 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int> *sel, bool fromLockedSce
     if ((options & 1) == 0)
     {
         for (size_t i = 0; i < App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
-        { // Copy only child scripts or customization scripts:
+        { // Copy only simulation scripts or customization scripts:
             int st = App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i]->getScriptType();
-            if (((st == sim_scripttype_childscript) || (st == sim_scripttype_customizationscript)) &&
+            if (((st == sim_scripttype_simulation) || (st == sim_scripttype_customization)) &&
                 (App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i]->getObjectHandleThatScriptIsAttachedTo(-1) !=
                  -1))
                 luaScriptBuffer.push_back(App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i]->copyYourself());

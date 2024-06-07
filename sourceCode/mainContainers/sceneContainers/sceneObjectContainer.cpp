@@ -43,12 +43,12 @@ void CSceneObjectContainer::simulationAboutToStart()
 
 void CSceneObjectContainer::simulationAboutToEnd()
 {
-    embeddedScriptContainer->simulationAboutToEnd(); // destroys the main script (and subsequently all child scripts)
+    embeddedScriptContainer->simulationAboutToEnd(); // destroys the main script (and subsequently all simulation scripts)
 
     for (size_t i = 0; i < getObjectCount(sim_object_script_type); i++)
     {
         CScript* it = getScriptFromIndex(i);
-        it->scriptObject->simulationAboutToEnd(); // destroys child script states
+        it->scriptObject->simulationAboutToEnd(); // destroys simulation script states
     }
 }
 
@@ -209,10 +209,10 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject *newObj
 
     int objectHandle = _nextObjectHandle;
 #if SIM_PROGRAM_VERSION_NB < 40800
-    // We make sure that new script objects do not have a handle below sim_scripttype_sandboxscript+1, so that we
+    // We make sure that new script objects do not have a handle below sim_scripttype_sandbox+1, so that we
     // can still allow the legacy call arguments for V4.7 with simCallScriptFunction, simCallScriptFunctionEx, simExecuteScriptString,
     // before dropping the legacy call argument support with V4.8 and later
-    while ( (getObjectFromHandle(objectHandle) != nullptr) || ((newObject->getObjectType() == sim_object_script_type) && (objectHandle <= sim_scripttype_sandboxscript)) )
+    while ( (getObjectFromHandle(objectHandle) != nullptr) || ((newObject->getObjectType() == sim_object_script_type) && (objectHandle <= sim_scripttype_sandbox)) )
 #else
     while (getObjectFromHandle(objectHandle) != nullptr)
 #endif
@@ -419,18 +419,18 @@ int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool 
     int retVal = -1;
     std::string filenameAndPath(App::folders->getSystemPath() + "/");
 
-    if (scriptType == sim_scripttype_mainscript)
+    if (scriptType == sim_scripttype_main)
         retVal = embeddedScriptContainer->insertDefaultScript(scriptType, threaded, lua);
     else
     {
-        if (scriptType == sim_scripttype_childscript)
+        if (scriptType == sim_scripttype_simulation)
         {
             if (threaded)
                 filenameAndPath += DEFAULT_THREADEDCHILDSCRIPT;
             else
                 filenameAndPath += DEFAULT_NONTHREADEDCHILDSCRIPT;
         }
-        if (scriptType == sim_scripttype_customizationscript)
+        if (scriptType == sim_scripttype_customization)
         {
             if (threaded)
                 filenameAndPath += DEFAULT_THREADEDCUSTOMIZATIONSCRIPT;
@@ -1213,11 +1213,11 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer &ar, CSc
                                                             desiredLocalFrame);
                 obj->setLocalTransformation(localFramePreCorrection * obj->getLocalTransformation());
 
-                // Handle attached child scripts:
+                // Handle attached simulation scripts:
                 CScriptObject *childScript = nullptr;
                 if (ar.xmlPushChildNode("childScript", false))
                 {
-                    childScript = new CScriptObject(sim_scripttype_childscript);
+                    childScript = new CScriptObject(sim_scripttype_simulation);
                     childScript->serialize(ar);
                     ar.xmlPopNode();
                 }
@@ -1226,7 +1226,7 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer &ar, CSc
                 CScriptObject *customizationScript = nullptr;
                 if (ar.xmlPushChildNode("customizationScript", false))
                 {
-                    customizationScript = new CScriptObject(sim_scripttype_customizationscript);
+                    customizationScript = new CScriptObject(sim_scripttype_customization);
                     customizationScript->serialize(ar);
                     ar.xmlPopNode();
                 }
@@ -1329,14 +1329,14 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer &ar, const CScene
         obj->serialize(ar);
     }
 
-    CScriptObject *script = embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, object->getObjectHandle());
+    CScriptObject *script = embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, object->getObjectHandle());
     if (script != nullptr)
     {
         ar.xmlPushNewNode("childScript");
         script->serialize(ar);
         ar.xmlPopNode();
     }
-    script = embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, object->getObjectHandle());
+    script = embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, object->getObjectHandle());
     if (script != nullptr)
     {
         ar.xmlPushNewNode("customizationScript");
@@ -2762,21 +2762,21 @@ size_t CSceneObjectContainer::getScriptsToExecute(std::vector<int> &scriptHandle
 
     std::vector<SScriptInfo> childScripts;
     int childScriptsMaxDepth = -1;
-    if ( (scriptType == -1) || ((scriptType & 0x0f) == sim_scripttype_childscript) )
+    if ( (scriptType == -1) || ((scriptType & 0x0f) == sim_scripttype_simulation) )
     {
         int t = scriptType;
         if (t == -1)
-            t = sim_scripttype_childscript;
+            t = sim_scripttype_simulation;
         for (size_t i = 0; i < objects.size(); i++)
             childScriptsMaxDepth = std::max<int>(childScriptsMaxDepth, objects[i]->getScriptsInTree(childScripts, t, legacyEmbeddedScripts, 0));
     }
 
     std::vector<SScriptInfo> customizationScripts;
     int customizationScriptsMaxDepth = -1;
-    if ( (scriptType == -1) || (scriptType == sim_scripttype_customizationscript) )
+    if ( (scriptType == -1) || (scriptType == sim_scripttype_customization) )
     {
         for (size_t i = 0; i < objects.size(); i++)
-            customizationScriptsMaxDepth = std::max<int>(customizationScriptsMaxDepth, objects[i]->getScriptsInTree(customizationScripts, sim_scripttype_customizationscript, legacyEmbeddedScripts, 0));
+            customizationScriptsMaxDepth = std::max<int>(customizationScriptsMaxDepth, objects[i]->getScriptsInTree(customizationScripts, sim_scripttype_customization, legacyEmbeddedScripts, 0));
     }
 
     if (childScriptsMaxDepth >= 0)
@@ -4188,7 +4188,7 @@ int CSceneObjectContainer::getCalledScriptsCountInThisSimulationStep(bool onlySi
     {
         if (_scriptList[i]->scriptObject->getCalledInThisSimulationStep())
         {
-            if ((!onlySimulationScripts) || (_scriptList[i]->scriptObject->getScriptType() == sim_scripttype_childscript))
+            if ((!onlySimulationScripts) || (_scriptList[i]->scriptObject->getScriptType() == sim_scripttype_simulation))
                 cnt++;
         }
     }

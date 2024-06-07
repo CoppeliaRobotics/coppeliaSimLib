@@ -45,8 +45,8 @@ void CQDlgOldScripts::refresh()
 
     ui->qqCombo->setEnabled(noEditMode);
     ui->qqCombo->clear();
-    ui->qqCombo->addItem(IDS_SIMULATION_SCRIPTS, QVariant(0));
-    ui->qqCombo->addItem(IDS_CUSTOMIZATION_SCRIPTS, QVariant(1));
+    ui->qqCombo->addItem("Simulation scripts", QVariant(0));
+    ui->qqCombo->addItem("Customization scripts", QVariant(1));
 
     ui->qqCombo->setCurrentIndex(scriptViewMode);
 
@@ -65,10 +65,10 @@ void CQDlgOldScripts::refresh()
             App::currentWorld->sceneObjects->embeddedScriptContainer->getObjectHandleFromScriptHandle(theScript->getScriptHandle()));
     ui->qqExecutionOrder->setEnabled((associatedObject != nullptr) && noEditModeAndNoSim);
     ui->qqDisabled->setEnabled((theScript != nullptr) && noEditMode &&
-                               ((theScript->getScriptType() == sim_scripttype_childscript) ||
-                                (theScript->getScriptType() == sim_scripttype_customizationscript)));
+                               ((theScript->getScriptType() == sim_scripttype_simulation) ||
+                                (theScript->getScriptType() == sim_scripttype_customization)));
     ui->qqExecuteOnce->setEnabled((theScript != nullptr) && noEditModeAndNoSim &&
-                                  (theScript->getScriptType() == sim_scripttype_childscript) &&
+                                  (theScript->getScriptType() == sim_scripttype_simulation) &&
                                   theScript->getThreadedExecution_oldThreads());
     ui->qqExecuteOnce->setVisible(App::userSettings->keepOldThreadedScripts);
 
@@ -100,7 +100,7 @@ void CQDlgOldScripts::updateObjectsInList()
     ui->qqScriptList->clear();
 
     if (scriptViewMode == 0)
-    { // Main and child scripts
+    { // Main and simulation scripts
         CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
         {
@@ -116,7 +116,7 @@ void CQDlgOldScripts::updateObjectsInList()
         {
             it = App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i];
             int t = it->getScriptType();
-            if (t == sim_scripttype_childscript)
+            if (t == sim_scripttype_simulation)
             {
                 std::string tmp = it->getDescriptiveName();
                 int id = it->getScriptHandle();
@@ -138,7 +138,7 @@ void CQDlgOldScripts::updateObjectsInList()
         {
             CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i];
             int t = it->getScriptType();
-            if (t == sim_scripttype_customizationscript)
+            if (t == sim_scripttype_customization)
             {
                 std::string tmp = it->getDescriptiveName();
                 int id = it->getScriptHandle();

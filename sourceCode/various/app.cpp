@@ -179,7 +179,7 @@ void App::init(const char *appDir, int)
     simThread = new CSimThread();
 
     // Some items below require the GUI to be initialized (e.g. the Commander plugin):
-    worldContainer->sandboxScript = new CScriptObject(sim_scripttype_sandboxscript);
+    worldContainer->sandboxScript = new CScriptObject(sim_scripttype_sandbox);
     worldContainer->sandboxScript->initSandbox();
     if (_startupScriptString.size() > 0)
     {
@@ -400,8 +400,8 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     //*******************************
 
     currentWorld->sceneObjects->eraseObjects(nullptr, true); // remove objects that have a delayed destruction
-    currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
-    currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
+    currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_simulation);
+    currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customization);
 
     // Keep for backward compatibility:
     if (!currentWorld->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts

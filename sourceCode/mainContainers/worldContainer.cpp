@@ -481,7 +481,7 @@ bool CWorldContainer::shouldTemporarilySuspendMainScript()
     if (dat != -1)
         retVal = true;
 
-    // Child scripts & customization scripts:
+    // simulation scripts & customization scripts:
     if (currentWorld->sceneObjects->shouldTemporarilySuspendMainScript())
         retVal = true;
 

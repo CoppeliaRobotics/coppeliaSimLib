@@ -362,7 +362,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             int id = App::currentWorld->sceneObjects->getLastSelectionHandle();
             CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                sim_scripttype_childscript, id);
+                sim_scripttype_simulation, id);
             if (script != nullptr)
             {
                 if (GuiApp::mainWindow != nullptr)
@@ -387,7 +387,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             int id = App::currentWorld->sceneObjects->getLastSelectionHandle();
             CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                sim_scripttype_customizationscript, id);
+                sim_scripttype_customization, id);
             if (script != nullptr)
             {
                 if (GuiApp::mainWindow != nullptr)
@@ -1449,11 +1449,11 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
             {
                 hasChildScriptAttached =
                     (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                         sim_scripttype_childscript, App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) !=
+                         sim_scripttype_simulation, App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) !=
                      nullptr);
                 hasCustomizationScriptAttached =
                     (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                         sim_scripttype_customizationscript,
+                         sim_scripttype_customization,
                          App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) != nullptr);
             }
 
@@ -1462,7 +1462,7 @@ void CSceneObjectOperations::addMenu(VMenu *menu)
                 VMenu *removing = new VMenu();
                 removing->appendMenuItem(hasChildScriptAttached && noSim, false,
                                          SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CHILD_SCRIPT_SOOCMD,
-                                         "Associated child script");
+                                         "Associated simulation script");
                 removing->appendMenuItem(hasCustomizationScriptAttached && noSim, false,
                                          SCENE_OBJECT_OPERATION_REMOVE_ASSOCIATED_CUSTOMIZATION_SCRIPT_SOOCMD,
                                          "Associated customization script");

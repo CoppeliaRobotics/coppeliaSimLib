@@ -100,7 +100,7 @@ extern int _quitSimulator(luaWrap_lua_State *L);
 extern int _simHandleExtCalls(luaWrap_lua_State *L);
 extern int _simGetLastInfo(luaWrap_lua_State *L);
 extern int _simIsHandle(luaWrap_lua_State *L);
-extern int _simHandleChildScripts(luaWrap_lua_State *L);
+extern int _simHandleSimulationScripts(luaWrap_lua_State *L);
 extern int _simHandleEmbeddedScripts(luaWrap_lua_State *L);
 extern int _simGenericFunctionHandler(luaWrap_lua_State *L);
 extern int _simHandleDynamics(luaWrap_lua_State *L);

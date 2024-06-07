@@ -12,7 +12,7 @@
 
 CScript::CScript()
 {
-    _commonInit(sim_scripttype_childscript, "", 0, nullptr);
+    _commonInit(sim_scripttype_simulation, "", 0, nullptr);
 }
 
 CScript::CScript(int scriptType, const char* text, int options, const char* lang)
@@ -22,7 +22,7 @@ CScript::CScript(int scriptType, const char* text, int options, const char* lang
 
 CScript::CScript(CScriptObject* scrObj)
 {
-    _commonInit(sim_scripttype_childscript, "", 0, nullptr);
+    _commonInit(sim_scripttype_simulation, "", 0, nullptr);
     delete scriptObject;
     scriptObject = scrObj;
     scriptObject->_sceneObjectScript = true;

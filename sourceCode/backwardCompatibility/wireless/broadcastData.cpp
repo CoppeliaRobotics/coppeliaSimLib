@@ -87,14 +87,14 @@ char *CBroadcastData::receiveData(int receiverID, double simulationTime, int dat
             CScriptObject *em = App::worldContainer->getScriptObjectFromHandle(_emitterID);
             if ((rec == nullptr) || (em == nullptr))
                 return (nullptr);
-            if (em->getScriptType() != sim_scripttype_mainscript)
+            if (em->getScriptType() != sim_scripttype_main)
             {
-                if (rec->getScriptType() == sim_scripttype_mainscript)
+                if (rec->getScriptType() == sim_scripttype_main)
                     return (nullptr);
                 CSceneObject *recObj = App::currentWorld->sceneObjects->getObjectFromHandle(
-                    rec->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
+                    rec->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
                 CSceneObject *emObj = App::currentWorld->sceneObjects->getObjectFromHandle(
-                    em->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
+                    em->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
                 bool found = false;
                 while (recObj != nullptr)
                 {
@@ -115,14 +115,14 @@ char *CBroadcastData::receiveData(int receiverID, double simulationTime, int dat
             CScriptObject *em = App::worldContainer->getScriptObjectFromHandle(_emitterID);
             if ((rec == nullptr) || (em == nullptr))
                 return (nullptr);
-            if (rec->getScriptType() != sim_scripttype_mainscript)
+            if (rec->getScriptType() != sim_scripttype_main)
             {
-                if (em->getScriptType() == sim_scripttype_mainscript)
+                if (em->getScriptType() == sim_scripttype_main)
                     return (nullptr);
                 CSceneObject *recObj = App::currentWorld->sceneObjects->getObjectFromHandle(
-                    rec->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
+                    rec->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
                 CSceneObject *emObj = App::currentWorld->sceneObjects->getObjectFromHandle(
-                    em->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript));
+                    em->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation));
                 bool found = false;
                 while (emObj != nullptr)
                 {

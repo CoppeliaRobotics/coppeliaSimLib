@@ -518,29 +518,29 @@ int simAppendScriptArrayEntry_internal(const char *reservedSetToNull, int script
                 else
                     arrayName = arrNameAtScriptName;
 
-                if (scriptHandleOrType == sim_scripttype_mainscript) // new and old way (same coding)
+                if (scriptHandleOrType == sim_scripttype_main) // new and old way (same coding)
                     script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
-                if (scriptHandleOrType == sim_scripttype_addonscript)
+                if (scriptHandleOrType == sim_scripttype_addon)
                 {
                     if (scriptName.size() > 0)
                         script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
                 }
-                if (scriptHandleOrType == sim_scripttype_sandboxscript)
+                if (scriptHandleOrType == sim_scripttype_sandbox)
                     script = App::worldContainer->sandboxScript;
-                if (scriptHandleOrType == sim_scripttype_childscript)
+                if (scriptHandleOrType == sim_scripttype_simulation)
                 {
                     if (scriptName.size() > 0)
                     { // new way
                         int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                         script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                            sim_scripttype_childscript, objId);
+                            sim_scripttype_simulation, objId);
                     }
                 }
-                if (scriptHandleOrType == sim_scripttype_customizationscript)
+                if (scriptHandleOrType == sim_scripttype_customization)
                 { // new way only possible (6 was not available in the old way)
                     int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                     script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_customizationscript, objId);
+                        sim_scripttype_customization, objId);
                 }
             }
             else
@@ -548,17 +548,17 @@ int simAppendScriptArrayEntry_internal(const char *reservedSetToNull, int script
                 arrayName = arrayNameAtScriptName;
                 if (scriptHandleOrType == 0) // main script
                     script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
-                if (scriptHandleOrType == 3) // child script
+                if (scriptHandleOrType == 3) // simulation script
                 {
                     int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                     script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_childscript, objId);
+                        sim_scripttype_simulation, objId);
                 }
                 if (scriptHandleOrType == 5) // customization
                 {
                     int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                     script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_customizationscript, objId);
+                        sim_scripttype_customization, objId);
                 }
             }
         }
@@ -611,29 +611,29 @@ int simClearScriptVariable_internal(const char *reservedSetToNull, int scriptHan
             else
                 variableName = varNameAtScriptName;
 
-            if (scriptHandleOrType == sim_scripttype_mainscript) // new and old way (same coding)
+            if (scriptHandleOrType == sim_scripttype_main) // new and old way (same coding)
                 script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
-            if (scriptHandleOrType == sim_scripttype_addonscript)
+            if (scriptHandleOrType == sim_scripttype_addon)
             {
                 if (scriptName.size() > 0)
                     script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
             }
-            if (scriptHandleOrType == sim_scripttype_sandboxscript)
+            if (scriptHandleOrType == sim_scripttype_sandbox)
                 script = App::worldContainer->sandboxScript;
-            if (scriptHandleOrType == sim_scripttype_childscript)
+            if (scriptHandleOrType == sim_scripttype_simulation)
             {
                 if (scriptName.size() > 0)
                 { // new way
                     int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                     script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_childscript, objId);
+                        sim_scripttype_simulation, objId);
                 }
             }
-            if (scriptHandleOrType == sim_scripttype_customizationscript)
+            if (scriptHandleOrType == sim_scripttype_customization)
             { // new way only possible (6 was not available in the old way)
                 int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
                 script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_customizationscript, objId);
+                    sim_scripttype_customization, objId);
             }
         }
         else
@@ -641,17 +641,17 @@ int simClearScriptVariable_internal(const char *reservedSetToNull, int scriptHan
             variableName = variableNameAtScriptName;
             if (scriptHandleOrType == 0) // main script
                 script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
-            if (scriptHandleOrType == 3) // child script
+            if (scriptHandleOrType == 3) // simulation script
             {
                 int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                 script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_childscript, objId);
+                    sim_scripttype_simulation, objId);
             }
             if (scriptHandleOrType == 5) // customization
             {
                 int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                 script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_customizationscript, objId);
+                    sim_scripttype_customization, objId);
             }
         }
     }
@@ -1661,8 +1661,8 @@ int simHandleCustomizationScripts_internal(int callType)
 #endif
         if (editMode == NO_EDIT_MODE)
         {
-            retVal = App::currentWorld->sceneObjects->callScripts_noMainScript(sim_scripttype_customizationscript, callType, nullptr, nullptr);
-            App::currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
+            retVal = App::currentWorld->sceneObjects->callScripts_noMainScript(sim_scripttype_customization, callType, nullptr, nullptr);
+            App::currentWorld->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customization);
         }
         return (retVal);
     }
@@ -1678,7 +1678,7 @@ int simCallScriptFunction_internal(int scriptHandleOrType, const char *functionN
 
     std::string funcName;
 #if SIM_PROGRAM_VERSION_NB < 40800
-    if (scriptHandleOrType > sim_scripttype_sandboxscript)
+    if (scriptHandleOrType > sim_scripttype_sandbox)
     { // script is identified by its ID
 #endif
         std::string funcNameAtScriptName(functionNameAtScriptName);
@@ -1705,11 +1705,11 @@ int simCallScriptFunction_internal(int scriptHandleOrType, const char *functionN
             }
             else
                 funcName = funcNameAtScriptName;
-            if (scriptHandleOrType == sim_scripttype_mainscript)
+            if (scriptHandleOrType == sim_scripttype_main)
                 script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
-            if ((scriptHandleOrType == sim_scripttype_childscript) ||
-                (scriptHandleOrType == (sim_scripttype_childscript | sim_scripttype_threaded_old)) ||
-                (scriptHandleOrType == sim_scripttype_customizationscript))
+            if ((scriptHandleOrType == sim_scripttype_simulation) ||
+                (scriptHandleOrType == (sim_scripttype_simulation | sim_scripttype_threaded_old)) ||
+                (scriptHandleOrType == sim_scripttype_customization))
             {
                 int objId = -1;
                 CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromPath(nullptr, scriptName.c_str(), 0);
@@ -1717,14 +1717,14 @@ int simCallScriptFunction_internal(int scriptHandleOrType, const char *functionN
                     objId = obj->getObjectHandle();
                 else
                     objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-                if (scriptHandleOrType == sim_scripttype_customizationscript)
+                if (scriptHandleOrType == sim_scripttype_customization)
                     script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_customizationscript, objId);
+                        sim_scripttype_customization, objId);
                 else
                     script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_childscript, objId);
+                        sim_scripttype_simulation, objId);
             }
-            if (scriptHandleOrType == sim_scripttype_addonscript)
+            if (scriptHandleOrType == sim_scripttype_addon)
                 script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
         }
         else
@@ -1732,17 +1732,17 @@ int simCallScriptFunction_internal(int scriptHandleOrType, const char *functionN
             funcName = functionNameAtScriptName;
             if (scriptHandleOrType == 0) // main script
                 script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
-            if (scriptHandleOrType == 3) // child script
+            if (scriptHandleOrType == 3) // simulation script
             {
                 int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                 script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_childscript, objId);
+                    sim_scripttype_simulation, objId);
             }
             if (scriptHandleOrType == 5) // customization
             {
                 int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
                 script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_customizationscript, objId);
+                    sim_scripttype_customization, objId);
             }
         }
     }
@@ -4111,7 +4111,7 @@ int simGetScriptHandle_internal(const char *targetAtScriptName)
                     obj = App::currentWorld->sceneObjects->getObjectFromName_old(scriptName.c_str());
                 if (obj != nullptr)
                     it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_childscript, obj->getObjectHandle());
+                        sim_scripttype_simulation, obj->getObjectHandle());
             }
         }
         if (targetName.compare("customization") == 0)
@@ -4123,7 +4123,7 @@ int simGetScriptHandle_internal(const char *targetAtScriptName)
                 obj = App::currentWorld->sceneObjects->getObjectFromName_old(scriptName.c_str());
             if (obj != nullptr)
                 it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_customizationscript, obj->getObjectHandle());
+                    sim_scripttype_customization, obj->getObjectHandle());
         }
         if (it == nullptr)
         {
@@ -4173,17 +4173,17 @@ int simSetScriptVariable_internal(int scriptHandleOrType, const char *variableNa
             else
                 variableName = varNameAtScriptName;
 
-            if (scriptHandleOrType == sim_scripttype_mainscript)
+            if (scriptHandleOrType == sim_scripttype_main)
                 script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
-            if (scriptHandleOrType == sim_scripttype_addonscript)
+            if (scriptHandleOrType == sim_scripttype_addon)
             {
                 if (scriptName.size() > 0)
                     script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
             }
-            if (scriptHandleOrType == sim_scripttype_sandboxscript)
+            if (scriptHandleOrType == sim_scripttype_sandbox)
                 script = App::worldContainer->sandboxScript;
-            if ((scriptHandleOrType == sim_scripttype_childscript) ||
-                (scriptHandleOrType == sim_scripttype_customizationscript))
+            if ((scriptHandleOrType == sim_scripttype_simulation) ||
+                (scriptHandleOrType == sim_scripttype_customization))
             {
                 if (scriptName.size() > 0)
                 {
@@ -4194,12 +4194,12 @@ int simSetScriptVariable_internal(int scriptHandleOrType, const char *variableNa
                         objId = obj->getObjectHandle();
                     else
                         objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-                    if (scriptHandleOrType == sim_scripttype_customizationscript)
+                    if (scriptHandleOrType == sim_scripttype_customization)
                         script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                            sim_scripttype_customizationscript, objId);
+                            sim_scripttype_customization, objId);
                     else
                         script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                            sim_scripttype_childscript, objId);
+                            sim_scripttype_simulation, objId);
                 }
             }
         }
@@ -4280,7 +4280,7 @@ int simGetScriptAssociatedWithObject_internal(int objectHandle)
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, objectHandle);
+        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, objectHandle);
         int retVal = -1;
         if (it == nullptr)
         {
@@ -4299,7 +4299,7 @@ int simGetScriptAssociatedWithObject_internal(int objectHandle)
                             if (c->getObjectType() == sim_object_script_type)
                             {
                                 CScript* co = (CScript*) c;
-                                if (co->scriptObject->getScriptType() == sim_scripttype_childscript)
+                                if (co->scriptObject->getScriptType() == sim_scripttype_simulation)
                                 {
                                     retVal = c->getObjectHandle();
                                     break;
@@ -4326,7 +4326,7 @@ int simGetCustomizationScriptAssociatedWithObject_internal(int objectHandle)
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, objectHandle);
+        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, objectHandle);
         int retVal = -1;
         if (it == nullptr)
         {
@@ -4345,7 +4345,7 @@ int simGetCustomizationScriptAssociatedWithObject_internal(int objectHandle)
                             if (c->getObjectType() == sim_object_script_type)
                             {
                                 CScript* co = (CScript*) c;
-                                if (co->scriptObject->getScriptType() == sim_scripttype_customizationscript)
+                                if (co->scriptObject->getScriptType() == sim_scripttype_customization)
                                 {
                                     retVal = c->getObjectHandle();
                                     break;
@@ -4394,10 +4394,10 @@ int simGetObjectAssociatedWithScript_internal(int scriptHandle)
         }
         else
         {
-            if (it->getScriptType() == sim_scripttype_childscript)
-                retVal = it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
-            if (it->getScriptType() == sim_scripttype_customizationscript)
-                retVal = it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customizationscript);
+            if (it->getScriptType() == sim_scripttype_simulation)
+                retVal = it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation);
+            if (it->getScriptType() == sim_scripttype_customization)
+                retVal = it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_customization);
         }
         return (retVal);
     }
@@ -4632,7 +4632,7 @@ int simDisplayDialog_internal(const char *titleText, const char *mainText, int d
         stack->pushBoolOntoStack(false);
         if (initialText != nullptr)
             stack->pushTextOntoStack(initialText);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript, "sim.displayDialog", stack->getId());
+        simCallScriptFunctionEx_internal(sim_scripttype_sandbox, "sim.displayDialog", stack->getId());
         int retVal;
         stack->getStackInt32Value(retVal);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
@@ -4655,7 +4655,7 @@ int simGetDialogResult_internal(int genericDialogHandle)
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
         ;
         stack->pushInt32OntoStack(genericDialogHandle);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript, "sim.getDialogResult", stack->getId());
+        simCallScriptFunctionEx_internal(sim_scripttype_sandbox, "sim.getDialogResult", stack->getId());
         int retVal;
         stack->getStackInt32Value(retVal);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
@@ -4678,7 +4678,7 @@ char *simGetDialogInput_internal(int genericDialogHandle)
 #ifdef SIM_WITH_GUI
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
         stack->pushInt32OntoStack(genericDialogHandle);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript, "sim.getDialogInput", stack->getId());
+        simCallScriptFunctionEx_internal(sim_scripttype_sandbox, "sim.getDialogInput", stack->getId());
         bool r = stack->getStackStringValue(tmp);
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
         if (!r)
@@ -4705,7 +4705,7 @@ int simEndDialog_internal(int genericDialogHandle)
 #ifdef SIM_WITH_GUI
         CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
         stack->pushInt32OntoStack(genericDialogHandle);
-        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript, "sim.endDialog", stack->getId());
+        simCallScriptFunctionEx_internal(sim_scripttype_sandbox, "sim.endDialog", stack->getId());
         App::worldContainer->interfaceStackContainer->destroyStack(stack);
 #endif
         return (1);
@@ -5138,13 +5138,13 @@ int simSetScriptAttribute_internal(int scriptHandle, int attributeID, double flo
         }
         int retVal = -1;
         if ((attributeID == sim_customizationscriptattribute_activeduringsimulation) &&
-            (it->getScriptType() == sim_scripttype_customizationscript))
+            (it->getScriptType() == sim_scripttype_customization))
         {
             it->setCustScriptDisabledDSim_compatibilityMode_DEPRECATED(intOrBoolVal == 0);
             retVal = 1;
         }
         if ((attributeID == sim_customizationscriptattribute_cleanupbeforesave) &&
-            (it->getScriptType() == sim_scripttype_customizationscript))
+            (it->getScriptType() == sim_scripttype_customization))
         {
             it->setCustomizationScriptCleanupBeforeSave_DEPRECATED(intOrBoolVal != 0);
             retVal = 1;
@@ -5160,12 +5160,12 @@ int simSetScriptAttribute_internal(int scriptHandle, int attributeID, double flo
             retVal = 1;
         }
         if ((attributeID == sim_childscriptattribute_automaticcascadingcalls) &&
-            (it->getScriptType() == sim_scripttype_childscript) && (!it->getThreadedExecution_oldThreads()))
+            (it->getScriptType() == sim_scripttype_simulation) && (!it->getThreadedExecution_oldThreads()))
         {
             it->setAutomaticCascadingCallsDisabled_old(intOrBoolVal == 0);
             retVal = 1;
         }
-        if (attributeID == sim_scriptattribute_enabled) //&&(it->getScriptType()==sim_scripttype_childscript) )
+        if (attributeID == sim_scriptattribute_enabled) //&&(it->getScriptType()==sim_scripttype_simulation) )
         {
             it->setScriptIsDisabled(intOrBoolVal == 0);
             retVal = 1;
@@ -5193,7 +5193,7 @@ int simGetScriptAttribute_internal(int scriptHandle, int attributeID, double *fl
         }
         int retVal = -1;
         if ((attributeID == sim_customizationscriptattribute_activeduringsimulation) &&
-            (it->getScriptType() == sim_scripttype_customizationscript))
+            (it->getScriptType() == sim_scripttype_customization))
         {
             if (it->getCustScriptDisabledDSim_compatibilityMode_DEPRECATED())
                 intOrBoolVal[0] = 0;
@@ -5202,7 +5202,7 @@ int simGetScriptAttribute_internal(int scriptHandle, int attributeID, double *fl
             retVal = 1;
         }
         if ((attributeID == sim_customizationscriptattribute_cleanupbeforesave) &&
-            (it->getScriptType() == sim_scripttype_customizationscript))
+            (it->getScriptType() == sim_scripttype_customization))
         {
             if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
                 intOrBoolVal[0] = 1;
@@ -5211,7 +5211,7 @@ int simGetScriptAttribute_internal(int scriptHandle, int attributeID, double *fl
             retVal = 1;
         }
         if ((attributeID == sim_childscriptattribute_automaticcascadingcalls) &&
-            (it->getScriptType() == sim_scripttype_childscript) && (!it->getThreadedExecution_oldThreads()))
+            (it->getScriptType() == sim_scripttype_simulation) && (!it->getThreadedExecution_oldThreads()))
         {
             if (it->getAutomaticCascadingCallsDisabled_old())
                 intOrBoolVal[0] = 0;
@@ -5271,7 +5271,7 @@ int simSetScriptText_internal(int scriptHandle, const char *scriptText)
             GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(it->getScriptUid(), nullptr, true);
 #endif
         it->setScriptText(scriptText);
-        if ((it->getScriptType() != sim_scripttype_childscript) || (!it->getThreadedExecution_oldThreads()) ||
+        if ((it->getScriptType() != sim_scripttype_simulation) || (!it->getThreadedExecution_oldThreads()) ||
             App::currentWorld->simulation->isSimulationStopped())
             it->resetScript();
         return (1);
@@ -5324,7 +5324,7 @@ int simGetScriptProperty_internal(int scriptHandle, int *scriptProperty, int *as
             return (-1);
         }
         scriptProperty[0] = it->getScriptType();
-        associatedObjectHandle[0] = it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
+        associatedObjectHandle[0] = it->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation);
         if (it->getThreadedExecution_oldThreads())
             scriptProperty[0] |= sim_scripttype_threaded_old;
         return (1);

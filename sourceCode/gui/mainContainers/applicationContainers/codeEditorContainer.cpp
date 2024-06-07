@@ -321,8 +321,8 @@ int CCodeEditorContainer::open(const char *initText, const char *xml, int callin
                 inf.callingScriptHandle = callingScriptHandle;
                 inf.callingScriptUid = it->getScriptUid();
                 inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
-                inf.openAcrossScenes = ((it->getScriptType() == sim_scripttype_sandboxscript) ||
-                                        (it->getScriptType() == sim_scripttype_addonscript));
+                inf.openAcrossScenes = ((it->getScriptType() == sim_scripttype_sandbox) ||
+                                        (it->getScriptType() == sim_scripttype_addon));
                 inf.closeAtSimulationEnd = it->isSimulationScript();
                 inf.systemVisibility = true;
                 inf.userVisibility = true;
@@ -389,7 +389,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle)
                     editorNode->SetAttribute("line-numbers", toBoolStr(true));
                     editorNode->SetAttribute("tab-width", 4);
                     editorNode->SetAttribute("can-restart-in-sim",
-                                             toBoolStr(!((it->getScriptType() == sim_scripttype_mainscript) ||
+                                             toBoolStr(!((it->getScriptType() == sim_scripttype_main) ||
                                                          it->getThreadedExecution_oldThreads())));
                     editorNode->SetAttribute("script-up-to-date", toBoolStr(it->getIsUpToDate()));
                     editorNode->SetAttribute("lang", it->getLang().c_str());
@@ -993,8 +993,8 @@ void CCodeEditorContainer::simulationAboutToStart() const
             if ((_allEditors[i].sceneUniqueId == sceneId) && (_allEditors[i].scriptHandle >= 0))
             {
                 CScriptObject *it = App::currentWorld->sceneObjects->getScriptObjectFromHandle(_allEditors[i].scriptHandle);
-                if ((it != nullptr) && ((it->getScriptType() == sim_scripttype_mainscript) ||
-                                        (it->getScriptType() == sim_scripttype_childscript)))
+                if ((it != nullptr) && ((it->getScriptType() == sim_scripttype_main) ||
+                                        (it->getScriptType() == sim_scripttype_simulation)))
                     applyChanges(_allEditors[i].handle);
             }
         }

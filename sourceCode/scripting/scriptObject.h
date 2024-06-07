@@ -10,8 +10,8 @@
 
 #define DEFAULT_MAINSCRIPT_CODE                                                                                        \
     "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
-#define DEFAULT_NONTHREADEDCHILDSCRIPT "childScript"
-#define DEFAULT_THREADEDCHILDSCRIPT "childScript-threaded"
+#define DEFAULT_NONTHREADEDCHILDSCRIPT "simulationScript"
+#define DEFAULT_THREADEDCHILDSCRIPT "simulationScript-threaded"
 #define DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT "customizationScript"
 #define DEFAULT_THREADEDCUSTOMIZATIONSCRIPT "customizationScript-threaded"
 #define SIM_SCRIPT_HANDLE "sim_script_handle"         // keep this global, e.g. not _S.sim_script_handle
@@ -171,6 +171,7 @@ class CScriptObject
     int getFuncAndHookCnt(int sysCall, size_t what) const;
     void setFuncAndHookCnt(int sysCall, size_t what, int cnt);
     int registerFunctionHook(const char *sysFunc, const char *userFunc, bool before);
+    bool replaceScriptText(const char *oldTxt, const char *newTxt);
 
     static void getMatchingFunctions(const char *txt, std::set<std::string> &v, const CScriptObject *requestOrigin);
     static void getMatchingConstants(const char *txt, std::set<std::string> &v, const CScriptObject *requestOrigin);

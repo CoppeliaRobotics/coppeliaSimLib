@@ -17,7 +17,7 @@ CEmbeddedScriptContainer::CEmbeddedScriptContainer()
     _sysFuncAndHookCnt_dyn = 0;
     _sysFuncAndHookCnt_contact = 0;
     _sysFuncAndHookCnt_joint = 0;
-    insertDefaultScript(sim_scripttype_mainscript, false, true);
+    insertDefaultScript(sim_scripttype_main, false, true);
 }
 
 CEmbeddedScriptContainer::~CEmbeddedScriptContainer()
@@ -68,8 +68,8 @@ void CEmbeddedScriptContainer::simulationEnded()
         allScripts[i]->simulationEnded();
 
     broadcastDataContainer.simulationEnded();
-    removeDestroyedScripts(sim_scripttype_mainscript);
-    removeDestroyedScripts(sim_scripttype_childscript);
+    removeDestroyedScripts(sim_scripttype_main);
+    removeDestroyedScripts(sim_scripttype_simulation);
     for (size_t i = 0; i < _callbackStructureToDestroyAtEndOfSimulation_new.size(); i++)
         delete _callbackStructureToDestroyAtEndOfSimulation_new[i];
     _callbackStructureToDestroyAtEndOfSimulation_new.clear();
@@ -85,11 +85,11 @@ void CEmbeddedScriptContainer::simulationAboutToEnd()
 {
     CScriptObject* ms = getMainScript();
     if (ms != nullptr)
-        ms->simulationAboutToEnd(); // calls cleanup in main script (then cleanup in child scripts), then destroys main script state
+        ms->simulationAboutToEnd(); // calls cleanup in main script (then cleanup in simulation scripts), then destroys main script state
     for (size_t i = 0; i < allScripts.size(); i++)
     {
         if (ms != allScripts[i])
-            allScripts[i]->simulationAboutToEnd(); // destroys child script states
+            allScripts[i]->simulationAboutToEnd(); // destroys simulation script states
     }
 }
 
@@ -117,9 +117,9 @@ int CEmbeddedScriptContainer::getCalledScriptsCountInThisSimulationStep(bool onl
         {
             if (onlySimulationScripts)
             {
-                if (allScripts[i]->getScriptType() == sim_scripttype_mainscript)
+                if (allScripts[i]->getScriptType() == sim_scripttype_main)
                     cnt++;
-                if (allScripts[i]->getScriptType() == sim_scripttype_childscript)
+                if (allScripts[i]->getScriptType() == sim_scripttype_simulation)
                 {
                     if (!allScripts[i]->getThreadedExecution_oldThreads()) // ignore old threaded scripts
                         cnt++;
@@ -304,10 +304,10 @@ int CEmbeddedScriptContainer::getScriptsFromObjectAttachedTo(int objectHandle,
                                                              std::vector<CScriptObject *> &scripts) const
 {
     scripts.clear();
-    CScriptObject *it = getScriptFromObjectAttachedTo(sim_scripttype_childscript, objectHandle);
+    CScriptObject *it = getScriptFromObjectAttachedTo(sim_scripttype_simulation, objectHandle);
     if (it != nullptr)
         scripts.push_back(it);
-    it = getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, objectHandle);
+    it = getScriptFromObjectAttachedTo(sim_scripttype_customization, objectHandle);
     if (it != nullptr)
         scripts.push_back(it);
     return (int(scripts.size()));
@@ -317,7 +317,7 @@ CScriptObject *CEmbeddedScriptContainer::getMainScript() const
 {
     for (size_t i = 0; i < allScripts.size(); i++)
     {
-        if (allScripts[i]->getScriptType() == sim_scripttype_mainscript)
+        if (allScripts[i]->getScriptType() == sim_scripttype_main)
             return (allScripts[i]);
     }
     return (nullptr);
@@ -333,12 +333,12 @@ int CEmbeddedScriptContainer::insertScript(CScriptObject *script)
 int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded, bool lua,
                                                   bool oldThreadedScript /*=false*/)
 {
-    if (scriptType != sim_scripttype_childscript)
+    if (scriptType != sim_scripttype_simulation)
         oldThreadedScript = false; // just to make sure
     int retVal = -1;
     std::string filenameAndPath(App::folders->getSystemPath() + "/");
 
-    if (scriptType == sim_scripttype_mainscript)
+    if (scriptType == sim_scripttype_main)
     {
         CScriptObject *defScript = new CScriptObject(scriptType);
         defScript->setLang("lua");
@@ -346,7 +346,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
         defScript->setScriptText(DEFAULT_MAINSCRIPT_CODE);
         filenameAndPath = "";
     }
-    if (scriptType == sim_scripttype_childscript)
+    if (scriptType == sim_scripttype_simulation)
     {
         if (oldThreadedScript)
             filenameAndPath += DEFAULT_THREADEDCHILDSCRIPTOLD;
@@ -358,7 +358,7 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
                 filenameAndPath += DEFAULT_NONTHREADEDCHILDSCRIPT;
         }
     }
-    if (scriptType == sim_scripttype_customizationscript)
+    if (scriptType == sim_scripttype_customization)
     {
         if (threaded)
             filenameAndPath += DEFAULT_THREADEDCUSTOMIZATIONSCRIPT;
@@ -442,10 +442,10 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
 int CEmbeddedScriptContainer::getEquivalentScriptExecPriority_old(int objectHandle) const
 {                    // for backward compatibility
     int retVal = -1; // no script attached
-    CScriptObject *it = getScriptFromObjectAttachedTo(sim_scripttype_childscript, objectHandle);
+    CScriptObject *it = getScriptFromObjectAttachedTo(sim_scripttype_simulation, objectHandle);
     if (it != nullptr)
         retVal = it->getExecutionPriority_old();
-    it = getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, objectHandle);
+    it = getScriptFromObjectAttachedTo(sim_scripttype_customization, objectHandle);
     if (it != nullptr)
         retVal = it->getExecutionPriority_old();
     return (retVal);
@@ -463,7 +463,7 @@ void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved_old(int modelBase)
             obj = toExplore[toExplore.size() - 1];
             toExplore.pop_back();
             CScriptObject *it =
-                getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, obj->getObjectHandle());
+                getScriptFromObjectAttachedTo(sim_scripttype_customization, obj->getObjectHandle());
             if (it != nullptr)
             {
                 if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
@@ -478,7 +478,7 @@ void CEmbeddedScriptContainer::sceneOrModelAboutToBeSaved_old(int modelBase)
         for (size_t i = 0; i < allScripts.size(); i++)
         {
             CScriptObject *it = allScripts[i];
-            if (it->getScriptType() == sim_scripttype_customizationscript)
+            if (it->getScriptType() == sim_scripttype_customization)
             {
                 if (it->getCustomizationScriptCleanupBeforeSave_DEPRECATED())
                     it->resetScript();

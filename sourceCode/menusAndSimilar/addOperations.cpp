@@ -508,7 +508,7 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera)
                 childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD, "Lua");
                 childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD, "Python");
                 childScript->appendMenuAndDetach(childScriptThreaded, true, "Threaded");
-                script->appendMenuAndDetach(childScript, true, "child script");
+                script->appendMenuAndDetach(childScript, true, "simulation script");
 
                 VMenu *customizationScript = new VMenu();
                 VMenu *customizationScriptNonThreaded = new VMenu();
@@ -530,12 +530,12 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera)
                 if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
                 {
                     canAddChildScript = (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                                             sim_scripttype_childscript,
+                                             sim_scripttype_simulation,
                                              App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) == nullptr) &&
                                         App::currentWorld->simulation->isSimulationStopped();
                     canAddCustomizationScript =
                         (App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                             sim_scripttype_customizationscript,
+                             sim_scripttype_customization,
                              App::currentWorld->sceneObjects->getObjectHandleFromSelectionIndex(0)) == nullptr) &&
                         App::currentWorld->simulation->isSimulationStopped();
                 }
@@ -555,7 +555,7 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera)
                     childScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_oldTHREADED_CHILD_SCRIPT_LUA_ACCMD,
                                                         "Lua (deprecated, compatibility version)");
                 childScript->appendMenuAndDetach(childScriptThreaded, canAddChildScript, "Threaded");
-                menu->appendMenuAndDetach(childScript, canAddChildScript, "Associated child script");
+                menu->appendMenuAndDetach(childScript, canAddChildScript, "Associated simulation script");
 
                 VMenu *customizationScript = new VMenu();
                 VMenu *customizationScriptNonThreaded = new VMenu();
@@ -947,7 +947,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 CSceneObject* sel = nullptr;
                 if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
                     sel = App::currentWorld->sceneObjects->getLastSelectionObject();
-                int scriptHandle = App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_childscript, isThreaded, isLua);
+                int scriptHandle = App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_simulation, isThreaded, isLua);
                 if ( (sel != nullptr) && (scriptHandle != -1) )
                 {
                     CSceneObject* script = App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
@@ -962,7 +962,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
                 {
                     int scriptID = App::currentWorld->sceneObjects->embeddedScriptContainer->insertDefaultScript(
-                        sim_scripttype_childscript, isThreaded, isLua,
+                        sim_scripttype_simulation, isThreaded, isLua,
                         commandID == ADD_COMMANDS_ADD_oldTHREADED_CHILD_SCRIPT_LUA_ACCMD);
                     CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
                     if (script != nullptr)
@@ -994,7 +994,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 CSceneObject* sel = nullptr;
                 if (App::currentWorld->sceneObjects->getObjectCountInSelection() == 1)
                     sel = App::currentWorld->sceneObjects->getLastSelectionObject();
-                int scriptHandle = App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_customizationscript, isThreaded, isLua);
+                int scriptHandle = App::currentWorld->sceneObjects->addDefaultScript(sim_scripttype_customization, isThreaded, isLua);
                 if ( (sel != nullptr) && (scriptHandle != -1) )
                 {
                     CSceneObject* script = App::currentWorld->sceneObjects->getObjectFromHandle(scriptHandle);
@@ -1009,7 +1009,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 if (App::currentWorld->sceneObjects->getSelectionCount() == 1)
                 {
                     int scriptID = App::currentWorld->sceneObjects->embeddedScriptContainer->insertDefaultScript(
-                        sim_scripttype_customizationscript, isThreaded, isLua);
+                        sim_scripttype_customization, isThreaded, isLua);
                     CScriptObject *script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptID);
                     if (script != nullptr)
                         script->setObjectHandleThatScriptIsAttachedTo(
@@ -1093,7 +1093,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
 
             if (App::userSettings->useSceneObjectScripts)
             {
-                CScript *script = new CScript(sim_scripttype_customizationscript, "graph = require('models.graph_customization-2')", 0, "lua");
+                CScript *script = new CScript(sim_scripttype_customization, "graph = require('models.graph_customization-2')", 0, "lua");
                 script->setScriptExecPriority(sim_scriptexecorder_last);
                 App::currentWorld->sceneObjects->addObjectToScene(script, false, true);
                 App::currentWorld->sceneObjects->setObjectParent(script, newObject, true);
@@ -1102,7 +1102,7 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             }
             else
             {
-                CScriptObject *scriptObj = new CScriptObject(sim_scripttype_customizationscript);
+                CScriptObject *scriptObj = new CScriptObject(sim_scripttype_customization);
                 App::currentWorld->sceneObjects->embeddedScriptContainer->insertScript(scriptObj);
                 scriptObj->setObjectHandleThatScriptIsAttachedTo(newObject->getObjectHandle());
                 scriptObj->setScriptText("graph = require('graph_customization')");

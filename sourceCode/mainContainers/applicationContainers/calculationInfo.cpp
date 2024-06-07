@@ -67,7 +67,7 @@ void CCalculationInfo::resetInfo(bool clearDisp)
 void CCalculationInfo::formatInfo()
 {
     // Script functionality:
-    _scriptTxt[0] = "Simulation scripts called";
+    _scriptTxt[0] = "Main & simulation scripts called";
     _scriptTxt[1] = boost::lexical_cast<std::string>(_simulationScriptExecCount);
     _scriptTxt[1] += " (";
     _scriptTxt[1] += boost::lexical_cast<std::string>(_mainScriptDuration);

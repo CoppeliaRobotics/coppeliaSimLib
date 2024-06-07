@@ -118,7 +118,7 @@ int CScriptObject::setHandle()
 
 void CScriptObject::initSandbox()
 {
-    if (_scriptType == sim_scripttype_sandboxscript)
+    if (_scriptType == sim_scripttype_sandbox)
     {
         App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the sandbox script...");
         if (_initInterpreterState(nullptr))
@@ -152,7 +152,7 @@ std::string CScriptObject::getFilenameForExternalScriptEditor()
 {
     if (_filenameForExternalScriptEditor.size() == 0)
     {
-        if (_scriptType == sim_scripttype_mainscript)
+        if (_scriptType == sim_scripttype_main)
             _filenameForExternalScriptEditor = "mainScript-";
         else
         {
@@ -160,7 +160,7 @@ std::string CScriptObject::getFilenameForExternalScriptEditor()
             if (obj != nullptr)
             {
                 _filenameForExternalScriptEditor = obj->getObjectAlias();
-                if (_scriptType == sim_scripttype_childscript)
+                if (_scriptType == sim_scripttype_simulation)
                     _filenameForExternalScriptEditor += "-child-";
                 else
                     _filenameForExternalScriptEditor += "-cust-";
@@ -794,7 +794,7 @@ bool CScriptObject::canCallSystemCallback(int scriptType, bool threadedOld, int 
     if (scriptType == -1)
         return (true);
 
-    if (threadedOld && (scriptType == sim_scripttype_childscript))
+    if (threadedOld && (scriptType == sim_scripttype_simulation))
     { // for backward compatibility
         if (callType == sim_syscb_threadmain)
             return (true);
@@ -852,8 +852,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType, bool threadedOld, int 
         if (callType == sim_syscb_selchange)
             return (true);
     }
-    if ((scriptType == sim_scripttype_sandboxscript) || (scriptType == sim_scripttype_addonscript) ||
-        (scriptType == sim_scripttype_customizationscript))
+    if ((scriptType == sim_scripttype_sandbox) || (scriptType == sim_scripttype_addon) ||
+        (scriptType == sim_scripttype_customization))
     {
         if (callType == sim_syscb_nonsimulation)
             return (true);
@@ -868,7 +868,7 @@ bool CScriptObject::canCallSystemCallback(int scriptType, bool threadedOld, int 
         if (callType == sim_syscb_afterinstanceswitch)
             return (true);
     }
-    if (scriptType == sim_scripttype_addonscript)
+    if (scriptType == sim_scripttype_addon)
     {
         if (callType == sim_syscb_aos_run_old) // for backward compatibility
             return (true);
@@ -877,8 +877,8 @@ bool CScriptObject::canCallSystemCallback(int scriptType, bool threadedOld, int 
         if (callType == sim_syscb_aos_resume)
             return (true);
     }
-    if ((scriptType == sim_scripttype_customizationscript) ||
-        ((!threadedOld) && (scriptType == sim_scripttype_childscript)))
+    if ((scriptType == sim_scripttype_customization) ||
+        ((!threadedOld) && (scriptType == sim_scripttype_simulation)))
     {
         if (callType == sim_syscb_jointcallback) // backw. compat.
             return (true);
@@ -1043,13 +1043,13 @@ void CScriptObject::setPreviousEditionWindowPosAndSize(const int posAndSize[4])
 
 std::string CScriptObject::getScriptName() const
 {
-    if (_scriptType == sim_scripttype_mainscript)
+    if (_scriptType == sim_scripttype_main)
         return ("mainScript");
-    if (_scriptType == sim_scripttype_sandboxscript)
+    if (_scriptType == sim_scripttype_sandbox)
         return ("sandboxScript");
-    if (_scriptType == sim_scripttype_addonscript)
+    if (_scriptType == sim_scripttype_addon)
         return (_addOnName);
-    if ((_scriptType == sim_scripttype_childscript) || (_scriptType == sim_scripttype_customizationscript))
+    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
         CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (obj != nullptr)
@@ -1093,7 +1093,7 @@ void CScriptObject::setScriptExecPriority(int priority)
         if (it != nullptr)
             it->setScriptExecPriority(priority);
     }
-    if (_scriptType == sim_scripttype_addonscript)
+    if (_scriptType == sim_scripttype_addon)
         _scriptExecPriority = priority;
 }
 
@@ -1106,7 +1106,7 @@ int CScriptObject::getScriptExecPriority() const
         if (it != nullptr)
             retVal = it->getScriptExecPriority();
     }
-    if (_scriptType == sim_scripttype_addonscript)
+    if (_scriptType == sim_scripttype_addon)
         retVal = _scriptExecPriority;
     return (retVal);
 }
@@ -1191,7 +1191,7 @@ void CScriptObject::setAutoRestartOnError(bool restart)
 bool CScriptObject::getScriptDisabledAndNoErrorRaised() const
 {
     bool disabled = _scriptIsDisabled;
-    if (_scriptType == sim_scripttype_customizationscript)
+    if (_scriptType == sim_scripttype_customization)
     {
         if (!App::userSettings->runCustomizationScripts)
             disabled = true;
@@ -1274,22 +1274,22 @@ size_t CScriptObject::getSimpleHash() const
 
 bool CScriptObject::isEmbeddedScript() const
 {
-    return (isSimulationScript() || (_scriptType == sim_scripttype_customizationscript));
+    return (isSimulationScript() || (_scriptType == sim_scripttype_customization));
 }
 
 std::string CScriptObject::getDescriptiveName() const
 {
     std::string retVal;
-    if (_scriptType == sim_scripttype_mainscript)
+    if (_scriptType == sim_scripttype_main)
         retVal += "Main script";
-    if ((_scriptType == sim_scripttype_childscript) || (_scriptType == sim_scripttype_customizationscript))
+    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        if (_scriptType == sim_scripttype_childscript)
+        if (_scriptType == sim_scripttype_simulation)
         {
             if (_threadedExecution_oldThreads)
-                retVal += "Child script, threaded (deprecated, compatibility version)";
+                retVal += "Simulation script, threaded (deprecated, compatibility version)";
             else
-                retVal += "Child script";
+                retVal += "Simulation script";
         }
         else
             retVal += "Customization script";
@@ -1303,7 +1303,7 @@ std::string CScriptObject::getDescriptiveName() const
             retVal += "\"";
         }
     }
-    if (_scriptType == sim_scripttype_addonscript)
+    if (_scriptType == sim_scripttype_addon)
     {
         retVal += "Add-on script \"";
         retVal += _addOnPathAndName;
@@ -1315,7 +1315,7 @@ std::string CScriptObject::getDescriptiveName() const
         retVal += _addOnPathAndName;
         retVal += "\"";
     }
-    if (_scriptType == sim_scripttype_sandboxscript)
+    if (_scriptType == sim_scripttype_sandbox)
         retVal += "Sandbox script";
     return (retVal);
 }
@@ -1323,9 +1323,9 @@ std::string CScriptObject::getDescriptiveName() const
 std::string CScriptObject::getShortDescriptiveName() const
 {
     std::string retVal;
-    if (_scriptType == sim_scripttype_mainscript)
+    if (_scriptType == sim_scripttype_main)
         retVal += "mainScript";
-    if ((_scriptType == sim_scripttype_childscript) || (_scriptType == sim_scripttype_customizationscript))
+    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (it == nullptr)
@@ -1334,13 +1334,13 @@ std::string CScriptObject::getShortDescriptiveName() const
             retVal += it->getObjectAlias_printPath();
         if (!_sceneObjectScript)
         { // old scripts
-            if (_scriptType == sim_scripttype_childscript)
+            if (_scriptType == sim_scripttype_simulation)
                 retVal += "@childScript";
             else
                 retVal += "@customizationScript";
         }
     }
-    if (_scriptType == sim_scripttype_addonscript)
+    if (_scriptType == sim_scripttype_addon)
     {
         retVal += _addOnPathAndName;
         retVal += "@addOnScript";
@@ -1350,7 +1350,7 @@ std::string CScriptObject::getShortDescriptiveName() const
         retVal += _addOnPathAndName;
         retVal += "@addOnFunction";
     }
-    if (_scriptType == sim_scripttype_sandboxscript)
+    if (_scriptType == sim_scripttype_sandbox)
         retVal += "sandboxScript";
     return (retVal);
 }
@@ -1408,7 +1408,7 @@ int CScriptObject::flagScriptForRemoval()
         if (isSimulationScript())
             return (2);
     }
-    if (_scriptType == sim_scripttype_customizationscript)
+    if (_scriptType == sim_scripttype_customization)
     {
         _flaggedForDestruction = true;
         return (1);
@@ -1428,7 +1428,7 @@ void CScriptObject::setObjectHandleThatScriptIsAttachedTo(int newObjectHandle)
 {
     if (newObjectHandle != -1)
     {
-        if ((_scriptType == sim_scripttype_childscript) || (_scriptType == sim_scripttype_customizationscript))
+        if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
             _objectHandleAttachedTo = newObjectHandle;
     }
     else
@@ -1495,7 +1495,7 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
     TRACE_INTERNAL;
     if (_tempSuspended)
         return 0;
-    if ((_scriptType == sim_scripttype_addonscript) && (_scriptState == scriptState_unloaded) &&
+    if ((_scriptType == sim_scripttype_addon) && (_scriptState == scriptState_unloaded) &&
         (callType != sim_syscb_info))
     {
         _handleInfoCallback();
@@ -1503,13 +1503,13 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
             return (0);
     }
 
-    if ((callType == sim_syscb_init) && (_scriptType == sim_scripttype_addonscript))
+    if ((callType == sim_syscb_init) && (_scriptType == sim_scripttype_addon))
         CSimFlavor::getIntVal_str(3, _addOnName.c_str());
 
     int retVal = 0;
 
     bool scriptDisabled = _scriptIsDisabled;
-    if ((_scriptType == sim_scripttype_customizationscript) && (!App::userSettings->runCustomizationScripts))
+    if ((_scriptType == sim_scripttype_customization) && (!App::userSettings->runCustomizationScripts))
         scriptDisabled = true;
     if ((!scriptDisabled) || (((_scriptState & 7) == scriptState_initialized) && (callType == sim_syscb_cleanup)))
     { // Only cleanup call allowed when script is not enabled (e.g. when the used disabled it temporarily)
@@ -1521,7 +1521,7 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
                     retVal = _callSystemScriptFunction(sim_syscb_info, inStack, outStack);
                 else
                 {
-                    if (_scriptType != sim_scripttype_addonscript)
+                    if (_scriptType != sim_scripttype_addon)
                         retVal = _callSystemScriptFunction(sim_syscb_info, nullptr,
                                                            nullptr); // implicit call, not for add-ons
                 }
@@ -1554,7 +1554,7 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
                     if ((callType != sim_syscb_event) || hasSystemFunctionOrHook(sim_syscb_event))
                     {
                         retVal = _callSystemScriptFunction(callType, inStack, outStack);
-                        if (_scriptType == sim_scripttype_sandboxscript)
+                        if (_scriptType == sim_scripttype_sandbox)
                             _scriptState &= 7; // remove a possible error flag
                     }
                     else
@@ -1594,7 +1594,7 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
 bool CScriptObject::shouldTemporarilySuspendMainScript()
 {
     bool retVal = false;
-    if (_scriptType == sim_scripttype_sandboxscript)
+    if (_scriptType == sim_scripttype_sandbox)
         _scriptState &= 7; // remove a possible error flag
     CInterfaceStack *outStack = App::worldContainer->interfaceStackContainer->createStack();
     _callSystemScriptFunction(sim_syscb_beforemainscript, nullptr, outStack);
@@ -1963,7 +1963,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
         outStack = _outStack;
 
     // ---------------------------------
-    if (_scriptType == sim_scripttype_mainscript)
+    if (_scriptType == sim_scripttype_main)
     { // corresponding calls for plugins:
         int data[4] = {0, int(App::currentWorld->simulation->getSimulationTime() * 1000.0), 0, 0};
         if (callType == sim_syscb_init)
@@ -2006,7 +2006,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
         }
         _calledInThisSimulationStep = true;
     }
-    if (_scriptType == sim_scripttype_mainscript)
+    if (_scriptType == sim_scripttype_main)
     { // corresponding calls for plugins:
         int data[4] = {1, int(App::currentWorld->simulation->getSimulationTime() * 1000.0), 0, 0};
         if (callType == sim_syscb_init)
@@ -2059,7 +2059,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
                 { // Following for backward compatibility with older add-ons: they could return 1 (sim_syscb_cleanup) to
                   // request cleanup
                     long long int theValue;
-                    if ((_scriptType == sim_scripttype_addonscript) && (outStack->getStackStrictInt64Value(theValue)) &&
+                    if ((_scriptType == sim_scripttype_addon) && (outStack->getStackStrictInt64Value(theValue)) &&
                         (theValue == 1))
                         _killInterpreterState();
                 }
@@ -2304,9 +2304,9 @@ int CScriptObject::callCustomScriptFunction(const char *functionName, CInterface
 
         if (inOutStack != nullptr)
             inOutStack->clear();
-        if (_scriptType == sim_scripttype_sandboxscript)
+        if (_scriptType == sim_scripttype_sandbox)
             _scriptState &= 7; // remove a possible error flag
-        if ((retVal == -1) && (_scriptType != sim_scripttype_sandboxscript))
+        if ((retVal == -1) && (_scriptType != sim_scripttype_sandbox))
         {
             if (_executionDepth == 0)
                 _killInterpreterState();
@@ -2413,12 +2413,12 @@ bool CScriptObject::hasInterpreterState() const
 
 bool CScriptObject::isSimulationScript() const
 {
-    return ((_scriptType == sim_scripttype_mainscript) || (_scriptType == sim_scripttype_childscript));
+    return ((_scriptType == sim_scripttype_main) || (_scriptType == sim_scripttype_simulation));
 }
 
 bool CScriptObject::isSceneSwitchPersistentScript() const
 {
-    return ((_scriptType == sim_scripttype_sandboxscript) || (_scriptType == sim_scripttype_addonscript));
+    return ((_scriptType == sim_scripttype_sandbox) || (_scriptType == sim_scripttype_addon));
 }
 
 void CScriptObject::setIsSceneObjectScript(bool s)
@@ -2437,9 +2437,9 @@ bool CScriptObject::resetScript()
 bool CScriptObject::initScript()
 { // add-on scripts, and the main script cannot be initialized via this function
     bool retVal = false;
-    if (_scriptType == sim_scripttype_sandboxscript)
+    if (_scriptType == sim_scripttype_sandbox)
         retVal = systemCallScript(sim_syscb_init, nullptr, nullptr) == 1;
-    if ((_scriptType == sim_scripttype_childscript) || (_scriptType == sim_scripttype_customizationscript))
+    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
         retVal = systemCallScript(sim_syscb_init, nullptr, nullptr) == 1;
     return (retVal);
 }
@@ -2459,10 +2459,10 @@ bool CScriptObject::_killInterpreterState()
     {
         if ((_scriptState & 7) == scriptState_initialized)
         {
-            if (isEmbeddedScript() || (_scriptType == sim_scripttype_addonscript))
+            if (isEmbeddedScript() || (_scriptType == sim_scripttype_addon))
                 _callSystemScriptFunction(sim_syscb_cleanup, nullptr, nullptr);
             // if (_scriptType==sim_scripttype_addonfunction) // Not needed
-            // if (_scriptType==sim_scripttype_sandboxscript) // Not needed
+            // if (_scriptType==sim_scripttype_sandbox) // Not needed
         }
         App::worldContainer->announceScriptStateWillBeErased(_scriptHandle, _scriptUid, isSimulationScript(), isSceneSwitchPersistentScript());
         luaWrap_lua_close((luaWrap_lua_State *)_interpreterState);
@@ -2563,9 +2563,9 @@ void CScriptObject::_announceErrorWasRaisedAndPossiblyPauseSimulation(const char
     std::string errM(errMsg);
     if ((errM.find("attempt to yield across metamethod/C-call boundary") == std::string::npos) &&
         (errM.find("attempt to yield from outside a coroutine") == std::string::npos))
-    { // silent error when breaking out of a threaded child script at simulation end
-        if ((_scriptType == sim_scripttype_mainscript) || (_scriptType == sim_scripttype_childscript) ||
-            (_scriptType == sim_scripttype_customizationscript))
+    { // silent error when breaking out of a threaded simulation script at simulation end
+        if ((_scriptType == sim_scripttype_main) || (_scriptType == sim_scripttype_simulation) ||
+            (_scriptType == sim_scripttype_customization))
             App::currentWorld->simulation->pauseOnErrorRequested();
         App::logScriptMsg(this, sim_verbosity_scripterrors, errM.c_str());
         _lastStackTraceback = errM;
@@ -2937,7 +2937,7 @@ void CScriptObject::registerNewFunctions_lua()
         else
             luaWrap_lua_register(L, simLuaCommands[i].name.c_str(), simLuaCommands[i].func);
     }
-    if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandboxscript))
+    if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandbox))
     { // i.e. sim_old.simGetObjectHandle, etc. We need to put this in the global namespace, since we do not have a lazy
       // load option
         for (int i = 0; simLuaCommandsOldApi[i].name != ""; i++)
@@ -2989,10 +2989,10 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
     {
         int dx = cnt - _sysFuncAndHookCnt_event[what];
         _sysFuncAndHookCnt_event[what] = cnt;
-        if (_scriptType == sim_scripttype_addonscript)
+        if (_scriptType == sim_scripttype_addon)
             App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_event, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
-        else if (_scriptType != sim_scripttype_sandboxscript)
+        else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
                 App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_event, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_event) + dx);
@@ -3004,10 +3004,10 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
     {
         int dx = cnt - _sysFuncAndHookCnt_dyn[what];
         _sysFuncAndHookCnt_dyn[what] = cnt;
-        if (_scriptType == sim_scripttype_addonscript)
+        if (_scriptType == sim_scripttype_addon)
             App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_dyn, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
-        else if (_scriptType != sim_scripttype_sandboxscript)
+        else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
                 App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_dyn, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
@@ -3019,11 +3019,11 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
     {
         int dx = cnt - _sysFuncAndHookCnt_contact[what];
         _sysFuncAndHookCnt_contact[what] = cnt;
-        if (_scriptType == sim_scripttype_addonscript)
+        if (_scriptType == sim_scripttype_addon)
             App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_contact,
                 App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
-        else if (_scriptType != sim_scripttype_sandboxscript)
+        else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
                 App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_contact, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
@@ -3035,10 +3035,10 @@ void CScriptObject::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
     {
         int dx = cnt - _sysFuncAndHookCnt_joint[what];
         _sysFuncAndHookCnt_joint[what] = cnt;
-        if (_scriptType == sim_scripttype_addonscript)
+        if (_scriptType == sim_scripttype_addon)
             App::worldContainer->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_joint, App::worldContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
-        else if (_scriptType != sim_scripttype_sandboxscript)
+        else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < SIM_IDSTART_LUASCRIPT)
                 App::currentWorld->sceneObjects->setSysFuncAndHookCnt(sim_syscb_joint, App::currentWorld->sceneObjects->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
@@ -3129,6 +3129,22 @@ int CScriptObject::registerFunctionHook(const char *sysFunc, const char *userFun
         }
         return (1); // successful register
     }
+}
+
+bool CScriptObject::replaceScriptText(const char *oldTxt, const char *newTxt)
+{
+    std::string theScript(getScriptText());
+    size_t startPos = theScript.find(oldTxt, 0);
+    bool replacedSomething = false;
+    while (startPos != std::string::npos)
+    {
+        theScript.replace(startPos, strlen(oldTxt), newTxt);
+        startPos = theScript.find(oldTxt, startPos + 1);
+        replacedSomething = true;
+    }
+    if (replacedSomething)
+        setScriptText(theScript.c_str());
+    return replacedSomething;
 }
 
 void CScriptObject::printInterpreterStack() const
@@ -3298,7 +3314,7 @@ void CScriptObject::_registerNewVariables_lua()
         tmp += "=" + std::to_string(simLuaVariables[i].val);
         _execSimpleString_safe_lua(L, tmp.c_str());
     }
-    if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandboxscript))
+    if (App::userSettings->supportOldApiNotation && (_scriptType != sim_scripttype_sandbox))
     { // i.e. sim_old.sim_handle_all, etc. We need to put this in the global namespace, since we do not have a lazy load
       // option
         for (size_t i = 0; simLuaVariablesOldApi[i].name != ""; i++)
@@ -3338,7 +3354,7 @@ bool CScriptObject::registerPluginVariables(bool onlyRequireStatements)
                 std::string tmp(variableName);
                 tmp += "=" + variableValue;
                 if ((0 != _execSimpleString_safe_lua(L, tmp.c_str())) && onlyRequireStatements &&
-                    (_scriptType == sim_scripttype_sandboxscript))
+                    (_scriptType == sim_scripttype_sandbox))
                 { // warning only with sandbox scripts
                     if ((variableName.find("simCHAI3D") == std::string::npos) &&
                         (variableName.find("simJoy") == std::string::npos))
@@ -3519,7 +3535,7 @@ void CScriptObject::serialize(CSer &ar)
                         }
                     }
 
-                    if (justLoadedCustomScriptBuffer && (_scriptType == sim_scripttype_mainscript) &&
+                    if (justLoadedCustomScriptBuffer && (_scriptType == sim_scripttype_main) &&
                         _mainScriptIsDefaultMainScript_old) // old, keep for backward compatibility. 16.11.2020
                         _scriptText = DEFAULT_MAINSCRIPT_CODE;
                     if (theName == "Va2")
@@ -3650,17 +3666,17 @@ void CScriptObject::serialize(CSer &ar)
                 ar.xmlAddNode_int("handle", _scriptHandle);
                 ar.xmlAddNode_int("objectHandle", _objectHandleAttachedTo);
 
-                ar.xmlAddNode_enum("type", _scriptType, sim_scripttype_mainscript, "mainScript",
-                                   sim_scripttype_childscript, "childScript", sim_scripttype_customizationscript,
+                ar.xmlAddNode_enum("type", _scriptType, sim_scripttype_main, "mainScript",
+                                   sim_scripttype_simulation, "childScript", sim_scripttype_customization,
                                    "customizationScript");
             }
 
             ar.xmlPushNewNode("switches");
-            if (exhaustiveXml || (_scriptType == sim_scripttype_childscript))
+            if (exhaustiveXml || (_scriptType == sim_scripttype_simulation))
                 ar.xmlAddNode_bool("threadedExecution", _threadedExecution_oldThreads);
             ar.xmlAddNode_bool("enabled", !_scriptIsDisabled);
             ar.xmlAddNode_bool("parentIsProxy", _parentIsProxy);
-            if (exhaustiveXml || (_scriptType == sim_scripttype_childscript))
+            if (exhaustiveXml || (_scriptType == sim_scripttype_simulation))
                 ar.xmlAddNode_bool("executeOnce", _executeJustOnce_oldThreads);
             ar.xmlPopNode();
 
@@ -3701,21 +3717,21 @@ void CScriptObject::serialize(CSer &ar)
                 ar.xmlGetNode_int("handle", previousScriptHandle);
                 ar.xmlGetNode_int("objectHandle", _objectHandleAttachedTo);
 
-                ar.xmlGetNode_enum("type", _scriptType, true, "mainScript", sim_scripttype_mainscript, "childScript",
-                                   sim_scripttype_childscript, "customizationScript",
-                                   sim_scripttype_customizationscript);
+                ar.xmlGetNode_enum("type", _scriptType, true, "mainScript", sim_scripttype_main, "childScript",
+                                   sim_scripttype_simulation, "customizationScript",
+                                   sim_scripttype_customization);
             }
 
             if (ar.xmlPushChildNode("switches", exhaustiveXml))
             {
-                if (exhaustiveXml || (_scriptType == sim_scripttype_childscript))
+                if (exhaustiveXml || (_scriptType == sim_scripttype_simulation))
                     ar.xmlGetNode_bool("threadedExecution", _threadedExecution_oldThreads, exhaustiveXml);
                 if (ar.xmlGetNode_bool("enabled", _scriptIsDisabled, exhaustiveXml))
                     _scriptIsDisabled = !_scriptIsDisabled;
                 ar.xmlGetNode_bool("parentIsProxy", _parentIsProxy, exhaustiveXml);
                 if (exhaustiveXml)
                     ar.xmlGetNode_bool("isDefaultMainScript", _mainScriptIsDefaultMainScript_old, false);
-                if (exhaustiveXml || (_scriptType == sim_scripttype_childscript))
+                if (exhaustiveXml || (_scriptType == sim_scripttype_simulation))
                     ar.xmlGetNode_bool("executeOnce", _executeJustOnce_oldThreads, exhaustiveXml);
                 ar.xmlPopNode();
             }
@@ -3723,7 +3739,7 @@ void CScriptObject::serialize(CSer &ar)
             ar.xmlGetNode_int("executionOrder", _executionPriority_old, exhaustiveXml); // for backward compatibility 19.09.2022
 
             if (ar.xmlGetNode_cdata("scriptText", _scriptText, exhaustiveXml) &&
-                (_scriptType == sim_scripttype_mainscript) &&
+                (_scriptType == sim_scripttype_main) &&
                 _mainScriptIsDefaultMainScript_old) // for backward compatibility 16.11.2020
                 _scriptText = DEFAULT_MAINSCRIPT_CODE;
 
@@ -4726,7 +4742,7 @@ const SNewApiMapping _simApiMapping[] = {
     "simGetScriptAttribute",
     "sim.getScriptAttribute",
     "simHandleChildScripts",
-    "sim.handleChildScripts",
+    "sim.handleSimulationScripts",
     "simLaunchThreadedChildScripts",
     "sim.launchThreadedChildScripts",
     "simReorientShapeBoundingBox",
@@ -5106,15 +5122,15 @@ const SNewApiMapping _simApiMapping[] = {
     "sim_texturemap_cube",
     "sim.texturemap_cube",
     "sim_scripttype_mainscript",
-    "sim.scripttype_mainscript",
+    "sim.scripttype_main",
     "sim_scripttype_childscript",
-    "sim.scripttype_childscript",
+    "sim.scripttype_simulation",
     "sim_scripttype_addonscript",
-    "sim.scripttype_addonscript",
+    "sim.scripttype_addon",
     "sim_scripttype_addonfunction",
     "sim.scripttype_addonfunction",
     "sim_scripttype_customizationscript",
-    "sim.scripttype_customizationscript",
+    "sim.scripttype_customization",
     "sim_scripttype_threaded",
     "sim.scripttype_threaded",
     "sim_mainscriptcall_initialization",
@@ -7780,7 +7796,7 @@ void CScriptObject::_handleCallbackEx_old(int calltype)
 int CScriptObject::_getScriptNameIndexNumber_old() const
 {
     int retVal = -1;
-    if ((_scriptType == sim_scripttype_childscript) || (_scriptType == sim_scripttype_customizationscript))
+    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (it != nullptr)
@@ -7790,13 +7806,13 @@ int CScriptObject::_getScriptNameIndexNumber_old() const
 }
 std::string CScriptObject::getScriptPseudoName_old() const
 {
-    if ((_scriptType == sim_scripttype_childscript) || (_scriptType == sim_scripttype_customizationscript))
+    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (it != nullptr)
             return (it->getObjectName_old());
     }
-    if ((_scriptType == sim_scripttype_addonscript) || (_scriptType == sim_scripttype_addonfunction))
+    if ((_scriptType == sim_scripttype_addon) || (_scriptType == sim_scripttype_addonfunction))
         return (_addOnName);
     return ("");
 }
@@ -7804,7 +7820,7 @@ void CScriptObject::setThreadedExecution_oldThreads(bool threadedExec)
 {
     if (threadedExec)
     {
-        if (_scriptType == sim_scripttype_childscript)
+        if (_scriptType == sim_scripttype_simulation)
             _threadedExecution_oldThreads = true;
     }
     else
@@ -8576,21 +8592,12 @@ void CScriptObject::_performNewApiAdjustments_old(CScriptObject *scriptObject, b
     theScript = _replaceOldApi(theScript.c_str(), forwardAdjustment);
     scriptObject->setScriptText(theScript.c_str());
 }
+
 bool CScriptObject::_replaceScriptText_old(CScriptObject *scriptObject, const char *oldTxt, const char *newTxt)
 {
-    std::string theScript(scriptObject->getScriptText());
-    size_t startPos = theScript.find(oldTxt, 0);
-    bool replacedSomething = false;
-    while (startPos != std::string::npos)
-    {
-        theScript.replace(startPos, strlen(oldTxt), newTxt);
-        startPos = theScript.find(oldTxt, startPos + 1);
-        replacedSomething = true;
-    }
-    if (replacedSomething)
-        scriptObject->setScriptText(theScript.c_str());
-    return (replacedSomething);
+    return scriptObject->replaceScriptText(oldTxt, newTxt);
 }
+
 bool CScriptObject::_replaceScriptTextKeepMiddleUnchanged_old(CScriptObject *scriptObject, const char *oldTxtStart,
                                                               const char *oldTxtEnd, const char *newTxtStart,
                                                               const char *newTxtEnd)
@@ -8720,7 +8727,7 @@ void CScriptObject::_adjustScriptText1_old(CScriptObject *scriptObject, bool doI
     if (!doIt)
         return;
     // here we have to adjust for the new script execution engine (since V3.1.3):
-    if ((scriptObject->getScriptType() == sim_scripttype_mainscript) &&
+    if ((scriptObject->getScriptType() == sim_scripttype_main) &&
         (!scriptObject->_mainScriptIsDefaultMainScript_old))
     {
         std::string txt;
@@ -8743,7 +8750,7 @@ void CScriptObject::_adjustScriptText1_old(CScriptObject *scriptObject, bool doI
         txt += "------------------------------------------------------------------------------ \n";
         _insertScriptText_old(scriptObject, false, txt.c_str());
     }
-    if (scriptObject->getScriptType() == sim_scripttype_childscript)
+    if (scriptObject->getScriptType() == sim_scripttype_simulation)
     {
         if (!scriptObject->getThreadedExecution_oldThreads())
         {
@@ -8788,13 +8795,13 @@ void CScriptObject::_adjustScriptText1_old(CScriptObject *scriptObject, bool doI
                 txt += "------------------------------------------------------------------------------ \n";
                 _insertScriptText_old(scriptObject, false, txt.c_str());
 
-                // Because in old sensing child scripts, simHandleChildScript didn't anyway have an effect:
+                // Because in old sensing simulation scripts, simHandleChildScript didn't anyway have an effect:
                 _replaceScriptText_old(scriptObject, "simHandleChildScript(",
                                        "-- commented by CoppeliaSim: s@imHandleChildScript(");
                 _replaceScriptText_old(scriptObject, "s@imHandleChildScript", "simHandleChildScript");
             }
             else
-            { // actuation child script
+            { // actuation simulation script
                 // Add text to the beginning:
                 txt += "------------------------------------------------------------------------------ \n";
                 txt += "-- Following few lines automatically added by CoppeliaSim to guarantee compatibility \n";
@@ -8863,13 +8870,13 @@ void CScriptObject::_adjustScriptText1_old(CScriptObject *scriptObject, bool doI
                 txt += "  Since CoppeliaSim 3.1.3, the function simHandleChildScript is not supported anymore.\n";
                 txt += "  It was replaced with simHandleChildScripts (i.e. with an additional 's'),\n";
                 txt += "  and operates slightly differently. In addition to this, simhandleChildScripts\n";
-                txt += "  cannot be called from threaded child scripts anymore. Please correct this issue\n";
+                txt += "  cannot be called from threaded simulation scripts anymore. Please correct this issue\n";
                 txt += "  yourself by editing the script.";
                 CWorld::appendLoadOperationIssue(sim_verbosity_warnings, txt.c_str(), scriptObject->getScriptHandle());
             }
         }
     }
-    if (scriptObject->getScriptType() == sim_scripttype_customizationscript)
+    if (scriptObject->getScriptType() == sim_scripttype_customization)
     {
         _replaceScriptText_old(scriptObject, "sim_customizationscriptcall_firstaftersimulation",
                                "sim.syscb_aftersimulation");
@@ -8883,7 +8890,7 @@ void CScriptObject::_adjustScriptText2_old(CScriptObject *scriptObject, bool doI
 {
     if (!doIt)
         return;
-    if ((scriptObject->getScriptType() == sim_scripttype_childscript) &&
+    if ((scriptObject->getScriptType() == sim_scripttype_simulation) &&
         scriptObject->getThreadedExecution_oldThreads())
     { // to correct for a forgotten thing. Happens only with files I modified between 11/8/2014 and 13/8/2014 (half of
       // the demo scenes and models)
@@ -9182,12 +9189,12 @@ void CScriptObject::_adjustScriptText13_old(CScriptObject *scriptObject, bool do
 { // for release 4.2.0:
     if (!doIt)
         return;
-    if (_scriptType != sim_scripttype_mainscript)
+    if (_scriptType != sim_scripttype_main)
         _replaceScriptText_old(scriptObject, "sim.getSimulationState()~=sim.simulation_advancing_abouttostop", "true");
     _replaceScriptText_old(scriptObject, "sim.getObjectAssociatedWithScript(sim.handle_self)",
                            "sim.getObjectHandle(sim.handle_self)");
 
-    if (CSimFlavor::getBoolVal(18) && (_scriptType != sim_scripttype_mainscript))
+    if (CSimFlavor::getBoolVal(18) && (_scriptType != sim_scripttype_main))
     {
         const char txt1[] = "function sysCall_actuation()\n\
     if coroutine.status(corout)~='dead' then\n\
@@ -9404,44 +9411,11 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
 //    _replaceScriptText_old(scriptObject, "sim.readCustomDataBlock", "sim.readCustomBufferData");
 //    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
 
-    /*
-    _replaceScriptText_old(scriptObject, "'.'", "'..'");
-    _replaceScriptText_old(scriptObject, "'./", "'../");
-    _replaceScriptText_old(scriptObject, "\".\"", "\"..\"");
-    _replaceScriptText_old(scriptObject, "\"./", "\"../");
-
-    _replaceScriptText_old(scriptObject, "'conveyor_customization-2'", "'models.conveyor_customization-3'");
-    _replaceScriptText_old(scriptObject, "\"conveyor_customization-2\"", "\"models.conveyor_customization-3\"");
-
-    _replaceScriptText_old(scriptObject, "'efficientconveyor_customization-2'", "'models.efficientconveyor_customization-3'");
-    _replaceScriptText_old(scriptObject, "\"efficientconveyor_customization-2\"", "\"models.efficientconveyor_customization-3\"");
-
-    _replaceScriptText_old(scriptObject, "'conveyorSystem_customization-2'", "'models.conveyorSystem_customization-3'");
-    _replaceScriptText_old(scriptObject, "\"conveyorSystem_customization-2\"", "\"models.conveyorSystem_customization-3\"");
-
-    _replaceScriptText_old(scriptObject, "'path_customization'", "'models.path_customization-2'");
-    _replaceScriptText_old(scriptObject, "\"path_customization\"", "\"models.path_customization-2\"");
-
-    _replaceScriptText_old(scriptObject, "'graph_customization'", "'models.graph_customization-2'");
-    _replaceScriptText_old(scriptObject, "\"graph_customization\"", "\"models.graph_customization-2\"");
-
-//*/
-
-
-    if (_containsScriptText_old(scriptObject, "models/"))
-        App::logMsg(sim_verbosity_errors, "Contains models/ ");
-    if (_containsScriptText_old(scriptObject, "':'"))
-        App::logMsg(sim_verbosity_errors, "Contains ':' ");
-    if (_containsScriptText_old(scriptObject, "':/"))
-        App::logMsg(sim_verbosity_errors, "Contains ':/ ");
-    if (_containsScriptText_old(scriptObject, "'::"))
-        App::logMsg(sim_verbosity_errors, "Contains ':: ");
-    if (_containsScriptText_old(scriptObject, "\":\""))
-        App::logMsg(sim_verbosity_errors, "Contains \":\" ");
-    if (_containsScriptText_old(scriptObject, "\":/"))
-        App::logMsg(sim_verbosity_errors, "Contains \":/ ");
-    if (_containsScriptText_old(scriptObject, "\"::"))
-        App::logMsg(sim_verbosity_errors, "Contains \":: ");
+    _replaceScriptText_old(scriptObject, "sim.scripttype_mainscript", "sim.scripttype_main");
+    _replaceScriptText_old(scriptObject, "sim.scripttype_childscript", "sim.scripttype_simulation");
+    _replaceScriptText_old(scriptObject, "sim.scripttype_addonscript", "sim.scripttype_addon");
+    _replaceScriptText_old(scriptObject, "sim.scripttype_customizationscript", "sim.scripttype_customization");
+    _replaceScriptText_old(scriptObject, "sim.scripttype_sandboxscript", "sim.scripttype_sandbox");
 
     if (_containsScriptText_old(scriptObject, "sim.removeObject("))
         App::logMsg(sim_verbosity_errors, "Contains sim.removeObject...");
@@ -9664,10 +9638,10 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
         App::logMsg(sim_verbosity_errors, "Contains sim.addPointCloud...");
 
     if (_containsScriptText_old(scriptObject, "sysCall_vision") &&
-        (scriptObject->_scriptType == sim_scripttype_customizationscript))
+        (scriptObject->_scriptType == sim_scripttype_customization))
         App::logMsg(sim_verbosity_errors, "Contains a vision callback in a customization script");
     if (_containsScriptText_old(scriptObject, "sysCall_trigger") &&
-        (scriptObject->_scriptType == sim_scripttype_customizationscript))
+        (scriptObject->_scriptType == sim_scripttype_customization))
         App::logMsg(sim_verbosity_errors, "Contains a trigger callback in a customization script");
 
     if (_containsScriptText_old(scriptObject, "sim.rmlMove"))

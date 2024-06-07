@@ -1669,11 +1669,11 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         if (txt.size() > 0)
         {
             cf->scriptEquivalent.clear();
-            CScriptObject *script = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, it->getObjectHandle());
+            CScriptObject *script = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, it->getObjectHandle());
             if (script == nullptr)
             {
                 txt = std::string("function sysCall_init()\nend\n\n") + txt;
-                script = new CScriptObject(sim_scripttype_customizationscript);
+                script = new CScriptObject(sim_scripttype_customization);
                 script->setLang("lua");
                 sceneObjects->embeddedScriptContainer->insertScript(script);
                 script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
@@ -1691,7 +1691,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         if (script != nullptr)
         {
             CUserParameters *params = script->getScriptParametersObject_backCompatibility();
-            int obj = script->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_childscript);
+            int obj = script->getObjectHandleThatScriptIsAttachedTo(sim_scripttype_simulation);
             CSceneObject *theObj = sceneObjects->getObjectFromHandle(obj);
             if ((theObj != nullptr) && (params != nullptr))
             {
@@ -1723,7 +1723,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
     { // convert from old to new (except for very old threaded scripts (blue icon)):
         for (size_t i = 0; i < loadedObjectList.size(); i++)
         {
-            CScriptObject* scriptObject = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customizationscript, loadedObjectList[i]->getObjectHandle());
+            CScriptObject* scriptObject = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, loadedObjectList[i]->getObjectHandle());
             if ( (scriptObject != nullptr) && (!scriptObject->getThreadedExecution_oldThreads()) )
             {
                 sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
@@ -1739,11 +1739,11 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                 }
                 sceneObjects->setObjectSequence(script, 0);
                 sceneObjects->setObjectAlias(script, "autoConvertedScript", false);
-                std::string nn("autoConvertedChildScript_");
+                std::string nn("autoConvertedSimulationScript_");
                 nn += loadedObjectList[i]->getObjectName_old();
                 sceneObjects->setObjectName_old(script, nn.c_str(), false);
             }
-            scriptObject = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_childscript, loadedObjectList[i]->getObjectHandle());
+            scriptObject = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, loadedObjectList[i]->getObjectHandle());
             if ( (scriptObject != nullptr) && (!scriptObject->getThreadedExecution_oldThreads()) )
             {
                 sceneObjects->embeddedScriptContainer->extractScript(scriptObject->getScriptHandle());
@@ -1775,7 +1775,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
             CSceneObject* it = loadedObjectList[i];
             if (it->getObjectType() != sim_object_script_type)
             {
-                int itemDone = 0; // bit 0 child script, bit 1 custom. script
+                int itemDone = 0; // bit 0 simulation script, bit 1 custom. script
                 for (size_t j = 0; j < it->getChildCount(); j++)
                 {
                     CSceneObject* c = it->getChildFromIndex(j);
@@ -1783,9 +1783,9 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                     {
                         CScript* script = (CScript*)c;
                         int id = itemDone;
-                        if ( ((itemDone & 1) == 0) && (script->scriptObject->getScriptType() == sim_scripttype_childscript) )
+                        if ( ((itemDone & 1) == 0) && (script->scriptObject->getScriptType() == sim_scripttype_simulation) )
                             itemDone |= 1;
-                        if ( ((itemDone & 2) == 0) && (script->scriptObject->getScriptType() == sim_scripttype_customizationscript) )
+                        if ( ((itemDone & 2) == 0) && (script->scriptObject->getScriptType() == sim_scripttype_customization) )
                             itemDone |= 2;
                         if (itemDone != id)
                         {
@@ -1869,7 +1869,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
     }
 
     if (isScene && (sceneObjects->embeddedScriptContainer->getMainScript() == nullptr))
-        sceneObjects->embeddedScriptContainer->insertDefaultScript(sim_scripttype_mainscript, false, true);
+        sceneObjects->embeddedScriptContainer->insertDefaultScript(sim_scripttype_main, false, true);
 
     CCamera *mainCam = nullptr;
 

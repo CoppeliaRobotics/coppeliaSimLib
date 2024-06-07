@@ -52,7 +52,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_SCRIPT_INEXISTANT "script does not exist."
 #define SIM_ERROR_ILLEGAL_SCRIPT_TYPE "illegal script type."
 #define SIM_ERROR_SCRIPT_NOT_INITIALIZED "script is not initialized (or has already ended)"
-#define SIM_ERROR_NO_ASSOCIATED_CHILD_SCRIPT_FOUND "no associated child script found."
+#define SIM_ERROR_NO_ASSOCIATED_CHILD_SCRIPT_FOUND "no associated simulation script found."
 #define SIM_ERROR_PAGE_INEXISTANT "page does not exist."
 #define SIM_ERROR_ILLEGAL_OBJECT_NAME "illegal object name."
 #define SIM_ERROR_ILLEGAL_COLLECTION_NAME "illegal collection name."
@@ -123,20 +123,20 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG "one of the function's argument type is not correct."
 #define SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG "incorrect table size."
 #define SIM_ERROR_INCORRECT_BUFFER_SIZE "incorrect buffer size."
-#define SIM_ERROR_NOT_MAIN_NOR_CHILD_SCRIPT "script is not a main script nor a child script."
+#define SIM_ERROR_NOT_MAIN_NOR_CHILD_SCRIPT "script is not a main script nor a simulation script."
 #define SIM_ERROR_NON_EXPLICIT_CHILD_SCRIPT_EXECUTIONS_WERE_DELEGATED                                                  \
-    "non-explicit child script executions were delegated."
+    "non-explicit simulation script executions were delegated."
 #define SIM_ERROR_THREAD_LAUNCHING_SCRIPTS_WILL_NOT_BE_CALLED_FROM_SENSING_SECTION                                     \
     "scripts launching a thread will not be called when in a sensing section."
 #define SIM_ERROR_INVALID_CHILD_SCRIPT_HANDLE_OR_CHILD_SCRIPT_NOT_IN_CURRENT_HIERARCHY                                 \
-    "invalid child script handle, or child script not in current hierarchy tree."
+    "invalid simulation script handle, or simulation script not in current hierarchy tree."
 #define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT "can only be called from the main script."
 #define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT_OR_CHILD_SCRIPT                                                  \
-    "can only be called from the main script or a child script."
+    "can only be called from the main script or a simulation script."
 #define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_A_THREAD "can only be called from a thread."
 #define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_THE_MAIN_THREAD "can only be called from the main thread."
 #define SIM_ERROR_CANNOT_BE_CALLED_IF_DIDN_T_LAUNCH_THREAD "cannot be called from a script that didn't launch a thread."
-#define SIM_ERROR_ARGUMENT_VALID_ONLY_WITH_CHILD_SCRIPTS "argument only valid with child scripts."
+#define SIM_ERROR_ARGUMENT_VALID_ONLY_WITH_CHILD_SCRIPTS "argument only valid with simulation scripts."
 #define SIM_ERROR_SCRIPT_MUST_RUN_IN_THREAD_FOR_MODAL_OPERATION "script must run in a thread for modal operation."
 #define SIM_ERROR_CANNOT_USE_THAT_STYLE_IN_MODAL_OPERATION "can't use that dialog style in modal operation."
 #define SIM_ERROR_TABLE_CONTAINS_INVALID_TYPES "table contains invalid types."
@@ -150,7 +150,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ "could not lock resources for data read operation."
 #define SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE "could not lock resources for data write operation."
 #define SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_NON_THREADED_CHILD_SCRIPTS                                                   \
-    "can only be called from non-threaded child scripts."
+    "can only be called from non-threaded simulation scripts."
 #define SIM_ERROR_AUTOMATIC_CASCADING_CALLS_NOT_DISABLED                                                               \
     "cannot be called when the automatic cascading calls are not disabled."
 #define SIM_ERROR_INVALID_RESOLUTION "invalid resolution."
