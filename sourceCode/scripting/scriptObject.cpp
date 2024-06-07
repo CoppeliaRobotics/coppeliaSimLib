@@ -9417,6 +9417,15 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
     _replaceScriptText_old(scriptObject, "sim.scripttype_customizationscript", "sim.scripttype_customization");
     _replaceScriptText_old(scriptObject, "sim.scripttype_sandboxscript", "sim.scripttype_sandbox");
 
+    if (_containsScriptText_old(scriptObject, "sim.convexDecompose"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.convexDecompose...");
+
+    if (_containsScriptText_old(scriptObject, "sim.getQHull"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getQHull...");
+
+    if (_containsScriptText_old(scriptObject, "sim.getDecimatedMesh"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getDecimatedMesh...");
+
     if (_containsScriptText_old(scriptObject, "sim.removeObject("))
         App::logMsg(sim_verbosity_errors, "Contains sim.removeObject...");
 

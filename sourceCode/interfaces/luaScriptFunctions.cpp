@@ -243,8 +243,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.loadImage", _simLoadImage},
     {"sim.getScaledImage", _simGetScaledImage},
     {"sim.transformImage", _simTransformImage},
-    {"sim.getQHull", _simGetQHull},
-    {"sim.getDecimatedMesh", _simGetDecimatedMesh},
     {"sim.packInt32Table", _simPackInt32Table},
     {"sim.packUInt32Table", _simPackUInt32Table},
     {"sim.packFloatTable", _simPackFloatTable},
@@ -355,7 +353,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.setObjectQuaternion", _simSetObjectQuaternion},
     {"sim.groupShapes", _simGroupShapes},
     {"sim.ungroupShape", _simUngroupShape},
-    {"sim.convexDecompose", _simConvexDecompose},
     {"sim.getThreadId", _simGetThreadId},
     {"sim.setShapeMaterial", _simSetShapeMaterial},
     {"sim.getTextureId", _simGetTextureId},
@@ -462,6 +459,9 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.test", _simTest},
 
     // deprecated
+    {"sim.getDecimatedMesh", _simGetDecimatedMesh},
+    {"sim.getQHull", _simGetQHull},
+    {"sim.convexDecompose", _simConvexDecompose},
     {"sim.loadModule", _simLoadModule},
     {"sim.unloadModule", _simUnloadModule},
     {"sim.isDeprecated", _simIsDeprecated},
@@ -6722,75 +6722,6 @@ int _simTransformImage(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetQHull(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getQHull");
-
-    if (checkInputArguments(L, &errorString, lua_arg_number, 9))
-    {
-        int vl = (int)luaWrap_lua_rawlen(L, 1);
-        if (checkInputArguments(L, &errorString, lua_arg_number, vl))
-        {
-            double *vertices = new double[vl];
-            getDoublesFromTable(L, 1, vl, vertices);
-            double *vertOut;
-            int vertOutL;
-            int *indOut;
-            int indOutL;
-            if (simGetQHull_internal(vertices, vl, &vertOut, &vertOutL, &indOut, &indOutL, 0, nullptr))
-            {
-                pushDoubleTableOntoStack(L, vertOutL, vertOut);
-                pushIntTableOntoStack(L, indOutL, indOut);
-                delete[] vertOut;
-                delete[] indOut;
-                LUA_END(2);
-            }
-            delete[] vertices;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetDecimatedMesh(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getDecimatedMesh");
-
-    if (checkInputArguments(L, &errorString, lua_arg_number, 9, lua_arg_number, 6, lua_arg_number, 0))
-    {
-        int vl = (int)luaWrap_lua_rawlen(L, 1);
-        int il = (int)luaWrap_lua_rawlen(L, 2);
-        double percentage = luaToDouble(L, 3);
-        if (checkInputArguments(L, &errorString, lua_arg_number, vl, lua_arg_number, il, lua_arg_number, 0))
-        {
-            double *vertices = new double[vl];
-            getDoublesFromTable(L, 1, vl, vertices);
-            int *indices = new int[il];
-            getIntsFromTable(L, 2, il, indices);
-            double *vertOut;
-            int vertOutL;
-            int *indOut;
-            int indOutL;
-            if (simGetDecimatedMesh_internal(vertices, vl, indices, il, &vertOut, &vertOutL, &indOut, &indOutL,
-                                             percentage, 0, nullptr))
-            {
-                pushDoubleTableOntoStack(L, vertOutL, vertOut);
-                pushIntTableOntoStack(L, indOutL, indOut);
-                delete[] vertOut;
-                delete[] indOut;
-                LUA_END(2);
-            }
-            delete[] vertices;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simPackInt32Table(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
@@ -12274,53 +12205,6 @@ int _simUngroupShape(luaWrap_lua_State *L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
-}
-
-int _simConvexDecompose(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.convexDecompose");
-
-    int retVal = -1;
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-    {
-        int shapeHandle = luaToInt(L, 1);
-        int options = luaToInt(L, 2);
-        int intParams[10];
-        double floatParams[10];
-        bool goOn = true;
-        if ((options & 4) == 0)
-        {
-            goOn = false;
-            int ipc = 4;
-            int fpc = 3;
-            if (options & 128)
-            {
-                ipc = 10;
-                fpc = 10;
-            }
-            int res = checkOneGeneralInputArgument(L, 3, lua_arg_number, ipc, false, false, &errorString);
-            if (res == 2)
-            {
-                res = checkOneGeneralInputArgument(L, 4, lua_arg_number, fpc, false, false, &errorString);
-                if (res == 2)
-                {
-                    getIntsFromTable(L, 3, ipc, intParams);
-                    getDoublesFromTable(L, 4, fpc, floatParams);
-                    goOn = true;
-                }
-            }
-        }
-        intParams[4] = 0;
-        floatParams[3] = 0.0;
-        floatParams[4] = 0.0;
-        if (goOn)
-            retVal = simConvexDecompose_internal(shapeHandle, options, intParams, floatParams);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
 }
 
 int _simSetShapeMaterial(luaWrap_lua_State *L)
@@ -23036,3 +22920,120 @@ int _simSetThreadSwitchTimingOLD(luaWrap_lua_State *L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
+
+int _simConvexDecompose(luaWrap_lua_State *L)
+{ // deprecated in June 2024
+    TRACE_LUA_API;
+    LUA_START("sim.convexDecompose");
+
+    int retVal = -1;
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int shapeHandle = luaToInt(L, 1);
+        int options = luaToInt(L, 2);
+        int intParams[10];
+        double floatParams[10];
+        bool goOn = true;
+        if ((options & 4) == 0)
+        {
+            goOn = false;
+            int ipc = 4;
+            int fpc = 3;
+            if (options & 128)
+            {
+                ipc = 10;
+                fpc = 10;
+            }
+            int res = checkOneGeneralInputArgument(L, 3, lua_arg_number, ipc, false, false, &errorString);
+            if (res == 2)
+            {
+                res = checkOneGeneralInputArgument(L, 4, lua_arg_number, fpc, false, false, &errorString);
+                if (res == 2)
+                {
+                    getIntsFromTable(L, 3, ipc, intParams);
+                    getDoublesFromTable(L, 4, fpc, floatParams);
+                    goOn = true;
+                }
+            }
+        }
+        intParams[4] = 0;
+        floatParams[3] = 0.0;
+        floatParams[4] = 0.0;
+        if (goOn)
+            retVal = simConvexDecompose_internal(shapeHandle, options, intParams, floatParams);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetQHull(luaWrap_lua_State *L)
+{ // deprecated in June 2024
+    TRACE_LUA_API;
+    LUA_START("sim.getQHull");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 9))
+    {
+        int vl = (int)luaWrap_lua_rawlen(L, 1);
+        if (checkInputArguments(L, &errorString, lua_arg_number, vl))
+        {
+            double *vertices = new double[vl];
+            getDoublesFromTable(L, 1, vl, vertices);
+            double *vertOut;
+            int vertOutL;
+            int *indOut;
+            int indOutL;
+            if (simGetQHull_internal(vertices, vl, &vertOut, &vertOutL, &indOut, &indOutL, 0, nullptr))
+            {
+                pushDoubleTableOntoStack(L, vertOutL, vertOut);
+                pushIntTableOntoStack(L, indOutL, indOut);
+                delete[] vertOut;
+                delete[] indOut;
+                LUA_END(2);
+            }
+            delete[] vertices;
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetDecimatedMesh(luaWrap_lua_State *L)
+{ // deprecated in June 2024
+    TRACE_LUA_API;
+    LUA_START("sim.getDecimatedMesh");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 9, lua_arg_number, 6, lua_arg_number, 0))
+    {
+        int vl = (int)luaWrap_lua_rawlen(L, 1);
+        int il = (int)luaWrap_lua_rawlen(L, 2);
+        double percentage = luaToDouble(L, 3);
+        if (checkInputArguments(L, &errorString, lua_arg_number, vl, lua_arg_number, il, lua_arg_number, 0))
+        {
+            double *vertices = new double[vl];
+            getDoublesFromTable(L, 1, vl, vertices);
+            int *indices = new int[il];
+            getIntsFromTable(L, 2, il, indices);
+            double *vertOut;
+            int vertOutL;
+            int *indOut;
+            int indOutL;
+            if (simGetDecimatedMesh_internal(vertices, vl, indices, il, &vertOut, &vertOutL, &indOut, &indOutL,
+                                             percentage, 0, nullptr))
+            {
+                pushDoubleTableOntoStack(L, vertOutL, vertOut);
+                pushIntTableOntoStack(L, indOutL, indOut);
+                delete[] vertOut;
+                delete[] indOut;
+                LUA_END(2);
+            }
+            delete[] vertices;
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
