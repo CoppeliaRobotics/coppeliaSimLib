@@ -284,6 +284,7 @@ extern int _simImportMesh(luaWrap_lua_State *L);
 extern int _simExportMesh(luaWrap_lua_State *L);
 extern int _simCreateShape(luaWrap_lua_State *L);
 extern int _simGetShapeMesh(luaWrap_lua_State *L);
+extern int _simGetShapeBB(luaWrap_lua_State *L);
 extern int _simCreatePrimitiveShape(luaWrap_lua_State *L);
 extern int _simCreateHeightfieldShape(luaWrap_lua_State *L);
 extern int _simCreateJoint(luaWrap_lua_State *L);

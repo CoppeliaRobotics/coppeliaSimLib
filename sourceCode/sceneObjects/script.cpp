@@ -33,6 +33,8 @@ void CScript::_commonInit(int scriptType, const char* text, int options, const c
     scriptObject = new CScriptObject(scriptType);
     scriptObject->_scriptText = text;
     scriptObject->_sceneObjectScript = true;
+    if ( (scriptType != sim_scripttype_simulation) && (scriptType != sim_scripttype_customization) )
+        options |= 1;
     scriptObject->setScriptIsDisabled(options & 1);
     scriptObject->setLang(lang);
     _objectType = sim_object_script_type;

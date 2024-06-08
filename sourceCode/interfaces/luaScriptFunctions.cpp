@@ -318,6 +318,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.exportMesh", _simExportMesh},
     {"sim.createShape", _simCreateShape},
     {"sim.getShapeMesh", _simGetShapeMesh},
+    {"sim.getShapeBB", _simGetShapeBB},
     {"sim.createPrimitiveShape", _simCreatePrimitiveShape},
     {"sim.createHeightfieldShape", _simCreateHeightfieldShape},
     {"sim.createJoint", _simCreateJoint},
@@ -10485,6 +10486,39 @@ int _simGetShapeMesh(luaWrap_lua_State *L)
             delete[] normals;
             LUA_END(3);
         }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetShapeBB(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getShapeBB");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0))
+    {
+        CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(luaToInt(L, 1));
+        if (it != nullptr)
+        {
+            if (it->getObjectType() == sim_object_shape_type)
+            {
+                CShape* shape = (CShape*)it;
+                C3Vector hs;
+                C7Vector ltr = shape->getBB(&hs);
+                hs *= 2.0;
+                double p[7];
+                ltr.getData(p, true);
+                pushDoubleTableOntoStack(L, 3, hs.data);
+                pushDoubleTableOntoStack(L, 7, p);
+                LUA_END(2);
+            }
+            else
+                errorString = SIM_ERROR_OBJECT_NOT_SHAPE;
+        }
+        else
+            errorString = SIM_ERROR_OBJECT_INEXISTANT;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

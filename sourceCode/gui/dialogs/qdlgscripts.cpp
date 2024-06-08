@@ -47,6 +47,11 @@ void CQDlgScripts::refresh()
     if (sel)
     {
         std::string lang(it->scriptObject->getLang());
+        if ( ( (lang != "lua") && (lang != "python") ) || (it->scriptObject->getScriptType() == sim_scripttype_passive) )
+        {
+            ui->qqEnabled->setEnabled(false);
+            ui->qqExecutionOrder->setEnabled(false);
+        }
         lang = "Language: " + lang;
         ui->qqLang->setText(lang.c_str());
         ui->qqSize->setText(utils::getSizeString(false, it->getScriptSize()).c_str());
