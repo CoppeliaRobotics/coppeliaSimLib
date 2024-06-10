@@ -10020,7 +10020,7 @@ int simSetObjectStringParam_internal(int objectHandle, int parameterID, const ch
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectOrScriptExist(__func__, objectHandle))
-            return (nullptr);
+            return (-1);
         int retVal = 0; // Means the parameter was not set
 
         CDummy *dummy = App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
