@@ -9417,6 +9417,29 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
     _replaceScriptText_old(scriptObject, "sim.scripttype_customizationscript", "sim.scripttype_customization");
     _replaceScriptText_old(scriptObject, "sim.scripttype_sandboxscript", "sim.scripttype_sandbox");
 
+    if (_containsScriptText_old(scriptObject, "sim.addScript"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.addScript...");
+    if (_containsScriptText_old(scriptObject, "sim.associateScriptWithObject"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.associateScriptWithObject...");
+    if (_containsScriptText_old(scriptObject, "sim.removeScript"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.removeScript...");
+    if (_containsScriptText_old(scriptObject, "sim.getScriptStringParam"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptStringParam...");
+    if (_containsScriptText_old(scriptObject, "sim.setScriptStringParam"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptStringParam...");
+    if (_containsScriptText_old(scriptObject, "sim.getScriptInt32Param"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.getScriptInt32Param...");
+    if (_containsScriptText_old(scriptObject, "sim.setScriptInt32Param"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.setScriptInt32Param...");
+    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_lang"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_lang...");
+    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_handle"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_handle...");
+    if (_containsScriptText_old(scriptObject, "sim.scriptintparam_objecthandle"))
+        App::logMsg(sim_verbosity_errors, "Contains sim.scriptintparam_objecthandle...");
+
+
+
     if (_containsScriptText_old(scriptObject, "sim.convexDecompose"))
         App::logMsg(sim_verbosity_errors, "Contains sim.convexDecompose...");
 

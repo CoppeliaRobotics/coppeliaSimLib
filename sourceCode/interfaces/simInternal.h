@@ -98,10 +98,7 @@ int simHandleProximitySensor_internal(int sensorHandle, double *detectedPoint, i
 int simReadProximitySensor_internal(int sensorHandle, double *detectedPoint, int *detectedObjectHandle,
                                     double *normalVector);
 int simHandleDynamics_internal(double deltaTime);
-int simAssociateScriptWithObject_internal(int scriptHandle, int associatedObjectHandle);
 int simResetScript_internal(int scriptHandle);
-int simAddScript_internal(int scriptProperty);
-int simRemoveScript_internal(int scriptHandle);
 int simRefreshDialogs_internal(int refreshDegree);
 int simResetProximitySensor_internal(int sensorHandle);
 int simCheckProximitySensor_internal(int sensorHandle, int entityHandle, double *detectedPoint);
@@ -237,10 +234,6 @@ double *simGetObjectFloatArrayParam_internal(int objectHandle, int parameterID, 
 int simSetObjectFloatArrayParam_internal(int objectHandle, int parameterID, const double *params, int size);
 char *simGetObjectStringParam_internal(int objectHandle, int parameterID, int *parameterLength);
 int simSetObjectStringParam_internal(int objectHandle, int parameterID, const char *parameter, int parameterLength);
-int simGetScriptInt32Param_internal(int scriptHandle, int parameterID, int *parameter);
-int simSetScriptInt32Param_internal(int scriptHandle, int parameterID, int parameter);
-char *simGetScriptStringParam_internal(int scriptHandle, int parameterID, int *parameterLength);
-int simSetScriptStringParam_internal(int scriptHandle, int parameterID, const char *parameter, int parameterLength);
 int simGetRotationAxis_internal(const double *matrixStart, const double *matrixGoal, double *axis, double *angle);
 int simRotateAroundAxis_internal(const double *matrixIn, const double *axis, const double *axisPos, double angle,
                                  double *matrixOut);

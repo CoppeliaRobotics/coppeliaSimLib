@@ -6281,3 +6281,320 @@ int simHandleMainScript_internal()
 
     return (retVal);
 }
+
+int simAssociateScriptWithObject_internal(int scriptHandle, int associatedObjectHandle)
+{ // deprecated in June 2024
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptHandle);
+        if (it != nullptr)
+        {
+            if ((it->getScriptType() == sim_scripttype_simulation) ||
+                (it->getScriptType() == sim_scripttype_customization))
+            {
+                if (associatedObjectHandle == -1)
+                { // remove association
+                    it->setObjectHandleThatScriptIsAttachedTo(-1);
+#ifdef SIM_WITH_GUI
+                    GuiApp::setLightDialogRefreshFlag();
+#endif
+                    retVal = 1;
+                }
+                else
+                { // set association
+                    if (doesObjectExist(__func__, associatedObjectHandle))
+                    { // object does exist
+                        if (it->getObjectHandleThatScriptIsAttachedTo(-1) == -1)
+                        { // script not yet associated
+                            CScriptObject *currentSimilarObj = nullptr;
+                            if (it->getScriptType() == sim_scripttype_simulation)
+                                currentSimilarObj =
+                                    App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                                        sim_scripttype_simulation, associatedObjectHandle);
+                            if (it->getScriptType() == sim_scripttype_customization)
+                                currentSimilarObj =
+                                    App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                                        sim_scripttype_customization, associatedObjectHandle);
+                            if (currentSimilarObj == nullptr)
+                            {
+                                it->setObjectHandleThatScriptIsAttachedTo(associatedObjectHandle);
+#ifdef SIM_WITH_GUI
+                                GuiApp::setLightDialogRefreshFlag();
+#endif
+                                retVal = 1;
+                            }
+                            else
+                                CApiErrors::setLastWarningOrError(__func__,
+                                                                  SIM_ERROR_OBJECT_ALREADY_ASSOCIATED_WITH_SCRIPT_TYPE);
+                        }
+                    }
+                }
+            }
+            else
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_NOT_CHILD_OR_CUSTOMIZATION_SCRIPT);
+        }
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return (-1);
+}
+
+int simAddScript_internal(int scriptProperty)
+{ // deprecated in June 2024
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int scriptType = scriptProperty;
+        if (scriptProperty & sim_scripttype_threaded_old)
+            scriptType = scriptProperty - sim_scripttype_threaded_old;
+        CScriptObject *it = new CScriptObject(scriptType);
+        it->setLang("lua");
+        if (App::userSettings->keepOldThreadedScripts)
+        {
+            if (scriptProperty & sim_scripttype_threaded_old)
+            {
+                it->setThreadedExecution_oldThreads(true);
+                it->setExecuteJustOnce_oldThreads(true);
+            }
+        }
+        int retVal = App::currentWorld->sceneObjects->embeddedScriptContainer->insertScript(it);
+#ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+#endif
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return (-1);
+}
+
+int simRemoveScript_internal(int scriptHandle)
+{ // deprecated in June 2024
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (scriptHandle == sim_handle_all)
+        { // We wanna remove all scripts!
+            if (!App::currentWorld->simulation->isSimulationStopped())
+            {
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SIMULATION_NOT_STOPPED);
+                return (-1);
+            }
+            App::currentWorld->sceneObjects->embeddedScriptContainer->removeAllScripts();
+#ifdef SIM_WITH_GUI
+            GuiApp::setFullDialogRefreshFlag();
+#endif
+            return (1);
+        }
+        CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptObjectFromHandle(scriptHandle);
+        if (it == nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
+            return (-1);
+        }
+#ifdef SIM_WITH_GUI
+        if (GuiApp::mainWindow != nullptr)
+            GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(it->getScriptUid(), nullptr, true);
+#endif
+        App::currentWorld->sceneObjects->embeddedScriptContainer->removeScript_safe(scriptHandle);
+#ifdef SIM_WITH_GUI
+        GuiApp::setFullDialogRefreshFlag();
+#endif
+        return (1);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return (-1);
+}
+
+int simGetScriptInt32Param_internal(int scriptHandle, int parameterID, int *parameter)
+{ // deprecated in June 2024
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+        if (it == nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
+            return (-1);
+        }
+        int retVal = -1;
+
+        if (parameterID < 10)
+            parameterID += sim_scriptintparam_execorder;
+
+        if (parameterID == sim_scriptintparam_execorder)
+        {
+            parameter[0] = it->getScriptExecPriority();
+            retVal = 1;
+        }
+        if (parameterID == sim_scriptintparam_execcount)
+        {
+            parameter[0] = it->getNumberOfPasses();
+            retVal = 1;
+        }
+        if (parameterID == sim_scriptintparam_type)
+        {
+            parameter[0] = it->getScriptType();
+            if (it->getThreadedExecution_oldThreads())
+                parameter[0] |= sim_scripttype_threaded_old;
+            retVal = 1;
+        }
+        if (parameterID == sim_scriptintparam_handle)
+        {
+            parameter[0] = it->getScriptHandle();
+            retVal = 1;
+        }
+        if (parameterID == sim_scriptintparam_objecthandle)
+        {
+            parameter[0] = it->getObjectHandleThatScriptIsAttachedTo(-1);
+            retVal = 1;
+        }
+        if (parameterID == sim_scriptintparam_lang)
+        {
+            parameter[0] = -1;
+            if (it->getLang() == "lua")
+                parameter[0] = 0;
+            else if (it->getLang() == "python")
+                parameter[0] = 1;
+            retVal = 1;
+        }
+
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+int simSetScriptInt32Param_internal(int scriptHandle, int parameterID, int parameter)
+{ // deprecated in June 2024
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+        if (it == nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
+            return (-1);
+        }
+        int retVal = -1;
+
+        if (parameterID < 10)
+            parameterID += sim_scriptintparam_execorder;
+
+        if (parameterID == sim_scriptintparam_execorder)
+        {
+            it->setScriptExecPriority(parameter);
+            retVal = 1;
+        }
+        if (parameterID == sim_scriptintparam_execcount)
+        {
+            it->setNumberOfPasses(parameter);
+            retVal = 1;
+        }
+        if (parameterID == sim_scriptintparam_enabled)
+        {
+            it->setScriptIsDisabled(parameter == 0);
+            retVal = 1;
+        }
+        if (parameterID == sim_scriptintparam_autorestartonerror)
+        {
+            it->setAutoRestartOnError(parameter != 0);
+            retVal = 1;
+        }
+
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+char *simGetScriptStringParam_internal(int scriptHandle, int parameterID, int *parameterLength)
+{ // deprecated in June 2024
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+        if (it == nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
+            return (nullptr);
+        }
+        std::string s("__#*/-__");
+        char *retVal = nullptr;
+
+        if (parameterID < 10)
+            parameterID += sim_scriptstringparam_description;
+
+        if (parameterID == sim_scriptstringparam_name)
+            s = it->getScriptName();
+        if (parameterID == sim_scriptstringparam_nameext)
+            s = it->getShortDescriptiveName();
+        if (parameterID == sim_scriptstringparam_lang)
+            s = it->getLang();
+        if (parameterID == sim_scriptstringparam_description)
+            s = it->getDescriptiveName();
+        if (parameterID == sim_scriptstringparam_text)
+            s = it->getScriptText();
+        if (s != "__#*/-__")
+        {
+            retVal = new char[s.length() + 1];
+            for (size_t i = 0; i < s.length(); i++)
+                retVal[i] = s[i];
+            retVal[s.length()] = 0;
+            parameterLength[0] = (int)s.length();
+        }
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (nullptr);
+}
+
+int simSetScriptStringParam_internal(int scriptHandle, int parameterID, const char *parameter, int parameterLength)
+{ // deprecated in June 2024
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
+        if (it == nullptr)
+        {
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
+            return (-1);
+        }
+        int retVal = -1;
+
+        if (parameterID < 10)
+            parameterID += sim_scriptstringparam_description;
+
+        if (parameterID == sim_scriptstringparam_text)
+        {
+            std::string s(parameter);
+            if (s.size() < parameterLength)
+                s.assign(parameter, parameter + parameterLength);
+            it->setScriptText(s.c_str());
+            retVal = 1;
+        }
+        if (parameterID == sim_scriptstringparam_lang)
+        {
+            std::string s(parameter);
+            if (s.size() < parameterLength)
+                s.assign(parameter, parameter + parameterLength);
+            it->setLang(s.c_str());
+            retVal = 1;
+        }
+
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+

@@ -146,8 +146,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getObjectUid", _simGetObjectUid},
     {"sim._getObjectFromUid", _sim_getObjectFromUid},
     {"sim.getScript", _simGetScript},
-    {"sim.addScript", _simAddScript},
-    {"sim.associateScriptWithObject", _simAssociateScriptWithObject},
     {"sim.getObjectPosition", _simGetObjectPosition},
     {"sim.getObjectOrientation", _simGetObjectOrientation},
     {"sim.setObjectPosition", _simSetObjectPosition},
@@ -179,7 +177,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.addGraphCurve", _simAddGraphCurve},
     {"sim.setGraphStreamValue", _simSetGraphStreamValue},
     {"sim.refreshDialogs", _simRefreshDialogs},
-    {"sim.removeScript", _simRemoveScript},
     {"sim.stopSimulation", _simStopSimulation},
     {"sim.pauseSimulation", _simPauseSimulation},
     {"sim.startSimulation", _simStartSimulation},
@@ -340,10 +337,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.setObjectFloatArrayParam", _simSetObjectFloatArrayParam},
     {"sim.getObjectStringParam", _simGetObjectStringParam},
     {"sim.setObjectStringParam", _simSetObjectStringParam},
-    {"sim.getScriptInt32Param", _simGetScriptInt32Param},
-    {"sim.setScriptInt32Param", _simSetScriptInt32Param},
-    {"sim.getScriptStringParam", _simGetScriptStringParam},
-    {"sim.setScriptStringParam", _simSetScriptStringParam},
     {"sim.getRotationAxis", _simGetRotationAxis},
     {"sim.rotateAroundAxis", _simRotateAroundAxis},
     {"sim.launchExecutable", _simLaunchExecutable},
@@ -456,12 +449,19 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getVisionSensorRes", _simGetVisionSensorRes},
     {"sim.getObjectHierarchyOrder", _simGetObjectHierarchyOrder},
     {"sim.setObjectHierarchyOrder", _simSetObjectHierarchyOrder},
+    {"sim._qhull", _sim_qhull},
 
     {"sim.test", _simTest},
 
     // deprecated
+    {"sim.addScript", _simAddScript},
+    {"sim.associateScriptWithObject", _simAssociateScriptWithObject},
+    {"sim.removeScript", _simRemoveScript},
+    {"sim.getScriptInt32Param", _simGetScriptInt32Param},
+    {"sim.setScriptInt32Param", _simSetScriptInt32Param},
+    {"sim.getScriptStringParam", _simGetScriptStringParam},
+    {"sim.setScriptStringParam", _simSetScriptStringParam},
     {"sim.getDecimatedMesh", _simGetDecimatedMesh},
-    {"sim.getQHull", _simGetQHull},
     {"sim.convexDecompose", _simConvexDecompose},
     {"sim.loadModule", _simLoadModule},
     {"sim.unloadModule", _simUnloadModule},
@@ -759,10 +759,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.scriptintparam_execorder", sim_scriptintparam_execorder},
     {"sim.scriptintparam_execcount", sim_scriptintparam_execcount},
     {"sim.scriptintparam_type", sim_scriptintparam_type},
-    {"sim.scriptintparam_handle", sim_scriptintparam_handle},
-    {"sim.scriptintparam_objecthandle", sim_scriptintparam_objecthandle},
     {"sim.scriptintparam_enabled", sim_scriptintparam_enabled},
-    {"sim.scriptintparam_lang", sim_scriptintparam_lang},
     {"sim.scriptintparam_autorestartonerror", sim_scriptintparam_autorestartonerror},
     {"sim.scriptstringparam_description", sim_scriptstringparam_description},
     {"sim.scriptstringparam_name", sim_scriptstringparam_name},
@@ -1665,6 +1662,9 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.ruckig_minaccel", sim_ruckig_minaccel},
 
     // deprecated!
+    {"sim.scriptintparam_handle", sim_scriptintparam_handle},
+    {"sim.scriptintparam_objecthandle", sim_scriptintparam_objecthandle},
+    {"sim.scriptintparam_lang", sim_scriptintparam_lang},
     {"sim.scripttype_mainscript", sim_scripttype_main},
     {"sim.scripttype_childscript", sim_scripttype_simulation},
     {"sim.scripttype_addonscript", sim_scripttype_addon},
@@ -2981,6 +2981,38 @@ int _simHandleProximitySensor(luaWrap_lua_State *L)
     LUA_END(5);
 }
 
+int _sim_qhull(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim._qhull");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 9))
+    {
+        int vl = (int)luaWrap_lua_rawlen(L, 1);
+        if (checkInputArguments(L, &errorString, lua_arg_number, vl))
+        {
+            double *vertices = new double[vl];
+            getDoublesFromTable(L, 1, vl, vertices);
+            double *vertOut;
+            int vertOutL;
+            int *indOut;
+            int indOutL;
+            if (simGetQHull_internal(vertices, vl, &vertOut, &vertOutL, &indOut, &indOutL, 0, nullptr))
+            {
+                pushDoubleTableOntoStack(L, vertOutL, vertOut);
+                pushIntTableOntoStack(L, indOutL, indOut);
+                delete[] vertOut;
+                delete[] indOut;
+                LUA_END(2);
+            }
+            delete[] vertices;
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
 int _simReadProximitySensor(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
@@ -3644,61 +3676,6 @@ int _simGetScript(luaWrap_lua_State *L)
                 setCurrentScriptInfo_cSide(-1, -1);
             }
         }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simAddScript(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.addScript");
-
-    int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-    {
-        int scriptType = luaToInt(L, 1);
-        retVal = simAddScript_internal(scriptType);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simAssociateScriptWithObject(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.associateScriptWithObject");
-
-    int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-    {
-        int scriptHandle = luaToInt(L, 1);
-        int objectHandle = luaToInt(L, 2);
-        retVal = simAssociateScriptWithObject_internal(scriptHandle, objectHandle);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simRemoveScript(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.removeScript");
-
-    int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-    {
-        int handle = luaToInt(L, 1);
-        if (handle == sim_handle_self)
-            handle = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        if (sim_handle_all != handle)
-            retVal = simRemoveScript_internal(handle);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -11057,93 +11034,6 @@ int _simSetObjectStringParam(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetScriptInt32Param(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getScriptInt32Param");
-
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-    {
-        int param;
-        int scriptID = luaToInt(L, 1);
-        if (scriptID == sim_handle_self)
-            scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        int retVal = simGetScriptInt32Param_internal(scriptID, luaToInt(L, 2), &param);
-        if (retVal > 0)
-        {
-            luaWrap_lua_pushinteger(L, param);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetScriptInt32Param(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setScriptInt32Param");
-
-    int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
-    {
-        int scriptID = luaToInt(L, 1);
-        if (scriptID == sim_handle_self)
-            scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        retVal = simSetScriptInt32Param_internal(scriptID, luaToInt(L, 2), luaToInt(L, 3));
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simGetScriptStringParam(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getScriptStringParam");
-
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-    {
-        int paramLength;
-        int scriptID = luaToInt(L, 1);
-        if (scriptID == sim_handle_self)
-            scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        char *strBuff = simGetScriptStringParam_internal(scriptID, luaToInt(L, 2), &paramLength);
-        if (strBuff != nullptr)
-        {
-            luaWrap_lua_pushbinarystring(L, strBuff, paramLength);
-            delete[] strBuff;
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetScriptStringParam(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setScriptStringParam");
-
-    int retVal = -1; // means error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_string, 0))
-    {
-        int scriptID = luaToInt(L, 1);
-        if (scriptID == sim_handle_self)
-            scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        size_t dataLength;
-        char *data = (char *)luaWrap_lua_tobuffer(L, 3, &dataLength);
-        retVal = simSetScriptStringParam_internal(scriptID, luaToInt(L, 2), data, (int)dataLength);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
 int _simGetRotationAxis(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
@@ -14646,7 +14536,7 @@ const SLuaCommands simLuaCommandsOldApi[] =
         {"sim_old.simLoadImage", _simLoadImage},
         {"sim_old.simGetScaledImage", _simGetScaledImage},
         {"sim_old.simTransformImage", _simTransformImage},
-        {"sim_old.simGetQHull", _simGetQHull},
+        {"sim_old.simGetQHull", _sim_qhull},
         {"sim_old.simGetDecimatedMesh", _simGetDecimatedMesh},
         {"sim_old.simPackInt32Table", _simPackInt32Table},
         {"sim_old.simPackUInt32Table", _simPackUInt32Table},
@@ -23002,38 +22892,6 @@ int _simConvexDecompose(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
-int _simGetQHull(luaWrap_lua_State *L)
-{ // deprecated in June 2024
-    TRACE_LUA_API;
-    LUA_START("sim.getQHull");
-
-    if (checkInputArguments(L, &errorString, lua_arg_number, 9))
-    {
-        int vl = (int)luaWrap_lua_rawlen(L, 1);
-        if (checkInputArguments(L, &errorString, lua_arg_number, vl))
-        {
-            double *vertices = new double[vl];
-            getDoublesFromTable(L, 1, vl, vertices);
-            double *vertOut;
-            int vertOutL;
-            int *indOut;
-            int indOutL;
-            if (simGetQHull_internal(vertices, vl, &vertOut, &vertOutL, &indOut, &indOutL, 0, nullptr))
-            {
-                pushDoubleTableOntoStack(L, vertOutL, vertOut);
-                pushIntTableOntoStack(L, indOutL, indOut);
-                delete[] vertOut;
-                delete[] indOut;
-                LUA_END(2);
-            }
-            delete[] vertices;
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simGetDecimatedMesh(luaWrap_lua_State *L)
 { // deprecated in June 2024
     TRACE_LUA_API;
@@ -23069,5 +22927,147 @@ int _simGetDecimatedMesh(luaWrap_lua_State *L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
+}
+
+int _simAddScript(luaWrap_lua_State *L)
+{ // deprecated in June 2024
+    TRACE_LUA_API;
+    LUA_START("sim.addScript");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    {
+        int scriptType = luaToInt(L, 1);
+        retVal = simAddScript_internal(scriptType);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simAssociateScriptWithObject(luaWrap_lua_State *L)
+{ // deprecated in June 2024
+    TRACE_LUA_API;
+    LUA_START("sim.associateScriptWithObject");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int scriptHandle = luaToInt(L, 1);
+        int objectHandle = luaToInt(L, 2);
+        retVal = simAssociateScriptWithObject_internal(scriptHandle, objectHandle);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simRemoveScript(luaWrap_lua_State *L)
+{ // deprecated in June 2024
+    TRACE_LUA_API;
+    LUA_START("sim.removeScript");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    {
+        int handle = luaToInt(L, 1);
+        if (handle == sim_handle_self)
+            handle = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        if (sim_handle_all != handle)
+            retVal = simRemoveScript_internal(handle);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetScriptInt32Param(luaWrap_lua_State *L)
+{ // deprecated in June 2024
+    TRACE_LUA_API;
+    LUA_START("sim.getScriptInt32Param");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int param;
+        int scriptID = luaToInt(L, 1);
+        if (scriptID == sim_handle_self)
+            scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        int retVal = simGetScriptInt32Param_internal(scriptID, luaToInt(L, 2), &param);
+        if (retVal > 0)
+        {
+            luaWrap_lua_pushinteger(L, param);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetScriptInt32Param(luaWrap_lua_State *L)
+{ // deprecated in June 2024
+    TRACE_LUA_API;
+    LUA_START("sim.setScriptInt32Param");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int scriptID = luaToInt(L, 1);
+        if (scriptID == sim_handle_self)
+            scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        retVal = simSetScriptInt32Param_internal(scriptID, luaToInt(L, 2), luaToInt(L, 3));
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetScriptStringParam(luaWrap_lua_State *L)
+{ // deprecated in June 2024
+    TRACE_LUA_API;
+    LUA_START("sim.getScriptStringParam");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int paramLength;
+        int scriptID = luaToInt(L, 1);
+        if (scriptID == sim_handle_self)
+            scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        char *strBuff = simGetScriptStringParam_internal(scriptID, luaToInt(L, 2), &paramLength);
+        if (strBuff != nullptr)
+        {
+            luaWrap_lua_pushbinarystring(L, strBuff, paramLength);
+            delete[] strBuff;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetScriptStringParam(luaWrap_lua_State *L)
+{ // deprecated in June 2024
+    TRACE_LUA_API;
+    LUA_START("sim.setScriptStringParam");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_string, 0))
+    {
+        int scriptID = luaToInt(L, 1);
+        if (scriptID == sim_handle_self)
+            scriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        size_t dataLength;
+        char *data = (char *)luaWrap_lua_tobuffer(L, 3, &dataLength);
+        retVal = simSetScriptStringParam_internal(scriptID, luaToInt(L, 2), data, (int)dataLength);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
 }
 
