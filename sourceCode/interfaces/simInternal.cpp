@@ -9946,12 +9946,9 @@ char *simGetObjectStringParam_internal(int objectHandle, int parameterID, int *p
 {
     C_API_START;
 
-    if (!doesObjectOrScriptExist(__func__, objectHandle))
-        return (nullptr);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (!doesObjectExist(__func__, objectHandle))
+        if (!doesObjectOrScriptExist(__func__, objectHandle))
             return (nullptr);
         char *retVal = nullptr; // Means the parameter was not retrieved
         parameterLength[0] = 0;
@@ -10020,13 +10017,10 @@ int simSetObjectStringParam_internal(int objectHandle, int parameterID, const ch
 {
     C_API_START;
 
-    if (!doesObjectOrScriptExist(__func__, objectHandle))
-        return (-1);
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (!doesObjectExist(__func__, objectHandle))
-            return (-1);
+        if (!doesObjectOrScriptExist(__func__, objectHandle))
+            return (nullptr);
         int retVal = 0; // Means the parameter was not set
 
         CDummy *dummy = App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
