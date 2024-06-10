@@ -146,7 +146,7 @@ const char *luaWrap_lua_tostring(luaWrap_lua_State *L, int idx)
 }
 
 int luaWrap_lua_isnumber(luaWrap_lua_State *L, int idx)
-{
+{ // see also luaWrap_lua_numbertype
     return (lua_isnumber((lua_State *)L, idx));
 }
 
@@ -156,7 +156,7 @@ int luaWrap_lua_isinteger(luaWrap_lua_State *L, int idx)
 }
 
 int luaWrap_lua_isstring(luaWrap_lua_State *L, int idx)
-{ // buffer-tolerant
+{ // buffer-tolerant. See also luaWrap_lua_stringtype
     int retVal = 0;
     if (luaWrap_lua_isbuffer(L, idx))
         retVal = 1;
@@ -337,6 +337,16 @@ void luaWrap_lua_settable(luaWrap_lua_State *L, int idx)
 int luaWrap_lua_next(luaWrap_lua_State *L, int idx)
 {
     return (lua_next((lua_State *)L, idx));
+}
+
+bool luaWrap_lua_stringtype(luaWrap_lua_State *L, int idx)
+{
+    return (lua_type((lua_State *)L, idx) == LUA_TSTRING);
+}
+
+bool luaWrap_lua_numbertype(luaWrap_lua_State *L, int idx)
+{
+    return (lua_type((lua_State *)L, idx) == LUA_TNUMBER);
 }
 
 int luaWrap_lua_stype(luaWrap_lua_State *L, int idx)

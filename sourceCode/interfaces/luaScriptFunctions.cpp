@@ -3648,25 +3648,27 @@ int _simGetScript(luaWrap_lua_State *L)
     TRACE_LUA_API;
     LUA_START("sim.getScript");
 
-    int retVal = -1; // means error
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0))
     {
         int scriptType = luaToInt(L, 1);
+        int objectHandle = -1;
+        int retVal = -1;
         if (scriptType == sim_handle_self)
             retVal = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         else
         {
-            int objectHandle = -1;
             std::string scriptName;
-            if (scriptType == sim_scripttype_addon)
-            {
-                if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer, 0, lua_arg_string, 0))
-                    scriptName = luaWrap_lua_tostring(L, 3);
-            }
-            if ((scriptType == sim_scripttype_simulation) || (scriptType == sim_scripttype_customization))
-            { // deprecated with new scripts
-                if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer, 0))
+            int res;
+            // check for new arguments (scriptType, scriptName=''). Do not generate errors with arg2 & arg3:
+            if ( (luaWrap_lua_gettop(L) >= 2) && luaWrap_lua_stringtype(L, 2) )
+                scriptName = luaWrap_lua_tostring(L, 2);
+            else
+            { // check for old arguments (scriptType, objectHandle=-1, scriptName=''), for backw. comp.:
+                if (checkInputArguments(L, nullptr, lua_arg_integer, 0, lua_arg_integer, 0))
                     objectHandle = luaToInt(L, 2);
+                res = checkOneGeneralInputArgument(L, 3, lua_arg_string, 0, true, true, nullptr);
+                if (res == 2)
+                    scriptName = luaWrap_lua_tostring(L, 3);
             }
             if (((scriptName.size() > 0) || (objectHandle >= 0)) ||
                 ((scriptType == sim_scripttype_main) || (scriptType == sim_scripttype_sandbox)))
@@ -3676,11 +3678,17 @@ int _simGetScript(luaWrap_lua_State *L)
                 setCurrentScriptInfo_cSide(-1, -1);
             }
         }
+        if ( (retVal != -1) || (objectHandle != -1) )
+        {
+            luaWrap_lua_pushinteger(L, retVal);
+            LUA_END(1);
+        }
+        else
+            errorString = SIM_ERROR_SCRIPT_INEXISTANT;
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
+    LUA_END(0);
 }
 
 int _simGetObjectPosition(luaWrap_lua_State *L)

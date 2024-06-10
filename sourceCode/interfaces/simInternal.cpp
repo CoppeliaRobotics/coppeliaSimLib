@@ -188,6 +188,18 @@ bool doesObjectExist(const char *functionName, int identifier)
         return (true);
 }
 
+bool doesObjectOrScriptExist(const char *functionName, int identifier)
+{
+    bool retVal;
+    if (identifier > SIM_IDEND_SCENEOBJECT)
+        retVal = (App::worldContainer->getScriptObjectFromHandle(identifier) != nullptr);
+    else
+        retVal = (App::currentWorld->sceneObjects->getObjectFromHandle(identifier) != nullptr);
+    if (!retVal)
+        CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
+    return retVal;
+}
+
 bool doesEntityExist(const char *functionName, int identifier)
 {
     if (identifier > SIM_IDEND_SCENEOBJECT)
@@ -7942,7 +7954,7 @@ int simGetObjectInt32Param_internal(int objectHandle, int parameterID, int *para
 {
     C_API_START;
 
-    if (!doesObjectExist(__func__, objectHandle))
+    if (!doesObjectOrScriptExist(__func__, objectHandle))
         return (-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -8441,7 +8453,7 @@ int simSetObjectInt32Param_internal(int objectHandle, int parameterID, int param
 {
     C_API_START;
 
-    if (!doesObjectExist(__func__, objectHandle))
+    if (!doesObjectOrScriptExist(__func__, objectHandle))
         return (-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -8853,7 +8865,7 @@ int simGetObjectFloatParam_internal(int objectHandle, int parameterID, double *p
 {
     C_API_START;
 
-    if (!doesObjectExist(__func__, objectHandle))
+    if (!doesObjectOrScriptExist(__func__, objectHandle))
         return (-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -9377,7 +9389,7 @@ int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double pa
 {
     C_API_START;
 
-    if (!doesObjectExist(__func__, objectHandle))
+    if (!doesObjectOrScriptExist(__func__, objectHandle))
         return (-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -9807,7 +9819,7 @@ double *simGetObjectFloatArrayParam_internal(int objectHandle, int parameterID, 
 {
     C_API_START;
 
-    if (!doesObjectExist(__func__, objectHandle))
+    if (!doesObjectOrScriptExist(__func__, objectHandle))
         return (nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -9885,7 +9897,7 @@ int simSetObjectFloatArrayParam_internal(int objectHandle, int parameterID, cons
 {
     C_API_START;
 
-    if (!doesObjectExist(__func__, objectHandle))
+    if (!doesObjectOrScriptExist(__func__, objectHandle))
         return (-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -9934,7 +9946,7 @@ char *simGetObjectStringParam_internal(int objectHandle, int parameterID, int *p
 {
     C_API_START;
 
-    if (!doesObjectExist(__func__, objectHandle))
+    if (!doesObjectOrScriptExist(__func__, objectHandle))
         return (nullptr);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -10008,7 +10020,7 @@ int simSetObjectStringParam_internal(int objectHandle, int parameterID, const ch
 {
     C_API_START;
 
-    if (!doesObjectExist(__func__, objectHandle))
+    if (!doesObjectOrScriptExist(__func__, objectHandle))
         return (-1);
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA

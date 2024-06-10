@@ -65,9 +65,9 @@ int luaWrap_lua_toboolean(luaWrap_lua_State *L, int idx);
 const void *luaWrap_lua_topointer(luaWrap_lua_State *L, int idx);
 const char *luaWrap_lua_tostring(luaWrap_lua_State *L, int idx);
 const char *luaWrap_lua_tobuffer(luaWrap_lua_State *L, int idx, size_t *len); // replaces luaWrap_lua_tolstring
-int luaWrap_lua_isnumber(luaWrap_lua_State *L, int idx);
+int luaWrap_lua_isnumber(luaWrap_lua_State *L, int idx); // see also luaWrap_lua_numbertype
 int luaWrap_lua_isinteger(luaWrap_lua_State *L, int idx);
-int luaWrap_lua_isstring(luaWrap_lua_State *L, int idx);
+int luaWrap_lua_isstring(luaWrap_lua_State *L, int idx); // see also luaWrap_lua_stringtype
 bool luaWrap_lua_isnil(luaWrap_lua_State *L, int idx);
 bool luaWrap_lua_isboolean(luaWrap_lua_State *L, int idx);
 bool luaWrap_lua_isgeneraltable(luaWrap_lua_State *L, int idx);  // a random table, including metatable or 'buffer' metatable
@@ -103,5 +103,7 @@ int luaWrap_getCurrentCodeLine(luaWrap_lua_State *L);
 std::string luaWrap_getCurrentCodeSource(luaWrap_lua_State *L);
 void luaWrap_lua_settable(luaWrap_lua_State *L, int idx);
 int luaWrap_lua_next(luaWrap_lua_State *L, int idx);
+bool luaWrap_lua_stringtype(luaWrap_lua_State *L, int idx);
+bool luaWrap_lua_numbertype(luaWrap_lua_State *L, int idx);
 int luaWrap_lua_stype(luaWrap_lua_State *L, int idx);
 int luaWrap_lua_error(luaWrap_lua_State *L);
