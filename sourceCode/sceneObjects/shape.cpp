@@ -410,16 +410,18 @@ void CShape::setStatic(bool sta)
 bool CShape::getDynKinematic() const
 {
     bool retVal = _shapeIsDynamicallyKinematic;
-    if (_objectAlias == "Floor")
-        retVal = false;
+    // commented on 12.06.2024
+    // if (_objectAlias == "Floor")
+    //    retVal = false;
     return (retVal);
 }
 
 void CShape::setDynKinematic(bool kin)
 {
     _shapeIsDynamicallyKinematic = kin;
-    if (_objectAlias == "Floor")
-        _shapeIsDynamicallyKinematic = false;
+    // commented on 12.06.2024
+    // if (_objectAlias == "Floor")
+    //    _shapeIsDynamicallyKinematic = false;
 }
 
 void CShape::setInsideAndOutsideFacesSameColor_DEPRECATED(bool s)
