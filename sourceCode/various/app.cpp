@@ -10,6 +10,7 @@
 #include <mesh.h>
 #include <threadPool_old.h>
 #include <sstream>
+#include <iostream>
 #include <iomanip>
 #include <fileOperations.h>
 #include <QTextDocument>
@@ -23,6 +24,7 @@
 #include <windows.h>
 #include <dbghelp.h>
 #else
+#include <cxxabi.h>
 #include <execinfo.h>
 #include <signal.h>
 #endif
@@ -81,12 +83,40 @@ LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
     return EXCEPTION_EXECUTE_HANDLER;
 }
 #else
+#define BACKTRACE_SIZE 50
+#ifndef MAC_SIM
+#define DONT_DEMANGLE_BACKTRACE
+#endif
 void _segHandler(int sig)
 {
-    void *arr[10];
-    size_t s = backtrace(arr, 10);
+    void *callstack[BACKTRACE_SIZE];
+    size_t frames = backtrace(callstack, BACKTRACE_SIZE);
     fprintf(stderr, "\n\nError: signal %d:\n\n", sig);
-    backtrace_symbols_fd(arr, s, STDERR_FILENO);
+#ifndef DONT_DEMANGLE_BACKTRACE
+    char **strs = backtrace_symbols(callstack, frames);
+    for (int i = 0; i < frames; ++i) {
+        std::string line(strs[i]);
+        size_t mangledStart = line.find(" _Z");
+        if (mangledStart != std::string::npos) {
+            mangledStart++;
+            size_t mangledEnd = mangledStart;
+            while(mangledEnd < line.length() && line.at(mangledEnd) != ' ') mangledEnd++;
+            std::string mangled = line.substr(mangledStart, mangledEnd - mangledStart);
+            int status;
+            char *demangled = abi::__cxa_demangle(mangled.c_str(), nullptr, nullptr, &status);
+            if (status == 0) {
+                std::cout << line.substr(0, mangledStart) << demangled << line.substr(mangledEnd) << std::endl;
+                free(demangled);
+                continue;
+            }
+            free(demangled);
+        }
+        std::cout << line << std::endl;
+    }
+    free(strs);
+#else // DONT_DEMANGLE_BACKTRACE
+    backtrace_symbols_fd(callstack, frames, STDERR_FILENO);
+#endif // DONT_DEMANGLE_BACKTRACE
     exit(1);
 }
 #endif
