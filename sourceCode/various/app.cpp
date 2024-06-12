@@ -84,9 +84,6 @@ LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
 }
 #else
 #define BACKTRACE_SIZE 50
-#ifndef MAC_SIM
-#define DONT_DEMANGLE_BACKTRACE
-#endif
 void _segHandler(int sig)
 {
     void *callstack[BACKTRACE_SIZE];
@@ -96,11 +93,24 @@ void _segHandler(int sig)
     char **strs = backtrace_symbols(callstack, frames);
     for (int i = 0; i < frames; ++i) {
         std::string line(strs[i]);
-        size_t mangledStart = line.find(" _Z");
+        size_t mangledStart = line.find(
+#ifdef MAC_SIM
+                " "
+#else
+                "("
+#endif
+                "_Z");
         if (mangledStart != std::string::npos) {
             mangledStart++;
             size_t mangledEnd = mangledStart;
-            while(mangledEnd < line.length() && line.at(mangledEnd) != ' ') mangledEnd++;
+            while(mangledEnd < line.length() &&
+#ifdef MAC_SIM
+                    line.at(mangledEnd) != ' '
+#else
+                    line.at(mangledEnd) != '+' &&
+                    line.at(mangledEnd) != ')'
+#endif
+                    ) mangledEnd++;
             std::string mangled = line.substr(mangledStart, mangledEnd - mangledStart);
             int status;
             char *demangled = abi::__cxa_demangle(mangled.c_str(), nullptr, nullptr, &status);
