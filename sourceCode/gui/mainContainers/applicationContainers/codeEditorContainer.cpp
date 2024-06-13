@@ -323,7 +323,7 @@ int CCodeEditorContainer::open(const char *initText, const char *xml, int callin
                 inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
                 inf.openAcrossScenes = ((it->getScriptType() == sim_scripttype_sandbox) ||
                                         (it->getScriptType() == sim_scripttype_addon));
-                inf.closeAtSimulationEnd = it->isSimulationScript();
+                inf.closeAtSimulationEnd = it->isSimulationOrMainScript();
                 inf.systemVisibility = true;
                 inf.userVisibility = true;
                 inf.closeAfterCallbackCalled = false;
@@ -719,7 +719,7 @@ int CCodeEditorContainer::openTextEditor_old(const char *initText, const char *x
         inf.callingScriptUid = requestOrigin->getScriptUid();
         inf.sceneUniqueId = App::currentWorld->environment->getSceneUniqueID();
         inf.openAcrossScenes = false;
-        inf.closeAtSimulationEnd = requestOrigin->isSimulationScript();
+        inf.closeAtSimulationEnd = requestOrigin->isSimulationOrMainScript();
         inf.systemVisibility = true;
         inf.userVisibility = true;
         inf.closeAfterCallbackCalled = true;

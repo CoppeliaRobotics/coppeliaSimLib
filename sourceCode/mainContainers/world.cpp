@@ -542,7 +542,7 @@ void CWorld::saveScene(CSer &ar)
     for (size_t i = 0; i < sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
     {
         CScriptObject *it = sceneObjects->embeddedScriptContainer->allScripts[i];
-        if (it->isEmbeddedScript())
+        if (it->isSimulatonCustomizationOrMainScript())
         {
             if (ar.isBinary())
             {

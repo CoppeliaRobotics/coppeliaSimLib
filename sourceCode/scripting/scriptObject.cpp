@@ -143,7 +143,7 @@ void CScriptObject::destroy(CScriptObject *obj, bool registeredObject, bool anno
                 VFile::eraseFile(fname.c_str());
         }
         if (announceScriptDestruction)
-            App::worldContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->getScriptUid(), obj->isSimulationScript(), obj->isSceneSwitchPersistentScript());
+            App::worldContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->getScriptUid(), obj->isSimulationOrMainScript(), obj->isSceneSwitchPersistentScript());
     }
     delete obj;
 }
@@ -1049,7 +1049,7 @@ std::string CScriptObject::getScriptName() const
         return ("sandboxScript");
     if (_scriptType == sim_scripttype_addon)
         return (_addOnName);
-    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
+    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_passive))
     {
         CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (obj != nullptr)
@@ -1113,7 +1113,7 @@ int CScriptObject::getScriptExecPriority() const
 
 void CScriptObject::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
-    if (isSimulationScript())
+    if (isSimulationOrMainScript())
     {
         _scriptObjectInitialValuesInitialized = true;
         if (_outsideCommandQueue != nullptr)
@@ -1123,7 +1123,7 @@ void CScriptObject::initializeInitialValues(bool simulationAlreadyRunning)
 
 void CScriptObject::simulationAboutToStart()
 {
-    if (isSimulationScript())
+    if (isSimulationOrMainScript())
     {
         resetScript(); // should already be reset! (should have been done in simulationEnded routine)
         _numberOfPasses = 0;
@@ -1140,7 +1140,7 @@ void CScriptObject::simulationAboutToStart()
 void CScriptObject::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
   // ended). For thoses situations there is the initializeInitialValues routine!
-    if (isSimulationScript())
+    if (isSimulationOrMainScript())
     {
         if (_outsideCommandQueue != nullptr)
             _outsideCommandQueue->simulationEnded();
@@ -1154,7 +1154,7 @@ void CScriptObject::simulationEnded()
 
 void CScriptObject::simulationAboutToEnd()
 {
-    if (isSimulationScript())
+    if (isSimulationOrMainScript())
         resetScript(); // this has to happen while simulation is still running!!
 }
 
@@ -1272,9 +1272,9 @@ size_t CScriptObject::getSimpleHash() const
     return (hasher(_scriptText));
 }
 
-bool CScriptObject::isEmbeddedScript() const
+bool CScriptObject::isSimulatonCustomizationOrMainScript() const
 {
-    return (isSimulationScript() || (_scriptType == sim_scripttype_customization));
+    return (isSimulationOrMainScript() || (_scriptType == sim_scripttype_customization));
 }
 
 std::string CScriptObject::getDescriptiveName() const
@@ -1282,7 +1282,7 @@ std::string CScriptObject::getDescriptiveName() const
     std::string retVal;
     if (_scriptType == sim_scripttype_main)
         retVal += "Main script";
-    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
+    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_passive))
     {
         if (_scriptType == sim_scripttype_simulation)
         {
@@ -1291,8 +1291,10 @@ std::string CScriptObject::getDescriptiveName() const
             else
                 retVal += "Simulation script";
         }
-        else
+        else if (_scriptType == sim_scripttype_customization)
             retVal += "Customization script";
+        else
+            retVal += "Passive script";
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
         if (it == nullptr)
             retVal += " (unassociated)";
@@ -1335,9 +1337,11 @@ std::string CScriptObject::getShortDescriptiveName() const
         if (!_sceneObjectScript)
         { // old scripts
             if (_scriptType == sim_scripttype_simulation)
-                retVal += "@childScript";
-            else
+                retVal += "@simulationScript";
+            else if (_scriptType == sim_scripttype_customization)
                 retVal += "@customizationScript";
+            else
+                retVal += "@passiveScript";
         }
     }
     if (_scriptType == sim_scripttype_addon)
@@ -1397,7 +1401,7 @@ bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject *object, 
 }
 
 int CScriptObject::flagScriptForRemoval()
-{ // retVal: 0--> cannot be removed, 1 --> will be removed in a delayed manner, 2--> can be removed now
+{ // for old scripts. retVal: 0--> cannot be removed, 1 --> will be removed in a delayed manner, 2--> can be removed now
 #ifdef SIM_WITH_GUI
     if (GuiApp::mainWindow != nullptr)
         GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(_scriptUid, _previousEditionWindowPosAndSize, true);
@@ -1405,7 +1409,7 @@ int CScriptObject::flagScriptForRemoval()
 
     if (App::currentWorld->simulation->isSimulationStopped())
     {
-        if (isSimulationScript())
+        if (isSimulationOrMainScript())
             return (2);
     }
     if (_scriptType == sim_scripttype_customization)
@@ -2411,7 +2415,7 @@ bool CScriptObject::hasInterpreterState() const
     return (_interpreterState != nullptr);
 }
 
-bool CScriptObject::isSimulationScript() const
+bool CScriptObject::isSimulationOrMainScript() const
 {
     return ((_scriptType == sim_scripttype_main) || (_scriptType == sim_scripttype_simulation));
 }
@@ -2459,12 +2463,12 @@ bool CScriptObject::_killInterpreterState()
     {
         if ((_scriptState & 7) == scriptState_initialized)
         {
-            if (isEmbeddedScript() || (_scriptType == sim_scripttype_addon))
+            if (isSimulatonCustomizationOrMainScript() || (_scriptType == sim_scripttype_addon))
                 _callSystemScriptFunction(sim_syscb_cleanup, nullptr, nullptr);
             // if (_scriptType==sim_scripttype_addonfunction) // Not needed
             // if (_scriptType==sim_scripttype_sandbox) // Not needed
         }
-        App::worldContainer->announceScriptStateWillBeErased(_scriptHandle, _scriptUid, isSimulationScript(), isSceneSwitchPersistentScript());
+        App::worldContainer->announceScriptStateWillBeErased(_scriptHandle, _scriptUid, isSimulationOrMainScript(), isSceneSwitchPersistentScript());
         luaWrap_lua_close((luaWrap_lua_State *)_interpreterState);
         _interpreterState = nullptr;
     }
@@ -2743,7 +2747,10 @@ void CScriptObject::setLang(const char* lang)
             _scriptIsDisabled = true;
     }
     else
-        _lang = "lua";
+    {
+        if (_scriptType != sim_scripttype_passive)
+            _lang = "lua";
+    }
 }
 
 int CScriptObject::getExecutionDepth() const

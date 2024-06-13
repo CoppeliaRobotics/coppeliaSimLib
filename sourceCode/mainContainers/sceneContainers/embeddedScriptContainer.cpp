@@ -172,7 +172,7 @@ void CEmbeddedScriptContainer::killAllSimulationLuaStates()
 {
     for (size_t i = 0; i < allScripts.size(); i++)
     {
-        if (allScripts[i]->isSimulationScript())
+        if (allScripts[i]->isSimulationOrMainScript())
             allScripts[i]->resetScript();
     }
 }

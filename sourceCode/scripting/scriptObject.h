@@ -95,8 +95,8 @@ class CScriptObject
     bool initScript();
     bool hasInterpreterState() const;
     bool getIsUpToDate();
-    bool isSimulationScript() const;
-    bool isEmbeddedScript() const;
+    bool isSimulationOrMainScript() const;
+    bool isSimulatonCustomizationOrMainScript() const;
     bool isSceneSwitchPersistentScript() const;
     int getNumberOfPasses() const;
     void setNumberOfPasses(int p);

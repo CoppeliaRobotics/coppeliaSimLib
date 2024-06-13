@@ -82,8 +82,8 @@ bool CScript::canDestroyNow()
             scriptObject->_scriptState = CScriptObject::scriptState_ended; // just in case
             scriptObject->resetScript();
             // Announcements need to happen immediately after calling cleanup!
-            App::worldContainer->announceScriptStateWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
-            App::worldContainer->announceScriptWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationScript(), scriptObject->isSceneSwitchPersistentScript());
+            App::worldContainer->announceScriptStateWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationOrMainScript(), scriptObject->isSceneSwitchPersistentScript());
+            App::worldContainer->announceScriptWillBeErased(scriptObject->getScriptHandle(), scriptObject->getScriptUid(), scriptObject->isSimulationOrMainScript(), scriptObject->isSceneSwitchPersistentScript());
             App::worldContainer->setModificationFlag(16384);
             CScriptObject::destroy(scriptObject, true, true);
             scriptObject = nullptr;
