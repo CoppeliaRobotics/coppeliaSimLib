@@ -2627,6 +2627,10 @@ std::string CScriptObject::getSearchPath_lua()
     retVal += App::folders->getInterpretersRootPath();
     retVal += "/lua/?.lua;"; // present by default, but also needed for the code editor
     retVal += App::folders->getInterpretersRootPath();
+    retVal += "/lua/models/deprecated/?.lua;"; // backw. compatibility
+    retVal += App::folders->getInterpretersRootPath();
+    retVal += "/lua/deprecated/?.lua;"; // backw. compatibility
+    retVal += App::folders->getInterpretersRootPath();
     retVal += "/bwf/?.lua;";
     retVal += App::folders->getInterpretersRootPath();
     retVal += "/luarocks/share/lua/5.3/?.lua";
@@ -3651,7 +3655,7 @@ void CScriptObject::serialize(CSer &ar)
                     std::smatch match;
                     std::regex regEx(" *# *python.*");
                     std::string newTxt(
-                        "#python\n#luaExec wrapper='pythonWrapper' -- using the old wrapper for backw. compat.");
+                        "#python\n#luaExec wrapper='deprecated.pythonWrapper' -- using the old wrapper for backw. compat.");
                     newTxt += "\n# To switch to the new wrapper, simply remove above line, and add sim=require('sim')";
                     newTxt += "\n# as the first instruction in sysCall_init() or sysCall_thread()";
                     if (std::regex_search(_scriptText, match, regEx))
