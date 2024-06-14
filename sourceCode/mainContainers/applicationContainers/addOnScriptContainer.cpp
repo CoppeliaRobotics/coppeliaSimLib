@@ -113,7 +113,7 @@ int CAddOnScriptContainer::_insertAddOn(CScriptObject *script)
 int CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
 {
     std::string lang = "lua";
-    if (addOnExt == "py")
+    if (std::string(addOnExt) == "py")
         lang = "python";
     int addOnsCount = 0;
     VFileFinder finder;
