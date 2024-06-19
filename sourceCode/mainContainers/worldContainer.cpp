@@ -21,7 +21,7 @@ CWorldContainer::CWorldContainer()
     copyBuffer = nullptr;
     sandboxScript = nullptr;
     addOnScriptContainer = nullptr;
-    persistentDataContainer = nullptr;
+    persistentDataContainer_old = nullptr;
     interfaceStackContainer = nullptr;
     scriptCustomFuncAndVarContainer = nullptr;
     simulatorMessageQueue = nullptr;
@@ -253,7 +253,7 @@ void CWorldContainer::initialize()
     serialPortContainer = new CSerialPortContainer();
 #endif
 
-    persistentDataContainer = new CPersistentDataContainer("persistentData.dat");
+    persistentDataContainer_old = new CPersistentDataContainer("persistentData.dat"); // old
     interfaceStackContainer = new CInterfaceStackContainer();
     scriptCustomFuncAndVarContainer = new CScriptCustomFuncAndVarContainer();
     customAppData_old = new CCustomData_old();
@@ -283,7 +283,7 @@ void CWorldContainer::deinitialize()
     delete customAppData_old;
     delete scriptCustomFuncAndVarContainer;
     delete interfaceStackContainer;
-    delete persistentDataContainer;
+    delete persistentDataContainer_old;
 #ifdef SIM_WITH_GUI
     delete globalGuiTextureCont;
     delete serialPortContainer;

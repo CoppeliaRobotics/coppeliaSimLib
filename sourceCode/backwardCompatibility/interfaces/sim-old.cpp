@@ -3628,3 +3628,15 @@ SIM_DLLEXPORT int simAdjustRealTimeTimer_D(int instanceIndex, double deltaTime)
 {
     return (simAdjustRealTimeTimer_internal(instanceIndex, deltaTime));
 }
+SIM_DLLEXPORT int simPersistentDataWrite(const char *dataName, const char *dataValue, int dataLength, int options)
+{
+    return (simPersistentDataWrite_internal(dataName, dataValue, dataLength, options));
+}
+SIM_DLLEXPORT char *simPersistentDataRead(const char *dataName, int *dataLength)
+{
+    return (simPersistentDataRead_internal(dataName, dataLength));
+}
+SIM_DLLEXPORT char *simGetPersistentDataTags(int *tagCount)
+{
+    return (simGetPersistentDataTags_internal(tagCount));
+}

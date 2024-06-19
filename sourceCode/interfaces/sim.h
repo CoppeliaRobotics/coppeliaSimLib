@@ -110,8 +110,6 @@ SIM_DLLEXPORT int simGetScriptInt32Param(int ScriptHandle, int ParamID, int *Par
 SIM_DLLEXPORT int simSetScriptInt32Param(int ScriptHandle, int ParamID, int Param);
 SIM_DLLEXPORT char *simGetScriptStringParam(int ScriptHandle, int ParamID, int *ParamLength);
 SIM_DLLEXPORT int simSetScriptStringParam(int ScriptHandle, int ParamID, const char *Param, int ParamLength);
-SIM_DLLEXPORT int simPersistentDataWrite(const char *dataName, const char *dataValue, int dataLength, int options);
-SIM_DLLEXPORT char *simPersistentDataRead(const char *dataName, int *dataLength);
 SIM_DLLEXPORT int simIsHandle(int generalObjectHandle, int generalObjectType);
 SIM_DLLEXPORT int simResetVisionSensor(int visionSensorHandle);
 SIM_DLLEXPORT int simSetVisionSensorImg(int sensorHandle, const unsigned char *img, int options, const int *pos,
@@ -213,7 +211,6 @@ SIM_DLLEXPORT char *simGetApiInfo(int scriptHandleOrType, const char *apiWord);
 SIM_DLLEXPORT char *simGetPluginName(int index);
 SIM_DLLEXPORT int simSetPluginInfo(const char *pluginName, int infoType, const char *stringInfo, int intInfo);
 SIM_DLLEXPORT int simGetPluginInfo(const char *pluginName, int infoType, char **stringInfo, int *intInfo);
-SIM_DLLEXPORT char *simGetPersistentDataTags(int *tagCount);
 SIM_DLLEXPORT int simEventNotification(const char *event);
 SIM_DLLEXPORT int simAddLog(const char *pluginName, int verbosityLevel, const char *logMsg);
 SIM_DLLEXPORT int simIsDynamicallyEnabled(int objectHandle);

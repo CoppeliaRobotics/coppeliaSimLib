@@ -62,6 +62,7 @@ VArchive *App::_consoleMsgsArchive = nullptr;
 SignalHandler *App::_sigHandler = nullptr;
 CGm *App::gm = nullptr;
 std::vector<void*> App::callbacks;
+InstancesList* App::instancesList = nullptr;
 
 
 #ifdef WIN_SIM
@@ -143,6 +144,7 @@ void App::setAppStage(int s)
 
 void App::init(const char *appDir, int)
 {
+    instancesList = new InstancesList();
     CSimFlavor::run(13);
     gm = new CGm();
     if (appDir)
@@ -338,6 +340,7 @@ void App::cleanup()
     VThread::unsetSimThread();
     delete _sigHandler;
     _exitCode = 0;
+    delete instancesList;
     setAppStage(appstage_simCleanupDone);
 #ifdef WIN_SIM
     timeEndPeriod(1);

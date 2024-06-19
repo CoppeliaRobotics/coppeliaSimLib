@@ -539,6 +539,7 @@ HEADERS += $$PWD/sourceCode/utils/tt.h \
     $$PWD/sourceCode/utils/cbor.h \
     $$PWD/sourceCode/utils/annJson.h \
     $$PWD/sourceCode/utils/sha256.h \
+    $$PWD/sourceCode/utils/instance_id.h \
 
 HEADERS += $$PWD/sourceCode/platform/vSimUiMutex.h \
     $$PWD/sourceCode/platform/wThread.h
@@ -921,6 +922,7 @@ SOURCES += $$PWD/sourceCode/utils/utils.cpp \
     $$PWD/sourceCode/utils/cbor.cpp \
     $$PWD/sourceCode/utils/annJson.cpp \
     $$PWD/sourceCode/utils/sha256.cpp \
+    $$PWD/sourceCode/utils/instance_id.cpp \
 
 SOURCES += $$PWD/sourceCode/platform/vSimUiMutex.cpp \
     $$PWD/sourceCode/platform/wThread.cpp

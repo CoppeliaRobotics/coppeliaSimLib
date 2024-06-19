@@ -773,3 +773,6 @@ SIM_DLLEXPORT char *simGetModuleName(int index, unsigned char *setToNull);
 SIM_DLLEXPORT int simSetModuleInfo(const char *moduleName, int infoType, const char *stringInfo, int intInfo);
 SIM_DLLEXPORT int simGetModuleInfo(const char *moduleName, int infoType, char **stringInfo, int *intInfo);
 SIM_DLLEXPORT int simIsStackValueNull(int stackHandle);
+SIM_DLLEXPORT int simPersistentDataWrite(const char *dataName, const char *dataValue, int dataLength, int options);
+SIM_DLLEXPORT char *simPersistentDataRead(const char *dataName, int *dataLength);
+SIM_DLLEXPORT char *simGetPersistentDataTags(int *tagCount);

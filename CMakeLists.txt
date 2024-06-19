@@ -647,6 +647,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/utils/cbor.cpp
     sourceCode/utils/annJson.cpp
     sourceCode/utils/sha256.cpp
+    sourceCode/utils/instance_id.cpp
 )
 
 if(NOT PLUS)

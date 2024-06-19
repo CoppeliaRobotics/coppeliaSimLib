@@ -91,7 +91,6 @@ class CWorldContainer
     void simulationEnded(bool removeNewObjects);
 
     CCopyBuffer *copyBuffer;
-    CPersistentDataContainer *persistentDataContainer;
     CSimulatorMessageQueue *simulatorMessageQueue;
     CCalculationInfo *calcInfo;
     CInterfaceStackContainer *interfaceStackContainer;
@@ -101,6 +100,7 @@ class CWorldContainer
 
     CCustomData customAppData;
     CCustomData_old *customAppData_old;
+    CPersistentDataContainer *persistentDataContainer_old;
     CAddOnScriptContainer *addOnScriptContainer;
     CScriptObject *sandboxScript;
     CModuleMenuItemContainer *moduleMenuItemContainer;

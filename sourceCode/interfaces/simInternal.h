@@ -242,8 +242,6 @@ int simGetJointTargetForce_internal(int jointHandle, double *forceOrTorque);
 int simSetJointTargetForce_internal(int objectHandle, double forceOrTorque, bool signedValue);
 int simCameraFitToView_internal(int viewHandleOrIndex, int objectCount, const int *objectHandles, int options,
                                 double scaling);
-int simPersistentDataWrite_internal(const char *dataTag, const char *dataValue, int dataLength, int options);
-char *simPersistentDataRead_internal(const char *dataTag, int *dataLength);
 int simIsHandle_internal(int generalObjectHandle, int generalObjectType);
 int simHandleVisionSensor_internal(int visionSensorHandle, double **auxValues, int **auxValuesCount);
 int simReadVisionSensor_internal(int visionSensorHandle, double **auxValues, int **auxValuesCount);
@@ -402,7 +400,6 @@ int simGetShapeVizf_internal(int shapeHandle, int index, struct SShapeVizInfof *
 int simExecuteScriptString_internal(int scriptHandle, const char *stringToExecute, int stackHandle);
 char *simGetApiFunc_internal(int scriptHandle, const char *apiWord);
 char *simGetApiInfo_internal(int scriptHandle, const char *apiWord);
-char *simGetPersistentDataTags_internal(int *tagCount);
 int simEventNotification_internal(const char *event);
 int simApplyTexture_internal(int shapeHandle, const double *textureCoordinates, int textCoordSize,
                              const unsigned char *texture, const int *textureResolution, int options);

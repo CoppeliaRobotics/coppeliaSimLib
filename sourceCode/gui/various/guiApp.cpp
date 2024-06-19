@@ -250,6 +250,7 @@ void GuiApp::runGui(int options)
 
     if ((options & sim_gui_headless) == 0)
     {
+#ifndef MAC_SIM
         if (CAuxLibVideo::loadLibrary())
             App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "loaded the video compression library.");
         else
@@ -265,6 +266,7 @@ void GuiApp::runGui(int options)
 #endif
             App::logMsg(sim_verbosity_errors, msg.c_str());
         }
+#endif
     }
 
     QFont f = QApplication::font();

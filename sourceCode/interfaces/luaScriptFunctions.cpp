@@ -21,6 +21,7 @@
 #include <meshRoutines.h>
 #include <vFileFinder.h>
 #include <simFlavor.h>
+#include <QSystemSemaphore>
 #ifdef SIM_WITH_GUI
 #include <QScreen>
 #ifdef USES_QGLWIDGET
@@ -30,6 +31,8 @@
 #endif
 #include <guiApp.h>
 #endif
+
+std::map<std::string, QSystemSemaphore*> _systemSemaphores;
 
 #define LUA_START(funcName)                                                                                            \
     CApiErrors::clearThreadBasedFirstCapiErrorAndWarning_old();                                                        \
@@ -280,8 +283,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getStringSignal", _simGetStringSignal},
     {"sim.clearStringSignal", _simClearStringSignal},
     {"sim.getSignalName", _simGetSignalName},
-    {"sim.persistentDataWrite", _simPersistentDataWrite},
-    {"sim.persistentDataRead", _simPersistentDataRead},
     {"sim.setObjectProperty", _simSetObjectProperty},
     {"sim.getObjectProperty", _simGetObjectProperty},
     {"sim.setObjectSpecialProperty", _simSetObjectSpecialProperty},
@@ -423,7 +424,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getPluginName", _simGetPluginName},
     {"sim.getPluginInfo", _simGetPluginInfo},
     {"sim.setPluginInfo", _simSetPluginInfo},
-    {"sim.getPersistentDataTags", _simGetPersistentDataTags},
     {"sim.getRandom", _simGetRandom},
     {"sim.textEditorOpen", _simTextEditorOpen},
     {"sim.textEditorClose", _simTextEditorClose},
@@ -450,10 +450,14 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getObjectHierarchyOrder", _simGetObjectHierarchyOrder},
     {"sim.setObjectHierarchyOrder", _simSetObjectHierarchyOrder},
     {"sim._qhull", _sim_qhull},
+    {"sim.systemSemaphore", _simSystemSemaphore},
 
     {"sim.test", _simTest},
 
     // deprecated
+    {"sim.persistentDataWrite", _simPersistentDataWrite},
+    {"sim.persistentDataRead", _simPersistentDataRead},
+    {"sim.getPersistentDataTags", _simGetPersistentDataTags},
     {"sim.addScript", _simAddScript},
     {"sim.associateScriptWithObject", _simAssociateScriptWithObject},
     {"sim.removeScript", _simRemoveScript},
@@ -789,6 +793,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.handle_scene", sim_handle_scene},
     {"sim.handle_app", sim_handle_app},
     {"sim.handle_inverse", sim_handle_inverse},
+    {"sim.handle_appstorage", sim_handle_appstorage},
     // special handle flags:
     {"sim.handleflag_assembly", sim_handleflag_assembly},
     {"sim.handleflag_camera", sim_handleflag_camera},
@@ -911,6 +916,8 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.intparam_objectdestructioncounter", sim_intparam_objectdestructioncounter},
     {"sim.intparam_hierarchychangecounter", sim_intparam_hierarchychangecounter},
     {"sim.intparam_notifydeprecated", sim_intparam_notifydeprecated},
+    {"sim.intparam_processid", sim_intparam_processid},
+    {"sim.intparam_processcnt", sim_intparam_processcnt},
 
     // Float parameters:
     {"sim.floatparam_rand", sim_floatparam_rand},
@@ -5089,6 +5096,37 @@ int _simSetObjectHierarchyOrder(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
         simSetObjectHierarchyOrder_internal(luaToInt(L, 1), luaToInt(L, 2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSystemSemaphore(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.systemSemaphore");
+
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_bool, 0))
+    {
+        std::string key(luaWrap_lua_tostring(L, 1));
+        bool acquire = luaToBool(L, 2);
+        if (acquire)
+        {
+            QSystemSemaphore* semaphore = new QSystemSemaphore(key.c_str(), 1, QSystemSemaphore::Open);
+            semaphore->acquire();
+            _systemSemaphores[key] = semaphore;
+        }
+        else
+        {
+            if (_systemSemaphores.find(key) != _systemSemaphores.end())
+            {
+                QSystemSemaphore* semaphore = _systemSemaphores[key];
+                semaphore->release();
+                delete semaphore;
+                _systemSemaphores.erase(key);
+            }
+        }
+    }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
@@ -11185,54 +11223,6 @@ int _simGetJointForce(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simPersistentDataWrite(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.persistentDataWrite");
-
-    int retVal = -1; // error
-    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_string, 0))
-    {
-        int options = 0;
-        int res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, true, false, &errorString);
-        if ((res == 0) || (res == 2))
-        {
-            if (res == 2)
-                options = luaToInt(L, 3);
-            size_t dataLength;
-            char *data = (char *)luaWrap_lua_tobuffer(L, 2, &dataLength);
-            retVal = simPersistentDataWrite_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), data,
-                                                     (int)dataLength, options);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simPersistentDataRead(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.persistentDataRead");
-
-    if (checkInputArguments(L, &errorString, lua_arg_string, 0))
-    {
-        int stringLength;
-        char *str = simPersistentDataRead_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &stringLength);
-
-        if (str != nullptr)
-        {
-            luaWrap_lua_pushbuffer(L, str, stringLength);
-            simReleaseBuffer_internal(str);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simIsHandle(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
@@ -14373,30 +14363,6 @@ int _simGetLastInfo(luaWrap_lua_State *L)
     }
     luaWrap_lua_pushtext(L, inf.c_str());
     LUA_END(1);
-}
-
-int _simGetPersistentDataTags(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getPersistentDataTags");
-
-    int tagCount;
-    char *data = simGetPersistentDataTags_internal(&tagCount);
-    if (data != nullptr)
-    {
-        std::vector<std::string> stringTable;
-        size_t off = 0;
-        for (int i = 0; i < tagCount; i++)
-        {
-            stringTable.push_back(data + off);
-            off += strlen(data + off) + 1;
-        }
-        pushStringTableOntoStack(L, stringTable);
-        simReleaseBuffer_internal(data);
-        LUA_END(1);
-    }
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
 }
 
 int _simGetRandom(luaWrap_lua_State *L)
@@ -23077,5 +23043,76 @@ int _simSetScriptStringParam(luaWrap_lua_State *L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
     LUA_END(1);
+}
+
+int _simPersistentDataWrite(luaWrap_lua_State *L)
+{ // deprecated on June 19 2024
+    TRACE_LUA_API;
+    LUA_START("sim.persistentDataWrite");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_string, 0))
+    {
+        int options = 0;
+        int res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 0, true, false, &errorString);
+        if ((res == 0) || (res == 2))
+        {
+            if (res == 2)
+                options = luaToInt(L, 3);
+            size_t dataLength;
+            char *data = (char *)luaWrap_lua_tobuffer(L, 2, &dataLength);
+            retVal = simPersistentDataWrite_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), data, (int)dataLength, options);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simPersistentDataRead(luaWrap_lua_State *L)
+{ // deprecated on June 19 2024
+    TRACE_LUA_API;
+    LUA_START("sim.persistentDataRead");
+
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0))
+    {
+        int stringLength;
+        char *str = simPersistentDataRead_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &stringLength);
+
+        if (str != nullptr)
+        {
+            luaWrap_lua_pushbuffer(L, str, stringLength);
+            simReleaseBuffer_internal(str);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetPersistentDataTags(luaWrap_lua_State *L)
+{ // deprecated on June 19 2024
+    TRACE_LUA_API;
+    LUA_START("sim.getPersistentDataTags");
+
+    int tagCount;
+    char *data = simGetPersistentDataTags_internal(&tagCount);
+    if (data != nullptr)
+    {
+        std::vector<std::string> stringTable;
+        size_t off = 0;
+        for (int i = 0; i < tagCount; i++)
+        {
+            stringTable.push_back(data + off);
+            off += strlen(data + off) + 1;
+        }
+        pushStringTableOntoStack(L, stringTable);
+        simReleaseBuffer_internal(data);
+        LUA_END(1);
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 

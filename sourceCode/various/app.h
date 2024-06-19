@@ -6,6 +6,7 @@
 #include <sigHandler.h>
 #include <simThread.h>
 #include <gm.h>
+#include <instance_id.h>
 #ifndef SIM_WITH_GUI
 #include <simQApp.h>
 #endif
@@ -95,6 +96,7 @@ class App
     static CWorld *currentWorld; // actually worldContainer->currentWorld
     static CGm *gm;
     static std::vector<void*> callbacks;
+    static InstancesList* instancesList;
 
 #ifndef SIM_WITH_GUI
     static CSimQApp *qtApp;
@@ -114,6 +116,8 @@ class App
     static std::string _consoleMsgsFilename;
     static VFile *_consoleMsgsFile;
     static VArchive *_consoleMsgsArchive;
+//    static std::string _instanceId;
+//    static int _instanceIndex;
 
     static long long int _nextUniqueId;
     static SignalHandler *_sigHandler;

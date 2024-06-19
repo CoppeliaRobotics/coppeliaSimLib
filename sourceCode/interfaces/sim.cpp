@@ -448,14 +448,6 @@ SIM_DLLEXPORT int simSetScriptStringParam(int ScriptHandle, int ParamID, const c
 {
     return (simSetScriptStringParam_internal(ScriptHandle, ParamID, Param, ParamLength));
 }
-SIM_DLLEXPORT int simPersistentDataWrite(const char *dataName, const char *dataValue, int dataLength, int options)
-{
-    return (simPersistentDataWrite_internal(dataName, dataValue, dataLength, options));
-}
-SIM_DLLEXPORT char *simPersistentDataRead(const char *dataName, int *dataLength)
-{
-    return (simPersistentDataRead_internal(dataName, dataLength));
-}
 SIM_DLLEXPORT int simIsHandle(int generalObjectHandle, int generalObjectType)
 {
     return (simIsHandle_internal(generalObjectHandle, generalObjectType));
@@ -809,10 +801,6 @@ SIM_DLLEXPORT int simGetPluginInfo(const char *pluginName, int infoType, char **
 SIM_DLLEXPORT char *simGetPluginName(int index)
 {
     return (simGetPluginName_internal(index, nullptr));
-}
-SIM_DLLEXPORT char *simGetPersistentDataTags(int *tagCount)
-{
-    return (simGetPersistentDataTags_internal(tagCount));
 }
 SIM_DLLEXPORT int simEventNotification(const char *event)
 {

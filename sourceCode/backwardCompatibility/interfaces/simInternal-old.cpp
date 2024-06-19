@@ -6598,3 +6598,69 @@ int simSetScriptStringParam_internal(int scriptHandle, int parameterID, const ch
     return (-1);
 }
 
+int simPersistentDataWrite_internal(const char *dataTag, const char *dataValue, int dataLength, int options)
+{ // deprecated on 18.06.2024
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        App::worldContainer->persistentDataContainer_old->writeData(dataTag, std::string(dataValue, dataLength),
+                                                                (options & 1) != 0);
+        return (1);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return (-1);
+}
+
+char *simPersistentDataRead_internal(const char *dataTag, int *dataLength)
+{ // deprecated on 18.06.2024
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        std::string sigVal;
+        if (App::worldContainer->persistentDataContainer_old->readData(dataTag, sigVal))
+        {
+            char *retVal = new char[sigVal.length()];
+            for (unsigned int i = 0; i < sigVal.length(); i++)
+                retVal[i] = sigVal[i];
+            dataLength[0] = (int)sigVal.length();
+            return (retVal);
+        }
+        return (nullptr); // data does not exist
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return (nullptr);
+}
+
+char *simGetPersistentDataTags_internal(int *tagCount)
+{ // deprecated on 18.06.2024
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        std::vector<std::string> allTags;
+        tagCount[0] = App::worldContainer->persistentDataContainer_old->getAllDataNames(allTags);
+        char *retBuffer = nullptr;
+        if (allTags.size() > 0)
+        {
+            tagCount[0] = int(allTags.size());
+            int totChars = 0;
+            for (size_t i = 0; i < allTags.size(); i++)
+                totChars += (int)allTags[i].length() + 1;
+            retBuffer = new char[totChars];
+            totChars = 0;
+            for (size_t i = 0; i < allTags.size(); i++)
+            {
+                for (size_t j = 0; j < allTags[i].length(); j++)
+                    retBuffer[totChars + j] = allTags[i][j];
+                retBuffer[totChars + allTags[i].length()] = 0;
+                totChars += (int)allTags[i].length() + 1;
+            }
+        }
+        return (retBuffer);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return (nullptr);
+}
+

@@ -290,3 +290,6 @@ int simGetScriptInt32Param_internal(int scriptHandle, int parameterID, int *para
 int simSetScriptInt32Param_internal(int scriptHandle, int parameterID, int parameter);
 char *simGetScriptStringParam_internal(int scriptHandle, int parameterID, int *parameterLength);
 int simSetScriptStringParam_internal(int scriptHandle, int parameterID, const char *parameter, int parameterLength);
+int simPersistentDataWrite_internal(const char *dataTag, const char *dataValue, int dataLength, int options);
+char *simPersistentDataRead_internal(const char *dataTag, int *dataLength);
+char *simGetPersistentDataTags_internal(int *tagCount);

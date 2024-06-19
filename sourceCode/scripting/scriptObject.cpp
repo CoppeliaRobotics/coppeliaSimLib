@@ -123,10 +123,46 @@ void CScriptObject::initSandbox()
         App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the sandbox script...");
         if (_initInterpreterState(nullptr))
             _raiseErrors_backCompatibility = true; // Old
-        setScriptTextFromFile((App::folders->getPythonPath() + "/sandboxScript.py").c_str());
-        _lang = "python";
-        systemCallScript(sim_syscb_init, nullptr, nullptr);
-        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox script initialized.");
+        if (App::userSettings->preferredSandboxLang == "bareLua")
+        {
+            _lang = "lua";
+            if (setScriptTextFromFile((App::folders->getLuaPath() + "/sandboxScript.lua").c_str()))
+            {
+                if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
+                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "'bareLua' sandbox script initialized.");
+            }
+            else
+            {
+                _scriptIsDisabled = true;
+                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.lua was not found.");
+            }
+        }
+        else
+        {
+            _lang = "python";
+            if (setScriptTextFromFile((App::folders->getPythonPath() + "/sandboxScript.py").c_str()))
+            {
+                if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
+                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox script initialized.");
+                else
+                { // we revert to bareLua
+                    _lang = "lua";
+                    if (setScriptTextFromFile((App::folders->getLuaPath() + "/sandboxScript.lua").c_str()))
+                    {
+                        resetScript();
+                        if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
+                            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "'bareLua' sandbox script initialized (Python sandbox failed).");
+                    }
+                    else
+                    {
+                        _scriptIsDisabled = true;
+                        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.lua was not found (Python sandbox failed).");
+                    }
+                }
+            }
+            else
+                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.py was not found.");
+        }
     }
 }
 

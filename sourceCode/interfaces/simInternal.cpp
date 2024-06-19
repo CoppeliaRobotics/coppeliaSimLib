@@ -3601,6 +3601,16 @@ int simGetInt32Param_internal(int parameter, int *intState)
             intState[0] = App::userSettings->notifyDeprecated;
             return (1);
         }
+        if (parameter == sim_intparam_processid)
+        {
+            intState[0] = App::instancesList->thisInstanceId();
+            return (1);
+        }
+        if (parameter == sim_intparam_processcnt)
+        {
+            intState[0] = App::instancesList->numInstances();
+            return (1);
+        }
         if (parameter == sim_intparam_bugfix1)
         {
             intState[0] = App::userSettings->bugFix1;
@@ -10243,41 +10253,6 @@ int simSetJointTargetForce_internal(int objectHandle, double forceOrTorque, bool
     return (-1);
 }
 
-int simPersistentDataWrite_internal(const char *dataTag, const char *dataValue, int dataLength, int options)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        App::worldContainer->persistentDataContainer->writeData(dataTag, std::string(dataValue, dataLength),
-                                                                (options & 1) != 0);
-        return (1);
-    }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return (-1);
-}
-
-char *simPersistentDataRead_internal(const char *dataTag, int *dataLength)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        std::string sigVal;
-        if (App::worldContainer->persistentDataContainer->readData(dataTag, sigVal))
-        {
-            char *retVal = new char[sigVal.length()];
-            for (unsigned int i = 0; i < sigVal.length(); i++)
-                retVal[i] = sigVal[i];
-            dataLength[0] = (int)sigVal.length();
-            return (retVal);
-        }
-        return (nullptr); // data does not exist
-    }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return (nullptr);
-}
-
 int simIsHandle_internal(int generalObjectHandle, int generalObjectType)
 {
     C_API_START;
@@ -11882,6 +11857,12 @@ int simWriteCustomDataBlock_internal(int objectHandle, const char *tagName, cons
             // ---------------------- Old -----------------------------
         }
 
+        if (objectHandle == sim_handle_appstorage)
+        { // here we have the app storage
+            CPersistentDataContainer cont("appStorage.dat");
+            cont.writeData(tagName, std::string(data, data + dataSize), true);
+        }
+
         if (!App::userSettings->useSceneObjectScripts)
         {
             // ---------------------- Old -----------------------------
@@ -11986,6 +11967,13 @@ char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int
             hand = true;
         }
 
+        if (objectHandle == sim_handle_appstorage)
+        { // here we have the app storage
+            CPersistentDataContainer cont("appStorage.dat");
+            cont.readData(tagName, rrr);
+            hand = true;
+        }
+
         if (hand)
         {
             if (rrr.size() > 0)
@@ -12076,6 +12064,17 @@ char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount)
             size_t tc;
             tags = App::worldContainer->customAppData.getAllTags(&tc);
             tagCount[0] += int(tc);
+            hand = true;
+        }
+
+        if (objectHandle == sim_handle_appstorage)
+        { // here we have the app storage
+            CPersistentDataContainer cont("appStorage.dat");
+            std::vector<std::string> dataN;
+            cont.getAllDataNames(dataN);
+            for (size_t i = 0; i < dataN.size(); i++)
+                tags += dataN[i] + '\0';
+            tagCount[0] += int(dataN.size());
             hand = true;
         }
 
@@ -15390,37 +15389,6 @@ int simGetPluginInfo_internal(const char *pluginName, int infoType, char **strin
 
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
-}
-
-char *simGetPersistentDataTags_internal(int *tagCount)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        std::vector<std::string> allTags;
-        tagCount[0] = App::worldContainer->persistentDataContainer->getAllDataNames(allTags);
-        char *retBuffer = nullptr;
-        if (allTags.size() > 0)
-        {
-            tagCount[0] = int(allTags.size());
-            int totChars = 0;
-            for (size_t i = 0; i < allTags.size(); i++)
-                totChars += (int)allTags[i].length() + 1;
-            retBuffer = new char[totChars];
-            totChars = 0;
-            for (size_t i = 0; i < allTags.size(); i++)
-            {
-                for (size_t j = 0; j < allTags[i].length(); j++)
-                    retBuffer[totChars + j] = allTags[i][j];
-                retBuffer[totChars + allTags[i].length()] = 0;
-                totChars += (int)allTags[i].length() + 1;
-            }
-        }
-        return (retBuffer);
-    }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return (nullptr);
 }
 
 int simEventNotification_internal(const char *event)

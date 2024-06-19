@@ -11,12 +11,14 @@ CPersistentDataContainer::CPersistentDataContainer()
 }
 
 CPersistentDataContainer::CPersistentDataContainer(const char *filename, const char *customFolder /*=nullptr*/)
-{
+{ // with filename == "" or filename == nullptr,  we we do not read/write to disk
     _eventMutex.lock();
-    _filename = filename;
+    if (filename != nullptr)
+        _filename = filename;
     if (customFolder != nullptr)
         _customFolder = customFolder; // otherwise user settings folder
-    initializeWithDataFromFile();
+    if (_filename.size() > 0)
+        initializeWithDataFromFile();
 }
 
 CPersistentDataContainer::~CPersistentDataContainer()
@@ -36,7 +38,7 @@ int CPersistentDataContainer::removeAllData()
 void CPersistentDataContainer::writeData(const char *dataName, const std::string &value, bool toFile)
 {
     _writeData(dataName, value);
-    if (toFile)
+    if ((_filename.size() > 0) && toFile)
     {
         std::vector<std::string> _dataNamesAux;
         std::vector<std::string> _dataValuesAux;
@@ -113,25 +115,28 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string> &dataNames
     dataNames.clear();
     dataValues.clear();
 
-    std::string filenameAndPath = CFolderSystem::getUserSettingsPath();
-    if (_customFolder.size() > 0)
-        filenameAndPath = _customFolder;
-    filenameAndPath += "/";
-    filenameAndPath += _filename;
-    if (VFile::doesFileExist(filenameAndPath.c_str()))
+    if (_filename.size() > 0)
     {
-        try
+        std::string filenameAndPath = CFolderSystem::getUserSettingsPath();
+        if (_customFolder.size() > 0)
+            filenameAndPath = _customFolder;
+        filenameAndPath += "/";
+        filenameAndPath += _filename;
+        if (VFile::doesFileExist(filenameAndPath.c_str()))
         {
-            VFile file(filenameAndPath.c_str(), VFile::READ | VFile::SHARE_DENY_NONE);
-            VArchive archive(&file, VArchive::LOAD);
-            _serialize(archive, dataNames, dataValues);
-            archive.close();
-            file.close();
-        }
-        catch (VFILE_EXCEPTION_TYPE e)
-        {
-            // silent error since 3/2/2012: when the system folder dowesn't exist, we don't want an error!!
-            // VFile::reportAndHandleFileExceptionError(e);
+            try
+            {
+                VFile file(filenameAndPath.c_str(), VFile::READ | VFile::SHARE_DENY_NONE);
+                VArchive archive(&file, VArchive::LOAD);
+                _serialize(archive, dataNames, dataValues);
+                archive.close();
+                file.close();
+            }
+            catch (VFILE_EXCEPTION_TYPE e)
+            {
+                // silent error since 3/2/2012: when the system folder dowesn't exist, we don't want an error!!
+                // VFile::reportAndHandleFileExceptionError(e);
+            }
         }
     }
 }

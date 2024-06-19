@@ -634,7 +634,7 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         c.addRandomLine("// Various");
         c.addRandomLine("// =================================================");
 
-        c.addString(_USR_PREFERRED_SANDBOX_LANG, preferredSandboxLang, "python or lua");
+        c.addString(_USR_PREFERRED_SANDBOX_LANG, preferredSandboxLang, "python, lua or bareLua");
         c.addFloat(_USR_MOUSE_WHEEL_ZOOM_FACTOR, mouseWheelZoomFactor, "");
         c.addFloat(_USR_DYNAMIC_ACTIVITY_RANGE, dynamicActivityRange, "");
         c.addFloat(_USR_TRANSLATION_STEP_SIZE, _translationStepSize, "");
