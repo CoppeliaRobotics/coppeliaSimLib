@@ -2010,6 +2010,11 @@ void CJoint::handleMotion()
     }
 }
 
+int CJoint::getKinematicMotionType() const
+{
+    return _kinematicMotionType;
+}
+
 void CJoint::setKinematicMotionType(int t, bool reset, double initVel /*=0.0*/)
 {
     _kinematicMotionType = _kinematicMotionType & 16;

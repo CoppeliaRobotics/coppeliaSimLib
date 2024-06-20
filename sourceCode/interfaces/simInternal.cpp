@@ -1409,7 +1409,7 @@ int simGetJointPosition_internal(int objectHandle, double *position)
 }
 
 int simSetJointPosition_internal(int objectHandle, double position)
-{
+{ // this should not interrupt a possible kin. joint motion started with sim.setJointTargetPosition or sim.setJointTargetVelocity! (sometimes a joint position is simply set the same (e.g. simIK dependency handling, etc.))
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
@@ -1425,9 +1425,19 @@ int simSetJointPosition_internal(int objectHandle, double position)
             return (-1);
         }
         // info: do not try to trigger a sysCall_jointCallback call for that function, it really doesn't make sense
-        it->setPosition(position);
-        it->setKinematicMotionType(0, true); // reset
-        return (1);
+
+        int retVal = 1;
+
+        // on 20.06.2024, from this:
+        // it->setPosition(position);
+        // it->setKinematicMotionType(0, true);
+        // to that:
+        if ( (it->getKinematicMotionType() & 3) == 0)
+            it->setPosition(position);
+        else
+            retVal = 0;
+
+        return retVal;
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);

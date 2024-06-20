@@ -297,6 +297,7 @@ class CJoint : public CSceneObject
     void setForceOrTorqueNotValid();
 
     void setKinematicMotionType(int t, bool reset, double initVel = 0.0);
+    int getKinematicMotionType() const;
 
     bool setEngineFloatParam(int what, double v);
     bool setEngineIntParam(int what, int v);
