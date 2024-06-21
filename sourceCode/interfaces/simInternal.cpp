@@ -10635,7 +10635,7 @@ float *simGetVisionSensorDepth_internal(int sensorHandle, int options, const int
             sizeY = size[1];
         }
         float *retBuff = it->readPortionOfImage(posX, posY, sizeX, sizeY, 2);
-        if ((options & 1) != 0)
+        if (((options & 1) != 0) && retBuff)
         {
             float n = (float)it->getNearClippingPlane();
             float f = (float)it->getFarClippingPlane();
@@ -10643,6 +10643,9 @@ float *simGetVisionSensorDepth_internal(int sensorHandle, int options, const int
             for (int i = 0; i < sizeX * sizeY; i++)
                 retBuff[i] = n + fmn * retBuff[i];
         }
+        if (retBuff == nullptr)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENTS);
+
         return (retBuff);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
