@@ -312,7 +312,6 @@
 #define IDS_FROM_OBJECT__EXCL___DOWN "From object (excl.) down"
 #define IDS_ALL_OBJECTS "All objects"
 
-#define IDS_COMMON_OBJECT_PROPERTIES "Object common properties"
 #define IDSN_CONSTRAINT_SOLVER "Constraint solver"
 
 // Variable title of the volume properties dialog:
@@ -780,11 +779,9 @@
 #define IDS_SCENE_IS_LOCKED_WARNING_NO_SCRIPT_VIEWING "Script viewing/edition unavailable (scene is locked)"
 
 #define IDS_OBJECTS_NOT_COLLIDABLE_WARNING                                                                             \
-    "One or more selected objects have their 'collidable' property disabled. Make sure you enable that property (in "  \
-    "the object common properties dialog) in order for this collision object to be operational."
+    "One or more selected objects have their 'collidable' property disabled. Make sure you enable that property in order for this collision object to be operational."
 #define IDS_OBJECTS_NOT_MEASURABLE_WARNING                                                                             \
-    "One or more selected objects have their 'measurable' property disabled. Make sure you enable that property (in "  \
-    "the object common properties dialog) in order for this distance object to be operational."
+    "One or more selected objects have their 'measurable' property disabled. Make sure you enable that property in order for this distance object to be operational."
 
 #define IDS_WARNING_ODE_NOT_USING_QUICKSTEP                                                                            \
     "You selected not to use the 'quickstep' method. This is only recommended for scenes with very little dynamic "    \

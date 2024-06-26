@@ -832,6 +832,18 @@ void App::__logMsg(const char *originName, int verbosityLevel, const char *msg, 
             else _logOnceMessages[originName][realVerbosityLevel][msg] = true;
         }
 
+        if ((App::worldContainer != nullptr) && VThread::isSimThread())
+        {
+            std::string orig;
+            if (originName != nullptr)
+                orig = originName;
+            CCbor *ev = App::worldContainer->createEvent("logMsg", -1, nullptr, false);
+            ev->appendKeyString("origin", orig.c_str());
+            ev->appendKeyString("msg", msg);
+            ev->appendKeyInt("verbosity", verbosityLevel);
+            App::worldContainer->pushEvent();
+        }
+
         inside = true;
 
         bool decorateMsg = ((verbosityLevel & sim_verbosity_undecorated) == 0) &&

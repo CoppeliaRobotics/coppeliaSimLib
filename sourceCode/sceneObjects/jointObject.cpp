@@ -1254,21 +1254,17 @@ void CJoint::setDirectDependentJoints(const std::vector<CJoint *> &joints)
 
 void CJoint::computeBoundingBox()
 {
-    C3Vector minV, maxV;
+    C3Vector maxV;
     if (_jointType != sim_joint_spherical_subtype)
     {
         maxV(0) = maxV(1) = _diameter / 2.0;
         maxV(2) = _length / 2.0;
-        minV(0) = -maxV(0);
-        minV(1) = -maxV(1);
-        minV(2) = -maxV(2);
     }
     else
     {
         maxV(0) = maxV(1) = maxV(2) = _diameter;
-        minV(0) = minV(1) = minV(2) = -maxV(0);
     }
-    _setBB(C7Vector::identityTransformation, C3Vector(_diameter, _diameter, _length) * 0.5);
+    _setBB(C7Vector::identityTransformation, maxV);
 }
 
 bool CJoint::setScrewLead(double lead)

@@ -890,6 +890,7 @@ bool CHierarchy::leftMouseDown(int x, int y, int selectionStatus)
 
 void CHierarchy::leftMouseUp(int x, int y)
 {
+   // printf("leftMouseUp: %i, %i, %i\n", objectIDWhereTheMouseCurrentlyIs_minus9999ForNone, x, renderingSize[0] - SAFETY_BORDER_SIZE * GuiApp::sc);
     int dx = (x + SAFETY_BORDER_SIZE * GuiApp::sc) - mouseDownRelativePosition[0];
     int dy = (y + SAFETY_BORDER_SIZE * GuiApp::sc) - mouseDownRelativePosition[1];
     bool hierarchDragUnderway = ((abs(dx) > 8) || (abs(dy) > 8));
@@ -1017,7 +1018,7 @@ void CHierarchy::rightMouseUp(int x, int y, int absX, int absY, QWidget *mainWin
             mainMenu.appendMenuAndDetach(objectEditionMenu, true, IDS_EDIT_MENU_ITEM);
 
             VMenu *addMenu = new VMenu();
-            CAddOperations::addMenu(addMenu, nullptr, false);
+            CAddOperations::addMenu(addMenu, nullptr, false, objectIDWhereTheMouseCurrentlyIs_minus9999ForNone);
             mainMenu.appendMenuAndDetach(addMenu, true, IDS_ADD_MENU_ITEM);
 
             size_t selSize = App::currentWorld->sceneObjects->getSelectionCount();
@@ -1121,6 +1122,7 @@ void CHierarchy::mouseMove(int x, int y, bool passiveAndFocused)
         else if (shiftSelectionStarted)
             refreshViewFlag = App::userSettings->hierarchyRefreshCnt;
     }
+//    printf("MouseMove: %i, %i, %i\n", objectIDWhereTheMouseCurrentlyIs_minus9999ForNone, x, renderingSize[0] - SAFETY_BORDER_SIZE * GuiApp::sc);
     previousMouseRelativePosition[0] = mouseRelativePosition[0];
     previousMouseRelativePosition[1] = mouseRelativePosition[1];
 }

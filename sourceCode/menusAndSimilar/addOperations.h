@@ -16,7 +16,7 @@ class CAddOperations
 
 #ifdef SIM_WITH_GUI
     static bool processCommand(int commandID, CSView *subView);
-    static void addMenu(VMenu *menu, CSView *subView, bool onlyCamera);
+    static void addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int pointedObjectHandle);
     static CShape *addPrimitive_withDialog(int command, const C3Vector *optSizes);
 #endif
 };

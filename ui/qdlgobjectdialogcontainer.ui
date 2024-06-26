@@ -941,7 +941,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Common</string>
+    <string>Object</string>
    </property>
    <property name="checkable">
     <bool>true</bool>

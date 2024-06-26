@@ -1787,7 +1787,7 @@ void CMainWindow::_aboutToShowEditSystemMenu()
 void CMainWindow::_aboutToShowAddSystemMenu()
 {
     _addSystemMenu->clear();
-    CAddOperations::addMenu(_addSystemMenu, nullptr, false);
+    CAddOperations::addMenu(_addSystemMenu, nullptr, false, -1);
 }
 
 void CMainWindow::_aboutToShowSimulationSystemMenu()

@@ -1499,7 +1499,7 @@ bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainW
                 }
 
                 VMenu *addMenu = new VMenu();
-                CAddOperations::addMenu(addMenu, this, linkedObj == -1);
+                CAddOperations::addMenu(addMenu, this, linkedObj == -1, -1);
                 mainMenu.appendMenuAndDetach(addMenu, true, IDS_ADD_MENU_ITEM);
             }
             else
