@@ -834,13 +834,17 @@ void App::__logMsg(const char *originName, int verbosityLevel, const char *msg, 
 
         if ((App::worldContainer != nullptr) && VThread::isSimThread())
         {
-            std::string orig;
+            std::string orig("CoppeliaSim");
             if (originName != nullptr)
                 orig = originName;
             CCbor *ev = App::worldContainer->createEvent("logMsg", -1, nullptr, false);
             ev->appendKeyString("origin", orig.c_str());
             ev->appendKeyString("msg", msg);
-            ev->appendKeyInt("verbosity", verbosityLevel);
+            ev->appendKeyInt("verbosity", realVerbosityLevel);
+            ev->openKeyMap("flags");
+            ev->appendKeyBool("undecorated", verbosityLevel & sim_verbosity_undecorated);
+            ev->appendKeyBool("onlyterminal", verbosityLevel & sim_verbosity_onlyterminal);
+            ev->closeArrayOrMap();
             App::worldContainer->pushEvent();
         }
 
