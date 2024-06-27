@@ -223,11 +223,6 @@ void App::init(const char *appDir, int)
     // Some items below require the GUI to be initialized (e.g. the Commander plugin):
     worldContainer->sandboxScript = new CScriptObject(sim_scripttype_sandbox);
     worldContainer->sandboxScript->initSandbox();
-    if (_startupScriptString.size() > 0)
-    {
-        worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(), nullptr);
-        _startupScriptString.clear();
-    }
 
     if (App::userSettings->runAddOns)
     {
@@ -261,6 +256,12 @@ void App::init(const char *appDir, int)
         SSimulationThreadCommand cmd;
         cmd.cmdId = CHKLICM_CMD;
         App::appendSimulationThreadCommand(cmd, 5.0);
+    }
+
+    if (_startupScriptString.size() > 0)
+    {
+        int r=worldContainer->sandboxScript->executeScriptString(_startupScriptString.c_str(), nullptr);
+        _startupScriptString.clear();
     }
 
 #ifdef SIM_WITH_GUI
