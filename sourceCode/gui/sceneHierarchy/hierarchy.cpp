@@ -25,6 +25,7 @@ const int CONST_VAL_4 = 4;
 
 CHierarchy::CHierarchy()
 {
+    _modelDragUnderway = false;
     renderingSize[0] = 0;
     renderingSize[1] = 0;
     minRenderedPosition[0] = 0;
@@ -345,6 +346,8 @@ bool CHierarchy::render()
                 }
             }
         }
+        else if (_modelDragUnderway)
+            dropID = objectIDWhereTheMouseCurrentlyIs_minus9999ForNone;
 
         static bool lastHierarchDragUnderway = false;
         static int lastDragUnderwayTime = 0;
@@ -994,6 +997,7 @@ bool CHierarchy::rightMouseDown(int x, int y)
     labelEditObjectID = -1;
     return (true); // We catch this event to display a popup-menu when the mouse comes up
 }
+
 void CHierarchy::rightMouseUp(int x, int y, int absX, int absY, QWidget *mainWindow)
 { // Only caught if right button was caught by the hierarchy!
     _caughtElements &= 0xffff - sim_right_button;
@@ -1085,6 +1089,27 @@ bool CHierarchy::mouseWheel(int deltaZ, int x, int y)
     return (true);
 }
 
+int CHierarchy::modelDragMoveEvent(int x, int y)
+{
+    mouseRelativePosition[0] = x + SAFETY_BORDER_SIZE * GuiApp::sc;
+    mouseRelativePosition[1] = y + SAFETY_BORDER_SIZE * GuiApp::sc;
+    objectIDWhereTheMouseCurrentlyIs_minus9999ForNone = getActionObjectID_icon(0, mouseRelativePosition[1], true);
+    _modelDragUnderway = true;
+    int a = objectIDWhereTheMouseCurrentlyIs_minus9999ForNone;
+    if (a < -1)
+        a = -1;
+    rebuildHierarchyFlag = true;
+    refreshViewFlag = App::userSettings->hierarchyRefreshCnt;
+    return a;
+}
+
+void CHierarchy::endModelDrag()
+{
+    rebuildHierarchyFlag = true;
+    refreshViewFlag = App::userSettings->hierarchyRefreshCnt;
+    _modelDragUnderway = false;
+}
+
 void CHierarchy::mouseMove(int x, int y, bool passiveAndFocused)
 {
     _worldSelectID_moving = -9999;
@@ -1122,7 +1147,6 @@ void CHierarchy::mouseMove(int x, int y, bool passiveAndFocused)
         else if (shiftSelectionStarted)
             refreshViewFlag = App::userSettings->hierarchyRefreshCnt;
     }
-//    printf("MouseMove: %i, %i, %i\n", objectIDWhereTheMouseCurrentlyIs_minus9999ForNone, x, renderingSize[0] - SAFETY_BORDER_SIZE * GuiApp::sc);
     previousMouseRelativePosition[0] = mouseRelativePosition[0];
     previousMouseRelativePosition[1] = mouseRelativePosition[1];
 }

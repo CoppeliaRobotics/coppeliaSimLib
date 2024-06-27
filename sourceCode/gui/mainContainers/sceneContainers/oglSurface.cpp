@@ -321,7 +321,7 @@ int COglSurface::modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPo
     mouseRelativePosition[1] = yPos;
 
     if (pageSelectionActive || viewSelectionActive)
-        return (0);
+        return (-2); // not allowed to drop
     if (_hierarchyEnabled)
     {
         offx += _hierarchyWidth;
@@ -329,13 +329,12 @@ int COglSurface::modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPo
         {
             if (desiredModelPosition != nullptr)
                 desiredModelPosition->clear();
-            return (1);
+            return hierarchy->modelDragMoveEvent(mouseRelativePosition[0] - offx, mouseRelativePosition[1]);
         }
     }
     mousePreviousRelativePosition[0] = mouseRelativePosition[0];
     mousePreviousRelativePosition[1] = mouseRelativePosition[1];
-    return (App::currentWorld->pageContainer->modelDragMoveEvent(
-        mouseRelativePosition[0] - offx, mouseRelativePosition[1] - offy, desiredModelPosition));
+    return (App::currentWorld->pageContainer->modelDragMoveEvent(mouseRelativePosition[0] - offx, mouseRelativePosition[1] - offy, desiredModelPosition));
 }
 
 int COglSurface::getCursor(int x, int y)

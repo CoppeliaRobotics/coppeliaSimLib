@@ -1360,16 +1360,15 @@ int CSPage::modelDragMoveEvent(int x, int y, C3Vector *desiredModelPosition)
 {
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
-
-    for (size_t i = _allViews.size() - 1; i >= 0; i--)
+    for (int i = int(_allViews.size()) - 1; i >= 0; i--)
     {
         int relX, relY;
         getViewRelativeMousePosition(mouseRelativePosition[0], mouseRelativePosition[1], relX, relY, i);
         int v = _allViews[i]->modelDragMoveEvent(relX, relY, desiredModelPosition);
-        if (v >= 0)
+        if (v >= -1)
             return (v);
     }
-    return (0);
+    return (-2); // not ok to drop
 }
 
 bool CSPage::rightMouseButtonDown(int x, int y)

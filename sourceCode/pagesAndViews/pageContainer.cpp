@@ -583,7 +583,7 @@ int CPageContainer::modelDragMoveEvent(int x, int y, C3Vector *desiredModelPosit
     CSPage *it = getPage(_activePageIndex);
     if (it != nullptr)
         return (it->modelDragMoveEvent(mouseRelativePosition[0], mouseRelativePosition[1], desiredModelPosition));
-    return (0);
+    return (-2); // not ok to drop
 }
 
 void CPageContainer::mouseWheel(int deltaZ, int x, int y)

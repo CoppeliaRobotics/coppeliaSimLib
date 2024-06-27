@@ -1419,7 +1419,7 @@ int CMainWindow::modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPo
         int ret = oglSurface->modelDragMoveEvent(_mouseRenderingPos[0], _mouseRenderingPos[1], desiredModelPosition);
         return (ret);
     }
-    return (1); // We can drop the model at the default location
+    return (-1); // We can drop the model at the default location
 }
 
 void CMainWindow::setCurrentCursor(int cur)

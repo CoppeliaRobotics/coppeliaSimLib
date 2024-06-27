@@ -611,17 +611,18 @@ void COpenglWidget::dragLeaveEvent(QDragLeaveEvent *dEvent)
 
 void COpenglWidget::dropEvent(QDropEvent *dEvent)
 {
+    GuiApp::mainWindow->oglSurface->hierarchy->endModelDrag();
     if (dEvent->mimeData()->hasText())
     {
         int x, y;
         _computeMousePos(dEvent->pos().x(), dEvent->pos().y(), x, y);
-        _modelDragAndDropInfo = GuiApp::mainWindow->modelListWidget->getThumbnailInfoFromModelName(
-            dEvent->mimeData()->text().toStdString().c_str(), nullptr);
+        _modelDragAndDropInfo = GuiApp::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(), nullptr);
         if (_modelDragAndDropInfo != nullptr)
         {
             C3Vector desiredModelPosition;
             int okToDrop = GuiApp::mainWindow->modelDragMoveEvent(x, y, &desiredModelPosition);
-            if (okToDrop > 0)
+            GuiApp::mainWindow->oglSurface->hierarchy->endModelDrag();
+            if (okToDrop >= -1)
             {
                 std::string pathAndName = _modelDragAndDropInfo->filepath;
                 if (pathAndName.length() != 0)
@@ -632,8 +633,8 @@ void COpenglWidget::dropEvent(QDropEvent *dEvent)
                     cmd.doubleParams.push_back(desiredModelPosition(0));
                     cmd.doubleParams.push_back(desiredModelPosition(1));
                     cmd.doubleParams.push_back(desiredModelPosition(2));
-                    App::appendSimulationThreadCommand(
-                        cmd); // that command will clear _modelDragAndDropInfo once the model was loaded
+                    cmd.intParams.push_back(okToDrop);
+                    App::appendSimulationThreadCommand(cmd); // that command will clear _modelDragAndDropInfo once the model was loaded
                 }
                 else
                     _modelDragAndDropInfo = nullptr;
@@ -661,17 +662,23 @@ void COpenglWidget::dragMoveEvent(QDragMoveEvent *dEvent)
     {
         int x, y;
         _computeMousePos(dEvent->pos().x(), dEvent->pos().y(), x, y);
-        SModelThumbnailInfo *info = GuiApp::mainWindow->modelListWidget->getThumbnailInfoFromModelName(
-            dEvent->mimeData()->text().toStdString().c_str(), nullptr);
+        SModelThumbnailInfo *info = GuiApp::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(), nullptr);
         if (info != nullptr)
         {
             C3Vector desiredModelPosition;
             int okToDrop = GuiApp::mainWindow->modelDragMoveEvent(x, y, &desiredModelPosition);
-            if (okToDrop > 0)
+            if (okToDrop < 0)
+                GuiApp::mainWindow->oglSurface->hierarchy->endModelDrag();
+            if (okToDrop >= -1)
             {
                 dEvent->accept();
-                _modelDragAndDropInfo = info;
-                _modelDragAndDropInfo->desiredDropPos = desiredModelPosition;
+                if (okToDrop < 0)
+                {
+                    _modelDragAndDropInfo = info;
+                    _modelDragAndDropInfo->desiredDropPos = desiredModelPosition;
+                }
+                else
+                    _modelDragAndDropInfo = nullptr;
             }
             else
             {

@@ -22,6 +22,8 @@ class CHierarchy
     bool rightMouseDown(int x, int y);
     void rightMouseUp(int x, int y, int absX, int absY, QWidget *mainWindow);
     void mouseMove(int x, int y, bool passiveAndFocused);
+    int modelDragMoveEvent(int x, int y);
+    void endModelDrag();
     bool mouseWheel(int deltaZ, int x, int y);
     bool leftMouseDblClick(int x, int y, int selectionStatus);
     void validateViewPosition();
@@ -71,6 +73,7 @@ class CHierarchy
     int editionTextEditPos;
 
   private:
+    bool _modelDragUnderway;
     int _caughtElements;
     int renderingSize[2];
     int renderingPosition[2];

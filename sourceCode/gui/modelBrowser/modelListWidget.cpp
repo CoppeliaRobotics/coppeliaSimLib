@@ -92,7 +92,7 @@ void CModelListWidget::_addThumbnailItemToList(int index)
             cnt = 0;
         if (cnt > 20)
         {
-            str.insert(i, " ");
+            str.insert(i, "\n"); // changed from " " on 26.06.2024
             cnt = 0;
         }
     }

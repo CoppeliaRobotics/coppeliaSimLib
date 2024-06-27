@@ -529,8 +529,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         std::string infoStr;
         std::string errorStr;
-        if (CFileOperations::loadModel(cmd.stringParams[0].c_str(), false, false, nullptr, false, false, &infoStr,
-                                       &errorStr))
+        if (CFileOperations::loadModel(cmd.stringParams[0].c_str(), false, false, nullptr, false, false, &infoStr, &errorStr))
         {
             GuiApp::setRebuildHierarchyFlag();
             if (infoStr.size() > 0)
@@ -541,15 +540,31 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CSceneObject *obj = App::currentWorld->sceneObjects->getLastSelectionObject();
                 if (obj != nullptr)
                 {
-                    C7Vector tr(obj->getFullLocalTransformation());
-                    double ss = obj->getObjectMovementStepSize(0);
-                    if (ss == 0.0)
-                        ss = App::userSettings->getTranslationStepSize();
-                    double x = cmd.doubleParams[0] - fmod(cmd.doubleParams[0], ss);
-                    double y = cmd.doubleParams[1] - fmod(cmd.doubleParams[1], ss);
-                    tr.X(0) += x;
-                    tr.X(1) += y;
-                    obj->setLocalTransformation(tr);
+                    if (cmd.intParams[0] >= 0)
+                    {
+                        CSceneObject* parent(App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]));
+                        if (parent != nullptr)
+                        {
+                            if (!App::assemble(parent->getObjectHandle(), obj->getObjectHandle(), false, false))
+                            { // failed to assemble. We just parent it and set its local pose to zero
+                                App::currentWorld->sceneObjects->setObjectParent(obj, parent, true);
+                                obj->setLocalTransformation(C7Vector::identityTransformation);
+                            }
+                            parent->setObjectProperty((parent->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+                        }
+                    }
+                    else
+                    {
+                        C7Vector tr(obj->getFullLocalTransformation());
+                        double ss = obj->getObjectMovementStepSize(0);
+                        if (ss == 0.0)
+                            ss = App::userSettings->getTranslationStepSize();
+                        double x = cmd.doubleParams[0] - fmod(cmd.doubleParams[0], ss);
+                        double y = cmd.doubleParams[1] - fmod(cmd.doubleParams[1], ss);
+                        tr.X(0) += x;
+                        tr.X(1) += y;
+                        obj->setLocalTransformation(tr);
+                    }
                 }
             }
             GuiApp::mainWindow->openglWidget->clearModelDragAndDropInfo();

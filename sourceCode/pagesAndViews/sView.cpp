@@ -1328,7 +1328,7 @@ int CSView::modelDragMoveEvent(int x, int y, C3Vector *desiredModelPosition)
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
     if ((x < 0) || (y < 0) || (x > _viewSize[0]) || (y > _viewSize[1]))
-        return (-1); // mouse not in this view
+        return (-2); // mouse not in this view
     CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
     if ((obj != nullptr) && (obj->getObjectType() == sim_object_camera_type))
     {
@@ -1417,12 +1417,12 @@ int CSView::modelDragMoveEvent(int x, int y, C3Vector *desiredModelPosition)
             singularityProblem |= (pRel(2) > thecam->getFarClippingPlane());
         }
         if (singularityProblem)
-            return (0);
+            return (-2);
         if (desiredModelPosition != nullptr)
             desiredModelPosition[0] = p;
-        return (2); // Ok we can drop the model here!
+        return (-1); // Ok we can drop the model here!
     }
-    return (0);
+    return (-2);
 }
 
 bool CSView::rightMouseButtonDown(int x, int y, bool _subViewIsPassive)
