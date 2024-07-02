@@ -23,6 +23,24 @@ bool CCustomData::setData(const char *tag, const char *data, size_t dataLen)
     }
     else
     {
+        if (dataLen != 0)
+        { // if we set typed data, make sure that same-name data of other type is cleared beforehand:
+            std::string nakedTag(tag);
+            std::string currentTp;
+            size_t p = nakedTag.find("@.");
+            if (p != std::string::npos)
+            {
+                currentTp = std::string(tag, tag + p + 2);
+                nakedTag.erase(0, p + 2);
+            }
+            for (size_t i = 0; i < propertyTypes.size(); i++)
+            {
+                std::string tp = propertyTypes[i];
+                if (tp != currentTp)
+                    setData((tp + nakedTag).c_str(), nullptr, 0);
+            }
+        }
+
         int f = -1;
         for (size_t i = 0; i < _data.size(); i++)
         {

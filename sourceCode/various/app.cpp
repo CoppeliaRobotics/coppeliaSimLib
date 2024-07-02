@@ -1454,30 +1454,9 @@ int App::setStringProperty(int target, const char* pName, const char* pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-        if (strncmp(pName, "customData.", 11) == 0)
-        {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
-            {
-                worldContainer->customAppData.setData(pN.c_str(), pState, strlen(pState));
-                retVal = 1;
-            }
-        }
     }
     else if (target == sim_handle_appstorage)
     {
-        if (strncmp(pName, "customData.", 11) == 0)
-        {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
-            {
-                CPersistentDataContainer cont("appStorage.dat");
-                cont.writeData(pN.c_str(), std::string(pState), true);
-                retVal = 1;
-            }
-        }
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setStringProperty(target, pName, pState);
@@ -1489,30 +1468,9 @@ int App::getStringProperty(int target, const char* pName, std::string& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-        if (strncmp(pName, "customData.", 11) == 0)
-        {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
-            {
-                pState = App::worldContainer->customAppData.getData(pN.c_str());
-                retVal = 1;
-            }
-        }
     }
     else if (target == sim_handle_appstorage)
     {
-        if (strncmp(pName, "customData.", 11) == 0)
-        {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
-            {
-                CPersistentDataContainer cont("appStorage.dat");
-                cont.readData(pN.c_str(), pState);
-                retVal = 1;
-            }
-        }
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getStringProperty(target, pName, pState);

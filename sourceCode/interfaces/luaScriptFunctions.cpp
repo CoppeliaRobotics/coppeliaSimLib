@@ -5239,7 +5239,7 @@ int _simSetFloatProperty(luaWrap_lua_State *L)
     {
         int target = luaWrap_lua_tointeger(L,1);
         std::string pName(luaWrap_lua_tostring(L, 2));
-        double pValue = luaToDouble(L,1);
+        double pValue = luaToDouble(L,3);
         simSetFloatProperty_internal(target, pName.c_str(), pValue);
     }
 

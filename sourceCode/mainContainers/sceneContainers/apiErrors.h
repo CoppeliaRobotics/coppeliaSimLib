@@ -121,6 +121,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_TARGET_DOES_NOT_EXIST "target does not exist."
 #define SIM_ERROR_PROPERTY_COULD_NOT_BE_SET "property could not be set."
 #define SIM_ERROR_UNKNOWN_PROPERTY "unknown property (for the specified type and target)."
+#define SIM_ERROR_PROPERTY_IS_CORRUPT "property is corrupt."
 
 #define SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS "the function requires more arguments."
 #define SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG "one of the function's argument type is not correct."

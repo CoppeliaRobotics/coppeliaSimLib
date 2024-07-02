@@ -2509,26 +2509,6 @@ int CWorld::setStringProperty(int target, const char* pName, const char* pState)
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        if (strncmp(pName, "customData.", 11) == 0)
-        {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
-            {
-                bool useTempBuffer = false;
-                size_t l = pN.size();
-                if (l > 4)
-                { // @tmp not documented anymore...
-                    useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
-                    useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
-                }
-                if (useTempBuffer)
-                    customSceneData_tempData.setData(pN.c_str(), pState, strlen(pState));
-                else
-                    customSceneData.setData(pN.c_str(), pState, strlen(pState));
-                retVal = 1;
-            }
-        }
     }
     else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
         retVal = sceneObjects->setStringProperty(target, pName, pState);
@@ -2540,26 +2520,6 @@ int CWorld::getStringProperty(int target, const char* pName, std::string& pState
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        if (strncmp(pName, "customData.", 11) == 0)
-        {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
-            {
-                bool useTempBuffer = false;
-                size_t l = pN.size();
-                if (l > 4)
-                { // @tmp not documented anymore...
-                    useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
-                    useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
-                }
-                if (useTempBuffer)
-                    pState = App::currentWorld->customSceneData_tempData.getData(pN.c_str());
-                else
-                    pState = App::currentWorld->customSceneData.getData(pN.c_str());
-                retVal = 1;
-            }
-        }
     }
     else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
         retVal = sceneObjects->getStringProperty(target, pName, pState);
@@ -2577,17 +2537,7 @@ int CWorld::setBufferProperty(int target, const char* pName, const char* buffer,
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
-                bool useTempBuffer = false;
-                size_t l = pN.size();
-                if (l > 4)
-                { // @tmp not documented anymore...
-                    useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
-                    useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
-                }
-                if (useTempBuffer)
-                    customSceneData_tempData.setData(pN.c_str(), buffer, bufferL);
-                else
-                    customSceneData.setData(pN.c_str(), buffer, bufferL);
+                customSceneData.setData(pN.c_str(), buffer, bufferL);
                 retVal = 1;
             }
         }
@@ -2608,17 +2558,7 @@ int CWorld::getBufferProperty(int target, const char* pName, std::string& pState
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
-                bool useTempBuffer = false;
-                size_t l = pN.size();
-                if (l > 4)
-                { // @tmp not documented anymore...
-                    useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
-                    useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
-                }
-                if (useTempBuffer)
-                    pState = App::currentWorld->customSceneData_tempData.getData(pN.c_str());
-                else
-                    pState = App::currentWorld->customSceneData.getData(pN.c_str());
+                pState = App::currentWorld->customSceneData.getData(pN.c_str());
                 retVal = 1;
             }
         }

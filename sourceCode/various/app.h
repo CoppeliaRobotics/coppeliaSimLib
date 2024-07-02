@@ -11,6 +11,34 @@
 #include <simQApp.h>
 #endif
 
+#define prop_type_bool "@bool@."
+#define prop_type_int32 "@int32@."
+#define prop_type_float "@dbl@."
+#define prop_type_string "@str@."
+#define prop_type_vector3 "@vect3@."
+#define prop_type_quaternion "@quat@."
+#define prop_type_pose "@pose@."
+#define prop_type_matrix "@mtrx@."
+#define prop_type_color "@col@."
+#define prop_type_vector "@vect@."
+#define prop_type_table "@tbl@."
+#define prop_type_buffer ""
+
+static std::vector<std::string> propertyTypes = {
+    prop_type_bool,
+    prop_type_int32,
+    prop_type_float,
+    prop_type_string,
+    prop_type_vector3,
+    prop_type_quaternion,
+    prop_type_pose,
+    prop_type_matrix,
+    prop_type_color,
+    prop_type_vector,
+    prop_type_table,
+    prop_type_buffer
+};
+
 class App
 {
   public:

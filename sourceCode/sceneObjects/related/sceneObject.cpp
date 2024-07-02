@@ -5303,24 +5303,6 @@ int CSceneObject::setStringProperty(const char* pName, const char* pState)
         else
             retVal = 0;
     }
-    else if (strncmp(pName, "customData.", 11) == 0)
-    {
-        std::string pN(pName);
-        pN.erase(0, 11);
-        if (pN.size() > 0)
-        {
-            bool useTempBuffer = false;
-            size_t l = pN.size();
-            if (l > 4)
-            { // @tmp not documented anymore...
-                useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
-                useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
-            }
-            writeCustomDataBlock(useTempBuffer, pN.c_str(), pState, strlen(pState));
-            retVal = 1;
-        }
-    }
-
 
     return retVal;
 }
@@ -5333,23 +5315,6 @@ int CSceneObject::getStringProperty(const char* pName, std::string& pState)
     {
         retVal = 1;
         pState = _objectAlias;
-    }
-    else if (strncmp(pName, "customData.", 11) == 0)
-    {
-        std::string pN(pName);
-        pN.erase(0, 11);
-        if (pN.size() > 0)
-        {
-            bool useTempBuffer = false;
-            size_t l = pN.size();
-            if (l > 4)
-            { // @tmp not documented anymore...
-                useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
-                useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
-            }
-            pState = readCustomDataBlock(useTempBuffer, pN.c_str());
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -5366,14 +5331,7 @@ int CSceneObject::setBufferProperty(const char* pName, const char* buffer, int b
         pN.erase(0, 11);
         if (pN.size() > 0)
         {
-            bool useTempBuffer = false;
-            size_t l = pN.size();
-            if (l > 4)
-            { // @tmp not documented anymore...
-                useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
-                useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
-            }
-            writeCustomDataBlock(useTempBuffer, pN.c_str(), buffer, bufferL);
+            writeCustomDataBlock(false, pN.c_str(), buffer, bufferL);
             retVal = 1;
         }
     }
@@ -5390,14 +5348,7 @@ int CSceneObject::getBufferProperty(const char* pName, std::string& pState)
         pN.erase(0, 11);
         if (pN.size() > 0)
         {
-            bool useTempBuffer = false;
-            size_t l = pN.size();
-            if (l > 4)
-            { // @tmp not documented anymore...
-                useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
-                useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
-            }
-            pState = readCustomDataBlock(useTempBuffer, pN.c_str());
+            pState = readCustomDataBlock(false, pN.c_str());
             retVal = 1;
         }
     }
