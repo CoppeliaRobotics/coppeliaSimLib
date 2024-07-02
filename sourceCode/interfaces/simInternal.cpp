@@ -650,6 +650,513 @@ int simSetLastError_internal(const char *setToNullptr, const char *errorMessage)
     return (-1);
 }
 
+int simSetBoolProperty_internal(int target, const char* pName, int pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        int res = App::setBoolProperty(target, pName, pState != 0);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (res == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetBoolProperty_internal(int target, const char* pName, int* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        bool ppState;
+        int res = App::getBoolProperty(target, pName, ppState);
+        if (res == 1)
+        {
+            pState[0] = int(ppState);
+            retVal = 1;
+        }
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetInt32Property_internal(int target, const char* pName, int pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        int res = App::setInt32Property(target, pName, pState);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (res == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetInt32Property_internal(int target, const char* pName, int* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        int res = App::getInt32Property(target, pName, pState[0]);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetFloatProperty_internal(int target, const char* pName, double pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        int res = App::setFloatProperty(target, pName, pState);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (res == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetFloatProperty_internal(int target, const char* pName, double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        int res = App::getFloatProperty(target, pName, pState[0]);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetStringProperty_internal(int target, const char* pName, const char* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        int res = App::setStringProperty(target, pName, pState);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (res == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+char* simGetStringProperty_internal(int target, const char* pName)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        char* retVal = nullptr;
+        std::string s;
+        int res = App::getStringProperty(target, pName, s);
+        if (res == 1)
+        {
+            retVal = new char[s.size() + 1];
+            for (size_t i = 0; i < s.size(); i++)
+                retVal[i] = s[i];
+            retVal[s.size()] = 0;
+        }
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return nullptr;
+}
+
+int simSetBufferProperty_internal(int target, const char* pName, const char* buffer, int bufferL)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        int res = App::setBufferProperty(target, pName, buffer, bufferL);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (res == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+char* simGetBufferProperty_internal(int target, const char* pName, int* bufferL)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        char* retVal = nullptr;
+        std::string b;
+        int res = App::getBufferProperty(target, pName, b);
+        if (res == 1)
+        {
+            retVal = new char[b.size()];
+            for (size_t i = 0; i < b.size(); i++)
+                retVal[i] = b[i];
+            bufferL[0] = int(b.size());
+        }
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return nullptr;
+}
+
+int simSetVector3Property_internal(int target, const char* pName, const double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        C3Vector v(pState);
+        int res = App::setVector3Property(target, pName, v);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (res == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetVector3Property_internal(int target, const char* pName, double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        C3Vector v;
+        int res = App::getVector3Property(target, pName, v);
+        if (res == 1)
+        {
+            v.getData(pState);
+            retVal = 1;
+        }
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetQuaternionProperty_internal(int target, const char* pName, const double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        C4Vector q(pState, true);
+        int res = App::setQuaternionProperty(target, pName, q);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (res == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetQuaternionProperty_internal(int target, const char* pName, double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        C4Vector q;
+        int res = App::getQuaternionProperty(target, pName, q);
+        if (res == 1)
+        {
+            q.getData(pState, true);
+            retVal = 1;
+        }
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetPoseProperty_internal(int target, const char* pName, const double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        C7Vector p;
+        p.setData(pState, true);
+        int res = App::setPoseProperty(target, pName, p);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (res == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetPoseProperty_internal(int target, const char* pName, double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        C7Vector p;
+        int res = App::getPoseProperty(target, pName, p);
+        if (res == 1)
+        {
+            p.getData(pState, true);
+            retVal = 1;
+        }
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetMatrixProperty_internal(int target, const char* pName, const double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        C4X4Matrix m;
+        m.setData(pState);
+        int res = App::setMatrixProperty(target, pName, m);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (res == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetMatrixProperty_internal(int target, const char* pName, double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        C4X4Matrix m;
+        int res = App::getMatrixProperty(target, pName, m);
+        if (res == 1)
+        {
+            m.getData(pState);
+            retVal = 1;
+        }
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetColorProperty_internal(int target, const char* pName, const float* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        int res = App::setColorProperty(target, pName, pState);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (res == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetColorProperty_internal(int target, const char* pName, float* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        int res = App::getColorProperty(target, pName, pState);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetVectorProperty_internal(int target, const char* pName, const double* v, int vL)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        int res = App::setVectorProperty(target, pName, v, vL);
+        if (res == 1)
+            retVal = 1;
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (res == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+double* simGetVectorProperty_internal(int target, const char* pName, int* vL)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        double* retVal = nullptr;
+        std::vector<double> v;
+        int res = App::getVectorProperty(target, pName, v);
+        if (res == 1)
+        {
+            retVal = new double[v.size()];
+            for (size_t i = 0; i < v.size(); i++)
+                retVal[i] = v[i];
+            vL[0] = int(v.size());
+        }
+        else if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return nullptr;
+}
+
+
 int simGetObject_internal(const char *objectPath, int index, int proxy, int options)
 {
     C_API_START;

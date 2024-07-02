@@ -86,6 +86,29 @@ class App
     static int getAppStage();
     static void setAppStage(int s);
 
+    static int setBoolProperty(int target, const char* pName, bool pState);
+    static int getBoolProperty(int target, const char* pName, bool& pState);
+    static int setInt32Property(int target, const char* pName, int pState);
+    static int getInt32Property(int target, const char* pName, int& pState);
+    static int setFloatProperty(int target, const char* pName, double pState);
+    static int getFloatProperty(int target, const char* pName, double& pState);
+    static int setStringProperty(int target, const char* pName, const char* pState);
+    static int getStringProperty(int target, const char* pName, std::string& pState);
+    static int setBufferProperty(int target, const char* pName, const char* buffer, int bufferL);
+    static int getBufferProperty(int target, const char* pName, std::string& pState);
+    static int setVector3Property(int target, const char* pName, const C3Vector& pState);
+    static int getVector3Property(int target, const char* pName, C3Vector& pState);
+    static int setQuaternionProperty(int target, const char* pName, const C4Vector& pState);
+    static int getQuaternionProperty(int target, const char* pName, C4Vector& pState);
+    static int setPoseProperty(int target, const char* pName, const C7Vector& pState);
+    static int getPoseProperty(int target, const char* pName, C7Vector& pState);
+    static int setMatrixProperty(int target, const char* pName, const C4X4Matrix& pState);
+    static int getMatrixProperty(int target, const char* pName, C4X4Matrix& pState);
+    static int setColorProperty(int target, const char* pName, const float* pState);
+    static int getColorProperty(int target, const char* pName, float* pState);
+    static int setVectorProperty(int target, const char* pName, const double* v, int vL);
+    static int getVectorProperty(int target, const char* pName, std::vector<double>& pState);
+
     static void undoRedo_sceneChanged(const char *txt);
     static void undoRedo_sceneChangedGradual(const char *txt);
 

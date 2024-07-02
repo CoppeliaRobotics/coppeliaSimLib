@@ -451,6 +451,28 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.setObjectHierarchyOrder", _simSetObjectHierarchyOrder},
     {"sim._qhull", _sim_qhull},
     {"sim.systemSemaphore", _simSystemSemaphore},
+    {"sim.setBoolProperty", _simSetBoolProperty},
+    {"sim.getBoolProperty", _simGetBoolProperty},
+    {"sim.setInt32Property", _simSetInt32Property},
+    {"sim.getInt32Property", _simGetInt32Property},
+    {"sim.setFloatProperty", _simSetFloatProperty},
+    {"sim.getFloatProperty", _simGetFloatProperty},
+    {"sim.setStringProperty", _simSetStringProperty},
+    {"sim.getStringProperty", _simGetStringProperty},
+    {"sim.setBufferProperty", _simSetBufferProperty},
+    {"sim.getBufferProperty", _simGetBufferProperty},
+    {"sim.setVector3Property", _simSetVector3Property},
+    {"sim.getVector3Property", _simGetVector3Property},
+    {"sim.setQuaternionProperty", _simSetQuaternionProperty},
+    {"sim.getQuaternionProperty", _simGetQuaternionProperty},
+    {"sim.setPoseProperty", _simSetPoseProperty},
+    {"sim.getPoseProperty", _simGetPoseProperty},
+    {"sim.setMatrixProperty", _simSetMatrixProperty},
+    {"sim.getMatrixProperty", _simGetMatrixProperty},
+    {"sim.setColorProperty", _simSetColorProperty},
+    {"sim.getColorProperty", _simGetColorProperty},
+    {"sim.setVectorProperty", _simSetVectorProperty},
+    {"sim.getVectorProperty", _simGetVectorProperty},
 
     {"sim.test", _simTest},
 
@@ -5131,6 +5153,443 @@ int _simSystemSemaphore(luaWrap_lua_State *L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
+
+int _simSetBoolProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setBoolProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_bool, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        int pValue = luaToBool(L, 3);
+        simSetBoolProperty_internal(target, pName.c_str(), pValue);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetBoolProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getBoolProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        int pValue;
+        if (simGetBoolProperty_internal(target, pName.c_str(), &pValue) != -1)
+        {
+            luaWrap_lua_pushboolean(L, pValue != 0);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetInt32Property(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setInt32Property");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        int pValue = luaWrap_lua_tointeger(L,3);
+        simSetInt32Property_internal(target, pName.c_str(), pValue);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetInt32Property(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getInt32Property");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        int pValue;
+        if (simGetInt32Property_internal(target, pName.c_str(), &pValue) != -1)
+        {
+            luaWrap_lua_pushinteger(L, pValue);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetFloatProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setFloatProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        double pValue = luaToDouble(L,1);
+        simSetFloatProperty_internal(target, pName.c_str(), pValue);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetFloatProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getFloatProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        double pValue;
+        if (simGetFloatProperty_internal(target, pName.c_str(), &pValue) != -1)
+        {
+            luaWrap_lua_pushnumber(L, pValue);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetStringProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setStringProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        std::string pValue(luaWrap_lua_tostring(L, 3));
+        simSetStringProperty_internal(target, pName.c_str(), pValue.c_str());
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetStringProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getStringProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        char* pValue = simGetStringProperty_internal(target, pName.c_str());
+        if (pValue != nullptr)
+        {
+            luaWrap_lua_pushtext(L, pValue);
+            delete[] pValue;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetBufferProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setBufferProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_buffer, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        size_t pValueL;
+        const char *pValue = ((char *)luaWrap_lua_tobuffer(L, 3, &pValueL));
+        simSetBufferProperty_internal(target, pName.c_str(), pValue, pValueL);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetBufferProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getBufferProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        int pValueL;
+        char* pValue = simGetBufferProperty_internal(target, pName.c_str(), &pValueL);
+        if (pValue != nullptr)
+        {
+            luaWrap_lua_pushbuffer(L, pValue, size_t(pValueL));
+            delete[] pValue;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetVector3Property(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setVector3Property");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 3))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        double pValue[3];
+        getDoublesFromTable(L, 3, 3, pValue);
+        simSetVector3Property_internal(target, pName.c_str(), pValue);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetVector3Property(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getVector3Property");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        double pValue[3];
+        if (simGetVector3Property_internal(target, pName.c_str(), pValue) != -1)
+        {
+            pushDoubleTableOntoStack(L, 3, pValue);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetQuaternionProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setQuaternionProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 4))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        double pValue[4];
+        getDoublesFromTable(L, 3, 4, pValue);
+        simSetQuaternionProperty_internal(target, pName.c_str(), pValue);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetQuaternionProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getQuaternionProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        double pValue[4];
+        if (simGetQuaternionProperty_internal(target, pName.c_str(), pValue) != -1)
+        {
+            pushDoubleTableOntoStack(L, 4, pValue);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetPoseProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setPoseProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 7))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        double pValue[7];
+        getDoublesFromTable(L, 3, 7, pValue);
+        simSetPoseProperty_internal(target, pName.c_str(), pValue);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetPoseProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getPoseProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        double pValue[7];
+        if (simGetPoseProperty_internal(target, pName.c_str(), pValue) != -1)
+        {
+            pushDoubleTableOntoStack(L, 7, pValue);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetMatrixProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setMatrixProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 12))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        double pValue[12];
+        getDoublesFromTable(L, 3, 12, pValue);
+        simSetMatrixProperty_internal(target, pName.c_str(), pValue);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetMatrixProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getMatrixProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        double pValue[12];
+        if (simGetMatrixProperty_internal(target, pName.c_str(), pValue) != -1)
+        {
+            pushDoubleTableOntoStack(L, 12, pValue);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetColorProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setColorProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 3))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        float pValue[3];
+        getFloatsFromTable(L, 3, 3, pValue);
+        simSetColorProperty_internal(target, pName.c_str(), pValue);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetColorProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getColorProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        float pValue[3];
+        if (simGetColorProperty_internal(target, pName.c_str(), pValue) != -1)
+        {
+            pushFloatTableOntoStack(L, 3, pValue);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetVectorProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setVectorProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 1))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        int cnt = int(luaWrap_lua_rawlen(L, 3));
+        std::vector<double> v;
+        v.resize(cnt);
+        getDoublesFromTable(L, 3, cnt, v.data());
+        simSetVectorProperty_internal(target, pName.c_str(), v.data(), cnt);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetVectorProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getVectorProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        int pValueL;
+        double* pValue = simGetVectorProperty_internal(target, pName.c_str(), &pValueL);
+        if (pValue != nullptr)
+        {
+            pushDoubleTableOntoStack(L, pValueL, pValue);
+            delete[] pValue;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+
+
+
+
 
 int _simSetObjectParent(luaWrap_lua_State *L)
 {

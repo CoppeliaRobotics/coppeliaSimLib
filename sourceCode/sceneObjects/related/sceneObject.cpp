@@ -840,7 +840,7 @@ int CSceneObject::getCumulativeObjectSpecialProperty()
 }
 
 bool CSceneObject::setModelProperty(int prop)
-{ // model properties are actually override properties. This func. returns the local value
+{ // model properties are actually override properties
     bool wm = true;
     if (prop & sim_modelproperty_not_model)
     {
@@ -5183,3 +5183,311 @@ bool CSceneObject::setChildSequence(CSceneObject *child, int order)
     }
     return (false);
 }
+
+int CSceneObject::setBoolProperty(const char* pName, bool pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, "modelInvisible") == 0)
+    {
+        retVal = 1;
+        _setModelInvisible(pState);
+    }
+    else if (strcmp(pName, "modelBase") == 0)
+    {
+        retVal = 1;
+        setModelBase(pState);
+    }
+
+    return retVal;
+}
+
+int CSceneObject::getBoolProperty(const char* pName, bool& pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, "modelInvisible") == 0)
+    {
+        retVal = 1;
+        pState = _modelInvisible;
+    }
+    else if (strcmp(pName, "modelBase") == 0)
+    {
+        retVal = 1;
+        pState = _modelBase;
+    }
+
+    return retVal;
+}
+
+int CSceneObject::setInt32Property(const char* pName, int pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, "layer") == 0)
+    {
+        retVal = 1;
+        setVisibilityLayer(pState);
+    }
+    else if (strcmp(pName, "objectProperty") == 0)
+    {
+        retVal = 1;
+        setObjectProperty(pState);
+    }
+    else if (strcmp(pName, "modelProperty") == 0)
+    {
+        retVal = 1;
+        setModelProperty(pState);
+    }
+
+    return retVal;
+}
+
+int CSceneObject::getInt32Property(const char* pName, int& pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, "layer") == 0)
+    {
+        retVal = 1;
+        pState = _visibilityLayer;
+    }
+    else if (strcmp(pName, "childOrder") == 0)
+    {
+        retVal = 1;
+        pState = _childOrder;
+    }
+    else if (strcmp(pName, "parentUid") == 0)
+    {
+        retVal = 1;
+        pState = -1;
+        if (_parentObject != nullptr)
+            pState = _parentObject->getObjectUid();
+    }
+    else if (strcmp(pName, "objectProperty") == 0)
+    {
+        retVal = 1;
+        pState = _objectProperty;
+    }
+    else if (strcmp(pName, "modelProperty") == 0)
+    {
+        retVal = 1;
+        pState = _modelProperty;
+    }
+
+    return retVal;
+}
+
+int CSceneObject::setFloatProperty(const char* pName, double pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::getFloatProperty(const char* pName, double& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::setStringProperty(const char* pName, const char* pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, "alias") == 0)
+    {
+        if (App::currentWorld->sceneObjects->setObjectAlias(this, pState, false))
+            retVal = 1;
+        else
+            retVal = 0;
+    }
+    else if (strncmp(pName, "customData.", 11) == 0)
+    {
+        std::string pN(pName);
+        pN.erase(0, 11);
+        if (pN.size() > 0)
+        {
+            bool useTempBuffer = false;
+            size_t l = pN.size();
+            if (l > 4)
+            { // @tmp not documented anymore...
+                useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
+                useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
+            }
+            writeCustomDataBlock(useTempBuffer, pN.c_str(), pState, strlen(pState));
+            retVal = 1;
+        }
+    }
+
+
+    return retVal;
+}
+
+int CSceneObject::getStringProperty(const char* pName, std::string& pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, "alias") == 0)
+    {
+        retVal = 1;
+        pState = _objectAlias;
+    }
+    else if (strncmp(pName, "customData.", 11) == 0)
+    {
+        std::string pN(pName);
+        pN.erase(0, 11);
+        if (pN.size() > 0)
+        {
+            bool useTempBuffer = false;
+            size_t l = pN.size();
+            if (l > 4)
+            { // @tmp not documented anymore...
+                useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
+                useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
+            }
+            pState = readCustomDataBlock(useTempBuffer, pN.c_str());
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CSceneObject::setBufferProperty(const char* pName, const char* buffer, int bufferL)
+{
+    int retVal = -1;
+    if (buffer == nullptr)
+        bufferL = 0;
+    if (strncmp(pName, "customData.", 11) == 0)
+    {
+        std::string pN(pName);
+        pN.erase(0, 11);
+        if (pN.size() > 0)
+        {
+            bool useTempBuffer = false;
+            size_t l = pN.size();
+            if (l > 4)
+            { // @tmp not documented anymore...
+                useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
+                useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
+            }
+            writeCustomDataBlock(useTempBuffer, pN.c_str(), buffer, bufferL);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CSceneObject::getBufferProperty(const char* pName, std::string& pState)
+{
+    int retVal = -1;
+    if (strncmp(pName, "customData.", 11) == 0)
+    {
+        std::string pN(pName);
+        pN.erase(0, 11);
+        if (pN.size() > 0)
+        {
+            bool useTempBuffer = false;
+            size_t l = pN.size();
+            if (l > 4)
+            { // @tmp not documented anymore...
+                useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
+                useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
+            }
+            pState = readCustomDataBlock(useTempBuffer, pN.c_str());
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CSceneObject::setVector3Property(const char* pName, const C3Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::getVector3Property(const char* pName, C3Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::setQuaternionProperty(const char* pName, const C4Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::getQuaternionProperty(const char* pName, C4Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::setPoseProperty(const char* pName, const C7Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::getPoseProperty(const char* pName, C7Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::setMatrixProperty(const char* pName, const C4X4Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::getMatrixProperty(const char* pName, C4X4Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::setColorProperty(const char* pName, const float* pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::getColorProperty(const char* pName, float* pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::setVectorProperty(const char* pName, const double* v, int vL)
+{
+    int retVal = -1;
+    if (v == nullptr)
+        vL = 0;
+
+    return retVal;
+}
+
+int CSceneObject::getVectorProperty(const char* pName, std::vector<double>& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+

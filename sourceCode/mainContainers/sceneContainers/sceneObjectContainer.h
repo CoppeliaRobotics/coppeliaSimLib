@@ -181,6 +181,29 @@ class CSceneObjectContainer
     int getObjectDestructionCounter() const;
     int getHierarchyChangeCounter() const;
 
+    int setBoolProperty(int target, const char* pName, bool pState);
+    int getBoolProperty(int target, const char* pName, bool& pState);
+    int setInt32Property(int target, const char* pName, int pState);
+    int getInt32Property(int target, const char* pName, int& pState);
+    int setFloatProperty(int target, const char* pName, double pState);
+    int getFloatProperty(int target, const char* pName, double& pState);
+    int setStringProperty(int target, const char* pName, const char* pState);
+    int getStringProperty(int target, const char* pName, std::string& pState);
+    int setBufferProperty(int target, const char* pName, const char* buffer, int bufferL);
+    int getBufferProperty(int target, const char* pName, std::string& pState);
+    int setVector3Property(int target, const char* pName, const C3Vector& pState);
+    int getVector3Property(int target, const char* pName, C3Vector& pState);
+    int setQuaternionProperty(int target, const char* pName, const C4Vector& pState);
+    int getQuaternionProperty(int target, const char* pName, C4Vector& pState);
+    int setPoseProperty(int target, const char* pName, const C7Vector& pState);
+    int getPoseProperty(int target, const char* pName, C7Vector& pState);
+    int setMatrixProperty(int target, const char* pName, const C4X4Matrix& pState);
+    int getMatrixProperty(int target, const char* pName, C4X4Matrix& pState);
+    int setColorProperty(int target, const char* pName, const float* pState);
+    int getColorProperty(int target, const char* pName, float* pState);
+    int setVectorProperty(int target, const char* pName, const double* v, int vL);
+    int getVectorProperty(int target, const char* pName, std::vector<double>& pState);
+
     void setTextureDependencies();
     void removeSceneDependencies();
 

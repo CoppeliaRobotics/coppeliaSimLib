@@ -2432,6 +2432,346 @@ int CWorld::getWorldHandle() const
     return (_worldHandle);
 }
 
+int CWorld::setBoolProperty(int target, const char* pName, bool pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setBoolProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::getBoolProperty(int target, const char* pName, bool& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getBoolProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::setInt32Property(int target, const char* pName, int pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setInt32Property(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::getInt32Property(int target, const char* pName, int& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getInt32Property(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::setFloatProperty(int target, const char* pName, double pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setFloatProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::getFloatProperty(int target, const char* pName, double& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getFloatProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::setStringProperty(int target, const char* pName, const char* pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+        if (strncmp(pName, "customData.", 11) == 0)
+        {
+            std::string pN(pName);
+            pN.erase(0, 11);
+            if (pN.size() > 0)
+            {
+                bool useTempBuffer = false;
+                size_t l = pN.size();
+                if (l > 4)
+                { // @tmp not documented anymore...
+                    useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
+                    useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
+                }
+                if (useTempBuffer)
+                    customSceneData_tempData.setData(pN.c_str(), pState, strlen(pState));
+                else
+                    customSceneData.setData(pN.c_str(), pState, strlen(pState));
+                retVal = 1;
+            }
+        }
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setStringProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::getStringProperty(int target, const char* pName, std::string& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+        if (strncmp(pName, "customData.", 11) == 0)
+        {
+            std::string pN(pName);
+            pN.erase(0, 11);
+            if (pN.size() > 0)
+            {
+                bool useTempBuffer = false;
+                size_t l = pN.size();
+                if (l > 4)
+                { // @tmp not documented anymore...
+                    useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
+                    useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
+                }
+                if (useTempBuffer)
+                    pState = App::currentWorld->customSceneData_tempData.getData(pN.c_str());
+                else
+                    pState = App::currentWorld->customSceneData.getData(pN.c_str());
+                retVal = 1;
+            }
+        }
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getStringProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::setBufferProperty(int target, const char* pName, const char* buffer, int bufferL)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+        if (strncmp(pName, "customData.", 11) == 0)
+        {
+            std::string pN(pName);
+            pN.erase(0, 11);
+            if (pN.size() > 0)
+            {
+                bool useTempBuffer = false;
+                size_t l = pN.size();
+                if (l > 4)
+                { // @tmp not documented anymore...
+                    useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
+                    useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
+                }
+                if (useTempBuffer)
+                    customSceneData_tempData.setData(pN.c_str(), buffer, bufferL);
+                else
+                    customSceneData.setData(pN.c_str(), buffer, bufferL);
+                retVal = 1;
+            }
+        }
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setBufferProperty(target, pName, buffer, bufferL);
+    return retVal;
+}
+
+int CWorld::getBufferProperty(int target, const char* pName, std::string& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+        if (strncmp(pName, "customData.", 11) == 0)
+        {
+            std::string pN(pName);
+            pN.erase(0, 11);
+            if (pN.size() > 0)
+            {
+                bool useTempBuffer = false;
+                size_t l = pN.size();
+                if (l > 4)
+                { // @tmp not documented anymore...
+                    useTempBuffer = ((pN[l - 4] == '@') && (pN[l - 3] == 't') && (pN[l - 2] == 'm') && (pN[l - 1] == 'p'));
+                    useTempBuffer = useTempBuffer || ((pN[0] == '@') && (pN[1] == 't') && (pN[2] == 'm') && (pN[3] == 'p')); // backw. compatibility
+                }
+                if (useTempBuffer)
+                    pState = App::currentWorld->customSceneData_tempData.getData(pN.c_str());
+                else
+                    pState = App::currentWorld->customSceneData.getData(pN.c_str());
+                retVal = 1;
+            }
+        }
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getBufferProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::setVector3Property(int target, const char* pName, const C3Vector& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setVector3Property(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::getVector3Property(int target, const char* pName, C3Vector& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getVector3Property(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::setQuaternionProperty(int target, const char* pName, const C4Vector& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setQuaternionProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::getQuaternionProperty(int target, const char* pName, C4Vector& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getQuaternionProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::setPoseProperty(int target, const char* pName, const C7Vector& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setPoseProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::getPoseProperty(int target, const char* pName, C7Vector& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getPoseProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::setMatrixProperty(int target, const char* pName, const C4X4Matrix& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setMatrixProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::getMatrixProperty(int target, const char* pName, C4X4Matrix& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getMatrixProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::setColorProperty(int target, const char* pName, const float* pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setColorProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::getColorProperty(int target, const char* pName, float* pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getColorProperty(target, pName, pState);
+    return retVal;
+}
+
+int CWorld::setVectorProperty(int target, const char* pName, const double* v, int vL)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setVectorProperty(target, pName, v, vL);
+    return retVal;
+}
+
+int CWorld::getVectorProperty(int target, const char* pName, std::vector<double>& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getVectorProperty(target, pName, pState);
+    return retVal;
+}
+
 #ifdef SIM_WITH_GUI
 void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase *renderingObject, int displayAttrib,
                                                                  int windowSize[2], double verticalViewSizeOrAngle,

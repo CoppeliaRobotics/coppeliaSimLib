@@ -92,6 +92,30 @@ class CSceneObject
     virtual void setObjectHandle(int newObjectHandle);
     virtual bool canDestroyNow();
 
+    virtual int setBoolProperty(const char* pName, bool pState);
+    virtual int getBoolProperty(const char* pName, bool& pState);
+    virtual int setInt32Property(const char* pName, int pState);
+    virtual int getInt32Property(const char* pName, int& pState);
+    virtual int setFloatProperty(const char* pName, double pState);
+    virtual int getFloatProperty(const char* pName, double& pState);
+    virtual int setStringProperty(const char* pName, const char* pState);
+    virtual int getStringProperty(const char* pName, std::string& pState);
+    virtual int setBufferProperty(const char* pName, const char* buffer, int bufferL);
+    virtual int getBufferProperty(const char* pName, std::string& pState);
+    virtual int setVector3Property(const char* pName, const C3Vector& pState);
+    virtual int getVector3Property(const char* pName, C3Vector& pState);
+    virtual int setQuaternionProperty(const char* pName, const C4Vector& pState);
+    virtual int getQuaternionProperty(const char* pName, C4Vector& pState);
+    virtual int setPoseProperty(const char* pName, const C7Vector& pState);
+    virtual int getPoseProperty(const char* pName, C7Vector& pState);
+    virtual int setMatrixProperty(const char* pName, const C4X4Matrix& pState);
+    virtual int getMatrixProperty(const char* pName, C4X4Matrix& pState);
+    virtual int setColorProperty(const char* pName, const float* pState);
+    virtual int getColorProperty(const char* pName, float* pState);
+    virtual int setVectorProperty(const char* pName, const double* v, int vL);
+    virtual int getVectorProperty(const char* pName, std::vector<double>& pState);
+
+
     void setRestoreToDefaultLights(bool s);
     bool getRestoreToDefaultLights() const;
 

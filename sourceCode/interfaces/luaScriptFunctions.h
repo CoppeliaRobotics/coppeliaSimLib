@@ -417,6 +417,29 @@ extern int _simGetObjectHierarchyOrder(luaWrap_lua_State *L);
 extern int _simSetObjectHierarchyOrder(luaWrap_lua_State *L);
 extern int _sim_qhull(luaWrap_lua_State *L);
 extern int _simSystemSemaphore(luaWrap_lua_State *L);
+extern int _simSetBoolProperty(luaWrap_lua_State *L);
+extern int _simGetBoolProperty(luaWrap_lua_State *L);
+extern int _simSetInt32Property(luaWrap_lua_State *L);
+extern int _simGetInt32Property(luaWrap_lua_State *L);
+extern int _simSetFloatProperty(luaWrap_lua_State *L);
+extern int _simGetFloatProperty(luaWrap_lua_State *L);
+extern int _simSetStringProperty(luaWrap_lua_State *L);
+extern int _simGetStringProperty(luaWrap_lua_State *L);
+extern int _simSetBufferProperty(luaWrap_lua_State *L);
+extern int _simGetBufferProperty(luaWrap_lua_State *L);
+extern int _simSetVector3Property(luaWrap_lua_State *L);
+extern int _simGetVector3Property(luaWrap_lua_State *L);
+extern int _simSetQuaternionProperty(luaWrap_lua_State *L);
+extern int _simGetQuaternionProperty(luaWrap_lua_State *L);
+extern int _simSetPoseProperty(luaWrap_lua_State *L);
+extern int _simGetPoseProperty(luaWrap_lua_State *L);
+extern int _simSetMatrixProperty(luaWrap_lua_State *L);
+extern int _simGetMatrixProperty(luaWrap_lua_State *L);
+extern int _simSetColorProperty(luaWrap_lua_State *L);
+extern int _simGetColorProperty(luaWrap_lua_State *L);
+extern int _simSetVectorProperty(luaWrap_lua_State *L);
+extern int _simGetVectorProperty(luaWrap_lua_State *L);
+
 
 // DEPRECATED
 void moduleCommonPart_old(luaWrap_lua_State *L, int action, std::string *errorString);

@@ -5,6 +5,29 @@
 #include <simLib/simTypes.h>
 #include <simLib/simExp.h>
 
+SIM_DLLEXPORT int simSetBoolProperty(int target, const char* pName, int pState);
+SIM_DLLEXPORT int simGetBoolProperty(int target, const char* pName, int* pState);
+SIM_DLLEXPORT int simSetInt32Property(int target, const char* pName, int pState);
+SIM_DLLEXPORT int simGetInt32Property(int target, const char* pName, int* pState);
+SIM_DLLEXPORT int simSetFloatProperty(int target, const char* pName, double pState);
+SIM_DLLEXPORT int simGetFloatProperty(int target, const char* pName, double* pState);
+SIM_DLLEXPORT int simSetStringProperty(int target, const char* pName, const char* pState);
+SIM_DLLEXPORT char* simGetStringProperty(int target, const char* pName);
+SIM_DLLEXPORT int simSetBufferProperty(int target, const char* pName, const char* buffer, int bufferL);
+SIM_DLLEXPORT char* simGetBufferProperty(int target, const char* pName, int* bufferL);
+SIM_DLLEXPORT int simSetVector3Property(int target, const char* pName, const double* pState);
+SIM_DLLEXPORT int simGetVector3Property(int target, const char* pName, double* pState);
+SIM_DLLEXPORT int simSetQuaternionProperty(int target, const char* pName, const double* pState);
+SIM_DLLEXPORT int simGetQuaternionProperty(int target, const char* pName, double* pState);
+SIM_DLLEXPORT int simSetPoseProperty(int target, const char* pName, const double* pState);
+SIM_DLLEXPORT int simGetPoseProperty(int target, const char* pName, double* pState);
+SIM_DLLEXPORT int simSetMatrixProperty(int target, const char* pName, const double* pState);
+SIM_DLLEXPORT int simGetMatrixProperty(int target, const char* pName, double* pState);
+SIM_DLLEXPORT int simSetColorProperty(int target, const char* pName, const float* pState);
+SIM_DLLEXPORT int simGetColorProperty(int target, const char* pName, float* pState);
+SIM_DLLEXPORT int simSetVectorProperty(int target, const char* pName, const double* v, int vL);
+SIM_DLLEXPORT double* simGetVectorProperty(int target, const char* pName, int* vL);
+
 SIM_DLLEXPORT int simTest(int mode, void *ptr1, void *ptr2, void *ptr3);
 SIM_DLLEXPORT void *simGetMainWindow(int type);
 SIM_DLLEXPORT char *simGetLastError();

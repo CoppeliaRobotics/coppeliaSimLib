@@ -2,6 +2,95 @@
 #include <simInternal.h>
 #include <app.h>
 
+SIM_DLLEXPORT int simSetBoolProperty(int target, const char* pName, int pState)
+{
+    return simSetBoolProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetBoolProperty(int target, const char* pName, int* pState)
+{
+    return simGetBoolProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simSetInt32Property(int target, const char* pName, int pState)
+{
+    return simSetInt32Property_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetInt32Property(int target, const char* pName, int* pState)
+{
+    return simGetInt32Property_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simSetFloatProperty(int target, const char* pName, double pState)
+{
+    return simSetFloatProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetFloatProperty(int target, const char* pName, double* pState)
+{
+    return simGetFloatProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simSetStringProperty(int target, const char* pName, const char* pState)
+{
+    return simSetStringProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT char* simGetStringProperty(int target, const char* pName)
+{
+    return simGetStringProperty_internal(target, pName);
+}
+SIM_DLLEXPORT int simSetBufferProperty(int target, const char* pName, const char* buffer, int bufferL)
+{
+    return simSetBufferProperty_internal(target, pName, buffer, bufferL);
+}
+SIM_DLLEXPORT char* simGetBufferProperty(int target, const char* pName, int* bufferL)
+{
+    return simGetBufferProperty_internal(target, pName, bufferL);
+}
+SIM_DLLEXPORT int simSetVector3Property(int target, const char* pName, const double* pState)
+{
+    return simSetVector3Property_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetVector3Property(int target, const char* pName, double* pState)
+{
+    return simGetVector3Property_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simSetQuaternionProperty(int target, const char* pName, const double* pState)
+{
+    return simSetQuaternionProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetQuaternionProperty(int target, const char* pName, double* pState)
+{
+    return simGetQuaternionProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simSetPoseProperty(int target, const char* pName, const double* pState)
+{
+    return simSetPoseProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetPoseProperty(int target, const char* pName, double* pState)
+{
+    return simGetPoseProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simSetMatrixProperty(int target, const char* pName, const double* pState)
+{
+    return simSetMatrixProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetMatrixProperty(int target, const char* pName, double* pState)
+{
+    return simGetMatrixProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simSetColorProperty(int target, const char* pName, const float* pState)
+{
+    return simSetColorProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetColorProperty(int target, const char* pName, float* pState)
+{
+    return simGetColorProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simSetVectorProperty(int target, const char* pName, const double* v, int vL)
+{
+    return simSetVectorProperty_internal(target, pName, v, vL);
+}
+SIM_DLLEXPORT double* simGetVectorProperty(int target, const char* pName, int* vL)
+{
+    return simGetVectorProperty_internal(target, pName, vL);
+}
+
 SIM_DLLEXPORT void simRegCallback(int index, void *callback)
 {
     simRegCallback_internal(index, callback);
