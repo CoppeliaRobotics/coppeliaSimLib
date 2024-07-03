@@ -354,7 +354,7 @@ void GuiApp::runGui(int options)
 
     // Indicate that we didn't crash:
     CPersistentDataContainer cont;
-    cont.writeData("SIMSETTINGS_SIM_CRASHED", "", !App::userSettings->doNotWritePersistentData);
+    cont.writeData("SIMSETTINGS_SIM_CRASHED", "", !App::userSettings->doNotWritePersistentData, false);
 
     CAuxLibVideo::unloadLibrary();
 

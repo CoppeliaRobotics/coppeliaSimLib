@@ -27,12 +27,18 @@ int simSetQuaternionProperty_internal(int target, const char* pName, const doubl
 int simGetQuaternionProperty_internal(int target, const char* pName, double* pState);
 int simSetPoseProperty_internal(int target, const char* pName, const double* pState);
 int simGetPoseProperty_internal(int target, const char* pName, double* pState);
-int simSetMatrixProperty_internal(int target, const char* pName, const double* pState);
-int simGetMatrixProperty_internal(int target, const char* pName, double* pState);
+int simSetMatrix3x3Property_internal(int target, const char* pName, const double* pState);
+int simGetMatrix3x3Property_internal(int target, const char* pName, double* pState);
+int simSetMatrix4x4Property_internal(int target, const char* pName, const double* pState);
+int simGetMatrix4x4Property_internal(int target, const char* pName, double* pState);
 int simSetColorProperty_internal(int target, const char* pName, const float* pState);
 int simGetColorProperty_internal(int target, const char* pName, float* pState);
 int simSetVectorProperty_internal(int target, const char* pName, const double* v, int vL);
 double* simGetVectorProperty_internal(int target, const char* pName, int* vL);
+int simRemoveProperty_internal(int target, const char* pName);
+char* simGetProperty_internal(int target, int index);
+int simGetPropertyInfo_internal(int target, const char* pName, int* info);
+int simHasProperty_internal(int target, const char* pName);
 
 void simRegCallback_internal(int index, void *callback);
 void simRunGui_internal(int options);

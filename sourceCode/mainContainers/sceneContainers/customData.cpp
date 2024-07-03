@@ -11,8 +11,8 @@ CCustomData::~CCustomData()
 {
 }
 
-bool CCustomData::setData(const char *tag, const char *data, size_t dataLen)
-{
+bool CCustomData::setData(const char *tag, const char *data, size_t dataLen, bool allowEmptyData /*= true*/)
+{ // non-property functions (e.g. sim.setCustomBufferData) do not allow empty data
     bool diff = false;
     if ((tag == nullptr) || (std::strlen(tag) == 0))
     {
@@ -23,8 +23,8 @@ bool CCustomData::setData(const char *tag, const char *data, size_t dataLen)
     }
     else
     {
-        if (dataLen != 0)
-        { // if we set typed data, make sure that same-name data of other type is cleared beforehand:
+        if (allowEmptyData || (dataLen != 0))
+        { // since we now have typed data, make sure that same-name data of other types is cleared beforehand:
             std::string nakedTag(tag);
             std::string currentTp;
             size_t p = nakedTag.find("@.");
@@ -37,7 +37,7 @@ bool CCustomData::setData(const char *tag, const char *data, size_t dataLen)
             {
                 std::string tp = propertyTypes[i];
                 if (tp != currentTp)
-                    setData((tp + nakedTag).c_str(), nullptr, 0);
+                    diff = clearData((tp + nakedTag).c_str()) || diff;
             }
         }
 
@@ -50,8 +50,8 @@ bool CCustomData::setData(const char *tag, const char *data, size_t dataLen)
                 break;
             }
         }
-        if (dataLen == 0)
-        { // clear
+        if ( (!allowEmptyData) && (dataLen == 0) )
+        { // clear (old, with non-property functions)
             if (f != -1)
             {
                 _data.erase(_data.begin() + f);
@@ -61,9 +61,10 @@ bool CCustomData::setData(const char *tag, const char *data, size_t dataLen)
         }
         else
         { // change/add
+            bool ddiff = false;
             if (f == -1)
             {
-                diff = true;
+                ddiff = true;
                 SCustomData dat;
                 _data.push_back(dat);
                 f = int(_data.size() - 1);
@@ -76,21 +77,77 @@ bool CCustomData::setData(const char *tag, const char *data, size_t dataLen)
                     {
                         if (_data[size_t(f)].data[i] != data[i])
                         {
-                            diff = true;
+                            ddiff = true;
                             break;
                         }
                     }
                 }
                 else
-                    diff = true;
+                    ddiff = true;
             }
             _data[size_t(f)].tag = tag;
             _data[size_t(f)].data.assign(data, dataLen);
-            if (diff)
+            if (ddiff)
+            {
+                diff = true;
                 _dataEvents[tag] = true;
+            }
         }
     }
     return (diff);
+}
+
+bool CCustomData::clearData(const char *tag)
+{
+    bool diff = false;
+    for (size_t i = 0; i < _data.size(); i++)
+    {
+        if (_data[i].tag.compare(tag) == 0)
+        {
+            _data.erase(_data.begin() + i);
+            _dataEvents[tag] = false;
+            diff = true;
+            break;
+        }
+    }
+    return (diff);
+}
+
+int CCustomData::hasData(const char* tag, bool checkAllTypes)
+{ // returns its type, or -1 if not present
+    int retVal = -1;
+
+    if (checkAllTypes)
+    {
+        for (size_t j = 0; j < propertyTypes.size(); j++)
+        {
+            std::string tp = propertyTypes[j];
+            tp += tag;
+            retVal = hasData(tp.c_str(), false);
+            if (retVal >= 0)
+                break;
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < _data.size(); i++)
+        {
+            if (_data[i].tag.compare(tag) == 0)
+            {
+                for (size_t j = 0; j < propertyTypes.size(); j++)
+                {
+                    if (_data[i].tag.find(propertyTypes[j]) != std::string::npos)
+                    {
+                        retVal = j;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    return retVal;
 }
 
 std::string CCustomData::getData(const char *tag) const

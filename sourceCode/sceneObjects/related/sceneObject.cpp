@@ -26,6 +26,13 @@
 #include <guiApp.h>
 #endif
 
+std::vector<std::tuple<std::string, int, int>> allProperties = { // "propName", propType, flags (bit0 set: read-only, bit1 set: write-only, bit2 set: removable)
+    {"example1", sim_proptype_bool, 0},
+    {"example2", 2, 20},
+    {"example3", 3, 30},
+    {"example4", 4, 40}
+};
+
 CSceneObject::CSceneObject()
 {
     _selected = false;
@@ -1354,8 +1361,8 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
     ev->closeArrayOrMap();
     ev->openKeyMap("customData");
-    _customObjectData.appendEventData(ev);
-    _customObjectData_tempData.appendEventData(ev);
+    customObjectData.appendEventData(ev);
+    customObjectData_tempData_old.appendEventData(ev);
     ev->closeArrayOrMap(); // customData
     _appendObjectMovementEventData(ev);
 }
@@ -1449,8 +1456,8 @@ CSceneObject *CSceneObject::copyYourself()
     theNewObject->_sizeValues[2] = _sizeValues[2];
     theNewObject->_modelAcknowledgement = _modelAcknowledgement;
     theNewObject->_transparentObjectDistanceOffset = _transparentObjectDistanceOffset;
-    _customObjectData.copyYourselfInto(theNewObject->_customObjectData);
-    _customObjectData_tempData.copyYourselfInto(theNewObject->_customObjectData_tempData);
+    customObjectData.copyYourselfInto(theNewObject->customObjectData);
+    customObjectData_tempData_old.copyYourselfInto(theNewObject->customObjectData_tempData_old);
 
     delete theNewObject->_customObjectData_old;
     theNewObject->_customObjectData_old = nullptr;
@@ -1485,32 +1492,32 @@ void CSceneObject::clearObjectCustomData_old()
 bool CSceneObject::getCustomDataEvents(std::map<std::string, bool> &dataEvents)
 {
     dataEvents.clear();
-    _customObjectData.getDataEvents(dataEvents);
-    _customObjectData_tempData.getDataEvents(dataEvents);
+    customObjectData.getDataEvents(dataEvents);
+    customObjectData_tempData_old.getDataEvents(dataEvents);
     return dataEvents.size() > 0;
 }
 
 void CSceneObject::clearCustomDataEvents()
 {
-    _customObjectData.clearDataEvents();
-    _customObjectData_tempData.clearDataEvents();
+    customObjectData.clearDataEvents();
+    customObjectData_tempData_old.clearDataEvents();
 }
 
 void CSceneObject::writeCustomDataBlock(bool tmpData, const char *dataName, const char *data, size_t dataLength)
 {
     bool diff = false;
     if (tmpData)
-        diff = _customObjectData_tempData.setData(dataName, data, dataLength);
+        diff = customObjectData_tempData_old.setData(dataName, data, dataLength, false);
     else
-        diff = _customObjectData.setData(dataName, data, dataLength);
+        diff = customObjectData.setData(dataName, data, dataLength, false);
 
     if (diff && _isInScene && App::worldContainer->getEventsEnabled())
     {
         const char *cmd = "customData";
         CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, false);
         ev->openKeyMap(cmd);
-        _customObjectData.appendEventData(ev);
-        _customObjectData_tempData.appendEventData(ev);
+        customObjectData.appendEventData(ev);
+        customObjectData_tempData_old.appendEventData(ev);
         App::worldContainer->pushEvent();
     }
 }
@@ -1519,9 +1526,9 @@ std::string CSceneObject::readCustomDataBlock(bool tmpData, const char *dataName
 {
     std::string retVal;
     if (tmpData)
-        retVal = _customObjectData_tempData.getData(dataName);
+        retVal = customObjectData_tempData_old.getData(dataName);
     else
-        retVal = _customObjectData.getData(dataName);
+        retVal = customObjectData.getData(dataName);
     return (retVal);
 }
 
@@ -1529,9 +1536,9 @@ std::string CSceneObject::getAllCustomDataBlockTags(bool tmpData, size_t *cnt) c
 {
     std::string retVal;
     if (tmpData)
-        retVal = _customObjectData_tempData.getAllTags(cnt);
+        retVal = customObjectData_tempData_old.getAllTags(cnt);
     else
-        retVal = _customObjectData.getAllTags(cnt);
+        retVal = customObjectData.getAllTags(cnt);
     return (retVal);
 }
 
@@ -2336,13 +2343,13 @@ void CSceneObject::serialize(CSer &ar)
             ar << _sizeValues[0] << _sizeValues[1] << _sizeValues[2];
             ar.flush();
 
-            if (_customObjectData.getDataCount() != 0)
+            if (customObjectData.getDataCount() != 0)
             {
                 ar.storeDataName("Cda");
                 ar.setCountingMode();
-                _customObjectData.serializeData(ar, nullptr);
+                customObjectData.serializeData(ar, nullptr);
                 if (ar.setWritingMode())
-                    _customObjectData.serializeData(ar, nullptr);
+                    customObjectData.serializeData(ar, nullptr);
             }
 
             if (_customObjectData_old != nullptr)
@@ -2788,7 +2795,7 @@ void CSceneObject::serialize(CSer &ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        _customObjectData.serializeData(ar, nullptr);
+                        customObjectData.serializeData(ar, nullptr);
                     }
                     if (theName.compare("Cod") == 0)
                     { // keep for backward compatibility
@@ -2796,8 +2803,8 @@ void CSceneObject::serialize(CSer &ar)
                         ar >> byteQuantity;
                         _customObjectData_old = new CCustomData_old();
                         _customObjectData_old->serializeData(ar, nullptr, -1);
-                        if (_customObjectData.getDataCount() == 0)
-                            _customObjectData_old->initNewFormat(_customObjectData, true);
+                        if (customObjectData.getDataCount() == 0)
+                            _customObjectData_old->initNewFormat(customObjectData, true);
                     }
                     if (theName.compare("Lsp") == 0)
                     {
@@ -3200,10 +3207,10 @@ void CSceneObject::serialize(CSer &ar)
 
             if (exhaustiveXml)
             {
-                if (_customObjectData.getDataCount() != 0)
+                if (customObjectData.getDataCount() != 0)
                 {
                     ar.xmlPushNewNode("customObjectData");
-                    _customObjectData.serializeData(ar, getObjectAliasAndHandle().c_str());
+                    customObjectData.serializeData(ar, getObjectAliasAndHandle().c_str());
                     ar.xmlPopNode();
                 }
                 if (_customObjectData_old != nullptr)
@@ -3566,15 +3573,15 @@ void CSceneObject::serialize(CSer &ar)
 
                 if (exhaustiveXml && ar.xmlPushChildNode("customObjectData", false))
                 {
-                    _customObjectData.serializeData(ar, getObjectAliasAndHandle().c_str());
+                    customObjectData.serializeData(ar, getObjectAliasAndHandle().c_str());
                     ar.xmlPopNode();
                 }
                 if (exhaustiveXml && ar.xmlPushChildNode("customData", false))
                 {
                     _customObjectData_old = new CCustomData_old();
                     _customObjectData_old->serializeData(ar, getObjectAliasAndHandle().c_str(), -1);
-                    if (_customObjectData.getDataCount() == 0)
-                        _customObjectData_old->initNewFormat(_customObjectData, true);
+                    if (customObjectData.getDataCount() == 0)
+                        _customObjectData_old->initNewFormat(customObjectData, true);
                     ar.xmlPopNode();
                 }
                 if (exhaustiveXml && ar.xmlPushChildNode("userParameters", false))
@@ -5331,7 +5338,16 @@ int CSceneObject::setBufferProperty(const char* pName, const char* buffer, int b
         pN.erase(0, 11);
         if (pN.size() > 0)
         {
-            writeCustomDataBlock(false, pN.c_str(), buffer, bufferL);
+            bool diff = customObjectData.setData(pN.c_str(), buffer, bufferL, true);
+            if (diff && _isInScene && App::worldContainer->getEventsEnabled())
+            {
+                const char *cmd = "customData";
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, false);
+                ev->openKeyMap(cmd);
+                customObjectData.appendEventData(ev);
+                customObjectData_tempData_old.appendEventData(ev);
+                App::worldContainer->pushEvent();
+            }
             retVal = 1;
         }
     }
@@ -5348,8 +5364,11 @@ int CSceneObject::getBufferProperty(const char* pName, std::string& pState)
         pN.erase(0, 11);
         if (pN.size() > 0)
         {
-            pState = readCustomDataBlock(false, pN.c_str());
-            retVal = 1;
+            if (customObjectData.hasData(pN.c_str(), false) >= 0)
+            {
+                pState = customObjectData.getData(pN.c_str());
+                retVal = 1;
+            }
         }
     }
 
@@ -5398,14 +5417,28 @@ int CSceneObject::getPoseProperty(const char* pName, C7Vector& pState)
     return retVal;
 }
 
-int CSceneObject::setMatrixProperty(const char* pName, const C4X4Matrix& pState)
+int CSceneObject::setMatrix3x3Property(const char* pName, const C3X3Matrix& pState)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::getMatrixProperty(const char* pName, C4X4Matrix& pState)
+int CSceneObject::getMatrix3x3Property(const char* pName, C3X3Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::setMatrix4x4Property(const char* pName, const C4X4Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::getMatrix4x4Property(const char* pName, C4X4Matrix& pState)
 {
     int retVal = -1;
 
@@ -5438,6 +5471,60 @@ int CSceneObject::setVectorProperty(const char* pName, const double* v, int vL)
 int CSceneObject::getVectorProperty(const char* pName, std::vector<double>& pState)
 {
     int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::removeProperty(const char* pName)
+{
+    int retVal = -1;
+
+    if (strncmp(pName, "customData.", 11) == 0)
+    {
+        std::string pN(pName);
+        pN.erase(0, 11);
+        if (pN.size() > 0)
+        {
+            int tp = customObjectData.hasData(pN.c_str(), true);
+            if (tp >= 0)
+            {
+                customObjectData.clearData((propertyTypes[tp] + pN).c_str());
+                retVal = 1;
+            }
+        }
+    }
+
+    return retVal;
+}
+
+int CSceneObject::getProperty(int index, std::string& pName)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::getPropertyInfo(const char* pName, int& info)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::hasProperty(const char* pName)
+{
+    int retVal = 0;
+
+    if (strncmp(pName, "customData.", 11) == 0)
+    {
+        std::string pN(pName);
+        pN.erase(0, 11);
+        if (pN.size() > 0)
+        {
+            if (customObjectData.hasData(pN.c_str(), true) >= 0)
+                retVal = 1;
+        }
+    }
 
     return retVal;
 }

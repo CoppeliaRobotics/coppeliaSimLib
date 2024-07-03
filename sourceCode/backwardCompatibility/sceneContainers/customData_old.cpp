@@ -178,7 +178,7 @@ void CCustomData_old::initNewFormat(CCustomData &newObj, bool objectData) const
                 std::string data;
                 _extractCustomDataFromBuffer(buff, tags[j].c_str(), data);
                 if (data.size() > 0)
-                    newObj.setData(tags[j].c_str(), data.c_str(), data.size());
+                    newObj.setData(tags[j].c_str(), data.c_str(), data.size(), false);
             }
         }
         else
@@ -190,7 +190,7 @@ void CCustomData_old::initNewFormat(CCustomData &newObj, bool objectData) const
                 tag = "_oldSceneCustomData_";
             tag += std::to_string(h);
             tag += "_";
-            newObj.setData(tag.c_str(), c, size_t(l));
+            newObj.setData(tag.c_str(), c, size_t(l), false);
         }
     }
 }

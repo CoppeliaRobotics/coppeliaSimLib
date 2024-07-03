@@ -14,12 +14,14 @@ class CPersistentDataContainer
 
     void initializeWithDataFromFile();
 
-    void writeData(const char *dataName, const std::string &value, bool toFile);
+    void clearData(const char *dataName, bool toFile);
+    void writeData(const char *dataName, const std::string &value, bool toFile, bool allowEmptyString);
     bool readData(const char *dataName, std::string &value);
+    int hasData(const char* dataName, bool checkAllTypes);
     int getAllDataNames(std::vector<std::string> &names);
 
   protected:
-    void _writeData(const char *dataName, const std::string &value);
+    void _writeData(const char *dataName, const std::string &value, bool allowEmptyString);
     int _getDataIndex(const char *dataName);
 
     void _readFromFile(std::vector<std::string> &dataNames, std::vector<std::string> &dataValues);

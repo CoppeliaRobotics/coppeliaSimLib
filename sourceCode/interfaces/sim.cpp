@@ -66,13 +66,21 @@ SIM_DLLEXPORT int simGetPoseProperty(int target, const char* pName, double* pSta
 {
     return simGetPoseProperty_internal(target, pName, pState);
 }
-SIM_DLLEXPORT int simSetMatrixProperty(int target, const char* pName, const double* pState)
+SIM_DLLEXPORT int simSetMatrix3x3Property(int target, const char* pName, const double* pState)
 {
-    return simSetMatrixProperty_internal(target, pName, pState);
+    return simSetMatrix3x3Property_internal(target, pName, pState);
 }
-SIM_DLLEXPORT int simGetMatrixProperty(int target, const char* pName, double* pState)
+SIM_DLLEXPORT int simGetMatrix3x3Property(int target, const char* pName, double* pState)
 {
-    return simGetMatrixProperty_internal(target, pName, pState);
+    return simGetMatrix3x3Property_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simSetMatrix4x4Property(int target, const char* pName, const double* pState)
+{
+    return simSetMatrix4x4Property_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetMatrix4x4Property(int target, const char* pName, double* pState)
+{
+    return simGetMatrix4x4Property_internal(target, pName, pState);
 }
 SIM_DLLEXPORT int simSetColorProperty(int target, const char* pName, const float* pState)
 {
@@ -89,6 +97,22 @@ SIM_DLLEXPORT int simSetVectorProperty(int target, const char* pName, const doub
 SIM_DLLEXPORT double* simGetVectorProperty(int target, const char* pName, int* vL)
 {
     return simGetVectorProperty_internal(target, pName, vL);
+}
+SIM_DLLEXPORT int simRemoveProperty(int target, const char* pName)
+{
+    return simRemoveProperty_internal(target, pName);
+}
+SIM_DLLEXPORT char* simGetProperty(int target, int index)
+{
+    return simGetProperty_internal(target, index);
+}
+SIM_DLLEXPORT int simGetPropertyInfo(int target, const char* pName, int* info)
+{
+    return simGetPropertyInfo_internal(target, pName, info);
+}
+SIM_DLLEXPORT int simHasProperty(int target, const char* pName)
+{
+    return simHasProperty_internal(target, pName);
 }
 
 SIM_DLLEXPORT void simRegCallback(int index, void *callback)

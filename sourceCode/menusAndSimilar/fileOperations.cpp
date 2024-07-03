@@ -492,7 +492,7 @@ void CFileOperations::_addToRecentlyOpenedScenes(std::string filenameAndPath)
         {
             std::string tmp("SIMSETTINGS_RECENTSCENE0");
             tmp[23] = 48 + cnt;
-            cont.writeData(tmp.c_str(), recentScenes[i], !App::userSettings->doNotWritePersistentData);
+            cont.writeData(tmp.c_str(), recentScenes[i], !App::userSettings->doNotWritePersistentData, false);
             cnt++;
         }
     }
@@ -523,7 +523,7 @@ void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPat
             {
                 std::string tmp("SIMSETTINGS_RECENTSCENE0");
                 tmp[23] = 48 + cnt;
-                cont.writeData(tmp.c_str(), recentScenes[i], !App::userSettings->doNotWritePersistentData);
+                cont.writeData(tmp.c_str(), recentScenes[i], !App::userSettings->doNotWritePersistentData, false);
                 cnt++;
             }
         }
@@ -531,7 +531,7 @@ void CFileOperations::_removeFromRecentlyOpenedScenes(std::string filenameAndPat
         {
             std::string tmp("SIMSETTINGS_RECENTSCENE0");
             tmp[23] = 48 + i;
-            cont.writeData(tmp.c_str(), "", !App::userSettings->doNotWritePersistentData);
+            cont.writeData(tmp.c_str(), "", !App::userSettings->doNotWritePersistentData, false);
         }
     }
 }
@@ -1160,7 +1160,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
                                 intVal++;
                                 val = utils::getIntString(false, intVal);
                                 cont.writeData("SIMSETTINGS_MODEL_SAVE_OFFSET_WARNING", val,
-                                               !App::userSettings->doNotWritePersistentData);
+                                               !App::userSettings->doNotWritePersistentData, false);
                             }
                         }
 

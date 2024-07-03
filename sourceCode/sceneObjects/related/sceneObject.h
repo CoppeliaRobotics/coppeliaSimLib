@@ -108,12 +108,18 @@ class CSceneObject
     virtual int getQuaternionProperty(const char* pName, C4Vector& pState);
     virtual int setPoseProperty(const char* pName, const C7Vector& pState);
     virtual int getPoseProperty(const char* pName, C7Vector& pState);
-    virtual int setMatrixProperty(const char* pName, const C4X4Matrix& pState);
-    virtual int getMatrixProperty(const char* pName, C4X4Matrix& pState);
+    virtual int setMatrix3x3Property(const char* pName, const C3X3Matrix& pState);
+    virtual int getMatrix3x3Property(const char* pName, C3X3Matrix& pState);
+    virtual int setMatrix4x4Property(const char* pName, const C4X4Matrix& pState);
+    virtual int getMatrix4x4Property(const char* pName, C4X4Matrix& pState);
     virtual int setColorProperty(const char* pName, const float* pState);
     virtual int getColorProperty(const char* pName, float* pState);
     virtual int setVectorProperty(const char* pName, const double* v, int vL);
     virtual int getVectorProperty(const char* pName, std::vector<double>& pState);
+    virtual int removeProperty(const char* pName);
+    virtual int getProperty(int index, std::string& pName);
+    virtual int getPropertyInfo(const char* pName, int& info);
+    virtual int hasProperty(const char* pName);
 
 
     void setRestoreToDefaultLights(bool s);
@@ -334,6 +340,9 @@ class CSceneObject
     C7Vector getBB(C3Vector *bbHalfSize) const;
     C3Vector getBBHSize() const;
 
+    CCustomData customObjectData;
+    CCustomData customObjectData_tempData_old; // this one is not serialized (but copied)!
+
   protected:
     void _setModelInvisible(bool inv);
     void _setBB(const C7Vector &bbFrame, const C3Vector &bbHalfSize);
@@ -426,8 +435,6 @@ class CSceneObject
     unsigned char _objectManipulationMode_flaggedForGridOverlay; // is the rotation or translation axis index + 8 if it
                                                                  // is a rotation, or +16 if it is a translation
 
-    CCustomData _customObjectData;
-    CCustomData _customObjectData_tempData; // this one is not serialized (but copied)!
     CCustomData_old *_customObjectData_old;
     std::map<std::string, std::vector<SCustomRefs>> _customReferencedHandles;
     std::map<std::string, std::vector<SCustomOriginalRefs>> _customReferencedOriginalHandles;

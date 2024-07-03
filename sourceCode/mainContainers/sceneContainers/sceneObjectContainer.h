@@ -197,12 +197,18 @@ class CSceneObjectContainer
     int getQuaternionProperty(int target, const char* pName, C4Vector& pState);
     int setPoseProperty(int target, const char* pName, const C7Vector& pState);
     int getPoseProperty(int target, const char* pName, C7Vector& pState);
-    int setMatrixProperty(int target, const char* pName, const C4X4Matrix& pState);
-    int getMatrixProperty(int target, const char* pName, C4X4Matrix& pState);
+    int setMatrix3x3Property(int target, const char* pName, const C3X3Matrix& pState);
+    int getMatrix3x3Property(int target, const char* pName, C3X3Matrix& pState);
+    int setMatrix4x4Property(int target, const char* pName, const C4X4Matrix& pState);
+    int getMatrix4x4Property(int target, const char* pName, C4X4Matrix& pState);
     int setColorProperty(int target, const char* pName, const float* pState);
     int getColorProperty(int target, const char* pName, float* pState);
     int setVectorProperty(int target, const char* pName, const double* v, int vL);
     int getVectorProperty(int target, const char* pName, std::vector<double>& pState);
+    int removeProperty(int target, const char* pName);
+    int getProperty(int target, int index, std::string& pName);
+    int getPropertyInfo(int target, const char* pName, int& info);
+    int hasProperty(int target, const char* pName);
 
     void setTextureDependencies();
     void removeSceneDependencies();

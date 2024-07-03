@@ -11,32 +11,50 @@
 #include <simQApp.h>
 #endif
 
-#define prop_type_bool "@bool@."
-#define prop_type_int32 "@int32@."
-#define prop_type_float "@dbl@."
-#define prop_type_string "@str@."
-#define prop_type_vector3 "@vect3@."
-#define prop_type_quaternion "@quat@."
-#define prop_type_pose "@pose@."
-#define prop_type_matrix "@mtrx@."
-#define prop_type_color "@col@."
-#define prop_type_vector "@vect@."
-#define prop_type_table "@tbl@."
-#define prop_type_buffer ""
+enum { /* properties type */
+    sim_proptype_bool,
+    sim_proptype_int32,
+    sim_proptype_float,
+    sim_proptype_string,
+    sim_proptype_buffer,
+    sim_proptype_vector3,
+    sim_proptype_quaternion,
+    sim_proptype_pose,
+    sim_proptype_matrix3x3,
+    sim_proptype_matrix4x4,
+    sim_proptype_color,
+    sim_proptype_vector,
+    sim_proptype_table,
+};
+
+#define proptypetag_bool "@bool@."
+#define proptypetag_int32 "@int32@."
+#define proptypetag_float "@dbl@."
+#define proptypetag_string "@str@."
+#define proptypetag_buffer ""
+#define proptypetag_vector3 "@vect3@."
+#define proptypetag_quaternion "@quat@."
+#define proptypetag_pose "@pose@."
+#define proptypetag_matrix3x3 "@mtrx33@."
+#define proptypetag_matrix4x4 "@mtrx44@."
+#define proptypetag_color "@col@."
+#define proptypetag_vector "@vect@."
+#define proptypetag_table "@tbl@."
 
 static std::vector<std::string> propertyTypes = {
-    prop_type_bool,
-    prop_type_int32,
-    prop_type_float,
-    prop_type_string,
-    prop_type_vector3,
-    prop_type_quaternion,
-    prop_type_pose,
-    prop_type_matrix,
-    prop_type_color,
-    prop_type_vector,
-    prop_type_table,
-    prop_type_buffer
+    proptypetag_bool,
+    proptypetag_int32,
+    proptypetag_float,
+    proptypetag_string,
+    proptypetag_buffer,
+    proptypetag_vector3,
+    proptypetag_quaternion,
+    proptypetag_pose,
+    proptypetag_matrix3x3,
+    proptypetag_matrix4x4,
+    proptypetag_color,
+    proptypetag_vector,
+    proptypetag_table,
 };
 
 class App
@@ -130,12 +148,18 @@ class App
     static int getQuaternionProperty(int target, const char* pName, C4Vector& pState);
     static int setPoseProperty(int target, const char* pName, const C7Vector& pState);
     static int getPoseProperty(int target, const char* pName, C7Vector& pState);
-    static int setMatrixProperty(int target, const char* pName, const C4X4Matrix& pState);
-    static int getMatrixProperty(int target, const char* pName, C4X4Matrix& pState);
+    static int setMatrix3x3Property(int target, const char* pName, const C3X3Matrix& pState);
+    static int getMatrix3x3Property(int target, const char* pName, C3X3Matrix& pState);
+    static int setMatrix4x4Property(int target, const char* pName, const C4X4Matrix& pState);
+    static int getMatrix4x4Property(int target, const char* pName, C4X4Matrix& pState);
     static int setColorProperty(int target, const char* pName, const float* pState);
     static int getColorProperty(int target, const char* pName, float* pState);
     static int setVectorProperty(int target, const char* pName, const double* v, int vL);
     static int getVectorProperty(int target, const char* pName, std::vector<double>& pState);
+    static int removeProperty(int target, const char* pName);
+    static int getProperty(int target, int index, std::string& pName);
+    static int getPropertyInfo(int target, const char* pName, int& info);
+    static int hasProperty(int target, const char* pName);
 
     static void undoRedo_sceneChanged(const char *txt);
     static void undoRedo_sceneChangedGradual(const char *txt);

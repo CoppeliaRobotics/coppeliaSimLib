@@ -433,12 +433,18 @@ extern int _simSetQuaternionProperty(luaWrap_lua_State *L);
 extern int _simGetQuaternionProperty(luaWrap_lua_State *L);
 extern int _simSetPoseProperty(luaWrap_lua_State *L);
 extern int _simGetPoseProperty(luaWrap_lua_State *L);
-extern int _simSetMatrixProperty(luaWrap_lua_State *L);
-extern int _simGetMatrixProperty(luaWrap_lua_State *L);
+extern int _simSetMatrix3x3Property(luaWrap_lua_State *L);
+extern int _simGetMatrix3x3Property(luaWrap_lua_State *L);
+extern int _simSetMatrix4x4Property(luaWrap_lua_State *L);
+extern int _simGetMatrix4x4Property(luaWrap_lua_State *L);
 extern int _simSetColorProperty(luaWrap_lua_State *L);
 extern int _simGetColorProperty(luaWrap_lua_State *L);
 extern int _simSetVectorProperty(luaWrap_lua_State *L);
 extern int _simGetVectorProperty(luaWrap_lua_State *L);
+extern int _simRemoveProperty(luaWrap_lua_State *L);
+extern int _simGetProperty(luaWrap_lua_State *L);
+extern int _simGetPropertyInfo(luaWrap_lua_State *L);
+extern int _simHasProperty(luaWrap_lua_State *L);
 
 
 // DEPRECATED

@@ -241,7 +241,7 @@ void App::init(const char *appDir, int)
                         (std::string("If CoppeliaSim crashed in previous session, you can find auto-saved scenes in ") +
                          App::folders->getAutoSavedScenesContainingPath())
                             .c_str());
-        cont.writeData("SIMSETTINGS_SIM_CRASHED", "yes", true);
+        cont.writeData("SIMSETTINGS_SIM_CRASHED", "yes", true, false);
     }
 
     CSimFlavor::run(3);
@@ -1490,7 +1490,7 @@ int App::setBufferProperty(int target, const char* pName, const char* buffer, in
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
-                worldContainer->customAppData.setData(pN.c_str(), buffer, bufferL);
+                worldContainer->customAppData.setData(pN.c_str(), buffer, bufferL, true);
                 retVal = 1;
             }
         }
@@ -1504,7 +1504,7 @@ int App::setBufferProperty(int target, const char* pName, const char* buffer, in
             if (pN.size() > 0)
             {
                 CPersistentDataContainer cont("appStorage.dat");
-                cont.writeData(pN.c_str(), std::string(buffer, buffer + bufferL), true);
+                cont.writeData(pN.c_str(), std::string(buffer, buffer + bufferL), true, true);
                 retVal = 1;
             }
         }
@@ -1525,8 +1525,11 @@ int App::getBufferProperty(int target, const char* pName, std::string& pState)
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
-                pState = App::worldContainer->customAppData.getData(pN.c_str());
-                retVal = 1;
+                if (App::worldContainer->customAppData.hasData(pN.c_str(), false) >= 0)
+                {
+                    pState = App::worldContainer->customAppData.getData(pN.c_str());
+                    retVal = 1;
+                }
             }
         }
     }
@@ -1539,8 +1542,8 @@ int App::getBufferProperty(int target, const char* pName, std::string& pState)
             if (pN.size() > 0)
             {
                 CPersistentDataContainer cont("appStorage.dat");
-                cont.readData(pN.c_str(), pState);
-                retVal = 1;
+                if (cont.readData(pN.c_str(), pState))
+                    retVal = 1;
             }
         }
     }
@@ -1645,7 +1648,7 @@ int App::getPoseProperty(int target, const char* pName, C7Vector& pState)
     return retVal;
 }
 
-int App::setMatrixProperty(int target, const char* pName, const C4X4Matrix& pState)
+int App::setMatrix3x3Property(int target, const char* pName, const C3X3Matrix& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1657,11 +1660,11 @@ int App::setMatrixProperty(int target, const char* pName, const C4X4Matrix& pSta
 
     }
     else if (currentWorld != nullptr)
-        retVal = currentWorld->setMatrixProperty(target, pName, pState);
+        retVal = currentWorld->setMatrix3x3Property(target, pName, pState);
     return retVal;
 }
 
-int App::getMatrixProperty(int target, const char* pName, C4X4Matrix& pState)
+int App::getMatrix3x3Property(int target, const char* pName, C3X3Matrix& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1673,7 +1676,39 @@ int App::getMatrixProperty(int target, const char* pName, C4X4Matrix& pState)
 
     }
     else if (currentWorld != nullptr)
-        retVal = currentWorld->getMatrixProperty(target, pName, pState);
+        retVal = currentWorld->getMatrix3x3Property(target, pName, pState);
+    return retVal;
+}
+
+int App::setMatrix4x4Property(int target, const char* pName, const C4X4Matrix& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+
+    }
+    else if (target == sim_handle_appstorage)
+    {
+
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->setMatrix4x4Property(target, pName, pState);
+    return retVal;
+}
+
+int App::getMatrix4x4Property(int target, const char* pName, C4X4Matrix& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+
+    }
+    else if (target == sim_handle_appstorage)
+    {
+
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getMatrix4x4Property(target, pName, pState);
     return retVal;
 }
 
@@ -1741,3 +1776,112 @@ int App::getVectorProperty(int target, const char* pName, std::vector<double>& p
     return retVal;
 }
 
+int App::removeProperty(int target, const char* pName)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+        if (strncmp(pName, "customData.", 11) == 0)
+        {
+            std::string pN(pName);
+            pN.erase(0, 11);
+            if (pN.size() > 0)
+            {
+                int tp = App::worldContainer->customAppData.hasData(pN.c_str(), true);
+                if (tp >= 0)
+                {
+                    App::worldContainer->customAppData.clearData((propertyTypes[tp] + pN).c_str());
+                    retVal = 1;
+                }
+            }
+        }
+    }
+    else if (target == sim_handle_appstorage)
+    {
+        if (strncmp(pName, "customData.", 11) == 0)
+        {
+            std::string pN(pName);
+            pN.erase(0, 11);
+            if (pN.size() > 0)
+            {
+                CPersistentDataContainer cont("appStorage.dat");
+                int tp = cont.hasData(pN.c_str(), true);
+                if (tp >= 0)
+                {
+                    cont.clearData((propertyTypes[tp] + pN).c_str(), true);
+                    retVal = 1;
+                }
+            }
+        }
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->removeProperty(target, pName);
+    return retVal;
+}
+
+int App::getProperty(int target, int index, std::string& pName)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+
+    }
+    else if (target == sim_handle_appstorage)
+    {
+
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getProperty(target, index, pName);
+    return retVal;
+}
+
+int App::getPropertyInfo(int target, const char* pName, int& info)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+
+    }
+    else if (target == sim_handle_appstorage)
+    {
+
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getPropertyInfo(target, pName, info);
+    return retVal;
+}
+
+int App::hasProperty(int target, const char* pName)
+{
+    int retVal = 0;
+    if (target == sim_handle_app)
+    {
+        if (strncmp(pName, "customData.", 11) == 0)
+        {
+            std::string pN(pName);
+            pN.erase(0, 11);
+            if (pN.size() > 0)
+            {
+                if (App::worldContainer->customAppData.hasData(pN.c_str(), true) >= 0)
+                    retVal = 1;
+            }
+        }
+    }
+    else if (target == sim_handle_appstorage)
+    {
+        if (strncmp(pName, "customData.", 11) == 0)
+        {
+            std::string pN(pName);
+            pN.erase(0, 11);
+            if (pN.size() > 0)
+            {
+                CPersistentDataContainer cont("appStorage.dat");
+                if (cont.hasData(pN.c_str(), true))
+                    retVal = 1;
+            }
+        }
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->hasProperty(target, pName);
+    return retVal;
+}

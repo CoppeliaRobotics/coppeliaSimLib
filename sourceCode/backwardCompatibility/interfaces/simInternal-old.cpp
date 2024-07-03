@@ -952,7 +952,7 @@ int simAddSceneCustomData_internal(int header, const char *data, int dataLength)
         std::string hh("_oldSceneCustomData_");
         hh += std::to_string(header);
         hh += "_";
-        App::currentWorld->customSceneData.setData(hh.c_str(), data, dataLength);
+        App::currentWorld->customSceneData.setData(hh.c_str(), data, dataLength, false);
         // ---------------------- Old -----------------------------
         App::currentWorld->customSceneData_old->setData(header, data, dataLength);
         // ---------------------- Old -----------------------------
@@ -6605,7 +6605,7 @@ int simPersistentDataWrite_internal(const char *dataTag, const char *dataValue, 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         App::worldContainer->persistentDataContainer_old->writeData(dataTag, std::string(dataValue, dataLength),
-                                                                (options & 1) != 0);
+                                                                (options & 1) != 0, false);
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);

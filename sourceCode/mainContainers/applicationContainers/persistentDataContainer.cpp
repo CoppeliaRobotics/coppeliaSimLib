@@ -35,9 +35,14 @@ int CPersistentDataContainer::removeAllData()
     return (retVal);
 }
 
-void CPersistentDataContainer::writeData(const char *dataName, const std::string &value, bool toFile)
+void CPersistentDataContainer::clearData(const char *dataName, bool toFile)
 {
-    _writeData(dataName, value);
+    writeData(dataName, "", toFile, false);
+}
+
+void CPersistentDataContainer::writeData(const char *dataName, const std::string &value, bool toFile, bool allowEmptyString)
+{
+    _writeData(dataName, value, allowEmptyString);
     if ((_filename.size() > 0) && toFile)
     {
         std::vector<std::string> _dataNamesAux;
@@ -45,14 +50,14 @@ void CPersistentDataContainer::writeData(const char *dataName, const std::string
         _readFromFile(_dataNamesAux, _dataValuesAux);
         _dataNames.swap(_dataNamesAux);
         _dataValues.swap(_dataValuesAux);
-        _writeData(dataName, value);
+        _writeData(dataName, value, allowEmptyString);
         _dataNames.swap(_dataNamesAux);
         _dataValues.swap(_dataValuesAux);
         _writeToFile(_dataNamesAux, _dataValuesAux);
     }
 }
 
-void CPersistentDataContainer::_writeData(const char *dataName, const std::string &value)
+void CPersistentDataContainer::_writeData(const char *dataName, const std::string &value, bool allowEmptyString)
 {
     if (dataName != nullptr)
     {
@@ -67,7 +72,7 @@ void CPersistentDataContainer::_writeData(const char *dataName, const std::strin
         }
         else
         {
-            if (value.length() != 0)
+            if (allowEmptyString || (value.length() != 0) )
                 _dataValues[index] = value; // we have to update this data:
             else
             { // we have to remove this data:
@@ -87,6 +92,41 @@ bool CPersistentDataContainer::readData(const char *dataName, std::string &value
         return (false);
     value = _dataValues[index];
     return (true);
+}
+
+int CPersistentDataContainer::hasData(const char* dataName, bool checkAllTypes)
+{ // returns its type, or -1 if not present
+    int retVal = -1;
+
+    if (checkAllTypes)
+    {
+        for (size_t j = 0; j < propertyTypes.size(); j++)
+        {
+            std::string tp = propertyTypes[j];
+            tp += dataName;
+            retVal = hasData(tp.c_str(), false);
+            if (retVal >= 0)
+                break;
+        }
+    }
+    else
+    {
+        std::string dummyVal;
+        if (readData(dataName, dummyVal))
+        {
+            std::string tag(dataName);
+            for (size_t j = 0; j < propertyTypes.size(); j++)
+            {
+                if (tag.find(propertyTypes[j]) != std::string::npos)
+                {
+                    retVal = j;
+                    break;
+                }
+            }
+        }
+    }
+
+    return retVal;
 }
 
 int CPersistentDataContainer::getAllDataNames(std::vector<std::string> &names)

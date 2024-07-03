@@ -661,7 +661,7 @@ int simSetBoolProperty_internal(int target, const char* pName, int pState)
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_bool + pN;
+            pN = proptypetag_bool + pN;
             pN = "customData." + pN;
             retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)&pState, sizeof(int));
         }
@@ -694,7 +694,7 @@ int simGetBoolProperty_internal(int target, const char* pName, int* pState)
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_bool + pN;
+            pN = proptypetag_bool + pN;
             pN = "customData." + pN;
             int l;
             const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
@@ -741,7 +741,7 @@ int simSetInt32Property_internal(int target, const char* pName, int pState)
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_int32 + pN;
+            pN = proptypetag_int32 + pN;
             pN = "customData." + pN;
             retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)&pState, sizeof(pState));
         }
@@ -774,7 +774,7 @@ int simGetInt32Property_internal(int target, const char* pName, int* pState)
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_int32 + pN;
+            pN = proptypetag_int32 + pN;
             pN = "customData." + pN;
             int l;
             const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
@@ -817,7 +817,7 @@ int simSetFloatProperty_internal(int target, const char* pName, double pState)
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_float + pN;
+            pN = proptypetag_float + pN;
             pN = "customData." + pN;
             retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)&pState, sizeof(double));
         }
@@ -850,7 +850,7 @@ int simGetFloatProperty_internal(int target, const char* pName, double* pState)
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_float + pN;
+            pN = proptypetag_float + pN;
             pN = "customData." + pN;
             int l;
             const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
@@ -893,7 +893,7 @@ int simSetStringProperty_internal(int target, const char* pName, const char* pSt
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_string + pN;
+            pN = proptypetag_string + pN;
             pN = "customData." + pN;
             retVal = simSetBufferProperty_internal(target, pN.c_str(), pState, strlen(pState));
         }
@@ -926,7 +926,7 @@ char* simGetStringProperty_internal(int target, const char* pName)
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_float + pN;
+            pN = proptypetag_string + pN;
             pN = "customData." + pN;
             int l;
             retVal = simGetBufferProperty_internal(target, pN.c_str(), &l);
@@ -1021,7 +1021,7 @@ int simSetVector3Property_internal(int target, const char* pName, const double* 
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_vector3 + pN;
+            pN = proptypetag_vector3 + pN;
             pN = "customData." + pN;
             retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 3 * sizeof(double));
         }
@@ -1055,7 +1055,7 @@ int simGetVector3Property_internal(int target, const char* pName, double* pState
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_vector3 + pN;
+            pN = proptypetag_vector3 + pN;
             pN = "customData." + pN;
             int l;
             const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
@@ -1103,7 +1103,7 @@ int simSetQuaternionProperty_internal(int target, const char* pName, const doubl
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_quaternion + pN;
+            pN = proptypetag_quaternion + pN;
             pN = "customData." + pN;
             retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 4 * sizeof(double));
         }
@@ -1137,7 +1137,7 @@ int simGetQuaternionProperty_internal(int target, const char* pName, double* pSt
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_quaternion + pN;
+            pN = proptypetag_quaternion + pN;
             pN = "customData." + pN;
             int l;
             const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
@@ -1185,7 +1185,7 @@ int simSetPoseProperty_internal(int target, const char* pName, const double* pSt
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_pose + pN;
+            pN = proptypetag_pose + pN;
             pN = "customData." + pN;
             retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 7 * sizeof(double));
         }
@@ -1220,7 +1220,7 @@ int simGetPoseProperty_internal(int target, const char* pName, double* pState)
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_pose + pN;
+            pN = proptypetag_pose + pN;
             pN = "customData." + pN;
             int l;
             const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
@@ -1257,7 +1257,7 @@ int simGetPoseProperty_internal(int target, const char* pName, double* pState)
     return -1;
 }
 
-int simSetMatrixProperty_internal(int target, const char* pName, const double* pState)
+int simSetMatrix3x3Property_internal(int target, const char* pName, const double* pState)
 {
     C_API_START;
 
@@ -1268,15 +1268,15 @@ int simSetMatrixProperty_internal(int target, const char* pName, const double* p
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_matrix + pN;
+            pN = proptypetag_matrix3x3 + pN;
             pN = "customData." + pN;
-            retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 12 * sizeof(double));
+            retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 9 * sizeof(double));
         }
         else
         {
-            C4X4Matrix m;
+            C3X3Matrix m;
             m.setData(pState);
-            int res = App::setMatrixProperty(target, pName, m);
+            int res = App::setMatrix3x3Property(target, pName, m);
             if (res == 1)
                 retVal = 1;
             else if (res == -2)
@@ -1292,7 +1292,7 @@ int simSetMatrixProperty_internal(int target, const char* pName, const double* p
     return -1;
 }
 
-int simGetMatrixProperty_internal(int target, const char* pName, double* pState)
+int simGetMatrix3x3Property_internal(int target, const char* pName, double* pState)
 {
     C_API_START;
 
@@ -1303,15 +1303,15 @@ int simGetMatrixProperty_internal(int target, const char* pName, double* pState)
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_matrix + pN;
+            pN = proptypetag_matrix3x3 + pN;
             pN = "customData." + pN;
             int l;
             const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
             if (data != nullptr)
             {
-                if (l == 12 * sizeof(double))
+                if (l == 9 * sizeof(double))
                 {
-                    for (size_t i = 0; i < 12; i++)
+                    for (size_t i = 0; i < 9; i++)
                         pState[i] = ((double*)data)[i];
                     retVal = 1;
                 }
@@ -1322,11 +1322,102 @@ int simGetMatrixProperty_internal(int target, const char* pName, double* pState)
         }
         else
         {
-            C4X4Matrix m;
-            int res = App::getMatrixProperty(target, pName, m);
+            C3X3Matrix m;
+            int res = App::getMatrix3x3Property(target, pName, m);
             if (res == 1)
             {
                 m.getData(pState);
+                retVal = 1;
+            }
+            else if (res == -2)
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+            else
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        }
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetMatrix4x4Property_internal(int target, const char* pName, const double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        if (strncmp(pName, "customData.", 11) == 0)
+        {
+            std::string pN(pName);
+            pN.erase(0, 11);
+            pN = proptypetag_matrix4x4 + pN;
+            pN = "customData." + pN;
+            retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 12 * sizeof(double));
+        }
+        else
+        {
+            C4X4Matrix m;
+            m.setData(pState);
+            int res = App::setMatrix4x4Property(target, pName, m);
+            if (res == 1)
+                retVal = 1;
+            else if (res == -2)
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+            else if (res == -1)
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+            else
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_COULD_NOT_BE_SET);
+        }
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetMatrix4x4Property_internal(int target, const char* pName, double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        if (strncmp(pName, "customData.", 11) == 0)
+        {
+            std::string pN(pName);
+            pN.erase(0, 11);
+            pN = proptypetag_matrix4x4 + pN;
+            pN = "customData." + pN;
+            int l;
+            const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
+            if (data != nullptr)
+            {
+                if (l == 12 * sizeof(double))
+                {
+                    for (size_t i = 0; i < 12; i++)
+                        pState[i] = ((double*)data)[i];
+                    pState[12] = 0.0;
+                    pState[13] = 0.0;
+                    pState[14] = 0.0;
+                    pState[15] = 1.0;
+                    retVal = 1;
+                }
+                else
+                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                delete[] data;
+            }
+        }
+        else
+        {
+            C3X3Matrix m;
+            int res = App::getMatrix3x3Property(target, pName, m);
+            if (res == 1)
+            {
+                m.getData(pState);
+                pState[12] = 0.0;
+                pState[13] = 0.0;
+                pState[14] = 0.0;
+                pState[15] = 1.0;
                 retVal = 1;
             }
             else if (res == -2)
@@ -1351,7 +1442,7 @@ int simSetColorProperty_internal(int target, const char* pName, const float* pSt
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_color + pN;
+            pN = proptypetag_color + pN;
             pN = "customData." + pN;
             retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 3 * sizeof(float));
         }
@@ -1384,7 +1475,7 @@ int simGetColorProperty_internal(int target, const char* pName, float* pState)
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_color + pN;
+            pN = proptypetag_color + pN;
             pN = "customData." + pN;
             int l;
             const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
@@ -1428,7 +1519,7 @@ int simSetVectorProperty_internal(int target, const char* pName, const double* v
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_vector + pN;
+            pN = proptypetag_vector + pN;
             pN = "customData." + pN;
             retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)v, vL * sizeof(double));
         }
@@ -1461,7 +1552,7 @@ double* simGetVectorProperty_internal(int target, const char* pName, int* vL)
         {
             std::string pN(pName);
             pN.erase(0, 11);
-            pN = prop_type_vector + pN;
+            pN = proptypetag_vector + pN;
             pN = "customData." + pN;
             int l;
             retVal = (double*)simGetBufferProperty_internal(target, pN.c_str(), &l);
@@ -1488,6 +1579,81 @@ double* simGetVectorProperty_internal(int target, const char* pName, int* vL)
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return nullptr;
+}
+
+int simRemoveProperty_internal(int target, const char* pName)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = App::removeProperty(target, pName);
+        if (retVal == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (retVal == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        else if (retVal == 0)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_REMOVED);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+char* simGetProperty_internal(int target, int index)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        char* retVal = nullptr;
+        std::string pName;
+        int res = App::getProperty(target, index, pName);
+        if (res == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (pName.size() > 0)
+        {
+            retVal = new char[pName.size() + 1];
+            for (size_t i = 0; i < pName.size(); i++)
+                retVal[i] = pName[i];
+            retVal[pName.size()] = 0;
+        }
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return nullptr;
+}
+
+int simGetPropertyInfo_internal(int target, const char* pName, int* info)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = App::getPropertyInfo(target, pName, info[0]);
+        if (retVal == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (retVal == -1)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simHasProperty_internal(int target, const char* pName)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = App::hasProperty(target, pName);
+        if (retVal == -2)
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
 }
 
 
@@ -12158,7 +12324,7 @@ int simCheckExecAuthorization_internal(const char *what, const char *args, int s
                     if (it != nullptr)
                     {
                         CPersistentDataContainer cont;
-                        cont.writeData(y.c_str(), "OK", true);
+                        cont.writeData(y.c_str(), "OK", true, false);
                     }
                 }
             }
@@ -12658,9 +12824,9 @@ int simWriteCustomDataBlock_internal(int objectHandle, const char *tagName, cons
         if (objectHandle == sim_handle_scene)
         {
             if (useTempBuffer)
-                App::currentWorld->customSceneData_tempData.setData(tagName, data, dataSize);
+                App::currentWorld->customSceneData_tempData.setData(tagName, data, dataSize, false);
             else
-                App::currentWorld->customSceneData.setData(tagName, data, dataSize);
+                App::currentWorld->customSceneData.setData(tagName, data, dataSize, false);
             // ---------------------- Old -----------------------------
             if (!useTempBuffer)
             {
@@ -12688,7 +12854,7 @@ int simWriteCustomDataBlock_internal(int objectHandle, const char *tagName, cons
 
         if (objectHandle == sim_handle_app)
         { // here we have the app
-            App::worldContainer->customAppData.setData(tagName, data, dataSize);
+            App::worldContainer->customAppData.setData(tagName, data, dataSize, false);
             // ---------------------- Old -----------------------------
             if (strlen(tagName) != 0)
             {
@@ -12714,7 +12880,7 @@ int simWriteCustomDataBlock_internal(int objectHandle, const char *tagName, cons
         if (objectHandle == sim_handle_appstorage)
         { // here we have the app storage
             CPersistentDataContainer cont("appStorage.dat");
-            cont.writeData(tagName, std::string(data, data + dataSize), true);
+            cont.writeData(tagName, std::string(data, data + dataSize), true, false);
         }
 
         if (!App::userSettings->useSceneObjectScripts)
