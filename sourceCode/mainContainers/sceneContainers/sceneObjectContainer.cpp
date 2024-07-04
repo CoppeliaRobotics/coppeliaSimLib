@@ -5271,7 +5271,7 @@ int CSceneObjectContainer::removeProperty(int target, const char* pName)
     return retVal;
 }
 
-int CSceneObjectContainer::getProperty(int target, int index, std::string& pName)
+int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& pName)
 {
     int retVal = -1;
     CSceneObject* it = getObjectFromHandle(target);
@@ -5279,42 +5279,42 @@ int CSceneObjectContainer::getProperty(int target, int index, std::string& pName
     {
         int objType = it->getObjectType();
         if (objType == sim_object_shape_type)
-            return ((CShape*)it)->getProperty(index, pName);
+            return ((CShape*)it)->getPropertyName(index, pName);
         if (objType == sim_object_joint_type)
-            return ((CJoint*)it)->getProperty(index, pName);
+            return ((CJoint*)it)->getPropertyName(index, pName);
         if (objType == sim_object_dummy_type)
-            return ((CDummy*)it)->getProperty(index, pName);
+            return ((CDummy*)it)->getPropertyName(index, pName);
         if (objType == sim_object_script_type)
-            return ((CScript*)it)->getProperty(index, pName);
+            return ((CScript*)it)->getPropertyName(index, pName);
         if (objType == sim_object_proximitysensor_type)
-            return ((CProxSensor*)it)->getProperty(index, pName);
+            return ((CProxSensor*)it)->getPropertyName(index, pName);
         if (objType == sim_object_visionsensor_type)
-            return ((CVisionSensor*)it)->getProperty(index, pName);
+            return ((CVisionSensor*)it)->getPropertyName(index, pName);
         if (objType == sim_object_forcesensor_type)
-            return ((CForceSensor*)it)->getProperty(index, pName);
+            return ((CForceSensor*)it)->getPropertyName(index, pName);
         if (objType == sim_object_light_type)
-            return ((CLight*)it)->getProperty(index, pName);
+            return ((CLight*)it)->getPropertyName(index, pName);
         if (objType == sim_object_camera_type)
-            return ((CCamera*)it)->getProperty(index, pName);
+            return ((CCamera*)it)->getPropertyName(index, pName);
         if (objType == sim_object_graph_type)
-            return ((CGraph*)it)->getProperty(index, pName);
+            return ((CGraph*)it)->getPropertyName(index, pName);
         if (objType == sim_object_pointcloud_type)
-            return ((CPointCloud*)it)->getProperty(index, pName);
+            return ((CPointCloud*)it)->getPropertyName(index, pName);
         if (objType == sim_object_octree_type)
-            return ((COcTree*)it)->getProperty(index, pName);
+            return ((COcTree*)it)->getPropertyName(index, pName);
         if (objType == sim_object_path_type)
-            return ((CPath_old*)it)->getProperty(index, pName);
+            return ((CPath_old*)it)->getPropertyName(index, pName);
         if (objType == sim_object_mill_type)
-            return ((CMill*)it)->getProperty(index, pName);
+            return ((CMill*)it)->getPropertyName(index, pName);
         if (objType == sim_object_mirror_type)
-            return ((CMirror*)it)->getProperty(index, pName);
+            return ((CMirror*)it)->getPropertyName(index, pName);
     }
     else
         retVal = -2; // object does not exist
     return retVal;
 }
 
-int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& info)
+int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& info, int& size)
 {
     int retVal = -1;
     CSceneObject* it = getObjectFromHandle(target);
@@ -5322,78 +5322,35 @@ int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& i
     {
         int objType = it->getObjectType();
         if (objType == sim_object_shape_type)
-            return ((CShape*)it)->getPropertyInfo(pName, info);
+            return ((CShape*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_joint_type)
-            return ((CJoint*)it)->getPropertyInfo(pName, info);
+            return ((CJoint*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_dummy_type)
-            return ((CDummy*)it)->getPropertyInfo(pName, info);
+            return ((CDummy*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_script_type)
-            return ((CScript*)it)->getPropertyInfo(pName, info);
+            return ((CScript*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_proximitysensor_type)
-            return ((CProxSensor*)it)->getPropertyInfo(pName, info);
+            return ((CProxSensor*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_visionsensor_type)
-            return ((CVisionSensor*)it)->getPropertyInfo(pName, info);
+            return ((CVisionSensor*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_forcesensor_type)
-            return ((CForceSensor*)it)->getPropertyInfo(pName, info);
+            return ((CForceSensor*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_light_type)
-            return ((CLight*)it)->getPropertyInfo(pName, info);
+            return ((CLight*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_camera_type)
-            return ((CCamera*)it)->getPropertyInfo(pName, info);
+            return ((CCamera*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_graph_type)
-            return ((CGraph*)it)->getPropertyInfo(pName, info);
+            return ((CGraph*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_pointcloud_type)
-            return ((CPointCloud*)it)->getPropertyInfo(pName, info);
+            return ((CPointCloud*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_octree_type)
-            return ((COcTree*)it)->getPropertyInfo(pName, info);
+            return ((COcTree*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_path_type)
-            return ((CPath_old*)it)->getPropertyInfo(pName, info);
+            return ((CPath_old*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_mill_type)
-            return ((CMill*)it)->getPropertyInfo(pName, info);
+            return ((CMill*)it)->getPropertyInfo(pName, info, size);
         if (objType == sim_object_mirror_type)
-            return ((CMirror*)it)->getPropertyInfo(pName, info);
-    }
-    else
-        retVal = -2; // object does not exist
-    return retVal;
-}
-
-int CSceneObjectContainer::hasProperty(int target, const char* pName)
-{
-    int retVal = 0;
-    CSceneObject* it = getObjectFromHandle(target);
-    if (it != nullptr)
-    {
-        int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
-            return ((CShape*)it)->hasProperty(pName);
-        if (objType == sim_object_joint_type)
-            return ((CJoint*)it)->hasProperty(pName);
-        if (objType == sim_object_dummy_type)
-            return ((CDummy*)it)->hasProperty(pName);
-        if (objType == sim_object_script_type)
-            return ((CScript*)it)->hasProperty(pName);
-        if (objType == sim_object_proximitysensor_type)
-            return ((CProxSensor*)it)->hasProperty(pName);
-        if (objType == sim_object_visionsensor_type)
-            return ((CVisionSensor*)it)->hasProperty(pName);
-        if (objType == sim_object_forcesensor_type)
-            return ((CForceSensor*)it)->hasProperty(pName);
-        if (objType == sim_object_light_type)
-            return ((CLight*)it)->hasProperty(pName);
-        if (objType == sim_object_camera_type)
-            return ((CCamera*)it)->hasProperty(pName);
-        if (objType == sim_object_graph_type)
-            return ((CGraph*)it)->hasProperty(pName);
-        if (objType == sim_object_pointcloud_type)
-            return ((CPointCloud*)it)->hasProperty(pName);
-        if (objType == sim_object_octree_type)
-            return ((COcTree*)it)->hasProperty(pName);
-        if (objType == sim_object_path_type)
-            return ((CPath_old*)it)->hasProperty(pName);
-        if (objType == sim_object_mill_type)
-            return ((CMill*)it)->hasProperty(pName);
-        if (objType == sim_object_mirror_type)
-            return ((CMirror*)it)->hasProperty(pName);
+            return ((CMirror*)it)->getPropertyInfo(pName, info, size);
     }
     else
         retVal = -2; // object does not exist

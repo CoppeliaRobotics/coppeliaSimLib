@@ -29,6 +29,20 @@
 #include <signal.h>
 #endif
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+//    FUNCX(prop_modelInvisible,          "modelInvisible",               sim_propertytype_bool,      0) \
+
+#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<CProperty> allProps = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 #ifndef SIM_WITH_GUI
 CSimQApp *App::qtApp = nullptr;
 int App::_qApp_argc = 1;
@@ -373,7 +387,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     App::currentWorld->sceneObjects->handleDataCallbacks();
     if (currentWorld->sceneObjects->hasSelectionChanged())
     {
-        CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
+        CInterfaceStack *stack = worldContainer->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
         stack->pushTextOntoStack("sel");
         std::vector<int> sel;
@@ -381,7 +395,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
         stack->pushInt32ArrayOntoStack(sel.data(), sel.size());
         stack->insertDataIntoStackTable();
         worldContainer->callScripts(sim_syscb_selchange, stack, nullptr);
-        App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        worldContainer->interfaceStackContainer->destroyStack(stack);
     }
     if (currentWorld->simulation->isSimulationPaused())
     {
@@ -420,23 +434,23 @@ void App::loop(void (*callback)(), bool stepIfRunning)
         if ((!App::currentWorld->simulation->getIsRealTimeSimulation()) ||
             App::currentWorld->simulation->isRealTimeCalculationStepNeeded())
         {
-            if ((!App::worldContainer->shouldTemporarilySuspendMainScript()) ||
+            if ((!worldContainer->shouldTemporarilySuspendMainScript()) ||
                 App::currentWorld->simulation->didStopRequestCounterChangeSinceSimulationStart())
             {
                 CScriptObject *it = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
                 if (it != nullptr)
                 {
-                    App::worldContainer->calcInfo->simulationPassStart();
+                    worldContainer->calcInfo->simulationPassStart();
                     App::currentWorld->sceneObjects->embeddedScriptContainer->broadcastDataContainer.removeTimedOutObjects(
                         App::currentWorld->simulation->getSimulationTime()); // remove invalid elements
                     CThreadPool_old::prepareAllThreadsForResume_calledBeforeMainScript();
                     it->systemCallMainScript(-1, nullptr, nullptr);
-                    App::worldContainer->calcInfo->simulationPassEnd();
+                    worldContainer->calcInfo->simulationPassEnd();
                 }
                 App::currentWorld->simulation->advanceSimulationByOneStep();
             }
             // Following for backward compatibility:
-            App::worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old, nullptr, nullptr);
+            worldContainer->addOnScriptContainer->callScripts(sim_syscb_aos_run_old, nullptr, nullptr);
         }
         else
             worldContainer->callScripts(sim_syscb_realtimeidle, nullptr, nullptr);
@@ -833,12 +847,12 @@ void App::__logMsg(const char *originName, int verbosityLevel, const char *msg, 
             else _logOnceMessages[originName][realVerbosityLevel][msg] = true;
         }
 
-        if ((App::worldContainer != nullptr) && VThread::isSimThread())
+        if ((worldContainer != nullptr) && VThread::isSimThread())
         {
             std::string orig("CoppeliaSim");
             if (originName != nullptr)
                 orig = originName;
-            CCbor *ev = App::worldContainer->createEvent("logMsg", -1, nullptr, false);
+            CCbor *ev = worldContainer->createEvent("logMsg", -1, nullptr, false);
             ev->appendKeyString("origin", orig.c_str());
             ev->appendKeyString("msg", msg);
             ev->appendKeyInt("verbosity", realVerbosityLevel);
@@ -846,7 +860,7 @@ void App::__logMsg(const char *originName, int verbosityLevel, const char *msg, 
             ev->appendKeyBool("undecorated", verbosityLevel & sim_verbosity_undecorated);
             ev->appendKeyBool("onlyterminal", verbosityLevel & sim_verbosity_onlyterminal);
             ev->closeArrayOrMap();
-            App::worldContainer->pushEvent();
+            worldContainer->pushEvent();
         }
 
         inside = true;
@@ -1525,9 +1539,9 @@ int App::getBufferProperty(int target, const char* pName, std::string& pState)
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
-                if (App::worldContainer->customAppData.hasData(pN.c_str(), false) >= 0)
+                if (worldContainer->customAppData.hasData(pN.c_str(), false) >= 0)
                 {
-                    pState = App::worldContainer->customAppData.getData(pN.c_str());
+                    pState = worldContainer->customAppData.getData(pN.c_str());
                     retVal = 1;
                 }
             }
@@ -1787,10 +1801,10 @@ int App::removeProperty(int target, const char* pName)
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
-                int tp = App::worldContainer->customAppData.hasData(pN.c_str(), true);
+                int tp = worldContainer->customAppData.hasData(pN.c_str(), true);
                 if (tp >= 0)
                 {
-                    App::worldContainer->customAppData.clearData((propertyTypes[tp] + pN).c_str());
+                    worldContainer->customAppData.clearData((propertyTypes[tp] + pN).c_str());
                     retVal = 1;
                 }
             }
@@ -1819,69 +1833,85 @@ int App::removeProperty(int target, const char* pName)
     return retVal;
 }
 
-int App::getProperty(int target, int index, std::string& pName)
+int App::getPropertyName(int target, int& index, std::string& pName)
 {
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
-    }
-    else if (target == sim_handle_appstorage)
-    {
-
-    }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getProperty(target, index, pName);
-    return retVal;
-}
-
-int App::getPropertyInfo(int target, const char* pName, int& info)
-{
-    int retVal = -1;
-    if (target == sim_handle_app)
-    {
-
-    }
-    else if (target == sim_handle_appstorage)
-    {
-
-    }
-    else if (currentWorld != nullptr)
-        retVal = currentWorld->getPropertyInfo(target, pName, info);
-    return retVal;
-}
-
-int App::hasProperty(int target, const char* pName)
-{
-    int retVal = 0;
-    if (target == sim_handle_app)
-    {
-        if (strncmp(pName, "customData.", 11) == 0)
+        for (size_t i = 0; i < allProps.size(); i++)
         {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
+            index--;
+            if (index == -1)
             {
-                if (App::worldContainer->customAppData.hasData(pN.c_str(), true) >= 0)
-                    retVal = 1;
+                pName = allProps[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+        if (retVal == -1)
+        {
+            if (worldContainer->customAppData.getPropertyName(index, pName))
+            {
+                pName = "customData." + pName;
+                retVal = 1;
             }
         }
     }
     else if (target == sim_handle_appstorage)
     {
-        if (strncmp(pName, "customData.", 11) == 0)
+        CPersistentDataContainer cont("appStorage.dat");
+        if (cont.getPropertyName(index, pName))
+        {
+            pName = "customData." + pName;
+            retVal = 1;
+        }
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getPropertyName(target, index, pName);
+    return retVal;
+}
+
+int App::getPropertyInfo(int target, const char* pName, int& info, int& size)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+        for (size_t i = 0; i < allProps.size(); i++)
+        {
+            if (strcmp(allProps[i].name, pName) == 0)
+            {
+                retVal = allProps[i].type;
+                info = allProps[i].flags;
+                size = 0;
+                break;
+            }
+        }
+        if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
         {
             std::string pN(pName);
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
-                CPersistentDataContainer cont("appStorage.dat");
-                if (cont.hasData(pN.c_str(), true))
-                    retVal = 1;
+                retVal = worldContainer->customAppData.hasData(pN.c_str(), true, &size);
+                if (retVal >= 0)
+                    info = 4; // removable
             }
         }
     }
+    else if ( (target == sim_handle_appstorage) && (strncmp(pName, "customData.", 11) == 0) )
+    {
+        std::string pN(pName);
+        pN.erase(0, 11);
+        if (pN.size() > 0)
+        {
+            CPersistentDataContainer cont("appStorage.dat");
+            retVal = cont.hasData(pN.c_str(), true, &size);
+            if (retVal >= 0)
+                info = 4; // removable
+        }
+    }
     else if (currentWorld != nullptr)
-        retVal = currentWorld->hasProperty(target, pName);
+        retVal = currentWorld->getPropertyInfo(target, pName, info, size);
     return retVal;
 }
+

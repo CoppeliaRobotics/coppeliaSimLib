@@ -36,9 +36,8 @@ int simGetColorProperty_internal(int target, const char* pName, float* pState);
 int simSetVectorProperty_internal(int target, const char* pName, const double* v, int vL);
 double* simGetVectorProperty_internal(int target, const char* pName, int* vL);
 int simRemoveProperty_internal(int target, const char* pName);
-char* simGetProperty_internal(int target, int index);
-int simGetPropertyInfo_internal(int target, const char* pName, int* info);
-int simHasProperty_internal(int target, const char* pName);
+char* simGetPropertyName_internal(int target, int index);
+int simGetPropertyInfo_internal(int target, const char* pName, int* info, int* size);
 
 void simRegCallback_internal(int index, void *callback);
 void simRunGui_internal(int options);

@@ -929,15 +929,14 @@ char* simGetStringProperty_internal(int target, const char* pName)
             pN = proptypetag_string + pN;
             pN = "customData." + pN;
             int l;
-            retVal = simGetBufferProperty_internal(target, pN.c_str(), &l);
-            if (retVal != nullptr)
+            char* dat = simGetBufferProperty_internal(target, pN.c_str(), &l);
+            if (dat != nullptr)
             {
-                if (l != strlen(retVal))
-                {
-                    delete[] retVal;
-                    retVal = nullptr;
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
-                }
+                retVal = new char[l + 1];
+                for (size_t i = 0; i < l; i++)
+                    retVal[i] = dat[i];
+                retVal[l] = 0;
+                delete[] dat;
             }
         }
         else
@@ -1600,7 +1599,7 @@ int simRemoveProperty_internal(int target, const char* pName)
     return -1;
 }
 
-char* simGetProperty_internal(int target, int index)
+char* simGetPropertyName_internal(int target, int index)
 {
     C_API_START;
 
@@ -1608,7 +1607,7 @@ char* simGetProperty_internal(int target, int index)
     {
         char* retVal = nullptr;
         std::string pName;
-        int res = App::getProperty(target, index, pName);
+        int res = App::getPropertyName(target, index, pName);
         if (res == -2)
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
         else if (pName.size() > 0)
@@ -1624,32 +1623,23 @@ char* simGetProperty_internal(int target, int index)
     return nullptr;
 }
 
-int simGetPropertyInfo_internal(int target, const char* pName, int* info)
+int simGetPropertyInfo_internal(int target, const char* pName, int* info, int* size)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal = App::getPropertyInfo(target, pName, info[0]);
+        int _info, _size;
+        int retVal = App::getPropertyInfo(target, pName, _info, _size);
         if (retVal == -2)
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
-        else if (retVal == -1)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-        return retVal;
-    }
-    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return -1;
-}
-
-int simHasProperty_internal(int target, const char* pName)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal = App::hasProperty(target, pName);
-        if (retVal == -2)
-            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+        else if (retVal >= 0)
+        {
+            if (info != nullptr)
+                info[0] = _info;
+            if (size != nullptr)
+                size[0] = _size;
+        }
         return retVal;
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -2765,7 +2755,7 @@ int simSetObjectHierarchyOrder_internal(int objectHandle, int order)
         {
             CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
             if (App::currentWorld->sceneObjects->setObjectSequence(it, order))
-                retVal = 0;
+                retVal = 1;
             else
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OPERATION_FAILED);
         }

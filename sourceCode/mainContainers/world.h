@@ -108,9 +108,8 @@ class CWorld
     int setVectorProperty(int target, const char* pName, const double* v, int vL);
     int getVectorProperty(int target, const char* pName, std::vector<double>& pState);
     int removeProperty(int target, const char* pName);
-    int getProperty(int target, int index, std::string& pName);
-    int getPropertyInfo(int target, const char* pName, int& info);
-    int hasProperty(int target, const char* pName);
+    int getPropertyName(int target, int& index, std::string& pName);
+    int getPropertyInfo(int target, const char* pName, int& info, int& size);
 
     // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);

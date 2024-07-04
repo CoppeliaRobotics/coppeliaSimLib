@@ -117,9 +117,8 @@ class CSceneObject
     virtual int setVectorProperty(const char* pName, const double* v, int vL);
     virtual int getVectorProperty(const char* pName, std::vector<double>& pState);
     virtual int removeProperty(const char* pName);
-    virtual int getProperty(int index, std::string& pName);
-    virtual int getPropertyInfo(const char* pName, int& info);
-    virtual int hasProperty(const char* pName);
+    virtual int getPropertyName(int& index, std::string& pName);
+    virtual int getPropertyInfo(const char* pName, int& info, int& size);
 
 
     void setRestoreToDefaultLights(bool s);

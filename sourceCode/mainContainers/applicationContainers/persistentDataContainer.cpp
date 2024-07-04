@@ -61,6 +61,24 @@ void CPersistentDataContainer::_writeData(const char *dataName, const std::strin
 {
     if (dataName != nullptr)
     {
+        if (allowEmptyString || (value.size() != 0))
+        { // since we now have typed data, make sure that same-name data of other types is cleared beforehand:
+            std::string nakedTag(dataName);
+            std::string currentTp;
+            size_t p = nakedTag.find("@.");
+            if (p != std::string::npos)
+            {
+                currentTp = std::string(dataName, dataName + p + 2);
+                nakedTag.erase(0, p + 2);
+            }
+            for (size_t i = 0; i < propertyTypes.size(); i++)
+            {
+                std::string tp = propertyTypes[i];
+                if (tp != currentTp)
+                    _writeData((tp + nakedTag).c_str(), "", false);
+            }
+        }
+
         int index = _getDataIndex(dataName);
         if (index == -1)
         {
@@ -94,7 +112,7 @@ bool CPersistentDataContainer::readData(const char *dataName, std::string &value
     return (true);
 }
 
-int CPersistentDataContainer::hasData(const char* dataName, bool checkAllTypes)
+int CPersistentDataContainer::hasData(const char* dataName, bool checkAllTypes, int* dataSize /*= nullptr*/)
 { // returns its type, or -1 if not present
     int retVal = -1;
 
@@ -104,7 +122,7 @@ int CPersistentDataContainer::hasData(const char* dataName, bool checkAllTypes)
         {
             std::string tp = propertyTypes[j];
             tp += dataName;
-            retVal = hasData(tp.c_str(), false);
+            retVal = hasData(tp.c_str(), false, dataSize);
             if (retVal >= 0)
                 break;
         }
@@ -114,6 +132,8 @@ int CPersistentDataContainer::hasData(const char* dataName, bool checkAllTypes)
         std::string dummyVal;
         if (readData(dataName, dummyVal))
         {
+            if (dataSize != nullptr)
+                dataSize[0] = int(dummyVal.size());
             std::string tag(dataName);
             for (size_t j = 0; j < propertyTypes.size(); j++)
             {
@@ -126,6 +146,25 @@ int CPersistentDataContainer::hasData(const char* dataName, bool checkAllTypes)
         }
     }
 
+    return retVal;
+}
+
+bool CPersistentDataContainer::getPropertyName(int& index, std::string& pName)
+{
+    bool retVal = false;
+    for (size_t i = 0; i < _dataNames.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = _dataNames[i].c_str();
+            size_t p = pName.find("@.");
+            if (p != std::string::npos)
+                pName.erase(0, p + 2);
+            retVal = true;
+            break;
+        }
+    }
     return retVal;
 }
 

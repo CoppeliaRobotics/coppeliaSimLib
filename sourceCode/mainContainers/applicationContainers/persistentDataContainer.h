@@ -17,7 +17,8 @@ class CPersistentDataContainer
     void clearData(const char *dataName, bool toFile);
     void writeData(const char *dataName, const std::string &value, bool toFile, bool allowEmptyString);
     bool readData(const char *dataName, std::string &value);
-    int hasData(const char* dataName, bool checkAllTypes);
+    int hasData(const char* dataName, bool checkAllTypes, int* dataSize = nullptr);
+    bool getPropertyName(int& index, std::string& pName);
     int getAllDataNames(std::vector<std::string> &names);
 
   protected:

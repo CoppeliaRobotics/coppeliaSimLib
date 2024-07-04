@@ -17,7 +17,8 @@ class CCustomData
 
     bool setData(const char *tag, const char *data, size_t dataLen, bool allowEmptyData = true);
     bool clearData(const char *tag);
-    int hasData(const char* tag, bool checkAllTypes);
+    int hasData(const char* tag, bool checkAllTypes, int* dataSize = nullptr);
+    bool getPropertyName(int& index, std::string& pName);
     std::string getData(const char *tag) const;
     void getDataEvents(std::map<std::string, bool> &dataEvents); // different from below cbor events
     void clearDataEvents(); // different from below cbor events

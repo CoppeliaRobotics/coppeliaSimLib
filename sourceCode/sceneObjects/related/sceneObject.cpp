@@ -26,12 +26,25 @@
 #include <guiApp.h>
 #endif
 
-std::vector<std::tuple<std::string, int, int>> allProperties = { // "propName", propType, flags (bit0 set: read-only, bit1 set: write-only, bit2 set: removable)
-    {"example1", sim_proptype_bool, 0},
-    {"example2", 2, 20},
-    {"example3", 3, 30},
-    {"example4", 4, 40}
-};
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(prop_modelInvisible,          "modelInvisible",               sim_propertytype_bool,      0) \
+    FUNCX(prop_modelBase,               "modelBase",                    sim_propertytype_bool,      0) \
+    FUNCX(prop_layer,                   "layer",                        sim_propertytype_int32,     0) \
+    FUNCX(prop_childOrder,              "childOrder",                   sim_propertytype_int32,     0) \
+    FUNCX(prop_parentUid,               "parentUid",                    sim_propertytype_int32,     1) \
+    FUNCX(prop_objectProperty,          "objectProperty",               sim_propertytype_int32,     0) \
+    FUNCX(prop_modelProperty,           "modelProperty",                sim_propertytype_int32,     0) \
+
+#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<CProperty> allProps = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
 
 CSceneObject::CSceneObject()
 {
@@ -571,7 +584,7 @@ void CSceneObject::_setModelInvisible(bool inv)
         _modelInvisible = inv;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "modelInvisible";
+            const char *cmd = prop_modelInvisible.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyBool(cmd, inv);
             App::worldContainer->pushEvent();
@@ -765,7 +778,7 @@ void CSceneObject::setModelBase(bool m)
         _modelBase = m;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "modelBase";
+            const char *cmd = prop_modelBase.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyBool(cmd, m);
             App::worldContainer->pushEvent();
@@ -789,7 +802,7 @@ void CSceneObject::setObjectProperty(int p)
         _objectProperty = p;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "objectProperty";
+            const char *cmd = prop_objectProperty.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt(cmd, _objectProperty);
             App::worldContainer->pushEvent();
@@ -862,7 +875,7 @@ bool CSceneObject::setModelProperty(int prop)
         _modelProperty = prop;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "modelProperty";
+            const char *cmd = prop_modelProperty.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt(cmd, _modelProperty);
             App::worldContainer->pushEvent();
@@ -1339,22 +1352,22 @@ void CSceneObject::pushObjectRefreshEvent() const
 
 void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
 {
-    ev->appendKeyInt("layer", _visibilityLayer);
-    ev->appendKeyInt("childOrder", _childOrder);
+    ev->appendKeyInt(prop_layer.name, _visibilityLayer);
+    ev->appendKeyInt(prop_childOrder.name, _childOrder);
     double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                    _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                    _localTransformation.Q(0)};
     ev->appendKeyDoubleArray("pose", p, 7);
     ev->appendKeyString("alias", _objectAlias.c_str());
     ev->appendKeyString("oldName", _objectName_old.c_str());
-    ev->appendKeyBool("modelInvisible", _modelInvisible);
-    ev->appendKeyBool("modelBase", _modelBase);
-    ev->appendKeyInt("objectProperty", _objectProperty);
-    ev->appendKeyInt("modelProperty", _modelProperty);
+    ev->appendKeyBool(prop_modelInvisible.name, _modelInvisible);
+    ev->appendKeyBool(prop_modelBase.name, _modelBase);
+    ev->appendKeyInt(prop_objectProperty.name, _objectProperty);
+    ev->appendKeyInt(prop_modelProperty.name, _modelProperty);
     long long int pUid = -1;
     if (_parentObject != nullptr)
         pUid = _parentObject->getObjectUid();
-    ev->appendKeyInt("parentUid", pUid);
+    ev->appendKeyInt(prop_parentUid.name, pUid);
     ev->openKeyMap("boundingBox");
     _bbFrame.getData(p, true);
     ev->appendKeyDoubleArray("pose", p, 7);
@@ -2191,7 +2204,7 @@ bool CSceneObject::setParent(CSceneObject *parent)
         _parentObject = parent;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "parentUid";
+            const char *cmd = prop_parentUid.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             long long int pUid = -1;
             if (_parentObject != nullptr)
@@ -3153,11 +3166,11 @@ void CSceneObject::serialize(CSer &ar)
 
             ar.xmlPopNode();
 
-            ar.xmlAddNode_int("layer", _visibilityLayer);
-            ar.xmlAddNode_int("childOrder", _childOrder);
+            ar.xmlAddNode_int(prop_layer.name, _visibilityLayer);
+            ar.xmlAddNode_int(prop_childOrder.name, _childOrder);
 
             ar.xmlPushNewNode("switches");
-            ar.xmlAddNode_bool("modelBase", _modelBase);
+            ar.xmlAddNode_bool(prop_modelBase.name, _modelBase);
             ar.xmlPopNode();
 
             if (exhaustiveXml)
@@ -3460,7 +3473,7 @@ void CSceneObject::serialize(CSer &ar)
 
                 if (ar.xmlPushChildNode("switches", exhaustiveXml))
                 {
-                    ar.xmlGetNode_bool("modelBase", _modelBase, exhaustiveXml);
+                    ar.xmlGetNode_bool(prop_modelBase.name, _modelBase, exhaustiveXml);
                     ar.xmlGetNode_bool("ignoredByViewFitting", _ignoredByViewFitting_backCompat, false);
                     ar.xmlPopNode();
 
@@ -3493,10 +3506,10 @@ void CSceneObject::serialize(CSer &ar)
                 }
 
                 int l;
-                if (ar.xmlGetNode_int("layer", l, exhaustiveXml))
+                if (ar.xmlGetNode_int(prop_layer.name, l, exhaustiveXml))
                     _visibilityLayer = (unsigned short)l;
 
-                if (ar.xmlGetNode_int("childOrder", l,
+                if (ar.xmlGetNode_int(prop_childOrder.name, l,
                                       false)) // Keep false for compatibility with older versions! exhaustiveXml))
                     _childOrder = l;
 
@@ -4946,7 +4959,7 @@ void CSceneObject::setVisibilityLayer(unsigned short l)
         _visibilityLayer = l;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "layer";
+            const char *cmd = prop_layer.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt(cmd, l);
             App::worldContainer->pushEvent();
@@ -4962,7 +4975,7 @@ void CSceneObject::setChildOrder(int order)
         _childOrder = order;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "childOrder";
+            const char *cmd = prop_childOrder.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyInt(cmd, order);
             App::worldContainer->pushEvent();
@@ -5195,12 +5208,12 @@ int CSceneObject::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = -1;
 
-    if (strcmp(pName, "modelInvisible") == 0)
+    if (strcmp(pName, prop_modelInvisible.name) == 0)
     {
         retVal = 1;
         _setModelInvisible(pState);
     }
-    else if (strcmp(pName, "modelBase") == 0)
+    else if (strcmp(pName, prop_modelBase.name) == 0)
     {
         retVal = 1;
         setModelBase(pState);
@@ -5213,12 +5226,12 @@ int CSceneObject::getBoolProperty(const char* pName, bool& pState)
 {
     int retVal = -1;
 
-    if (strcmp(pName, "modelInvisible") == 0)
+    if (strcmp(pName, prop_modelInvisible.name) == 0)
     {
         retVal = 1;
         pState = _modelInvisible;
     }
-    else if (strcmp(pName, "modelBase") == 0)
+    else if (strcmp(pName, prop_modelBase.name) == 0)
     {
         retVal = 1;
         pState = _modelBase;
@@ -5231,17 +5244,24 @@ int CSceneObject::setInt32Property(const char* pName, int pState)
 {
     int retVal = -1;
 
-    if (strcmp(pName, "layer") == 0)
+    if (strcmp(pName, prop_layer.name) == 0)
     {
         retVal = 1;
         setVisibilityLayer(pState);
     }
-    else if (strcmp(pName, "objectProperty") == 0)
+    else if (strcmp(pName, prop_childOrder.name) == 0)
+    {
+        if (App::currentWorld->sceneObjects->setObjectSequence(this, pState))
+            retVal = 1;
+        else
+            retVal = 0;
+    }
+    else if (strcmp(pName, prop_objectProperty.name) == 0)
     {
         retVal = 1;
         setObjectProperty(pState);
     }
-    else if (strcmp(pName, "modelProperty") == 0)
+    else if (strcmp(pName, prop_modelProperty.name) == 0)
     {
         retVal = 1;
         setModelProperty(pState);
@@ -5254,29 +5274,29 @@ int CSceneObject::getInt32Property(const char* pName, int& pState)
 {
     int retVal = -1;
 
-    if (strcmp(pName, "layer") == 0)
+    if (strcmp(pName, prop_layer.name) == 0)
     {
         retVal = 1;
         pState = _visibilityLayer;
     }
-    else if (strcmp(pName, "childOrder") == 0)
+    else if (strcmp(pName, prop_childOrder.name) == 0)
     {
         retVal = 1;
         pState = _childOrder;
     }
-    else if (strcmp(pName, "parentUid") == 0)
+    else if (strcmp(pName, prop_parentUid.name) == 0)
     {
         retVal = 1;
         pState = -1;
         if (_parentObject != nullptr)
             pState = _parentObject->getObjectUid();
     }
-    else if (strcmp(pName, "objectProperty") == 0)
+    else if (strcmp(pName, prop_objectProperty.name) == 0)
     {
         retVal = 1;
         pState = _objectProperty;
     }
-    else if (strcmp(pName, "modelProperty") == 0)
+    else if (strcmp(pName, prop_modelProperty.name) == 0)
     {
         retVal = 1;
         pState = _modelProperty;
@@ -5488,7 +5508,16 @@ int CSceneObject::removeProperty(const char* pName)
             int tp = customObjectData.hasData(pN.c_str(), true);
             if (tp >= 0)
             {
-                customObjectData.clearData((propertyTypes[tp] + pN).c_str());
+                bool diff = customObjectData.clearData((propertyTypes[tp] + pN).c_str());
+                if (diff && _isInScene && App::worldContainer->getEventsEnabled())
+                {
+                    const char *cmd = "customData";
+                    CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, false);
+                    ev->openKeyMap(cmd);
+                    customObjectData.appendEventData(ev);
+                    customObjectData_tempData_old.appendEventData(ev);
+                    App::worldContainer->pushEvent();
+                }
                 retVal = 1;
             }
         }
@@ -5497,35 +5526,54 @@ int CSceneObject::removeProperty(const char* pName)
     return retVal;
 }
 
-int CSceneObject::getProperty(int index, std::string& pName)
+int CSceneObject::getPropertyName(int& index, std::string& pName)
 {
     int retVal = -1;
-
+    for (size_t i = 0; i < allProps.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps[i].name;
+            retVal = 1;
+            break;
+        }
+    }
+    if (retVal == -1)
+    {
+        if (customObjectData.getPropertyName(index, pName))
+        {
+            pName = "customData." + pName;
+            retVal = 1;
+        }
+    }
     return retVal;
 }
 
-int CSceneObject::getPropertyInfo(const char* pName, int& info)
+int CSceneObject::getPropertyInfo(const char* pName, int& info, int& size)
 {
     int retVal = -1;
-
-    return retVal;
-}
-
-int CSceneObject::hasProperty(const char* pName)
-{
-    int retVal = 0;
-
-    if (strncmp(pName, "customData.", 11) == 0)
+    for (size_t i = 0; i < allProps.size(); i++)
+    {
+        if (strcmp(allProps[i].name, pName) == 0)
+        {
+            retVal = allProps[i].type;
+            info = allProps[i].flags;
+            size = 0;
+            break;
+        }
+    }
+    if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
     {
         std::string pN(pName);
         pN.erase(0, 11);
         if (pN.size() > 0)
         {
-            if (customObjectData.hasData(pN.c_str(), true) >= 0)
-                retVal = 1;
+            retVal = customObjectData.hasData(pN.c_str(), true, &size);
+            if (retVal >= 0)
+                info = 4; // removable
         }
     }
-
     return retVal;
 }
 

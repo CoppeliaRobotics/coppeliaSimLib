@@ -11,20 +11,10 @@
 #include <simQApp.h>
 #endif
 
-enum { /* properties type */
-    sim_proptype_bool,
-    sim_proptype_int32,
-    sim_proptype_float,
-    sim_proptype_string,
-    sim_proptype_buffer,
-    sim_proptype_vector3,
-    sim_proptype_quaternion,
-    sim_proptype_pose,
-    sim_proptype_matrix3x3,
-    sim_proptype_matrix4x4,
-    sim_proptype_color,
-    sim_proptype_vector,
-    sim_proptype_table,
+struct CProperty {
+    const char* name;
+    int type;
+    int flags;
 };
 
 #define proptypetag_bool "@bool@."
@@ -157,9 +147,8 @@ class App
     static int setVectorProperty(int target, const char* pName, const double* v, int vL);
     static int getVectorProperty(int target, const char* pName, std::vector<double>& pState);
     static int removeProperty(int target, const char* pName);
-    static int getProperty(int target, int index, std::string& pName);
-    static int getPropertyInfo(int target, const char* pName, int& info);
-    static int hasProperty(int target, const char* pName);
+    static int getPropertyName(int target, int& index, std::string& pName);
+    static int getPropertyInfo(int target, const char* pName, int& info, int& size);
 
     static void undoRedo_sceneChanged(const char *txt);
     static void undoRedo_sceneChangedGradual(const char *txt);

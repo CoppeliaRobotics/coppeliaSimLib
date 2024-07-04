@@ -113,7 +113,7 @@ bool CCustomData::clearData(const char *tag)
     return (diff);
 }
 
-int CCustomData::hasData(const char* tag, bool checkAllTypes)
+int CCustomData::hasData(const char* tag, bool checkAllTypes, int* dataSize /*= nullptr*/)
 { // returns its type, or -1 if not present
     int retVal = -1;
 
@@ -123,7 +123,7 @@ int CCustomData::hasData(const char* tag, bool checkAllTypes)
         {
             std::string tp = propertyTypes[j];
             tp += tag;
-            retVal = hasData(tp.c_str(), false);
+            retVal = hasData(tp.c_str(), false, dataSize);
             if (retVal >= 0)
                 break;
         }
@@ -138,10 +138,12 @@ int CCustomData::hasData(const char* tag, bool checkAllTypes)
                 {
                     if (_data[i].tag.find(propertyTypes[j]) != std::string::npos)
                     {
-                        retVal = j;
+                        retVal = int(j);
                         break;
                     }
                 }
+                if (dataSize != nullptr)
+                    dataSize[0] = int(_data[i].data.size());
                 break;
             }
         }
@@ -162,6 +164,25 @@ std::string CCustomData::getData(const char *tag) const
         }
     }
     return (retVal);
+}
+
+bool CCustomData::getPropertyName(int& index, std::string& pName)
+{
+    bool retVal = false;
+    for (size_t i = 0; i < _data.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = _data[i].tag;
+            size_t p = pName.find("@.");
+            if (p != std::string::npos)
+                pName.erase(0, p + 2);
+            retVal = true;
+            break;
+        }
+    }
+    return retVal;
 }
 
 size_t CCustomData::getDataCount() const
