@@ -1816,7 +1816,7 @@ int App::removeProperty(int target, const char* pName)
                 int tp = worldContainer->customAppData.hasData(pN.c_str(), true);
                 if (tp >= 0)
                 {
-                    worldContainer->customAppData.clearData((propertyTypes[tp] + pN).c_str());
+                    worldContainer->customAppData.clearData((propertyStrings[tp] + pN).c_str());
                     retVal = 1;
                 }
             }
@@ -1840,7 +1840,7 @@ int App::removeProperty(int target, const char* pName)
             {
                 if (canBeRemoved)
                 {
-                    cont.clearData((propertyTypes[tp] + pN).c_str(), true);
+                    cont.clearData((propertyStrings[tp] + pN).c_str(), true);
                     retVal = 1;
                 }
                 else

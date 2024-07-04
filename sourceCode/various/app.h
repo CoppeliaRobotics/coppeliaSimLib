@@ -31,20 +31,38 @@ struct CProperty {
 #define proptypetag_vector "@vect@."
 #define proptypetag_table "@tbl@."
 
-static std::vector<std::string> propertyTypes = {
-    proptypetag_bool,
-    proptypetag_int32,
-    proptypetag_float,
-    proptypetag_string,
-    proptypetag_buffer,
-    proptypetag_vector3,
-    proptypetag_quaternion,
-    proptypetag_pose,
-    proptypetag_matrix3x3,
-    proptypetag_matrix4x4,
-    proptypetag_color,
-    proptypetag_vector,
-    proptypetag_table,
+static std::vector<std::pair<int, std::string>> propertyTypes = {
+    {sim_propertytype_bool, proptypetag_bool},
+    {sim_propertytype_int32, proptypetag_int32},
+    {sim_propertytype_float, proptypetag_float},
+    {sim_propertytype_string, proptypetag_string},
+    {sim_propertytype_vector3, proptypetag_vector3},
+    {sim_propertytype_quaternion, proptypetag_quaternion},
+    {sim_propertytype_pose, proptypetag_pose},
+    {sim_propertytype_matrix3x3, proptypetag_matrix3x3},
+    {sim_propertytype_matrix4x4, proptypetag_matrix4x4},
+    {sim_propertytype_color, proptypetag_color},
+    {sim_propertytype_vector, proptypetag_vector},
+    {sim_propertytype_table, proptypetag_table},
+
+    {sim_propertytype_buffer, proptypetag_buffer}, // keep always at the end
+};
+
+static std::map<int, std::string> propertyStrings = {
+    {sim_propertytype_bool, proptypetag_bool},
+    {sim_propertytype_int32, proptypetag_int32},
+    {sim_propertytype_float, proptypetag_float},
+    {sim_propertytype_string, proptypetag_string},
+    {sim_propertytype_vector3, proptypetag_vector3},
+    {sim_propertytype_quaternion, proptypetag_quaternion},
+    {sim_propertytype_pose, proptypetag_pose},
+    {sim_propertytype_matrix3x3, proptypetag_matrix3x3},
+    {sim_propertytype_matrix4x4, proptypetag_matrix4x4},
+    {sim_propertytype_color, proptypetag_color},
+    {sim_propertytype_vector, proptypetag_vector},
+    {sim_propertytype_table, proptypetag_table},
+
+    {sim_propertytype_buffer, proptypetag_buffer},
 };
 
 class App

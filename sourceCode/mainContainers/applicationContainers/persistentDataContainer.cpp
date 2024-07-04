@@ -72,7 +72,7 @@ void CPersistentDataContainer::_writeData(const char *dataName, const std::strin
         }
         for (size_t i = 0; i < propertyTypes.size(); i++)
         {
-            std::string tp = propertyTypes[i];
+            std::string tp = propertyTypes[i].second;
             int index = _getDataIndex((tp + nakedTag).c_str());
             if (index != -1)
             { // we have to remove this data:
@@ -108,7 +108,7 @@ int CPersistentDataContainer::hasData(const char* dataName, bool checkAllTypes, 
     {
         for (size_t j = 0; j < propertyTypes.size(); j++)
         {
-            std::string tp = propertyTypes[j];
+            std::string tp = propertyTypes[j].second;
             tp += dataName;
             retVal = hasData(tp.c_str(), false, dataSize);
             if (retVal >= 0)
@@ -125,9 +125,9 @@ int CPersistentDataContainer::hasData(const char* dataName, bool checkAllTypes, 
             std::string tag(dataName);
             for (size_t j = 0; j < propertyTypes.size(); j++)
             {
-                if (tag.find(propertyTypes[j]) != std::string::npos)
+                if (tag.find(propertyTypes[j].second) != std::string::npos)
                 {
-                    retVal = j;
+                    retVal = propertyTypes[j].first;
                     break;
                 }
             }

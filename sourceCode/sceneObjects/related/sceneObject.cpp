@@ -5508,7 +5508,7 @@ int CSceneObject::removeProperty(const char* pName)
             int tp = customObjectData.hasData(pN.c_str(), true);
             if (tp >= 0)
             {
-                bool diff = customObjectData.clearData((propertyTypes[tp] + pN).c_str());
+                bool diff = customObjectData.clearData((propertyStrings[tp] + pN).c_str());
                 if (diff && _isInScene && App::worldContainer->getEventsEnabled())
                 {
                     const char *cmd = "customData";

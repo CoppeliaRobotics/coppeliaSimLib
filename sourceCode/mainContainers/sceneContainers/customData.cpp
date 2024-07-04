@@ -35,7 +35,7 @@ bool CCustomData::setData(const char *tag, const char *data, size_t dataLen, boo
             }
             for (size_t i = 0; i < propertyTypes.size(); i++)
             {
-                std::string tp = propertyTypes[i];
+                std::string tp = propertyTypes[i].second;
                 if (tp != currentTp)
                     diff = clearData((tp + nakedTag).c_str()) || diff;
             }
@@ -121,7 +121,7 @@ int CCustomData::hasData(const char* tag, bool checkAllTypes, int* dataSize /*= 
     {
         for (size_t j = 0; j < propertyTypes.size(); j++)
         {
-            std::string tp = propertyTypes[j];
+            std::string tp = propertyTypes[j].second;
             tp += tag;
             retVal = hasData(tp.c_str(), false, dataSize);
             if (retVal >= 0)
@@ -136,9 +136,9 @@ int CCustomData::hasData(const char* tag, bool checkAllTypes, int* dataSize /*= 
             {
                 for (size_t j = 0; j < propertyTypes.size(); j++)
                 {
-                    if (_data[i].tag.find(propertyTypes[j]) != std::string::npos)
+                    if (_data[i].tag.find(propertyTypes[j].second) != std::string::npos)
                     {
-                        retVal = int(j);
+                        retVal = propertyTypes[j].first;
                         break;
                     }
                 }

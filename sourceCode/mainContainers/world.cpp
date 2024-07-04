@@ -2815,7 +2815,7 @@ int CWorld::removeProperty(int target, const char* pName)
                 int tp = customSceneData.hasData(pN.c_str(), true);
                 if (tp >= 0)
                 {
-                    customSceneData.clearData((propertyTypes[tp] + pN).c_str());
+                    customSceneData.clearData((propertyStrings[tp] + pN).c_str());
                     retVal = 1;
                 }
             }
