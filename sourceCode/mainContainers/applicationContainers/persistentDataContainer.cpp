@@ -61,42 +61,30 @@ void CPersistentDataContainer::_writeData(const char *dataName, const std::strin
 {
     if (dataName != nullptr)
     {
-        if (allowEmptyString || (value.size() != 0))
-        { // since we now have typed data, make sure that same-name data of other types is cleared beforehand:
-            std::string nakedTag(dataName);
-            std::string currentTp;
-            size_t p = nakedTag.find("@.");
-            if (p != std::string::npos)
-            {
-                currentTp = std::string(dataName, dataName + p + 2);
-                nakedTag.erase(0, p + 2);
-            }
-            for (size_t i = 0; i < propertyTypes.size(); i++)
-            {
-                std::string tp = propertyTypes[i];
-                if (tp != currentTp)
-                    _writeData((tp + nakedTag).c_str(), "", false);
-            }
-        }
-
-        int index = _getDataIndex(dataName);
-        if (index == -1)
+        // since we now have typed data, make sure to first clear all same-name data of all types:
+        std::string nakedTag(dataName);
+        std::string currentTp;
+        size_t p = nakedTag.find("@.");
+        if (p != std::string::npos)
         {
-            if (strlen(dataName) != 0)
-            { // we have to add this data:
-                _dataNames.push_back(dataName);
-                _dataValues.push_back(value);
-            }
+            currentTp = std::string(dataName, dataName + p + 2);
+            nakedTag.erase(0, p + 2);
         }
-        else
+        for (size_t i = 0; i < propertyTypes.size(); i++)
         {
-            if (allowEmptyString || (value.length() != 0) )
-                _dataValues[index] = value; // we have to update this data:
-            else
+            std::string tp = propertyTypes[i];
+            int index = _getDataIndex((tp + nakedTag).c_str());
+            if (index != -1)
             { // we have to remove this data:
                 _dataNames.erase(_dataNames.begin() + index);
                 _dataValues.erase(_dataValues.begin() + index);
             }
+        }
+
+        if ( (value.size() != 0) || allowEmptyString)
+        { // we have to add this data:
+            _dataNames.push_back(dataName);
+            _dataValues.push_back(value);
         }
     }
 }

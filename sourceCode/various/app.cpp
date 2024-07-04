@@ -1517,8 +1517,19 @@ int App::setBufferProperty(int target, const char* pName, const char* buffer, in
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
+                pN += "@customData"; // we add a suffix to separate user and system data
                 CPersistentDataContainer cont("appStorage.dat");
                 cont.writeData(pN.c_str(), std::string(buffer, buffer + bufferL), true, true);
+                retVal = 1;
+            }
+        }
+        else
+        {
+            std::string dummyVal;
+            if (getBufferProperty(target, pName, dummyVal) == 1)
+            { // we can only modify it if it exists
+                CPersistentDataContainer cont("appStorage.dat");
+                cont.writeData(pName, std::string(buffer, buffer + bufferL), true, true);
                 retVal = 1;
             }
         }
@@ -1549,16 +1560,17 @@ int App::getBufferProperty(int target, const char* pName, std::string& pState)
     }
     else if (target == sim_handle_appstorage)
     {
+        std::string pN(pName);
         if (strncmp(pName, "customData.", 11) == 0)
         {
-            std::string pN(pName);
             pN.erase(0, 11);
-            if (pN.size() > 0)
-            {
-                CPersistentDataContainer cont("appStorage.dat");
-                if (cont.readData(pN.c_str(), pState))
-                    retVal = 1;
-            }
+            pN += "@customData"; // we add a suffix to separate user and system data
+        }
+        if (pN.size() > 0)
+        {
+            CPersistentDataContainer cont("appStorage.dat");
+            if (cont.readData(pN.c_str(), pState))
+                retVal = 1;
         }
     }
     else if (currentWorld != nullptr)
@@ -1812,19 +1824,27 @@ int App::removeProperty(int target, const char* pName)
     }
     else if (target == sim_handle_appstorage)
     {
+        std::string pN(pName);
+        bool canBeRemoved = false;
         if (strncmp(pName, "customData.", 11) == 0)
         {
-            std::string pN(pName);
+            canBeRemoved = true;
             pN.erase(0, 11);
-            if (pN.size() > 0)
+            pN += "@customData"; // we add a suffix to separate user and system data
+        }
+        if (pN.size() > 0)
+        {
+            CPersistentDataContainer cont("appStorage.dat");
+            int tp = cont.hasData(pN.c_str(), true);
+            if (tp >= 0)
             {
-                CPersistentDataContainer cont("appStorage.dat");
-                int tp = cont.hasData(pN.c_str(), true);
-                if (tp >= 0)
+                if (canBeRemoved)
                 {
                     cont.clearData((propertyTypes[tp] + pN).c_str(), true);
                     retVal = 1;
                 }
+                else
+                    retVal = 0;
             }
         }
     }
@@ -1862,7 +1882,12 @@ int App::getPropertyName(int target, int& index, std::string& pName)
         CPersistentDataContainer cont("appStorage.dat");
         if (cont.getPropertyName(index, pName))
         {
-            pName = "customData." + pName;
+            size_t p = pName.find("@customData");
+            if (p != std::string::npos)
+            {
+                pName.erase(p);
+                pName = "customData." + pName;
+            }
             retVal = 1;
         }
     }
@@ -1898,16 +1923,22 @@ int App::getPropertyInfo(int target, const char* pName, int& info, int& size)
             }
         }
     }
-    else if ( (target == sim_handle_appstorage) && (strncmp(pName, "customData.", 11) == 0) )
+    else if (target == sim_handle_appstorage)
     {
         std::string pN(pName);
-        pN.erase(0, 11);
+        int inf = 0;
+        if (strncmp(pName, "customData.", 11) == 0)
+        {
+            pN.erase(0, 11);
+            pN += "@customData";
+            inf = 4; // removable
+        }
         if (pN.size() > 0)
         {
             CPersistentDataContainer cont("appStorage.dat");
             retVal = cont.hasData(pN.c_str(), true, &size);
             if (retVal >= 0)
-                info = 4; // removable
+                info = inf;
         }
     }
     else if (currentWorld != nullptr)
