@@ -32,10 +32,14 @@
     FUNCX(prop_modelInvisible,          "modelInvisible",               sim_propertytype_bool,      0) \
     FUNCX(prop_modelBase,               "modelBase",                    sim_propertytype_bool,      0) \
     FUNCX(prop_layer,                   "layer",                        sim_propertytype_int,     0) \
-    FUNCX(prop_childOrder,              "childOrder",                   sim_propertytype_int,     0) \
+    FUNCX(prop_childOrder,              "childOrder",                   sim_propertytype_int,     1) \
     FUNCX(prop_parentUid,               "parentUid",                    sim_propertytype_int,     1) \
     FUNCX(prop_objectProperty,          "objectProperty",               sim_propertytype_int,     0) \
     FUNCX(prop_modelProperty,           "modelProperty",                sim_propertytype_int,     0) \
+    FUNCX(prop_pose,                    "pose",                         sim_propertytype_pose,    0) \
+    FUNCX(prop_alias,                   "alias",                        sim_propertytype_string,  0) \
+    FUNCX(prop_bbPose,                  "boundingBox.pose",             sim_propertytype_pose,    1) \
+    FUNCX(prop_bbHsize,                 "boundingBox.hsize",            sim_propertytype_vector3, 1) \
 
 #define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -1357,8 +1361,8 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                    _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                    _localTransformation.Q(0)};
-    ev->appendKeyDoubleArray("pose", p, 7);
-    ev->appendKeyString("alias", _objectAlias.c_str());
+    ev->appendKeyDoubleArray(prop_pose.name, p, 7);
+    ev->appendKeyString(prop_alias.name, _objectAlias.c_str());
     ev->appendKeyString("oldName", _objectName_old.c_str());
     ev->appendKeyBool(prop_modelInvisible.name, _modelInvisible);
     ev->appendKeyBool(prop_modelBase.name, _modelBase);
@@ -1370,7 +1374,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     ev->appendKeyInt(prop_parentUid.name, pUid);
     ev->openKeyMap("boundingBox");
     _bbFrame.getData(p, true);
-    ev->appendKeyDoubleArray("pose", p, 7);
+    ev->appendKeyDoubleArray(prop_pose.name, p, 7);
     ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
     ev->closeArrayOrMap();
     ev->openKeyMap("customData");
@@ -1822,7 +1826,7 @@ void CSceneObject::_setBB(const C7Vector &bbFrame, const C3Vector &bbHalfSize)
             ev->openKeyMap(cmd);
             double p[7] = {_bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2), _bbFrame.Q(1),
                            _bbFrame.Q(2), _bbFrame.Q(3), _bbFrame.Q(0)};
-            ev->appendKeyDoubleArray("pose", p, 7);
+            ev->appendKeyDoubleArray(prop_pose.name, p, 7);
             ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
             App::worldContainer->pushEvent();
         }
@@ -3040,9 +3044,9 @@ void CSceneObject::serialize(CSer &ar)
             ar.xmlPushNewNode("common");
 
             if (exhaustiveXml)
-                ar.xmlAddNode_string("alias", _objectAlias.c_str());
+                ar.xmlAddNode_string(prop_alias.name, _objectAlias.c_str());
             else
-                ar.xmlAddNode_string("alias", (_objectAlias + "*" + std::to_string(_objectHandle)).c_str());
+                ar.xmlAddNode_string(prop_alias.name, (_objectAlias + "*" + std::to_string(_objectHandle)).c_str());
             ar.xmlAddNode_comment(" 'name' and 'altName' tags only used for backward compatibility:", exhaustiveXml);
             ar.xmlAddNode_string("name", _objectName_old.c_str());
             ar.xmlAddNode_string("altName", _objectAltName_old.c_str());
@@ -3339,7 +3343,7 @@ void CSceneObject::serialize(CSer &ar)
             if (ar.xmlPushChildNode("common", exhaustiveXml))
             {
                 aliasFound = ar.xmlGetNode_string(
-                    "alias", _objectAlias, false); // keep false for compatibility with older versions! exhaustiveXml);
+                    prop_alias.name, _objectAlias, false); // keep false for compatibility with older versions! exhaustiveXml);
                 if (aliasFound)
                 {
                     _objectTempAlias = _objectAlias;
@@ -5013,7 +5017,7 @@ void CSceneObject::setObjectAlias_direct(const char *newName)
         _objectAlias = newName;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "alias";
+            const char *cmd = prop_alias.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->appendKeyString(cmd, newName);
             App::worldContainer->pushEvent();
@@ -5039,7 +5043,7 @@ void CSceneObject::setLocalTransformation(const C7Vector &tr)
         _localTransformation = tr;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "pose";
+            const char *cmd = prop_pose.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             double p[7] = {tr.X(0), tr.X(1), tr.X(2), tr.Q(1), tr.Q(2), tr.Q(3), tr.Q(0)};
             ev->appendKeyDoubleArray(cmd, p, 7);
@@ -5057,7 +5061,7 @@ void CSceneObject::setLocalTransformation(const C4Vector &q)
         _localTransformation.Q = q;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "pose";
+            const char *cmd = prop_pose.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                            _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
@@ -5079,7 +5083,7 @@ void CSceneObject::setLocalTransformation(const C3Vector &x)
         _localTransformation.X = x;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "pose";
+            const char *cmd = prop_pose.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                            _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
@@ -5249,6 +5253,7 @@ int CSceneObject::setIntProperty(const char* pName, int pState)
         retVal = 1;
         setVisibilityLayer(pState);
     }
+    /*
     else if (strcmp(pName, prop_childOrder.name) == 0)
     {
         if (App::currentWorld->sceneObjects->setObjectSequence(this, pState))
@@ -5256,6 +5261,7 @@ int CSceneObject::setIntProperty(const char* pName, int pState)
         else
             retVal = 0;
     }
+    */
     else if (strcmp(pName, prop_objectProperty.name) == 0)
     {
         retVal = 1;
@@ -5323,7 +5329,7 @@ int CSceneObject::setStringProperty(const char* pName, const char* pState)
 {
     int retVal = -1;
 
-    if (strcmp(pName, "alias") == 0)
+    if (strcmp(pName, prop_alias.name) == 0)
     {
         if (App::currentWorld->sceneObjects->setObjectAlias(this, pState, false))
             retVal = 1;
@@ -5338,7 +5344,7 @@ int CSceneObject::getStringProperty(const char* pName, std::string& pState)
 {
     int retVal = -1;
 
-    if (strcmp(pName, "alias") == 0)
+    if (strcmp(pName, prop_alias.name) == 0)
     {
         retVal = 1;
         pState = _objectAlias;
@@ -5406,6 +5412,12 @@ int CSceneObject::getVector3Property(const char* pName, C3Vector& pState)
 {
     int retVal = -1;
 
+    if (strcmp(pName, prop_bbHsize.name) == 0)
+    {
+        retVal = 1;
+        pState = _bbHalfSize;
+    }
+
     return retVal;
 }
 
@@ -5427,12 +5439,29 @@ int CSceneObject::setPoseProperty(const char* pName, const C7Vector& pState)
 {
     int retVal = -1;
 
+    if (strcmp(pName, prop_pose.name) == 0)
+    {
+        retVal = 1;
+        setLocalTransformation(pState);
+    }
+
     return retVal;
 }
 
 int CSceneObject::getPoseProperty(const char* pName, C7Vector& pState)
 {
     int retVal = -1;
+
+    if (strcmp(pName, prop_pose.name) == 0)
+    {
+        retVal = 1;
+        pState = _localTransformation;
+    }
+    if (strcmp(pName, prop_bbPose.name) == 0)
+    {
+        retVal = 1;
+        pState = _bbFrame;
+    }
 
     return retVal;
 }
