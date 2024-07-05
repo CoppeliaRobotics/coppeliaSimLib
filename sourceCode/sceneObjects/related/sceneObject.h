@@ -94,8 +94,8 @@ class CSceneObject
 
     virtual int setBoolProperty(const char* pName, bool pState);
     virtual int getBoolProperty(const char* pName, bool& pState);
-    virtual int setInt32Property(const char* pName, int pState);
-    virtual int getInt32Property(const char* pName, int& pState);
+    virtual int setIntProperty(const char* pName, int pState);
+    virtual int getIntProperty(const char* pName, int& pState);
     virtual int setFloatProperty(const char* pName, double pState);
     virtual int getFloatProperty(const char* pName, double& pState);
     virtual int setStringProperty(const char* pName, const char* pState);
@@ -116,6 +116,8 @@ class CSceneObject
     virtual int getColorProperty(const char* pName, float* pState);
     virtual int setVectorProperty(const char* pName, const double* v, int vL);
     virtual int getVectorProperty(const char* pName, std::vector<double>& pState);
+    virtual int setIntVectorProperty(const char* pName, const int* v, int vL);
+    virtual int getIntVectorProperty(const char* pName, std::vector<int>& pState);
     virtual int removeProperty(const char* pName);
     virtual int getPropertyName(int& index, std::string& pName);
     virtual int getPropertyInfo(const char* pName, int& info, int& size);

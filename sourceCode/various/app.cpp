@@ -1399,7 +1399,7 @@ int App::getBoolProperty(int target, const char* pName, bool& pState)
     return retVal;
 }
 
-int App::setInt32Property(int target, const char* pName, int pState)
+int App::setIntProperty(int target, const char* pName, int pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1411,11 +1411,11 @@ int App::setInt32Property(int target, const char* pName, int pState)
 
     }
     else if (currentWorld != nullptr)
-        retVal = currentWorld->setInt32Property(target, pName, pState);
+        retVal = currentWorld->setIntProperty(target, pName, pState);
     return retVal;
 }
 
-int App::getInt32Property(int target, const char* pName, int& pState)
+int App::getIntProperty(int target, const char* pName, int& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1427,7 +1427,7 @@ int App::getInt32Property(int target, const char* pName, int& pState)
 
     }
     else if (currentWorld != nullptr)
-        retVal = currentWorld->getInt32Property(target, pName, pState);
+        retVal = currentWorld->getIntProperty(target, pName, pState);
     return retVal;
 }
 
@@ -1517,7 +1517,7 @@ int App::setBufferProperty(int target, const char* pName, const char* buffer, in
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
-                pN += "@customData"; // we add a suffix to separate user and system data
+                pN += "&customData"; // we add a suffix to separate user and system data
                 CPersistentDataContainer cont("appStorage.dat");
                 cont.writeData(pN.c_str(), std::string(buffer, buffer + bufferL), true, true);
                 retVal = 1;
@@ -1564,7 +1564,7 @@ int App::getBufferProperty(int target, const char* pName, std::string& pState)
         if (strncmp(pName, "customData.", 11) == 0)
         {
             pN.erase(0, 11);
-            pN += "@customData"; // we add a suffix to separate user and system data
+            pN += "&customData"; // we add a suffix to separate user and system data
         }
         if (pN.size() > 0)
         {
@@ -1802,6 +1802,38 @@ int App::getVectorProperty(int target, const char* pName, std::vector<double>& p
     return retVal;
 }
 
+int App::setIntVectorProperty(int target, const char* pName, const int* v, int vL)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+
+    }
+    else if (target == sim_handle_appstorage)
+    {
+
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->setIntVectorProperty(target, pName, v, vL);
+    return retVal;
+}
+
+int App::getIntVectorProperty(int target, const char* pName, std::vector<int>& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+
+    }
+    else if (target == sim_handle_appstorage)
+    {
+
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getIntVectorProperty(target, pName, pState);
+    return retVal;
+}
+
 int App::removeProperty(int target, const char* pName)
 {
     int retVal = -1;
@@ -1830,7 +1862,7 @@ int App::removeProperty(int target, const char* pName)
         {
             canBeRemoved = true;
             pN.erase(0, 11);
-            pN += "@customData"; // we add a suffix to separate user and system data
+            pN += "&customData"; // we add a suffix to separate user and system data
         }
         if (pN.size() > 0)
         {
@@ -1882,7 +1914,7 @@ int App::getPropertyName(int target, int& index, std::string& pName)
         CPersistentDataContainer cont("appStorage.dat");
         if (cont.getPropertyName(index, pName))
         {
-            size_t p = pName.find("@customData");
+            size_t p = pName.find("&customData");
             if (p != std::string::npos)
             {
                 pName.erase(p);
@@ -1930,7 +1962,7 @@ int App::getPropertyInfo(int target, const char* pName, int& info, int& size)
         if (strncmp(pName, "customData.", 11) == 0)
         {
             pN.erase(0, 11);
-            pN += "@customData";
+            pN += "&customData";
             inf = 4; // removable
         }
         if (pN.size() > 0)

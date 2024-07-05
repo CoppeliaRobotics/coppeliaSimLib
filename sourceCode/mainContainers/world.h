@@ -85,8 +85,8 @@ class CWorld
 
     int setBoolProperty(int target, const char* pName, bool pState);
     int getBoolProperty(int target, const char* pName, bool& pState);
-    int setInt32Property(int target, const char* pName, int pState);
-    int getInt32Property(int target, const char* pName, int& pState);
+    int setIntProperty(int target, const char* pName, int pState);
+    int getIntProperty(int target, const char* pName, int& pState);
     int setFloatProperty(int target, const char* pName, double pState);
     int getFloatProperty(int target, const char* pName, double& pState);
     int setStringProperty(int target, const char* pName, const char* pState);
@@ -107,6 +107,8 @@ class CWorld
     int getColorProperty(int target, const char* pName, float* pState);
     int setVectorProperty(int target, const char* pName, const double* v, int vL);
     int getVectorProperty(int target, const char* pName, std::vector<double>& pState);
+    int setIntVectorProperty(int target, const char* pName, const int* v, int vL);
+    int getIntVectorProperty(int target, const char* pName, std::vector<int>& pState);
     int removeProperty(int target, const char* pName);
     int getPropertyName(int target, int& index, std::string& pName);
     int getPropertyInfo(int target, const char* pName, int& info, int& size);

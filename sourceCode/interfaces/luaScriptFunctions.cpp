@@ -453,8 +453,8 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.systemSemaphore", _simSystemSemaphore},
     {"sim.setBoolProperty", _simSetBoolProperty},
     {"sim.getBoolProperty", _simGetBoolProperty},
-    {"sim.setInt32Property", _simSetInt32Property},
-    {"sim.getInt32Property", _simGetInt32Property},
+    {"sim.setIntProperty", _simSetIntProperty},
+    {"sim.getIntProperty", _simGetIntProperty},
     {"sim.setFloatProperty", _simSetFloatProperty},
     {"sim.getFloatProperty", _simGetFloatProperty},
     {"sim.setStringProperty", _simSetStringProperty},
@@ -1145,7 +1145,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.primitiveshape_capsule", sim_primitiveshape_capsule},
     // property type
     {"sim.propertytype_bool", sim_propertytype_bool},
-    {"sim.propertytype_int32", sim_propertytype_int32},
+    {"sim.propertytype_int", sim_propertytype_int},
     {"sim.propertytype_float", sim_propertytype_float},
     {"sim.propertytype_string", sim_propertytype_string},
     {"sim.propertytype_buffer", sim_propertytype_buffer},
@@ -1156,6 +1156,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_matrix4x4", sim_propertytype_matrix4x4},
     {"sim.propertytype_color", sim_propertytype_color},
     {"sim.propertytype_vector", sim_propertytype_vector},
+    {"sim.propertytype_intvector", sim_propertytype_intvector},
     {"sim.propertytype_table", sim_propertytype_table},
     // dummy-dummy link types
     {"sim.dummytype_dynloopclosure", sim_dummytype_dynloopclosure},
@@ -5211,34 +5212,34 @@ int _simGetBoolProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetInt32Property(luaWrap_lua_State *L)
+int _simSetIntProperty(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setInt32Property");
+    LUA_START("sim.setIntProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0))
     {
         int target = luaWrap_lua_tointeger(L,1);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue = luaWrap_lua_tointeger(L,3);
-        simSetInt32Property_internal(target, pName.c_str(), pValue);
+        simSetIntProperty_internal(target, pName.c_str(), pValue);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
-int _simGetInt32Property(luaWrap_lua_State *L)
+int _simGetIntProperty(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getInt32Property");
+    LUA_START("sim.getIntProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
         int target = luaWrap_lua_tointeger(L,1);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue;
-        if (simGetInt32Property_internal(target, pName.c_str(), &pValue) != -1)
+        if (simGetIntProperty_internal(target, pName.c_str(), &pValue) != -1)
         {
             luaWrap_lua_pushinteger(L, pValue);
             LUA_END(1);

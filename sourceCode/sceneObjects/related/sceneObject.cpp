@@ -31,11 +31,11 @@
 #define DEFINE_PROPERTIES \
     FUNCX(prop_modelInvisible,          "modelInvisible",               sim_propertytype_bool,      0) \
     FUNCX(prop_modelBase,               "modelBase",                    sim_propertytype_bool,      0) \
-    FUNCX(prop_layer,                   "layer",                        sim_propertytype_int32,     0) \
-    FUNCX(prop_childOrder,              "childOrder",                   sim_propertytype_int32,     0) \
-    FUNCX(prop_parentUid,               "parentUid",                    sim_propertytype_int32,     1) \
-    FUNCX(prop_objectProperty,          "objectProperty",               sim_propertytype_int32,     0) \
-    FUNCX(prop_modelProperty,           "modelProperty",                sim_propertytype_int32,     0) \
+    FUNCX(prop_layer,                   "layer",                        sim_propertytype_int,     0) \
+    FUNCX(prop_childOrder,              "childOrder",                   sim_propertytype_int,     0) \
+    FUNCX(prop_parentUid,               "parentUid",                    sim_propertytype_int,     1) \
+    FUNCX(prop_objectProperty,          "objectProperty",               sim_propertytype_int,     0) \
+    FUNCX(prop_modelProperty,           "modelProperty",                sim_propertytype_int,     0) \
 
 #define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -5240,7 +5240,7 @@ int CSceneObject::getBoolProperty(const char* pName, bool& pState)
     return retVal;
 }
 
-int CSceneObject::setInt32Property(const char* pName, int pState)
+int CSceneObject::setIntProperty(const char* pName, int pState)
 {
     int retVal = -1;
 
@@ -5270,7 +5270,7 @@ int CSceneObject::setInt32Property(const char* pName, int pState)
     return retVal;
 }
 
-int CSceneObject::getInt32Property(const char* pName, int& pState)
+int CSceneObject::getIntProperty(const char* pName, int& pState)
 {
     int retVal = -1;
 
@@ -5489,6 +5489,22 @@ int CSceneObject::setVectorProperty(const char* pName, const double* v, int vL)
 }
 
 int CSceneObject::getVectorProperty(const char* pName, std::vector<double>& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::setIntVectorProperty(const char* pName, const int* v, int vL)
+{
+    int retVal = -1;
+    if (v == nullptr)
+        vL = 0;
+
+    return retVal;
+}
+
+int CSceneObject::getIntVectorProperty(const char* pName, std::vector<int>& pState)
 {
     int retVal = -1;
 

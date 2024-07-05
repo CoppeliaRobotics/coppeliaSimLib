@@ -2474,7 +2474,7 @@ int CWorld::getBoolProperty(int target, const char* pName, bool& pState)
     return retVal;
 }
 
-int CWorld::setInt32Property(int target, const char* pName, int pState)
+int CWorld::setIntProperty(int target, const char* pName, int pState)
 {
     int retVal = -1;
     if (target == sim_handle_scene)
@@ -2482,13 +2482,13 @@ int CWorld::setInt32Property(int target, const char* pName, int pState)
 
     }
     else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
-        retVal = sceneObjects->setInt32Property(target, pName, pState);
+        retVal = sceneObjects->setIntProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
     return retVal;
 }
 
-int CWorld::getInt32Property(int target, const char* pName, int& pState)
+int CWorld::getIntProperty(int target, const char* pName, int& pState)
 {
     int retVal = -1;
     if (target == sim_handle_scene)
@@ -2496,7 +2496,7 @@ int CWorld::getInt32Property(int target, const char* pName, int& pState)
 
     }
     else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
-        retVal = sceneObjects->getInt32Property(target, pName, pState);
+        retVal = sceneObjects->getIntProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
     return retVal;
@@ -2796,6 +2796,34 @@ int CWorld::getVectorProperty(int target, const char* pName, std::vector<double>
     }
     else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
         retVal = sceneObjects->getVectorProperty(target, pName, pState);
+    else
+        retVal = -2; // target does not exist
+    return retVal;
+}
+
+int CWorld::setIntVectorProperty(int target, const char* pName, const int* v, int vL)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->setIntVectorProperty(target, pName, v, vL);
+    else
+        retVal = -2; // target does not exist
+    return retVal;
+}
+
+int CWorld::getIntVectorProperty(int target, const char* pName, std::vector<int>& pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+
+    }
+    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+        retVal = sceneObjects->getIntVectorProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
     return retVal;

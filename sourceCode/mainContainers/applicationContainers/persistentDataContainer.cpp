@@ -64,7 +64,7 @@ void CPersistentDataContainer::_writeData(const char *dataName, const std::strin
         // since we now have typed data, make sure to first clear all same-name data of all types:
         std::string nakedTag(dataName);
         std::string currentTp;
-        size_t p = nakedTag.find("@.");
+        size_t p = nakedTag.find("&.");
         if (p != std::string::npos)
         {
             currentTp = std::string(dataName, dataName + p + 2);
@@ -146,7 +146,7 @@ bool CPersistentDataContainer::getPropertyName(int& index, std::string& pName)
         if (index == -1)
         {
             pName = _dataNames[i].c_str();
-            size_t p = pName.find("@.");
+            size_t p = pName.find("&.");
             if (p != std::string::npos)
                 pName.erase(0, p + 2);
             retVal = true;

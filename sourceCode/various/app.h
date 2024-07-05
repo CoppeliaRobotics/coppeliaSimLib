@@ -17,23 +17,24 @@ struct CProperty {
     int flags;
 };
 
-#define proptypetag_bool "@bool@."
-#define proptypetag_int32 "@int32@."
-#define proptypetag_float "@dbl@."
-#define proptypetag_string "@str@."
+#define proptypetag_bool "&bool&."
+#define proptypetag_int "&int&."
+#define proptypetag_float "&dbl&."
+#define proptypetag_string "&str&."
 #define proptypetag_buffer ""
-#define proptypetag_vector3 "@vect3@."
-#define proptypetag_quaternion "@quat@."
-#define proptypetag_pose "@pose@."
-#define proptypetag_matrix3x3 "@mtrx33@."
-#define proptypetag_matrix4x4 "@mtrx44@."
-#define proptypetag_color "@col@."
-#define proptypetag_vector "@vect@."
-#define proptypetag_table "@tbl@."
+#define proptypetag_vector3 "&vect3&."
+#define proptypetag_quaternion "&quat&."
+#define proptypetag_pose "&pose&."
+#define proptypetag_matrix3x3 "&mtrx33&."
+#define proptypetag_matrix4x4 "&mtrx44&."
+#define proptypetag_color "&col&."
+#define proptypetag_vector "&vect&."
+#define proptypetag_intvector "&ivect&."
+#define proptypetag_table "&tbl&."
 
 static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_bool, proptypetag_bool},
-    {sim_propertytype_int32, proptypetag_int32},
+    {sim_propertytype_int, proptypetag_int},
     {sim_propertytype_float, proptypetag_float},
     {sim_propertytype_string, proptypetag_string},
     {sim_propertytype_vector3, proptypetag_vector3},
@@ -43,6 +44,7 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_matrix4x4, proptypetag_matrix4x4},
     {sim_propertytype_color, proptypetag_color},
     {sim_propertytype_vector, proptypetag_vector},
+    {sim_propertytype_intvector, proptypetag_intvector},
     {sim_propertytype_table, proptypetag_table},
 
     {sim_propertytype_buffer, proptypetag_buffer}, // keep always at the end
@@ -50,7 +52,7 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
 
 static std::map<int, std::string> propertyStrings = {
     {sim_propertytype_bool, proptypetag_bool},
-    {sim_propertytype_int32, proptypetag_int32},
+    {sim_propertytype_int, proptypetag_int},
     {sim_propertytype_float, proptypetag_float},
     {sim_propertytype_string, proptypetag_string},
     {sim_propertytype_vector3, proptypetag_vector3},
@@ -60,6 +62,7 @@ static std::map<int, std::string> propertyStrings = {
     {sim_propertytype_matrix4x4, proptypetag_matrix4x4},
     {sim_propertytype_color, proptypetag_color},
     {sim_propertytype_vector, proptypetag_vector},
+    {sim_propertytype_intvector, proptypetag_intvector},
     {sim_propertytype_table, proptypetag_table},
 
     {sim_propertytype_buffer, proptypetag_buffer},
@@ -142,8 +145,8 @@ class App
 
     static int setBoolProperty(int target, const char* pName, bool pState);
     static int getBoolProperty(int target, const char* pName, bool& pState);
-    static int setInt32Property(int target, const char* pName, int pState);
-    static int getInt32Property(int target, const char* pName, int& pState);
+    static int setIntProperty(int target, const char* pName, int pState);
+    static int getIntProperty(int target, const char* pName, int& pState);
     static int setFloatProperty(int target, const char* pName, double pState);
     static int getFloatProperty(int target, const char* pName, double& pState);
     static int setStringProperty(int target, const char* pName, const char* pState);
@@ -164,6 +167,8 @@ class App
     static int getColorProperty(int target, const char* pName, float* pState);
     static int setVectorProperty(int target, const char* pName, const double* v, int vL);
     static int getVectorProperty(int target, const char* pName, std::vector<double>& pState);
+    static int setIntVectorProperty(int target, const char* pName, const int* v, int vL);
+    static int getIntVectorProperty(int target, const char* pName, std::vector<int>& pState);
     static int removeProperty(int target, const char* pName);
     static int getPropertyName(int target, int& index, std::string& pName);
     static int getPropertyInfo(int target, const char* pName, int& info, int& size);

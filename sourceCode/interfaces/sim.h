@@ -7,8 +7,8 @@
 
 SIM_DLLEXPORT int simSetBoolProperty(int target, const char* pName, int pState);
 SIM_DLLEXPORT int simGetBoolProperty(int target, const char* pName, int* pState);
-SIM_DLLEXPORT int simSetInt32Property(int target, const char* pName, int pState);
-SIM_DLLEXPORT int simGetInt32Property(int target, const char* pName, int* pState);
+SIM_DLLEXPORT int simSetIntProperty(int target, const char* pName, int pState);
+SIM_DLLEXPORT int simGetIntProperty(int target, const char* pName, int* pState);
 SIM_DLLEXPORT int simSetFloatProperty(int target, const char* pName, double pState);
 SIM_DLLEXPORT int simGetFloatProperty(int target, const char* pName, double* pState);
 SIM_DLLEXPORT int simSetStringProperty(int target, const char* pName, const char* pState);
@@ -29,6 +29,8 @@ SIM_DLLEXPORT int simSetColorProperty(int target, const char* pName, const float
 SIM_DLLEXPORT int simGetColorProperty(int target, const char* pName, float* pState);
 SIM_DLLEXPORT int simSetVectorProperty(int target, const char* pName, const double* v, int vL);
 SIM_DLLEXPORT double* simGetVectorProperty(int target, const char* pName, int* vL);
+SIM_DLLEXPORT int simSetIntVectorProperty(int target, const char* pName, const int* v, int vL);
+SIM_DLLEXPORT int* simGetIntVectorProperty(int target, const char* pName, int* vL);
 SIM_DLLEXPORT int simRemoveProperty(int target, const char* pName);
 SIM_DLLEXPORT char* simGetPropertyName(int target, int index);
 SIM_DLLEXPORT int simGetPropertyInfo(int target, const char*, int* info, int* size);

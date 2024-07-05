@@ -27,7 +27,7 @@ bool CCustomData::setData(const char *tag, const char *data, size_t dataLen, boo
         { // since we now have typed data, make sure that same-name data of other types is cleared beforehand:
             std::string nakedTag(tag);
             std::string currentTp;
-            size_t p = nakedTag.find("@.");
+            size_t p = nakedTag.find("&.");
             if (p != std::string::npos)
             {
                 currentTp = std::string(tag, tag + p + 2);
@@ -175,7 +175,7 @@ bool CCustomData::getPropertyName(int& index, std::string& pName)
         if (index == -1)
         {
             pName = _data[i].tag;
-            size_t p = pName.find("@.");
+            size_t p = pName.find("&.");
             if (p != std::string::npos)
                 pName.erase(0, p + 2);
             retVal = true;
