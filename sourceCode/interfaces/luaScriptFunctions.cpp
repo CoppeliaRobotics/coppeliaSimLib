@@ -475,6 +475,8 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getColorProperty", _simGetColorProperty},
     {"sim.setVectorProperty", _simSetVectorProperty},
     {"sim.getVectorProperty", _simGetVectorProperty},
+    {"sim.setIntVectorProperty", _simSetIntVectorProperty},
+    {"sim.getIntVectorProperty", _simGetIntVectorProperty},
     {"sim.removeProperty", _simRemoveProperty},
     {"sim.getPropertyName", _simGetPropertyName},
     {"sim.getPropertyInfo", _simGetPropertyInfo},
@@ -5636,6 +5638,49 @@ int _simGetVectorProperty(luaWrap_lua_State *L)
         if (pValue != nullptr)
         {
             pushDoubleTableOntoStack(L, pValueL, pValue);
+            delete[] pValue;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetIntVectorProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setIntVectorProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 1))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        int cnt = int(luaWrap_lua_rawlen(L, 3));
+        std::vector<int> v;
+        v.resize(cnt);
+        getIntsFromTable(L, 3, cnt, v.data());
+        simSetIntVectorProperty_internal(target, pName.c_str(), v.data(), cnt);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetIntVectorProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getIntVectorProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        int target = luaWrap_lua_tointeger(L,1);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        int pValueL;
+        int* pValue = simGetIntVectorProperty_internal(target, pName.c_str(), &pValueL);
+        if (pValue != nullptr)
+        {
+            pushIntTableOntoStack(L, pValueL, pValue);
             delete[] pValue;
             LUA_END(1);
         }

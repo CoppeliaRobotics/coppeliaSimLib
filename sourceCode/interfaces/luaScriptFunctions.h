@@ -441,6 +441,8 @@ extern int _simSetColorProperty(luaWrap_lua_State *L);
 extern int _simGetColorProperty(luaWrap_lua_State *L);
 extern int _simSetVectorProperty(luaWrap_lua_State *L);
 extern int _simGetVectorProperty(luaWrap_lua_State *L);
+extern int _simSetIntVectorProperty(luaWrap_lua_State *L);
+extern int _simGetIntVectorProperty(luaWrap_lua_State *L);
 extern int _simRemoveProperty(luaWrap_lua_State *L);
 extern int _simGetPropertyName(luaWrap_lua_State *L);
 extern int _simGetPropertyInfo(luaWrap_lua_State *L);

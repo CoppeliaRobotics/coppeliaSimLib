@@ -26,20 +26,31 @@
 #include <guiApp.h>
 #endif
 
+
+
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
+#define sprop_bb        "boundingBox"
+#define sprop_bbPose    "pose"
+#define sprop_bbHsize   "hsize"
+
+#define C_PROP(a, b) a "." b
 #define DEFINE_PROPERTIES \
-    FUNCX(prop_modelInvisible,          "modelInvisible",               sim_propertytype_bool,      0) \
-    FUNCX(prop_modelBase,               "modelBase",                    sim_propertytype_bool,      0) \
-    FUNCX(prop_layer,                   "layer",                        sim_propertytype_int,     0) \
-    FUNCX(prop_childOrder,              "childOrder",                   sim_propertytype_int,     1) \
-    FUNCX(prop_parentUid,               "parentUid",                    sim_propertytype_int,     1) \
-    FUNCX(prop_objectProperty,          "objectProperty",               sim_propertytype_int,     0) \
-    FUNCX(prop_modelProperty,           "modelProperty",                sim_propertytype_int,     0) \
-    FUNCX(prop_pose,                    "pose",                         sim_propertytype_pose,    0) \
-    FUNCX(prop_alias,                   "alias",                        sim_propertytype_string,  0) \
-    FUNCX(prop_bbPose,                  "boundingBox.pose",             sim_propertytype_pose,    1) \
-    FUNCX(prop_bbHsize,                 "boundingBox.hsize",            sim_propertytype_vector3, 1) \
+    FUNCX(prop_modelInvisible,          "modelInvisible",                   sim_propertytype_bool,      0) \
+    FUNCX(prop_modelBase,               "modelBase",                        sim_propertytype_bool,      0) \
+    FUNCX(prop_layer,                   "layer",                            sim_propertytype_int,       0) \
+    FUNCX(prop_childOrder,              "childOrder",                       sim_propertytype_int,       1) \
+    FUNCX(prop_parentUid,               "parentUid",                        sim_propertytype_int,       1) \
+    FUNCX(prop_objectProperty,          "objectProperty",                   sim_propertytype_int,       0) \
+    FUNCX(prop_modelProperty,           "modelProperty",                    sim_propertytype_int,       0) \
+    FUNCX(prop_pose,                    "pose",                             sim_propertytype_pose,      0) \
+    FUNCX(prop_alias,                   "alias",                            sim_propertytype_string,    0) \
+    FUNCX(prop_bbPose,                  C_PROP(sprop_bb, sprop_bbPose),     sim_propertytype_pose,      1) \
+    FUNCX(prop_bbHsize,                 C_PROP(sprop_bb, sprop_bbHsize),    sim_propertytype_vector3,   1) \
+    FUNCX(prop_movementOptions,         "movementOptions",                  sim_propertytype_int,       0) \
+    FUNCX(prop_movementPreferredAxes,   "movementPreferredAxes",            sim_propertytype_int,       0) \
+    FUNCX(prop_movementStepSize,        "movementStepSize",                 sim_propertytype_vector,    0) \
+    FUNCX(prop_movementRelativity,      "movementRelativity",               sim_propertytype_intvector, 0) \
 
 #define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -48,6 +59,7 @@ DEFINE_PROPERTIES
 const std::vector<CProperty> allProps = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
+#undef CONCAT_PROP
 // ----------------------------------------------------------------------------------------------
 
 CSceneObject::CSceneObject()
@@ -1372,10 +1384,10 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     if (_parentObject != nullptr)
         pUid = _parentObject->getObjectUid();
     ev->appendKeyInt(prop_parentUid.name, pUid);
-    ev->openKeyMap("boundingBox");
+    ev->openKeyMap(sprop_bb);
     _bbFrame.getData(p, true);
-    ev->appendKeyDoubleArray(prop_pose.name, p, 7);
-    ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
+    ev->appendKeyDoubleArray(sprop_bbPose, p, 7);
+    ev->appendKeyDoubleArray(sprop_bbHsize, _bbHalfSize.data, 3);
     ev->closeArrayOrMap();
     ev->openKeyMap("customData");
     customObjectData.appendEventData(ev);
@@ -1386,10 +1398,10 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
 
 void CSceneObject::_appendObjectMovementEventData(CCbor *ev) const
 {
-    ev->appendKeyInt("movementOptions", _objectMovementOptions);
-    ev->appendKeyInt("movementPreferredAxes", _objectMovementPreferredAxes);
-    ev->appendKeyDoubleArray("movementStepSize", _objectMovementStepSize, 2);
-    ev->appendKeyIntArray("movementRelativity", _objectMovementRelativity, 2);
+    ev->appendKeyInt(prop_movementOptions.name, _objectMovementOptions);
+    ev->appendKeyInt(prop_movementPreferredAxes.name, _objectMovementPreferredAxes);
+    ev->appendKeyDoubleArray(prop_movementStepSize.name, _objectMovementStepSize, 2);
+    ev->appendKeyIntArray(prop_movementRelativity.name, _objectMovementRelativity, 2);
 }
 
 CSceneObject *CSceneObject::copyYourself()
@@ -1821,13 +1833,13 @@ void CSceneObject::_setBB(const C7Vector &bbFrame, const C3Vector &bbHalfSize)
         _bbHalfSize = bbHalfSize;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "boundingBox";
+            const char *cmd = sprop_bb;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
             ev->openKeyMap(cmd);
             double p[7] = {_bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2), _bbFrame.Q(1),
                            _bbFrame.Q(2), _bbFrame.Q(3), _bbFrame.Q(0)};
-            ev->appendKeyDoubleArray(prop_pose.name, p, 7);
-            ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
+            ev->appendKeyDoubleArray(sprop_bbPose, p, 7);
+            ev->appendKeyDoubleArray(sprop_bbHsize, _bbHalfSize.data, 3);
             App::worldContainer->pushEvent();
         }
     }
@@ -5272,6 +5284,16 @@ int CSceneObject::setIntProperty(const char* pName, int pState)
         retVal = 1;
         setModelProperty(pState);
     }
+    else if (strcmp(pName, prop_movementOptions.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementOptions(pState);
+    }
+    else if (strcmp(pName, prop_movementPreferredAxes.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementPreferredAxes(pState);
+    }
 
     return retVal;
 }
@@ -5306,6 +5328,16 @@ int CSceneObject::getIntProperty(const char* pName, int& pState)
     {
         retVal = 1;
         pState = _modelProperty;
+    }
+    else if (strcmp(pName, prop_movementOptions.name) == 0)
+    {
+        retVal = 1;
+        pState = _objectMovementOptions;
+    }
+    else if (strcmp(pName, prop_movementPreferredAxes.name) == 0)
+    {
+        retVal = 1;
+        pState = _objectMovementPreferredAxes;
     }
 
     return retVal;
@@ -5514,12 +5546,31 @@ int CSceneObject::setVectorProperty(const char* pName, const double* v, int vL)
     if (v == nullptr)
         vL = 0;
 
+    if (strcmp(pName, prop_movementStepSize.name) == 0)
+    {
+        if (vL == 2)
+        {
+            retVal = 1;
+            setObjectMovementStepSize(0, v[0]);
+            setObjectMovementStepSize(1, v[1]);
+        }
+        else
+            retVal = 0;
+    }
+
     return retVal;
 }
 
 int CSceneObject::getVectorProperty(const char* pName, std::vector<double>& pState)
 {
     int retVal = -1;
+
+    if (strcmp(pName, prop_movementStepSize.name) == 0)
+    {
+        pState.push_back(_objectMovementStepSize[0]);
+        pState.push_back(_objectMovementStepSize[1]);
+        retVal = 1;
+    }
 
     return retVal;
 }
@@ -5530,12 +5581,31 @@ int CSceneObject::setIntVectorProperty(const char* pName, const int* v, int vL)
     if (v == nullptr)
         vL = 0;
 
+    if (strcmp(pName, prop_movementRelativity.name) == 0)
+    {
+        if (vL == 2)
+        {
+            retVal = 1;
+            setObjectMovementRelativity(0, v[0]);
+            setObjectMovementRelativity(1, v[1]);
+        }
+        else
+            retVal = 0;
+    }
+
     return retVal;
 }
 
 int CSceneObject::getIntVectorProperty(const char* pName, std::vector<int>& pState)
 {
     int retVal = -1;
+
+    if (strcmp(pName, prop_movementRelativity.name) == 0)
+    {
+        pState.push_back(_objectMovementRelativity[0]);
+        pState.push_back(_objectMovementRelativity[1]);
+        retVal = 1;
+    }
 
     return retVal;
 }
