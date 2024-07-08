@@ -29,20 +29,6 @@
 #include <signal.h>
 #endif
 
-// ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-//    FUNCX(prop_modelInvisible,          "modelInvisible",               sim_propertytype_bool,      0) \
-
-#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
-DEFINE_PROPERTIES
-#undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
-const std::vector<CProperty> allProps = { DEFINE_PROPERTIES };
-#undef FUNCX
-#undef DEFINE_PROPERTIES
-// ----------------------------------------------------------------------------------------------
-
 #ifndef SIM_WITH_GUI
 CSimQApp *App::qtApp = nullptr;
 int App::_qApp_argc = 1;
@@ -1372,11 +1358,12 @@ int App::setBoolProperty(int target, const char* pName, bool pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setBoolProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setBoolProperty(target, pName, pState);
@@ -1388,11 +1375,12 @@ int App::getBoolProperty(int target, const char* pName, bool& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getBoolProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getBoolProperty(target, pName, pState);
@@ -1404,11 +1392,12 @@ int App::setIntProperty(int target, const char* pName, int pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setIntProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setIntProperty(target, pName, pState);
@@ -1420,11 +1409,12 @@ int App::getIntProperty(int target, const char* pName, int& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getIntProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getIntProperty(target, pName, pState);
@@ -1436,11 +1426,12 @@ int App::setFloatProperty(int target, const char* pName, double pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setFloatProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setFloatProperty(target, pName, pState);
@@ -1452,11 +1443,12 @@ int App::getFloatProperty(int target, const char* pName, double& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getFloatProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getFloatProperty(target, pName, pState);
@@ -1468,9 +1460,12 @@ int App::setStringProperty(int target, const char* pName, const char* pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setStringProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setStringProperty(target, pName, pState);
@@ -1482,9 +1477,12 @@ int App::getStringProperty(int target, const char* pName, std::string& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getStringProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getStringProperty(target, pName, pState);
@@ -1498,16 +1496,8 @@ int App::setBufferProperty(int target, const char* pName, const char* buffer, in
         bufferL = 0;
     if (target == sim_handle_app)
     {
-        if (strncmp(pName, "customData.", 11) == 0)
-        {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
-            {
-                worldContainer->customAppData.setData(pN.c_str(), buffer, bufferL, true);
-                retVal = 1;
-            }
-        }
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setBufferProperty(pName, buffer, bufferL);
     }
     else if (target == sim_handle_appstorage)
     {
@@ -1544,19 +1534,8 @@ int App::getBufferProperty(int target, const char* pName, std::string& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-        if (strncmp(pName, "customData.", 11) == 0)
-        {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
-            {
-                if (worldContainer->customAppData.hasData(pN.c_str(), false) >= 0)
-                {
-                    pState = worldContainer->customAppData.getData(pN.c_str());
-                    retVal = 1;
-                }
-            }
-        }
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getBufferProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
@@ -1583,11 +1562,12 @@ int App::setVector3Property(int target, const char* pName, const C3Vector& pStat
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setVector3Property(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setVector3Property(target, pName, pState);
@@ -1599,11 +1579,12 @@ int App::getVector3Property(int target, const char* pName, C3Vector& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getVector3Property(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getVector3Property(target, pName, pState);
@@ -1615,11 +1596,12 @@ int App::setQuaternionProperty(int target, const char* pName, const C4Vector& pS
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setQuaternionProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setQuaternionProperty(target, pName, pState);
@@ -1631,11 +1613,12 @@ int App::getQuaternionProperty(int target, const char* pName, C4Vector& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getQuaternionProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getQuaternionProperty(target, pName, pState);
@@ -1647,11 +1630,12 @@ int App::setPoseProperty(int target, const char* pName, const C7Vector& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setPoseProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setPoseProperty(target, pName, pState);
@@ -1663,11 +1647,12 @@ int App::getPoseProperty(int target, const char* pName, C7Vector& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getPoseProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getPoseProperty(target, pName, pState);
@@ -1679,11 +1664,12 @@ int App::setMatrix3x3Property(int target, const char* pName, const C3X3Matrix& p
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setMatrix3x3Property(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setMatrix3x3Property(target, pName, pState);
@@ -1695,11 +1681,12 @@ int App::getMatrix3x3Property(int target, const char* pName, C3X3Matrix& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getMatrix3x3Property(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getMatrix3x3Property(target, pName, pState);
@@ -1711,11 +1698,12 @@ int App::setMatrix4x4Property(int target, const char* pName, const C4X4Matrix& p
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setMatrix4x4Property(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setMatrix4x4Property(target, pName, pState);
@@ -1727,11 +1715,12 @@ int App::getMatrix4x4Property(int target, const char* pName, C4X4Matrix& pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getMatrix4x4Property(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getMatrix4x4Property(target, pName, pState);
@@ -1743,11 +1732,12 @@ int App::setColorProperty(int target, const char* pName, const float* pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setColorProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setColorProperty(target, pName, pState);
@@ -1759,11 +1749,12 @@ int App::getColorProperty(int target, const char* pName, float* pState)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getColorProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getColorProperty(target, pName, pState);
@@ -1775,11 +1766,12 @@ int App::setVectorProperty(int target, const char* pName, const double* v, int v
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setVectorProperty(pName, v, vL);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setVectorProperty(target, pName, v, vL);
@@ -1791,11 +1783,12 @@ int App::getVectorProperty(int target, const char* pName, std::vector<double>& p
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getVectorProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getVectorProperty(target, pName, pState);
@@ -1807,11 +1800,12 @@ int App::setIntVectorProperty(int target, const char* pName, const int* v, int v
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setIntVectorProperty(pName, v, vL);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->setIntVectorProperty(target, pName, v, vL);
@@ -1823,11 +1817,12 @@ int App::getIntVectorProperty(int target, const char* pName, std::vector<int>& p
     int retVal = -1;
     if (target == sim_handle_app)
     {
-
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getIntVectorProperty(pName, pState);
     }
     else if (target == sim_handle_appstorage)
     {
-
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
     }
     else if (currentWorld != nullptr)
         retVal = currentWorld->getIntVectorProperty(target, pName, pState);
@@ -1839,20 +1834,8 @@ int App::removeProperty(int target, const char* pName)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-        if (strncmp(pName, "customData.", 11) == 0)
-        {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
-            {
-                int tp = worldContainer->customAppData.hasData(pN.c_str(), true);
-                if (tp >= 0)
-                {
-                    worldContainer->customAppData.clearData((propertyStrings[tp] + pN).c_str());
-                    retVal = 1;
-                }
-            }
-        }
+        if (worldContainer != nullptr)
+            retVal = worldContainer->removeProperty(pName);
     }
     else if (target == sim_handle_appstorage)
     {
@@ -1890,24 +1873,8 @@ int App::getPropertyName(int target, int& index, std::string& pName)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-        for (size_t i = 0; i < allProps.size(); i++)
-        {
-            index--;
-            if (index == -1)
-            {
-                pName = allProps[i].name;
-                retVal = 1;
-                break;
-            }
-        }
-        if (retVal == -1)
-        {
-            if (worldContainer->customAppData.getPropertyName(index, pName))
-            {
-                pName = "customData." + pName;
-                retVal = 1;
-            }
-        }
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getPropertyName(index, pName);
     }
     else if (target == sim_handle_appstorage)
     {
@@ -1933,27 +1900,8 @@ int App::getPropertyInfo(int target, const char* pName, int& info, int& size)
     int retVal = -1;
     if (target == sim_handle_app)
     {
-        for (size_t i = 0; i < allProps.size(); i++)
-        {
-            if (strcmp(allProps[i].name, pName) == 0)
-            {
-                retVal = allProps[i].type;
-                info = allProps[i].flags;
-                size = 0;
-                break;
-            }
-        }
-        if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
-        {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
-            {
-                retVal = worldContainer->customAppData.hasData(pN.c_str(), true, &size);
-                if (retVal >= 0)
-                    info = 4; // removable
-            }
-        }
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getPropertyInfo(pName, info, size);
     }
     else if (target == sim_handle_appstorage)
     {

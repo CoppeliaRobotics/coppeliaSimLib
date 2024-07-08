@@ -9,6 +9,8 @@
 #include <guiApp.h>
 #endif
 
+#define PRODUCT_VERSION TOSTRING(SIM_VERSION_MAJOR) "." TOSTRING(SIM_VERSION_MINOR) "." TOSTRING(SIM_VERSION_PATCH) "." TOSTRING(SIM_VERSION_REVNB)
+
 long long int CWorldContainer::_eventSeq = 0;
 
 CWorldContainer::CWorldContainer()
@@ -629,17 +631,14 @@ void CWorldContainer::pushGenesisEvents()
         pushEvent();
 
         ev = _createGeneralEvent(EVENTTYPE_APPSESSION, -1, -1, nullptr, nullptr, false);
-        ev->appendKeyString("sessionId", _sessionId.c_str());
-        ev->appendKeyInt("protocolVersion", 2);
-        std::string prod(SIM_PROGRAM_VERSION);
-        prod += ".";
-        prod += std::to_string(SIM_PROGRAM_REVISION_NB);
-        ev->appendKeyString("productVersion", prod.c_str());
+        ev->appendKeyString(propApp_sessionId.name, _sessionId.c_str());
+        ev->appendKeyInt(propApp_protocolVersion.name, SIM_EVENT_PROTOCOL_VERSION);
+        ev->appendKeyString(propApp_productVersion.name, PRODUCT_VERSION);
         pushEvent();
 
         ev = _createGeneralEvent(EVENTTYPE_APPSETTINGSCHANGED, -1, -1, nullptr, nullptr, false);
-        ev->appendKeyDouble("defaultTranslationStepSize", App::userSettings->getTranslationStepSize());
-        ev->appendKeyDouble("defaultRotationStepSize", App::userSettings->getRotationStepSize());
+        ev->appendKeyDouble(propApp_defaultTranslationStepSize.name, App::userSettings->getTranslationStepSize());
+        ev->appendKeyDouble(propApp_defaultRotationStepSize.name, App::userSettings->getRotationStepSize());
         pushEvent();
 
         currentWorld->pushGenesisEvents();
@@ -808,3 +807,319 @@ void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle, int scri
         GuiApp::mainWindow->announceScriptStateWillBeErased(scriptHandle, scriptUid);
 #endif
 }
+
+int CWorldContainer::setBoolProperty(const char* pName, bool pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getBoolProperty(const char* pName, bool& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::setIntProperty(const char* pName, int pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getIntProperty(const char* pName, int& pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propApp_protocolVersion.name) == 0)
+    {
+        pState = SIM_EVENT_PROTOCOL_VERSION;
+        retVal = 1;
+    }
+
+    return retVal;
+}
+
+int CWorldContainer::setFloatProperty(const char* pName, double pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propApp_defaultTranslationStepSize.name) == 0)
+    {
+        App::userSettings->setTranslationStepSize(pState);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_defaultRotationStepSize.name) == 0)
+    {
+        App::userSettings->setRotationStepSize(pState);
+        retVal = 1;
+    }
+
+    return retVal;
+}
+
+int CWorldContainer::getFloatProperty(const char* pName, double& pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propApp_defaultTranslationStepSize.name) == 0)
+    {
+        pState = App::userSettings->getTranslationStepSize();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_defaultRotationStepSize.name) == 0)
+    {
+        pState = App::userSettings->getRotationStepSize();
+        retVal = 1;
+    }
+
+    return retVal;
+}
+
+int CWorldContainer::setStringProperty(const char* pName, const char* pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getStringProperty(const char* pName, std::string& pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propApp_sessionId.name) == 0)
+    {
+        pState = _sessionId;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_productVersion.name) == 0)
+    {
+        pState = PRODUCT_VERSION;
+        retVal = 1;
+    }
+
+    return retVal;
+}
+
+int CWorldContainer::setBufferProperty(const char* pName, const char* buffer, int bufferL)
+{
+    int retVal = -1;
+    if (buffer == nullptr)
+        bufferL = 0;
+    if (strncmp(pName, "customData.", 11) == 0)
+    {
+        std::string pN(pName);
+        pN.erase(0, 11);
+        if (pN.size() > 0)
+        {
+            customAppData.setData(pN.c_str(), buffer, bufferL, true);
+            retVal = 1;
+        }
+    }
+    return retVal;
+}
+
+int CWorldContainer::getBufferProperty(const char* pName, std::string& pState)
+{
+    int retVal = -1;
+    if (strncmp(pName, "customData.", 11) == 0)
+    {
+        std::string pN(pName);
+        pN.erase(0, 11);
+        if (pN.size() > 0)
+        {
+            if (customAppData.hasData(pN.c_str(), false) >= 0)
+            {
+                pState = customAppData.getData(pN.c_str());
+                retVal = 1;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CWorldContainer::setVector3Property(const char* pName, const C3Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getVector3Property(const char* pName, C3Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::setQuaternionProperty(const char* pName, const C4Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getQuaternionProperty(const char* pName, C4Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::setPoseProperty(const char* pName, const C7Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getPoseProperty(const char* pName, C7Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::setMatrix3x3Property(const char* pName, const C3X3Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getMatrix3x3Property(const char* pName, C3X3Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::setMatrix4x4Property(const char* pName, const C4X4Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getMatrix4x4Property(const char* pName, C4X4Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::setColorProperty(const char* pName, const float* pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getColorProperty(const char* pName, float* pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::setVectorProperty(const char* pName, const double* v, int vL)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getVectorProperty(const char* pName, std::vector<double>& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::setIntVectorProperty(const char* pName, const int* v, int vL)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getIntVectorProperty(const char* pName, std::vector<int>& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::removeProperty(const char* pName)
+{
+    int retVal = -1;
+    if (strncmp(pName, "customData.", 11) == 0)
+    {
+        std::string pN(pName);
+        pN.erase(0, 11);
+        if (pN.size() > 0)
+        {
+            int tp = customAppData.hasData(pN.c_str(), true);
+            if (tp >= 0)
+            {
+                customAppData.clearData((propertyStrings[tp] + pN).c_str());
+                retVal = 1;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CWorldContainer::getPropertyName(int& index, std::string& pName)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_app.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps_app[i].name;
+            retVal = 1;
+            break;
+        }
+    }
+    if (retVal == -1)
+    {
+        if (customAppData.getPropertyName(index, pName))
+        {
+            pName = "customData." + pName;
+            retVal = 1;
+        }
+    }
+    return retVal;
+}
+
+int CWorldContainer::getPropertyInfo(const char* pName, int& info, int& size)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_app.size(); i++)
+    {
+        if (strcmp(allProps_app[i].name, pName) == 0)
+        {
+            retVal = allProps_app[i].type;
+            info = allProps_app[i].flags;
+            size = 0;
+            break;
+        }
+    }
+    if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
+    {
+        std::string pN(pName);
+        pN.erase(0, 11);
+        if (pN.size() > 0)
+        {
+            retVal = customAppData.hasData(pN.c_str(), true, &size);
+            if (retVal >= 0)
+                info = 4; // removable
+        }
+    }
+    return retVal;
+}
+

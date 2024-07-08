@@ -11,12 +11,6 @@
 #include <simQApp.h>
 #endif
 
-struct CProperty {
-    const char* name;
-    int type;
-    int flags;
-};
-
 #define proptypetag_bool "&bool&."
 #define proptypetag_int "&int&."
 #define proptypetag_float "&dbl&."

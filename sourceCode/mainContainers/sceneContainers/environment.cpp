@@ -149,8 +149,8 @@ void CEnvironment::setUpDefaultValues()
 void CEnvironment::pushGenesisEvents() const
 {
     CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED, -1, nullptr, false);
-    ev->appendKeyInt("sceneUid", getSceneUniqueID());
-    ev->appendKeyInt("visibilityLayers", getActiveLayers());
+    ev->appendKeyInt(propScene_sceneUid.name, getSceneUniqueID());
+    ev->appendKeyInt(propScene_visibilityLayers.name, getActiveLayers());
     App::worldContainer->pushEvent();
 }
 
@@ -162,7 +162,7 @@ void CEnvironment::setActiveLayers(unsigned short l)
         _activeLayers = l;
         if (App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "visibilityLayers";
+            const char *cmd = propScene_visibilityLayers.name;
             CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED, -1, cmd, true);
             ev->appendKeyInt(cmd, _activeLayers);
             App::worldContainer->pushEvent();

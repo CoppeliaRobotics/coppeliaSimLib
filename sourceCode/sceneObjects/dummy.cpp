@@ -285,14 +285,22 @@ void CDummy::removeSceneDependencies()
 void CDummy::addSpecializedObjectEventData(CCbor *ev) const
 {
     ev->openKeyMap("dummy");
-    ev->appendKeyDouble("size", _dummySize);
-    ev->openKeyArray("colors");
+    ev->appendKeyDouble(propDummy_size.name, _dummySize);
+
     float c[9];
     _dummyColor.getColor(c, sim_colorcomponent_ambient_diffuse);
     _dummyColor.getColor(c + 3, sim_colorcomponent_specular);
     _dummyColor.getColor(c + 6, sim_colorcomponent_emission);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    // Temp. support for old protocol version
+    ev->openKeyArray("colors");
     ev->appendFloatArray(c, 9);
     ev->closeArrayOrMap(); // colors
+#endif
+    ev->appendKeyFloatArray(propDummy_colDiffuse.name, c, 3);
+    ev->appendKeyFloatArray(propDummy_colSpecular.name, c + 3, 3);
+    ev->appendKeyFloatArray(propDummy_colEmission.name, c + 6, 3);
+
     ev->closeArrayOrMap(); // dummy
 }
 
@@ -1098,7 +1106,7 @@ void CDummy::setDummySize(double s)
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "size";
+            const char *cmd = propDummy_size.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _dummySize);
             App::worldContainer->pushEvent();
@@ -1112,3 +1120,122 @@ void CDummy::display(CViewableBase *renderingObject, int displayAttrib)
     displayDummy(this, renderingObject, displayAttrib);
 }
 #endif
+
+int CDummy::setFloatProperty(const char* pName, double pState)
+{
+    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propDummy_size.name) == 0)
+        {
+            setDummySize(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CDummy::getFloatProperty(const char* pName, double& pState)
+{
+    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propDummy_size.name) == 0)
+        {
+            pState = _dummySize;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CDummy::setColorProperty(const char* pName, const float* pState)
+{
+    int retVal = CSceneObject::setColorProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propDummy_colDiffuse.name) == 0)
+        {
+            _dummyColor.setColor(pState, sim_colorcomponent_ambient_diffuse);
+            retVal = 1;
+        }
+        else if (strcmp(pName, propDummy_colSpecular.name) == 0)
+        {
+            _dummyColor.setColor(pState, sim_colorcomponent_specular);
+            retVal = 1;
+        }
+        else if (strcmp(pName, propDummy_colEmission.name) == 0)
+        {
+            _dummyColor.setColor(pState, sim_colorcomponent_emission);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CDummy::getColorProperty(const char* pName, float* pState)
+{
+    int retVal = CSceneObject::getColorProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propDummy_colDiffuse.name) == 0)
+        {
+            _dummyColor.getColor(pState, sim_colorcomponent_ambient_diffuse);
+            retVal = 1;
+        }
+        else if (strcmp(pName, propDummy_colSpecular.name) == 0)
+        {
+            _dummyColor.getColor(pState, sim_colorcomponent_specular);
+            retVal = 1;
+        }
+        else if (strcmp(pName, propDummy_colEmission.name) == 0)
+        {
+            _dummyColor.getColor(pState, sim_colorcomponent_emission);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CDummy::getPropertyName(int& index, std::string& pName)
+{
+    int retVal = CSceneObject::getPropertyName(index, pName);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_dummy.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_dummy[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CDummy::getPropertyInfo(const char* pName, int& info, int& size)
+{
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_dummy.size(); i++)
+        {
+            if (strcmp(allProps_dummy[i].name, pName) == 0)
+            {
+                retVal = allProps_dummy[i].type;
+                info = allProps_dummy[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+

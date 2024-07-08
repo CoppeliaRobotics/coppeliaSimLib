@@ -8,6 +8,45 @@
 #include <userParameters.h>
 #include <customData.h>
 #include <cbor.h>
+#include <simLib/simConst.h>
+
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propObject_modelInvisible,          "modelInvisible",                   sim_propertytype_bool,      0) \
+    FUNCX(propObject_modelBase,               "modelBase",                        sim_propertytype_bool,      0) \
+    FUNCX(propObject_layer,                   "layer",                            sim_propertytype_int,       0) \
+    FUNCX(propObject_childOrder,              "childOrder",                       sim_propertytype_int,       1) \
+    FUNCX(propObject_parentUid,               "parentUid",                        sim_propertytype_int,       1) \
+    FUNCX(propObject_objectProperty,          "objectProperty",                   sim_propertytype_int,       0) \
+    FUNCX(propObject_ignoreViewFitting,       "ignoreViewFitting",                sim_propertytype_bool,      0) \
+    FUNCX(propObject_collapsed,               "collapsed",                        sim_propertytype_bool,      0) \
+    FUNCX(propObject_selectable,              "selectable",                       sim_propertytype_bool,      0) \
+    FUNCX(propObject_selectModel,             "selectModel",                      sim_propertytype_bool,      0) \
+    FUNCX(propObject_hideFromModelBB,         "hideFromModelBB",                  sim_propertytype_bool,      0) \
+    FUNCX(propObject_selectInvisible,         "selectInvisible",                  sim_propertytype_bool,      0) \
+    FUNCX(propObject_depthInvisible,          "depthInvisible",                   sim_propertytype_bool,      0) \
+    FUNCX(propObject_cannotDelete,            "cannotDelete",                     sim_propertytype_bool,      0) \
+    FUNCX(propObject_cannotDeleteSim,         "cannotDeleteInSim",                sim_propertytype_bool,      0) \
+    FUNCX(propObject_modelProperty,           "modelProperty",                    sim_propertytype_int,       0) \
+    FUNCX(propObject_pose,                    "pose",                             sim_propertytype_pose,      0) \
+    FUNCX(propObject_alias,                   "alias",                            sim_propertytype_string,    0) \
+    FUNCX(propObject_bbPose,                  "bbPose",                           sim_propertytype_pose,      1) \
+    FUNCX(propObject_bbHsize,                 "bbHSize",                          sim_propertytype_vector3,   1) \
+    FUNCX(propObject_movementOptions,         "movementOptions",                  sim_propertytype_int,       0) \
+    FUNCX(propObject_movementPreferredAxes,   "movementPreferredAxes",            sim_propertytype_int,       0) \
+    FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_vector,    0) \
+    FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intvector, 0) \
+
+#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<CProperty> allProps_sceneObject = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+#undef CONCAT_PROP
+// ----------------------------------------------------------------------------------------------
 
 struct SCustomRefs
 {

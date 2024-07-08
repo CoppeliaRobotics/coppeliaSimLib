@@ -25,6 +25,21 @@
 #include <ikGroupContainer.h>
 #include <sceneObjectContainer.h>
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propScene_sceneUid,                "sceneUid",                     sim_propertytype_int,       1) \
+    FUNCX(propScene_visibilityLayers,        "visibilityLayers",             sim_propertytype_int,       0) \
+
+#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<CProperty> allProps_scene = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 struct SLoadOperationIssue
 {
     int verbosity;

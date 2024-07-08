@@ -8,20 +8,6 @@
 #include <guiApp.h>
 #endif
 
-// ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-//    FUNCX(prop_modelInvisible,          "modelInvisible",               sim_propertytype_bool,      0) \
-
-#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
-DEFINE_PROPERTIES
-#undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
-const std::vector<CProperty> allProps = { DEFINE_PROPERTIES };
-#undef FUNCX
-#undef DEFINE_PROPERTIES
-// ----------------------------------------------------------------------------------------------
-
 std::vector<SLoadOperationIssue> CWorld::_loadOperationIssues;
 
 CWorld::CWorld()
@@ -2479,7 +2465,11 @@ int CWorld::setIntProperty(int target, const char* pName, int pState)
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (strcmp(pName, propScene_visibilityLayers.name) == 0)
+        {
+            environment->setActiveLayers(pState);
+            retVal = 1;
+        }
     }
     else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
         retVal = sceneObjects->setIntProperty(target, pName, pState);
@@ -2493,7 +2483,16 @@ int CWorld::getIntProperty(int target, const char* pName, int& pState)
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (strcmp(pName, propScene_sceneUid.name) == 0)
+        {
+            pState = environment->getSceneUniqueID();
+            retVal = 1;
+        }
+        else if (strcmp(pName, propScene_visibilityLayers.name) == 0)
+        {
+            pState = environment->getActiveLayers();
+            retVal = 1;
+        }
     }
     else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
         retVal = sceneObjects->getIntProperty(target, pName, pState);
@@ -2861,12 +2860,12 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName)
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        for (size_t i = 0; i < allProps.size(); i++)
+        for (size_t i = 0; i < allProps_scene.size(); i++)
         {
             index--;
             if (index == -1)
             {
-                pName = allProps[i].name;
+                pName = allProps_scene[i].name;
                 retVal = 1;
                 break;
             }
@@ -2892,12 +2891,12 @@ int CWorld::getPropertyInfo(int target, const char* pName, int& info, int& size)
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        for (size_t i = 0; i < allProps.size(); i++)
+        for (size_t i = 0; i < allProps_scene.size(); i++)
         {
-            if (strcmp(allProps[i].name, pName) == 0)
+            if (strcmp(allProps_scene[i].name, pName) == 0)
             {
-                retVal = allProps[i].type;
-                info = allProps[i].flags;
+                retVal = allProps_scene[i].type;
+                info = allProps_scene[i].flags;
                 size = 0;
                 break;
             }

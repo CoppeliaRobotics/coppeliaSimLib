@@ -35,6 +35,24 @@
 #define EVENTTYPE_GENESISBEGIN "genesisBegin"
 #define EVENTTYPE_GENESISEND "genesisEnd"
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propApp_sessionId,                   "sessionId",                        sim_propertytype_string,    1) \
+    FUNCX(propApp_protocolVersion,             "protocolVersion",                  sim_propertytype_int,       1) \
+    FUNCX(propApp_productVersion,              "productVersion",                   sim_propertytype_string,    1) \
+    FUNCX(propApp_defaultTranslationStepSize,  "defaultTranslationStepSize",       sim_propertytype_float,     0) \
+    FUNCX(propApp_defaultRotationStepSize,     "defaultRotationStepSize",          sim_propertytype_float,     0) \
+
+#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<CProperty> allProps_app = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 class CWorldContainer
 {
   public:
@@ -89,6 +107,36 @@ class CWorldContainer
     void simulationAboutToStep();
     void simulationAboutToEnd();
     void simulationEnded(bool removeNewObjects);
+
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState);
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState);
+    int setFloatProperty(const char* pName, double pState);
+    int getFloatProperty(const char* pName, double& pState);
+    int setStringProperty(const char* pName, const char* pState);
+    int getStringProperty(const char* pName, std::string& pState);
+    int setBufferProperty(const char* pName, const char* buffer, int bufferL);
+    int getBufferProperty(const char* pName, std::string& pState);
+    int setVector3Property(const char* pName, const C3Vector& pState);
+    int getVector3Property(const char* pName, C3Vector& pState);
+    int setQuaternionProperty(const char* pName, const C4Vector& pState);
+    int getQuaternionProperty(const char* pName, C4Vector& pState);
+    int setPoseProperty(const char* pName, const C7Vector& pState);
+    int getPoseProperty(const char* pName, C7Vector& pState);
+    int setMatrix3x3Property(const char* pName, const C3X3Matrix& pState);
+    int getMatrix3x3Property(const char* pName, C3X3Matrix& pState);
+    int setMatrix4x4Property(const char* pName, const C4X4Matrix& pState);
+    int getMatrix4x4Property(const char* pName, C4X4Matrix& pState);
+    int setColorProperty(const char* pName, const float* pState);
+    int getColorProperty(const char* pName, float* pState);
+    int setVectorProperty(const char* pName, const double* v, int vL);
+    int getVectorProperty(const char* pName, std::vector<double>& pState);
+    int setIntVectorProperty(const char* pName, const int* v, int vL);
+    int getIntVectorProperty(const char* pName, std::vector<int>& pState);
+    int removeProperty(const char* pName);
+    int getPropertyName(int& index, std::string& pName);
+    int getPropertyInfo(const char* pName, int& info, int& size);
 
     CCopyBuffer *copyBuffer;
     CSimulatorMessageQueue *simulatorMessageQueue;

@@ -33,6 +33,25 @@ enum
     simi_mujoco_dummy_limited = 1,
 };
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propDummy_size,                    "size",                                     sim_propertytype_float,     0) \
+    FUNCX(propDummy_colDiffuse,              "diffuseColor",                             sim_propertytype_color,     0) \
+    FUNCX(propDummy_colSpecular,             "specularColor",                            sim_propertytype_color,     0) \
+    FUNCX(propDummy_colEmission,             "emissionColor",                            sim_propertytype_color,     0) \
+
+#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<CProperty> allProps_dummy = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+#undef CONCAT_PROP
+// ----------------------------------------------------------------------------------------------
+
+
 class CDummy : public CSceneObject
 {
   public:
@@ -69,6 +88,12 @@ class CDummy : public CSceneObject
     void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
     void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    int setFloatProperty(const char* pName, double pState);
+    int getFloatProperty(const char* pName, double& pState);
+    int setColorProperty(const char* pName, const float* pState);
+    int getColorProperty(const char* pName, float* pState);
+    int getPropertyName(int& index, std::string& pName);
+    int getPropertyInfo(const char* pName, int& info, int& size);
 
     bool getFreeOnPathTrajectory() const;
     double getVirtualDistanceOffsetOnPath() const;
