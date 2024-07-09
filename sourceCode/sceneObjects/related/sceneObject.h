@@ -13,12 +13,12 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propObject_modelInvisible,          "modelInvisible",                   sim_propertytype_bool,      0) \
+    FUNCX(propObject_modelInvisible,          "modelInvisible",                   sim_propertytype_bool,      1) \
     FUNCX(propObject_modelBase,               "modelBase",                        sim_propertytype_bool,      0) \
     FUNCX(propObject_layer,                   "layer",                            sim_propertytype_int,       0) \
     FUNCX(propObject_childOrder,              "childOrder",                       sim_propertytype_int,       1) \
     FUNCX(propObject_parentUid,               "parentUid",                        sim_propertytype_int,       1) \
-    FUNCX(propObject_objectProperty,          "objectProperty",                   sim_propertytype_int,       0) \
+    FUNCX(propObject_objectProperty,          "objectPropertyFlags", /*redund.*/  sim_propertytype_int,       0) \
     FUNCX(propObject_ignoreViewFitting,       "ignoreViewFitting",                sim_propertytype_bool,      0) \
     FUNCX(propObject_collapsed,               "collapsed",                        sim_propertytype_bool,      0) \
     FUNCX(propObject_selectable,              "selectable",                       sim_propertytype_bool,      0) \
@@ -28,7 +28,15 @@
     FUNCX(propObject_depthInvisible,          "depthInvisible",                   sim_propertytype_bool,      0) \
     FUNCX(propObject_cannotDelete,            "cannotDelete",                     sim_propertytype_bool,      0) \
     FUNCX(propObject_cannotDeleteSim,         "cannotDeleteInSim",                sim_propertytype_bool,      0) \
-    FUNCX(propObject_modelProperty,           "modelProperty",                    sim_propertytype_int,       0) \
+    FUNCX(propObject_modelProperty,           "modelPropertyFlags", /*redund.*/   sim_propertytype_int,       0) \
+    FUNCX(propObject_modelNotCollidable,      "modelNotCollidable",               sim_propertytype_bool,      0) \
+    FUNCX(propObject_modelNotMeasurable,      "modelNotMeasurable",               sim_propertytype_bool,      0) \
+    FUNCX(propObject_modelNotDetectable,      "modelNotDetectable",               sim_propertytype_bool,      0) \
+    FUNCX(propObject_modelNotDynamic,         "modelNotDynamic",                  sim_propertytype_bool,      0) \
+    FUNCX(propObject_modelNotRespondable,     "modelNotRespondable",              sim_propertytype_bool,      0) \
+    FUNCX(propObject_modelNotVisible,         "modelNotVisible",                  sim_propertytype_bool,      0) \
+    FUNCX(propObject_modelScriptsNotActive,   "modelScriptsNotActive",            sim_propertytype_bool,      0) \
+    FUNCX(propObject_modelNotInParentBB,      "modelNotInParentBB",               sim_propertytype_bool,      0) \
     FUNCX(propObject_pose,                    "pose",                             sim_propertytype_pose,      0) \
     FUNCX(propObject_alias,                   "alias",                            sim_propertytype_string,    0) \
     FUNCX(propObject_bbPose,                  "bbPose",                           sim_propertytype_pose,      1) \
@@ -395,7 +403,7 @@ class CSceneObject
     unsigned short _visibilityLayer;
     bool _selected;
     bool _isInScene;
-    bool _modelInvisible;
+    bool _modelInvisible; // derived from parent model's modelProperty
     int _childOrder;
     std::string _objectAlias;
     C7Vector _localTransformation;

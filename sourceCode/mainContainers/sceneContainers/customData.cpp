@@ -343,7 +343,13 @@ void CCustomData::serializeData(CSer &ar, const char *objectName)
 void CCustomData::appendEventData(CCbor *ev) const
 {
     for (size_t i = 0; i < _data.size(); i++)
-        ev->appendKeyBuff(_data[i].tag.c_str(), (unsigned char *)_data[i].data.c_str(), _data[i].data.size());
+    {
+        std::string tg(_data[i].tag);
+        size_t p = tg.find("&.");
+        if (p != std::string::npos)
+            tg.erase(0, p + 2);
+        ev->appendKeyBuff(tg.c_str(), (unsigned char *)_data[i].data.c_str(), _data[i].data.size());
+    }
 }
 
 void CCustomData::getDataEvents(std::map<std::string, bool> &dataEvents)

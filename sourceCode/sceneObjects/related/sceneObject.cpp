@@ -779,13 +779,15 @@ void CSceneObject::setObjectProperty(int p)
     bool diff = (_objectProperty != p);
     if (diff)
     {
+        int cb = _objectProperty ^ p;
+        _objectProperty = p;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            int cb = _objectProperty ^ p;
-            _objectProperty = p;
             const char *cmd = propObject_objectProperty.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-            ev->appendKeyInt(cmd, _objectProperty);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+            ev->appendKeyInt("objectProperty", _objectProperty); // deprecated
+#endif
             if (cb & sim_objectproperty_ignoreviewfitting)
                 ev->appendKeyBool(propObject_ignoreViewFitting.name, _objectProperty & sim_objectproperty_ignoreviewfitting);
             if (cb & sim_objectproperty_collapsed)
@@ -871,12 +873,31 @@ bool CSceneObject::setModelProperty(int prop)
     bool diff = (_modelProperty != prop);
     if (diff)
     {
+        int cb = _modelProperty ^ prop;
         _modelProperty = prop;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propObject_modelProperty.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-            ev->appendKeyInt(cmd, _modelProperty);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+            ev->appendKeyInt("modelProperty", _modelProperty); // Deprecated
+#endif
+            if (cb & sim_modelproperty_not_collidable)
+                ev->appendKeyBool(propObject_modelNotCollidable.name, _modelProperty & sim_modelproperty_not_collidable);
+            if (cb & sim_modelproperty_not_measurable)
+                ev->appendKeyBool(propObject_modelNotMeasurable.name, _modelProperty & sim_modelproperty_not_measurable);
+            if (cb & sim_modelproperty_not_detectable)
+                ev->appendKeyBool(propObject_modelNotDetectable.name, _modelProperty & sim_modelproperty_not_detectable);
+            if (cb & sim_modelproperty_not_dynamic)
+                ev->appendKeyBool(propObject_modelNotDynamic.name, _modelProperty & sim_modelproperty_not_dynamic);
+            if (cb & sim_modelproperty_not_respondable)
+                ev->appendKeyBool(propObject_modelNotRespondable.name, _modelProperty & sim_modelproperty_not_respondable);
+            if (cb & sim_modelproperty_not_visible)
+                ev->appendKeyBool(propObject_modelNotVisible.name, _modelProperty & sim_modelproperty_not_visible);
+            if (cb & sim_modelproperty_scripts_inactive)
+                ev->appendKeyBool(propObject_modelScriptsNotActive.name, _modelProperty & sim_modelproperty_scripts_inactive);
+            if (cb & sim_modelproperty_not_showasinsidemodel)
+                ev->appendKeyBool(propObject_modelNotInParentBB.name, _modelProperty & sim_modelproperty_not_showasinsidemodel);
             App::worldContainer->pushEvent();
         }
         recomputeModelInfluencedValues();
@@ -1362,7 +1383,9 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     ev->appendKeyBool(propObject_modelInvisible.name, _modelInvisible);
     ev->appendKeyBool(propObject_modelBase.name, _modelBase);
 
-    ev->appendKeyInt(propObject_objectProperty.name, _objectProperty);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    ev->appendKeyInt("objectProperty", _objectProperty); // deprecated
+#endif
     ev->appendKeyBool(propObject_ignoreViewFitting.name, _objectProperty & sim_objectproperty_ignoreviewfitting);
     ev->appendKeyBool(propObject_collapsed.name, _objectProperty & sim_objectproperty_collapsed);
     ev->appendKeyBool(propObject_selectable.name, _objectProperty & sim_objectproperty_selectable);
@@ -1373,7 +1396,18 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     ev->appendKeyBool(propObject_cannotDelete.name, _objectProperty & sim_objectproperty_cannotdelete);
     ev->appendKeyBool(propObject_cannotDeleteSim.name, _objectProperty & sim_objectproperty_cannotdeleteduringsim);
 
-    ev->appendKeyInt(propObject_modelProperty.name, _modelProperty);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    ev->appendKeyInt("modelProperty", _modelProperty); // deprecated
+#endif
+    ev->appendKeyBool(propObject_modelNotCollidable.name, _objectProperty & sim_modelproperty_not_collidable);
+    ev->appendKeyBool(propObject_modelNotMeasurable.name, _objectProperty & sim_modelproperty_not_measurable);
+    ev->appendKeyBool(propObject_modelNotDetectable.name, _objectProperty & sim_modelproperty_not_detectable);
+    ev->appendKeyBool(propObject_modelNotDynamic.name, _objectProperty & sim_modelproperty_not_dynamic);
+    ev->appendKeyBool(propObject_modelNotRespondable.name, _objectProperty & sim_modelproperty_not_respondable);
+    ev->appendKeyBool(propObject_modelNotVisible.name, _objectProperty & sim_modelproperty_not_visible);
+    ev->appendKeyBool(propObject_modelScriptsNotActive.name, _objectProperty & sim_modelproperty_scripts_inactive);
+    ev->appendKeyBool(propObject_modelNotInParentBB.name, _objectProperty & sim_modelproperty_not_showasinsidemodel);
+
     long long int pUid = -1;
     if (_parentObject != nullptr)
         pUid = _parentObject->getObjectUid();
@@ -1381,6 +1415,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
 
     _bbFrame.getData(p, true);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
+    // deprecated
     ev->openKeyMap("boundingBox");
     ev->appendKeyDoubleArray("pose", p, 7);
     ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
@@ -5229,12 +5264,7 @@ int CSceneObject::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = -1;
 
-    if (strcmp(pName, propObject_modelInvisible.name) == 0)
-    {
-        retVal = 1;
-        _setModelInvisible(pState);
-    }
-    else if (strcmp(pName, propObject_modelBase.name) == 0)
+    if (strcmp(pName, propObject_modelBase.name) == 0)
     {
         retVal = 1;
         setModelBase(pState);
@@ -5283,6 +5313,46 @@ int CSceneObject::setBoolProperty(const char* pName, bool pState)
     {
         retVal = 1;
         setObjectProperty((_objectProperty | sim_objectproperty_cannotdeleteduringsim) - (1 - pState) * sim_objectproperty_cannotdeleteduringsim);
+    }
+    else if (strcmp(pName, propObject_modelNotCollidable.name) == 0)
+    {
+        retVal = 1;
+        setModelProperty((_modelProperty | sim_modelproperty_not_collidable) - (1 - pState) * sim_modelproperty_not_collidable);
+    }
+    else if (strcmp(pName, propObject_modelNotMeasurable.name) == 0)
+    {
+        retVal = 1;
+        setModelProperty((_modelProperty | sim_modelproperty_not_measurable) - (1 - pState) * sim_modelproperty_not_measurable);
+    }
+    else if (strcmp(pName, propObject_modelNotDetectable.name) == 0)
+    {
+        retVal = 1;
+        setModelProperty((_modelProperty | sim_modelproperty_not_detectable) - (1 - pState) * sim_modelproperty_not_detectable);
+    }
+    else if (strcmp(pName, propObject_modelNotDynamic.name) == 0)
+    {
+        retVal = 1;
+        setModelProperty((_modelProperty | sim_modelproperty_not_dynamic) - (1 - pState) * sim_modelproperty_not_dynamic);
+    }
+    else if (strcmp(pName, propObject_modelNotRespondable.name) == 0)
+    {
+        retVal = 1;
+        setModelProperty((_modelProperty | sim_modelproperty_not_respondable) - (1 - pState) * sim_modelproperty_not_respondable);
+    }
+    else if (strcmp(pName, propObject_modelNotVisible.name) == 0)
+    {
+        retVal = 1;
+        setModelProperty((_modelProperty | sim_modelproperty_not_visible) - (1 - pState) * sim_modelproperty_not_visible);
+    }
+    else if (strcmp(pName, propObject_modelScriptsNotActive.name) == 0)
+    {
+        retVal = 1;
+        setModelProperty((_modelProperty | sim_modelproperty_scripts_inactive) - (1 - pState) * sim_modelproperty_scripts_inactive);
+    }
+    else if (strcmp(pName, propObject_modelNotInParentBB.name) == 0)
+    {
+        retVal = 1;
+        setModelProperty((_modelProperty | sim_modelproperty_not_showasinsidemodel) - (1 - pState) * sim_modelproperty_not_showasinsidemodel);
     }
 
     return retVal;
@@ -5346,6 +5416,46 @@ int CSceneObject::getBoolProperty(const char* pName, bool& pState)
     {
         retVal = 1;
         pState = (_objectProperty & sim_objectproperty_cannotdeleteduringsim) != 0;
+    }
+    else if (strcmp(pName, propObject_modelNotCollidable.name) == 0)
+    {
+        retVal = 1;
+        pState = (_modelProperty & sim_modelproperty_not_collidable) != 0;
+    }
+    else if (strcmp(pName, propObject_modelNotMeasurable.name) == 0)
+    {
+        retVal = 1;
+        pState = (_modelProperty & sim_modelproperty_not_measurable) != 0;
+    }
+    else if (strcmp(pName, propObject_modelNotDetectable.name) == 0)
+    {
+        retVal = 1;
+        pState = (_modelProperty & sim_modelproperty_not_detectable) != 0;
+    }
+    else if (strcmp(pName, propObject_modelNotDynamic.name) == 0)
+    {
+        retVal = 1;
+        pState = (_modelProperty & sim_modelproperty_not_dynamic) != 0;
+    }
+    else if (strcmp(pName, propObject_modelNotRespondable.name) == 0)
+    {
+        retVal = 1;
+        pState = (_modelProperty & sim_modelproperty_not_respondable) != 0;
+    }
+    else if (strcmp(pName, propObject_modelNotVisible.name) == 0)
+    {
+        retVal = 1;
+        pState = (_modelProperty & sim_modelproperty_not_visible) != 0;
+    }
+    else if (strcmp(pName, propObject_modelScriptsNotActive.name) == 0)
+    {
+        retVal = 1;
+        pState = (_modelProperty & sim_modelproperty_scripts_inactive) != 0;
+    }
+    else if (strcmp(pName, propObject_modelNotInParentBB.name) == 0)
+    {
+        retVal = 1;
+        pState = (_modelProperty & sim_modelproperty_not_showasinsidemodel) != 0;
     }
 
     return retVal;
