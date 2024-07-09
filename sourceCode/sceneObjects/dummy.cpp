@@ -1097,6 +1097,41 @@ CColorObject *CDummy::getDummyColor()
     return (&_dummyColor);
 }
 
+void CDummy::setDummyColor(const float* col, int colComp)
+{
+    float o[3];
+    _dummyColor.getColor(o, colComp);
+    bool diff = ( (o[0] != col[0]) || (o[1] != col[1]) || (o[2] != col[2]) );
+    if (diff)
+    {
+        _dummyColor.setColor(col, colComp);
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            if (colComp == sim_colorcomponent_ambient_diffuse)
+            {
+                const char *cmd = propDummy_colDiffuse.name;
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev->appendKeyFloatArray(cmd, col, 3);
+                App::worldContainer->pushEvent();
+            }
+            else if (colComp == sim_colorcomponent_specular)
+            {
+                const char *cmd = propDummy_colSpecular.name;
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev->appendKeyFloatArray(cmd, col, 3);
+                App::worldContainer->pushEvent();
+            }
+            else if (colComp == sim_colorcomponent_emission)
+            {
+                const char *cmd = propDummy_colEmission.name;
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev->appendKeyFloatArray(cmd, col, 3);
+                App::worldContainer->pushEvent();
+            }
+        }
+    }
+}
+
 void CDummy::setDummySize(double s)
 {
     bool diff = (_dummySize != s);
@@ -1158,17 +1193,17 @@ int CDummy::setColorProperty(const char* pName, const float* pState)
     {
         if (strcmp(pName, propDummy_colDiffuse.name) == 0)
         {
-            _dummyColor.setColor(pState, sim_colorcomponent_ambient_diffuse);
+            setDummyColor(pState, sim_colorcomponent_ambient_diffuse);
             retVal = 1;
         }
         else if (strcmp(pName, propDummy_colSpecular.name) == 0)
         {
-            _dummyColor.setColor(pState, sim_colorcomponent_specular);
+            setDummyColor(pState, sim_colorcomponent_specular);
             retVal = 1;
         }
         else if (strcmp(pName, propDummy_colEmission.name) == 0)
         {
-            _dummyColor.setColor(pState, sim_colorcomponent_emission);
+            setDummyColor(pState, sim_colorcomponent_emission);
             retVal = 1;
         }
     }

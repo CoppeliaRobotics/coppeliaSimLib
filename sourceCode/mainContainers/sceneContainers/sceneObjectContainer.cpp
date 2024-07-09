@@ -5309,6 +5309,14 @@ int CSceneObjectContainer::getIntVectorProperty(int target, const char* pName, s
         if (objType == sim_object_mirror_type)
             return ((CMirror*)it)->getIntVectorProperty(pName, pState);
     }
+    /*
+    else
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getIntVectorProperty(pName, pState);
+    }
+    */
     else
         retVal = -2; // object does not exist
     return retVal;

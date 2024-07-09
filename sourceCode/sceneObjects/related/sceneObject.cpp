@@ -1870,10 +1870,10 @@ void CSceneObject::_setBB(const C7Vector &bbFrame, const C3Vector &bbHalfSize)
         {
             const char *cmd = "boundingBox";
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-            ev->openKeyMap(cmd);
             double p[7] = {_bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2), _bbFrame.Q(1),
                            _bbFrame.Q(2), _bbFrame.Q(3), _bbFrame.Q(0)};
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+            ev->openKeyMap(cmd);
             ev->appendKeyDoubleArray("pose", p, 7);
             ev->appendKeyDoubleArray("hsize", _bbHalfSize.data, 3);
             ev->closeArrayOrMap();

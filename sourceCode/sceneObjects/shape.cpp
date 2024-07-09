@@ -1425,6 +1425,7 @@ void CShape::removeSceneDependencies()
 void CShape::addSpecializedObjectEventData(CCbor *ev) const
 {
     ev->openKeyMap("shape");
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyArray("meshes");
     std::vector<CMesh *> all;
     std::vector<C7Vector> allTr;
@@ -1449,8 +1450,8 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
             vertices[3 * j + 1] = (float)v(1);
             vertices[3 * j + 2] = (float)v(2);
         }
-        ev->appendKeyFloatArray("vertices", vertices.data(), vertices.size());
-        ev->appendKeyIntArray("indices", wind->data(), wind->size());
+        ev->appendKeyFloatArray(propShape_vertices.name, vertices.data(), vertices.size());
+        ev->appendKeyIntArray(propShape_indices.name, wind->data(), wind->size());
 
         std::vector<float> normals;
         normals.resize(wind->size() * 3);
@@ -1463,29 +1464,35 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
             normals[3 * j + 1] = (float)n(1);
             normals[3 * j + 2] = (float)n(2);
         }
-        ev->appendKeyFloatArray("normals", normals.data(), normals.size());
+        ev->appendKeyFloatArray(propShape_normals.name, normals.data(), normals.size());
 
         float c[9];
         geom->color.getColor(c + 0, sim_colorcomponent_ambient_diffuse);
         geom->color.getColor(c + 3, sim_colorcomponent_specular);
         geom->color.getColor(c + 6, sim_colorcomponent_emission);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
         ev->appendKeyFloatArray("color", c, 9);
-
+#endif
+        ev->appendKeyFloatArray(propShape_colDiffuse.name, c, 3);
+        ev->appendKeyFloatArray(propShape_colSpecular.name, c + 3, 3);
+        ev->appendKeyFloatArray(propShape_colEmission.name, c + 6, 3);
         //        ev->appendKeyDouble("edgeAngle",geom->);
-        ev->appendKeyDouble("shadingAngle", geom->getShadingAngle());
-        ev->appendKeyBool("showEdges", geom->getVisibleEdges());
-        ev->appendKeyBool("culling", geom->getCulling());
+        ev->appendKeyDouble(propShape_shadingAngle.name, geom->getShadingAngle());
+        ev->appendKeyBool(propShape_showEdges.name, geom->getVisibleEdges());
+        ev->appendKeyBool(propShape_culling.name, geom->getCulling());
         double transp = 0.0;
         if (geom->color.getTranslucid())
             transp = 1.0 - geom->color.getOpacity();
-        ev->appendKeyDouble("transparency", transp);
+        ev->appendKeyDouble(propShape_transparency.name, transp);
 
+#if SIM_EVENT_PROTOCOL_VERSION == 2
         int options = 0;
         if (geom->getCulling())
             options |= 1;
         if (geom->getWireframe_OLD())
             options |= 2;
         ev->appendKeyInt("options", options);
+#endif
 
         CTextureProperty *tp = geom->getTextureProperty();
         CTextureObject *to = nullptr;
@@ -1503,7 +1510,8 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
                 int tRes[2];
                 to->getTextureSize(tRes[0], tRes[1]);
                 ev->openKeyMap("texture");
-                ev->appendKeyBuff("rawTexture", to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
+                ev->appendKeyBuff(propShape_texture.name, to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
                 ev->appendKeyIntArray("resolution", tRes, 2);
                 ev->appendKeyFloatArray("coordinates", tc->data(), tc->size());
                 ev->appendKeyInt("applyMode", tp->getApplyMode());
@@ -1516,11 +1524,19 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
                 if (tp->getInterpolateColors())
                     options |= 4;
                 ev->appendKeyInt("options", options);
-
                 ev->appendKeyInt("id", tp->getTextureObjectID());
+#endif
+                ev->appendKeyIntArray(propShape_textureResolution.name, tRes, 2);
+                ev->appendKeyFloatArray(propShape_textureCoordinates.name, tc->data(), tc->size());
+                ev->appendKeyInt(propShape_textureApplyMode.name, tp->getApplyMode());
+                ev->appendKeyBool(propShape_textureRepeatU.name, tp->getRepeatU());
+                ev->appendKeyBool(propShape_textureRepeatV.name, tp->getRepeatV());
+                ev->appendKeyBool(propShape_textureInterpolate.name, tp->getInterpolateColors());
+                ev->appendKeyInt(propShape_textureID.name, tp->getTextureObjectID());
 
                 ev->closeArrayOrMap(); // texture
             }
+            /*
             else
             { // sending PNG texture
                 std::string buffer;
@@ -1550,10 +1566,12 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
                     ev->closeArrayOrMap(); // texture
                 }
             }
+            */
         }
         ev->closeArrayOrMap(); // one mesh
     }
     ev->closeArrayOrMap(); // meshes
+#endif
     ev->closeArrayOrMap(); // shape
 }
 

@@ -108,6 +108,7 @@ class CDummy : public CSceneObject
     std::string getAssemblyTag() const;
 
     CColorObject *getDummyColor();
+    void setDummyColor(const float* col, int colComp);
     void loadUnknownObjectType(CSer &ar);
 
     bool setAssignedToParentPath(bool assigned);

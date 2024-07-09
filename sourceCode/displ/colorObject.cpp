@@ -734,6 +734,48 @@ void CColorObject::setExtensionString(const char *nm)
         _extensionString = nm;
 }
 
+/*
+void CColorObject::handleSceneObjectColorEvents(int objHandle)
+{
+    if (objHandle < 0)
+    {
+        for (size_t i = 0; i < 15; i++)
+            _icolors[i] = _colors[i];
+        _ishininess = _shininess;
+        _iopacity = _opacity;
+        _itranslucid = _translucid;
+        _icolorName = _colorName;
+    }
+    else
+    {
+        if (App::worldContainer->getEventsEnabled())
+        {
+            if ( (_icolors[0] != _colors[0]) || (_icolors[1] != _colors[1]) || (_icolors[2] != _colors[2]) )
+            {
+                const char *cmd = "diffuseColor";
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(objHandle, false, cmd, true);
+                ev->appendKeyFloatArray(cmd, _colors, 3);
+                App::worldContainer->pushEvent();
+            }
+            if ( (_icolors[6] != _colors[6]) || (_icolors[7] != _colors[7]) || (_icolors[8] != _colors[8]) )
+            {
+                const char *cmd = "specularColor";
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(objHandle, false, cmd, true);
+                ev->appendKeyFloatArray(cmd, _colors + 6, 3);
+                App::worldContainer->pushEvent();
+            }
+            if ( (_icolors[9] != _colors[9]) || (_icolors[10] != _colors[10]) || (_icolors[11] != _colors[11]) )
+            {
+                const char *cmd = "emissionColor";
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(objHandle, false, cmd, true);
+                ev->appendKeyFloatArray(cmd, _colors + 6, 3);
+                App::worldContainer->pushEvent();
+            }
+        }
+    }
+}
+*/
+
 #ifdef SIM_WITH_GUI
 void CColorObject::makeCurrentColor(bool useAuxiliaryComponent) const
 {

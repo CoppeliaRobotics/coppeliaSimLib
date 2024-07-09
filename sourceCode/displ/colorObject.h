@@ -47,6 +47,7 @@ class CColorObject
     void setColorName(const char *nm);
     void setExtensionString(const char *nm);
 
+//    void handleSceneObjectColorEvents(int objHandle);
   private:
     bool _isSame(const CColorObject *it) const;
     std::string _getPatternStringFromPatternId_backwardCompatibility_3_2_2016(int id);
@@ -56,6 +57,13 @@ class CColorObject
     float _opacity;
     bool _translucid;
     std::string _colorName;
+
+    float _icolors[15];
+    int _ishininess;
+    float _iopacity;
+    bool _itranslucid;
+    std::string _icolorName;
+
     std::string _extensionString;
 
     bool _useSimulationTime;

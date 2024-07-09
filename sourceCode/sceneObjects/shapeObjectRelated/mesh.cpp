@@ -13,7 +13,7 @@
 #include <shapeRendering.h>
 #endif
 
-int CMesh::_nextUniqueID = 0;
+int CMesh::_nextUniqueID = SIM_IDSTART_MESH;
 unsigned int CMesh::_extRendererUniqueObjectID = 0;
 unsigned int CMesh::_extRendererUniqueMeshID = 0;
 unsigned int CMesh::_extRendererUniqueTextureID = 0;

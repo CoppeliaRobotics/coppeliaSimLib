@@ -347,8 +347,82 @@ void CCustomData::appendEventData(CCbor *ev) const
         std::string tg(_data[i].tag);
         size_t p = tg.find("&.");
         if (p != std::string::npos)
-            tg.erase(0, p + 2);
-        ev->appendKeyBuff(tg.c_str(), (unsigned char *)_data[i].data.c_str(), _data[i].data.size());
+        {
+            if (tg.find(proptypetag_bool) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyBool(tg.c_str(), ((unsigned char*)_data[i].data.data())[0]);
+            }
+            else if (tg.find(proptypetag_int) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyInt(tg.c_str(), ((int*)_data[i].data.data())[0]);
+            }
+            else if (tg.find(proptypetag_float) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyDouble(tg.c_str(), ((double*)_data[i].data.data())[0]);
+            }
+            else if (tg.find(proptypetag_string) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyString(tg.c_str(), _data[i].data.c_str());
+            }
+            else if (tg.find(proptypetag_vector3) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyDoubleArray(tg.c_str(), (double*)_data[i].data.data(), _data[i].data.size() / sizeof(double));
+            }
+            else if (tg.find(proptypetag_quaternion) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyDoubleArray(tg.c_str(), (double*)_data[i].data.data(), _data[i].data.size() / sizeof(double));
+            }
+            else if (tg.find(proptypetag_pose) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyDoubleArray(tg.c_str(), (double*)_data[i].data.data(), _data[i].data.size() / sizeof(double));
+            }
+            else if (tg.find(proptypetag_matrix3x3) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyDoubleArray(tg.c_str(), (double*)_data[i].data.data(), _data[i].data.size() / sizeof(double));
+            }
+            else if (tg.find(proptypetag_matrix4x4) != std::string::npos)
+            {
+                double m[16];
+                for (size_t j = 0; j < 12; j++)
+                    m[j] = ((double*)_data[i].data.data())[j];
+                m[12] = 0.0;
+                m[13] = 0.0;
+                m[14] = 0.0;
+                m[15] = 1.0;
+                tg.erase(0, p + 2);
+                ev->appendKeyDoubleArray(tg.c_str(), m, 16);
+            }
+            else if (tg.find(proptypetag_color) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyFloatArray(tg.c_str(), (float*)_data[i].data.data(), _data[i].data.size() / sizeof(float));
+            }
+            else if (tg.find(proptypetag_vector) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyDoubleArray(tg.c_str(), (double*)_data[i].data.data(), _data[i].data.size() / sizeof(double));
+            }
+            else if (tg.find(proptypetag_intvector) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyIntArray(tg.c_str(), (int*)_data[i].data.data(), _data[i].data.size() / sizeof(int));
+            }
+            else
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyBuff(tg.c_str(), (unsigned char *)_data[i].data.data(), _data[i].data.size());
+            }
+        }
+        else
+            ev->appendKeyBuff(tg.c_str(), (unsigned char *)_data[i].data.data(), _data[i].data.size());
     }
 }
 

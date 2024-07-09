@@ -2439,7 +2439,7 @@ int CWorld::setBoolProperty(int target, const char* pName, bool pState)
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setBoolProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2453,7 +2453,7 @@ int CWorld::getBoolProperty(int target, const char* pName, bool& pState)
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getBoolProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2471,7 +2471,7 @@ int CWorld::setIntProperty(int target, const char* pName, int pState)
             retVal = 1;
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setIntProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2494,7 +2494,7 @@ int CWorld::getIntProperty(int target, const char* pName, int& pState)
             retVal = 1;
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getIntProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2508,7 +2508,7 @@ int CWorld::setFloatProperty(int target, const char* pName, double pState)
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setFloatProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2522,7 +2522,7 @@ int CWorld::getFloatProperty(int target, const char* pName, double& pState)
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getFloatProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2535,7 +2535,7 @@ int CWorld::setStringProperty(int target, const char* pName, const char* pState)
     if (target == sim_handle_scene)
     {
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setStringProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2548,7 +2548,7 @@ int CWorld::getStringProperty(int target, const char* pName, std::string& pState
     if (target == sim_handle_scene)
     {
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getStringProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2571,7 +2571,7 @@ int CWorld::setBufferProperty(int target, const char* pName, const char* buffer,
             }
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setBufferProperty(target, pName, buffer, bufferL);
     else
         retVal = -2; // target does not exist
@@ -2597,7 +2597,7 @@ int CWorld::getBufferProperty(int target, const char* pName, std::string& pState
             }
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getBufferProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2611,7 +2611,7 @@ int CWorld::setVector3Property(int target, const char* pName, const C3Vector& pS
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setVector3Property(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2625,7 +2625,7 @@ int CWorld::getVector3Property(int target, const char* pName, C3Vector& pState)
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getVector3Property(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2639,7 +2639,7 @@ int CWorld::setQuaternionProperty(int target, const char* pName, const C4Vector&
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setQuaternionProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2653,7 +2653,7 @@ int CWorld::getQuaternionProperty(int target, const char* pName, C4Vector& pStat
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getQuaternionProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2667,7 +2667,7 @@ int CWorld::setPoseProperty(int target, const char* pName, const C7Vector& pStat
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setPoseProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2681,7 +2681,7 @@ int CWorld::getPoseProperty(int target, const char* pName, C7Vector& pState)
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getPoseProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2695,7 +2695,7 @@ int CWorld::setMatrix3x3Property(int target, const char* pName, const C3X3Matrix
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setMatrix3x3Property(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2709,7 +2709,7 @@ int CWorld::getMatrix3x3Property(int target, const char* pName, C3X3Matrix& pSta
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getMatrix3x3Property(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2723,7 +2723,7 @@ int CWorld::setMatrix4x4Property(int target, const char* pName, const C4X4Matrix
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setMatrix4x4Property(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2737,7 +2737,7 @@ int CWorld::getMatrix4x4Property(int target, const char* pName, C4X4Matrix& pSta
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getMatrix4x4Property(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2751,7 +2751,7 @@ int CWorld::setColorProperty(int target, const char* pName, const float* pState)
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setColorProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2765,7 +2765,7 @@ int CWorld::getColorProperty(int target, const char* pName, float* pState)
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getColorProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2779,7 +2779,7 @@ int CWorld::setVectorProperty(int target, const char* pName, const double* v, in
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setVectorProperty(target, pName, v, vL);
     else
         retVal = -2; // target does not exist
@@ -2793,7 +2793,7 @@ int CWorld::getVectorProperty(int target, const char* pName, std::vector<double>
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getVectorProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2807,7 +2807,7 @@ int CWorld::setIntVectorProperty(int target, const char* pName, const int* v, in
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->setIntVectorProperty(target, pName, v, vL);
     else
         retVal = -2; // target does not exist
@@ -2821,7 +2821,7 @@ int CWorld::getIntVectorProperty(int target, const char* pName, std::vector<int>
     {
 
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getIntVectorProperty(target, pName, pState);
     else
         retVal = -2; // target does not exist
@@ -2848,7 +2848,7 @@ int CWorld::removeProperty(int target, const char* pName)
             }
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->removeProperty(target, pName);
     else
         retVal = -2; // target does not exist
@@ -2879,7 +2879,7 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName)
             }
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getPropertyName(target, index, pName);
     else
         retVal = -2; // target does not exist
@@ -2913,7 +2913,7 @@ int CWorld::getPropertyInfo(int target, const char* pName, int& info, int& size)
             }
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if (target >= 0)
         retVal = sceneObjects->getPropertyInfo(target, pName, info, size);
     else
         retVal = -2; // target does not exist
