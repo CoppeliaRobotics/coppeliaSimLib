@@ -1156,8 +1156,10 @@ void CDummy::display(CViewableBase *renderingObject, int displayAttrib)
 }
 #endif
 
-int CDummy::setFloatProperty(const char* pName, double pState)
+int CDummy::setFloatProperty(const char* ppName, double pState)
 {
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
+    const char* pName = _pName.c_str();
     int retVal = CSceneObject::setFloatProperty(pName, pState);
     if (retVal == -1)
     {
@@ -1171,8 +1173,10 @@ int CDummy::setFloatProperty(const char* pName, double pState)
     return retVal;
 }
 
-int CDummy::getFloatProperty(const char* pName, double& pState)
+int CDummy::getFloatProperty(const char* ppName, double& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
+    const char* pName = _pName.c_str();
     int retVal = CSceneObject::getFloatProperty(pName, pState);
     if (retVal == -1)
     {
@@ -1186,8 +1190,10 @@ int CDummy::getFloatProperty(const char* pName, double& pState)
     return retVal;
 }
 
-int CDummy::setColorProperty(const char* pName, const float* pState)
+int CDummy::setColorProperty(const char* ppName, const float* pState)
 {
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
+    const char* pName = _pName.c_str();
     int retVal = CSceneObject::setColorProperty(pName, pState);
     if (retVal == -1)
     {
@@ -1211,8 +1217,10 @@ int CDummy::setColorProperty(const char* pName, const float* pState)
     return retVal;
 }
 
-int CDummy::getColorProperty(const char* pName, float* pState)
+int CDummy::getColorProperty(const char* ppName, float* pState)
 {
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
+    const char* pName = _pName.c_str();
     int retVal = CSceneObject::getColorProperty(pName, pState);
     if (retVal == -1)
     {
@@ -1247,6 +1255,7 @@ int CDummy::getPropertyName(int& index, std::string& pName)
             if (index == -1)
             {
                 pName = allProps_dummy[i].name;
+                pName = "dummy." + pName;
                 retVal = 1;
                 break;
             }
@@ -1255,8 +1264,10 @@ int CDummy::getPropertyName(int& index, std::string& pName)
     return retVal;
 }
 
-int CDummy::getPropertyInfo(const char* pName, int& info, int& size)
+int CDummy::getPropertyInfo(const char* ppName, int& info, int& size)
 {
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
+    const char* pName = _pName.c_str();
     int retVal = CSceneObject::getPropertyInfo(pName, info, size);
     if (retVal == -1)
     {

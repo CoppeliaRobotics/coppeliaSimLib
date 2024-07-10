@@ -1428,13 +1428,34 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     customObjectData.appendEventData(ev);
     customObjectData_tempData_old.appendEventData(ev);
     ev->closeArrayOrMap(); // customData
-    _appendObjectMovementEventData(ev);
-}
 
-void CSceneObject::_appendObjectMovementEventData(CCbor *ev) const
-{
-    ev->appendKeyInt(propObject_movementOptions.name, _objectMovementOptions);
-    ev->appendKeyInt(propObject_movementPreferredAxes.name, _objectMovementPreferredAxes);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    // deprecated
+    ev->appendKeyInt("movementOptions", _objectMovementOptions);
+    ev->appendKeyInt("movementPreferredAxes", _objectMovementPreferredAxes);
+#endif
+    ev->appendKeyBool(propObject_movTranslNoSim.name, (_objectMovementOptions & 1) == 0);
+    ev->appendKeyBool(propObject_movTranslInSim.name, (_objectMovementOptions & 2) == 0);
+    ev->appendKeyBool(propObject_movRotNoSim.name, (_objectMovementOptions & 4) == 0);
+    ev->appendKeyBool(propObject_movRotInSim.name, (_objectMovementOptions & 8) == 0);
+    ev->appendKeyBool(propObject_movAltTransl.name, (_objectMovementOptions & 16) == 0);
+    ev->appendKeyBool(propObject_movAltRot.name, (_objectMovementOptions & 32) == 0);
+    /*
+    ev->appendKeyBool(propObject_movTranslX.name, (_objectMovementOptions & 64) == 0);
+    ev->appendKeyBool(propObject_movTranslY.name, (_objectMovementOptions & 128) == 0);
+    ev->appendKeyBool(propObject_movTranslZ.name, (_objectMovementOptions & 256) == 0);
+    ev->appendKeyBool(propObject_movRotX.name, (_objectMovementOptions & 512) == 0);
+    ev->appendKeyBool(propObject_movRotY.name, (_objectMovementOptions & 1024) == 0);
+    ev->appendKeyBool(propObject_movRotZ.name, (_objectMovementOptions & 2048) == 0);
+    */
+
+    ev->appendKeyBool(propObject_movPrefTranslX.name, _objectMovementPreferredAxes & 1);
+    ev->appendKeyBool(propObject_movPrefTranslY.name, _objectMovementPreferredAxes & 2);
+    ev->appendKeyBool(propObject_movPrefTranslZ.name, _objectMovementPreferredAxes & 4);
+    ev->appendKeyBool(propObject_movPrefRotX.name, _objectMovementPreferredAxes & 8);
+    ev->appendKeyBool(propObject_movPrefRotY.name, _objectMovementPreferredAxes & 16);
+    ev->appendKeyBool(propObject_movPrefRotZ.name, _objectMovementPreferredAxes & 32);
+
     ev->appendKeyDoubleArray(propObject_movementStepSize.name, _objectMovementStepSize, 2);
     ev->appendKeyIntArray(propObject_movementRelativity.name, _objectMovementRelativity, 2);
 }
@@ -1633,11 +1654,27 @@ void CSceneObject::setObjectMovementPreferredAxes(int p)
     bool diff = (_objectMovementPreferredAxes != p);
     if (diff)
     {
+        int cb = _objectMovementPreferredAxes ^ p;
         _objectMovementPreferredAxes = p;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, true);
-            _appendObjectMovementEventData(ev);
+            const char *cmd = propObject_movementPreferredAxes.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+            ev->appendKeyInt("movementPreferredAxes", _objectMovementPreferredAxes); // deprecated
+#endif
+            if (cb & 1)
+                ev->appendKeyBool(propObject_movPrefTranslX.name, _objectMovementPreferredAxes & 1);
+            if (cb & 2)
+                ev->appendKeyBool(propObject_movPrefTranslY.name, _objectMovementPreferredAxes & 2);
+            if (cb & 4)
+                ev->appendKeyBool(propObject_movPrefTranslZ.name, _objectMovementPreferredAxes & 4);
+            if (cb & 8)
+                ev->appendKeyBool(propObject_movPrefRotX.name, _objectMovementPreferredAxes & 8);
+            if (cb & 16)
+                ev->appendKeyBool(propObject_movPrefRotY.name, _objectMovementPreferredAxes & 16);
+            if (cb & 32)
+                ev->appendKeyBool(propObject_movPrefRotZ.name, _objectMovementPreferredAxes & 32);
             App::worldContainer->pushEvent();
         }
     }
@@ -1653,11 +1690,27 @@ void CSceneObject::setObjectMovementOptions(int p)
     bool diff = (_objectMovementOptions != p);
     if (diff)
     {
+        int cb = _objectMovementOptions ^ p;
         _objectMovementOptions = p;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, true);
-            _appendObjectMovementEventData(ev);
+            const char *cmd = propObject_movementOptions.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+            ev->appendKeyInt("movementOptions", _objectMovementOptions); // deprecated
+#endif
+            if (cb & 1)
+                ev->appendKeyBool(propObject_movTranslNoSim.name, (_objectMovementOptions & 1) == 0);
+            if (cb & 2)
+                ev->appendKeyBool(propObject_movTranslInSim.name, (_objectMovementOptions & 2) == 0);
+            if (cb & 4)
+                ev->appendKeyBool(propObject_movRotNoSim.name, (_objectMovementOptions & 4) == 0);
+            if (cb & 8)
+                ev->appendKeyBool(propObject_movRotInSim.name, (_objectMovementOptions & 8) == 0);
+            if (cb & 16)
+                ev->appendKeyBool(propObject_movAltTransl.name, (_objectMovementOptions & 16) == 0);
+            if (cb & 32)
+                ev->appendKeyBool(propObject_movAltRot.name, (_objectMovementOptions & 32) == 0);
             App::worldContainer->pushEvent();
         }
     }
@@ -1676,8 +1729,9 @@ void CSceneObject::setObjectMovementRelativity(int index, int p)
         _objectMovementRelativity[index] = p;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, true);
-            _appendObjectMovementEventData(ev);
+            const char *cmd = propObject_movementRelativity.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            ev->appendKeyIntArray(cmd, _objectMovementRelativity, 2);
             App::worldContainer->pushEvent();
         }
     }
@@ -1739,8 +1793,9 @@ void CSceneObject::setObjectMovementStepSize(int index, double s)
         _objectMovementStepSize[index] = s;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, true);
-            _appendObjectMovementEventData(ev);
+            const char *cmd = propObject_movementStepSize.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
+            ev->appendKeyDoubleArray(cmd, _objectMovementStepSize, 2);
             App::worldContainer->pushEvent();
         }
     }
@@ -5260,8 +5315,10 @@ bool CSceneObject::setChildSequence(CSceneObject *child, int order)
     return (false);
 }
 
-int CSceneObject::setBoolProperty(const char* pName, bool pState)
+int CSceneObject::setBoolProperty(const char* ppName, bool pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propObject_modelBase.name) == 0)
@@ -5354,12 +5411,74 @@ int CSceneObject::setBoolProperty(const char* pName, bool pState)
         retVal = 1;
         setModelProperty((_modelProperty | sim_modelproperty_not_showasinsidemodel) - (1 - pState) * sim_modelproperty_not_showasinsidemodel);
     }
+    else if (strcmp(pName, propObject_movTranslNoSim.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementOptions((_objectMovementOptions | 1) - pState * 1);
+    }
+    else if (strcmp(pName, propObject_movTranslInSim.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementOptions((_objectMovementOptions | 2) - pState * 2);
+    }
+    else if (strcmp(pName, propObject_movRotNoSim.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementOptions((_objectMovementOptions | 4) - pState * 4);
+    }
+    else if (strcmp(pName, propObject_movRotInSim.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementOptions((_objectMovementOptions | 8) - pState * 8);
+    }
+    else if (strcmp(pName, propObject_movAltTransl.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementOptions((_objectMovementOptions | 16) - pState * 16);
+    }
+    else if (strcmp(pName, propObject_movAltRot.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementOptions((_objectMovementOptions | 32) - pState * 32);
+    }
+    else if (strcmp(pName, propObject_movPrefTranslX.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 1) - (1 - pState) * 1);
+    }
+    else if (strcmp(pName, propObject_movPrefTranslY.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 2) - (1 - pState) * 2);
+    }
+    else if (strcmp(pName, propObject_movPrefTranslZ.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 4) - (1 - pState) * 4);
+    }
+    else if (strcmp(pName, propObject_movPrefRotX.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 8) - (1 - pState) * 8);
+    }
+    else if (strcmp(pName, propObject_movPrefRotY.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 16) - (1 - pState) * 16);
+    }
+    else if (strcmp(pName, propObject_movPrefRotZ.name) == 0)
+    {
+        retVal = 1;
+        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 32) - (1 - pState) * 32);
+    }
 
     return retVal;
 }
 
-int CSceneObject::getBoolProperty(const char* pName, bool& pState)
+int CSceneObject::getBoolProperty(const char* ppName, bool& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propObject_modelInvisible.name) == 0)
@@ -5457,12 +5576,74 @@ int CSceneObject::getBoolProperty(const char* pName, bool& pState)
         retVal = 1;
         pState = (_modelProperty & sim_modelproperty_not_showasinsidemodel) != 0;
     }
+    else if (strcmp(pName, propObject_movTranslNoSim.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementOptions & 1) == 0;
+    }
+    else if (strcmp(pName, propObject_movTranslInSim.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementOptions & 2) == 0;
+    }
+    else if (strcmp(pName, propObject_movRotNoSim.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementOptions & 4) == 0;
+    }
+    else if (strcmp(pName, propObject_movRotInSim.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementOptions & 8) == 0;
+    }
+    else if (strcmp(pName, propObject_movAltTransl.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementOptions & 16) == 0;
+    }
+    else if (strcmp(pName, propObject_movAltRot.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementOptions & 32) == 0;
+    }
+    else if (strcmp(pName, propObject_movPrefTranslX.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementPreferredAxes & 1) != 0;
+    }
+    else if (strcmp(pName, propObject_movPrefTranslY.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementPreferredAxes & 2) != 0;
+    }
+    else if (strcmp(pName, propObject_movPrefTranslZ.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementPreferredAxes & 4) != 0;
+    }
+    else if (strcmp(pName, propObject_movPrefRotX.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementPreferredAxes & 8) != 0;
+    }
+    else if (strcmp(pName, propObject_movPrefRotY.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementPreferredAxes & 16) != 0;
+    }
+    else if (strcmp(pName, propObject_movPrefRotZ.name) == 0)
+    {
+        retVal = 1;
+        pState = (_objectMovementPreferredAxes & 32) != 0;
+    }
 
     return retVal;
 }
 
-int CSceneObject::setIntProperty(const char* pName, int pState)
+int CSceneObject::setIntProperty(const char* ppName, int pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propObject_layer.name) == 0)
@@ -5494,8 +5675,10 @@ int CSceneObject::setIntProperty(const char* pName, int pState)
     return retVal;
 }
 
-int CSceneObject::getIntProperty(const char* pName, int& pState)
+int CSceneObject::getIntProperty(const char* ppName, int& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propObject_layer.name) == 0)
@@ -5539,22 +5722,28 @@ int CSceneObject::getIntProperty(const char* pName, int& pState)
     return retVal;
 }
 
-int CSceneObject::setFloatProperty(const char* pName, double pState)
+int CSceneObject::setFloatProperty(const char* ppName, double pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::getFloatProperty(const char* pName, double& pState)
+int CSceneObject::getFloatProperty(const char* ppName, double& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::setStringProperty(const char* pName, const char* pState)
+int CSceneObject::setStringProperty(const char* ppName, const char* pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propObject_alias.name) == 0)
@@ -5568,8 +5757,10 @@ int CSceneObject::setStringProperty(const char* pName, const char* pState)
     return retVal;
 }
 
-int CSceneObject::getStringProperty(const char* pName, std::string& pState)
+int CSceneObject::getStringProperty(const char* ppName, std::string& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propObject_alias.name) == 0)
@@ -5581,8 +5772,10 @@ int CSceneObject::getStringProperty(const char* pName, std::string& pState)
     return retVal;
 }
 
-int CSceneObject::setBufferProperty(const char* pName, const char* buffer, int bufferL)
+int CSceneObject::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
     if (buffer == nullptr)
         bufferL = 0;
@@ -5609,8 +5802,10 @@ int CSceneObject::setBufferProperty(const char* pName, const char* buffer, int b
     return retVal;
 }
 
-int CSceneObject::getBufferProperty(const char* pName, std::string& pState)
+int CSceneObject::getBufferProperty(const char* ppName, std::string& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
     if (strncmp(pName, "customData.", 11) == 0)
     {
@@ -5629,15 +5824,19 @@ int CSceneObject::getBufferProperty(const char* pName, std::string& pState)
     return retVal;
 }
 
-int CSceneObject::setVector3Property(const char* pName, const C3Vector& pState)
+int CSceneObject::setVector3Property(const char* ppName, const C3Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::getVector3Property(const char* pName, C3Vector& pState)
+int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propObject_bbHsize.name) == 0)
@@ -5649,22 +5848,28 @@ int CSceneObject::getVector3Property(const char* pName, C3Vector& pState)
     return retVal;
 }
 
-int CSceneObject::setQuaternionProperty(const char* pName, const C4Vector& pState)
+int CSceneObject::setQuaternionProperty(const char* ppName, const C4Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::getQuaternionProperty(const char* pName, C4Vector& pState)
+int CSceneObject::getQuaternionProperty(const char* ppName, C4Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::setPoseProperty(const char* pName, const C7Vector& pState)
+int CSceneObject::setPoseProperty(const char* ppName, const C7Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propObject_pose.name) == 0)
@@ -5676,8 +5881,10 @@ int CSceneObject::setPoseProperty(const char* pName, const C7Vector& pState)
     return retVal;
 }
 
-int CSceneObject::getPoseProperty(const char* pName, C7Vector& pState)
+int CSceneObject::getPoseProperty(const char* ppName, C7Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propObject_pose.name) == 0)
@@ -5694,50 +5901,64 @@ int CSceneObject::getPoseProperty(const char* pName, C7Vector& pState)
     return retVal;
 }
 
-int CSceneObject::setMatrix3x3Property(const char* pName, const C3X3Matrix& pState)
+int CSceneObject::setMatrix3x3Property(const char* ppName, const C3X3Matrix& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::getMatrix3x3Property(const char* pName, C3X3Matrix& pState)
+int CSceneObject::getMatrix3x3Property(const char* ppName, C3X3Matrix& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::setMatrix4x4Property(const char* pName, const C4X4Matrix& pState)
+int CSceneObject::setMatrix4x4Property(const char* ppName, const C4X4Matrix& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::getMatrix4x4Property(const char* pName, C4X4Matrix& pState)
+int CSceneObject::getMatrix4x4Property(const char* ppName, C4X4Matrix& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::setColorProperty(const char* pName, const float* pState)
+int CSceneObject::setColorProperty(const char* ppName, const float* pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::getColorProperty(const char* pName, float* pState)
+int CSceneObject::getColorProperty(const char* ppName, float* pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CSceneObject::setVectorProperty(const char* pName, const double* v, int vL)
+int CSceneObject::setVectorProperty(const char* ppName, const double* v, int vL)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
     if (v == nullptr)
         vL = 0;
@@ -5757,8 +5978,10 @@ int CSceneObject::setVectorProperty(const char* pName, const double* v, int vL)
     return retVal;
 }
 
-int CSceneObject::getVectorProperty(const char* pName, std::vector<double>& pState)
+int CSceneObject::getVectorProperty(const char* ppName, std::vector<double>& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propObject_movementStepSize.name) == 0)
@@ -5771,8 +5994,10 @@ int CSceneObject::getVectorProperty(const char* pName, std::vector<double>& pSta
     return retVal;
 }
 
-int CSceneObject::setIntVectorProperty(const char* pName, const int* v, int vL)
+int CSceneObject::setIntVectorProperty(const char* ppName, const int* v, int vL)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
     if (v == nullptr)
         vL = 0;
@@ -5792,8 +6017,10 @@ int CSceneObject::setIntVectorProperty(const char* pName, const int* v, int vL)
     return retVal;
 }
 
-int CSceneObject::getIntVectorProperty(const char* pName, std::vector<int>& pState)
+int CSceneObject::getIntVectorProperty(const char* ppName, std::vector<int>& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propObject_movementRelativity.name) == 0)
@@ -5806,8 +6033,10 @@ int CSceneObject::getIntVectorProperty(const char* pName, std::vector<int>& pSta
     return retVal;
 }
 
-int CSceneObject::removeProperty(const char* pName)
+int CSceneObject::removeProperty(const char* ppName)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strncmp(pName, "customData.", 11) == 0)
@@ -5846,6 +6075,7 @@ int CSceneObject::getPropertyName(int& index, std::string& pName)
         if (index == -1)
         {
             pName = allProps_sceneObject[i].name;
+            pName = "object." + pName;
             retVal = 1;
             break;
         }
@@ -5855,14 +6085,17 @@ int CSceneObject::getPropertyName(int& index, std::string& pName)
         if (customObjectData.getPropertyName(index, pName))
         {
             pName = "customData." + pName;
+            pName = "object." + pName;
             retVal = 1;
         }
     }
     return retVal;
 }
 
-int CSceneObject::getPropertyInfo(const char* pName, int& info, int& size)
+int CSceneObject::getPropertyInfo(const char* ppName, int& info, int& size)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
     for (size_t i = 0; i < allProps_sceneObject.size(); i++)
     {

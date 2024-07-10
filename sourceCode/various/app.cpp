@@ -1501,9 +1501,10 @@ int App::setBufferProperty(int target, const char* pName, const char* buffer, in
     }
     else if (target == sim_handle_appstorage)
     {
-        if (strncmp(pName, "customData.", 11) == 0)
+        std::string PPName(utils::getWithoutPrefix(pName, "storage."));
+        if (strncmp(PPName.c_str(), "customData.", 11) == 0)
         {
-            std::string pN(pName);
+            std::string pN(PPName);
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
@@ -1516,10 +1517,10 @@ int App::setBufferProperty(int target, const char* pName, const char* buffer, in
         else
         {
             std::string dummyVal;
-            if (getBufferProperty(target, pName, dummyVal) == 1)
+            if (getBufferProperty(target, PPName.c_str(), dummyVal) == 1)
             { // we can only modify it if it exists
                 CPersistentDataContainer cont("appStorage.dat");
-                cont.writeData(pName, std::string(buffer, buffer + bufferL), true, true);
+                cont.writeData(PPName.c_str(), std::string(buffer, buffer + bufferL), true, true);
                 retVal = 1;
             }
         }
@@ -1539,8 +1540,8 @@ int App::getBufferProperty(int target, const char* pName, std::string& pState)
     }
     else if (target == sim_handle_appstorage)
     {
-        std::string pN(pName);
-        if (strncmp(pName, "customData.", 11) == 0)
+        std::string pN(utils::getWithoutPrefix(pName, "storage."));
+        if (strncmp(pN.c_str(), "customData.", 11) == 0)
         {
             pN.erase(0, 11);
             pN += "&customData"; // we add a suffix to separate user and system data
@@ -1839,9 +1840,9 @@ int App::removeProperty(int target, const char* pName)
     }
     else if (target == sim_handle_appstorage)
     {
-        std::string pN(pName);
+        std::string pN(utils::getWithoutPrefix(pName, "storage."));
         bool canBeRemoved = false;
-        if (strncmp(pName, "customData.", 11) == 0)
+        if (strncmp(pN.c_str(), "customData.", 11) == 0)
         {
             canBeRemoved = true;
             pN.erase(0, 11);
@@ -1886,6 +1887,7 @@ int App::getPropertyName(int target, int& index, std::string& pName)
             {
                 pName.erase(p);
                 pName = "customData." + pName;
+                pName = "storage." + pName;
             }
             retVal = 1;
         }
@@ -1905,9 +1907,9 @@ int App::getPropertyInfo(int target, const char* pName, int& info, int& size)
     }
     else if (target == sim_handle_appstorage)
     {
-        std::string pN(pName);
+        std::string pN(utils::getWithoutPrefix(pName, "storage."));
         int inf = 0;
-        if (strncmp(pName, "customData.", 11) == 0)
+        if (strncmp(pN.c_str(), "customData.", 11) == 0)
         {
             pN.erase(0, 11);
             pN += "&customData";

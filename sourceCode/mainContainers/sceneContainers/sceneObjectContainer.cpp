@@ -4235,7 +4235,12 @@ int CSceneObjectContainer::setBoolProperty(int target, const char* pName, bool p
             return ((CMirror*)it)->setBoolProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setBoolProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4278,7 +4283,12 @@ int CSceneObjectContainer::getBoolProperty(int target, const char* pName, bool& 
             return ((CMirror*)it)->getBoolProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getBoolProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4321,7 +4331,12 @@ int CSceneObjectContainer::setIntProperty(int target, const char* pName, int pSt
             return ((CMirror*)it)->setIntProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setIntProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4364,7 +4379,12 @@ int CSceneObjectContainer::getIntProperty(int target, const char* pName, int& pS
             return ((CMirror*)it)->getIntProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getIntProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4407,7 +4427,12 @@ int CSceneObjectContainer::setFloatProperty(int target, const char* pName, doubl
             return ((CMirror*)it)->setFloatProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setFloatProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4450,7 +4475,12 @@ int CSceneObjectContainer::getFloatProperty(int target, const char* pName, doubl
             return ((CMirror*)it)->getFloatProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getFloatProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4493,7 +4523,12 @@ int CSceneObjectContainer::setStringProperty(int target, const char* pName, cons
             return ((CMirror*)it)->setStringProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setStringProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4536,7 +4571,12 @@ int CSceneObjectContainer::getStringProperty(int target, const char* pName, std:
             return ((CMirror*)it)->getStringProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getStringProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4579,7 +4619,12 @@ int CSceneObjectContainer::setBufferProperty(int target, const char* pName, cons
             return ((CMirror*)it)->setBufferProperty(pName, buffer, bufferL);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setBufferProperty(pName, buffer, bufferL);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4622,7 +4667,12 @@ int CSceneObjectContainer::getBufferProperty(int target, const char* pName, std:
             return ((CMirror*)it)->getBufferProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getBufferProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4665,7 +4715,12 @@ int CSceneObjectContainer::setVector3Property(int target, const char* pName, con
             return ((CMirror*)it)->setVector3Property(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setVector3Property(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4708,7 +4763,12 @@ int CSceneObjectContainer::getVector3Property(int target, const char* pName, C3V
             return ((CMirror*)it)->getVector3Property(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getVector3Property(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4751,7 +4811,12 @@ int CSceneObjectContainer::setQuaternionProperty(int target, const char* pName, 
             return ((CMirror*)it)->setQuaternionProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setQuaternionProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4794,7 +4859,12 @@ int CSceneObjectContainer::getQuaternionProperty(int target, const char* pName, 
             return ((CMirror*)it)->getQuaternionProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getQuaternionProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4837,7 +4907,12 @@ int CSceneObjectContainer::setPoseProperty(int target, const char* pName, const 
             return ((CMirror*)it)->setPoseProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setPoseProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4880,7 +4955,12 @@ int CSceneObjectContainer::getPoseProperty(int target, const char* pName, C7Vect
             return ((CMirror*)it)->getPoseProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getPoseProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4923,7 +5003,12 @@ int CSceneObjectContainer::setMatrix3x3Property(int target, const char* pName, c
             return ((CMirror*)it)->setMatrix3x3Property(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setMatrix3x3Property(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -4966,7 +5051,12 @@ int CSceneObjectContainer::getMatrix3x3Property(int target, const char* pName, C
             return ((CMirror*)it)->getMatrix3x3Property(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getMatrix3x3Property(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -5009,7 +5099,12 @@ int CSceneObjectContainer::setMatrix4x4Property(int target, const char* pName, c
             return ((CMirror*)it)->setMatrix4x4Property(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setMatrix4x4Property(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -5052,7 +5147,12 @@ int CSceneObjectContainer::getMatrix4x4Property(int target, const char* pName, C
             return ((CMirror*)it)->getMatrix4x4Property(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getMatrix4x4Property(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -5095,7 +5195,12 @@ int CSceneObjectContainer::setColorProperty(int target, const char* pName, const
             return ((CMirror*)it)->setColorProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setColorProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -5138,7 +5243,12 @@ int CSceneObjectContainer::getColorProperty(int target, const char* pName, float
             return ((CMirror*)it)->getColorProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getColorProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -5181,7 +5291,12 @@ int CSceneObjectContainer::setVectorProperty(int target, const char* pName, cons
             return ((CMirror*)it)->setVectorProperty(pName, v, vL);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setVectorProperty(pName, v, vL);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -5224,7 +5339,12 @@ int CSceneObjectContainer::getVectorProperty(int target, const char* pName, std:
             return ((CMirror*)it)->getVectorProperty(pName, pState);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getVectorProperty(pName, pState);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -5267,7 +5387,12 @@ int CSceneObjectContainer::setIntVectorProperty(int target, const char* pName, c
             return ((CMirror*)it)->setIntVectorProperty(pName, v, vL);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->setIntVectorProperty(pName, v, vL);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -5309,16 +5434,13 @@ int CSceneObjectContainer::getIntVectorProperty(int target, const char* pName, s
         if (objType == sim_object_mirror_type)
             return ((CMirror*)it)->getIntVectorProperty(pName, pState);
     }
-    /*
     else
     {
         CMesh* mesh = getMeshFromUid(target);
         if (mesh != nullptr)
             return mesh->getIntVectorProperty(pName, pState);
     }
-    */
-    else
-        retVal = -2; // object does not exist
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -5361,7 +5483,12 @@ int CSceneObjectContainer::removeProperty(int target, const char* pName)
             return ((CMirror*)it)->removeProperty(pName);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->removeProperty(pName);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -5404,7 +5531,12 @@ int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& 
             return ((CMirror*)it)->getPropertyName(index, pName);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getPropertyName(index, pName);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
@@ -5447,7 +5579,24 @@ int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& i
             return ((CMirror*)it)->getPropertyInfo(pName, info, size);
     }
     else
-        retVal = -2; // object does not exist
+    {
+        CMesh* mesh = getMeshFromUid(target);
+        if (mesh != nullptr)
+            return mesh->getPropertyInfo(pName, info, size);
+    }
+    retVal = -2; // object does not exist
     return retVal;
 }
 
+CMesh* CSceneObjectContainer::getMeshFromUid(int meshUid)
+{
+    CMesh* mesh = nullptr;
+    for (size_t i = 0; i < _shapeList.size(); i++)
+    {
+        CShape* shape = _shapeList[i];
+        mesh = shape->getMeshFromUid(meshUid);
+        if (mesh != nullptr)
+            break;
+    }
+    return mesh;
+}

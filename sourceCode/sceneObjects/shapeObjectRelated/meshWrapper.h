@@ -70,6 +70,8 @@ class CMeshWrapper
     virtual void removeAllTextures();
     virtual void getColorStrings(std::string &colorStrings, bool onlyNamed) const;
     virtual CMesh *getFirstMesh();
+    virtual CMesh* getMeshFromUid(int meshUid);
+
 
     void copyAttributesTo(CMeshWrapper *target);
     void copyWrapperData(CMeshWrapper *target);

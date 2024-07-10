@@ -134,6 +134,11 @@ CMesh *CShape::getSingleMesh() const
     return (retVal);
 }
 
+CMesh* CShape::getMeshFromUid(int meshUid)
+{
+    return _mesh->getMeshFromUid(meshUid);
+}
+
 CDynMaterialObject *CShape::getDynMaterial()
 {
     return (_dynMaterial);
@@ -1425,7 +1430,6 @@ void CShape::removeSceneDependencies()
 void CShape::addSpecializedObjectEventData(CCbor *ev) const
 {
     ev->openKeyMap("shape");
-#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyArray("meshes");
     std::vector<CMesh *> all;
     std::vector<C7Vector> allTr;
@@ -1433,6 +1437,7 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
     for (size_t i = 0; i < all.size(); i++)
     {
         CMesh *geom = all[i];
+#if SIM_EVENT_PROTOCOL_VERSION == 2
         C7Vector tr(allTr[i]);
         ev->openMap();
 
@@ -1569,9 +1574,11 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
             */
         }
         ev->closeArrayOrMap(); // one mesh
+#else
+        ev->appendInt(geom->getUniqueID());
+#endif
     }
     ev->closeArrayOrMap(); // meshes
-#endif
     ev->closeArrayOrMap(); // shape
 }
 

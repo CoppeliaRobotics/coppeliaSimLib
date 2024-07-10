@@ -473,6 +473,14 @@ CMesh *CMesh::getFirstMesh()
     return (this);
 }
 
+CMesh* CMesh::getMeshFromUid(int meshUid)
+{ // function has virtual/non-virtual counterpart!
+    CMesh* retVal = nullptr;
+    if (meshUid == _uniqueID)
+        retVal = this;
+    return retVal;
+}
+
 int CMesh::countTriangles() const
 {
     return (int(_indices.size() / 3));
@@ -2558,3 +2566,235 @@ int *CMesh::getEdgeBufferIdPtr()
     return (&_edgeBufferId);
 }
 #endif
+
+int CMesh::setBoolProperty(const char* pName, bool pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getBoolProperty(const char* pName, bool& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setIntProperty(const char* pName, int pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getIntProperty(const char* pName, int& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setFloatProperty(const char* pName, double pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getFloatProperty(const char* pName, double& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setStringProperty(const char* pName, const char* pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getStringProperty(const char* pName, std::string& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setBufferProperty(const char* pName, const char* buffer, int bufferL)
+{
+    int retVal = -1;
+    if (buffer == nullptr)
+        bufferL = 0;
+
+    return retVal;
+}
+
+int CMesh::getBufferProperty(const char* pName, std::string& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setVector3Property(const char* pName, const C3Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getVector3Property(const char* pName, C3Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setQuaternionProperty(const char* pName, const C4Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getQuaternionProperty(const char* pName, C4Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setPoseProperty(const char* pName, const C7Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getPoseProperty(const char* pName, C7Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setMatrix3x3Property(const char* pName, const C3X3Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getMatrix3x3Property(const char* pName, C3X3Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setMatrix4x4Property(const char* pName, const C4X4Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getMatrix4x4Property(const char* pName, C4X4Matrix& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setColorProperty(const char* pName, const float* pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getColorProperty(const char* pName, float* pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setVectorProperty(const char* pName, const double* v, int vL)
+{
+    int retVal = -1;
+    if (v == nullptr)
+        vL = 0;
+
+    return retVal;
+}
+
+int CMesh::getVectorProperty(const char* pName, std::vector<double>& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setIntVectorProperty(const char* pName, const int* v, int vL)
+{
+    int retVal = -1;
+    if (v == nullptr)
+        vL = 0;
+
+    return retVal;
+}
+
+int CMesh::getIntVectorProperty(const char* pName, std::vector<int>& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::removeProperty(const char* pName)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getPropertyName(int& index, std::string& pName)
+{
+    int retVal = -1;
+    /*
+    for (size_t i = 0; i < allProps_sceneObject.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps_sceneObject[i].name;
+            retVal = 1;
+            break;
+        }
+    }
+    */
+    return retVal;
+}
+
+int CMesh::getPropertyInfo(const char* pName, int& info, int& size)
+{
+    int retVal = -1;
+    /*
+    for (size_t i = 0; i < allProps_sceneObject.size(); i++)
+    {
+        if (strcmp(allProps_sceneObject[i].name, pName) == 0)
+        {
+            retVal = allProps_sceneObject[i].type;
+            info = allProps_sceneObject[i].flags;
+            size = 0;
+            break;
+        }
+    }
+    */
+    return retVal;
+}
+

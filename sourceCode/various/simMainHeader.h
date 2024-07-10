@@ -115,6 +115,7 @@ typedef unsigned int(__cdecl *SIMPLE_VTHREAD_START_ADDRESS)(void *);
 #define SIMPLE_VTHREAD_RETURN_TYPE unsigned int
 #define SIMPLE_VTHREAD_RETURN_VAL 0
 #define SIMPLE_VTHREAD_ARGUMENT_TYPE void *
+#define STRCONCAT(a, b) a b
 
 #endif // __cplusplus
 #endif // SIM_MAINHEADER_INCLUDED

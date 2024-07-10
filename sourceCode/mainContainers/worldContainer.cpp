@@ -808,29 +808,37 @@ void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle, int scri
 #endif
 }
 
-int CWorldContainer::setBoolProperty(const char* pName, bool pState)
+int CWorldContainer::setBoolProperty(const char* ppName, bool pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::getBoolProperty(const char* pName, bool& pState)
+int CWorldContainer::getBoolProperty(const char* ppName, bool& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::setIntProperty(const char* pName, int pState)
+int CWorldContainer::setIntProperty(const char* ppName, int pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::getIntProperty(const char* pName, int& pState)
+int CWorldContainer::getIntProperty(const char* ppName, int& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propApp_protocolVersion.name) == 0)
@@ -842,8 +850,10 @@ int CWorldContainer::getIntProperty(const char* pName, int& pState)
     return retVal;
 }
 
-int CWorldContainer::setFloatProperty(const char* pName, double pState)
+int CWorldContainer::setFloatProperty(const char* ppName, double pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propApp_defaultTranslationStepSize.name) == 0)
@@ -860,8 +870,10 @@ int CWorldContainer::setFloatProperty(const char* pName, double pState)
     return retVal;
 }
 
-int CWorldContainer::getFloatProperty(const char* pName, double& pState)
+int CWorldContainer::getFloatProperty(const char* ppName, double& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propApp_defaultTranslationStepSize.name) == 0)
@@ -878,15 +890,19 @@ int CWorldContainer::getFloatProperty(const char* pName, double& pState)
     return retVal;
 }
 
-int CWorldContainer::setStringProperty(const char* pName, const char* pState)
+int CWorldContainer::setStringProperty(const char* ppName, const char* pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::getStringProperty(const char* pName, std::string& pState)
+int CWorldContainer::getStringProperty(const char* ppName, std::string& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     if (strcmp(pName, propApp_sessionId.name) == 0)
@@ -903,8 +919,10 @@ int CWorldContainer::getStringProperty(const char* pName, std::string& pState)
     return retVal;
 }
 
-int CWorldContainer::setBufferProperty(const char* pName, const char* buffer, int bufferL)
+int CWorldContainer::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
     if (buffer == nullptr)
         bufferL = 0;
@@ -921,8 +939,10 @@ int CWorldContainer::setBufferProperty(const char* pName, const char* buffer, in
     return retVal;
 }
 
-int CWorldContainer::getBufferProperty(const char* pName, std::string& pState)
+int CWorldContainer::getBufferProperty(const char* ppName, std::string& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
     if (strncmp(pName, "customData.", 11) == 0)
     {
@@ -940,120 +960,154 @@ int CWorldContainer::getBufferProperty(const char* pName, std::string& pState)
     return retVal;
 }
 
-int CWorldContainer::setVector3Property(const char* pName, const C3Vector& pState)
+int CWorldContainer::setVector3Property(const char* ppName, const C3Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::getVector3Property(const char* pName, C3Vector& pState)
+int CWorldContainer::getVector3Property(const char* ppName, C3Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::setQuaternionProperty(const char* pName, const C4Vector& pState)
+int CWorldContainer::setQuaternionProperty(const char* ppName, const C4Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::getQuaternionProperty(const char* pName, C4Vector& pState)
+int CWorldContainer::getQuaternionProperty(const char* ppName, C4Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::setPoseProperty(const char* pName, const C7Vector& pState)
+int CWorldContainer::setPoseProperty(const char* ppName, const C7Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::getPoseProperty(const char* pName, C7Vector& pState)
+int CWorldContainer::getPoseProperty(const char* ppName, C7Vector& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::setMatrix3x3Property(const char* pName, const C3X3Matrix& pState)
+int CWorldContainer::setMatrix3x3Property(const char* ppName, const C3X3Matrix& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::getMatrix3x3Property(const char* pName, C3X3Matrix& pState)
+int CWorldContainer::getMatrix3x3Property(const char* ppName, C3X3Matrix& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::setMatrix4x4Property(const char* pName, const C4X4Matrix& pState)
+int CWorldContainer::setMatrix4x4Property(const char* ppName, const C4X4Matrix& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::getMatrix4x4Property(const char* pName, C4X4Matrix& pState)
+int CWorldContainer::getMatrix4x4Property(const char* ppName, C4X4Matrix& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::setColorProperty(const char* pName, const float* pState)
+int CWorldContainer::setColorProperty(const char* ppName, const float* pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::getColorProperty(const char* pName, float* pState)
+int CWorldContainer::getColorProperty(const char* ppName, float* pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::setVectorProperty(const char* pName, const double* v, int vL)
+int CWorldContainer::setVectorProperty(const char* ppName, const double* v, int vL)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::getVectorProperty(const char* pName, std::vector<double>& pState)
+int CWorldContainer::getVectorProperty(const char* ppName, std::vector<double>& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::setIntVectorProperty(const char* pName, const int* v, int vL)
+int CWorldContainer::setIntVectorProperty(const char* ppName, const int* v, int vL)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::getIntVectorProperty(const char* pName, std::vector<int>& pState)
+int CWorldContainer::getIntVectorProperty(const char* ppName, std::vector<int>& pState)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
 
     return retVal;
 }
 
-int CWorldContainer::removeProperty(const char* pName)
+int CWorldContainer::removeProperty(const char* ppName)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
     if (strncmp(pName, "customData.", 11) == 0)
     {
@@ -1081,6 +1135,7 @@ int CWorldContainer::getPropertyName(int& index, std::string& pName)
         if (index == -1)
         {
             pName = allProps_app[i].name;
+            pName = "app." + pName;
             retVal = 1;
             break;
         }
@@ -1090,14 +1145,17 @@ int CWorldContainer::getPropertyName(int& index, std::string& pName)
         if (customAppData.getPropertyName(index, pName))
         {
             pName = "customData." + pName;
+            pName = "app." + pName;
             retVal = 1;
         }
     }
     return retVal;
 }
 
-int CWorldContainer::getPropertyInfo(const char* pName, int& info, int& size)
+int CWorldContainer::getPropertyInfo(const char* ppName, int& info, int& size)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
     int retVal = -1;
     for (size_t i = 0; i < allProps_app.size(); i++)
     {

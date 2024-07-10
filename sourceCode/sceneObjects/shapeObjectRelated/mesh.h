@@ -27,6 +27,7 @@ class CMesh : public CMeshWrapper
     bool isConvex() const;
     bool checkIfConvex();
     CMesh *getFirstMesh();
+    CMesh* getMeshFromUid(int meshUid);
     int countTriangles() const;
     void getCumulativeMeshes(const C7Vector &parentCumulTr, std::vector<double> &vertices, std::vector<int> *indices,
                              std::vector<double> *normals);
@@ -93,6 +94,36 @@ class CMesh : public CMeshWrapper
 
     bool reorientBB(const C4Vector *rot);
     void setBBFrame(const C7Vector &bbFrame);
+
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState);
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState);
+    int setFloatProperty(const char* pName, double pState);
+    int getFloatProperty(const char* pName, double& pState);
+    int setStringProperty(const char* pName, const char* pState);
+    int getStringProperty(const char* pName, std::string& pState);
+    int setBufferProperty(const char* pName, const char* buffer, int bufferL);
+    int getBufferProperty(const char* pName, std::string& pState);
+    int setVector3Property(const char* pName, const C3Vector& pState);
+    int getVector3Property(const char* pName, C3Vector& pState);
+    int setQuaternionProperty(const char* pName, const C4Vector& pState);
+    int getQuaternionProperty(const char* pName, C4Vector& pState);
+    int setPoseProperty(const char* pName, const C7Vector& pState);
+    int getPoseProperty(const char* pName, C7Vector& pState);
+    int setMatrix3x3Property(const char* pName, const C3X3Matrix& pState);
+    int getMatrix3x3Property(const char* pName, C3X3Matrix& pState);
+    int setMatrix4x4Property(const char* pName, const C4X4Matrix& pState);
+    int getMatrix4x4Property(const char* pName, C4X4Matrix& pState);
+    int setColorProperty(const char* pName, const float* pState);
+    int getColorProperty(const char* pName, float* pState);
+    int setVectorProperty(const char* pName, const double* v, int vL);
+    int getVectorProperty(const char* pName, std::vector<double>& pState);
+    int setIntVectorProperty(const char* pName, const int* v, int vL);
+    int getIntVectorProperty(const char* pName, std::vector<int>& pState);
+    int removeProperty(const char* pName);
+    int getPropertyName(int& index, std::string& pName);
+    int getPropertyInfo(const char* pName, int& info, int& size);
 
     // Following few routines in order not to save duplicate data:
     static void clearTempVerticesIndicesNormalsAndEdges();

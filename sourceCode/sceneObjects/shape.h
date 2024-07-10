@@ -54,6 +54,8 @@ class CShape : public CSceneObject
     int getMeshModificationCounter();
     CMeshWrapper *getMesh() const;
     CMesh *getSingleMesh() const;
+    CMesh* getMeshFromUid(int meshUid);
+
 
     void *_meshCalculationStructure;
     int _meshModificationCounter;
@@ -152,6 +154,7 @@ class CShape : public CSceneObject
 
     CSceneObject *getLastParentForLocalGlobalRespondable();
     void clearLastParentForLocalGlobalRespondable();
+
 
     // Distance measurement functions
     bool getShapeShapeDistance_IfSmaller(CShape *it, double &dist, double ray[7], int buffer[2]);

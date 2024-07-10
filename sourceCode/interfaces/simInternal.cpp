@@ -664,26 +664,21 @@ bool isPropertyNameValid(const char *functionName, const char* pName)
     return true;
 }
 
-int simSetBoolProperty_internal(int target, const char* pName, int pState)
+int simSetBoolProperty_internal(int target, const char* ppName, int pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_bool + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)&pState, sizeof(int));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_bool)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(int));
             else
             {
-                int res = App::setBoolProperty(target, pName, pState != 0);
+                int res = App::setBoolProperty(target, pName.c_str(), pState != 0);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -692,7 +687,7 @@ int simSetBoolProperty_internal(int target, const char* pName, int pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_bool)
@@ -708,23 +703,20 @@ int simSetBoolProperty_internal(int target, const char* pName, int pState)
     return -1;
 }
 
-int simGetBoolProperty_internal(int target, const char* pName, int* pState)
+int simGetBoolProperty_internal(int target, const char* ppName, int* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_bool)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_bool + pN;
-                pN = "customData." + pN;
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (data != nullptr)
                 {
                     if (l == sizeof(int))
@@ -740,7 +732,7 @@ int simGetBoolProperty_internal(int target, const char* pName, int* pState)
             else
             {
                 bool ppState;
-                int res = App::getBoolProperty(target, pName, ppState);
+                int res = App::getBoolProperty(target, pName.c_str(), ppState);
                 if (res == 1)
                 {
                     pState[0] = int(ppState);
@@ -752,7 +744,7 @@ int simGetBoolProperty_internal(int target, const char* pName, int* pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_bool)
@@ -768,26 +760,21 @@ int simGetBoolProperty_internal(int target, const char* pName, int* pState)
     return -1;
 }
 
-int simSetIntProperty_internal(int target, const char* pName, int pState)
+int simSetIntProperty_internal(int target, const char* ppName, int pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_int + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)&pState, sizeof(pState));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_int)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(pState));
             else
             {
-                int res = App::setIntProperty(target, pName, pState);
+                int res = App::setIntProperty(target, pName.c_str(), pState);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -796,7 +783,7 @@ int simSetIntProperty_internal(int target, const char* pName, int pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_int)
@@ -812,23 +799,20 @@ int simSetIntProperty_internal(int target, const char* pName, int pState)
     return -1;
 }
 
-int simGetIntProperty_internal(int target, const char* pName, int* pState)
+int simGetIntProperty_internal(int target, const char* ppName, int* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_int)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_int + pN;
-                pN = "customData." + pN;
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (data != nullptr)
                 {
                     if (l == sizeof(int))
@@ -843,7 +827,7 @@ int simGetIntProperty_internal(int target, const char* pName, int* pState)
             }
             else
             {
-                int res = App::getIntProperty(target, pName, pState[0]);
+                int res = App::getIntProperty(target, pName.c_str(), pState[0]);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -852,7 +836,7 @@ int simGetIntProperty_internal(int target, const char* pName, int* pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_int)
@@ -868,26 +852,21 @@ int simGetIntProperty_internal(int target, const char* pName, int* pState)
     return -1;
 }
 
-int simSetFloatProperty_internal(int target, const char* pName, double pState)
+int simSetFloatProperty_internal(int target, const char* ppName, double pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_float + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)&pState, sizeof(double));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_float)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(double));
             else
             {
-                int res = App::setFloatProperty(target, pName, pState);
+                int res = App::setFloatProperty(target, pName.c_str(), pState);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -896,7 +875,7 @@ int simSetFloatProperty_internal(int target, const char* pName, double pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_float)
@@ -912,23 +891,20 @@ int simSetFloatProperty_internal(int target, const char* pName, double pState)
     return -1;
 }
 
-int simGetFloatProperty_internal(int target, const char* pName, double* pState)
+int simGetFloatProperty_internal(int target, const char* ppName, double* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_float)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_float + pN;
-                pN = "customData." + pN;
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (data != nullptr)
                 {
                     if (l == sizeof(double))
@@ -943,7 +919,7 @@ int simGetFloatProperty_internal(int target, const char* pName, double* pState)
             }
             else
             {
-                int res = App::getFloatProperty(target, pName, pState[0]);
+                int res = App::getFloatProperty(target, pName.c_str(), pState[0]);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -952,7 +928,7 @@ int simGetFloatProperty_internal(int target, const char* pName, double* pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_float)
@@ -968,26 +944,21 @@ int simGetFloatProperty_internal(int target, const char* pName, double* pState)
     return -1;
 }
 
-int simSetStringProperty_internal(int target, const char* pName, const char* pState)
+int simSetStringProperty_internal(int target, const char* ppName, const char* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_string + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), pState, strlen(pState));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_string)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), pState, strlen(pState));
             else
             {
-                int res = App::setStringProperty(target, pName, pState);
+                int res = App::setStringProperty(target, pName.c_str(), pState);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -996,7 +967,7 @@ int simSetStringProperty_internal(int target, const char* pName, const char* pSt
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_string)
@@ -1012,23 +983,20 @@ int simSetStringProperty_internal(int target, const char* pName, const char* pSt
     return -1;
 }
 
-char* simGetStringProperty_internal(int target, const char* pName)
+char* simGetStringProperty_internal(int target, const char* ppName)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         char* retVal = nullptr;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_string)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_string + pN;
-                pN = "customData." + pN;
                 int l;
-                char* dat = simGetBufferProperty_internal(target, pN.c_str(), &l);
+                char* dat = simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (dat != nullptr)
                 {
                     retVal = new char[l + 1];
@@ -1041,7 +1009,7 @@ char* simGetStringProperty_internal(int target, const char* pName)
             else
             {
                 std::string s;
-                int res = App::getStringProperty(target, pName, s);
+                int res = App::getStringProperty(target, pName.c_str(), s);
                 if (res == 1)
                 {
                     retVal = new char[s.size() + 1];
@@ -1055,7 +1023,7 @@ char* simGetStringProperty_internal(int target, const char* pName)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_string)
@@ -1071,34 +1039,25 @@ char* simGetStringProperty_internal(int target, const char* pName)
     return nullptr;
 }
 
-int simSetBufferProperty_internal(int target, const char* pName, const char* buffer, int bufferL)
+int simSetBufferProperty_internal(int target, const char* ppName, const char* buffer, int bufferL)
 { // this is also called from all other property type setters
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if ( (std::string(pName).find("&.") != std::string::npos) || isPropertyNameValid(__func__, pName) )
+        if ( (std::string(ppName).find("&.") != std::string::npos) || isPropertyNameValid(__func__, ppName) )
         {
-            int res = App::setBufferProperty(target, pName, buffer, bufferL);
+            int res = App::setBufferProperty(target, ppName, buffer, bufferL);
             if (res == 1)
                 retVal = 1;
             else if (res == -2)
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
             else
             {
-                std::string pN(pName);
-                bool customData = false;
-                if (pN.find("customData.") == 0)
-                {
-                    pN.erase(0, 11);
-                    customData = true;
-                }
-                size_t pos = pN.find("&.");
-                if (pos != std::string::npos)
-                    pN.erase(0, pos + 2);
-                if (customData)
-                    pN = "customData." + pN;
+                std::string pN(ppName);
+                for (size_t i = 0; i < propertyTypes.size(); i++)
+                    utils::replaceSubstring(pN, propertyTypes[i].second.c_str(), "");
                 int info;
                 int size;
                 int p = App::getPropertyInfo(target, pN.c_str(), info, size);
@@ -1116,17 +1075,17 @@ int simSetBufferProperty_internal(int target, const char* pName, const char* buf
     return -1;
 }
 
-char* simGetBufferProperty_internal(int target, const char* pName, int* bufferL)
+char* simGetBufferProperty_internal(int target, const char* ppName, int* bufferL)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         char* retVal = nullptr;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string b;
-            int res = App::getBufferProperty(target, pName, b);
+            int res = App::getBufferProperty(target, ppName, b);
             if (res == 1)
             {
                 retVal = new char[b.size()];
@@ -1138,18 +1097,9 @@ char* simGetBufferProperty_internal(int target, const char* pName, int* bufferL)
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
             else
             {
-                std::string pN(pName);
-                bool customData = false;
-                if (pN.find("customData.") == 0)
-                {
-                    pN.erase(0, 11);
-                    customData = true;
-                }
-                size_t pos = pN.find("&.");
-                if (pos != std::string::npos)
-                    pN.erase(0, pos + 2);
-                if (customData)
-                    pN = "customData." + pN;
+                std::string pN(ppName);
+                for (size_t i = 0; i < propertyTypes.size(); i++)
+                    utils::replaceSubstring(pN, propertyTypes[i].second.c_str(), "");
                 int info;
                 int size;
                 int p = App::getPropertyInfo(target, pN.c_str(), info, size);
@@ -1167,27 +1117,22 @@ char* simGetBufferProperty_internal(int target, const char* pName, int* bufferL)
     return nullptr;
 }
 
-int simSetVector3Property_internal(int target, const char* pName, const double* pState)
+int simSetVector3Property_internal(int target, const char* ppName, const double* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_vector3 + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 3 * sizeof(double));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector3)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 3 * sizeof(double));
             else
             {
                 C3Vector v(pState);
-                int res = App::setVector3Property(target, pName, v);
+                int res = App::setVector3Property(target, pName.c_str(), v);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -1196,7 +1141,7 @@ int simSetVector3Property_internal(int target, const char* pName, const double* 
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_vector3)
@@ -1212,23 +1157,20 @@ int simSetVector3Property_internal(int target, const char* pName, const double* 
     return -1;
 }
 
-int simGetVector3Property_internal(int target, const char* pName, double* pState)
+int simGetVector3Property_internal(int target, const char* ppName, double* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector3)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_vector3 + pN;
-                pN = "customData." + pN;
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (data != nullptr)
                 {
                     if (l == 3 * sizeof(double))
@@ -1245,7 +1187,7 @@ int simGetVector3Property_internal(int target, const char* pName, double* pState
             else
             {
                 C3Vector v;
-                int res = App::getVector3Property(target, pName, v);
+                int res = App::getVector3Property(target, pName.c_str(), v);
                 if (res == 1)
                 {
                     v.getData(pState);
@@ -1257,7 +1199,7 @@ int simGetVector3Property_internal(int target, const char* pName, double* pState
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_vector3)
@@ -1273,27 +1215,22 @@ int simGetVector3Property_internal(int target, const char* pName, double* pState
     return -1;
 }
 
-int simSetQuaternionProperty_internal(int target, const char* pName, const double* pState)
+int simSetQuaternionProperty_internal(int target, const char* ppName, const double* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_quaternion + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 4 * sizeof(double));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_quaternion)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 4 * sizeof(double));
             else
             {
                 C4Vector q(pState, true);
-                int res = App::setQuaternionProperty(target, pName, q);
+                int res = App::setQuaternionProperty(target, pName.c_str(), q);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -1302,7 +1239,7 @@ int simSetQuaternionProperty_internal(int target, const char* pName, const doubl
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_quaternion)
@@ -1318,23 +1255,20 @@ int simSetQuaternionProperty_internal(int target, const char* pName, const doubl
     return -1;
 }
 
-int simGetQuaternionProperty_internal(int target, const char* pName, double* pState)
+int simGetQuaternionProperty_internal(int target, const char* ppName, double* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_quaternion)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_quaternion + pN;
-                pN = "customData." + pN;
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (data != nullptr)
                 {
                     if (l == 4 * sizeof(double))
@@ -1351,7 +1285,7 @@ int simGetQuaternionProperty_internal(int target, const char* pName, double* pSt
             else
             {
                 C4Vector q;
-                int res = App::getQuaternionProperty(target, pName, q);
+                int res = App::getQuaternionProperty(target, pName.c_str(), q);
                 if (res == 1)
                 {
                     q.getData(pState, true);
@@ -1363,7 +1297,7 @@ int simGetQuaternionProperty_internal(int target, const char* pName, double* pSt
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_quaternion)
@@ -1379,28 +1313,23 @@ int simGetQuaternionProperty_internal(int target, const char* pName, double* pSt
     return -1;
 }
 
-int simSetPoseProperty_internal(int target, const char* pName, const double* pState)
+int simSetPoseProperty_internal(int target, const char* ppName, const double* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_pose + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 7 * sizeof(double));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_pose)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 7 * sizeof(double));
             else
             {
                 C7Vector p;
                 p.setData(pState, true);
-                int res = App::setPoseProperty(target, pName, p);
+                int res = App::setPoseProperty(target, pName.c_str(), p);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -1409,7 +1338,7 @@ int simSetPoseProperty_internal(int target, const char* pName, const double* pSt
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_pose)
@@ -1425,23 +1354,20 @@ int simSetPoseProperty_internal(int target, const char* pName, const double* pSt
     return -1;
 }
 
-int simGetPoseProperty_internal(int target, const char* pName, double* pState)
+int simGetPoseProperty_internal(int target, const char* ppName, double* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_pose)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_pose + pN;
-                pN = "customData." + pN;
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (data != nullptr)
                 {
                     if (l == 7 * sizeof(double))
@@ -1458,7 +1384,7 @@ int simGetPoseProperty_internal(int target, const char* pName, double* pState)
             else
             {
                 C7Vector p;
-                int res = App::getPoseProperty(target, pName, p);
+                int res = App::getPoseProperty(target, pName.c_str(), p);
                 if (res == 1)
                 {
                     p.getData(pState, true);
@@ -1470,7 +1396,7 @@ int simGetPoseProperty_internal(int target, const char* pName, double* pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_pose)
@@ -1486,28 +1412,23 @@ int simGetPoseProperty_internal(int target, const char* pName, double* pState)
     return -1;
 }
 
-int simSetMatrix3x3Property_internal(int target, const char* pName, const double* pState)
+int simSetMatrix3x3Property_internal(int target, const char* ppName, const double* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_matrix3x3 + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 9 * sizeof(double));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_matrix3x3)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 9 * sizeof(double));
             else
             {
                 C3X3Matrix m;
                 m.setData(pState);
-                int res = App::setMatrix3x3Property(target, pName, m);
+                int res = App::setMatrix3x3Property(target, pName.c_str(), m);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -1516,7 +1437,7 @@ int simSetMatrix3x3Property_internal(int target, const char* pName, const double
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix3x3)
@@ -1532,23 +1453,20 @@ int simSetMatrix3x3Property_internal(int target, const char* pName, const double
     return -1;
 }
 
-int simGetMatrix3x3Property_internal(int target, const char* pName, double* pState)
+int simGetMatrix3x3Property_internal(int target, const char* ppName, double* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_matrix3x3)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_matrix3x3 + pN;
-                pN = "customData." + pN;
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (data != nullptr)
                 {
                     if (l == 9 * sizeof(double))
@@ -1565,7 +1483,7 @@ int simGetMatrix3x3Property_internal(int target, const char* pName, double* pSta
             else
             {
                 C3X3Matrix m;
-                int res = App::getMatrix3x3Property(target, pName, m);
+                int res = App::getMatrix3x3Property(target, pName.c_str(), m);
                 if (res == 1)
                 {
                     m.getData(pState);
@@ -1577,7 +1495,7 @@ int simGetMatrix3x3Property_internal(int target, const char* pName, double* pSta
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix3x3)
@@ -1593,28 +1511,23 @@ int simGetMatrix3x3Property_internal(int target, const char* pName, double* pSta
     return -1;
 }
 
-int simSetMatrix4x4Property_internal(int target, const char* pName, const double* pState)
+int simSetMatrix4x4Property_internal(int target, const char* ppName, const double* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_matrix4x4 + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 12 * sizeof(double));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_matrix4x4)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 12 * sizeof(double));
             else
             {
                 C4X4Matrix m;
                 m.setData(pState);
-                int res = App::setMatrix4x4Property(target, pName, m);
+                int res = App::setMatrix4x4Property(target, pName.c_str(), m);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -1623,7 +1536,7 @@ int simSetMatrix4x4Property_internal(int target, const char* pName, const double
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix4x4)
@@ -1639,23 +1552,20 @@ int simSetMatrix4x4Property_internal(int target, const char* pName, const double
     return -1;
 }
 
-int simGetMatrix4x4Property_internal(int target, const char* pName, double* pState)
+int simGetMatrix4x4Property_internal(int target, const char* ppName, double* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_matrix4x4)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_matrix4x4 + pN;
-                pN = "customData." + pN;
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (data != nullptr)
                 {
                     if (l == 12 * sizeof(double))
@@ -1676,7 +1586,7 @@ int simGetMatrix4x4Property_internal(int target, const char* pName, double* pSta
             else
             {
                 C3X3Matrix m;
-                int res = App::getMatrix3x3Property(target, pName, m);
+                int res = App::getMatrix3x3Property(target, pName.c_str(), m);
                 if (res == 1)
                 {
                     m.getData(pState);
@@ -1692,7 +1602,7 @@ int simGetMatrix4x4Property_internal(int target, const char* pName, double* pSta
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix4x4)
@@ -1708,26 +1618,21 @@ int simGetMatrix4x4Property_internal(int target, const char* pName, double* pSta
     return -1;
 }
 
-int simSetColorProperty_internal(int target, const char* pName, const float* pState)
+int simSetColorProperty_internal(int target, const char* ppName, const float* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_color + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)pState, 3 * sizeof(float));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_color)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 3 * sizeof(float));
             else
             {
-                int res = App::setColorProperty(target, pName, pState);
+                int res = App::setColorProperty(target, pName.c_str(), pState);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -1736,7 +1641,7 @@ int simSetColorProperty_internal(int target, const char* pName, const float* pSt
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_color)
@@ -1752,23 +1657,20 @@ int simSetColorProperty_internal(int target, const char* pName, const float* pSt
     return -1;
 }
 
-int simGetColorProperty_internal(int target, const char* pName, float* pState)
+int simGetColorProperty_internal(int target, const char* ppName, float* pState)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_color)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_color + pN;
-                pN = "customData." + pN;
                 int l;
-                const char* data = simGetBufferProperty_internal(target, pN.c_str(), &l);
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (data != nullptr)
                 {
                     if (l == 3 * sizeof(float))
@@ -1784,7 +1686,7 @@ int simGetColorProperty_internal(int target, const char* pName, float* pState)
             }
             else
             {
-                int res = App::getColorProperty(target, pName, pState);
+                int res = App::getColorProperty(target, pName.c_str(), pState);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -1793,7 +1695,7 @@ int simGetColorProperty_internal(int target, const char* pName, float* pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_color)
@@ -1809,26 +1711,21 @@ int simGetColorProperty_internal(int target, const char* pName, float* pState)
     return -1;
 }
 
-int simSetVectorProperty_internal(int target, const char* pName, const double* v, int vL)
+int simSetVectorProperty_internal(int target, const char* ppName, const double* v, int vL)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_vector + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)v, vL * sizeof(double));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(double));
             else
             {
-                int res = App::setVectorProperty(target, pName, v, vL);
+                int res = App::setVectorProperty(target, pName.c_str(), v, vL);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -1837,7 +1734,7 @@ int simSetVectorProperty_internal(int target, const char* pName, const double* v
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_vector)
@@ -1853,30 +1750,27 @@ int simSetVectorProperty_internal(int target, const char* pName, const double* v
     return -1;
 }
 
-double* simGetVectorProperty_internal(int target, const char* pName, int* vL)
+double* simGetVectorProperty_internal(int target, const char* ppName, int* vL)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         double* retVal = nullptr;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_vector + pN;
-                pN = "customData." + pN;
                 int l;
-                retVal = (double*)simGetBufferProperty_internal(target, pN.c_str(), &l);
+                retVal = (double*)simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (retVal != nullptr)
                     vL[0] = l / sizeof(double);
             }
             else
             {
                 std::vector<double> v;
-                int res = App::getVectorProperty(target, pName, v);
+                int res = App::getVectorProperty(target, pName.c_str(), v);
                 if (res == 1)
                 {
                     retVal = new double[v.size()];
@@ -1890,7 +1784,7 @@ double* simGetVectorProperty_internal(int target, const char* pName, int* vL)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_vector)
@@ -1906,26 +1800,21 @@ double* simGetVectorProperty_internal(int target, const char* pName, int* vL)
     return nullptr;
 }
 
-int simSetIntVectorProperty_internal(int target, const char* pName, const int* v, int vL)
+int simSetIntVectorProperty_internal(int target, const char* ppName, const int* v, int vL)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        if (isPropertyNameValid(__func__, pName)) // only when writing data, we still want to read legacy data
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (strncmp(pName, "customData.", 11) == 0)
-            {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_intvector + pN;
-                pN = "customData." + pN;
-                retVal = simSetBufferProperty_internal(target, pN.c_str(), (char*)v, vL * sizeof(int));
-            }
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_intvector)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(int));
             else
             {
-                int res = App::setIntVectorProperty(target, pName, v, vL);
+                int res = App::setIntVectorProperty(target, pName.c_str(), v, vL);
                 if (res == 1)
                     retVal = 1;
                 else if (res == -2)
@@ -1934,7 +1823,7 @@ int simSetIntVectorProperty_internal(int target, const char* pName, const int* v
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_intvector)
@@ -1950,30 +1839,27 @@ int simSetIntVectorProperty_internal(int target, const char* pName, const int* v
     return -1;
 }
 
-int* simGetIntVectorProperty_internal(int target, const char* pName, int* vL)
+int* simGetIntVectorProperty_internal(int target, const char* ppName, int* vL)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int* retVal = nullptr;
-        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_intvector)))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                pN = proptypetag_intvector + pN;
-                pN = "customData." + pN;
                 int l;
-                retVal = (int*)simGetBufferProperty_internal(target, pN.c_str(), &l);
+                retVal = (int*)simGetBufferProperty_internal(target, pName.c_str(), &l);
                 if (retVal != nullptr)
                     vL[0] = l / sizeof(int);
             }
             else
             {
                 std::vector<int> v;
-                int res = App::getIntVectorProperty(target, pName, v);
+                int res = App::getIntVectorProperty(target, pName.c_str(), v);
                 if (res == 1)
                 {
                     retVal = new int[v.size()];
@@ -1987,7 +1873,7 @@ int* simGetIntVectorProperty_internal(int target, const char* pName, int* vL)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_intvector)
@@ -2003,16 +1889,16 @@ int* simGetIntVectorProperty_internal(int target, const char* pName, int* vL)
     return nullptr;
 }
 
-int simRemoveProperty_internal(int target, const char* pName)
+int simRemoveProperty_internal(int target, const char* ppName)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        // should always pass, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            retVal = App::removeProperty(target, pName);
+            retVal = App::removeProperty(target, ppName);
             if (retVal != 1)
             {
                 if (retVal == -2)
@@ -2021,7 +1907,7 @@ int simRemoveProperty_internal(int target, const char* pName)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName, info, size);
+                    int p = App::getPropertyInfo(target, ppName, info, size);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else
@@ -2059,7 +1945,7 @@ char* simGetPropertyName_internal(int target, int index)
     return nullptr;
 }
 
-int simGetPropertyInfo_internal(int target, const char* pName, int* info, int* size)
+int simGetPropertyInfo_internal(int target, const char* ppName, int* info, int* size)
 {
     C_API_START;
 
@@ -2067,9 +1953,9 @@ int simGetPropertyInfo_internal(int target, const char* pName, int* info, int* s
     {
         int _info, _size;
         int retVal = -2;
-        // should always pass, (for legacy data names) if (isPropertyNameValid(__func__, pName))
+        // should always pass, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            retVal = App::getPropertyInfo(target, pName, _info, _size);
+            retVal = App::getPropertyInfo(target, ppName, _info, _size);
             if (retVal == -2)
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
             else if (retVal >= 0)

@@ -529,6 +529,18 @@ CMesh *CMeshWrapper::getFirstMesh()
     return (childList[0]->getFirstMesh());
 }
 
+CMesh* CMeshWrapper::getMeshFromUid(int meshUid)
+{
+    CMesh* retVal = nullptr;
+    for (size_t i = 0; i < childList.size(); i++)
+    {
+        retVal = childList[i]->getMeshFromUid(meshUid);
+        if (retVal != nullptr)
+            break;
+    }
+    return retVal;
+}
+
 void CMeshWrapper::takeVisualAttributesFrom(CMesh *origin)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)

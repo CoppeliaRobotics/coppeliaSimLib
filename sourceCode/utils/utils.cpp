@@ -150,6 +150,15 @@ std::string utils::getLightDecodedString(const std::string &ss)
     return (s);
 }
 
+std::string utils::getWithoutPrefix(const char* input, const char* prefix)
+{
+    std::string retVal(input);
+    size_t p = retVal.find(prefix);
+    if (p != std::string::npos)
+        retVal.erase(0, p + strlen(prefix));
+    return retVal;
+}
+
 bool utils::removeSpacesAtBeginningAndEnd(std::string &line)
 {
     while ((line.length() != 0) && (line[0] == ' '))
@@ -399,8 +408,9 @@ bool utils::checkAssemblyTagValidity(const char *parentSideTag, const char *chil
     return retVal;
 }
 
-void utils::replaceSubstring(std::string &str, const char *subStr, const char *replacementSubStr)
+bool utils::replaceSubstring(std::string &str, const char *subStr, const char *replacementSubStr)
 {
+    bool retVal = false;
     size_t index = 0;
     size_t str1L = strlen(subStr);
     size_t str2L = strlen(replacementSubStr);
@@ -411,7 +421,9 @@ void utils::replaceSubstring(std::string &str, const char *subStr, const char *r
             break;
         str.replace(index, str1L, replacementSubStr);
         index += str2L;
+        retVal = true;
     }
+    return retVal;
 }
 
 void utils::regexReplace(std::string &str, const char *regexStr, const char *regexReplacementSubStr)

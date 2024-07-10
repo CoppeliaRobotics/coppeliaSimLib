@@ -41,8 +41,20 @@
     FUNCX(propObject_alias,                   "alias",                            sim_propertytype_string,    0) \
     FUNCX(propObject_bbPose,                  "bbPose",                           sim_propertytype_pose,      1) \
     FUNCX(propObject_bbHsize,                 "bbHSize",                          sim_propertytype_vector3,   1) \
-    FUNCX(propObject_movementOptions,         "movementOptions",                  sim_propertytype_int,       0) \
-    FUNCX(propObject_movementPreferredAxes,   "movementPreferredAxes",            sim_propertytype_int,       0) \
+    FUNCX(propObject_movementOptions,         "movementOptionsFlags",             sim_propertytype_int,       0) \
+    FUNCX(propObject_movTranslNoSim,          "movTranslNoSim",                   sim_propertytype_bool,      0) \
+    FUNCX(propObject_movTranslInSim,          "movTranslInSim",                   sim_propertytype_bool,      0) \
+    FUNCX(propObject_movRotNoSim,             "movRotNoSim",                      sim_propertytype_bool,      0) \
+    FUNCX(propObject_movRotInSim,             "movRotInSim",                      sim_propertytype_bool,      0) \
+    FUNCX(propObject_movAltTransl,            "movAltTransl",                     sim_propertytype_bool,      0) \
+    FUNCX(propObject_movAltRot,               "movAltRot",                        sim_propertytype_bool,      0) \
+    FUNCX(propObject_movementPreferredAxes,   "movementPreferredAxesFlags",       sim_propertytype_int,       0) \
+    FUNCX(propObject_movPrefTranslX,          "movPrefTranslX",                   sim_propertytype_bool,      0) \
+    FUNCX(propObject_movPrefTranslY,          "movPrefTranslY",                   sim_propertytype_bool,      0) \
+    FUNCX(propObject_movPrefTranslZ,          "movPrefTranslZ",                   sim_propertytype_bool,      0) \
+    FUNCX(propObject_movPrefRotX,             "movPrefRotX",                      sim_propertytype_bool,      0) \
+    FUNCX(propObject_movPrefRotY,             "movPrefRotY",                      sim_propertytype_bool,      0) \
+    FUNCX(propObject_movPrefRotZ,             "movPrefRotZ",                      sim_propertytype_bool,      0) \
     FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_vector,    0) \
     FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intvector, 0) \
 
@@ -395,7 +407,6 @@ class CSceneObject
     void _setModelInvisible(bool inv);
     void _setBB(const C7Vector &bbFrame, const C3Vector &bbHalfSize);
     void _addCommonObjectEventData(CCbor *ev) const;
-    void _appendObjectMovementEventData(CCbor *ev) const;
 
     int _objectHandle;
     long long int _objectUid; // valid for a given session (non-persistent)
@@ -457,9 +468,7 @@ class CSceneObject
 
     int _objectMovementPreferredAxes; // bits 0-2: position x,y,z, bits 3-5: Euler e9,e1,e2
     int _objectMovementOptions;       // bit0=transl not ok when sim. stopped, bit1=transl not ok when sim. running,
-                                      // bit2&bit3: same but for rotations, bit4: manualShift forbidden, bit5: manualRot
-    // forbidden, bit6-bit8: forbidden local translation axes, bit9-bit11: forbidden local
-    // rotation axes
+                                      // bit2&bit3: same but for rotations, bit4: alt dir transl forbidden, bit5: alt dir rot forbidden
     double _objectMovementStepSize[2]; // 0.0= use app default
     int _objectMovementRelativity[2];  // 0=world, 1=parent, 2=own frame
     C7Vector _bbFrame;

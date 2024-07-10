@@ -18,6 +18,7 @@ class utils
     static std::string getLightEncodedString(const std::string &ss);
     static std::string getLightDecodedString(const std::string &ss);
     static bool removeSpacesAtBeginningAndEnd(std::string &line);
+    static std::string getWithoutPrefix(const char* input, const char* prefix);
     static std::string getFormattedString(const char *a = nullptr, const char *b = nullptr, const char *c = nullptr,
                                           const char *d = nullptr, const char *e = nullptr, const char *f = nullptr,
                                           const char *g = nullptr, const char *h = nullptr);
@@ -33,7 +34,7 @@ class utils
     static std::string generateUniqueAlphaNumericString();
     static bool isAlphaNumeric(const std::string &str);
     static bool checkAssemblyTagValidity(const char *parentSideTag, const char *childSideTag);
-    static void replaceSubstring(std::string &str, const char *subStr, const char *replacementSubStr);
+    static bool replaceSubstring(std::string &str, const char *subStr, const char *replacementSubStr);
     static void regexReplace(std::string &str, const char *regexStr, const char *regexReplacementSubStr);
     static void removeComments(std::string &line);
     static int lineCountAtOffset(const char *str, int offset);

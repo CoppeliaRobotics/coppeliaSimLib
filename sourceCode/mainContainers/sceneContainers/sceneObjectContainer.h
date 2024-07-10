@@ -101,6 +101,8 @@ class CSceneObjectContainer
     CMill *getMillFromHandle(int objectHandle) const;
     CForceSensor *getForceSensorFromHandle(int objectHandle) const;
 
+    CMesh* getMeshFromUid(int meshUid);
+
     bool hasSelectionChanged();
     size_t getSelectionCount() const;
     int getObjectHandleFromSelectionIndex(size_t index) const;
