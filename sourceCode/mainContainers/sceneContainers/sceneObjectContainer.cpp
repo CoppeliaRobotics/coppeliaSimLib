@@ -365,6 +365,18 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                     {
                         // We announce the object will be erased:
                         App::worldContainer->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
+
+                        if (it->getObjectType() == sim_object_shape_type)
+                        {
+                            std::vector<CMesh *> all;
+                            ((CShape*)it)->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
+                            for (size_t j = 0; j < all.size(); j++)
+                            {
+                                App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTREMOVED, all[j]->getUniqueID(), -1, false);
+                                App::worldContainer->pushEvent();
+                            }
+                        }
+
                         App::worldContainer->pushSceneObjectRemoveEvent(it);
                         _removeObject(it);
                     }
@@ -4236,9 +4248,10 @@ int CSceneObjectContainer::setBoolProperty(int target, const char* pName, bool p
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setBoolProperty(pName, pState);
+            return mesh->setBoolProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4284,9 +4297,10 @@ int CSceneObjectContainer::getBoolProperty(int target, const char* pName, bool& 
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getBoolProperty(pName, pState);
+            return mesh->getBoolProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4332,9 +4346,10 @@ int CSceneObjectContainer::setIntProperty(int target, const char* pName, int pSt
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setIntProperty(pName, pState);
+            return mesh->setIntProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4380,9 +4395,10 @@ int CSceneObjectContainer::getIntProperty(int target, const char* pName, int& pS
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getIntProperty(pName, pState);
+            return mesh->getIntProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4428,9 +4444,10 @@ int CSceneObjectContainer::setFloatProperty(int target, const char* pName, doubl
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setFloatProperty(pName, pState);
+            return mesh->setFloatProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4476,9 +4493,10 @@ int CSceneObjectContainer::getFloatProperty(int target, const char* pName, doubl
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getFloatProperty(pName, pState);
+            return mesh->getFloatProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4524,9 +4542,10 @@ int CSceneObjectContainer::setStringProperty(int target, const char* pName, cons
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setStringProperty(pName, pState);
+            return mesh->setStringProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4572,9 +4591,10 @@ int CSceneObjectContainer::getStringProperty(int target, const char* pName, std:
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getStringProperty(pName, pState);
+            return mesh->getStringProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4620,9 +4640,10 @@ int CSceneObjectContainer::setBufferProperty(int target, const char* pName, cons
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setBufferProperty(pName, buffer, bufferL);
+            return mesh->setBufferProperty(pName, buffer, bufferL, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4668,9 +4689,10 @@ int CSceneObjectContainer::getBufferProperty(int target, const char* pName, std:
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getBufferProperty(pName, pState);
+            return mesh->getBufferProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4716,9 +4738,10 @@ int CSceneObjectContainer::setVector3Property(int target, const char* pName, con
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setVector3Property(pName, pState);
+            return mesh->setVector3Property(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4764,9 +4787,10 @@ int CSceneObjectContainer::getVector3Property(int target, const char* pName, C3V
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getVector3Property(pName, pState);
+            return mesh->getVector3Property(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4812,9 +4836,10 @@ int CSceneObjectContainer::setQuaternionProperty(int target, const char* pName, 
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setQuaternionProperty(pName, pState);
+            return mesh->setQuaternionProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4860,9 +4885,10 @@ int CSceneObjectContainer::getQuaternionProperty(int target, const char* pName, 
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getQuaternionProperty(pName, pState);
+            return mesh->getQuaternionProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4908,9 +4934,10 @@ int CSceneObjectContainer::setPoseProperty(int target, const char* pName, const 
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setPoseProperty(pName, pState);
+            return mesh->setPoseProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -4956,9 +4983,10 @@ int CSceneObjectContainer::getPoseProperty(int target, const char* pName, C7Vect
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getPoseProperty(pName, pState);
+            return mesh->getPoseProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5004,9 +5032,10 @@ int CSceneObjectContainer::setMatrix3x3Property(int target, const char* pName, c
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setMatrix3x3Property(pName, pState);
+            return mesh->setMatrix3x3Property(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5052,9 +5081,10 @@ int CSceneObjectContainer::getMatrix3x3Property(int target, const char* pName, C
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getMatrix3x3Property(pName, pState);
+            return mesh->getMatrix3x3Property(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5100,9 +5130,10 @@ int CSceneObjectContainer::setMatrix4x4Property(int target, const char* pName, c
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setMatrix4x4Property(pName, pState);
+            return mesh->setMatrix4x4Property(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5148,9 +5179,10 @@ int CSceneObjectContainer::getMatrix4x4Property(int target, const char* pName, C
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getMatrix4x4Property(pName, pState);
+            return mesh->getMatrix4x4Property(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5196,9 +5228,10 @@ int CSceneObjectContainer::setColorProperty(int target, const char* pName, const
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setColorProperty(pName, pState);
+            return mesh->setColorProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5244,9 +5277,10 @@ int CSceneObjectContainer::getColorProperty(int target, const char* pName, float
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getColorProperty(pName, pState);
+            return mesh->getColorProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5292,9 +5326,10 @@ int CSceneObjectContainer::setVectorProperty(int target, const char* pName, cons
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setVectorProperty(pName, v, vL);
+            return mesh->setVectorProperty(pName, v, vL, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5340,9 +5375,10 @@ int CSceneObjectContainer::getVectorProperty(int target, const char* pName, std:
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getVectorProperty(pName, pState);
+            return mesh->getVectorProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5388,9 +5424,10 @@ int CSceneObjectContainer::setIntVectorProperty(int target, const char* pName, c
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->setIntVectorProperty(pName, v, vL);
+            return mesh->setIntVectorProperty(pName, v, vL, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5436,9 +5473,10 @@ int CSceneObjectContainer::getIntVectorProperty(int target, const char* pName, s
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
+        C7Vector shapeRelTr;
+        CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
         if (mesh != nullptr)
-            return mesh->getIntVectorProperty(pName, pState);
+            return mesh->getIntVectorProperty(pName, pState, shapeRelTr);
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5492,46 +5530,48 @@ int CSceneObjectContainer::removeProperty(int target, const char* pName)
     return retVal;
 }
 
-int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& pName)
+int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance)
 {
     int retVal = -1;
     CSceneObject* it = getObjectFromHandle(target);
     if (it != nullptr)
     {
+        appartenance += ".object";
         int objType = it->getObjectType();
         if (objType == sim_object_shape_type)
-            return ((CShape*)it)->getPropertyName(index, pName);
+            return ((CShape*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_joint_type)
-            return ((CJoint*)it)->getPropertyName(index, pName);
+            return ((CJoint*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_dummy_type)
-            return ((CDummy*)it)->getPropertyName(index, pName);
+            return ((CDummy*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_script_type)
-            return ((CScript*)it)->getPropertyName(index, pName);
+            return ((CScript*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_proximitysensor_type)
-            return ((CProxSensor*)it)->getPropertyName(index, pName);
+            return ((CProxSensor*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_visionsensor_type)
-            return ((CVisionSensor*)it)->getPropertyName(index, pName);
+            return ((CVisionSensor*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_forcesensor_type)
-            return ((CForceSensor*)it)->getPropertyName(index, pName);
+            return ((CForceSensor*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_light_type)
-            return ((CLight*)it)->getPropertyName(index, pName);
+            return ((CLight*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_camera_type)
-            return ((CCamera*)it)->getPropertyName(index, pName);
+            return ((CCamera*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_graph_type)
-            return ((CGraph*)it)->getPropertyName(index, pName);
+            return ((CGraph*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_pointcloud_type)
-            return ((CPointCloud*)it)->getPropertyName(index, pName);
+            return ((CPointCloud*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_octree_type)
-            return ((COcTree*)it)->getPropertyName(index, pName);
+            return ((COcTree*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_path_type)
-            return ((CPath_old*)it)->getPropertyName(index, pName);
+            return ((CPath_old*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_mill_type)
-            return ((CMill*)it)->getPropertyName(index, pName);
+            return ((CMill*)it)->getPropertyName(index, pName, appartenance);
         if (objType == sim_object_mirror_type)
-            return ((CMirror*)it)->getPropertyName(index, pName);
+            return ((CMirror*)it)->getPropertyName(index, pName, appartenance);
     }
     else
     {
+        appartenance += ".mesh";
         CMesh* mesh = getMeshFromUid(target);
         if (mesh != nullptr)
             return mesh->getPropertyName(index, pName);
@@ -5588,15 +5628,20 @@ int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& i
     return retVal;
 }
 
-CMesh* CSceneObjectContainer::getMeshFromUid(int meshUid)
+CMesh* CSceneObjectContainer::getMeshFromUid(int meshUid, C7Vector* optShapeRelTr /*= nullptr*/)
 {
     CMesh* mesh = nullptr;
     for (size_t i = 0; i < _shapeList.size(); i++)
     {
         CShape* shape = _shapeList[i];
-        mesh = shape->getMeshFromUid(meshUid);
+        C7Vector shapeRelTr;
+        mesh = shape->getMeshFromUid(meshUid, C7Vector::identityTransformation, shapeRelTr);
         if (mesh != nullptr)
+        {
+            if (optShapeRelTr != nullptr)
+                optShapeRelTr[0] = shapeRelTr;
             break;
+        }
     }
     return mesh;
 }

@@ -113,8 +113,12 @@ void CMill::removeSceneDependencies()
 
 void CMill::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("mill");
     ev->closeArrayOrMap(); // mill
+#else
+    ev->appendKeyString("objectType", "mill");
+#endif
 }
 
 CSceneObject *CMill::copyYourself()

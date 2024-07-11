@@ -92,7 +92,7 @@ class CDummy : public CSceneObject
     int getFloatProperty(const char* pName, double& pState);
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState);
-    int getPropertyName(int& index, std::string& pName);
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, int& size);
 
     bool getFreeOnPathTrajectory() const;

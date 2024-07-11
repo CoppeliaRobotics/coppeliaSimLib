@@ -403,11 +403,13 @@ void CCbor::createEvent(const char *event, const char *fieldName, const char *ob
     {
         appendString("data");
         openMap(); // holding the data
+#if SIM_EVENT_PROTOCOL_VERSION == 2
         if (objType != nullptr)
         {
             appendString(objType);
             openMap(); // holding the scene object's data specific to the object type
         }
+#endif
     }
 }
 
@@ -416,10 +418,8 @@ void CCbor::pushEvent()
     if (_eventOpen)
     {
         while (_eventDepth > 1)
-            closeArrayOrMap(); // make sure to close the current event's arrays/maps, except for the one holding the
-                               // event
-        _eventDepth =
-            0; // yes, we intentionally forget to close the last array/map, but we anyways reset the depth to zero
+            closeArrayOrMap(); // make sure to close the current event's arrays/maps, except for the one holding the event
+        _eventDepth = 0; // yes, we intentionally forget to close the last array/map, but we anyways reset the depth to zero
         _eventOpen = false;
     }
     else

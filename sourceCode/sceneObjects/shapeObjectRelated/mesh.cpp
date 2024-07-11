@@ -473,12 +473,90 @@ CMesh *CMesh::getFirstMesh()
     return (this);
 }
 
-CMesh* CMesh::getMeshFromUid(int meshUid)
+CMesh* CMesh::getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr)
 { // function has virtual/non-virtual counterpart!
     CMesh* retVal = nullptr;
     if (meshUid == _uniqueID)
+    {
         retVal = this;
+        shapeRelTr = parentCumulTr * _iFrame * _bbFrame;
+    }
     return retVal;
+}
+
+void CMesh::pushObjectCreationEvent(const C7Vector& shapeRelTr) const
+{
+    CCbor* ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTADDED, _uniqueID, -1, false);
+
+    ev->openKeyMap("data");
+    std::vector<float> vertices;
+    vertices.resize(_verticesForDisplayAndDisk.size());
+    for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
+    {
+        C3Vector v;
+        v.setData(_verticesForDisplayAndDisk.data() + j * 3);
+        v = shapeRelTr * v;
+        vertices[3 * j + 0] = (float)v(0);
+        vertices[3 * j + 1] = (float)v(1);
+        vertices[3 * j + 2] = (float)v(2);
+    }
+    ev->appendKeyFloatArray(propShape_vertices.name, vertices.data(), vertices.size());
+    ev->appendKeyIntArray(propShape_indices.name, _indices.data(), _indices.size());
+
+    std::vector<float> normals;
+    normals.resize(_indices.size() * 3);
+    for (size_t j = 0; j < _indices.size(); j++)
+    {
+        C3Vector n;
+        n.setData(&_normalsForDisplayAndDisk[0] + j * 3);
+        n = shapeRelTr.Q * n; // only orientation
+        normals[3 * j + 0] = (float)n(0);
+        normals[3 * j + 1] = (float)n(1);
+        normals[3 * j + 2] = (float)n(2);
+    }
+    ev->appendKeyFloatArray(propShape_normals.name, normals.data(), normals.size());
+
+    float c[9];
+    color.getColor(c + 0, sim_colorcomponent_ambient_diffuse);
+    color.getColor(c + 3, sim_colorcomponent_specular);
+    color.getColor(c + 6, sim_colorcomponent_emission);
+
+    ev->appendKeyFloatArray(propShape_colDiffuse.name, c, 3);
+    ev->appendKeyFloatArray(propShape_colSpecular.name, c + 3, 3);
+    ev->appendKeyFloatArray(propShape_colEmission.name, c + 6, 3);
+    //        ev->appendKeyDouble("edgeAngle",);
+    ev->appendKeyDouble(propShape_shadingAngle.name, getShadingAngle());
+    ev->appendKeyBool(propShape_showEdges.name, getVisibleEdges());
+    ev->appendKeyBool(propShape_culling.name, getCulling());
+    double transp = 0.0;
+    if (color.getTranslucid())
+        transp = 1.0 - color.getOpacity();
+    ev->appendKeyDouble(propShape_transparency.name, transp);
+
+    CTextureObject *to = nullptr;
+    const std::vector<float> *tc = nullptr;
+    if (_textureProperty != nullptr)
+    {
+        to = _textureProperty->getTextureObject();
+        tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
+    }
+
+    if ((to != nullptr) && (tc != nullptr))
+    {
+        int tRes[2];
+        to->getTextureSize(tRes[0], tRes[1]);
+        ev->appendKeyBuff(propShape_texture.name, to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
+        ev->appendKeyIntArray(propShape_textureResolution.name, tRes, 2);
+        ev->appendKeyFloatArray(propShape_textureCoordinates.name, tc->data(), tc->size());
+        ev->appendKeyInt(propShape_textureApplyMode.name, _textureProperty->getApplyMode());
+        ev->appendKeyBool(propShape_textureRepeatU.name, _textureProperty->getRepeatU());
+        ev->appendKeyBool(propShape_textureRepeatV.name, _textureProperty->getRepeatV());
+        ev->appendKeyBool(propShape_textureInterpolate.name, _textureProperty->getInterpolateColors());
+        ev->appendKeyInt(propShape_textureID.name, _textureProperty->getTextureObjectID());
+    }
+
+    ev->closeArrayOrMap();
+    App::worldContainer->pushEvent();
 }
 
 int CMesh::countTriangles() const
@@ -2567,63 +2645,63 @@ int *CMesh::getEdgeBufferIdPtr()
 }
 #endif
 
-int CMesh::setBoolProperty(const char* pName, bool pState)
+int CMesh::setBoolProperty(const char* pName, bool pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::getBoolProperty(const char* pName, bool& pState)
+int CMesh::getBoolProperty(const char* pName, bool& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::setIntProperty(const char* pName, int pState)
+int CMesh::setIntProperty(const char* pName, int pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::getIntProperty(const char* pName, int& pState)
+int CMesh::getIntProperty(const char* pName, int& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::setFloatProperty(const char* pName, double pState)
+int CMesh::setFloatProperty(const char* pName, double pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::getFloatProperty(const char* pName, double& pState)
+int CMesh::getFloatProperty(const char* pName, double& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::setStringProperty(const char* pName, const char* pState)
+int CMesh::setStringProperty(const char* pName, const char* pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::getStringProperty(const char* pName, std::string& pState)
+int CMesh::getStringProperty(const char* pName, std::string& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::setBufferProperty(const char* pName, const char* buffer, int bufferL)
+int CMesh::setBufferProperty(const char* pName, const char* buffer, int bufferL, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
     if (buffer == nullptr)
@@ -2632,114 +2710,98 @@ int CMesh::setBufferProperty(const char* pName, const char* buffer, int bufferL)
     return retVal;
 }
 
-int CMesh::getBufferProperty(const char* pName, std::string& pState)
+int CMesh::getBufferProperty(const char* pName, std::string& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::setVector3Property(const char* pName, const C3Vector& pState)
+int CMesh::setVector3Property(const char* pName, const C3Vector& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::getVector3Property(const char* pName, C3Vector& pState)
+int CMesh::getVector3Property(const char* pName, C3Vector& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::setQuaternionProperty(const char* pName, const C4Vector& pState)
+int CMesh::setQuaternionProperty(const char* pName, const C4Vector& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::getQuaternionProperty(const char* pName, C4Vector& pState)
+int CMesh::getQuaternionProperty(const char* pName, C4Vector& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::setPoseProperty(const char* pName, const C7Vector& pState)
+int CMesh::setPoseProperty(const char* pName, const C7Vector& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::getPoseProperty(const char* pName, C7Vector& pState)
+int CMesh::getPoseProperty(const char* pName, C7Vector& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::setMatrix3x3Property(const char* pName, const C3X3Matrix& pState)
+int CMesh::setMatrix3x3Property(const char* pName, const C3X3Matrix& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::getMatrix3x3Property(const char* pName, C3X3Matrix& pState)
+int CMesh::getMatrix3x3Property(const char* pName, C3X3Matrix& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::setMatrix4x4Property(const char* pName, const C4X4Matrix& pState)
+int CMesh::setMatrix4x4Property(const char* pName, const C4X4Matrix& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::getMatrix4x4Property(const char* pName, C4X4Matrix& pState)
+int CMesh::getMatrix4x4Property(const char* pName, C4X4Matrix& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::setColorProperty(const char* pName, const float* pState)
+int CMesh::setColorProperty(const char* pName, const float* pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::getColorProperty(const char* pName, float* pState)
+int CMesh::getColorProperty(const char* pName, float* pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 
     return retVal;
 }
 
-int CMesh::setVectorProperty(const char* pName, const double* v, int vL)
-{
-    int retVal = -1;
-    if (v == nullptr)
-        vL = 0;
-
-    return retVal;
-}
-
-int CMesh::getVectorProperty(const char* pName, std::vector<double>& pState)
-{
-    int retVal = -1;
-
-    return retVal;
-}
-
-int CMesh::setIntVectorProperty(const char* pName, const int* v, int vL)
+int CMesh::setVectorProperty(const char* pName, const double* v, int vL, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
     if (v == nullptr)
@@ -2748,7 +2810,23 @@ int CMesh::setIntVectorProperty(const char* pName, const int* v, int vL)
     return retVal;
 }
 
-int CMesh::getIntVectorProperty(const char* pName, std::vector<int>& pState)
+int CMesh::getVectorProperty(const char* pName, std::vector<double>& pState, const C7Vector& shapeRelTr)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::setIntVectorProperty(const char* pName, const int* v, int vL, const C7Vector& shapeRelTr)
+{
+    int retVal = -1;
+    if (v == nullptr)
+        vL = 0;
+
+    return retVal;
+}
+
+int CMesh::getIntVectorProperty(const char* pName, std::vector<int>& pState, const C7Vector& shapeRelTr)
 {
     int retVal = -1;
 

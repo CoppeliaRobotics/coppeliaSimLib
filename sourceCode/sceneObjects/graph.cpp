@@ -573,10 +573,16 @@ void CGraph::removeSceneDependencies()
 
 void CGraph::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("graph");
+#else
+    ev->appendKeyString("objectType", "graph");
+#endif
     ev->appendKeyDouble("size", _graphSize);
-    ev->closeArrayOrMap(); // graph
     // todo
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    ev->closeArrayOrMap(); // graph
+#endif
 }
 
 CSceneObject *CGraph::copyYourself()

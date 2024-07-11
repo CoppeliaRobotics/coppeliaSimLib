@@ -912,7 +912,11 @@ void CCamera::removeSceneDependencies()
 
 void CCamera::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("camera");
+#else
+    ev->appendKeyString("objectType", "camera");
+#endif
     ev->appendKeyBool("perspectiveMode", _perspective);
     ev->appendKeyBool("allowTranslation", _allowTranslation);
     ev->appendKeyBool("allowRotation", _allowRotation);
@@ -937,7 +941,9 @@ void CCamera::addSpecializedObjectEventData(CCbor *ev) const
     _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
     ev->appendFloatArray(c, 9);
     ev->closeArrayOrMap(); // "colors"
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); //"camera"
+#endif
 }
 
 CSceneObject *CCamera::copyYourself()

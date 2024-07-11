@@ -235,10 +235,16 @@ void CProxSensor::removeSceneDependencies()
 
 void CProxSensor::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("proxSensor");
+#else
+    ev->appendKeyString("objectType", "proxSensor");
+#endif
     ev->appendKeyDouble("size", _proxSensorSize);
-    ev->closeArrayOrMap(); // proxSensor
     // todo
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    ev->closeArrayOrMap(); // proxSensor
+#endif
 }
 
 CSceneObject *CProxSensor::copyYourself()

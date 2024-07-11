@@ -2909,9 +2909,10 @@ int CWorld::removeProperty(int target, const char* ppName)
     return retVal;
 }
 
-int CWorld::getPropertyName(int target, int& index, std::string& pName)
+int CWorld::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance)
 {
     int retVal = -1;
+    appartenance += ".scene";
     if (target == sim_handle_scene)
     {
         for (size_t i = 0; i < allProps_scene.size(); i++)
@@ -2920,7 +2921,7 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName)
             if (index == -1)
             {
                 pName = allProps_scene[i].name;
-                pName = "scene." + pName;
+                //pName = "scene." + pName;
                 retVal = 1;
                 break;
             }
@@ -2930,13 +2931,13 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName)
             if (customSceneData.getPropertyName(index, pName))
             {
                 pName = "customData." + pName;
-                pName = "scene." + pName;
+                //pName = "scene." + pName;
                 retVal = 1;
             }
         }
     }
     else if (target >= 0)
-        retVal = sceneObjects->getPropertyName(target, index, pName);
+        retVal = sceneObjects->getPropertyName(target, index, pName, appartenance);
     else
         retVal = -2; // target does not exist
     return retVal;

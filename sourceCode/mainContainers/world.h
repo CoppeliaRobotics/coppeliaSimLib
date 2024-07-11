@@ -125,7 +125,7 @@ class CWorld
     int setIntVectorProperty(int target, const char* pName, const int* v, int vL);
     int getIntVectorProperty(int target, const char* pName, std::vector<int>& pState);
     int removeProperty(int target, const char* pName);
-    int getPropertyName(int target, int& index, std::string& pName);
+    int getPropertyName(int target, int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(int target, const char* pName, int& info, int& size);
 
     // Old:

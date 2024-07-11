@@ -170,9 +170,12 @@ void CMirror::removeSceneDependencies()
 
 void CMirror::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("mirror");
     ev->closeArrayOrMap(); // mirror
-    // todo
+#else
+    ev->appendKeyString("objectType", "mirror");
+#endif
 }
 
 CSceneObject *CMirror::copyYourself()

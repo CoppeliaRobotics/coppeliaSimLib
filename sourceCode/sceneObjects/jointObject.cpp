@@ -2065,7 +2065,11 @@ void CJoint::removeSceneDependencies()
 
 void CJoint::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("joint");
+#else
+    ev->appendKeyString("objectType", "joint");
+#endif
     std::string tmp;
     switch (_jointType)
     {
@@ -2115,7 +2119,9 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev) const
         }
     }
     ev->closeArrayOrMap(); // dependency
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // joint
+#endif
 }
 
 CSceneObject *CJoint::copyYourself()

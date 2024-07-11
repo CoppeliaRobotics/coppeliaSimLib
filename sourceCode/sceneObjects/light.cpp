@@ -272,7 +272,11 @@ void CLight::removeSceneDependencies()
 
 void CLight::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("light");
+#else
+    ev->appendKeyString("objectType", "light");
+#endif
     ev->appendKeyDouble("size", _lightSize);
     ev->openKeyArray("colors");
     float c[9];
@@ -285,8 +289,10 @@ void CLight::addSpecializedObjectEventData(CCbor *ev) const
     lightColor.getColor(c + 6, sim_colorcomponent_emission);
     ev->appendFloatArray(c, 9);
     ev->closeArrayOrMap(); // colors
-    ev->closeArrayOrMap(); // light
     // todo
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    ev->closeArrayOrMap(); // light
+#endif
 }
 
 CSceneObject *CLight::copyYourself()

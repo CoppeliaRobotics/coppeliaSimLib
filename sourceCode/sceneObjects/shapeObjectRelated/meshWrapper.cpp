@@ -529,12 +529,12 @@ CMesh *CMeshWrapper::getFirstMesh()
     return (childList[0]->getFirstMesh());
 }
 
-CMesh* CMeshWrapper::getMeshFromUid(int meshUid)
+CMesh* CMeshWrapper::getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr)
 {
     CMesh* retVal = nullptr;
     for (size_t i = 0; i < childList.size(); i++)
     {
-        retVal = childList[i]->getMeshFromUid(meshUid);
+        retVal = childList[i]->getMeshFromUid(meshUid, parentCumulTr * _iFrame, shapeRelTr);
         if (retVal != nullptr)
             break;
     }

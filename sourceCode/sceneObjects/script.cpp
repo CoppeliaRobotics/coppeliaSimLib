@@ -135,7 +135,11 @@ void CScript::removeSceneDependencies()
 
 void CScript::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("script");
+#else
+    ev->appendKeyString("objectType", "script");
+#endif
     ev->appendKeyDouble("size", _scriptSize);
     ev->openKeyArray("colors");
     float c[9];
@@ -144,7 +148,9 @@ void CScript::addSpecializedObjectEventData(CCbor *ev) const
     _scriptColor.getColor(c + 6, sim_colorcomponent_emission);
     ev->appendFloatArray(c, 9);
     ev->closeArrayOrMap(); // colors
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // script
+#endif
 }
 
 CSceneObject *CScript::copyYourself()

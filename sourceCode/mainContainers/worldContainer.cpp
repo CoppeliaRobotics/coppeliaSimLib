@@ -575,8 +575,7 @@ CCbor *CWorldContainer::createSceneObjectChangedEvent(const CSceneObject *object
         }
         ot = objType.c_str();
     }
-    return (_createGeneralEvent(EVENTTYPE_OBJECTCHANGED, object->getObjectHandle(), object->getObjectUid(), ot,
-                                fieldName, mergeable));
+    return (_createGeneralEvent(EVENTTYPE_OBJECTCHANGED, object->getObjectHandle(), object->getObjectUid(), ot, fieldName, mergeable));
 }
 
 CCbor *CWorldContainer::createNakedEvent(const char *event, int handle, long long int uid, bool mergeable)
@@ -1135,7 +1134,7 @@ int CWorldContainer::getPropertyName(int& index, std::string& pName)
         if (index == -1)
         {
             pName = allProps_app[i].name;
-            pName = "app." + pName;
+            //pName = "app." + pName;
             retVal = 1;
             break;
         }
@@ -1145,7 +1144,7 @@ int CWorldContainer::getPropertyName(int& index, std::string& pName)
         if (customAppData.getPropertyName(index, pName))
         {
             pName = "customData." + pName;
-            pName = "app." + pName;
+            //pName = "app." + pName;
             retVal = 1;
         }
     }

@@ -589,13 +589,19 @@ void COcTree::removeSceneDependencies()
 
 void COcTree::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("octree");
+#else
+    ev->appendKeyString("objectType", "octree");
+#endif
     ev->appendKeyDouble("voxelSize", _cellSize);
     ev->openKeyMap("voxels");
     ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
     ev->appendKeyUCharArray("colors", _colorsByte.data(), _colorsByte.size());
     ev->closeArrayOrMap(); // voxels
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // octree
+#endif
 }
 
 CSceneObject *COcTree::copyYourself()

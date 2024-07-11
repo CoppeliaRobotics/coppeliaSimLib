@@ -1869,16 +1869,18 @@ int App::removeProperty(int target, const char* pName)
     return retVal;
 }
 
-int App::getPropertyName(int target, int& index, std::string& pName)
+int App::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance)
 {
     int retVal = -1;
     if (target == sim_handle_app)
     {
+        appartenance = "app";
         if (worldContainer != nullptr)
             retVal = worldContainer->getPropertyName(index, pName);
     }
     else if (target == sim_handle_appstorage)
     {
+        appartenance = "storage";
         CPersistentDataContainer cont("appStorage.dat");
         if (cont.getPropertyName(index, pName))
         {
@@ -1887,13 +1889,16 @@ int App::getPropertyName(int target, int& index, std::string& pName)
             {
                 pName.erase(p);
                 pName = "customData." + pName;
-                pName = "storage." + pName;
+                //pName = "storage." + pName;
             }
             retVal = 1;
         }
     }
     else if (currentWorld != nullptr)
-        retVal = currentWorld->getPropertyName(target, index, pName);
+    {
+        appartenance = "app";
+        retVal = currentWorld->getPropertyName(target, index, pName, appartenance);
+    }
     return retVal;
 }
 

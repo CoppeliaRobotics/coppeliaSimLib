@@ -213,8 +213,12 @@ void CPath_old::removeSceneDependencies()
 
 void CPath_old::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("path");
     ev->closeArrayOrMap(); // path
+#else
+    ev->appendKeyString("objectType", "path");
+#endif
 }
 
 CSceneObject *CPath_old::copyYourself()

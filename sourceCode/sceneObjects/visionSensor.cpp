@@ -1864,7 +1864,11 @@ void CVisionSensor::removeSceneDependencies()
 
 void CVisionSensor::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("visionSensor");
+#else
+    ev->appendKeyString("objectType", "visionSensor");
+#endif
     ev->appendKeyBool("perspectiveMode", _perspective);
     ev->appendKeyDouble("nearClippingPlane", _nearClippingPlane);
     ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
@@ -1876,8 +1880,10 @@ void CVisionSensor::addSpecializedObjectEventData(CCbor *ev) const
     ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
     ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
     ev->closeArrayOrMap(); // frustumVectors
-    ev->closeArrayOrMap(); // visionSensor
     // todo
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    ev->closeArrayOrMap(); // visionSensor
+#endif
 }
 
 CSceneObject *CVisionSensor::copyYourself()

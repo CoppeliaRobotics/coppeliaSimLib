@@ -1929,11 +1929,14 @@ char* simGetPropertyName_internal(int target, int index)
     {
         char* retVal = nullptr;
         std::string pName;
-        int res = App::getPropertyName(target, index, pName);
+        std::string appartenance;
+        int res = App::getPropertyName(target, index, pName, appartenance);
         if (res == -2)
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
         else if (pName.size() > 0)
         {
+            pName += ",";
+            pName += appartenance;
             retVal = new char[pName.size() + 1];
             for (size_t i = 0; i < pName.size(); i++)
                 retVal[i] = pName[i];

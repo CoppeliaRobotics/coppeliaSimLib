@@ -468,7 +468,11 @@ void CForceSensor::removeSceneDependencies()
 
 void CForceSensor::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("forceSensor");
+#else
+    ev->appendKeyString("objectType", "forceSensor");
+#endif
     ev->appendKeyDouble("size", _forceSensorSize);
     ev->openKeyArray("colors");
     float c[9];
@@ -484,8 +488,10 @@ void CForceSensor::addSpecializedObjectEventData(CCbor *ev) const
     C7Vector tr(getIntrinsicTransformation(true));
     double p[7] = {tr.X(0), tr.X(1), tr.X(2), tr.Q(1), tr.Q(2), tr.Q(3), tr.Q(0)};
     ev->appendKeyDoubleArray("intrinsicPose", p, 7);
-    ev->closeArrayOrMap(); // forceSensor
     // todo
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    ev->closeArrayOrMap(); // forceSensor
+#endif
 }
 
 CSceneObject *CForceSensor::copyYourself()

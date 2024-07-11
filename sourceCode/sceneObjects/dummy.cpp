@@ -284,7 +284,11 @@ void CDummy::removeSceneDependencies()
 
 void CDummy::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("dummy");
+#else
+    ev->appendKeyString("objectType", "dummy");
+#endif
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
 
     float c[9];
@@ -301,7 +305,9 @@ void CDummy::addSpecializedObjectEventData(CCbor *ev) const
     ev->appendKeyFloatArray(propDummy_colSpecular.name, c + 3, 3);
     ev->appendKeyFloatArray(propDummy_colEmission.name, c + 6, 3);
 
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // dummy
+#endif
 }
 
 CSceneObject *CDummy::copyYourself()
@@ -1244,18 +1250,19 @@ int CDummy::getColorProperty(const char* ppName, float* pState)
     return retVal;
 }
 
-int CDummy::getPropertyName(int& index, std::string& pName)
+int CDummy::getPropertyName(int& index, std::string& pName, std::string& appartenance)
 {
-    int retVal = CSceneObject::getPropertyName(index, pName);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
+        appartenance += ".dummy";
         for (size_t i = 0; i < allProps_dummy.size(); i++)
         {
             index--;
             if (index == -1)
             {
                 pName = allProps_dummy[i].name;
-                pName = "dummy." + pName;
+                //pName = "dummy." + pName;
                 retVal = 1;
                 break;
             }

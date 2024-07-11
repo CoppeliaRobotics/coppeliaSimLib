@@ -1352,6 +1352,14 @@ void CSceneObject::pushObjectCreationEvent() const
 {
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
+        if (_objectType == sim_object_shape_type)
+        {
+            std::vector<CMesh *> all;
+            std::vector<C7Vector> allTr;
+            ((CShape*)this)->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
+            for (size_t i = 0; i < all.size(); i++)
+                all[i]->pushObjectCreationEvent(allTr[i]);
+        }
         CCbor *ev = App::worldContainer->createSceneObjectAddEvent(this);
         CSceneObject::_addCommonObjectEventData(ev);
         addSpecializedObjectEventData(ev);
@@ -6066,7 +6074,7 @@ int CSceneObject::removeProperty(const char* ppName)
     return retVal;
 }
 
-int CSceneObject::getPropertyName(int& index, std::string& pName)
+int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& appartenance)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_sceneObject.size(); i++)
@@ -6075,7 +6083,7 @@ int CSceneObject::getPropertyName(int& index, std::string& pName)
         if (index == -1)
         {
             pName = allProps_sceneObject[i].name;
-            pName = "object." + pName;
+            //pName = "object." + pName;
             retVal = 1;
             break;
         }
@@ -6085,7 +6093,7 @@ int CSceneObject::getPropertyName(int& index, std::string& pName)
         if (customObjectData.getPropertyName(index, pName))
         {
             pName = "customData." + pName;
-            pName = "object." + pName;
+            //pName = "object." + pName;
             retVal = 1;
         }
     }

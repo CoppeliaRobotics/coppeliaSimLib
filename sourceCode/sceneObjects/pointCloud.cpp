@@ -674,13 +674,19 @@ void CPointCloud::removeSceneDependencies()
 
 void CPointCloud::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("pointCloud");
+#else
+    ev->appendKeyString("objectType", "pointCloud");
+#endif
     ev->appendKeyInt("pointSize", _pointSize);
     ev->openKeyMap("points");
     ev->appendKeyDoubleArray("points", _displayPoints.data(), _displayPoints.size());
     ev->appendKeyUCharArray("colors", _displayColorsByte.data(), _displayColorsByte.size());
     ev->closeArrayOrMap(); // points
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // pointCloud
+#endif
 }
 
 CSceneObject *CPointCloud::copyYourself()

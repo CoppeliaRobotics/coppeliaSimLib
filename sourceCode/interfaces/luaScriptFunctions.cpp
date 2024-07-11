@@ -5718,9 +5718,13 @@ int _simGetPropertyName(luaWrap_lua_State *L)
         char* pValue = simGetPropertyName_internal(target, index);
         if (pValue != nullptr)
         {
-            luaWrap_lua_pushtext(L, pValue);
+            std::string w1(pValue);
             delete[] pValue;
-            LUA_END(1);
+            std::string w2;
+            utils::extractCommaSeparatedWord(w1, w2);
+            luaWrap_lua_pushtext(L, w2.c_str());
+            luaWrap_lua_pushtext(L, w1.c_str());
+            LUA_END(2);
         }
     }
 

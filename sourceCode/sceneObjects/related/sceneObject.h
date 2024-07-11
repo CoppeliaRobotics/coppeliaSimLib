@@ -178,7 +178,7 @@ class CSceneObject
     virtual int setIntVectorProperty(const char* pName, const int* v, int vL);
     virtual int getIntVectorProperty(const char* pName, std::vector<int>& pState);
     virtual int removeProperty(const char* pName);
-    virtual int getPropertyName(int& index, std::string& pName);
+    virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     virtual int getPropertyInfo(const char* pName, int& info, int& size);
 
 

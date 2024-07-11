@@ -134,9 +134,9 @@ CMesh *CShape::getSingleMesh() const
     return (retVal);
 }
 
-CMesh* CShape::getMeshFromUid(int meshUid)
+CMesh* CShape::getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr)
 {
-    return _mesh->getMeshFromUid(meshUid);
+    return _mesh->getMeshFromUid(meshUid, parentCumulTr, shapeRelTr);
 }
 
 CDynMaterialObject *CShape::getDynMaterial()
@@ -1429,7 +1429,12 @@ void CShape::removeSceneDependencies()
 
 void CShape::addSpecializedObjectEventData(CCbor *ev) const
 {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("shape");
+#else
+    ev->appendKeyString("objectType", "shape");
+#endif
+
     ev->openKeyArray("meshes");
     std::vector<CMesh *> all;
     std::vector<C7Vector> allTr;
@@ -1541,37 +1546,6 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
 
                 ev->closeArrayOrMap(); // texture
             }
-            /*
-            else
-            { // sending PNG texture
-                std::string buffer;
-                int tRes[2];
-                to->getTextureSize(tRes[0], tRes[1]);
-                bool res = CImageLoaderSaver::save((unsigned char *)to->getTextureBufferPointer(), tRes, 1, ".png", -1,
-                                                   &buffer);
-                if (res)
-                {
-                    ev->openKeyMap("texture");
-                    buffer = utils::encode64(buffer);
-                    ev->appendKeyString("texture", buffer.c_str(), buffer.size());
-                    ev->appendKeyIntArray("resolution", tRes, 2);
-                    ev->appendKeyFloatArray("coordinates", tc->data(), tc->size());
-                    ev->appendKeyInt("applyMode", tp->getApplyMode());
-
-                    int options = 0;
-                    if (tp->getRepeatU())
-                        options |= 1;
-                    if (tp->getRepeatV())
-                        options |= 2;
-                    if (tp->getInterpolateColors())
-                        options |= 4;
-                    ev->appendKeyInt("options", options);
-
-                    ev->appendKeyInt("id", tp->getTextureObjectID());
-                    ev->closeArrayOrMap(); // texture
-                }
-            }
-            */
         }
         ev->closeArrayOrMap(); // one mesh
 #else
@@ -1579,7 +1553,10 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
 #endif
     }
     ev->closeArrayOrMap(); // meshes
+
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // shape
+#endif
 }
 
 void CShape::copyAttributesTo(CShape *target)
