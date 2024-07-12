@@ -26,6 +26,7 @@
     FUNCX(propMesh_textureInterpolate,      "textureInterpolate",                       sim_propertytype_bool,      0) \
     FUNCX(propMesh_textureID,               "textureID",                                sim_propertytype_int,       1) \
     FUNCX(propMesh_objectType,              "objectType",                               sim_propertytype_string,    1) \
+    FUNCX(propMesh_shapeUid,                "shapeUid",                                 sim_propertytype_int,       1) \
 
 #define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
 DEFINE_PROPERTIES

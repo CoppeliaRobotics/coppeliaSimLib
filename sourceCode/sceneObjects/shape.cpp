@@ -1502,27 +1502,24 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
 
         if ((to != nullptr) && (tc != nullptr))
         {
-            if (true)
-            { // sending raw texture
-                int tRes[2];
-                to->getTextureSize(tRes[0], tRes[1]);
-                ev->openKeyMap("texture");
-                ev->appendKeyBuff("rawTexture", to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
-                ev->appendKeyIntArray("resolution", tRes, 2);
-                ev->appendKeyFloatArray("coordinates", tc->data(), tc->size());
-                ev->appendKeyInt("applyMode", tp->getApplyMode());
+            int tRes[2];
+            to->getTextureSize(tRes[0], tRes[1]);
+            ev->openKeyMap("texture");
+            ev->appendKeyBuff("rawTexture", to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
+            ev->appendKeyIntArray("resolution", tRes, 2);
+            ev->appendKeyFloatArray("coordinates", tc->data(), tc->size());
+            ev->appendKeyInt("applyMode", tp->getApplyMode());
 
-                int options = 0;
-                if (tp->getRepeatU())
-                    options |= 1;
-                if (tp->getRepeatV())
-                    options |= 2;
-                if (tp->getInterpolateColors())
-                    options |= 4;
-                ev->appendKeyInt("options", options);
-                ev->appendKeyInt("id", tp->getTextureObjectID());
-                ev->closeArrayOrMap(); // texture
-            }
+            int options = 0;
+            if (tp->getRepeatU())
+                options |= 1;
+            if (tp->getRepeatV())
+                options |= 2;
+            if (tp->getInterpolateColors())
+                options |= 4;
+            ev->appendKeyInt("options", options);
+            ev->appendKeyInt("id", tp->getTextureObjectID());
+            ev->closeArrayOrMap(); // texture
         }
         ev->closeArrayOrMap(); // one mesh
 #else

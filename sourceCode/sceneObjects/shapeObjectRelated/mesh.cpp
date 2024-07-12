@@ -498,7 +498,7 @@ void CMesh::pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr)
     CCbor* ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTADDED, _uniqueID, _uniqueID, false);
 
     ev->openKeyMap("data");
-    ev->appendKeyInt("shapeUid", _isInSceneShapeUid);
+    ev->appendKeyInt(propMesh_shapeUid.name, _isInSceneShapeUid);
     ev->appendKeyString(propMesh_objectType.name, "mesh");
     std::vector<float> vertices;
     vertices.resize(_verticesForDisplayAndDisk.size());
@@ -2945,6 +2945,11 @@ int CMesh::getIntProperty(const char* ppName, int& pState, const C7Vector& shape
     {
         retVal = 1;
         pState = getTextureApplyMode();
+    }
+    else if (strcmp(pName, propMesh_shapeUid.name) == 0)
+    {
+        retVal = 1;
+        pState = _isInSceneShapeUid;
     }
 
     return retVal;
