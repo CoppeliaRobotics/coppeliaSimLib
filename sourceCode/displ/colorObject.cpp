@@ -136,24 +136,30 @@ void CColorObject::getNewColors(float cols[9]) const
 
 bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
 {
-    int offset = 0;
-    if (colorMode == sim_colorcomponent_ambient_diffuse)
-        offset = 0;
-    else if (colorMode == sim_colorcomponent_diffuse)
-        offset = 3;
-    else if (colorMode == sim_colorcomponent_specular)
-        offset = 6;
-    else if (colorMode == sim_colorcomponent_emission)
-        offset = 9;
-    else if (colorMode == sim_colorcomponent_auxiliary)
-        offset = 12;
-    float col[15];
-    getColors(col);
-    for (size_t i = 0; i < 3; i++)
-        col[offset + i] = theColor[i];
-    return setColors(col);
+    if (colorMode == sim_colorcomponent_transparency)
+        return setTransparency(theColor[0]);
+    else
+    {
+        int offset = 0;
+        if (colorMode == sim_colorcomponent_ambient_diffuse)
+            offset = 0;
+        else if (colorMode == sim_colorcomponent_diffuse)
+            offset = 3;
+        else if (colorMode == sim_colorcomponent_specular)
+            offset = 6;
+        else if (colorMode == sim_colorcomponent_emission)
+            offset = 9;
+        else if (colorMode == sim_colorcomponent_auxiliary)
+            offset = 12;
+        float col[15];
+        getColors(col);
+        for (size_t i = 0; i < 3; i++)
+            col[offset + i] = theColor[i];
+        return setColors(col);
+    }
 }
 
+//#if SIM_EVENT_PROTOCOL_VERSION == 2
 void CColorObject::pushShapeColorChangeEvent(int objectHandle, int colorIndex)
 {
     if ((objectHandle != -1) && App::worldContainer->getEventsEnabled())
@@ -175,7 +181,7 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle, int colorIndex)
         App::worldContainer->pushEvent();
     }
 }
-
+//#endif
 void CColorObject::pushColorChangeEvent(int objectHandle, float col1[9], float col2[9], float col3[9], float col4[9])
 {
     if ((objectHandle != -1) && App::worldContainer->getEventsEnabled())
@@ -619,6 +625,29 @@ std::string CColorObject::_getPatternStringFromPatternId_backwardCompatibility_3
     if (id == sim_pov_mirror)
         return ("mirror");
     return ("default");
+}
+
+float CColorObject::getTransparency() const
+{
+    float retVal = 0.0f;
+    if (getTranslucid())
+        retVal = 1.0f - _opacity;
+    return retVal;
+}
+
+bool CColorObject::setTransparency(float t)
+{
+    if (t < 0.0f)
+        t = 0.0f;
+    if (t > 1.0f)
+        t = 1.0f;
+    bool diff = (t != getTransparency());
+    if (diff)
+    {
+        setTranslucid(t != 0.0f);
+        setOpacity(1.0f - t);
+    }
+    return diff;
 }
 
 bool CColorObject::getTranslucid() const

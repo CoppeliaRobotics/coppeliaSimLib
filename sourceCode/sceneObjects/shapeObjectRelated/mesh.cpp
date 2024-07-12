@@ -1058,10 +1058,15 @@ void CMesh::setColor(const float* c, unsigned char colorMode)
                 cmd = propMesh_colDiffuse.name;
             else if (colorMode == sim_colorcomponent_specular)
                 cmd = propMesh_colSpecular.name;
-            else
+            else if (colorMode == sim_colorcomponent_emission)
                 cmd = propMesh_colEmission.name;
+            else if (colorMode == sim_colorcomponent_transparency)
+                cmd = propMesh_transparency.name;
             CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
-            ev->appendKeyFloatArray(cmd, c, 3);
+            if (colorMode == sim_colorcomponent_transparency)
+                ev->appendKeyDouble(cmd, c[0]);
+            else
+                ev->appendKeyFloatArray(cmd, c, 3);
             App::worldContainer->pushEvent();
         }
     }
@@ -1136,32 +1141,6 @@ void CMesh::copyVisualAttributesTo(CMeshWrapper *target)
 double CMesh::getShadingAngle() const
 { // function has virtual/non-virtual counterpart!
     return (_shadingAngle);
-}
-
-double CMesh::getTransparency() const
-{
-    double retVal = 0.0;
-    if (color.getTranslucid())
-        retVal = 1.0 - color.getOpacity();
-    return retVal;
-}
-
-void CMesh::setTransparency(double t)
-{
-    tt::limitValue(0.0, 1.0, t);
-    bool diff = (t != getTransparency())  ;
-    if (diff)
-    {
-        color.setTranslucid(t != 0.0);
-        color.setOpacity(1.0 - t);
-        if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
-        {
-            const char *cmd = propMesh_transparency.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
-            ev->appendKeyDouble(cmd, t);
-            App::worldContainer->pushEvent();
-        }
-    }
 }
 
 void CMesh::setShadingAngle(double angle)
@@ -2969,7 +2948,8 @@ int CMesh::setFloatProperty(const char* ppName, double pState, const C7Vector& s
     else if (strcmp(pName, propMesh_transparency.name) == 0)
     {
         retVal = 1;
-        setTransparency(pState);
+        float pp = (float)pState;
+        setColor(&pp, sim_colorcomponent_transparency);
     }
 
     return retVal;
@@ -2989,7 +2969,7 @@ int CMesh::getFloatProperty(const char* ppName, double& pState, const C7Vector& 
     else if (strcmp(pName, propMesh_transparency.name) == 0)
     {
         retVal = 1;
-        pState = getTransparency();
+        pState = color.getTransparency();
     }
 
     return retVal;
@@ -3292,12 +3272,15 @@ int CMesh::getPropertyName(int& index, std::string& pName)
     int retVal = -1;
     for (size_t i = 0; i < allProps_mesh.size(); i++)
     {
-        index--;
-        if (index == -1)
+        if ( (_textureProperty != nullptr) || (i > 7) )
         {
-            pName = allProps_mesh[i].name;
-            retVal = 1;
-            break;
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_mesh[i].name;
+                retVal = 1;
+                break;
+            }
         }
     }
     return retVal;
