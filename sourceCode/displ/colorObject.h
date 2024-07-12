@@ -10,8 +10,8 @@ class CColorObject
 
     void setDefaultValues();
     void setColorsAllBlack();
-    void setColor(const float theColor[3], unsigned char colorMode);
-    void setColor(float r, float g, float b, unsigned char colorMode);
+    bool setColor(const float theColor[3], unsigned char colorMode);
+    bool setColor(float r, float g, float b, unsigned char colorMode);
     void pushShapeColorChangeEvent(int objectHandle, int colorIndex);
     static void pushColorChangeEvent(int objectHandle, float col1[9], float col2[9] = nullptr, float col3[9] = nullptr,
                                      float col4[9] = nullptr);
@@ -40,7 +40,7 @@ class CColorObject
     void setUseSimulationTime(bool sim);
     bool getUseSimulationTime() const;
 
-    void setColors(const float col[15]);
+    bool setColors(const float col[15]);
     void setTranslucid(bool e);
     void setOpacity(float e);
     void setShininess(int e);

@@ -51,8 +51,8 @@ CGraph::CGraph()
     textColor[1] = 0.8f;
     textColor[2] = 0.8f;
     _visibilityLayer = GRAPH_LAYER;
-    _objectAlias = IDSOGL_GRAPH;
-    _objectName_old = IDSOGL_GRAPH;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
 }
@@ -83,11 +83,11 @@ void CGraph::removeAllStreamsAndCurves_old()
 
 std::string CGraph::getObjectTypeInfo() const
 {
-    return (IDSOGL_GRAPH);
+    return "graph";
 }
 std::string CGraph::getObjectTypeInfoExtended() const
 {
-    return (IDSOGL_GRAPH);
+    return getObjectTypeInfo();
 }
 bool CGraph::isPotentiallyCollidable() const
 {
@@ -574,9 +574,7 @@ void CGraph::removeSceneDependencies()
 void CGraph::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("graph");
-#else
-    ev->appendKeyString("objectType", "graph");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
     ev->appendKeyDouble("size", _graphSize);
     // todo

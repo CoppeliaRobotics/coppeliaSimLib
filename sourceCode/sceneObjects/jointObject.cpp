@@ -255,8 +255,8 @@ void CJoint::_commonInit()
     _maxStepSize_old = 10.0 * degToRad;
 
     _visibilityLayer = JOINT_LAYER;
-    _objectAlias = IDSOGL_JOINT;
-    _objectName_old = IDSOGL_JOINT;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _cumulatedForceOrTorque = 0.0;
@@ -1198,12 +1198,12 @@ double CJoint::getVelocity_DEPRECATED()
 
 std::string CJoint::getObjectTypeInfo() const
 {
-    return (IDSOGL_JOINT);
+    return "joint";
 }
 
 std::string CJoint::getObjectTypeInfoExtended() const
 {
-    std::string retVal(IDSOGL_JOINT);
+    std::string retVal(getObjectTypeInfo());
     if (_jointType == sim_joint_revolute_subtype)
     {
         if (fabs(_screwLead) < 0.0000001)
@@ -2066,9 +2066,7 @@ void CJoint::removeSceneDependencies()
 void CJoint::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("joint");
-#else
-    ev->appendKeyString("objectType", "joint");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
     std::string tmp;
     switch (_jointType)

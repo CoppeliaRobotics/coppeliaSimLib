@@ -23,8 +23,8 @@ CPointCloud::CPointCloud()
     _visibilityLayer = POINTCLOUD_LAYER;
     _localObjectSpecialProperty = sim_objectspecialproperty_collidable | sim_objectspecialproperty_measurable |
                                   sim_objectspecialproperty_detectable | sim_objectspecialproperty_renderable;
-    _objectAlias = IDSOGL_POINTCLOUD;
-    _objectName_old = IDSOGL_POINTCLOUD;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     _pointCloudInfo = nullptr;
     _showOctreeStructure = false;
@@ -597,12 +597,12 @@ void *CPointCloud::getPointCloudInfo()
 
 std::string CPointCloud::getObjectTypeInfo() const
 {
-    return (IDSOGL_POINTCLOUD);
+    return "pointCloud";
 }
 
 std::string CPointCloud::getObjectTypeInfoExtended() const
 {
-    return (IDSOGL_POINTCLOUD);
+    return getObjectTypeInfo();
 }
 bool CPointCloud::isPotentiallyCollidable() const
 {
@@ -675,9 +675,7 @@ void CPointCloud::removeSceneDependencies()
 void CPointCloud::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("pointCloud");
-#else
-    ev->appendKeyString("objectType", "pointCloud");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
     ev->appendKeyInt("pointSize", _pointSize);
     ev->openKeyMap("points");

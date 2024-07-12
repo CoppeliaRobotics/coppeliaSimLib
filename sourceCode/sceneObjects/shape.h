@@ -7,24 +7,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propShape_vertices,                "vertices",                                 sim_propertytype_vector,    1) \
-    FUNCX(propShape_indices,                 "indices",                                  sim_propertytype_intvector, 1) \
-    FUNCX(propShape_normals,                 "normals",                                  sim_propertytype_vector,    1) \
-    FUNCX(propShape_colDiffuse,              "diffuseColor",                             sim_propertytype_color,     0) \
-    FUNCX(propShape_colSpecular,             "specularColor",                            sim_propertytype_color,     0) \
-    FUNCX(propShape_colEmission,             "emissionColor",                            sim_propertytype_color,     0) \
-    FUNCX(propShape_shadingAngle,            "shadingAngle",                             sim_propertytype_float,     0) \
-    FUNCX(propShape_showEdges,               "showEdges",                                sim_propertytype_bool,      0) \
-    FUNCX(propShape_culling,                 "culling",                                  sim_propertytype_bool,      0) \
-    FUNCX(propShape_transparency,            "transparency",                             sim_propertytype_float,     0) \
-    FUNCX(propShape_texture,                 "rawTexture",                               sim_propertytype_buffer,    1) \
-    FUNCX(propShape_textureResolution,       "textureResolution",                        sim_propertytype_intvector, 1) \
-    FUNCX(propShape_textureCoordinates,      "textureCoordinates",                       sim_propertytype_vector,    1) \
-    FUNCX(propShape_textureApplyMode,        "textureApplyMode",                         sim_propertytype_int,       0) \
-    FUNCX(propShape_textureRepeatU,          "textureRepeatU",                           sim_propertytype_bool,      0) \
-    FUNCX(propShape_textureRepeatV,          "textureRepeatV",                           sim_propertytype_bool,      0) \
-    FUNCX(propShape_textureInterpolate,      "textureInterpolate",                       sim_propertytype_bool,      0) \
-    FUNCX(propShape_textureID,               "textureID",                                sim_propertytype_int,       1) \
+    FUNCX(propShape_meshes,                  "meshes",                                   sim_propertytype_intvector, 1) \
 
 #define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -90,6 +73,11 @@ class CShape : public CSceneObject
     bool isPotentiallyMeasurable() const;
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
+
+    int getIntVectorProperty(const char* pName, std::vector<int>& pState);
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    int getPropertyInfo(const char* pName, int& info, int& size);
+
 
     // Various
     void commonInit();

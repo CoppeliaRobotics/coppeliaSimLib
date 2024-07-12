@@ -21,8 +21,8 @@ COcTree::COcTree()
     _visibilityLayer = OCTREE_LAYER;
     _localObjectSpecialProperty = sim_objectspecialproperty_collidable | sim_objectspecialproperty_measurable |
                                   sim_objectspecialproperty_detectable | sim_objectspecialproperty_renderable;
-    _objectAlias = IDSOGL_OCTREE;
-    _objectName_old = IDSOGL_OCTREE;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     _octreeInfo = nullptr;
     _showOctreeStructure = false;
@@ -519,13 +519,14 @@ std::vector<double> *COcTree::getCubePositions()
 
 std::string COcTree::getObjectTypeInfo() const
 {
-    return (IDSOGL_OCTREE);
+    return "ocTree";
 }
 
 std::string COcTree::getObjectTypeInfoExtended() const
 {
-    return (IDSOGL_OCTREE);
+    return getObjectTypeInfo();
 }
+
 bool COcTree::isPotentiallyCollidable() const
 {
     return (true);
@@ -590,9 +591,7 @@ void COcTree::removeSceneDependencies()
 void COcTree::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("octree");
-#else
-    ev->appendKeyString("objectType", "octree");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
     ev->appendKeyDouble("voxelSize", _cellSize);
     ev->openKeyMap("voxels");

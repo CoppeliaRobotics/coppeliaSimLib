@@ -27,21 +27,20 @@ CMill::~CMill()
 
 std::string CMill::getObjectTypeInfo() const
 {
-    return ("Mill");
+    return "mill";
 }
 
 std::string CMill::getObjectTypeInfoExtended() const
 {
     if (_millType == sim_mill_pyramid_subtype)
-        return ("Mill (pyramid)");
+        return ("mill (pyramid)");
     if (_millType == sim_mill_cylinder_subtype)
-        return ("Mill (cylinder)");
+        return ("mill (cylinder)");
     if (_millType == sim_mill_disc_subtype)
-        return ("Mill (disc)");
-    if (_millType == sim_mill_cone_subtype)
-        return ("Mill (cone)");
-    return ("ERROR");
+        return ("mill (disc)");
+    return ("mill (cone)");
 }
+
 bool CMill::isPotentiallyCollidable() const
 {
     return (false);
@@ -80,8 +79,8 @@ void CMill::commonInit()
     activeVolumeColor.setDefaultValues();
     activeVolumeColor.setColor(1.0f, 0.1f, 0.1f, sim_colorcomponent_ambient_diffuse);
     _visibilityLayer = MILL_LAYER;
-    _objectAlias = "Mill";
-    _objectName_old = "Mill";
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
@@ -114,10 +113,8 @@ void CMill::removeSceneDependencies()
 void CMill::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("mill");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
     ev->closeArrayOrMap(); // mill
-#else
-    ev->appendKeyString("objectType", "mill");
 #endif
 }
 

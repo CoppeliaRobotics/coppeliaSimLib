@@ -91,10 +91,9 @@ class CWorldContainer
     CCbor *createNakedEvent(const char *event, int handle, long long int uid, bool mergeable);
     CCbor *createEvent(const char *event, long long int uid, const char *fieldName, bool mergeable);
     CCbor *createSceneObjectAddEvent(const CSceneObject *object);
-    CCbor *createSceneObjectChangedEvent(const CSceneObject *object, bool isCommonObjectData, const char *fieldName,
-                                         bool mergeable);
-    CCbor *createSceneObjectChangedEvent(int sceneObjectHandle, bool isCommonObjectData, const char *fieldName,
-                                         bool mergeable);
+    CCbor *createSceneObjectChangedEvent(const CSceneObject *object, bool isCommonObjectData, const char *fieldName, bool mergeable);
+    CCbor *createSceneObjectChangedEvent(int sceneObjectHandle, bool isCommonObjectData, const char *fieldName, bool mergeable);
+    CCbor *createObjectChangedEvent(int objectHandle, const char *fieldName, bool mergeable);
     void pushEvent();
 
     void pushGenesisEvents();

@@ -115,22 +115,20 @@ bool CProxSensor::getShowVolume() const
 
 std::string CProxSensor::getObjectTypeInfo() const
 {
-    return ("Proximity sensor");
+    return ("proximitySensor");
 }
 
 std::string CProxSensor::getObjectTypeInfoExtended() const
 {
     if (sensorType == sim_proximitysensor_pyramid_subtype)
-        return ("Proximity sensor (pyramid)");
+        return ("proximity sensor (pyramid)");
     if (sensorType == sim_proximitysensor_cylinder_subtype)
-        return ("Proximity sensor (cylinder)");
+        return ("proximity sensor (cylinder)");
     if (sensorType == sim_proximitysensor_disc_subtype)
-        return ("Proximity sensor (disc)");
+        return ("proximity sensor (disc)");
     if (sensorType == sim_proximitysensor_cone_subtype)
-        return ("Proximity sensor (cone)");
-    if (sensorType == sim_proximitysensor_ray_subtype)
-        return ("Proximity sensor (ray)");
-    return ("ERROR");
+        return ("proximity sensor (cone)");
+    return ("proximity sensor (ray)");
 }
 bool CProxSensor::isPotentiallyCollidable() const
 {
@@ -182,8 +180,8 @@ void CProxSensor::commonInit()
     detectionRayColor.setColor(1.0f, 1.0f, 0.0f, sim_colorcomponent_emission);
 
     _visibilityLayer = PROXIMITY_SENSOR_LAYER;
-    _objectAlias = "Proximity_sensor";
-    _objectName_old = "Proximity_sensor";
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 }
 
@@ -237,8 +235,6 @@ void CProxSensor::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("proxSensor");
-#else
-    ev->appendKeyString("objectType", "proxSensor");
 #endif
     ev->appendKeyDouble("size", _proxSensorSize);
     // todo

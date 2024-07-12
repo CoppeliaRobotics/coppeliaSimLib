@@ -2,6 +2,40 @@
 
 #include <meshWrapper.h>
 #include <textureProperty.h>
+#include <simLib/simConst.h>
+
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propMesh_vertices,                "vertices",                                 sim_propertytype_vector,    1) \
+    FUNCX(propMesh_indices,                 "indices",                                  sim_propertytype_intvector, 1) \
+    FUNCX(propMesh_normals,                 "normals",                                  sim_propertytype_vector,    1) \
+    FUNCX(propMesh_colDiffuse,              "diffuseColor",                             sim_propertytype_color,     0) \
+    FUNCX(propMesh_colSpecular,             "specularColor",                            sim_propertytype_color,     0) \
+    FUNCX(propMesh_colEmission,             "emissionColor",                            sim_propertytype_color,     0) \
+    FUNCX(propMesh_shadingAngle,            "shadingAngle",                             sim_propertytype_float,     0) \
+    FUNCX(propMesh_showEdges,               "showEdges",                                sim_propertytype_bool,      0) \
+    FUNCX(propMesh_culling,                 "culling",                                  sim_propertytype_bool,      0) \
+    FUNCX(propMesh_transparency,            "transparency",                             sim_propertytype_float,     0) \
+    FUNCX(propMesh_texture,                 "rawTexture",                               sim_propertytype_buffer,    1) \
+    FUNCX(propMesh_textureResolution,       "textureResolution",                        sim_propertytype_intvector, 1) \
+    FUNCX(propMesh_textureCoordinates,      "textureCoordinates",                       sim_propertytype_vector,    1) \
+    FUNCX(propMesh_textureApplyMode,        "textureApplyMode",                         sim_propertytype_int,       0) \
+    FUNCX(propMesh_textureRepeatU,          "textureRepeatU",                           sim_propertytype_bool,      0) \
+    FUNCX(propMesh_textureRepeatV,          "textureRepeatV",                           sim_propertytype_bool,      0) \
+    FUNCX(propMesh_textureInterpolate,      "textureInterpolate",                       sim_propertytype_bool,      0) \
+    FUNCX(propMesh_textureID,               "textureID",                                sim_propertytype_int,       1) \
+    FUNCX(propMesh_objectType,              "objectType",                               sim_propertytype_string,    1) \
+
+#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<CProperty> allProps_mesh = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+#undef CONCAT_PROP
+// ----------------------------------------------------------------------------------------------
 
 class CMesh : public CMeshWrapper
 {
@@ -28,7 +62,8 @@ class CMesh : public CMeshWrapper
     bool checkIfConvex();
     CMesh *getFirstMesh();
     CMesh* getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr);
-    void pushObjectCreationEvent(const C7Vector& shapeRelTr) const;
+    void pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr);
+    void pushObjectRemoveEvent();
 
     int countTriangles() const;
     void getCumulativeMeshes(const C7Vector &parentCumulTr, std::vector<double> &vertices, std::vector<int> *indices,
@@ -44,10 +79,6 @@ class CMesh : public CMeshWrapper
     int getComponentCount() const;
     bool serialize(CSer &ar, const char *shapeName, const C7Vector &parentCumulIFrame, bool rootLevel);
     void flipFaces();
-    double getShadingAngle() const;
-    void setShadingAngle(double angle);
-    double getEdgeThresholdAngle() const;
-    void setEdgeThresholdAngle(double angle);
     void setHideEdgeBorders_OLD(bool v);
     bool getHideEdgeBorders_OLD() const;
     int getTextureCount() const;
@@ -67,12 +98,31 @@ class CMesh : public CMeshWrapper
     CTextureProperty *getTextureProperty();
     void setTextureProperty(CTextureProperty *tp);
 
+    void setTextureRepeatU(bool r);
+    bool getTextureRepeatU() const;
+    void setTextureRepeatV(bool r);
+    bool getTextureRepeatV() const;
+    void setTextureInterpolate(bool r);
+    bool getTextureInterpolate() const;
+    void setTextureApplyMode(int m);
+    int getTextureApplyMode() const;
+
+    double getTransparency() const;
+    void setTransparency(double t);
+    double getShadingAngle() const;
+    void setShadingAngle(double angle);
+    double getEdgeThresholdAngle() const;
+    void setEdgeThresholdAngle(double angle);
     void setVisibleEdges(bool v);
     bool getVisibleEdges() const;
     void setEdgeWidth_DEPRECATED(int w);
     int getEdgeWidth_DEPRECATED() const;
     void setCulling(bool c);
     bool getCulling() const;
+    void setColor(const float* c, unsigned char colorMode);
+    void getColor(float* c, unsigned char colorMode) const;
+
+
     bool getDisplayInverted_DEPRECATED() const;
     void setDisplayInverted_DEPRECATED(bool di);
 
@@ -180,6 +230,7 @@ class CMesh : public CMeshWrapper
     double _shadingAngle;
     double _edgeThresholdAngle;
     bool _convex;
+    int _isInSceneShapeUid;
 
     CTextureProperty *_textureProperty;
     int _uniqueID;

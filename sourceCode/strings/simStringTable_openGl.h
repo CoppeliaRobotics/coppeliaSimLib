@@ -1,20 +1,10 @@
 
 #pragma once
 
-#define IDSOGL_VISION_SENSOR_SAMPLING_RESOLUTION "Vision sensor (sampling resolution: "
-#define IDSOGL_PATH_BEZIER_CURVE_POINT_COUNT "Path (bezier curve point count="
+#define IDSOGL_PATH_BEZIER_CURVE_POINT_COUNT "path (bezier curve point count="
 #define IDSOGL_TOTAL_LENGTH "total length="
 
 #define IDSOGL_COLLECTION "Collection"
-#define IDSOGL_CAMERA "Camera"
-#define IDSOGL_PATH "Path"
-#define IDSOGL_JOINT "Joint"
-#define IDSOGL_DUMMY "Dummy"
-#define IDSOGL_SCRIPT "Script"
-#define IDSOGL_OCTREE "OcTree"
-#define IDSOGL_POINTCLOUD "PointCloud"
-#define IDSOGL_GRAPH "Graph"
-#define IDSOGL_FORCE_SENSOR "ForceSensor"
 
 #define IDSOGL_REVOLUTE "revolute"
 #define IDSOGL_SCREW "screw"
@@ -38,19 +28,11 @@
 
 #define IDSOGL_MODEL_FOLDER_NOT_FOUND "Model folder not found"
 
-#define IDSOGL_VISION_SENSOR "Vision sensor"
-#define IDSOGL_VISION_U_SENSOR "Vision_sensor"
 #define IDSOGL_SKYBOX_DO_NOT_RENAME "Skybox"
 
 #define IDSOGL_X "x"
 #define IDSOGL_Y "y"
 #define IDSOGL_Z "z"
-
-#define IDSOGL_MIRROR "Mirror"
-
-#define IDSOGL_OMNIDIRECTIONAL_LIGHT "Omnidirectional_light"
-#define IDSOGL_SPOTLIGHT "Spotlight"
-#define IDSOGL_DIRECTIONAL_LIGHT "Directional_light"
 
 #define IDSOGL_REVOLUTE_JOINT "Revolute_joint"
 #define IDSOGL_PRISMATIC_JOINT "Prismatic_joint"

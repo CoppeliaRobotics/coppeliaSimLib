@@ -371,10 +371,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                             std::vector<CMesh *> all;
                             ((CShape*)it)->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
                             for (size_t j = 0; j < all.size(); j++)
-                            {
-                                App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTREMOVED, all[j]->getUniqueID(), -1, false);
-                                App::worldContainer->pushEvent();
-                            }
+                                all[j]->pushObjectRemoveEvent();
                         }
 
                         App::worldContainer->pushSceneObjectRemoveEvent(it);

@@ -44,12 +44,12 @@ float *CVisionSensor::getDepthBufferPointer() const
 
 std::string CVisionSensor::getObjectTypeInfo() const
 {
-    return (IDSOGL_VISION_SENSOR);
+    return "visionSensor";
 }
 std::string CVisionSensor::getObjectTypeInfoExtended() const
 {
     std::string retVal;
-    retVal = IDSOGL_VISION_SENSOR_SAMPLING_RESOLUTION;
+    retVal = "vision sensor (sampling resolution: ";
     retVal += boost::lexical_cast<std::string>(_resolution[0]) + "x";
     retVal += boost::lexical_cast<std::string>(_resolution[1]) + ")";
     return (retVal);
@@ -352,8 +352,8 @@ void CVisionSensor::commonInit()
     _depthBuffer = nullptr;
     _reserveBuffers();
 
-    _objectAlias = IDSOGL_VISION_U_SENSOR;
-    _objectName_old = IDSOGL_VISION_U_SENSOR;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
     computeVolumeVectors();
@@ -1865,9 +1865,7 @@ void CVisionSensor::removeSceneDependencies()
 void CVisionSensor::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("visionSensor");
-#else
-    ev->appendKeyString("objectType", "visionSensor");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
     ev->appendKeyBool("perspectiveMode", _perspective);
     ev->appendKeyDouble("nearClippingPlane", _nearClippingPlane);

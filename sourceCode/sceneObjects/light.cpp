@@ -25,17 +25,15 @@ CLight::CLight(int theType)
 
 std::string CLight::getObjectTypeInfo() const
 {
-    return ("Light");
+    return ("light");
 }
 std::string CLight::getObjectTypeInfoExtended() const
 {
     if (_lightType == sim_light_omnidirectional_subtype)
-        return ("Light (omnidirectional)");
+        return ("light (omnidirectional)");
     if (_lightType == sim_light_spot_subtype)
-        return ("Light (spot light)");
-    if (_lightType == sim_light_directional_subtype)
-        return ("Light (directional)");
-    return ("ERROR");
+        return ("light (spot light)");
+    return ("light (directional)");
 }
 bool CLight::isPotentiallyCollidable() const
 {
@@ -83,13 +81,8 @@ void CLight::_commonInit()
 
     _objectMovementPreferredAxes = 0x013;
 
-    if (_lightType == sim_light_omnidirectional_subtype)
-        _objectAlias = IDSOGL_OMNIDIRECTIONAL_LIGHT;
-    if (_lightType == sim_light_spot_subtype)
-        _objectAlias = IDSOGL_SPOTLIGHT;
-    if (_lightType == sim_light_directional_subtype)
-        _objectAlias = IDSOGL_DIRECTIONAL_LIGHT;
-    _objectName_old = _objectAlias;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
 }
@@ -273,9 +266,7 @@ void CLight::removeSceneDependencies()
 void CLight::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("light");
-#else
-    ev->appendKeyString("objectType", "light");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
     ev->appendKeyDouble("size", _lightSize);
     ev->openKeyArray("colors");

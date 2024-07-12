@@ -18,11 +18,11 @@ CMirror::CMirror()
 
 std::string CMirror::getObjectTypeInfo() const
 {
-    return ("Mirror");
+    return "mirror";
 }
 std::string CMirror::getObjectTypeInfoExtended() const
 {
-    return ("Mirror");
+    return getObjectTypeInfo();
 }
 bool CMirror::isPotentiallyCollidable() const
 {
@@ -64,8 +64,8 @@ void CMirror::_commonInit()
 
     _objectMovementPreferredAxes = 0x013;
 
-    _objectAlias = IDSOGL_MIRROR;
-    _objectName_old = IDSOGL_MIRROR;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
 }
@@ -171,10 +171,8 @@ void CMirror::removeSceneDependencies()
 void CMirror::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("mirror");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
     ev->closeArrayOrMap(); // mirror
-#else
-    ev->appendKeyString("objectType", "mirror");
 #endif
 }
 

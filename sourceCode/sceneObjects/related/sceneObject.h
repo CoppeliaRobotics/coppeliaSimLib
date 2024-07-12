@@ -57,6 +57,7 @@
     FUNCX(propObject_movPrefRotZ,             "movPrefRotZ",                      sim_propertytype_bool,      0) \
     FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_vector,    0) \
     FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intvector, 0) \
+    FUNCX(propObject_objectType,              "objectType",                       sim_propertytype_string,    1) \
 
 #define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
 DEFINE_PROPERTIES

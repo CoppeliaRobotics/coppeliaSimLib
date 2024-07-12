@@ -521,6 +521,11 @@ CCbor *CWorldContainer::createSceneObjectChangedEvent(int sceneObjectHandle, boo
     return (createSceneObjectChangedEvent(object, isCommonObjectData, fieldName, mergeable));
 }
 
+CCbor *CWorldContainer::createObjectChangedEvent(int objectHandle, const char *fieldName, bool mergeable)
+{
+    return _createGeneralEvent(EVENTTYPE_OBJECTCHANGED, objectHandle, objectHandle, nullptr, fieldName, mergeable);
+}
+
 CCbor *CWorldContainer::createSceneObjectChangedEvent(const CSceneObject *object, bool isCommonObjectData,
                                                       const char *fieldName, bool mergeable)
 {

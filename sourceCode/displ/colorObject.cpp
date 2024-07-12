@@ -134,7 +134,7 @@ void CColorObject::getNewColors(float cols[9]) const
     }
 }
 
-void CColorObject::setColor(const float theColor[3], unsigned char colorMode)
+bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
 {
     int offset = 0;
     if (colorMode == sim_colorcomponent_ambient_diffuse)
@@ -151,7 +151,7 @@ void CColorObject::setColor(const float theColor[3], unsigned char colorMode)
     getColors(col);
     for (size_t i = 0; i < 3; i++)
         col[offset + i] = theColor[i];
-    setColors(col);
+    return setColors(col);
 }
 
 void CColorObject::pushShapeColorChangeEvent(int objectHandle, int colorIndex)
@@ -194,10 +194,10 @@ void CColorObject::pushColorChangeEvent(int objectHandle, float col1[9], float c
     }
 }
 
-void CColorObject::setColor(float r, float g, float b, unsigned char colorMode)
+bool CColorObject::setColor(float r, float g, float b, unsigned char colorMode)
 {
     float col[3] = {r, g, b};
-    setColor(col, colorMode);
+    return setColor(col, colorMode);
 }
 
 void CColorObject::copyYourselfInto(CColorObject *it) const
@@ -681,7 +681,7 @@ bool CColorObject::_isSame(const CColorObject *it) const
     return (retVal);
 }
 
-void CColorObject::setColors(const float col[15])
+bool CColorObject::setColors(const float col[15])
 {
     bool diff = false;
     for (size_t i = 0; i < 15; i++)
@@ -697,6 +697,7 @@ void CColorObject::setColors(const float col[15])
         for (size_t i = 0; i < 15; i++)
             _colors[i] = col[i];
     }
+    return diff;
 }
 
 void CColorObject::setTranslucid(bool e)

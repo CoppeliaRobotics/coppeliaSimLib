@@ -29,8 +29,8 @@ CPath_old::CPath_old()
     _pathModifID = 0;
     pathContainer = new CPathCont_old();
     setShapingType(1);
-    _objectAlias = IDSOGL_PATH;
-    _objectName_old = IDSOGL_PATH;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
 }
@@ -214,10 +214,8 @@ void CPath_old::removeSceneDependencies()
 void CPath_old::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("path");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
     ev->closeArrayOrMap(); // path
-#else
-    ev->appendKeyString("objectType", "path");
 #endif
 }
 
@@ -309,7 +307,7 @@ void CPath_old::performDynMaterialObjectLoadingMapping(const std::map<int, int> 
 
 std::string CPath_old::getObjectTypeInfo() const
 {
-    return (IDSOGL_PATH);
+    return "path";
 }
 
 std::string CPath_old::getObjectTypeInfoExtended() const

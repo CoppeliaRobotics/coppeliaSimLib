@@ -49,8 +49,8 @@ void CForceSensor::commonInit()
     _color_removeSoon.setColor(0.22f, 0.22f, 0.22f, sim_colorcomponent_ambient_diffuse);
     _visibilityLayer = FORCE_SENSOR_LAYER;
     _localObjectSpecialProperty = 0;
-    _objectAlias = IDSOGL_FORCE_SENSOR;
-    _objectName_old = IDSOGL_FORCE_SENSOR;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
 }
@@ -396,11 +396,11 @@ void CForceSensor::simulationEnded()
 
 std::string CForceSensor::getObjectTypeInfo() const
 {
-    return (IDSOGL_FORCE_SENSOR);
+    return "forceSensor";
 }
 std::string CForceSensor::getObjectTypeInfoExtended() const
 {
-    return (IDSOGL_FORCE_SENSOR);
+    return getObjectTypeInfo();
 }
 bool CForceSensor::isPotentiallyCollidable() const
 {
@@ -469,9 +469,7 @@ void CForceSensor::removeSceneDependencies()
 void CForceSensor::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("forceSensor");
-#else
-    ev->appendKeyString("objectType", "forceSensor");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
     ev->appendKeyDouble("size", _forceSensorSize);
     ev->openKeyArray("colors");

@@ -23,8 +23,8 @@ CDummy::CDummy()
     _linkType = sim_dummytype_default;
 
     _visibilityLayer = DUMMY_LAYER;
-    _objectAlias = IDSOGL_DUMMY;
-    _objectName_old = IDSOGL_DUMMY;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _freeOnPathTrajectory = false;
@@ -239,12 +239,12 @@ void CDummy::_reflectPropToLinkedDummy() const
 
 std::string CDummy::getObjectTypeInfo() const
 {
-    return (IDSOGL_DUMMY);
+    return "dummy";
 }
 
 std::string CDummy::getObjectTypeInfoExtended() const
 {
-    return (IDSOGL_DUMMY);
+    return getObjectTypeInfo();
 }
 
 bool CDummy::isPotentiallyCollidable() const
@@ -285,9 +285,7 @@ void CDummy::removeSceneDependencies()
 void CDummy::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("dummy");
-#else
-    ev->appendKeyString("objectType", "dummy");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
 

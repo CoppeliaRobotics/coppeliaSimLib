@@ -13698,13 +13698,13 @@ int simSetShapeTexture_internal(int shapeHandle, int textureId, int mappingMode,
                     tp = new CTextureProperty(textureId);
                     mesh->setTextureProperty(tp);
                     tp->setTextureMapMode(mappingMode);
-                    tp->setInterpolateColors((options & 1) == 0);
+                    mesh->setTextureInterpolate((options & 1) == 0);
                     if ((options & 2) != 0)
                         tp->setApplyMode(1);
                     else
                         tp->setApplyMode(0);
-                    tp->setRepeatU((options & 4) != 0);
-                    tp->setRepeatV((options & 8) != 0);
+                    mesh->setTextureRepeatU((options & 4) != 0);
+                    mesh->setTextureRepeatV((options & 8) != 0);
                     tp->setTextureScaling(uvScaling[0], uvScaling[1]);
                     C7Vector tr;
                     tr.setIdentity();
@@ -16829,7 +16829,7 @@ int simApplyTexture_internal(int shapeHandle, const double *textureCoordinates, 
                         textureObj, false); // might erase the textureObj and return a similar object already present!!
                     tp = new CTextureProperty(retVal);
                     shape->getSingleMesh()->setTextureProperty(tp);
-                    tp->setInterpolateColors((options & 1) == 0);
+                    shape->getSingleMesh()->setTextureInterpolate((options & 1) == 0);
                     if ((options & 2) != 0)
                         tp->setApplyMode(1);
                     else

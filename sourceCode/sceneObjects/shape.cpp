@@ -227,7 +227,7 @@ void CShape::clearLastParentForLocalGlobalRespondable()
 
 std::string CShape::getObjectTypeInfo() const
 {
-    return ("Shape");
+    return ("shape");
 }
 
 std::string CShape::getObjectTypeInfoExtended() const
@@ -236,32 +236,29 @@ std::string CShape::getObjectTypeInfoExtended() const
     {
         int pureType = getSingleMesh()->getPurePrimitiveType();
         if (pureType == sim_primitiveshape_none)
-            return ("Shape");
+            return ("shape");
         if (pureType == sim_primitiveshape_plane)
-            return ("Shape (plane)");
+            return ("shape (plane)");
         if (pureType == sim_primitiveshape_disc)
-            return ("Shape (disc)");
+            return ("shape (disc)");
         if (pureType == sim_primitiveshape_cuboid)
-            return ("Shape (cuboid)");
+            return ("shape (cuboid)");
         if (pureType == sim_primitiveshape_spheroid)
-            return ("Shape (spheroid)");
+            return ("shape (spheroid)");
         if (pureType == sim_primitiveshape_cylinder)
-            return ("Shape (cylinder)");
+            return ("shape (cylinder)");
         if (pureType == sim_primitiveshape_cone)
-            return ("Shape (cone)");
+            return ("shape (cone)");
         if (pureType == sim_primitiveshape_capsule)
-            return ("Shape (capsule)");
-        if (pureType == sim_primitiveshape_heightfield)
-            return ("Shape (heightfield)");
+            return ("shape (capsule)");
+        return ("shape (heightfield)");
     }
     else
     {
         if (!getMesh()->isPure())
-            return ("Shape (compound)");
-        else
-            return ("Shape (compound primitive)");
+            return ("shape (compound)");
+        return ("shape (compound primitive)");
     }
-    return ("ERROR");
 }
 bool CShape::isPotentiallyCollidable() const
 {
@@ -306,8 +303,8 @@ void CShape::commonInit()
     _visibilityLayer = SHAPE_LAYER;
     _localObjectSpecialProperty = sim_objectspecialproperty_collidable | sim_objectspecialproperty_measurable |
                                   sim_objectspecialproperty_detectable | sim_objectspecialproperty_renderable;
-    _objectAlias = "Shape";
-    _objectName_old = "Shape";
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _dynamicLinearVelocity.clear();
@@ -1430,12 +1427,10 @@ void CShape::removeSceneDependencies()
 void CShape::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("shape");
-#else
-    ev->appendKeyString("objectType", "shape");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
 
-    ev->openKeyArray("meshes");
+    ev->openKeyArray(propShape_meshes.name);
     std::vector<CMesh *> all;
     std::vector<C7Vector> allTr;
     getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
@@ -1460,8 +1455,8 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
             vertices[3 * j + 1] = (float)v(1);
             vertices[3 * j + 2] = (float)v(2);
         }
-        ev->appendKeyFloatArray(propShape_vertices.name, vertices.data(), vertices.size());
-        ev->appendKeyIntArray(propShape_indices.name, wind->data(), wind->size());
+        ev->appendKeyFloatArray("vertices", vertices.data(), vertices.size());
+        ev->appendKeyIntArray("indices", wind->data(), wind->size());
 
         std::vector<float> normals;
         normals.resize(wind->size() * 3);
@@ -1474,35 +1469,27 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
             normals[3 * j + 1] = (float)n(1);
             normals[3 * j + 2] = (float)n(2);
         }
-        ev->appendKeyFloatArray(propShape_normals.name, normals.data(), normals.size());
+        ev->appendKeyFloatArray("normals", normals.data(), normals.size());
 
         float c[9];
         geom->color.getColor(c + 0, sim_colorcomponent_ambient_diffuse);
         geom->color.getColor(c + 3, sim_colorcomponent_specular);
         geom->color.getColor(c + 6, sim_colorcomponent_emission);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
         ev->appendKeyFloatArray("color", c, 9);
-#endif
-        ev->appendKeyFloatArray(propShape_colDiffuse.name, c, 3);
-        ev->appendKeyFloatArray(propShape_colSpecular.name, c + 3, 3);
-        ev->appendKeyFloatArray(propShape_colEmission.name, c + 6, 3);
-        //        ev->appendKeyDouble("edgeAngle",geom->);
-        ev->appendKeyDouble(propShape_shadingAngle.name, geom->getShadingAngle());
-        ev->appendKeyBool(propShape_showEdges.name, geom->getVisibleEdges());
-        ev->appendKeyBool(propShape_culling.name, geom->getCulling());
+        ev->appendKeyDouble("shadingAngle", geom->getShadingAngle());
+        ev->appendKeyBool("showEdges", geom->getVisibleEdges());
+        ev->appendKeyBool("culling", geom->getCulling());
         double transp = 0.0;
         if (geom->color.getTranslucid())
             transp = 1.0 - geom->color.getOpacity();
-        ev->appendKeyDouble(propShape_transparency.name, transp);
+        ev->appendKeyDouble("transparency", transp);
 
-#if SIM_EVENT_PROTOCOL_VERSION == 2
         int options = 0;
         if (geom->getCulling())
             options |= 1;
         if (geom->getWireframe_OLD())
             options |= 2;
         ev->appendKeyInt("options", options);
-#endif
 
         CTextureProperty *tp = geom->getTextureProperty();
         CTextureObject *to = nullptr;
@@ -1520,8 +1507,7 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
                 int tRes[2];
                 to->getTextureSize(tRes[0], tRes[1]);
                 ev->openKeyMap("texture");
-                ev->appendKeyBuff(propShape_texture.name, to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
+                ev->appendKeyBuff("rawTexture", to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
                 ev->appendKeyIntArray("resolution", tRes, 2);
                 ev->appendKeyFloatArray("coordinates", tc->data(), tc->size());
                 ev->appendKeyInt("applyMode", tp->getApplyMode());
@@ -1535,15 +1521,6 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
                     options |= 4;
                 ev->appendKeyInt("options", options);
                 ev->appendKeyInt("id", tp->getTextureObjectID());
-#endif
-                ev->appendKeyIntArray(propShape_textureResolution.name, tRes, 2);
-                ev->appendKeyFloatArray(propShape_textureCoordinates.name, tc->data(), tc->size());
-                ev->appendKeyInt(propShape_textureApplyMode.name, tp->getApplyMode());
-                ev->appendKeyBool(propShape_textureRepeatU.name, tp->getRepeatU());
-                ev->appendKeyBool(propShape_textureRepeatV.name, tp->getRepeatV());
-                ev->appendKeyBool(propShape_textureInterpolate.name, tp->getInterpolateColors());
-                ev->appendKeyInt(propShape_textureID.name, tp->getTextureObjectID());
-
                 ev->closeArrayOrMap(); // texture
             }
         }
@@ -1671,3 +1648,67 @@ void CShape::displayFrames(CViewableBase *renderingObject, double size, bool per
     _displayFrame(tr * _bbFrame, size * 0.006, 1); // frame of the bounding box
 }
 #endif
+
+int CShape::getIntVectorProperty(const char* ppName, std::vector<int>& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getIntVectorProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propShape_meshes.name) == 0)
+        {
+            std::vector<CMesh *> all;
+            getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
+            for (size_t i = 0; i < all.size(); i++)
+                pState.push_back(all[i]->getUniqueID());
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CShape::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".shape";
+        for (size_t i = 0; i < allProps_shape.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_shape[i].name;
+                //pName = "shape." + pName;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CShape::getPropertyInfo(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_shape.size(); i++)
+        {
+            if (strcmp(allProps_shape[i].name, pName) == 0)
+            {
+                retVal = allProps_shape[i].type;
+                info = allProps_shape[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+

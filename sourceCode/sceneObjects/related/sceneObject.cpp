@@ -1358,7 +1358,7 @@ void CSceneObject::pushObjectCreationEvent() const
             std::vector<C7Vector> allTr;
             ((CShape*)this)->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
             for (size_t i = 0; i < all.size(); i++)
-                all[i]->pushObjectCreationEvent(allTr[i]);
+                all[i]->pushObjectCreationEvent(_objectUid, allTr[i]);
         }
         CCbor *ev = App::worldContainer->createSceneObjectAddEvent(this);
         CSceneObject::_addCommonObjectEventData(ev);
@@ -1380,6 +1380,7 @@ void CSceneObject::pushObjectRefreshEvent() const
 
 void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
 {
+    ev->appendKeyString(propObject_objectType.name, getObjectTypeInfo().c_str());
     ev->appendKeyInt(propObject_layer.name, _visibilityLayer);
     ev->appendKeyInt(propObject_childOrder.name, _childOrder);
     double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
@@ -5775,6 +5776,11 @@ int CSceneObject::getStringProperty(const char* ppName, std::string& pState)
     {
         retVal = 1;
         pState = _objectAlias;
+    }
+    else if (strcmp(pName, propObject_objectType.name) == 0)
+    {
+        retVal = 1;
+        pState = getObjectTypeInfo();
     }
 
     return retVal;

@@ -25,11 +25,11 @@ CCamera::CCamera()
 
 std::string CCamera::getObjectTypeInfo() const
 {
-    return (IDSOGL_CAMERA);
+    return "camera";
 }
 std::string CCamera::getObjectTypeInfoExtended() const
 {
-    return (IDSOGL_CAMERA);
+    return getObjectTypeInfo();
 }
 bool CCamera::isPotentiallyCollidable() const
 {
@@ -695,8 +695,8 @@ void CCamera::commonInit()
     _color_removeSoon.setDefaultValues();
     _color_removeSoon.setColor(0.22f, 0.22f, 0.22f, sim_colorcomponent_ambient_diffuse);
 
-    _objectAlias = IDSOGL_CAMERA;
-    _objectName_old = IDSOGL_CAMERA;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
     computeBoundingBox();
     computeVolumeVectors();
@@ -913,9 +913,7 @@ void CCamera::removeSceneDependencies()
 void CCamera::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("camera");
-#else
-    ev->appendKeyString("objectType", "camera");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
     ev->appendKeyBool("perspectiveMode", _perspective);
     ev->appendKeyBool("allowTranslation", _allowTranslation);

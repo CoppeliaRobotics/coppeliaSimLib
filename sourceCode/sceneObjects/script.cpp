@@ -43,8 +43,8 @@ void CScript::_commonInit(int scriptType, const char* text, int options, const c
     _scriptSize = 0.01;
 
     _visibilityLayer = SCRIPT_LAYER;
-    _objectAlias = IDSOGL_SCRIPT;
-    _objectName_old = IDSOGL_SCRIPT;
+    _objectAlias = getObjectTypeInfo();
+    _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _scriptColor.setDefaultValues();
@@ -94,12 +94,12 @@ bool CScript::canDestroyNow()
 
 std::string CScript::getObjectTypeInfo() const
 {
-    return (IDSOGL_SCRIPT);
+    return "script";
 }
 
 std::string CScript::getObjectTypeInfoExtended() const
 {
-    return (IDSOGL_SCRIPT);
+    return getObjectTypeInfo();
 }
 
 bool CScript::isPotentiallyCollidable() const
@@ -136,9 +136,7 @@ void CScript::removeSceneDependencies()
 void CScript::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
-    ev->openKeyMap("script");
-#else
-    ev->appendKeyString("objectType", "script");
+    ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
     ev->appendKeyDouble("size", _scriptSize);
     ev->openKeyArray("colors");
