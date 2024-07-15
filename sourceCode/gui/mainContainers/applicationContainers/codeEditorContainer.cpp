@@ -627,6 +627,7 @@ int CCodeEditorContainer::openConsole(const char *title, int maxLines, int mode,
         editorNode->SetAttribute("max-lines", maxLines);
         editorNode->SetAttribute("activate", toBoolStr(false));
         editorNode->SetAttribute("editable", toBoolStr(false));
+        editorNode->SetAttribute("clearable", toBoolStr(true));
         editorNode->SetAttribute("searchable", toBoolStr(false));
         editorNode->SetAttribute("line-numbers", toBoolStr(false));
         editorNode->SetAttribute("tab-width", 4);

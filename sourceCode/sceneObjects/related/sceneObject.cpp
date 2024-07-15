@@ -1352,6 +1352,11 @@ void CSceneObject::pushObjectCreationEvent() const
 {
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
+        CCbor *ev = App::worldContainer->createSceneObjectAddEvent(this);
+        CSceneObject::_addCommonObjectEventData(ev);
+        addSpecializedObjectEventData(ev);
+        App::worldContainer->pushEvent();
+
         if (_objectType == sim_object_shape_type)
         {
             std::vector<CMesh *> all;
@@ -1360,10 +1365,6 @@ void CSceneObject::pushObjectCreationEvent() const
             for (size_t i = 0; i < all.size(); i++)
                 all[i]->pushObjectCreationEvent(_objectUid, allTr[i]);
         }
-        CCbor *ev = App::worldContainer->createSceneObjectAddEvent(this);
-        CSceneObject::_addCommonObjectEventData(ev);
-        addSpecializedObjectEventData(ev);
-        App::worldContainer->pushEvent();
     }
 }
 

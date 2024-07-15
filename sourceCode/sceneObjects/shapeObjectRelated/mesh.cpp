@@ -488,7 +488,7 @@ CMesh* CMesh::getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vecto
 void CMesh::pushObjectRemoveEvent()
 {
     _isInSceneShapeUid = -1;
-    App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTREMOVED, _uniqueID, -1, false);
+    App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTREMOVED, _uniqueID, _uniqueID, false);
     App::worldContainer->pushEvent();
 }
 
@@ -649,15 +649,24 @@ void CMesh::setColor(const CShape *shape, int &elementIndex, const char *colorNa
         bool compoundColors = (colorName != nullptr) && (strcmp(colorName, "@compound") == 0);
         if (colorComponent < sim_colorcomponent_transparency)
         { // regular components
+#if SIM_EVENT_PROTOCOL_VERSION == 2
             for (int i = 0; i < 3; i++)
                 color.getColorsPtr()[colorComponent * 3 + i] = rgbData[rgbDataOffset + i];
+#else
+            setColor(rgbData + rgbDataOffset, colorComponent);
+#endif
             if (compoundColors)
                 rgbDataOffset += 3;
         }
         if (colorComponent == sim_colorcomponent_transparency)
         {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
             color.setOpacity(rgbData[rgbDataOffset + 0]);
             color.setTranslucid(rgbData[rgbDataOffset + 0] < 1.0);
+#else
+            float ccol = 1.0f - rgbData[rgbDataOffset];
+            setColor(&ccol, colorComponent);
+#endif
             if (compoundColors)
                 rgbDataOffset += 1;
         }
@@ -668,8 +677,10 @@ void CMesh::setColor(const CShape *shape, int &elementIndex, const char *colorNa
             if (compoundColors)
                 rgbDataOffset += 3;
         }
+#if SIM_EVENT_PROTOCOL_VERSION == 2
         if (shape != nullptr)
             color.pushShapeColorChangeEvent(shape->getObjectHandle(), elementIndex);
+#endif
     }
     if ((colorName != nullptr) && (insideColor_DEPRECATED.getColorName().compare(colorName) == 0))
     { // OLD, deprecated
@@ -714,7 +725,14 @@ void CMesh::setColor(const CShape *shape, int &elementIndex, const char *colorNa
                 hsl[0] = fmod(hsl[0] + rgbData[rgbDataOffset + 0], 1.0);
                 hsl[1] = tt::getLimitedFloat(0.0, 1.0, hsl[1] + rgbData[rgbDataOffset + 1]);
                 hsl[2] = tt::getLimitedFloat(0.0, 1.0, hsl[2] + rgbData[rgbDataOffset + 2]);
+
+#if SIM_EVENT_PROTOCOL_VERSION == 2
                 tt::hslToRgb(hsl, color.getColorsPtr() + colorComponent * 3);
+#else
+                float rgb[3];
+                tt::hslToRgb(hsl, rgb);
+                setColor(rgb, colorComponent);
+#endif
             }
             if (colorComponent == 4)
             {
@@ -1053,7 +1071,7 @@ void CMesh::setColor(const float* c, unsigned char colorMode)
     {
         if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd;
+            const char *cmd=nullptr;
             if (colorMode == sim_colorcomponent_ambient_diffuse)
                 cmd = propMesh_colDiffuse.name;
             else if (colorMode == sim_colorcomponent_specular)
@@ -1062,12 +1080,15 @@ void CMesh::setColor(const float* c, unsigned char colorMode)
                 cmd = propMesh_colEmission.name;
             else if (colorMode == sim_colorcomponent_transparency)
                 cmd = propMesh_transparency.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
-            if (colorMode == sim_colorcomponent_transparency)
-                ev->appendKeyDouble(cmd, c[0]);
-            else
-                ev->appendKeyFloatArray(cmd, c, 3);
-            App::worldContainer->pushEvent();
+            if (cmd != nullptr)
+            {
+                CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+                if (colorMode == sim_colorcomponent_transparency)
+                    ev->appendKeyFloat(cmd, c[0]);
+                else
+                    ev->appendKeyFloatArray(cmd, c, 3);
+                App::worldContainer->pushEvent();
+            }
         }
     }
 }
@@ -1105,12 +1126,19 @@ void CMesh::setDisplayInverted_DEPRECATED(bool di)
 
 void CMesh::takeVisualAttributesFrom(CMesh *origin)
 {
-    origin->color.copyYourselfInto(&color);
+    // origin->color.copyYourselfInto(&color);
+    color.setColor(origin->color.getColorsPtr() + sim_colorcomponent_ambient_diffuse * 3, sim_colorcomponent_ambient_diffuse);
+    color.setColor(origin->color.getColorsPtr() + sim_colorcomponent_specular * 3, sim_colorcomponent_specular);
+    color.setColor(origin->color.getColorsPtr() + sim_colorcomponent_emission * 3, sim_colorcomponent_emission);
+    float transp = 1.0f - origin->color.getOpacity();
+    if (!origin->color.getTranslucid())
+        transp = 0.0f;
+    color.setColor(&transp, sim_colorcomponent_transparency);
     origin->insideColor_DEPRECATED.copyYourselfInto(&insideColor_DEPRECATED);
     origin->edgeColor_DEPRECATED.copyYourselfInto(&edgeColor_DEPRECATED);
-    _visibleEdges = origin->_visibleEdges;
+    setVisibleEdges(origin->_visibleEdges);
     _hideEdgeBorders_OLD = origin->_hideEdgeBorders_OLD;
-    _culling = origin->_culling;
+    setCulling(origin->_culling);
     _displayInverted_DEPRECATED = origin->_displayInverted_DEPRECATED;
     _insideAndOutsideFacesSameColor_DEPRECATED = origin->_insideAndOutsideFacesSameColor_DEPRECATED;
     _wireframe_OLD = origin->_wireframe_OLD;
@@ -1123,7 +1151,7 @@ void CMesh::takeVisualAttributesFrom(CMesh *origin)
     }
     if (_shadingAngle != origin->_shadingAngle)
     {
-        _shadingAngle = origin->_shadingAngle;
+        setShadingAngle(origin->_shadingAngle);
         _recomputeNormals();
     }
     if (_edgeThresholdAngle != origin->_edgeThresholdAngle)

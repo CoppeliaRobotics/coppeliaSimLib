@@ -134,32 +134,50 @@ void CColorObject::getNewColors(float cols[9]) const
     }
 }
 
-bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
+bool CColorObject::setColor(const float theColor[3], unsigned char colorMode, int handleForEventGeneration /*= -1*/)
 {
+    bool retVal = false;
     if (colorMode == sim_colorcomponent_transparency)
-        return setTransparency(theColor[0]);
+        retVal = setTransparency(theColor[0], handleForEventGeneration);
     else
     {
         int offset = 0;
+        const char *cmd=nullptr;
         if (colorMode == sim_colorcomponent_ambient_diffuse)
+        {
             offset = 0;
+            cmd = propCol_colDiffuse.name;
+        }
         else if (colorMode == sim_colorcomponent_diffuse)
             offset = 3;
         else if (colorMode == sim_colorcomponent_specular)
+        {
             offset = 6;
+            cmd = propCol_colSpecular.name;
+        }
         else if (colorMode == sim_colorcomponent_emission)
+        {
             offset = 9;
+            cmd = propCol_colEmission.name;
+        }
         else if (colorMode == sim_colorcomponent_auxiliary)
             offset = 12;
         float col[15];
         getColors(col);
         for (size_t i = 0; i < 3; i++)
             col[offset + i] = theColor[i];
-        return setColors(col);
+        retVal = setColors(col);
+        if ( retVal && App::worldContainer->getEventsEnabled() && (handleForEventGeneration != -1) && (cmd != nullptr) )
+        {
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(handleForEventGeneration, cmd, true);
+            ev->appendKeyFloatArray(cmd, col + offset, 3);
+            App::worldContainer->pushEvent();
+        }
     }
+    return retVal;
 }
 
-//#if SIM_EVENT_PROTOCOL_VERSION == 2
+#if SIM_EVENT_PROTOCOL_VERSION == 2
 void CColorObject::pushShapeColorChangeEvent(int objectHandle, int colorIndex)
 {
     if ((objectHandle != -1) && App::worldContainer->getEventsEnabled())
@@ -181,7 +199,8 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle, int colorIndex)
         App::worldContainer->pushEvent();
     }
 }
-//#endif
+#endif
+
 void CColorObject::pushColorChangeEvent(int objectHandle, float col1[9], float col2[9], float col3[9], float col4[9])
 {
     if ((objectHandle != -1) && App::worldContainer->getEventsEnabled())
@@ -635,7 +654,7 @@ float CColorObject::getTransparency() const
     return retVal;
 }
 
-bool CColorObject::setTransparency(float t)
+bool CColorObject::setTransparency(float t, int handleForEventGeneration /*= -1*/)
 {
     if (t < 0.0f)
         t = 0.0f;
@@ -646,6 +665,14 @@ bool CColorObject::setTransparency(float t)
     {
         setTranslucid(t != 0.0f);
         setOpacity(1.0f - t);
+        if ((handleForEventGeneration != -1) && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propCol_transparency.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(handleForEventGeneration, cmd, true);
+            ev->appendKeyFloat(cmd, t);
+            App::worldContainer->pushEvent();
+        }
+
     }
     return diff;
 }

@@ -1,6 +1,25 @@
 #pragma once
 
 #include <ser.h>
+#include <simLib/simConst.h>
+
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propCol_colDiffuse,              "diffuseColor",                             sim_propertytype_color,     0) \
+    FUNCX(propCol_colSpecular,             "specularColor",                            sim_propertytype_color,     0) \
+    FUNCX(propCol_colEmission,             "emissionColor",                            sim_propertytype_color,     0) \
+    FUNCX(propCol_transparency,            "transparency",                             sim_propertytype_float,     0) \
+
+#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<CProperty> allProps_col = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+#undef CONCAT_PROP
+// ----------------------------------------------------------------------------------------------
 
 class CColorObject
 {
@@ -10,11 +29,11 @@ class CColorObject
 
     void setDefaultValues();
     void setColorsAllBlack();
-    bool setColor(const float theColor[3], unsigned char colorMode);
+    bool setColor(const float theColor[3], unsigned char colorMode, int handleForEventGeneration = -1);
     bool setColor(float r, float g, float b, unsigned char colorMode);
-//#if SIM_EVENT_PROTOCOL_VERSION == 2
+#if SIM_EVENT_PROTOCOL_VERSION == 2
     void pushShapeColorChangeEvent(int objectHandle, int colorIndex);
-//#endif
+#endif
     static void pushColorChangeEvent(int objectHandle, float col1[9], float col2[9] = nullptr, float col3[9] = nullptr,
                                      float col4[9] = nullptr);
     void getNewColors(float cols[9]) const;
@@ -27,7 +46,7 @@ class CColorObject
     float *getColorsPtr();
 
     float getTransparency() const;
-    bool setTransparency(float t);
+    bool setTransparency(float t, int handleForEventGeneration = -1);
     bool getTranslucid() const;
     float getOpacity() const;
     int getShininess() const;

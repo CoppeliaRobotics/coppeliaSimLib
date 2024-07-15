@@ -7984,7 +7984,13 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
                     geom->color.setColor(rgbData, colorComponent);
                 geom->color.pushShapeColorChangeEvent(objectHandle, index);
 #else
-                geom->setColor(rgbData, colorComponent);
+                if (colorComponent == sim_colorcomponent_transparency)
+                {
+                    float ccol = 1.0f - rgbData[0];
+                    geom->setColor(&ccol, colorComponent);
+                }
+                else
+                    geom->setColor(rgbData, colorComponent);
 #endif
                 retVal = 1;
             }
