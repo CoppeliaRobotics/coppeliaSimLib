@@ -13,7 +13,7 @@ int CLight::_maximumOpenGlLights = 8;
 
 CLight::CLight()
 {
-    _lightType = sim_light_omnidirectional_subtype;
+    _lightType = sim_light_omnidirectional;
     _commonInit();
 }
 
@@ -29,9 +29,9 @@ std::string CLight::getObjectTypeInfo() const
 }
 std::string CLight::getObjectTypeInfoExtended() const
 {
-    if (_lightType == sim_light_omnidirectional_subtype)
+    if (_lightType == sim_light_omnidirectional)
         return ("light (omnidirectional)");
-    if (_lightType == sim_light_spot_subtype)
+    if (_lightType == sim_light_spot)
         return ("light (spot light)");
     return ("light (directional)");
 }
@@ -54,7 +54,7 @@ bool CLight::isPotentiallyRenderable() const
 
 void CLight::_commonInit()
 {
-    _objectType = sim_object_light_type;
+    _objectType = sim_sceneobject_light;
     _lightSize = 0.10;
     _spotExponent = 5;
     _spotCutoffAngle = 90.0 * degToRad;
@@ -69,13 +69,13 @@ void CLight::_commonInit()
     _lightIsLocal = false;
     if (_extensionString.size() != 0)
         _extensionString += " ";
-    if (_lightType == sim_light_omnidirectional_subtype)
+    if (_lightType == sim_light_omnidirectional)
         _extensionString += "openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.001} "
                             "normalBias {0.012} shadowTextureSize {2048}}} povray {shadow {true} fadeXDist {0.00}}";
-    if (_lightType == sim_light_spot_subtype)
+    if (_lightType == sim_light_spot)
         _extensionString += "openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.0} "
                             "normalBias {0.00008} shadowTextureSize {2048}}} povray {shadow {true} fadeXDist {0.00}}";
-    if (_lightType == sim_light_directional_subtype)
+    if (_lightType == sim_light_directional)
         _extensionString += "openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.001} "
                             "normalBias {0.005} shadowTextureSize {2048}}} povray {shadow {true} fadeXDist {0.00}}";
 
@@ -90,7 +90,7 @@ void CLight::_commonInit()
 void CLight::computeBoundingBox()
 {
     C3Vector minV, maxV;
-    if (_lightType == sim_light_omnidirectional_subtype)
+    if (_lightType == sim_light_omnidirectional)
     {
         minV(0) = -0.5 * _lightSize;
         maxV(0) = 0.5 * _lightSize;
@@ -100,7 +100,7 @@ void CLight::computeBoundingBox()
         maxV(2) = 0.5 * _lightSize;
         _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _lightSize * 0.5);
     }
-    if (_lightType == sim_light_spot_subtype)
+    if (_lightType == sim_light_spot)
     {
         minV(0) = -0.8 * _lightSize;
         maxV(0) = 0.8 * _lightSize;
@@ -113,7 +113,7 @@ void CLight::computeBoundingBox()
         fr.X = C3Vector(0.0, 0.0, -0.5) * _lightSize;
         _setBB(fr, C3Vector(1.6, 1.6, 2.0) * _lightSize * 0.5);
     }
-    if (_lightType == sim_light_directional_subtype)
+    if (_lightType == sim_light_directional)
     {
         minV(0) = -_lightSize * 0.5;
         maxV(0) = _lightSize * 0.5;
@@ -127,14 +127,14 @@ void CLight::computeBoundingBox()
 
 void CLight::_setDefaultColors()
 {
-    if (_lightType == sim_light_omnidirectional_subtype)
+    if (_lightType == sim_light_omnidirectional)
     {
         objectColor.setDefaultValues();
         lightColor.setDefaultValues();
         lightColor.setColor(0.5, 0.5, 0.5, sim_colorcomponent_diffuse);
         lightColor.setColor(0.5, 0.5, 0.5, sim_colorcomponent_specular);
     }
-    if (_lightType == sim_light_spot_subtype)
+    if (_lightType == sim_light_spot)
     {
         objectColor.setDefaultValues();
         objectColor.setColor(1.0f, 0.375f, 0.25f, sim_colorcomponent_ambient_diffuse);
@@ -142,7 +142,7 @@ void CLight::_setDefaultColors()
         lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_diffuse);
         lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_specular);
     }
-    if (_lightType == sim_light_directional_subtype)
+    if (_lightType == sim_light_directional)
     {
         objectColor.setDefaultValues();
         objectColor.setColor(0.45f, 0.45f, 0.75f, sim_colorcomponent_ambient_diffuse);
@@ -586,13 +586,13 @@ void CLight::serialize(CSer &ar)
                 {
                     if (_extensionString.size() != 0)
                         _extensionString += " ";
-                    if (_lightType == sim_light_omnidirectional_subtype)
+                    if (_lightType == sim_light_omnidirectional)
                         _extensionString += "openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} "
                                             "bias {0.001} normalBias {0.012} shadowTextureSize {2048}}}";
-                    if (_lightType == sim_light_spot_subtype)
+                    if (_lightType == sim_light_spot)
                         _extensionString += "openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} "
                                             "bias {0.0} normalBias {0.00008} shadowTextureSize {2048}}}";
-                    if (_lightType == sim_light_directional_subtype)
+                    if (_lightType == sim_light_directional)
                         _extensionString += "openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} "
                                             "bias {0.001} normalBias {0.005} shadowTextureSize {2048}}}";
                 }
@@ -608,8 +608,8 @@ void CLight::serialize(CSer &ar)
         {
             ar.xmlAddNode_comment(" 'type' tag: can be 'omnidirectional', 'spotlight' or 'directional' ",
                                   exhaustiveXml);
-            ar.xmlAddNode_enum("type", _lightType, sim_light_omnidirectional_subtype, "omnidirectional",
-                               sim_light_spot_subtype, "spotlight", sim_light_directional_subtype, "directional");
+            ar.xmlAddNode_enum("type", _lightType, sim_light_omnidirectional, "omnidirectional",
+                               sim_light_spot, "spotlight", sim_light_directional, "directional");
 
             ar.xmlAddNode_float("size", _lightSize);
 
@@ -658,8 +658,8 @@ void CLight::serialize(CSer &ar)
         }
         else
         {
-            ar.xmlGetNode_enum("type", _lightType, exhaustiveXml, "omnidirectional", sim_light_omnidirectional_subtype,
-                               "spotlight", sim_light_spot_subtype, "directional", sim_light_directional_subtype);
+            ar.xmlGetNode_enum("type", _lightType, exhaustiveXml, "omnidirectional", sim_light_omnidirectional,
+                               "spotlight", sim_light_spot, "directional", sim_light_directional);
 
             if (ar.xmlGetNode_float("size", _lightSize, exhaustiveXml))
                 setLightSize(_lightSize);

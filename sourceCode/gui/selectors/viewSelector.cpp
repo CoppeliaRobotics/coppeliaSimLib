@@ -71,13 +71,13 @@ void CViewSelector::render()
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
     {
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
-        if ((it->getObjectType() == sim_object_camera_type) &&
+        if ((it->getObjectType() == sim_sceneobject_camera) &&
             ((objectType == CAMERA_VIEW_SELECT_MODE) || (objectType == VIEWABLE_VIEW_SELECT_MODE)))
         {
             viewSelectionBuffer.push_back(it->getObjectHandle());
             viewSelectionBufferType.push_back(0); // This value has no importance for now
         }
-        if ((it->getObjectType() == sim_object_visionsensor_type) &&
+        if ((it->getObjectType() == sim_sceneobject_visionsensor) &&
             ((objectType == VISIONSENSOR_VIEW_SELECT_MODE) || (objectType == VIEWABLE_VIEW_SELECT_MODE)))
         {
             viewSelectionBuffer.push_back(it->getObjectHandle());
@@ -201,11 +201,11 @@ void CViewSelector::render()
                 {
                     bool savedGlobalRefState = App::userSettings->displayWorldReference;
                     App::userSettings->displayWorldReference = false;
-                    if (it->getObjectType() == sim_object_camera_type)
+                    if (it->getObjectType() == sim_sceneobject_camera)
                         ((CCamera *)it)->lookIn(tns, nullptr);
-                    //                    if (it->getObjectType()==sim_object_graph_type)
+                    //                    if (it->getObjectType()==sim_sceneobject_graph)
                     //                        ((CGraph*)it)->lookAt(tns,nullptr,timeGraph,false,true,false);
-                    if (it->getObjectType() == sim_object_visionsensor_type)
+                    if (it->getObjectType() == sim_sceneobject_visionsensor)
                     {
                         int xxx[2] = {tnd[0] + l * (tns[0] + tnd[0]) + viewPosition[0],
                                       viewPosition[1] + viewSize[1] - (k + 1) * (tns[1] + tnd[1])};
@@ -224,14 +224,14 @@ void CViewSelector::render()
 
                 glLoadIdentity();
                 glDisable(GL_DEPTH_TEST);
-                if (it->getObjectType() == sim_object_camera_type)
+                if (it->getObjectType() == sim_sceneobject_camera)
                 {
                     ogl::setTextColor(0.1f, 0.1f, 0.1f);
                     ogl::drawText(2, tns[1] - 12 * GuiApp::sc, 0, it->getObjectAlias_printPath().append(" (Camera)"));
                     ogl::setTextColor(0.9f, 0.9f, 0.9f);
                     ogl::drawText(1, tns[1] - 11 * GuiApp::sc, 0, it->getObjectAlias_printPath().append(" (Camera)"));
                 }
-                /*                if (it->getObjectType()==sim_object_graph_type)
+                /*                if (it->getObjectType()==sim_sceneobject_graph)
                                 {
                                     std::string txt=" (Time Graph)";
                                     if (!timeGraph)
@@ -241,7 +241,7 @@ void CViewSelector::render()
                                     ogl::setTextColor(0.9f,0.9f,0.9f);
                                     ogl::drawText(1,tns[1]-11*GuiApp::sc,0,it->getName().append(txt));
                                 }*/
-                if (it->getObjectType() == sim_object_visionsensor_type)
+                if (it->getObjectType() == sim_sceneobject_visionsensor)
                 {
                     std::string txt = " (Vision Sensor)";
                     ogl::setTextColor(0.1f, 0.1f, 0.1f);
@@ -389,8 +389,8 @@ bool CViewSelector::processCommand(int commandID, int subViewIndex)
             CSView *subView = view->getView(size_t(subViewIndex));
             if (subView == nullptr)
                 return (true);
-            int cameraNb = (int)App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type);
-            int rendSensNb = (int)App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type);
+            int cameraNb = (int)App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera);
+            int rendSensNb = (int)App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor);
 
             if (cameraNb + rendSensNb > 0)
                 GuiApp::mainWindow->oglSurface->startViewSelection(VIEWABLE_VIEW_SELECT_MODE, subViewIndex);

@@ -110,7 +110,7 @@ void CDynamicsContainer::handleDynamics(double dt)
         _currentlyInDynamicsCalculations = false;
     }
 
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
         App::currentWorld->sceneObjects->getShapeFromIndex(i)->decrementRespondableSuspendCount();
 
     if (App::worldContainer->pluginContainer->dyn_isDynamicContentAvailable())
@@ -274,7 +274,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     {
         if (_dynamicEngineToUse != sim_physics_mujoco)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
             {
                 CDummy *it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
                 if ((it->getLinkedDummyHandle() != -1) && (it->getDummyType() == sim_dummytype_dyntendon))

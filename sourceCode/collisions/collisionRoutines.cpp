@@ -55,16 +55,16 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID, int entity2ID, std::vec
             if (group.size() != 0)
             {
                 int collidingGroupObject = -1;
-                if (object1->getObjectType() == sim_object_shape_type)
+                if (object1->getObjectType() == sim_sceneobject_shape)
                     collisionResult = _doesGroupCollideWithShape(group, (CShape *)object1, intersections,
                                                                  overrideCollidableFlagIfObject1, collidingGroupObject);
-                if (object1->getObjectType() == sim_object_octree_type)
+                if (object1->getObjectType() == sim_sceneobject_octree)
                     collisionResult = _doesGroupCollideWithOctree(
                         group, (COcTree *)object1, overrideCollidableFlagIfObject1, collidingGroupObject);
-                if (object1->getObjectType() == sim_object_dummy_type)
+                if (object1->getObjectType() == sim_sceneobject_dummy)
                     collisionResult = _doesGroupCollideWithDummy(group, (CDummy *)object1,
                                                                  overrideCollidableFlagIfObject1, collidingGroupObject);
-                if (object1->getObjectType() == sim_object_pointcloud_type)
+                if (object1->getObjectType() == sim_sceneobject_pointcloud)
                     collisionResult = _doesGroupCollideWithPointCloud(
                         group, (CPointCloud *)object1, overrideCollidableFlagIfObject1, collidingGroupObject);
 
@@ -85,16 +85,16 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID, int entity2ID, std::vec
             if (object2 != nullptr)
             { // ...an object
                 int collidingGroupObject = -1;
-                if (object2->getObjectType() == sim_object_shape_type)
+                if (object2->getObjectType() == sim_sceneobject_shape)
                     collisionResult = _doesGroupCollideWithShape(group1, (CShape *)object2, intersections,
                                                                  overrideCollidableFlagIfObject2, collidingGroupObject);
-                if (object2->getObjectType() == sim_object_octree_type)
+                if (object2->getObjectType() == sim_sceneobject_octree)
                     collisionResult = _doesGroupCollideWithOctree(
                         group1, (COcTree *)object2, overrideCollidableFlagIfObject2, collidingGroupObject);
-                if (object2->getObjectType() == sim_object_dummy_type)
+                if (object2->getObjectType() == sim_sceneobject_dummy)
                     collisionResult = _doesGroupCollideWithDummy(group1, (CDummy *)object2,
                                                                  overrideCollidableFlagIfObject2, collidingGroupObject);
-                if (object2->getObjectType() == sim_object_pointcloud_type)
+                if (object2->getObjectType() == sim_sceneobject_pointcloud)
                     collisionResult = _doesGroupCollideWithPointCloud(
                         group1, (CPointCloud *)object2, overrideCollidableFlagIfObject2, collidingGroupObject);
 
@@ -177,7 +177,7 @@ bool CCollisionRoutine::_doesGroupCollideWithShape(const std::vector<CSceneObjec
     bool returnValue = false;
     for (size_t i = 0; i < group.size(); i++)
     {
-        if (group[i]->getObjectType() == sim_object_shape_type)
+        if (group[i]->getObjectType() == sim_sceneobject_shape)
         {
             if (shape != group[i])
             { // never self-collision
@@ -191,7 +191,7 @@ bool CCollisionRoutine::_doesGroupCollideWithShape(const std::vector<CSceneObjec
                 }
             }
         }
-        if (group[i]->getObjectType() == sim_object_octree_type)
+        if (group[i]->getObjectType() == sim_sceneobject_octree)
         {
             if (!returnValue)
             {
@@ -239,8 +239,8 @@ bool CCollisionRoutine::_doesGroupCollideWithGroup(const std::vector<CSceneObjec
                     bool doIt = (!returnValue);
                     if ((!doIt) && (intersections != nullptr))
                     { // we still might have to do it if we have shape-shape colldetection (for the contour)
-                        doIt = (group1[i]->getObjectType() == sim_object_shape_type) &&
-                               (group2[j]->getObjectType() == sim_object_shape_type);
+                        doIt = (group1[i]->getObjectType() == sim_sceneobject_shape) &&
+                               (group2[j]->getObjectType() == sim_sceneobject_shape);
                     }
 
                     if (doIt)
@@ -270,7 +270,7 @@ bool CCollisionRoutine::_areObjectBoundingBoxesOverlapping(CSceneObject *obj1, C
     {
         CSceneObject *obj = objs[cnt];
         m[cnt] = obj->getCumulativeTransformation() * obj->getBB(&halfSizes[cnt]);
-        if (obj->getObjectType() == sim_object_dummy_type)
+        if (obj->getObjectType() == sim_sceneobject_dummy)
             halfSizes[cnt] = C3Vector(0.0001, 0.0001, 0.0001);
     }
     return (App::worldContainer->pluginContainer->geomPlugin_getBoxBoxCollision(m[0], halfSizes[0], m[1], halfSizes[1],
@@ -380,39 +380,39 @@ bool CCollisionRoutine::_doesObjectCollideWithObject(CSceneObject *object1, CSce
                                                      bool overrideObject2CollidableFlag,
                                                      std::vector<double> *intersections)
 {
-    if (object1->getObjectType() == sim_object_shape_type)
+    if (object1->getObjectType() == sim_sceneobject_shape)
     {
-        if (object2->getObjectType() == sim_object_shape_type)
+        if (object2->getObjectType() == sim_sceneobject_shape)
             return (_doesShapeCollideWithShape((CShape *)object1, (CShape *)object2, intersections,
                                                overrideObject1CollidableFlag, overrideObject2CollidableFlag));
-        if (object2->getObjectType() == sim_object_octree_type)
+        if (object2->getObjectType() == sim_sceneobject_octree)
             return (_doesOctreeCollideWithShape((COcTree *)object2, (CShape *)object1, overrideObject2CollidableFlag,
                                                 overrideObject1CollidableFlag));
     }
-    if (object1->getObjectType() == sim_object_octree_type)
+    if (object1->getObjectType() == sim_sceneobject_octree)
     {
-        if (object2->getObjectType() == sim_object_shape_type)
+        if (object2->getObjectType() == sim_sceneobject_shape)
             return (_doesOctreeCollideWithShape((COcTree *)object1, (CShape *)object2, overrideObject1CollidableFlag,
                                                 overrideObject2CollidableFlag));
-        if (object2->getObjectType() == sim_object_octree_type)
+        if (object2->getObjectType() == sim_sceneobject_octree)
             return (_doesOctreeCollideWithOctree((COcTree *)object1, (COcTree *)object2, overrideObject1CollidableFlag,
                                                  overrideObject2CollidableFlag));
-        if (object2->getObjectType() == sim_object_dummy_type)
+        if (object2->getObjectType() == sim_sceneobject_dummy)
             return (_doesOctreeCollideWithDummy((COcTree *)object1, (CDummy *)object2, overrideObject1CollidableFlag,
                                                 overrideObject2CollidableFlag));
-        if (object2->getObjectType() == sim_object_pointcloud_type)
+        if (object2->getObjectType() == sim_sceneobject_pointcloud)
             return (_doesOctreeCollideWithPointCloud((COcTree *)object1, (CPointCloud *)object2,
                                                      overrideObject1CollidableFlag, overrideObject2CollidableFlag));
     }
-    if (object1->getObjectType() == sim_object_dummy_type)
+    if (object1->getObjectType() == sim_sceneobject_dummy)
     {
-        if (object2->getObjectType() == sim_object_octree_type)
+        if (object2->getObjectType() == sim_sceneobject_octree)
             return (_doesOctreeCollideWithDummy((COcTree *)object2, (CDummy *)object1, overrideObject2CollidableFlag,
                                                 overrideObject1CollidableFlag));
     }
-    if (object1->getObjectType() == sim_object_pointcloud_type)
+    if (object1->getObjectType() == sim_sceneobject_pointcloud)
     {
-        if (object2->getObjectType() == sim_object_octree_type)
+        if (object2->getObjectType() == sim_sceneobject_octree)
             return (_doesOctreeCollideWithPointCloud((COcTree *)object2, (CPointCloud *)object1,
                                                      overrideObject2CollidableFlag, overrideObject1CollidableFlag));
     }
@@ -424,7 +424,7 @@ bool CCollisionRoutine::_doesGroupCollideWithOctree(const std::vector<CSceneObje
 {
     for (size_t i = 0; i < group.size(); i++)
     {
-        if (group[i]->getObjectType() == sim_object_shape_type)
+        if (group[i]->getObjectType() == sim_sceneobject_shape)
         {
             if (_doesOctreeCollideWithShape(octree, (CShape *)group[i], overrideOctreeCollidableFlag, true))
             {
@@ -432,7 +432,7 @@ bool CCollisionRoutine::_doesGroupCollideWithOctree(const std::vector<CSceneObje
                 return (true);
             }
         }
-        if (group[i]->getObjectType() == sim_object_dummy_type)
+        if (group[i]->getObjectType() == sim_sceneobject_dummy)
         {
             if (_doesOctreeCollideWithDummy(octree, (CDummy *)group[i], overrideOctreeCollidableFlag, true))
             {
@@ -440,7 +440,7 @@ bool CCollisionRoutine::_doesGroupCollideWithOctree(const std::vector<CSceneObje
                 return (true);
             }
         }
-        if (group[i]->getObjectType() == sim_object_octree_type)
+        if (group[i]->getObjectType() == sim_sceneobject_octree)
         {
             if (octree != group[i])
             { // never self-collision
@@ -451,7 +451,7 @@ bool CCollisionRoutine::_doesGroupCollideWithOctree(const std::vector<CSceneObje
                 }
             }
         }
-        if (group[i]->getObjectType() == sim_object_pointcloud_type)
+        if (group[i]->getObjectType() == sim_sceneobject_pointcloud)
         {
             if (_doesOctreeCollideWithPointCloud(octree, (CPointCloud *)group[i], overrideOctreeCollidableFlag, true))
             {
@@ -468,7 +468,7 @@ bool CCollisionRoutine::_doesGroupCollideWithDummy(const std::vector<CSceneObjec
 {
     for (size_t i = 0; i < group.size(); i++)
     {
-        if (group[i]->getObjectType() == sim_object_octree_type)
+        if (group[i]->getObjectType() == sim_sceneobject_octree)
         {
             if (_doesOctreeCollideWithDummy((COcTree *)group[i], dummy, overrideDummyCollidableFlag, true))
             {
@@ -486,7 +486,7 @@ bool CCollisionRoutine::_doesGroupCollideWithPointCloud(const std::vector<CScene
 {
     for (size_t i = 0; i < group.size(); i++)
     {
-        if (group[i]->getObjectType() == sim_object_octree_type)
+        if (group[i]->getObjectType() == sim_sceneobject_octree)
         {
             if (_doesOctreeCollideWithPointCloud((COcTree *)group[i], pointCloud, overridePointCloudCollidableFlag,
                                                  true))
@@ -550,8 +550,8 @@ bool CCollisionRoutine::_doesGroupCollideWithItself(const std::vector<CSceneObje
             bool doIt = (!returnValue);
             if ((!doIt) && (intersections != nullptr))
             { // we still might have to do it if we have shape-shape colldetection (for the contour)
-                doIt = (obj1->getObjectType() == sim_object_shape_type) &&
-                       (obj2->getObjectType() == sim_object_shape_type);
+                doIt = (obj1->getObjectType() == sim_sceneobject_shape) &&
+                       (obj2->getObjectType() == sim_sceneobject_shape);
             }
             if (doIt)
             {

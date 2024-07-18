@@ -41,11 +41,11 @@ void displayView(CSView *view, CSceneObject *it, int mainWindowXPos, bool clipWi
         glScissor(xMax, _viewPosition[1], xSize, _viewSize[1]);
         if (xSize > 0) // to avoid strange effects!
         {
-            if (it->getObjectType() == sim_object_camera_type)
+            if (it->getObjectType() == sim_sceneobject_camera)
                 ((CCamera *)it)->lookIn(nullptr, view, drawText, passiveSubView);
-            if (it->getObjectType() == sim_object_graph_type)
+            if (it->getObjectType() == sim_sceneobject_graph)
                 ((CGraph *)it)->lookAt(nullptr, view, view->getTimeGraph(), drawText, passiveSubView, true);
-            if (it->getObjectType() == sim_object_visionsensor_type)
+            if (it->getObjectType() == sim_sceneobject_visionsensor)
                 ((CVisionSensor *)it)->lookAt(view);
         }
         glDisable(GL_SCISSOR_TEST);

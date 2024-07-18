@@ -84,7 +84,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old *it)
             CJoint *act = App::currentWorld->sceneObjects->getJointFromHandle(it->getDataObjectID());
             if (act != nullptr)
             {
-                if (act->getJointType() == sim_joint_prismatic_subtype)
+                if (act->getJointType() == sim_joint_prismatic)
                 {
                     if ((it->getDerivativeIntegralAndCumulative() == sim_stream_transf_raw) ||
                         (it->getDerivativeIntegralAndCumulative() == sim_stream_transf_cumulative))
@@ -94,7 +94,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old *it)
                     if (it->getDerivativeIntegralAndCumulative() == sim_stream_transf_integral)
                         return ("Meters*Seconds");
                 }
-                if (act->getJointType() == sim_joint_revolute_subtype)
+                if (act->getJointType() == sim_joint_revolute)
                 {
                     if ((it->getDerivativeIntegralAndCumulative() == sim_stream_transf_raw) ||
                         (it->getDerivativeIntegralAndCumulative() == sim_stream_transf_cumulative))
@@ -104,7 +104,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old *it)
                     if (it->getDerivativeIntegralAndCumulative() == sim_stream_transf_integral)
                         return ("Degrees*Seconds");
                 }
-                if (act->getJointType() == sim_joint_spherical_subtype)
+                if (act->getJointType() == sim_joint_spherical)
                 {
                     if ((it->getDerivativeIntegralAndCumulative() == sim_stream_transf_raw) ||
                         (it->getDerivativeIntegralAndCumulative() == sim_stream_transf_cumulative))
@@ -121,7 +121,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old *it)
             CJoint *act = App::currentWorld->sceneObjects->getJointFromHandle(it->getDataObjectID());
             if (act != nullptr)
             {
-                if (act->getJointType() == sim_joint_prismatic_subtype)
+                if (act->getJointType() == sim_joint_prismatic)
                 {
                     if ((it->getDerivativeIntegralAndCumulative() == sim_stream_transf_raw) ||
                         (it->getDerivativeIntegralAndCumulative() == sim_stream_transf_cumulative))
@@ -131,7 +131,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old *it)
                     if (it->getDerivativeIntegralAndCumulative() == sim_stream_transf_integral)
                         return ("Meters");
                 }
-                if (act->getJointType() == sim_joint_revolute_subtype)
+                if (act->getJointType() == sim_joint_revolute)
                 {
                     if ((it->getDerivativeIntegralAndCumulative() == sim_stream_transf_raw) ||
                         (it->getDerivativeIntegralAndCumulative() == sim_stream_transf_cumulative))
@@ -141,7 +141,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old *it)
                     if (it->getDerivativeIntegralAndCumulative() == sim_stream_transf_integral)
                         return ("Degrees");
                 }
-                if (act->getJointType() == sim_joint_spherical_subtype)
+                if (act->getJointType() == sim_joint_spherical)
                 {
                     if ((it->getDerivativeIntegralAndCumulative() == sim_stream_transf_raw) ||
                         (it->getDerivativeIntegralAndCumulative() == sim_stream_transf_cumulative))
@@ -178,7 +178,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old *it)
             CJoint *act = App::currentWorld->sceneObjects->getJointFromHandle(it->getDataObjectID());
             if (act != nullptr)
             {
-                if (act->getJointType() == sim_joint_prismatic_subtype)
+                if (act->getJointType() == sim_joint_prismatic)
                 {
                     std::string retV;
                     if ((it->getDerivativeIntegralAndCumulative() == sim_stream_transf_raw) ||
@@ -190,7 +190,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old *it)
                         retV = "kg*m/s";
                     return (retV);
                 }
-                if (act->getJointType() == sim_joint_revolute_subtype)
+                if (act->getJointType() == sim_joint_revolute)
                 {
                     std::string retV;
                     if ((it->getDerivativeIntegralAndCumulative() == sim_stream_transf_raw) ||
@@ -202,7 +202,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old *it)
                         retV = "kg*m^2/s";
                     return (retV);
                 }
-                if (act->getJointType() == sim_joint_spherical_subtype)
+                if (act->getJointType() == sim_joint_spherical)
                 {
                     if ((it->getDerivativeIntegralAndCumulative() == sim_stream_transf_raw) ||
                         (it->getDerivativeIntegralAndCumulative() == sim_stream_transf_cumulative))
@@ -427,7 +427,7 @@ void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old *it, dou
         { // We have to check if this is a joint and what type:
             if (act != nullptr)
             {
-                if (act->getJointType() == sim_joint_revolute_subtype)
+                if (act->getJointType() == sim_joint_revolute)
                     v *= radToDeg;
             }
         }
@@ -435,7 +435,7 @@ void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old *it, dou
         { // We have to check if this is a joint and what type:
             if (act != nullptr)
             {
-                if (act->getJointType() == sim_joint_revolute_subtype)
+                if (act->getJointType() == sim_joint_revolute)
                     v *= radToDeg;
             }
         }
@@ -832,7 +832,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double &va
         {
             bool validData = false;
             double totV = 0.0;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_mill_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mill); i++)
             {
                 double v;
                 CMill *it = App::currentWorld->sceneObjects->getMillFromIndex(i);
@@ -1126,7 +1126,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double &va
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
-        if (it->getObjectType() != sim_object_proximitysensor_type)
+        if (it->getObjectType() != sim_sceneobject_proximitysensor)
             return (false);
         CProxSensor *sens = (CProxSensor *)it;
         if ((dataIndex == GRAPH_SCENEOBJECT_PROXSENSOR_X_REL_TO_SENSOR) ||
@@ -1254,7 +1254,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double &va
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
-        if (it->getObjectType() != sim_object_mill_type)
+        if (it->getObjectType() != sim_sceneobject_mill)
             return (false);
         CMill *mill = (CMill *)it;
         if (dataIndex == GRAPH_SCENEOBJECT_MILL_CUT_SURFACE)
@@ -1635,42 +1635,42 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index, int dataIndex
     // HERE WE HAVE ALL SCENEOBJECT SUB-CATEGORIES (IMPORTANT TO PUT THEM BEFORE SCENEOBJECT IN GENERAL!)
     if ((dataIndex > GRAPH_SCENEOBJECT_JOINT_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_JOINT_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type)))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getJointFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_PATH_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_PATH_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_path_type)))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_path)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getPathFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_PROXSENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_PROXSENSOR_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_proximitysensor_type)))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getProximitySensorFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_MILL_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_MILL_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_mill_type)))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mill)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getMillFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_FORCESENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_FORCESENSOR_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_forcesensor_type)))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_forcesensor)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getForceSensorFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_VISIONSENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_VISIONSENSOR_SUBEND))
     {
-        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type)))
+        if (index >= int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor)))
             return (false);
         objectID = App::currentWorld->sceneObjects->getVisionSensorFromIndex(index)->getObjectHandle();
         return (true);

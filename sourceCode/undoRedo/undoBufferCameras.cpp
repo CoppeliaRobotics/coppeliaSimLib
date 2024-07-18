@@ -16,7 +16,7 @@ void CUndoBufferCameras::preRestoreCameras()
     if (App::userSettings->getUndoRedoOnlyPartialWithCameras())
     {
         std::vector<CSceneObject *> cameraProxies;
-        for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type); cnt++)
+        for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); cnt++)
         {
             CCamera *cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
             SCamBuff buff;
@@ -55,7 +55,7 @@ void CUndoBufferCameras::restoreCameras()
     {
         // this is the saved cameras, might be a while back:
         std::vector<CSceneObject *> cameraProxies;
-        for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type); cnt++)
+        for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); cnt++)
         {
             CCamera *cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
             std::map<std::string, SCamBuff>::iterator it = _cameraBuffers.find(cam->getObjectAlias_shortPath());
@@ -89,7 +89,7 @@ void CUndoBufferCameras::restoreCameras()
         }
 
         // this is the saved cameras, just a moment ago:
-        for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type); cnt++)
+        for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); cnt++)
         {
             CCamera *cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
             std::map<std::string, SCamBuff>::iterator it =
@@ -119,7 +119,7 @@ void CUndoBufferCameras::storeCameras()
     if (App::userSettings->getUndoRedoOnlyPartialWithCameras())
     {
         std::vector<CSceneObject *> cameraProxies;
-        for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type); cnt++)
+        for (size_t cnt = 0; cnt < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); cnt++)
         {
             CCamera *cam = App::currentWorld->sceneObjects->getCameraFromIndex(cnt);
             /*

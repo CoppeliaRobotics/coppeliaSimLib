@@ -262,7 +262,7 @@ bool isJoint(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_joint_type)
+    else if (it->getObjectType() != sim_sceneobject_joint)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_JOINT);
         return (false);
@@ -277,7 +277,7 @@ bool isShape(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_shape_type)
+    else if (it->getObjectType() != sim_sceneobject_shape)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_SHAPE);
         return (false);
@@ -292,7 +292,7 @@ bool isSensor(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_proximitysensor_type)
+    else if (it->getObjectType() != sim_sceneobject_proximitysensor)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_PROX_SENSOR);
         return (false);
@@ -307,7 +307,7 @@ bool isMill(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_mill_type)
+    else if (it->getObjectType() != sim_sceneobject_mill)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_MILL);
         return (false);
@@ -322,7 +322,7 @@ bool isForceSensor(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_forcesensor_type)
+    else if (it->getObjectType() != sim_sceneobject_forcesensor)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_FORCE_SENSOR);
         return (false);
@@ -337,7 +337,7 @@ bool isVisionSensor(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_visionsensor_type)
+    else if (it->getObjectType() != sim_sceneobject_visionsensor)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_VISION_SENSOR);
         return (false);
@@ -352,7 +352,7 @@ bool isCamera(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_camera_type)
+    else if (it->getObjectType() != sim_sceneobject_camera)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_CAMERA);
         return (false);
@@ -367,7 +367,7 @@ bool isGraph(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_graph_type)
+    else if (it->getObjectType() != sim_sceneobject_graph)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_GRAPH);
         return (false);
@@ -382,7 +382,7 @@ bool isPath(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_path_type)
+    else if (it->getObjectType() != sim_sceneobject_path)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_PATH);
         return (false);
@@ -397,7 +397,7 @@ bool isLight(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_light_type)
+    else if (it->getObjectType() != sim_sceneobject_light)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_LIGHT);
         return (false);
@@ -412,7 +412,7 @@ bool isDummy(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_dummy_type)
+    else if (it->getObjectType() != sim_sceneobject_dummy)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_DUMMY);
         return (false);
@@ -427,7 +427,7 @@ bool isOctree(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_octree_type)
+    else if (it->getObjectType() != sim_sceneobject_octree)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_OCTREE);
         return (false);
@@ -442,7 +442,7 @@ bool isPointCloud(const char *functionName, int identifier)
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_INEXISTANT);
         return (false);
     }
-    else if (it->getObjectType() != sim_object_pointcloud_type)
+    else if (it->getObjectType() != sim_sceneobject_pointcloud)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_OBJECT_NOT_POINTCLOUD);
         return (false);
@@ -687,7 +687,7 @@ int simSetBoolProperty_internal(int target, const char* ppName, int pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_bool)
@@ -744,7 +744,7 @@ int simGetBoolProperty_internal(int target, const char* ppName, int* pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_bool)
@@ -783,7 +783,7 @@ int simSetIntProperty_internal(int target, const char* ppName, int pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_int)
@@ -836,7 +836,7 @@ int simGetIntProperty_internal(int target, const char* ppName, int* pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_int)
@@ -875,7 +875,7 @@ int simSetFloatProperty_internal(int target, const char* ppName, double pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_float)
@@ -928,7 +928,7 @@ int simGetFloatProperty_internal(int target, const char* ppName, double* pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_float)
@@ -967,7 +967,7 @@ int simSetStringProperty_internal(int target, const char* ppName, const char* pS
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_string)
@@ -1023,7 +1023,7 @@ char* simGetStringProperty_internal(int target, const char* ppName)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_string)
@@ -1060,7 +1060,7 @@ int simSetBufferProperty_internal(int target, const char* ppName, const char* bu
                     utils::replaceSubstring(pN, propertyTypes[i].second.c_str(), "");
                 int info;
                 int size;
-                int p = App::getPropertyInfo(target, pN.c_str(), info, size);
+                int p = App::getPropertyInfo(target, pN.c_str(), info, size, false);
                 if (p < 0)
                     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                 else if (p == sim_propertytype_buffer)
@@ -1102,7 +1102,7 @@ char* simGetBufferProperty_internal(int target, const char* ppName, int* bufferL
                     utils::replaceSubstring(pN, propertyTypes[i].second.c_str(), "");
                 int info;
                 int size;
-                int p = App::getPropertyInfo(target, pN.c_str(), info, size);
+                int p = App::getPropertyInfo(target, pN.c_str(), info, size, false);
                 if (p < 0)
                     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                 else if (p == sim_propertytype_buffer)
@@ -1141,7 +1141,7 @@ int simSetVector3Property_internal(int target, const char* ppName, const double*
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_vector3)
@@ -1199,7 +1199,7 @@ int simGetVector3Property_internal(int target, const char* ppName, double* pStat
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_vector3)
@@ -1239,7 +1239,7 @@ int simSetQuaternionProperty_internal(int target, const char* ppName, const doub
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_quaternion)
@@ -1297,7 +1297,7 @@ int simGetQuaternionProperty_internal(int target, const char* ppName, double* pS
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_quaternion)
@@ -1338,7 +1338,7 @@ int simSetPoseProperty_internal(int target, const char* ppName, const double* pS
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_pose)
@@ -1396,7 +1396,7 @@ int simGetPoseProperty_internal(int target, const char* ppName, double* pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_pose)
@@ -1437,7 +1437,7 @@ int simSetMatrix3x3Property_internal(int target, const char* ppName, const doubl
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix3x3)
@@ -1495,7 +1495,7 @@ int simGetMatrix3x3Property_internal(int target, const char* ppName, double* pSt
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix3x3)
@@ -1536,7 +1536,7 @@ int simSetMatrix4x4Property_internal(int target, const char* ppName, const doubl
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix4x4)
@@ -1602,7 +1602,7 @@ int simGetMatrix4x4Property_internal(int target, const char* ppName, double* pSt
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix4x4)
@@ -1641,7 +1641,7 @@ int simSetColorProperty_internal(int target, const char* ppName, const float* pS
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_color)
@@ -1695,7 +1695,7 @@ int simGetColorProperty_internal(int target, const char* ppName, float* pState)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_color)
@@ -1734,7 +1734,7 @@ int simSetVectorProperty_internal(int target, const char* ppName, const double* 
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_vector)
@@ -1784,7 +1784,7 @@ double* simGetVectorProperty_internal(int target, const char* ppName, int* vL)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_vector)
@@ -1823,7 +1823,7 @@ int simSetIntVectorProperty_internal(int target, const char* ppName, const int* 
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_intvector)
@@ -1873,7 +1873,7 @@ int* simGetIntVectorProperty_internal(int target, const char* ppName, int* vL)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_intvector)
@@ -1907,7 +1907,7 @@ int simRemoveProperty_internal(int target, const char* ppName)
                 {
                     int info;
                     int size;
-                    int p = App::getPropertyInfo(target, ppName, info, size);
+                    int p = App::getPropertyInfo(target, ppName, info, size, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else
@@ -1930,7 +1930,13 @@ char* simGetPropertyName_internal(int target, int index)
         char* retVal = nullptr;
         std::string pName;
         std::string appartenance;
-        int res = App::getPropertyName(target, index, pName, appartenance);
+        bool staticParsing = false;
+        if (index < 0)
+        {
+            index = -index - 1;
+            staticParsing = true;
+        }
+        int res = App::getPropertyName(target, index, pName, appartenance, staticParsing);
         if (res == -2)
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
         else if (pName.size() > 0)
@@ -1958,7 +1964,7 @@ int simGetPropertyInfo_internal(int target, const char* ppName, int* info, int* 
         int retVal = -2;
         // should always pass, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            retVal = App::getPropertyInfo(target, ppName, _info, _size);
+            retVal = App::getPropertyInfo(target, ppName, _info, _size, false);
             if (retVal == -2)
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
             else if (retVal >= 0)
@@ -2109,7 +2115,7 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char *
                     for (size_t i = 0; i < o->getChildCount(); i++)
                     {
                         CSceneObject* c = o->getChildFromIndex(i);
-                        if (c->getObjectType() == sim_object_script_type)
+                        if (c->getObjectType() == sim_sceneobject_script)
                         {
                             CScript* s = (CScript*)c;
                             if (s->scriptObject->getScriptType() == scriptType)
@@ -2722,7 +2728,7 @@ int simGetJointPosition_internal(int objectHandle, double *position)
         if (!isJoint(__func__, objectHandle))
             return (-1);
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        if (it->getJointType() == sim_joint_spherical_subtype)
+        if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
@@ -2745,7 +2751,7 @@ int simSetJointPosition_internal(int objectHandle, double position)
         if (!isJoint(__func__, objectHandle))
             return (-1);
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        if (it->getJointType() == sim_joint_spherical_subtype)
+        if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
@@ -2780,7 +2786,7 @@ int simSetJointTargetPosition_internal(int objectHandle, double targetPosition)
         if (!isJoint(__func__, objectHandle))
             return (-1);
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        if (it->getJointType() == sim_joint_spherical_subtype)
+        if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
@@ -2817,7 +2823,7 @@ int simGetJointTargetPosition_internal(int objectHandle, double *targetPosition)
         if (!isJoint(__func__, objectHandle))
             return (-1);
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        if (it->getJointType() == sim_joint_spherical_subtype)
+        if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
@@ -2840,7 +2846,7 @@ int simSetJointTargetVelocity_internal(int objectHandle, double targetVelocity)
         if (!isJoint(__func__, objectHandle))
             return (-1);
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        if (it->getJointType() == sim_joint_spherical_subtype)
+        if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
@@ -2877,7 +2883,7 @@ int simGetJointTargetVelocity_internal(int objectHandle, double *targetVelocity)
         if (!isJoint(__func__, objectHandle))
             return (-1);
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        if (it->getJointType() == sim_joint_spherical_subtype)
+        if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
@@ -2900,9 +2906,9 @@ int simGetObjectChildPose_internal(int objectHandle, double *pose)
         CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         C7Vector tr;
         tr.setIdentity();
-        if (obj->getObjectType() == sim_object_joint_type)
+        if (obj->getObjectType() == sim_sceneobject_joint)
             tr = ((CJoint *)obj)->getIntrinsicTransformation(true);
-        if (obj->getObjectType() == sim_object_forcesensor_type)
+        if (obj->getObjectType() == sim_sceneobject_forcesensor)
             tr = ((CForceSensor *)obj)->getIntrinsicTransformation(true);
         tr.getData(pose, true);
         return (1);
@@ -2925,10 +2931,10 @@ int simSetObjectChildPose_internal(int objectHandle, const double *pose)
             return (-1);
         }
         CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-        if (obj->getObjectType() == sim_object_joint_type)
+        if (obj->getObjectType() == sim_sceneobject_joint)
         {
             CJoint *it = (CJoint *)obj;
-            if (it->getJointType() == sim_joint_spherical_subtype)
+            if (it->getJointType() == sim_joint_spherical)
             {
                 C7Vector tr;
                 tr.setData(pose, true);
@@ -2937,7 +2943,7 @@ int simSetObjectChildPose_internal(int objectHandle, const double *pose)
                 it->setIntrinsicTransformationError(C7Vector::identityTransformation);
             }
         }
-        if (obj->getObjectType() == sim_object_forcesensor_type)
+        if (obj->getObjectType() == sim_sceneobject_forcesensor)
         {
             CForceSensor *it = (CForceSensor *)obj;
             it->setIntrinsicTransformationError(C7Vector::identityTransformation);
@@ -3898,7 +3904,7 @@ int simSetBoolParam_internal(int parameter, bool boolState)
             (parameter == sim_boolparam_force_calcstruct_all))
         {
             int displayAttrib = sim_displayattribute_renderpass;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
             {
                 int shapeHandle = App::currentWorld->sceneObjects->getShapeFromIndex(i)->getObjectHandle();
                 CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(shapeHandle);
@@ -5287,7 +5293,7 @@ int simSetFloatParam_internal(int parameter, double floatState)
             if (App::currentWorld->environment == nullptr)
                 return (-1);
             App::currentWorld->environment->setCalculationMaxTriangleSize(floatState);
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
             {
                 CShape *sh = App::currentWorld->sceneObjects->getShapeFromIndex(i);
                 sh->removeMeshCalculationStructure();
@@ -5299,7 +5305,7 @@ int simSetFloatParam_internal(int parameter, double floatState)
             if (App::currentWorld->environment == nullptr)
                 return (-1);
             App::currentWorld->environment->setCalculationMinRelTriangleSize(floatState);
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
             {
                 CShape *sh = App::currentWorld->sceneObjects->getShapeFromIndex(i);
                 sh->removeMeshCalculationStructure();
@@ -5983,7 +5989,7 @@ int simHandleProximitySensor_internal(int sensorHandle, double *detectedPoint, i
             int detectedObjectID = -1;
             C3Vector detectedSurfaceNormal;
             double allSmallestL = DBL_MAX;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_proximitysensor_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor); i++)
             {
                 int detectedObj;
                 C3Vector detectedSurf;
@@ -6118,7 +6124,7 @@ int simResetProximitySensor_internal(int sensorHandle)
                 return (-1);
             }
         }
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_proximitysensor_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor); i++)
         {
             CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromIndex(i);
             if (sensorHandle >= 0)
@@ -6628,7 +6634,7 @@ int simHandleGraph_internal(int graphHandle, double simulationTime)
         }
         if (graphHandle < 0)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_graph_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_graph); i++)
             {
                 CGraph *it = App::currentWorld->sceneObjects->getGraphFromIndex(i);
                 if ((!it->getExplicitHandling()) || (graphHandle == sim_handle_all))
@@ -6664,7 +6670,7 @@ int simResetGraph_internal(int graphHandle)
         }
         if (graphHandle < 0)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_graph_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_graph); i++)
             {
                 CGraph *it = App::currentWorld->sceneObjects->getGraphFromIndex(i);
                 if ((!it->getExplicitHandling()) || (graphHandle == sim_handle_all))
@@ -7764,32 +7770,32 @@ int simSetExplicitHandling_internal(int objectHandle, int explicitFlags)
                 return (-1);
             }
             CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            if (it->getObjectType() == sim_object_joint_type)
+            if (it->getObjectType() == sim_sceneobject_joint)
             { // Joints
                 ((CJoint *)it)->setExplicitHandling_DEPRECATED(explicitFlags & 1);
                 return (1);
             }
-            if (it->getObjectType() == sim_object_graph_type)
+            if (it->getObjectType() == sim_sceneobject_graph)
             { // Graphs
                 ((CGraph *)it)->setExplicitHandling(explicitFlags & 1);
                 return (1);
             }
-            if (it->getObjectType() == sim_object_mill_type)
+            if (it->getObjectType() == sim_sceneobject_mill)
             { // Mills
                 ((CMill *)it)->setExplicitHandling(explicitFlags & 1);
                 return (1);
             }
-            if (it->getObjectType() == sim_object_path_type)
+            if (it->getObjectType() == sim_sceneobject_path)
             { // Paths
                 ((CPath_old *)it)->setExplicitHandling(explicitFlags & 1);
                 return (1);
             }
-            if (it->getObjectType() == sim_object_visionsensor_type)
+            if (it->getObjectType() == sim_sceneobject_visionsensor)
             { // vision sensors
                 ((CVisionSensor *)it)->setExplicitHandling(explicitFlags & 1);
                 return (1);
             }
-            if (it->getObjectType() == sim_object_proximitysensor_type)
+            if (it->getObjectType() == sim_sceneobject_proximitysensor)
             { // Proximity sensors
                 ((CProxSensor *)it)->setExplicitHandling(explicitFlags & 1);
                 return (1);
@@ -7846,32 +7852,32 @@ int simGetExplicitHandling_internal(int objectHandle)
             if (!doesObjectExist(__func__, objectHandle))
                 return (-1);
             CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-            if (it->getObjectType() == sim_object_joint_type)
+            if (it->getObjectType() == sim_sceneobject_joint)
             { // Joints
                 bool exp = ((CJoint *)it)->getExplicitHandling_DEPRECATED();
                 return (exp);
             }
-            if (it->getObjectType() == sim_object_graph_type)
+            if (it->getObjectType() == sim_sceneobject_graph)
             { // Graphs
                 bool exp = ((CGraph *)it)->getExplicitHandling();
                 return (exp);
             }
-            if (it->getObjectType() == sim_object_mill_type)
+            if (it->getObjectType() == sim_sceneobject_mill)
             { // Mills
                 bool exp = ((CMill *)it)->getExplicitHandling();
                 return (exp);
             }
-            if (it->getObjectType() == sim_object_path_type)
+            if (it->getObjectType() == sim_sceneobject_path)
             { // Paths
                 bool exp = ((CPath_old *)it)->getExplicitHandling();
                 return (exp);
             }
-            if (it->getObjectType() == sim_object_visionsensor_type)
+            if (it->getObjectType() == sim_sceneobject_visionsensor)
             { // vision sensors
                 bool exp = ((CVisionSensor *)it)->getExplicitHandling();
                 return (exp);
             }
-            if (it->getObjectType() == sim_object_proximitysensor_type)
+            if (it->getObjectType() == sim_sceneobject_proximitysensor)
             { // Proximity sensors
                 bool exp = ((CProxSensor *)it)->getExplicitHandling();
                 return (exp);
@@ -7966,7 +7972,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
             return (-1);
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal = 0;
-        if (it->getObjectType() == sim_object_shape_type)
+        if (it->getObjectType() == sim_sceneobject_shape)
         {
             CShape *shape = (CShape *)it;
             std::vector<CMesh *> all;
@@ -7995,89 +8001,106 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_dummy_type)
+        if (it->getObjectType() == sim_sceneobject_dummy)
         {
             CDummy *dummy = (CDummy *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
             {
-                dummy->getDummyColor()->setColor(rgbData, colorComponent);
+                dummy->getDummyColor()->setColor(rgbData, colorComponent, objectHandle);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
                 float cols[9];
                 dummy->getDummyColor()->getNewColors(cols);
                 CColorObject::pushColorChangeEvent(objectHandle, cols);
+#endif
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_camera_type)
+        if (it->getObjectType() == sim_sceneobject_camera)
         {
             CCamera *camera = (CCamera *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
             {
-                camera->getColor(false)->setColor(rgbData, colorComponent);
+                camera->getColor(false)->setColor(rgbData, colorComponent, objectHandle);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
                 float cols[9];
                 camera->getColor(false)->getNewColors(cols);
                 CColorObject::pushColorChangeEvent(objectHandle, cols);
+#endif
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_joint_type)
+        if (it->getObjectType() == sim_sceneobject_joint)
         {
             CJoint *joint = (CJoint *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
             {
-                joint->getColor(false)->setColor(rgbData, colorComponent);
+                joint->getColor(false)->setColor(rgbData, colorComponent, objectHandle);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
                 float cols[9];
                 joint->getColor(false)->getNewColors(cols);
                 CColorObject::pushColorChangeEvent(objectHandle, cols);
+#endif
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_light_type)
+        if (it->getObjectType() == sim_sceneobject_light)
         {
             CLight *light = (CLight *)it;
             if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
             {
-                light->getColor(index == 1)->setColor(rgbData, colorComponent);
+                light->getColor(index == 1)->setColor(rgbData, colorComponent, objectHandle);
                 retVal = 1;
             }
+#if SIM_EVENT_PROTOCOL_VERSION == 2
             float cols[2 * 9];
             light->getColor(false)->getNewColors(cols);
             light->getColor(true)->getNewColors(cols + 9);
             CColorObject::pushColorChangeEvent(objectHandle, cols, cols + 9);
+#endif
         }
-        if (it->getObjectType() == sim_object_proximitysensor_type)
+        if (it->getObjectType() == sim_sceneobject_proximitysensor)
         {
             CProxSensor *sensor = (CProxSensor *)it;
             if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
             {
-                sensor->getColor(index)->setColor(rgbData, colorComponent);
+                if (index == 0)
+                    sensor->getColor(index)->setColor(rgbData, colorComponent, objectHandle);
+                else
+                    sensor->getColor(index)->setColor(rgbData, colorComponent, objectHandle, "_ray");
                 retVal = 1;
             }
+#if SIM_EVENT_PROTOCOL_VERSION == 2
             float cols[2 * 9];
             sensor->getColor(0)->getNewColors(cols);
             sensor->getColor(1)->getNewColors(cols + 9);
             CColorObject::pushColorChangeEvent(objectHandle, cols, cols + 9);
+#endif
         }
-        if (it->getObjectType() == sim_object_visionsensor_type)
+        if (it->getObjectType() == sim_sceneobject_visionsensor)
         {
             CVisionSensor *sensor = (CVisionSensor *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
             {
-                sensor->getColor()->setColor(rgbData, colorComponent);
+                sensor->getColor()->setColor(rgbData, colorComponent, objectHandle);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
                 float cols[9];
                 sensor->getColor()->getNewColors(cols);
                 CColorObject::pushColorChangeEvent(objectHandle, cols);
+#endif
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_forcesensor_type)
+        if (it->getObjectType() == sim_sceneobject_forcesensor)
         {
             CForceSensor *sensor = (CForceSensor *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
             {
-                sensor->getColor(false)->setColor(rgbData, colorComponent);
+                sensor->getColor(false)->setColor(rgbData, colorComponent, objectHandle);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
                 float cols[9];
                 sensor->getColor(false)->getNewColors(cols);
                 CColorObject::pushColorChangeEvent(objectHandle, cols);
+#endif
                 retVal = 1;
             }
         }
@@ -8097,7 +8120,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
             return (-1);
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal = 0;
-        if (it->getObjectType() == sim_object_shape_type)
+        if (it->getObjectType() == sim_sceneobject_shape)
         {
             CShape *shape = (CShape *)it;
             std::vector<CMesh *> all;
@@ -8109,7 +8132,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_dummy_type)
+        if (it->getObjectType() == sim_sceneobject_dummy)
         {
             CDummy *dummy = (CDummy *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
@@ -8118,7 +8141,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_camera_type)
+        if (it->getObjectType() == sim_sceneobject_camera)
         {
             CCamera *camera = (CCamera *)it;
             if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
@@ -8127,7 +8150,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_joint_type)
+        if (it->getObjectType() == sim_sceneobject_joint)
         {
             CJoint *joint = (CJoint *)it;
             if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
@@ -8139,7 +8162,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_light_type)
+        if (it->getObjectType() == sim_sceneobject_light)
         {
             CLight *light = (CLight *)it;
             if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
@@ -8148,7 +8171,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_proximitysensor_type)
+        if (it->getObjectType() == sim_sceneobject_proximitysensor)
         {
             CProxSensor *sensor = (CProxSensor *)it;
             if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
@@ -8157,7 +8180,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_visionsensor_type)
+        if (it->getObjectType() == sim_sceneobject_visionsensor)
         {
             CVisionSensor *sensor = (CVisionSensor *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
@@ -8166,7 +8189,7 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
                 retVal = 1;
             }
         }
-        if (it->getObjectType() == sim_object_forcesensor_type)
+        if (it->getObjectType() == sim_sceneobject_forcesensor)
         {
             CForceSensor *sensor = (CForceSensor *)it;
             if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
@@ -8191,7 +8214,7 @@ int simSetShapeColor_internal(int shapeHandle, const char *colorName, int colorC
             return (-1);
         if (shapeHandle == sim_handle_all)
         { // deprecated functionality
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
             {
                 CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
                 it->setColor(colorName, colorComponent, rgbData);
@@ -8877,14 +8900,14 @@ int simCreateProximitySensor_internal(int sensorType, int subType, int options, 
         it->setClosestObjectMode((options & 32) == 0);
         it->setNormalCheck((options & 64) != 0);
         it->convexVolume->setSmallestDistanceEnabled((options & 256) != 0);
-        it->setRandomizedDetection((sensorType == sim_proximitysensor_ray_subtype) && (options & 512) != 0);
+        it->setRandomizedDetection((sensorType == sim_proximitysensor_ray) && (options & 512) != 0);
 
-        if ((sensorType == sim_proximitysensor_cylinder_subtype) || (sensorType == sim_proximitysensor_disc_subtype) ||
-            (sensorType == sim_proximitysensor_cone_subtype))
+        if ((sensorType == sim_proximitysensor_cylinder) || (sensorType == sim_proximitysensor_disc) ||
+            (sensorType == sim_proximitysensor_cone))
             it->convexVolume->setFaceNumber(intParams[0]);
-        if (sensorType == sim_proximitysensor_disc_subtype)
+        if (sensorType == sim_proximitysensor_disc)
             it->convexVolume->setFaceNumberFar(intParams[1]);
-        if (sensorType == sim_proximitysensor_cone_subtype)
+        if (sensorType == sim_proximitysensor_cone)
         {
             it->convexVolume->setSubdivisions(intParams[2]);
             it->convexVolume->setSubdivisionsFar(intParams[3]);
@@ -8898,26 +8921,26 @@ int simCreateProximitySensor_internal(int sensorType, int subType, int options, 
 
         it->convexVolume->setOffset(floatParams[0]);
         it->convexVolume->setRange(floatParams[1]);
-        if (sensorType == sim_proximitysensor_pyramid_subtype)
+        if (sensorType == sim_proximitysensor_pyramid)
             it->convexVolume->setXSize(floatParams[2]);
-        if ((sensorType == sim_proximitysensor_pyramid_subtype) || (sensorType == sim_proximitysensor_disc_subtype))
+        if ((sensorType == sim_proximitysensor_pyramid) || (sensorType == sim_proximitysensor_disc))
             it->convexVolume->setYSize(floatParams[3]);
-        if (sensorType == sim_proximitysensor_pyramid_subtype)
+        if (sensorType == sim_proximitysensor_pyramid)
         {
             it->convexVolume->setXSizeFar(floatParams[4]);
             it->convexVolume->setYSizeFar(floatParams[5]);
         }
-        if ((sensorType == sim_proximitysensor_cone_subtype) || (sensorType == sim_proximitysensor_disc_subtype))
+        if ((sensorType == sim_proximitysensor_cone) || (sensorType == sim_proximitysensor_disc))
             it->convexVolume->setInsideAngleThing(floatParams[6]);
 
-        if (((sensorType == sim_proximitysensor_ray_subtype) && it->getRandomizedDetection()) ||
-            (sensorType == sim_proximitysensor_cylinder_subtype) || (sensorType == sim_proximitysensor_cone_subtype) ||
-            (sensorType == sim_proximitysensor_disc_subtype))
+        if (((sensorType == sim_proximitysensor_ray) && it->getRandomizedDetection()) ||
+            (sensorType == sim_proximitysensor_cylinder) || (sensorType == sim_proximitysensor_cone) ||
+            (sensorType == sim_proximitysensor_disc))
             it->convexVolume->setRadius(floatParams[7]);
-        if (sensorType == sim_proximitysensor_cylinder_subtype)
+        if (sensorType == sim_proximitysensor_cylinder)
             it->convexVolume->setRadiusFar(floatParams[8]);
-        if (((sensorType == sim_proximitysensor_ray_subtype) && it->getRandomizedDetection()) ||
-            (sensorType == sim_proximitysensor_cone_subtype) || (sensorType == sim_proximitysensor_disc_subtype))
+        if (((sensorType == sim_proximitysensor_ray) && it->getRandomizedDetection()) ||
+            (sensorType == sim_proximitysensor_cone) || (sensorType == sim_proximitysensor_disc))
             it->convexVolume->setAngle(floatParams[9]);
 
         it->setAllowedNormal(floatParams[10]);
@@ -9253,8 +9276,8 @@ int simAdjustView_internal(int viewHandleOrIndex, int associatedViewableObjectHa
             }
             CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(associatedViewableObjectHandle);
             int objType = it->getObjectType();
-            if ((objType != sim_object_camera_type) && (objType != sim_object_graph_type) &&
-                (objType != sim_object_visionsensor_type))
+            if ((objType != sim_sceneobject_camera) && (objType != sim_sceneobject_graph) &&
+                (objType != sim_sceneobject_visionsensor))
             {
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_IS_NOT_VIEWABLE);
                 return (-1);
@@ -10886,7 +10909,7 @@ int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double pa
             }
             if ((parameterID >= sim_jointfloatparam_spherical_qx) && (parameterID <= sim_jointfloatparam_spherical_qw))
             {
-                if (joint->getJointType() == sim_joint_spherical_subtype)
+                if (joint->getJointType() == sim_joint_spherical)
                 {
                     static double buff[3];
                     if (parameterID == sim_jointfloatparam_spherical_qx)
@@ -11545,7 +11568,7 @@ int simGetJointForce_internal(int jointHandle, double *forceOrTorque)
         if (!isJoint(__func__, handle))
             return (-1);
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(handle);
-        if (it->getJointType() == sim_joint_spherical_subtype)
+        if (it->getJointType() == sim_joint_spherical)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_SPHERICAL);
             return (-1);
@@ -11605,16 +11628,16 @@ int simIsHandle_internal(int generalObjectHandle, int generalObjectType)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (((generalObjectType == -1) || (generalObjectType == sim_appobj_object_type)) &&
+        if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_sceneobject)) &&
             (App::currentWorld->sceneObjects->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
-        if (((generalObjectType == -1) || (generalObjectType == sim_appobj_collection_type)) &&
+        if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_collection)) &&
             (App::currentWorld->collections->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_script_type)) &&
             (App::worldContainer->getScriptObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
-        if (((generalObjectType == -1) || (generalObjectType == sim_appobj_texture_type)) &&
+        if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_texture)) &&
             (App::currentWorld->textureContainer->getObject(generalObjectHandle) != nullptr))
             return (1);
 
@@ -11656,7 +11679,7 @@ int simHandleVisionSensor_internal(int visionSensorHandle, double **auxValues, i
         if (auxValuesCount != nullptr)
             auxValuesCount[0] = nullptr;
         int retVal = 0;
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
         {
             CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
             if (visionSensorHandle >= 0)
@@ -11755,7 +11778,7 @@ int simResetVisionSensor_internal(int visionSensorHandle)
                 return (-1);
             }
         }
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
         {
             CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
             if (visionSensorHandle >= 0)
@@ -12321,20 +12344,20 @@ int simIsDynamicallyEnabled_internal(int objectHandle)
             return (-1);
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
         int retVal = 0;
-        if (it->getObjectType() == sim_object_shape_type)
+        if (it->getObjectType() == sim_sceneobject_shape)
         {
             CShape *shape = (CShape *)it;
             if (it->getDynamicSimulationIconCode() == sim_dynamicsimicon_objectisdynamicallysimulated)
                 retVal = 1;
         }
-        if (it->getObjectType() == sim_object_joint_type)
+        if (it->getObjectType() == sim_sceneobject_joint)
         {
             CJoint *joint = (CJoint *)it;
             if ((joint->getJointMode() == sim_jointmode_dynamic) &&
                 (it->getDynamicSimulationIconCode() == sim_dynamicsimicon_objectisdynamicallysimulated))
                 retVal = 1; // we do not consider a joint dyn. enabled when in deprecated hybrid mode
         }
-        if (it->getObjectType() == sim_object_forcesensor_type)
+        if (it->getObjectType() == sim_sceneobject_forcesensor)
         {
             CForceSensor *shape = (CForceSensor *)it;
             if (it->getDynamicSimulationIconCode() == sim_dynamicsimicon_objectisdynamicallysimulated)
@@ -14262,7 +14285,7 @@ char *simGetExtensionString_internal(int objectHandle, int index, const char *ke
             if (doesObjectExist(__func__, objectHandle))
             {
                 CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-                if ((it->getObjectType() == sim_object_shape_type) && (index >= 0))
+                if ((it->getObjectType() == sim_sceneobject_shape) && (index >= 0))
                 {
                     CMesh *geom =
                         ((CShape *)it)->getMesh()->getMeshComponentAtIndex(C7Vector::identityTransformation, index);
@@ -15220,9 +15243,9 @@ double simGetEngineFloatParam_internal(int paramId, int objectHandle, const void
                 it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it != nullptr)
                 {
-                    if ((it->getObjectType() != sim_object_joint_type) &&
-                        (it->getObjectType() != sim_object_shape_type) &&
-                        (it->getObjectType() != sim_object_dummy_type))
+                    if ((it->getObjectType() != sim_sceneobject_joint) &&
+                        (it->getObjectType() != sim_sceneobject_shape) &&
+                        (it->getObjectType() != sim_sceneobject_dummy))
                         success = false;
                 }
                 else
@@ -15235,18 +15258,18 @@ double simGetEngineFloatParam_internal(int paramId, int objectHandle, const void
                 retVal = App::currentWorld->dynamicsContainer->getEngineFloatParam(paramId, &success);
             else
             {
-                if (it->getObjectType() == sim_object_joint_type)
+                if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
                     retVal = joint->getEngineFloatParam(paramId, &success);
                 }
-                if (it->getObjectType() == sim_object_shape_type)
+                if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
                     retVal = mat->getEngineFloatParam(paramId, &success);
                 }
-                if (it->getObjectType() == sim_object_dummy_type)
+                if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
                     retVal = dummy->getEngineFloatParam(paramId, &success);
@@ -15279,9 +15302,9 @@ int simGetEngineInt32Param_internal(int paramId, int objectHandle, const void *o
                 it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it != nullptr)
                 {
-                    if ((it->getObjectType() != sim_object_joint_type) &&
-                        (it->getObjectType() != sim_object_shape_type) &&
-                        (it->getObjectType() != sim_object_dummy_type))
+                    if ((it->getObjectType() != sim_sceneobject_joint) &&
+                        (it->getObjectType() != sim_sceneobject_shape) &&
+                        (it->getObjectType() != sim_sceneobject_dummy))
                         success = false;
                 }
                 else
@@ -15294,18 +15317,18 @@ int simGetEngineInt32Param_internal(int paramId, int objectHandle, const void *o
                 retVal = App::currentWorld->dynamicsContainer->getEngineIntParam(paramId, &success);
             else
             {
-                if (it->getObjectType() == sim_object_joint_type)
+                if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
                     retVal = joint->getEngineIntParam(paramId, &success);
                 }
-                if (it->getObjectType() == sim_object_shape_type)
+                if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
                     retVal = mat->getEngineIntParam(paramId, &success);
                 }
-                if (it->getObjectType() == sim_object_dummy_type)
+                if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
                     retVal = dummy->getEngineIntParam(paramId, &success);
@@ -15338,9 +15361,9 @@ bool simGetEngineBoolParam_internal(int paramId, int objectHandle, const void *o
                 it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it != nullptr)
                 {
-                    if ((it->getObjectType() != sim_object_joint_type) &&
-                        (it->getObjectType() != sim_object_shape_type) &&
-                        (it->getObjectType() != sim_object_dummy_type))
+                    if ((it->getObjectType() != sim_sceneobject_joint) &&
+                        (it->getObjectType() != sim_sceneobject_shape) &&
+                        (it->getObjectType() != sim_sceneobject_dummy))
                         success = false;
                 }
                 else
@@ -15353,18 +15376,18 @@ bool simGetEngineBoolParam_internal(int paramId, int objectHandle, const void *o
                 retVal = App::currentWorld->dynamicsContainer->getEngineBoolParam(paramId, &success);
             else
             {
-                if (it->getObjectType() == sim_object_joint_type)
+                if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
                     retVal = joint->getEngineBoolParam(paramId, &success);
                 }
-                if (it->getObjectType() == sim_object_shape_type)
+                if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
                     retVal = mat->getEngineBoolParam(paramId, &success);
                 }
-                if (it->getObjectType() == sim_object_dummy_type)
+                if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
                     retVal = dummy->getEngineBoolParam(paramId, &success);
@@ -15396,9 +15419,9 @@ int simSetEngineFloatParam_internal(int paramId, int objectHandle, const void *o
                 it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it != nullptr)
                 {
-                    if ((it->getObjectType() != sim_object_joint_type) &&
-                        (it->getObjectType() != sim_object_shape_type) &&
-                        (it->getObjectType() != sim_object_dummy_type))
+                    if ((it->getObjectType() != sim_sceneobject_joint) &&
+                        (it->getObjectType() != sim_sceneobject_shape) &&
+                        (it->getObjectType() != sim_sceneobject_dummy))
                         success = false;
                 }
                 else
@@ -15411,18 +15434,18 @@ int simSetEngineFloatParam_internal(int paramId, int objectHandle, const void *o
                 success = App::currentWorld->dynamicsContainer->setEngineFloatParam(paramId, val);
             else
             {
-                if (it->getObjectType() == sim_object_joint_type)
+                if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
                     success = joint->setEngineFloatParam(paramId, val);
                 }
-                if (it->getObjectType() == sim_object_shape_type)
+                if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
                     success = mat->setEngineFloatParam(paramId, val);
                 }
-                if (it->getObjectType() == sim_object_dummy_type)
+                if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
                     success = dummy->setEngineFloatParam(paramId, val);
@@ -15454,9 +15477,9 @@ int simSetEngineInt32Param_internal(int paramId, int objectHandle, const void *o
                 it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it != nullptr)
                 {
-                    if ((it->getObjectType() != sim_object_joint_type) &&
-                        (it->getObjectType() != sim_object_shape_type) &&
-                        (it->getObjectType() != sim_object_dummy_type))
+                    if ((it->getObjectType() != sim_sceneobject_joint) &&
+                        (it->getObjectType() != sim_sceneobject_shape) &&
+                        (it->getObjectType() != sim_sceneobject_dummy))
                         success = false;
                 }
                 else
@@ -15469,18 +15492,18 @@ int simSetEngineInt32Param_internal(int paramId, int objectHandle, const void *o
                 success = App::currentWorld->dynamicsContainer->setEngineIntParam(paramId, val);
             else
             {
-                if (it->getObjectType() == sim_object_joint_type)
+                if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
                     success = joint->setEngineIntParam(paramId, val);
                 }
-                if (it->getObjectType() == sim_object_shape_type)
+                if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
                     success = mat->setEngineIntParam(paramId, val);
                 }
-                if (it->getObjectType() == sim_object_dummy_type)
+                if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
                     success = dummy->setEngineIntParam(paramId, val);
@@ -15512,9 +15535,9 @@ int simSetEngineBoolParam_internal(int paramId, int objectHandle, const void *ob
                 it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
                 if (it != nullptr)
                 {
-                    if ((it->getObjectType() != sim_object_joint_type) &&
-                        (it->getObjectType() != sim_object_shape_type) &&
-                        (it->getObjectType() != sim_object_dummy_type))
+                    if ((it->getObjectType() != sim_sceneobject_joint) &&
+                        (it->getObjectType() != sim_sceneobject_shape) &&
+                        (it->getObjectType() != sim_sceneobject_dummy))
                         success = false;
                 }
                 else
@@ -15527,18 +15550,18 @@ int simSetEngineBoolParam_internal(int paramId, int objectHandle, const void *ob
                 success = App::currentWorld->dynamicsContainer->setEngineBoolParam(paramId, val);
             else
             {
-                if (it->getObjectType() == sim_object_joint_type)
+                if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
                     success = joint->setEngineBoolParam(paramId, val);
                 }
-                if (it->getObjectType() == sim_object_shape_type)
+                if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
                     success = mat->setEngineBoolParam(paramId, val);
                 }
-                if (it->getObjectType() == sim_object_dummy_type)
+                if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
                     success = dummy->setEngineBoolParam(paramId, val);
@@ -17133,7 +17156,7 @@ void _simGetObjectCumulativeTransformation_internal(const void *object, double *
     else
         tr = obj->getFullCumulativeTransformation();
 
-    if (obj->getObjectType() == sim_object_shape_type)
+    if (obj->getObjectType() == sim_sceneobject_shape)
     {
         CShape* shape = (CShape*)obj;
         if (shape->getMesh()->getPurePrimitiveType() == sim_primitiveshape_heightfield)
@@ -17241,7 +17264,7 @@ void _simDynReportObjectCumulativeTransformation_internal(void *obj, const doubl
     tr.Q.setData(quat);
     if (parent != nullptr)
     {
-        if (parent->getObjectType() == sim_object_joint_type)
+        if (parent->getObjectType() == sim_sceneobject_joint)
         {
             CJoint *joint = (CJoint *)parent;
             C7Vector x(joint->getIntrinsicTransformation(false).getInverse() *
@@ -17249,7 +17272,7 @@ void _simDynReportObjectCumulativeTransformation_internal(void *obj, const doubl
                        object->getLocalTransformation().getInverse());
             joint->setIntrinsicTransformationError(x);
         }
-        else if (parent->getObjectType() == sim_object_forcesensor_type)
+        else if (parent->getObjectType() == sim_sceneobject_forcesensor)
         {
             CForceSensor *sensor = (CForceSensor *)parent;
             C7Vector x(sensor->getCumulativeTransformation().getInverse() * tr *
@@ -17376,36 +17399,36 @@ void _simAddJointCumulativeForcesOrTorques_internal(void *joint, double forceOrT
 int _simGetObjectListSize_internal(int objType)
 {
     C_API_START;
-    if (objType == sim_object_shape_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type)));
-    if (objType == sim_object_joint_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type)));
+    if (objType == sim_sceneobject_shape)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape)));
+    if (objType == sim_sceneobject_joint)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint)));
     if (objType == sim_handle_all)
         return (int(App::currentWorld->sceneObjects->getObjectCount())); // we put it also here for faster access!
-    if (objType == sim_object_dummy_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type)));
-    if (objType == sim_object_octree_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_octree_type)));
-    if (objType == sim_object_pointcloud_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_pointcloud_type)));
-    if (objType == sim_object_graph_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_graph_type)));
-    if (objType == sim_object_camera_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type)));
-    if (objType == sim_object_proximitysensor_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_proximitysensor_type)));
-    if (objType == sim_object_path_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_path_type)));
-    if (objType == sim_object_visionsensor_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type)));
-    if (objType == sim_object_mill_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_mill_type)));
-    if (objType == sim_object_forcesensor_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_forcesensor_type)));
-    if (objType == sim_object_light_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_light_type)));
-    if (objType == sim_object_mirror_type)
-        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_object_mirror_type)));
+    if (objType == sim_sceneobject_dummy)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy)));
+    if (objType == sim_sceneobject_octree)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_octree)));
+    if (objType == sim_sceneobject_pointcloud)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_pointcloud)));
+    if (objType == sim_sceneobject_graph)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_graph)));
+    if (objType == sim_sceneobject_camera)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera)));
+    if (objType == sim_sceneobject_proximitysensor)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor)));
+    if (objType == sim_sceneobject_path)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_path)));
+    if (objType == sim_sceneobject_visionsensor)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor)));
+    if (objType == sim_sceneobject_mill)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mill)));
+    if (objType == sim_sceneobject_forcesensor)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_forcesensor)));
+    if (objType == sim_sceneobject_light)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_light)));
+    if (objType == sim_sceneobject_mirror)
+        return (int(App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mirror)));
     if (objType == -1)
         return (int(App::currentWorld->sceneObjects->getOrphanCount()));
     return (int(App::currentWorld->sceneObjects->getObjectCount()));
@@ -17414,35 +17437,35 @@ int _simGetObjectListSize_internal(int objType)
 const void *_simGetObjectFromIndex_internal(int objType, int index)
 {
     C_API_START;
-    if (objType == sim_object_shape_type)
+    if (objType == sim_sceneobject_shape)
         return (App::currentWorld->sceneObjects->getShapeFromIndex(index));
-    if (objType == sim_object_joint_type)
+    if (objType == sim_sceneobject_joint)
         return (App::currentWorld->sceneObjects->getJointFromIndex(index));
     if (objType == sim_handle_all)
         return (App::currentWorld->sceneObjects->getObjectFromIndex(index)); // we put it also here for faster access!
-    if (objType == sim_object_dummy_type)
+    if (objType == sim_sceneobject_dummy)
         return (App::currentWorld->sceneObjects->getDummyFromIndex(index));
-    if (objType == sim_object_octree_type)
+    if (objType == sim_sceneobject_octree)
         return (App::currentWorld->sceneObjects->getOctreeFromIndex(index));
-    if (objType == sim_object_pointcloud_type)
+    if (objType == sim_sceneobject_pointcloud)
         return (App::currentWorld->sceneObjects->getPointCloudFromIndex(index));
-    if (objType == sim_object_graph_type)
+    if (objType == sim_sceneobject_graph)
         return (App::currentWorld->sceneObjects->getGraphFromIndex(index));
-    if (objType == sim_object_camera_type)
+    if (objType == sim_sceneobject_camera)
         return (App::currentWorld->sceneObjects->getCameraFromIndex(index));
-    if (objType == sim_object_proximitysensor_type)
+    if (objType == sim_sceneobject_proximitysensor)
         return (App::currentWorld->sceneObjects->getProximitySensorFromIndex(index));
-    if (objType == sim_object_path_type)
+    if (objType == sim_sceneobject_path)
         return (App::currentWorld->sceneObjects->getPathFromIndex(index));
-    if (objType == sim_object_visionsensor_type)
+    if (objType == sim_sceneobject_visionsensor)
         return (App::currentWorld->sceneObjects->getVisionSensorFromIndex(index));
-    if (objType == sim_object_mill_type)
+    if (objType == sim_sceneobject_mill)
         return (App::currentWorld->sceneObjects->getMillFromIndex(index));
-    if (objType == sim_object_forcesensor_type)
+    if (objType == sim_sceneobject_forcesensor)
         return (App::currentWorld->sceneObjects->getForceSensorFromIndex(index));
-    if (objType == sim_object_light_type)
+    if (objType == sim_sceneobject_light)
         return (App::currentWorld->sceneObjects->getLightFromIndex(index));
-    if (objType == sim_object_mirror_type)
+    if (objType == sim_sceneobject_mirror)
         return (App::currentWorld->sceneObjects->getMirrorFromIndex(index));
     if (objType == -1)
         return (App::currentWorld->sceneObjects->getOrphanFromIndex(index));

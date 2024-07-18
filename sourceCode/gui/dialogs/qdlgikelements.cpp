@@ -192,7 +192,7 @@ void CQDlgIkElements::refresh()
     std::vector<int> ids;
 
     ui->qqTipCombo->clear();
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
     {
         CDummy *it2 = App::currentWorld->sceneObjects->getDummyFromIndex(i);
         names.push_back(it2->getObjectAlias_printPath());
@@ -252,7 +252,7 @@ void CQDlgIkElements::refresh()
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
         {
             CSceneObject *it2 = App::currentWorld->sceneObjects->getObjectFromIndex(i);
-            if ((it2->getObjectType() == sim_object_dummy_type) && (it2 != tooltip))
+            if ((it2->getObjectType() == sim_sceneobject_dummy) && (it2 != tooltip))
             {
                 names.push_back(it2->getObjectAlias_printPath());
                 ids.push_back(it2->getObjectHandle());

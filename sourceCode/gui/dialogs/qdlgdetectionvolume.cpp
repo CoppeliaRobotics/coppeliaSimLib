@@ -35,13 +35,13 @@ void CQDlgDetectionVolume::refresh()
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
-    bool prox = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_proximitysensor_type);
-    bool mill = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_mill_type);
+    bool prox = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_proximitysensor);
+    bool mill = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_mill);
     bool ssel = false;
     if (prox)
-        ssel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_proximitysensor_type) > 1);
+        ssel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_proximitysensor) > 1);
     if (mill)
-        ssel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_mill_type) > 1);
+        ssel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_mill) > 1);
     CConvexVolume *cv = nullptr;
     CProxSensor *proxIt = App::currentWorld->sceneObjects->getLastSelectionProxSensor();
     CMill *millIt = App::currentWorld->sceneObjects->getLastSelectionMill();
@@ -59,13 +59,13 @@ void CQDlgDetectionVolume::refresh()
             setWindowTitle(IDSN_DETECTION_VOLUME_PROPERTIES);
 
             ui->qqOffset->setEnabled(noEditModeNoSim);
-            if ((proxIt->getSensorType() == sim_proximitysensor_ray_subtype) && proxIt->getRandomizedDetection())
+            if ((proxIt->getSensorType() == sim_proximitysensor_ray) && proxIt->getRandomizedDetection())
                 ui->qqOffset->setText(utils::getPosString(true, cv->getRadius()).c_str()); // Special
             else
                 ui->qqOffset->setText(utils::getPosString(true, cv->getOffset()).c_str());
             ui->qqRange->setEnabled(noEditModeNoSim);
             ui->qqRange->setText(utils::getSizeString(false, cv->getRange()).c_str());
-            if (proxIt->getSensorType() == sim_proximitysensor_pyramid_subtype)
+            if (proxIt->getSensorType() == sim_proximitysensor_pyramid)
             {
                 ui->qqSizeX->setEnabled(noEditModeNoSim);
                 ui->qqSizeX->setText(utils::getSizeString(false, cv->getXSize()).c_str());
@@ -97,7 +97,7 @@ void CQDlgDetectionVolume::refresh()
                 ui->qqInsideGap->setEnabled(false);
                 ui->qqInsideGap->setText("");
             }
-            if (proxIt->getSensorType() == sim_proximitysensor_cylinder_subtype)
+            if (proxIt->getSensorType() == sim_proximitysensor_cylinder)
             {
                 ui->qqRadius->setEnabled(noEditModeNoSim);
                 ui->qqRadius->setText(utils::getSizeString(false, cv->getRadius()).c_str());
@@ -129,7 +129,7 @@ void CQDlgDetectionVolume::refresh()
                 ui->qqInsideGap->setEnabled(false);
                 ui->qqInsideGap->setText("");
             }
-            if (proxIt->getSensorType() == sim_proximitysensor_ray_subtype)
+            if (proxIt->getSensorType() == sim_proximitysensor_ray)
             {
                 ui->qqAngle->setEnabled(proxIt->getRandomizedDetection() && noEditModeNoSim);
                 if (proxIt->getRandomizedDetection())
@@ -164,7 +164,7 @@ void CQDlgDetectionVolume::refresh()
                 ui->qqInsideGap->setEnabled(false);
                 ui->qqInsideGap->setText("");
             }
-            if (proxIt->getSensorType() == sim_proximitysensor_disc_subtype)
+            if (proxIt->getSensorType() == sim_proximitysensor_disc)
             {
                 ui->qqSizeY->setEnabled(noEditModeNoSim);
                 ui->qqSizeY->setText(utils::getSizeString(false, cv->getYSize()).c_str());
@@ -194,7 +194,7 @@ void CQDlgDetectionVolume::refresh()
                 ui->qqSubdivisionsFar->setEnabled(false);
                 ui->qqSubdivisionsFar->setText("");
             }
-            if (proxIt->getSensorType() == sim_proximitysensor_cone_subtype)
+            if (proxIt->getSensorType() == sim_proximitysensor_cone)
             {
                 ui->qqRadius->setEnabled(noEditModeNoSim);
                 ui->qqRadius->setText(utils::getSizeString(false, cv->getRadius()).c_str());
@@ -437,7 +437,7 @@ void CQDlgDetectionVolume::on_qqOffset_editingFinished()
         if (ok && cv && (proxSensor != nullptr))
         {
             // special here:
-            if ((proxSensor->getSensorType() == sim_proximitysensor_ray_subtype) &&
+            if ((proxSensor->getSensorType() == sim_proximitysensor_ray) &&
                 proxSensor->getRandomizedDetection())
                 App::appendSimulationThreadCommand(SET_RADIUS_DETECTIONVOLUMEGUITRIGGEREDCMD,
                                                    App::currentWorld->sceneObjects->getLastSelectionHandle(), -1,

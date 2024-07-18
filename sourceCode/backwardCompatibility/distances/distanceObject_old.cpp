@@ -122,13 +122,13 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     {
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity1Handle);
         int t = it->getObjectType();
-        if (t == sim_object_shape_type)
+        if (t == sim_sceneobject_shape)
             theName += IDSN_SHAPE;
-        if (t == sim_object_octree_type)
+        if (t == sim_sceneobject_octree)
             theName += IDSN_OCTREE;
-        if (t == sim_object_pointcloud_type)
+        if (t == sim_sceneobject_pointcloud)
             theName += IDSN_POINTCLOUD;
-        if (t == sim_object_dummy_type)
+        if (t == sim_sceneobject_dummy)
             theName += IDSN_DUMMY;
         theName += ":";
         theName += it->getObjectName_old();
@@ -160,13 +160,13 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
         {
             CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_entity2Handle);
             int t = it->getObjectType();
-            if (t == sim_object_shape_type)
+            if (t == sim_sceneobject_shape)
                 theName += IDSN_SHAPE;
-            if (t == sim_object_octree_type)
+            if (t == sim_sceneobject_octree)
                 theName += IDSN_OCTREE;
-            if (t == sim_object_pointcloud_type)
+            if (t == sim_sceneobject_pointcloud)
                 theName += IDSN_POINTCLOUD;
-            if (t == sim_object_dummy_type)
+            if (t == sim_sceneobject_dummy)
                 theName += IDSN_DUMMY;
             theName += ":";
             theName += it->getObjectName_old();

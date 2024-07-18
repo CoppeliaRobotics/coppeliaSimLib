@@ -15,7 +15,7 @@
 
 CGraph::CGraph()
 {
-    _objectType = sim_object_graph_type;
+    _objectType = sim_sceneobject_graph;
     justDrawCurves = false;
     _needsRefresh = true;
     _explicitHandling = true; // changed to true on 29.11.2020: graphs are not handled anymore by the main script since

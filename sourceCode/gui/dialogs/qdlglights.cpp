@@ -43,17 +43,17 @@ void CQDlgLights::refresh()
         int lt = it->getLightType();
         ui->qqEnabled->setChecked(it->getLightActive() && noEditModeNoSim);
         ui->qqLocal->setChecked(it->getLightIsLocal());
-        ui->qqCasingColor->setEnabled((lt != sim_light_omnidirectional_subtype) && noEditModeNoSim);
+        ui->qqCasingColor->setEnabled((lt != sim_light_omnidirectional) && noEditModeNoSim);
 
         ui->qqSize->setText(utils::getSizeString(false, it->getLightSize()).c_str());
 
-        ui->qqConstantFactor->setEnabled((lt != sim_light_directional_subtype) && noEditModeNoSim);
-        ui->qqLinearFactor->setEnabled((lt != sim_light_directional_subtype) && noEditModeNoSim);
-        ui->qqQuadraticFactor->setEnabled((lt != sim_light_directional_subtype) && noEditModeNoSim);
-        ui->qqSpotExponent->setEnabled((lt == sim_light_spot_subtype) && noEditModeNoSim);
-        ui->qqSpotCutoff->setEnabled((lt == sim_light_spot_subtype) && noEditModeNoSim);
+        ui->qqConstantFactor->setEnabled((lt != sim_light_directional) && noEditModeNoSim);
+        ui->qqLinearFactor->setEnabled((lt != sim_light_directional) && noEditModeNoSim);
+        ui->qqQuadraticFactor->setEnabled((lt != sim_light_directional) && noEditModeNoSim);
+        ui->qqSpotExponent->setEnabled((lt == sim_light_spot) && noEditModeNoSim);
+        ui->qqSpotCutoff->setEnabled((lt == sim_light_spot) && noEditModeNoSim);
 
-        if (lt == sim_light_spot_subtype)
+        if (lt == sim_light_spot)
         {
             ui->qqSpotExponent->setText(utils::getIntString(false, it->getSpotExponent()).c_str());
             ui->qqSpotCutoff->setText(utils::getAngleString(false, it->getSpotCutoffAngle()).c_str());
@@ -63,7 +63,7 @@ void CQDlgLights::refresh()
             ui->qqSpotExponent->setText("");
             ui->qqSpotCutoff->setText("");
         }
-        if (lt != sim_light_directional_subtype)
+        if (lt != sim_light_directional)
         {
             ui->qqConstantFactor->setText(
                 utils::getDoubleString(false, it->getAttenuationFactor(CONSTANT_ATTENUATION), 2, 4).c_str());

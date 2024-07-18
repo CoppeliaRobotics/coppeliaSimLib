@@ -82,7 +82,7 @@ void _displayJoint(CJoint *joint, int displayAttrib, bool partOne, double sizePa
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     glPushMatrix();
-    if (joint->getJointType() == sim_joint_spherical_subtype)
+    if (joint->getJointType() == sim_joint_spherical)
     {
         if (partOne)
         {
@@ -101,7 +101,7 @@ void _displayJoint(CJoint *joint, int displayAttrib, bool partOne, double sizePa
             ogl::drawSphere(joint->getDiameter() / 1.5, 16, 8, true);
         }
     }
-    if (joint->getJointType() == sim_joint_revolute_subtype)
+    if (joint->getJointType() == sim_joint_revolute)
     {
         if (partOne)
             ogl::drawCylinder(joint->getDiameter(), joint->getLength(), 8, 0, true);
@@ -115,7 +115,7 @@ void _displayJoint(CJoint *joint, int displayAttrib, bool partOne, double sizePa
             ogl::drawCylinder(joint->getDiameter() / 2.0, joint->getLength() * 1.2, 8, 0, true);
         }
     }
-    if (joint->getJointType() == sim_joint_prismatic_subtype)
+    if (joint->getJointType() == sim_joint_prismatic)
     {
         if (partOne)
             ogl::drawBox(joint->getDiameter(), joint->getDiameter(), joint->getLength(), true, nullptr);

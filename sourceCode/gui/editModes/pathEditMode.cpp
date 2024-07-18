@@ -303,7 +303,7 @@ void CPathEditMode_old::addMenu(VMenu *menu, CSceneObject *viewableObject)
     else
         menu->appendMenuItem(true, false, PATH_EDIT_MODE_OLD_INSERT_NEW_PATH_POINT_EMCMD,
                              IDS_INSERT_NEW_PATH_POINT_AT_BEGINNING_MENU_ITEM);
-    menu->appendMenuItem((viewableObject != nullptr) && (viewableObject->getObjectType() == sim_object_camera_type),
+    menu->appendMenuItem((viewableObject != nullptr) && (viewableObject->getObjectType() == sim_sceneobject_camera),
                          false, PATH_EDIT_MODE_OLD_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD,
                          IDS_APPEND_NEW_PATH_POINT_FROM_CAMERA_MENU_ITEM);
     menu->appendMenuItem(_editionPathCont->getBezierPathPointCount() > 1, false,

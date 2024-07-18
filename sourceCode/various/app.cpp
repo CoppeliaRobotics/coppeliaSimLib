@@ -1197,7 +1197,7 @@ bool App::disassemble(int objectHandle, bool justTest, bool msgs /* = false*/)
         for (size_t i = 0; i < parent->getChildCount(); i++)
         {
             CSceneObject *child = parent->getChildFromIndex(i);
-            if (child->getObjectType() == sim_object_dummy_type)
+            if (child->getObjectType() == sim_sceneobject_dummy)
             {
                 CDummy *dummy = (CDummy *)child;
                 std::string childTag(dummy->getAssemblyTag());
@@ -1207,7 +1207,7 @@ bool App::disassemble(int objectHandle, bool justTest, bool msgs /* = false*/)
                     for (size_t j = 0; j < it->getChildCount(); j++)
                     {
                         child = it->getChildFromIndex(j);
-                        if (child->getObjectType() == sim_object_dummy_type)
+                        if (child->getObjectType() == sim_sceneobject_dummy)
                         {
                             dummy = (CDummy *)child;
                             std::string childTag(dummy->getAssemblyTag());
@@ -1224,9 +1224,9 @@ bool App::disassemble(int objectHandle, bool justTest, bool msgs /* = false*/)
         }
         if (!retVal)
         { // backward compatibility method:
-            retVal = (((parent->getObjectType() == sim_object_joint_type) ||
-                       (parent->getObjectType() == sim_object_forcesensor_type)) &&
-                      (it->getObjectType() == sim_object_shape_type));
+            retVal = (((parent->getObjectType() == sim_sceneobject_joint) ||
+                       (parent->getObjectType() == sim_sceneobject_forcesensor)) &&
+                      (it->getObjectType() == sim_sceneobject_shape));
         }
     }
     if (retVal && (!justTest))
@@ -1252,21 +1252,21 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
     it2 = App::currentWorld->sceneObjects->getObjectFromHandle(childHandle);
     obj1 = it1->getParent();
     obj2 = it2->getParent();
-    if ((it1->getObjectType() == sim_object_dummy_type) && (obj1 != nullptr))
+    if ((it1->getObjectType() == sim_sceneobject_dummy) && (obj1 != nullptr))
     { // possibly new method of assembly (via 2 dummies)
         CDummy *dummy1 = (CDummy *)it1;
         std::string parentTag(dummy1->getAssemblyTag());
         if ((dummy1->getDummyType() == sim_dummytype_assembly) &&
             utils::checkAssemblyTagValidity(parentTag.c_str(), nullptr))
         { // we have the correct dummy type for the parent side
-            if (it2->getObjectType() != sim_object_dummy_type)
+            if (it2->getObjectType() != sim_sceneobject_dummy)
             { // we might have the special case. Let's search for an appropriate dummy:
                 obj2 = it2;
                 it2 = nullptr;
                 for (size_t i = 0; i < obj2->getChildCount(); i++)
                 {
                     CSceneObject *child = obj2->getChildFromIndex(i);
-                    if (child->getObjectType() == sim_object_dummy_type)
+                    if (child->getObjectType() == sim_sceneobject_dummy)
                     {
                         CDummy *dummy = (CDummy *)child;
                         std::string childTag(dummy->getAssemblyTag());
@@ -1301,9 +1301,9 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
         it2 = App::currentWorld->sceneObjects->getObjectFromHandle(childHandle);
         if ((it1->getParent() != it2) && (it2->getParent() != it1))
         {
-            if (((it1->getObjectType() == sim_object_joint_type) ||
-                 (it1->getObjectType() == sim_object_forcesensor_type)) &&
-                (it2->getObjectType() == sim_object_shape_type))
+            if (((it1->getObjectType() == sim_sceneobject_joint) ||
+                 (it1->getObjectType() == sim_sceneobject_forcesensor)) &&
+                (it2->getObjectType() == sim_sceneobject_shape))
             {
                 std::vector<CSceneObject *> potParents;
                 it1->getAllChildrenThatMayBecomeAssemblyParent(it2->getChildAssemblyMatchValuesPointer(), potParents);
@@ -1869,67 +1869,85 @@ int App::removeProperty(int target, const char* pName)
     return retVal;
 }
 
-int App::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance)
+int App::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing)
 {
     int retVal = -1;
     if (target == sim_handle_app)
     {
         appartenance = "app";
-        if (worldContainer != nullptr)
-            retVal = worldContainer->getPropertyName(index, pName);
+        CWorldContainer* wc = nullptr;
+        if (!staticParsing)
+            wc = worldContainer;
+        retVal = CWorldContainer::getPropertyName(index, pName, wc);
     }
     else if (target == sim_handle_appstorage)
     {
-        appartenance = "storage";
-        CPersistentDataContainer cont("appStorage.dat");
-        if (cont.getPropertyName(index, pName))
+        if (!staticParsing)
         {
-            size_t p = pName.find("&customData");
-            if (p != std::string::npos)
+            appartenance = "storage";
+            CPersistentDataContainer cont("appStorage.dat");
+            if (cont.getPropertyName(index, pName))
             {
-                pName.erase(p);
-                pName = "customData." + pName;
-                //pName = "storage." + pName;
+                size_t p = pName.find("&customData");
+                if (p != std::string::npos)
+                {
+                    pName.erase(p);
+                    pName = "customData." + pName;
+                    //pName = "storage." + pName;
+                }
+                retVal = 1;
             }
-            retVal = 1;
         }
     }
     else if (currentWorld != nullptr)
     {
         appartenance = "app";
-        retVal = currentWorld->getPropertyName(target, index, pName, appartenance);
+        CWorld* cw = nullptr;
+        if (!staticParsing)
+            cw = currentWorld;
+        retVal = CWorld::getPropertyName(target, index, pName, appartenance, cw);
     }
     return retVal;
 }
 
-int App::getPropertyInfo(int target, const char* pName, int& info, int& size)
+int App::getPropertyInfo(int target, const char* pName, int& info, int& size, bool staticParsing)
 {
     int retVal = -1;
     if (target == sim_handle_app)
     {
-        if (worldContainer != nullptr)
-            retVal = worldContainer->getPropertyInfo(pName, info, size);
+        CWorldContainer* wc = nullptr;
+        if (!staticParsing)
+            wc = worldContainer;
+        retVal = CWorldContainer::getPropertyInfo(pName, info, size, wc);
     }
     else if (target == sim_handle_appstorage)
     {
-        std::string pN(utils::getWithoutPrefix(pName, "storage."));
-        int inf = 0;
-        if (strncmp(pN.c_str(), "customData.", 11) == 0)
+        if (!staticParsing)
         {
-            pN.erase(0, 11);
-            pN += "&customData";
-            inf = 4; // removable
-        }
-        if (pN.size() > 0)
-        {
-            CPersistentDataContainer cont("appStorage.dat");
-            retVal = cont.hasData(pN.c_str(), true, &size);
-            if (retVal >= 0)
-                info = inf;
+            std::string pN(utils::getWithoutPrefix(pName, "storage."));
+            int inf = 0;
+            if (strncmp(pN.c_str(), "customData.", 11) == 0)
+            {
+                pN.erase(0, 11);
+                pN += "&customData";
+                inf = 4; // removable
+            }
+            if (pN.size() > 0)
+            {
+                CPersistentDataContainer cont("appStorage.dat");
+                retVal = cont.hasData(pN.c_str(), true, &size);
+                if (retVal >= 0)
+                    info = inf;
+            }
         }
     }
     else if (currentWorld != nullptr)
-        retVal = currentWorld->getPropertyInfo(target, pName, info, size);
+    {
+        CWorld* cw = nullptr;
+        if (!staticParsing)
+            cw = currentWorld;
+        retVal = CWorld::getPropertyInfo(target, pName, info, size, cw);
+    }
     return retVal;
 }
 

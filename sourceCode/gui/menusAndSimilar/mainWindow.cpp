@@ -1653,14 +1653,14 @@ void CMainWindow::_actualizetoolbarButtonState()
         }
         if (CSimFlavor::getBoolVal(12))
             _toolbarActionShapeEdition->setEnabled((noSelector && (selS == 1) &&
-                                                    App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_shape_type) &&
+                                                    App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_shape) &&
                                                     App::currentWorld->simulation->isSimulationStopped() &&
                                                     (editModeContainer->getEditModeType() == NO_EDIT_MODE)) ||
                                                    (editModeContainer->getEditModeType() & SHAPE_EDIT_MODE) ||
                                                    (editModeContainer->getEditModeType() & MULTISHAPE_EDIT_MODE));
         if (CSimFlavor::getBoolVal(12) && App::userSettings->showOldDlgs)
             _toolbarActionPathEdition->setEnabled((noSelector && (selS == 1) &&
-                                                   App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_path_type) &&
+                                                   App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_path) &&
                                                    App::currentWorld->simulation->isSimulationStopped() &&
                                                    (editModeContainer->getEditModeType() == NO_EDIT_MODE)) ||
                                                   (editModeContainer->getEditModeType() & PATH_EDIT_MODE_OLD));

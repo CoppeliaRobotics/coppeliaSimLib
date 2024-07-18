@@ -91,7 +91,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     ids.clear();
 
     // Now shapes:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
     {
         CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_SHAPE, "] "));
@@ -107,7 +107,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     ids.clear();
 
     // Now Octrees:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_octree_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_octree); i++)
     {
         COcTree *it = App::currentWorld->sceneObjects->getOctreeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_OCTREE, "] "));
@@ -123,7 +123,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     ids.clear();
 
     // Now Point clouds:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_pointcloud_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_pointcloud); i++)
     {
         CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_POINTCLOUD, "] "));
@@ -139,7 +139,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox *com
     ids.clear();
 
     // Now dummies:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
     {
         CDummy *it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_DUMMY, "] "));
@@ -181,7 +181,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     ids.clear();
 
     // Now shapes:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
     {
         CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_SHAPE, "] "));
@@ -197,7 +197,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     ids.clear();
 
     // Now Octrees:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_octree_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_octree); i++)
     {
         COcTree *it = App::currentWorld->sceneObjects->getOctreeFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_OCTREE, "] "));
@@ -213,7 +213,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     ids.clear();
 
     // Now Point clouds:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_pointcloud_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_pointcloud); i++)
     {
         CPointCloud *it = App::currentWorld->sceneObjects->getPointCloudFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_POINTCLOUD, "] "));
@@ -229,7 +229,7 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox *comb
     ids.clear();
 
     // Now dummies:
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
     {
         CDummy *it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
         std::string name(tt::decorateString("[", IDSN_DUMMY, "] "));
@@ -275,23 +275,23 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         if ((entity1 <= SIM_IDEND_SCENEOBJECT) && (entity2 <= SIM_IDEND_SCENEOBJECT))
         {
             int t1 = App::currentWorld->sceneObjects->getObjectFromHandle(entity1)->getObjectType();
-            int t2 = sim_object_octree_type;
+            int t2 = sim_sceneobject_octree;
             if (entity2 != -1)
                 t2 = App::currentWorld->sceneObjects->getObjectFromHandle(entity2)->getObjectType();
-            if (t1 == sim_object_shape_type)
+            if (t1 == sim_sceneobject_shape)
             {
-                if ((t2 != sim_object_shape_type) && (t2 != sim_object_octree_type))
+                if ((t2 != sim_sceneobject_shape) && (t2 != sim_sceneobject_octree))
                     invalidCombination = true;
             }
-            if (t1 == sim_object_octree_type)
+            if (t1 == sim_sceneobject_octree)
             {
-                if ((t2 != sim_object_shape_type) && (t2 != sim_object_octree_type) &&
-                    (t2 != sim_object_pointcloud_type) && (t2 != sim_object_dummy_type))
+                if ((t2 != sim_sceneobject_shape) && (t2 != sim_sceneobject_octree) &&
+                    (t2 != sim_sceneobject_pointcloud) && (t2 != sim_sceneobject_dummy))
                     invalidCombination = true;
             }
-            if ((t1 == sim_object_pointcloud_type) || (t1 == sim_object_dummy_type))
+            if ((t1 == sim_sceneobject_pointcloud) || (t1 == sim_sceneobject_dummy))
             {
-                if (t2 != sim_object_octree_type)
+                if (t2 != sim_sceneobject_octree)
                     invalidCombination = true;
             }
         }
@@ -344,14 +344,14 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         if ((entity1 <= SIM_IDEND_SCENEOBJECT) && (entity2 <= SIM_IDEND_SCENEOBJECT))
         {
             int t1 = App::currentWorld->sceneObjects->getObjectFromHandle(entity1)->getObjectType();
-            int t2 = sim_object_octree_type;
+            int t2 = sim_sceneobject_octree;
             if (entity2 != -1)
                 t2 = App::currentWorld->sceneObjects->getObjectFromHandle(entity2)->getObjectType();
-            if ((t1 == sim_object_shape_type) || (t1 == sim_object_octree_type) || (t1 == sim_object_pointcloud_type) ||
-                (t1 == sim_object_dummy_type))
+            if ((t1 == sim_sceneobject_shape) || (t1 == sim_sceneobject_octree) || (t1 == sim_sceneobject_pointcloud) ||
+                (t1 == sim_sceneobject_dummy))
             {
-                if ((t2 != sim_object_shape_type) && (t2 != sim_object_octree_type) &&
-                    (t2 != sim_object_pointcloud_type) && (t2 != sim_object_dummy_type))
+                if ((t2 != sim_sceneobject_shape) && (t2 != sim_sceneobject_octree) &&
+                    (t2 != sim_sceneobject_pointcloud) && (t2 != sim_sceneobject_dummy))
                     invalidCombination = true;
             }
             else

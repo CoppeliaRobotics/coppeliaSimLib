@@ -16,7 +16,7 @@ CForceSensor::CForceSensor()
 
 void CForceSensor::commonInit()
 {
-    _objectType = sim_object_forcesensor_type;
+    _objectType = sim_sceneobject_forcesensor;
     _forceThreshold = 100.0;
     _torqueThreshold = 10.0;
     _forceThresholdEnabled = false;

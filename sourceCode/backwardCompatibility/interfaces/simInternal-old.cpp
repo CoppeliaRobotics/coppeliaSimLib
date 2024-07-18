@@ -33,7 +33,7 @@ int simHandleVarious_internal()
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         // Following is for camera tracking!
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
         {
             CCamera *it = App::currentWorld->sceneObjects->getCameraFromIndex(i);
             it->handleCameraTracking();
@@ -42,7 +42,7 @@ int simHandleVarious_internal()
         // Following is for velocity measurement:
         double dt = App::currentWorld->simulation->getTimeStep();
         double t = dt + App::currentWorld->simulation->getSimulationTime();
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
             App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(t);
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
             App::currentWorld->sceneObjects->getObjectFromIndex(i)->measureVelocity(dt);
@@ -89,7 +89,7 @@ int simResetPath_internal(int pathHandle)
         }
         else
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_path_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_path); i++)
             {
                 CPath_old *p = App::currentWorld->sceneObjects->getPathFromIndex(i);
                 if ((pathHandle == sim_handle_all) || (!p->getExplicitHandling()))
@@ -127,7 +127,7 @@ int simHandlePath_internal(int pathHandle, double deltaTime)
         }
         else
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_path_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_path); i++)
             {
                 CPath_old *p = App::currentWorld->sceneObjects->getPathFromIndex(i);
                 if ((pathHandle == sim_handle_all) || (!p->getExplicitHandling()))
@@ -163,7 +163,7 @@ int simResetJoint_internal(int jointHandle)
         }
         else
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
             {
                 CJoint *p = App::currentWorld->sceneObjects->getJointFromIndex(i);
                 if ((jointHandle == sim_handle_all) || (!p->getExplicitHandling_DEPRECATED()))
@@ -199,7 +199,7 @@ int simHandleJoint_internal(int jointHandle, double deltaTime)
         }
         else
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
             {
                 CJoint *p = App::currentWorld->sceneObjects->getJointFromIndex(i);
                 if ((jointHandle == sim_handle_all) || (!p->getExplicitHandling_DEPRECATED()))
@@ -705,7 +705,7 @@ void _simGetVortexParameters_internal(const void *object, int version, double *f
     else
     {
         CSceneObject *obj = (CSceneObject *)object;
-        if (obj->getObjectType() == sim_object_shape_type)
+        if (obj->getObjectType() == sim_sceneobject_shape)
         {
             CShape *shape = (CShape *)object;
             CDynMaterialObject *mat = shape->getDynMaterial();
@@ -732,7 +732,7 @@ void _simGetVortexParameters_internal(const void *object, int version, double *f
                 icnt = 8;
             }
         }
-        if (obj->getObjectType() == sim_object_joint_type)
+        if (obj->getObjectType() == sim_sceneobject_joint)
         {
             CJoint *joint = (CJoint *)object;
             joint->getVortexFloatParams(fparams);
@@ -788,7 +788,7 @@ void _simGetNewtonParameters_internal(const void *object, int *version, double *
     else
     {
         CSceneObject *obj = (CSceneObject *)object;
-        if (obj->getObjectType() == sim_object_shape_type)
+        if (obj->getObjectType() == sim_sceneobject_shape)
         {
             CShape *shape = (CShape *)object;
             CDynMaterialObject *mat = shape->getDynMaterial();
@@ -801,7 +801,7 @@ void _simGetNewtonParameters_internal(const void *object, int *version, double *
             }
             version[0] = 0;
         }
-        if (obj->getObjectType() == sim_object_joint_type)
+        if (obj->getObjectType() == sim_sceneobject_joint)
         {
             CJoint *joint = (CJoint *)object;
             joint->getNewtonFloatParams(fparams);
@@ -841,7 +841,7 @@ void _simGetJointBulletParameters_internal(const void *joint, double *stopERP, d
 
 CShape *__getShapeFromGeomInfo(const void *geomInfo)
 {
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
     {
         CShape *sh = App::currentWorld->sceneObjects->getShapeFromIndex(i);
         if (sh->getMesh() == (CMeshWrapper *)geomInfo)
@@ -2312,7 +2312,7 @@ double *simGenerateIkPath_internal(int ikGroupHandle, int jointCnt, const int *j
             std::vector<CJoint *> sceneJoints;
             std::vector<double> initSceneJointValues;
             std::vector<int> initSceneJointModes;
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
             {
                 CJoint *aj = App::currentWorld->sceneObjects->getJointFromIndex(i);
                 sceneJoints.push_back(aj);
@@ -4296,7 +4296,7 @@ int simGetScriptAssociatedWithObject_internal(int objectHandle)
                         for (size_t i = 0; i < obj->getChildCount(); i++)
                         {
                             CSceneObject* c = obj->getChildFromIndex(i);
-                            if (c->getObjectType() == sim_object_script_type)
+                            if (c->getObjectType() == sim_sceneobject_script)
                             {
                                 CScript* co = (CScript*) c;
                                 if (co->scriptObject->getScriptType() == sim_scripttype_simulation)
@@ -4342,7 +4342,7 @@ int simGetCustomizationScriptAssociatedWithObject_internal(int objectHandle)
                         for (size_t i = 0; i < obj->getChildCount(); i++)
                         {
                             CSceneObject* c = obj->getChildFromIndex(i);
-                            if (c->getObjectType() == sim_object_script_type)
+                            if (c->getObjectType() == sim_sceneobject_script)
                             {
                                 CScript* co = (CScript*) c;
                                 if (co->scriptObject->getScriptType() == sim_scripttype_customization)
@@ -5022,7 +5022,7 @@ int simSetSphericalJointMatrix_internal(int objectHandle, const double *matrix)
         if (!isJoint(__func__, objectHandle))
             return (-1);
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(objectHandle);
-        if (it->getJointType() != sim_joint_spherical_subtype)
+        if (it->getJointType() != sim_joint_spherical)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_JOINT_NOT_SPHERICAL);
             return (-1);

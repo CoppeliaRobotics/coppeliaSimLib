@@ -20,7 +20,7 @@ CJoint::CJoint(int jointType)
 {
     _commonInit();
     _jointType = jointType;
-    if (jointType == sim_joint_revolute_subtype)
+    if (jointType == sim_joint_revolute)
     {
         _objectName_old = IDSOGL_REVOLUTE_JOINT;
         _objectAlias = IDSOGL_REVOLUTE_JOINT;
@@ -35,7 +35,7 @@ CJoint::CJoint(int jointType)
         _maxVelAccelJerk[1] = piValT2;
         _maxVelAccelJerk[2] = piValT2;
     }
-    if (jointType == sim_joint_prismatic_subtype)
+    if (jointType == sim_joint_prismatic)
     {
         _objectName_old = IDSOGL_PRISMATIC_JOINT;
         _objectAlias = IDSOGL_PRISMATIC_JOINT;
@@ -50,7 +50,7 @@ CJoint::CJoint(int jointType)
         _maxVelAccelJerk[1] = 1.0;
         _maxVelAccelJerk[2] = 1.0;
     }
-    if (jointType == sim_joint_spherical_subtype)
+    if (jointType == sim_joint_spherical)
     {
         _objectName_old = IDSOGL_SPHERICAL_JOINT;
         _objectAlias = IDSOGL_SPHERICAL_JOINT;
@@ -71,14 +71,14 @@ CJoint::CJoint(int jointType)
 
 void CJoint::_commonInit()
 {
-    _objectType = sim_object_joint_type;
+    _objectType = sim_sceneobject_joint;
     _localObjectSpecialProperty = 0;
 
     _maxVelAccelJerk[0] = piValT2;
     _maxVelAccelJerk[1] = piValT2;
     _maxVelAccelJerk[2] = piValT2;
 
-    _jointType = sim_joint_revolute_subtype;
+    _jointType = sim_joint_revolute;
     _screwLead = 0.0;
     _sphericalTransf.setIdentity();
     _pos = 0.0;
@@ -288,7 +288,7 @@ CJoint::~CJoint()
 
 void CJoint::setHybridFunctionality_old(bool h)
 {
-    if ( ((_jointType != sim_joint_spherical_subtype) && (_jointMode != sim_jointmode_dynamic)) || (!h) )
+    if ( ((_jointType != sim_joint_spherical) && (_jointMode != sim_jointmode_dynamic)) || (!h) )
     {
         bool diff = (_jointHasHybridFunctionality != h);
         if (diff)
@@ -297,7 +297,7 @@ void CJoint::setHybridFunctionality_old(bool h)
             if (h)
             {
                 setDynCtrlMode(sim_jointdynctrl_positioncb);
-                if (_jointType == sim_joint_revolute_subtype)
+                if (_jointType == sim_joint_revolute)
                     setScrewLead(0.0);
             }
         }
@@ -308,17 +308,17 @@ void CJoint::getDynamicJointErrors(double &linear, double &angular) const
 {
     linear = 0.0;
     angular = 0.0;
-    if (_jointType == sim_joint_revolute_subtype)
+    if (_jointType == sim_joint_revolute)
     {
         linear = _intrinsicTransformationError.X.getLength();
         angular = C3Vector::unitZVector.getAngle(_intrinsicTransformationError.Q.getMatrix().axis[2]);
     }
-    if (_jointType == sim_joint_prismatic_subtype)
+    if (_jointType == sim_joint_prismatic)
     {
         linear = _intrinsicTransformationError.X.getLength();
         angular = _intrinsicTransformationError.Q.getAngleBetweenQuaternions(C4Vector::identityRotation);
     }
-    if (_jointType == sim_joint_spherical_subtype)
+    if (_jointType == sim_joint_spherical)
         linear = _intrinsicTransformationError.X.getLength();
 }
 
@@ -326,19 +326,19 @@ void CJoint::getDynamicJointErrorsFull(C3Vector &linear, C3Vector &angular) cons
 {
     linear.clear();
     angular.clear();
-    if (_jointType == sim_joint_revolute_subtype)
+    if (_jointType == sim_joint_revolute)
     {
         linear = _intrinsicTransformationError.X;
         angular = _intrinsicTransformationError.Q.getEulerAngles();
         angular(2) = 0.0;
     }
-    if (_jointType == sim_joint_prismatic_subtype)
+    if (_jointType == sim_joint_prismatic)
     {
         linear = _intrinsicTransformationError.X;
         linear(2) = 0.0;
         angular = _intrinsicTransformationError.Q.getEulerAngles();
     }
-    if (_jointType == sim_joint_spherical_subtype)
+    if (_jointType == sim_joint_spherical)
         linear = _intrinsicTransformationError.X;
 }
 
@@ -670,7 +670,7 @@ void CJoint::copyEnginePropertiesTo(CJoint *target)
 
 void CJoint::setTargetVelocity(double v)
 {
-    if (_jointType != sim_joint_spherical_subtype)
+    if (_jointType != sim_joint_spherical)
     {
         bool diff = (_targetVel != v);
         if (diff)
@@ -684,7 +684,7 @@ void CJoint::setTargetVelocity(double v)
 
 void CJoint::setTargetForce(double f, bool isSigned)
 {
-    if (_jointType != sim_joint_spherical_subtype)
+    if (_jointType != sim_joint_spherical)
     {
         if (!isSigned)
         {
@@ -723,7 +723,7 @@ void CJoint::setPid_old(double p_param, double i_param, double d_param)
 void CJoint::setKc(double k_param, double c_param)
 {
     double maxVal = +10000000000.0;
-    if (_jointType == sim_joint_revolute_subtype)
+    if (_jointType == sim_joint_revolute)
         maxVal = +100000000000.0;
     k_param = tt::getLimitedFloat(-maxVal, maxVal, k_param);
     c_param = tt::getLimitedFloat(-maxVal, maxVal, c_param);
@@ -737,9 +737,9 @@ void CJoint::setKc(double k_param, double c_param)
 
 void CJoint::setTargetPosition(double pos)
 {
-    if (_jointType != sim_joint_spherical_subtype)
+    if (_jointType != sim_joint_spherical)
     {
-        if ((_jointType == sim_joint_revolute_subtype) && _isCyclic)
+        if ((_jointType == sim_joint_revolute) && _isCyclic)
             pos = tt::getNormalizedAngle(pos);
         bool diff = (_targetPos != pos);
         if (diff)
@@ -827,7 +827,7 @@ void CJoint::_setDependencyJointHandle_sendOldIk(int depJointID) const
 
 void CJoint::setDependencyJointMult(double coeff)
 {
-    if (_jointType != sim_joint_spherical_subtype)
+    if (_jointType != sim_joint_spherical)
     {
         coeff = tt::getLimitedFloat(-10000.0, 10000.0, coeff);
         bool diff = (_dependencyJointMult != coeff);
@@ -857,7 +857,7 @@ void CJoint::_setDependencyJointMult_sendOldIk(double coeff) const
 
 void CJoint::setDependencyJointOffset(double off)
 {
-    if (_jointType != sim_joint_spherical_subtype)
+    if (_jointType != sim_joint_spherical)
     {
         off = tt::getLimitedFloat(-10000.0, 10000.0, off);
         bool diff = (_dependencyJointOffset != off);
@@ -887,7 +887,7 @@ void CJoint::_setDependencyJointOffset_sendOldIk(double off) const
 
 void CJoint::measureJointVelocity(double simTime)
 {
-    if (_jointType != sim_joint_spherical_subtype)
+    if (_jointType != sim_joint_spherical)
     {
         double dt = simTime - _velCalc_prevSimTime;
         if (_velCalc_prevPosValid && (dt > 0.00001))
@@ -1125,7 +1125,7 @@ void CJoint::handleJoint_DEPRECATED(double deltaTime)
 }
 void CJoint::setExplicitHandling_DEPRECATED(bool explicitHandl)
 { // DEPRECATED
-    if (_jointType == sim_joint_spherical_subtype)
+    if (_jointType == sim_joint_spherical)
         return;
     _explicitHandling_DEPRECATED = explicitHandl;
 }
@@ -1137,7 +1137,7 @@ bool CJoint::getExplicitHandling_DEPRECATED()
 
 void CJoint::setUnlimitedAcceleration_DEPRECATED(bool unlimited)
 { // DEPRECATED
-    if (_jointType == sim_joint_spherical_subtype)
+    if (_jointType == sim_joint_spherical)
         return;
     _unlimitedAcceleration_DEPRECATED = unlimited;
     setVelocity_DEPRECATED(getVelocity_DEPRECATED()); // To make sure velocity is within allowed range
@@ -1150,7 +1150,7 @@ bool CJoint::getUnlimitedAcceleration_DEPRECATED()
 
 void CJoint::setInvertTargetVelocityAtLimits_DEPRECATED(bool invert)
 { // DEPRECATED
-    if (_jointType == sim_joint_spherical_subtype)
+    if (_jointType == sim_joint_spherical)
         return;
     _invertTargetVelocityAtLimits_DEPRECATED = invert;
 }
@@ -1161,9 +1161,9 @@ bool CJoint::getInvertTargetVelocityAtLimits_DEPRECATED()
 }
 void CJoint::setMaxAcceleration_DEPRECATED(double maxAccel)
 { // DEPRECATED
-    if (_jointType == sim_joint_spherical_subtype)
+    if (_jointType == sim_joint_spherical)
         return;
-    if (_jointType == sim_joint_prismatic_subtype)
+    if (_jointType == sim_joint_prismatic)
         tt::limitValue(0.0001, 1000.0, maxAccel);
     else
         tt::limitValue(0.001 * degToRad, 36000.0 * degToRad, maxAccel);
@@ -1178,9 +1178,9 @@ double CJoint::getMaxAcceleration_DEPRECATED()
 
 void CJoint::setVelocity_DEPRECATED(double vel)
 { // DEPRECATED
-    if (_jointType == sim_joint_spherical_subtype)
+    if (_jointType == sim_joint_spherical)
         return;
-    if ((vel != 0.0) && ((_jointType == sim_joint_prismatic_subtype) || (!_isCyclic)) &&
+    if ((vel != 0.0) && ((_jointType == sim_joint_prismatic) || (!_isCyclic)) &&
         (!_unlimitedAcceleration_DEPRECATED))
     { // We check which is the max allowed:
         double m = double(CLinMotionRoutines::getMaxVelocityAtPosition(_pos, _maxAcceleration_DEPRECATED, _posMin,
@@ -1204,7 +1204,7 @@ std::string CJoint::getObjectTypeInfo() const
 std::string CJoint::getObjectTypeInfoExtended() const
 {
     std::string retVal(getObjectTypeInfo());
-    if (_jointType == sim_joint_revolute_subtype)
+    if (_jointType == sim_joint_revolute)
     {
         if (fabs(_screwLead) < 0.0000001)
             retVal += tt::decorateString(" (", IDSOGL_REVOLUTE, ", p=");
@@ -1212,12 +1212,12 @@ std::string CJoint::getObjectTypeInfoExtended() const
             retVal += tt::decorateString(" (", IDSOGL_SCREW, ", p=");
         retVal += utils::getAngleString(true, _pos) + ")";
     }
-    if (_jointType == sim_joint_prismatic_subtype)
+    if (_jointType == sim_joint_prismatic)
     {
         retVal += tt::decorateString(" (", IDSOGL_PRISMATIC, ", p=");
         retVal += utils::getPosString(true, _pos) + ")";
     }
-    if (_jointType == sim_joint_spherical_subtype)
+    if (_jointType == sim_joint_spherical)
     {
         retVal += tt::decorateString(" (", IDSOGL_SPHERICAL, ", a=");
         C3Vector euler(getSphericalTransformation().getEulerAngles());
@@ -1255,7 +1255,7 @@ void CJoint::setDirectDependentJoints(const std::vector<CJoint *> &joints)
 void CJoint::computeBoundingBox()
 {
     C3Vector maxV;
-    if (_jointType != sim_joint_spherical_subtype)
+    if (_jointType != sim_joint_spherical)
     {
         maxV(0) = maxV(1) = _diameter / 2.0;
         maxV(2) = _length / 2.0;
@@ -1270,7 +1270,7 @@ void CJoint::computeBoundingBox()
 bool CJoint::setScrewLead(double lead)
 {
     bool retVal = false;
-    if (_jointType == sim_joint_revolute_subtype)
+    if (_jointType == sim_joint_revolute)
     {
         if (_jointMode != sim_jointmode_dynamic)
         { // no lead when in torque/force mode
@@ -1299,11 +1299,11 @@ void CJoint::_setScrewPitch_sendOldIk(double pitch) const
 
 void CJoint::setPositionMin(double min)
 {
-    if (_jointType != sim_joint_spherical_subtype)
+    if (_jointType != sim_joint_spherical)
     {
-        if (_jointType == sim_joint_revolute_subtype)
+        if (_jointType == sim_joint_revolute)
             min = tt::getLimitedFloat(-100000.0, 100000.0, min);
-        if (_jointType == sim_joint_prismatic_subtype)
+        if (_jointType == sim_joint_prismatic)
             min = tt::getLimitedFloat(-1000.0, 1000.0, min);
         bool diff = (_posMin != min);
         if (diff)
@@ -1332,11 +1332,11 @@ void CJoint::_setPositionIntervalMin_sendOldIk(double min) const
 
 void CJoint::setPositionRange(double range)
 {
-    if (_jointType == sim_joint_revolute_subtype)
+    if (_jointType == sim_joint_revolute)
         range = tt::getLimitedFloat(0.001 * degToRad, 10000000.0 * degToRad, range);
-    if (_jointType == sim_joint_prismatic_subtype)
+    if (_jointType == sim_joint_prismatic)
         range = tt::getLimitedFloat(0.0, 1000.0, range);
-    if (_jointType == sim_joint_spherical_subtype)
+    if (_jointType == sim_joint_spherical)
     {
         if (_jointMode != sim_jointmode_dynamic)
             range = tt::getLimitedFloat(0.001 * degToRad, 10000000.0 * degToRad, range);
@@ -1409,7 +1409,7 @@ void CJoint::scaleObject(double scalingFactor)
     setDiameter(_diameter * scalingFactor);
     setLength(_length * scalingFactor);
     setScrewLead(_screwLead * scalingFactor);
-    if (_jointType == sim_joint_prismatic_subtype)
+    if (_jointType == sim_joint_prismatic)
     {
         setPosition(_pos * scalingFactor);
         _jointPositionForMotionHandling_DEPRECATED *= scalingFactor;
@@ -1465,7 +1465,7 @@ void CJoint::scaleObject(double scalingFactor)
         }
     }
 
-    if (_jointType == sim_joint_revolute_subtype)
+    if (_jointType == sim_joint_revolute)
     {
         setTargetForce(
             _targetForce * scalingFactor * scalingFactor * scalingFactor * scalingFactor,
@@ -1731,7 +1731,7 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
         if ((_dynCtrlMode == sim_jointdynctrl_callback) || (_dynCtrlMode == sim_jointdynctrl_positioncb) ||
             (_dynCtrlMode == sim_jointdynctrl_springcb))
         { // joint callback (and hybrid joint pos/spring + callback, old, for backward compatibility)
-            bool rev = (_jointType == sim_joint_revolute_subtype);
+            bool rev = (_jointType == sim_joint_revolute);
             bool cycl = _isCyclic;
             double lowL = _posMin;
             double highL = _posMin + _posRange;
@@ -1886,12 +1886,12 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
 
 void CJoint::handleMotion()
 {
-    if ((_jointMode == sim_jointmode_kinematic) && (_jointType != sim_joint_spherical_subtype) &&
+    if ((_jointMode == sim_jointmode_kinematic) && (_jointType != sim_joint_spherical) &&
         ((_kinematicMotionType & 3) != 0))
     {
         if (App::worldContainer->getSysFuncAndHookCnt(sim_syscb_joint) > 0)
         { // a script might want to handle the joint
-            bool rev = (_jointType == sim_joint_revolute_subtype);
+            bool rev = (_jointType == sim_joint_revolute);
             double errorV;
             if (rev && _isCyclic)
                 errorV = tt::getAngleMinusAlpha(_targetPos, _pos);
@@ -2026,7 +2026,7 @@ void CJoint::setIsCyclic(bool isCyclic)
 {
     if (isCyclic)
     {
-        if (getJointType() == sim_joint_revolute_subtype)
+        if (getJointType() == sim_joint_revolute)
         {
             setScrewLead(0.0);
             setPositionMin(-piValue);
@@ -2071,13 +2071,13 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev) const
     std::string tmp;
     switch (_jointType)
     {
-    case sim_joint_revolute_subtype:
+    case sim_joint_revolute:
         tmp = "revolute";
         break;
-    case sim_joint_prismatic_subtype:
+    case sim_joint_prismatic:
         tmp = "prismatic";
         break;
-    case sim_joint_spherical_subtype:
+    case sim_joint_spherical:
         tmp = "spherical";
         break;
     }
@@ -3149,7 +3149,7 @@ void CJoint::serialize(CSer &ar)
                         _dynCtrl_kc[0] = _targetForce * P;
                         _dynCtrl_kc[1] = _targetForce * D;
                         double maxTolerablePorDParam = 1.0;
-                        if (_jointType == sim_joint_revolute_subtype)
+                        if (_jointType == sim_joint_revolute)
                             maxTolerablePorDParam = 1.0 / piValT2;
                         double maxPorD = std::max<double>(fabs(P), fabs(D));
                         if (maxPorD > maxTolerablePorDParam)
@@ -3178,11 +3178,11 @@ void CJoint::serialize(CSer &ar)
         if (ar.isStoring())
         {
             double mult = 1.0;
-            if (_jointType != sim_joint_prismatic_subtype)
+            if (_jointType != sim_joint_prismatic)
                 mult = 180.0 / piValue;
             ar.xmlAddNode_comment(" 'type' tag: can be 'revolute', 'prismatic' or 'spherical' ", exhaustiveXml);
-            ar.xmlAddNode_enum("type", _jointType, sim_joint_revolute_subtype, "revolute", sim_joint_prismatic_subtype,
-                               "prismatic", sim_joint_spherical_subtype, "spherical");
+            ar.xmlAddNode_enum("type", _jointType, sim_joint_revolute, "revolute", sim_joint_prismatic,
+                               "prismatic", sim_joint_spherical, "spherical");
             ar.xmlAddNode_comment(" 'mode' tag: can be 'kinematic', 'dependent' or 'dynamic' ", exhaustiveXml);
             ar.xmlAddNode_enum("mode", _jointMode, sim_jointmode_kinematic, "kinematic", sim_jointmode_ik_deprecated,
                                "ik", sim_jointmode_dependent, "dependent", sim_jointmode_dynamic, "dynamic");
@@ -3460,10 +3460,10 @@ void CJoint::serialize(CSer &ar)
             bool usingDynCtrlMode = false;
             bool motorEnabled_old, ctrlEnabled_old, springMode_old;
             double mult = 1.0;
-            if (ar.xmlGetNode_enum("type", _jointType, exhaustiveXml, "revolute", sim_joint_revolute_subtype,
-                                   "prismatic", sim_joint_prismatic_subtype, "spherical", sim_joint_spherical_subtype))
+            if (ar.xmlGetNode_enum("type", _jointType, exhaustiveXml, "revolute", sim_joint_revolute,
+                                   "prismatic", sim_joint_prismatic, "spherical", sim_joint_spherical))
             {
-                if (_jointType == sim_joint_revolute_subtype)
+                if (_jointType == sim_joint_revolute)
                     mult = piValue / 180.0;
             }
 
@@ -3971,7 +3971,7 @@ void CJoint::setJointMode(int theMode)
 
 bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int newMode)
 {
-    if (_jointType == sim_joint_spherical_subtype)
+    if (_jointType == sim_joint_spherical)
     {
         if ((newMode == sim_jointmode_motion_deprecated) || (newMode == sim_jointmode_dependent) ||
             (newMode == sim_jointmode_reserved_previously_ikdependent))
@@ -3994,9 +3994,9 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int newMode)
             setScrewLead(0.0);
             // REMOVED FOLLOWING ON 24/7/2015: causes problem when switching modes. The physics engine plugin will now
             // not set limits if the range>=360
-            //      if (_jointType==sim_joint_revolute_subtype)
+            //      if (_jointType==sim_joint_revolute)
             //          _posRange=tt::getLimitedFloat(0.0,piValT2,_posRange);
-            if (_jointType == sim_joint_spherical_subtype)
+            if (_jointType == sim_joint_spherical)
                 setPositionRange(piValue);
             _dynVelCtrl_currentVelAccel[0] = double(_velCalc_vel);
             _dynVelCtrl_currentVelAccel[1] = 0.0;
@@ -4067,17 +4067,17 @@ void CJoint::setSphericalTransformation(const C4Vector &tr)
 void CJoint::_setSphericalTransformation_sendOldIk(const C4Vector &tr) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
-    if ((_ikPluginCounterpartHandle != -1) && (_jointType == sim_joint_spherical_subtype))
+    if ((_ikPluginCounterpartHandle != -1) && (_jointType == sim_joint_spherical))
         App::worldContainer->pluginContainer->oldIkPlugin_setSphericalJointQuaternion(_ikPluginCounterpartHandle, tr);
 }
 
 void CJoint::setMaxStepSize_old(double stepS)
 {
-    if (_jointType == sim_joint_revolute_subtype)
+    if (_jointType == sim_joint_revolute)
         tt::limitValue(0.01 * degToRad, 100000.0, stepS); // high number for screws!
-    if (_jointType == sim_joint_prismatic_subtype)
+    if (_jointType == sim_joint_prismatic)
         tt::limitValue(0.0001, 1000.0, stepS);
-    if (_jointType == sim_joint_spherical_subtype)
+    if (_jointType == sim_joint_spherical)
         tt::limitValue(0.01 * degToRad, piValue, stepS);
     bool diff = (_maxStepSize_old != stepS);
     if (diff)
@@ -4165,7 +4165,7 @@ void CJoint::setPosition(double pos, const CJoint *masterJoint /*=nullptr*/, boo
 void CJoint::_setPosition_sendOldIk(double pos) const
 { // Overriden from _CJoint_
     // Synchronize with IK plugin:
-    if ((_ikPluginCounterpartHandle != -1) && (_jointType != sim_joint_spherical_subtype))
+    if ((_ikPluginCounterpartHandle != -1) && (_jointType != sim_joint_spherical))
         App::worldContainer->pluginContainer->oldIkPlugin_setJointPosition(_ikPluginCounterpartHandle, pos);
 }
 
@@ -4254,7 +4254,7 @@ void CJoint::setDynCtrlMode(int mode)
             setTargetVelocity(1000.0); // just a very high value
         if (_dynCtrlMode == sim_jointdynctrl_velocity)
         {
-            if (_jointType == sim_joint_prismatic_subtype)
+            if (_jointType == sim_joint_prismatic)
                 setTargetVelocity(0.1);
             else
                 setTargetVelocity(piValD2);
@@ -4574,21 +4574,21 @@ double CJoint::getTargetPosition() const
 C7Vector CJoint::getIntrinsicTransformation(bool includeDynErrorComponent, bool *available /*=nullptr*/) const
 { // Overridden from CSceneObject
     C7Vector jointTr;
-    if (getJointType() == sim_joint_revolute_subtype)
+    if (getJointType() == sim_joint_revolute)
     {
         jointTr.Q.setAngleAndAxis(_pos, C3Vector(0.0, 0.0, 1.0));
         jointTr.X(0) = 0.0;
         jointTr.X(1) = 0.0;
         jointTr.X(2) = _pos * getScrewLead() / piValT2;
     }
-    if (getJointType() == sim_joint_prismatic_subtype)
+    if (getJointType() == sim_joint_prismatic)
     {
         jointTr.Q.setIdentity();
         jointTr.X(0) = 0.0;
         jointTr.X(1) = 0.0;
         jointTr.X(2) = _pos;
     }
-    if (getJointType() == sim_joint_spherical_subtype)
+    if (getJointType() == sim_joint_spherical)
     {
         jointTr.Q = _sphericalTransf;
         jointTr.X.clear();
@@ -4674,7 +4674,7 @@ C4Vector CJoint::getSphericalTransformation() const
 
 bool CJoint::getIsCyclic() const
 {
-    if (_jointType == sim_joint_prismatic_subtype)
+    if (_jointType == sim_joint_prismatic)
         return (false);
     return (_isCyclic);
 }

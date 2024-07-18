@@ -883,7 +883,7 @@ int CIkGroup_old::checkIkGroup(int jointCnt, const int *jointHandles, double *jo
         std::vector<CJoint *> sceneJoints;
         std::vector<double> initSceneJointValues;
         std::vector<int> initSceneJointModes;
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
         {
             CJoint *aj = App::currentWorld->sceneObjects->getJointFromIndex(i);
             sceneJoints.push_back(aj);
@@ -1003,7 +1003,7 @@ int CIkGroup_old::generateIkPath(int jointCnt, const int *jointHandles, int ptCn
         std::vector<CJoint *> sceneJoints;
         std::vector<double> initSceneJointValues;
         std::vector<int> initSceneJointModes;
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
         {
             CJoint *aj = App::currentWorld->sceneObjects->getJointFromIndex(i);
             sceneJoints.push_back(aj);

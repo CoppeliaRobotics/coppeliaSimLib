@@ -54,14 +54,14 @@ void CQDlgCommonProperties::refresh()
     bool bigSel = App::currentWorld->sceneObjects->getSelectionCount() >= 2;
     if (objIsSelected)
     {
-        isMirror = (ls->getObjectType() == sim_object_mirror_type);
-        isDummy = (ls->getObjectType() == sim_object_dummy_type);
-        isScript = (ls->getObjectType() == sim_object_script_type);
-        isOctree = (ls->getObjectType() == sim_object_octree_type);
-        isPointcloud = (ls->getObjectType() == sim_object_pointcloud_type);
-        isShape = (ls->getObjectType() == sim_object_shape_type);
-        isPath = (ls->getObjectType() == sim_object_path_type);
-        isGraph = (ls->getObjectType() == sim_object_graph_type);
+        isMirror = (ls->getObjectType() == sim_sceneobject_mirror);
+        isDummy = (ls->getObjectType() == sim_sceneobject_dummy);
+        isScript = (ls->getObjectType() == sim_sceneobject_script);
+        isOctree = (ls->getObjectType() == sim_sceneobject_octree);
+        isPointcloud = (ls->getObjectType() == sim_sceneobject_pointcloud);
+        isShape = (ls->getObjectType() == sim_sceneobject_shape);
+        isPath = (ls->getObjectType() == sim_sceneobject_path);
+        isGraph = (ls->getObjectType() == sim_sceneobject_graph);
         if (isShape)
         {
             isSimpleShape = !((CShape *)ls)->isCompound();
@@ -201,7 +201,7 @@ void CQDlgCommonProperties::refresh()
         // Cameras:
         names.clear();
         ids.clear();
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
         {
             CCamera *it2 = App::currentWorld->sceneObjects->getCameraFromIndex(i);
             std::string name(tt::decorateString("[", IDSN_CAMERA, "] "));
@@ -216,7 +216,7 @@ void CQDlgCommonProperties::refresh()
         // Vision sensors:
         names.clear();
         ids.clear();
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
         {
             CVisionSensor *it2 = App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
             std::string name(tt::decorateString("[", IDSN_VISION_SENSOR, "] "));

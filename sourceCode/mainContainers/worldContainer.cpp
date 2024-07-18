@@ -502,8 +502,7 @@ void CWorldContainer::pushSceneObjectRemoveEvent(const CSceneObject *object)
 {
     if (getEventsEnabled())
     {
-        _createGeneralEvent(EVENTTYPE_OBJECTREMOVED, object->getObjectHandle(), object->getObjectUid(), nullptr,
-                            nullptr, false);
+        _createGeneralEvent(EVENTTYPE_OBJECTREMOVED, object->getObjectHandle(), object->getObjectUid(), nullptr, nullptr, false);
         pushEvent();
     }
 }
@@ -535,46 +534,46 @@ CCbor *CWorldContainer::createSceneObjectChangedEvent(const CSceneObject *object
     {
         switch (object->getObjectType())
         {
-        case sim_object_shape_type:
+        case sim_sceneobject_shape:
             objType = "shape";
             break;
-        case sim_object_joint_type:
+        case sim_sceneobject_joint:
             objType = "joint";
             break;
-        case sim_object_graph_type:
+        case sim_sceneobject_graph:
             objType = "graph";
             break;
-        case sim_object_camera_type:
+        case sim_sceneobject_camera:
             objType = "camera";
             break;
-        case sim_object_dummy_type:
+        case sim_sceneobject_dummy:
             objType = "dummy";
             break;
-        case sim_object_proximitysensor_type:
+        case sim_sceneobject_proximitysensor:
             objType = "proxSensor";
             break;
-        case sim_object_path_type:
+        case sim_sceneobject_path:
             objType = "path";
             break;
-        case sim_object_visionsensor_type:
+        case sim_sceneobject_visionsensor:
             objType = "visionSensor";
             break;
-        case sim_object_mill_type:
+        case sim_sceneobject_mill:
             objType = "mill";
             break;
-        case sim_object_forcesensor_type:
+        case sim_sceneobject_forcesensor:
             objType = "forceSensor";
             break;
-        case sim_object_light_type:
+        case sim_sceneobject_light:
             objType = "light";
             break;
-        case sim_object_mirror_type:
+        case sim_sceneobject_mirror:
             objType = "mirror";
             break;
-        case sim_object_octree_type:
+        case sim_sceneobject_octree:
             objType = "octree";
             break;
-        case sim_object_pointcloud_type:
+        case sim_sceneobject_pointcloud:
             objType = "pointCloud";
             break;
         }
@@ -1130,8 +1129,8 @@ int CWorldContainer::removeProperty(const char* ppName)
     return retVal;
 }
 
-int CWorldContainer::getPropertyName(int& index, std::string& pName)
-{
+int CWorldContainer::getPropertyName(int& index, std::string& pName, CWorldContainer* targetObject)
+{ // static func
     int retVal = -1;
     for (size_t i = 0; i < allProps_app.size(); i++)
     {
@@ -1146,17 +1145,20 @@ int CWorldContainer::getPropertyName(int& index, std::string& pName)
     }
     if (retVal == -1)
     {
-        if (customAppData.getPropertyName(index, pName))
+        if (targetObject != nullptr)
         {
-            pName = "customData." + pName;
-            //pName = "app." + pName;
-            retVal = 1;
+            if (targetObject->customAppData.getPropertyName(index, pName))
+            {
+                pName = "customData." + pName;
+                //pName = "app." + pName;
+                retVal = 1;
+            }
         }
     }
     return retVal;
 }
 
-int CWorldContainer::getPropertyInfo(const char* ppName, int& info, int& size)
+int CWorldContainer::getPropertyInfo(const char* ppName, int& info, int& size, CWorldContainer* targetObject)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -1173,13 +1175,16 @@ int CWorldContainer::getPropertyInfo(const char* ppName, int& info, int& size)
     }
     if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
     {
-        std::string pN(pName);
-        pN.erase(0, 11);
-        if (pN.size() > 0)
+        if (targetObject != nullptr)
         {
-            retVal = customAppData.hasData(pN.c_str(), true, &size);
-            if (retVal >= 0)
-                info = 4; // removable
+            std::string pN(pName);
+            pN.erase(0, 11);
+            if (pN.size() > 0)
+            {
+                retVal = targetObject->customAppData.hasData(pN.c_str(), true, &size);
+                if (retVal >= 0)
+                    info = 4; // removable
+            }
         }
     }
     return retVal;

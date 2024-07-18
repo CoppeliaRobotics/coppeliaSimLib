@@ -1271,7 +1271,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
                     txt = IDS_OBJECT;
                     txt += " '" + it->getObjectAlias_printPath() + "' ";
                     txt += std::string(IDS_IS_DYNAMICALLY_SIMULATED) + "\n";
-                    if (it->getObjectType() == sim_object_shape_type)
+                    if (it->getObjectType() == sim_sceneobject_shape)
                     {
                         CShape *so = (CShape *)it;
                         if (so->getStatic())
@@ -1289,7 +1289,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
                                 txt += IDS_SHAPE_IS_NON_STATIC_AND_NON_RESPONDABLE;
                         }
                     }
-                    if (it->getObjectType() == sim_object_joint_type)
+                    if (it->getObjectType() == sim_sceneobject_joint)
                     {
                         CJoint *so = (CJoint *)it;
                         if (so->getJointMode() == sim_jointmode_dynamic)
@@ -1297,7 +1297,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
                         else
                             txt += IDS_JOINT_OPERATES_IN_HYBRID_FASHION;
                     }
-                    if (it->getObjectType() == sim_object_forcesensor_type)
+                    if (it->getObjectType() == sim_sceneobject_forcesensor)
                     {
                         CForceSensor *so = (CForceSensor *)it;
                         if (so->getEnableForceThreshold() || so->getEnableTorqueThreshold())
@@ -1741,7 +1741,7 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
 {
     std::vector<int>
         positions; // contains only objects that have a dummy linking to another, as child (or the dummy itself)
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_dummy_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
     {
         CDummy *dummy = App::currentWorld->sceneObjects->getDummyFromIndex(i);
         if ((dummy->getLinkedDummyHandle() != -1) && (dummy->getDummyType() != sim_dummytype_default) &&

@@ -157,14 +157,14 @@ int CDistanceObjectContainer_old::addNewObject(int entity1Handle, int entity2Han
     if ((entity1Handle <= SIM_IDEND_SCENEOBJECT) && (entity2Handle <= SIM_IDEND_SCENEOBJECT))
     {
         int t1 = App::currentWorld->sceneObjects->getObjectFromHandle(entity1Handle)->getObjectType();
-        int t2 = sim_object_octree_type;
+        int t2 = sim_sceneobject_octree;
         if (entity2Handle != -1)
             t2 = App::currentWorld->sceneObjects->getObjectFromHandle(entity2Handle)->getObjectType();
-        if ((t1 == sim_object_shape_type) || (t1 == sim_object_octree_type) || (t1 == sim_object_pointcloud_type) ||
-            (t1 == sim_object_dummy_type))
+        if ((t1 == sim_sceneobject_shape) || (t1 == sim_sceneobject_octree) || (t1 == sim_sceneobject_pointcloud) ||
+            (t1 == sim_sceneobject_dummy))
         {
-            if ((t2 != sim_object_shape_type) && (t2 != sim_object_octree_type) && (t2 != sim_object_pointcloud_type) &&
-                (t2 != sim_object_dummy_type))
+            if ((t2 != sim_sceneobject_shape) && (t2 != sim_sceneobject_octree) && (t2 != sim_sceneobject_pointcloud) &&
+                (t2 != sim_sceneobject_dummy))
                 return (-1);
         }
         else

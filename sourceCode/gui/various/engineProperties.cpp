@@ -27,7 +27,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
 
     if (object != nullptr)
     {
-        if (object->getObjectType() == sim_object_shape_type)
+        if (object->getObjectType() == sim_sceneobject_shape)
         {
             _writeShape(engine, objectHandle, annJson);
             for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
@@ -37,7 +37,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
             }
             title = "Dynamic engine properties for shape ";
         }
-        if (object->getObjectType() == sim_object_joint_type)
+        if (object->getObjectType() == sim_sceneobject_joint)
         {
             _writeJoint(engine, objectHandle, annJson);
             for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
@@ -47,7 +47,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
             }
             title = "Dynamic engine properties for joint ";
         }
-        if (object->getObjectType() == sim_object_dummy_type)
+        if (object->getObjectType() == sim_sceneobject_dummy)
         {
             _writeDummy(engine, objectHandle, annJson);
             for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
@@ -125,17 +125,17 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
 
     if (object != nullptr)
     {
-        if (object->getObjectType() == sim_object_shape_type)
+        if (object->getObjectType() == sim_sceneobject_shape)
         {
             for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
                 _readShape((int)i, objectHandle, annJson, &allErrors);
         }
-        if (object->getObjectType() == sim_object_joint_type)
+        if (object->getObjectType() == sim_sceneobject_joint)
         {
             for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
                 _readJoint((int)i, objectHandle, annJson, &allErrors);
         }
-        if (object->getObjectType() == sim_object_dummy_type)
+        if (object->getObjectType() == sim_sceneobject_dummy)
         {
             for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
                 _readDummy((int)i, objectHandle, annJson, &allErrors);
@@ -546,7 +546,7 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                     {
                         CSceneObject*
             obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,str.c_str(),0,nullptr); if (
-            (obj!=nullptr)&&(obj->getObjectType()==sim_object_joint_type)&&(obj->getObjectHandle()!=joint->getObjectHandle())
+            (obj!=nullptr)&&(obj->getObjectType()==sim_sceneobject_joint)&&(obj->getObjectHandle()!=joint->getObjectHandle())
             )
                         {
                             h=obj->getObjectHandle();
@@ -645,7 +645,7 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                     {
                         CSceneObject*
                 obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,str.c_str(),0,nullptr); if (
-                (obj!=nullptr)&&(obj->getObjectType()==sim_object_joint_type)&&(obj->getObjectHandle()!=joint->getObjectHandle())
+                (obj!=nullptr)&&(obj->getObjectType()==sim_sceneobject_joint)&&(obj->getObjectHandle()!=joint->getObjectHandle())
                 )
                         {
                             h=obj->getObjectHandle();
@@ -729,7 +729,7 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                     {
                         CSceneObject*
             obj=App::currentWorld->sceneObjects->getObjectFromPath(nullptr,str.c_str(),0,nullptr); if (
-            (obj!=nullptr)&&(obj->getObjectType()==sim_object_joint_type)&&(obj->getObjectHandle()!=joint->getObjectHandle())
+            (obj!=nullptr)&&(obj->getObjectType()==sim_sceneobject_joint)&&(obj->getObjectHandle()!=joint->getObjectHandle())
             )
                         {
                             h=obj->getObjectHandle();
@@ -2165,7 +2165,7 @@ void CEngineProperties::_readDummy(int engine, int dummyHandle, CAnnJson &annJso
                     if (str.size() > 0)
                     {
                         CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromPath(nullptr, str.c_str(), 0);
-                        if ((obj != nullptr) && (obj->getObjectType() == sim_object_joint_type))
+                        if ((obj != nullptr) && (obj->getObjectType() == sim_sceneobject_joint))
                         {
                             h = obj->getObjectHandle();
                             dummy->setEngineIntParam(sim_mujoco_dummy_proxyjointid, h);

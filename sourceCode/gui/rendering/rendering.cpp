@@ -326,7 +326,7 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase *viewable)
         std::vector<CLight *> lList;
         if (lightHandle == -1)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_light_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_light); i++)
             {
                 CLight *light = App::currentWorld->sceneObjects->getLightFromIndex(i);
                 lList.push_back(light);
@@ -366,7 +366,7 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase *viewable)
                 {
                     C7Vector tr(light->getFullCumulativeTransformation());
                     C4X4Matrix m(tr.getMatrix());
-                    if (light->getLightType() == sim_light_directional_subtype)
+                    if (light->getLightType() == sim_light_directional)
                     {
                         lightPos[0] = (float)-m.M.axis[2](0);
                         lightPos[1] = (float)-m.M.axis[2](1);
@@ -385,11 +385,11 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase *viewable)
                     lightDir[2] = (float)m.M.axis[2](2);
                     glLightfv(GL_LIGHT0 + activeLightCounter, GL_POSITION, lightPos);
                     glLightfv(GL_LIGHT0 + activeLightCounter, GL_SPOT_DIRECTION, lightDir);
-                    if (light->getLightType() == sim_light_omnidirectional_subtype)
+                    if (light->getLightType() == sim_light_omnidirectional)
                         glLightf(GL_LIGHT0 + activeLightCounter, GL_SPOT_CUTOFF, 180.0);
-                    if (light->getLightType() == sim_light_directional_subtype)
+                    if (light->getLightType() == sim_light_directional)
                         glLightf(GL_LIGHT0 + activeLightCounter, GL_SPOT_CUTOFF, 90.0);
-                    if (light->getLightType() == sim_light_spot_subtype)
+                    if (light->getLightType() == sim_light_spot)
                     {
                         float coa = (float)light->getSpotCutoffAngle() * radToDeg;
                         if (coa > 89.0) // 90.0 causes problems on MacOS!!!
@@ -452,7 +452,7 @@ void _prepareOrEnableAuxClippingPlanes(bool prepare, int objID)
     if (App::currentWorld->mainSettings->clippingPlanesDisabled)
         return;
     int cpi = 0;
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_mirror_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mirror); i++)
     {
         if (cpi < 5)
         {

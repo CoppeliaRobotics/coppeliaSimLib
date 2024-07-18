@@ -12,7 +12,7 @@
 
 CDummy::CDummy()
 {
-    _objectType = sim_object_dummy_type;
+    _objectType = sim_sceneobject_dummy;
     _localObjectSpecialProperty = 0;
 
     _dummySize = 0.01;
@@ -289,19 +289,18 @@ void CDummy::addSpecializedObjectEventData(CCbor *ev) const
 #endif
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
 
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    // Temp. support for old protocol version
     float c[9];
     _dummyColor.getColor(c, sim_colorcomponent_ambient_diffuse);
     _dummyColor.getColor(c + 3, sim_colorcomponent_specular);
     _dummyColor.getColor(c + 6, sim_colorcomponent_emission);
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    // Temp. support for old protocol version
     ev->openKeyArray("colors");
     ev->appendFloatArray(c, 9);
     ev->closeArrayOrMap(); // colors
+#else
+    _dummyColor.addGenesisEventData(ev);
 #endif
-    ev->appendKeyFloatArray(propDummy_colDiffuse.name, c, 3);
-    ev->appendKeyFloatArray(propDummy_colSpecular.name, c + 3, 3);
-    ev->appendKeyFloatArray(propDummy_colEmission.name, c + 6, 3);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // dummy
@@ -1250,7 +1249,16 @@ int CDummy::getColorProperty(const char* ppName, float* pState)
 
 int CDummy::getPropertyName(int& index, std::string& pName, std::string& appartenance)
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = getPropertyName_static(index, pName, appartenance);
+    if (retVal == -1)
+    {
+    }
+    return retVal;
+}
+
+int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
         appartenance += ".dummy";
@@ -1273,7 +1281,16 @@ int CDummy::getPropertyInfo(const char* ppName, int& info, int& size)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    int retVal = CDummy::getPropertyInfo_static(pName, info, size);
+    if (retVal == -1)
+    {
+    }
+    return retVal;
+}
+
+int CDummy::getPropertyInfo_static(const char* pName, int& info, int& size)
+{
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_dummy.size(); i++)

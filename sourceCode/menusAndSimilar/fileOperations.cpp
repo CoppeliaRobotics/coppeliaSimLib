@@ -569,9 +569,9 @@ void CFileOperations::addMenu(VMenu *menu)
         justModelSelected = (obj != nullptr) && (obj->getModelBase());
     }
     std::vector<int> sel;
-    App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_object_shape_type, true, true);
+    App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, true, true);
     size_t shapeNumber = sel.size();
-    App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_object_graph_type, true);
+    App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_graph, true);
     size_t graphNumber = sel.size();
 
     menu->appendMenuItem(fileOpOk, false, FILE_OPERATION_NEW_SCENE_FOCMD, IDS_NEW_SCENE_MENU_ITEM);
@@ -1423,7 +1423,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
             if (App::worldContainer->pluginContainer->isAssimpPluginAvailable())
             {
                 std::vector<int> sel;
-                App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_object_shape_type, true, true);
+                App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, true, true);
                 if (!App::currentWorld->environment->getSceneLocked())
                 {
                     App::logMsg(sim_verbosity_msgs, IDSNS_EXPORTING_SHAPES);
@@ -1479,7 +1479,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand &cmd)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_object_graph_type, true, false);
+            App::currentWorld->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_graph, true, false);
             App::logMsg(sim_verbosity_msgs, IDSNS_EXPORTING_GRAPH_DATA);
             App::currentWorld->simulation->stopSimulation();
             if (sel.size() != 0)

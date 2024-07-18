@@ -55,7 +55,7 @@ void CQDlgGraphs::refresh()
     bool noEditModeAndNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_graph_type);
+    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_graph);
 
     int streamId = -1;
     CGraph *it = nullptr;
@@ -165,7 +165,7 @@ void CQDlgGraphs::updateObjectsInList()
     noListSelectionAllowed = true;
     ui->qqRecordingList->clear();
     noListSelectionAllowed = false;
-    if (!App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_graph_type))
+    if (!App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_graph))
         return;
     CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
     noListSelectionAllowed = true;
@@ -260,7 +260,7 @@ void CQDlgGraphs::on_qqRecordingList_itemSelectionChanged()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (!App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_graph_type))
+        if (!App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_graph))
             return;
         CGraph *it = App::currentWorld->sceneObjects->getLastSelectionGraph();
         int objID = getSelectedObjectID();

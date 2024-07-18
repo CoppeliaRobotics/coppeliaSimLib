@@ -794,7 +794,7 @@ void CCodeEditorContainer::applyChanges(int handle) const
     {
         for (size_t i = 0; i < App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
             App::currentWorld->sceneObjects->embeddedScriptContainer->allScripts[i]->fromFileToBuffer();
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_script_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_script); i++)
         {
             CScript* it = App::currentWorld->sceneObjects->getScriptFromIndex(i);
             if (it->scriptObject != nullptr)

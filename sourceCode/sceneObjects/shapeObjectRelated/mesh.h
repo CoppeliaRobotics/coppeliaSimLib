@@ -28,11 +28,11 @@
     FUNCX(propMesh_objectType,              "objectType",                               sim_propertytype_string,    1) \
     FUNCX(propMesh_shapeUid,                "shapeUid",                                 sim_propertytype_int,       1) \
 
-#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2) name,
-const std::vector<CProperty> allProps_mesh = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_mesh = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 #undef CONCAT_PROP
@@ -119,8 +119,6 @@ class CMesh : public CMeshWrapper
     void setCulling(bool c);
     bool getCulling() const;
     void setColor(const float* c, unsigned char colorMode);
-    void getColor(float* c, unsigned char colorMode) const;
-
 
     bool getDisplayInverted_DEPRECATED() const;
     void setDisplayInverted_DEPRECATED(bool di);
@@ -173,8 +171,8 @@ class CMesh : public CMeshWrapper
     int setIntVectorProperty(const char* pName, const int* v, int vL, const C7Vector& shapeRelTr);
     int getIntVectorProperty(const char* pName, std::vector<int>& pState, const C7Vector& shapeRelTr);
     int removeProperty(const char* pName);
-    int getPropertyName(int& index, std::string& pName);
-    int getPropertyInfo(const char* pName, int& info, int& size);
+    static int getPropertyName(int& index, std::string& pName, CMesh* targetObject);
+    static int getPropertyInfo(const char* pName, int& info, int& size, CMesh* targetObject);
 
     // Following few routines in order not to save duplicate data:
     static void clearTempVerticesIndicesNormalsAndEdges();

@@ -44,11 +44,11 @@
     FUNCX(propApp_defaultTranslationStepSize,  "defaultTranslationStepSize",       sim_propertytype_float,     0) \
     FUNCX(propApp_defaultRotationStepSize,     "defaultRotationStepSize",          sim_propertytype_float,     0) \
 
-#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2) name,
-const std::vector<CProperty> allProps_app = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_app = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -134,8 +134,8 @@ class CWorldContainer
     int setIntVectorProperty(const char* pName, const int* v, int vL);
     int getIntVectorProperty(const char* pName, std::vector<int>& pState);
     int removeProperty(const char* pName);
-    int getPropertyName(int& index, std::string& pName);
-    int getPropertyInfo(const char* pName, int& info, int& size);
+    static int getPropertyName(int& index, std::string& pName, CWorldContainer* targetObject);
+    static int getPropertyInfo(const char* pName, int& info, int& size, CWorldContainer* targetObject);
 
     CCopyBuffer *copyBuffer;
     CSimulatorMessageQueue *simulatorMessageQueue;

@@ -14,7 +14,7 @@
 CPointCloud::CPointCloud()
 {
     TRACE_INTERNAL;
-    _objectType = sim_object_pointcloud_type;
+    _objectType = sim_sceneobject_pointcloud;
 
     _cellSize = 0.02;
     _maxPointCountPerCell = 20;
@@ -318,11 +318,11 @@ void CPointCloud::subtractObjects(const std::vector<int> &sel)
 
 void CPointCloud::subtractObject(const CSceneObject *obj, double distanceTolerance)
 {
-    if (obj->getObjectType() == sim_object_octree_type)
+    if (obj->getObjectType() == sim_sceneobject_octree)
         subtractOctree((COcTree *)obj);
-    if (obj->getObjectType() == sim_object_dummy_type)
+    if (obj->getObjectType() == sim_sceneobject_dummy)
         subtractDummy((CDummy *)obj, distanceTolerance);
-    if (obj->getObjectType() == sim_object_pointcloud_type)
+    if (obj->getObjectType() == sim_sceneobject_pointcloud)
         subtractPointCloud((CPointCloud *)obj, distanceTolerance);
 }
 
@@ -544,13 +544,13 @@ void CPointCloud::insertObjects(const std::vector<int> &sel)
 
 void CPointCloud::insertObject(const CSceneObject *obj)
 {
-    if (obj->getObjectType() == sim_object_shape_type)
+    if (obj->getObjectType() == sim_sceneobject_shape)
         insertShape((CShape *)obj);
-    if (obj->getObjectType() == sim_object_octree_type)
+    if (obj->getObjectType() == sim_sceneobject_octree)
         insertOctree((COcTree *)obj);
-    if (obj->getObjectType() == sim_object_dummy_type)
+    if (obj->getObjectType() == sim_sceneobject_dummy)
         insertDummy((CDummy *)obj);
-    if (obj->getObjectType() == sim_object_pointcloud_type)
+    if (obj->getObjectType() == sim_sceneobject_pointcloud)
         insertPointCloud((CPointCloud *)obj);
 }
 

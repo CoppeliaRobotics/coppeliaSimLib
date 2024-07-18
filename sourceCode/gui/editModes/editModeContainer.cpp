@@ -1076,7 +1076,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID, CSceneOb
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if ((viewableObject != nullptr) && (viewableObject->getObjectType() == sim_object_camera_type))
+            if ((viewableObject != nullptr) && (viewableObject->getObjectType() == sim_sceneobject_camera))
             {
                 if (_pathEditMode->processCommand(commandID, viewableObject))
                 {

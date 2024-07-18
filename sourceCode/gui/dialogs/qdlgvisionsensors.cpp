@@ -34,8 +34,8 @@ void CQDlgVisionSensors::refresh()
 
     CVisionSensor *it = App::currentWorld->sceneObjects->getLastSelectionVisionSensor();
 
-    bool isSensor = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_visionsensor_type);
-    bool manySensors = App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_visionsensor_type) > 1;
+    bool isSensor = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_visionsensor);
+    bool manySensors = App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_visionsensor) > 1;
     bool noEditModeAndNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 

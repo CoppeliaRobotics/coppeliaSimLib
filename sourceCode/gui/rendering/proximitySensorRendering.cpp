@@ -60,7 +60,7 @@ void displayProximitySensor(CProxSensor *proxSensor, CViewableBase *renderingObj
                 ogl::buffer.clear();
                 glLineWidth(1.0);
 
-                if ((proxSensor->getSensorType() == sim_proximitysensor_ray_subtype) &&
+                if ((proxSensor->getSensorType() == sim_proximitysensor_ray) &&
                     proxSensor->getRandomizedDetection())
                 {
                     ogl::buffer.clear();

@@ -443,7 +443,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
         //if (hasScript)
         { // User params:
             CScriptObject* newScript = nullptr;
-            if (it->getObjectType() == sim_object_script_type)
+            if (it->getObjectType() == sim_sceneobject_script)
             {
                 CScript* so = (CScript*)it;
                 if (so->scriptObject->getScriptType() == sim_scripttype_customization)
@@ -457,7 +457,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
                 for (size_t i = 0; i < it->getChildCount(); i++)
                 {
                     CSceneObject* ch = it->getChildFromIndex(i);
-                    if (ch->getObjectType() == sim_object_script_type)
+                    if (ch->getObjectType() == sim_sceneobject_script)
                     {
                         CScript* so = (CScript*)ch;
                         if (so->scriptObject->getScriptType() == sim_scripttype_customization)
@@ -490,7 +490,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy *hier, int labelEdi
             }
             else
             {
-                if (it->getObjectType() != sim_object_script_type)
+                if (it->getObjectType() != sim_sceneobject_script)
                 {
                     CUserParameters *params = it->getUserScriptParameterObject();
                     if (((params != nullptr) && (params->userParamEntries.size() > 0)) ||
@@ -727,7 +727,7 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tP
                     if (!isLocalWorld())
                         transparencyFactor = 0.6;
                 }
-                if (type == sim_object_shape_type)
+                if (type == sim_sceneobject_shape)
                 {
                     if (((CShape *)it)->isCompound())
                     {
@@ -753,42 +753,42 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tP
                             objectOrWorldIconID = SIMPLE_SHAPE_TREE_PICTURE;
                     }
                 }
-                if (type == sim_object_joint_type)
+                if (type == sim_sceneobject_joint)
                 {
-                    if (((CJoint *)it)->getJointType() == sim_joint_revolute_subtype)
+                    if (((CJoint *)it)->getJointType() == sim_joint_revolute)
                         objectOrWorldIconID = REVOLUTE_JOINT_TREE_PICTURE;
-                    if (((CJoint *)it)->getJointType() == sim_joint_prismatic_subtype)
+                    if (((CJoint *)it)->getJointType() == sim_joint_prismatic)
                         objectOrWorldIconID = PRISMATIC_JOINT_TREE_PICTURE;
-                    if (((CJoint *)it)->getJointType() == sim_joint_spherical_subtype)
+                    if (((CJoint *)it)->getJointType() == sim_joint_spherical)
                         objectOrWorldIconID = SPHERICAL_JOINT_TREE_PICTURE;
                 }
-                if (type == sim_object_camera_type)
+                if (type == sim_sceneobject_camera)
                     objectOrWorldIconID = CAMERA_TREE_PICTURE;
-                if (type == sim_object_mirror_type)
+                if (type == sim_sceneobject_mirror)
                 {
                     if (((CMirror *)it)->getIsMirror())
                         objectOrWorldIconID = MIRROR_TREE_PICTURE;
                     else
                         objectOrWorldIconID = CLIPPLANE_TREE_PICTURE;
                 }
-                if (type == sim_object_light_type)
+                if (type == sim_sceneobject_light)
                 {
                     int subType = ((CLight *)it)->getLightType();
-                    if (subType == sim_light_omnidirectional_subtype)
+                    if (subType == sim_light_omnidirectional)
                     {
                         if (((CLight *)it)->getLightActive())
                             objectOrWorldIconID = OMNI_LIGHT_ON_TREE_PICTURE;
                         else
                             objectOrWorldIconID = OMNI_LIGHT_OFF_TREE_PICTURE;
                     }
-                    if (subType == sim_light_spot_subtype)
+                    if (subType == sim_light_spot)
                     {
                         if (((CLight *)it)->getLightActive())
                             objectOrWorldIconID = SPOT_LIGHT_ON_TREE_PICTURE;
                         else
                             objectOrWorldIconID = SPOT_LIGHT_OFF_TREE_PICTURE;
                     }
-                    if (subType == sim_light_directional_subtype)
+                    if (subType == sim_light_directional)
                     {
                         if (((CLight *)it)->getLightActive())
                             objectOrWorldIconID = DIR_LIGHT_ON_TREE_PICTURE;
@@ -796,11 +796,11 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tP
                             objectOrWorldIconID = DIR_LIGHT_OFF_TREE_PICTURE;
                     }
                 }
-                if (type == sim_object_graph_type)
+                if (type == sim_sceneobject_graph)
                     objectOrWorldIconID = GRAPH_TREE_PICTURE;
-                if (type == sim_object_dummy_type)
+                if (type == sim_sceneobject_dummy)
                     objectOrWorldIconID = DUMMY_TREE_PICTURE;
-                if (type == sim_object_script_type)
+                if (type == sim_sceneobject_script)
                 {
                     CScriptObject* script = ((CScript *)it)->scriptObject;
                     if (script->getScriptType() == sim_scripttype_simulation)
@@ -828,19 +828,19 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy *hier, int tPosX, int tP
                         }
                     }
                 }
-                if (type == sim_object_pointcloud_type)
+                if (type == sim_sceneobject_pointcloud)
                     objectOrWorldIconID = POINTCLOUD_TREE_PICTURE;
-                if (type == sim_object_octree_type)
+                if (type == sim_sceneobject_octree)
                     objectOrWorldIconID = OCTREE_TREE_PICTURE;
-                if (type == sim_object_proximitysensor_type)
+                if (type == sim_sceneobject_proximitysensor)
                     objectOrWorldIconID = PROXIMITYSENSOR_TREE_PICTURE;
-                if (type == sim_object_visionsensor_type)
+                if (type == sim_sceneobject_visionsensor)
                     objectOrWorldIconID = VISIONSENSOR_TREE_PICTURE;
-                if (type == sim_object_path_type)
+                if (type == sim_sceneobject_path)
                     objectOrWorldIconID = PATH_TREE_PICTURE;
-                if (type == sim_object_mill_type)
+                if (type == sim_sceneobject_mill)
                     objectOrWorldIconID = MILL_TREE_PICTURE;
-                if (type == sim_object_forcesensor_type)
+                if (type == sim_sceneobject_forcesensor)
                     objectOrWorldIconID = FORCE_SENSOR_TREE_PICTURE;
             }
             if (drawIt)

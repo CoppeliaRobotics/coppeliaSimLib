@@ -37,7 +37,7 @@ void CScript::_commonInit(int scriptType, const char* text, int options, const c
         options |= 1;
     scriptObject->setScriptIsDisabled(options & 1);
     scriptObject->setLang(lang);
-    _objectType = sim_object_script_type;
+    _objectType = sim_sceneobject_script;
     _localObjectSpecialProperty = 0;
     _objectProperty |= sim_objectproperty_dontshowasinsidemodel;
     _scriptSize = 0.01;

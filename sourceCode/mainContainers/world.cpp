@@ -255,7 +255,7 @@ void CWorld::saveScene(CSer &ar)
     if (ar.isBinary())
     {
         int dynObjId = SIM_IDSTART_DYNMATERIAL_old;
-        for (size_t i = 0; i < sceneObjects->getObjectCount(sim_object_shape_type); i++)
+        for (size_t i = 0; i < sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
         {
             CShape *it = sceneObjects->getShapeFromIndex(i);
             CDynMaterialObject *mat = it->getDynMaterial();
@@ -275,7 +275,7 @@ void CWorld::saveScene(CSer &ar)
     if (ar.isBinary())
     {
         CMesh::clearTempVerticesIndicesNormalsAndEdges();
-        for (size_t i = 0; i < sceneObjects->getObjectCount(sim_object_shape_type); i++)
+        for (size_t i = 0; i < sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
         {
             CShape *it = sceneObjects->getShapeFromIndex(i);
             it->prepareVerticesIndicesNormalsAndEdgesForSerialization();
@@ -817,7 +817,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
         int oldHandle = loadedObjectList->at(i)->getObjectHandle();
         sceneObjects->addObjectToSceneWithSuffixOffset(loadedObjectList->at(i), objectIsACopy, suffixOffset, false);
         objectMapping[oldHandle] = loadedObjectList->at(i)->getObjectHandle();
-        if (loadedObjectList->at(i)->getObjectType() == sim_object_shape_type)
+        if (loadedObjectList->at(i)->getObjectType() == sim_sceneobject_shape)
         {
             CShape *shape = (CShape *)loadedObjectList->at(i);
             int matId = shape->getMesh()->getDynMaterialId_old();
@@ -1661,7 +1661,7 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
     }
 
     // Following for backward compatibility for vision sensor filters:
-    for (size_t i = 0; i < sceneObjects->getObjectCount(sim_object_visionsensor_type); i++)
+    for (size_t i = 0; i < sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
     {
         CVisionSensor *it = sceneObjects->getVisionSensorFromIndex(i);
         CComposedFilter *cf = it->getComposedFilter();
@@ -1773,13 +1773,13 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         for (size_t i = 0; i < loadedObjectList.size(); i++)
         {
             CSceneObject* it = loadedObjectList[i];
-            if (it->getObjectType() != sim_object_script_type)
+            if (it->getObjectType() != sim_sceneobject_script)
             {
                 int itemDone = 0; // bit 0 simulation script, bit 1 custom. script
                 for (size_t j = 0; j < it->getChildCount(); j++)
                 {
                     CSceneObject* c = it->getChildFromIndex(j);
-                    if (c->getObjectType() == sim_object_script_type)
+                    if (c->getObjectType() == sim_sceneobject_script)
                     {
                         CScript* script = (CScript*)c;
                         int id = itemDone;
@@ -1887,7 +1887,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
         CScriptObject *childScript = simpleXmlObjects[i].childScript;
         CScriptObject *customizationScript = simpleXmlObjects[i].customizationScript;
         allLoadedObjects.push_back(it);
-        if (it->getObjectType() == sim_object_camera_type)
+        if (it->getObjectType() == sim_sceneobject_camera)
         {
             if ((mainCam == nullptr) || ((CCamera *)it)->getIsMainCamera())
                 mainCam = (CCamera *)it;
@@ -2075,7 +2075,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
     {
         CSceneObject *obj = allLoadedObjects[i];
         // Handle dummy-dummy linking:
-        if (obj->getObjectType() == sim_object_dummy_type)
+        if (obj->getObjectType() == sim_sceneobject_dummy)
         {
             CDummy *dummy = (CDummy *)obj;
             std::map<std::string, CSceneObject *>::const_iterator it =
@@ -2093,7 +2093,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
             }
         }
         // Handle joint-joint linking:
-        if (obj->getObjectType() == sim_object_joint_type)
+        if (obj->getObjectType() == sim_sceneobject_joint)
         {
             CJoint *joint = (CJoint *)obj;
             std::map<std::string, CSceneObject *>::const_iterator it =
@@ -2111,7 +2111,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
             }
         }
         // Handle camera tracking:
-        if (obj->getObjectType() == sim_object_camera_type)
+        if (obj->getObjectType() == sim_sceneobject_camera)
         {
             CCamera *camera = (CCamera *)obj;
             std::map<std::string, CSceneObject *>::const_iterator it =
@@ -2129,7 +2129,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
             }
         }
         // Handle proximitySensor sensable entity linking:
-        if (obj->getObjectType() == sim_object_proximitysensor_type)
+        if (obj->getObjectType() == sim_sceneobject_proximitysensor)
         {
             CProxSensor *proxSensor = (CProxSensor *)obj;
             std::map<std::string, CSceneObject *>::const_iterator it =
@@ -2154,7 +2154,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
             }
         }
         // Handle visionSensor renderable entity linking:
-        if (obj->getObjectType() == sim_object_visionsensor_type)
+        if (obj->getObjectType() == sim_sceneobject_visionsensor)
         {
             CVisionSensor *visionSensor = (CVisionSensor *)obj;
             std::map<std::string, CSceneObject *>::const_iterator it =
@@ -2909,7 +2909,7 @@ int CWorld::removeProperty(int target, const char* ppName)
     return retVal;
 }
 
-int CWorld::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance)
+int CWorld::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject)
 {
     int retVal = -1;
     appartenance += ".scene";
@@ -2928,22 +2928,30 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName, std::str
         }
         if (retVal == -1)
         {
-            if (customSceneData.getPropertyName(index, pName))
+            if (targetObject != nullptr)
             {
-                pName = "customData." + pName;
-                //pName = "scene." + pName;
-                retVal = 1;
+                if (targetObject->customSceneData.getPropertyName(index, pName))
+                {
+                    pName = "customData." + pName;
+                    //pName = "scene." + pName;
+                    retVal = 1;
+                }
             }
         }
     }
     else if (target >= 0)
-        retVal = sceneObjects->getPropertyName(target, index, pName, appartenance);
+    {
+        CSceneObjectContainer* soc = nullptr;
+        if (targetObject != nullptr)
+            soc = targetObject->sceneObjects;
+        retVal = CSceneObjectContainer::getPropertyName(target, index, pName, appartenance, soc);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;
 }
 
-int CWorld::getPropertyInfo(int target, const char* ppName, int& info, int& size)
+int CWorld::getPropertyInfo(int target, const char* ppName, int& info, int& size, CWorld* targetObject)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2962,18 +2970,26 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, int& size
         }
         if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
         {
-            std::string pN(pName);
-            pN.erase(0, 11);
-            if (pN.size() > 0)
+            if (targetObject != nullptr)
             {
-                retVal = customSceneData.hasData(pN.c_str(), true, &size);
-                if (retVal >= 0)
-                    info = 4; // removable
+                std::string pN(pName);
+                pN.erase(0, 11);
+                if (pN.size() > 0)
+                {
+                    retVal = targetObject->customSceneData.hasData(pN.c_str(), true, &size);
+                    if (retVal >= 0)
+                        info = 4; // removable
+                }
             }
         }
     }
     else if (target >= 0)
-        retVal = sceneObjects->getPropertyInfo(target, pName, info, size);
+    {
+        CSceneObjectContainer* soc = nullptr;
+        if (targetObject != nullptr)
+            soc = targetObject->sceneObjects;
+        retVal = CSceneObjectContainer::getPropertyInfo(target, pName, info, size, soc);
+    }
     else
         retVal = -2; // target does not exist
     return retVal;

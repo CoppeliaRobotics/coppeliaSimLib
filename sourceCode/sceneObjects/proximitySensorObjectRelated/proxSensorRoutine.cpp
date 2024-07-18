@@ -16,7 +16,7 @@ bool CProxSensorRoutine::detectEntity(int sensorID, int entityID, bool closestFe
     App::worldContainer->calcInfo->proximitySensorSimulationStart();
     if (sensor->getRandomizedDetection())
     {
-        if (sensor->getSensorType() != sim_proximitysensor_ray_subtype)
+        if (sensor->getSensorType() != sim_proximitysensor_ray)
             return (false); // probably not needed
         sensor->calculateFreshRandomizedRays();
     }
@@ -84,7 +84,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double *vertexPointer, in
 
     if (sens->getRandomizedDetection())
     {
-        if (sens->getSensorType() != sim_proximitysensor_ray_subtype)
+        if (sens->getSensorType() != sim_proximitysensor_ray)
             return (false); // probably not needed
         sens->calculateFreshRandomizedRays();
     }
@@ -179,7 +179,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double *vertexPointer, in
         for (int i = 0; i < itemCount; i++)
         {
             bool detect = false;
-            if (sens->getSensorType() != sim_proximitysensor_ray_subtype)
+            if (sens->getSensorType() != sim_proximitysensor_ray)
             { // ray-type sensors cannot detect points or segments!
                 if (itemType == 0)
                 { // detecting points
@@ -256,7 +256,7 @@ int CProxSensorRoutine::_detectDummy(CProxSensor *sensor, CDummy *dummy, C3Vecto
   // the sensor
     if (dist == 0.0)
         return (-1);
-    if (sensor->getSensorType() == sim_proximitysensor_ray_subtype)
+    if (sensor->getSensorType() == sim_proximitysensor_ray)
         return (-1); // ray sensors never detect dummies
     if (sensor->getRandomizedDetection())
         return (-1); // probably not needed
@@ -367,7 +367,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor *sensor, CShape *shape, C3Vecto
     }
     else
     {
-        if (sensor->getSensorType() == sim_proximitysensor_ray_subtype)
+        if (sensor->getSensorType() == sim_proximitysensor_ray)
         { // ray-type sensor here:
             C3Vector lp(0.0, 0.0, sensor->convexVolume->getOffset());
             C3Vector lvFar(0.0, 0.0, sensor->convexVolume->getRange());
@@ -498,7 +498,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor *sensor, COcTree *octree, C3Ve
     }
     else
     {
-        if (sensor->getSensorType() == sim_proximitysensor_ray_subtype)
+        if (sensor->getSensorType() == sim_proximitysensor_ray)
         { // ray-type sensor here:
             C3Vector lp(0.0, 0.0, sensor->convexVolume->getOffset());
             C3Vector lvFar(0.0, 0.0, sensor->convexVolume->getRange());
@@ -558,7 +558,7 @@ int CProxSensorRoutine::_detectPointCloud(CProxSensor *sensor, CPointCloud *poin
         return (-1);
     if (sensor->getRandomizedDetection())
         return (-1); // randomized detection doesn't work with points!
-    if (sensor->getSensorType() == sim_proximitysensor_ray_subtype)
+    if (sensor->getSensorType() == sim_proximitysensor_ray)
         return (-1); // ray-type proximity sensors don't work with points!
 
     if (!_doesSensorVolumeOverlapWithObjectBoundingBox(sensor, pointCloud))
@@ -621,7 +621,7 @@ double CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vect
     C7Vector tr(obj->getCumulativeTransformation() * obj->getBB(&halfSize));
     bool isPointToo = false;
 
-    if (obj->getObjectType() == sim_object_dummy_type)
+    if (obj->getObjectType() == sim_sceneobject_dummy)
         isPointToo = true;
     if (isPointToo)
         return ((tr.X - point).getLength()); // pt vs pt
@@ -640,7 +640,7 @@ bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSens
     C7Vector objectTr(obj->getCumulativeTransformation() * obj->getBB(&objectHalfSize));
     bool objectIsPoint = false;
 
-    if (obj->getObjectType() == sim_object_dummy_type)
+    if (obj->getObjectType() == sim_sceneobject_dummy)
         objectIsPoint = true;
     if (objectIsPoint)
         return (App::worldContainer->pluginContainer->geomPlugin_getBoxPointCollision(sensorTr, sensorHalfSize,
@@ -655,16 +655,16 @@ int CProxSensorRoutine::_detectObject(CProxSensor *sensor, CSceneObject *object,
                                       double maxAngle, bool frontFace, bool backFace, double minThreshold)
 {
     int retVal = -1;
-    if (object->getObjectType() == sim_object_dummy_type)
+    if (object->getObjectType() == sim_sceneobject_dummy)
         retVal = _detectDummy(sensor, (CDummy *)object, detectedPt, dist, triNormalNotNormalized, closestFeatureMode,
                               angleLimitation, maxAngle, frontFace, backFace, minThreshold);
-    if (object->getObjectType() == sim_object_shape_type)
+    if (object->getObjectType() == sim_sceneobject_shape)
         retVal = _detectShape(sensor, (CShape *)object, detectedPt, dist, triNormalNotNormalized, closestFeatureMode,
                               angleLimitation, maxAngle, frontFace, backFace, minThreshold);
-    if (object->getObjectType() == sim_object_octree_type)
+    if (object->getObjectType() == sim_sceneobject_octree)
         retVal = _detectOctree(sensor, (COcTree *)object, detectedPt, dist, triNormalNotNormalized, closestFeatureMode,
                                angleLimitation, maxAngle, frontFace, backFace, minThreshold);
-    if (object->getObjectType() == sim_object_pointcloud_type)
+    if (object->getObjectType() == sim_sceneobject_pointcloud)
         retVal = _detectPointCloud(sensor, (CPointCloud *)object, detectedPt, dist, triNormalNotNormalized,
                                    closestFeatureMode, angleLimitation, maxAngle, frontFace, backFace, minThreshold);
     return (retVal);

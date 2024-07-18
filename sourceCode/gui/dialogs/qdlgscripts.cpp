@@ -30,8 +30,8 @@ void CQDlgScripts::refresh()
     QLineEdit *lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim = (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_script_type);
-    bool bigSel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_dummy_type) > 1);
+    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_script);
+    bool bigSel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_dummy) > 1);
     CScript *it = App::currentWorld->sceneObjects->getLastSelectionScript();
 
     ui->qqSize->setEnabled(sel && noEditModeNoSim);

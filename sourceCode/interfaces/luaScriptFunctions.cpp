@@ -678,46 +678,43 @@ const SLuaCommands simLuaCommands[] = {
 
 const SLuaVariables simLuaVariables[] = {
     // Scene object types (main types):
-    {"sim.object_shape_type", sim_object_shape_type},
-    {"sim.object_joint_type", sim_object_joint_type},
-    {"sim.object_graph_type", sim_object_graph_type},
-    {"sim.object_camera_type", sim_object_camera_type},
-    {"sim.object_dummy_type", sim_object_dummy_type},
-    {"sim.object_proximitysensor_type", sim_object_proximitysensor_type},
-    {"sim.object_path_type", sim_object_path_type},
-    {"sim.object_renderingsensor_type", sim_object_visionsensor_type},
-    {"sim.object_visionsensor_type", sim_object_visionsensor_type},
-    {"sim.object_mill_type", sim_object_mill_type},
-    {"sim.object_forcesensor_type", sim_object_forcesensor_type},
-    {"sim.object_light_type", sim_object_light_type},
-    {"sim.object_mirror_type", sim_object_mirror_type},
-    {"sim.object_octree_type", sim_object_octree_type},
-    {"sim.object_pointcloud_type", sim_object_pointcloud_type},
-    {"sim.object_script_type", sim_object_script_type},
+    {"sim.sceneobject_shape", sim_sceneobject_shape},
+    {"sim.sceneobject_joint", sim_sceneobject_joint},
+    {"sim.sceneobject_graph", sim_sceneobject_graph},
+    {"sim.sceneobject_camera", sim_sceneobject_camera},
+    {"sim.sceneobject_dummy", sim_sceneobject_dummy},
+    {"sim.sceneobject_proximitysensor", sim_sceneobject_proximitysensor},
+    {"sim.sceneobject_path", sim_sceneobject_path},
+    {"sim.sceneobject_renderingsensor", sim_sceneobject_visionsensor},
+    {"sim.sceneobject_visionsensor", sim_sceneobject_visionsensor},
+    {"sim.sceneobject_mill", sim_sceneobject_mill},
+    {"sim.sceneobject_forcesensor", sim_sceneobject_forcesensor},
+    {"sim.sceneobject_light", sim_sceneobject_light},
+    {"sim.sceneobject_mirror", sim_sceneobject_mirror},
+    {"sim.sceneobject_octree", sim_sceneobject_octree},
+    {"sim.sceneobject_pointcloud", sim_sceneobject_pointcloud},
+    {"sim.sceneobject_script", sim_sceneobject_script},
     // 3D object sub-types:
-    {"sim.light_omnidirectional_subtype", sim_light_omnidirectional_subtype},
-    {"sim.light_spot_subtype", sim_light_spot_subtype},
-    {"sim.light_directional_subtype", sim_light_directional_subtype},
-    {"sim.joint_revolute_subtype", sim_joint_revolute_subtype},
-    {"sim.joint_prismatic_subtype", sim_joint_prismatic_subtype},
-    {"sim.joint_spherical_subtype", sim_joint_spherical_subtype},
-    {"sim.shape_simpleshape_subtype", sim_shape_simpleshape_subtype},
-    {"sim.shape_multishape_subtype", sim_shape_multishape_subtype},
-    {"sim.proximitysensor_pyramid_subtype", sim_proximitysensor_pyramid_subtype},
-    {"sim.proximitysensor_cylinder_subtype", sim_proximitysensor_cylinder_subtype},
-    {"sim.proximitysensor_disc_subtype", sim_proximitysensor_disc_subtype},
-    {"sim.proximitysensor_cone_subtype", sim_proximitysensor_cone_subtype},
-    {"sim.proximitysensor_ray_subtype", sim_proximitysensor_ray_subtype},
-    {"sim.mill_pyramid_subtype", sim_mill_pyramid_subtype},
-    {"sim.mill_cylinder_subtype", sim_mill_cylinder_subtype},
-    {"sim.mill_disc_subtype", sim_mill_disc_subtype},
-    {"sim.mill_cone_subtype", sim_mill_cone_subtype},
-    {"sim.object_no_subtype", sim_object_no_subtype},
+    {"sim.light_omnidirectional", sim_light_omnidirectional},
+    {"sim.light_spot", sim_light_spot},
+    {"sim.light_directional", sim_light_directional},
+    {"sim.joint_revolute", sim_joint_revolute},
+    {"sim.joint_prismatic", sim_joint_prismatic},
+    {"sim.joint_spherical", sim_joint_spherical},
+    {"sim.shape_simple", sim_shape_simple},
+    {"sim.shape_compound", sim_shape_compound},
+    {"sim.proximitysensor_pyramid", sim_proximitysensor_pyramid},
+    {"sim.proximitysensor_cylinder", sim_proximitysensor_cylinder},
+    {"sim.proximitysensor_disc", sim_proximitysensor_disc},
+    {"sim.proximitysensor_cone", sim_proximitysensor_cone},
+    {"sim.proximitysensor_ray", sim_proximitysensor_ray},
     // Other object types:
-    {"sim.appobj_object_type", sim_appobj_object_type},
-    {"sim.appobj_simulation_type", sim_appobj_simulation_type},
-    {"sim.appobj_script_type", sim_appobj_script_type},
-    {"sim.appobj_texture_type", sim_appobj_texture_type},
+    {"sim.objecttype_sceneobject", sim_objecttype_sceneobject},
+    {"sim.objecttype_collection", sim_objecttype_collection},
+    {"sim.objecttype_texture", sim_objecttype_texture},
+    {"sim.objecttype_mesh", sim_objecttype_mesh},
+
+
     // Simulation messages:
     {"sim.message_model_loaded", sim_message_model_loaded},
     {"sim.message_scene_loaded", sim_message_scene_loaded},
@@ -1713,6 +1710,44 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.ruckig_minaccel", sim_ruckig_minaccel},
 
     // deprecated!
+    {"sim.object_shape_type", sim_sceneobject_shape},
+    {"sim.object_joint_type", sim_sceneobject_joint},
+    {"sim.object_graph_type", sim_sceneobject_graph},
+    {"sim.object_camera_type", sim_sceneobject_camera},
+    {"sim.object_dummy_type", sim_sceneobject_dummy},
+    {"sim.object_proximitysensor_type", sim_sceneobject_proximitysensor},
+    {"sim.object_path_type", sim_sceneobject_path},
+    {"sim.object_renderingsensor_type", sim_sceneobject_visionsensor},
+    {"sim.object_visionsensor_type", sim_sceneobject_visionsensor},
+    {"sim.object_mill_type", sim_sceneobject_mill},
+    {"sim.object_forcesensor_type", sim_sceneobject_forcesensor},
+    {"sim.object_light_type", sim_sceneobject_light},
+    {"sim.object_mirror_type", sim_sceneobject_mirror},
+    {"sim.object_octree_type", sim_sceneobject_octree},
+    {"sim.object_pointcloud_type", sim_sceneobject_pointcloud},
+    {"sim.object_script_type", sim_sceneobject_script},
+    {"sim.light_omnidirectional_subtype", sim_light_omnidirectional},
+    {"sim.light_spot_subtype", sim_light_spot},
+    {"sim.light_directional_subtype", sim_light_directional},
+    {"sim.joint_revolute_subtype", sim_joint_revolute},
+    {"sim.joint_prismatic_subtype", sim_joint_prismatic},
+    {"sim.joint_spherical_subtype", sim_joint_spherical},
+    {"sim.shape_simpleshape_subtype", sim_shape_simple},
+    {"sim.shape_multishape_subtype", sim_shape_compound},
+    {"sim.proximitysensor_pyramid_subtype", sim_proximitysensor_pyramid},
+    {"sim.proximitysensor_cylinder_subtype", sim_proximitysensor_cylinder},
+    {"sim.proximitysensor_disc_subtype", sim_proximitysensor_disc},
+    {"sim.proximitysensor_cone_subtype", sim_proximitysensor_cone},
+    {"sim.proximitysensor_ray_subtype", sim_proximitysensor_ray},
+    {"sim.mill_pyramid_subtype", sim_mill_pyramid_subtype},
+    {"sim.mill_cylinder_subtype", sim_mill_cylinder_subtype},
+    {"sim.mill_disc_subtype", sim_mill_disc_subtype},
+    {"sim.mill_cone_subtype", sim_mill_cone_subtype},
+    {"sim.object_no_subtype", sim_object_no_subtype},
+    {"sim.appobj_object_type", sim_objecttype_sceneobject},
+    {"sim.appobj_simulation_type", sim_appobj_simulation_type},
+    {"sim.appobj_script_type", sim_appobj_script_type},
+    {"sim.appobj_texture_type", sim_objecttype_texture},
     {"sim.scriptintparam_handle", sim_scriptintparam_handle},
     {"sim.scriptintparam_objecthandle", sim_scriptintparam_objecthandle},
     {"sim.scriptintparam_lang", sim_scriptintparam_lang},
@@ -1920,7 +1955,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.distcalcmethod_dac_if_nonzero", sim_distcalcmethod_dac_if_nonzero},
     {"sim.appobj_collision_type", sim_appobj_collision_type},
     {"sim.appobj_distance_type", sim_appobj_distance_type},
-    {"sim.appobj_collection_type", sim_appobj_collection_type},
+    {"sim.appobj_collection_type", sim_objecttype_collection},
     {"sim.message_ui_button_state_change", sim_message_ui_button_state_change},
     {"sim.message_bannerclicked", sim_message_bannerclicked},
     {"sim.message_prox_sensor_select_down", sim_message_prox_sensor_select_down},
@@ -3281,7 +3316,7 @@ int _simSetVisionSensorImg(luaWrap_lua_State *L)
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sensorHandle);
         if (it != nullptr)
         { // Ok we have a valid object
-            if (it->getObjectType() == sim_object_visionsensor_type)
+            if (it->getObjectType() == sim_sceneobject_visionsensor)
             { // ok we have a valid vision sensor
                 int resolution[2];
                 ((CVisionSensor *)it)->getResolution(resolution);
@@ -6655,7 +6690,7 @@ int _simTest(luaWrap_lua_State *L)
         }
         if (cmd.compare("sim.recomputeInertia") == 0)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
             {
                 CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
                 if (!it->getStatic())
@@ -6682,7 +6717,7 @@ int _simTest(luaWrap_lua_State *L)
         if ((cmd.compare("sim.recomputeInertia1KeepMass") == 0) ||
             (cmd.compare("sim.recomputeInertia2KeepMass") == 0) || (cmd.compare("sim.recomputeInertia4KeepMass") == 0))
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_shape_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
             {
                 CShape *it = App::currentWorld->sceneObjects->getShapeFromIndex(i);
                 if (!it->getStatic())
@@ -11149,7 +11184,7 @@ int _simGetShapeBB(luaWrap_lua_State *L)
         CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(luaToInt(L, 1));
         if (it != nullptr)
         {
-            if (it->getObjectType() == sim_object_shape_type)
+            if (it->getObjectType() == sim_sceneobject_shape)
             {
                 CShape* shape = (CShape*)it;
                 C3Vector hs;
@@ -12671,7 +12706,7 @@ int _simHandleJointMotion(luaWrap_lua_State *L)
     {
         if (it->getScriptType() == sim_scripttype_main)
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
             {
                 CJoint *it = App::currentWorld->sceneObjects->getJointFromIndex(i);
                 if (it->getJointMode() == sim_jointmode_kinematic)
@@ -14292,7 +14327,7 @@ int _simHandleSimulationStart(luaWrap_lua_State *L)
     if (itScrObj->getScriptType() == sim_scripttype_main)
     {
         // Following is for velocity measurement (initial):
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
             App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(0.0);
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
             App::currentWorld->sceneObjects->getObjectFromIndex(i)->measureVelocity(0.0);
@@ -14316,7 +14351,7 @@ int _simHandleSensingStart(luaWrap_lua_State *L)
     if (itScrObj->getScriptType() == sim_scripttype_main)
     {
         // Following is for camera tracking!
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
         {
             CCamera *it = App::currentWorld->sceneObjects->getCameraFromIndex(i);
             it->handleCameraTracking();
@@ -14325,7 +14360,7 @@ int _simHandleSensingStart(luaWrap_lua_State *L)
         // Following is for velocity measurement:
         double dt = App::currentWorld->simulation->getTimeStep();
         double t = dt + App::currentWorld->simulation->getSimulationTime();
-        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_joint_type); i++)
+        for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
             App::currentWorld->sceneObjects->getJointFromIndex(i)->measureJointVelocity(t);
         for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
             App::currentWorld->sceneObjects->getObjectFromIndex(i)->measureVelocity(dt); // adapt that func!
@@ -15502,50 +15537,50 @@ const SLuaCommands simLuaCommandsOldApi[] =
 
 const SLuaVariables simLuaVariablesOldApi[] = { // Following for backward compatibility (see newer equivalent commands
                                                 // ('simLuaVariables'))
-    {"sim_old.sim_object_shape_type", sim_object_shape_type},
-    {"sim_old.sim_object_joint_type", sim_object_joint_type},
-    {"sim_old.sim_object_graph_type", sim_object_graph_type},
-    {"sim_old.sim_object_camera_type", sim_object_camera_type},
-    {"sim_old.sim_object_dummy_type", sim_object_dummy_type},
-    {"sim_old.sim_object_proximitysensor_type", sim_object_proximitysensor_type},
-    {"sim_old.sim_object_path_type", sim_object_path_type},
-    {"sim_old.sim_object_renderingsensor_type", sim_object_visionsensor_type},
-    {"sim_old.sim_object_visionsensor_type", sim_object_visionsensor_type},
-    {"sim_old.sim_object_mill_type", sim_object_mill_type},
-    {"sim_old.sim_object_forcesensor_type", sim_object_forcesensor_type},
-    {"sim_old.sim_object_light_type", sim_object_light_type},
-    {"sim_old.sim_object_mirror_type", sim_object_mirror_type},
-    {"sim_old.sim_object_octree_type", sim_object_octree_type},
-    {"sim_old.sim_object_pointcloud_type", sim_object_pointcloud_type},
-    {"sim_old.sim_light_omnidirectional_subtype", sim_light_omnidirectional_subtype},
-    {"sim_old.sim_light_spot_subtype", sim_light_spot_subtype},
-    {"sim_old.sim_light_directional_subtype", sim_light_directional_subtype},
-    {"sim_old.sim_joint_revolute_subtype", sim_joint_revolute_subtype},
-    {"sim_old.sim_joint_prismatic_subtype", sim_joint_prismatic_subtype},
-    {"sim_old.sim_joint_spherical_subtype", sim_joint_spherical_subtype},
-    {"sim_old.sim_shape_simpleshape_subtype", sim_shape_simpleshape_subtype},
-    {"sim_old.sim_shape_multishape_subtype", sim_shape_multishape_subtype},
-    {"sim_old.sim_proximitysensor_pyramid_subtype", sim_proximitysensor_pyramid_subtype},
-    {"sim_old.sim_proximitysensor_cylinder_subtype", sim_proximitysensor_cylinder_subtype},
-    {"sim_old.sim_proximitysensor_disc_subtype", sim_proximitysensor_disc_subtype},
-    {"sim_old.sim_proximitysensor_cone_subtype", sim_proximitysensor_cone_subtype},
-    {"sim_old.sim_proximitysensor_ray_subtype", sim_proximitysensor_ray_subtype},
+    {"sim_old.sim_sceneobject_shape", sim_sceneobject_shape},
+    {"sim_old.sim_sceneobject_joint", sim_sceneobject_joint},
+    {"sim_old.sim_sceneobject_graph", sim_sceneobject_graph},
+    {"sim_old.sim_sceneobject_camera", sim_sceneobject_camera},
+    {"sim_old.sim_sceneobject_dummy", sim_sceneobject_dummy},
+    {"sim_old.sim_sceneobject_proximitysensor", sim_sceneobject_proximitysensor},
+    {"sim_old.sim_sceneobject_path", sim_sceneobject_path},
+    {"sim_old.sim_object_renderingsensor_type", sim_sceneobject_visionsensor},
+    {"sim_old.sim_sceneobject_visionsensor", sim_sceneobject_visionsensor},
+    {"sim_old.sim_sceneobject_mill", sim_sceneobject_mill},
+    {"sim_old.sim_sceneobject_forcesensor", sim_sceneobject_forcesensor},
+    {"sim_old.sim_sceneobject_light", sim_sceneobject_light},
+    {"sim_old.sim_sceneobject_mirror", sim_sceneobject_mirror},
+    {"sim_old.sim_sceneobject_octree", sim_sceneobject_octree},
+    {"sim_old.sim_sceneobject_pointcloud", sim_sceneobject_pointcloud},
+    {"sim_old.sim_light_omnidirectional", sim_light_omnidirectional},
+    {"sim_old.sim_light_spot", sim_light_spot},
+    {"sim_old.sim_light_directional", sim_light_directional},
+    {"sim_old.sim_joint_revolute", sim_joint_revolute},
+    {"sim_old.sim_joint_prismatic", sim_joint_prismatic},
+    {"sim_old.sim_joint_spherical", sim_joint_spherical},
+    {"sim_old.sim_shape_simple", sim_shape_simple},
+    {"sim_old.sim_shape_compound", sim_shape_compound},
+    {"sim_old.sim_proximitysensor_pyramid", sim_proximitysensor_pyramid},
+    {"sim_old.sim_proximitysensor_cylinder", sim_proximitysensor_cylinder},
+    {"sim_old.sim_proximitysensor_disc", sim_proximitysensor_disc},
+    {"sim_old.sim_proximitysensor_cone", sim_proximitysensor_cone},
+    {"sim_old.sim_proximitysensor_ray", sim_proximitysensor_ray},
     {"sim_old.sim_mill_pyramid_subtype", sim_mill_pyramid_subtype},
     {"sim_old.sim_mill_cylinder_subtype", sim_mill_cylinder_subtype},
     {"sim_old.sim_mill_disc_subtype", sim_mill_disc_subtype},
     {"sim_old.sim_mill_cone_subtype", sim_mill_cone_subtype},
     {"sim_old.sim_object_no_subtype", sim_object_no_subtype},
-    {"sim_old.sim_appobj_object_type", sim_appobj_object_type},
+    {"sim_old.sim_objecttype_sceneobject", sim_objecttype_sceneobject},
     {"sim_old.sim_appobj_collision_type", sim_appobj_collision_type},
     {"sim_old.sim_appobj_distance_type", sim_appobj_distance_type},
     {"sim_old.sim_appobj_simulation_type", sim_appobj_simulation_type},
     {"sim_old.sim_appobj_ik_type", sim_appobj_ik_type},
-    {"sim_old.sim_appobj_collection_type", sim_appobj_collection_type},
+    {"sim_old.sim_objecttype_collection", sim_objecttype_collection},
     {"sim_old.sim_appobj_2delement_type", sim_appobj_ui_type}, // for backward compatibility
     {"sim_old.sim_appobj_ui_type", sim_appobj_ui_type},
     {"sim_old.sim_appobj_script_type", sim_appobj_script_type},
     {"sim_old.sim_appobj_pathplanning_type", sim_appobj_pathplanning_type},
-    {"sim_old.sim_appobj_texture_type", sim_appobj_texture_type},
+    {"sim_old.sim_objecttype_texture", sim_objecttype_texture},
     {"sim_old.sim_ik_pseudo_inverse_method", sim_ik_pseudo_inverse_method},
     {"sim_old.sim_ik_damped_least_squares_method", sim_ik_damped_least_squares_method},
     {"sim_old.sim_ik_jacobian_transpose_method", sim_ik_jacobian_transpose_method},
@@ -17511,7 +17546,7 @@ int _sim_moveToJointPos_1(luaWrap_lua_State *L)
                     jointAccels[i] = accel;
 
                 CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(jointHandles[i]);
-                if ((it != nullptr) && (it->getJointType() != sim_joint_spherical_subtype))
+                if ((it != nullptr) && (it->getJointType() != sim_joint_spherical))
                 { // make sure target is within allowed range, and check the maximum virtual distance:
                     jointStartPositions[i] = it->getPosition();
                     double minP = it->getPositionMin();
@@ -17529,7 +17564,7 @@ int _sim_moveToJointPos_1(luaWrap_lua_State *L)
                             jointTargetPositions[i] = maxP;
                     }
                     double d = fabs(jointTargetPositions[i] - jointStartPositions[i]);
-                    if (it->getJointType() == sim_joint_revolute_subtype)
+                    if (it->getJointType() == sim_joint_revolute)
                         d *= angleToLinearCoeff;
                     jointVirtualDistances[i] = d;
                     if (d > maxVirtualDist)
@@ -17731,7 +17766,7 @@ int _sim_moveToJointPos_2(luaWrap_lua_State *L)
             for (int i = 0; i < tableLen; i++)
             {
                 CJoint *joint = App::currentWorld->sceneObjects->getJointFromHandle(mem->jointHandles[i]);
-                if ((joint != nullptr) && (joint->getJointType() != sim_joint_spherical_subtype) &&
+                if ((joint != nullptr) && (joint->getJointType() != sim_joint_spherical) &&
                     (mem->jointVirtualDistances[i] != 0.0))
                 {
                     joint->setTargetPosition(mem->jointStartPositions[i] +
@@ -19160,7 +19195,7 @@ int _sim_moveToObj_1(luaWrap_lua_State *L)
             if (res == 2)
             { // get the data
                 relativeDistanceOnPath = tt::getLimitedFloat(0.0, 1.0, luaToDouble(L, 4));
-                if (targetObject->getObjectType() != sim_object_path_type)
+                if (targetObject->getObjectType() != sim_sceneobject_path)
                 {
                     errorString = SIM_ERROR_TARGET_OBJECT_IS_NOT_A_PATH;
                     foundError = true;
@@ -19292,7 +19327,7 @@ int _sim_moveToObj_2(luaWrap_lua_State *L)
                 bool goOn = true;
                 if (mem->relativeDistanceOnPath >= 0.0)
                 { // we should have a path here
-                    if (mem->targetObject->getObjectType() == sim_object_path_type)
+                    if (mem->targetObject->getObjectType() == sim_sceneobject_path)
                     {
                         C7Vector pathLoc;
                         if (((CPath_old *)mem->targetObject)
@@ -22671,7 +22706,7 @@ int _simSetVisionSensorImage(luaWrap_lua_State *L)
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sensHandle);
         if (it != nullptr)
         { // Ok we have a valid object
-            if (it->getObjectType() == sim_object_visionsensor_type)
+            if (it->getObjectType() == sim_sceneobject_visionsensor)
             { // ok we have a valid vision sensor
                 int res[2];
                 CVisionSensor *rendSens = (CVisionSensor *)it;
@@ -22872,7 +22907,7 @@ int _simSetVisionSensorCharImage(luaWrap_lua_State *L)
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sensHandle);
         if (it != nullptr)
         { // Ok we have a valid object
-            if (it->getObjectType() == sim_object_visionsensor_type)
+            if (it->getObjectType() == sim_sceneobject_visionsensor)
             { // ok we have a valid vision sensor
                 int res[2];
                 CVisionSensor *rendSens = (CVisionSensor *)it;

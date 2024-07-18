@@ -59,11 +59,11 @@
     FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intvector, 0) \
     FUNCX(propObject_objectType,              "objectType",                       sim_propertytype_string,    1) \
 
-#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2) name,
-const std::vector<CProperty> allProps_sceneObject = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_sceneObject = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 #undef CONCAT_PROP
@@ -71,13 +71,13 @@ const std::vector<CProperty> allProps_sceneObject = { DEFINE_PROPERTIES };
 
 struct SCustomRefs
 {
-    int generalObjectType; // e.g. sim_appobj_object_type, sim_appobj_collision_type
+    int generalObjectType; // e.g. sim_objecttype_sceneobject, sim_appobj_collision_type
     int generalObjectHandle;
 };
 
 struct SCustomOriginalRefs
 {
-    int generalObjectType; // e.g. sim_appobj_object_type, sim_appobj_collision_type
+    int generalObjectType; // e.g. sim_objecttype_sceneobject, sim_appobj_collision_type
     int generalObjectHandle;
     std::string uniquePersistentIdString;
 };
@@ -180,7 +180,9 @@ class CSceneObject
     virtual int getIntVectorProperty(const char* pName, std::vector<int>& pState);
     virtual int removeProperty(const char* pName);
     virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    static  int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance);
     virtual int getPropertyInfo(const char* pName, int& info, int& size);
+    static int getPropertyInfo_bstatic(const char* pName, int& info, int& size);
 
 
     void setRestoreToDefaultLights(bool s);

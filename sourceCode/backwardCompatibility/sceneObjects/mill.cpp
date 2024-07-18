@@ -62,7 +62,7 @@ void CMill::commonInit()
 {
     convexVolume = new CConvexVolume();
     _explicitHandling = false;
-    _objectType = sim_object_mill_type;
+    _objectType = sim_sceneobject_mill;
     _size = 0.01;
     _localObjectSpecialProperty = 0;
     _millableObject = -1;

@@ -134,15 +134,15 @@ void CColorObject::getNewColors(float cols[9]) const
     }
 }
 
-bool CColorObject::setColor(const float theColor[3], unsigned char colorMode, int handleForEventGeneration /*= -1*/)
+bool CColorObject::setColor(const float theColor[3], unsigned char colorMode, int handleForEventGeneration /*= -1*/, const char* suffix /*= nullptr*/)
 {
     bool retVal = false;
     if (colorMode == sim_colorcomponent_transparency)
-        retVal = setTransparency(theColor[0], handleForEventGeneration);
+        retVal = setTransparency(theColor[0], handleForEventGeneration, suffix);
     else
     {
         int offset = 0;
-        const char *cmd=nullptr;
+        std::string cmd;
         if (colorMode == sim_colorcomponent_ambient_diffuse)
         {
             offset = 0;
@@ -167,14 +167,40 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode, in
         for (size_t i = 0; i < 3; i++)
             col[offset + i] = theColor[i];
         retVal = setColors(col);
-        if ( retVal && App::worldContainer->getEventsEnabled() && (handleForEventGeneration != -1) && (cmd != nullptr) )
+        if ( retVal && App::worldContainer->getEventsEnabled() && (handleForEventGeneration != -1) && (cmd.size() != 0) )
         {
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(handleForEventGeneration, cmd, true);
-            ev->appendKeyFloatArray(cmd, col + offset, 3);
+            if (suffix != nullptr)
+                cmd += suffix;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(handleForEventGeneration, cmd.c_str(), true);
+            ev->appendKeyFloatArray(cmd.c_str(), col + offset, 3);
             App::worldContainer->pushEvent();
         }
     }
     return retVal;
+}
+
+void CColorObject::addGenesisEventData(CCbor *ev, const char* suffix /*= nullptr*/) const
+{
+    std::string c;
+    c = propCol_colDiffuse.name;
+    if (suffix != nullptr)
+        c += suffix;
+    ev->appendKeyFloatArray(c.c_str(), _colors, 3);
+    c = propCol_colSpecular.name;
+    if (suffix != nullptr)
+        c += suffix;
+    ev->appendKeyFloatArray(c.c_str(), _colors + 3, 3);
+    c = propCol_colEmission.name;
+    if (suffix != nullptr)
+        c += suffix;
+    ev->appendKeyFloatArray(c.c_str(), _colors + 6, 3);
+    c = propCol_transparency.name;
+    if (suffix != nullptr)
+        c += suffix;
+    float transparency = 0.0f;
+    if (_translucid)
+        transparency = 1.0f - _opacity;
+    ev->appendKeyFloat(c.c_str(), transparency);
 }
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -199,7 +225,6 @@ void CColorObject::pushShapeColorChangeEvent(int objectHandle, int colorIndex)
         App::worldContainer->pushEvent();
     }
 }
-#endif
 
 void CColorObject::pushColorChangeEvent(int objectHandle, float col1[9], float col2[9], float col3[9], float col4[9])
 {
@@ -218,6 +243,7 @@ void CColorObject::pushColorChangeEvent(int objectHandle, float col1[9], float c
         App::worldContainer->pushEvent();
     }
 }
+#endif
 
 bool CColorObject::setColor(float r, float g, float b, unsigned char colorMode)
 {
@@ -654,7 +680,7 @@ float CColorObject::getTransparency() const
     return retVal;
 }
 
-bool CColorObject::setTransparency(float t, int handleForEventGeneration /*= -1*/)
+bool CColorObject::setTransparency(float t, int handleForEventGeneration /*= -1*/, const char* suffix /*= nullptr*/)
 {
     if (t < 0.0f)
         t = 0.0f;
@@ -667,12 +693,13 @@ bool CColorObject::setTransparency(float t, int handleForEventGeneration /*= -1*
         setOpacity(1.0f - t);
         if ((handleForEventGeneration != -1) && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propCol_transparency.name;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(handleForEventGeneration, cmd, true);
-            ev->appendKeyFloat(cmd, t);
+            std::string cmd = propCol_transparency.name;
+            if (suffix != nullptr)
+                cmd += suffix;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(handleForEventGeneration, cmd.c_str(), true);
+            ev->appendKeyFloat(cmd.c_str(), t);
             App::worldContainer->pushEvent();
         }
-
     }
     return diff;
 }

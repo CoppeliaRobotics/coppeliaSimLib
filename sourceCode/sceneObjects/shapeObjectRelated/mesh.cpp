@@ -527,22 +527,10 @@ void CMesh::pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr)
     }
     ev->appendKeyFloatArray(propMesh_normals.name, normals.data(), normals.size());
 
-    float c[9];
-    color.getColor(c + 0, sim_colorcomponent_ambient_diffuse);
-    color.getColor(c + 3, sim_colorcomponent_specular);
-    color.getColor(c + 6, sim_colorcomponent_emission);
-
-    ev->appendKeyFloatArray(propMesh_colDiffuse.name, c, 3);
-    ev->appendKeyFloatArray(propMesh_colSpecular.name, c + 3, 3);
-    ev->appendKeyFloatArray(propMesh_colEmission.name, c + 6, 3);
-    //        ev->appendKeyDouble("edgeAngle",);
+    color.addGenesisEventData(ev);
     ev->appendKeyDouble(propMesh_shadingAngle.name, getShadingAngle());
     ev->appendKeyBool(propMesh_showEdges.name, getVisibleEdges());
     ev->appendKeyBool(propMesh_culling.name, getCulling());
-    double transp = 0.0;
-    if (color.getTranslucid())
-        transp = 1.0 - color.getOpacity();
-    ev->appendKeyDouble(propMesh_transparency.name, transp);
 
     CTextureObject *to = nullptr;
     const std::vector<float> *tc = nullptr;
@@ -638,6 +626,14 @@ void CMesh::getCumulativeMeshes(const C7Vector &parentCumulTr, const CMeshWrappe
             }
         }
     }
+}
+
+void CMesh::setColor(const float* c, unsigned char colorMode)
+{
+    int id = _uniqueID;
+    if (_isInSceneShapeUid < 0)
+        id = -1;
+    color.setColor(c, colorMode, id);
 }
 
 void CMesh::setColor(const CShape *shape, int &elementIndex, const char *colorName, int colorComponent,
@@ -1065,39 +1061,6 @@ bool CMesh::getCulling() const
     return (_culling);
 }
 
-void CMesh::setColor(const float* c, unsigned char colorMode)
-{
-    if (color.setColor(c, colorMode))
-    {
-        if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
-        {
-            const char *cmd=nullptr;
-            if (colorMode == sim_colorcomponent_ambient_diffuse)
-                cmd = propMesh_colDiffuse.name;
-            else if (colorMode == sim_colorcomponent_specular)
-                cmd = propMesh_colSpecular.name;
-            else if (colorMode == sim_colorcomponent_emission)
-                cmd = propMesh_colEmission.name;
-            else if (colorMode == sim_colorcomponent_transparency)
-                cmd = propMesh_transparency.name;
-            if (cmd != nullptr)
-            {
-                CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
-                if (colorMode == sim_colorcomponent_transparency)
-                    ev->appendKeyFloat(cmd, c[0]);
-                else
-                    ev->appendKeyFloatArray(cmd, c, 3);
-                App::worldContainer->pushEvent();
-            }
-        }
-    }
-}
-
-void CMesh::getColor(float* c, unsigned char colorMode) const
-{
-    color.getColor(c, colorMode);
-}
-
 void CMesh::setCulling(bool c)
 {
     bool diff = (_culling != c);
@@ -1127,13 +1090,10 @@ void CMesh::setDisplayInverted_DEPRECATED(bool di)
 void CMesh::takeVisualAttributesFrom(CMesh *origin)
 {
     // origin->color.copyYourselfInto(&color);
-    color.setColor(origin->color.getColorsPtr() + sim_colorcomponent_ambient_diffuse * 3, sim_colorcomponent_ambient_diffuse);
-    color.setColor(origin->color.getColorsPtr() + sim_colorcomponent_specular * 3, sim_colorcomponent_specular);
-    color.setColor(origin->color.getColorsPtr() + sim_colorcomponent_emission * 3, sim_colorcomponent_emission);
-    float transp = 1.0f - origin->color.getOpacity();
-    if (!origin->color.getTranslucid())
-        transp = 0.0f;
-    color.setColor(&transp, sim_colorcomponent_transparency);
+    setColor(origin->color.getColorsPtr() + sim_colorcomponent_ambient_diffuse * 3, sim_colorcomponent_ambient_diffuse);
+    setColor(origin->color.getColorsPtr() + sim_colorcomponent_specular * 3, sim_colorcomponent_specular);
+    setColor(origin->color.getColorsPtr() + sim_colorcomponent_emission * 3, sim_colorcomponent_emission);
+    color.setTransparency(origin->color.getTransparency(), _uniqueID);
     origin->insideColor_DEPRECATED.copyYourselfInto(&insideColor_DEPRECATED);
     origin->edgeColor_DEPRECATED.copyYourselfInto(&edgeColor_DEPRECATED);
     setVisibleEdges(origin->_visibleEdges);
@@ -2976,8 +2936,7 @@ int CMesh::setFloatProperty(const char* ppName, double pState, const C7Vector& s
     else if (strcmp(pName, propMesh_transparency.name) == 0)
     {
         retVal = 1;
-        float pp = (float)pState;
-        setColor(&pp, sim_colorcomponent_transparency);
+        color.setTransparency(pState, _uniqueID);
     }
 
     return retVal;
@@ -3181,17 +3140,17 @@ int CMesh::getColorProperty(const char* ppName, float* pState, const C7Vector& s
     if (strcmp(pName, propMesh_colDiffuse.name) == 0)
     {
         retVal = 1;
-        getColor(pState, sim_colorcomponent_ambient_diffuse);
+        color.getColor(pState, sim_colorcomponent_ambient_diffuse);
     }
     else if (strcmp(pName, propMesh_colSpecular.name) == 0)
     {
         retVal = 1;
-        getColor(pState, sim_colorcomponent_specular);
+        color.getColor(pState, sim_colorcomponent_specular);
     }
     else if (strcmp(pName, propMesh_colEmission.name) == 0)
     {
         retVal = 1;
-        getColor(pState, sim_colorcomponent_emission);
+        color.getColor(pState, sim_colorcomponent_emission);
     }
 
     return retVal;
@@ -3295,12 +3254,12 @@ int CMesh::removeProperty(const char* ppName)
     return retVal;
 }
 
-int CMesh::getPropertyName(int& index, std::string& pName)
+int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_mesh.size(); i++)
     {
-        if ( (_textureProperty != nullptr) || (i > 7) )
+        if ( (targetObject == nullptr) || (targetObject->_textureProperty != nullptr) || (i > 7) )
         {
             index--;
             if (index == -1)
@@ -3314,7 +3273,7 @@ int CMesh::getPropertyName(int& index, std::string& pName)
     return retVal;
 }
 
-int CMesh::getPropertyInfo(const char* ppName,int& info, int& size)
+int CMesh::getPropertyInfo(const char* ppName,int& info, int& size, CMesh* targetObject)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();

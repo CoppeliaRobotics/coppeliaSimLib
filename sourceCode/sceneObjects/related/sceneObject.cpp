@@ -640,13 +640,13 @@ void CSceneObject::setDynamicsResetFlag(bool reset, bool fullHierarchyTree)
     if (reset)
     {
         _dynamicFlag = 0;
-        if (_objectType == sim_object_joint_type)
+        if (_objectType == sim_sceneobject_joint)
         {
             CJoint *joint = (CJoint *)this;
             joint->setForceOrTorqueNotValid();
             joint->setIntrinsicTransformationError(C7Vector::identityTransformation);
         }
-        if (_objectType == sim_object_forcesensor_type)
+        if (_objectType == sim_sceneobject_forcesensor)
         {
             CForceSensor *sensor = (CForceSensor *)this;
             sensor->setForceAndTorqueNotValid();
@@ -1097,7 +1097,7 @@ void CSceneObject::announceCollectionWillBeErased(int collectionID, bool copyBuf
     {
         for (size_t i = 0; i < it->second.size(); i++)
         {
-            if (it->second[i].generalObjectType == sim_appobj_collection_type)
+            if (it->second[i].generalObjectType == sim_objecttype_collection)
             {
                 if (it->second[i].generalObjectHandle == collectionID)
                     it->second[i].generalObjectHandle = -1;
@@ -1110,7 +1110,7 @@ void CSceneObject::announceCollectionWillBeErased(int collectionID, bool copyBuf
         {
             for (size_t i = 0; i < it->second.size(); i++)
             {
-                if (it->second[i].generalObjectType == sim_appobj_collection_type)
+                if (it->second[i].generalObjectType == sim_objecttype_collection)
                 {
                     if (it->second[i].generalObjectHandle == collectionID)
                         it->second[i].generalObjectHandle = -1;
@@ -1214,7 +1214,7 @@ void CSceneObject::performCollectionLoadingMapping(const std::map<int, int> *map
     {
         for (size_t i = 0; i < it->second.size(); i++)
         {
-            if (it->second[i].generalObjectType == sim_appobj_collection_type)
+            if (it->second[i].generalObjectType == sim_objecttype_collection)
                 it->second[i].generalObjectHandle = CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
     }
@@ -1224,7 +1224,7 @@ void CSceneObject::performCollectionLoadingMapping(const std::map<int, int> *map
         {
             for (size_t i = 0; i < it->second.size(); i++)
             {
-                if (it->second[i].generalObjectType == sim_appobj_collection_type)
+                if (it->second[i].generalObjectType == sim_objecttype_collection)
                     it->second[i].generalObjectHandle =
                         CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
             }
@@ -1357,7 +1357,7 @@ void CSceneObject::pushObjectCreationEvent() const
         addSpecializedObjectEventData(ev);
         App::worldContainer->pushEvent();
 
-        if (_objectType == sim_object_shape_type)
+        if (_objectType == sim_sceneobject_shape)
         {
             std::vector<CMesh *> all;
             std::vector<C7Vector> allTr;
@@ -1475,35 +1475,35 @@ CSceneObject *CSceneObject::copyYourself()
   // "copyYourself" in every joint, camera, etc. !
 
     CSceneObject *theNewObject = nullptr;
-    if (getObjectType() == sim_object_shape_type)
+    if (getObjectType() == sim_sceneobject_shape)
         theNewObject = new CShape();
-    if (getObjectType() == sim_object_octree_type)
+    if (getObjectType() == sim_sceneobject_octree)
         theNewObject = new COcTree();
-    if (getObjectType() == sim_object_pointcloud_type)
+    if (getObjectType() == sim_sceneobject_pointcloud)
         theNewObject = new CPointCloud();
-    if (getObjectType() == sim_object_joint_type)
+    if (getObjectType() == sim_sceneobject_joint)
         theNewObject = new CJoint();
-    if (getObjectType() == sim_object_graph_type)
+    if (getObjectType() == sim_sceneobject_graph)
         theNewObject = new CGraph();
-    if (getObjectType() == sim_object_dummy_type)
+    if (getObjectType() == sim_sceneobject_dummy)
         theNewObject = new CDummy();
-    if (getObjectType() == sim_object_script_type)
+    if (getObjectType() == sim_sceneobject_script)
         theNewObject = new CScript();
-    if (getObjectType() == sim_object_proximitysensor_type)
+    if (getObjectType() == sim_sceneobject_proximitysensor)
         theNewObject = new CProxSensor();
-    if (getObjectType() == sim_object_camera_type)
+    if (getObjectType() == sim_sceneobject_camera)
         theNewObject = new CCamera();
-    if (getObjectType() == sim_object_light_type)
+    if (getObjectType() == sim_sceneobject_light)
         theNewObject = new CLight(((CLight *)this)->getLightType());
-    if (getObjectType() == sim_object_path_type)
+    if (getObjectType() == sim_sceneobject_path)
         theNewObject = new CPath_old();
-    if (getObjectType() == sim_object_mirror_type)
+    if (getObjectType() == sim_sceneobject_mirror)
         theNewObject = new CMirror();
-    if (getObjectType() == sim_object_visionsensor_type)
+    if (getObjectType() == sim_sceneobject_visionsensor)
         theNewObject = new CVisionSensor();
-    if (getObjectType() == sim_object_mill_type)
+    if (getObjectType() == sim_sceneobject_mill)
         theNewObject = new CMill();
-    if (getObjectType() == sim_object_forcesensor_type)
+    if (getObjectType() == sim_sceneobject_forcesensor)
         theNewObject = new CForceSensor();
 
     theNewObject->_objectHandle = _objectHandle; // important for copy operations connections
@@ -2118,7 +2118,7 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo> & scripts, int scrip
                 it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, _objectHandle);
             else
             {
-                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject != nullptr) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_customization) )
+                if ( (_objectType == sim_sceneobject_script) && (((CScript*)this)->scriptObject != nullptr) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_customization) )
                     it = ((CScript*)this)->scriptObject;
             }
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
@@ -2138,7 +2138,7 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo> & scripts, int scrip
                 it = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, _objectHandle);
             else
             {
-                if ( (_objectType == sim_object_script_type) && (((CScript*)this)->scriptObject != nullptr) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_simulation) )
+                if ( (_objectType == sim_sceneobject_script) && (((CScript*)this)->scriptObject != nullptr) && (((CScript*)this)->scriptObject->getScriptType() ==  sim_scripttype_simulation) )
                     it = ((CScript*)this)->scriptObject;
             }
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
@@ -2206,7 +2206,7 @@ size_t CSceneObject::getAttachedScripts(std::vector<CScriptObject*> & scripts, i
                 for (size_t i = 0; i < getChildCount(); i++)
                 {
                     CSceneObject *c = getChildFromIndex(i);
-                    if (c->getObjectType() == sim_object_script_type)
+                    if (c->getObjectType() == sim_sceneobject_script)
                     {
                         CScript* it = (CScript*)c;
                         if ( (it->scriptObject != nullptr) && (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
@@ -2260,7 +2260,7 @@ void CSceneObject::getScriptsInChain(std::vector<int> & scripts, int scriptType,
                 for (size_t i = 0; i < getChildCount(); i++)
                 {
                     CSceneObject *c = getChildFromIndex(i);
-                    if (c->getObjectType() == sim_object_script_type)
+                    if (c->getObjectType() == sim_sceneobject_script)
                     {
                         CScript* it = (CScript*)c;
                         if ( (it->scriptObject != nullptr) && (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
@@ -2285,7 +2285,7 @@ void CSceneObject::getScriptsInChain(std::vector<int> & scripts, int scriptType,
             {
                 if (!legacyEmbeddedScripts)
                 {
-                    if (_objectType == sim_object_script_type)
+                    if (_objectType == sim_sceneobject_script)
                     {
                         CScript* it = (CScript*)this;
                         if ( (it->scriptObject != nullptr) && (it->scriptObject->getScriptType() == scriptType) && (!it->scriptObject->getScriptIsDisabled()) )
@@ -3005,7 +3005,7 @@ void CSceneObject::serialize(CSer &ar)
                         for (int i = 0; i < cnt; i++)
                         {
                             SCustomRefs r;
-                            r.generalObjectType = sim_appobj_object_type;
+                            r.generalObjectType = sim_objecttype_sceneobject;
                             ar >> r.generalObjectHandle;
                             it->second.push_back(r);
                         }
@@ -3023,7 +3023,7 @@ void CSceneObject::serialize(CSer &ar)
                         for (int i = 0; i < cnt; i++)
                         {
                             SCustomOriginalRefs r;
-                            r.generalObjectType = sim_appobj_object_type;
+                            r.generalObjectType = sim_objecttype_sceneobject;
                             ar >> r.generalObjectHandle;
                             ar >> r.uniquePersistentIdString;
                             it->second.push_back(r);
@@ -3179,7 +3179,7 @@ void CSceneObject::serialize(CSer &ar)
 
             ar.xmlPushNewNode("localFrame");
             C7Vector tr = getLocalTransformation();
-            if (getObjectType() == sim_object_shape_type)
+            if (getObjectType() == sim_sceneobject_shape)
             {
                 ar.xmlAddNode_comment(" 'position' tag (in case of a shape): the value of this tag will be used to "
                                       "correctly build the shape, relative to its parent (or children), ",
@@ -3195,7 +3195,7 @@ void CSceneObject::serialize(CSer &ar)
                 ar.xmlAddNode_4float("quaternion", tr.Q(0), tr.Q(1), tr.Q(2), tr.Q(3));
             else
             {
-                if (getObjectType() == sim_object_shape_type)
+                if (getObjectType() == sim_sceneobject_shape)
                 {
                     ar.xmlAddNode_comment(" 'euler' tag (in case of a shape): the value of this tag will be used to "
                                           "correctly build the shape, relative to its parent (or children), ",
@@ -3764,7 +3764,7 @@ void CSceneObject::serialize(CSer &ar)
                     auto it = _customReferencedHandles.find(key.c_str());
                     if (cnt > 0)
                     {
-                        ot.resize(cnt, sim_appobj_object_type);
+                        ot.resize(cnt, sim_objecttype_sceneobject);
                         oh.resize(cnt, -1);
                         ar.xmlGetNode_ints("objectHandles", &oh[0], cnt);
                         for (int i = 0; i < cnt; i++)
@@ -3819,7 +3819,7 @@ void CSceneObject::serialize(CSer &ar)
                     auto it = _customReferencedOriginalHandles.find(key.c_str());
                     if (cnt > 0)
                     {
-                        ot.resize(cnt, sim_appobj_object_type);
+                        ot.resize(cnt, sim_objecttype_sceneobject);
                         oh.resize(cnt, -1);
                         ar.xmlGetNode_ints("objectHandles", &oh[0], cnt);
                         ar.xmlGetNode_strings("uniquePersistentIdString_base64Coded", oi);
@@ -3863,7 +3863,7 @@ void CSceneObject::performObjectLoadingMapping(const std::map<int, int> *map, bo
     {
         for (size_t i = 0; i < it->second.size(); i++)
         {
-            if (it->second[i].generalObjectType == sim_appobj_object_type)
+            if (it->second[i].generalObjectType == sim_objecttype_sceneobject)
                 it->second[i].generalObjectHandle =
                     CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
         }
@@ -3874,7 +3874,7 @@ void CSceneObject::performObjectLoadingMapping(const std::map<int, int> *map, bo
         {
             for (size_t i = 0; i < it->second.size(); i++)
             {
-                if (it->second[i].generalObjectType == sim_appobj_object_type)
+                if (it->second[i].generalObjectType == sim_objecttype_sceneobject)
                     it->second[i].generalObjectHandle =
                         CWorld::getLoadingMapping(map, it->second[i].generalObjectHandle);
             }
@@ -3924,7 +3924,7 @@ void CSceneObject::announceObjectWillBeErased(const CSceneObject *object, bool c
     {
         for (size_t i = 0; i < it->second.size(); i++)
         {
-            if (it->second[i].generalObjectType == sim_appobj_object_type)
+            if (it->second[i].generalObjectType == sim_objecttype_sceneobject)
             {
                 if (it->second[i].generalObjectHandle == object->getObjectHandle())
                     it->second[i].generalObjectHandle = -1;
@@ -3937,7 +3937,7 @@ void CSceneObject::announceObjectWillBeErased(const CSceneObject *object, bool c
         {
             for (size_t i = 0; i < it->second.size(); i++)
             {
-                if (it->second[i].generalObjectType == sim_appobj_object_type)
+                if (it->second[i].generalObjectType == sim_objecttype_sceneobject)
                 {
                     if (it->second[i].generalObjectHandle == object->getObjectHandle())
                         it->second[i].generalObjectHandle = -1;
@@ -4006,7 +4006,7 @@ void CSceneObject::setReferencedHandles(size_t cnt, const int *handles, const ch
             for (int i = 0; i < cnt; i++)
             {
                 SCustomRefs r;
-                r.generalObjectType = sim_appobj_object_type;
+                r.generalObjectType = sim_objecttype_sceneobject;
                 r.generalObjectHandle = -1;
                 if (handles[i] >= 0)
                 {
@@ -4031,7 +4031,7 @@ void CSceneObject::setReferencedHandles(size_t cnt, const int *handles, const ch
                         }
                         if (App::currentWorld->collections->getObjectFromHandle(handles[i]) != nullptr)
                         {
-                            r.generalObjectType = sim_appobj_collection_type;
+                            r.generalObjectType = sim_objecttype_collection;
                             r.generalObjectHandle = handles[i];
                         }
                     }
@@ -4095,7 +4095,7 @@ void CSceneObject::setReferencedOriginalHandles(int cnt, const int *handles, con
             for (int i = 0; i < cnt; i++)
             {
                 SCustomOriginalRefs r;
-                r.generalObjectType = sim_appobj_object_type;
+                r.generalObjectType = sim_objecttype_sceneobject;
                 r.generalObjectHandle = -1;
                 if (handles[i] >= 0)
                 {
@@ -4130,7 +4130,7 @@ void CSceneObject::setReferencedOriginalHandles(int cnt, const int *handles, con
                         }
                         if (App::currentWorld->collections->getObjectFromHandle(handles[i]) != nullptr)
                         {
-                            r.generalObjectType = sim_appobj_collection_type;
+                            r.generalObjectType = sim_objecttype_collection;
                             r.generalObjectHandle = handles[i];
                             r.uniquePersistentIdString =
                                 App::currentWorld->collections->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
@@ -4362,7 +4362,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase *renderingOb
     bool isPathPoints = false;
     C3Vector localPositionOnPath;
     localPositionOnPath.clear();
-    if (_objectType == sim_object_path_type)
+    if (_objectType == sim_sceneobject_path)
     {
         std::vector<int> pathPointsToTakeIntoAccount;
         CPathCont_old *pc;
@@ -6083,18 +6083,7 @@ int CSceneObject::removeProperty(const char* ppName)
 
 int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& appartenance)
 {
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_sceneObject.size(); i++)
-    {
-        index--;
-        if (index == -1)
-        {
-            pName = allProps_sceneObject[i].name;
-            //pName = "object." + pName;
-            retVal = 1;
-            break;
-        }
-    }
+    int retVal = getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
         if (customObjectData.getPropertyName(index, pName))
@@ -6107,21 +6096,28 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
     return retVal;
 }
 
+int CSceneObject::getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_sceneObject.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps_sceneObject[i].name;
+            //pName = "object." + pName;
+            retVal = 1;
+            break;
+        }
+    }
+    return retVal;
+}
+
 int CSceneObject::getPropertyInfo(const char* ppName, int& info, int& size)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_sceneObject.size(); i++)
-    {
-        if (strcmp(allProps_sceneObject[i].name, pName) == 0)
-        {
-            retVal = allProps_sceneObject[i].type;
-            info = allProps_sceneObject[i].flags;
-            size = 0;
-            break;
-        }
-    }
+    int retVal = getPropertyInfo_bstatic(pName, info, size);
     if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
     {
         std::string pN(pName);
@@ -6136,3 +6132,18 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, int& size)
     return retVal;
 }
 
+int CSceneObject::getPropertyInfo_bstatic(const char* pName, int& info, int& size)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_sceneObject.size(); i++)
+    {
+        if (strcmp(allProps_sceneObject[i].name, pName) == 0)
+        {
+            retVal = allProps_sceneObject[i].type;
+            info = allProps_sceneObject[i].flags;
+            size = 0;
+            break;
+        }
+    }
+    return retVal;
+}

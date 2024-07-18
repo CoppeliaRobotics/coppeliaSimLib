@@ -858,9 +858,9 @@ void CSView::addMenu(VMenu *menu)
     bool lastSelIsRendSens = false;
     if (selSize > 0)
     {
-        if (App::currentWorld->sceneObjects->getLastSelectionObject()->getObjectType() == sim_object_camera_type)
+        if (App::currentWorld->sceneObjects->getLastSelectionObject()->getObjectType() == sim_sceneobject_camera)
             lastSelIsCamera = true;
-        if (App::currentWorld->sceneObjects->getLastSelectionObject()->getObjectType() == sim_object_visionsensor_type)
+        if (App::currentWorld->sceneObjects->getLastSelectionObject()->getObjectType() == sim_sceneobject_visionsensor)
             lastSelIsRendSens = true;
     }
     if (camera != nullptr)
@@ -991,7 +991,7 @@ bool CSView::mouseWheel(int deltaZ, int x, int y)
     if (it != nullptr)
     {
         deltaZ = int(double(deltaZ) * App::userSettings->mouseWheelZoomFactor * 1.001);
-        if (it->getObjectType() == sim_object_camera_type)
+        if (it->getObjectType() == sim_sceneobject_camera)
         {
             CSceneObject *cameraParentProxy = nullptr;
             if (((CCamera *)it)->getUseParentObjectAsManipulationProxy())
@@ -1005,7 +1005,7 @@ bool CSView::mouseWheel(int deltaZ, int x, int y)
                     for (size_t i = 0; i < cameraParentProxy->getChildCount(); i++)
                     {
                         CSceneObject *child = cameraParentProxy->getChildFromIndex(i);
-                        if (child->getObjectType() == sim_object_camera_type)
+                        if (child->getObjectType() == sim_sceneobject_camera)
                         {
                             ((CCamera *)child)->setOrthoViewSize(((CCamera *)it)->getOrthoViewSize());
                             App::undoRedo_sceneChangedGradual(""); // **************** UNDO THINGY ****************
@@ -1050,7 +1050,7 @@ bool CSView::mouseWheel(int deltaZ, int x, int y)
                 App::undoRedo_sceneChangedGradual(""); // **************** UNDO THINGY ****************
             }
         }
-        if ((it->getObjectType() == sim_object_graph_type) && (!App::currentWorld->simulation->isSimulationRunning()))
+        if ((it->getObjectType() == sim_sceneobject_graph) && (!App::currentWorld->simulation->isSimulationRunning()))
         {
             double zoomFact = double(deltaZ / 120) * 0.1;
             double centerPos[2] = {graphPosition[0] + graphSize[0] / 2.0, graphPosition[1] + graphSize[1] / 2.0};
@@ -1330,7 +1330,7 @@ int CSView::modelDragMoveEvent(int x, int y, C3Vector *desiredModelPosition)
     if ((x < 0) || (y < 0) || (x > _viewSize[0]) || (y > _viewSize[1]))
         return (-2); // mouse not in this view
     CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(linkedObjectID);
-    if ((obj != nullptr) && (obj->getObjectType() == sim_object_camera_type))
+    if ((obj != nullptr) && (obj->getObjectType() == sim_sceneobject_camera))
     {
         CCamera *thecam = (CCamera *)obj;
 
@@ -1471,11 +1471,11 @@ bool CSView::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *mainW
     int linkedObj = -1;
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_camera_type)
+        if (it->getObjectType() == sim_sceneobject_camera)
             linkedObj = 0;
-        if (it->getObjectType() == sim_object_graph_type)
+        if (it->getObjectType() == sim_sceneobject_graph)
             linkedObj = 1;
-        if (it->getObjectType() == sim_object_visionsensor_type)
+        if (it->getObjectType() == sim_sceneobject_visionsensor)
             linkedObj = 2;
     }
 
@@ -2060,7 +2060,7 @@ void CSView::cameraAndObjectMotion()
                         pos[1] -= screenHalfSizes[1];
                     }
                     C3Vector centerPos(centerPosition);
-                    if ((masterObj->getObjectType() != sim_object_path_type) || (allSelObjects.size() != 0) ||
+                    if ((masterObj->getObjectType() != sim_sceneobject_path) || (allSelObjects.size() != 0) ||
                         (GuiApp::mainWindow->editModeContainer->pathPointManipulation
                              ->getSelectedPathPointIndicesSize_nonEditMode() == 0))
                     { // normal object shifting:
@@ -2181,7 +2181,7 @@ void CSView::cameraAndObjectMotion()
                 for (size_t i = 0; i < cameraParentProxy->getChildCount(); i++)
                 {
                     CSceneObject *child = cameraParentProxy->getChildFromIndex(i);
-                    if (child->getObjectType() == sim_object_camera_type)
+                    if (child->getObjectType() == sim_sceneobject_camera)
                         ((CCamera *)child)->setViewAngle(newViewAngle);
                 }
             }
@@ -2194,7 +2194,7 @@ void CSView::cameraAndObjectMotion()
                 for (size_t i = 0; i < cameraParentProxy->getChildCount(); i++)
                 {
                     CSceneObject *child = cameraParentProxy->getChildFromIndex(i);
-                    if (child->getObjectType() == sim_object_camera_type)
+                    if (child->getObjectType() == sim_sceneobject_camera)
                         ((CCamera *)child)->setOrthoViewSize(camera->getOrthoViewSize() * (1.0 + zoomFactor));
                 }
             }

@@ -28,8 +28,8 @@ void CQDlgForceSensors::refresh()
     QLineEdit *lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_forcesensor_type);
-    bool bigSel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_forcesensor_type) > 1);
+    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_forcesensor);
+    bool bigSel = (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_forcesensor) > 1);
     CForceSensor *it = App::currentWorld->sceneObjects->getLastSelectionForceSensor();
     bool breakingEnabled = false;
     if ((it != nullptr) && (it->getEnableForceThreshold() || it->getEnableTorqueThreshold()))

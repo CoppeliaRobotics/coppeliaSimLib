@@ -251,7 +251,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
         {
             CSceneObject *it = sel[i];
             bool done = false;
-            if (it->getObjectType() == sim_object_path_type)
+            if (it->getObjectType() == sim_sceneobject_path)
             {
                 done = true;
                 CPath_old *path = (CPath_old *)it;
@@ -269,7 +269,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
                     }
                 }
             }
-            if (it->getObjectType() == sim_object_shape_type)
+            if (it->getObjectType() == sim_sceneobject_shape)
             {
                 done = true;
                 CShape *shape = (CShape *)it;
@@ -285,7 +285,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
                     pts.push_back(vq(2));
                 }
             }
-            if (it->getObjectType() == sim_object_pointcloud_type)
+            if (it->getObjectType() == sim_sceneobject_pointcloud)
             {
                 done = true;
                 CPointCloud *ptCloud = (CPointCloud *)it;
@@ -300,7 +300,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
                     pts.push_back(vq(2));
                 }
             }
-            if (it->getObjectType() == sim_object_octree_type)
+            if (it->getObjectType() == sim_sceneobject_octree)
             {
                 done = true;
                 COcTree *octree = (COcTree *)it;
@@ -644,7 +644,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
             for (size_t i = 0; i < cameraParentProxy->getChildCount(); i++)
             {
                 CSceneObject *child = cameraParentProxy->getChildFromIndex(i);
-                if (child->getObjectType() == sim_object_camera_type)
+                if (child->getObjectType() == sim_sceneobject_camera)
                     ((CCamera *)child)->setOrthoViewSize(getOrthoViewSize());
             }
         }
@@ -658,7 +658,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
 void CCamera::commonInit()
 {
     _showVolume = false;
-    _objectType = sim_object_camera_type;
+    _objectType = sim_sceneobject_camera;
     _nearClippingPlane = 0.05;
     _farClippingPlane = 30.0;
     _cameraSize = 0.05;
@@ -2131,7 +2131,7 @@ void CCamera::lookIn(int windowSize[2], CSView *subView, bool drawText, bool pas
 void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int navigationMode, int currentWinSize[2],
                              CSView *subView)
 {
-    if (App::currentWorld->sceneObjects->getObjectCount(sim_object_mirror_type) == 0)
+    if (App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mirror) == 0)
         return;
 
     C7Vector camTr(getFullCumulativeTransformation());
@@ -2145,7 +2145,7 @@ void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int 
 
     std::vector<int> allMirrors;
     std::vector<double> allMirrorDist;
-    for (size_t mir = 0; mir < App::currentWorld->sceneObjects->getObjectCount(sim_object_mirror_type); mir++)
+    for (size_t mir = 0; mir < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mirror); mir++)
     {
         CMirror *myMirror = App::currentWorld->sceneObjects->getMirrorFromIndex(mir);
         C7Vector mmtr(myMirror->getFullCumulativeTransformation());
@@ -2359,7 +2359,7 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex, int resolution[2], 
 
 void CCamera::_extRenderer_prepareLights()
 { // Set-up the lights:
-    for (size_t li = 0; li < App::currentWorld->sceneObjects->getObjectCount(sim_object_light_type); li++)
+    for (size_t li = 0; li < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_light); li++)
     {
         CLight *light = App::currentWorld->sceneObjects->getLightFromIndex(li);
         if (light->getLightActive())
@@ -2574,7 +2574,7 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
                                 it->display(this, atr);
                             else
                             {
-                                if (it->getObjectType() == sim_object_shape_type)
+                                if (it->getObjectType() == sim_sceneobject_shape)
                                     ((CShape *)it)->display_extRenderer(this, atr);
                             }
                         }
@@ -2594,7 +2594,7 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
             {
                 for (size_t rp = 0; rp < toRender.size(); rp++)
                 {
-                    if (toRender[rp]->getObjectType() == sim_object_shape_type)
+                    if (toRender[rp]->getObjectType() == sim_sceneobject_shape)
                     {
                         CShape *it = (CShape *)toRender[rp];
                         if (!it->getStatic())
@@ -2640,7 +2640,7 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
                     _currentPerspective); // those objects are overlay
             if (getInternalRendering())
             { // Now we display all graphs' 3D curves that should appear on top of everything:
-                for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_graph_type); i++)
+                for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_graph); i++)
                 {
                     CGraph *it = App::currentWorld->sceneObjects->getGraphFromIndex(i);
                     if (it != nullptr)
@@ -2734,7 +2734,7 @@ CSceneObject *CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<CSceneObject 
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
     {
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
-        if (it->getObjectType() == sim_object_shape_type)
+        if (it->getObjectType() == sim_sceneobject_shape)
         {
             CShape *sh = (CShape *)it;
             if (sh->getContainsTransparentComponent())
@@ -2748,7 +2748,7 @@ CSceneObject *CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<CSceneObject 
         }
         else
         {
-            if (it->getObjectType() == sim_object_mirror_type)
+            if (it->getObjectType() == sim_sceneobject_mirror)
             {
                 CMirror *mir = (CMirror *)it;
                 if (mir->getContainsTransparentComponent())

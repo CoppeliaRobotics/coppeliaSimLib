@@ -13,7 +13,7 @@
 COcTree::COcTree()
 {
     TRACE_INTERNAL;
-    _objectType = sim_object_octree_type;
+    _objectType = sim_sceneobject_octree;
 
     _cellSize = 0.025;
     color.setDefaultValues();
@@ -307,13 +307,13 @@ void COcTree::insertObjects(const std::vector<int> &sel)
 
 void COcTree::insertObject(const CSceneObject *obj, unsigned int theTag)
 {
-    if (obj->getObjectType() == sim_object_shape_type)
+    if (obj->getObjectType() == sim_sceneobject_shape)
         insertShape((CShape *)obj, theTag);
-    if (obj->getObjectType() == sim_object_octree_type)
+    if (obj->getObjectType() == sim_sceneobject_octree)
         insertOctree((COcTree *)obj, theTag);
-    if (obj->getObjectType() == sim_object_dummy_type)
+    if (obj->getObjectType() == sim_sceneobject_dummy)
         insertDummy((CDummy *)obj, theTag);
-    if (obj->getObjectType() == sim_object_pointcloud_type)
+    if (obj->getObjectType() == sim_sceneobject_pointcloud)
         insertPointCloud((CPointCloud *)obj, theTag);
 }
 
@@ -426,13 +426,13 @@ void COcTree::subtractObjects(const std::vector<int> &sel)
 
 void COcTree::subtractObject(const CSceneObject *obj)
 {
-    if (obj->getObjectType() == sim_object_shape_type)
+    if (obj->getObjectType() == sim_sceneobject_shape)
         subtractShape((CShape *)obj);
-    if (obj->getObjectType() == sim_object_octree_type)
+    if (obj->getObjectType() == sim_sceneobject_octree)
         subtractOctree((COcTree *)obj);
-    if (obj->getObjectType() == sim_object_dummy_type)
+    if (obj->getObjectType() == sim_sceneobject_dummy)
         subtractDummy((CDummy *)obj);
-    if (obj->getObjectType() == sim_object_pointcloud_type)
+    if (obj->getObjectType() == sim_sceneobject_pointcloud)
         subtractPointCloud((CPointCloud *)obj);
 }
 

@@ -13,7 +13,7 @@
 
 CPath_old::CPath_old()
 {
-    _objectType = sim_object_path_type;
+    _objectType = sim_sceneobject_path;
     pathContainer = nullptr;
     _visibilityLayer = PATH_LAYER;
     _explicitHandling = false;

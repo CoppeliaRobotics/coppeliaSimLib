@@ -11,13 +11,13 @@ CMemorizedConf_old::CMemorizedConf_old(CSceneObject *theObject)
         parentUniqueID = theObject->getParent()->getObjectUid();
     configuration = theObject->getLocalTransformation();
     objectType = theObject->getObjectType();
-    if (objectType == sim_object_joint_type)
+    if (objectType == sim_sceneobject_joint)
     {
         CJoint *act = (CJoint *)theObject;
         position = act->getPosition();
         sphericalJointOrientation = act->getSphericalTransformation();
     }
-    if (objectType == sim_object_path_type)
+    if (objectType == sim_sceneobject_path)
     {
         CPath_old *path = (CPath_old *)theObject;
         position = double(path->pathContainer->getPosition());
@@ -51,13 +51,13 @@ void CMemorizedConf_old::restore()
         puid = it->getParent()->getObjectUid();
     if (parentUniqueID == puid)
         it->setLocalTransformation(configuration);
-    if (objectType == sim_object_joint_type)
+    if (objectType == sim_sceneobject_joint)
     {
         CJoint *act = (CJoint *)it;
         act->setPosition(position);
         act->setSphericalTransformation(sphericalJointOrientation);
     }
-    if (objectType == sim_object_path_type)
+    if (objectType == sim_sceneobject_path)
     {
         CPath_old *path = (CPath_old *)it;
         path->pathContainer->setPosition(position);
@@ -71,9 +71,9 @@ bool CMemorizedConf_old::doesStillExist()
 
 void CMemorizedConf_old::serializeToMemory(std::vector<char> &data)
 {
-    if (objectType == sim_object_path_type)
+    if (objectType == sim_sceneobject_path)
         pushFloatToBuffer(position, data);
-    if (objectType == sim_object_joint_type)
+    if (objectType == sim_sceneobject_joint)
     {
         pushFloatToBuffer(position, data);
         for (int i = 0; i < 4; i++)
@@ -93,13 +93,13 @@ void CMemorizedConf_old::serializeFromMemory(std::vector<char> &data)
     for (int i = 0; i < 7; i++)
         configuration(6 - i) = popFloatFromBuffer(data);
     objectType = popIntFromBuffer(data);
-    if (objectType == sim_object_joint_type)
+    if (objectType == sim_sceneobject_joint)
     {
         for (int i = 0; i < 4; i++)
             sphericalJointOrientation(3 - i) = popFloatFromBuffer(data);
         position = popFloatFromBuffer(data);
     }
-    if (objectType == sim_object_path_type)
+    if (objectType == sim_sceneobject_path)
         position = popFloatFromBuffer(data);
 }
 

@@ -41,11 +41,11 @@ enum
     FUNCX(propDummy_colSpecular,             "specularColor",                            sim_propertytype_color,     0) \
     FUNCX(propDummy_colEmission,             "emissionColor",                            sim_propertytype_color,     0) \
 
-#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2) name,
-const std::vector<CProperty> allProps_dummy = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_dummy = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 #undef CONCAT_PROP
@@ -93,7 +93,9 @@ class CDummy : public CSceneObject
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState);
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, int& size);
+    static int getPropertyInfo_static(const char* pName, int& info, int& size);
 
     bool getFreeOnPathTrajectory() const;
     double getVirtualDistanceOffsetOnPath() const;

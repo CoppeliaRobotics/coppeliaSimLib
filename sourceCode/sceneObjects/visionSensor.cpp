@@ -291,7 +291,7 @@ void CVisionSensor::computeBoundingBox()
 
 void CVisionSensor::commonInit()
 {
-    _objectType = sim_object_visionsensor_type;
+    _objectType = sim_sceneobject_visionsensor;
     _nearClippingPlane = 0.01;
     _farClippingPlane = 10.0;
     _viewAngle = 60.0 * degToRad;
@@ -1069,7 +1069,7 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
 
 void CVisionSensor::_extRenderer_prepareLights()
 { // Set-up the lights:
-    for (size_t li = 0; li < App::currentWorld->sceneObjects->getObjectCount(sim_object_light_type); li++)
+    for (size_t li = 0; li < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_light); li++)
     {
         CLight *light = App::currentWorld->sceneObjects->getLightFromIndex(li);
         if (light->getLightActive())
@@ -1352,7 +1352,7 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
             }
             else
             {
-                if (toRender[i]->getObjectType() == sim_object_shape_type)
+                if (toRender[i]->getObjectType() == sim_sceneobject_shape)
                     ((CShape *)toRender[i])->display_extRenderer(this, rendAttrib);
             }
         }
@@ -1426,13 +1426,13 @@ CSceneObject *CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
             {
                 CSceneObject *it =
                     App::currentWorld->sceneObjects->getObjectFromHandle(collection->getSceneObjectHandleFromIndex(i));
-                if (((it->getObjectType() == sim_object_shape_type) ||
-                     (it->getObjectType() == sim_object_octree_type) ||
-                     (it->getObjectType() == sim_object_pointcloud_type) ||
-                     (it->getObjectType() == sim_object_path_type)) &&
+                if (((it->getObjectType() == sim_sceneobject_shape) ||
+                     (it->getObjectType() == sim_sceneobject_octree) ||
+                     (it->getObjectType() == sim_sceneobject_pointcloud) ||
+                     (it->getObjectType() == sim_sceneobject_path)) &&
                     (overridePropertyFlag || it->isObjectVisible()))
                 {
-                    if (it->getObjectType() == sim_object_shape_type)
+                    if (it->getObjectType() == sim_sceneobject_shape)
                     {
                         CShape *sh = (CShape *)it;
                         if (sh->getContainsTransparentComponent())
@@ -1462,13 +1462,13 @@ CSceneObject *CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
                 for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
                 {
                     CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromIndex(i);
-                    if (((it->getObjectType() == sim_object_shape_type) ||
-                         (it->getObjectType() == sim_object_octree_type) ||
-                         (it->getObjectType() == sim_object_pointcloud_type) ||
-                         (it->getObjectType() == sim_object_path_type)) &&
+                    if (((it->getObjectType() == sim_sceneobject_shape) ||
+                         (it->getObjectType() == sim_sceneobject_octree) ||
+                         (it->getObjectType() == sim_sceneobject_pointcloud) ||
+                         (it->getObjectType() == sim_sceneobject_path)) &&
                         it->isObjectVisible())
                     {
-                        if (it->getObjectType() == sim_object_shape_type)
+                        if (it->getObjectType() == sim_sceneobject_shape)
                         {
                             CShape *sh = (CShape *)it;
                             if (sh->getContainsTransparentComponent())
@@ -1515,7 +1515,7 @@ CSceneObject *CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
                 CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);
                 if (App::currentWorld->environment->getActiveLayers() & it->getVisibilityLayer())
                 { // ok, currently visible
-                    if (it->getObjectType() == sim_object_shape_type)
+                    if (it->getObjectType() == sim_sceneobject_shape)
                     {
                         CShape *sh = (CShape *)it;
                         if (sh->getContainsTransparentComponent())
@@ -1530,7 +1530,7 @@ CSceneObject *CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
                     }
                     else
                     {
-                        if (it->getObjectType() == sim_object_mirror_type)
+                        if (it->getObjectType() == sim_sceneobject_mirror)
                         {
                             CMirror *mir = (CMirror *)it;
                             if (mir->getContainsTransparentComponent())
@@ -1584,7 +1584,7 @@ CSceneObject *CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                     if (((it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_renderable) != 0) ||
                         overridePropertyFlag || (rendAttrib & sim_displayattribute_ignorerenderableflag))
                     { // supposed to be rendered
-                        if (it->getObjectType() == sim_object_shape_type)
+                        if (it->getObjectType() == sim_sceneobject_shape)
                         {
                             CShape *sh = (CShape *)it;
                             if (sh->getContainsTransparentComponent())
@@ -1599,7 +1599,7 @@ CSceneObject *CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                         }
                         else
                         {
-                            if (it->getObjectType() == sim_object_mirror_type)
+                            if (it->getObjectType() == sim_sceneobject_mirror)
                             {
                                 CMirror *mir = (CMirror *)it;
                                 if (mir->getContainsTransparentComponent())
@@ -1637,7 +1637,7 @@ CSceneObject *CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                             overrideRenderableFlagsForNonCollections ||
                             (rendAttrib & sim_displayattribute_ignorerenderableflag))
                         { // supposed to be rendered
-                            if (it->getObjectType() == sim_object_shape_type)
+                            if (it->getObjectType() == sim_sceneobject_shape)
                             {
                                 CShape *sh = (CShape *)it;
                                 if (sh->getContainsTransparentComponent())
@@ -1652,7 +1652,7 @@ CSceneObject *CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                             }
                             else
                             {
-                                if (it->getObjectType() == sim_object_mirror_type)
+                                if (it->getObjectType() == sim_sceneobject_mirror)
                                 {
                                     CMirror *mir = (CMirror *)it;
                                     if (mir->getContainsTransparentComponent())
@@ -1705,7 +1705,7 @@ CSceneObject *CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                 CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(rootSel[i]);
                 if (App::currentWorld->environment->getActiveLayers() & it->getVisibilityLayer())
                 { // ok, currently visible
-                    if (it->getObjectType() == sim_object_shape_type)
+                    if (it->getObjectType() == sim_sceneobject_shape)
                     {
                         CShape *sh = (CShape *)it;
                         if (sh->getContainsTransparentComponent())
@@ -1720,7 +1720,7 @@ CSceneObject *CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                     }
                     else
                     {
-                        if (it->getObjectType() == sim_object_mirror_type)
+                        if (it->getObjectType() == sim_sceneobject_mirror)
                         {
                             CMirror *mir = (CMirror *)it;
                             if (mir->getContainsTransparentComponent())
@@ -1753,7 +1753,7 @@ int CVisionSensor::_getActiveMirrors(int entityID, bool detectAll,
                                      bool overrideRenderableFlagsForNonCollections, int rendAttrib,
                                      std::vector<int> &activeMirrors)
 {
-    if (App::currentWorld->sceneObjects->getObjectCount(sim_object_mirror_type) == 0)
+    if (App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mirror) == 0)
         return (0);
     if (App::currentWorld->mainSettings->mirrorsDisabled)
         return (0);
@@ -1833,7 +1833,7 @@ int CVisionSensor::_getActiveMirrors(int entityID, bool detectAll,
     for (int i = 0; i < int(toRender.size()); i++)
     {
         CSceneObject *it = toRender[i];
-        if (it->getObjectType() == sim_object_mirror_type)
+        if (it->getObjectType() == sim_sceneobject_mirror)
         {
             CMirror *mi = (CMirror *)it;
             if (mi->getActive() && mi->getIsMirror())

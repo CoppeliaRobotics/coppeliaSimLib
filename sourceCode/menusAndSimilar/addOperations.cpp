@@ -381,7 +381,7 @@ void CAddOperations::addMenu(VMenu *menu, CSView *subView, bool onlyCamera, int 
     if (subView != nullptr)
         associatedViewable = App::currentWorld->sceneObjects->getObjectFromHandle(subView->getLinkedObjectID());
     if ((subView == nullptr) ||
-        ((associatedViewable != nullptr) && (associatedViewable->getObjectType() == sim_object_camera_type)))
+        ((associatedViewable != nullptr) && (associatedViewable->getObjectType() == sim_sceneobject_camera)))
     {
         if (!onlyCamera)
         {
@@ -673,11 +673,11 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             CSceneObject* sel = App::currentWorld->sceneObjects->getObjectFromHandle(pointedObject);
             CJoint *newObject = nullptr;
             if (commandID == ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD)
-                newObject = new CJoint(sim_joint_revolute_subtype);
+                newObject = new CJoint(sim_joint_revolute);
             if (commandID == ADD_COMMANDS_ADD_PRISMATIC_JOINT_ACCMD)
-                newObject = new CJoint(sim_joint_prismatic_subtype);
+                newObject = new CJoint(sim_joint_prismatic);
             if (commandID == ADD_COMMANDS_ADD_SPHERICAL_JOINT_ACCMD)
-                newObject = new CJoint(sim_joint_spherical_subtype);
+                newObject = new CJoint(sim_joint_spherical);
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
             if (sel != nullptr)
             {
@@ -726,11 +726,11 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                 App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_LIGHT);
                 int tp;
                 if (commandID == ADD_COMMANDS_ADD_OMNI_LIGHT_ACCMD)
-                    tp = sim_light_omnidirectional_subtype;
+                    tp = sim_light_omnidirectional;
                 if (commandID == ADD_COMMANDS_ADD_SPOT_LIGHT_ACCMD)
-                    tp = sim_light_spot_subtype;
+                    tp = sim_light_spot;
                 if (commandID == ADD_COMMANDS_ADD_DIR_LIGHT_ACCMD)
-                    tp = sim_light_directional_subtype;
+                    tp = sim_light_directional;
                 myNewLight = new CLight(tp);
                 App::currentWorld->sceneObjects->addObjectToScene(myNewLight, false, true);
                 App::logMsg(sim_verbosity_msgs, "done.");
@@ -1171,12 +1171,12 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
             CProxSensor *newObject = nullptr;
             if (commandID == ADD_COMMANDS_ADD_RANDOMIZED_RAY_PROXSENSOR_ACCMD)
             {
-                newObject = new CProxSensor(sim_proximitysensor_ray_subtype);
+                newObject = new CProxSensor(sim_proximitysensor_ray);
                 newObject->setRandomizedDetection(true);
             }
             else
                 newObject = new CProxSensor(commandID - ADD_COMMANDS_ADD_PYRAMID_PROXSENSOR_ACCMD +
-                                            sim_proximitysensor_pyramid_subtype);
+                                            sim_proximitysensor_pyramid);
             App::currentWorld->sceneObjects->addObjectToScene(newObject, false, true);
             if (sel != nullptr)
             {

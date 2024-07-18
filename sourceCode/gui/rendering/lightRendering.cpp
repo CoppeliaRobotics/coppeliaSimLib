@@ -89,7 +89,7 @@ void displayLight(CLight *light, CViewableBase *renderingObject, int displayAttr
             }
         }
         double _lightSize = light->getLightSize();
-        if (light->getLightType() == sim_light_omnidirectional_subtype)
+        if (light->getLightType() == sim_light_omnidirectional)
         { // Omnidirectional light
             if (light->getLightActive())
                 ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, lightEmission);
@@ -97,7 +97,7 @@ void displayLight(CLight *light, CViewableBase *renderingObject, int displayAttr
                 ogl::setMaterialColor(ogl::colorDarkGrey, ogl::colorDarkGrey, lightEmission);
             ogl::drawSphere(0.5 * _lightSize, 20, 10, true);
         }
-        if (light->getLightType() == sim_light_spot_subtype)
+        if (light->getLightType() == sim_light_spot)
         { // spotLight
             light->getColor(false)->makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
             glPushMatrix();
@@ -111,7 +111,7 @@ void displayLight(CLight *light, CViewableBase *renderingObject, int displayAttr
             ogl::drawSphere(0.5 * _lightSize, 20, 10, true);
             glPopMatrix();
         }
-        if (light->getLightType() == sim_light_directional_subtype)
+        if (light->getLightType() == sim_light_directional)
         { // Directional light
             glPushMatrix();
             glTranslated(0.0, 0.0, 0.5 * _lightSize);

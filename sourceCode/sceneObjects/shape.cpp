@@ -287,7 +287,7 @@ void CShape::computeBoundingBox()
 
 void CShape::commonInit()
 {
-    _objectType = sim_object_shape_type;
+    _objectType = sim_sceneobject_shape;
     _containsTransparentComponents = false;
     _startInDynamicSleeping = false;
     _shapeIsDynamicallyStatic = true;
@@ -1668,7 +1668,16 @@ int CShape::getIntVectorProperty(const char* ppName, std::vector<int>& pState)
 
 int CShape::getPropertyName(int& index, std::string& pName, std::string& appartenance)
 {
-    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    int retVal = CShape::getPropertyName_static(index, pName, appartenance);
+    if (retVal == -1)
+    {
+    }
+    return retVal;
+}
+
+int CShape::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
     if (retVal == -1)
     {
         appartenance += ".shape";
@@ -1691,7 +1700,16 @@ int CShape::getPropertyInfo(const char* ppName, int& info, int& size)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    int retVal = CShape::getPropertyInfo_static(pName, info, size);
+    if (retVal == -1)
+    {
+    }
+    return retVal;
+}
+
+int CShape::getPropertyInfo_static(const char* pName, int& info, int& size)
+{
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_shape.size(); i++)

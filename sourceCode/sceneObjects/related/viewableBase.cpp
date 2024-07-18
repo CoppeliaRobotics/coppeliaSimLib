@@ -283,7 +283,7 @@ void CViewableBase::computeViewFrustumIfNeeded()
         double winYSize = (double)_currentViewSize[1];
         C7Vector viewableCumulTransf;
 
-        if (getObjectType() == sim_object_camera_type)
+        if (getObjectType() == sim_sceneobject_camera)
         {
             viewableCumulTransf = getFullCumulativeTransformation();
 #ifdef SIM_WITH_GUI
@@ -347,7 +347,7 @@ void CViewableBase::computeViewFrustumIfNeeded()
             lowerPlane.setMultResult(viewableCumulTransf, C7Vector(C3Vector(0.0, -ySize, 0.0)));
             rightPlane.setMultResult(viewableCumulTransf, C7Vector(C3Vector(-xSize, 0.0, 0.0)));
             leftPlane.setMultResult(viewableCumulTransf, C7Vector(C3Vector(+xSize, 0.0, 0.0)));
-            if (getObjectType() == sim_object_camera_type)
+            if (getObjectType() == sim_sceneobject_camera)
             { // we are in othoview!
                 nearPlane.setMultResult(viewableCumulTransf,
                                         C7Vector(C3Vector(0.0, 0.0, ORTHO_CAMERA_NEAR_CLIPPING_PLANE)));

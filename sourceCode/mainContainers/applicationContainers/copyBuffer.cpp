@@ -229,7 +229,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     for (size_t i = 0; i < objectCopy.size(); i++)
     {
         CSceneObject* it = objectCopy[i];
-        if (it->getObjectType() == sim_object_script_type)
+        if (it->getObjectType() == sim_sceneobject_script)
             ((CScript*)it)->scriptObject->setTemporarilySuspended(false);
     }
 
@@ -522,7 +522,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar, std::vector<int> *sel, C7V
         int dynObjId = SIM_IDSTART_DYNMATERIAL_old;
         for (size_t i = 0; i < objectBuffer.size(); i++)
         {
-            if (objectBuffer[i]->getObjectType() == sim_object_shape_type)
+            if (objectBuffer[i]->getObjectType() == sim_sceneobject_shape)
             {
                 CShape *it = (CShape *)objectBuffer[i];
                 CDynMaterialObject *mat = it->getDynMaterial();
@@ -558,7 +558,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar, std::vector<int> *sel, C7V
         CMesh::clearTempVerticesIndicesNormalsAndEdges();
         for (size_t i = 0; i < objectBuffer.size(); i++)
         {
-            if (objectBuffer[i]->getObjectType() == sim_object_shape_type)
+            if (objectBuffer[i]->getObjectType() == sim_sceneobject_shape)
                 ((CShape *)objectBuffer[i])->prepareVerticesIndicesNormalsAndEdgesForSerialization();
         }
         ar.storeDataName(SER_VERTICESINDICESNORMALSEDGES);

@@ -9,11 +9,11 @@
 #define DEFINE_PROPERTIES \
     FUNCX(propShape_meshes,                  "meshes",                                   sim_propertytype_intvector, 1) \
 
-#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2) name,
-const std::vector<CProperty> allProps_shape = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_shape = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 #undef CONCAT_PROP
@@ -76,7 +76,9 @@ class CShape : public CSceneObject
 
     int getIntVectorProperty(const char* pName, std::vector<int>& pState);
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, int& size);
+    static int getPropertyInfo_static(const char* pName, int& info, int& size);
 
 
     // Various
@@ -192,6 +194,7 @@ class CShape : public CSceneObject
     C3Vector _additionalForce;
     C3Vector _additionalTorque;
     int _respondableSuspendCount;
+    std::vector<int> _meshIds; // for mesh delete events
 
     bool _rigidBodyWasAlreadyPutToSleepOnce;
 

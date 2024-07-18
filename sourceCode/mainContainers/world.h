@@ -31,11 +31,11 @@
     FUNCX(propScene_sceneUid,                "sceneUid",                     sim_propertytype_int,       1) \
     FUNCX(propScene_visibilityLayers,        "visibilityLayers",             sim_propertytype_int,       0) \
 
-#define FUNCX(name, str, v1, v2) const CProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2) name,
-const std::vector<CProperty> allProps_scene = { DEFINE_PROPERTIES };
+const std::vector<SProperty> allProps_scene = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
 // ----------------------------------------------------------------------------------------------
@@ -125,8 +125,8 @@ class CWorld
     int setIntVectorProperty(int target, const char* pName, const int* v, int vL);
     int getIntVectorProperty(int target, const char* pName, std::vector<int>& pState);
     int removeProperty(int target, const char* pName);
-    int getPropertyName(int target, int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(int target, const char* pName, int& info, int& size);
+    static int getPropertyName(int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject);
+    static int getPropertyInfo(int target, const char* pName, int& info, int& size, CWorld* targetObject);
 
     // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);

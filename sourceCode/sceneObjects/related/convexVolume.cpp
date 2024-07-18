@@ -991,7 +991,7 @@ void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor, dou
     insideAngleThing = 0.0;
     _smallestDistanceAllowed = 0.1;
     _smallestDistanceEnabled = false;
-    if (objectTypeTheVolumeIsFor == sim_object_proximitysensor_type)
+    if (objectTypeTheVolumeIsFor == sim_sceneobject_proximitysensor)
     {
         if (_volumeType == CYLINDER_TYPE_CONVEX_VOLUME)
         {
@@ -1037,7 +1037,7 @@ void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor, dou
             subdivisionsFar = 16;
         }
     }
-    if (objectTypeTheVolumeIsFor == sim_object_mill_type)
+    if (objectTypeTheVolumeIsFor == sim_sceneobject_mill)
     {
         if (_volumeType == CYLINDER_TYPE_CONVEX_VOLUME)
         {

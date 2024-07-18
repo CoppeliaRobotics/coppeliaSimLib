@@ -37,9 +37,9 @@ void CQDlgShapes::refresh()
     bool noEditModeAndNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_shape_type);
+    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_shape);
     bool ssel = App::currentWorld->sceneObjects->isLastSelectionASimpleShape();
-    int sc = (int)App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_shape_type);
+    int sc = (int)App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_shape);
     int ssc = (int)App::currentWorld->sceneObjects->getSimpleShapeCountInSelection();
     bool compoundShapeDisplay = (sel && (!ssel));
     CShape *it = App::currentWorld->sceneObjects->getLastSelectionShape();

@@ -14,18 +14,18 @@ CProxSensor::CProxSensor(int theType)
     commonInit();
 
     sensorType = theType;
-    if (theType == sim_proximitysensor_ray_subtype)
+    if (theType == sim_proximitysensor_ray)
         convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME, _objectType, _proxSensorSize);
     else
         _randomizedDetection = false;
 
-    if (theType == sim_proximitysensor_cylinder_subtype)
+    if (theType == sim_proximitysensor_cylinder)
         convexVolume->setVolumeType(CYLINDER_TYPE_CONVEX_VOLUME, _objectType, _proxSensorSize);
-    if (theType == sim_proximitysensor_disc_subtype)
+    if (theType == sim_proximitysensor_disc)
         convexVolume->setVolumeType(DISC_TYPE_CONVEX_VOLUME, _objectType, _proxSensorSize);
-    if (theType == sim_proximitysensor_pyramid_subtype)
+    if (theType == sim_proximitysensor_pyramid)
         convexVolume->setVolumeType(PYRAMID_TYPE_CONVEX_VOLUME, _objectType, _proxSensorSize);
-    if (theType == sim_proximitysensor_cone_subtype)
+    if (theType == sim_proximitysensor_cone)
         convexVolume->setVolumeType(CONE_TYPE_CONVEX_VOLUME, _objectType, _proxSensorSize);
 
     computeBoundingBox();
@@ -43,7 +43,7 @@ CProxSensor::~CProxSensor()
 
 void CProxSensor::setRandomizedDetection(bool enable)
 {
-    if ((sensorType == sim_proximitysensor_ray_subtype) && (enable != _randomizedDetection))
+    if ((sensorType == sim_proximitysensor_ray) && (enable != _randomizedDetection))
     {
         _randomizedDetection = enable;
         double off = convexVolume->getOffset();
@@ -120,13 +120,13 @@ std::string CProxSensor::getObjectTypeInfo() const
 
 std::string CProxSensor::getObjectTypeInfoExtended() const
 {
-    if (sensorType == sim_proximitysensor_pyramid_subtype)
+    if (sensorType == sim_proximitysensor_pyramid)
         return ("proximity sensor (pyramid)");
-    if (sensorType == sim_proximitysensor_cylinder_subtype)
+    if (sensorType == sim_proximitysensor_cylinder)
         return ("proximity sensor (cylinder)");
-    if (sensorType == sim_proximitysensor_disc_subtype)
+    if (sensorType == sim_proximitysensor_disc)
         return ("proximity sensor (disc)");
-    if (sensorType == sim_proximitysensor_cone_subtype)
+    if (sensorType == sim_proximitysensor_cone)
         return ("proximity sensor (cone)");
     return ("proximity sensor (ray)");
 }
@@ -152,7 +152,7 @@ void CProxSensor::commonInit()
     convexVolume = new CConvexVolume();
     explicitHandling = false;
     displayNormals = false;
-    _objectType = sim_object_proximitysensor_type;
+    _objectType = sim_sceneobject_proximitysensor;
     frontFaceDetection = true;
     backFaceDetection = true;
     closestObjectMode = true;
@@ -571,9 +571,9 @@ void CProxSensor::serialize(CSer &ar)
         if (ar.isStoring())
         {
             ar.xmlAddNode_comment(" 'type' tag: can be 'pyramid', 'cylinder', 'disc', 'cone' or 'ray' ", exhaustiveXml);
-            ar.xmlAddNode_enum("type", sensorType, sim_proximitysensor_pyramid_subtype, "pyramid",
-                               sim_proximitysensor_cylinder_subtype, "cylinder", sim_proximitysensor_disc_subtype,
-                               "disc", sim_proximitysensor_cone_subtype, "cone", sim_proximitysensor_ray_subtype,
+            ar.xmlAddNode_enum("type", sensorType, sim_proximitysensor_pyramid, "pyramid",
+                               sim_proximitysensor_cylinder, "cylinder", sim_proximitysensor_disc,
+                               "disc", sim_proximitysensor_cone, "cone", sim_proximitysensor_ray,
                                "ray");
 
             ar.xmlAddNode_float("size", _proxSensorSize);
@@ -659,10 +659,10 @@ void CProxSensor::serialize(CSer &ar)
         }
         else
         {
-            ar.xmlGetNode_enum("type", sensorType, exhaustiveXml, "pyramid", sim_proximitysensor_pyramid_subtype,
-                               "cylinder", sim_proximitysensor_cylinder_subtype, "disc",
-                               sim_proximitysensor_disc_subtype, "cone", sim_proximitysensor_cone_subtype, "ray",
-                               sim_proximitysensor_ray_subtype);
+            ar.xmlGetNode_enum("type", sensorType, exhaustiveXml, "pyramid", sim_proximitysensor_pyramid,
+                               "cylinder", sim_proximitysensor_cylinder, "disc",
+                               sim_proximitysensor_disc, "cone", sim_proximitysensor_cone, "ray",
+                               sim_proximitysensor_ray);
 
             ar.xmlGetNode_float("size", _proxSensorSize, exhaustiveXml);
 
@@ -747,17 +747,17 @@ void CProxSensor::serialize(CSer &ar)
 
                 if (!exhaustiveXml)
                 {
-                    if (sensorType == sim_proximitysensor_ray_subtype)
+                    if (sensorType == sim_proximitysensor_ray)
                         convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME, _objectType, _proxSensorSize);
                     else
                         _randomizedDetection = false;
-                    if (sensorType == sim_proximitysensor_cylinder_subtype)
+                    if (sensorType == sim_proximitysensor_cylinder)
                         convexVolume->setVolumeType(CYLINDER_TYPE_CONVEX_VOLUME, _objectType, _proxSensorSize);
-                    if (sensorType == sim_proximitysensor_disc_subtype)
+                    if (sensorType == sim_proximitysensor_disc)
                         convexVolume->setVolumeType(DISC_TYPE_CONVEX_VOLUME, _objectType, _proxSensorSize);
-                    if (sensorType == sim_proximitysensor_pyramid_subtype)
+                    if (sensorType == sim_proximitysensor_pyramid)
                         convexVolume->setVolumeType(PYRAMID_TYPE_CONVEX_VOLUME, _objectType, _proxSensorSize);
-                    if (sensorType == sim_proximitysensor_cone_subtype)
+                    if (sensorType == sim_proximitysensor_cone)
                         convexVolume->setVolumeType(CONE_TYPE_CONVEX_VOLUME, _objectType, _proxSensorSize);
                 }
 

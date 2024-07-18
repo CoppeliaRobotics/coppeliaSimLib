@@ -74,12 +74,12 @@ void CQDlgModelThumbnail::actualizeBitmap()
     {
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
         bool display = true;
-        if (it->getObjectType() == sim_object_proximitysensor_type)
+        if (it->getObjectType() == sim_sceneobject_proximitysensor)
         {
             if (!((CProxSensor *)it)->getShowVolume())
                 display = false;
         }
-        if (it->getObjectType() == sim_object_visionsensor_type)
+        if (it->getObjectType() == sim_sceneobject_visionsensor)
         {
             if (!((CVisionSensor *)it)->getShowVolume())
                 display = false;

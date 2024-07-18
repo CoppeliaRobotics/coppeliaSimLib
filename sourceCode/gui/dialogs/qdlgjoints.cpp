@@ -35,9 +35,9 @@ void CQDlgJoints::refresh()
     QLineEdit *lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_joint_type);
-    bool bigSel = (App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_joint_type) &&
-                   (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_joint_type) > 1));
+    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint);
+    bool bigSel = (App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint) &&
+                   (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_joint) > 1));
     bool revolute = false;
     bool prismatic = false;
     bool spherical = false;
@@ -45,9 +45,9 @@ void CQDlgJoints::refresh()
     CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
     if (sel)
     {
-        revolute = (it->getJointType() == sim_joint_revolute_subtype);
-        prismatic = (it->getJointType() == sim_joint_prismatic_subtype);
-        spherical = (it->getJointType() == sim_joint_spherical_subtype);
+        revolute = (it->getJointType() == sim_joint_revolute);
+        prismatic = (it->getJointType() == sim_joint_prismatic);
+        spherical = (it->getJointType() == sim_joint_spherical);
         dynamic = ((it->getJointMode() == sim_jointmode_dynamic) || it->getHybridFunctionality_old());
     }
 
@@ -245,7 +245,7 @@ void CQDlgJoints::on_qqMinimum_editingFinished()
         CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok && (it != nullptr))
         {
-            if (it->getJointType() != sim_joint_prismatic_subtype)
+            if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_MINPOS_JOINTGUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
@@ -266,7 +266,7 @@ void CQDlgJoints::on_qqRange_editingFinished()
         CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok && (it != nullptr))
         {
-            if (it->getJointType() != sim_joint_prismatic_subtype)
+            if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_RANGE_JOINTGUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
@@ -287,7 +287,7 @@ void CQDlgJoints::on_qqPosition_editingFinished()
         CJoint *it = App::currentWorld->sceneObjects->getLastSelectionJoint();
         if (ok && (it != nullptr))
         {
-            if (it->getJointType() != sim_joint_prismatic_subtype)
+            if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_POS_JOINTGUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
@@ -346,7 +346,7 @@ void CQDlgJoints::on_qqAdjustDependency_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_joint_type))
+        if (App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint))
         {
             CQDlgDependencyEquation theDialog(this);
             theDialog.refresh();

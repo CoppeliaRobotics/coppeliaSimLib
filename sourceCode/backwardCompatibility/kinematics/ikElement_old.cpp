@@ -391,14 +391,14 @@ void CIkElement_old::setAllInvolvedJointsToIkPluginPositions() const
             it = it->getParent();
             if ((it != nullptr) && (it != baseObj))
             {
-                if (it->getObjectType() == sim_object_joint_type)
+                if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
                     if ((joint->getJointMode() == sim_jointmode_ik_deprecated) ||
                         (joint->getJointMode() == sim_jointmode_reserved_previously_ikdependent))
                     {
                         int h = joint->getIkPluginCounterpartHandle();
-                        if (joint->getJointType() == sim_joint_spherical_subtype)
+                        if (joint->getJointType() == sim_joint_spherical)
                             joint->setSphericalTransformation(
                                 App::worldContainer->pluginContainer->oldIkPlugin_getSphericalJointQuaternion(h));
                         else
@@ -419,7 +419,7 @@ void CIkElement_old::setAllInvolvedJointsToNewJointMode(int jointMode) const
         iterat = iterat->getParent();
         if ((iterat != nullptr) && (iterat != baseObj))
         {
-            if (iterat->getObjectType() == sim_object_joint_type)
+            if (iterat->getObjectType() == sim_sceneobject_joint)
                 ((CJoint *)iterat)->setJointMode_noDynMotorTargetPosCorrection(jointMode);
         }
     }

@@ -38,7 +38,7 @@ void CSimThread::executeMessages()
       // appropriately
         if (App::currentWorld->simulation->isSimulationStopped())
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_camera_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
             {
                 CCamera *it = App::currentWorld->sceneObjects->getCameraFromIndex(i);
                 it->handleCameraTracking();
@@ -47,7 +47,7 @@ void CSimThread::executeMessages()
         // OLD:
         if (App::currentWorld->simulation->isSimulationStopped())
         {
-            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_path_type); i++)
+            for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_path); i++)
             {
                 CPath_old *it = App::currentWorld->sceneObjects->getPathFromIndex(i);
                 it->resetPath();
@@ -4658,7 +4658,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         double floatParams[15] = {nearClipp, 999999.9, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0,
                                   0.0,       0.0,      0.0, 0.0, 0.01, 0.0, 0.0};
         int psh = simCreateProximitySensor_internal(
-            sim_proximitysensor_ray_subtype, sim_objectspecialproperty_detectable, 0, intParams, floatParams, nullptr);
+            sim_proximitysensor_ray, sim_objectspecialproperty_detectable, 0, intParams, floatParams, nullptr);
         simSetObjectPosition_internal(psh, cameraHandle, transf.X.data);
         simSetObjectOrientation_internal(psh, cameraHandle, transf.Q.getEulerAngles().data);
         int displayAttrib = sim_displayattribute_renderpass;

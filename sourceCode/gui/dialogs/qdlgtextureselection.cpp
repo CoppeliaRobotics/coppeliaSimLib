@@ -47,7 +47,7 @@ void CQDlgTextureSelection::refresh()
         ui->qqTextureList->addItem(itm);
         itemCount++;
     }
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_visionsensor_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
     {
         CVisionSensor *rs = App::currentWorld->sceneObjects->getVisionSensorFromIndex(i);
         std::string txt(rs->getObjectAlias_printPath());

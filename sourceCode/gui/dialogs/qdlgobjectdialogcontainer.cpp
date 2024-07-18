@@ -35,7 +35,7 @@ CQDlgObjectDialogContainer::CQDlgObjectDialogContainer(QWidget *parent)
         originalHeights[0] = 352;
 
     ui->qqObjectProp->setText(IDSN_DUMMY);
-    objTypeDlg = sim_object_dummy_type;
+    objTypeDlg = sim_sceneobject_dummy;
 
     pageDlgs[1] = new CQDlgCommonProperties();
     originalHeights[1] = pageDlgs[1]->size().height();
@@ -102,33 +102,33 @@ void CQDlgObjectDialogContainer::refresh()
     {
         int t = sel->getObjectType();
         std::string title;
-        if (t == sim_object_octree_type)
+        if (t == sim_sceneobject_octree)
             title = IDSN_OCTREE;
-        if (t == sim_object_pointcloud_type)
+        if (t == sim_sceneobject_pointcloud)
             title = IDSN_POINTCLOUD;
-        if (t == sim_object_mirror_type)
+        if (t == sim_sceneobject_mirror)
             title = IDSN_MIRROR;
-        if (t == sim_object_shape_type)
+        if (t == sim_sceneobject_shape)
             title = IDSN_SHAPE;
-        if (t == sim_object_joint_type)
+        if (t == sim_sceneobject_joint)
             title = IDSN_JOINT;
-        if (t == sim_object_camera_type)
+        if (t == sim_sceneobject_camera)
             title = IDSN_CAMERA;
-        if (t == sim_object_dummy_type)
+        if (t == sim_sceneobject_dummy)
             title = IDSN_DUMMY;
-        if (t == sim_object_script_type)
+        if (t == sim_sceneobject_script)
             title = IDSN_SCRIPT;
-        if (t == sim_object_proximitysensor_type)
+        if (t == sim_sceneobject_proximitysensor)
             title = IDSN_PROXIMITY_SENSOR;
-        if (t == sim_object_path_type)
+        if (t == sim_sceneobject_path)
             title = IDSN_PATH;
-        if (t == sim_object_visionsensor_type)
+        if (t == sim_sceneobject_visionsensor)
             title = IDSN_VISION_SENSOR;
-        if (t == sim_object_forcesensor_type)
+        if (t == sim_sceneobject_forcesensor)
             title = IDSN_FORCE_SENSOR;
-        if (t == sim_object_light_type)
+        if (t == sim_sceneobject_light)
             title = IDSN_LIGHT;
-        if (t == sim_object_graph_type)
+        if (t == sim_sceneobject_graph)
             title = IDSN_GRAPH;
         ui->qqObjectProp->setText(title.c_str());
     }
@@ -148,48 +148,48 @@ void CQDlgObjectDialogContainer::refresh()
         else
         {
             if (editMode == PATH_EDIT_MODE_OLD)
-                t = sim_object_path_type;
+                t = sim_sceneobject_path;
             if (editMode & SHAPE_EDIT_MODE)
-                t = sim_object_shape_type;
+                t = sim_sceneobject_shape;
         }
         if ((t != objTypeDlg) && (t != -1))
         {
             objTypeDlg = t;
             bl->removeWidget(pageDlgs[currentPage]);
             delete pageDlgs[currentPage];
-            if (objTypeDlg == sim_object_mirror_type)
+            if (objTypeDlg == sim_sceneobject_mirror)
                 pageDlgs[currentPage] = new CQDlgMirrors();
-            if (objTypeDlg == sim_object_octree_type)
+            if (objTypeDlg == sim_sceneobject_octree)
                 pageDlgs[currentPage] = new CQDlgOctrees();
-            if (objTypeDlg == sim_object_pointcloud_type)
+            if (objTypeDlg == sim_sceneobject_pointcloud)
                 pageDlgs[currentPage] = new CQDlgPointclouds();
-            if (objTypeDlg == sim_object_shape_type)
+            if (objTypeDlg == sim_sceneobject_shape)
                 pageDlgs[currentPage] = new CQDlgShapes();
-            if (objTypeDlg == sim_object_joint_type)
+            if (objTypeDlg == sim_sceneobject_joint)
                 pageDlgs[currentPage] = new CQDlgJoints();
-            if (objTypeDlg == sim_object_camera_type)
+            if (objTypeDlg == sim_sceneobject_camera)
                 pageDlgs[currentPage] = new CQDlgCameras();
-            if (objTypeDlg == sim_object_dummy_type)
+            if (objTypeDlg == sim_sceneobject_dummy)
                 pageDlgs[currentPage] = new CQDlgDummies();
-            if (objTypeDlg == sim_object_script_type)
+            if (objTypeDlg == sim_sceneobject_script)
                 pageDlgs[currentPage] = new CQDlgScripts();
-            if (objTypeDlg == sim_object_proximitysensor_type)
+            if (objTypeDlg == sim_sceneobject_proximitysensor)
                 pageDlgs[currentPage] = new CQDlgProximitySensors();
-            if (objTypeDlg == sim_object_graph_type)
+            if (objTypeDlg == sim_sceneobject_graph)
                 pageDlgs[currentPage] = new CQDlgGraphs();
-            if (objTypeDlg == sim_object_visionsensor_type)
+            if (objTypeDlg == sim_sceneobject_visionsensor)
                 pageDlgs[currentPage] = new CQDlgVisionSensors();
-            if (objTypeDlg == sim_object_path_type)
+            if (objTypeDlg == sim_sceneobject_path)
                 pageDlgs[currentPage] = new CQDlgPaths();
-            if (objTypeDlg == sim_object_forcesensor_type)
+            if (objTypeDlg == sim_sceneobject_forcesensor)
                 pageDlgs[currentPage] = new CQDlgForceSensors();
-            if (objTypeDlg == sim_object_light_type)
+            if (objTypeDlg == sim_sceneobject_light)
                 pageDlgs[currentPage] = new CQDlgLights();
 
             originalHeights[currentPage] = pageDlgs[currentPage]->size().height();
-            if ((App::userSettings->showOldDlgs) && (objTypeDlg == sim_object_dummy_type))
+            if ((App::userSettings->showOldDlgs) && (objTypeDlg == sim_sceneobject_dummy))
                 originalHeights[0] = 352;
-            if ((App::userSettings->showOldDlgs) && (objTypeDlg == sim_object_graph_type))
+            if ((App::userSettings->showOldDlgs) && (objTypeDlg == sim_sceneobject_graph))
                 originalHeights[0] = 501;
 
             bl->addWidget(pageDlgs[currentPage]);
@@ -210,7 +210,7 @@ void CQDlgObjectDialogContainer::refresh()
 
     if (currentPage == 0)
     {
-        if (objTypeDlg == sim_object_path_type)
+        if (objTypeDlg == sim_sceneobject_path)
         {
             if (CQDlgPathShaping::showWindow != GuiApp::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG))
                 GuiApp::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
@@ -220,7 +220,7 @@ void CQDlgObjectDialogContainer::refresh()
             if (GuiApp::mainWindow->dlgCont->isVisible(PATH_SHAPING_DLG))
                 GuiApp::mainWindow->dlgCont->toggle(PATH_SHAPING_DLG);
         }
-        if (objTypeDlg == sim_object_shape_type)
+        if (objTypeDlg == sim_sceneobject_shape)
         {
             if (CQDlgShapeDyn::showDynamicWindow != GuiApp::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))
                 GuiApp::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
@@ -230,7 +230,7 @@ void CQDlgObjectDialogContainer::refresh()
             if (GuiApp::mainWindow->dlgCont->isVisible(SHAPE_DYN_DLG))
                 GuiApp::mainWindow->dlgCont->toggle(SHAPE_DYN_DLG);
         }
-        if (objTypeDlg == sim_object_joint_type)
+        if (objTypeDlg == sim_sceneobject_joint)
         {
             if (CQDlgJoints::showDynamicWindow != GuiApp::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
                 GuiApp::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
@@ -240,7 +240,7 @@ void CQDlgObjectDialogContainer::refresh()
             if (GuiApp::mainWindow->dlgCont->isVisible(JOINT_DYN_DLG))
                 GuiApp::mainWindow->dlgCont->toggle(JOINT_DYN_DLG);
         }
-        if ((objTypeDlg == sim_object_proximitysensor_type) || (objTypeDlg == sim_object_mill_type))
+        if ((objTypeDlg == sim_sceneobject_proximitysensor) || (objTypeDlg == sim_sceneobject_mill))
         {
             if (CQDlgDetectionVolume::showVolumeWindow != GuiApp::mainWindow->dlgCont->isVisible(DETECTION_VOLUME_DLG))
                 GuiApp::mainWindow->dlgCont->toggle(DETECTION_VOLUME_DLG);

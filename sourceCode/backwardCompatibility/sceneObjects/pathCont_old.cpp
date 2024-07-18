@@ -321,7 +321,7 @@ void CPathCont_old::_handleAttachedDummies(CPath_old *it)
     for (size_t i = 0; i < it->getChildCount(); i++)
     { // Here we handle all dummies that are direct children of this path and that are fixed or free ON the path
         CSceneObject *child = it->getChildFromIndex(i);
-        if (child->getObjectType() == sim_object_dummy_type)
+        if (child->getObjectType() == sim_sceneobject_dummy)
         {
             CDummy *dum = (CDummy *)child;
             if (dum->getAssignedToParentPath())
@@ -352,7 +352,7 @@ void CPathCont_old::_handleAttachedDummies(CPath_old *it)
     C7Vector pctrInv(pctr.getInverse());
     for (int i = 0; i < int(childrensChildren.size()); i++)
     {
-        if (childrensChildren[i]->getObjectType() == sim_object_dummy_type)
+        if (childrensChildren[i]->getObjectType() == sim_sceneobject_dummy)
         {
             CDummy *d = (CDummy *)childrensChildren[i];
             if (d->getAssignedToParentPathOrientation())
@@ -1569,7 +1569,7 @@ void CPathCont_old::setPosition(double p)
         _startPosition = _getInterpolatedBezierCurvePoint(ind, t).X;
     // Following is not elegant at all. Change later! (maybe simply merge the CPathCont_old and CPath_old)
     CPath_old *parentPathObject = nullptr;
-    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_object_path_type); i++)
+    for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_path); i++)
     {
         parentPathObject = App::currentWorld->sceneObjects->getPathFromIndex(i);
         if (parentPathObject != nullptr)

@@ -215,7 +215,7 @@ double CDistanceRoutine::_getApproxBoundingBoxDistance(CSceneObject *obj1, CScen
     {
         CSceneObject *obj = objs[cnt];
         m[cnt] = obj->getCumulativeTransformation() * obj->getBB(&halfSizes[cnt]);
-        if (obj->getObjectType() == sim_object_dummy_type)
+        if (obj->getObjectType() == sim_sceneobject_dummy)
             isPt[cnt] = true;
     }
     if (isPt[0])
@@ -802,69 +802,69 @@ bool CDistanceRoutine::_getObjectObjectDistanceIfSmaller(CSceneObject *object1, 
                                                          bool overrideMeasurableFlagObject1,
                                                          bool overrideMeasurableFlagObject2)
 {
-    if (object1->getObjectType() == sim_object_dummy_type)
+    if (object1->getObjectType() == sim_sceneobject_dummy)
     {
-        if (object2->getObjectType() == sim_object_dummy_type)
+        if (object2->getObjectType() == sim_sceneobject_dummy)
             return (_getDummyDummyDistanceIfSmaller((CDummy *)object1, (CDummy *)object2, dist, ray, cache1, cache2,
                                                     overrideMeasurableFlagObject1, overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_shape_type)
+        if (object2->getObjectType() == sim_sceneobject_shape)
             return (_getDummyShapeDistanceIfSmaller((CDummy *)object1, (CShape *)object2, dist, ray, cache1, cache2,
                                                     overrideMeasurableFlagObject1, overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_octree_type)
+        if (object2->getObjectType() == sim_sceneobject_octree)
             return (_getDummyOctreeDistanceIfSmaller((CDummy *)object1, (COcTree *)object2, dist, ray, cache1, cache2,
                                                      overrideMeasurableFlagObject1, overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_pointcloud_type)
+        if (object2->getObjectType() == sim_sceneobject_pointcloud)
             return (_getDummyPointCloudDistanceIfSmaller((CDummy *)object1, (CPointCloud *)object2, dist, ray, cache1,
                                                          cache2, overrideMeasurableFlagObject1,
                                                          overrideMeasurableFlagObject2));
     }
-    if (object1->getObjectType() == sim_object_shape_type)
+    if (object1->getObjectType() == sim_sceneobject_shape)
     {
-        if (object2->getObjectType() == sim_object_dummy_type)
+        if (object2->getObjectType() == sim_sceneobject_dummy)
             return (_getShapeDummyDistanceIfSmaller((CShape *)object1, (CDummy *)object2, dist, ray, cache1, cache2,
                                                     overrideMeasurableFlagObject1, overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_shape_type)
+        if (object2->getObjectType() == sim_sceneobject_shape)
             return (_getShapeShapeDistanceIfSmaller((CShape *)object1, (CShape *)object2, dist, ray, cache1, cache2,
                                                     overrideMeasurableFlagObject1, overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_octree_type)
+        if (object2->getObjectType() == sim_sceneobject_octree)
             return (_getShapeOctreeDistanceIfSmaller((CShape *)object1, (COcTree *)object2, dist, ray, cache1, cache2,
                                                      overrideMeasurableFlagObject1, overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_pointcloud_type)
+        if (object2->getObjectType() == sim_sceneobject_pointcloud)
             return (_getShapePointCloudDistanceIfSmaller((CShape *)object1, (CPointCloud *)object2, dist, ray, cache1,
                                                          cache2, overrideMeasurableFlagObject1,
                                                          overrideMeasurableFlagObject2));
     }
-    if (object1->getObjectType() == sim_object_octree_type)
+    if (object1->getObjectType() == sim_sceneobject_octree)
     {
-        if (object2->getObjectType() == sim_object_dummy_type)
+        if (object2->getObjectType() == sim_sceneobject_dummy)
             return (_getOctreeDummyDistanceIfSmaller((COcTree *)object1, (CDummy *)object2, dist, ray, cache1, cache2,
                                                      overrideMeasurableFlagObject1, overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_shape_type)
+        if (object2->getObjectType() == sim_sceneobject_shape)
             return (_getOctreeShapeDistanceIfSmaller((COcTree *)object1, (CShape *)object2, dist, ray, cache1, cache2,
                                                      overrideMeasurableFlagObject1, overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_octree_type)
+        if (object2->getObjectType() == sim_sceneobject_octree)
             return (_getOctreeOctreeDistanceIfSmaller((COcTree *)object1, (COcTree *)object2, dist, ray, cache1, cache2,
                                                       overrideMeasurableFlagObject1, overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_pointcloud_type)
+        if (object2->getObjectType() == sim_sceneobject_pointcloud)
             return (_getOctreePointCloudDistanceIfSmaller((COcTree *)object1, (CPointCloud *)object2, dist, ray, cache1,
                                                           cache2, overrideMeasurableFlagObject1,
                                                           overrideMeasurableFlagObject2));
     }
-    if (object1->getObjectType() == sim_object_pointcloud_type)
+    if (object1->getObjectType() == sim_sceneobject_pointcloud)
     {
-        if (object2->getObjectType() == sim_object_dummy_type)
+        if (object2->getObjectType() == sim_sceneobject_dummy)
             return (_getPointCloudDummyDistanceIfSmaller((CPointCloud *)object1, (CDummy *)object2, dist, ray, cache1,
                                                          cache2, overrideMeasurableFlagObject1,
                                                          overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_shape_type)
+        if (object2->getObjectType() == sim_sceneobject_shape)
             return (_getPointCloudShapeDistanceIfSmaller((CPointCloud *)object1, (CShape *)object2, dist, ray, cache1,
                                                          cache2, overrideMeasurableFlagObject1,
                                                          overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_octree_type)
+        if (object2->getObjectType() == sim_sceneobject_octree)
             return (_getPointCloudOctreeDistanceIfSmaller((CPointCloud *)object1, (COcTree *)object2, dist, ray, cache1,
                                                           cache2, overrideMeasurableFlagObject1,
                                                           overrideMeasurableFlagObject2));
-        if (object2->getObjectType() == sim_object_pointcloud_type)
+        if (object2->getObjectType() == sim_sceneobject_pointcloud)
             return (_getPointCloudPointCloudDistanceIfSmaller((CPointCloud *)object1, (CPointCloud *)object2, dist, ray,
                                                               cache1, cache2, overrideMeasurableFlagObject1,
                                                               overrideMeasurableFlagObject2));

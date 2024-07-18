@@ -34,9 +34,9 @@ void CQDlgJointDyn::refresh()
     bool noEditModeNoSim =
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
 
-    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_joint_type);
-    bool bigSel = (App::currentWorld->sceneObjects->isLastSelectionOfType(sim_object_joint_type) &&
-                   (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_object_joint_type) > 1));
+    bool sel = App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint);
+    bool bigSel = (App::currentWorld->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint) &&
+                   (App::currentWorld->sceneObjects->getObjectCountInSelection(sim_sceneobject_joint) > 1));
     bool revolute = false;
     bool prismatic = false;
     bool spherical = false;
@@ -48,9 +48,9 @@ void CQDlgJointDyn::refresh()
     if (sel)
     {
         it = App::currentWorld->sceneObjects->getLastSelectionJoint();
-        revolute = (it->getJointType() == sim_joint_revolute_subtype);
-        prismatic = (it->getJointType() == sim_joint_prismatic_subtype);
-        spherical = (it->getJointType() == sim_joint_spherical_subtype);
+        revolute = (it->getJointType() == sim_joint_revolute);
+        prismatic = (it->getJointType() == sim_joint_prismatic);
+        spherical = (it->getJointType() == sim_joint_spherical);
         dynamic = ((it->getJointMode() == sim_jointmode_dynamic) || it->getHybridFunctionality_old());
         canBeMotorized = (dynamic && (!spherical));
         ctrlMode = it->getDynCtrlMode();
@@ -134,7 +134,7 @@ void CQDlgJointDyn::refresh()
     {
         double maxVelAccelJerk[3];
         it->getMaxVelAccelJerk(maxVelAccelJerk);
-        if (it->getJointType() == sim_joint_revolute_subtype)
+        if (it->getJointType() == sim_joint_revolute)
         {
             ui->qqVelocityMode_velocity->setText(utils::getAngVelString(true, it->getTargetVelocity()).c_str());
             ui->qqVelocityMode_maxAccel->setText(utils::getAngAccelString(false, maxVelAccelJerk[1]).c_str());
@@ -168,14 +168,14 @@ void CQDlgJointDyn::refresh()
     {
         ui->qqPositionMode_ruckig->setChecked(it->getDynPosCtrlType() == 1);
 
-        if (it->getJointType() == sim_joint_revolute_subtype)
+        if (it->getJointType() == sim_joint_revolute)
             ui->qqPositionMode_position->setText(utils::getAngleString(true, it->getTargetPosition()).c_str());
         else
             ui->qqPositionMode_position->setText(utils::getPosString(true, it->getTargetPosition()).c_str());
         ui->qqPositionMode_force->setText(utils::getForceTorqueString(false, it->getTargetForce(false)).c_str());
         double maxVelAccelJerk[3];
         it->getMaxVelAccelJerk(maxVelAccelJerk);
-        if (it->getJointType() == sim_joint_revolute_subtype)
+        if (it->getJointType() == sim_joint_revolute)
         {
             ui->qqPositionMode_maxVel->setText(utils::getAngVelString(false, maxVelAccelJerk[0]).c_str());
             ui->qqPositionMode_maxAccel->setText(utils::getAngAccelString(false, maxVelAccelJerk[1]).c_str());
@@ -206,7 +206,7 @@ void CQDlgJointDyn::refresh()
 
     if (dynamic && (ctrlMode == sim_jointdynctrl_spring))
     {
-        if (it->getJointType() == sim_joint_revolute_subtype)
+        if (it->getJointType() == sim_joint_revolute)
             ui->qqSpringMode_position->setText(utils::getAngleString(true, it->getTargetPosition()).c_str());
         else
             ui->qqSpringMode_position->setText(utils::getPosString(true, it->getTargetPosition()).c_str());
@@ -330,7 +330,7 @@ void CQDlgJointDyn::on_qqVelocityMode_velocity_editingFinished()
         double newVal = GuiApp::getEvalDouble(ui->qqVelocityMode_velocity->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
         {
-            if (it->getJointType() != sim_joint_prismatic_subtype)
+            if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_TARGETVELOCITY_JOINTDYNGUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
@@ -362,7 +362,7 @@ void CQDlgJointDyn::on_qqPositionMode_position_editingFinished()
         double newVal = GuiApp::getEvalDouble(ui->qqPositionMode_position->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
         {
-            if (it->getJointType() != sim_joint_prismatic_subtype)
+            if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_TARGETPOSITION_JOINTDYNGUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
@@ -429,7 +429,7 @@ void CQDlgJointDyn::on_qqSpringMode_position_editingFinished()
         double newVal = GuiApp::getEvalDouble(ui->qqSpringMode_position->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
         {
-            if (it->getJointType() != sim_joint_prismatic_subtype)
+            if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_TARGETPOSITION_JOINTDYNGUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle(), -1, newVal);
@@ -496,7 +496,7 @@ void CQDlgJointDyn::on_qqPositionMode_maxVel_editingFinished()
         double newVal = GuiApp::getEvalDouble(ui->qqPositionMode_maxVel->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
         {
-            if (it->getJointType() != sim_joint_prismatic_subtype)
+            if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_MOTIONPROFILEVALS_JOINTDYNGUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle(), 0, newVal);
@@ -517,7 +517,7 @@ void CQDlgJointDyn::on_qqPositionMode_maxAccel_editingFinished()
         double newVal = GuiApp::getEvalDouble(ui->qqPositionMode_maxAccel->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
         {
-            if (it->getJointType() != sim_joint_prismatic_subtype)
+            if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_MOTIONPROFILEVALS_JOINTDYNGUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle(), 1, newVal);
@@ -538,7 +538,7 @@ void CQDlgJointDyn::on_qqPositionMode_maxJerk_editingFinished()
         double newVal = GuiApp::getEvalDouble(ui->qqPositionMode_maxJerk->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
         {
-            if (it->getJointType() != sim_joint_prismatic_subtype)
+            if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_MOTIONPROFILEVALS_JOINTDYNGUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle(), 2, newVal);
@@ -570,7 +570,7 @@ void CQDlgJointDyn::on_qqVelocityMode_maxAccel_editingFinished()
         double newVal = GuiApp::getEvalDouble(ui->qqVelocityMode_maxAccel->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
         {
-            if (it->getJointType() != sim_joint_prismatic_subtype)
+            if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_MOTIONPROFILEVALS_JOINTDYNGUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle(), 1, newVal);
@@ -591,7 +591,7 @@ void CQDlgJointDyn::on_qqVelocityMode_maxJerk_editingFinished()
         double newVal = GuiApp::getEvalDouble(ui->qqVelocityMode_maxJerk->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
         {
-            if (it->getJointType() != sim_joint_prismatic_subtype)
+            if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_MOTIONPROFILEVALS_JOINTDYNGUITRIGGEREDCMD,
                                                App::currentWorld->sceneObjects->getLastSelectionHandle(), 2, newVal);

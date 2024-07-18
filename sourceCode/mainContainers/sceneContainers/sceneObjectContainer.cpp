@@ -45,7 +45,7 @@ void CSceneObjectContainer::simulationAboutToEnd()
 {
     embeddedScriptContainer->simulationAboutToEnd(); // destroys the main script (and subsequently all simulation scripts)
 
-    for (size_t i = 0; i < getObjectCount(sim_object_script_type); i++)
+    for (size_t i = 0; i < getObjectCount(sim_sceneobject_script); i++)
     {
         CScript* it = getScriptFromIndex(i);
         it->scriptObject->simulationAboutToEnd(); // destroys simulation script states
@@ -212,7 +212,7 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject *newObj
     // We make sure that new script objects do not have a handle below sim_scripttype_sandbox+1, so that we
     // can still allow the legacy call arguments for V4.7 with simCallScriptFunction, simCallScriptFunctionEx, simExecuteScriptString,
     // before dropping the legacy call argument support with V4.8 and later
-    while ( (getObjectFromHandle(objectHandle) != nullptr) || ((newObject->getObjectType() == sim_object_script_type) && (objectHandle <= sim_scripttype_sandbox)) )
+    while ( (getObjectFromHandle(objectHandle) != nullptr) || ((newObject->getObjectType() == sim_sceneobject_script) && (objectHandle <= sim_scripttype_sandbox)) )
 #else
     while (getObjectFromHandle(objectHandle) != nullptr)
 #endif
@@ -230,7 +230,7 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject *newObj
 
     _addObject(newObject);
 
-    if (newObject->getObjectType() == sim_object_graph_type)
+    if (newObject->getObjectType() == sim_sceneobject_graph)
     { // If the simulation is running, we have to empty the buffer!!! (otherwise we might have old and new data mixed
       // together (e.g. old data in future, new data in present!)
         if ((App::currentWorld->simulation != nullptr) && (!App::currentWorld->simulation->isSimulationStopped()))
@@ -366,7 +366,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                         // We announce the object will be erased:
                         App::worldContainer->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
 
-                        if (it->getObjectType() == sim_object_shape_type)
+                        if ( (it->getObjectType() == sim_sceneobject_shape) && (((CShape*)it)->getMesh() != nullptr) )
                         {
                             std::vector<CMesh *> all;
                             ((CShape*)it)->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
@@ -511,11 +511,11 @@ void CSceneObjectContainer::actualizeObjectInformation()
     if (_objectActualizationEnabled)
     {
         // We actualize the direct linked joint list of each joint:
-        for (size_t i = 0; i < getObjectCount(sim_object_joint_type); i++)
+        for (size_t i = 0; i < getObjectCount(sim_sceneobject_joint); i++)
         {
             CJoint *it = getJointFromIndex(i);
             std::vector<CJoint *> joints;
-            for (size_t j = 0; j < getObjectCount(sim_object_joint_type); j++)
+            for (size_t j = 0; j < getObjectCount(sim_sceneobject_joint); j++)
             {
                 CJoint *anAct = getJointFromIndex(j);
                 if (anAct != it)
@@ -533,7 +533,7 @@ void CSceneObjectContainer::actualizeObjectInformation()
 
         App::currentWorld->collections->actualizeAllCollections();
 
-        for (size_t i = 0; i < getObjectCount(sim_object_shape_type); i++)
+        for (size_t i = 0; i < getObjectCount(sim_sceneobject_shape); i++)
             getShapeFromIndex(i)->clearLastParentForLocalGlobalRespondable();
 
         App::currentWorld->textureContainer->updateAllDependencies();
@@ -629,7 +629,7 @@ void CSceneObjectContainer::setTextureDependencies()
     for (size_t i = 0; i < getObjectCount(); i++)
     {
         CSceneObject *it = getObjectFromIndex(i);
-        if (it->getObjectType() == sim_object_shape_type)
+        if (it->getObjectType() == sim_sceneobject_shape)
         {
             if (((CShape *)it)->getMesh() != nullptr)
                 ((CShape *)it)->getMesh()->setTextureDependencies(it->getObjectHandle());
@@ -1033,35 +1033,35 @@ void CSceneObjectContainer::writeSceneObject(CSer &ar, CSceneObject *it)
 {
     if (ar.isBinary())
     {
-        if (it->getObjectType() == sim_object_shape_type)
+        if (it->getObjectType() == sim_sceneobject_shape)
             ar.storeDataName(SER_SHAPE);
-        if (it->getObjectType() == sim_object_joint_type)
+        if (it->getObjectType() == sim_sceneobject_joint)
             ar.storeDataName(SER_JOINT);
-        if (it->getObjectType() == sim_object_graph_type)
+        if (it->getObjectType() == sim_sceneobject_graph)
             ar.storeDataName(SER_GRAPH);
-        if (it->getObjectType() == sim_object_camera_type)
+        if (it->getObjectType() == sim_sceneobject_camera)
             ar.storeDataName(SER_CAMERA);
-        if (it->getObjectType() == sim_object_light_type)
+        if (it->getObjectType() == sim_sceneobject_light)
             ar.storeDataName(SER_LIGHT);
-        if (it->getObjectType() == sim_object_mirror_type)
+        if (it->getObjectType() == sim_sceneobject_mirror)
             ar.storeDataName(SER_MIRROR);
-        if (it->getObjectType() == sim_object_octree_type)
+        if (it->getObjectType() == sim_sceneobject_octree)
             ar.storeDataName(SER_OCTREE);
-        if (it->getObjectType() == sim_object_pointcloud_type)
+        if (it->getObjectType() == sim_sceneobject_pointcloud)
             ar.storeDataName(SER_POINTCLOUD);
-        if (it->getObjectType() == sim_object_dummy_type)
+        if (it->getObjectType() == sim_sceneobject_dummy)
             ar.storeDataName(SER_DUMMY);
-        if (it->getObjectType() == sim_object_script_type)
+        if (it->getObjectType() == sim_sceneobject_script)
             ar.storeDataName(SER_SCRIPT);
-        if (it->getObjectType() == sim_object_proximitysensor_type)
+        if (it->getObjectType() == sim_sceneobject_proximitysensor)
             ar.storeDataName(SER_PROXIMITYSENSOR);
-        if (it->getObjectType() == sim_object_visionsensor_type)
+        if (it->getObjectType() == sim_sceneobject_visionsensor)
             ar.storeDataName(SER_VISIONSENSOR);
-        if (it->getObjectType() == sim_object_path_type)
+        if (it->getObjectType() == sim_sceneobject_path)
             ar.storeDataName(SER_PATH_OLD);
-        if (it->getObjectType() == sim_object_mill_type)
+        if (it->getObjectType() == sim_sceneobject_mill)
             ar.storeDataName(SER_MILL);
-        if (it->getObjectType() == sim_object_forcesensor_type)
+        if (it->getObjectType() == sim_sceneobject_forcesensor)
             ar.storeDataName(SER_FORCESENSOR);
         ar.setCountingMode();
         it->serialize(ar);
@@ -1071,35 +1071,35 @@ void CSceneObjectContainer::writeSceneObject(CSer &ar, CSceneObject *it)
     else
     {
         xmlNode *node;
-        if (it->getObjectType() == sim_object_shape_type)
+        if (it->getObjectType() == sim_sceneobject_shape)
             ar.xmlPushNewNode(SERX_SHAPE);
-        if (it->getObjectType() == sim_object_joint_type)
+        if (it->getObjectType() == sim_sceneobject_joint)
             ar.xmlPushNewNode(SERX_JOINT);
-        if (it->getObjectType() == sim_object_graph_type)
+        if (it->getObjectType() == sim_sceneobject_graph)
             ar.xmlPushNewNode(SERX_GRAPH);
-        if (it->getObjectType() == sim_object_camera_type)
+        if (it->getObjectType() == sim_sceneobject_camera)
             ar.xmlPushNewNode(SERX_CAMERA);
-        if (it->getObjectType() == sim_object_light_type)
+        if (it->getObjectType() == sim_sceneobject_light)
             ar.xmlPushNewNode(SERX_LIGHT);
-        if (it->getObjectType() == sim_object_mirror_type)
+        if (it->getObjectType() == sim_sceneobject_mirror)
             ar.xmlPushNewNode(SERX_MIRROR);
-        if (it->getObjectType() == sim_object_octree_type)
+        if (it->getObjectType() == sim_sceneobject_octree)
             ar.xmlPushNewNode(SERX_OCTREE);
-        if (it->getObjectType() == sim_object_pointcloud_type)
+        if (it->getObjectType() == sim_sceneobject_pointcloud)
             ar.xmlPushNewNode(SERX_POINTCLOUD);
-        if (it->getObjectType() == sim_object_dummy_type)
+        if (it->getObjectType() == sim_sceneobject_dummy)
             ar.xmlPushNewNode(SERX_DUMMY);
-        if (it->getObjectType() == sim_object_script_type)
+        if (it->getObjectType() == sim_sceneobject_script)
             ar.xmlPushNewNode(SERX_SCRIPT);
-        if (it->getObjectType() == sim_object_proximitysensor_type)
+        if (it->getObjectType() == sim_sceneobject_proximitysensor)
             ar.xmlPushNewNode(SERX_PROXIMITYSENSOR);
-        if (it->getObjectType() == sim_object_visionsensor_type)
+        if (it->getObjectType() == sim_sceneobject_visionsensor)
             ar.xmlPushNewNode(SERX_VISIONSENSOR);
-        if (it->getObjectType() == sim_object_path_type)
+        if (it->getObjectType() == sim_sceneobject_path)
             ar.xmlPushNewNode(SERX_PATH_OLD);
-        if (it->getObjectType() == sim_object_mill_type)
+        if (it->getObjectType() == sim_sceneobject_mill)
             ar.xmlPushNewNode(SERX_MILL);
-        if (it->getObjectType() == sim_object_forcesensor_type)
+        if (it->getObjectType() == sim_sceneobject_forcesensor)
             ar.xmlPushNewNode(SERX_FORCESENSOR);
         it->serialize(ar);
         ar.xmlPopNode();
@@ -1216,7 +1216,7 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer &ar, CSc
 
             if (obj != nullptr)
             {
-                if (obj->getObjectType() != sim_object_shape_type)
+                if (obj->getObjectType() != sim_sceneobject_shape)
                     desiredLocalFrame = obj->getLocalTransformation();
                 C7Vector localFramePreCorrectionForChildren(obj->getLocalTransformation().getInverse() *
                                                             desiredLocalFrame);
@@ -1259,79 +1259,79 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer &ar, CSc
 
 void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer &ar, const CSceneObject *object)
 {
-    if (object->getObjectType() == sim_object_shape_type)
+    if (object->getObjectType() == sim_sceneobject_shape)
     {
         CShape *obj = (CShape *)object;
         ar.xmlPushNewNode("shape");
         _writeSimpleXmlShape(ar, obj);
     }
-    if (object->getObjectType() == sim_object_joint_type)
+    if (object->getObjectType() == sim_sceneobject_joint)
     {
         CJoint *obj = (CJoint *)object;
         ar.xmlPushNewNode("joint");
         obj->serialize(ar);
     }
-    if (object->getObjectType() == sim_object_graph_type)
+    if (object->getObjectType() == sim_sceneobject_graph)
     {
         CGraph *obj = (CGraph *)object;
         ar.xmlPushNewNode("graph");
         obj->serialize(ar);
     }
-    if (object->getObjectType() == sim_object_camera_type)
+    if (object->getObjectType() == sim_sceneobject_camera)
     {
         CCamera *obj = (CCamera *)object;
         ar.xmlPushNewNode("camera");
         obj->serialize(ar);
     }
-    if (object->getObjectType() == sim_object_dummy_type)
+    if (object->getObjectType() == sim_sceneobject_dummy)
     {
         CDummy *obj = (CDummy *)object;
         ar.xmlPushNewNode("dummy");
         obj->serialize(ar);
     }
-    if (object->getObjectType() == sim_object_script_type)
+    if (object->getObjectType() == sim_sceneobject_script)
     {
         CScript *obj = (CScript *)object;
         ar.xmlPushNewNode("script");
         obj->serialize(ar);
     }
-    if (object->getObjectType() == sim_object_proximitysensor_type)
+    if (object->getObjectType() == sim_sceneobject_proximitysensor)
     {
         CProxSensor *obj = (CProxSensor *)object;
         ar.xmlPushNewNode("proximitySensor");
         obj->serialize(ar);
     }
-    if (object->getObjectType() == sim_object_path_type)
+    if (object->getObjectType() == sim_sceneobject_path)
     {
         CPath_old *obj = (CPath_old *)object;
         ar.xmlPushNewNode("path");
         obj->serialize(ar);
     }
-    if (object->getObjectType() == sim_object_visionsensor_type)
+    if (object->getObjectType() == sim_sceneobject_visionsensor)
     {
         CVisionSensor *obj = (CVisionSensor *)object;
         ar.xmlPushNewNode("visionSensor");
         obj->serialize(ar);
     }
-    if (object->getObjectType() == sim_object_forcesensor_type)
+    if (object->getObjectType() == sim_sceneobject_forcesensor)
     {
         CForceSensor *obj = (CForceSensor *)object;
         ar.xmlPushNewNode("forceSensor");
         obj->serialize(ar);
     }
-    if (object->getObjectType() == sim_object_light_type)
+    if (object->getObjectType() == sim_sceneobject_light)
     {
         CLight *obj = (CLight *)object;
         ar.xmlPushNewNode("light");
         obj->serialize(ar);
     }
-    if (object->getObjectType() == sim_object_octree_type)
+    if (object->getObjectType() == sim_sceneobject_octree)
     {
         COcTree *obj = (COcTree *)object;
         ar.xmlPushNewNode("ocTree");
         obj->serialize(ar);
     }
-    if (object->getObjectType() == sim_object_pointcloud_type)
+    if (object->getObjectType() == sim_sceneobject_pointcloud)
     {
         CPointCloud *obj = (CPointCloud *)object;
         ar.xmlPushNewNode("pointCloud");
@@ -1377,9 +1377,9 @@ bool CSceneObjectContainer::setObjectParent(CSceneObject *object, CSceneObject *
             if (oldParent != nullptr)
             {
                 oldParent->removeChild(object);
-                if (oldParent->getObjectType() == sim_object_joint_type)
+                if (oldParent->getObjectType() == sim_sceneobject_joint)
                     ((CJoint *)oldParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
-                if (oldParent->getObjectType() == sim_object_forcesensor_type)
+                if (oldParent->getObjectType() == sim_sceneobject_forcesensor)
                     ((CForceSensor *)oldParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
             }
             else
@@ -1387,9 +1387,9 @@ bool CSceneObjectContainer::setObjectParent(CSceneObject *object, CSceneObject *
             if (newParent != nullptr)
             {
                 newParent->addChild(object);
-                if (newParent->getObjectType() == sim_object_joint_type)
+                if (newParent->getObjectType() == sim_sceneobject_joint)
                     ((CJoint *)newParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
-                if (newParent->getObjectType() == sim_object_forcesensor_type)
+                if (newParent->getObjectType() == sim_sceneobject_forcesensor)
                     ((CForceSensor *)newParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
             }
             else
@@ -2664,35 +2664,35 @@ void CSceneObjectContainer::_addObject(CSceneObject *object)
     _objectNameMap_old[object->getObjectName_old()] = object;
     _objectAltNameMap_old[object->getObjectAltName_old()] = object;
     int t = object->getObjectType();
-    if (t == sim_object_joint_type)
+    if (t == sim_sceneobject_joint)
         _jointList.push_back((CJoint *)object);
-    if (t == sim_object_dummy_type)
+    if (t == sim_sceneobject_dummy)
         _dummyList.push_back((CDummy *)object);
-    if (t == sim_object_script_type)
+    if (t == sim_sceneobject_script)
         _scriptList.push_back((CScript *)object);
-    if (t == sim_object_graph_type)
+    if (t == sim_sceneobject_graph)
         _graphList.push_back((CGraph *)object);
-    if (t == sim_object_light_type)
+    if (t == sim_sceneobject_light)
         _lightList.push_back((CLight *)object);
-    if (t == sim_object_camera_type)
+    if (t == sim_sceneobject_camera)
         _cameraList.push_back((CCamera *)object);
-    if (t == sim_object_proximitysensor_type)
+    if (t == sim_sceneobject_proximitysensor)
         _proximitySensorList.push_back((CProxSensor *)object);
-    if (t == sim_object_visionsensor_type)
+    if (t == sim_sceneobject_visionsensor)
         _visionSensorList.push_back((CVisionSensor *)object);
-    if (t == sim_object_shape_type)
+    if (t == sim_sceneobject_shape)
         _shapeList.push_back((CShape *)object);
-    if (t == sim_object_forcesensor_type)
+    if (t == sim_sceneobject_forcesensor)
         _forceSensorList.push_back((CForceSensor *)object);
-    if (t == sim_object_octree_type)
+    if (t == sim_sceneobject_octree)
         _octreeList.push_back((COcTree *)object);
-    if (t == sim_object_pointcloud_type)
+    if (t == sim_sceneobject_pointcloud)
         _pointCloudList.push_back((CPointCloud *)object);
-    if (t == sim_object_mirror_type)
+    if (t == sim_sceneobject_mirror)
         _mirrorList.push_back((CMirror *)object);
-    if (t == sim_object_path_type)
+    if (t == sim_sceneobject_path)
         _pathList.push_back((CPath_old *)object);
-    if (t == sim_object_mill_type)
+    if (t == sim_sceneobject_mill)
         _millList.push_back((CMill *)object);
 
     _handleOrderIndexOfOrphans();
@@ -3031,35 +3031,35 @@ void CSceneObjectContainer::_removeObject(CSceneObject *object)
     }
     int t = object->getObjectType();
     std::vector<CSceneObject *> *list;
-    if (t == sim_object_joint_type)
+    if (t == sim_sceneobject_joint)
         list = (std::vector<CSceneObject *> *)&_jointList;
-    if (t == sim_object_dummy_type)
+    if (t == sim_sceneobject_dummy)
         list = (std::vector<CSceneObject *> *)&_dummyList;
-    if (t == sim_object_script_type)
+    if (t == sim_sceneobject_script)
         list = (std::vector<CSceneObject *> *)&_scriptList;
-    if (t == sim_object_graph_type)
+    if (t == sim_sceneobject_graph)
         list = (std::vector<CSceneObject *> *)&_graphList;
-    if (t == sim_object_light_type)
+    if (t == sim_sceneobject_light)
         list = (std::vector<CSceneObject *> *)&_lightList;
-    if (t == sim_object_camera_type)
+    if (t == sim_sceneobject_camera)
         list = (std::vector<CSceneObject *> *)&_cameraList;
-    if (t == sim_object_proximitysensor_type)
+    if (t == sim_sceneobject_proximitysensor)
         list = (std::vector<CSceneObject *> *)&_proximitySensorList;
-    if (t == sim_object_visionsensor_type)
+    if (t == sim_sceneobject_visionsensor)
         list = (std::vector<CSceneObject *> *)&_visionSensorList;
-    if (t == sim_object_shape_type)
+    if (t == sim_sceneobject_shape)
         list = (std::vector<CSceneObject *> *)&_shapeList;
-    if (t == sim_object_forcesensor_type)
+    if (t == sim_sceneobject_forcesensor)
         list = (std::vector<CSceneObject *> *)&_forceSensorList;
-    if (t == sim_object_octree_type)
+    if (t == sim_sceneobject_octree)
         list = (std::vector<CSceneObject *> *)&_octreeList;
-    if (t == sim_object_pointcloud_type)
+    if (t == sim_sceneobject_pointcloud)
         list = (std::vector<CSceneObject *> *)&_pointCloudList;
-    if (t == sim_object_mirror_type)
+    if (t == sim_sceneobject_mirror)
         list = (std::vector<CSceneObject *> *)&_mirrorList;
-    if (t == sim_object_path_type)
+    if (t == sim_sceneobject_path)
         list = (std::vector<CSceneObject *> *)&_pathList;
-    if (t == sim_object_mill_type)
+    if (t == sim_sceneobject_mill)
         list = (std::vector<CSceneObject *> *)&_millList;
     for (size_t i = 0; i < list->size(); i++)
     {
@@ -3137,35 +3137,35 @@ size_t CSceneObjectContainer::getObjectCount(int type /* = -1 */) const
         retVal = _allObjects.size();
     else
     {
-        if (type == sim_object_joint_type)
+        if (type == sim_sceneobject_joint)
             retVal = _jointList.size();
-        if (type == sim_object_dummy_type)
+        if (type == sim_sceneobject_dummy)
             retVal = _dummyList.size();
-        if (type == sim_object_script_type)
+        if (type == sim_sceneobject_script)
             retVal = _scriptList.size();
-        if (type == sim_object_mirror_type)
+        if (type == sim_sceneobject_mirror)
             retVal = _mirrorList.size();
-        if (type == sim_object_graph_type)
+        if (type == sim_sceneobject_graph)
             retVal = _graphList.size();
-        if (type == sim_object_light_type)
+        if (type == sim_sceneobject_light)
             retVal = _lightList.size();
-        if (type == sim_object_camera_type)
+        if (type == sim_sceneobject_camera)
             retVal = _cameraList.size();
-        if (type == sim_object_proximitysensor_type)
+        if (type == sim_sceneobject_proximitysensor)
             retVal = _proximitySensorList.size();
-        if (type == sim_object_visionsensor_type)
+        if (type == sim_sceneobject_visionsensor)
             retVal = _visionSensorList.size();
-        if (type == sim_object_shape_type)
+        if (type == sim_sceneobject_shape)
             retVal = _shapeList.size();
-        if (type == sim_object_path_type)
+        if (type == sim_sceneobject_path)
             retVal = _pathList.size();
-        if (type == sim_object_mill_type)
+        if (type == sim_sceneobject_mill)
             retVal = _millList.size();
-        if (type == sim_object_forcesensor_type)
+        if (type == sim_sceneobject_forcesensor)
             retVal = _forceSensorList.size();
-        if (type == sim_object_octree_type)
+        if (type == sim_sceneobject_octree)
             retVal = _octreeList.size();
-        if (type == sim_object_pointcloud_type)
+        if (type == sim_sceneobject_pointcloud)
             retVal = _pointCloudList.size();
     }
     return retVal;
@@ -3362,7 +3362,7 @@ CDummy *CSceneObjectContainer::getDummyFromHandle(int objectHandle) const
 {
     CDummy *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_dummy_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_dummy))
         retVal = (CDummy *)it;
     return (retVal);
 }
@@ -3406,7 +3406,7 @@ CScript *CSceneObjectContainer::getScriptFromHandle(int objectHandle) const
 {
     CScript *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_script_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_script))
         retVal = (CScript *)it;
     return (retVal);
 }
@@ -3415,7 +3415,7 @@ CJoint *CSceneObjectContainer::getJointFromHandle(int objectHandle) const
 {
     CJoint *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_joint_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_joint))
         retVal = (CJoint *)it;
     return (retVal);
 }
@@ -3424,7 +3424,7 @@ CShape *CSceneObjectContainer::getShapeFromHandle(int objectHandle) const
 {
     CShape *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_shape_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_shape))
         retVal = (CShape *)it;
     return (retVal);
 }
@@ -3433,7 +3433,7 @@ CMirror *CSceneObjectContainer::getMirrorFromHandle(int objectHandle) const
 {
     CMirror *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_mirror_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_mirror))
         retVal = (CMirror *)it;
     return (retVal);
 }
@@ -3442,7 +3442,7 @@ COcTree *CSceneObjectContainer::getOctreeFromHandle(int objectHandle) const
 {
     COcTree *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_octree_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_octree))
         retVal = (COcTree *)it;
     return (retVal);
 }
@@ -3451,7 +3451,7 @@ CPointCloud *CSceneObjectContainer::getPointCloudFromHandle(int objectHandle) co
 {
     CPointCloud *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_pointcloud_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_pointcloud))
         retVal = (CPointCloud *)it;
     return (retVal);
 }
@@ -3460,7 +3460,7 @@ CProxSensor *CSceneObjectContainer::getProximitySensorFromHandle(int objectHandl
 {
     CProxSensor *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_proximitysensor_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_proximitysensor))
         retVal = (CProxSensor *)it;
     return (retVal);
 }
@@ -3469,7 +3469,7 @@ CVisionSensor *CSceneObjectContainer::getVisionSensorFromHandle(int objectHandle
 {
     CVisionSensor *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_visionsensor_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_visionsensor))
         retVal = (CVisionSensor *)it;
     return (retVal);
 }
@@ -3478,7 +3478,7 @@ CPath_old *CSceneObjectContainer::getPathFromHandle(int objectHandle) const
 {
     CPath_old *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_path_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_path))
         retVal = (CPath_old *)it;
     return (retVal);
 }
@@ -3487,7 +3487,7 @@ CMill *CSceneObjectContainer::getMillFromHandle(int objectHandle) const
 {
     CMill *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_mill_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_mill))
         retVal = (CMill *)it;
     return (retVal);
 }
@@ -3496,7 +3496,7 @@ CForceSensor *CSceneObjectContainer::getForceSensorFromHandle(int objectHandle) 
 {
     CForceSensor *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_forcesensor_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_forcesensor))
         retVal = (CForceSensor *)it;
     return (retVal);
 }
@@ -3505,7 +3505,7 @@ CCamera *CSceneObjectContainer::getCameraFromHandle(int objectHandle) const
 {
     CCamera *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_camera_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_camera))
         retVal = (CCamera *)it;
     return (retVal);
 }
@@ -3514,7 +3514,7 @@ CLight *CSceneObjectContainer::getLightFromHandle(int objectHandle) const
 {
     CLight *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_light_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_light))
         retVal = (CLight *)it;
     return (retVal);
 }
@@ -3523,7 +3523,7 @@ CGraph *CSceneObjectContainer::getGraphFromHandle(int objectHandle) const
 {
     CGraph *retVal = nullptr;
     CSceneObject *it = getObjectFromHandle(objectHandle);
-    if ((it != nullptr) && (it->getObjectType() == sim_object_graph_type))
+    if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_graph))
         retVal = (CGraph *)it;
     return (retVal);
 }
@@ -3608,7 +3608,7 @@ CMirror *CSceneObjectContainer::getLastSelectionMirror() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_mirror_type)
+        if (it->getObjectType() == sim_sceneobject_mirror)
             return ((CMirror *)it);
     }
     return (nullptr);
@@ -3619,7 +3619,7 @@ COcTree *CSceneObjectContainer::getLastSelectionOctree() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_octree_type)
+        if (it->getObjectType() == sim_sceneobject_octree)
             return ((COcTree *)it);
     }
     return (nullptr);
@@ -3630,7 +3630,7 @@ CPointCloud *CSceneObjectContainer::getLastSelectionPointCloud() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_pointcloud_type)
+        if (it->getObjectType() == sim_sceneobject_pointcloud)
             return ((CPointCloud *)it);
     }
     return (nullptr);
@@ -3641,7 +3641,7 @@ CShape *CSceneObjectContainer::getLastSelectionShape() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_shape_type)
+        if (it->getObjectType() == sim_sceneobject_shape)
             return ((CShape *)it);
     }
     return (nullptr);
@@ -3652,7 +3652,7 @@ CJoint *CSceneObjectContainer::getLastSelectionJoint() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_joint_type)
+        if (it->getObjectType() == sim_sceneobject_joint)
             return ((CJoint *)it);
     }
     return (nullptr);
@@ -3663,7 +3663,7 @@ CGraph *CSceneObjectContainer::getLastSelectionGraph() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_graph_type)
+        if (it->getObjectType() == sim_sceneobject_graph)
             return ((CGraph *)it);
     }
     return (nullptr);
@@ -3674,7 +3674,7 @@ CCamera *CSceneObjectContainer::getLastSelectionCamera() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_camera_type)
+        if (it->getObjectType() == sim_sceneobject_camera)
             return ((CCamera *)it);
     }
     return (nullptr);
@@ -3685,7 +3685,7 @@ CLight *CSceneObjectContainer::getLastSelectionLight() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_light_type)
+        if (it->getObjectType() == sim_sceneobject_light)
             return ((CLight *)it);
     }
     return (nullptr);
@@ -3696,7 +3696,7 @@ CDummy *CSceneObjectContainer::getLastSelectionDummy() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_dummy_type)
+        if (it->getObjectType() == sim_sceneobject_dummy)
             return ((CDummy *)it);
     }
     return (nullptr);
@@ -3707,7 +3707,7 @@ CScript *CSceneObjectContainer::getLastSelectionScript() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_script_type)
+        if (it->getObjectType() == sim_sceneobject_script)
             return ((CScript *)it);
     }
     return (nullptr);
@@ -3718,7 +3718,7 @@ CProxSensor *CSceneObjectContainer::getLastSelectionProxSensor() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_proximitysensor_type)
+        if (it->getObjectType() == sim_sceneobject_proximitysensor)
             return ((CProxSensor *)it);
     }
     return (nullptr);
@@ -3729,7 +3729,7 @@ CVisionSensor *CSceneObjectContainer::getLastSelectionVisionSensor() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_visionsensor_type)
+        if (it->getObjectType() == sim_sceneobject_visionsensor)
             return ((CVisionSensor *)it);
     }
     return (nullptr);
@@ -3740,7 +3740,7 @@ CPath_old *CSceneObjectContainer::getLastSelectionPath() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_path_type)
+        if (it->getObjectType() == sim_sceneobject_path)
             return ((CPath_old *)it);
     }
     return (nullptr);
@@ -3751,7 +3751,7 @@ CMill *CSceneObjectContainer::getLastSelectionMill() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_mill_type)
+        if (it->getObjectType() == sim_sceneobject_mill)
             return ((CMill *)it);
     }
     return (nullptr);
@@ -3762,7 +3762,7 @@ CForceSensor *CSceneObjectContainer::getLastSelectionForceSensor() const
     CSceneObject *it = getLastSelectionObject();
     if (it != nullptr)
     {
-        if (it->getObjectType() == sim_object_forcesensor_type)
+        if (it->getObjectType() == sim_sceneobject_forcesensor)
             return ((CForceSensor *)it);
     }
     return (nullptr);
@@ -3919,7 +3919,7 @@ size_t CSceneObjectContainer::getSimpleShapeCount() const
 
 size_t CSceneObjectContainer::getCompoundShapeCount() const
 {
-    return (getObjectCount(sim_object_shape_type) - getSimpleShapeCount());
+    return (getObjectCount(sim_sceneobject_shape) - getSimpleShapeCount());
 }
 
 size_t CSceneObjectContainer::getOrphanCount() const
@@ -4212,35 +4212,35 @@ int CSceneObjectContainer::setBoolProperty(int target, const char* pName, bool p
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setBoolProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setBoolProperty(pName, pState);
     }
     else
@@ -4261,35 +4261,35 @@ int CSceneObjectContainer::getBoolProperty(int target, const char* pName, bool& 
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getBoolProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getBoolProperty(pName, pState);
     }
     else
@@ -4310,35 +4310,35 @@ int CSceneObjectContainer::setIntProperty(int target, const char* pName, int pSt
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setIntProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setIntProperty(pName, pState);
     }
     else
@@ -4359,35 +4359,35 @@ int CSceneObjectContainer::getIntProperty(int target, const char* pName, int& pS
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getIntProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getIntProperty(pName, pState);
     }
     else
@@ -4408,35 +4408,35 @@ int CSceneObjectContainer::setFloatProperty(int target, const char* pName, doubl
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setFloatProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setFloatProperty(pName, pState);
     }
     else
@@ -4457,35 +4457,35 @@ int CSceneObjectContainer::getFloatProperty(int target, const char* pName, doubl
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getFloatProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getFloatProperty(pName, pState);
     }
     else
@@ -4506,35 +4506,35 @@ int CSceneObjectContainer::setStringProperty(int target, const char* pName, cons
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setStringProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setStringProperty(pName, pState);
     }
     else
@@ -4555,35 +4555,35 @@ int CSceneObjectContainer::getStringProperty(int target, const char* pName, std:
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getStringProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getStringProperty(pName, pState);
     }
     else
@@ -4604,35 +4604,35 @@ int CSceneObjectContainer::setBufferProperty(int target, const char* pName, cons
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setBufferProperty(pName, buffer, bufferL);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setBufferProperty(pName, buffer, bufferL);
     }
     else
@@ -4653,35 +4653,35 @@ int CSceneObjectContainer::getBufferProperty(int target, const char* pName, std:
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getBufferProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getBufferProperty(pName, pState);
     }
     else
@@ -4702,35 +4702,35 @@ int CSceneObjectContainer::setVector3Property(int target, const char* pName, con
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setVector3Property(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setVector3Property(pName, pState);
     }
     else
@@ -4751,35 +4751,35 @@ int CSceneObjectContainer::getVector3Property(int target, const char* pName, C3V
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getVector3Property(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getVector3Property(pName, pState);
     }
     else
@@ -4800,35 +4800,35 @@ int CSceneObjectContainer::setQuaternionProperty(int target, const char* pName, 
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setQuaternionProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setQuaternionProperty(pName, pState);
     }
     else
@@ -4849,35 +4849,35 @@ int CSceneObjectContainer::getQuaternionProperty(int target, const char* pName, 
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getQuaternionProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getQuaternionProperty(pName, pState);
     }
     else
@@ -4898,35 +4898,35 @@ int CSceneObjectContainer::setPoseProperty(int target, const char* pName, const 
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setPoseProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setPoseProperty(pName, pState);
     }
     else
@@ -4947,35 +4947,35 @@ int CSceneObjectContainer::getPoseProperty(int target, const char* pName, C7Vect
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getPoseProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getPoseProperty(pName, pState);
     }
     else
@@ -4996,35 +4996,35 @@ int CSceneObjectContainer::setMatrix3x3Property(int target, const char* pName, c
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setMatrix3x3Property(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setMatrix3x3Property(pName, pState);
     }
     else
@@ -5045,35 +5045,35 @@ int CSceneObjectContainer::getMatrix3x3Property(int target, const char* pName, C
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getMatrix3x3Property(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getMatrix3x3Property(pName, pState);
     }
     else
@@ -5094,35 +5094,35 @@ int CSceneObjectContainer::setMatrix4x4Property(int target, const char* pName, c
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setMatrix4x4Property(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setMatrix4x4Property(pName, pState);
     }
     else
@@ -5143,35 +5143,35 @@ int CSceneObjectContainer::getMatrix4x4Property(int target, const char* pName, C
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getMatrix4x4Property(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getMatrix4x4Property(pName, pState);
     }
     else
@@ -5192,35 +5192,35 @@ int CSceneObjectContainer::setColorProperty(int target, const char* pName, const
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setColorProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setColorProperty(pName, pState);
     }
     else
@@ -5241,35 +5241,35 @@ int CSceneObjectContainer::getColorProperty(int target, const char* pName, float
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getColorProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getColorProperty(pName, pState);
     }
     else
@@ -5290,35 +5290,35 @@ int CSceneObjectContainer::setVectorProperty(int target, const char* pName, cons
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setVectorProperty(pName, v, vL);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setVectorProperty(pName, v, vL);
     }
     else
@@ -5339,35 +5339,35 @@ int CSceneObjectContainer::getVectorProperty(int target, const char* pName, std:
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getVectorProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getVectorProperty(pName, pState);
     }
     else
@@ -5388,35 +5388,35 @@ int CSceneObjectContainer::setIntVectorProperty(int target, const char* pName, c
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->setIntVectorProperty(pName, v, vL);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->setIntVectorProperty(pName, v, vL);
     }
     else
@@ -5437,35 +5437,35 @@ int CSceneObjectContainer::getIntVectorProperty(int target, const char* pName, s
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->getIntVectorProperty(pName, pState);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->getIntVectorProperty(pName, pState);
     }
     else
@@ -5486,35 +5486,35 @@ int CSceneObjectContainer::removeProperty(int target, const char* pName)
     if (it != nullptr)
     {
         int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
+        if (objType == sim_sceneobject_shape)
             return ((CShape*)it)->removeProperty(pName);
-        if (objType == sim_object_joint_type)
+        if (objType == sim_sceneobject_joint)
             return ((CJoint*)it)->removeProperty(pName);
-        if (objType == sim_object_dummy_type)
+        if (objType == sim_sceneobject_dummy)
             return ((CDummy*)it)->removeProperty(pName);
-        if (objType == sim_object_script_type)
+        if (objType == sim_sceneobject_script)
             return ((CScript*)it)->removeProperty(pName);
-        if (objType == sim_object_proximitysensor_type)
+        if (objType == sim_sceneobject_proximitysensor)
             return ((CProxSensor*)it)->removeProperty(pName);
-        if (objType == sim_object_visionsensor_type)
+        if (objType == sim_sceneobject_visionsensor)
             return ((CVisionSensor*)it)->removeProperty(pName);
-        if (objType == sim_object_forcesensor_type)
+        if (objType == sim_sceneobject_forcesensor)
             return ((CForceSensor*)it)->removeProperty(pName);
-        if (objType == sim_object_light_type)
+        if (objType == sim_sceneobject_light)
             return ((CLight*)it)->removeProperty(pName);
-        if (objType == sim_object_camera_type)
+        if (objType == sim_sceneobject_camera)
             return ((CCamera*)it)->removeProperty(pName);
-        if (objType == sim_object_graph_type)
+        if (objType == sim_sceneobject_graph)
             return ((CGraph*)it)->removeProperty(pName);
-        if (objType == sim_object_pointcloud_type)
+        if (objType == sim_sceneobject_pointcloud)
             return ((CPointCloud*)it)->removeProperty(pName);
-        if (objType == sim_object_octree_type)
+        if (objType == sim_sceneobject_octree)
             return ((COcTree*)it)->removeProperty(pName);
-        if (objType == sim_object_path_type)
+        if (objType == sim_sceneobject_path)
             return ((CPath_old*)it)->removeProperty(pName);
-        if (objType == sim_object_mill_type)
+        if (objType == sim_sceneobject_mill)
             return ((CMill*)it)->removeProperty(pName);
-        if (objType == sim_object_mirror_type)
+        if (objType == sim_sceneobject_mirror)
             return ((CMirror*)it)->removeProperty(pName);
     }
     else
@@ -5527,99 +5527,183 @@ int CSceneObjectContainer::removeProperty(int target, const char* pName)
     return retVal;
 }
 
-int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance)
+int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance, CSceneObjectContainer* targetObject)
 {
     int retVal = -1;
-    CSceneObject* it = getObjectFromHandle(target);
-    if (it != nullptr)
+    if (targetObject != nullptr)
     {
-        appartenance += ".object";
-        int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
-            return ((CShape*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_joint_type)
-            return ((CJoint*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_dummy_type)
-            return ((CDummy*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_script_type)
-            return ((CScript*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_proximitysensor_type)
-            return ((CProxSensor*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_visionsensor_type)
-            return ((CVisionSensor*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_forcesensor_type)
-            return ((CForceSensor*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_light_type)
-            return ((CLight*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_camera_type)
-            return ((CCamera*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_graph_type)
-            return ((CGraph*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_pointcloud_type)
-            return ((CPointCloud*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_octree_type)
-            return ((COcTree*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_path_type)
-            return ((CPath_old*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_mill_type)
-            return ((CMill*)it)->getPropertyName(index, pName, appartenance);
-        if (objType == sim_object_mirror_type)
-            return ((CMirror*)it)->getPropertyName(index, pName, appartenance);
+        CSceneObject* it = targetObject->getObjectFromHandle(target);
+        if (it != nullptr)
+        {
+            appartenance += ".object";
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->getPropertyName(index, pName, appartenance);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->getPropertyName(index, pName, appartenance);
+        }
+        else
+        {
+            appartenance += ".mesh";
+            CMesh* mesh = targetObject->getMeshFromUid(target);
+            if (mesh != nullptr)
+                return CMesh::getPropertyName(index, pName, mesh);
+        }
     }
     else
     {
-        appartenance += ".mesh";
-        CMesh* mesh = getMeshFromUid(target);
-        if (mesh != nullptr)
-            return mesh->getPropertyName(index, pName);
+        if (target == 100)
+        {
+            appartenance += ".mesh";
+            return CMesh::getPropertyName(index, pName, nullptr);
+        }
+        appartenance += ".object";
+        if (target == sim_sceneobject_shape)
+            return CShape::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_dummy)
+            return CDummy::getPropertyName_static(index, pName, appartenance);
+        /*
+        if (target == sim_sceneobject_joint)
+            return CJoint::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_script)
+            return CScript::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_proximitysensor)
+            return CProxSensor::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_visionsensor)
+            return CVisionSensor::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_forcesensor)
+            return CForceSensor::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_light)
+            return CLight::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_camera)
+            return CCamera::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_graph)
+            return CGraph::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_pointcloud)
+            return CPointCloud::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_octree)
+            return COcTree::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_path)
+            return CPath_old::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_mill)
+            return CMill::getPropertyName_static(index, pName, appartenance);
+        if (target == sim_sceneobject_mirror)
+            return CMirror::getPropertyName_static(index, pName, appartenance);
+            */
     }
     retVal = -2; // object does not exist
     return retVal;
 }
 
-int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& info, int& size)
+int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& info, int& size, CSceneObjectContainer* targetObject)
 {
     int retVal = -1;
-    CSceneObject* it = getObjectFromHandle(target);
-    if (it != nullptr)
+    if (targetObject != nullptr)
     {
-        int objType = it->getObjectType();
-        if (objType == sim_object_shape_type)
-            return ((CShape*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_joint_type)
-            return ((CJoint*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_dummy_type)
-            return ((CDummy*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_script_type)
-            return ((CScript*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_proximitysensor_type)
-            return ((CProxSensor*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_visionsensor_type)
-            return ((CVisionSensor*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_forcesensor_type)
-            return ((CForceSensor*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_light_type)
-            return ((CLight*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_camera_type)
-            return ((CCamera*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_graph_type)
-            return ((CGraph*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_pointcloud_type)
-            return ((CPointCloud*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_octree_type)
-            return ((COcTree*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_path_type)
-            return ((CPath_old*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_mill_type)
-            return ((CMill*)it)->getPropertyInfo(pName, info, size);
-        if (objType == sim_object_mirror_type)
-            return ((CMirror*)it)->getPropertyInfo(pName, info, size);
+        CSceneObject* it = targetObject->getObjectFromHandle(target);
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->getPropertyInfo(pName, info, size);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->getPropertyInfo(pName, info, size);
+        }
+        else
+        {
+            CMesh* mesh = targetObject->getMeshFromUid(target);
+            if (mesh != nullptr)
+                return CMesh::getPropertyInfo(pName, info, size, mesh);
+        }
     }
     else
     {
-        CMesh* mesh = getMeshFromUid(target);
-        if (mesh != nullptr)
-            return mesh->getPropertyInfo(pName, info, size);
+        if (target == 100)
+            return CMesh::getPropertyInfo(pName, info, size, nullptr);
+        if (target == sim_sceneobject_shape)
+            return CShape::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_dummy)
+            return CDummy::getPropertyInfo_static(pName, info, size);
+        /*
+        if (target == sim_sceneobject_joint)
+            return CJoint::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_script)
+            return CScript::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_proximitysensor)
+            return CProxSensor::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_visionsensor)
+            return CVisionSensor::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_forcesensor)
+            return CForceSensor::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_light)
+            return CLight::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_camera)
+            return CCamera::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_graph)
+            return CGraph::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_pointcloud)
+            return CPointCloud::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_octree)
+            return COcTree::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_path)
+            return CPath_old::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_mill)
+            return CMill::getPropertyInfo_static(pName, info, size);
+        if (target == sim_sceneobject_mirror)
+            return CMirror::getPropertyInfo_static(pName, info, size);
+            */
     }
     retVal = -2; // object does not exist
     return retVal;
