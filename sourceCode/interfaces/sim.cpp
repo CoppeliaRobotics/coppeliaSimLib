@@ -110,13 +110,13 @@ SIM_DLLEXPORT int simRemoveProperty(int target, const char* pName)
 {
     return simRemoveProperty_internal(target, pName);
 }
-SIM_DLLEXPORT char* simGetPropertyName(int target, int index)
+SIM_DLLEXPORT char* simGetPropertyName(int target, int index, SOptions* options)
 {
-    return simGetPropertyName_internal(target, index);
+    return simGetPropertyName_internal(target, index, options);
 }
-SIM_DLLEXPORT int simGetPropertyInfo(int target, const char* pName, int* info, int* size)
+SIM_DLLEXPORT int simGetPropertyInfo(int target, const char* pName, int* info, int* size, SOptions* options)
 {
-    return simGetPropertyInfo_internal(target, pName, info, size);
+    return simGetPropertyInfo_internal(target, pName, info, size, options);
 }
 
 SIM_DLLEXPORT void simRegCallback(int index, void *callback)

@@ -9458,6 +9458,38 @@ void CScriptObject::_detectDeprecated_old(CScriptObject *scriptObject)
 //    _replaceScriptText_old(scriptObject, "sim.readCustomDataBlock", "sim.readCustomBufferData");
 //    _replaceScriptText_old(scriptObject, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
 
+    _replaceScriptText_old(scriptObject, "sim.light_omnidirectional_subtype", "sim.light_omnidirectional");
+    _replaceScriptText_old(scriptObject, "sim.light_spot_subtype", "sim.light_spot");
+    _replaceScriptText_old(scriptObject, "sim.light_directional_subtype", "sim.light_directional");
+    _replaceScriptText_old(scriptObject, "sim.joint_revolute_subtype", "sim.joint_revolute");
+    _replaceScriptText_old(scriptObject, "sim.joint_prismatic_subtype", "sim.joint_prismatic");
+    _replaceScriptText_old(scriptObject, "sim.joint_spherical_subtype", "sim.joint_spherical");
+    _replaceScriptText_old(scriptObject, "sim.shape_simpleshape_subtype", "sim.shape_simple");
+    _replaceScriptText_old(scriptObject, "sim.shape_multishape_subtype", "sim.shape_compound");
+    _replaceScriptText_old(scriptObject, "sim.proximitysensor_pyramid_subtype", "sim.proximitysensor_pyramid");
+    _replaceScriptText_old(scriptObject, "sim.proximitysensor_cylinder_subtype", "sim.proximitysensor_cylinder");
+    _replaceScriptText_old(scriptObject, "sim.proximitysensor_disc_subtype", "sim.proximitysensor_disc");
+    _replaceScriptText_old(scriptObject, "sim.proximitysensor_cone_subtype", "sim.proximitysensor_cone");
+    _replaceScriptText_old(scriptObject, "sim.proximitysensor_ray_subtype", "sim.proximitysensor_ray");
+    _replaceScriptText_old(scriptObject, "sim.object_shape_type", "sim.sceneobject_shape");
+    _replaceScriptText_old(scriptObject, "sim.object_joint_type", "sim.sceneobject_joint");
+    _replaceScriptText_old(scriptObject, "sim.object_graph_type", "sim.sceneobject_graph");
+    _replaceScriptText_old(scriptObject, "sim.object_camera_type", "sim.sceneobject_camera");
+    _replaceScriptText_old(scriptObject, "sim.object_dummy_type", "sim.sceneobject_dummy");
+    _replaceScriptText_old(scriptObject, "sim.object_proximitysensor_type", "sim.sceneobject_proximitysensor");
+    _replaceScriptText_old(scriptObject, "sim.object_path_type", "sim.sceneobject_path");
+    _replaceScriptText_old(scriptObject, "sim.object_visionsensor_type", "sim.sceneobject_visionsensor");
+    _replaceScriptText_old(scriptObject, "sim.object_mill_type", "sim.sceneobject_mill");
+    _replaceScriptText_old(scriptObject, "sim.object_forcesensor_type", "sim.sceneobject_forcesensor");
+    _replaceScriptText_old(scriptObject, "sim.object_light_type", "sim.sceneobject_light");
+    _replaceScriptText_old(scriptObject, "sim.object_mirror_type", "sim.sceneobject_mirror");
+    _replaceScriptText_old(scriptObject, "sim.object_octree_type", "sim.sceneobject_octree");
+    _replaceScriptText_old(scriptObject, "sim.object_pointcloud_type", "sim.sceneobject_pointcloud");
+    _replaceScriptText_old(scriptObject, "sim.object_script_type", "sim.sceneobject_script");
+    _replaceScriptText_old(scriptObject, "sim.appobj_object_type", "sim.objecttype_sceneobject");
+    _replaceScriptText_old(scriptObject, "sim.appobj_collection_type", "sim.objecttype_collection");
+    _replaceScriptText_old(scriptObject, "sim.appobj_texture_type", "sim.objecttype_texture");
+
     _replaceScriptText_old(scriptObject, "sim.scripttype_mainscript", "sim.scripttype_main");
     _replaceScriptText_old(scriptObject, "sim.scripttype_childscript", "sim.scripttype_simulation");
     _replaceScriptText_old(scriptObject, "sim.scripttype_addonscript", "sim.scripttype_addon");

@@ -1921,7 +1921,7 @@ int simRemoveProperty_internal(int target, const char* ppName)
     return -1;
 }
 
-char* simGetPropertyName_internal(int target, int index)
+char* simGetPropertyName_internal(int target, int index, SOptions* options)
 {
     C_API_START;
 
@@ -1931,10 +1931,13 @@ char* simGetPropertyName_internal(int target, int index)
         std::string pName;
         std::string appartenance;
         bool staticParsing = false;
-        if (index < 0)
+        if (options != nullptr)
         {
-            index = -index - 1;
-            staticParsing = true;
+            if ( (options->structSize >= 8) && (options->objectType != -1) )
+            {
+                target = options->objectType;
+                staticParsing = true;
+            }
         }
         int res = App::getPropertyName(target, index, pName, appartenance, staticParsing);
         if (res == -2)
@@ -1954,7 +1957,7 @@ char* simGetPropertyName_internal(int target, int index)
     return nullptr;
 }
 
-int simGetPropertyInfo_internal(int target, const char* ppName, int* info, int* size)
+int simGetPropertyInfo_internal(int target, const char* ppName, int* info, int* size, SOptions* options)
 {
     C_API_START;
 
@@ -1964,7 +1967,16 @@ int simGetPropertyInfo_internal(int target, const char* ppName, int* info, int* 
         int retVal = -2;
         // should always pass, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
-            retVal = App::getPropertyInfo(target, ppName, _info, _size, false);
+            bool staticParsing = false;
+            if (options != nullptr)
+            {
+                if ( (options->structSize >= 8) && (options->objectType != -1) )
+                {
+                    target = options->objectType;
+                    staticParsing = true;
+                }
+            }
+            retVal = App::getPropertyInfo(target, ppName, _info, _size, staticParsing);
             if (retVal == -2)
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
             else if (retVal >= 0)

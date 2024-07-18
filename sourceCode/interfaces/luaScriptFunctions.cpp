@@ -5750,7 +5750,17 @@ int _simGetPropertyName(luaWrap_lua_State *L)
     {
         int target = luaWrap_lua_tointeger(L,1);
         int index = luaWrap_lua_tointeger(L,2);
-        char* pValue = simGetPropertyName_internal(target, index);
+        SOptions opt;
+        opt.structSize = sizeof(SOptions);
+        opt.objectType = -1;
+        if (luaWrap_lua_isnonbuffertable(L, 3))
+        {
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+            CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 1);
+            stack->getStackMapInt32Value("objectType", opt.objectType);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
+        char* pValue = simGetPropertyName_internal(target, index, &opt);
         if (pValue != nullptr)
         {
             std::string w1(pValue);
@@ -5776,8 +5786,18 @@ int _simGetPropertyInfo(luaWrap_lua_State *L)
     {
         int target = luaWrap_lua_tointeger(L,1);
         std::string pName(luaWrap_lua_tostring(L, 2));
+        SOptions opt;
+        opt.structSize = sizeof(SOptions);
+        opt.objectType = -1;
+        if (luaWrap_lua_isnonbuffertable(L, 3))
+        {
+            CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
+            CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 1);
+            stack->getStackMapInt32Value("objectType", opt.objectType);
+            App::worldContainer->interfaceStackContainer->destroyStack(stack);
+        }
         int info, size;
-        int typeInfo = simGetPropertyInfo_internal(target, pName.c_str(), &info, &size);
+        int typeInfo = simGetPropertyInfo_internal(target, pName.c_str(), &info, &size, &opt);
         if (typeInfo >= 0)
         {
             luaWrap_lua_pushinteger(L, typeInfo);

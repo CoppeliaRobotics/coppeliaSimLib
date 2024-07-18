@@ -6083,7 +6083,18 @@ int CSceneObject::removeProperty(const char* ppName)
 
 int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& appartenance)
 {
-    int retVal = getPropertyName_bstatic(index, pName, appartenance);
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_sceneObject.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps_sceneObject[i].name;
+            //pName = "object." + pName;
+            retVal = 1;
+            break;
+        }
+    }
     if (retVal == -1)
     {
         if (customObjectData.getPropertyName(index, pName))
@@ -6117,7 +6128,17 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, int& size)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
-    int retVal = getPropertyInfo_bstatic(pName, info, size);
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_sceneObject.size(); i++)
+    {
+        if (strcmp(allProps_sceneObject[i].name, pName) == 0)
+        {
+            retVal = allProps_sceneObject[i].type;
+            info = allProps_sceneObject[i].flags;
+            size = 0;
+            break;
+        }
+    }
     if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
     {
         std::string pN(pName);

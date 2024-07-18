@@ -1249,9 +1249,21 @@ int CDummy::getColorProperty(const char* ppName, float* pState)
 
 int CDummy::getPropertyName(int& index, std::string& pName, std::string& appartenance)
 {
-    int retVal = getPropertyName_static(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
+        appartenance += ".dummy";
+        for (size_t i = 0; i < allProps_dummy.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_dummy[i].name;
+                //pName = "dummy." + pName;
+                retVal = 1;
+                break;
+            }
+        }
     }
     return retVal;
 }
@@ -1281,15 +1293,27 @@ int CDummy::getPropertyInfo(const char* ppName, int& info, int& size)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
-    int retVal = CDummy::getPropertyInfo_static(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
     if (retVal == -1)
     {
+        for (size_t i = 0; i < allProps_dummy.size(); i++)
+        {
+            if (strcmp(allProps_dummy[i].name, pName) == 0)
+            {
+                retVal = allProps_dummy[i].type;
+                info = allProps_dummy[i].flags;
+                size = 0;
+                break;
+            }
+        }
     }
     return retVal;
 }
 
-int CDummy::getPropertyInfo_static(const char* pName, int& info, int& size)
+int CDummy::getPropertyInfo_static(const char* ppName, int& info, int& size)
 {
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
+    const char* pName = _pName.c_str();
     int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
     if (retVal == -1)
     {

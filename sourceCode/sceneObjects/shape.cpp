@@ -1668,9 +1668,21 @@ int CShape::getIntVectorProperty(const char* ppName, std::vector<int>& pState)
 
 int CShape::getPropertyName(int& index, std::string& pName, std::string& appartenance)
 {
-    int retVal = CShape::getPropertyName_static(index, pName, appartenance);
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
     {
+        appartenance += ".shape";
+        for (size_t i = 0; i < allProps_shape.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_shape[i].name;
+                //pName = "shape." + pName;
+                retVal = 1;
+                break;
+            }
+        }
     }
     return retVal;
 }
@@ -1700,15 +1712,27 @@ int CShape::getPropertyInfo(const char* ppName, int& info, int& size)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
-    int retVal = CShape::getPropertyInfo_static(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
     if (retVal == -1)
     {
+        for (size_t i = 0; i < allProps_shape.size(); i++)
+        {
+            if (strcmp(allProps_shape[i].name, pName) == 0)
+            {
+                retVal = allProps_shape[i].type;
+                info = allProps_shape[i].flags;
+                size = 0;
+                break;
+            }
+        }
     }
     return retVal;
 }
 
-int CShape::getPropertyInfo_static(const char* pName, int& info, int& size)
+int CShape::getPropertyInfo_static(const char* ppName, int& info, int& size)
 {
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    const char* pName = _pName.c_str();
     int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
     if (retVal == -1)
     {
