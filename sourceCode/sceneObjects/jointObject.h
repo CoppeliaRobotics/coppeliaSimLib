@@ -187,6 +187,7 @@ class CJoint : public CSceneObject
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
+    void setObjectHandle(int newObjectHandle);
 
     // Overridden from CSceneObject:
     virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent, bool *available = nullptr) const;

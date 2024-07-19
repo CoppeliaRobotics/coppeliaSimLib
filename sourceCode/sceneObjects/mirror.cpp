@@ -87,6 +87,12 @@ void CMirror::computeBoundingBox()
     _setBB(C7Vector::identityTransformation, C3Vector(_mirrorWidth, _mirrorHeight, 0.001) * 0.5);
 }
 
+void CMirror::setObjectHandle(int newObjectHandle)
+{
+    CSceneObject::setObjectHandle(newObjectHandle);
+    clipPlaneColor.setEventParams(newObjectHandle);
+}
+
 CMirror::~CMirror()
 {
 }

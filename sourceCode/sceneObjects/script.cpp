@@ -62,6 +62,7 @@ void CScript::setObjectHandle(int newObjectHandle)
     CSceneObject::setObjectHandle(newObjectHandle);
     scriptObject->_scriptHandle = newObjectHandle;
     scriptObject->_objectHandleAttachedTo = newObjectHandle;
+    _scriptColor.setEventParams(newObjectHandle);
 }
 
 bool CScript::canDestroyNow()

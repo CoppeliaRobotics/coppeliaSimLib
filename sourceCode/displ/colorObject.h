@@ -30,13 +30,14 @@ class CColorObject
 
     void setDefaultValues();
     void setColorsAllBlack();
-    bool setColor(const float theColor[3], unsigned char colorMode, int handleForEventGeneration = -1, const char* suffix = nullptr);
+    void setEventParams(int eventObjectUid, int eventFlags = -1, const char* eventSuffix = nullptr);
+    bool setColor(const float theColor[3], unsigned char colorMode);
     bool setColor(float r, float g, float b, unsigned char colorMode);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     void pushShapeColorChangeEvent(int objectHandle, int colorIndex);
     static void pushColorChangeEvent(int objectHandle, float col1[9], float col2[9] = nullptr, float col3[9] = nullptr, float col4[9] = nullptr);
 #else
-    void addGenesisEventData(CCbor *ev, const char* suffix = nullptr) const;
+    void addGenesisEventData(CCbor *ev) const;
 #endif
     void getNewColors(float cols[9]) const;
     void copyYourselfInto(CColorObject *it) const;
@@ -48,7 +49,7 @@ class CColorObject
     float *getColorsPtr();
 
     float getTransparency() const;
-    bool setTransparency(float t, int handleForEventGeneration = -1, const char* suffix = nullptr);
+    bool setTransparency(float t);
     bool getTranslucid() const;
     float getOpacity() const;
     int getShininess() const;
@@ -82,6 +83,9 @@ class CColorObject
     int _shininess;
     float _opacity;
     bool _translucid;
+    int _eventFlags;
+    int _eventObjectUid;
+    std::string _eventSuffix;
     std::string _colorName;
 
     std::string _extensionString;

@@ -53,6 +53,7 @@ class CGraph : public CSceneObject
     bool isPotentiallyMeasurable() const;
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
+    void setObjectHandle(int newObjectHandle);
 
     // Various
     bool getGraphCurveData(int graphType, int index, std::string &label, std::vector<double> &xVals,

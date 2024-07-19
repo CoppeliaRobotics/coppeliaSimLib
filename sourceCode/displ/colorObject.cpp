@@ -20,11 +20,24 @@ CColorObject::CColorObject()
     _flashFrequency = 2.0;
     _flashRatio = 0.5;
     _flashPhase = 0.0;
+    _eventFlags = 1 + 4 + 8; // default: ambient/diffuse, specular and emission
+    _eventObjectUid = -1;
     setDefaultValues();
 }
 
 CColorObject::~CColorObject()
 {
+}
+
+void CColorObject::setEventParams(int eventObjectUid, int eventFlags /*= -1*/, const char* eventSuffix /*= nullptr*/)
+{ // bit0: ambient-diffuse, bit1: diffuse, bit2: specular, bit3: emission, bit4: transparency
+    if (eventObjectUid != -1)
+        _eventObjectUid = eventObjectUid;
+    if (eventFlags != -1)
+        _eventFlags = eventFlags;
+    _eventSuffix.clear();
+    if (eventSuffix != nullptr)
+        _eventSuffix = eventSuffix;
 }
 
 void CColorObject::setFlash(bool flashIsOn)
@@ -134,11 +147,11 @@ void CColorObject::getNewColors(float cols[9]) const
     }
 }
 
-bool CColorObject::setColor(const float theColor[3], unsigned char colorMode, int handleForEventGeneration /*= -1*/, const char* suffix /*= nullptr*/)
+bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
 {
     bool retVal = false;
     if (colorMode == sim_colorcomponent_transparency)
-        retVal = setTransparency(theColor[0], handleForEventGeneration, suffix);
+        retVal = setTransparency(theColor[0]);
     else
     {
         int offset = 0;
@@ -146,19 +159,22 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode, in
         if (colorMode == sim_colorcomponent_ambient_diffuse)
         {
             offset = 0;
-            cmd = propCol_colDiffuse.name;
+            if ( (_eventFlags & 1) && (_eventObjectUid != -1) )
+                cmd = propCol_colDiffuse.name;
         }
         else if (colorMode == sim_colorcomponent_diffuse)
             offset = 3;
         else if (colorMode == sim_colorcomponent_specular)
         {
             offset = 6;
-            cmd = propCol_colSpecular.name;
+            if ( (_eventFlags & 4) && (_eventObjectUid != -1) )
+                cmd = propCol_colSpecular.name;
         }
         else if (colorMode == sim_colorcomponent_emission)
         {
             offset = 9;
-            cmd = propCol_colEmission.name;
+            if ( (_eventFlags & 8) && (_eventObjectUid != -1) )
+                cmd = propCol_colEmission.name;
         }
         else if (colorMode == sim_colorcomponent_auxiliary)
             offset = 12;
@@ -167,11 +183,10 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode, in
         for (size_t i = 0; i < 3; i++)
             col[offset + i] = theColor[i];
         retVal = setColors(col);
-        if ( retVal && App::worldContainer->getEventsEnabled() && (handleForEventGeneration != -1) && (cmd.size() != 0) )
+        if ( retVal && App::worldContainer->getEventsEnabled() && (cmd.size() != 0) )
         {
-            if (suffix != nullptr)
-                cmd += suffix;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(handleForEventGeneration, cmd.c_str(), true);
+            cmd += _eventSuffix;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(_eventObjectUid, cmd.c_str(), true);
             ev->appendKeyFloatArray(cmd.c_str(), col + offset, 3);
             App::worldContainer->pushEvent();
         }
@@ -179,28 +194,36 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode, in
     return retVal;
 }
 
-void CColorObject::addGenesisEventData(CCbor *ev, const char* suffix /*= nullptr*/) const
+void CColorObject::addGenesisEventData(CCbor *ev) const
 {
     std::string c;
-    c = propCol_colDiffuse.name;
-    if (suffix != nullptr)
-        c += suffix;
-    ev->appendKeyFloatArray(c.c_str(), _colors, 3);
-    c = propCol_colSpecular.name;
-    if (suffix != nullptr)
-        c += suffix;
-    ev->appendKeyFloatArray(c.c_str(), _colors + 3, 3);
-    c = propCol_colEmission.name;
-    if (suffix != nullptr)
-        c += suffix;
-    ev->appendKeyFloatArray(c.c_str(), _colors + 6, 3);
-    c = propCol_transparency.name;
-    if (suffix != nullptr)
-        c += suffix;
-    float transparency = 0.0f;
-    if (_translucid)
-        transparency = 1.0f - _opacity;
-    ev->appendKeyFloat(c.c_str(), transparency);
+    if (_eventFlags & 1)
+    {
+        c = propCol_colDiffuse.name;
+        c += _eventSuffix;
+        ev->appendKeyFloatArray(c.c_str(), _colors, 3);
+    }
+    if (_eventFlags & 4)
+    {
+        c = propCol_colSpecular.name;
+        c += _eventSuffix;
+        ev->appendKeyFloatArray(c.c_str(), _colors + 3, 3);
+    }
+    if (_eventFlags & 8)
+    {
+        c = propCol_colEmission.name;
+        c += _eventSuffix;
+        ev->appendKeyFloatArray(c.c_str(), _colors + 6, 3);
+    }
+    if (_eventFlags & 16)
+    {
+        c = propCol_transparency.name;
+        c += _eventSuffix;
+        float transparency = 0.0f;
+        if (_translucid)
+            transparency = 1.0f - _opacity;
+        ev->appendKeyFloat(c.c_str(), transparency);
+    }
 }
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -680,7 +703,7 @@ float CColorObject::getTransparency() const
     return retVal;
 }
 
-bool CColorObject::setTransparency(float t, int handleForEventGeneration /*= -1*/, const char* suffix /*= nullptr*/)
+bool CColorObject::setTransparency(float t)
 {
     if (t < 0.0f)
         t = 0.0f;
@@ -691,12 +714,11 @@ bool CColorObject::setTransparency(float t, int handleForEventGeneration /*= -1*
     {
         setTranslucid(t != 0.0f);
         setOpacity(1.0f - t);
-        if ((handleForEventGeneration != -1) && App::worldContainer->getEventsEnabled())
+        if ( (_eventFlags & 16) && (_eventObjectUid != -1) && App::worldContainer->getEventsEnabled() )
         {
             std::string cmd = propCol_transparency.name;
-            if (suffix != nullptr)
-                cmd += suffix;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(handleForEventGeneration, cmd.c_str(), true);
+            cmd += _eventSuffix;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(_eventObjectUid, cmd.c_str(), true);
             ev->appendKeyFloat(cmd.c_str(), t);
             App::worldContainer->pushEvent();
         }
@@ -817,48 +839,6 @@ void CColorObject::setExtensionString(const char *nm)
     if (diff)
         _extensionString = nm;
 }
-
-/*
-void CColorObject::handleSceneObjectColorEvents(int objHandle)
-{
-    if (objHandle < 0)
-    {
-        for (size_t i = 0; i < 15; i++)
-            _icolors[i] = _colors[i];
-        _ishininess = _shininess;
-        _iopacity = _opacity;
-        _itranslucid = _translucid;
-        _icolorName = _colorName;
-    }
-    else
-    {
-        if (App::worldContainer->getEventsEnabled())
-        {
-            if ( (_icolors[0] != _colors[0]) || (_icolors[1] != _colors[1]) || (_icolors[2] != _colors[2]) )
-            {
-                const char *cmd = "diffuseColor";
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(objHandle, false, cmd, true);
-                ev->appendKeyFloatArray(cmd, _colors, 3);
-                App::worldContainer->pushEvent();
-            }
-            if ( (_icolors[6] != _colors[6]) || (_icolors[7] != _colors[7]) || (_icolors[8] != _colors[8]) )
-            {
-                const char *cmd = "specularColor";
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(objHandle, false, cmd, true);
-                ev->appendKeyFloatArray(cmd, _colors + 6, 3);
-                App::worldContainer->pushEvent();
-            }
-            if ( (_icolors[9] != _colors[9]) || (_icolors[10] != _colors[10]) || (_icolors[11] != _colors[11]) )
-            {
-                const char *cmd = "emissionColor";
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(objHandle, false, cmd, true);
-                ev->appendKeyFloatArray(cmd, _colors + 6, 3);
-                App::worldContainer->pushEvent();
-            }
-        }
-    }
-}
-*/
 
 #ifdef SIM_WITH_GUI
 void CColorObject::makeCurrentColor(bool useAuxiliaryComponent) const

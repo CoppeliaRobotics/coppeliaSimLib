@@ -289,6 +289,12 @@ void CVisionSensor::computeBoundingBox()
     _setBB(fr, C3Vector(1.0, 1.0, 2.0) * _visionSensorSize * 0.5);
 }
 
+void CVisionSensor::setObjectHandle(int newObjectHandle)
+{
+    CSceneObject::setObjectHandle(newObjectHandle);
+    color.setEventParams(newObjectHandle);
+}
+
 void CVisionSensor::commonInit()
 {
     _objectType = sim_sceneobject_visionsensor;

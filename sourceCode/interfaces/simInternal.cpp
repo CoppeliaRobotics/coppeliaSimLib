@@ -1957,14 +1957,13 @@ char* simGetPropertyName_internal(int target, int index, SOptions* options)
     return nullptr;
 }
 
-int simGetPropertyInfo_internal(int target, const char* ppName, int* info, int* size, SOptions* options)
+int simGetPropertyInfo_internal(int target, const char* ppName, SPropertyInfo* infos, SOptions* options)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int _info, _size;
-        int retVal = -2;
+        int retVal = -1;
         // should always pass, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             bool staticParsing = false;
@@ -1976,15 +1975,18 @@ int simGetPropertyInfo_internal(int target, const char* ppName, int* info, int* 
                     staticParsing = true;
                 }
             }
-            retVal = App::getPropertyInfo(target, ppName, _info, _size, staticParsing);
-            if (retVal == -2)
+            int res = App::getPropertyInfo(target, ppName, infos->flags, infos->dataSize, staticParsing);
+            if (res == -2)
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
-            else if (retVal >= 0)
+            else if (res >= 0)
             {
-                if (info != nullptr)
-                    info[0] = _info;
-                if (size != nullptr)
-                    size[0] = _size;
+                infos->type = res;
+                retVal = 1;
+            }
+            else
+            {
+                infos->type = -1; // property does not exist;
+                retVal = 0;
             }
         }
         return retVal;
@@ -8018,7 +8020,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
             CDummy *dummy = (CDummy *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
             {
-                dummy->getDummyColor()->setColor(rgbData, colorComponent, objectHandle);
+                dummy->getDummyColor()->setColor(rgbData, colorComponent);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
                 float cols[9];
                 dummy->getDummyColor()->getNewColors(cols);
@@ -8032,7 +8034,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
             CCamera *camera = (CCamera *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
             {
-                camera->getColor(false)->setColor(rgbData, colorComponent, objectHandle);
+                camera->getColor(false)->setColor(rgbData, colorComponent);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
                 float cols[9];
                 camera->getColor(false)->getNewColors(cols);
@@ -8046,7 +8048,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
             CJoint *joint = (CJoint *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
             {
-                joint->getColor(false)->setColor(rgbData, colorComponent, objectHandle);
+                joint->getColor(false)->setColor(rgbData, colorComponent);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
                 float cols[9];
                 joint->getColor(false)->getNewColors(cols);
@@ -8060,7 +8062,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
             CLight *light = (CLight *)it;
             if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
             {
-                light->getColor(index == 1)->setColor(rgbData, colorComponent, objectHandle);
+                light->getColor(index == 1)->setColor(rgbData, colorComponent);
                 retVal = 1;
             }
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -8075,10 +8077,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
             CProxSensor *sensor = (CProxSensor *)it;
             if ((index >= 0) && (index <= 1) && (colorComponent <= sim_colorcomponent_emission))
             {
-                if (index == 0)
-                    sensor->getColor(index)->setColor(rgbData, colorComponent, objectHandle);
-                else
-                    sensor->getColor(index)->setColor(rgbData, colorComponent, objectHandle, "_ray");
+                sensor->getColor(index)->setColor(rgbData, colorComponent);
                 retVal = 1;
             }
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -8093,7 +8092,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
             CVisionSensor *sensor = (CVisionSensor *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
             {
-                sensor->getColor()->setColor(rgbData, colorComponent, objectHandle);
+                sensor->getColor()->setColor(rgbData, colorComponent);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
                 float cols[9];
                 sensor->getColor()->getNewColors(cols);
@@ -8107,7 +8106,7 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
             CForceSensor *sensor = (CForceSensor *)it;
             if ((index == 0) && (colorComponent <= sim_colorcomponent_emission))
             {
-                sensor->getColor(false)->setColor(rgbData, colorComponent, objectHandle);
+                sensor->getColor(false)->setColor(rgbData, colorComponent);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
                 float cols[9];
                 sensor->getColor(false)->getNewColors(cols);

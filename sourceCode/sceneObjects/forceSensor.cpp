@@ -424,6 +424,12 @@ void CForceSensor::computeBoundingBox()
     _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _forceSensorSize * 0.5);
 }
 
+void CForceSensor::setObjectHandle(int newObjectHandle)
+{
+    CSceneObject::setObjectHandle(newObjectHandle);
+    _color.setEventParams(newObjectHandle);
+}
+
 void CForceSensor::setForceSensorSize(double s)
 {
     tt::limitValue(0.001, 10.0, s);

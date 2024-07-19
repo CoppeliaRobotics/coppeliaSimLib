@@ -32,6 +32,7 @@ class CProxSensor : public CSceneObject
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
+    void setObjectHandle(int newObjectHandle);
     bool getSensingVolumeBoundingBox(C3Vector &minV, C3Vector &maxV) const;
     void getSensingVolumeOBB(C7Vector &tr, C3Vector &halfSizes);
     bool isPotentiallyCollidable() const;

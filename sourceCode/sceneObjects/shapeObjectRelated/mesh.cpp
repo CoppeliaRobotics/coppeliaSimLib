@@ -103,8 +103,10 @@ CMesh::~CMesh()
 void CMesh::_commonInit()
 {
     _isInSceneShapeUid = -1;
+    _uniqueID = _nextUniqueID++;
     color.setDefaultValues();
     color.setColor(0.9f, 0.9f, 0.9f, sim_colorcomponent_ambient_diffuse);
+    color.setEventParams(_uniqueID, 1 + 4 + 8 + 16);
     edgeColor_DEPRECATED.setColorsAllBlack();
     insideColor_DEPRECATED.setDefaultValues();
 
@@ -135,7 +137,6 @@ void CMesh::_commonInit()
     _insideAndOutsideFacesSameColor_DEPRECATED = true;
     _shadingAngle = 0.0;
     _edgeThresholdAngle = 0.0;
-    _uniqueID = _nextUniqueID++;
 
     _extRendererObjectId = 0;
     _extRendererMeshId = 0;
@@ -630,10 +631,7 @@ void CMesh::getCumulativeMeshes(const C7Vector &parentCumulTr, const CMeshWrappe
 
 void CMesh::setColor(const float* c, unsigned char colorMode)
 {
-    int id = _uniqueID;
-    if (_isInSceneShapeUid < 0)
-        id = -1;
-    color.setColor(c, colorMode, id);
+    color.setColor(c, colorMode);
 }
 
 void CMesh::setColor(const CShape *shape, int &elementIndex, const char *colorName, int colorComponent,
@@ -1093,7 +1091,7 @@ void CMesh::takeVisualAttributesFrom(CMesh *origin)
     setColor(origin->color.getColorsPtr() + sim_colorcomponent_ambient_diffuse * 3, sim_colorcomponent_ambient_diffuse);
     setColor(origin->color.getColorsPtr() + sim_colorcomponent_specular * 3, sim_colorcomponent_specular);
     setColor(origin->color.getColorsPtr() + sim_colorcomponent_emission * 3, sim_colorcomponent_emission);
-    color.setTransparency(origin->color.getTransparency(), _uniqueID);
+    color.setTransparency(origin->color.getTransparency());
     origin->insideColor_DEPRECATED.copyYourselfInto(&insideColor_DEPRECATED);
     origin->edgeColor_DEPRECATED.copyYourselfInto(&edgeColor_DEPRECATED);
     setVisibleEdges(origin->_visibleEdges);
@@ -2936,7 +2934,7 @@ int CMesh::setFloatProperty(const char* ppName, double pState, const C7Vector& s
     else if (strcmp(pName, propMesh_transparency.name) == 0)
     {
         retVal = 1;
-        color.setTransparency(pState, _uniqueID);
+        color.setTransparency(pState);
     }
 
     return retVal;

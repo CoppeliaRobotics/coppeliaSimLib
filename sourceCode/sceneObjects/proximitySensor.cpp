@@ -178,6 +178,7 @@ void CProxSensor::commonInit()
     volumeColor.setColor(0.9f, 0.0f, 0.5f, sim_colorcomponent_ambient_diffuse);
     detectionRayColor.setColorsAllBlack();
     detectionRayColor.setColor(1.0f, 1.0f, 0.0f, sim_colorcomponent_emission);
+    detectionRayColor.setEventParams(-1, -1, "_ray");
 
     _visibilityLayer = PROXIMITY_SENSOR_LAYER;
     _objectAlias = getObjectTypeInfo();
@@ -789,6 +790,13 @@ void CProxSensor::getSensingVolumeOBB(C7Vector &tr, C3Vector &halfSizes)
 void CProxSensor::computeBoundingBox()
 {
     _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _proxSensorSize * 0.5);
+}
+
+void CProxSensor::setObjectHandle(int newObjectHandle)
+{
+    CSceneObject::setObjectHandle(newObjectHandle);
+    volumeColor.setEventParams(newObjectHandle);
+    detectionRayColor.setEventParams(newObjectHandle);
 }
 
 void CProxSensor::calculateFreshRandomizedRays()

@@ -650,6 +650,12 @@ void CPointCloud::computeBoundingBox()
         _setBB(C7Vector::identityTransformation, C3Vector(0.1, 0.1, 0.1));
 }
 
+void CPointCloud::setObjectHandle(int newObjectHandle)
+{
+    CSceneObject::setObjectHandle(newObjectHandle);
+    color.setEventParams(newObjectHandle);
+}
+
 void CPointCloud::scaleObject(double scalingFactor)
 {
     _cellSize *= scalingFactor;

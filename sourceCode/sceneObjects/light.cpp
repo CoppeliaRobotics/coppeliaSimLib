@@ -125,6 +125,12 @@ void CLight::computeBoundingBox()
     }
 }
 
+void CLight::setObjectHandle(int newObjectHandle)
+{
+    CSceneObject::setObjectHandle(newObjectHandle);
+    objectColor.setEventParams(newObjectHandle);
+}
+
 void CLight::_setDefaultColors()
 {
     if (_lightType == sim_light_omnidirectional)

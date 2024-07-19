@@ -33,6 +33,7 @@ class COcTree : public CSceneObject
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
+    void setObjectHandle(int newObjectHandle);
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;
     bool isPotentiallyCollidable() const;

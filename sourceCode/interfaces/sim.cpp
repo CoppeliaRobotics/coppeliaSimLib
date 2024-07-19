@@ -114,9 +114,9 @@ SIM_DLLEXPORT char* simGetPropertyName(int target, int index, SOptions* options)
 {
     return simGetPropertyName_internal(target, index, options);
 }
-SIM_DLLEXPORT int simGetPropertyInfo(int target, const char* pName, int* info, int* size, SOptions* options)
+SIM_DLLEXPORT int simGetPropertyInfo(int target, const char* pName, SPropertyInfo* infos, SOptions* options)
 {
-    return simGetPropertyInfo_internal(target, pName, info, size, options);
+    return simGetPropertyInfo_internal(target, pName, infos, options);
 }
 
 SIM_DLLEXPORT void simRegCallback(int index, void *callback)

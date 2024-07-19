@@ -783,6 +783,12 @@ void CCamera::computeBoundingBox()
     _setBB(fr, C3Vector(1.0, 2.8, 3.8) * _cameraSize * 0.5);
 }
 
+void CCamera::setObjectHandle(int newObjectHandle)
+{
+    CSceneObject::setObjectHandle(newObjectHandle);
+    _color.setEventParams(newObjectHandle);
+}
+
 CCamera::~CCamera()
 {
 #ifdef SIM_WITH_GUI

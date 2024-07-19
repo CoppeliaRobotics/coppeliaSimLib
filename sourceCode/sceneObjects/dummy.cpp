@@ -267,6 +267,12 @@ void CDummy::computeBoundingBox()
     _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _dummySize * 0.5);
 }
 
+void CDummy::setObjectHandle(int newObjectHandle)
+{
+    CSceneObject::setObjectHandle(newObjectHandle);
+    _dummyColor.setEventParams(newObjectHandle);
+}
+
 void CDummy::scaleObject(double scalingFactor)
 {
     setDummySize(_dummySize * scalingFactor);

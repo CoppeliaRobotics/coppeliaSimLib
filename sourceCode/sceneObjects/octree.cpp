@@ -571,6 +571,12 @@ void COcTree::computeBoundingBox()
         _setBB(C7Vector::identityTransformation, C3Vector(0.1, 0.1, 0.1));
 }
 
+void COcTree::setObjectHandle(int newObjectHandle)
+{
+    CSceneObject::setObjectHandle(newObjectHandle);
+    color.setEventParams(newObjectHandle);
+}
+
 void COcTree::scaleObject(double scalingFactor)
 {
     _cellSize *= scalingFactor;

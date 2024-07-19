@@ -1267,6 +1267,12 @@ void CJoint::computeBoundingBox()
     _setBB(C7Vector::identityTransformation, maxV);
 }
 
+void CJoint::setObjectHandle(int newObjectHandle)
+{
+    CSceneObject::setObjectHandle(newObjectHandle);
+    _color.setEventParams(newObjectHandle);
+}
+
 bool CJoint::setScrewLead(double lead)
 {
     bool retVal = false;
