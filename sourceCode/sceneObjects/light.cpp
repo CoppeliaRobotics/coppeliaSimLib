@@ -125,10 +125,13 @@ void CLight::computeBoundingBox()
     }
 }
 
-void CLight::setObjectHandle(int newObjectHandle)
+void CLight::setIsInScene(bool s)
 {
-    CSceneObject::setObjectHandle(newObjectHandle);
-    objectColor.setEventParams(newObjectHandle);
+    CSceneObject::setIsInScene(s);
+    if (s)
+        objectColor.setEventParams(_objectHandle);
+    else
+        objectColor.setEventParams(-1);
 }
 
 void CLight::_setDefaultColors()
@@ -190,7 +193,7 @@ void CLight::setLightSize(double size)
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "size";
+            const char *cmd = propLight_size.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _lightSize);
             App::worldContainer->pushEvent();
@@ -273,8 +276,6 @@ void CLight::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
-#endif
-    ev->appendKeyDouble("size", _lightSize);
     ev->openKeyArray("colors");
     float c[9];
     objectColor.getColor(c, sim_colorcomponent_ambient_diffuse);
@@ -286,6 +287,10 @@ void CLight::addSpecializedObjectEventData(CCbor *ev) const
     lightColor.getColor(c + 6, sim_colorcomponent_emission);
     ev->appendFloatArray(c, 9);
     ev->closeArrayOrMap(); // colors
+#else
+    objectColor.addGenesisEventData(ev);
+#endif
+    ev->appendKeyDouble(propLight_size.name, _lightSize);
     // todo
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // light
@@ -740,3 +745,164 @@ void CLight::display(CViewableBase *renderingObject, int displayAttrib)
     displayLight(this, renderingObject, displayAttrib);
 }
 #endif
+
+int CLight::setFloatProperty(const char* ppName, double pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = objectColor.setFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propLight_size.name)
+        {
+            setLightSize(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CLight::getFloatProperty(const char* ppName, double& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = objectColor.getFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propLight_size.name)
+        {
+            pState = _lightSize;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CLight::setColorProperty(const char* ppName, const float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = objectColor.setColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CLight::getColorProperty(const char* ppName, float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = objectColor.getColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CLight::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".light";
+        retVal = objectColor.getPropertyName(index, pName);
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_light.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_light[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CLight::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".light";
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_light.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_light[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CLight::getPropertyInfo(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+        retVal = objectColor.getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_light.size(); i++)
+        {
+            if (strcmp(allProps_light[i].name, pName) == 0)
+            {
+                retVal = allProps_light[i].type;
+                info = allProps_light[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CLight::getPropertyInfo_static(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_light.size(); i++)
+        {
+            if (strcmp(allProps_light[i].name, pName) == 0)
+            {
+                retVal = allProps_light[i].type;
+                info = allProps_light[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+

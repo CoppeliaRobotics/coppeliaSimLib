@@ -106,10 +106,13 @@ bool CGraph::isPotentiallyRenderable() const
     return (false);
 }
 
-void CGraph::setObjectHandle(int newObjectHandle)
+void CGraph::setIsInScene(bool s)
 {
-    CSceneObject::setObjectHandle(newObjectHandle);
-    color.setEventParams(newObjectHandle);
+    CSceneObject::setIsInScene(s);
+    if (s)
+        color.setEventParams(_objectHandle);
+    else
+        color.setEventParams(-1);
 }
 
 void CGraph::computeBoundingBox()
@@ -581,8 +584,10 @@ void CGraph::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
+#else
+    color.addGenesisEventData(ev);
 #endif
-    ev->appendKeyDouble("size", _graphSize);
+    ev->appendKeyDouble(propGraph_size.name, _graphSize);
     // todo
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // graph
@@ -871,7 +876,7 @@ void CGraph::setGraphSize(double theNewSize)
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "size";
+            const char *cmd = propGraph_size.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _graphSize);
             App::worldContainer->pushEvent();
@@ -3543,3 +3548,164 @@ void CGraph::validateViewValues(int windowSize[2], double graphPosition[2], doub
     }
 }
 #endif
+
+int CGraph::setFloatProperty(const char* ppName, double pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.setFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propGraph_size.name)
+        {
+            setGraphSize(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CGraph::getFloatProperty(const char* ppName, double& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.getFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propGraph_size.name)
+        {
+            pState = _graphSize;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CGraph::setColorProperty(const char* ppName, const float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.setColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CGraph::getColorProperty(const char* ppName, float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.getColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CGraph::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".graph";
+        retVal = color.getPropertyName(index, pName);
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_graph.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_graph[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CGraph::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".graph";
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_graph.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_graph[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CGraph::getPropertyInfo(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+        retVal = color.getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_graph.size(); i++)
+        {
+            if (strcmp(allProps_graph[i].name, pName) == 0)
+            {
+                retVal = allProps_graph[i].type;
+                info = allProps_graph[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CGraph::getPropertyInfo_static(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_graph.size(); i++)
+        {
+            if (strcmp(allProps_graph[i].name, pName) == 0)
+            {
+                retVal = allProps_graph[i].type;
+                info = allProps_graph[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+

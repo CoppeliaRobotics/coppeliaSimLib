@@ -18,13 +18,9 @@
     FUNCX(propMesh_vertices,                "vertices",                                 sim_propertytype_vector,    1) \
     FUNCX(propMesh_indices,                 "indices",                                  sim_propertytype_intvector, 1) \
     FUNCX(propMesh_normals,                 "normals",                                  sim_propertytype_vector,    1) \
-    FUNCX(propMesh_colDiffuse,              "diffuseColor",                             sim_propertytype_color,     0) \
-    FUNCX(propMesh_colSpecular,             "specularColor",                            sim_propertytype_color,     0) \
-    FUNCX(propMesh_colEmission,             "emissionColor",                            sim_propertytype_color,     0) \
     FUNCX(propMesh_shadingAngle,            "shadingAngle",                             sim_propertytype_float,     0) \
     FUNCX(propMesh_showEdges,               "showEdges",                                sim_propertytype_bool,      0) \
     FUNCX(propMesh_culling,                 "culling",                                  sim_propertytype_bool,      0) \
-    FUNCX(propMesh_transparency,            "transparency",                             sim_propertytype_float,     0) \
     FUNCX(propMesh_objectType,              "objectType",                               sim_propertytype_string,    1) \
     FUNCX(propMesh_shapeUid,                "shapeUid",                                 sim_propertytype_int,       1) \
 

@@ -37,9 +37,6 @@ enum
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
     FUNCX(propDummy_size,                    "size",                                     sim_propertytype_float,     0) \
-    FUNCX(propDummy_colDiffuse,              "diffuseColor",                             sim_propertytype_color,     0) \
-    FUNCX(propDummy_colSpecular,             "specularColor",                            sim_propertytype_color,     0) \
-    FUNCX(propDummy_colEmission,             "emissionColor",                            sim_propertytype_color,     0) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -80,7 +77,6 @@ class CDummy : public CSceneObject
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
-    void setObjectHandle(int newObjectHandle);
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;
     bool isPotentiallyCollidable() const;
@@ -89,6 +85,7 @@ class CDummy : public CSceneObject
     void announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
     void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+    void setIsInScene(bool s);
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState);
     int setColorProperty(const char* pName, const float* pState);
@@ -111,7 +108,6 @@ class CDummy : public CSceneObject
     std::string getAssemblyTag() const;
 
     CColorObject *getDummyColor();
-    void setDummyColor(const float* col, int colComp);
     void loadUnknownObjectType(CSer &ar);
 
     bool setAssignedToParentPath(bool assigned);

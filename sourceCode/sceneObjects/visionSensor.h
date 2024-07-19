@@ -20,6 +20,21 @@ struct SHandlingResult
     int calcTimeInMs;
 };
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propVisionSensor_size,                    "size",                                     sim_propertytype_float,     0) \
+
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<SProperty> allProps_visionSensor = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+#undef CONCAT_PROP
+// ----------------------------------------------------------------------------------------------
+
 class CVisionSensor : public CViewableBase
 {
   public:
@@ -48,13 +63,21 @@ class CVisionSensor : public CViewableBase
     void simulationEnded();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
-    void setObjectHandle(int newObjectHandle);
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;
     bool isPotentiallyCollidable() const;
     bool isPotentiallyMeasurable() const;
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
+    void setIsInScene(bool s);
+    int setFloatProperty(const char* pName, double pState);
+    int getFloatProperty(const char* pName, double& pState);
+    int setColorProperty(const char* pName, const float* pState);
+    int getColorProperty(const char* pName, float* pState);
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
+    int getPropertyInfo(const char* pName, int& info, int& size);
+    static int getPropertyInfo_static(const char* pName, int& info, int& size);
 
     void commonInit();
 

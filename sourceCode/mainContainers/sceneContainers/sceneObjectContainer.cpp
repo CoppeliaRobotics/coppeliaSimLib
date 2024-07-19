@@ -2718,8 +2718,13 @@ void CSceneObjectContainer::handleDataCallbacks()
         if (obj->getCustomDataEvents(dataItems))
         {
             std::vector<CScriptObject*> scripts;
-            obj->getAttachedScripts(scripts, -1, true);
-            obj->getAttachedScripts(scripts, -1, false);
+            if (obj->getObjectType() == sim_sceneobject_script)
+                scripts.push_back(((CScript*)obj)->scriptObject);
+            else
+            {
+                obj->getAttachedScripts(scripts, -1, true);
+                obj->getAttachedScripts(scripts, -1, false);
+            }
             CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
             stack->pushTableOntoStack();
             for (const auto &r : dataItems)
@@ -5590,7 +5595,6 @@ int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& 
             return CShape::getPropertyName_static(index, pName, appartenance);
         if (target == sim_sceneobject_dummy)
             return CDummy::getPropertyName_static(index, pName, appartenance);
-        /*
         if (target == sim_sceneobject_joint)
             return CJoint::getPropertyName_static(index, pName, appartenance);
         if (target == sim_sceneobject_script)
@@ -5611,13 +5615,14 @@ int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& 
             return CPointCloud::getPropertyName_static(index, pName, appartenance);
         if (target == sim_sceneobject_octree)
             return COcTree::getPropertyName_static(index, pName, appartenance);
+        /*
         if (target == sim_sceneobject_path)
             return CPath_old::getPropertyName_static(index, pName, appartenance);
         if (target == sim_sceneobject_mill)
             return CMill::getPropertyName_static(index, pName, appartenance);
+            */
         if (target == sim_sceneobject_mirror)
             return CMirror::getPropertyName_static(index, pName, appartenance);
-            */
     }
     retVal = -2; // object does not exist
     return retVal;
@@ -5656,10 +5661,12 @@ int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& i
                 return ((CPointCloud*)it)->getPropertyInfo(pName, info, size);
             if (objType == sim_sceneobject_octree)
                 return ((COcTree*)it)->getPropertyInfo(pName, info, size);
+            /*
             if (objType == sim_sceneobject_path)
                 return ((CPath_old*)it)->getPropertyInfo(pName, info, size);
             if (objType == sim_sceneobject_mill)
                 return ((CMill*)it)->getPropertyInfo(pName, info, size);
+                */
             if (objType == sim_sceneobject_mirror)
                 return ((CMirror*)it)->getPropertyInfo(pName, info, size);
         }
@@ -5680,7 +5687,6 @@ int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& i
             return CShape::getPropertyInfo_static(pName, info, size);
         if (target == sim_sceneobject_dummy)
             return CDummy::getPropertyInfo_static(pName, info, size);
-        /*
         if (target == sim_sceneobject_joint)
             return CJoint::getPropertyInfo_static(pName, info, size);
         if (target == sim_sceneobject_script)
@@ -5701,13 +5707,14 @@ int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& i
             return CPointCloud::getPropertyInfo_static(pName, info, size);
         if (target == sim_sceneobject_octree)
             return COcTree::getPropertyInfo_static(pName, info, size);
+        /*
         if (target == sim_sceneobject_path)
             return CPath_old::getPropertyInfo_static(pName, info, size);
         if (target == sim_sceneobject_mill)
             return CMill::getPropertyInfo_static(pName, info, size);
+            */
         if (target == sim_sceneobject_mirror)
             return CMirror::getPropertyInfo_static(pName, info, size);
-            */
     }
     retVal = -2; // object does not exist
     return retVal;

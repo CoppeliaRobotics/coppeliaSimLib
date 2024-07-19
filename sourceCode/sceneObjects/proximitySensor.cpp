@@ -236,8 +236,11 @@ void CProxSensor::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("proxSensor");
+#else
+    volumeColor.addGenesisEventData(ev);
+    detectionRayColor.addGenesisEventData(ev);
 #endif
-    ev->appendKeyDouble("size", _proxSensorSize);
+    ev->appendKeyDouble(propProximitySensor_size.name, _proxSensorSize);
     // todo
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // proxSensor
@@ -792,11 +795,19 @@ void CProxSensor::computeBoundingBox()
     _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _proxSensorSize * 0.5);
 }
 
-void CProxSensor::setObjectHandle(int newObjectHandle)
+void CProxSensor::setIsInScene(bool s)
 {
-    CSceneObject::setObjectHandle(newObjectHandle);
-    volumeColor.setEventParams(newObjectHandle);
-    detectionRayColor.setEventParams(newObjectHandle);
+    CSceneObject::setIsInScene(s);
+    if (s)
+    {
+        volumeColor.setEventParams(_objectHandle);
+        detectionRayColor.setEventParams(_objectHandle);
+    }
+    else
+    {
+        volumeColor.setEventParams(-1);
+        detectionRayColor.setEventParams(-1);
+    }
 }
 
 void CProxSensor::calculateFreshRandomizedRays()
@@ -1006,7 +1017,7 @@ void CProxSensor::setProxSensorSize(double newSize)
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "size";
+            const char *cmd = propProximitySensor_size.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _proxSensorSize);
             App::worldContainer->pushEvent();
@@ -1075,3 +1086,180 @@ void CProxSensor::display(CViewableBase *renderingObject, int displayAttrib)
     displayProximitySensor(this, renderingObject, displayAttrib);
 }
 #endif
+
+int CProxSensor::setFloatProperty(const char* ppName, double pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = volumeColor.setFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = detectionRayColor.setFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propProximitySensor_size.name)
+        {
+            setProxSensorSize(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CProxSensor::getFloatProperty(const char* ppName, double& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = volumeColor.getFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = detectionRayColor.getFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propProximitySensor_size.name)
+        {
+            pState = _proxSensorSize;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CProxSensor::setColorProperty(const char* ppName, const float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = volumeColor.setColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = detectionRayColor.setColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CProxSensor::getColorProperty(const char* ppName, float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = volumeColor.getColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = detectionRayColor.getColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".proximitySensor";
+        retVal = volumeColor.getPropertyName(index, pName);
+    }
+    if (retVal == -1)
+        retVal = detectionRayColor.getPropertyName(index, pName);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_proximitySensor[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CProxSensor::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".proximitySensor";
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+    }
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "_ray");
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_proximitySensor[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CProxSensor::getPropertyInfo(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+        retVal = volumeColor.getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+        retVal = detectionRayColor.getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
+        {
+            if (strcmp(allProps_proximitySensor[i].name, pName) == 0)
+            {
+                retVal = allProps_proximitySensor[i].type;
+                info = allProps_proximitySensor[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CProxSensor::getPropertyInfo_static(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "_ray");
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
+        {
+            if (strcmp(allProps_proximitySensor[i].name, pName) == 0)
+            {
+                retVal = allProps_proximitySensor[i].type;
+                info = allProps_proximitySensor[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+

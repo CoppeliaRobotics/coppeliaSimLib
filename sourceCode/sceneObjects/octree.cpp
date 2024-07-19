@@ -153,7 +153,7 @@ void COcTree::_updateOctreeEvent() const
     {
         const char *cmd = "voxels";
         CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-        ev->appendKeyDouble("voxelSize", _cellSize);
+        ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
         ev->openKeyMap(cmd);
         ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
         ev->appendKeyUCharArray("colors", _colorsByte.data(), _colorsByte.size());
@@ -571,10 +571,13 @@ void COcTree::computeBoundingBox()
         _setBB(C7Vector::identityTransformation, C3Vector(0.1, 0.1, 0.1));
 }
 
-void COcTree::setObjectHandle(int newObjectHandle)
+void COcTree::setIsInScene(bool s)
 {
-    CSceneObject::setObjectHandle(newObjectHandle);
-    color.setEventParams(newObjectHandle);
+    CSceneObject::setIsInScene(s);
+    if (s)
+        color.setEventParams(_objectHandle);
+    else
+        color.setEventParams(-1);
 }
 
 void COcTree::scaleObject(double scalingFactor)
@@ -598,8 +601,10 @@ void COcTree::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
+#else
+    color.addGenesisEventData(ev);
 #endif
-    ev->appendKeyDouble("voxelSize", _cellSize);
+    ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
     ev->openKeyMap("voxels");
     ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
     ev->appendKeyUCharArray("colors", _colorsByte.data(), _colorsByte.size());
@@ -1160,3 +1165,164 @@ void COcTree::display(CViewableBase *renderingObject, int displayAttrib)
     displayOctree(this, renderingObject, displayAttrib);
 }
 #endif
+
+int COcTree::setFloatProperty(const char* ppName, double pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.setFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propOctree_voxelSize.name)
+        {
+            setCellSize(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int COcTree::getFloatProperty(const char* ppName, double& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.getFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propOctree_voxelSize.name)
+        {
+            pState = _cellSize;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int COcTree::setColorProperty(const char* ppName, const float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.setColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int COcTree::getColorProperty(const char* ppName, float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.getColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int COcTree::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".ocTree";
+        retVal = color.getPropertyName(index, pName);
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_ocTree.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_ocTree[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int COcTree::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".ocTree";
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_ocTree.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_ocTree[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int COcTree::getPropertyInfo(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+        retVal = color.getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_ocTree.size(); i++)
+        {
+            if (strcmp(allProps_ocTree[i].name, pName) == 0)
+            {
+                retVal = allProps_ocTree[i].type;
+                info = allProps_ocTree[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int COcTree::getPropertyInfo_static(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_ocTree.size(); i++)
+        {
+            if (strcmp(allProps_ocTree[i].name, pName) == 0)
+            {
+                retVal = allProps_ocTree[i].type;
+                info = allProps_ocTree[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+

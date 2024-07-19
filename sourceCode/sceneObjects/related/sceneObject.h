@@ -151,6 +151,7 @@ class CSceneObject
     virtual bool setParent(CSceneObject *parent);
     virtual void setObjectHandle(int newObjectHandle);
     virtual bool canDestroyNow();
+    virtual void setIsInScene(bool s);
 
     virtual int setBoolProperty(const char* pName, bool pState);
     virtual int getBoolProperty(const char* pName, bool& pState);
@@ -227,7 +228,6 @@ class CSceneObject
     void recomputeModelInfluencedValues(int overrideFlags = -1);
     void setObjectUniqueId();
     void setSelected(bool s); // doesn't generate a sync msg
-    void setIsInScene(bool s);
     void setParentPtr(CSceneObject *parent);
 
     int getScriptsInTree(std::vector<SScriptInfo> & scripts, int scriptType, bool legacyEmbeddedScripts, int depth = 0);

@@ -1267,10 +1267,13 @@ void CJoint::computeBoundingBox()
     _setBB(C7Vector::identityTransformation, maxV);
 }
 
-void CJoint::setObjectHandle(int newObjectHandle)
+void CJoint::setIsInScene(bool s)
 {
-    CSceneObject::setObjectHandle(newObjectHandle);
-    _color.setEventParams(newObjectHandle);
+    CSceneObject::setIsInScene(s);
+    if (s)
+        _color.setEventParams(_objectHandle);
+    else
+        _color.setEventParams(-1);
 }
 
 bool CJoint::setScrewLead(double lead)
@@ -1384,7 +1387,7 @@ void CJoint::setLength(double l)
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "length";
+            const char *cmd = propJoint_length.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, l);
             App::worldContainer->pushEvent();
@@ -1402,7 +1405,7 @@ void CJoint::setDiameter(double d)
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "diameter";
+            const char *cmd = propJoint_diameter.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, d);
             App::worldContainer->pushEvent();
@@ -2073,6 +2076,19 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
+    ev->openKeyArray("colors");
+    float c[9];
+    _color.getColor(c, sim_colorcomponent_ambient_diffuse);
+    _color.getColor(c + 3, sim_colorcomponent_specular);
+    _color.getColor(c + 6, sim_colorcomponent_emission);
+    ev->appendFloatArray(c, 9);
+    _color_removeSoon.getColor(c, sim_colorcomponent_ambient_diffuse);
+    _color_removeSoon.getColor(c + 3, sim_colorcomponent_specular);
+    _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
+    ev->appendFloatArray(c, 9);
+    ev->closeArrayOrMap(); // colors
+#else
+    _color.addGenesisEventData(ev);
 #endif
     std::string tmp;
     switch (_jointType)
@@ -2098,19 +2114,8 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev) const
     ev->appendKeyBool("cyclic", _isCyclic);
     ev->appendKeyDouble("min", _posMin);
     ev->appendKeyDouble("range", _posRange);
-    ev->appendKeyDouble("diameter", _diameter);
-    ev->appendKeyDouble("length", _length);
-    ev->openKeyArray("colors");
-    float c[9];
-    _color.getColor(c, sim_colorcomponent_ambient_diffuse);
-    _color.getColor(c + 3, sim_colorcomponent_specular);
-    _color.getColor(c + 6, sim_colorcomponent_emission);
-    ev->appendFloatArray(c, 9);
-    _color_removeSoon.getColor(c, sim_colorcomponent_ambient_diffuse);
-    _color_removeSoon.getColor(c + 3, sim_colorcomponent_specular);
-    _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
-    ev->appendFloatArray(c, 9);
-    ev->closeArrayOrMap(); // colors
+    ev->appendKeyDouble(propJoint_length.name, _length);
+    ev->appendKeyDouble(propJoint_diameter.name, _diameter);
     ev->openKeyMap("dependency");
     if (_dependencyMasterJointHandle != -1)
     {
@@ -4864,3 +4869,174 @@ void CJoint::display(CViewableBase *renderingObject, int displayAttrib)
     displayJoint(this, renderingObject, displayAttrib);
 }
 #endif
+
+int CJoint::setFloatProperty(const char* ppName, double pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _color.setFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propJoint_length.name)
+        {
+            setLength(pState);
+            retVal = 1;
+        }
+        else if (_pName == propJoint_diameter.name)
+        {
+            setDiameter(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CJoint::getFloatProperty(const char* ppName, double& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _color.getFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propJoint_length.name)
+        {
+            pState = _length;
+            retVal = 1;
+        }
+        else if (_pName == propJoint_diameter.name)
+        {
+            pState = _diameter;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CJoint::setColorProperty(const char* ppName, const float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _color.setColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CJoint::getColorProperty(const char* ppName, float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _color.getColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CJoint::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".joint";
+        retVal = _color.getPropertyName(index, pName);
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_joint.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_joint[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CJoint::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".joint";
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_joint.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_joint[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CJoint::getPropertyInfo(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+        retVal = _color.getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_joint.size(); i++)
+        {
+            if (strcmp(allProps_joint[i].name, pName) == 0)
+            {
+                retVal = allProps_joint[i].type;
+                info = allProps_joint[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CJoint::getPropertyInfo_static(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_joint.size(); i++)
+        {
+            if (strcmp(allProps_joint[i].name, pName) == 0)
+            {
+                retVal = allProps_joint[i].type;
+                info = allProps_joint[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+

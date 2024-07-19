@@ -106,7 +106,7 @@ void CMesh::_commonInit()
     _uniqueID = _nextUniqueID++;
     color.setDefaultValues();
     color.setColor(0.9f, 0.9f, 0.9f, sim_colorcomponent_ambient_diffuse);
-    color.setEventParams(_uniqueID, 1 + 4 + 8 + 16);
+    color.setEventParams(-1, 1 + 4 + 8 + 16);
     edgeColor_DEPRECATED.setColorsAllBlack();
     insideColor_DEPRECATED.setDefaultValues();
 
@@ -2924,19 +2924,15 @@ int CMesh::setFloatProperty(const char* ppName, double pState, const C7Vector& s
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();
-    int retVal = -1;
-
-    if (strcmp(pName, propMesh_shadingAngle.name) == 0)
+    int retVal = color.setFloatProperty(pName, pState);
+    if (retVal == -1)
     {
-        retVal = 1;
-        setShadingAngle(pState);
+        if (strcmp(pName, propMesh_shadingAngle.name) == 0)
+        {
+            retVal = 1;
+            setShadingAngle(pState);
+        }
     }
-    else if (strcmp(pName, propMesh_transparency.name) == 0)
-    {
-        retVal = 1;
-        color.setTransparency(pState);
-    }
-
     return retVal;
 }
 
@@ -2944,17 +2940,14 @@ int CMesh::getFloatProperty(const char* ppName, double& pState, const C7Vector& 
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();
-    int retVal = -1;
-
-    if (strcmp(pName, propMesh_shadingAngle.name) == 0)
+    int retVal = color.getFloatProperty(pName, pState);
+    if (retVal == -1)
     {
-        retVal = 1;
-        pState = _shadingAngle;
-    }
-    else if (strcmp(pName, propMesh_transparency.name) == 0)
-    {
-        retVal = 1;
-        pState = color.getTransparency();
+        if (strcmp(pName, propMesh_shadingAngle.name) == 0)
+        {
+            retVal = 1;
+            pState = _shadingAngle;
+        }
     }
 
     return retVal;
@@ -3108,24 +3101,11 @@ int CMesh::setColorProperty(const char* ppName, const float* pState, const C7Vec
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();
-    int retVal = -1;
+    int retVal = color.setColorProperty(pName, pState);
+    if (retVal == -1)
+    {
 
-    if (strcmp(pName, propMesh_colDiffuse.name) == 0)
-    {
-        retVal = 1;
-        setColor(pState, sim_colorcomponent_ambient_diffuse);
     }
-    else if (strcmp(pName, propMesh_colSpecular.name) == 0)
-    {
-        retVal = 1;
-        setColor(pState, sim_colorcomponent_specular);
-    }
-    else if (strcmp(pName, propMesh_colEmission.name) == 0)
-    {
-        retVal = 1;
-        setColor(pState, sim_colorcomponent_emission);
-    }
-
     return retVal;
 }
 
@@ -3133,24 +3113,11 @@ int CMesh::getColorProperty(const char* ppName, float* pState, const C7Vector& s
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();
-    int retVal = -1;
+    int retVal = color.getColorProperty(pName, pState);
+    if (retVal == -1)
+    {
 
-    if (strcmp(pName, propMesh_colDiffuse.name) == 0)
-    {
-        retVal = 1;
-        color.getColor(pState, sim_colorcomponent_ambient_diffuse);
     }
-    else if (strcmp(pName, propMesh_colSpecular.name) == 0)
-    {
-        retVal = 1;
-        color.getColor(pState, sim_colorcomponent_specular);
-    }
-    else if (strcmp(pName, propMesh_colEmission.name) == 0)
-    {
-        retVal = 1;
-        color.getColor(pState, sim_colorcomponent_emission);
-    }
-
     return retVal;
 }
 
@@ -3255,16 +3222,23 @@ int CMesh::removeProperty(const char* ppName)
 int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject)
 {
     int retVal = -1;
-    for (size_t i = 0; i < allProps_mesh.size(); i++)
+    if (targetObject != nullptr)
+        retVal = targetObject->color.getPropertyName(index, pName);
+    else
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8 + 16, "");
+    if (retVal == -1)
     {
-        if ( (targetObject == nullptr) || (targetObject->_textureProperty != nullptr) || (i > 7) )
+        for (size_t i = 0; i < allProps_mesh.size(); i++)
         {
-            index--;
-            if (index == -1)
+            if ( (targetObject == nullptr) || (targetObject->_textureProperty != nullptr) || (i > 7) )
             {
-                pName = allProps_mesh[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_mesh[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }
@@ -3276,14 +3250,21 @@ int CMesh::getPropertyInfo(const char* ppName,int& info, int& size, CMesh* targe
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();
     int retVal = -1;
-    for (size_t i = 0; i < allProps_mesh.size(); i++)
+    if (targetObject != nullptr)
+        retVal = targetObject->color.getPropertyInfo(pName, info, size);
+    else
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8 + 16, "");
+    if (retVal == -1)
     {
-        if (strcmp(allProps_mesh[i].name, pName) == 0)
+        for (size_t i = 0; i < allProps_mesh.size(); i++)
         {
-            retVal = allProps_mesh[i].type;
-            info = allProps_mesh[i].flags;
-            size = 0;
-            break;
+            if (strcmp(allProps_mesh[i].name, pName) == 0)
+            {
+                retVal = allProps_mesh[i].type;
+                info = allProps_mesh[i].flags;
+                size = 0;
+                break;
+            }
         }
     }
     return retVal;

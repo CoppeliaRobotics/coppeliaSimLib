@@ -1646,6 +1646,23 @@ void CShape::displayFrames(CViewableBase *renderingObject, double size, bool per
 }
 #endif
 
+void CShape::setIsInScene(bool s)
+{
+    CSceneObject::setIsInScene(s);
+    if (getMesh() != nullptr)
+    {
+        std::vector<CMesh *> all;
+        getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
+        for (size_t i = 0; i < all.size(); i++)
+        {
+            if (s)
+                all[i]->color.setEventParams(all[i]->getUniqueID());
+            else
+                all[i]->color.setEventParams(-1);
+        }
+    }
+}
+
 int CShape::getIntVectorProperty(const char* ppName, std::vector<int>& pState)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "shape."));

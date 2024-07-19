@@ -783,10 +783,13 @@ void CCamera::computeBoundingBox()
     _setBB(fr, C3Vector(1.0, 2.8, 3.8) * _cameraSize * 0.5);
 }
 
-void CCamera::setObjectHandle(int newObjectHandle)
+void CCamera::setIsInScene(bool s)
 {
-    CSceneObject::setObjectHandle(newObjectHandle);
-    _color.setEventParams(newObjectHandle);
+    CSceneObject::setIsInScene(s);
+    if (s)
+        _color.setEventParams(_objectHandle);
+    else
+        _color.setEventParams(-1);
 }
 
 CCamera::~CCamera()
@@ -865,7 +868,7 @@ void CCamera::setCameraSize(double size)
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "size";
+            const char *cmd = propCamera_size.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, size);
             App::worldContainer->pushEvent();
@@ -920,20 +923,6 @@ void CCamera::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
-#endif
-    ev->appendKeyBool("perspectiveMode", _perspective);
-    ev->appendKeyBool("allowTranslation", _allowTranslation);
-    ev->appendKeyBool("allowRotation", _allowRotation);
-    ev->appendKeyDouble("nearClippingPlane", _nearClippingPlane);
-    ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
-    ev->appendKeyDouble("viewAngle", _viewAngle);
-    ev->appendKeyDouble("orthoSize", _orthoViewSize);
-    ev->appendKeyDouble("size", _cameraSize);
-    ev->appendKeyBool("showFrustum", _showVolume);
-    ev->openKeyMap("frustumVectors");
-    ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
-    ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
-    ev->closeArrayOrMap(); // "frustumVectors"
     ev->openKeyArray("colors");
     float c[9];
     _color.getColor(c, sim_colorcomponent_ambient_diffuse);
@@ -945,6 +934,22 @@ void CCamera::addSpecializedObjectEventData(CCbor *ev) const
     _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
     ev->appendFloatArray(c, 9);
     ev->closeArrayOrMap(); // "colors"
+#else
+    _color.addGenesisEventData(ev);
+#endif
+    ev->appendKeyBool("perspectiveMode", _perspective);
+    ev->appendKeyBool("allowTranslation", _allowTranslation);
+    ev->appendKeyBool("allowRotation", _allowRotation);
+    ev->appendKeyDouble("nearClippingPlane", _nearClippingPlane);
+    ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
+    ev->appendKeyDouble("viewAngle", _viewAngle);
+    ev->appendKeyDouble("orthoSize", _orthoViewSize);
+    ev->appendKeyDouble(propCamera_size.name, _cameraSize);
+    ev->appendKeyBool("showFrustum", _showVolume);
+    ev->openKeyMap("frustumVectors");
+    ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
+    ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
+    ev->closeArrayOrMap(); // "frustumVectors"
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); //"camera"
 #endif
@@ -3251,3 +3256,164 @@ bool CCamera::getInternalRendering() const
     return (true);
 }
 #endif
+
+int CCamera::setFloatProperty(const char* ppName, double pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _color.setFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propCamera_size.name)
+        {
+            setCameraSize(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CCamera::getFloatProperty(const char* ppName, double& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _color.getFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propCamera_size.name)
+        {
+            pState = _cameraSize;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CCamera::setColorProperty(const char* ppName, const float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _color.setColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CCamera::getColorProperty(const char* ppName, float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _color.getColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CCamera::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".camera";
+        retVal = _color.getPropertyName(index, pName);
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_camera.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_camera[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CCamera::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".camera";
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_camera.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_camera[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CCamera::getPropertyInfo(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+        retVal = _color.getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_camera.size(); i++)
+        {
+            if (strcmp(allProps_camera[i].name, pName) == 0)
+            {
+                retVal = allProps_camera[i].type;
+                info = allProps_camera[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CCamera::getPropertyInfo_static(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_camera.size(); i++)
+        {
+            if (strcmp(allProps_camera[i].name, pName) == 0)
+            {
+                retVal = allProps_camera[i].type;
+                info = allProps_camera[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+

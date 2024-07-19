@@ -267,10 +267,13 @@ void CDummy::computeBoundingBox()
     _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _dummySize * 0.5);
 }
 
-void CDummy::setObjectHandle(int newObjectHandle)
+void CDummy::setIsInScene(bool s)
 {
-    CSceneObject::setObjectHandle(newObjectHandle);
-    _dummyColor.setEventParams(newObjectHandle);
+    CSceneObject::setIsInScene(s);
+    if (s)
+        _dummyColor.setEventParams(_objectHandle);
+    else
+        _dummyColor.setEventParams(-1);
 }
 
 void CDummy::scaleObject(double scalingFactor)
@@ -292,11 +295,6 @@ void CDummy::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
-#endif
-    ev->appendKeyDouble(propDummy_size.name, _dummySize);
-
-#if SIM_EVENT_PROTOCOL_VERSION == 2
-    // Temp. support for old protocol version
     float c[9];
     _dummyColor.getColor(c, sim_colorcomponent_ambient_diffuse);
     _dummyColor.getColor(c + 3, sim_colorcomponent_specular);
@@ -307,6 +305,7 @@ void CDummy::addSpecializedObjectEventData(CCbor *ev) const
 #else
     _dummyColor.addGenesisEventData(ev);
 #endif
+    ev->appendKeyDouble(propDummy_size.name, _dummySize);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // dummy
@@ -1106,41 +1105,6 @@ CColorObject *CDummy::getDummyColor()
     return (&_dummyColor);
 }
 
-void CDummy::setDummyColor(const float* col, int colComp)
-{
-    float o[3];
-    _dummyColor.getColor(o, colComp);
-    bool diff = ( (o[0] != col[0]) || (o[1] != col[1]) || (o[2] != col[2]) );
-    if (diff)
-    {
-        _dummyColor.setColor(col, colComp);
-        if (_isInScene && App::worldContainer->getEventsEnabled())
-        {
-            if (colComp == sim_colorcomponent_ambient_diffuse)
-            {
-                const char *cmd = propDummy_colDiffuse.name;
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-                ev->appendKeyFloatArray(cmd, col, 3);
-                App::worldContainer->pushEvent();
-            }
-            else if (colComp == sim_colorcomponent_specular)
-            {
-                const char *cmd = propDummy_colSpecular.name;
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-                ev->appendKeyFloatArray(cmd, col, 3);
-                App::worldContainer->pushEvent();
-            }
-            else if (colComp == sim_colorcomponent_emission)
-            {
-                const char *cmd = propDummy_colEmission.name;
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-                ev->appendKeyFloatArray(cmd, col, 3);
-                App::worldContainer->pushEvent();
-            }
-        }
-    }
-}
-
 void CDummy::setDummySize(double s)
 {
     bool diff = (_dummySize != s);
@@ -1171,6 +1135,8 @@ int CDummy::setFloatProperty(const char* ppName, double pState)
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setFloatProperty(pName, pState);
     if (retVal == -1)
+        retVal = _dummyColor.setFloatProperty(pName, pState);
+    if (retVal == -1)
     {
         if (strcmp(pName, propDummy_size.name) == 0)
         {
@@ -1187,6 +1153,8 @@ int CDummy::getFloatProperty(const char* ppName, double& pState)
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _dummyColor.getFloatProperty(pName, pState);
     if (retVal == -1)
     {
         if (strcmp(pName, propDummy_size.name) == 0)
@@ -1205,24 +1173,11 @@ int CDummy::setColorProperty(const char* ppName, const float* pState)
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setColorProperty(pName, pState);
     if (retVal == -1)
+        retVal = _dummyColor.setColorProperty(pName, pState);
+    if (retVal != -1)
     {
-        if (strcmp(pName, propDummy_colDiffuse.name) == 0)
-        {
-            setDummyColor(pState, sim_colorcomponent_ambient_diffuse);
-            retVal = 1;
-        }
-        else if (strcmp(pName, propDummy_colSpecular.name) == 0)
-        {
-            setDummyColor(pState, sim_colorcomponent_specular);
-            retVal = 1;
-        }
-        else if (strcmp(pName, propDummy_colEmission.name) == 0)
-        {
-            setDummyColor(pState, sim_colorcomponent_emission);
-            retVal = 1;
-        }
-    }
 
+    }
     return retVal;
 }
 
@@ -1232,24 +1187,11 @@ int CDummy::getColorProperty(const char* ppName, float* pState)
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getColorProperty(pName, pState);
     if (retVal == -1)
+        retVal = _dummyColor.getColorProperty(pName, pState);
+    if (retVal != -1)
     {
-        if (strcmp(pName, propDummy_colDiffuse.name) == 0)
-        {
-            _dummyColor.getColor(pState, sim_colorcomponent_ambient_diffuse);
-            retVal = 1;
-        }
-        else if (strcmp(pName, propDummy_colSpecular.name) == 0)
-        {
-            _dummyColor.getColor(pState, sim_colorcomponent_specular);
-            retVal = 1;
-        }
-        else if (strcmp(pName, propDummy_colEmission.name) == 0)
-        {
-            _dummyColor.getColor(pState, sim_colorcomponent_emission);
-            retVal = 1;
-        }
-    }
 
+    }
     return retVal;
 }
 
@@ -1259,6 +1201,10 @@ int CDummy::getPropertyName(int& index, std::string& pName, std::string& apparte
     if (retVal == -1)
     {
         appartenance += ".dummy";
+        retVal = _dummyColor.getPropertyName(index, pName);
+    }
+    if (retVal == -1)
+    {
         for (size_t i = 0; i < allProps_dummy.size(); i++)
         {
             index--;
@@ -1280,6 +1226,10 @@ int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& 
     if (retVal == -1)
     {
         appartenance += ".dummy";
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+    }
+    if (retVal == -1)
+    {
         for (size_t i = 0; i < allProps_dummy.size(); i++)
         {
             index--;
@@ -1301,6 +1251,8 @@ int CDummy::getPropertyInfo(const char* ppName, int& info, int& size)
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getPropertyInfo(pName, info, size);
     if (retVal == -1)
+        retVal = _dummyColor.getPropertyInfo(pName, info, size);
+    if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_dummy.size(); i++)
         {
@@ -1321,6 +1273,8 @@ int CDummy::getPropertyInfo_static(const char* ppName, int& info, int& size)
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_dummy.size(); i++)

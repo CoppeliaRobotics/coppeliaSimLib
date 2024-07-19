@@ -57,12 +57,20 @@ CScript::~CScript()
 {
 }
 
+void CScript::setIsInScene(bool s)
+{
+    CSceneObject::setIsInScene(s);
+    if (s)
+        _scriptColor.setEventParams(_objectHandle);
+    else
+        _scriptColor.setEventParams(-1);
+}
+
 void CScript::setObjectHandle(int newObjectHandle)
 {
     CSceneObject::setObjectHandle(newObjectHandle);
     scriptObject->_scriptHandle = newObjectHandle;
     scriptObject->_objectHandleAttachedTo = newObjectHandle;
-    _scriptColor.setEventParams(newObjectHandle);
 }
 
 bool CScript::canDestroyNow()
@@ -138,8 +146,6 @@ void CScript::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
-#endif
-    ev->appendKeyDouble("size", _scriptSize);
     ev->openKeyArray("colors");
     float c[9];
     _scriptColor.getColor(c, sim_colorcomponent_ambient_diffuse);
@@ -147,6 +153,10 @@ void CScript::addSpecializedObjectEventData(CCbor *ev) const
     _scriptColor.getColor(c + 6, sim_colorcomponent_emission);
     ev->appendFloatArray(c, 9);
     ev->closeArrayOrMap(); // colors
+#else
+    _scriptColor.addGenesisEventData(ev);
+#endif
+    ev->appendKeyDouble(propScript_size.name, _scriptSize);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // script
 #endif
@@ -386,7 +396,7 @@ void CScript::setScriptSize(double s)
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "size";
+            const char *cmd = propScript_size.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _scriptSize);
             App::worldContainer->pushEvent();
@@ -400,3 +410,164 @@ void CScript::display(CViewableBase *renderingObject, int displayAttrib)
     displayScript(this, renderingObject, displayAttrib);
 }
 #endif
+
+int CScript::setFloatProperty(const char* ppName, double pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _scriptColor.setFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propScript_size.name)
+        {
+            setScriptSize(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CScript::getFloatProperty(const char* ppName, double& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _scriptColor.getFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propScript_size.name)
+        {
+            pState = _scriptSize;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CScript::setColorProperty(const char* ppName, const float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _scriptColor.setColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CScript::getColorProperty(const char* ppName, float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _scriptColor.getColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CScript::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".script";
+        retVal = _scriptColor.getPropertyName(index, pName);
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_script.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_script[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CScript::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".script";
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_script.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_script[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CScript::getPropertyInfo(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+        retVal = _scriptColor.getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_script.size(); i++)
+        {
+            if (strcmp(allProps_script[i].name, pName) == 0)
+            {
+                retVal = allProps_script[i].type;
+                info = allProps_script[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CScript::getPropertyInfo_static(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_script.size(); i++)
+        {
+            if (strcmp(allProps_script[i].name, pName) == 0)
+            {
+                retVal = allProps_script[i].type;
+                info = allProps_script[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+

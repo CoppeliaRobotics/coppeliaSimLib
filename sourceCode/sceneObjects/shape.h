@@ -73,6 +73,7 @@ class CShape : public CSceneObject
     bool isPotentiallyMeasurable() const;
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
+    void setIsInScene(bool s);
 
     int getIntVectorProperty(const char* pName, std::vector<int>& pState);
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);

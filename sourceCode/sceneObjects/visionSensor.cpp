@@ -289,10 +289,13 @@ void CVisionSensor::computeBoundingBox()
     _setBB(fr, C3Vector(1.0, 1.0, 2.0) * _visionSensorSize * 0.5);
 }
 
-void CVisionSensor::setObjectHandle(int newObjectHandle)
+void CVisionSensor::setIsInScene(bool s)
 {
-    CSceneObject::setObjectHandle(newObjectHandle);
-    color.setEventParams(newObjectHandle);
+    CSceneObject::setIsInScene(s);
+    if (s)
+        color.setEventParams(_objectHandle);
+    else
+        color.setEventParams(-1);
 }
 
 void CVisionSensor::commonInit()
@@ -514,7 +517,7 @@ void CVisionSensor::setVisionSensorSize(const double s)
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "size";
+            const char *cmd = propVisionSensor_size.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _visionSensorSize);
             App::worldContainer->pushEvent();
@@ -1872,13 +1875,15 @@ void CVisionSensor::addSpecializedObjectEventData(CCbor *ev) const
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
+#else
+    color.addGenesisEventData(ev);
 #endif
     ev->appendKeyBool("perspectiveMode", _perspective);
     ev->appendKeyDouble("nearClippingPlane", _nearClippingPlane);
     ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
     ev->appendKeyDouble("viewAngle", _viewAngle);
     ev->appendKeyDouble("orthoSize", _orthoViewSize);
-    ev->appendKeyDouble("size", _visionSensorSize);
+    ev->appendKeyDouble(propVisionSensor_size.name, _visionSensorSize);
     ev->appendKeyBool("showFrustum", _showVolume);
     ev->openKeyMap("frustumVectors");
     ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
@@ -3134,3 +3139,164 @@ CTextureObject *CVisionSensor::getTextureObject()
     return (nullptr);
 }
 #endif
+
+int CVisionSensor::setFloatProperty(const char* ppName, double pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.setFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propVisionSensor_size.name)
+        {
+            setVisionSensorSize(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CVisionSensor::getFloatProperty(const char* ppName, double& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.getFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propVisionSensor_size.name)
+        {
+            pState = _visionSensorSize;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CVisionSensor::setColorProperty(const char* ppName, const float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.setColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CVisionSensor::getColorProperty(const char* ppName, float* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = color.getColorProperty(pName, pState);
+    if (retVal != -1)
+    {
+
+    }
+    return retVal;
+}
+
+int CVisionSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".visionSensor";
+        retVal = color.getPropertyName(index, pName);
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_visionSensor.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_visionSensor[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CVisionSensor::getPropertyName_static(int& index, std::string& pName, std::string& appartenance)
+{
+    int retVal = CSceneObject::getPropertyName_bstatic(index, pName, appartenance);
+    if (retVal == -1)
+    {
+        appartenance += ".visionSensor";
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
+    }
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_visionSensor.size(); i++)
+        {
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_visionSensor[i].name;
+                retVal = 1;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CVisionSensor::getPropertyInfo(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+        retVal = color.getPropertyInfo(pName, info, size);
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_visionSensor.size(); i++)
+        {
+            if (strcmp(allProps_visionSensor[i].name, pName) == 0)
+            {
+                retVal = allProps_visionSensor[i].type;
+                info = allProps_visionSensor[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CVisionSensor::getPropertyInfo_static(const char* ppName, int& info, int& size)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+    if (retVal == -1)
+    {
+        for (size_t i = 0; i < allProps_visionSensor.size(); i++)
+        {
+            if (strcmp(allProps_visionSensor[i].name, pName) == 0)
+            {
+                retVal = allProps_visionSensor[i].type;
+                info = allProps_visionSensor[i].flags;
+                size = 0;
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+
