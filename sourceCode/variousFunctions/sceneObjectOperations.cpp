@@ -834,7 +834,7 @@ CShape *CSceneObjectOperations::_groupShapes(const std::vector<CShape *> &shapes
     return (newShape);
 }
 
-void CSceneObjectOperations::ungroupSelection(std::vector<int> *selection)
+void CSceneObjectOperations::ungroupSelection(std::vector<int> *selection, bool fullUngroup /*= false*/)
 {
     App::currentWorld->sceneObjects->deselectObjects();
     std::vector<int> finalSel;
@@ -844,7 +844,10 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int> *selection)
         if ((it != nullptr) && it->isCompound())
         {
             std::vector<CShape *> newShapes;
-            _ungroupShape(it, newShapes);
+            if (fullUngroup)
+                _fullUngroupShape(it, newShapes);
+            else
+                _ungroupShape(it, newShapes);
             for (size_t j = 0; j < newShapes.size(); j++)
                 finalSel.push_back(newShapes[j]->getObjectHandle());
         }

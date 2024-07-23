@@ -7029,6 +7029,7 @@ int simCopyPasteObjects_internal(int *objectHandles, int objectCount, int option
             for (int i = 0; i < objectCount; i++)
             { // now return the handles of the copies. Each input handle has a corresponding output handle:
                 CSceneObject *original = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandles[i]);
+                objectHandles[i] = -1; // a handle in the output array can be -1 (e.g. with stripped-away scripts)
                 if (original != nullptr)
                 {
                     std::string str = original->getCopyString();
@@ -7044,8 +7045,6 @@ int simCopyPasteObjects_internal(int *objectHandles, int objectCount, int option
                         }
                     }
                 }
-                else
-                    objectHandles[i] = -1;
             }
         }
         return (retVal);
@@ -12765,23 +12764,13 @@ int *simUngroupShape_internal(int shapeHandle, int *shapeCount)
         {
             if (dividing)
             {
-                std::vector<int> finalSel;
-                std::vector<int> previousSel;
                 std::vector<int> sel;
-                previousSel.push_back(shapeHandle);
                 sel.push_back(shapeHandle);
                 CSceneObjectOperations::divideSelection(&sel);
-                for (size_t j = 0; j < sel.size(); j++)
-                {
-                    if (sel[j] != shapeHandle)
-                        finalSel.push_back(sel[j]);
-                }
-                finalSel.push_back(shapeHandle); // the original shape is added at the very end for correct ordering
-
-                int *retVal = new int[finalSel.size()];
-                for (int i = 0; i < int(finalSel.size()); i++)
-                    retVal[i] = finalSel[i];
-                shapeCount[0] = int(finalSel.size());
+                int *retVal = new int[sel.size()];
+                for (int i = 0; i < int(sel.size()); i++)
+                    retVal[i] = sel[i];
+                shapeCount[0] = int(sel.size());
                 return (retVal);
             }
             else
@@ -12800,40 +12789,18 @@ int *simUngroupShape_internal(int shapeHandle, int *shapeCount)
                 shapeCount[0] = 0;
                 return (nullptr);
             }
-        }
-        std::vector<int> finalSel;
-        std::vector<int> previousSel;
-        std::vector<int> sel;
-        previousSel.push_back(shapeHandle);
-        sel.push_back(shapeHandle);
-        while (sel.size() != 0)
-        {
-            CSceneObjectOperations::ungroupSelection(&sel);
-            for (int i = 0; i < int(previousSel.size()); i++)
+            else
             {
-                int previousID = previousSel[i];
-                bool present = false;
-                for (int j = 0; j < int(sel.size()); j++)
-                {
-                    if (sel[j] == previousID)
-                    {
-                        present = true;
-                        break;
-                    }
-                }
-                if ((!present) &&
-                    (shapeHandle !=
-                     previousID)) // the original shape will be added at the very end for correct ordering (see below)
-                    finalSel.push_back(previousID); // this is a simple shape (not a group)
+                std::vector<int> sel;
+                sel.push_back(shapeHandle);
+                CSceneObjectOperations::ungroupSelection(&sel, true);
+                int *retVal = new int[sel.size()];
+                for (int i = 0; i < int(sel.size()); i++)
+                    retVal[i] = sel[i];
+                shapeCount[0] = int(sel.size());
+                return (retVal);
             }
-            previousSel.assign(sel.begin(), sel.end());
         }
-        finalSel.push_back(shapeHandle);
-        int *retVal = new int[finalSel.size()];
-        for (int i = 0; i < int(finalSel.size()); i++)
-            retVal[i] = finalSel[i];
-        shapeCount[0] = int(finalSel.size());
-        return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return (nullptr);
