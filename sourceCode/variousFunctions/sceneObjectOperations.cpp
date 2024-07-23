@@ -106,8 +106,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     App::currentWorld->sceneObjects->addModelObjects(sel);
                     std::string masterName(it->getObjectName_old());
 
-                    App::worldContainer->copyBuffer->copyCurrentSelection(
-                        &sel, App::currentWorld->environment->getSceneLocked(), 0);
+                    App::worldContainer->copyBuffer->copyCurrentSelection(sel, App::currentWorld->environment->getSceneLocked(), 0);
                     App::currentWorld->sceneObjects->deselectObjects();
                     for (size_t i = 0; i < clones.size(); i++)
                     {
@@ -748,7 +747,7 @@ void CSceneObjectOperations::_copyObjects(std::vector<int> *selection)
     // We first copy the selection:
     std::vector<int> sel(*selection);
     App::currentWorld->sceneObjects->addModelObjects(sel);
-    App::worldContainer->copyBuffer->copyCurrentSelection(&sel, App::currentWorld->environment->getSceneLocked(), 0);
+    App::worldContainer->copyBuffer->copyCurrentSelection(sel, App::currentWorld->environment->getSceneLocked(), 0);
     App::currentWorld->sceneObjects->deselectObjects(); // We clear selection
 }
 

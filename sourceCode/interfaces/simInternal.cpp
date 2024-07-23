@@ -6334,6 +6334,7 @@ int simRegisterScriptCallbackFunction_internal(const char *func, const char *res
                 printf("    new plugin\n");
         }
         */
+        //printf("Func: %s, CB: %u\n", func, callBack);
         if ((plug != nullptr) && (!plug->isLegacyPlugin()))
         { // new plugins. e.g. 'createGroup', and not 'simIK.createGroup'
             if (callBack != nullptr)
@@ -7014,8 +7015,7 @@ int simCopyPasteObjects_internal(int *objectHandles, int objectCount, int option
             if ((options & 2) == 0)
                 App::currentWorld->sceneObjects->addCompatibilityScripts(sel);
             App::worldContainer->copyBuffer->memorizeBuffer();
-            App::worldContainer->copyBuffer->copyCurrentSelection(
-                &sel, App::currentWorld->environment->getSceneLocked(), options >> 1);
+            App::worldContainer->copyBuffer->copyCurrentSelection(sel, App::currentWorld->environment->getSceneLocked(), options >> 1);
             App::currentWorld->sceneObjects->deselectObjects();
             App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(), 0);
             App::worldContainer->copyBuffer->restoreBuffer();

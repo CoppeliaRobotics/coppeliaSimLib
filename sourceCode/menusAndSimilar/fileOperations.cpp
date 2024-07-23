@@ -389,7 +389,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID, const char *pathAndFilenam
                 serObj = new CSer(pathAndFilename, CSer::getFileTypeFromName(pathAndFilename));
                 serObj->writeOpenBinary(App::userSettings->compressFiles);
             }
-            App::worldContainer->copyBuffer->serializeCurrentSelection(serObj[0], &sel, modelTr, modelBBSize,
+            App::worldContainer->copyBuffer->serializeCurrentSelection(serObj[0], sel, modelTr, modelBBSize,
                                                                        modelNonDefaultTranslationStepSize);
             serObj->writeClose();
             delete serObj;
@@ -399,7 +399,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID, const char *pathAndFilenam
             CSer serObj(saveBuffer[0], CSer::filetype_csim_bin_model_buff);
 
             serObj.writeOpenBinary(App::userSettings->compressFiles);
-            App::worldContainer->copyBuffer->serializeCurrentSelection(serObj, &sel, modelTr, modelBBSize,
+            App::worldContainer->copyBuffer->serializeCurrentSelection(serObj, sel, modelTr, modelBBSize,
                                                                        modelNonDefaultTranslationStepSize);
             serObj.writeClose();
         }

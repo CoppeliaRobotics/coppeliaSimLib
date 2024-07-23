@@ -271,7 +271,7 @@ bool CCopyBuffer::isBufferEmpty()
     return (objectBuffer.size() == 0);
 }
 
-void CCopyBuffer::copyCurrentSelection(std::vector<int> *sel, bool fromLockedScene, int options)
+void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedScene, int options)
 { // options: bit0 set=remove scripts,
     //          bit1 set=remove custom data
     //          bit2 set=remove object references
@@ -283,7 +283,18 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int> *sel, bool fromLockedSce
     // cleared, then the buffer could be inserted into the scene without any
     // modification (except for different object handles).
 
-    if (sel->size() == 0)
+    if (options & 1)
+    { // remove scripts. First script objects (later legacy scripts)
+        std::vector<int> selTmp;
+        sel.swap(selTmp);
+        for (size_t i = 0; i < selTmp.size(); i++)
+        {
+            if (App::currentWorld->sceneObjects->getScriptFromHandle(selTmp[i]) == nullptr)
+                sel.push_back(selTmp[i]);
+        }
+    }
+
+    if (sel.size() == 0)
         return;
 
 #ifdef SIM_WITH_GUI
@@ -297,15 +308,15 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int> *sel, bool fromLockedSce
     stack->pushTableOntoStack();
 
     stack->pushTextOntoStack("objects");
-    stack->pushInt32ArrayOntoStack(sel->data(), sel->size());
+    stack->pushInt32ArrayOntoStack(sel.data(), sel.size());
     stack->insertDataIntoStackTable();
 
     // Following for backward compatibility:
     stack->pushTextOntoStack("objectHandles");
     stack->pushTableOntoStack();
-    for (size_t i = 0; i < sel->size(); i++)
+    for (size_t i = 0; i < sel.size(); i++)
     {
-        stack->pushInt32OntoStack(sel->at(i)); // key or index
+        stack->pushInt32OntoStack(sel[i]); // key or index
         stack->pushBoolOntoStack(true);
         stack->insertDataIntoStackTable();
     }
@@ -320,9 +331,9 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int> *sel, bool fromLockedSce
     App::currentWorld->sceneObjects->getObjects_hierarchyOrder(selObjTmp);
     {
         std::map<CSceneObject *, bool> selObjMap;
-        for (size_t i = 0; i < sel->size(); i++)
+        for (size_t i = 0; i < sel.size(); i++)
         {
-            CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(sel->at(i));
+            CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(sel[i]);
             if (obj != nullptr)
                 selObjMap[obj] = true;
         }
@@ -439,7 +450,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int> *sel, bool fromLockedSce
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(); i++)
     {
         CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromIndex(i);
-        if (!App::currentWorld->sceneObjects->isObjectInSelection(obj->getObjectHandle(), sel))
+        if (!App::currentWorld->sceneObjects->isObjectInSelection(obj->getObjectHandle(), &sel))
             unselected.push_back(obj);
     }
 
@@ -450,7 +461,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int> *sel, bool fromLockedSce
         _announceObjectWillBeErased(unselected[i]);
 }
 
-void CCopyBuffer::serializeCurrentSelection(CSer &ar, std::vector<int> *sel, C7Vector &modelTr, C3Vector &modelBBSize,
+void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7Vector &modelTr, C3Vector &modelBBSize,
                                             double modelNonDefaultTranslationStepSize)
 {
     // This is used when saving a model. When saving a model, we basically perform
@@ -459,9 +470,7 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar, std::vector<int> *sel, C7V
     // temporary buffers:
     _backupBuffers_temp();
 
-    copyCurrentSelection(
-        sel, false,
-        0); // here we indicate that the scene is not locked,it doesn't matter (should have been checked before anyway)
+    copyCurrentSelection(sel, false, 0); // here we indicate that the scene is not locked,it doesn't matter (should have been checked before anyway)
 
     //--------------------------- Here we serialize the buffer content -------------------
 

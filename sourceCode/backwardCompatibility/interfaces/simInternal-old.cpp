@@ -421,8 +421,7 @@ int simCopyPasteSelectedObjects_internal()
         if (sel.size() > 0)
         {
             App::worldContainer->copyBuffer->memorizeBuffer();
-            App::worldContainer->copyBuffer->copyCurrentSelection(&sel,
-                                                                  App::currentWorld->environment->getSceneLocked(), 0);
+            App::worldContainer->copyBuffer->copyCurrentSelection(sel, App::currentWorld->environment->getSceneLocked(), 0);
             App::currentWorld->sceneObjects->deselectObjects();
             App::worldContainer->copyBuffer->pasteBuffer(App::currentWorld->environment->getSceneLocked(), 3);
             App::worldContainer->copyBuffer->restoreBuffer();
