@@ -14,7 +14,6 @@ DEFINE_PROPERTIES
 const std::vector<SProperty> allProps_light = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
-#undef CONCAT_PROP
 // ----------------------------------------------------------------------------------------------
 
 class CLight : public CSceneObject

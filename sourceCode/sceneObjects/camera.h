@@ -29,7 +29,6 @@ DEFINE_PROPERTIES
 const std::vector<SProperty> allProps_camera = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
-#undef CONCAT_PROP
 // ----------------------------------------------------------------------------------------------
 
 class CCamera : public CViewableBase

@@ -32,7 +32,6 @@ DEFINE_PROPERTIES
 const std::vector<SProperty> allProps_visionSensor = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
-#undef CONCAT_PROP
 // ----------------------------------------------------------------------------------------------
 
 class CVisionSensor : public CViewableBase

@@ -15,6 +15,7 @@ void CDynMaterialObject::_setDefaultParameters()
 {
     _objectID = SIM_IDSTART_DYNMATERIAL_old;
     _objectName = "usr_";
+    _shapeHandleForEvents = -1;
 
     _uniqueID = _nextUniqueID++;
     _bulletFloatParams.clear();
@@ -180,6 +181,11 @@ void CDynMaterialObject::setObjectName(const char *newName)
     _objectName = newName;
 }
 
+void CDynMaterialObject::setShapeHandleForEvents(int h)
+{
+    _shapeHandleForEvents = h;
+}
+
 std::string CDynMaterialObject::getObjectName()
 {
     return (getIndividualName());
@@ -192,6 +198,34 @@ std::string CDynMaterialObject::getIndividualName()
 
 double CDynMaterialObject::getEngineFloatParam(int what, bool *ok)
 {
+    if (ok != nullptr)
+        ok[0] = true;
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_float, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        double v;
+        if (getFloatProperty(prop.c_str(), v) > 0)
+            return v;
+    }
+    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        std::vector<double> v;
+        if (getVectorProperty(prop.c_str(), v) > 0)
+            return v[indexWithArrays];
+    }
+    prop = _enumToProperty(what, sim_propertytype_vector3, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        C3Vector v;
+        if (getVector3Property(prop.c_str(), &v) > 0)
+            return v(indexWithArrays);
+    }
+    if (ok != nullptr)
+        ok[0] = false;
+    return 0.0;
+/*
     if (ok != nullptr)
         ok[0] = true;
     if ((what > sim_bullet_body_float_start) && (what < sim_bullet_body_float_end))
@@ -222,10 +256,32 @@ double CDynMaterialObject::getEngineFloatParam(int what, bool *ok)
     if (ok != nullptr)
         ok[0] = false;
     return (0.0);
+    */
 }
 
 int CDynMaterialObject::getEngineIntParam(int what, bool *ok)
 {
+    if (ok != nullptr)
+        ok[0] = true;
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_int, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        int v;
+        if (getIntProperty(prop.c_str(), v) > 0)
+            return v;
+    }
+    prop = _enumToProperty(what, sim_propertytype_intvector, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        std::vector<int> v;
+        if (getIntVectorProperty(prop.c_str(), v) > 0)
+            return v[indexWithArrays];
+    }
+    if (ok != nullptr)
+        ok[0] = false;
+    return 0;
+/*
     if (ok != nullptr)
         ok[0] = true;
     if ((what > sim_bullet_body_int_start) && (what < sim_bullet_body_int_end))
@@ -256,10 +312,25 @@ int CDynMaterialObject::getEngineIntParam(int what, bool *ok)
     if (ok != nullptr)
         ok[0] = false;
     return (0);
+    */
 }
 
 bool CDynMaterialObject::getEngineBoolParam(int what, bool *ok)
 {
+    if (ok != nullptr)
+        ok[0] = true;
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_bool, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        bool v;
+        if (getBoolProperty(prop.c_str(), v) > 0)
+            return v;
+    }
+    if (ok != nullptr)
+        ok[0] = false;
+    return false;
+    /*
     if (ok != nullptr)
         ok[0] = true;
     if ((what > sim_bullet_body_bool_start) && (what < sim_bullet_body_bool_end))
@@ -313,10 +384,42 @@ bool CDynMaterialObject::getEngineBoolParam(int what, bool *ok)
     if (ok != nullptr)
         ok[0] = false;
     return (0);
+    */
 }
 
 bool CDynMaterialObject::setEngineFloatParam(int what, double v)
 {
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_float, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        if (setFloatProperty(prop.c_str(), v) > 0)
+            return true;
+    }
+    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        std::vector<double> w;
+        if (getVectorProperty(prop.c_str(), w) > 0)
+        {
+            w[indexWithArrays] = v;
+            if (setVectorProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+                return true;
+        }
+    }
+    prop = _enumToProperty(what, sim_propertytype_vector3, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        C3Vector w;
+        if (getVector3Property(prop.c_str(), &w) > 0)
+        {
+            w(indexWithArrays) = v;
+            if (setVector3Property(prop.c_str(), &w) > 0)
+                return true;
+        }
+    }
+    return false;
+    /*
     if ((what > sim_bullet_body_float_start) && (what < sim_bullet_body_float_end))
     {
         int w = what - sim_bullet_body_restitution + simi_bullet_body_restitution;
@@ -363,10 +466,31 @@ bool CDynMaterialObject::setEngineFloatParam(int what, double v)
         return (true);
     }
     return (false);
+    */
 }
 
 bool CDynMaterialObject::setEngineIntParam(int what, int v)
 {
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_int, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        if (setIntProperty(prop.c_str(), v) > 0)
+            return true;
+    }
+    prop = _enumToProperty(what, sim_propertytype_intvector, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        std::vector<int> w;
+        if (getIntVectorProperty(prop.c_str(), w) > 0)
+        {
+            w[indexWithArrays] = v;
+            if (setIntVectorProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+                return true;
+        }
+    }
+    return false;
+    /*
     if ((what > sim_bullet_body_int_start) && (what < sim_bullet_body_int_end))
     {
         int w = what - sim_bullet_body_bitcoded + simi_bullet_body_bitcoded;
@@ -413,10 +537,20 @@ bool CDynMaterialObject::setEngineIntParam(int what, int v)
         return (true);
     }
     return (false);
+    */
 }
 
 bool CDynMaterialObject::setEngineBoolParam(int what, bool v)
 {
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_bool, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        if (setBoolProperty(prop.c_str(), v) > 0)
+            return true;
+    }
+    return false;
+    /*
     if ((what > sim_bullet_body_bool_start) && (what < sim_bullet_body_bool_end))
     {
         int b = 1;
@@ -471,6 +605,7 @@ bool CDynMaterialObject::setEngineBoolParam(int what, bool v)
         return (false);
     }
     return (false);
+    */
 }
 
 void CDynMaterialObject::getBulletFloatParams(std::vector<double> &p)
@@ -1760,3 +1895,2063 @@ void CDynMaterialObject::_fixVortexInfVals()
     }
     // values at index 33 and later are signed
 }
+
+std::string CDynMaterialObject::_enumToProperty(int oldEnum, int type, int& indexWithArrays)
+{
+    std::string retVal;
+    for (size_t i = 0; i < allProps_material.size(); i++)
+    {
+        for (size_t j = 0; j < 5; j++)
+        {
+            int en = allProps_material[i].oldEnums[j];
+            if (en == -1)
+                break;
+            else if (en == oldEnum)
+            {
+                if (type == allProps_material[i].type)
+                {
+                    if ( (j > 0) || (allProps_material[i].oldEnums[j + 1] != -1) )
+                        indexWithArrays = int(j);
+                    else
+                        indexWithArrays = -1;
+                    retVal =  allProps_material[i].name;
+                }
+                break;
+            }
+        }
+        if (retVal.size() > 0)
+            break;
+    }
+    return retVal;
+}
+
+int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* eev/* = nullptr*/)
+{
+    int retVal = -1;
+    std::string N;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+    N = propMaterial_bulletSticky.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_bulletIntParams[simi_bullet_body_bitcoded] | simi_bullet_body_sticky) - (1 - pState) * simi_bullet_body_sticky;
+        if ( (nv != _bulletIntParams[simi_bullet_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _bulletIntParams[simi_bullet_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_sticky);
+            }
+        }
+    }
+
+    N = propMaterial_bulletNonDefaultCollisionMargin.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_bulletIntParams[simi_bullet_body_bitcoded] | simi_bullet_body_usenondefaultcollisionmargin) - (1 - pState) * simi_bullet_body_usenondefaultcollisionmargin;
+        if ( (nv != _bulletIntParams[simi_bullet_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _bulletIntParams[simi_bullet_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmargin);
+            }
+        }
+    }
+
+    N = propMaterial_bulletNonDefaultCollisionMarginConvex.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_bulletIntParams[simi_bullet_body_bitcoded] | simi_bullet_body_usenondefaultcollisionmarginconvex) - (1 - pState) * simi_bullet_body_usenondefaultcollisionmarginconvex;
+        if ( (nv != _bulletIntParams[simi_bullet_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _bulletIntParams[simi_bullet_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmarginconvex);
+            }
+        }
+    }
+
+    N = propMaterial_bulletAutoShrinkConvex.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_bulletIntParams[simi_bullet_body_bitcoded] | simi_bullet_body_autoshrinkconvex) - (1 - pState) * simi_bullet_body_autoshrinkconvex;
+        if ( (nv != _bulletIntParams[simi_bullet_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _bulletIntParams[simi_bullet_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_autoshrinkconvex);
+            }
+        }
+    }
+
+    N = propMaterial_vortexPrimitiveShapesAsConvex.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_pureshapesasconvex) - (1 - pState) * simi_vortex_body_pureshapesasconvex;
+        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_pureshapesasconvex);
+            }
+        }
+    }
+
+    N = propMaterial_vortexConvexShapesAsRandom.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_convexshapesasrandom) - (1 - pState) * simi_vortex_body_convexshapesasrandom;
+        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_convexshapesasrandom);
+            }
+        }
+    }
+
+    N = propMaterial_vortexRandomShapesAsTerrain.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_randomshapesasterrain) - (1 - pState) * simi_vortex_body_randomshapesasterrain;
+        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_randomshapesasterrain);
+            }
+        }
+    }
+
+    N = propMaterial_vortexFastMoving.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_fastmoving) - (1 - pState) * simi_vortex_body_fastmoving;
+        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_fastmoving);
+            }
+        }
+    }
+
+    N = propMaterial_vortexAutoSlip.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_autoslip) - (1 - pState) * simi_vortex_body_autoslip;
+        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoslip);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecondaryLinearAxisSameAsPrimaryLinearAxis.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_seclinaxissameasprimlinaxis) - (1 - pState) * simi_vortex_body_seclinaxissameasprimlinaxis;
+        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_seclinaxissameasprimlinaxis);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecondaryAngularAxisSameAsPrimaryAngularAxis.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_secangaxissameasprimangaxis) - (1 - pState) * simi_vortex_body_secangaxissameasprimangaxis;
+        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_secangaxissameasprimangaxis);
+            }
+        }
+    }
+
+    N = propMaterial_vortexNormalAngularAxisSameAsPrimaryAngularAxis.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_normangaxissameasprimangaxis) - (1 - pState) * simi_vortex_body_normangaxissameasprimangaxis;
+        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_normangaxissameasprimangaxis);
+            }
+        }
+    }
+
+    N = propMaterial_vortexAutoAngularDamping.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_autoangulardamping) - (1 - pState) * simi_vortex_body_autoangulardamping;
+        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoangulardamping);
+            }
+        }
+    }
+
+    N = propMaterial_newtonFastMoving.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        int nv = (_newtonIntParams[simi_newton_body_bitcoded] | simi_newton_body_fastmoving) - (1 - pState) * simi_newton_body_fastmoving;
+        if ( (nv != _newtonIntParams[simi_newton_body_bitcoded]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _newtonIntParams[simi_newton_body_bitcoded] = nv;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                ev->appendKeyBool(N.c_str(), _newtonIntParams[simi_newton_body_bitcoded] & simi_newton_body_fastmoving);
+            }
+        }
+    }
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    return retVal;
+}
+
+int CDynMaterialObject::getBoolProperty(const char* pName, bool& pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propMaterial_bulletSticky.name) == 0)
+    {
+        retVal = 1;
+        pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_sticky;
+    }
+    else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMargin.name) == 0)
+    {
+        retVal = 1;
+        pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmargin;
+    }
+    else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMarginConvex.name) == 0)
+    {
+        retVal = 1;
+        pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmarginconvex;
+    }
+    else if (strcmp(pName, propMaterial_bulletAutoShrinkConvex.name) == 0)
+    {
+        retVal = 1;
+        pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_autoshrinkconvex;
+    }
+    else if (strcmp(pName, propMaterial_vortexPrimitiveShapesAsConvex.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_pureshapesasconvex;
+    }
+    else if (strcmp(pName, propMaterial_vortexConvexShapesAsRandom.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_convexshapesasrandom;
+    }
+    else if (strcmp(pName, propMaterial_vortexRandomShapesAsTerrain.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_randomshapesasterrain;
+    }
+    else if (strcmp(pName, propMaterial_vortexFastMoving.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_fastmoving;
+    }
+    else if (strcmp(pName, propMaterial_vortexAutoSlip.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoslip;
+    }
+    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisSameAsPrimaryLinearAxis.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_seclinaxissameasprimlinaxis;
+    }
+    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisSameAsPrimaryAngularAxis.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_secangaxissameasprimangaxis;
+    }
+    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisSameAsPrimaryAngularAxis.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_normangaxissameasprimangaxis;
+    }
+    else if (strcmp(pName, propMaterial_vortexAutoAngularDamping.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoangulardamping;
+    }
+    else if (strcmp(pName, propMaterial_newtonFastMoving.name) == 0)
+    {
+        retVal = 1;
+        pState = _newtonIntParams[simi_newton_body_bitcoded] & simi_newton_body_fastmoving;
+    }
+
+    return retVal;
+}
+
+int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev/* = nullptr*/)
+{
+    int retVal = -1;
+    std::string N;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    N = propMaterial_odeMaxContacts.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _odeIntParams[simi_ode_body_maxcontacts]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _odeIntParams[simi_ode_body_maxcontacts] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyInt(N.c_str(), _odeIntParams[simi_ode_body_maxcontacts]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexPrimaryLinearAxisFrictionModel.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecopndaryLinearAxisFrictionModel.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexPrimaryAngularAxisFrictionModel.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexIntParams[simi_vortex_body_primangulararaxisfrictionmodel]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_primangulararaxisfrictionmodel] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_primangulararaxisfrictionmodel]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecondaryAngularAxisFrictionModel.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexIntParams[simi_vortex_body_secmangulararaxisfrictionmodel]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_secmangulararaxisfrictionmodel] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_secmangulararaxisfrictionmodel]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexNormalAngularAxisFrictionModel.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexIntParams[simi_vortex_body_normalmangulararaxisfrictionmodel]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_normalmangulararaxisfrictionmodel] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_normalmangulararaxisfrictionmodel]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexAutoSleepStepLiveThreshold.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexIntParams[simi_vortex_body_autosleepsteplivethreshold]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_autosleepsteplivethreshold] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_autosleepsteplivethreshold]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexMaterialUniqueId.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexIntParams[simi_vortex_body_materialuniqueid]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexIntParams[simi_vortex_body_materialuniqueid] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_materialuniqueid]);
+            }
+        }
+    }
+
+    N = propMaterial_mujocoCondim.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _mujocoIntParams[simi_mujoco_body_condim]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _mujocoIntParams[simi_mujoco_body_condim] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyInt(N.c_str(), _mujocoIntParams[simi_mujoco_body_condim]);
+            }
+        }
+    }
+
+    N = propMaterial_mujocoPriority.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _mujocoIntParams[simi_mujoco_body_priority]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _mujocoIntParams[simi_mujoco_body_priority] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyInt(N.c_str(), _mujocoIntParams[simi_mujoco_body_priority]);
+            }
+        }
+    }
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    return retVal;
+}
+
+int CDynMaterialObject::getIntProperty(const char* pName, int& pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propMaterial_odeMaxContacts.name) == 0)
+    {
+        retVal = 1;
+        pState = _odeIntParams[simi_ode_body_maxcontacts];
+    }
+    else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisFrictionModel.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel];
+    }
+    else if (strcmp(pName, propMaterial_vortexSecopndaryLinearAxisFrictionModel.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel];
+    }
+    else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisFrictionModel.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_primangulararaxisfrictionmodel];
+    }
+    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisFrictionModel.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_secmangulararaxisfrictionmodel];
+    }
+    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisFrictionModel.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_normalmangulararaxisfrictionmodel];
+    }
+    else if (strcmp(pName, propMaterial_vortexAutoSleepStepLiveThreshold.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_autosleepsteplivethreshold];
+    }
+    else if (strcmp(pName, propMaterial_vortexMaterialUniqueId.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_vortex_body_materialuniqueid];
+    }
+    else if (strcmp(pName, propMaterial_mujocoCondim.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_mujoco_body_condim];
+    }
+    else if (strcmp(pName, propMaterial_mujocoPriority.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexIntParams[simi_mujoco_body_priority];
+    }
+
+    return retVal;
+}
+
+int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor* eev/* = nullptr*/)
+{
+    int retVal = -1;
+    std::string N;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    N = propMaterial_bulletRestitution.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _bulletFloatParams[simi_bullet_body_restitution]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _bulletFloatParams[simi_bullet_body_restitution] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_restitution]);
+            }
+        }
+    }
+
+    N = propMaterial_bulletFriction0.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _bulletFloatParams[simi_bullet_body_oldfriction]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _bulletFloatParams[simi_bullet_body_oldfriction] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_oldfriction]);
+            }
+        }
+    }
+
+    N = propMaterial_bulletFriction.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _bulletFloatParams[simi_bullet_body_friction]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _bulletFloatParams[simi_bullet_body_friction] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_friction]);
+            }
+        }
+    }
+
+    N = propMaterial_bulletLinearDamping.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _bulletFloatParams[simi_bullet_body_lineardamping]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _bulletFloatParams[simi_bullet_body_lineardamping] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_lineardamping]);
+            }
+        }
+    }
+
+    N = propMaterial_bulletAngularDamping.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _bulletFloatParams[simi_bullet_body_angulardamping]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _bulletFloatParams[simi_bullet_body_angulardamping] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_angulardamping]);
+            }
+        }
+    }
+
+    N = propMaterial_bulletNonDefaultCollisionMarginFactor.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor]);
+            }
+        }
+    }
+
+    N = propMaterial_bulletNonDefaultCollisionMarginFactorConvex.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex]);
+            }
+        }
+    }
+
+    N = propMaterial_odeFriction.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _odeFloatParams[simi_ode_body_friction]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _odeFloatParams[simi_ode_body_friction] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_friction]);
+            }
+        }
+    }
+
+    N = propMaterial_odeSoftErp.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _odeFloatParams[simi_ode_body_softerp]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _odeFloatParams[simi_ode_body_softerp] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_softerp]);
+            }
+        }
+    }
+
+    N = propMaterial_odeSoftCfm.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _odeFloatParams[simi_ode_body_softcfm]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _odeFloatParams[simi_ode_body_softcfm] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_softcfm]);
+            }
+        }
+    }
+
+    N = propMaterial_odeLinearDamping.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _odeFloatParams[simi_ode_body_lineardamping]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _odeFloatParams[simi_ode_body_lineardamping] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_lineardamping]);
+            }
+        }
+    }
+
+    N = propMaterial_odeAngularDamping.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _odeFloatParams[simi_ode_body_angulardamping]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _odeFloatParams[simi_ode_body_angulardamping] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_angulardamping]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexPrimaryLinearAxisFriction.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_primlinearaxisfriction]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_primlinearaxisfriction] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisfriction]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecondaryLinearAxisFriction.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_seclinearaxisfriction]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_seclinearaxisfriction] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisfriction]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexPrimaryAngularAxisFriction.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_primangularaxisfriction]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_primangularaxisfriction] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisfriction]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecondaryAngularAxisFriction.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_secangularaxisfriction]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_secangularaxisfriction] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisfriction]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexNormalAngularAxisFriction.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_normalangularaxisfriction]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_normalangularaxisfriction] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisfriction]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexPrimaryLinearAxisStaticFrictionScale.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_primlinearaxisstaticfrictionscale]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_primlinearaxisstaticfrictionscale] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisstaticfrictionscale]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecondaryLinearAxisStaticFrictionScale.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_seclinearaxisstaticfrictionscale]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_seclinearaxisstaticfrictionscale] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisstaticfrictionscale]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexPrimaryAngularAxisStaticFrictionScale.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_primangularaxisstaticfrictionscale]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_primangularaxisstaticfrictionscale] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisstaticfrictionscale]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecondaryAngularAxisStaticFrictionScale.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_secangularaxisstaticfrictionscale]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_secangularaxisstaticfrictionscale] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisstaticfrictionscale]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexNormalAngularAxisStaticFrictionScale.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_normalangularaxisstaticfrictionscale]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_normalangularaxisstaticfrictionscale] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisstaticfrictionscale]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexCompliance.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_compliance]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_compliance] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_compliance]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexDamping.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_damping]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_damping] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_damping]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexRestitution.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_restitution]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_restitution] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_restitution]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexRestitutionThreshold.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_restitutionthreshold]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_restitutionthreshold] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_restitutionthreshold]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexAdhesiveForce.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_adhesiveforce]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_adhesiveforce] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_adhesiveforce]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexLinearVelocityDamping.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_linearvelocitydamping]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_linearvelocitydamping] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_linearvelocitydamping]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexAngularVelocityDamping.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_angularvelocitydamping]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_angularvelocitydamping] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_angularvelocitydamping]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexPrimaryLinearAxisSlide.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_primlinearaxisslide]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_primlinearaxisslide] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisslide]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecondaryLinearAxisSlide.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_seclinearaxisslide]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_seclinearaxisslide] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisslide]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexPrimaryAngularAxisSlide.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_primangularaxisslide]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_primangularaxisslide] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisslide]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecondaryAngularAxisSlide.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_secangularaxisslide]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_secangularaxisslide] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisslide]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexNormalAngularAxisSlide.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_normalangularaxisslide]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_normalangularaxisslide] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisslide]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexPrimaryLinearAxisSlip.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_primlinearaxisslip]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_primlinearaxisslip] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisslip]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecondaryLinearAxisSlip.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_seclinearaxisslip]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_seclinearaxisslip] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisslip]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexPrimaryAngularAxisSlip.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_primangularaxisslip]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_primangularaxisslip] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisslip]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSecondaryAngularAxisSlip.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_secangularaxisslip]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_secangularaxisslip] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisslip]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexNormalAngularAxisSlip.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_normalangularaxisslip]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_normalangularaxisslip] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisslip]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexAutoSleepLinearSpeedThreshold.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_autosleeplinearspeedthreshold]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_autosleeplinearspeedthreshold] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleeplinearspeedthreshold]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexAutoSleepLinearAccelerationThreshold.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_autosleeplinearaccelthreshold]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_autosleeplinearaccelthreshold] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleeplinearaccelthreshold]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexAutoSleepAngularSpeedThreshold.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_autosleepangularspeedthreshold]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_autosleepangularspeedthreshold] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleepangularspeedthreshold]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexAutoSleepAngularAccelerationThreshold.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_autosleepangularaccelthreshold]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_autosleepangularaccelthreshold] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleepangularaccelthreshold]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexSkinThickness.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_skinthickness]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_skinthickness] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_skinthickness]);
+            }
+        }
+    }
+
+    N = propMaterial_vortexAutoAngularDampingTensionRatio.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _vortexFloatParams[simi_vortex_body_autoangulardampingtensionratio]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _vortexFloatParams[simi_vortex_body_autoangulardampingtensionratio] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autoangulardampingtensionratio]);
+            }
+        }
+    }
+
+    N = propMaterial_newtonStaticFriction.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _newtonFloatParams[simi_newton_body_staticfriction]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _newtonFloatParams[simi_newton_body_staticfriction] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_staticfriction]);
+            }
+        }
+    }
+
+    N = propMaterial_newtonKineticFriction.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _newtonFloatParams[simi_newton_body_kineticfriction]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _newtonFloatParams[simi_newton_body_kineticfriction] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_kineticfriction]);
+            }
+        }
+    }
+
+    N = propMaterial_newtonRestitution.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _newtonFloatParams[simi_newton_body_restitution]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _newtonFloatParams[simi_newton_body_restitution] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_restitution]);
+            }
+        }
+    }
+
+    N = propMaterial_newtonLinearDrag.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _newtonFloatParams[simi_newton_body_lineardrag]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _newtonFloatParams[simi_newton_body_lineardrag] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_lineardrag]);
+            }
+        }
+    }
+
+    N = propMaterial_newtonAngularDrag.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _newtonFloatParams[simi_newton_body_angulardrag]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _newtonFloatParams[simi_newton_body_angulardrag] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_angulardrag]);
+            }
+        }
+    }
+
+    N = propMaterial_mujocoSolmix.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _mujocoFloatParams[simi_mujoco_body_solmix]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _mujocoFloatParams[simi_mujoco_body_solmix] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _mujocoFloatParams[simi_mujoco_body_solmix]);
+            }
+        }
+    }
+
+    N = propMaterial_mujocoMargin.name;
+    if ( (pName == nullptr)  || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pState != _mujocoFloatParams[simi_mujoco_body_margin]) ||(pName == nullptr) )
+        {
+            if (pName != nullptr)
+                _mujocoFloatParams[simi_mujoco_body_margin] = pState;
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDouble(N.c_str(), _mujocoFloatParams[simi_mujoco_body_margin]);
+            }
+        }
+    }
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    return retVal;
+}
+
+int CDynMaterialObject::getFloatProperty(const char* pName, double& pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propMaterial_bulletRestitution.name) == 0)
+    {
+        retVal = 1;
+        pState = _bulletFloatParams[simi_bullet_body_restitution];
+    }
+    else if (strcmp(pName, propMaterial_bulletFriction0.name) == 0)
+    {
+        retVal = 1;
+        pState = _bulletFloatParams[simi_bullet_body_oldfriction];
+    }
+    else if (strcmp(pName, propMaterial_bulletFriction.name) == 0)
+    {
+        retVal = 1;
+        pState = _bulletFloatParams[simi_bullet_body_friction];
+    }
+    else if (strcmp(pName, propMaterial_bulletLinearDamping.name) == 0)
+    {
+        retVal = 1;
+        pState = _bulletFloatParams[simi_bullet_body_lineardamping];
+    }
+    else if (strcmp(pName, propMaterial_bulletAngularDamping.name) == 0)
+    {
+        retVal = 1;
+        pState = _bulletFloatParams[simi_bullet_body_angulardamping];
+    }
+    else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMarginFactor.name) == 0)
+    {
+        retVal = 1;
+        pState = _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor];
+    }
+    else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMarginFactorConvex.name) == 0)
+    {
+        retVal = 1;
+        pState = _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex];
+    }
+    else if (strcmp(pName, propMaterial_odeFriction.name) == 0)
+    {
+        retVal = 1;
+        pState = _odeFloatParams[simi_ode_body_friction];
+    }
+    else if (strcmp(pName, propMaterial_odeSoftErp.name) == 0)
+    {
+        retVal = 1;
+        pState = _odeFloatParams[simi_ode_body_softerp];
+    }
+    else if (strcmp(pName, propMaterial_odeSoftCfm.name) == 0)
+    {
+        retVal = 1;
+        pState = _odeFloatParams[simi_ode_body_softcfm];
+    }
+    else if (strcmp(pName, propMaterial_odeLinearDamping.name) == 0)
+    {
+        retVal = 1;
+        pState = _odeFloatParams[simi_ode_body_lineardamping];
+    }
+    else if (strcmp(pName, propMaterial_odeAngularDamping.name) == 0)
+    {
+        retVal = 1;
+        pState = _odeFloatParams[simi_ode_body_angulardamping];
+    }
+    else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisFriction.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_primlinearaxisfriction];
+    }
+    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisFriction.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_seclinearaxisfriction];
+    }
+    else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisFriction.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_primangularaxisfriction];
+    }
+    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisFriction.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_secangularaxisfriction];
+    }
+    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisFriction.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_normalangularaxisfriction];
+    }
+    else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisStaticFrictionScale.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_primlinearaxisstaticfrictionscale];
+    }
+    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisStaticFrictionScale.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_seclinearaxisstaticfrictionscale];
+    }
+    else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisStaticFrictionScale.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_primangularaxisstaticfrictionscale];
+    }
+    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisStaticFrictionScale.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_secangularaxisstaticfrictionscale];
+    }
+    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisStaticFrictionScale.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_normalangularaxisstaticfrictionscale];
+    }
+    else if (strcmp(pName, propMaterial_vortexCompliance.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_compliance];
+    }
+    else if (strcmp(pName, propMaterial_vortexDamping.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_damping];
+    }
+    else if (strcmp(pName, propMaterial_vortexRestitution.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_restitution];
+    }
+    else if (strcmp(pName, propMaterial_vortexRestitutionThreshold.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_restitutionthreshold];
+    }
+    else if (strcmp(pName, propMaterial_vortexAdhesiveForce.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_adhesiveforce];
+    }
+    else if (strcmp(pName, propMaterial_vortexLinearVelocityDamping.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_linearvelocitydamping];
+    }
+    else if (strcmp(pName, propMaterial_vortexAngularVelocityDamping.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_angularvelocitydamping];
+    }
+    else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisSlide.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_primlinearaxisslide];
+    }
+    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisSlide.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_seclinearaxisslide];
+    }
+    else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisSlide.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_primangularaxisslide];
+    }
+    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisSlide.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_secangularaxisslide];
+    }
+    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisSlide.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_normalangularaxisslide];
+    }
+    else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisSlip.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_primlinearaxisslip];
+    }
+    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisSlip.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_seclinearaxisslip];
+    }
+    else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisSlip.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_primangularaxisslip];
+    }
+    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisSlip.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_secangularaxisslip];
+    }
+    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisSlip.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_normalangularaxisslip];
+    }
+    else if (strcmp(pName, propMaterial_vortexAutoSleepLinearSpeedThreshold.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_autosleeplinearspeedthreshold];
+    }
+    else if (strcmp(pName, propMaterial_vortexAutoSleepLinearAccelerationThreshold.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_autosleeplinearaccelthreshold];
+    }
+    else if (strcmp(pName, propMaterial_vortexAutoSleepAngularSpeedThreshold.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_autosleepangularspeedthreshold];
+    }
+    else if (strcmp(pName, propMaterial_vortexAutoSleepAngularAccelerationThreshold.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_autosleepangularaccelthreshold];
+    }
+    else if (strcmp(pName, propMaterial_vortexSkinThickness.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_skinthickness];
+    }
+    else if (strcmp(pName, propMaterial_vortexAutoAngularDampingTensionRatio.name) == 0)
+    {
+        retVal = 1;
+        pState = _vortexFloatParams[simi_vortex_body_autoangulardampingtensionratio];
+    }
+    else if (strcmp(pName, propMaterial_newtonStaticFriction.name) == 0)
+    {
+        retVal = 1;
+        pState = _newtonFloatParams[simi_newton_body_staticfriction];
+    }
+    else if (strcmp(pName, propMaterial_newtonKineticFriction.name) == 0)
+    {
+        retVal = 1;
+        pState = _newtonFloatParams[simi_newton_body_kineticfriction];
+    }
+    else if (strcmp(pName, propMaterial_newtonRestitution.name) == 0)
+    {
+        retVal = 1;
+        pState = _newtonFloatParams[simi_newton_body_restitution];
+    }
+    else if (strcmp(pName, propMaterial_newtonLinearDrag.name) == 0)
+    {
+        retVal = 1;
+        pState = _newtonFloatParams[simi_newton_body_lineardrag];
+    }
+    else if (strcmp(pName, propMaterial_newtonAngularDrag.name) == 0)
+    {
+        retVal = 1;
+        pState = _newtonFloatParams[simi_newton_body_angulardrag];
+    }
+    else if (strcmp(pName, propMaterial_mujocoSolmix.name) == 0)
+    {
+        retVal = 1;
+        pState = _mujocoFloatParams[simi_mujoco_body_solmix];
+    }
+    else if (strcmp(pName, propMaterial_mujocoMargin.name) == 0)
+    {
+        retVal = 1;
+        pState = _mujocoFloatParams[simi_mujoco_body_margin];
+    }
+
+    return retVal;
+}
+
+int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev/* = nullptr*/)
+{
+    int retVal = -1;
+    std::string N;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    N = propMaterial_vortexPrimaryAxisVector.name;
+    if ( (pName == nullptr) || (N == pName) )
+    {
+        retVal = 1;
+        C3Vector current(_vortexFloatParams.data() + simi_vortex_body_primaxisvectorx);
+        if ( (pName == nullptr) || (current != pState[0]) )
+        {
+            if (pName != nullptr)
+            {
+                current = pState[0];
+                current.normalize();
+                current.getData(_vortexFloatParams.data() + simi_vortex_body_primaxisvectorx);
+            }
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDoubleArray(N.c_str(), _vortexFloatParams.data() + simi_vortex_body_primaxisvectorx, 3);
+            }
+        }
+    }
+
+    N = propMaterial_mujocoFriction.name;
+    if ( (pName == nullptr) || (N == pName) )
+    {
+        retVal = 1;
+        C3Vector current(_mujocoFloatParams.data() + simi_mujoco_body_friction1);
+        if ( (pName == nullptr) || (current != pState[0]) )
+        {
+            if (pName != nullptr)
+            {
+                current = pState[0];
+                current.normalize();
+                current.getData(_mujocoFloatParams.data() + simi_mujoco_body_friction1);
+            }
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDoubleArray(N.c_str(), _mujocoFloatParams.data() + simi_mujoco_body_friction1, 3);
+            }
+        }
+    }
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    return retVal;
+}
+
+int CDynMaterialObject::getVector3Property(const char* pName, C3Vector* pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propMaterial_vortexPrimaryAxisVector.name) == 0)
+    {
+        retVal = 1;
+        pState->setData(_vortexFloatParams.data() + simi_vortex_body_primaxisvectorx);
+    }
+    else if (strcmp(pName, propMaterial_mujocoFriction.name) == 0)
+    {
+        retVal = 1;
+        pState->setData(_mujocoFloatParams.data() + simi_mujoco_body_friction1);
+    }
+
+    return retVal;
+}
+
+int CDynMaterialObject::setVectorProperty(const char* pName, const double* v, int vL, CCbor* eev/* = nullptr*/)
+{
+    int retVal = -1;
+    std::string N;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    N = propMaterial_mujocoSolref.name;
+    if ( (pName == nullptr) || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pName == nullptr) || (_mujocoFloatParams[simi_mujoco_body_solref1 + 0] != v[0]) || ((vL > 1) && (_mujocoFloatParams[simi_mujoco_body_solref1 + 1] != v[1])) )
+        {
+            if (pName != nullptr)
+            {
+                _mujocoFloatParams[simi_mujoco_body_solref1 + 0] = v[0];
+                if (vL > 1)
+                    _mujocoFloatParams[simi_mujoco_body_solref1 + 1] = v[1];
+            }
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDoubleArray(N.c_str(), _mujocoFloatParams.data() + simi_mujoco_body_solref1, 2);
+            }
+        }
+    }
+
+    N = propMaterial_mujocoSolimp.name;
+    if ( (pName == nullptr) || (N == pName) )
+    {
+        retVal = 1;
+        if ( (pName == nullptr) || (_mujocoFloatParams[simi_mujoco_body_solimp1 + 0] != v[0]) || ((vL > 1) && (_mujocoFloatParams[simi_mujoco_body_solimp1 + 1] != v[1])) || ((vL > 2) && (_mujocoFloatParams[simi_mujoco_body_solimp1 + 2] != v[2])) || ((vL > 3) && (_mujocoFloatParams[simi_mujoco_body_solimp1 + 3] != v[3])) || ((vL > 4) && (_mujocoFloatParams[simi_mujoco_body_solimp1 + 4] != v[4])) )
+        {
+            if (pName != nullptr)
+            {
+                _mujocoFloatParams[simi_mujoco_body_solimp1 + 0] = v[0];
+                if (vL > 1)
+                    _mujocoFloatParams[simi_mujoco_body_solimp1 + 1] = v[1];
+                if (vL > 2)
+                    _mujocoFloatParams[simi_mujoco_body_solimp1 + 2] = v[2];
+                if (vL > 3)
+                    _mujocoFloatParams[simi_mujoco_body_solimp1 + 3] = v[3];
+                if (vL > 4)
+                    _mujocoFloatParams[simi_mujoco_body_solimp1 + 4] = v[4];
+            }
+            if (_shapeHandleForEvents != -1)
+            {
+                if (ev == nullptr)
+                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+
+                ev->appendKeyDoubleArray(N.c_str(), _mujocoFloatParams.data() + simi_mujoco_body_solimp1, 5);
+            }
+        }
+    }
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    return retVal;
+}
+
+int CDynMaterialObject::getVectorProperty(const char* pName, std::vector<double>& pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propMaterial_mujocoSolref.name) == 0)
+    {
+        retVal = 1;
+        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solref1 + 0]);
+        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solref1 + 1]);
+    }
+    else if (strcmp(pName, propMaterial_mujocoSolimp.name) == 0)
+    {
+        retVal = 1;
+        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solimp1 + 0]);
+        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solimp1 + 1]);
+        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solimp1 + 2]);
+        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solimp1 + 3]);
+        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solimp1 + 4]);
+    }
+
+    return retVal;
+}
+
+int CDynMaterialObject::setIntVectorProperty(const char* pName, const int* v, int vL, CCbor* eev/* = nullptr*/)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CDynMaterialObject::getIntVectorProperty(const char* pName, std::vector<int>& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CDynMaterialObject::getPropertyName(int& index, std::string& pName)
+{
+    return getPropertyName_static(index, pName);
+}
+
+int CDynMaterialObject::getPropertyName_static(int& index, std::string& pName)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_material.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps_material[i].name;
+            retVal = 1;
+            break;
+        }
+    }
+    return retVal;
+}
+
+int CDynMaterialObject::getPropertyInfo(const char* pName, int& info, int& size)
+{
+    return getPropertyInfo_static(pName, info, size);
+}
+
+int CDynMaterialObject::getPropertyInfo_static(const char* pName, int& info, int& size)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_material.size(); i++)
+    {
+        if (strcmp(allProps_material[i].name, pName) == 0)
+        {
+            retVal = allProps_material[i].type;
+            info = allProps_material[i].flags;
+            size = 0;
+            break;
+        }
+    }
+    return retVal;
+}
+

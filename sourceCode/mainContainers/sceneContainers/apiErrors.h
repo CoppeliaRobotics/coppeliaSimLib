@@ -126,6 +126,7 @@ struct SThreadAndMsg_old
 #define SIM_ERROR_PROPERTY_CANNOT_BE_REMOVED "property cannot be removed."
 #define SIM_ERROR_PROPERTY_TYPE_MISMATCH "property type mismatch."
 #define SIM_ERROR_INVALID_PROPERTY_NAME "invalid property name."
+#define SIM_ERROR_PROPERTY_INVALID_SIZE "invalid size."
 
 
 #define SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS "the function requires more arguments."

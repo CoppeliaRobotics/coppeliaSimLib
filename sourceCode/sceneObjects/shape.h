@@ -16,7 +16,6 @@ DEFINE_PROPERTIES
 const std::vector<SProperty> allProps_shape = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
-#undef CONCAT_PROP
 // ----------------------------------------------------------------------------------------------
 
 class CShape : public CSceneObject
@@ -75,6 +74,17 @@ class CShape : public CSceneObject
     bool isPotentiallyRenderable() const;
     void setIsInScene(bool s);
 
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState);
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState);
+    int setFloatProperty(const char* pName, double pState);
+    int getFloatProperty(const char* pName, double& pState);
+    int setVector3Property(const char* pName, const C3Vector& pState);
+    int getVector3Property(const char* pName, C3Vector& pState);
+    int setVectorProperty(const char* pName, const double* v, int vL);
+    int getVectorProperty(const char* pName, std::vector<double>& pState);
+    int setIntVectorProperty(const char* pName, const int* v, int vL);
     int getIntVectorProperty(const char* pName, std::vector<int>& pState);
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);

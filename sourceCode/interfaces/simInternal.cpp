@@ -1720,29 +1720,34 @@ int simSetVectorProperty_internal(int target, const char* ppName, const double* 
         int retVal = -1;
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector)))
-                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(double));
-            else
+            if (vL > 0)
             {
-                int res = App::setVectorProperty(target, pName.c_str(), v, vL);
-                if (res == 1)
-                    retVal = 1;
-                else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                std::string pName(ppName);
+                if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector)))
+                    retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(double));
                 else
                 {
-                    int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
-                    if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                    else if (p == sim_propertytype_vector)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    int res = App::setVectorProperty(target, pName.c_str(), v, vL);
+                    if (res == 1)
+                        retVal = 1;
+                    else if (res == -2)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        int info;
+                        int size;
+                        int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                        if (p < 0)
+                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        else if (p == sim_propertytype_vector)
+                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        else
+                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    }
                 }
             }
+            else
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_INVALID_SIZE);
         }
         return retVal;
     }
@@ -1809,29 +1814,34 @@ int simSetIntVectorProperty_internal(int target, const char* ppName, const int* 
         int retVal = -1;
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_intvector)))
-                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(int));
-            else
+            if (vL > 0)
             {
-                int res = App::setIntVectorProperty(target, pName.c_str(), v, vL);
-                if (res == 1)
-                    retVal = 1;
-                else if (res == -2)
-                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                std::string pName(ppName);
+                if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_intvector)))
+                    retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(int));
                 else
                 {
-                    int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
-                    if (p < 0)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                    else if (p == sim_propertytype_intvector)
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    int res = App::setIntVectorProperty(target, pName.c_str(), v, vL);
+                    if (res == 1)
+                        retVal = 1;
+                    else if (res == -2)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                     else
-                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    {
+                        int info;
+                        int size;
+                        int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                        if (p < 0)
+                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                        else if (p == sim_propertytype_intvector)
+                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                        else
+                            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                    }
                 }
             }
+            else
+                CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_INVALID_SIZE);
         }
         return retVal;
     }

@@ -19,7 +19,7 @@ DEFINE_PROPERTIES
 const std::vector<SProperty> allProps_col = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
-#undef CONCAT_PROP
+
 // ----------------------------------------------------------------------------------------------
 
 class CColorObject

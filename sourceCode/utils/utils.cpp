@@ -338,7 +338,7 @@ std::string utils::generateUniqueString()
 }
 
 std::string utils::generateUniqueAlphaNumericString()
-{
+{ // hex XXXXXXXXXXXXXXXX (16 chars)
     static bool seeded = false;
     if (!seeded)
     {
