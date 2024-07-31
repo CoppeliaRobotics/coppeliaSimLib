@@ -1439,6 +1439,7 @@ void CShape::addSpecializedObjectEventData(CCbor *ev) const
     _dynMaterial->setVector3Property(nullptr, nullptr, ev);
     _dynMaterial->setVectorProperty(nullptr, nullptr, 0, ev);
     _dynMaterial->setIntVectorProperty(nullptr, nullptr, 0, ev);
+    _dynMaterial->sendEngineString(ev);
     ev->openKeyArray(propShape_meshes.name);
     std::vector<CMesh *> all;
     std::vector<C7Vector> allTr;
@@ -1738,6 +1739,28 @@ int CShape::getFloatProperty(const char* ppName, double& pState)
     int retVal = CSceneObject::getFloatProperty(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->getFloatProperty(pName, pState);
+
+    return retVal;
+}
+
+int CShape::setStringProperty(const char* ppName, const char* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setStringProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _dynMaterial->setStringProperty(pName, pState);
+
+    return retVal;
+}
+
+int CShape::getStringProperty(const char* ppName, std::string& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getStringProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _dynMaterial->getStringProperty(pName, pState);
 
     return retVal;
 }

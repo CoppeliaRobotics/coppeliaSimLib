@@ -9,6 +9,8 @@ class CEngineProperties
     virtual ~CEngineProperties();
 
     void editObjectProperties(int objectHandle) const;
+    std::string getObjectProperties(int objectHandle, std::string* title = nullptr, bool stripComments = true) const;
+    bool setObjectProperties(int objectHandle, const char* prop, std::string* errorString = nullptr, int* parseErrorLine = nullptr) const;
 
   private:
     double _getGlobalFloatParam(int item, std::string &comment, const char *additionalComment = nullptr) const;

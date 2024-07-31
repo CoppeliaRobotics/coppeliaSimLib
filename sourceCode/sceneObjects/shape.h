@@ -80,6 +80,8 @@ class CShape : public CSceneObject
     int getIntProperty(const char* pName, int& pState);
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState);
+    int setStringProperty(const char* pName, const char* pState);
+    int getStringProperty(const char* pName, std::string& pState);
     int setVector3Property(const char* pName, const C3Vector& pState);
     int getVector3Property(const char* pName, C3Vector& pState);
     int setVectorProperty(const char* pName, const double* v, int vL);

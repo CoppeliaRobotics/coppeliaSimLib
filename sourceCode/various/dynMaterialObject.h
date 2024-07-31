@@ -14,6 +14,7 @@ struct SEngProperty {
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
+    FUNCX(propMaterial_engineProperties,            "engineProperties",         sim_propertytype_string, 0, -1, -1, -1, -1, -1) \
     FUNCX(propMaterial_bulletRestitution,           "bulletRestitution",        sim_propertytype_float, 0, sim_bullet_body_restitution, -1, -1, -1, -1) \
     FUNCX(propMaterial_bulletFriction0,             "bulletFriction0",          sim_propertytype_float, 0, sim_bullet_body_oldfriction, -1, -1, -1, -1) \
     FUNCX(propMaterial_bulletFriction,              "bulletFriction",           sim_propertytype_float, 0, sim_bullet_body_friction, -1, -1, -1, -1) \
@@ -272,12 +273,16 @@ class CDynMaterialObject
 
     static std::string getIndividualName();
 
+    void sendEngineString(CCbor* eev = nullptr);
+
     int setBoolProperty(const char* pName, bool pState, CCbor* eev = nullptr);
     int getBoolProperty(const char* pName, bool& pState);
     int setIntProperty(const char* pName, int pState, CCbor* eev = nullptr);
     int getIntProperty(const char* pName, int& pState);
     int setFloatProperty(const char* pName, double pState, CCbor* eev = nullptr);
     int getFloatProperty(const char* pName, double& pState);
+    int setStringProperty(const char* pName, const char* pState);
+    int getStringProperty(const char* pName, std::string& pState);
     int setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev = nullptr);
     int getVector3Property(const char* pName, C3Vector* pState);
     int setVectorProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);
@@ -334,6 +339,7 @@ class CDynMaterialObject
     std::string _objectName;
     int _uniqueID;
     int _shapeHandleForEvents;
+    bool _sendAlsoAllEngineProperties;
 
     // Engine properties
     // ---------------------

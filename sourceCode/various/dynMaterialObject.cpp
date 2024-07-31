@@ -3,6 +3,7 @@
 #include <app.h>
 #include <tt.h>
 #include <boost/format.hpp>
+#include <engineProperties.h>
 
 int CDynMaterialObject::_nextUniqueID = 0;
 
@@ -16,6 +17,7 @@ void CDynMaterialObject::_setDefaultParameters()
     _objectID = SIM_IDSTART_DYNMATERIAL_old;
     _objectName = "usr_";
     _shapeHandleForEvents = -1;
+    _sendAlsoAllEngineProperties = true;
 
     _uniqueID = _nextUniqueID++;
     _bulletFloatParams.clear();
@@ -1947,6 +1949,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_sticky);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -1965,6 +1969,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmargin);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -1983,6 +1989,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmarginconvex);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2001,6 +2009,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_autoshrinkconvex);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2019,6 +2029,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_pureshapesasconvex);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2037,6 +2049,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_convexshapesasrandom);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2055,6 +2069,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_randomshapesasterrain);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2073,6 +2089,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_fastmoving);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2091,6 +2109,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoslip);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2109,6 +2129,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_seclinaxissameasprimlinaxis);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2127,6 +2149,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_secangaxissameasprimangaxis);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2145,6 +2169,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_normangaxissameasprimangaxis);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2163,6 +2189,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoangulardamping);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2181,6 +2209,8 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
                 if (ev == nullptr)
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
                 ev->appendKeyBool(N.c_str(), _newtonIntParams[simi_newton_body_bitcoded] & simi_newton_body_fastmoving);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2290,6 +2320,8 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyInt(N.c_str(), _odeIntParams[simi_ode_body_maxcontacts]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2308,6 +2340,8 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2326,6 +2360,8 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2344,6 +2380,8 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_primangulararaxisfrictionmodel]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2362,6 +2400,8 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_secmangulararaxisfrictionmodel]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2380,6 +2420,8 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_normalmangulararaxisfrictionmodel]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2398,6 +2440,8 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_autosleepsteplivethreshold]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2416,6 +2460,8 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_materialuniqueid]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2434,6 +2480,8 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyInt(N.c_str(), _mujocoIntParams[simi_mujoco_body_condim]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2452,6 +2500,8 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyInt(N.c_str(), _mujocoIntParams[simi_mujoco_body_priority]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2541,6 +2591,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_restitution]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2559,6 +2611,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_oldfriction]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2577,6 +2631,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_friction]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2595,6 +2651,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_lineardamping]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2613,6 +2671,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_angulardamping]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2631,6 +2691,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2649,6 +2711,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2667,6 +2731,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_friction]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2685,6 +2751,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_softerp]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2703,6 +2771,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_softcfm]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2721,6 +2791,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_lineardamping]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2739,6 +2811,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_angulardamping]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2757,6 +2831,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisfriction]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2775,6 +2851,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisfriction]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2793,6 +2871,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisfriction]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2811,6 +2891,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisfriction]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2829,6 +2911,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisfriction]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2847,6 +2931,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisstaticfrictionscale]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2865,6 +2951,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisstaticfrictionscale]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2883,6 +2971,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisstaticfrictionscale]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2901,6 +2991,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisstaticfrictionscale]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2919,6 +3011,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisstaticfrictionscale]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2937,6 +3031,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_compliance]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2955,6 +3051,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_damping]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2973,6 +3071,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_restitution]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -2991,6 +3091,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_restitutionthreshold]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3009,6 +3111,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_adhesiveforce]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3027,6 +3131,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_linearvelocitydamping]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3045,6 +3151,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_angularvelocitydamping]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3063,6 +3171,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisslide]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3081,6 +3191,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisslide]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3099,6 +3211,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisslide]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3117,6 +3231,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisslide]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3135,6 +3251,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisslide]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3153,6 +3271,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisslip]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3171,6 +3291,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisslip]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3189,6 +3311,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisslip]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3207,6 +3331,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisslip]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3225,6 +3351,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisslip]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3243,6 +3371,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleeplinearspeedthreshold]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3261,6 +3391,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleeplinearaccelthreshold]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3279,6 +3411,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleepangularspeedthreshold]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3297,6 +3431,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleepangularaccelthreshold]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3315,6 +3451,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_skinthickness]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3333,6 +3471,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autoangulardampingtensionratio]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3351,6 +3491,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_staticfriction]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3369,6 +3511,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_kineticfriction]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3387,6 +3531,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_restitution]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3405,6 +3551,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_lineardrag]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3423,6 +3571,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_angulardrag]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3441,6 +3591,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _mujocoFloatParams[simi_mujoco_body_solmix]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3459,6 +3611,8 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDouble(N.c_str(), _mujocoFloatParams[simi_mujoco_body_margin]);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3736,6 +3890,54 @@ int CDynMaterialObject::getFloatProperty(const char* pName, double& pState)
     return retVal;
 }
 
+void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
+{
+    if (_shapeHandleForEvents != -1)
+    {
+        CCbor* ev = nullptr;
+        if (eev != nullptr)
+            ev = eev;
+        CEngineProperties prop;
+        std::string current(prop.getObjectProperties(_shapeHandleForEvents));
+        if (ev == nullptr)
+            ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+        ev->appendKeyString(propMaterial_engineProperties.name, current.c_str());
+        if ( (ev != nullptr) && (eev == nullptr) )
+            App::worldContainer->pushEvent();
+    }
+}
+
+int CDynMaterialObject::setStringProperty(const char* pName, const char* pState)
+{
+    int retVal = -1;
+    if (strcmp(pName, propMaterial_engineProperties.name) == 0)
+    {
+        retVal = 0;
+        CEngineProperties prop;
+        std::string current(prop.getObjectProperties(_shapeHandleForEvents));
+        if (prop.setObjectProperties(_shapeHandleForEvents, pState))
+        {
+            retVal = 1;
+            std::string current2(prop.getObjectProperties(_shapeHandleForEvents));
+            if (current != current2)
+                sendEngineString();
+        }
+    }
+    return retVal;
+}
+
+int CDynMaterialObject::getStringProperty(const char* pName, std::string& pState)
+{
+    int retVal = -1;
+    if (strcmp(pName, propMaterial_engineProperties.name) == 0)
+    {
+        retVal = 1;
+        CEngineProperties prop;
+        pState = prop.getObjectProperties(_shapeHandleForEvents);
+    }
+    return retVal;
+}
+
 int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev/* = nullptr*/)
 {
     int retVal = -1;
@@ -3763,6 +3965,8 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDoubleArray(N.c_str(), _vortexFloatParams.data() + simi_vortex_body_primaxisvectorx, 3);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3786,6 +3990,8 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDoubleArray(N.c_str(), _mujocoFloatParams.data() + simi_mujoco_body_friction1, 3);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3839,6 +4045,8 @@ int CDynMaterialObject::setVectorProperty(const char* pName, const double* v, in
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDoubleArray(N.c_str(), _mujocoFloatParams.data() + simi_mujoco_body_solref1, 2);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }
@@ -3867,6 +4075,8 @@ int CDynMaterialObject::setVectorProperty(const char* pName, const double* v, in
                     ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
                 ev->appendKeyDoubleArray(N.c_str(), _mujocoFloatParams.data() + simi_mujoco_body_solimp1, 5);
+                if (pName != nullptr)
+                    sendEngineString(ev);
             }
         }
     }

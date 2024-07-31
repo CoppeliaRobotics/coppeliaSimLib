@@ -18,11 +18,62 @@ CEngineProperties::~CEngineProperties()
 
 void CEngineProperties::editObjectProperties(int objectHandle) const
 {
+    std::string title;
+    std::string initText(getObjectProperties(objectHandle, &title, false));
+
+    // printf("%s:\n%s\n",title.c_str(),initText.c_str());
+    std::string modifiedText(initText);
+    std::string err;
+    while (true)
+    {
+        err.clear();
+        std::string xml("<editor title=\"");
+        xml += title;
+        xml += "\" lang=\"json\" line-numbers=\"true\" ";
+        if (App::userSettings->scriptEditorFont.compare("") != 0) // defaults are decided in the code editor plugin
+        {
+            xml += "font=\"";
+            xml += App::userSettings->scriptEditorFont + "\" ";
+        }
+        int fontSize = 12;
+#ifdef MAC_SIM
+        fontSize = 16; // bigger fonts here
+#endif
+        if (App::userSettings->scriptEditorFontSize != -1)
+            fontSize = App::userSettings->scriptEditorFontSize;
+        xml += "font-size=\"";
+        xml += std::to_string(fontSize) + "\" ";
+        xml += "/>";
+        modifiedText = GuiApp::mainWindow->codeEditorContainer->openModalTextEditor(modifiedText.c_str(), xml.c_str(), nullptr, false);
+        // printf("Modified text:\n%s\n",modifiedText.c_str());
+
+        int parseErrorLine;
+        if (setObjectProperties(objectHandle, modifiedText.c_str(), &err, &parseErrorLine))
+            break;
+
+        std::string msg("Invalid JSON data:\n\n");
+        msg += err + "\nat line ";
+        msg += std::to_string(parseErrorLine) + "\n\nDiscard changes?";
+        if (VMESSAGEBOX_REPLY_CANCEL != GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, title.c_str(), msg.c_str(), VMESSAGEBOX_OK_CANCEL, VMESSAGEBOX_REPLY_CANCEL))
+            return;
+    }
+
+    if (err.size() > 0)
+    {
+        err = std::string("The JSON parser found following error(s):\n") + err;
+        App::logMsg(sim_verbosity_scripterrors, err.c_str());
+        GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, title.c_str(), err.c_str(), VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
+    }
+}
+
+std::string CEngineProperties::getObjectProperties(int objectHandle, std::string* title /*= nullptr*/, bool stripComments /*= true*/) const
+{
     CSceneObject *object = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
 
     QJsonObject jmain;
     CAnnJson annJson(&jmain);
-    std::string title("Dynamic engine global properties");
+    if (title != nullptr)
+        title[0] = "Dynamic engine global properties";
     int engine = App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr);
 
     if (object != nullptr)
@@ -35,7 +86,8 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
                 if (i != engine)
                     _writeShape((int)i, objectHandle, annJson);
             }
-            title = "Dynamic engine properties for shape ";
+            if (title != nullptr)
+                title[0] = "Dynamic engine properties for shape ";
         }
         if (object->getObjectType() == sim_sceneobject_joint)
         {
@@ -45,7 +97,8 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
                 if (i != engine)
                     _writeJoint((int)i, objectHandle, annJson);
             }
-            title = "Dynamic engine properties for joint ";
+            if (title != nullptr)
+                title[0] = "Dynamic engine properties for joint ";
         }
         if (object->getObjectType() == sim_sceneobject_dummy)
         {
@@ -55,9 +108,11 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
                 if (i != engine)
                     _writeDummy((int)i, objectHandle, annJson);
             }
-            title = "Dynamic engine properties for dummy ";
+            if (title != nullptr)
+                title[0] = "Dynamic engine properties for dummy ";
         }
-        title += object->getObjectAlias_printPath();
+        if (title != nullptr)
+            title[0] += object->getObjectAlias_printPath();
     }
     else
     {
@@ -69,91 +124,63 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
         }
     }
 
-    std::string initText(annJson.getAnnotatedString());
+    std::string str(annJson.getAnnotatedString());
+    if (stripComments)
+        str = annJson.stripComments(str.c_str());
 
-    // printf("%s:\n%s\n",title.c_str(),initText.c_str());
-    QJsonObject obj;
-    annJson.setMainObject(&obj);
-    std::string modifiedText(initText);
-    while (true)
+    return str;
+}
+
+bool CEngineProperties::setObjectProperties(int objectHandle, const char* prop, std::string* errorString /*= nullptr*/, int* parseErrorLine /*= nullptr*/) const
+{
+    bool retVal = false; // means parse error, no property at all set
+    CSceneObject *object = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+
+    QJsonObject jmain;
+    CAnnJson annJson(&jmain);
+
+    std::string modifiedText_noComments(annJson.stripComments(prop));
+
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(modifiedText_noComments.c_str(), &parseError);
+
+    if ((!doc.isNull()) && doc.isObject())
     {
-        if (true)
+        retVal = true;
+        jmain = doc.object();
+        if (object != nullptr)
         {
-            std::string xml("<editor title=\"");
-            xml += title;
-            xml += "\" lang=\"json\" line-numbers=\"true\" ";
-            if (App::userSettings->scriptEditorFont.compare("") != 0) // defaults are decided in the code editor plugin
+            if (object->getObjectType() == sim_sceneobject_shape)
             {
-                xml += "font=\"";
-                xml += App::userSettings->scriptEditorFont + "\" ";
+                for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
+                    _readShape((int)i, objectHandle, annJson, errorString);
             }
-            int fontSize = 12;
-#ifdef MAC_SIM
-            fontSize = 16; // bigger fonts here
-#endif
-            if (App::userSettings->scriptEditorFontSize != -1)
-                fontSize = App::userSettings->scriptEditorFontSize;
-            xml += "font-size=\"";
-            xml += std::to_string(fontSize) + "\" ";
-            xml += "/>";
-            modifiedText = GuiApp::mainWindow->codeEditorContainer->openModalTextEditor(modifiedText.c_str(),
-                                                                                        xml.c_str(), nullptr, false);
-            // printf("Modified text:\n%s\n",modifiedText.c_str());
+            if (object->getObjectType() == sim_sceneobject_joint)
+            {
+                for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
+                    _readJoint((int)i, objectHandle, annJson, errorString);
+            }
+            if (object->getObjectType() == sim_sceneobject_dummy)
+            {
+                for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
+                    _readDummy((int)i, objectHandle, annJson, errorString);
+            }
         }
-
-        std::string modifiedText_noComments = annJson.stripComments(modifiedText.c_str());
-
-        QJsonParseError parseError;
-        QJsonDocument doc = QJsonDocument::fromJson(modifiedText_noComments.c_str(), &parseError);
-
-        if ((!doc.isNull()) && doc.isObject())
-        {
-            obj = doc.object();
-            break;
-        }
-
-        std::string msg("Invalid JSON data:\n\n");
-        msg += parseError.errorString().toStdString() + "\nat line ";
-        msg += std::to_string(utils::lineCountAtOffset(modifiedText_noComments.c_str(), parseError.offset)) +
-               "\n\nDiscard changes?";
-        if (VMESSAGEBOX_REPLY_CANCEL != GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, title.c_str(),
-                                                                             msg.c_str(), VMESSAGEBOX_OK_CANCEL,
-                                                                             VMESSAGEBOX_REPLY_CANCEL))
-            return;
-    }
-    std::string allErrors;
-
-    if (object != nullptr)
-    {
-        if (object->getObjectType() == sim_sceneobject_shape)
+        else
         {
             for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
-                _readShape((int)i, objectHandle, annJson, &allErrors);
-        }
-        if (object->getObjectType() == sim_sceneobject_joint)
-        {
-            for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
-                _readJoint((int)i, objectHandle, annJson, &allErrors);
-        }
-        if (object->getObjectType() == sim_sceneobject_dummy)
-        {
-            for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
-                _readDummy((int)i, objectHandle, annJson, &allErrors);
+                _readGlobal((int)i, annJson, errorString);
         }
     }
     else
     {
-        for (size_t i = sim_physics_bullet; i <= sim_physics_mujoco; i++)
-            _readGlobal((int)i, annJson, &allErrors);
+        if (errorString != nullptr)
+            errorString[0] = parseError.errorString().toStdString();
+        if (parseErrorLine != nullptr)
+            parseErrorLine[0] = utils::lineCountAtOffset(modifiedText_noComments.c_str(), parseError.offset);
     }
 
-    if (allErrors.size() > 0)
-    {
-        allErrors = std::string("The JSON parser found following error(s):\n") + allErrors;
-        App::logMsg(sim_verbosity_scripterrors, allErrors.c_str());
-        GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, title.c_str(), allErrors.c_str(), VMESSAGEBOX_OKELI,
-                                             VMESSAGEBOX_REPLY_OK);
-    }
+    return retVal;
 }
 
 void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJson) const
