@@ -523,6 +523,7 @@ HEADERS += $$PWD/sourceCode/various/simConfig.h \
     $$PWD/sourceCode/various/folderSystem.h \
     $$PWD/sourceCode/various/dynMaterialObject.h \
     $$PWD/sourceCode/various/sigHandler.h \
+    $$PWD/sourceCode/various/engineProperties.h \
 
 HEADERS += $$PWD/sourceCode/undoRedo/undoBufferArrays.h \
     $$PWD/sourceCode/undoRedo/undoBuffer.h \
@@ -701,7 +702,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/menusAndSimilar/helpMenu.h \
 
     HEADERS += $$PWD/sourceCode/gui/various/simRecorder.h \
-        $$PWD/sourceCode/gui/various/engineProperties.h \
         $$PWD/sourceCode/gui/various/guiApp.h \
         $$PWD/sourceCode/gui/various/uiThread.h \
         $$PWD/sourceCode/gui/various/simAndUiThreadSync.h \
@@ -906,6 +906,7 @@ SOURCES += $$PWD/sourceCode/various/userSettings.cpp \
     $$PWD/sourceCode/various/simThread.cpp \
     $$PWD/sourceCode/various/dynMaterialObject.cpp \
     $$PWD/sourceCode/various/sigHandler.cpp \
+    $$PWD/sourceCode/various/engineProperties.cpp \
 
 SOURCES += $$PWD/sourceCode/undoRedo/undoBufferArrays.cpp \
     $$PWD/sourceCode/undoRedo/undoBuffer.cpp \
@@ -1084,7 +1085,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/menusAndSimilar/helpMenu.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/various/simRecorder.cpp \
-        $$PWD/sourceCode/gui/various/engineProperties.cpp \
         $$PWD/sourceCode/gui/various/guiApp.cpp \
         $$PWD/sourceCode/gui/various/uiThread.cpp \
         $$PWD/sourceCode/gui/various/simAndUiThreadSync.cpp \

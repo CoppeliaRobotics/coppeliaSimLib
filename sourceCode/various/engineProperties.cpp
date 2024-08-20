@@ -1,10 +1,10 @@
 #include <engineProperties.h>
 #include <app.h>
-#include <vMessageBox.h>
 #include <annJson.h>
 #include <tt.h>
 #include <utils.h>
 #ifdef SIM_WITH_GUI
+#include <vMessageBox.h>
 #include <guiApp.h>
 #endif
 
@@ -16,6 +16,7 @@ CEngineProperties::~CEngineProperties()
 {
 }
 
+#ifdef SIM_WITH_GUI
 void CEngineProperties::editObjectProperties(int objectHandle) const
 {
     std::string title;
@@ -65,6 +66,7 @@ void CEngineProperties::editObjectProperties(int objectHandle) const
         GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, title.c_str(), err.c_str(), VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
     }
 }
+#endif
 
 std::string CEngineProperties::getObjectProperties(int objectHandle, std::string* title /*= nullptr*/, bool stripComments /*= true*/) const
 {

@@ -129,9 +129,15 @@ void CLight::setIsInScene(bool s)
 {
     CSceneObject::setIsInScene(s);
     if (s)
+    {
         objectColor.setEventParams(_objectHandle);
+        lightColor.setEventParams(_objectHandle);
+    }
     else
+    {
         objectColor.setEventParams(-1);
+        lightColor.setEventParams(-1);
+    }
 }
 
 void CLight::_setDefaultColors()
@@ -159,6 +165,7 @@ void CLight::_setDefaultColors()
         lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_diffuse);
         lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_specular);
     }
+    lightColor.setEventParams(-1, -1, "_light");
 }
 
 CLight::~CLight()
@@ -289,6 +296,7 @@ void CLight::addSpecializedObjectEventData(CCbor *ev) const
     ev->closeArrayOrMap(); // colors
 #else
     objectColor.addGenesisEventData(ev);
+    lightColor.addGenesisEventData(ev);
 #endif
     ev->appendKeyDouble(propLight_size.name, _lightSize);
     // todo
@@ -754,6 +762,8 @@ int CLight::setFloatProperty(const char* ppName, double pState)
     if (retVal == -1)
         retVal = objectColor.setFloatProperty(pName, pState);
     if (retVal == -1)
+        retVal = lightColor.setFloatProperty(pName, pState);
+    if (retVal == -1)
     {
         if (_pName == propLight_size.name)
         {
@@ -773,6 +783,8 @@ int CLight::getFloatProperty(const char* ppName, double& pState)
     if (retVal == -1)
         retVal = objectColor.getFloatProperty(pName, pState);
     if (retVal == -1)
+        retVal = lightColor.getFloatProperty(pName, pState);
+    if (retVal == -1)
     {
         if (_pName == propLight_size.name)
         {
@@ -791,6 +803,8 @@ int CLight::setColorProperty(const char* ppName, const float* pState)
     int retVal = CSceneObject::setColorProperty(pName, pState);
     if (retVal == -1)
         retVal = objectColor.setColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = lightColor.setColorProperty(pName, pState);
     if (retVal != -1)
     {
 
@@ -805,6 +819,8 @@ int CLight::getColorProperty(const char* ppName, float* pState)
     int retVal = CSceneObject::getColorProperty(pName, pState);
     if (retVal == -1)
         retVal = objectColor.getColorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = lightColor.getColorProperty(pName, pState);
     if (retVal != -1)
     {
 
@@ -820,6 +836,8 @@ int CLight::getPropertyName(int& index, std::string& pName, std::string& apparte
         appartenance += ".light";
         retVal = objectColor.getPropertyName(index, pName);
     }
+    if (retVal == -1)
+        retVal = lightColor.getPropertyName(index, pName);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
@@ -845,6 +863,8 @@ int CLight::getPropertyName_static(int& index, std::string& pName, std::string& 
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "_light");
+    if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
         {
@@ -868,6 +888,8 @@ int CLight::getPropertyInfo(const char* ppName, int& info, int& size)
     if (retVal == -1)
         retVal = objectColor.getPropertyInfo(pName, info, size);
     if (retVal == -1)
+        retVal = lightColor.getPropertyInfo(pName, info, size);
+    if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
         {
@@ -890,6 +912,8 @@ int CLight::getPropertyInfo_static(const char* ppName, int& info, int& size)
     int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
     if (retVal == -1)
         retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+    if (retVal == -1)
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "_light");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)

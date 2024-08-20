@@ -434,7 +434,6 @@ if(WITH_GUI)
 
         sourceCode/gui/various/guiApp.cpp
         sourceCode/gui/various/simRecorder.cpp
-        sourceCode/gui/various/engineProperties.cpp
         sourceCode/gui/various/uiThread.cpp
         sourceCode/gui/various/simAndUiThreadSync.cpp
 
@@ -631,6 +630,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/various/simThread.cpp
     sourceCode/various/dynMaterialObject.cpp
     sourceCode/various/sigHandler.cpp
+    sourceCode/various/engineProperties.cpp
 
     sourceCode/undoRedo/undoBufferArrays.cpp
     sourceCode/undoRedo/undoBuffer.cpp

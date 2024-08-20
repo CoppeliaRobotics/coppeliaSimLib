@@ -8,7 +8,9 @@ class CEngineProperties
     CEngineProperties();
     virtual ~CEngineProperties();
 
+#ifdef SIM_WITH_GUI
     void editObjectProperties(int objectHandle) const;
+#endif
     std::string getObjectProperties(int objectHandle, std::string* title = nullptr, bool stripComments = true) const;
     bool setObjectProperties(int objectHandle, const char* prop, std::string* errorString = nullptr, int* parseErrorLine = nullptr) const;
 

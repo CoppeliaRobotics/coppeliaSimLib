@@ -36,7 +36,7 @@ void CColorObject::setEventParams(int eventObjectUid, int eventFlags /*= -1*/, c
         _eventObjectUid = eventObjectUid;
     if (eventFlags != -1)
         _eventFlags = eventFlags;
-    _eventSuffix.clear();
+ //   _eventSuffix.clear();
     if (eventSuffix != nullptr)
         _eventSuffix = eventSuffix;
 }
