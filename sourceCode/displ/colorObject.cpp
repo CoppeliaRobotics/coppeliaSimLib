@@ -158,13 +158,17 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
         int offset = 0;
         std::string cmd;
         if (colorMode == sim_colorcomponent_ambient_diffuse)
-        {
+        { // objects only (no lights)
             offset = 0;
             if ( (_eventFlags & 1) && (_eventObjectUid != -1) )
                 cmd = propCol_colDiffuse.name;
         }
         else if (colorMode == sim_colorcomponent_diffuse)
+        { // lights only (no objects)
             offset = 3;
+            if ( (_eventFlags & 2) && (_eventObjectUid != -1) )
+                cmd = propCol_colDiffuse.name;
+        }
         else if (colorMode == sim_colorcomponent_specular)
         {
             offset = 6;
@@ -199,22 +203,28 @@ void CColorObject::addGenesisEventData(CCbor *ev) const
 {
     std::string c;
     if (_eventFlags & 1)
-    {
+    { // objects only (no lights)
         c = propCol_colDiffuse.name;
         c += _eventSuffix;
         ev->appendKeyFloatArray(c.c_str(), _colors, 3);
+    }
+    if (_eventFlags & 2)
+    { // lights only (no objects)
+        c = propCol_colDiffuse.name;
+        c += _eventSuffix;
+        ev->appendKeyFloatArray(c.c_str(), _colors + 3, 3);
     }
     if (_eventFlags & 4)
     {
         c = propCol_colSpecular.name;
         c += _eventSuffix;
-        ev->appendKeyFloatArray(c.c_str(), _colors + 3, 3);
+        ev->appendKeyFloatArray(c.c_str(), _colors + 6, 3);
     }
     if (_eventFlags & 8)
     {
         c = propCol_colEmission.name;
         c += _eventSuffix;
-        ev->appendKeyFloatArray(c.c_str(), _colors + 6, 3);
+        ev->appendKeyFloatArray(c.c_str(), _colors + 9, 3);
     }
     if (_eventFlags & 16)
     {
@@ -893,8 +903,13 @@ int CColorObject::setColorProperty(const char* ppName, const float* pState)
         std::string pName(ppName);
         pName.erase(pName.size() - _eventSuffix.size());
         if ( (pName == propCol_colDiffuse.name) && (_eventFlags & 1) )
-        {
+        { // objects only (no lights)
             setColor(pState, sim_colorcomponent_ambient_diffuse);
+            retVal = 1;
+        }
+        else if ( (pName == propCol_colDiffuse.name) && (_eventFlags & 2) )
+        { // lights only (no objects)
+            setColor(pState, sim_colorcomponent_diffuse);
             retVal = 1;
         }
         else if ( (pName == propCol_colSpecular.name) && (_eventFlags & 4) )
@@ -919,8 +934,13 @@ int CColorObject::getColorProperty(const char* ppName, float* pState)
         std::string pName(ppName);
         pName.erase(pName.size() - _eventSuffix.size());
         if ( (pName == propCol_colDiffuse.name) && (_eventFlags & 1) )
-        {
+        { // objects only (no lights)
             getColor(pState, sim_colorcomponent_ambient_diffuse);
+            retVal = 1;
+        }
+        else if ( (pName == propCol_colDiffuse.name) && (_eventFlags & 2) )
+        { // lights only (no objects)
+            getColor(pState, sim_colorcomponent_diffuse);
             retVal = 1;
         }
         else if ( (pName == propCol_colSpecular.name) && (_eventFlags & 4) )
@@ -942,7 +962,7 @@ int CColorObject::getPropertyName(int& index, std::string& pName)
     int retVal = -1;
     for (size_t i = 0; i < allProps_col.size(); i++)
     {
-        if ( ((i == 0) && (_eventFlags & 1)) || ((i == 1) && (_eventFlags & 4)) || ((i == 2) && (_eventFlags & 8)) || ((i == 3) && (_eventFlags & 16)) )
+        if ( ((i == 0) && (_eventFlags & (1|2))) || ((i == 1) && (_eventFlags & 4)) || ((i == 2) && (_eventFlags & 8)) || ((i == 3) && (_eventFlags & 16)) )
         {
             index--;
             if (index == -1)
@@ -961,7 +981,7 @@ int CColorObject::getPropertyName_static(int& index, std::string& pName, int eve
     int retVal = -1;
     for (size_t i = 0; i < allProps_col.size(); i++)
     {
-        if ( ((i == 0) && (eventFlags & 1)) || ((i == 1) && (eventFlags & 4)) || ((i == 2) && (eventFlags & 8)) || ((i == 3) && (eventFlags & 16)) )
+        if ( ((i == 0) && (eventFlags & (1|2))) || ((i == 1) && (eventFlags & 4)) || ((i == 2) && (eventFlags & 8)) || ((i == 3) && (eventFlags & 16)) )
         {
             index--;
             if (index == -1)
@@ -984,7 +1004,7 @@ int CColorObject::getPropertyInfo(const char* ppName, int& info, int& size)
         pName.erase(pName.size() - _eventSuffix.size());
         for (size_t i = 0; i < allProps_col.size(); i++)
         {
-            if ( ((i == 0) && (_eventFlags & 1)) || ((i == 1) && (_eventFlags & 4)) || ((i == 2) && (_eventFlags & 8)) || ((i == 3) && (_eventFlags & 16)) )
+            if ( ((i == 0) && (_eventFlags & (1|2))) || ((i == 1) && (_eventFlags & 4)) || ((i == 2) && (_eventFlags & 8)) || ((i == 3) && (_eventFlags & 16)) )
             {
                 if (pName == allProps_col[i].name)
                 {
@@ -1008,7 +1028,7 @@ int CColorObject::getPropertyInfo_static(const char* ppName, int& info, int& siz
         pName.erase(pName.size() - strlen(eventSuffix));
         for (size_t i = 0; i < allProps_col.size(); i++)
         {
-            if ( ((i == 0) && (eventFlags & 1)) || ((i == 1) && (eventFlags & 4)) || ((i == 2) && (eventFlags & 8)) || ((i == 3) && (eventFlags & 16)) )
+            if ( ((i == 0) && (eventFlags & (1|2))) || ((i == 1) && (eventFlags & 4)) || ((i == 2) && (eventFlags & 8)) || ((i == 3) && (eventFlags & 16)) )
             {
                 if (pName == allProps_col[i].name)
                 {

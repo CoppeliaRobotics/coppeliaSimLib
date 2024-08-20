@@ -165,7 +165,7 @@ void CLight::_setDefaultColors()
         lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_diffuse);
         lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_specular);
     }
-    lightColor.setEventParams(-1, -1, "_light");
+    lightColor.setEventParams(-1, 2 + 4 + 8, "_light");
 }
 
 CLight::~CLight()
@@ -863,7 +863,7 @@ int CLight::getPropertyName_static(int& index, std::string& pName, std::string& 
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "_light");
+        retVal = CColorObject::getPropertyName_static(index, pName, 2 + 4 + 8, "_light");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
@@ -913,7 +913,7 @@ int CLight::getPropertyInfo_static(const char* ppName, int& info, int& size)
     if (retVal == -1)
         retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "_light");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 2 + 4 + 8, "_light");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
