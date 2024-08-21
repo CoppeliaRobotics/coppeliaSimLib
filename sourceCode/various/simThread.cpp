@@ -2993,28 +2993,28 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == APPLY_PARAMS_JOINTDYNGUITRIGGEREDCMD)
     {
         CJoint *last = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
-        if ((last != nullptr) &&
-            ((last->getJointMode() == sim_jointmode_dynamic) || last->getHybridFunctionality_old()))
+        if ((last != nullptr) && ((last->getJointMode() == sim_jointmode_dynamic) || last->getHybridFunctionality_old()))
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
                 CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[i]);
-                if ((it != nullptr) && (last->getJointType() == it->getJointType()) &&
-                    ((it->getJointMode() == last->getJointMode()) ||
-                     (last->getHybridFunctionality_old() && it->getHybridFunctionality_old())))
+                if ((it != nullptr) && (last->getJointType() == it->getJointType()) )
                 {
-                    it->setDynCtrlMode(last->getDynCtrlMode());
-                    it->setDynPosCtrlType(last->getDynPosCtrlType());
-                    it->setTargetForce(last->getTargetForce(true), true);
-                    it->setTargetVelocity(last->getTargetVelocity());
-                    it->setMotorLock(last->getMotorLock());
-                    it->setTargetPosition(last->getTargetPosition());
-                    double maxVelAccelJerk[3];
-                    last->getMaxVelAccelJerk(maxVelAccelJerk);
-                    it->setMaxVelAccelJerk(maxVelAccelJerk);
-                    double kp, cp;
-                    last->getKc(kp, cp);
-                    it->setKc(kp, cp);
+                    if ( (it->getJointMode() == last->getJointMode()) || (last->getHybridFunctionality_old() && it->getHybridFunctionality_old()) )
+                    {
+                        it->setDynCtrlMode(last->getDynCtrlMode());
+                        it->setDynPosCtrlType(last->getDynPosCtrlType());
+                        it->setTargetForce(last->getTargetForce(true), true);
+                        it->setTargetVelocity(last->getTargetVelocity());
+                        it->setMotorLock(last->getMotorLock());
+                        it->setTargetPosition(last->getTargetPosition());
+                        double maxVelAccelJerk[3];
+                        last->getMaxVelAccelJerk(maxVelAccelJerk);
+                        it->setMaxVelAccelJerk(maxVelAccelJerk);
+                        double kp, cp;
+                        last->getKc(kp, cp);
+                        it->setKc(kp, cp);
+                    }
                     last->copyEnginePropertiesTo(it);
                 }
             }

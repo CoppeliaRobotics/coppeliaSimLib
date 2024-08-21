@@ -3993,6 +3993,7 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int newMode)
     if (diff)
     {
         _jointMode = newMode;
+        _dynCtrlMode = sim_jointdynctrl_free; // 21.08.2024: e.g. dependent joints need to be free when master joint is dyn. enabled
         _setJointMode_sendOldIk(_jointMode);
         if ((_jointMode != sim_jointmode_dependent) && (_jointMode != sim_jointmode_reserved_previously_ikdependent))
             setDependencyMasterJointHandle(-1);
