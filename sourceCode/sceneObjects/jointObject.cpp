@@ -1210,20 +1210,29 @@ std::string CJoint::getObjectTypeInfoExtended() const
             retVal += tt::decorateString(" (", IDSOGL_REVOLUTE, ", p=");
         else
             retVal += tt::decorateString(" (", IDSOGL_SCREW, ", p=");
-        retVal += utils::getAngleString(true, _pos) + ")";
+        retVal += utils::getAngleString(true, _pos);
     }
     if (_jointType == sim_joint_prismatic)
     {
         retVal += tt::decorateString(" (", IDSOGL_PRISMATIC, ", p=");
-        retVal += utils::getPosString(true, _pos) + ")";
+        retVal += utils::getPosString(true, _pos);
     }
     if (_jointType == sim_joint_spherical)
     {
         retVal += tt::decorateString(" (", IDSOGL_SPHERICAL, ", a=");
         C3Vector euler(getSphericalTransformation().getEulerAngles());
         retVal += utils::getAngleString(true, euler(0)) + ", b=" + utils::getAngleString(true, euler(1)) +
-                  ", g=" + utils::getAngleString(true, euler(2)) + ")";
+                  ", g=" + utils::getAngleString(true, euler(2));
     }
+    double lin, ang;
+    getDynamicJointErrors(lin, ang);
+    if ( (lin != 0.0) || (ang != 0.0) )
+    {
+        retVal += ", dyn. err.: " + utils::getDoubleEString(false, lin);
+        retVal += "/" + utils::getDoubleEString(false, ang * radToDeg);
+    }
+    retVal += ")";
+
     return (retVal);
 }
 

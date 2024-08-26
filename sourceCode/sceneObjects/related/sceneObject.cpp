@@ -1409,14 +1409,14 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->appendKeyInt("modelProperty", _modelProperty); // deprecated
 #endif
-    ev->appendKeyBool(propObject_modelNotCollidable.name, _objectProperty & sim_modelproperty_not_collidable);
-    ev->appendKeyBool(propObject_modelNotMeasurable.name, _objectProperty & sim_modelproperty_not_measurable);
-    ev->appendKeyBool(propObject_modelNotDetectable.name, _objectProperty & sim_modelproperty_not_detectable);
-    ev->appendKeyBool(propObject_modelNotDynamic.name, _objectProperty & sim_modelproperty_not_dynamic);
-    ev->appendKeyBool(propObject_modelNotRespondable.name, _objectProperty & sim_modelproperty_not_respondable);
-    ev->appendKeyBool(propObject_modelNotVisible.name, _objectProperty & sim_modelproperty_not_visible);
-    ev->appendKeyBool(propObject_modelScriptsNotActive.name, _objectProperty & sim_modelproperty_scripts_inactive);
-    ev->appendKeyBool(propObject_modelNotInParentBB.name, _objectProperty & sim_modelproperty_not_showasinsidemodel);
+    ev->appendKeyBool(propObject_modelNotCollidable.name, _modelProperty & sim_modelproperty_not_collidable);
+    ev->appendKeyBool(propObject_modelNotMeasurable.name, _modelProperty & sim_modelproperty_not_measurable);
+    ev->appendKeyBool(propObject_modelNotDetectable.name, _modelProperty & sim_modelproperty_not_detectable);
+    ev->appendKeyBool(propObject_modelNotDynamic.name, _modelProperty & sim_modelproperty_not_dynamic);
+    ev->appendKeyBool(propObject_modelNotRespondable.name, _modelProperty & sim_modelproperty_not_respondable);
+    ev->appendKeyBool(propObject_modelNotVisible.name, _modelProperty & sim_modelproperty_not_visible);
+    ev->appendKeyBool(propObject_modelScriptsNotActive.name, _modelProperty & sim_modelproperty_scripts_inactive);
+    ev->appendKeyBool(propObject_modelNotInParentBB.name, _modelProperty & sim_modelproperty_not_showasinsidemodel);
 
     long long int pUid = -1;
     if (_parentObject != nullptr)

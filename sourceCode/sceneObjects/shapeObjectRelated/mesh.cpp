@@ -2532,7 +2532,8 @@ void CMesh::display_extRenderer(const C7Vector &cumulIFrameTr, CShape *geomData,
     if (!_wireframe_OLD)
     {
         // Mesh change:
-        if (_extRendererMeshId == 0)
+//        if (_extRendererMeshId == 0)
+        if (true) // mesh scaling was not reflected
         { // first time we render this item
             _extRendererUniqueMeshID++;
             _extRendererMeshId = _extRendererUniqueMeshID;

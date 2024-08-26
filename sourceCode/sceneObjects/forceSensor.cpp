@@ -400,8 +400,20 @@ std::string CForceSensor::getObjectTypeInfo() const
 }
 std::string CForceSensor::getObjectTypeInfoExtended() const
 {
-    return getObjectTypeInfo();
+    std::string retVal(getObjectTypeInfo());
+
+    double lin = getDynamicPositionError();
+    double ang = getDynamicOrientationError();
+    if ( (lin != 0.0) || (ang != 0.0) )
+    {
+        retVal += "(dyn. err.: " + utils::getDoubleEString(false, lin);
+        retVal += "/" + utils::getDoubleEString(false, ang * radToDeg);
+        retVal += ")";
+    }
+
+    return retVal;
 }
+
 bool CForceSensor::isPotentiallyCollidable() const
 {
     return (false);
