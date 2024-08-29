@@ -29,7 +29,7 @@ class CPointCloud : public CSceneObject
     virtual ~CPointCloud();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev) const;
+    void addSpecializedObjectEventData(CCbor *ev);
     CSceneObject *copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);

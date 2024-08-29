@@ -36,14 +36,14 @@ class CShape : public CSceneObject
     int getMeshModificationCounter();
     CMeshWrapper *getMesh() const;
     CMesh *getSingleMesh() const;
-    CMesh* getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr);
+    CMesh* getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) const;
 
 
     void *_meshCalculationStructure;
     int _meshModificationCounter;
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev) const;
+    void addSpecializedObjectEventData(CCbor *ev);
     CSceneObject *copyYourself();
     void copyAttributesTo(CShape *target);
     void removeSceneDependencies();
@@ -75,22 +75,22 @@ class CShape : public CSceneObject
     void setIsInScene(bool s);
 
     int setBoolProperty(const char* pName, bool pState);
-    int getBoolProperty(const char* pName, bool& pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
     int setIntProperty(const char* pName, int pState);
-    int getIntProperty(const char* pName, int& pState);
+    int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState);
+    int getFloatProperty(const char* pName, double& pState) const;
     int setStringProperty(const char* pName, const char* pState);
-    int getStringProperty(const char* pName, std::string& pState);
+    int getStringProperty(const char* pName, std::string& pState) const;
     int setVector3Property(const char* pName, const C3Vector& pState);
-    int getVector3Property(const char* pName, C3Vector& pState);
+    int getVector3Property(const char* pName, C3Vector& pState) const;
     int setVectorProperty(const char* pName, const double* v, int vL);
-    int getVectorProperty(const char* pName, std::vector<double>& pState);
+    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
     int setIntVectorProperty(const char* pName, const int* v, int vL);
-    int getIntVectorProperty(const char* pName, std::vector<int>& pState);
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info, int& size);
+    int getPropertyInfo(const char* pName, int& info, int& size) const;
     static int getPropertyInfo_static(const char* pName, int& info, int& size);
 
 

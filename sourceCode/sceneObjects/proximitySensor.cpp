@@ -232,7 +232,7 @@ void CProxSensor::removeSceneDependencies()
     _sensableObject = -1;
 }
 
-void CProxSensor::addSpecializedObjectEventData(CCbor *ev) const
+void CProxSensor::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap("proxSensor");

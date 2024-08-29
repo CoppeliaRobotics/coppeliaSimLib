@@ -291,7 +291,7 @@ void CDummy::removeSceneDependencies()
     setLinkedDummyHandle(-1, false);
 }
 
-void CDummy::addSpecializedObjectEventData(CCbor *ev) const
+void CDummy::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());

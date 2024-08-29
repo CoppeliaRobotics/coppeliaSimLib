@@ -103,7 +103,7 @@ class CSceneObject
     virtual void connect_oldIk();
     virtual void remove_oldIk();
 
-    virtual void addSpecializedObjectEventData(CCbor *ev) const;
+    virtual void addSpecializedObjectEventData(CCbor *ev);
     virtual CSceneObject *copyYourself();
     virtual void removeSceneDependencies();
     virtual void scaleObject(double scalingFactor);
@@ -153,35 +153,35 @@ class CSceneObject
     virtual void setIsInScene(bool s);
 
     virtual int setBoolProperty(const char* pName, bool pState);
-    virtual int getBoolProperty(const char* pName, bool& pState);
+    virtual int getBoolProperty(const char* pName, bool& pState) const;
     virtual int setIntProperty(const char* pName, int pState);
-    virtual int getIntProperty(const char* pName, int& pState);
+    virtual int getIntProperty(const char* pName, int& pState) const;
     virtual int setFloatProperty(const char* pName, double pState);
-    virtual int getFloatProperty(const char* pName, double& pState);
+    virtual int getFloatProperty(const char* pName, double& pState) const;
     virtual int setStringProperty(const char* pName, const char* pState);
-    virtual int getStringProperty(const char* pName, std::string& pState);
+    virtual int getStringProperty(const char* pName, std::string& pState) const;
     virtual int setBufferProperty(const char* pName, const char* buffer, int bufferL);
-    virtual int getBufferProperty(const char* pName, std::string& pState);
+    virtual int getBufferProperty(const char* pName, std::string& pState) const;
     virtual int setVector3Property(const char* pName, const C3Vector& pState);
-    virtual int getVector3Property(const char* pName, C3Vector& pState);
+    virtual int getVector3Property(const char* pName, C3Vector& pState) const;
     virtual int setQuaternionProperty(const char* pName, const C4Vector& pState);
-    virtual int getQuaternionProperty(const char* pName, C4Vector& pState);
+    virtual int getQuaternionProperty(const char* pName, C4Vector& pState) const;
     virtual int setPoseProperty(const char* pName, const C7Vector& pState);
-    virtual int getPoseProperty(const char* pName, C7Vector& pState);
+    virtual int getPoseProperty(const char* pName, C7Vector& pState) const;
     virtual int setMatrix3x3Property(const char* pName, const C3X3Matrix& pState);
-    virtual int getMatrix3x3Property(const char* pName, C3X3Matrix& pState);
+    virtual int getMatrix3x3Property(const char* pName, C3X3Matrix& pState) const;
     virtual int setMatrix4x4Property(const char* pName, const C4X4Matrix& pState);
-    virtual int getMatrix4x4Property(const char* pName, C4X4Matrix& pState);
+    virtual int getMatrix4x4Property(const char* pName, C4X4Matrix& pState) const;
     virtual int setColorProperty(const char* pName, const float* pState);
-    virtual int getColorProperty(const char* pName, float* pState);
+    virtual int getColorProperty(const char* pName, float* pState) const;
     virtual int setVectorProperty(const char* pName, const double* v, int vL);
-    virtual int getVectorProperty(const char* pName, std::vector<double>& pState);
+    virtual int getVectorProperty(const char* pName, std::vector<double>& pState) const;
     virtual int setIntVectorProperty(const char* pName, const int* v, int vL);
-    virtual int getIntVectorProperty(const char* pName, std::vector<int>& pState);
+    virtual int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     virtual int removeProperty(const char* pName);
-    virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static  int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance);
-    virtual int getPropertyInfo(const char* pName, int& info, int& size);
+    virtual int getPropertyInfo(const char* pName, int& info, int& size) const;
     static int getPropertyInfo_bstatic(const char* pName, int& info, int& size);
 
 
@@ -397,8 +397,8 @@ class CSceneObject
 
     void setIgnorePosAndCameraOrthoviewSize_forUndoRedo(bool s);
 
-    void pushObjectCreationEvent() const;
-    void pushObjectRefreshEvent() const;
+    void pushObjectCreationEvent();
+    void pushObjectRefreshEvent();
     C7Vector getBB(C3Vector *bbHalfSize) const;
     C3Vector getBBHSize() const;
 

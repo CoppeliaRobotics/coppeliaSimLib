@@ -113,7 +113,7 @@ bool CCustomData::clearData(const char *tag)
     return (diff);
 }
 
-int CCustomData::hasData(const char* tag, bool checkAllTypes, int* dataSize /*= nullptr*/)
+int CCustomData::hasData(const char* tag, bool checkAllTypes, int* dataSize /*= nullptr*/) const
 { // returns its type, or -1 if not present
     int retVal = -1;
 
@@ -166,7 +166,7 @@ std::string CCustomData::getData(const char *tag) const
     return (retVal);
 }
 
-bool CCustomData::getPropertyName(int& index, std::string& pName)
+bool CCustomData::getPropertyName(int& index, std::string& pName) const
 {
     bool retVal = false;
     for (size_t i = 0; i < _data.size(); i++)

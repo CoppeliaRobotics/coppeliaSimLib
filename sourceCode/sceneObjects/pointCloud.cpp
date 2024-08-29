@@ -681,7 +681,7 @@ void CPointCloud::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CPointCloud::addSpecializedObjectEventData(CCbor *ev) const
+void CPointCloud::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());

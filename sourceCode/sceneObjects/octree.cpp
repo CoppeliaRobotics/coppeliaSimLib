@@ -597,7 +597,7 @@ void COcTree::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void COcTree::addSpecializedObjectEventData(CCbor *ev) const
+void COcTree::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());

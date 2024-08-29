@@ -487,7 +487,7 @@ void CForceSensor::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CForceSensor::addSpecializedObjectEventData(CCbor *ev) const
+void CForceSensor::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());

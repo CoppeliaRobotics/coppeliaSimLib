@@ -601,7 +601,7 @@ void CSimulation::_setSimulationTime(double t)
         {
             const char *cmd = "time";
             CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, cmd, true);
-            ev->appendKeyInt(cmd, int(_simulationTime) * 1000);
+            ev->appendKeyInt(cmd, int(_simulationTime * 1000.0));
             App::worldContainer->pushEvent();
         }
     }

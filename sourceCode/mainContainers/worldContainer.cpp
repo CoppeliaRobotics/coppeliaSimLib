@@ -820,7 +820,7 @@ int CWorldContainer::setBoolProperty(const char* ppName, bool pState)
     return retVal;
 }
 
-int CWorldContainer::getBoolProperty(const char* ppName, bool& pState)
+int CWorldContainer::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -838,7 +838,7 @@ int CWorldContainer::setIntProperty(const char* ppName, int pState)
     return retVal;
 }
 
-int CWorldContainer::getIntProperty(const char* ppName, int& pState)
+int CWorldContainer::getIntProperty(const char* ppName, int& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -873,7 +873,7 @@ int CWorldContainer::setFloatProperty(const char* ppName, double pState)
     return retVal;
 }
 
-int CWorldContainer::getFloatProperty(const char* ppName, double& pState)
+int CWorldContainer::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -902,7 +902,7 @@ int CWorldContainer::setStringProperty(const char* ppName, const char* pState)
     return retVal;
 }
 
-int CWorldContainer::getStringProperty(const char* ppName, std::string& pState)
+int CWorldContainer::getStringProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -942,7 +942,7 @@ int CWorldContainer::setBufferProperty(const char* ppName, const char* buffer, i
     return retVal;
 }
 
-int CWorldContainer::getBufferProperty(const char* ppName, std::string& pState)
+int CWorldContainer::getBufferProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -972,7 +972,7 @@ int CWorldContainer::setVector3Property(const char* ppName, const C3Vector& pSta
     return retVal;
 }
 
-int CWorldContainer::getVector3Property(const char* ppName, C3Vector& pState)
+int CWorldContainer::getVector3Property(const char* ppName, C3Vector& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -990,7 +990,7 @@ int CWorldContainer::setQuaternionProperty(const char* ppName, const C4Vector& p
     return retVal;
 }
 
-int CWorldContainer::getQuaternionProperty(const char* ppName, C4Vector& pState)
+int CWorldContainer::getQuaternionProperty(const char* ppName, C4Vector& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -1008,7 +1008,7 @@ int CWorldContainer::setPoseProperty(const char* ppName, const C7Vector& pState)
     return retVal;
 }
 
-int CWorldContainer::getPoseProperty(const char* ppName, C7Vector& pState)
+int CWorldContainer::getPoseProperty(const char* ppName, C7Vector& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -1026,7 +1026,7 @@ int CWorldContainer::setMatrix3x3Property(const char* ppName, const C3X3Matrix& 
     return retVal;
 }
 
-int CWorldContainer::getMatrix3x3Property(const char* ppName, C3X3Matrix& pState)
+int CWorldContainer::getMatrix3x3Property(const char* ppName, C3X3Matrix& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -1044,7 +1044,7 @@ int CWorldContainer::setMatrix4x4Property(const char* ppName, const C4X4Matrix& 
     return retVal;
 }
 
-int CWorldContainer::getMatrix4x4Property(const char* ppName, C4X4Matrix& pState)
+int CWorldContainer::getMatrix4x4Property(const char* ppName, C4X4Matrix& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -1062,7 +1062,7 @@ int CWorldContainer::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CWorldContainer::getColorProperty(const char* ppName, float* pState)
+int CWorldContainer::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -1080,7 +1080,7 @@ int CWorldContainer::setVectorProperty(const char* ppName, const double* v, int 
     return retVal;
 }
 
-int CWorldContainer::getVectorProperty(const char* ppName, std::vector<double>& pState)
+int CWorldContainer::getVectorProperty(const char* ppName, std::vector<double>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -1098,7 +1098,7 @@ int CWorldContainer::setIntVectorProperty(const char* ppName, const int* v, int 
     return retVal;
 }
 
-int CWorldContainer::getIntVectorProperty(const char* ppName, std::vector<int>& pState)
+int CWorldContainer::getIntVectorProperty(const char* ppName, std::vector<int>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();

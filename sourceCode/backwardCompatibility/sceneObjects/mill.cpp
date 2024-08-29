@@ -110,7 +110,7 @@ void CMill::removeSceneDependencies()
     _millableObject = -1;
 }
 
-void CMill::addSpecializedObjectEventData(CCbor *ev) const
+void CMill::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());

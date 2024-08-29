@@ -1871,7 +1871,7 @@ void CVisionSensor::removeSceneDependencies()
     _detectableEntityHandle = -1;
 }
 
-void CVisionSensor::addSpecializedObjectEventData(CCbor *ev) const
+void CVisionSensor::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());

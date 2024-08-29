@@ -57,12 +57,12 @@ class CColorObject
     std::string getExtensionString() const;
 
     int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState);
+    int getFloatProperty(const char* pName, double& pState) const;
     int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState);
-    int getPropertyName(int& index, std::string& pName);
+    int getColorProperty(const char* pName, float* pState) const;
+    int getPropertyName(int& index, std::string& pName) const;
     static int getPropertyName_static(int& index, std::string& pName, int eventFlags, const char* eventSuffix);
-    int getPropertyInfo(const char* pName, int& info, int& size);
+    int getPropertyInfo(const char* pName, int& info, int& size) const;
     static int getPropertyInfo_static(const char* pName, int& info, int& size, int eventFlags, const char* eventSuffix);
 
     void setFlash(bool flashIsOn);

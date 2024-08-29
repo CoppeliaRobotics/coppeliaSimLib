@@ -273,13 +273,6 @@ int CDynMaterialObject::getEngineIntParam(int what, bool *ok)
         if (getIntProperty(prop.c_str(), v) > 0)
             return v;
     }
-    prop = _enumToProperty(what, sim_propertytype_intvector, indexWithArrays);
-    if (prop.size() > 0)
-    {
-        std::vector<int> v;
-        if (getIntVectorProperty(prop.c_str(), v) > 0)
-            return v[indexWithArrays];
-    }
     if (ok != nullptr)
         ok[0] = false;
     return 0;
@@ -479,17 +472,6 @@ bool CDynMaterialObject::setEngineIntParam(int what, int v)
     {
         if (setIntProperty(prop.c_str(), v) > 0)
             return true;
-    }
-    prop = _enumToProperty(what, sim_propertytype_intvector, indexWithArrays);
-    if (prop.size() > 0)
-    {
-        std::vector<int> w;
-        if (getIntVectorProperty(prop.c_str(), w) > 0)
-        {
-            w[indexWithArrays] = v;
-            if (setIntVectorProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
-                return true;
-        }
     }
     return false;
     /*
@@ -1898,7 +1880,7 @@ void CDynMaterialObject::_fixVortexInfVals()
     // values at index 33 and later are signed
 }
 
-std::string CDynMaterialObject::_enumToProperty(int oldEnum, int type, int& indexWithArrays)
+std::string CDynMaterialObject::_enumToProperty(int oldEnum, int type, int& indexWithArrays) const
 {
     std::string retVal;
     for (size_t i = 0; i < allProps_material.size(); i++)
@@ -1930,297 +1912,53 @@ std::string CDynMaterialObject::_enumToProperty(int oldEnum, int type, int& inde
 int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* eev/* = nullptr*/)
 {
     int retVal = -1;
-    std::string N;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
-    N = propMaterial_bulletSticky.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_bulletIntParams[simi_bullet_body_bitcoded] | simi_bullet_body_sticky) - (1 - pState) * simi_bullet_body_sticky;
-        if ( (nv != _bulletIntParams[simi_bullet_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _bulletIntParams[simi_bullet_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
 
-                ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_sticky);
+    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex)
+    {
+        if ((pName == nullptr) || (propertyName == pName))
+        {
+            retVal = 1;
+            int nv = (arr[simiIndexBitCoded] | simiIndex) - (1 - pState) * simiIndex;
+            if ( (nv != arr[simiIndexBitCoded]) ||(pName == nullptr) )
+            {
                 if (pName != nullptr)
-                    sendEngineString(ev);
+                    arr[simiIndexBitCoded] = nv;
+                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                    ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
+                    if (pName != nullptr)
+                        sendEngineString(ev);
+                }
             }
         }
-    }
+    };
 
-    N = propMaterial_bulletNonDefaultCollisionMargin.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_bulletIntParams[simi_bullet_body_bitcoded] | simi_bullet_body_usenondefaultcollisionmargin) - (1 - pState) * simi_bullet_body_usenondefaultcollisionmargin;
-        if ( (nv != _bulletIntParams[simi_bullet_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _bulletIntParams[simi_bullet_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmargin);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_bulletNonDefaultCollisionMarginConvex.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_bulletIntParams[simi_bullet_body_bitcoded] | simi_bullet_body_usenondefaultcollisionmarginconvex) - (1 - pState) * simi_bullet_body_usenondefaultcollisionmarginconvex;
-        if ( (nv != _bulletIntParams[simi_bullet_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _bulletIntParams[simi_bullet_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmarginconvex);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_bulletAutoShrinkConvex.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_bulletIntParams[simi_bullet_body_bitcoded] | simi_bullet_body_autoshrinkconvex) - (1 - pState) * simi_bullet_body_autoshrinkconvex;
-        if ( (nv != _bulletIntParams[simi_bullet_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _bulletIntParams[simi_bullet_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_autoshrinkconvex);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexPrimitiveShapesAsConvex.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_pureshapesasconvex) - (1 - pState) * simi_vortex_body_pureshapesasconvex;
-        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_pureshapesasconvex);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexConvexShapesAsRandom.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_convexshapesasrandom) - (1 - pState) * simi_vortex_body_convexshapesasrandom;
-        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_convexshapesasrandom);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexRandomShapesAsTerrain.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_randomshapesasterrain) - (1 - pState) * simi_vortex_body_randomshapesasterrain;
-        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_randomshapesasterrain);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexFastMoving.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_fastmoving) - (1 - pState) * simi_vortex_body_fastmoving;
-        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_fastmoving);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexAutoSlip.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_autoslip) - (1 - pState) * simi_vortex_body_autoslip;
-        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoslip);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecondaryLinearAxisSameAsPrimaryLinearAxis.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_seclinaxissameasprimlinaxis) - (1 - pState) * simi_vortex_body_seclinaxissameasprimlinaxis;
-        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_seclinaxissameasprimlinaxis);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecondaryAngularAxisSameAsPrimaryAngularAxis.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_secangaxissameasprimangaxis) - (1 - pState) * simi_vortex_body_secangaxissameasprimangaxis;
-        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_secangaxissameasprimangaxis);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexNormalAngularAxisSameAsPrimaryAngularAxis.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_normangaxissameasprimangaxis) - (1 - pState) * simi_vortex_body_normangaxissameasprimangaxis;
-        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_normangaxissameasprimangaxis);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexAutoAngularDamping.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_vortexIntParams[simi_vortex_body_bitcoded] | simi_vortex_body_autoangulardamping) - (1 - pState) * simi_vortex_body_autoangulardamping;
-        if ( (nv != _vortexIntParams[simi_vortex_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoangulardamping);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_newtonFastMoving.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        int nv = (_newtonIntParams[simi_newton_body_bitcoded] | simi_newton_body_fastmoving) - (1 - pState) * simi_newton_body_fastmoving;
-        if ( (nv != _newtonIntParams[simi_newton_body_bitcoded]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _newtonIntParams[simi_newton_body_bitcoded] = nv;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-                ev->appendKeyBool(N.c_str(), _newtonIntParams[simi_newton_body_bitcoded] & simi_newton_body_fastmoving);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
+    handleProp(propMaterial_bulletSticky.name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_sticky);
+    handleProp(propMaterial_bulletNonDefaultCollisionMargin.name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_usenondefaultcollisionmargin);
+    handleProp(propMaterial_bulletNonDefaultCollisionMarginConvex.name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_usenondefaultcollisionmarginconvex);
+    handleProp(propMaterial_bulletAutoShrinkConvex.name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_autoshrinkconvex);
+    handleProp(propMaterial_vortexPrimitiveShapesAsConvex.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_pureshapesasconvex);
+    handleProp(propMaterial_vortexConvexShapesAsRandom.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_convexshapesasrandom);
+    handleProp(propMaterial_vortexRandomShapesAsTerrain.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_randomshapesasterrain);
+    handleProp(propMaterial_vortexFastMoving.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_fastmoving);
+    handleProp(propMaterial_vortexAutoSlip.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_autoslip);
+    handleProp(propMaterial_vortexSecondaryLinearAxisSameAsPrimaryLinearAxis.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_seclinaxissameasprimlinaxis);
+    handleProp(propMaterial_vortexSecondaryAngularAxisSameAsPrimaryAngularAxis.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_secangaxissameasprimangaxis);
+    handleProp(propMaterial_vortexNormalAngularAxisSameAsPrimaryAngularAxis.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_normangaxissameasprimangaxis);
+    handleProp(propMaterial_vortexAutoAngularDamping.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_autoangulardamping);
+    handleProp(propMaterial_newtonFastMoving.name, _newtonIntParams, simi_newton_body_bitcoded, simi_newton_body_fastmoving);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
     return retVal;
 }
 
-int CDynMaterialObject::getBoolProperty(const char* pName, bool& pState)
+int CDynMaterialObject::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = -1;
 
@@ -2301,217 +2039,48 @@ int CDynMaterialObject::getBoolProperty(const char* pName, bool& pState)
 int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev/* = nullptr*/)
 {
     int retVal = -1;
-    std::string N;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    N = propMaterial_odeMaxContacts.name;
-    if ( (pName == nullptr)  || (N == pName) )
+    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex)
     {
-        retVal = 1;
-        if ( (pState != _odeIntParams[simi_ode_body_maxcontacts]) ||(pName == nullptr) )
+        if ((pName == nullptr) || (propertyName == pName))
         {
-            if (pName != nullptr)
-                _odeIntParams[simi_ode_body_maxcontacts] = pState;
-            if (_shapeHandleForEvents != -1)
+            retVal = 1;
+            if ((pState != arr[simiIndex]) || (pName == nullptr))
             {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyInt(N.c_str(), _odeIntParams[simi_ode_body_maxcontacts]);
                 if (pName != nullptr)
-                    sendEngineString(ev);
+                    arr[simiIndex] = pState;
+                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                    ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
+                    if (pName != nullptr)
+                        sendEngineString(ev);
+                }
             }
         }
-    }
+    };
 
-    N = propMaterial_vortexPrimaryLinearAxisFrictionModel.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecopndaryLinearAxisFrictionModel.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexPrimaryAngularAxisFrictionModel.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexIntParams[simi_vortex_body_primangulararaxisfrictionmodel]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_primangulararaxisfrictionmodel] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_primangulararaxisfrictionmodel]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecondaryAngularAxisFrictionModel.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexIntParams[simi_vortex_body_secmangulararaxisfrictionmodel]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_secmangulararaxisfrictionmodel] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_secmangulararaxisfrictionmodel]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexNormalAngularAxisFrictionModel.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexIntParams[simi_vortex_body_normalmangulararaxisfrictionmodel]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_normalmangulararaxisfrictionmodel] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_normalmangulararaxisfrictionmodel]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexAutoSleepStepLiveThreshold.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexIntParams[simi_vortex_body_autosleepsteplivethreshold]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_autosleepsteplivethreshold] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_autosleepsteplivethreshold]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexMaterialUniqueId.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexIntParams[simi_vortex_body_materialuniqueid]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexIntParams[simi_vortex_body_materialuniqueid] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyInt(N.c_str(), _vortexIntParams[simi_vortex_body_materialuniqueid]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_mujocoCondim.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _mujocoIntParams[simi_mujoco_body_condim]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _mujocoIntParams[simi_mujoco_body_condim] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyInt(N.c_str(), _mujocoIntParams[simi_mujoco_body_condim]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_mujocoPriority.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _mujocoIntParams[simi_mujoco_body_priority]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _mujocoIntParams[simi_mujoco_body_priority] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyInt(N.c_str(), _mujocoIntParams[simi_mujoco_body_priority]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
+    handleProp(propMaterial_odeMaxContacts.name, _odeIntParams, simi_ode_body_maxcontacts);
+    handleProp(propMaterial_vortexPrimaryLinearAxisFrictionModel.name, _vortexIntParams, simi_vortex_body_primlinearaxisfrictionmodel);
+    handleProp(propMaterial_vortexSecondaryLinearAxisFrictionModel.name, _vortexIntParams, simi_vortex_body_seclinearaxisfrictionmodel);
+    handleProp(propMaterial_vortexPrimaryAngularAxisFrictionModel.name, _vortexIntParams, simi_vortex_body_primangulararaxisfrictionmodel);
+    handleProp(propMaterial_vortexSecondaryAngularAxisFrictionModel.name, _vortexIntParams, simi_vortex_body_secmangulararaxisfrictionmodel);
+    handleProp(propMaterial_vortexNormalAngularAxisFrictionModel.name, _vortexIntParams, simi_vortex_body_normalmangulararaxisfrictionmodel);
+    handleProp(propMaterial_vortexAutoSleepStepLiveThreshold.name, _vortexIntParams, simi_vortex_body_autosleepsteplivethreshold);
+    handleProp(propMaterial_vortexMaterialUniqueId.name, _vortexIntParams, simi_vortex_body_materialuniqueid);
+    handleProp(propMaterial_mujocoCondim.name, _mujocoIntParams, simi_mujoco_body_condim);
+    handleProp(propMaterial_mujocoPriority.name, _mujocoIntParams, simi_mujoco_body_priority);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
     return retVal;
 }
 
-int CDynMaterialObject::getIntProperty(const char* pName, int& pState)
+int CDynMaterialObject::getIntProperty(const char* pName, int& pState) const
 {
     int retVal = -1;
 
@@ -2525,7 +2094,7 @@ int CDynMaterialObject::getIntProperty(const char* pName, int& pState)
         retVal = 1;
         pState = _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel];
     }
-    else if (strcmp(pName, propMaterial_vortexSecopndaryLinearAxisFrictionModel.name) == 0)
+    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisFrictionModel.name) == 0)
     {
         retVal = 1;
         pState = _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel];
@@ -2558,12 +2127,12 @@ int CDynMaterialObject::getIntProperty(const char* pName, int& pState)
     else if (strcmp(pName, propMaterial_mujocoCondim.name) == 0)
     {
         retVal = 1;
-        pState = _vortexIntParams[simi_mujoco_body_condim];
+        pState = _mujocoIntParams[simi_mujoco_body_condim];
     }
     else if (strcmp(pName, propMaterial_mujocoPriority.name) == 0)
     {
         retVal = 1;
-        pState = _vortexIntParams[simi_mujoco_body_priority];
+        pState = _mujocoIntParams[simi_mujoco_body_priority];
     }
 
     return retVal;
@@ -2572,1057 +2141,90 @@ int CDynMaterialObject::getIntProperty(const char* pName, int& pState)
 int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor* eev/* = nullptr*/)
 {
     int retVal = -1;
-    std::string N;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    N = propMaterial_bulletRestitution.name;
-    if ( (pName == nullptr)  || (N == pName) )
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex)
     {
-        retVal = 1;
-        if ( (pState != _bulletFloatParams[simi_bullet_body_restitution]) ||(pName == nullptr) )
+        if ((pName == nullptr) || (propertyName == pName))
         {
-            if (pName != nullptr)
-                _bulletFloatParams[simi_bullet_body_restitution] = pState;
-            if (_shapeHandleForEvents != -1)
+            retVal = 1;
+            if ((pState != arr[simiIndex]) || (pName == nullptr))
             {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_restitution]);
                 if (pName != nullptr)
-                    sendEngineString(ev);
+                    arr[simiIndex] = pState;
+                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                    ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
+                    if (pName != nullptr)
+                        sendEngineString(ev);
+                }
             }
         }
-    }
-
-    N = propMaterial_bulletFriction0.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _bulletFloatParams[simi_bullet_body_oldfriction]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _bulletFloatParams[simi_bullet_body_oldfriction] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_oldfriction]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_bulletFriction.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _bulletFloatParams[simi_bullet_body_friction]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _bulletFloatParams[simi_bullet_body_friction] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_friction]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_bulletLinearDamping.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _bulletFloatParams[simi_bullet_body_lineardamping]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _bulletFloatParams[simi_bullet_body_lineardamping] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_lineardamping]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_bulletAngularDamping.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _bulletFloatParams[simi_bullet_body_angulardamping]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _bulletFloatParams[simi_bullet_body_angulardamping] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_angulardamping]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_bulletNonDefaultCollisionMarginFactor.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_bulletNonDefaultCollisionMarginFactorConvex.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_odeFriction.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _odeFloatParams[simi_ode_body_friction]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _odeFloatParams[simi_ode_body_friction] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_friction]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_odeSoftErp.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _odeFloatParams[simi_ode_body_softerp]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _odeFloatParams[simi_ode_body_softerp] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_softerp]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_odeSoftCfm.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _odeFloatParams[simi_ode_body_softcfm]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _odeFloatParams[simi_ode_body_softcfm] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_softcfm]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_odeLinearDamping.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _odeFloatParams[simi_ode_body_lineardamping]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _odeFloatParams[simi_ode_body_lineardamping] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_lineardamping]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_odeAngularDamping.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _odeFloatParams[simi_ode_body_angulardamping]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _odeFloatParams[simi_ode_body_angulardamping] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _odeFloatParams[simi_ode_body_angulardamping]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexPrimaryLinearAxisFriction.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_primlinearaxisfriction]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_primlinearaxisfriction] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisfriction]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecondaryLinearAxisFriction.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_seclinearaxisfriction]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_seclinearaxisfriction] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisfriction]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexPrimaryAngularAxisFriction.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_primangularaxisfriction]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_primangularaxisfriction] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisfriction]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecondaryAngularAxisFriction.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_secangularaxisfriction]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_secangularaxisfriction] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisfriction]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexNormalAngularAxisFriction.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_normalangularaxisfriction]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_normalangularaxisfriction] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisfriction]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexPrimaryLinearAxisStaticFrictionScale.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_primlinearaxisstaticfrictionscale]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_primlinearaxisstaticfrictionscale] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisstaticfrictionscale]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecondaryLinearAxisStaticFrictionScale.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_seclinearaxisstaticfrictionscale]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_seclinearaxisstaticfrictionscale] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisstaticfrictionscale]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexPrimaryAngularAxisStaticFrictionScale.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_primangularaxisstaticfrictionscale]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_primangularaxisstaticfrictionscale] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisstaticfrictionscale]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecondaryAngularAxisStaticFrictionScale.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_secangularaxisstaticfrictionscale]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_secangularaxisstaticfrictionscale] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisstaticfrictionscale]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexNormalAngularAxisStaticFrictionScale.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_normalangularaxisstaticfrictionscale]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_normalangularaxisstaticfrictionscale] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisstaticfrictionscale]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexCompliance.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_compliance]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_compliance] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_compliance]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexDamping.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_damping]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_damping] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_damping]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexRestitution.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_restitution]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_restitution] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_restitution]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexRestitutionThreshold.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_restitutionthreshold]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_restitutionthreshold] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_restitutionthreshold]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexAdhesiveForce.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_adhesiveforce]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_adhesiveforce] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_adhesiveforce]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexLinearVelocityDamping.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_linearvelocitydamping]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_linearvelocitydamping] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_linearvelocitydamping]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexAngularVelocityDamping.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_angularvelocitydamping]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_angularvelocitydamping] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_angularvelocitydamping]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexPrimaryLinearAxisSlide.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_primlinearaxisslide]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_primlinearaxisslide] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisslide]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecondaryLinearAxisSlide.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_seclinearaxisslide]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_seclinearaxisslide] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisslide]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexPrimaryAngularAxisSlide.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_primangularaxisslide]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_primangularaxisslide] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisslide]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecondaryAngularAxisSlide.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_secangularaxisslide]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_secangularaxisslide] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisslide]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexNormalAngularAxisSlide.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_normalangularaxisslide]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_normalangularaxisslide] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisslide]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexPrimaryLinearAxisSlip.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_primlinearaxisslip]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_primlinearaxisslip] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primlinearaxisslip]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecondaryLinearAxisSlip.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_seclinearaxisslip]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_seclinearaxisslip] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_seclinearaxisslip]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexPrimaryAngularAxisSlip.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_primangularaxisslip]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_primangularaxisslip] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_primangularaxisslip]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSecondaryAngularAxisSlip.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_secangularaxisslip]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_secangularaxisslip] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_secangularaxisslip]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexNormalAngularAxisSlip.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_normalangularaxisslip]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_normalangularaxisslip] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_normalangularaxisslip]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexAutoSleepLinearSpeedThreshold.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_autosleeplinearspeedthreshold]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_autosleeplinearspeedthreshold] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleeplinearspeedthreshold]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexAutoSleepLinearAccelerationThreshold.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_autosleeplinearaccelthreshold]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_autosleeplinearaccelthreshold] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleeplinearaccelthreshold]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexAutoSleepAngularSpeedThreshold.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_autosleepangularspeedthreshold]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_autosleepangularspeedthreshold] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleepangularspeedthreshold]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexAutoSleepAngularAccelerationThreshold.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_autosleepangularaccelthreshold]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_autosleepangularaccelthreshold] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autosleepangularaccelthreshold]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexSkinThickness.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_skinthickness]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_skinthickness] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_skinthickness]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_vortexAutoAngularDampingTensionRatio.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _vortexFloatParams[simi_vortex_body_autoangulardampingtensionratio]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _vortexFloatParams[simi_vortex_body_autoangulardampingtensionratio] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _vortexFloatParams[simi_vortex_body_autoangulardampingtensionratio]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_newtonStaticFriction.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _newtonFloatParams[simi_newton_body_staticfriction]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _newtonFloatParams[simi_newton_body_staticfriction] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_staticfriction]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_newtonKineticFriction.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _newtonFloatParams[simi_newton_body_kineticfriction]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _newtonFloatParams[simi_newton_body_kineticfriction] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_kineticfriction]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_newtonRestitution.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _newtonFloatParams[simi_newton_body_restitution]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _newtonFloatParams[simi_newton_body_restitution] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_restitution]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_newtonLinearDrag.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _newtonFloatParams[simi_newton_body_lineardrag]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _newtonFloatParams[simi_newton_body_lineardrag] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_lineardrag]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_newtonAngularDrag.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _newtonFloatParams[simi_newton_body_angulardrag]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _newtonFloatParams[simi_newton_body_angulardrag] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _newtonFloatParams[simi_newton_body_angulardrag]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_mujocoSolmix.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _mujocoFloatParams[simi_mujoco_body_solmix]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _mujocoFloatParams[simi_mujoco_body_solmix] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _mujocoFloatParams[simi_mujoco_body_solmix]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
-
-    N = propMaterial_mujocoMargin.name;
-    if ( (pName == nullptr)  || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pState != _mujocoFloatParams[simi_mujoco_body_margin]) ||(pName == nullptr) )
-        {
-            if (pName != nullptr)
-                _mujocoFloatParams[simi_mujoco_body_margin] = pState;
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDouble(N.c_str(), _mujocoFloatParams[simi_mujoco_body_margin]);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
+    };
+
+    handleProp(propMaterial_bulletRestitution.name, _bulletFloatParams, simi_bullet_body_restitution);
+    handleProp(propMaterial_bulletFriction0.name, _bulletFloatParams, simi_bullet_body_oldfriction);
+    handleProp(propMaterial_bulletFriction.name, _bulletFloatParams, simi_bullet_body_friction);
+    handleProp(propMaterial_bulletLinearDamping.name, _bulletFloatParams, simi_bullet_body_lineardamping);
+    handleProp(propMaterial_bulletAngularDamping.name, _bulletFloatParams, simi_bullet_body_angulardamping);
+    handleProp(propMaterial_bulletNonDefaultCollisionMarginFactor.name, _bulletFloatParams, simi_bullet_body_nondefaultcollisionmargingfactor);
+    handleProp(propMaterial_bulletNonDefaultCollisionMarginFactorConvex.name, _bulletFloatParams, simi_bullet_body_nondefaultcollisionmargingfactorconvex);
+    handleProp(propMaterial_odeFriction.name, _odeFloatParams, simi_ode_body_friction);
+    handleProp(propMaterial_odeSoftErp.name, _odeFloatParams, simi_ode_body_softerp);
+    handleProp(propMaterial_odeSoftCfm.name, _odeFloatParams, simi_ode_body_softcfm);
+    handleProp(propMaterial_odeLinearDamping.name, _odeFloatParams, simi_ode_body_lineardamping);
+    handleProp(propMaterial_odeAngularDamping.name, _odeFloatParams, simi_ode_body_angulardamping);
+    handleProp(propMaterial_vortexPrimaryLinearAxisFriction.name, _vortexFloatParams, simi_vortex_body_primlinearaxisfriction);
+    handleProp(propMaterial_vortexSecondaryLinearAxisFriction.name, _vortexFloatParams, simi_vortex_body_seclinearaxisfriction);
+    handleProp(propMaterial_vortexPrimaryAngularAxisFriction.name, _vortexFloatParams, simi_vortex_body_primangularaxisfriction);
+    handleProp(propMaterial_vortexSecondaryAngularAxisFriction.name, _vortexFloatParams, simi_vortex_body_secangularaxisfriction);
+    handleProp(propMaterial_vortexNormalAngularAxisFriction.name, _vortexFloatParams, simi_vortex_body_normalangularaxisfriction);
+    handleProp(propMaterial_vortexPrimaryLinearAxisStaticFrictionScale.name, _vortexFloatParams, simi_vortex_body_primlinearaxisstaticfrictionscale);
+    handleProp(propMaterial_vortexSecondaryLinearAxisStaticFrictionScale.name, _vortexFloatParams, simi_vortex_body_seclinearaxisstaticfrictionscale);
+    handleProp(propMaterial_vortexPrimaryAngularAxisStaticFrictionScale.name, _vortexFloatParams, simi_vortex_body_primangularaxisstaticfrictionscale);
+    handleProp(propMaterial_vortexSecondaryAngularAxisStaticFrictionScale.name, _vortexFloatParams, simi_vortex_body_secangularaxisstaticfrictionscale);
+    handleProp(propMaterial_vortexNormalAngularAxisStaticFrictionScale.name, _vortexFloatParams, simi_vortex_body_normalangularaxisstaticfrictionscale);
+    handleProp(propMaterial_vortexCompliance.name, _vortexFloatParams, simi_vortex_body_compliance);
+    handleProp(propMaterial_vortexDamping.name, _vortexFloatParams, simi_vortex_body_damping);
+    handleProp(propMaterial_vortexRestitution.name, _vortexFloatParams, simi_vortex_body_restitution);
+    handleProp(propMaterial_vortexRestitutionThreshold.name, _vortexFloatParams, simi_vortex_body_restitutionthreshold);
+    handleProp(propMaterial_vortexAdhesiveForce.name, _vortexFloatParams, simi_vortex_body_adhesiveforce);
+    handleProp(propMaterial_vortexLinearVelocityDamping.name, _vortexFloatParams, simi_vortex_body_linearvelocitydamping);
+    handleProp(propMaterial_vortexAngularVelocityDamping.name, _vortexFloatParams, simi_vortex_body_angularvelocitydamping);
+    handleProp(propMaterial_vortexPrimaryLinearAxisSlide.name, _vortexFloatParams, simi_vortex_body_primlinearaxisslide);
+    handleProp(propMaterial_vortexSecondaryLinearAxisSlide.name, _vortexFloatParams, simi_vortex_body_seclinearaxisslide);
+    handleProp(propMaterial_vortexPrimaryAngularAxisSlide.name, _vortexFloatParams, simi_vortex_body_primangularaxisslide);
+    handleProp(propMaterial_vortexSecondaryAngularAxisSlide.name, _vortexFloatParams, simi_vortex_body_secangularaxisslide);
+    handleProp(propMaterial_vortexNormalAngularAxisSlide.name, _vortexFloatParams, simi_vortex_body_normalangularaxisslide);
+    handleProp(propMaterial_vortexPrimaryLinearAxisSlip.name, _vortexFloatParams, simi_vortex_body_primlinearaxisslip);
+    handleProp(propMaterial_vortexSecondaryLinearAxisSlip.name, _vortexFloatParams, simi_vortex_body_seclinearaxisslip);
+    handleProp(propMaterial_vortexPrimaryAngularAxisSlip.name, _vortexFloatParams, simi_vortex_body_primangularaxisslip);
+    handleProp(propMaterial_vortexSecondaryAngularAxisSlip.name, _vortexFloatParams, simi_vortex_body_secangularaxisslip);
+    handleProp(propMaterial_vortexNormalAngularAxisSlip.name, _vortexFloatParams, simi_vortex_body_normalangularaxisslip);
+    handleProp(propMaterial_vortexAutoSleepLinearSpeedThreshold.name, _vortexFloatParams, simi_vortex_body_autosleeplinearspeedthreshold);
+    handleProp(propMaterial_vortexAutoSleepLinearAccelerationThreshold.name, _vortexFloatParams, simi_vortex_body_autosleeplinearaccelthreshold);
+    handleProp(propMaterial_vortexAutoSleepAngularSpeedThreshold.name, _vortexFloatParams, simi_vortex_body_autosleepangularspeedthreshold);
+    handleProp(propMaterial_vortexAutoSleepAngularAccelerationThreshold.name, _vortexFloatParams, simi_vortex_body_autosleepangularaccelthreshold);
+    handleProp(propMaterial_vortexSkinThickness.name, _vortexFloatParams, simi_vortex_body_skinthickness);
+    handleProp(propMaterial_vortexAutoAngularDampingTensionRatio.name, _vortexFloatParams, simi_vortex_body_autoangulardampingtensionratio);
+    handleProp(propMaterial_newtonStaticFriction.name, _newtonFloatParams, simi_newton_body_staticfriction);
+    handleProp(propMaterial_newtonKineticFriction.name, _newtonFloatParams, simi_newton_body_kineticfriction);
+    handleProp(propMaterial_newtonRestitution.name, _newtonFloatParams, simi_newton_body_restitution);
+    handleProp(propMaterial_newtonLinearDrag.name, _newtonFloatParams, simi_newton_body_lineardrag);
+    handleProp(propMaterial_newtonAngularDrag.name, _newtonFloatParams, simi_newton_body_angulardrag);
+    handleProp(propMaterial_mujocoSolmix.name, _mujocoFloatParams, simi_mujoco_body_solmix);
+    handleProp(propMaterial_mujocoMargin.name, _mujocoFloatParams, simi_mujoco_body_margin);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
     return retVal;
 }
 
-int CDynMaterialObject::getFloatProperty(const char* pName, double& pState)
+int CDynMaterialObject::getFloatProperty(const char* pName, double& pState) const
 {
     int retVal = -1;
 
@@ -3892,7 +2494,7 @@ int CDynMaterialObject::getFloatProperty(const char* pName, double& pState)
 
 void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
 {
-    if (_shapeHandleForEvents != -1)
+    if ( (_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled() )
     {
         CCbor* ev = nullptr;
         if (eev != nullptr)
@@ -3900,7 +2502,7 @@ void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
         CEngineProperties prop;
         std::string current(prop.getObjectProperties(_shapeHandleForEvents));
         if (ev == nullptr)
-            ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+            ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propMaterial_engineProperties.name, true);
         ev->appendKeyString(propMaterial_engineProperties.name, current.c_str());
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();
@@ -3926,7 +2528,7 @@ int CDynMaterialObject::setStringProperty(const char* pName, const char* pState)
     return retVal;
 }
 
-int CDynMaterialObject::getStringProperty(const char* pName, std::string& pState)
+int CDynMaterialObject::getStringProperty(const char* pName, std::string& pState) const
 {
     int retVal = -1;
     if (strcmp(pName, propMaterial_engineProperties.name) == 0)
@@ -3959,10 +2561,10 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
                 current.normalize();
                 current.getData(_vortexFloatParams.data() + simi_vortex_body_primaxisvectorx);
             }
-            if (_shapeHandleForEvents != -1)
+            if ( (_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled() )
             {
                 if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                    ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, N.c_str(), true);
 
                 ev->appendKeyDoubleArray(N.c_str(), _vortexFloatParams.data() + simi_vortex_body_primaxisvectorx, 3);
                 if (pName != nullptr)
@@ -3984,10 +2586,10 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
                 current.normalize();
                 current.getData(_mujocoFloatParams.data() + simi_mujoco_body_friction1);
             }
-            if (_shapeHandleForEvents != -1)
+            if ( (_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled() )
             {
                 if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
+                    ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, N.c_str(), true);
 
                 ev->appendKeyDoubleArray(N.c_str(), _mujocoFloatParams.data() + simi_mujoco_body_friction1, 3);
                 if (pName != nullptr)
@@ -4001,7 +2603,7 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
     return retVal;
 }
 
-int CDynMaterialObject::getVector3Property(const char* pName, C3Vector* pState)
+int CDynMaterialObject::getVector3Property(const char* pName, C3Vector* pState) const
 {
     int retVal = -1;
 
@@ -4022,108 +2624,68 @@ int CDynMaterialObject::getVector3Property(const char* pName, C3Vector* pState)
 int CDynMaterialObject::setVectorProperty(const char* pName, const double* v, int vL, CCbor* eev/* = nullptr*/)
 {
     int retVal = -1;
-    std::string N;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    N = propMaterial_mujocoSolref.name;
-    if ( (pName == nullptr) || (N == pName) )
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n)
     {
-        retVal = 1;
-        if ( (pName == nullptr) || (_mujocoFloatParams[simi_mujoco_body_solref1 + 0] != v[0]) || ((vL > 1) && (_mujocoFloatParams[simi_mujoco_body_solref1 + 1] != v[1])) )
+        if ((pName == nullptr) || (propertyName == pName))
         {
-            if (pName != nullptr)
+            retVal = 1;
+            bool pa = false;
+            for (size_t i = 0; i < n; i++)
+                pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
+            if ( (pName == nullptr) || pa )
             {
-                _mujocoFloatParams[simi_mujoco_body_solref1 + 0] = v[0];
-                if (vL > 1)
-                    _mujocoFloatParams[simi_mujoco_body_solref1 + 1] = v[1];
-            }
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDoubleArray(N.c_str(), _mujocoFloatParams.data() + simi_mujoco_body_solref1, 2);
                 if (pName != nullptr)
-                    sendEngineString(ev);
+                {
+                    for (size_t i = 0; i < n; i++)
+                    {
+                        if (vL > i)
+                            arr[simiIndex1 + i] = v[i];
+                    }
+                }
+                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent((_shapeHandleForEvents != -1), false, propertyName.c_str(), true);
+                    ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
+                    if (pName != nullptr)
+                        sendEngineString(ev);
+                }
             }
         }
-    }
+    };
 
-    N = propMaterial_mujocoSolimp.name;
-    if ( (pName == nullptr) || (N == pName) )
-    {
-        retVal = 1;
-        if ( (pName == nullptr) || (_mujocoFloatParams[simi_mujoco_body_solimp1 + 0] != v[0]) || ((vL > 1) && (_mujocoFloatParams[simi_mujoco_body_solimp1 + 1] != v[1])) || ((vL > 2) && (_mujocoFloatParams[simi_mujoco_body_solimp1 + 2] != v[2])) || ((vL > 3) && (_mujocoFloatParams[simi_mujoco_body_solimp1 + 3] != v[3])) || ((vL > 4) && (_mujocoFloatParams[simi_mujoco_body_solimp1 + 4] != v[4])) )
-        {
-            if (pName != nullptr)
-            {
-                _mujocoFloatParams[simi_mujoco_body_solimp1 + 0] = v[0];
-                if (vL > 1)
-                    _mujocoFloatParams[simi_mujoco_body_solimp1 + 1] = v[1];
-                if (vL > 2)
-                    _mujocoFloatParams[simi_mujoco_body_solimp1 + 2] = v[2];
-                if (vL > 3)
-                    _mujocoFloatParams[simi_mujoco_body_solimp1 + 3] = v[3];
-                if (vL > 4)
-                    _mujocoFloatParams[simi_mujoco_body_solimp1 + 4] = v[4];
-            }
-            if (_shapeHandleForEvents != -1)
-            {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createObjectChangedEvent(_shapeHandleForEvents, "mat", false);
-
-                ev->appendKeyDoubleArray(N.c_str(), _mujocoFloatParams.data() + simi_mujoco_body_solimp1, 5);
-                if (pName != nullptr)
-                    sendEngineString(ev);
-            }
-        }
-    }
+    handleProp(propMaterial_mujocoSolref.name, _mujocoFloatParams, simi_mujoco_body_solref1, 2);
+    handleProp(propMaterial_mujocoSolimp.name, _mujocoFloatParams, simi_mujoco_body_solimp1, 5);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
     return retVal;
 }
 
-int CDynMaterialObject::getVectorProperty(const char* pName, std::vector<double>& pState)
+int CDynMaterialObject::getVectorProperty(const char* pName, std::vector<double>& pState) const
 {
     int retVal = -1;
+
+    auto handleProp = [&](const std::vector<double>& arr, int simiIndex1, size_t n)
+    {
+        retVal = 1;
+        for (size_t i = 0; i < n; i++)
+            pState.push_back(arr[simiIndex1 + i]);
+    };
 
     if (strcmp(pName, propMaterial_mujocoSolref.name) == 0)
-    {
-        retVal = 1;
-        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solref1 + 0]);
-        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solref1 + 1]);
-    }
+        handleProp(_mujocoFloatParams, simi_mujoco_body_solref1, 2);
     else if (strcmp(pName, propMaterial_mujocoSolimp.name) == 0)
-    {
-        retVal = 1;
-        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solimp1 + 0]);
-        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solimp1 + 1]);
-        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solimp1 + 2]);
-        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solimp1 + 3]);
-        pState.push_back(_mujocoFloatParams[simi_mujoco_body_solimp1 + 4]);
-    }
+        handleProp(_mujocoFloatParams, simi_mujoco_body_solimp1, 5);
 
     return retVal;
 }
 
-int CDynMaterialObject::setIntVectorProperty(const char* pName, const int* v, int vL, CCbor* eev/* = nullptr*/)
-{
-    int retVal = -1;
-
-    return retVal;
-}
-
-int CDynMaterialObject::getIntVectorProperty(const char* pName, std::vector<int>& pState)
-{
-    int retVal = -1;
-
-    return retVal;
-}
-
-int CDynMaterialObject::getPropertyName(int& index, std::string& pName)
+int CDynMaterialObject::getPropertyName(int& index, std::string& pName) const
 {
     return getPropertyName_static(index, pName);
 }
@@ -4144,7 +2706,7 @@ int CDynMaterialObject::getPropertyName_static(int& index, std::string& pName)
     return retVal;
 }
 
-int CDynMaterialObject::getPropertyInfo(const char* pName, int& info, int& size)
+int CDynMaterialObject::getPropertyInfo(const char* pName, int& info, int& size) const
 {
     return getPropertyInfo_static(pName, info, size);
 }

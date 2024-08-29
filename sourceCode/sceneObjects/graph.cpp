@@ -580,7 +580,7 @@ void CGraph::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CGraph::addSpecializedObjectEventData(CCbor *ev) const
+void CGraph::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());

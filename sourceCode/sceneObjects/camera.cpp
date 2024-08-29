@@ -919,7 +919,7 @@ void CCamera::removeSceneDependencies()
     _trackedObjectHandle = -1;
 }
 
-void CCamera::addSpecializedObjectEventData(CCbor *ev) const
+void CCamera::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());

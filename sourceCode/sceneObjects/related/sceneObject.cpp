@@ -1344,11 +1344,11 @@ void CSceneObject::removeSceneDependencies()
     _customReferencedOriginalHandles.clear();
 }
 
-void CSceneObject::addSpecializedObjectEventData(CCbor *ev) const
+void CSceneObject::addSpecializedObjectEventData(CCbor *ev)
 {
 }
 
-void CSceneObject::pushObjectCreationEvent() const
+void CSceneObject::pushObjectCreationEvent()
 {
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
@@ -1368,7 +1368,7 @@ void CSceneObject::pushObjectCreationEvent() const
     }
 }
 
-void CSceneObject::pushObjectRefreshEvent() const
+void CSceneObject::pushObjectRefreshEvent()
 {
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
@@ -1384,6 +1384,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     ev->appendKeyString(propObject_objectType.name, getObjectTypeInfo().c_str());
     ev->appendKeyInt(propObject_layer.name, _visibilityLayer);
     ev->appendKeyInt(propObject_childOrder.name, _childOrder);
+    ev->appendKeyInt("dynamicFlag", _dynamicFlag);
     double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                    _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                    _localTransformation.Q(0)};
@@ -5485,7 +5486,7 @@ int CSceneObject::setBoolProperty(const char* ppName, bool pState)
     return retVal;
 }
 
-int CSceneObject::getBoolProperty(const char* ppName, bool& pState)
+int CSceneObject::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -5685,7 +5686,7 @@ int CSceneObject::setIntProperty(const char* ppName, int pState)
     return retVal;
 }
 
-int CSceneObject::getIntProperty(const char* ppName, int& pState)
+int CSceneObject::getIntProperty(const char* ppName, int& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -5741,7 +5742,7 @@ int CSceneObject::setFloatProperty(const char* ppName, double pState)
     return retVal;
 }
 
-int CSceneObject::getFloatProperty(const char* ppName, double& pState)
+int CSceneObject::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -5767,7 +5768,7 @@ int CSceneObject::setStringProperty(const char* ppName, const char* pState)
     return retVal;
 }
 
-int CSceneObject::getStringProperty(const char* ppName, std::string& pState)
+int CSceneObject::getStringProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -5817,7 +5818,7 @@ int CSceneObject::setBufferProperty(const char* ppName, const char* buffer, int 
     return retVal;
 }
 
-int CSceneObject::getBufferProperty(const char* ppName, std::string& pState)
+int CSceneObject::getBufferProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -5848,7 +5849,7 @@ int CSceneObject::setVector3Property(const char* ppName, const C3Vector& pState)
     return retVal;
 }
 
-int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState)
+int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -5872,7 +5873,7 @@ int CSceneObject::setQuaternionProperty(const char* ppName, const C4Vector& pSta
     return retVal;
 }
 
-int CSceneObject::getQuaternionProperty(const char* ppName, C4Vector& pState)
+int CSceneObject::getQuaternionProperty(const char* ppName, C4Vector& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -5896,7 +5897,7 @@ int CSceneObject::setPoseProperty(const char* ppName, const C7Vector& pState)
     return retVal;
 }
 
-int CSceneObject::getPoseProperty(const char* ppName, C7Vector& pState)
+int CSceneObject::getPoseProperty(const char* ppName, C7Vector& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -5925,7 +5926,7 @@ int CSceneObject::setMatrix3x3Property(const char* ppName, const C3X3Matrix& pSt
     return retVal;
 }
 
-int CSceneObject::getMatrix3x3Property(const char* ppName, C3X3Matrix& pState)
+int CSceneObject::getMatrix3x3Property(const char* ppName, C3X3Matrix& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -5943,7 +5944,7 @@ int CSceneObject::setMatrix4x4Property(const char* ppName, const C4X4Matrix& pSt
     return retVal;
 }
 
-int CSceneObject::getMatrix4x4Property(const char* ppName, C4X4Matrix& pState)
+int CSceneObject::getMatrix4x4Property(const char* ppName, C4X4Matrix& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -5961,7 +5962,7 @@ int CSceneObject::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CSceneObject::getColorProperty(const char* ppName, float* pState)
+int CSceneObject::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -5993,7 +5994,7 @@ int CSceneObject::setVectorProperty(const char* ppName, const double* v, int vL)
     return retVal;
 }
 
-int CSceneObject::getVectorProperty(const char* ppName, std::vector<double>& pState)
+int CSceneObject::getVectorProperty(const char* ppName, std::vector<double>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -6032,7 +6033,7 @@ int CSceneObject::setIntVectorProperty(const char* ppName, const int* v, int vL)
     return retVal;
 }
 
-int CSceneObject::getIntVectorProperty(const char* ppName, std::vector<int>& pState)
+int CSceneObject::getIntVectorProperty(const char* ppName, std::vector<int>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -6081,7 +6082,7 @@ int CSceneObject::removeProperty(const char* ppName)
     return retVal;
 }
 
-int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_sceneObject.size(); i++)
@@ -6124,7 +6125,7 @@ int CSceneObject::getPropertyName_bstatic(int& index, std::string& pName, std::s
     return retVal;
 }
 
-int CSceneObject::getPropertyInfo(const char* ppName, int& info, int& size)
+int CSceneObject::getPropertyInfo(const char* ppName, int& info, int& size) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();

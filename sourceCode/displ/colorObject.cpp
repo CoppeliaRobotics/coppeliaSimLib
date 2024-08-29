@@ -879,7 +879,7 @@ int CColorObject::setFloatProperty(const char* ppName, double pState)
     return retVal;
 }
 
-int CColorObject::getFloatProperty(const char* ppName, double& pState)
+int CColorObject::getFloatProperty(const char* ppName, double& pState) const
 {
     int retVal = -1;
     if (boost::algorithm::ends_with(ppName, _eventSuffix))
@@ -926,7 +926,7 @@ int CColorObject::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CColorObject::getColorProperty(const char* ppName, float* pState)
+int CColorObject::getColorProperty(const char* ppName, float* pState) const
 {
     int retVal = -1;
     if (boost::algorithm::ends_with(ppName, _eventSuffix))
@@ -957,7 +957,7 @@ int CColorObject::getColorProperty(const char* ppName, float* pState)
     return retVal;
 }
 
-int CColorObject::getPropertyName(int& index, std::string& pName)
+int CColorObject::getPropertyName(int& index, std::string& pName) const
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_col.size(); i++)
@@ -995,7 +995,7 @@ int CColorObject::getPropertyName_static(int& index, std::string& pName, int eve
     return retVal;
 }
 
-int CColorObject::getPropertyInfo(const char* ppName, int& info, int& size)
+int CColorObject::getPropertyInfo(const char* ppName, int& info, int& size) const
 {
     int retVal = -1;
     if (boost::algorithm::ends_with(ppName, _eventSuffix))

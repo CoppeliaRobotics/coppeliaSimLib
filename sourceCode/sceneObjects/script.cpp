@@ -142,7 +142,7 @@ void CScript::removeSceneDependencies()
     CSceneObject::removeSceneDependencies();
 }
 
-void CScript::addSpecializedObjectEventData(CCbor *ev) const
+void CScript::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());

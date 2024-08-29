@@ -31,7 +31,7 @@ class CGraph : public CSceneObject
     virtual ~CGraph();
 
     // Following functions are inherited from CSceneObject
-    void addSpecializedObjectEventData(CCbor *ev) const;
+    void addSpecializedObjectEventData(CCbor *ev);
     CSceneObject *copyYourself();
     void removeSceneDependencies();
     void scaleObject(double scalingFactor);

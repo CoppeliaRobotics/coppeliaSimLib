@@ -6,6 +6,7 @@
 #include <utils.h>
 #include <app.h>
 #include <simFlavor.h>
+#include <engineProperties.h>
 #ifdef SIM_WITH_GUI
 #include <jointRendering.h>
 #endif
@@ -344,6 +345,62 @@ void CJoint::getDynamicJointErrorsFull(C3Vector &linear, C3Vector &angular) cons
 
 bool CJoint::setEngineFloatParam(int what, double v)
 {
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_float, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        if (setFloatProperty(prop.c_str(), v) > 0)
+            return true;
+    }
+    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        std::vector<double> w;
+        if (getVectorProperty(prop.c_str(), w) > 0)
+        {
+            w[indexWithArrays] = v;
+            if (setVectorProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+                return true;
+        }
+    }
+
+    // For backward compatibility:
+    // ------------------
+    if (what == sim_vortex_joint_dependencyoffset)
+    {
+        _dependencyJointOffset = v;
+        return (true);
+    }
+    if (what == sim_vortex_joint_dependencyfactor)
+    {
+        _dependencyJointMult = v;
+        return (true);
+    }
+    if (what == sim_newton_joint_dependencyoffset)
+    {
+        _dependencyJointOffset = v;
+        return (true);
+    }
+    if (what == sim_newton_joint_dependencyfactor)
+    {
+        _dependencyJointMult = v;
+        return (true);
+    }
+    if (what == sim_mujoco_joint_polycoef1)
+    {
+        _dependencyJointOffset = v;
+        return (true);
+    }
+    if (what == sim_mujoco_joint_polycoef2)
+    {
+        _dependencyJointMult = v;
+        return (true);
+    }
+    // ------------------
+
+    return false;
+
+/*
     if ((what > sim_bullet_joint_float_start) && (what < sim_bullet_joint_float_end))
     {
         int w = what - sim_bullet_joint_stoperp + simi_bullet_joint_stoperp;
@@ -411,10 +468,20 @@ bool CJoint::setEngineFloatParam(int what, double v)
         return (true);
     }
     return (false);
+    */
 }
 
 bool CJoint::setEngineIntParam(int what, int v)
 {
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_int, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        if (setIntProperty(prop.c_str(), v) > 0)
+            return true;
+    }
+    return false;
+    /*
     if ((what > sim_bullet_joint_int_start) && (what < sim_bullet_joint_int_end))
     {
         // no int params for now
@@ -455,10 +522,20 @@ bool CJoint::setEngineIntParam(int what, int v)
         return (true);
     }
     return (false);
+    */
 }
 
 bool CJoint::setEngineBoolParam(int what, bool v)
 {
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_bool, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        if (setBoolProperty(prop.c_str(), v) > 0)
+            return true;
+    }
+    return false;
+    /*
     if ((what > sim_bullet_joint_bool_start) && (what < sim_bullet_joint_bool_end))
     {
         // no bool params for now
@@ -497,6 +574,7 @@ bool CJoint::setEngineBoolParam(int what, bool v)
         return (false);
     }
     return (false);
+    */
 }
 
 void CJoint::setBulletFloatParams(const std::vector<double> &pp)
@@ -2081,7 +2159,7 @@ void CJoint::removeSceneDependencies()
     setDependencyMasterJointHandle(-1);
 }
 
-void CJoint::addSpecializedObjectEventData(CCbor *ev) const
+void CJoint::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
@@ -2137,6 +2215,14 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev) const
         }
     }
     ev->closeArrayOrMap(); // dependency
+
+    // Engine properties:
+    setBoolProperty(nullptr, false, ev);
+    setIntProperty(nullptr, false, ev);
+    setFloatProperty(nullptr, false, ev);
+    setVectorProperty(nullptr, nullptr, 0, ev);
+    sendEngineString(ev);
+
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // joint
 #endif
@@ -4376,6 +4462,43 @@ double CJoint::getEngineFloatParam(int what, bool *ok) const
 {
     if (ok != nullptr)
         ok[0] = true;
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_float, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        double v;
+        if (getFloatProperty(prop.c_str(), v) > 0)
+            return v;
+    }
+    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        std::vector<double> v;
+        if (getVectorProperty(prop.c_str(), v) > 0)
+            return v[indexWithArrays];
+    }
+
+    // For backward compatibility:
+    // ---------------------------
+    if (what == sim_vortex_joint_dependencyoffset)
+        return (_dependencyJointOffset);
+    if (what == sim_vortex_joint_dependencyfactor)
+        return (_dependencyJointMult);
+    if (what == sim_newton_joint_dependencyoffset)
+        return (_dependencyJointOffset);
+    if (what == sim_newton_joint_dependencyfactor)
+        return (_dependencyJointMult);
+    if (what == sim_mujoco_joint_polycoef1)
+        return (_dependencyJointOffset);
+    if (what == sim_mujoco_joint_polycoef2)
+        return (_dependencyJointMult);
+    // ---------------------------
+
+    if (ok != nullptr)
+        ok[0] = false;
+    return 0.0;
+
+/*
     if ((what > sim_bullet_joint_float_start) && (what < sim_bullet_joint_float_end))
     {
         int w = what - sim_bullet_joint_stoperp + simi_bullet_joint_stoperp;
@@ -4425,10 +4548,26 @@ double CJoint::getEngineFloatParam(int what, bool *ok) const
     if (ok != nullptr)
         ok[0] = false;
     return (0.0);
+    */
 }
 
 int CJoint::getEngineIntParam(int what, bool *ok) const
 {
+    if (ok != nullptr)
+        ok[0] = true;
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_int, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        int v;
+        if (getIntProperty(prop.c_str(), v) > 0)
+            return v;
+    }
+    if (ok != nullptr)
+        ok[0] = false;
+    return 0;
+
+    /*
     if (ok != nullptr)
         ok[0] = true;
     if ((what > sim_bullet_joint_int_start) && (what < sim_bullet_joint_int_end))
@@ -4465,10 +4604,26 @@ int CJoint::getEngineIntParam(int what, bool *ok) const
     if (ok != nullptr)
         ok[0] = false;
     return (0);
+    */
 }
 
 bool CJoint::getEngineBoolParam(int what, bool *ok) const
 {
+    if (ok != nullptr)
+        ok[0] = true;
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_bool, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        bool v;
+        if (getBoolProperty(prop.c_str(), v) > 0)
+            return v;
+    }
+    if (ok != nullptr)
+        ok[0] = false;
+    return false;
+
+/*
     if (ok != nullptr)
         ok[0] = true;
     if ((what > sim_bullet_joint_bool_start) && (what < sim_bullet_joint_bool_end))
@@ -4516,6 +4671,7 @@ bool CJoint::getEngineBoolParam(int what, bool *ok) const
     if (ok != nullptr)
         ok[0] = false;
     return (0);
+    */
 }
 
 void CJoint::getBulletFloatParams(std::vector<double> &p) const
@@ -4880,31 +5036,322 @@ void CJoint::display(CViewableBase *renderingObject, int displayAttrib)
 }
 #endif
 
-int CJoint::setFloatProperty(const char* ppName, double pState)
+int CJoint::setBoolProperty(const char* ppName, bool pState, CCbor* eev/* = nullptr*/)
+{
+    const char* pName = nullptr;
+    std::string _pName;
+    if (ppName != nullptr)
+    {
+        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
+        pName = _pName.c_str();
+    }
+
+    int retVal = -1;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    if ( (eev == nullptr) && (pName != nullptr) )
+    { // regular properties (i.e. non-engine properties)
+        retVal = CSceneObject::setBoolProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
+    }
+
+    // Following only for engine properties:
+    // -------------------------------------
+    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex)
+    {
+        if ((pName == nullptr) || (propertyName == pName))
+        {
+            retVal = 1;
+            int nv = (arr[simiIndexBitCoded] | simiIndex) - (1 - pState) * simiIndex;
+            if ( (nv != arr[simiIndexBitCoded]) ||(pName == nullptr) )
+            {
+                if (pName != nullptr)
+                    arr[simiIndexBitCoded] = nv;
+                if (_isInScene && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                    ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
+                    if (pName != nullptr)
+                        sendEngineString(ev);
+                }
+            }
+        }
+    };
+
+    handleProp(propJoint_vortexAxisFrictionEnabled.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_joint_motorfrictionenabled);
+    handleProp(propJoint_vortexAxisFrictionProportional.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_joint_proportionalmotorfriction);
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    // -------------------------------------
+
+    return retVal;
+}
+
+int CJoint::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
-    if (retVal == -1)
-        retVal = _color.setFloatProperty(pName, pState);
+    int retVal = CSceneObject::getBoolProperty(pName, pState);
     if (retVal == -1)
     {
+        // First non-engine properties:
+        /*
         if (_pName == propJoint_length.name)
         {
-            setLength(pState);
+            pState = _length;
             retVal = 1;
         }
-        else if (_pName == propJoint_diameter.name)
+        */
+
+        // Engine-only properties:
+        // ------------------------
+        if (_pName == propJoint_vortexAxisFrictionEnabled.name)
         {
-            setDiameter(pState);
+            retVal = 1;
+            pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_joint_motorfrictionenabled;
+        }
+        else if (_pName == propJoint_vortexAxisFrictionProportional.name)
+        {
+            retVal = 1;
+            pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_joint_proportionalmotorfriction;
+        }
+        // ------------------------
+    }
+    return retVal;
+
+}
+
+int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev/* = nullptr*/)
+{
+    const char* pName = nullptr;
+    std::string _pName;
+    if (ppName != nullptr)
+    {
+        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
+        pName = _pName.c_str();
+    }
+
+    int retVal = -1;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    if ( (eev == nullptr) && (pName != nullptr) )
+    { // regular properties (i.e. non-engine properties)
+        retVal = CSceneObject::setIntProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
+    }
+
+    // Following only for engine properties:
+    // -------------------------------------
+    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex)
+    {
+        if ((pName == nullptr) || (propertyName == pName))
+        {
+            retVal = 1;
+            if ((pState != arr[simiIndex]) || (pName == nullptr))
+            {
+                if (pName != nullptr)
+                    arr[simiIndex] = pState;
+                if (_isInScene && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                    ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
+                    if (pName != nullptr)
+                        sendEngineString(ev);
+                }
+            }
+        }
+    };
+
+    handleProp(propJoint_vortexRelaxationEnabledBits.name, _vortexIntParams, simi_vortex_joint_relaxationenabledbc);
+    handleProp(propJoint_vortexFrictionEnabledBits.name, _vortexIntParams, simi_vortex_joint_frictionenabledbc);
+    handleProp(propJoint_vortexFrictionProportionalBits.name, _vortexIntParams, simi_vortex_joint_frictionproportionalbc);
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    // -------------------------------------
+
+    return retVal;
+}
+
+int CJoint::getIntProperty(const char* ppName, int& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+        // First non-engine properties:
+        /*
+        if (_pName == propJoint_length.name)
+        {
+            pState = _length;
             retVal = 1;
         }
+        */
+
+        // Engine-only properties:
+        // ------------------------
+        if (_pName == propJoint_vortexRelaxationEnabledBits.name)
+        {
+            retVal = 1;
+            pState = _vortexIntParams[simi_vortex_joint_relaxationenabledbc];
+        }
+        else if (_pName == propJoint_vortexFrictionEnabledBits.name)
+        {
+            retVal = 1;
+            pState = _vortexIntParams[simi_vortex_joint_frictionenabledbc];
+        }
+        else if (_pName == propJoint_vortexFrictionProportionalBits.name)
+        {
+            retVal = 1;
+            pState = _vortexIntParams[simi_vortex_joint_frictionproportionalbc];
+        }
+        // ------------------------
+
     }
 
     return retVal;
 }
 
-int CJoint::getFloatProperty(const char* ppName, double& pState)
+int CJoint::setFloatProperty(const char* ppName, double pState, CCbor* eev/* = nullptr*/)
+{
+    const char* pName = nullptr;
+    std::string _pName;
+    if (ppName != nullptr)
+    {
+        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
+        pName = _pName.c_str();
+    }
+
+    int retVal = -1;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    if ( (eev == nullptr) && (pName != nullptr) )
+    { // regular properties (i.e. non-engine properties)
+        retVal = CSceneObject::setFloatProperty(pName, pState);
+        if (retVal == -1)
+            retVal = _color.setFloatProperty(pName, pState);
+        if (retVal == -1)
+        {
+            if (_pName == propJoint_length.name)
+            {
+                setLength(pState);
+                retVal = 1;
+            }
+            else if (_pName == propJoint_diameter.name)
+            {
+                setDiameter(pState);
+                retVal = 1;
+            }
+        }
+    }
+
+    // Following only for engine properties:
+    // -------------------------------------
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex)
+    {
+        if ((pName == nullptr) || (propertyName == pName))
+        {
+            retVal = 1;
+            if ((pState != arr[simiIndex]) || (pName == nullptr))
+            {
+                if (pName != nullptr)
+                    arr[simiIndex] = pState;
+                if (_isInScene && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                    ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
+                    if (pName != nullptr)
+                        sendEngineString(ev);
+                }
+            }
+        }
+    };
+
+    handleProp(propJoint_bulletStopErp.name, _bulletFloatParams, simi_bullet_joint_stoperp);
+    handleProp(propJoint_bulletStopCfm.name, _bulletFloatParams, simi_bullet_joint_stopcfm);
+    handleProp(propJoint_bulletNormalCfm.name, _bulletFloatParams, simi_bullet_joint_normalcfm);
+    handleProp(propJoint_odeStopErp.name, _odeFloatParams, simi_ode_joint_stoperp);
+    handleProp(propJoint_odeStopCfm.name, _odeFloatParams, simi_ode_joint_stopcfm);
+    handleProp(propJoint_odeNormalCfm.name, _odeFloatParams, simi_ode_joint_normalcfm);
+    handleProp(propJoint_odeBounce.name, _odeFloatParams, simi_ode_joint_bounce);
+    handleProp(propJoint_odeFudgeFactor.name, _odeFloatParams, simi_ode_joint_fudgefactor);
+    handleProp(propJoint_vortexLowerLimitDamping.name, _vortexFloatParams, simi_vortex_joint_lowerlimitdamping);
+    handleProp(propJoint_vortexUpperLimitDamping.name, _vortexFloatParams, simi_vortex_joint_upperlimitdamping);
+    handleProp(propJoint_vortexLowerLimitStiffness.name, _vortexFloatParams, simi_vortex_joint_lowerlimitstiffness);
+    handleProp(propJoint_vortexUpperLimitStiffness.name, _vortexFloatParams, simi_vortex_joint_upperlimitstiffness);
+    handleProp(propJoint_vortexLowerLimitRestitution.name, _vortexFloatParams, simi_vortex_joint_lowerlimitrestitution);
+    handleProp(propJoint_vortexUpperLimitRestitution.name, _vortexFloatParams, simi_vortex_joint_upperlimitrestitution);
+    handleProp(propJoint_vortexLowerLimitMaxForce.name, _vortexFloatParams, simi_vortex_joint_lowerlimitmaxforce);
+    handleProp(propJoint_vortexUpperLimitMaxForce.name, _vortexFloatParams, simi_vortex_joint_upperlimitmaxforce);
+    handleProp(propJoint_vortexAxisFrictionCoeff.name, _vortexFloatParams, simi_vortex_joint_motorconstraintfrictioncoeff);
+    handleProp(propJoint_vortexAxisFrictionMaxForce.name, _vortexFloatParams, simi_vortex_joint_motorconstraintfrictionmaxforce);
+    handleProp(propJoint_vortexAxisFrictionLoss.name, _vortexFloatParams, simi_vortex_joint_motorconstraintfrictionloss);
+    handleProp(propJoint_vortexXAxisPosRelaxationStiffness.name, _vortexFloatParams, simi_vortex_joint_p0stiffness);
+    handleProp(propJoint_vortexXAxisPosRelaxationDamping.name, _vortexFloatParams, simi_vortex_joint_p0damping);
+    handleProp(propJoint_vortexXAxisPosRelaxationLoss.name, _vortexFloatParams, simi_vortex_joint_p0loss);
+    handleProp(propJoint_vortexXAxisPosFrictionCoeff.name, _vortexFloatParams, simi_vortex_joint_p0frictioncoeff);
+    handleProp(propJoint_vortexXAxisPosFrictionMaxForce.name, _vortexFloatParams, simi_vortex_joint_p0frictionmaxforce);
+    handleProp(propJoint_vortexXAxisPosFrictionLoss.name, _vortexFloatParams, simi_vortex_joint_p0frictionloss);
+    handleProp(propJoint_vortexYAxisPosRelaxationStiffness.name, _vortexFloatParams, simi_vortex_joint_p1stiffness);
+    handleProp(propJoint_vortexYAxisPosRelaxationDamping.name, _vortexFloatParams, simi_vortex_joint_p1damping);
+    handleProp(propJoint_vortexYAxisPosRelaxationLoss.name, _vortexFloatParams, simi_vortex_joint_p1loss);
+    handleProp(propJoint_vortexYAxisPosFrictionCoeff.name, _vortexFloatParams, simi_vortex_joint_p1frictioncoeff);
+    handleProp(propJoint_vortexYAxisPosFrictionMaxForce.name, _vortexFloatParams, simi_vortex_joint_p1frictionmaxforce);
+    handleProp(propJoint_vortexYAxisPosFrictionLoss.name, _vortexFloatParams, simi_vortex_joint_p1frictionloss);
+    handleProp(propJoint_vortexZAxisPosRelaxationStiffness.name, _vortexFloatParams, simi_vortex_joint_p2stiffness);
+    handleProp(propJoint_vortexZAxisPosRelaxationDamping.name, _vortexFloatParams, simi_vortex_joint_p2damping);
+    handleProp(propJoint_vortexZAxisPosRelaxationLoss.name, _vortexFloatParams, simi_vortex_joint_p2loss);
+    handleProp(propJoint_vortexZAxisPosFrictionCoeff.name, _vortexFloatParams, simi_vortex_joint_p2frictioncoeff);
+    handleProp(propJoint_vortexZAxisPosFrictionMaxForce.name, _vortexFloatParams, simi_vortex_joint_p2frictionmaxforce);
+    handleProp(propJoint_vortexZAxisPosFrictionLoss.name, _vortexFloatParams, simi_vortex_joint_p2frictionloss);
+    handleProp(propJoint_vortexXAxisOrientRelaxStiffness.name, _vortexFloatParams, simi_vortex_joint_a0stiffness);
+    handleProp(propJoint_vortexXAxisOrientRelaxDamping.name, _vortexFloatParams, simi_vortex_joint_a0damping);
+    handleProp(propJoint_vortexXAxisOrientRelaxLoss.name, _vortexFloatParams, simi_vortex_joint_a0loss);
+    handleProp(propJoint_vortexXAxisOrientFrictionCoeff.name, _vortexFloatParams, simi_vortex_joint_a0frictioncoeff);
+    handleProp(propJoint_vortexXAxisOrientFrictionMaxTorque.name, _vortexFloatParams, simi_vortex_joint_a0frictionmaxforce);
+    handleProp(propJoint_vortexXAxisOrientFrictionLoss.name, _vortexFloatParams, simi_vortex_joint_a0frictionloss);
+    handleProp(propJoint_vortexYAxisOrientRelaxStiffness.name, _vortexFloatParams, simi_vortex_joint_a1stiffness);
+    handleProp(propJoint_vortexYAxisOrientRelaxDamping.name, _vortexFloatParams, simi_vortex_joint_a1damping);
+    handleProp(propJoint_vortexYAxisOrientRelaxLoss.name, _vortexFloatParams, simi_vortex_joint_a1loss);
+    handleProp(propJoint_vortexYAxisOrientFrictionCoeff.name, _vortexFloatParams, simi_vortex_joint_a1frictioncoeff);
+    handleProp(propJoint_vortexYAxisOrientFrictionMaxTorque.name, _vortexFloatParams, simi_vortex_joint_a1frictionmaxforce);
+    handleProp(propJoint_vortexYAxisOrientFrictionLoss.name, _vortexFloatParams, simi_vortex_joint_a1frictionloss);
+    handleProp(propJoint_vortexZAxisOrientRelaxStiffness.name, _vortexFloatParams, simi_vortex_joint_a2stiffness);
+    handleProp(propJoint_vortexZAxisOrientRelaxDamping.name, _vortexFloatParams, simi_vortex_joint_a2damping);
+    handleProp(propJoint_vortexZAxisOrientRelaxLoss.name, _vortexFloatParams, simi_vortex_joint_a2loss);
+    handleProp(propJoint_vortexZAxisOrientFrictionCoeff.name, _vortexFloatParams, simi_vortex_joint_a2frictioncoeff);
+    handleProp(propJoint_vortexZAxisOrientFrictionMaxTorque.name, _vortexFloatParams, simi_vortex_joint_a2frictionmaxforce);
+    handleProp(propJoint_vortexZAxisOrientFrictionLoss.name, _vortexFloatParams, simi_vortex_joint_a2frictionloss);
+    handleProp(propJoint_mujocoArmature.name, _mujocoFloatParams, simi_mujoco_joint_armature);
+    handleProp(propJoint_mujocoMargin.name, _mujocoFloatParams, simi_mujoco_joint_margin);
+    handleProp(propJoint_mujocoFrictionLoss.name, _mujocoFloatParams, simi_mujoco_joint_frictionloss);
+    handleProp(propJoint_mujocoSpringStiffness.name, _mujocoFloatParams, simi_mujoco_joint_stiffness);
+    handleProp(propJoint_mujocoSpringDamping.name, _mujocoFloatParams, simi_mujoco_joint_damping);
+    handleProp(propJoint_mujocoSpringRef.name, _mujocoFloatParams, simi_mujoco_joint_springref);
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    // -------------------------------------
+
+    return retVal;
+}
+
+int CJoint::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
     const char* pName = _pName.c_str();
@@ -4922,6 +5369,354 @@ int CJoint::getFloatProperty(const char* ppName, double& pState)
         {
             pState = _diameter;
             retVal = 1;
+        }
+
+        // Engine-only properties:
+        // ------------------------
+        if (_pName == propJoint_bulletStopErp.name)
+        {
+            retVal = 1;
+            pState = _bulletFloatParams[simi_bullet_joint_stoperp];
+        }
+        else if (_pName == propJoint_bulletStopCfm.name)
+        {
+            retVal = 1;
+            pState = _bulletFloatParams[simi_bullet_joint_stopcfm];
+        }
+        else if (_pName == propJoint_bulletNormalCfm.name)
+        {
+            retVal = 1;
+            pState = _bulletFloatParams[simi_bullet_joint_normalcfm];
+        }
+        else if (_pName == propJoint_odeStopErp.name)
+        {
+            retVal = 1;
+            pState = _odeFloatParams[simi_ode_joint_stoperp];
+        }
+        else if (_pName == propJoint_odeStopCfm.name)
+        {
+            retVal = 1;
+            pState = _odeFloatParams[simi_ode_joint_stopcfm];
+        }
+        else if (_pName == propJoint_odeNormalCfm.name)
+        {
+            retVal = 1;
+            pState = _odeFloatParams[simi_ode_joint_normalcfm];
+        }
+        else if (_pName == propJoint_odeBounce.name)
+        {
+            retVal = 1;
+            pState = _odeFloatParams[simi_ode_joint_bounce];
+        }
+        else if (_pName == propJoint_odeFudgeFactor.name)
+        {
+            retVal = 1;
+            pState = _odeFloatParams[simi_ode_joint_fudgefactor];
+        }
+        else if (_pName == propJoint_vortexLowerLimitDamping.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_lowerlimitdamping];
+        }
+        else if (_pName == propJoint_vortexUpperLimitDamping.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_upperlimitdamping];
+        }
+        else if (_pName == propJoint_vortexLowerLimitStiffness.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_lowerlimitstiffness];
+        }
+        else if (_pName == propJoint_vortexUpperLimitStiffness.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_upperlimitstiffness];
+        }
+        else if (_pName == propJoint_vortexLowerLimitRestitution.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_lowerlimitrestitution];
+        }
+        else if (_pName == propJoint_vortexUpperLimitRestitution.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_upperlimitrestitution];
+        }
+        else if (_pName == propJoint_vortexLowerLimitMaxForce.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_lowerlimitmaxforce];
+        }
+        else if (_pName == propJoint_vortexUpperLimitMaxForce.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_upperlimitmaxforce];
+        }
+        else if (_pName == propJoint_vortexAxisFrictionCoeff.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_motorconstraintfrictioncoeff];
+        }
+        else if (_pName == propJoint_vortexAxisFrictionMaxForce.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_motorconstraintfrictionmaxforce];
+        }
+        else if (_pName == propJoint_vortexAxisFrictionLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_motorconstraintfrictionloss];
+        }
+        else if (_pName == propJoint_vortexXAxisPosRelaxationStiffness.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p0stiffness];
+        }
+        else if (_pName == propJoint_vortexXAxisPosRelaxationDamping.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p0damping];
+        }
+        else if (_pName == propJoint_vortexXAxisPosRelaxationLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p0loss];
+        }
+        else if (_pName == propJoint_vortexXAxisPosFrictionCoeff.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p0frictioncoeff];
+        }
+        else if (_pName == propJoint_vortexXAxisPosFrictionMaxForce.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p0frictionmaxforce];
+        }
+        else if (_pName == propJoint_vortexXAxisPosFrictionLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p0frictionloss];
+        }
+        else if (_pName == propJoint_vortexYAxisPosRelaxationStiffness.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p1stiffness];
+        }
+        else if (_pName == propJoint_vortexYAxisPosRelaxationDamping.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p1damping];
+        }
+        else if (_pName == propJoint_vortexYAxisPosRelaxationLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p1loss];
+        }
+        else if (_pName == propJoint_vortexYAxisPosFrictionCoeff.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p1frictioncoeff];
+        }
+        else if (_pName == propJoint_vortexYAxisPosFrictionMaxForce.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p1frictionmaxforce];
+        }
+        else if (_pName == propJoint_vortexYAxisPosFrictionLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p1frictionloss];
+        }
+        else if (_pName == propJoint_vortexZAxisPosRelaxationStiffness.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p2stiffness];
+        }
+        else if (_pName == propJoint_vortexZAxisPosRelaxationDamping.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p2damping];
+        }
+        else if (_pName == propJoint_vortexZAxisPosRelaxationLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p2loss];
+        }
+        else if (_pName == propJoint_vortexZAxisPosFrictionCoeff.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p2frictioncoeff];
+        }
+        else if (_pName == propJoint_vortexZAxisPosFrictionMaxForce.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p2frictionmaxforce];
+        }
+        else if (_pName == propJoint_vortexZAxisPosFrictionLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_p2frictionloss];
+        }
+        else if (_pName == propJoint_vortexXAxisOrientRelaxStiffness.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a0stiffness];
+        }
+        else if (_pName == propJoint_vortexXAxisOrientRelaxDamping.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a0damping];
+        }
+        else if (_pName == propJoint_vortexXAxisOrientRelaxLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a0loss];
+        }
+        else if (_pName == propJoint_vortexXAxisOrientFrictionCoeff.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a0frictioncoeff];
+        }
+        else if (_pName == propJoint_vortexXAxisOrientFrictionMaxTorque.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a0frictionmaxforce];
+        }
+        else if (_pName == propJoint_vortexXAxisOrientFrictionLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a0frictionloss];
+        }
+        else if (_pName == propJoint_vortexYAxisOrientRelaxStiffness.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a1stiffness];
+        }
+        else if (_pName == propJoint_vortexYAxisOrientRelaxDamping.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a1damping];
+        }
+        else if (_pName == propJoint_vortexYAxisOrientRelaxLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a1loss];
+        }
+        else if (_pName == propJoint_vortexYAxisOrientFrictionCoeff.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a1frictioncoeff];
+        }
+        else if (_pName == propJoint_vortexYAxisOrientFrictionMaxTorque.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a1frictionmaxforce];
+        }
+        else if (_pName == propJoint_vortexYAxisOrientFrictionLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a1frictionloss];
+        }
+        else if (_pName == propJoint_vortexZAxisOrientRelaxStiffness.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a2stiffness];
+        }
+        else if (_pName == propJoint_vortexZAxisOrientRelaxDamping.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a2damping];
+        }
+        else if (_pName == propJoint_vortexZAxisOrientRelaxLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a2loss];
+        }
+        else if (_pName == propJoint_vortexZAxisOrientFrictionCoeff.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a2frictioncoeff];
+        }
+        else if (_pName == propJoint_vortexZAxisOrientFrictionMaxTorque.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a2frictionmaxforce];
+        }
+        else if (_pName == propJoint_vortexZAxisOrientFrictionLoss.name)
+        {
+            retVal = 1;
+            pState = _vortexFloatParams[simi_vortex_joint_a2frictionloss];
+        }
+        else if (_pName == propJoint_mujocoArmature.name)
+        {
+            retVal = 1;
+            pState = _mujocoFloatParams[simi_mujoco_joint_armature];
+        }
+        else if (_pName == propJoint_mujocoMargin.name)
+        {
+            retVal = 1;
+            pState = _mujocoFloatParams[simi_mujoco_joint_margin];
+        }
+        else if (_pName == propJoint_mujocoFrictionLoss.name)
+        {
+            retVal = 1;
+            pState = _mujocoFloatParams[simi_mujoco_joint_frictionloss];
+        }
+        else if (_pName == propJoint_mujocoSpringStiffness.name)
+        {
+            retVal = 1;
+            pState = _mujocoFloatParams[simi_mujoco_joint_stiffness];
+        }
+        else if (_pName == propJoint_mujocoSpringDamping.name)
+        {
+            retVal = 1;
+            pState = _mujocoFloatParams[simi_mujoco_joint_damping];
+        }
+        else if (_pName == propJoint_mujocoSpringRef.name)
+        {
+            retVal = 1;
+            pState = _mujocoFloatParams[simi_mujoco_joint_springref];
+        }
+        // ------------------------
+
+    }
+
+    return retVal;
+}
+
+int CJoint::setStringProperty(const char* pName, const char* pState)
+{
+    int retVal = CSceneObject::setStringProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propJoint_engineProperties.name) == 0)
+        {
+            retVal = 0;
+            CEngineProperties prop;
+            std::string current(prop.getObjectProperties(_objectHandle));
+            if (prop.setObjectProperties(_objectHandle, pState))
+            {
+                retVal = 1;
+                std::string current2(prop.getObjectProperties(_objectHandle));
+                if (current != current2)
+                    sendEngineString();
+            }
+        }
+    }
+    return retVal;
+}
+
+int CJoint::getStringProperty(const char* pName, std::string& pState) const
+{
+    int retVal = CSceneObject::getStringProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propJoint_engineProperties.name) == 0)
+        {
+            retVal = 1;
+            CEngineProperties prop;
+            pState = prop.getObjectProperties(_objectHandle);
         }
     }
 
@@ -4942,7 +5737,7 @@ int CJoint::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CJoint::getColorProperty(const char* ppName, float* pState)
+int CJoint::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
     const char* pName = _pName.c_str();
@@ -4956,7 +5751,141 @@ int CJoint::getColorProperty(const char* ppName, float* pState)
     return retVal;
 }
 
-int CJoint::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+
+int CJoint::setVectorProperty(const char* ppName, const double* v, int vL, CCbor* eev/* = nullptr*/)
+{
+    const char* pName = nullptr;
+    std::string _pName;
+    if (ppName != nullptr)
+    {
+        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
+        pName = _pName.c_str();
+    }
+
+    int retVal = -1;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    if ( (eev == nullptr) && (pName != nullptr) )
+    { // regular properties (i.e. non-engine properties)
+        retVal = CSceneObject::setVectorProperty(pName, v, vL);
+        if (retVal == -1)
+        {
+            /*
+            if (_pName == propJoint_length.name)
+            {
+                setLength(pState);
+                retVal = 1;
+            }
+            */
+        }
+    }
+
+    // Following only for engine properties:
+    // -------------------------------------
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n)
+    {
+        if ((pName == nullptr) || (propertyName == pName))
+        {
+            retVal = 1;
+            bool pa = false;
+            for (size_t i = 0; i < n; i++)
+                pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
+            if ( (pName == nullptr) || pa )
+            {
+                if (pName != nullptr)
+                {
+                    for (size_t i = 0; i < n; i++)
+                    {
+                        if (vL > i)
+                            arr[simiIndex1 + i] = v[i];
+                    }
+                }
+                if (_isInScene && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                    ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
+                    if (pName != nullptr)
+                        sendEngineString(ev);
+                }
+            }
+        }
+    };
+
+    handleProp(propJoint_bulletPosPid.name, _bulletFloatParams, simi_bullet_joint_pospid1, 3);
+    handleProp(propJoint_odePosPid.name, _odeFloatParams, simi_ode_joint_pospid1, 3);
+    handleProp(propJoint_vortexPosPid.name, _vortexFloatParams, simi_vortex_joint_pospid1, 3);
+    handleProp(propJoint_newtonPosPid.name, _newtonFloatParams, simi_newton_joint_pospid1, 3);
+    handleProp(propJoint_mujocoPosPid.name, _mujocoFloatParams, simi_mujoco_joint_pospid1, 3);
+    handleProp(propJoint_mujocoLimitsSolRef.name, _mujocoFloatParams, simi_mujoco_joint_solreflimit1, 2);
+    handleProp(propJoint_mujocoLimitsSolImp.name, _mujocoFloatParams, simi_mujoco_joint_solimplimit1, 5);
+    handleProp(propJoint_mujocoFrictionSolRef.name, _mujocoFloatParams, simi_mujoco_joint_solreffriction1, 2);
+    handleProp(propJoint_mujocoFrictionSolImp.name, _mujocoFloatParams, simi_mujoco_joint_solimpfriction1, 5);
+    handleProp(propJoint_mujocoSpringDamper.name, _mujocoFloatParams, simi_mujoco_joint_springdamper1, 2);
+    handleProp(propJoint_mujocoDependencyPolyCoef.name, _mujocoFloatParams, simi_mujoco_joint_polycoef1, 5);
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    // -------------------------------------
+
+    return retVal;
+}
+
+int CJoint::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    if (retVal == -1)
+    {   // First non-engine properties:
+        /*
+        if (_pName == propJoint_length.name)
+        {
+            pState = _length;
+            retVal = 1;
+        }
+        */
+
+        // Engine-only properties:
+        // ------------------------
+        auto handleProp = [&](const std::vector<double>& arr, int simiIndex1, size_t n)
+        {
+            retVal = 1;
+            for (size_t i = 0; i < n; i++)
+                pState.push_back(arr[simiIndex1 + i]);
+        };
+
+        if (_pName == propJoint_bulletPosPid.name)
+            handleProp(_bulletFloatParams, simi_bullet_joint_pospid1, 3);
+        else if (_pName == propJoint_odePosPid.name)
+            handleProp(_odeFloatParams, simi_ode_joint_pospid1, 3);
+        else if (_pName == propJoint_vortexPosPid.name)
+            handleProp(_vortexFloatParams, simi_vortex_joint_pospid1, 3);
+        else if (_pName == propJoint_newtonPosPid.name)
+            handleProp(_newtonFloatParams, simi_newton_joint_pospid1, 3);
+        else if (_pName == propJoint_mujocoPosPid.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_joint_pospid1, 3);
+        else if (_pName == propJoint_mujocoLimitsSolRef.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_joint_solreflimit1, 2);
+        else if (_pName == propJoint_mujocoLimitsSolImp.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_joint_solimplimit1, 5);
+        else if (_pName == propJoint_mujocoFrictionSolRef.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_joint_solreffriction1, 2);
+        else if (_pName == propJoint_mujocoFrictionSolImp.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_joint_solimpfriction1, 5);
+        else if (_pName == propJoint_mujocoSpringDamper.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_joint_springdamper1, 2);
+        else if (_pName == propJoint_mujocoDependencyPolyCoef.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_joint_polycoef1, 5);
+        // ------------------------
+    }
+
+    return retVal;
+}
+
+int CJoint::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -5004,7 +5933,7 @@ int CJoint::getPropertyName_static(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CJoint::getPropertyInfo(const char* ppName, int& info, int& size)
+int CJoint::getPropertyInfo(const char* ppName, int& info, int& size) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
     const char* pName = _pName.c_str();
@@ -5046,6 +5975,52 @@ int CJoint::getPropertyInfo_static(const char* ppName, int& info, int& size)
                 break;
             }
         }
+    }
+    return retVal;
+}
+
+void CJoint::sendEngineString(CCbor* eev /*= nullptr*/)
+{
+    if ( _isInScene && App::worldContainer->getEventsEnabled() )
+    {
+        CCbor* ev = nullptr;
+        if (eev != nullptr)
+            ev = eev;
+        CEngineProperties prop;
+        std::string current(prop.getObjectProperties(_objectHandle));
+        if (ev == nullptr)
+            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propJoint_engineProperties.name, true);
+        ev->appendKeyString(propJoint_engineProperties.name, current.c_str());
+        if ( (ev != nullptr) && (eev == nullptr) )
+            App::worldContainer->pushEvent();
+    }
+}
+
+std::string CJoint::_enumToProperty(int oldEnum, int type, int& indexWithArrays) const
+{
+    std::string retVal;
+    for (size_t i = 0; i < allProps_joint.size(); i++)
+    {
+        for (size_t j = 0; j < 5; j++)
+        {
+            int en = allProps_joint[i].oldEnums[j];
+            if (en == -1)
+                break;
+            else if (en == oldEnum)
+            {
+                if (type == allProps_joint[i].type)
+                {
+                    if ( (j > 0) || (allProps_joint[i].oldEnums[j + 1] != -1) )
+                        indexWithArrays = int(j);
+                    else
+                        indexWithArrays = -1;
+                    retVal =  allProps_joint[i].name;
+                }
+                break;
+            }
+        }
+        if (retVal.size() > 0)
+            break;
     }
     return retVal;
 }
