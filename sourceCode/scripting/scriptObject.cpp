@@ -9303,12 +9303,12 @@ void CScriptObject::_adjustScriptText14_old(CScriptObject *scriptObject, bool do
     _replaceScriptText_old(scriptObject, "sim.setArrayParameter", "sim.setArrayParam");
     _replaceScriptText_old(scriptObject, "sim.getArrayParameter", "sim.getArrayParam");
 
-    _replaceScriptText_old(scriptObject, "sim.getEngineBoolParameter", "sim.getEngineBoolParam");
+    _replaceScriptText_old(scriptObject, "sim.getEngineBoolParameter", "sim.getEngineBoolParam_old");
     _replaceScriptText_old(scriptObject, "sim.getEngineInt32Parameter", "sim.getEngineInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.getEngineFloatParameter", "sim.getEngineFloatParam");
-    _replaceScriptText_old(scriptObject, "sim.setEngineBoolParameter", "sim.setEngineBoolParam");
+    _replaceScriptText_old(scriptObject, "sim.getEngineFloatParameter", "sim.getEngineFloatParam_old");
+    _replaceScriptText_old(scriptObject, "sim.setEngineBoolParameter", "sim.setEngineBoolParam_old");
     _replaceScriptText_old(scriptObject, "sim.setEngineInt32Parameter", "sim.setEngineInt32Param");
-    _replaceScriptText_old(scriptObject, "sim.setEngineFloatParameter", "sim.setEngineFloatParam");
+    _replaceScriptText_old(scriptObject, "sim.setEngineFloatParameter", "sim.setEngineFloatParam_old");
 
     _replaceScriptText_old(scriptObject, "sim.setIntegerSignal", "sim.setInt32Signal");
     _replaceScriptText_old(scriptObject, "sim.getIntegerSignal", "sim.getInt32Signal");

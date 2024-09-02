@@ -663,7 +663,7 @@ void CWorldContainer::dispatchEvents()
         {
             _eventMutex.unlock();
             CCbor *ev_ = _createGeneralEvent(EVENTTYPE_MSGDISPATCHTIME, -1, -1, nullptr, nullptr, false);
-            ev_->appendKeyDouble("time", VDateTime::getTime());
+            ev_->appendKeyInt("time", VDateTime::getUnixTimeInMs());
             pushEvent();
             _eventMutex.lock("CWorldContainer::dispatchEvents");
             _eventSeq = _events->finalizeEvents(_eventSeq, true);
@@ -1090,6 +1090,7 @@ int CWorldContainer::getVectorProperty(const char* ppName, std::vector<double>& 
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
     int retVal = -1;
+    pState.clear();
 
     return retVal;
 }
@@ -1108,6 +1109,7 @@ int CWorldContainer::getIntVectorProperty(const char* ppName, std::vector<int>& 
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
     int retVal = -1;
+    pState.clear();
 
     return retVal;
 }

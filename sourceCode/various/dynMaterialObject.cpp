@@ -198,7 +198,7 @@ std::string CDynMaterialObject::getIndividualName()
     return ("<individual (i.e. not shared)>");
 }
 
-double CDynMaterialObject::getEngineFloatParam(int what, bool *ok)
+double CDynMaterialObject::getEngineFloatParam_old(int what, bool *ok)
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -261,7 +261,7 @@ double CDynMaterialObject::getEngineFloatParam(int what, bool *ok)
     */
 }
 
-int CDynMaterialObject::getEngineIntParam(int what, bool *ok)
+int CDynMaterialObject::getEngineIntParam_old(int what, bool *ok)
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -310,7 +310,7 @@ int CDynMaterialObject::getEngineIntParam(int what, bool *ok)
     */
 }
 
-bool CDynMaterialObject::getEngineBoolParam(int what, bool *ok)
+bool CDynMaterialObject::getEngineBoolParam_old(int what, bool *ok)
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -382,7 +382,7 @@ bool CDynMaterialObject::getEngineBoolParam(int what, bool *ok)
     */
 }
 
-bool CDynMaterialObject::setEngineFloatParam(int what, double v)
+bool CDynMaterialObject::setEngineFloatParam_old(int what, double v)
 {
     int indexWithArrays;
     std::string prop = _enumToProperty(what, sim_propertytype_float, indexWithArrays);
@@ -464,7 +464,7 @@ bool CDynMaterialObject::setEngineFloatParam(int what, double v)
     */
 }
 
-bool CDynMaterialObject::setEngineIntParam(int what, int v)
+bool CDynMaterialObject::setEngineIntParam_old(int what, int v)
 {
     int indexWithArrays;
     std::string prop = _enumToProperty(what, sim_propertytype_int, indexWithArrays);
@@ -524,7 +524,7 @@ bool CDynMaterialObject::setEngineIntParam(int what, int v)
     */
 }
 
-bool CDynMaterialObject::setEngineBoolParam(int what, bool v)
+bool CDynMaterialObject::setEngineBoolParam_old(int what, bool v)
 {
     int indexWithArrays;
     std::string prop = _enumToProperty(what, sim_propertytype_bool, indexWithArrays);
@@ -807,109 +807,109 @@ void CDynMaterialObject::generateDefaultMaterial(int defMatId)
     if (defMatId == sim_dynmat_highfriction)
     {
         _objectName = "highFrictionMaterial";
-        setEngineFloatParam(sim_bullet_body_oldfriction, 1.0);
-        setEngineFloatParam(sim_bullet_body_friction, 1.0);
-        setEngineFloatParam(sim_ode_body_friction, 1.0);
-        setEngineFloatParam(sim_vortex_body_primlinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_vortex_body_seclinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_newton_body_staticfriction, 2.0);
-        setEngineFloatParam(sim_newton_body_kineticfriction, 2.0);
+        setEngineFloatParam_old(sim_bullet_body_oldfriction, 1.0);
+        setEngineFloatParam_old(sim_bullet_body_friction, 1.0);
+        setEngineFloatParam_old(sim_ode_body_friction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_primlinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_seclinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_newton_body_staticfriction, 2.0);
+        setEngineFloatParam_old(sim_newton_body_kineticfriction, 2.0);
     }
     if (defMatId == sim_dynmat_lowfriction)
     {
         _objectName = "lowFrictionMaterial";
-        setEngineFloatParam(sim_bullet_body_oldfriction, 0.41);
-        setEngineFloatParam(sim_bullet_body_friction, 0.20);
-        setEngineFloatParam(sim_ode_body_friction, 0.41);
-        setEngineFloatParam(sim_vortex_body_primlinearaxisfriction, 0.17);
-        setEngineFloatParam(sim_vortex_body_seclinearaxisfriction, 0.17);
-        setEngineFloatParam(sim_newton_body_staticfriction, 0.17);
-        setEngineFloatParam(sim_newton_body_kineticfriction, 0.17);
+        setEngineFloatParam_old(sim_bullet_body_oldfriction, 0.41);
+        setEngineFloatParam_old(sim_bullet_body_friction, 0.20);
+        setEngineFloatParam_old(sim_ode_body_friction, 0.41);
+        setEngineFloatParam_old(sim_vortex_body_primlinearaxisfriction, 0.17);
+        setEngineFloatParam_old(sim_vortex_body_seclinearaxisfriction, 0.17);
+        setEngineFloatParam_old(sim_newton_body_staticfriction, 0.17);
+        setEngineFloatParam_old(sim_newton_body_kineticfriction, 0.17);
     }
     if (defMatId == sim_dynmat_nofriction)
     {
         _objectName = "noFrictionMaterial";
-        setEngineFloatParam(sim_bullet_body_oldfriction, 0.0);
-        setEngineFloatParam(sim_bullet_body_friction, 0.0);
-        setEngineFloatParam(sim_ode_body_friction, 0.0);
-        setEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel, sim_vortex_bodyfrictionmodel_none);
-        setEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel, sim_vortex_bodyfrictionmodel_none);
-        setEngineFloatParam(sim_newton_body_staticfriction, 0.0);
-        setEngineFloatParam(sim_newton_body_kineticfriction, 0.0);
+        setEngineFloatParam_old(sim_bullet_body_oldfriction, 0.0);
+        setEngineFloatParam_old(sim_bullet_body_friction, 0.0);
+        setEngineFloatParam_old(sim_ode_body_friction, 0.0);
+        setEngineIntParam_old(sim_vortex_body_primlinearaxisfrictionmodel, sim_vortex_bodyfrictionmodel_none);
+        setEngineIntParam_old(sim_vortex_body_seclinearaxisfrictionmodel, sim_vortex_bodyfrictionmodel_none);
+        setEngineFloatParam_old(sim_newton_body_staticfriction, 0.0);
+        setEngineFloatParam_old(sim_newton_body_kineticfriction, 0.0);
     }
     if (defMatId == sim_dynmat_reststackgrasp)
     {
         _objectName = "restStackGraspMaterial";
-        setEngineFloatParam(sim_bullet_body_oldfriction, 1.0);
-        setEngineFloatParam(sim_bullet_body_friction, 0.5);
-        setEngineFloatParam(sim_ode_body_friction, 1.0);
-        setEngineFloatParam(sim_vortex_body_primlinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_vortex_body_seclinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_vortex_body_primlinearaxisslip, 0.0);
-        setEngineFloatParam(sim_vortex_body_seclinearaxisslip, 0.0);
-        setEngineFloatParam(sim_vortex_body_skinthickness, 0.002);
-        setEngineBoolParam(sim_vortex_body_autoangulardamping, true);
-        setEngineFloatParam(sim_newton_body_staticfriction, 1.0);
-        setEngineFloatParam(sim_newton_body_kineticfriction, 1.0);
-        setEngineFloatParam(sim_newton_body_restitution, 0.0);
+        setEngineFloatParam_old(sim_bullet_body_oldfriction, 1.0);
+        setEngineFloatParam_old(sim_bullet_body_friction, 0.5);
+        setEngineFloatParam_old(sim_ode_body_friction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_primlinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_seclinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_primlinearaxisslip, 0.0);
+        setEngineFloatParam_old(sim_vortex_body_seclinearaxisslip, 0.0);
+        setEngineFloatParam_old(sim_vortex_body_skinthickness, 0.002);
+        setEngineBoolParam_old(sim_vortex_body_autoangulardamping, true);
+        setEngineFloatParam_old(sim_newton_body_staticfriction, 1.0);
+        setEngineFloatParam_old(sim_newton_body_kineticfriction, 1.0);
+        setEngineFloatParam_old(sim_newton_body_restitution, 0.0);
     }
     if (defMatId == sim_dynmat_foot)
     {
         _objectName = "footMaterial";
-        setEngineFloatParam(sim_bullet_body_oldfriction, 1.0);
-        setEngineFloatParam(sim_bullet_body_friction, 0.5);
-        setEngineFloatParam(sim_ode_body_friction, 1.0);
-        setEngineFloatParam(sim_vortex_body_primlinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_vortex_body_seclinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_vortex_body_primlinearaxisslip, 0.0);
-        setEngineFloatParam(sim_vortex_body_seclinearaxisslip, 0.0);
-        setEngineFloatParam(sim_vortex_body_skinthickness, 0.002);
-        setEngineFloatParam(sim_newton_body_staticfriction, 1.0);
-        setEngineFloatParam(sim_newton_body_kineticfriction, 1.0);
-        setEngineFloatParam(sim_newton_body_restitution, 0.0);
+        setEngineFloatParam_old(sim_bullet_body_oldfriction, 1.0);
+        setEngineFloatParam_old(sim_bullet_body_friction, 0.5);
+        setEngineFloatParam_old(sim_ode_body_friction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_primlinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_seclinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_primlinearaxisslip, 0.0);
+        setEngineFloatParam_old(sim_vortex_body_seclinearaxisslip, 0.0);
+        setEngineFloatParam_old(sim_vortex_body_skinthickness, 0.002);
+        setEngineFloatParam_old(sim_newton_body_staticfriction, 1.0);
+        setEngineFloatParam_old(sim_newton_body_kineticfriction, 1.0);
+        setEngineFloatParam_old(sim_newton_body_restitution, 0.0);
     }
     if (defMatId == sim_dynmat_wheel)
     {
         _objectName = "wheelMaterial";
-        setEngineFloatParam(sim_bullet_body_oldfriction, 1.0);
-        setEngineFloatParam(sim_bullet_body_friction, 1.0);
-        setEngineFloatParam(sim_ode_body_friction, 1.0);
-        setEngineFloatParam(sim_vortex_body_primlinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_vortex_body_seclinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_vortex_body_skinthickness, 0.0);
-        setEngineFloatParam(sim_newton_body_staticfriction, 1.0);
-        setEngineFloatParam(sim_newton_body_kineticfriction, 1.0);
-        setEngineFloatParam(sim_newton_body_restitution, 0.0);
+        setEngineFloatParam_old(sim_bullet_body_oldfriction, 1.0);
+        setEngineFloatParam_old(sim_bullet_body_friction, 1.0);
+        setEngineFloatParam_old(sim_ode_body_friction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_primlinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_seclinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_skinthickness, 0.0);
+        setEngineFloatParam_old(sim_newton_body_staticfriction, 1.0);
+        setEngineFloatParam_old(sim_newton_body_kineticfriction, 1.0);
+        setEngineFloatParam_old(sim_newton_body_restitution, 0.0);
     }
     if (defMatId == sim_dynmat_gripper)
     {
         _objectName = "gripperMaterial";
-        setEngineFloatParam(sim_bullet_body_oldfriction, 1.0);
-        setEngineFloatParam(sim_bullet_body_friction, 0.5);
-        setEngineFloatParam(sim_ode_body_friction, 1.0);
-        setEngineFloatParam(sim_vortex_body_primlinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_vortex_body_seclinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_vortex_body_primlinearaxisslip, 0.0);
-        setEngineFloatParam(sim_vortex_body_seclinearaxisslip, 0.0);
-        setEngineFloatParam(sim_vortex_body_skinthickness, 0.002);
-        setEngineFloatParam(sim_newton_body_staticfriction, 1.0);
-        setEngineFloatParam(sim_newton_body_kineticfriction, 1.0);
-        setEngineFloatParam(sim_newton_body_restitution, 0.0);
+        setEngineFloatParam_old(sim_bullet_body_oldfriction, 1.0);
+        setEngineFloatParam_old(sim_bullet_body_friction, 0.5);
+        setEngineFloatParam_old(sim_ode_body_friction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_primlinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_seclinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_primlinearaxisslip, 0.0);
+        setEngineFloatParam_old(sim_vortex_body_seclinearaxisslip, 0.0);
+        setEngineFloatParam_old(sim_vortex_body_skinthickness, 0.002);
+        setEngineFloatParam_old(sim_newton_body_staticfriction, 1.0);
+        setEngineFloatParam_old(sim_newton_body_kineticfriction, 1.0);
+        setEngineFloatParam_old(sim_newton_body_restitution, 0.0);
     }
     if (defMatId == sim_dynmat_floor)
     {
         _objectName = "floorMaterial";
-        setEngineFloatParam(sim_bullet_body_oldfriction, 1.0);
-        setEngineFloatParam(sim_bullet_body_friction, 1.0);
-        setEngineFloatParam(sim_ode_body_friction, 1.0);
-        setEngineFloatParam(sim_vortex_body_primlinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_vortex_body_seclinearaxisfriction, 1.0);
-        setEngineFloatParam(sim_vortex_body_primlinearaxisslip, 0.0);
-        setEngineFloatParam(sim_vortex_body_seclinearaxisslip, 0.0);
-        setEngineFloatParam(sim_vortex_body_skinthickness, 0.002);
-        setEngineFloatParam(sim_newton_body_staticfriction, 1.0);
-        setEngineFloatParam(sim_newton_body_kineticfriction, 1.0);
-        setEngineFloatParam(sim_newton_body_restitution, 0.0);
+        setEngineFloatParam_old(sim_bullet_body_oldfriction, 1.0);
+        setEngineFloatParam_old(sim_bullet_body_friction, 1.0);
+        setEngineFloatParam_old(sim_ode_body_friction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_primlinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_seclinearaxisfriction, 1.0);
+        setEngineFloatParam_old(sim_vortex_body_primlinearaxisslip, 0.0);
+        setEngineFloatParam_old(sim_vortex_body_seclinearaxisslip, 0.0);
+        setEngineFloatParam_old(sim_vortex_body_skinthickness, 0.002);
+        setEngineFloatParam_old(sim_newton_body_staticfriction, 1.0);
+        setEngineFloatParam_old(sim_newton_body_kineticfriction, 1.0);
+        setEngineFloatParam_old(sim_newton_body_restitution, 0.0);
     }
 }
 
@@ -1492,152 +1492,152 @@ void CDynMaterialObject::serialize(CSer &ar)
 
             ar.xmlPushNewNode("engines");
             ar.xmlPushNewNode("bullet");
-            ar.xmlAddNode_float("restitution", getEngineFloatParam(sim_bullet_body_restitution, nullptr));
-            ar.xmlAddNode_float("friction", getEngineFloatParam(sim_bullet_body_friction, nullptr));
-            ar.xmlAddNode_float("oldfriction", getEngineFloatParam(sim_bullet_body_oldfriction, nullptr));
-            ar.xmlAddNode_float("lineardamping", getEngineFloatParam(sim_bullet_body_lineardamping, nullptr));
-            ar.xmlAddNode_float("angulardamping", getEngineFloatParam(sim_bullet_body_angulardamping, nullptr));
+            ar.xmlAddNode_float("restitution", getEngineFloatParam_old(sim_bullet_body_restitution, nullptr));
+            ar.xmlAddNode_float("friction", getEngineFloatParam_old(sim_bullet_body_friction, nullptr));
+            ar.xmlAddNode_float("oldfriction", getEngineFloatParam_old(sim_bullet_body_oldfriction, nullptr));
+            ar.xmlAddNode_float("lineardamping", getEngineFloatParam_old(sim_bullet_body_lineardamping, nullptr));
+            ar.xmlAddNode_float("angulardamping", getEngineFloatParam_old(sim_bullet_body_angulardamping, nullptr));
             ar.xmlAddNode_float("nondefaultcollisionmargingfactor",
-                                getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactor, nullptr));
+                                getEngineFloatParam_old(sim_bullet_body_nondefaultcollisionmargingfactor, nullptr));
             ar.xmlAddNode_float("nondefaultcollisionmargingfactorconvex",
-                                getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactorconvex, nullptr));
+                                getEngineFloatParam_old(sim_bullet_body_nondefaultcollisionmargingfactorconvex, nullptr));
 
-            ar.xmlAddNode_bool("sticky", getEngineBoolParam(sim_bullet_body_sticky, nullptr));
+            ar.xmlAddNode_bool("sticky", getEngineBoolParam_old(sim_bullet_body_sticky, nullptr));
             ar.xmlAddNode_bool("usenondefaultcollisionmargin",
-                               getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmargin, nullptr));
+                               getEngineBoolParam_old(sim_bullet_body_usenondefaultcollisionmargin, nullptr));
             ar.xmlAddNode_bool("usenondefaultcollisionmarginconvex",
-                               getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmarginconvex, nullptr));
-            ar.xmlAddNode_bool("autoshrinkconvex", getEngineBoolParam(sim_bullet_body_autoshrinkconvex, nullptr));
+                               getEngineBoolParam_old(sim_bullet_body_usenondefaultcollisionmarginconvex, nullptr));
+            ar.xmlAddNode_bool("autoshrinkconvex", getEngineBoolParam_old(sim_bullet_body_autoshrinkconvex, nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("ode");
-            ar.xmlAddNode_float("friction", getEngineFloatParam(sim_ode_body_friction, nullptr));
-            ar.xmlAddNode_float("softerp", getEngineFloatParam(sim_ode_body_softerp, nullptr));
-            ar.xmlAddNode_float("softcfm", getEngineFloatParam(sim_ode_body_softcfm, nullptr));
-            ar.xmlAddNode_float("lineardamping", getEngineFloatParam(sim_ode_body_lineardamping, nullptr));
-            ar.xmlAddNode_float("angulardamping", getEngineFloatParam(sim_ode_body_angulardamping, nullptr));
+            ar.xmlAddNode_float("friction", getEngineFloatParam_old(sim_ode_body_friction, nullptr));
+            ar.xmlAddNode_float("softerp", getEngineFloatParam_old(sim_ode_body_softerp, nullptr));
+            ar.xmlAddNode_float("softcfm", getEngineFloatParam_old(sim_ode_body_softcfm, nullptr));
+            ar.xmlAddNode_float("lineardamping", getEngineFloatParam_old(sim_ode_body_lineardamping, nullptr));
+            ar.xmlAddNode_float("angulardamping", getEngineFloatParam_old(sim_ode_body_angulardamping, nullptr));
 
-            ar.xmlAddNode_int("maxcontacts", getEngineIntParam(sim_ode_body_maxcontacts, nullptr));
+            ar.xmlAddNode_int("maxcontacts", getEngineIntParam_old(sim_ode_body_maxcontacts, nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("vortex");
             ar.xmlAddNode_float("primlinearaxisfriction",
-                                getEngineFloatParam(sim_vortex_body_primlinearaxisfriction, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_primlinearaxisfriction, nullptr));
             ar.xmlAddNode_float("seclinearaxisfriction",
-                                getEngineFloatParam(sim_vortex_body_seclinearaxisfriction, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_seclinearaxisfriction, nullptr));
             ar.xmlAddNode_float("primangularaxisfriction",
-                                getEngineFloatParam(sim_vortex_body_primangularaxisfriction, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_primangularaxisfriction, nullptr));
             ar.xmlAddNode_float("secangularaxisfriction",
-                                getEngineFloatParam(sim_vortex_body_secangularaxisfriction, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_secangularaxisfriction, nullptr));
             ar.xmlAddNode_float("normalangularaxisfriction",
-                                getEngineFloatParam(sim_vortex_body_normalangularaxisfriction, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_normalangularaxisfriction, nullptr));
             ar.xmlAddNode_float("primlinearaxisstaticfrictionscale",
-                                getEngineFloatParam(sim_vortex_body_primlinearaxisstaticfrictionscale, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_primlinearaxisstaticfrictionscale, nullptr));
             ar.xmlAddNode_float("seclinearaxisstaticfrictionscale",
-                                getEngineFloatParam(sim_vortex_body_seclinearaxisstaticfrictionscale, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_seclinearaxisstaticfrictionscale, nullptr));
             ar.xmlAddNode_float("primangularaxisstaticfrictionscale",
-                                getEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_primangularaxisstaticfrictionscale, nullptr));
             ar.xmlAddNode_float("secangularaxisstaticfrictionscale",
-                                getEngineFloatParam(sim_vortex_body_secangularaxisstaticfrictionscale, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_secangularaxisstaticfrictionscale, nullptr));
             ar.xmlAddNode_float("normalangularaxisstaticfrictionscale",
-                                getEngineFloatParam(sim_vortex_body_normalangularaxisstaticfrictionscale, nullptr));
-            ar.xmlAddNode_float("compliance", getEngineFloatParam(sim_vortex_body_compliance, nullptr));
-            ar.xmlAddNode_float("damping", getEngineFloatParam(sim_vortex_body_damping, nullptr));
-            ar.xmlAddNode_float("restitution", getEngineFloatParam(sim_vortex_body_restitution, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_normalangularaxisstaticfrictionscale, nullptr));
+            ar.xmlAddNode_float("compliance", getEngineFloatParam_old(sim_vortex_body_compliance, nullptr));
+            ar.xmlAddNode_float("damping", getEngineFloatParam_old(sim_vortex_body_damping, nullptr));
+            ar.xmlAddNode_float("restitution", getEngineFloatParam_old(sim_vortex_body_restitution, nullptr));
             ar.xmlAddNode_float("restitutionthreshold",
-                                getEngineFloatParam(sim_vortex_body_restitutionthreshold, nullptr));
-            ar.xmlAddNode_float("adhesiveforce", getEngineFloatParam(sim_vortex_body_adhesiveforce, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_restitutionthreshold, nullptr));
+            ar.xmlAddNode_float("adhesiveforce", getEngineFloatParam_old(sim_vortex_body_adhesiveforce, nullptr));
             ar.xmlAddNode_float("linearvelocitydamping",
-                                getEngineFloatParam(sim_vortex_body_linearvelocitydamping, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_linearvelocitydamping, nullptr));
             ar.xmlAddNode_float("angularvelocitydamping",
-                                getEngineFloatParam(sim_vortex_body_angularvelocitydamping, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_angularvelocitydamping, nullptr));
             ar.xmlAddNode_float("primlinearaxisslide",
-                                getEngineFloatParam(sim_vortex_body_primlinearaxisslide, nullptr));
-            ar.xmlAddNode_float("seclinearaxisslide", getEngineFloatParam(sim_vortex_body_seclinearaxisslide, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_primlinearaxisslide, nullptr));
+            ar.xmlAddNode_float("seclinearaxisslide", getEngineFloatParam_old(sim_vortex_body_seclinearaxisslide, nullptr));
             ar.xmlAddNode_float("primangularaxisslide",
-                                getEngineFloatParam(sim_vortex_body_primangularaxisslide, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_primangularaxisslide, nullptr));
             ar.xmlAddNode_float("secangularaxisslide",
-                                getEngineFloatParam(sim_vortex_body_secangularaxisslide, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_secangularaxisslide, nullptr));
             ar.xmlAddNode_float("normalangularaxisslide",
-                                getEngineFloatParam(sim_vortex_body_normalangularaxisslide, nullptr));
-            ar.xmlAddNode_float("primlinearaxisslip", getEngineFloatParam(sim_vortex_body_primlinearaxisslip, nullptr));
-            ar.xmlAddNode_float("seclinearaxisslip", getEngineFloatParam(sim_vortex_body_seclinearaxisslip, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_normalangularaxisslide, nullptr));
+            ar.xmlAddNode_float("primlinearaxisslip", getEngineFloatParam_old(sim_vortex_body_primlinearaxisslip, nullptr));
+            ar.xmlAddNode_float("seclinearaxisslip", getEngineFloatParam_old(sim_vortex_body_seclinearaxisslip, nullptr));
             ar.xmlAddNode_float("primangularaxisslip",
-                                getEngineFloatParam(sim_vortex_body_primangularaxisslip, nullptr));
-            ar.xmlAddNode_float("secangularaxisslip", getEngineFloatParam(sim_vortex_body_secangularaxisslip, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_primangularaxisslip, nullptr));
+            ar.xmlAddNode_float("secangularaxisslip", getEngineFloatParam_old(sim_vortex_body_secangularaxisslip, nullptr));
             ar.xmlAddNode_float("normalangularaxisslip",
-                                getEngineFloatParam(sim_vortex_body_normalangularaxisslip, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_normalangularaxisslip, nullptr));
             ar.xmlAddNode_float("autosleeplinearspeedthreshold",
-                                getEngineFloatParam(sim_vortex_body_autosleeplinearspeedthreshold, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_autosleeplinearspeedthreshold, nullptr));
             ar.xmlAddNode_float("autosleeplinearaccelthreshold",
-                                getEngineFloatParam(sim_vortex_body_autosleeplinearaccelthreshold, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_autosleeplinearaccelthreshold, nullptr));
             ar.xmlAddNode_float("autosleepangularspeedthreshold",
-                                getEngineFloatParam(sim_vortex_body_autosleepangularspeedthreshold, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_autosleepangularspeedthreshold, nullptr));
             ar.xmlAddNode_float("autosleepangularaccelthreshold",
-                                getEngineFloatParam(sim_vortex_body_autosleepangularaccelthreshold, nullptr));
-            ar.xmlAddNode_float("skinthickness", getEngineFloatParam(sim_vortex_body_skinthickness, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_autosleepangularaccelthreshold, nullptr));
+            ar.xmlAddNode_float("skinthickness", getEngineFloatParam_old(sim_vortex_body_skinthickness, nullptr));
             ar.xmlAddNode_float("autoangulardampingtensionratio",
-                                getEngineFloatParam(sim_vortex_body_autoangulardampingtensionratio, nullptr));
-            ar.xmlAddNode_float("primaxisvectorx", getEngineFloatParam(sim_vortex_body_primaxisvectorx, nullptr));
-            ar.xmlAddNode_float("primaxisvectory", getEngineFloatParam(sim_vortex_body_primaxisvectory, nullptr));
-            ar.xmlAddNode_float("primaxisvectorz", getEngineFloatParam(sim_vortex_body_primaxisvectorz, nullptr));
+                                getEngineFloatParam_old(sim_vortex_body_autoangulardampingtensionratio, nullptr));
+            ar.xmlAddNode_float("primaxisvectorx", getEngineFloatParam_old(sim_vortex_body_primaxisvectorx, nullptr));
+            ar.xmlAddNode_float("primaxisvectory", getEngineFloatParam_old(sim_vortex_body_primaxisvectory, nullptr));
+            ar.xmlAddNode_float("primaxisvectorz", getEngineFloatParam_old(sim_vortex_body_primaxisvectorz, nullptr));
 
             ar.xmlAddNode_int("primlinearaxisfrictionmodel",
-                              getEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel, nullptr));
+                              getEngineIntParam_old(sim_vortex_body_primlinearaxisfrictionmodel, nullptr));
             ar.xmlAddNode_int("seclinearaxisfrictionmodel",
-                              getEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel, nullptr));
+                              getEngineIntParam_old(sim_vortex_body_seclinearaxisfrictionmodel, nullptr));
             ar.xmlAddNode_int("primangulararaxisfrictionmodel",
-                              getEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel, nullptr));
+                              getEngineIntParam_old(sim_vortex_body_primangulararaxisfrictionmodel, nullptr));
             ar.xmlAddNode_int("secmangulararaxisfrictionmodel",
-                              getEngineIntParam(sim_vortex_body_secmangulararaxisfrictionmodel, nullptr));
+                              getEngineIntParam_old(sim_vortex_body_secmangulararaxisfrictionmodel, nullptr));
             ar.xmlAddNode_int("normalmangulararaxisfrictionmodel",
-                              getEngineIntParam(sim_vortex_body_normalmangulararaxisfrictionmodel, nullptr));
+                              getEngineIntParam_old(sim_vortex_body_normalmangulararaxisfrictionmodel, nullptr));
             ar.xmlAddNode_int("autosleepsteplivethreshold",
-                              getEngineIntParam(sim_vortex_body_autosleepsteplivethreshold, nullptr));
-            ar.xmlAddNode_int("materialuniqueid", getEngineIntParam(sim_vortex_body_materialuniqueid, nullptr));
+                              getEngineIntParam_old(sim_vortex_body_autosleepsteplivethreshold, nullptr));
+            ar.xmlAddNode_int("materialuniqueid", getEngineIntParam_old(sim_vortex_body_materialuniqueid, nullptr));
 
-            ar.xmlAddNode_bool("pureshapesasconvex", getEngineBoolParam(sim_vortex_body_pureshapesasconvex, nullptr));
+            ar.xmlAddNode_bool("pureshapesasconvex", getEngineBoolParam_old(sim_vortex_body_pureshapesasconvex, nullptr));
             ar.xmlAddNode_bool("convexshapesasrandom",
-                               getEngineBoolParam(sim_vortex_body_convexshapesasrandom, nullptr));
+                               getEngineBoolParam_old(sim_vortex_body_convexshapesasrandom, nullptr));
             ar.xmlAddNode_bool("randomshapesasterrain",
-                               getEngineBoolParam(sim_vortex_body_randomshapesasterrain, nullptr));
-            ar.xmlAddNode_bool("fastmoving", getEngineBoolParam(sim_vortex_body_fastmoving, nullptr));
-            ar.xmlAddNode_bool("autoslip", getEngineBoolParam(sim_vortex_body_autoslip, nullptr));
+                               getEngineBoolParam_old(sim_vortex_body_randomshapesasterrain, nullptr));
+            ar.xmlAddNode_bool("fastmoving", getEngineBoolParam_old(sim_vortex_body_fastmoving, nullptr));
+            ar.xmlAddNode_bool("autoslip", getEngineBoolParam_old(sim_vortex_body_autoslip, nullptr));
             ar.xmlAddNode_bool("seclinaxissameasprimlinaxis",
-                               getEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis, nullptr));
+                               getEngineBoolParam_old(sim_vortex_body_seclinaxissameasprimlinaxis, nullptr));
             ar.xmlAddNode_bool("secangaxissameasprimangaxis",
-                               getEngineBoolParam(sim_vortex_body_secangaxissameasprimangaxis, nullptr));
+                               getEngineBoolParam_old(sim_vortex_body_secangaxissameasprimangaxis, nullptr));
             ar.xmlAddNode_bool("normangaxissameasprimangaxis",
-                               getEngineBoolParam(sim_vortex_body_normangaxissameasprimangaxis, nullptr));
-            ar.xmlAddNode_bool("autoangulardamping", getEngineBoolParam(sim_vortex_body_autoangulardamping, nullptr));
+                               getEngineBoolParam_old(sim_vortex_body_normangaxissameasprimangaxis, nullptr));
+            ar.xmlAddNode_bool("autoangulardamping", getEngineBoolParam_old(sim_vortex_body_autoangulardamping, nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("newton");
-            ar.xmlAddNode_float("staticfriction", getEngineFloatParam(sim_newton_body_staticfriction, nullptr));
-            ar.xmlAddNode_float("kineticfriction", getEngineFloatParam(sim_newton_body_kineticfriction, nullptr));
-            ar.xmlAddNode_float("restitution", getEngineFloatParam(sim_newton_body_restitution, nullptr));
-            ar.xmlAddNode_float("lineardrag", getEngineFloatParam(sim_newton_body_lineardrag, nullptr));
-            ar.xmlAddNode_float("angulardrag", getEngineFloatParam(sim_newton_body_angulardrag, nullptr));
-            ar.xmlAddNode_bool("fastmoving", getEngineBoolParam(sim_newton_body_fastmoving, nullptr));
+            ar.xmlAddNode_float("staticfriction", getEngineFloatParam_old(sim_newton_body_staticfriction, nullptr));
+            ar.xmlAddNode_float("kineticfriction", getEngineFloatParam_old(sim_newton_body_kineticfriction, nullptr));
+            ar.xmlAddNode_float("restitution", getEngineFloatParam_old(sim_newton_body_restitution, nullptr));
+            ar.xmlAddNode_float("lineardrag", getEngineFloatParam_old(sim_newton_body_lineardrag, nullptr));
+            ar.xmlAddNode_float("angulardrag", getEngineFloatParam_old(sim_newton_body_angulardrag, nullptr));
+            ar.xmlAddNode_bool("fastmoving", getEngineBoolParam_old(sim_newton_body_fastmoving, nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("mujoco");
-            ar.xmlAddNode_3float("friction", getEngineFloatParam(sim_mujoco_body_friction1, nullptr),
-                                 getEngineFloatParam(sim_mujoco_body_friction2, nullptr),
-                                 getEngineFloatParam(sim_mujoco_body_friction3, nullptr));
-            ar.xmlAddNode_2float("solref", getEngineFloatParam(sim_mujoco_body_solref1, nullptr),
-                                 getEngineFloatParam(sim_mujoco_body_solref2, nullptr));
+            ar.xmlAddNode_3float("friction", getEngineFloatParam_old(sim_mujoco_body_friction1, nullptr),
+                                 getEngineFloatParam_old(sim_mujoco_body_friction2, nullptr),
+                                 getEngineFloatParam_old(sim_mujoco_body_friction3, nullptr));
+            ar.xmlAddNode_2float("solref", getEngineFloatParam_old(sim_mujoco_body_solref1, nullptr),
+                                 getEngineFloatParam_old(sim_mujoco_body_solref2, nullptr));
             double si[5];
-            si[0] = getEngineFloatParam(sim_mujoco_body_solimp1, nullptr);
-            si[1] = getEngineFloatParam(sim_mujoco_body_solimp2, nullptr);
-            si[2] = getEngineFloatParam(sim_mujoco_body_solimp3, nullptr);
-            si[3] = getEngineFloatParam(sim_mujoco_body_solimp4, nullptr);
-            si[4] = getEngineFloatParam(sim_mujoco_body_solimp5, nullptr);
+            si[0] = getEngineFloatParam_old(sim_mujoco_body_solimp1, nullptr);
+            si[1] = getEngineFloatParam_old(sim_mujoco_body_solimp2, nullptr);
+            si[2] = getEngineFloatParam_old(sim_mujoco_body_solimp3, nullptr);
+            si[3] = getEngineFloatParam_old(sim_mujoco_body_solimp4, nullptr);
+            si[4] = getEngineFloatParam_old(sim_mujoco_body_solimp5, nullptr);
             ar.xmlAddNode_floats("solimp", si, 5);
-            ar.xmlAddNode_float("solmix", getEngineFloatParam(sim_mujoco_body_solmix, nullptr));
-            ar.xmlAddNode_float("margin", getEngineFloatParam(sim_mujoco_body_margin, nullptr));
-            ar.xmlAddNode_int("condim", getEngineIntParam(sim_mujoco_body_condim, nullptr));
-            ar.xmlAddNode_int("priority", getEngineIntParam(sim_mujoco_body_priority, nullptr));
+            ar.xmlAddNode_float("solmix", getEngineFloatParam_old(sim_mujoco_body_solmix, nullptr));
+            ar.xmlAddNode_float("margin", getEngineFloatParam_old(sim_mujoco_body_margin, nullptr));
+            ar.xmlAddNode_int("condim", getEngineIntParam_old(sim_mujoco_body_condim, nullptr));
+            ar.xmlAddNode_int("priority", getEngineIntParam_old(sim_mujoco_body_priority, nullptr));
             ar.xmlPopNode();
 
             ar.xmlPopNode();
@@ -1658,175 +1658,175 @@ void CDynMaterialObject::serialize(CSer &ar)
                 if (ar.xmlPushChildNode("bullet", exhaustiveXml))
                 {
                     if (ar.xmlGetNode_float("restitution", v, exhaustiveXml))
-                        setEngineFloatParam(sim_bullet_body_restitution, v);
+                        setEngineFloatParam_old(sim_bullet_body_restitution, v);
                     if (ar.xmlGetNode_float("friction", v, exhaustiveXml))
-                        setEngineFloatParam(sim_bullet_body_friction, v);
+                        setEngineFloatParam_old(sim_bullet_body_friction, v);
                     if (ar.xmlGetNode_float("oldfriction", v, exhaustiveXml))
-                        setEngineFloatParam(sim_bullet_body_oldfriction, v);
+                        setEngineFloatParam_old(sim_bullet_body_oldfriction, v);
                     if (ar.xmlGetNode_float("lineardamping", v, exhaustiveXml))
-                        setEngineFloatParam(sim_bullet_body_lineardamping, v);
+                        setEngineFloatParam_old(sim_bullet_body_lineardamping, v);
                     if (ar.xmlGetNode_float("angulardamping", v, exhaustiveXml))
-                        setEngineFloatParam(sim_bullet_body_angulardamping, v);
+                        setEngineFloatParam_old(sim_bullet_body_angulardamping, v);
                     if (ar.xmlGetNode_float("nondefaultcollisionmargingfactor", v, exhaustiveXml))
-                        setEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactor, v);
+                        setEngineFloatParam_old(sim_bullet_body_nondefaultcollisionmargingfactor, v);
                     if (ar.xmlGetNode_float("nondefaultcollisionmargingfactorconvex", v, exhaustiveXml))
-                        setEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactorconvex, v);
+                        setEngineFloatParam_old(sim_bullet_body_nondefaultcollisionmargingfactorconvex, v);
 
                     if (ar.xmlGetNode_bool("sticky", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_bullet_body_sticky, vb);
+                        setEngineBoolParam_old(sim_bullet_body_sticky, vb);
                     if (ar.xmlGetNode_bool("usenondefaultcollisionmargin", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_bullet_body_usenondefaultcollisionmargin, vb);
+                        setEngineBoolParam_old(sim_bullet_body_usenondefaultcollisionmargin, vb);
                     if (ar.xmlGetNode_bool("usenondefaultcollisionmarginconvex", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_bullet_body_usenondefaultcollisionmarginconvex, vb);
+                        setEngineBoolParam_old(sim_bullet_body_usenondefaultcollisionmarginconvex, vb);
                     if (ar.xmlGetNode_bool("autoshrinkconvex", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_bullet_body_autoshrinkconvex, vb);
+                        setEngineBoolParam_old(sim_bullet_body_autoshrinkconvex, vb);
                     ar.xmlPopNode();
                 }
 
                 if (ar.xmlPushChildNode("ode", exhaustiveXml))
                 {
                     if (ar.xmlGetNode_float("friction", v, exhaustiveXml))
-                        setEngineFloatParam(sim_ode_body_friction, v);
+                        setEngineFloatParam_old(sim_ode_body_friction, v);
                     if (ar.xmlGetNode_float("softerp", v, exhaustiveXml))
-                        setEngineFloatParam(sim_ode_body_softerp, v);
+                        setEngineFloatParam_old(sim_ode_body_softerp, v);
                     if (ar.xmlGetNode_float("softcfm", v, exhaustiveXml))
-                        setEngineFloatParam(sim_ode_body_softcfm, v);
+                        setEngineFloatParam_old(sim_ode_body_softcfm, v);
                     if (ar.xmlGetNode_float("lineardamping", v, exhaustiveXml))
-                        setEngineFloatParam(sim_ode_body_lineardamping, v);
+                        setEngineFloatParam_old(sim_ode_body_lineardamping, v);
                     if (ar.xmlGetNode_float("angulardamping", v, exhaustiveXml))
-                        setEngineFloatParam(sim_ode_body_angulardamping, v);
+                        setEngineFloatParam_old(sim_ode_body_angulardamping, v);
 
                     if (ar.xmlGetNode_int("maxcontacts", vi, exhaustiveXml))
-                        setEngineIntParam(sim_ode_body_maxcontacts, vi);
+                        setEngineIntParam_old(sim_ode_body_maxcontacts, vi);
                     ar.xmlPopNode();
                 }
 
                 if (ar.xmlPushChildNode("vortex", exhaustiveXml))
                 {
                     if (ar.xmlGetNode_float("primlinearaxisfriction", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_primlinearaxisfriction, v);
+                        setEngineFloatParam_old(sim_vortex_body_primlinearaxisfriction, v);
                     if (ar.xmlGetNode_float("seclinearaxisfriction", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_seclinearaxisfriction, v);
+                        setEngineFloatParam_old(sim_vortex_body_seclinearaxisfriction, v);
                     if (ar.xmlGetNode_float("primangularaxisfriction", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_primangularaxisfriction, v);
+                        setEngineFloatParam_old(sim_vortex_body_primangularaxisfriction, v);
                     if (ar.xmlGetNode_float("secangularaxisfriction", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_secangularaxisfriction, v);
+                        setEngineFloatParam_old(sim_vortex_body_secangularaxisfriction, v);
                     if (ar.xmlGetNode_float("normalangularaxisfriction", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_normalangularaxisfriction, v);
+                        setEngineFloatParam_old(sim_vortex_body_normalangularaxisfriction, v);
                     if (ar.xmlGetNode_float("primlinearaxisstaticfrictionscale", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_primlinearaxisstaticfrictionscale, v);
+                        setEngineFloatParam_old(sim_vortex_body_primlinearaxisstaticfrictionscale, v);
                     if (ar.xmlGetNode_float("seclinearaxisstaticfrictionscale", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_seclinearaxisstaticfrictionscale, v);
+                        setEngineFloatParam_old(sim_vortex_body_seclinearaxisstaticfrictionscale, v);
                     if (ar.xmlGetNode_float("primangularaxisstaticfrictionscale", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale, v);
+                        setEngineFloatParam_old(sim_vortex_body_primangularaxisstaticfrictionscale, v);
                     if (ar.xmlGetNode_float("secangularaxisstaticfrictionscale", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_secangularaxisstaticfrictionscale, v);
+                        setEngineFloatParam_old(sim_vortex_body_secangularaxisstaticfrictionscale, v);
                     if (ar.xmlGetNode_float("normalangularaxisstaticfrictionscale", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_normalangularaxisstaticfrictionscale, v);
+                        setEngineFloatParam_old(sim_vortex_body_normalangularaxisstaticfrictionscale, v);
                     if (ar.xmlGetNode_float("compliance", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_compliance, v);
+                        setEngineFloatParam_old(sim_vortex_body_compliance, v);
                     if (ar.xmlGetNode_float("damping", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_damping, v);
+                        setEngineFloatParam_old(sim_vortex_body_damping, v);
                     if (ar.xmlGetNode_float("restitution", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_restitution, v);
+                        setEngineFloatParam_old(sim_vortex_body_restitution, v);
                     if (ar.xmlGetNode_float("restitutionthreshold", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_restitutionthreshold, v);
+                        setEngineFloatParam_old(sim_vortex_body_restitutionthreshold, v);
                     if (ar.xmlGetNode_float("adhesiveforce", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_adhesiveforce, v);
+                        setEngineFloatParam_old(sim_vortex_body_adhesiveforce, v);
                     if (ar.xmlGetNode_float("linearvelocitydamping", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_linearvelocitydamping, v);
+                        setEngineFloatParam_old(sim_vortex_body_linearvelocitydamping, v);
                     if (ar.xmlGetNode_float("angularvelocitydamping", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_angularvelocitydamping, v);
+                        setEngineFloatParam_old(sim_vortex_body_angularvelocitydamping, v);
                     if (ar.xmlGetNode_float("primlinearaxisslide", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_primlinearaxisslide, v);
+                        setEngineFloatParam_old(sim_vortex_body_primlinearaxisslide, v);
                     if (ar.xmlGetNode_float("seclinearaxisslide", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_seclinearaxisslide, v);
+                        setEngineFloatParam_old(sim_vortex_body_seclinearaxisslide, v);
                     if (ar.xmlGetNode_float("primangularaxisslide", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_primangularaxisslide, v);
+                        setEngineFloatParam_old(sim_vortex_body_primangularaxisslide, v);
                     if (ar.xmlGetNode_float("secangularaxisslide", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_secangularaxisslide, v);
+                        setEngineFloatParam_old(sim_vortex_body_secangularaxisslide, v);
                     if (ar.xmlGetNode_float("normalangularaxisslide", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_normalangularaxisslide, v);
+                        setEngineFloatParam_old(sim_vortex_body_normalangularaxisslide, v);
                     if (ar.xmlGetNode_float("primlinearaxisslip", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_primlinearaxisslip, v);
+                        setEngineFloatParam_old(sim_vortex_body_primlinearaxisslip, v);
                     if (ar.xmlGetNode_float("seclinearaxisslip", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_seclinearaxisslip, v);
+                        setEngineFloatParam_old(sim_vortex_body_seclinearaxisslip, v);
                     if (ar.xmlGetNode_float("primangularaxisslip", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_primangularaxisslip, v);
+                        setEngineFloatParam_old(sim_vortex_body_primangularaxisslip, v);
                     if (ar.xmlGetNode_float("secangularaxisslip", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_secangularaxisslip, v);
+                        setEngineFloatParam_old(sim_vortex_body_secangularaxisslip, v);
                     if (ar.xmlGetNode_float("normalangularaxisslip", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_normalangularaxisslip, v);
+                        setEngineFloatParam_old(sim_vortex_body_normalangularaxisslip, v);
                     if (ar.xmlGetNode_float("autosleeplinearspeedthreshold", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_autosleeplinearspeedthreshold, v);
+                        setEngineFloatParam_old(sim_vortex_body_autosleeplinearspeedthreshold, v);
                     if (ar.xmlGetNode_float("autosleeplinearaccelthreshold", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_autosleeplinearaccelthreshold, v);
+                        setEngineFloatParam_old(sim_vortex_body_autosleeplinearaccelthreshold, v);
                     if (ar.xmlGetNode_float("autosleepangularspeedthreshold", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_autosleepangularspeedthreshold, v);
+                        setEngineFloatParam_old(sim_vortex_body_autosleepangularspeedthreshold, v);
                     if (ar.xmlGetNode_float("autosleepangularaccelthreshold", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_autosleepangularaccelthreshold, v);
+                        setEngineFloatParam_old(sim_vortex_body_autosleepangularaccelthreshold, v);
                     if (ar.xmlGetNode_float("skinthickness", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_skinthickness, v);
+                        setEngineFloatParam_old(sim_vortex_body_skinthickness, v);
                     if (ar.xmlGetNode_float("autoangulardampingtensionratio", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_autoangulardampingtensionratio, v);
+                        setEngineFloatParam_old(sim_vortex_body_autoangulardampingtensionratio, v);
                     if (ar.xmlGetNode_float("primaxisvectorx", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_primaxisvectorx, v);
+                        setEngineFloatParam_old(sim_vortex_body_primaxisvectorx, v);
                     if (ar.xmlGetNode_float("primaxisvectory", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_primaxisvectory, v);
+                        setEngineFloatParam_old(sim_vortex_body_primaxisvectory, v);
                     if (ar.xmlGetNode_float("primaxisvectorz", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_body_primaxisvectorz, v);
+                        setEngineFloatParam_old(sim_vortex_body_primaxisvectorz, v);
 
                     if (ar.xmlGetNode_int("primlinearaxisfrictionmodel", vi, exhaustiveXml))
-                        setEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel, vi);
+                        setEngineIntParam_old(sim_vortex_body_primlinearaxisfrictionmodel, vi);
                     if (ar.xmlGetNode_int("seclinearaxisfrictionmodel", vi, exhaustiveXml))
-                        setEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel, vi);
+                        setEngineIntParam_old(sim_vortex_body_seclinearaxisfrictionmodel, vi);
                     if (ar.xmlGetNode_int("primangulararaxisfrictionmodel", vi, exhaustiveXml))
-                        setEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel, vi);
+                        setEngineIntParam_old(sim_vortex_body_primangulararaxisfrictionmodel, vi);
                     if (ar.xmlGetNode_int("secmangulararaxisfrictionmodel", vi, exhaustiveXml))
-                        setEngineIntParam(sim_vortex_body_secmangulararaxisfrictionmodel, vi);
+                        setEngineIntParam_old(sim_vortex_body_secmangulararaxisfrictionmodel, vi);
                     if (ar.xmlGetNode_int("normalmangulararaxisfrictionmodel", vi, exhaustiveXml))
-                        setEngineIntParam(sim_vortex_body_normalmangulararaxisfrictionmodel, vi);
+                        setEngineIntParam_old(sim_vortex_body_normalmangulararaxisfrictionmodel, vi);
                     if (ar.xmlGetNode_int("autosleepsteplivethreshold", vi, exhaustiveXml))
-                        setEngineIntParam(sim_vortex_body_autosleepsteplivethreshold, vi);
+                        setEngineIntParam_old(sim_vortex_body_autosleepsteplivethreshold, vi);
                     if (ar.xmlGetNode_int("materialuniqueid", vi, exhaustiveXml))
-                        setEngineIntParam(sim_vortex_body_materialuniqueid, vi);
+                        setEngineIntParam_old(sim_vortex_body_materialuniqueid, vi);
 
                     if (ar.xmlGetNode_bool("pureshapesasconvex", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_body_pureshapesasconvex, vb);
+                        setEngineBoolParam_old(sim_vortex_body_pureshapesasconvex, vb);
                     if (ar.xmlGetNode_bool("convexshapesasrandom", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_body_convexshapesasrandom, vb);
+                        setEngineBoolParam_old(sim_vortex_body_convexshapesasrandom, vb);
                     if (ar.xmlGetNode_bool("randomshapesasterrain", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_body_randomshapesasterrain, vb);
+                        setEngineBoolParam_old(sim_vortex_body_randomshapesasterrain, vb);
                     if (ar.xmlGetNode_bool("fastmoving", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_body_fastmoving, vb);
+                        setEngineBoolParam_old(sim_vortex_body_fastmoving, vb);
                     if (ar.xmlGetNode_bool("autoslip", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_body_autoslip, vb);
+                        setEngineBoolParam_old(sim_vortex_body_autoslip, vb);
                     if (ar.xmlGetNode_bool("seclinaxissameasprimlinaxis", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis, vb);
+                        setEngineBoolParam_old(sim_vortex_body_seclinaxissameasprimlinaxis, vb);
                     if (ar.xmlGetNode_bool("secangaxissameasprimangaxis", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_body_secangaxissameasprimangaxis, vb);
+                        setEngineBoolParam_old(sim_vortex_body_secangaxissameasprimangaxis, vb);
                     if (ar.xmlGetNode_bool("normangaxissameasprimangaxis", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_body_normangaxissameasprimangaxis, vb);
+                        setEngineBoolParam_old(sim_vortex_body_normangaxissameasprimangaxis, vb);
                     if (ar.xmlGetNode_bool("autoangulardamping", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_body_autoangulardamping, vb);
+                        setEngineBoolParam_old(sim_vortex_body_autoangulardamping, vb);
                     ar.xmlPopNode();
                 }
 
                 if (ar.xmlPushChildNode("newton", exhaustiveXml))
                 {
                     if (ar.xmlGetNode_float("staticfriction", v, exhaustiveXml))
-                        setEngineFloatParam(sim_newton_body_staticfriction, v);
+                        setEngineFloatParam_old(sim_newton_body_staticfriction, v);
                     if (ar.xmlGetNode_float("kineticfriction", v, exhaustiveXml))
-                        setEngineFloatParam(sim_newton_body_kineticfriction, v);
+                        setEngineFloatParam_old(sim_newton_body_kineticfriction, v);
                     if (ar.xmlGetNode_float("restitution", v, exhaustiveXml))
-                        setEngineFloatParam(sim_newton_body_restitution, v);
+                        setEngineFloatParam_old(sim_newton_body_restitution, v);
                     if (ar.xmlGetNode_float("lineardrag", v, exhaustiveXml))
-                        setEngineFloatParam(sim_newton_body_lineardrag, v);
+                        setEngineFloatParam_old(sim_newton_body_lineardrag, v);
                     if (ar.xmlGetNode_float("angulardrag", v, exhaustiveXml))
-                        setEngineFloatParam(sim_newton_body_angulardrag, v);
+                        setEngineFloatParam_old(sim_newton_body_angulardrag, v);
 
                     if (ar.xmlGetNode_bool("fastmoving", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_newton_body_fastmoving, vb);
+                        setEngineBoolParam_old(sim_newton_body_fastmoving, vb);
                     ar.xmlPopNode();
                 }
 
@@ -1835,31 +1835,31 @@ void CDynMaterialObject::serialize(CSer &ar)
                     double vv[5];
                     if (ar.xmlGetNode_floats("friction", vv, 3, exhaustiveXml))
                     {
-                        setEngineFloatParam(sim_mujoco_body_friction1, vv[0]);
-                        setEngineFloatParam(sim_mujoco_body_friction2, vv[1]);
-                        setEngineFloatParam(sim_mujoco_body_friction3, vv[2]);
+                        setEngineFloatParam_old(sim_mujoco_body_friction1, vv[0]);
+                        setEngineFloatParam_old(sim_mujoco_body_friction2, vv[1]);
+                        setEngineFloatParam_old(sim_mujoco_body_friction3, vv[2]);
                     }
                     if (ar.xmlGetNode_floats("solref", vv, 2, exhaustiveXml))
                     {
-                        setEngineFloatParam(sim_mujoco_body_solref1, vv[0]);
-                        setEngineFloatParam(sim_mujoco_body_solref2, vv[1]);
+                        setEngineFloatParam_old(sim_mujoco_body_solref1, vv[0]);
+                        setEngineFloatParam_old(sim_mujoco_body_solref2, vv[1]);
                     }
                     if (ar.xmlGetNode_floats("solimp", vv, 5, exhaustiveXml))
                     {
-                        setEngineFloatParam(sim_mujoco_body_solimp1, vv[0]);
-                        setEngineFloatParam(sim_mujoco_body_solimp2, vv[1]);
-                        setEngineFloatParam(sim_mujoco_body_solimp3, vv[2]);
-                        setEngineFloatParam(sim_mujoco_body_solimp4, vv[3]);
-                        setEngineFloatParam(sim_mujoco_body_solimp5, vv[4]);
+                        setEngineFloatParam_old(sim_mujoco_body_solimp1, vv[0]);
+                        setEngineFloatParam_old(sim_mujoco_body_solimp2, vv[1]);
+                        setEngineFloatParam_old(sim_mujoco_body_solimp3, vv[2]);
+                        setEngineFloatParam_old(sim_mujoco_body_solimp4, vv[3]);
+                        setEngineFloatParam_old(sim_mujoco_body_solimp5, vv[4]);
                     }
                     if (ar.xmlGetNode_float("solmix", v, exhaustiveXml))
-                        setEngineFloatParam(sim_mujoco_body_solmix, v);
+                        setEngineFloatParam_old(sim_mujoco_body_solmix, v);
                     if (ar.xmlGetNode_float("margin", v, exhaustiveXml))
-                        setEngineFloatParam(sim_mujoco_body_margin, v);
+                        setEngineFloatParam_old(sim_mujoco_body_margin, v);
                     if (ar.xmlGetNode_int("condim", vi, exhaustiveXml))
-                        setEngineIntParam(sim_mujoco_body_condim, vi);
+                        setEngineIntParam_old(sim_mujoco_body_condim, vi);
                     if (ar.xmlGetNode_int("priority", vi, exhaustiveXml))
-                        setEngineIntParam(sim_mujoco_body_priority, vi);
+                        setEngineIntParam_old(sim_mujoco_body_priority, vi);
                     ar.xmlPopNode();
                 }
 
@@ -2669,6 +2669,7 @@ int CDynMaterialObject::setVectorProperty(const char* pName, const double* v, in
 int CDynMaterialObject::getVectorProperty(const char* pName, std::vector<double>& pState) const
 {
     int retVal = -1;
+    pState.clear();
 
     auto handleProp = [&](const std::vector<double>& arr, int simiIndex1, size_t n)
     {

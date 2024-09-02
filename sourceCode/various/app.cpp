@@ -1782,6 +1782,7 @@ int App::setVectorProperty(int target, const char* pName, const double* v, int v
 int App::getVectorProperty(int target, const char* pName, std::vector<double>& pState)
 {
     int retVal = -1;
+    pState.clear();
     if (target == sim_handle_app)
     {
         if (worldContainer != nullptr)
@@ -1816,6 +1817,7 @@ int App::setIntVectorProperty(int target, const char* pName, const int* v, int v
 int App::getIntVectorProperty(int target, const char* pName, std::vector<int>& pState)
 {
     int retVal = -1;
+    pState.clear();
     if (target == sim_handle_app)
     {
         if (worldContainer != nullptr)

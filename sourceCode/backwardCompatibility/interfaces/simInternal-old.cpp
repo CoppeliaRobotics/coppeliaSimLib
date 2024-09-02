@@ -823,19 +823,19 @@ void _simGetJointOdeParameters_internal(const void *joint, double *stopERP, doub
                                         double *fudge, double *normalCFM)
 {
     C_API_START;
-    stopERP[0] = ((CJoint *)joint)->getEngineFloatParam(sim_ode_joint_stoperp, nullptr);
-    stopCFM[0] = ((CJoint *)joint)->getEngineFloatParam(sim_ode_joint_stopcfm, nullptr);
-    bounce[0] = ((CJoint *)joint)->getEngineFloatParam(sim_ode_joint_bounce, nullptr);
-    fudge[0] = ((CJoint *)joint)->getEngineFloatParam(sim_ode_joint_fudgefactor, nullptr);
-    normalCFM[0] = ((CJoint *)joint)->getEngineFloatParam(sim_ode_joint_normalcfm, nullptr);
+    stopERP[0] = ((CJoint *)joint)->getEngineFloatParam_old(sim_ode_joint_stoperp, nullptr);
+    stopCFM[0] = ((CJoint *)joint)->getEngineFloatParam_old(sim_ode_joint_stopcfm, nullptr);
+    bounce[0] = ((CJoint *)joint)->getEngineFloatParam_old(sim_ode_joint_bounce, nullptr);
+    fudge[0] = ((CJoint *)joint)->getEngineFloatParam_old(sim_ode_joint_fudgefactor, nullptr);
+    normalCFM[0] = ((CJoint *)joint)->getEngineFloatParam_old(sim_ode_joint_normalcfm, nullptr);
 }
 
 void _simGetJointBulletParameters_internal(const void *joint, double *stopERP, double *stopCFM, double *normalCFM)
 {
     C_API_START;
-    stopERP[0] = ((CJoint *)joint)->getEngineFloatParam(sim_bullet_joint_stoperp, nullptr);
-    stopCFM[0] = ((CJoint *)joint)->getEngineFloatParam(sim_bullet_joint_stopcfm, nullptr);
-    normalCFM[0] = ((CJoint *)joint)->getEngineFloatParam(sim_bullet_joint_normalcfm, nullptr);
+    stopERP[0] = ((CJoint *)joint)->getEngineFloatParam_old(sim_bullet_joint_stoperp, nullptr);
+    stopCFM[0] = ((CJoint *)joint)->getEngineFloatParam_old(sim_bullet_joint_stopcfm, nullptr);
+    normalCFM[0] = ((CJoint *)joint)->getEngineFloatParam_old(sim_bullet_joint_normalcfm, nullptr);
 }
 
 CShape *__getShapeFromGeomInfo(const void *geomInfo)
@@ -855,10 +855,10 @@ void _simGetOdeMaxContactFrictionCFMandERP_internal(const void *geomInfo, int *m
     C_API_START;
     CShape *shape = __getShapeFromGeomInfo(geomInfo);
     CDynMaterialObject *mat = shape->getDynMaterial();
-    maxContacts[0] = mat->getEngineIntParam(sim_ode_body_maxcontacts, nullptr);
-    friction[0] = mat->getEngineFloatParam(sim_ode_body_friction, nullptr);
-    cfm[0] = mat->getEngineFloatParam(sim_ode_body_softcfm, nullptr);
-    erp[0] = mat->getEngineFloatParam(sim_ode_body_softerp, nullptr);
+    maxContacts[0] = mat->getEngineIntParam_old(sim_ode_body_maxcontacts, nullptr);
+    friction[0] = mat->getEngineFloatParam_old(sim_ode_body_friction, nullptr);
+    cfm[0] = mat->getEngineFloatParam_old(sim_ode_body_softcfm, nullptr);
+    erp[0] = mat->getEngineFloatParam_old(sim_ode_body_softerp, nullptr);
 }
 
 bool _simGetBulletCollisionMargin_internal(const void *geomInfo, double *margin, int *otherProp)
@@ -869,25 +869,25 @@ bool _simGetBulletCollisionMargin_internal(const void *geomInfo, double *margin,
     CDynMaterialObject *mat = shape->getDynMaterial();
     bool convexAndNotPure = (geomWrap->isConvex() && (!geomWrap->isPure()));
     if (convexAndNotPure)
-        margin[0] = mat->getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactorconvex, nullptr);
+        margin[0] = mat->getEngineFloatParam_old(sim_bullet_body_nondefaultcollisionmargingfactorconvex, nullptr);
     else
-        margin[0] = mat->getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactor, nullptr);
+        margin[0] = mat->getEngineFloatParam_old(sim_bullet_body_nondefaultcollisionmargingfactor, nullptr);
 
     if (otherProp != nullptr)
     {
         otherProp[0] = 0;
-        if (mat->getEngineBoolParam(sim_bullet_body_autoshrinkconvex, nullptr))
+        if (mat->getEngineBoolParam_old(sim_bullet_body_autoshrinkconvex, nullptr))
             otherProp[0] |= 1;
     }
     bool retVal = false;
     if (convexAndNotPure)
     {
-        if (mat->getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmarginconvex, nullptr))
+        if (mat->getEngineBoolParam_old(sim_bullet_body_usenondefaultcollisionmarginconvex, nullptr))
             retVal = true;
     }
     else
     {
-        if (mat->getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmargin, nullptr))
+        if (mat->getEngineBoolParam_old(sim_bullet_body_usenondefaultcollisionmargin, nullptr))
             retVal = true;
     }
     return (retVal);
@@ -898,7 +898,7 @@ bool _simGetBulletStickyContact_internal(const void *geomInfo)
     C_API_START;
     CShape *shape = __getShapeFromGeomInfo(geomInfo);
     CDynMaterialObject *mat = shape->getDynMaterial();
-    return (mat->getEngineBoolParam(sim_bullet_body_sticky, nullptr));
+    return (mat->getEngineBoolParam_old(sim_bullet_body_sticky, nullptr));
 }
 
 double _simGetBulletRestitution_internal(const void *geomInfo)
@@ -906,7 +906,7 @@ double _simGetBulletRestitution_internal(const void *geomInfo)
     C_API_START;
     CShape *shape = __getShapeFromGeomInfo(geomInfo);
     CDynMaterialObject *mat = shape->getDynMaterial();
-    return (mat->getEngineFloatParam(sim_bullet_body_restitution, nullptr));
+    return (mat->getEngineFloatParam_old(sim_bullet_body_restitution, nullptr));
 }
 
 void _simGetDamping_internal(const void *geomInfo, double *linDamping, double *angDamping)
@@ -918,13 +918,13 @@ void _simGetDamping_internal(const void *geomInfo, double *linDamping, double *a
     int eng = App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr);
     if (eng == sim_physics_bullet)
     {
-        linDamping[0] = mat->getEngineFloatParam(sim_bullet_body_lineardamping, nullptr);
-        angDamping[0] = mat->getEngineFloatParam(sim_bullet_body_angulardamping, nullptr);
+        linDamping[0] = mat->getEngineFloatParam_old(sim_bullet_body_lineardamping, nullptr);
+        angDamping[0] = mat->getEngineFloatParam_old(sim_bullet_body_angulardamping, nullptr);
     }
     if (eng == sim_physics_ode)
     {
-        linDamping[0] = mat->getEngineFloatParam(sim_ode_body_lineardamping, nullptr);
-        angDamping[0] = mat->getEngineFloatParam(sim_ode_body_angulardamping, nullptr);
+        linDamping[0] = mat->getEngineFloatParam_old(sim_ode_body_lineardamping, nullptr);
+        angDamping[0] = mat->getEngineFloatParam_old(sim_ode_body_angulardamping, nullptr);
     }
 }
 
@@ -936,9 +936,9 @@ double _simGetFriction_internal(const void *geomInfo)
 
     int eng = App::currentWorld->dynamicsContainer->getDynamicEngineType(nullptr);
     if (eng == sim_physics_bullet)
-        return (mat->getEngineFloatParam(sim_bullet_body_oldfriction, nullptr));
+        return (mat->getEngineFloatParam_old(sim_bullet_body_oldfriction, nullptr));
     if (eng == sim_physics_ode)
-        return (mat->getEngineFloatParam(sim_ode_body_friction, nullptr));
+        return (mat->getEngineFloatParam_old(sim_ode_body_friction, nullptr));
     return (0.0);
 }
 

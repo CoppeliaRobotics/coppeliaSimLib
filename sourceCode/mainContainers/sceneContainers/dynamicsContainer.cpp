@@ -324,11 +324,11 @@ bool CDynamicsContainer::setDesiredStepSize(double s)
         s = tt::getLimitedFloat(0.00001, 1.0, s);
         _stepSize = s;
         // Following for backward compatibility:
-        setEngineFloatParam(sim_bullet_global_stepsize, s);
-        setEngineFloatParam(sim_ode_global_stepsize, s);
-        setEngineFloatParam(sim_vortex_global_stepsize, s);
-        setEngineFloatParam(sim_newton_global_stepsize, s);
-        setEngineFloatParam(sim_mujoco_global_stepsize, s);
+        setEngineFloatParam_old(sim_bullet_global_stepsize, s);
+        setEngineFloatParam_old(sim_ode_global_stepsize, s);
+        setEngineFloatParam_old(sim_vortex_global_stepsize, s);
+        setEngineFloatParam_old(sim_newton_global_stepsize, s);
+        setEngineFloatParam_old(sim_mujoco_global_stepsize, s);
         retVal = true;
     }
     return (retVal);
@@ -353,15 +353,15 @@ double CDynamicsContainer::getEffectiveStepSize() const
 bool CDynamicsContainer::getComputeInertias() const
 {
     if (_dynamicEngineToUse == sim_physics_bullet)
-        return (getEngineBoolParam(sim_bullet_global_computeinertias, nullptr));
+        return (getEngineBoolParam_old(sim_bullet_global_computeinertias, nullptr));
     if (_dynamicEngineToUse == sim_physics_ode)
-        return (getEngineBoolParam(sim_ode_global_computeinertias, nullptr));
+        return (getEngineBoolParam_old(sim_ode_global_computeinertias, nullptr));
     if (_dynamicEngineToUse == sim_physics_vortex)
-        return (getEngineBoolParam(sim_vortex_global_computeinertias, nullptr));
+        return (getEngineBoolParam_old(sim_vortex_global_computeinertias, nullptr));
     if (_dynamicEngineToUse == sim_physics_newton)
-        return (getEngineBoolParam(sim_newton_global_computeinertias, nullptr));
+        return (getEngineBoolParam_old(sim_newton_global_computeinertias, nullptr));
     if (_dynamicEngineToUse == sim_physics_mujoco)
-        return (getEngineBoolParam(sim_mujoco_global_computeinertias, nullptr));
+        return (getEngineBoolParam_old(sim_mujoco_global_computeinertias, nullptr));
     return (false);
 }
 
@@ -371,15 +371,15 @@ bool CDynamicsContainer::setIterationCount(int c)
     if (App::currentWorld->simulation->isSimulationStopped())
     {
         if (_dynamicEngineToUse == sim_physics_bullet)
-            setEngineIntParam(sim_bullet_global_constraintsolvingiterations, c);
+            setEngineIntParam_old(sim_bullet_global_constraintsolvingiterations, c);
         if (_dynamicEngineToUse == sim_physics_ode)
-            setEngineIntParam(sim_ode_global_constraintsolvingiterations, c);
+            setEngineIntParam_old(sim_ode_global_constraintsolvingiterations, c);
         if (_dynamicEngineToUse == sim_physics_vortex)
             return (false); // not available
         if (_dynamicEngineToUse == sim_physics_newton)
-            setEngineIntParam(sim_newton_global_constraintsolvingiterations, c);
+            setEngineIntParam_old(sim_newton_global_constraintsolvingiterations, c);
         if (_dynamicEngineToUse == sim_physics_mujoco)
-            setEngineIntParam(sim_mujoco_global_iterations, c);
+            setEngineIntParam_old(sim_mujoco_global_iterations, c);
         retVal = true;
     }
     return (retVal);
@@ -388,19 +388,19 @@ bool CDynamicsContainer::setIterationCount(int c)
 int CDynamicsContainer::getIterationCount() const
 {
     if (_dynamicEngineToUse == sim_physics_bullet)
-        return (getEngineIntParam(sim_bullet_global_constraintsolvingiterations, nullptr));
+        return (getEngineIntParam_old(sim_bullet_global_constraintsolvingiterations, nullptr));
     if (_dynamicEngineToUse == sim_physics_ode)
-        return (getEngineIntParam(sim_ode_global_constraintsolvingiterations, nullptr));
+        return (getEngineIntParam_old(sim_ode_global_constraintsolvingiterations, nullptr));
     if (_dynamicEngineToUse == sim_physics_vortex)
         return (0); // not available
     if (_dynamicEngineToUse == sim_physics_newton)
-        return (getEngineIntParam(sim_newton_global_constraintsolvingiterations, nullptr));
+        return (getEngineIntParam_old(sim_newton_global_constraintsolvingiterations, nullptr));
     if (_dynamicEngineToUse == sim_physics_mujoco)
-        return (getEngineIntParam(sim_mujoco_global_iterations, nullptr));
+        return (getEngineIntParam_old(sim_mujoco_global_iterations, nullptr));
     return (0);
 }
 
-double CDynamicsContainer::getEngineFloatParam(int what, bool *ok, bool getDefault /*=false*/) const
+double CDynamicsContainer::getEngineFloatParam_old(int what, bool *ok, bool getDefault /*=false*/) const
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -488,7 +488,7 @@ double CDynamicsContainer::getEngineFloatParam(int what, bool *ok, bool getDefau
     */
 }
 
-int CDynamicsContainer::getEngineIntParam(int what, bool *ok, bool getDefault /*=false*/) const
+int CDynamicsContainer::getEngineIntParam_old(int what, bool *ok, bool getDefault /*=false*/) const
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -548,7 +548,7 @@ int CDynamicsContainer::getEngineIntParam(int what, bool *ok, bool getDefault /*
     */
 }
 
-bool CDynamicsContainer::getEngineBoolParam(int what, bool *ok, bool getDefault /*=false*/) const
+bool CDynamicsContainer::getEngineBoolParam_old(int what, bool *ok, bool getDefault /*=false*/) const
 {
     if (ok != nullptr)
         ok[0] = true;
@@ -638,7 +638,7 @@ bool CDynamicsContainer::getEngineBoolParam(int what, bool *ok, bool getDefault 
     */
 }
 
-bool CDynamicsContainer::setEngineFloatParam(int what, double v)
+bool CDynamicsContainer::setEngineFloatParam_old(int what, double v)
 {
     bool retVal = false;
 
@@ -748,7 +748,7 @@ bool CDynamicsContainer::setEngineFloatParam(int what, double v)
     return (retVal);
 }
 
-bool CDynamicsContainer::setEngineIntParam(int what, int v)
+bool CDynamicsContainer::setEngineIntParam_old(int what, int v)
 {
     bool retVal = false;
     int indexWithArrays;
@@ -811,7 +811,7 @@ bool CDynamicsContainer::setEngineIntParam(int what, int v)
     return (retVal);
 }
 
-bool CDynamicsContainer::setEngineBoolParam(int what, bool v)
+bool CDynamicsContainer::setEngineBoolParam_old(int what, bool v)
 {
     bool retVal = false;
     int indexWithArrays;
@@ -1977,107 +1977,107 @@ void CDynamicsContainer::serialize(CSer &ar)
             ar.xmlAddNode_comment(" 'stepsize' tag: used for backward compatibility", exhaustiveXml);
             ar.xmlAddNode_float("stepsize", _stepSize);
             ar.xmlAddNode_float("internalscalingfactor",
-                                getEngineFloatParam(sim_bullet_global_internalscalingfactor, nullptr));
+                                getEngineFloatParam_old(sim_bullet_global_internalscalingfactor, nullptr));
             ar.xmlAddNode_float("collisionmarginfactor",
-                                getEngineFloatParam(sim_bullet_global_collisionmarginfactor, nullptr));
+                                getEngineFloatParam_old(sim_bullet_global_collisionmarginfactor, nullptr));
 
             ar.xmlAddNode_int("constraintsolvingiterations",
-                              getEngineIntParam(sim_bullet_global_constraintsolvingiterations, nullptr));
+                              getEngineIntParam_old(sim_bullet_global_constraintsolvingiterations, nullptr));
             ar.xmlAddNode_int("constraintsolvertype",
-                              getEngineIntParam(sim_bullet_global_constraintsolvertype, nullptr));
+                              getEngineIntParam_old(sim_bullet_global_constraintsolvertype, nullptr));
 
             ar.xmlAddNode_bool("fullinternalscaling",
-                               getEngineBoolParam(sim_bullet_global_fullinternalscaling, nullptr));
-            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam(sim_bullet_global_computeinertias, nullptr));
+                               getEngineBoolParam_old(sim_bullet_global_fullinternalscaling, nullptr));
+            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam_old(sim_bullet_global_computeinertias, nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("ode");
             ar.xmlAddNode_comment(" 'stepsize' tag: used for backward compatibility", exhaustiveXml);
             ar.xmlAddNode_float("stepsize", _stepSize);
             ar.xmlAddNode_float("internalscalingfactor",
-                                getEngineFloatParam(sim_ode_global_internalscalingfactor, nullptr));
-            ar.xmlAddNode_float("cfm", getEngineFloatParam(sim_ode_global_cfm, nullptr));
-            ar.xmlAddNode_float("erp", getEngineFloatParam(sim_ode_global_erp, nullptr));
+                                getEngineFloatParam_old(sim_ode_global_internalscalingfactor, nullptr));
+            ar.xmlAddNode_float("cfm", getEngineFloatParam_old(sim_ode_global_cfm, nullptr));
+            ar.xmlAddNode_float("erp", getEngineFloatParam_old(sim_ode_global_erp, nullptr));
 
             ar.xmlAddNode_int("constraintsolvingiterations",
-                              getEngineIntParam(sim_ode_global_constraintsolvingiterations, nullptr));
-            ar.xmlAddNode_int("randomseed", getEngineIntParam(sim_ode_global_randomseed, nullptr));
+                              getEngineIntParam_old(sim_ode_global_constraintsolvingiterations, nullptr));
+            ar.xmlAddNode_int("randomseed", getEngineIntParam_old(sim_ode_global_randomseed, nullptr));
 
-            ar.xmlAddNode_bool("fullinternalscaling", getEngineBoolParam(sim_ode_global_fullinternalscaling, nullptr));
-            ar.xmlAddNode_bool("quickstep", getEngineBoolParam(sim_ode_global_quickstep, nullptr));
-            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam(sim_ode_global_computeinertias, nullptr));
+            ar.xmlAddNode_bool("fullinternalscaling", getEngineBoolParam_old(sim_ode_global_fullinternalscaling, nullptr));
+            ar.xmlAddNode_bool("quickstep", getEngineBoolParam_old(sim_ode_global_quickstep, nullptr));
+            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam_old(sim_ode_global_computeinertias, nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("vortex");
             ar.xmlAddNode_comment(" 'stepsize' tag: used for backward compatibility", exhaustiveXml);
             ar.xmlAddNode_float("stepsize", _stepSize);
             ar.xmlAddNode_float("internalscalingfactor",
-                                getEngineFloatParam(sim_vortex_global_internalscalingfactor, nullptr));
-            ar.xmlAddNode_float("contacttolerance", getEngineFloatParam(sim_vortex_global_contacttolerance, nullptr));
+                                getEngineFloatParam_old(sim_vortex_global_internalscalingfactor, nullptr));
+            ar.xmlAddNode_float("contacttolerance", getEngineFloatParam_old(sim_vortex_global_contacttolerance, nullptr));
             ar.xmlAddNode_float("constraintlinearcompliance",
-                                getEngineFloatParam(sim_vortex_global_constraintlinearcompliance, nullptr));
+                                getEngineFloatParam_old(sim_vortex_global_constraintlinearcompliance, nullptr));
             ar.xmlAddNode_float("constraintlineardamping",
-                                getEngineFloatParam(sim_vortex_global_constraintlineardamping, nullptr));
+                                getEngineFloatParam_old(sim_vortex_global_constraintlineardamping, nullptr));
             ar.xmlAddNode_float("constraintlinearkineticloss",
-                                getEngineFloatParam(sim_vortex_global_constraintlinearkineticloss, nullptr));
+                                getEngineFloatParam_old(sim_vortex_global_constraintlinearkineticloss, nullptr));
             ar.xmlAddNode_float("constraintangularcompliance",
-                                getEngineFloatParam(sim_vortex_global_constraintangularcompliance, nullptr));
+                                getEngineFloatParam_old(sim_vortex_global_constraintangularcompliance, nullptr));
             ar.xmlAddNode_float("constraintangulardamping",
-                                getEngineFloatParam(sim_vortex_global_constraintangulardamping, nullptr));
+                                getEngineFloatParam_old(sim_vortex_global_constraintangulardamping, nullptr));
             ar.xmlAddNode_float("constraintangularkineticloss",
-                                getEngineFloatParam(sim_vortex_global_constraintangularkineticloss, nullptr));
+                                getEngineFloatParam_old(sim_vortex_global_constraintangularkineticloss, nullptr));
 
-            ar.xmlAddNode_bool("autosleep", getEngineBoolParam(sim_vortex_global_autosleep, nullptr));
-            ar.xmlAddNode_bool("multithreading", getEngineBoolParam(sim_vortex_global_multithreading, nullptr));
-            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam(sim_vortex_global_computeinertias, nullptr));
+            ar.xmlAddNode_bool("autosleep", getEngineBoolParam_old(sim_vortex_global_autosleep, nullptr));
+            ar.xmlAddNode_bool("multithreading", getEngineBoolParam_old(sim_vortex_global_multithreading, nullptr));
+            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam_old(sim_vortex_global_computeinertias, nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("newton");
             ar.xmlAddNode_comment(" 'stepsize' tag: used for backward compatibility", exhaustiveXml);
             ar.xmlAddNode_float("stepsize", _stepSize);
             ar.xmlAddNode_float("contactmergetolerance",
-                                getEngineFloatParam(sim_newton_global_contactmergetolerance, nullptr));
+                                getEngineFloatParam_old(sim_newton_global_contactmergetolerance, nullptr));
             ar.xmlAddNode_int("constraintsolvingiterations",
-                              getEngineIntParam(sim_newton_global_constraintsolvingiterations, nullptr));
-            ar.xmlAddNode_bool("multithreading", getEngineBoolParam(sim_newton_global_multithreading, nullptr));
-            ar.xmlAddNode_bool("exactsolver", getEngineBoolParam(sim_newton_global_exactsolver, nullptr));
-            ar.xmlAddNode_bool("highjointaccuracy", getEngineBoolParam(sim_newton_global_highjointaccuracy, nullptr));
-            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam(sim_newton_global_computeinertias, nullptr));
+                              getEngineIntParam_old(sim_newton_global_constraintsolvingiterations, nullptr));
+            ar.xmlAddNode_bool("multithreading", getEngineBoolParam_old(sim_newton_global_multithreading, nullptr));
+            ar.xmlAddNode_bool("exactsolver", getEngineBoolParam_old(sim_newton_global_exactsolver, nullptr));
+            ar.xmlAddNode_bool("highjointaccuracy", getEngineBoolParam_old(sim_newton_global_highjointaccuracy, nullptr));
+            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam_old(sim_newton_global_computeinertias, nullptr));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("mujoco");
-            ar.xmlAddNode_float("impratio", getEngineFloatParam(sim_mujoco_global_impratio, nullptr));
+            ar.xmlAddNode_float("impratio", getEngineFloatParam_old(sim_mujoco_global_impratio, nullptr));
             double w[5];
             for (size_t j = 0; j < 3; j++)
-                w[j] = getEngineFloatParam(sim_mujoco_global_wind1 + int(j), nullptr);
+                w[j] = getEngineFloatParam_old(sim_mujoco_global_wind1 + int(j), nullptr);
             ar.xmlAddNode_floats("wind", w, 3);
-            ar.xmlAddNode_float("density", getEngineFloatParam(sim_mujoco_global_density, nullptr));
-            ar.xmlAddNode_float("viscosity", getEngineFloatParam(sim_mujoco_global_viscosity, nullptr));
-            ar.xmlAddNode_float("boundmass", getEngineFloatParam(sim_mujoco_global_boundmass, nullptr));
-            ar.xmlAddNode_float("boundinertia", getEngineFloatParam(sim_mujoco_global_boundinertia, nullptr));
-            ar.xmlAddNode_float("overridemargin", getEngineFloatParam(sim_mujoco_global_overridemargin, nullptr));
+            ar.xmlAddNode_float("density", getEngineFloatParam_old(sim_mujoco_global_density, nullptr));
+            ar.xmlAddNode_float("viscosity", getEngineFloatParam_old(sim_mujoco_global_viscosity, nullptr));
+            ar.xmlAddNode_float("boundmass", getEngineFloatParam_old(sim_mujoco_global_boundmass, nullptr));
+            ar.xmlAddNode_float("boundinertia", getEngineFloatParam_old(sim_mujoco_global_boundinertia, nullptr));
+            ar.xmlAddNode_float("overridemargin", getEngineFloatParam_old(sim_mujoco_global_overridemargin, nullptr));
             for (size_t j = 0; j < 2; j++)
-                w[j] = getEngineFloatParam(sim_mujoco_global_overridesolref1 + int(j), nullptr);
+                w[j] = getEngineFloatParam_old(sim_mujoco_global_overridesolref1 + int(j), nullptr);
             ar.xmlAddNode_floats("overridesolref", w, 2);
             for (size_t j = 0; j < 5; j++)
-                w[j] = getEngineFloatParam(sim_mujoco_global_overridesolimp1 + int(j), nullptr);
+                w[j] = getEngineFloatParam_old(sim_mujoco_global_overridesolimp1 + int(j), nullptr);
             ar.xmlAddNode_floats("overridesolimp", w, 5);
-            ar.xmlAddNode_float("kinmass", getEngineFloatParam(sim_mujoco_global_kinmass, nullptr));
-            ar.xmlAddNode_float("kininertia", getEngineFloatParam(sim_mujoco_global_kininertia, nullptr));
-            ar.xmlAddNode_int("iterations", getEngineIntParam(sim_mujoco_global_iterations, nullptr));
-            ar.xmlAddNode_int("integrator", getEngineIntParam(sim_mujoco_global_integrator, nullptr));
-            ar.xmlAddNode_int("solver", getEngineIntParam(sim_mujoco_global_solver, nullptr));
-            ar.xmlAddNode_int("njmax", getEngineIntParam(sim_mujoco_global_njmax, nullptr));
-            ar.xmlAddNode_int("nconmax", getEngineIntParam(sim_mujoco_global_nconmax, nullptr));
-            ar.xmlAddNode_int("nstack", getEngineIntParam(sim_mujoco_global_nstack, nullptr));
-            ar.xmlAddNode_int("cone", getEngineIntParam(sim_mujoco_global_cone, nullptr));
-            ar.xmlAddNode_int("overridekin", getEngineIntParam(sim_mujoco_global_overridekin, nullptr));
-            ar.xmlAddNode_int("rebuildtrigger", getEngineIntParam(sim_mujoco_global_rebuildtrigger, nullptr));
-            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam(sim_mujoco_global_computeinertias, nullptr));
-            ar.xmlAddNode_bool("multithreaded", getEngineBoolParam(sim_mujoco_global_multithreaded, nullptr));
-            ar.xmlAddNode_bool("multiccd", getEngineBoolParam(sim_mujoco_global_multiccd, nullptr));
-            ar.xmlAddNode_bool("balanceinertias", getEngineBoolParam(sim_mujoco_global_balanceinertias, nullptr));
-            ar.xmlAddNode_bool("overridecontacts", getEngineBoolParam(sim_mujoco_global_overridecontacts, nullptr));
+            ar.xmlAddNode_float("kinmass", getEngineFloatParam_old(sim_mujoco_global_kinmass, nullptr));
+            ar.xmlAddNode_float("kininertia", getEngineFloatParam_old(sim_mujoco_global_kininertia, nullptr));
+            ar.xmlAddNode_int("iterations", getEngineIntParam_old(sim_mujoco_global_iterations, nullptr));
+            ar.xmlAddNode_int("integrator", getEngineIntParam_old(sim_mujoco_global_integrator, nullptr));
+            ar.xmlAddNode_int("solver", getEngineIntParam_old(sim_mujoco_global_solver, nullptr));
+            ar.xmlAddNode_int("njmax", getEngineIntParam_old(sim_mujoco_global_njmax, nullptr));
+            ar.xmlAddNode_int("nconmax", getEngineIntParam_old(sim_mujoco_global_nconmax, nullptr));
+            ar.xmlAddNode_int("nstack", getEngineIntParam_old(sim_mujoco_global_nstack, nullptr));
+            ar.xmlAddNode_int("cone", getEngineIntParam_old(sim_mujoco_global_cone, nullptr));
+            ar.xmlAddNode_int("overridekin", getEngineIntParam_old(sim_mujoco_global_overridekin, nullptr));
+            ar.xmlAddNode_int("rebuildtrigger", getEngineIntParam_old(sim_mujoco_global_rebuildtrigger, nullptr));
+            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam_old(sim_mujoco_global_computeinertias, nullptr));
+            ar.xmlAddNode_bool("multithreaded", getEngineBoolParam_old(sim_mujoco_global_multithreaded, nullptr));
+            ar.xmlAddNode_bool("multiccd", getEngineBoolParam_old(sim_mujoco_global_multiccd, nullptr));
+            ar.xmlAddNode_bool("balanceinertias", getEngineBoolParam_old(sim_mujoco_global_balanceinertias, nullptr));
+            ar.xmlAddNode_bool("overridecontacts", getEngineBoolParam_old(sim_mujoco_global_overridecontacts, nullptr));
             ar.xmlPopNode();
 
             ar.xmlPopNode();
@@ -2129,19 +2129,19 @@ void CDynamicsContainer::serialize(CSer &ar)
                             _stepSize = v;
                     }
                     if (ar.xmlGetNode_float("internalscalingfactor", v, exhaustiveXml))
-                        setEngineFloatParam(sim_bullet_global_internalscalingfactor, v);
+                        setEngineFloatParam_old(sim_bullet_global_internalscalingfactor, v);
                     if (ar.xmlGetNode_float("collisionmarginfactor", v, exhaustiveXml))
-                        setEngineFloatParam(sim_bullet_global_collisionmarginfactor, v);
+                        setEngineFloatParam_old(sim_bullet_global_collisionmarginfactor, v);
 
                     if (ar.xmlGetNode_int("constraintsolvingiterations", vi, exhaustiveXml))
-                        setEngineIntParam(sim_bullet_global_constraintsolvingiterations, vi);
+                        setEngineIntParam_old(sim_bullet_global_constraintsolvingiterations, vi);
                     if (ar.xmlGetNode_int("constraintsolvertype", vi, exhaustiveXml))
-                        setEngineIntParam(sim_bullet_global_constraintsolvertype, vi);
+                        setEngineIntParam_old(sim_bullet_global_constraintsolvertype, vi);
 
                     if (ar.xmlGetNode_bool("fullinternalscaling", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_bullet_global_fullinternalscaling, vb);
+                        setEngineBoolParam_old(sim_bullet_global_fullinternalscaling, vb);
                     if (ar.xmlGetNode_bool("computeinertias", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_bullet_global_computeinertias, vb);
+                        setEngineBoolParam_old(sim_bullet_global_computeinertias, vb);
                     ar.xmlPopNode();
                 }
 
@@ -2153,23 +2153,23 @@ void CDynamicsContainer::serialize(CSer &ar)
                             _stepSize = v;
                     }
                     if (ar.xmlGetNode_float("internalscalingfactor", v, exhaustiveXml))
-                        setEngineFloatParam(sim_ode_global_internalscalingfactor, v);
+                        setEngineFloatParam_old(sim_ode_global_internalscalingfactor, v);
                     if (ar.xmlGetNode_float("cfm", v, exhaustiveXml))
-                        setEngineFloatParam(sim_ode_global_cfm, v);
+                        setEngineFloatParam_old(sim_ode_global_cfm, v);
                     if (ar.xmlGetNode_float("erp", v, exhaustiveXml))
-                        setEngineFloatParam(sim_ode_global_erp, v);
+                        setEngineFloatParam_old(sim_ode_global_erp, v);
 
                     if (ar.xmlGetNode_int("constraintsolvingiterations", vi, exhaustiveXml))
-                        setEngineIntParam(sim_ode_global_constraintsolvingiterations, vi);
+                        setEngineIntParam_old(sim_ode_global_constraintsolvingiterations, vi);
                     if (ar.xmlGetNode_int("randomseed", vi, exhaustiveXml))
-                        setEngineIntParam(sim_ode_global_randomseed, vi);
+                        setEngineIntParam_old(sim_ode_global_randomseed, vi);
 
                     if (ar.xmlGetNode_bool("fullinternalscaling", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_ode_global_fullinternalscaling, vb);
+                        setEngineBoolParam_old(sim_ode_global_fullinternalscaling, vb);
                     if (ar.xmlGetNode_bool("quickstep", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_ode_global_quickstep, vb);
+                        setEngineBoolParam_old(sim_ode_global_quickstep, vb);
                     if (ar.xmlGetNode_bool("computeinertias", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_ode_global_computeinertias, vb);
+                        setEngineBoolParam_old(sim_ode_global_computeinertias, vb);
                     ar.xmlPopNode();
                 }
 
@@ -2181,28 +2181,28 @@ void CDynamicsContainer::serialize(CSer &ar)
                             _stepSize = v;
                     }
                     if (ar.xmlGetNode_float("internalscalingfactor", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_global_internalscalingfactor, v);
+                        setEngineFloatParam_old(sim_vortex_global_internalscalingfactor, v);
                     if (ar.xmlGetNode_float("contacttolerance", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_global_contacttolerance, v);
+                        setEngineFloatParam_old(sim_vortex_global_contacttolerance, v);
                     if (ar.xmlGetNode_float("constraintlinearcompliance", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_global_constraintlinearcompliance, v);
+                        setEngineFloatParam_old(sim_vortex_global_constraintlinearcompliance, v);
                     if (ar.xmlGetNode_float("constraintlineardamping", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_global_constraintlineardamping, v);
+                        setEngineFloatParam_old(sim_vortex_global_constraintlineardamping, v);
                     if (ar.xmlGetNode_float("constraintlinearkineticloss", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_global_constraintlinearkineticloss, v);
+                        setEngineFloatParam_old(sim_vortex_global_constraintlinearkineticloss, v);
                     if (ar.xmlGetNode_float("constraintangularcompliance", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_global_constraintangularcompliance, v);
+                        setEngineFloatParam_old(sim_vortex_global_constraintangularcompliance, v);
                     if (ar.xmlGetNode_float("constraintangulardamping", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_global_constraintangulardamping, v);
+                        setEngineFloatParam_old(sim_vortex_global_constraintangulardamping, v);
                     if (ar.xmlGetNode_float("constraintangularkineticloss", v, exhaustiveXml))
-                        setEngineFloatParam(sim_vortex_global_constraintangularkineticloss, v);
+                        setEngineFloatParam_old(sim_vortex_global_constraintangularkineticloss, v);
 
                     if (ar.xmlGetNode_bool("autosleep", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_global_autosleep, vb);
+                        setEngineBoolParam_old(sim_vortex_global_autosleep, vb);
                     if (ar.xmlGetNode_bool("multithreading", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_global_multithreading, vb);
+                        setEngineBoolParam_old(sim_vortex_global_multithreading, vb);
                     if (ar.xmlGetNode_bool("computeinertias", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_vortex_global_computeinertias, vb);
+                        setEngineBoolParam_old(sim_vortex_global_computeinertias, vb);
                     ar.xmlPopNode();
                 }
 
@@ -2214,82 +2214,82 @@ void CDynamicsContainer::serialize(CSer &ar)
                             _stepSize = v;
                     }
                     if (ar.xmlGetNode_float("contactmergetolerance", v, exhaustiveXml))
-                        setEngineFloatParam(sim_newton_global_contactmergetolerance, v);
+                        setEngineFloatParam_old(sim_newton_global_contactmergetolerance, v);
                     if (ar.xmlGetNode_int("constraintsolvingiterations", vi, exhaustiveXml))
-                        setEngineIntParam(sim_newton_global_constraintsolvingiterations, vi);
+                        setEngineIntParam_old(sim_newton_global_constraintsolvingiterations, vi);
                     if (ar.xmlGetNode_bool("multithreading", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_newton_global_multithreading, vb);
+                        setEngineBoolParam_old(sim_newton_global_multithreading, vb);
                     if (ar.xmlGetNode_bool("exactsolver", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_newton_global_exactsolver, vb);
+                        setEngineBoolParam_old(sim_newton_global_exactsolver, vb);
                     if (ar.xmlGetNode_bool("highjointaccuracy", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_newton_global_highjointaccuracy, vb);
+                        setEngineBoolParam_old(sim_newton_global_highjointaccuracy, vb);
                     if (ar.xmlGetNode_bool("computeinertias", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_newton_global_computeinertias, vb);
+                        setEngineBoolParam_old(sim_newton_global_computeinertias, vb);
                     ar.xmlPopNode();
                 }
 
                 if (ar.xmlPushChildNode("mujoco"))
                 {
                     if (ar.xmlGetNode_float("impratio", v, exhaustiveXml))
-                        setEngineFloatParam(sim_mujoco_global_impratio, v);
+                        setEngineFloatParam_old(sim_mujoco_global_impratio, v);
                     double w[5];
                     if (ar.xmlGetNode_floats("wind", w, 3, exhaustiveXml))
                     {
                         for (size_t j = 0; j < 3; j++)
-                            setEngineFloatParam(sim_mujoco_global_wind1 + int(j), w[j]);
+                            setEngineFloatParam_old(sim_mujoco_global_wind1 + int(j), w[j]);
                     }
                     if (ar.xmlGetNode_float("density", v, exhaustiveXml))
-                        setEngineFloatParam(sim_mujoco_global_density, v);
+                        setEngineFloatParam_old(sim_mujoco_global_density, v);
                     if (ar.xmlGetNode_float("viscosity", v, exhaustiveXml))
-                        setEngineFloatParam(sim_mujoco_global_viscosity, v);
+                        setEngineFloatParam_old(sim_mujoco_global_viscosity, v);
                     if (ar.xmlGetNode_float("boundmass", v, exhaustiveXml))
-                        setEngineFloatParam(sim_mujoco_global_boundmass, v);
+                        setEngineFloatParam_old(sim_mujoco_global_boundmass, v);
                     if (ar.xmlGetNode_float("boundinertia", v, exhaustiveXml))
-                        setEngineFloatParam(sim_mujoco_global_boundinertia, v);
+                        setEngineFloatParam_old(sim_mujoco_global_boundinertia, v);
                     if (ar.xmlGetNode_float("overridemargin", v, exhaustiveXml))
-                        setEngineFloatParam(sim_mujoco_global_overridemargin, v);
+                        setEngineFloatParam_old(sim_mujoco_global_overridemargin, v);
                     if (ar.xmlGetNode_floats("overridesolref", w, 2, exhaustiveXml))
                     {
                         for (size_t j = 0; j < 2; j++)
-                            setEngineFloatParam(sim_mujoco_global_overridesolref1 + int(j), w[j]);
+                            setEngineFloatParam_old(sim_mujoco_global_overridesolref1 + int(j), w[j]);
                     }
                     if (ar.xmlGetNode_floats("overridesolimp", w, 5, exhaustiveXml))
                     {
                         for (size_t j = 0; j < 5; j++)
-                            setEngineFloatParam(sim_mujoco_global_overridesolimp1 + int(j), w[j]);
+                            setEngineFloatParam_old(sim_mujoco_global_overridesolimp1 + int(j), w[j]);
                     }
                     if (ar.xmlGetNode_float("kinmass", v, exhaustiveXml))
-                        setEngineFloatParam(sim_mujoco_global_kinmass, v);
+                        setEngineFloatParam_old(sim_mujoco_global_kinmass, v);
                     if (ar.xmlGetNode_float("kininertia", v, exhaustiveXml))
-                        setEngineFloatParam(sim_mujoco_global_kininertia, v);
+                        setEngineFloatParam_old(sim_mujoco_global_kininertia, v);
                     if (ar.xmlGetNode_int("iterations", vi, exhaustiveXml))
-                        setEngineIntParam(sim_mujoco_global_iterations, vi);
+                        setEngineIntParam_old(sim_mujoco_global_iterations, vi);
                     if (ar.xmlGetNode_int("integrator", vi, exhaustiveXml))
-                        setEngineIntParam(sim_mujoco_global_integrator, vi);
+                        setEngineIntParam_old(sim_mujoco_global_integrator, vi);
                     if (ar.xmlGetNode_int("solver", vi, exhaustiveXml))
-                        setEngineIntParam(sim_mujoco_global_solver, vi);
+                        setEngineIntParam_old(sim_mujoco_global_solver, vi);
                     if (ar.xmlGetNode_int("njmax", vi, exhaustiveXml))
-                        setEngineIntParam(sim_mujoco_global_njmax, vi);
+                        setEngineIntParam_old(sim_mujoco_global_njmax, vi);
                     if (ar.xmlGetNode_int("nconmax", vi, exhaustiveXml))
-                        setEngineIntParam(sim_mujoco_global_nconmax, vi);
+                        setEngineIntParam_old(sim_mujoco_global_nconmax, vi);
                     if (ar.xmlGetNode_int("nstack", vi, exhaustiveXml))
-                        setEngineIntParam(sim_mujoco_global_nstack, vi);
+                        setEngineIntParam_old(sim_mujoco_global_nstack, vi);
                     if (ar.xmlGetNode_int("cone", vi, exhaustiveXml))
-                        setEngineIntParam(sim_mujoco_global_cone, vi);
+                        setEngineIntParam_old(sim_mujoco_global_cone, vi);
                     if (ar.xmlGetNode_int("overridekin", vi, exhaustiveXml))
-                        setEngineIntParam(sim_mujoco_global_overridekin, vi);
+                        setEngineIntParam_old(sim_mujoco_global_overridekin, vi);
                     if (ar.xmlGetNode_int("rebuildtrigger", vi, exhaustiveXml))
-                        setEngineIntParam(sim_mujoco_global_rebuildtrigger, vi);
+                        setEngineIntParam_old(sim_mujoco_global_rebuildtrigger, vi);
                     if (ar.xmlGetNode_bool("computeinertias", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_mujoco_global_computeinertias, vb);
+                        setEngineBoolParam_old(sim_mujoco_global_computeinertias, vb);
                     if (ar.xmlGetNode_bool("multithreaded", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_mujoco_global_multithreaded, vb);
+                        setEngineBoolParam_old(sim_mujoco_global_multithreaded, vb);
                     if (ar.xmlGetNode_bool("multiccd", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_mujoco_global_multiccd, vb);
+                        setEngineBoolParam_old(sim_mujoco_global_multiccd, vb);
                     if (ar.xmlGetNode_bool("balanceinertias", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_mujoco_global_balanceinertias, vb);
+                        setEngineBoolParam_old(sim_mujoco_global_balanceinertias, vb);
                     if (ar.xmlGetNode_bool("overridecontacts", vb, exhaustiveXml))
-                        setEngineBoolParam(sim_mujoco_global_overridecontacts, vb);
+                        setEngineBoolParam_old(sim_mujoco_global_overridecontacts, vb);
                     ar.xmlPopNode();
                 }
                 ar.xmlPopNode();
@@ -3212,6 +3212,7 @@ int CDynamicsContainer::setVectorProperty(const char* pName, const double* v, in
 int CDynamicsContainer::getVectorProperty(const char* pName, std::vector<double>& pState) const
 {
     int retVal = -1;
+    pState.clear();
     // First non-engine properties:
     /*
     if (strcmp(pName, propJoint_length.name) == 0)

@@ -5999,6 +5999,7 @@ int CSceneObject::getVectorProperty(const char* ppName, std::vector<double>& pSt
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
     int retVal = -1;
+    pState.clear();
 
     if (strcmp(pName, propObject_movementStepSize.name) == 0)
     {
@@ -6038,6 +6039,7 @@ int CSceneObject::getIntVectorProperty(const char* ppName, std::vector<int>& pSt
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
     int retVal = -1;
+    pState.clear();
 
     if (strcmp(pName, propObject_movementRelativity.name) == 0)
     {

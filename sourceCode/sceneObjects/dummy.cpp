@@ -5,6 +5,7 @@
 #include <global.h>
 #include <app.h>
 #include <tt.h>
+#include <engineProperties.h>
 #ifdef SIM_WITH_GUI
 #include <dummyRendering.h>
 #include <guiApp.h>
@@ -73,8 +74,27 @@ void CDummy::copyEnginePropertiesTo(CDummy *target)
     target->setMujocoIntParams(ip);
 }
 
-double CDummy::getEngineFloatParam(int what, bool *ok) const
+double CDummy::getEngineFloatParam_old(int what, bool *ok) const
 {
+    if (ok != nullptr)
+        ok[0] = true;
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_float, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        double v;
+        if (getFloatProperty(prop.c_str(), v) > 0)
+            return v;
+    }
+    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        std::vector<double> v;
+        if (getVectorProperty(prop.c_str(), v) > 0)
+            return v[indexWithArrays];
+    }
+
+    /*
     if (ok != nullptr)
         ok[0] = true;
     if ((what > sim_mujoco_dummy_float_start) && (what < sim_mujoco_dummy_float_end))
@@ -82,13 +102,26 @@ double CDummy::getEngineFloatParam(int what, bool *ok) const
         int w = what - sim_mujoco_dummy_range1 + simi_mujoco_dummy_range1;
         return (_mujocoFloatParams[w]);
     }
+    */
     if (ok != nullptr)
         ok[0] = false;
-    return (0.0);
+    return 0.0;
 }
 
-int CDummy::getEngineIntParam(int what, bool *ok) const
+int CDummy::getEngineIntParam_old(int what, bool *ok) const
 {
+    if (ok != nullptr)
+        ok[0] = true;
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_int, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        int v;
+        if (getIntProperty(prop.c_str(), v) > 0)
+            return v;
+    }
+
+    /*
     if (ok != nullptr)
         ok[0] = true;
     if ((what > sim_mujoco_dummy_int_start) && (what < sim_mujoco_dummy_int_end))
@@ -96,13 +129,26 @@ int CDummy::getEngineIntParam(int what, bool *ok) const
         int w = what - sim_mujoco_dummy_bitcoded + simi_mujoco_dummy_bitcoded;
         return (_mujocoIntParams[w]);
     }
+    */
     if (ok != nullptr)
         ok[0] = false;
-    return (0);
+    return 0;
 }
 
-bool CDummy::getEngineBoolParam(int what, bool *ok) const
+bool CDummy::getEngineBoolParam_old(int what, bool *ok) const
 {
+    if (ok != nullptr)
+        ok[0] = true;
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_bool, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        bool v;
+        if (getBoolProperty(prop.c_str(), v) > 0)
+            return v;
+    }
+
+    /*
     if (ok != nullptr)
         ok[0] = true;
     if ((what > sim_mujoco_dummy_bool_start) && (what < sim_mujoco_dummy_bool_end))
@@ -116,9 +162,10 @@ bool CDummy::getEngineBoolParam(int what, bool *ok) const
         }
         return ((_mujocoIntParams[simi_mujoco_dummy_bitcoded] & b) != 0);
     }
+    */
     if (ok != nullptr)
         ok[0] = false;
-    return (0);
+    return false;
 }
 
 void CDummy::getMujocoFloatParams(std::vector<double> &p) const
@@ -131,8 +178,28 @@ void CDummy::getMujocoIntParams(std::vector<int> &p) const
     p.assign(_mujocoIntParams.begin(), _mujocoIntParams.end());
 }
 
-bool CDummy::setEngineFloatParam(int what, double v)
+bool CDummy::setEngineFloatParam_old(int what, double v)
 {
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_float, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        if (setFloatProperty(prop.c_str(), v) > 0)
+            return true;
+    }
+    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        std::vector<double> w;
+        if (getVectorProperty(prop.c_str(), w) > 0)
+        {
+            w[indexWithArrays] = v;
+            if (setVectorProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+                return true;
+        }
+    }
+
+    /*
     if ((what > sim_mujoco_dummy_float_start) && (what < sim_mujoco_dummy_float_end))
     {
         int w = what - sim_mujoco_dummy_range1 + simi_mujoco_dummy_range1;
@@ -142,11 +209,20 @@ bool CDummy::setEngineFloatParam(int what, double v)
         setMujocoFloatParams(fp);
         return (true);
     }
+    */
     return (false);
 }
 
-bool CDummy::setEngineIntParam(int what, int v)
+bool CDummy::setEngineIntParam_old(int what, int v)
 {
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_int, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        if (setIntProperty(prop.c_str(), v) > 0)
+            return true;
+    }
+/*
     if ((what > sim_mujoco_dummy_int_start) && (what < sim_mujoco_dummy_int_end))
     {
         int w = what - sim_mujoco_dummy_bitcoded + simi_mujoco_dummy_bitcoded;
@@ -156,11 +232,20 @@ bool CDummy::setEngineIntParam(int what, int v)
         setMujocoIntParams(ip);
         return (true);
     }
+    */
     return (false);
 }
 
-bool CDummy::setEngineBoolParam(int what, bool v)
+bool CDummy::setEngineBoolParam_old(int what, bool v)
 {
+    int indexWithArrays;
+    std::string prop = _enumToProperty(what, sim_propertytype_bool, indexWithArrays);
+    if (prop.size() > 0)
+    {
+        if (setBoolProperty(prop.c_str(), v) > 0)
+            return true;
+    }
+    /*
     if ((what > sim_mujoco_dummy_bool_start) && (what < sim_mujoco_dummy_bool_end))
     {
         int b = 1;
@@ -171,14 +256,15 @@ bool CDummy::setEngineBoolParam(int what, bool v)
             w--;
         }
 
-        int bitCoded = getEngineIntParam(sim_mujoco_dummy_bitcoded, nullptr);
+        int bitCoded = getEngineIntParam_old(sim_mujoco_dummy_bitcoded, nullptr);
         bitCoded |= b;
         if (!v)
             bitCoded -= b;
-        setEngineIntParam(sim_mujoco_dummy_bitcoded, bitCoded);
+        setEngineIntParam_old(sim_mujoco_dummy_bitcoded, bitCoded);
         return (true);
     }
-    return (false);
+    */
+    return false;
 }
 
 void CDummy::setMujocoFloatParams(const std::vector<double> &pp, bool reflectToLinkedDummy /*=true*/)
@@ -306,6 +392,13 @@ void CDummy::addSpecializedObjectEventData(CCbor *ev)
     _dummyColor.addGenesisEventData(ev);
 #endif
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
+
+    // Engine properties:
+    setBoolProperty(nullptr, false, ev);
+    setIntProperty(nullptr, 0, ev);
+    setFloatProperty(nullptr, 0.0, ev);
+    setVectorProperty(nullptr, nullptr, 0, ev);
+    _sendEngineString(ev);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // dummy
@@ -748,19 +841,19 @@ void CDummy::serialize(CSer &ar)
             ar.xmlPushNewNode("mujoco");
             double v[5];
             for (size_t i = 0; i < 2; i++)
-                v[i] = getEngineFloatParam(sim_mujoco_dummy_range1 + int(i), nullptr);
+                v[i] = getEngineFloatParam_old(sim_mujoco_dummy_range1 + int(i), nullptr);
             ar.xmlAddNode_floats("range", v, 2);
             for (size_t i = 0; i < 2; i++)
-                v[i] = getEngineFloatParam(sim_mujoco_dummy_solreflimit1 + int(i), nullptr);
+                v[i] = getEngineFloatParam_old(sim_mujoco_dummy_solreflimit1 + int(i), nullptr);
             ar.xmlAddNode_floats("solreflimit", v, 2);
             for (size_t i = 0; i < 5; i++)
-                v[i] = getEngineFloatParam(sim_mujoco_dummy_solimplimit1 + int(i), nullptr);
+                v[i] = getEngineFloatParam_old(sim_mujoco_dummy_solimplimit1 + int(i), nullptr);
             ar.xmlAddNode_floats("solimplimit", v, 5);
-            ar.xmlAddNode_float("margin", getEngineFloatParam(sim_mujoco_dummy_margin, nullptr));
-            ar.xmlAddNode_float("springlength", getEngineFloatParam(sim_mujoco_dummy_springlength, nullptr));
-            ar.xmlAddNode_float("stiffness", getEngineFloatParam(sim_mujoco_dummy_stiffness, nullptr));
-            ar.xmlAddNode_float("damping", getEngineFloatParam(sim_mujoco_dummy_damping, nullptr));
-            ar.xmlAddNode_bool("limited", getEngineBoolParam(sim_mujoco_dummy_limited, nullptr));
+            ar.xmlAddNode_float("margin", getEngineFloatParam_old(sim_mujoco_dummy_margin, nullptr));
+            ar.xmlAddNode_float("springlength", getEngineFloatParam_old(sim_mujoco_dummy_springlength, nullptr));
+            ar.xmlAddNode_float("stiffness", getEngineFloatParam_old(sim_mujoco_dummy_stiffness, nullptr));
+            ar.xmlAddNode_float("damping", getEngineFloatParam_old(sim_mujoco_dummy_damping, nullptr));
+            ar.xmlAddNode_bool("limited", getEngineBoolParam_old(sim_mujoco_dummy_limited, nullptr));
             ar.xmlPopNode(); // mujoco
             ar.xmlPopNode(); // engines
             ar.xmlPopNode(); // dynamics
@@ -822,30 +915,30 @@ void CDummy::serialize(CSer &ar)
                         if (ar.xmlGetNode_floats("range", w, 2, exhaustiveXml))
                         {
                             for (size_t j = 0; j < 2; j++)
-                                setEngineFloatParam(sim_mujoco_dummy_range1 + int(j), w[j]);
+                                setEngineFloatParam_old(sim_mujoco_dummy_range1 + int(j), w[j]);
                         }
                         if (ar.xmlGetNode_floats("solreflimit", w, 2, exhaustiveXml))
                         {
                             for (size_t j = 0; j < 2; j++)
-                                setEngineFloatParam(sim_mujoco_dummy_solreflimit1 + int(j), w[j]);
+                                setEngineFloatParam_old(sim_mujoco_dummy_solreflimit1 + int(j), w[j]);
                         }
                         if (ar.xmlGetNode_floats("solimplimit", w, 5, exhaustiveXml))
                         {
                             for (size_t j = 0; j < 5; j++)
-                                setEngineFloatParam(sim_mujoco_dummy_solimplimit1 + int(j), w[j]);
+                                setEngineFloatParam_old(sim_mujoco_dummy_solimplimit1 + int(j), w[j]);
                         }
                         double v;
                         if (ar.xmlGetNode_float("margin", v, exhaustiveXml))
-                            setEngineFloatParam(sim_mujoco_dummy_margin, v);
+                            setEngineFloatParam_old(sim_mujoco_dummy_margin, v);
                         if (ar.xmlGetNode_float("springlength", v, exhaustiveXml))
-                            setEngineFloatParam(sim_mujoco_dummy_springlength, v);
+                            setEngineFloatParam_old(sim_mujoco_dummy_springlength, v);
                         if (ar.xmlGetNode_float("stiffness", v, exhaustiveXml))
-                            setEngineFloatParam(sim_mujoco_dummy_stiffness, v);
+                            setEngineFloatParam_old(sim_mujoco_dummy_stiffness, v);
                         if (ar.xmlGetNode_float("damping", v, exhaustiveXml))
-                            setEngineFloatParam(sim_mujoco_dummy_damping, v);
+                            setEngineFloatParam_old(sim_mujoco_dummy_damping, v);
                         bool bv;
                         if (ar.xmlGetNode_bool("limited", bv, exhaustiveXml))
-                            setEngineBoolParam(sim_mujoco_dummy_limited, bv);
+                            setEngineBoolParam_old(sim_mujoco_dummy_limited, bv);
                         ar.xmlPopNode(); // mujoco
                     }
                     ar.xmlPopNode(); // engines
@@ -1129,26 +1222,242 @@ void CDummy::display(CViewableBase *renderingObject, int displayAttrib)
 }
 #endif
 
-int CDummy::setFloatProperty(const char* ppName, double pState)
+int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev/* = nullptr*/)
+{
+    const char* pName = nullptr;
+    std::string _pName;
+    if (ppName != nullptr)
+    {
+        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy.");
+        pName = _pName.c_str();
+    }
+
+    int retVal = -1;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    if ( (eev == nullptr) && (pName != nullptr) )
+    { // regular properties (i.e. non-engine properties)
+        retVal = CSceneObject::setBoolProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
+    }
+
+    // Following only for engine properties:
+    // -------------------------------------
+    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex)
+    {
+        if ((pName == nullptr) || (propertyName == pName))
+        {
+            retVal = 1;
+            int nv = (arr[simiIndexBitCoded] | simiIndex) - (1 - pState) * simiIndex;
+            if ( (nv != arr[simiIndexBitCoded]) ||(pName == nullptr) )
+            {
+                if (pName != nullptr)
+                    arr[simiIndexBitCoded] = nv;
+                if (_isInScene && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                    ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
+                    if (pName != nullptr)
+                        _sendEngineString(ev);
+                }
+            }
+        }
+    };
+
+    handleProp(propDummy_mujocoLimitsEnabled.name, _mujocoIntParams, simi_mujoco_dummy_bitcoded, simi_mujoco_dummy_limited);
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    // -------------------------------------
+
+    return retVal;
+}
+
+int CDummy::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
-    if (retVal == -1)
-        retVal = _dummyColor.setFloatProperty(pName, pState);
+    int retVal = CSceneObject::getBoolProperty(pName, pState);
     if (retVal == -1)
     {
-        if (strcmp(pName, propDummy_size.name) == 0)
+        // First non-engine properties:
+        /*
+        if (_pName == propJoint_length.name)
         {
-            setDummySize(pState);
+            pState = _length;
             retVal = 1;
         }
+        */
+
+        // Engine-only properties:
+        // ------------------------
+        if (_pName == propDummy_mujocoLimitsEnabled.name)
+        {
+            retVal = 1;
+            pState = _mujocoIntParams[simi_mujoco_dummy_bitcoded] & simi_mujoco_dummy_limited;
+        }
+        // ------------------------
+    }
+    return retVal;
+
+}
+
+int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev/* = nullptr*/)
+{
+    const char* pName = nullptr;
+    std::string _pName;
+    if (ppName != nullptr)
+    {
+        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy.");
+        pName = _pName.c_str();
+    }
+
+    int retVal = -1;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    if ( (eev == nullptr) && (pName != nullptr) )
+    { // regular properties (i.e. non-engine properties)
+        retVal = CSceneObject::setIntProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
+    }
+
+    // Following only for engine properties:
+    // -------------------------------------
+    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex)
+    {
+        if ((pName == nullptr) || (propertyName == pName))
+        {
+            retVal = 1;
+            if ((pState != arr[simiIndex]) || (pName == nullptr))
+            {
+                if (pName != nullptr)
+                    arr[simiIndex] = pState;
+                if (_isInScene && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                    ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
+                    if (pName != nullptr)
+                        _sendEngineString(ev);
+                }
+            }
+        }
+    };
+
+    handleProp(propDummy_mujocoJointProxyHandle.name, _mujocoIntParams, simi_mujoco_dummy_proxyjointid);
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    // -------------------------------------
+
+    return retVal;
+}
+
+int CDummy::getIntProperty(const char* ppName, int& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+        // First non-engine properties:
+        /*
+        if (_pName == propJoint_length.name)
+        {
+            pState = _length;
+            retVal = 1;
+        }
+        */
+
+        // Engine-only properties:
+        // ------------------------
+        if (_pName == propDummy_mujocoJointProxyHandle.name)
+        {
+            retVal = 1;
+            pState = _mujocoIntParams[simi_mujoco_dummy_proxyjointid];
+        }
+        // ------------------------
+
     }
 
     return retVal;
 }
 
-int CDummy::getFloatProperty(const char* ppName, double& pState)
+int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev/* = nullptr*/)
+{
+    const char* pName = nullptr;
+    std::string _pName;
+    if (ppName != nullptr)
+    {
+        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy.");
+        pName = _pName.c_str();
+    }
+
+    int retVal = -1;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    if ( (eev == nullptr) && (pName != nullptr) )
+    { // regular properties (i.e. non-engine properties)
+        retVal = CSceneObject::setFloatProperty(pName, pState);
+        if (retVal == -1)
+            retVal = _dummyColor.setFloatProperty(pName, pState);
+        if (retVal == -1)
+        {
+            if (strcmp(pName, propDummy_size.name) == 0)
+            {
+                setDummySize(pState);
+                retVal = 1;
+            }
+        }
+    }
+
+    // Following only for engine properties:
+    // -------------------------------------
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex)
+    {
+        if ((pName == nullptr) || (propertyName == pName))
+        {
+            retVal = 1;
+            if ((pState != arr[simiIndex]) || (pName == nullptr))
+            {
+                if (pName != nullptr)
+                    arr[simiIndex] = pState;
+                if (_isInScene && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                    ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
+                    if (pName != nullptr)
+                        _sendEngineString(ev);
+                }
+            }
+        }
+    };
+
+    handleProp(propDummy_mujocoMargin.name, _mujocoFloatParams, simi_mujoco_dummy_margin);
+    handleProp(propDummy_mujocoSpringStiffness.name, _mujocoFloatParams, simi_mujoco_dummy_stiffness);
+    handleProp(propDummy_mujocoSpringDamping.name, _mujocoFloatParams, simi_mujoco_dummy_damping);
+    handleProp(propDummy_mujocoSpringLength.name, _mujocoFloatParams, simi_mujoco_dummy_springlength);
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    // -------------------------------------
+
+    return retVal;
+}
+
+int CDummy::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
@@ -1161,6 +1470,71 @@ int CDummy::getFloatProperty(const char* ppName, double& pState)
         {
             pState = _dummySize;
             retVal = 1;
+        }
+
+        // Engine-only properties:
+        // ------------------------
+        if (_pName == propDummy_mujocoMargin.name)
+        {
+            retVal = 1;
+            pState = _mujocoFloatParams[simi_mujoco_dummy_margin];
+        }
+        else if (_pName == propDummy_mujocoSpringStiffness.name)
+        {
+            retVal = 1;
+            pState = _mujocoFloatParams[simi_mujoco_dummy_stiffness];
+        }
+        else if (_pName == propDummy_mujocoSpringDamping.name)
+        {
+            retVal = 1;
+            pState = _mujocoFloatParams[simi_mujoco_dummy_damping];
+        }
+        else if (_pName == propDummy_mujocoSpringLength.name)
+        {
+            retVal = 1;
+            pState = _mujocoFloatParams[simi_mujoco_dummy_springlength];
+        }
+    }
+
+    return retVal;
+}
+
+int CDummy::setStringProperty(const char* ppName, const char* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setStringProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propDummy_engineProperties.name) == 0)
+        {
+            retVal = 0;
+            CEngineProperties prop;
+            std::string current(prop.getObjectProperties(_objectHandle));
+            if (prop.setObjectProperties(_objectHandle, pState))
+            {
+                retVal = 1;
+                std::string current2(prop.getObjectProperties(_objectHandle));
+                if (current != current2)
+                    _sendEngineString();
+            }
+        }
+    }
+    return retVal;
+}
+
+int CDummy::getStringProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getStringProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(pName, propDummy_engineProperties.name) == 0)
+        {
+            retVal = 1;
+            CEngineProperties prop;
+            pState = prop.getObjectProperties(_objectHandle);
         }
     }
 
@@ -1181,7 +1555,7 @@ int CDummy::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CDummy::getColorProperty(const char* ppName, float* pState)
+int CDummy::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
@@ -1195,7 +1569,103 @@ int CDummy::getColorProperty(const char* ppName, float* pState)
     return retVal;
 }
 
-int CDummy::getPropertyName(int& index, std::string& pName, std::string& appartenance)
+int CDummy::setVectorProperty(const char* ppName, const double* v, int vL, CCbor* eev/* = nullptr*/)
+{
+    const char* pName = nullptr;
+    std::string _pName;
+    if (ppName != nullptr)
+    {
+        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy.");
+        pName = _pName.c_str();
+    }
+
+    int retVal = -1;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    if ( (eev == nullptr) && (pName != nullptr) )
+    { // regular properties (i.e. non-engine properties)
+        retVal = CSceneObject::setVectorProperty(pName, v, vL);
+        if (retVal == -1)
+        {
+        }
+    }
+
+    // Following only for engine properties:
+    // -------------------------------------
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n)
+    {
+        if ((pName == nullptr) || (propertyName == pName))
+        {
+            retVal = 1;
+            bool pa = false;
+            for (size_t i = 0; i < n; i++)
+                pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
+            if ( (pName == nullptr) || pa )
+            {
+                if (pName != nullptr)
+                {
+                    for (size_t i = 0; i < n; i++)
+                    {
+                        if (vL > i)
+                            arr[simiIndex1 + i] = v[i];
+                    }
+                }
+                if (_isInScene && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
+                    ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
+                    if (pName != nullptr)
+                        _sendEngineString(ev);
+                }
+            }
+        }
+    };
+
+    handleProp(propDummy_mujocoLimitsRange.name, _mujocoFloatParams, simi_mujoco_dummy_range1, 2);
+    handleProp(propDummy_mujocoLimitsSolref.name, _mujocoFloatParams, simi_mujoco_dummy_solreflimit1, 2);
+    handleProp(propDummy_mujocoLimitsSolimp.name, _mujocoFloatParams, simi_mujoco_dummy_solimplimit1, 3);
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    // -------------------------------------
+
+    return retVal;
+}
+
+int CDummy::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
+    const char* pName = _pName.c_str();
+    pState.clear();
+    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    if (retVal == -1)
+    {   // First non-engine properties:
+
+        // Engine-only properties:
+        // ------------------------
+        auto handleProp = [&](const std::vector<double>& arr, int simiIndex1, size_t n)
+        {
+            retVal = 1;
+            for (size_t i = 0; i < n; i++)
+                pState.push_back(arr[simiIndex1 + i]);
+        };
+
+        if (_pName == propDummy_mujocoLimitsRange.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_dummy_range1, 2);
+        else if (_pName == propDummy_mujocoLimitsSolref.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_dummy_solreflimit1, 2);
+        else if (_pName == propDummy_mujocoLimitsSolimp.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_dummy_solimplimit1, 3);
+        // ------------------------
+    }
+
+    return retVal;
+}
+
+int CDummy::getPropertyName(int& index, std::string& pName, std::string& appartenance) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
     if (retVal == -1)
@@ -1245,7 +1715,7 @@ int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CDummy::getPropertyInfo(const char* ppName, int& info, int& size)
+int CDummy::getPropertyInfo(const char* ppName, int& info, int& size) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
@@ -1287,6 +1757,52 @@ int CDummy::getPropertyInfo_static(const char* ppName, int& info, int& size)
                 break;
             }
         }
+    }
+    return retVal;
+}
+
+void CDummy::_sendEngineString(CCbor* eev /*= nullptr*/)
+{
+    if ( _isInScene && App::worldContainer->getEventsEnabled() )
+    {
+        CCbor* ev = nullptr;
+        if (eev != nullptr)
+            ev = eev;
+        CEngineProperties prop;
+        std::string current(prop.getObjectProperties(_objectHandle));
+        if (ev == nullptr)
+            ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propDummy_engineProperties.name, true);
+        ev->appendKeyString(propDummy_engineProperties.name, current.c_str());
+        if ( (ev != nullptr) && (eev == nullptr) )
+            App::worldContainer->pushEvent();
+    }
+}
+
+std::string CDummy::_enumToProperty(int oldEnum, int type, int& indexWithArrays) const
+{
+    std::string retVal;
+    for (size_t i = 0; i < allProps_dummy.size(); i++)
+    {
+        for (size_t j = 0; j < 5; j++)
+        {
+            int en = allProps_dummy[i].oldEnums[j];
+            if (en == -1)
+                break;
+            else if (en == oldEnum)
+            {
+                if (type == allProps_dummy[i].type)
+                {
+                    if ( (j > 0) || (allProps_dummy[i].oldEnums[j + 1] != -1) )
+                        indexWithArrays = int(j);
+                    else
+                        indexWithArrays = -1;
+                    retVal =  allProps_dummy[i].name;
+                }
+                break;
+            }
+        }
+        if (retVal.size() > 0)
+            break;
     }
     return retVal;
 }

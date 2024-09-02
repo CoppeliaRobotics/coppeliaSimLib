@@ -274,12 +274,12 @@ class CDynamicsContainer
 
     bool getCurrentlyInDynamicsCalculations() const;
 
-    double getEngineFloatParam(int what, bool *ok, bool getDefault = false) const;
-    int getEngineIntParam(int what, bool *ok, bool getDefault = false) const;
-    bool getEngineBoolParam(int what, bool *ok, bool getDefault = false) const;
-    bool setEngineFloatParam(int what, double v);
-    bool setEngineIntParam(int what, int v);
-    bool setEngineBoolParam(int what, bool v);
+    double getEngineFloatParam_old(int what, bool *ok, bool getDefault = false) const;
+    int getEngineIntParam_old(int what, bool *ok, bool getDefault = false) const;
+    bool getEngineBoolParam_old(int what, bool *ok, bool getDefault = false) const;
+    bool setEngineFloatParam_old(int what, double v);
+    bool setEngineIntParam_old(int what, int v);
+    bool setEngineBoolParam_old(int what, bool v);
 
     void getBulletFloatParams(std::vector<double> &p, bool getDefault = false) const;
     void setBulletFloatParams(const std::vector<double> &p);

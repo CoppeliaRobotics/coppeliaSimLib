@@ -389,12 +389,12 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.callScriptFunction", _simCallScriptFunction},
     {"sim.getExtensionString", _simGetExtensionString},
     {"sim.computeMassAndInertia", _simComputeMassAndInertia},
-    {"sim.getEngineFloatParam", _simGetEngineFloatParam},
+    {"sim.getEngineFloatParam_old", _simGetEngineFloatParam},
     {"sim.getEngineInt32Param", _simGetEngineInt32Param},
-    {"sim.getEngineBoolParam", _simGetEngineBoolParam},
-    {"sim.setEngineFloatParam", _simSetEngineFloatParam},
+    {"sim.getEngineBoolParam_old", _simGetEngineBoolParam},
+    {"sim.setEngineFloatParam_old", _simSetEngineFloatParam},
     {"sim.setEngineInt32Param", _simSetEngineInt32Param},
-    {"sim.setEngineBoolParam", _simSetEngineBoolParam},
+    {"sim.setEngineBoolParam_old", _simSetEngineBoolParam},
     {"sim.createOctree", _simCreateOctree},
     {"sim.createPointCloud", _simCreatePointCloud},
     {"sim.setPointCloudOptions", _simSetPointCloudOptions},
@@ -13606,7 +13606,7 @@ int _simRelocateShapeFrame(luaWrap_lua_State *L)
 int _simGetEngineFloatParam(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getEngineFloatParam");
+    LUA_START("sim.getEngineFloatParam_old");
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
@@ -13650,7 +13650,7 @@ int _simGetEngineInt32Param(luaWrap_lua_State *L)
 int _simGetEngineBoolParam(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getEngineBoolParam");
+    LUA_START("sim.getEngineBoolParam_old");
 
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
     {
@@ -13672,7 +13672,7 @@ int _simGetEngineBoolParam(luaWrap_lua_State *L)
 int _simSetEngineFloatParam(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setEngineFloatParam");
+    LUA_START("sim.setEngineFloatParam_old");
 
     int retVal = -1;
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
@@ -13710,7 +13710,7 @@ int _simSetEngineInt32Param(luaWrap_lua_State *L)
 int _simSetEngineBoolParam(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setEngineBoolParam");
+    LUA_START("sim.setEngineBoolParam_old");
 
     int retVal = -1;
     if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_bool, 0))

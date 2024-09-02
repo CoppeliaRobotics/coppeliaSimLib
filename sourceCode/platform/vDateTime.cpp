@@ -52,7 +52,7 @@ int VDateTime::getTimeDiffInMs(int oldTime, int newTime)
     return (newTime - oldTime);
 }
 
-quint64 VDateTime::getSecondsSince1970()
+unsigned long long int VDateTime::getSecondsSince1970()
 {
     QDateTime now = QDateTime::currentDateTime();
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -60,6 +60,12 @@ quint64 VDateTime::getSecondsSince1970()
 #else
     return (now.toSecsSinceEpoch());
 #endif
+}
+
+unsigned long long int VDateTime::getUnixTimeInMs()
+{
+    QDateTime currentDateTime = QDateTime::currentDateTimeUtc();
+    return currentDateTime.toMSecsSinceEpoch();
 }
 
 void VDateTime::getYearMonthDayHourMinuteSecond(int *year, int *month, int *day, int *hour, int *minute, int *second)

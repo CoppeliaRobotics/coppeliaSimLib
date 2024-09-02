@@ -10166,7 +10166,7 @@ int simSetObjectInt32Param_internal(int objectHandle, int parameterID, int param
             }
             if (parameterID == sim_jointintparam_vortex_dep_handle)
             {
-                if (joint->setEngineIntParam(sim_vortex_joint_dependentobjectid, parameter))
+                if (joint->setEngineIntParam_old(sim_vortex_joint_dependentobjectid, parameter))
                     retVal = 1;
             }
             if (parameterID == sim_jointintparam_dynctrlmode)
@@ -10481,14 +10481,14 @@ int simGetObjectFloatParam_internal(int objectHandle, int parameterID, double *p
             if (parameterID == sim_jointfloatparam_vortex_dep_multiplication)
             {
                 bool ok;
-                parameter[0] = joint->getEngineFloatParam(sim_vortex_joint_dependencyfactor, &ok);
+                parameter[0] = joint->getEngineFloatParam_old(sim_vortex_joint_dependencyfactor, &ok);
                 if (ok)
                     retVal = 1;
             }
             if (parameterID == sim_jointfloatparam_vortex_dep_offset)
             {
                 bool ok;
-                parameter[0] = joint->getEngineFloatParam(sim_vortex_joint_dependencyoffset, &ok);
+                parameter[0] = joint->getEngineFloatParam_old(sim_vortex_joint_dependencyoffset, &ok);
                 if (ok)
                     retVal = 1;
             }
@@ -10958,12 +10958,12 @@ int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double pa
             }
             if (parameterID == sim_jointfloatparam_vortex_dep_multiplication)
             {
-                if (joint->setEngineFloatParam(sim_vortex_joint_dependencyfactor, parameter))
+                if (joint->setEngineFloatParam_old(sim_vortex_joint_dependencyfactor, parameter))
                     retVal = 1;
             }
             if (parameterID == sim_jointfloatparam_vortex_dep_offset)
             {
-                if (joint->setEngineFloatParam(sim_vortex_joint_dependencyoffset, parameter))
+                if (joint->setEngineFloatParam_old(sim_vortex_joint_dependencyoffset, parameter))
                     retVal = 1;
             }
             if (parameterID == sim_jointfloatparam_screw_pitch)
@@ -15243,24 +15243,24 @@ double simGetEngineFloatParam_internal(int paramId, int objectHandle, const void
         if (success)
         {
             if (it == nullptr)
-                retVal = App::currentWorld->dynamicsContainer->getEngineFloatParam(paramId, &success);
+                retVal = App::currentWorld->dynamicsContainer->getEngineFloatParam_old(paramId, &success);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
-                    retVal = joint->getEngineFloatParam(paramId, &success);
+                    retVal = joint->getEngineFloatParam_old(paramId, &success);
                 }
                 if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
-                    retVal = mat->getEngineFloatParam(paramId, &success);
+                    retVal = mat->getEngineFloatParam_old(paramId, &success);
                 }
                 if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
-                    retVal = dummy->getEngineFloatParam(paramId, &success);
+                    retVal = dummy->getEngineFloatParam_old(paramId, &success);
                 }
             }
         }
@@ -15302,24 +15302,24 @@ int simGetEngineInt32Param_internal(int paramId, int objectHandle, const void *o
         if (success)
         {
             if (it == nullptr)
-                retVal = App::currentWorld->dynamicsContainer->getEngineIntParam(paramId, &success);
+                retVal = App::currentWorld->dynamicsContainer->getEngineIntParam_old(paramId, &success);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
-                    retVal = joint->getEngineIntParam(paramId, &success);
+                    retVal = joint->getEngineIntParam_old(paramId, &success);
                 }
                 if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
-                    retVal = mat->getEngineIntParam(paramId, &success);
+                    retVal = mat->getEngineIntParam_old(paramId, &success);
                 }
                 if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
-                    retVal = dummy->getEngineIntParam(paramId, &success);
+                    retVal = dummy->getEngineIntParam_old(paramId, &success);
                 }
             }
         }
@@ -15361,24 +15361,24 @@ bool simGetEngineBoolParam_internal(int paramId, int objectHandle, const void *o
         if (success)
         {
             if (it == nullptr)
-                retVal = App::currentWorld->dynamicsContainer->getEngineBoolParam(paramId, &success);
+                retVal = App::currentWorld->dynamicsContainer->getEngineBoolParam_old(paramId, &success);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
-                    retVal = joint->getEngineBoolParam(paramId, &success);
+                    retVal = joint->getEngineBoolParam_old(paramId, &success);
                 }
                 if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
-                    retVal = mat->getEngineBoolParam(paramId, &success);
+                    retVal = mat->getEngineBoolParam_old(paramId, &success);
                 }
                 if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
-                    retVal = dummy->getEngineBoolParam(paramId, &success);
+                    retVal = dummy->getEngineBoolParam_old(paramId, &success);
                 }
             }
         }
@@ -15419,24 +15419,24 @@ int simSetEngineFloatParam_internal(int paramId, int objectHandle, const void *o
         if (success)
         {
             if (it == nullptr)
-                success = App::currentWorld->dynamicsContainer->setEngineFloatParam(paramId, val);
+                success = App::currentWorld->dynamicsContainer->setEngineFloatParam_old(paramId, val);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
-                    success = joint->setEngineFloatParam(paramId, val);
+                    success = joint->setEngineFloatParam_old(paramId, val);
                 }
                 if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
-                    success = mat->setEngineFloatParam(paramId, val);
+                    success = mat->setEngineFloatParam_old(paramId, val);
                 }
                 if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
-                    success = dummy->setEngineFloatParam(paramId, val);
+                    success = dummy->setEngineFloatParam_old(paramId, val);
                 }
             }
         }
@@ -15477,24 +15477,24 @@ int simSetEngineInt32Param_internal(int paramId, int objectHandle, const void *o
         if (success)
         {
             if (it == nullptr)
-                success = App::currentWorld->dynamicsContainer->setEngineIntParam(paramId, val);
+                success = App::currentWorld->dynamicsContainer->setEngineIntParam_old(paramId, val);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
-                    success = joint->setEngineIntParam(paramId, val);
+                    success = joint->setEngineIntParam_old(paramId, val);
                 }
                 if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
-                    success = mat->setEngineIntParam(paramId, val);
+                    success = mat->setEngineIntParam_old(paramId, val);
                 }
                 if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
-                    success = dummy->setEngineIntParam(paramId, val);
+                    success = dummy->setEngineIntParam_old(paramId, val);
                 }
             }
         }
@@ -15535,24 +15535,24 @@ int simSetEngineBoolParam_internal(int paramId, int objectHandle, const void *ob
         if (success)
         {
             if (it == nullptr)
-                success = App::currentWorld->dynamicsContainer->setEngineBoolParam(paramId, val);
+                success = App::currentWorld->dynamicsContainer->setEngineBoolParam_old(paramId, val);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
                 {
                     CJoint *joint = (CJoint *)it;
-                    success = joint->setEngineBoolParam(paramId, val);
+                    success = joint->setEngineBoolParam_old(paramId, val);
                 }
                 if (it->getObjectType() == sim_sceneobject_shape)
                 {
                     CShape *shape = (CShape *)it;
                     CDynMaterialObject *mat = shape->getDynMaterial();
-                    success = mat->setEngineBoolParam(paramId, val);
+                    success = mat->setEngineBoolParam_old(paramId, val);
                 }
                 if (it->getObjectType() == sim_sceneobject_dummy)
                 {
                     CDummy *dummy = (CDummy *)it;
-                    success = dummy->setEngineBoolParam(paramId, val);
+                    success = dummy->setEngineBoolParam_old(paramId, val);
                 }
             }
         }

@@ -3138,6 +3138,7 @@ int CMesh::getVectorProperty(const char* ppName, std::vector<double>& pState, co
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();
     int retVal = -1;
+    pState.clear();
 
     if (strcmp(pName, propMesh_vertices.name) == 0)
     {
@@ -3195,6 +3196,7 @@ int CMesh::getIntVectorProperty(const char* ppName, std::vector<int>& pState, co
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();
     int retVal = -1;
+    pState.clear();
 
     if (strcmp(pName, propMesh_indices.name) == 0)
     {

@@ -5,6 +5,37 @@
 #include <simMath/7Vector.h>
 #include <sceneObject.h>
 
+struct SDummyProperty {
+    const char* name;
+    int type;
+    int flags;
+    int oldEnums[5];
+};
+
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propDummy_size,                    "size",                                     sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
+    FUNCX(propDummy_engineProperties,        "engineProperties",                         sim_propertytype_string,    0, -1, -1, -1, -1, -1) \
+    FUNCX(propDummy_mujocoLimitsEnabled,     "mujocoLimitsEnabled",                      sim_propertytype_bool,      0, sim_mujoco_dummy_limited, -1, -1, -1, -1) \
+    FUNCX(propDummy_mujocoLimitsRange,       "mujocoLimitsRange",                        sim_propertytype_vector,    0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1) \
+    FUNCX(propDummy_mujocoLimitsSolref,      "mujocoLimitsSolref",                       sim_propertytype_vector,    0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1) \
+    FUNCX(propDummy_mujocoLimitsSolimp,      "mujocoLimitsSolimp",                       sim_propertytype_vector,    0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, -1, -1) \
+    FUNCX(propDummy_mujocoMargin,            "mujocoMargin",                             sim_propertytype_float,     0, sim_mujoco_dummy_margin, -1, -1, -1, -1) \
+    FUNCX(propDummy_mujocoSpringStiffness,   "mujocoSpringStiffness",                    sim_propertytype_float,     0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1) \
+    FUNCX(propDummy_mujocoSpringDamping,     "mujocoSpringDamping",                      sim_propertytype_float,     0, sim_mujoco_dummy_damping, -1, -1, -1, -1) \
+    FUNCX(propDummy_mujocoSpringLength,      "mujocoSpringLength",                       sim_propertytype_float,     0, sim_mujoco_dummy_springlength, -1, -1, -1, -1) \
+    FUNCX(propDummy_mujocoJointProxyHandle,  "mujocoJointProxyHandle",                   sim_propertytype_int,       0, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1) \
+
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4) const SDummyProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4) name,
+const std::vector<SDummyProperty> allProps_dummy = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 enum
 { /* Mujoco dummy double params */
     simi_mujoco_dummy_range1 = 0,
@@ -32,21 +63,6 @@ enum
 { /* Mujoco dummy bool params */
     simi_mujoco_dummy_limited = 1,
 };
-
-// ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propDummy_size,                    "size",                                     sim_propertytype_float,     0) \
-
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
-DEFINE_PROPERTIES
-#undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
-const std::vector<SProperty> allProps_dummy = { DEFINE_PROPERTIES };
-#undef FUNCX
-#undef DEFINE_PROPERTIES
-// ----------------------------------------------------------------------------------------------
-
 
 class CDummy : public CSceneObject
 {
@@ -85,13 +101,22 @@ class CDummy : public CSceneObject
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
     void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
     void setIsInScene(bool s);
-    int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState);
+
+    int setBoolProperty(const char* pName, bool pState, CCbor* eev = nullptr);
+    int getBoolProperty(const char* pName, bool& pState) const;
+    int setIntProperty(const char* pName, int pState, CCbor* eev = nullptr);
+    int getIntProperty(const char* pName, int& pState) const;
+    int setFloatProperty(const char* pName, double pState, CCbor* eev = nullptr);
+    int getFloatProperty(const char* pName, double& pState) const;
+    int setStringProperty(const char* pName, const char* pState);
+    int getStringProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState);
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance);
+    int getColorProperty(const char* pName, float* pState) const;
+    int setVectorProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);
+    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info, int& size);
+    int getPropertyInfo(const char* pName, int& info, int& size) const;
     static int getPropertyInfo_static(const char* pName, int& info, int& size);
 
     bool getFreeOnPathTrajectory() const;
@@ -119,16 +144,18 @@ class CDummy : public CSceneObject
     void setVirtualDistanceOffsetOnPath(double off);
     void setVirtualDistanceOffsetOnPath_variationWhenCopy(double off);
 
-    double getEngineFloatParam(int what, bool *ok) const;
-    int getEngineIntParam(int what, bool *ok) const;
-    bool getEngineBoolParam(int what, bool *ok) const;
-    bool setEngineFloatParam(int what, double v);
-    bool setEngineIntParam(int what, int v);
-    bool setEngineBoolParam(int what, bool v);
+    double getEngineFloatParam_old(int what, bool *ok) const;
+    int getEngineIntParam_old(int what, bool *ok) const;
+    bool getEngineBoolParam_old(int what, bool *ok) const;
+    bool setEngineFloatParam_old(int what, double v);
+    bool setEngineIntParam_old(int what, int v);
+    bool setEngineBoolParam_old(int what, bool v);
 
     void copyEnginePropertiesTo(CDummy *target);
 
   protected:
+    void _sendEngineString(CCbor* eev = nullptr);
+    std::string _enumToProperty(int oldEnum, int type, int& indexWithArrays) const;
     void getMujocoFloatParams(std::vector<double> &p) const;
     void getMujocoIntParams(std::vector<int> &p) const;
     void setMujocoFloatParams(const std::vector<double> &p, bool reflectToLinkedDummy = true);

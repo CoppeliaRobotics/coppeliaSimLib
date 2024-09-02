@@ -5340,6 +5340,7 @@ int CSceneObjectContainer::setVectorProperty(int target, const char* pName, cons
 int CSceneObjectContainer::getVectorProperty(int target, const char* pName, std::vector<double>& pState) const
 {
     int retVal = -1;
+    pState.clear();
     CSceneObject* it = getObjectFromHandle(target);
     if (it != nullptr)
     {
@@ -5438,6 +5439,7 @@ int CSceneObjectContainer::setIntVectorProperty(int target, const char* pName, c
 int CSceneObjectContainer::getIntVectorProperty(int target, const char* pName, std::vector<int>& pState) const
 {
     int retVal = -1;
+    pState.clear();
     CSceneObject* it = getObjectFromHandle(target);
     if (it != nullptr)
     {

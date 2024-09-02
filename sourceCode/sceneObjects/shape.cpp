@@ -1803,6 +1803,7 @@ int CShape::getVectorProperty(const char* ppName, std::vector<double>& pState) c
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
     const char* pName = _pName.c_str();
+    pState.clear();
     int retVal = CSceneObject::getVectorProperty(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->getVectorProperty(pName, pState);
@@ -1825,6 +1826,7 @@ int CShape::getIntVectorProperty(const char* ppName, std::vector<int>& pState) c
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
     const char* pName = _pName.c_str();
+    pState.clear();
     int retVal = CSceneObject::getIntVectorProperty(pName, pState);
     if (retVal == -1)
     {

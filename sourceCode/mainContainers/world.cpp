@@ -837,14 +837,14 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
             if (fileSimVersion < 30301)
             { // Following for backward compatibility (09/03/2016)
                 CDynMaterialObject *mat = shape->getDynMaterial();
-                if (mat->getEngineBoolParam(sim_bullet_body_sticky, nullptr))
+                if (mat->getEngineBoolParam_old(sim_bullet_body_sticky, nullptr))
                 { // Formely sticky contact objects need to be adjusted for the new Bullet:
                     if (shape->getStatic())
-                        mat->setEngineFloatParam(
+                        mat->setEngineFloatParam_old(
                             sim_bullet_body_friction,
-                            mat->getEngineFloatParam(sim_bullet_body_oldfriction, nullptr)); // the new Bullet friction
+                            mat->getEngineFloatParam_old(sim_bullet_body_oldfriction, nullptr)); // the new Bullet friction
                     else
-                        mat->setEngineFloatParam(sim_bullet_body_friction, 0.25); // the new Bullet friction
+                        mat->setEngineFloatParam_old(sim_bullet_body_friction, 0.25); // the new Bullet friction
                 }
             }
             shape->getMesh()->setDynMaterialId_old(-1);
@@ -2886,6 +2886,7 @@ int CWorld::getVectorProperty(int target, const char* ppName, std::vector<double
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
     int retVal = -1;
+    pState.clear();
     if (target == sim_handle_scene)
     {
         if (dynamicsContainer != nullptr)
@@ -2922,6 +2923,7 @@ int CWorld::getIntVectorProperty(int target, const char* ppName, std::vector<int
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
     int retVal = -1;
+    pState.clear();
     if (target == sim_handle_scene)
     {
 

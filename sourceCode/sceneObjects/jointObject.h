@@ -323,9 +323,9 @@ class CJoint : public CSceneObject
     int getDynCtrlMode() const;
     int getDynVelCtrlType() const;
     int getDynPosCtrlType() const;
-    double getEngineFloatParam(int what, bool *ok) const;
-    int getEngineIntParam(int what, bool *ok) const;
-    bool getEngineBoolParam(int what, bool *ok) const;
+    double getEngineFloatParam_old(int what, bool *ok) const;
+    int getEngineIntParam_old(int what, bool *ok) const;
+    bool getEngineBoolParam_old(int what, bool *ok) const;
     void getBulletFloatParams(std::vector<double> &p) const;
     void getBulletIntParams(std::vector<int> &p) const;
     void getOdeFloatParams(std::vector<double> &p) const;
@@ -418,9 +418,9 @@ class CJoint : public CSceneObject
     void setKinematicMotionType(int t, bool reset, double initVel = 0.0);
     int getKinematicMotionType() const;
 
-    bool setEngineFloatParam(int what, double v);
-    bool setEngineIntParam(int what, int v);
-    bool setEngineBoolParam(int what, bool v);
+    bool setEngineFloatParam_old(int what, double v);
+    bool setEngineIntParam_old(int what, int v);
+    bool setEngineBoolParam_old(int what, bool v);
 
     void copyEnginePropertiesTo(CJoint *target);
 

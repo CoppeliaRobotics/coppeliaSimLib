@@ -192,12 +192,12 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
     if (engine == sim_physics_bullet)
     {
         QJsonObject jbullet;
-        annJson.addJson(jbullet, "normalCfm", joint->getEngineFloatParam(sim_bullet_joint_normalcfm, nullptr));
-        annJson.addJson(jbullet, "stopErp", joint->getEngineFloatParam(sim_bullet_joint_stoperp, nullptr));
-        annJson.addJson(jbullet, "stopCfm", joint->getEngineFloatParam(sim_bullet_joint_stopcfm, nullptr));
+        annJson.addJson(jbullet, "normalCfm", joint->getEngineFloatParam_old(sim_bullet_joint_normalcfm, nullptr));
+        annJson.addJson(jbullet, "stopErp", joint->getEngineFloatParam_old(sim_bullet_joint_stoperp, nullptr));
+        annJson.addJson(jbullet, "stopCfm", joint->getEngineFloatParam_old(sim_bullet_joint_stopcfm, nullptr));
         double v[3];
         for (size_t j = 0; j < 3; j++)
-            v[j] = joint->getEngineFloatParam(sim_bullet_joint_pospid1 + int(j), nullptr);
+            v[j] = joint->getEngineFloatParam_old(sim_bullet_joint_pospid1 + int(j), nullptr);
         annJson.addJson(jbullet, "posPid", v, 3);
         annJson.addJson(annJson.getMainObject()[0], "bullet", jbullet);
     }
@@ -205,14 +205,14 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
     if (engine == sim_physics_ode)
     {
         QJsonObject jode;
-        annJson.addJson(jode, "normalCfm", joint->getEngineFloatParam(sim_ode_joint_normalcfm, nullptr));
-        annJson.addJson(jode, "stopErp", joint->getEngineFloatParam(sim_ode_joint_stoperp, nullptr));
-        annJson.addJson(jode, "stopCfm", joint->getEngineFloatParam(sim_ode_joint_stopcfm, nullptr));
-        annJson.addJson(jode, "bounce", joint->getEngineFloatParam(sim_ode_joint_bounce, nullptr));
-        annJson.addJson(jode, "fudge", joint->getEngineFloatParam(sim_ode_joint_fudgefactor, nullptr));
+        annJson.addJson(jode, "normalCfm", joint->getEngineFloatParam_old(sim_ode_joint_normalcfm, nullptr));
+        annJson.addJson(jode, "stopErp", joint->getEngineFloatParam_old(sim_ode_joint_stoperp, nullptr));
+        annJson.addJson(jode, "stopCfm", joint->getEngineFloatParam_old(sim_ode_joint_stopcfm, nullptr));
+        annJson.addJson(jode, "bounce", joint->getEngineFloatParam_old(sim_ode_joint_bounce, nullptr));
+        annJson.addJson(jode, "fudge", joint->getEngineFloatParam_old(sim_ode_joint_fudgefactor, nullptr));
         double v[3];
         for (size_t j = 0; j < 3; j++)
-            v[j] = joint->getEngineFloatParam(sim_ode_joint_pospid1 + int(j), nullptr);
+            v[j] = joint->getEngineFloatParam_old(sim_ode_joint_pospid1 + int(j), nullptr);
         annJson.addJson(jode, "posPid", v, 3);
         annJson.addJson(annJson.getMainObject()[0], "ode", jode);
     }
@@ -222,7 +222,7 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
         QJsonObject jnewton;
         /*
         QJsonObject jnewtonDependency;
-        int h=joint->getEngineIntParam(sim_newton_joint_dependentobjectid,nullptr);
+        int h=joint->getEngineIntParam_old(sim_newton_joint_dependentobjectid,nullptr);
         std::string nameAndPath("");
         if (h>=0)
         {
@@ -231,13 +231,13 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
                 nameAndPath=obj->getObjectAlias_shortPath();
         }
         annJson.addJson(jnewtonDependency,"joint",nameAndPath.c_str(),"specify the full, unique path");
-        annJson.addJson(jnewtonDependency,"mult",joint->getEngineFloatParam(sim_newton_joint_dependencyfactor,nullptr));
-        annJson.addJson(jnewtonDependency,"offset",joint->getEngineFloatParam(sim_newton_joint_dependencyoffset,nullptr));
+        annJson.addJson(jnewtonDependency,"mult",joint->getEngineFloatParam_old(sim_newton_joint_dependencyfactor,nullptr));
+        annJson.addJson(jnewtonDependency,"offset",joint->getEngineFloatParam_old(sim_newton_joint_dependencyoffset,nullptr));
         annJson.addJson(jnewton,"dependency",jnewtonDependency);
         */
         double v[3];
         for (size_t j = 0; j < 3; j++)
-            v[j] = joint->getEngineFloatParam(sim_newton_joint_pospid1 + int(j), nullptr);
+            v[j] = joint->getEngineFloatParam_old(sim_newton_joint_pospid1 + int(j), nullptr);
         annJson.addJson(jnewton, "posPid", v, 3);
         annJson.addJson(annJson.getMainObject()[0], "newton", jnewton);
     }
@@ -245,38 +245,38 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
     if (engine == sim_physics_mujoco)
     {
         QJsonObject jmujoco;
-        annJson.addJson(jmujoco, "armature", joint->getEngineFloatParam(sim_mujoco_joint_armature, nullptr));
-        annJson.addJson(jmujoco, "margin", joint->getEngineFloatParam(sim_mujoco_joint_margin, nullptr));
+        annJson.addJson(jmujoco, "armature", joint->getEngineFloatParam_old(sim_mujoco_joint_armature, nullptr));
+        annJson.addJson(jmujoco, "margin", joint->getEngineFloatParam_old(sim_mujoco_joint_margin, nullptr));
         QJsonObject jmujocoLimits;
         double v[5];
-        v[0] = joint->getEngineFloatParam(sim_mujoco_joint_solreflimit1, nullptr);
-        v[1] = joint->getEngineFloatParam(sim_mujoco_joint_solreflimit2, nullptr);
+        v[0] = joint->getEngineFloatParam_old(sim_mujoco_joint_solreflimit1, nullptr);
+        v[1] = joint->getEngineFloatParam_old(sim_mujoco_joint_solreflimit2, nullptr);
         annJson.addJson(jmujocoLimits, "solref", v, 2);
         for (size_t j = 0; j < 5; j++)
-            v[j] = joint->getEngineFloatParam(sim_mujoco_joint_solimplimit1 + int(j), nullptr);
+            v[j] = joint->getEngineFloatParam_old(sim_mujoco_joint_solimplimit1 + int(j), nullptr);
         annJson.addJson(jmujocoLimits, "solimp", v, 5);
         annJson.addJson(jmujoco, "limits", jmujocoLimits);
         QJsonObject jmujocoFriction;
         annJson.addJson(jmujocoFriction, "loss",
-                        joint->getEngineFloatParam(sim_mujoco_joint_frictionloss, nullptr));
-        v[0] = joint->getEngineFloatParam(sim_mujoco_joint_solreffriction1, nullptr);
-        v[1] = joint->getEngineFloatParam(sim_mujoco_joint_solreffriction2, nullptr);
+                        joint->getEngineFloatParam_old(sim_mujoco_joint_frictionloss, nullptr));
+        v[0] = joint->getEngineFloatParam_old(sim_mujoco_joint_solreffriction1, nullptr);
+        v[1] = joint->getEngineFloatParam_old(sim_mujoco_joint_solreffriction2, nullptr);
         annJson.addJson(jmujocoFriction, "solref", v, 2);
         for (size_t j = 0; j < 5; j++)
-            v[j] = joint->getEngineFloatParam(sim_mujoco_joint_solimpfriction1 + int(j), nullptr);
+            v[j] = joint->getEngineFloatParam_old(sim_mujoco_joint_solimpfriction1 + int(j), nullptr);
         annJson.addJson(jmujocoFriction, "solimp", v, 5);
         annJson.addJson(jmujoco, "friction", jmujocoFriction);
         QJsonObject jmujocoSpring;
-        annJson.addJson(jmujocoSpring, "stiffness", joint->getEngineFloatParam(sim_mujoco_joint_stiffness, nullptr));
-        annJson.addJson(jmujocoSpring, "damping", joint->getEngineFloatParam(sim_mujoco_joint_damping, nullptr));
-        annJson.addJson(jmujocoSpring, "ref", joint->getEngineFloatParam(sim_mujoco_joint_springref, nullptr));
-        v[0] = joint->getEngineFloatParam(sim_mujoco_joint_springdamper1, nullptr);
-        v[1] = joint->getEngineFloatParam(sim_mujoco_joint_springdamper2, nullptr);
+        annJson.addJson(jmujocoSpring, "stiffness", joint->getEngineFloatParam_old(sim_mujoco_joint_stiffness, nullptr));
+        annJson.addJson(jmujocoSpring, "damping", joint->getEngineFloatParam_old(sim_mujoco_joint_damping, nullptr));
+        annJson.addJson(jmujocoSpring, "ref", joint->getEngineFloatParam_old(sim_mujoco_joint_springref, nullptr));
+        v[0] = joint->getEngineFloatParam_old(sim_mujoco_joint_springdamper1, nullptr);
+        v[1] = joint->getEngineFloatParam_old(sim_mujoco_joint_springdamper2, nullptr);
         annJson.addJson(jmujocoSpring, "springDamper", v, 2);
         annJson.addJson(jmujoco, "spring", jmujocoSpring);
         QJsonObject jmujocoDependency;
         /*
-        int h=joint->getEngineIntParam(sim_mujoco_joint_dependentobjectid,nullptr);
+        int h=joint->getEngineIntParam_old(sim_mujoco_joint_dependentobjectid,nullptr);
         std::string nameAndPath;
         if (h>=0)
         {
@@ -287,11 +287,11 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
         annJson.addJson(jmujocoDependency,"joint",nameAndPath.c_str(),"specify the full, unique path");
         */
         for (size_t j = 0; j < 5; j++)
-            v[j] = joint->getEngineFloatParam(sim_mujoco_joint_polycoef1 + int(j), nullptr);
+            v[j] = joint->getEngineFloatParam_old(sim_mujoco_joint_polycoef1 + int(j), nullptr);
         annJson.addJson(jmujocoDependency, "polyCoeff", v, 5);
         annJson.addJson(jmujoco, "dependency", jmujocoDependency);
         for (size_t j = 0; j < 3; j++)
-            v[j] = joint->getEngineFloatParam(sim_mujoco_joint_pospid1 + int(j), nullptr);
+            v[j] = joint->getEngineFloatParam_old(sim_mujoco_joint_pospid1 + int(j), nullptr);
         annJson.addJson(jmujoco, "posPid", v, 3);
         annJson.addJson(annJson.getMainObject()[0], "mujoco", jmujoco);
     }
@@ -301,37 +301,37 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
         QJsonObject jvortex;
         QJsonObject jvortexAxisFriction;
         annJson.addJson(jvortexAxisFriction, "enabled",
-                        joint->getEngineBoolParam(sim_vortex_joint_motorfrictionenabled, nullptr));
+                        joint->getEngineBoolParam_old(sim_vortex_joint_motorfrictionenabled, nullptr));
         annJson.addJson(jvortexAxisFriction, "proportional",
-                        joint->getEngineBoolParam(sim_vortex_joint_proportionalmotorfriction, nullptr));
+                        joint->getEngineBoolParam_old(sim_vortex_joint_proportionalmotorfriction, nullptr));
         annJson.addJson(jvortexAxisFriction, "value",
-                        joint->getEngineFloatParam(sim_vortex_joint_motorconstraintfrictioncoeff, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_motorconstraintfrictioncoeff, nullptr));
         annJson.addJson(jvortexAxisFriction, "maxForce",
-                        joint->getEngineFloatParam(sim_vortex_joint_motorconstraintfrictionmaxforce, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_motorconstraintfrictionmaxforce, nullptr));
         annJson.addJson(jvortexAxisFriction, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_motorconstraintfrictionloss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_motorconstraintfrictionloss, nullptr));
         annJson.addJson(jvortex, "axisFriction", jvortexAxisFriction);
         QJsonObject jvortexAxisLimits;
         annJson.addJson(jvortexAxisLimits, "lowerRestitution",
-                        joint->getEngineFloatParam(sim_vortex_joint_lowerlimitrestitution, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_lowerlimitrestitution, nullptr));
         annJson.addJson(jvortexAxisLimits, "upperRestitution",
-                        joint->getEngineFloatParam(sim_vortex_joint_upperlimitrestitution, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_upperlimitrestitution, nullptr));
         annJson.addJson(jvortexAxisLimits, "lowerStiffness",
-                        joint->getEngineFloatParam(sim_vortex_joint_lowerlimitstiffness, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_lowerlimitstiffness, nullptr));
         annJson.addJson(jvortexAxisLimits, "upperStiffness",
-                        joint->getEngineFloatParam(sim_vortex_joint_upperlimitstiffness, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_upperlimitstiffness, nullptr));
         annJson.addJson(jvortexAxisLimits, "lowerDamping",
-                        joint->getEngineFloatParam(sim_vortex_joint_lowerlimitdamping, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_lowerlimitdamping, nullptr));
         annJson.addJson(jvortexAxisLimits, "upperDamping",
-                        joint->getEngineFloatParam(sim_vortex_joint_upperlimitdamping, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_upperlimitdamping, nullptr));
         annJson.addJson(jvortexAxisLimits, "lowerMaxForce",
-                        joint->getEngineFloatParam(sim_vortex_joint_lowerlimitmaxforce, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_lowerlimitmaxforce, nullptr));
         annJson.addJson(jvortexAxisLimits, "upperMaxForce",
-                        joint->getEngineFloatParam(sim_vortex_joint_upperlimitmaxforce, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_upperlimitmaxforce, nullptr));
         annJson.addJson(jvortex, "axisLimits", jvortexAxisLimits);
         /*
         QJsonObject jvortexDependency;
-        int h=joint->getEngineIntParam(sim_vortex_joint_dependentobjectid,nullptr);
+        int h=joint->getEngineIntParam_old(sim_vortex_joint_dependentobjectid,nullptr);
         std::string nameAndPath;
         if (h>=0)
         {
@@ -340,27 +340,27 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
                 nameAndPath=obj->getObjectAlias_shortPath();
         }
         annJson.addJson(jvortexDependency,"joint",nameAndPath.c_str(),"specify the full, unique path");
-        annJson.addJson(jvortexDependency,"mult",joint->getEngineFloatParam(sim_vortex_joint_dependencyfactor,nullptr));
-        annJson.addJson(jvortexDependency,"offset",joint->getEngineFloatParam(sim_vortex_joint_dependencyoffset,nullptr));
+        annJson.addJson(jvortexDependency,"mult",joint->getEngineFloatParam_old(sim_vortex_joint_dependencyfactor,nullptr));
+        annJson.addJson(jvortexDependency,"offset",joint->getEngineFloatParam_old(sim_vortex_joint_dependencyoffset,nullptr));
         annJson.addJson(jvortex,"dependency",jvortexDependency);
         */
 
         int vval;
-        vval = joint->getEngineIntParam(sim_vortex_joint_relaxationenabledbc, nullptr);
+        vval = joint->getEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, nullptr);
         bool P0_relaxation_enabled = ((vval & 1) != 0);
         bool P1_relaxation_enabled = ((vval & 2) != 0);
         bool P2_relaxation_enabled = ((vval & 4) != 0);
         bool A0_relaxation_enabled = ((vval & 8) != 0);
         bool A1_relaxation_enabled = ((vval & 16) != 0);
         bool A2_relaxation_enabled = ((vval & 32) != 0);
-        vval = joint->getEngineIntParam(sim_vortex_joint_frictionenabledbc, nullptr);
+        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionenabledbc, nullptr);
         bool P0_friction_enabled = ((vval & 1) != 0);
         bool P1_friction_enabled = ((vval & 2) != 0);
         bool P2_friction_enabled = ((vval & 4) != 0);
         bool A0_friction_enabled = ((vval & 8) != 0);
         bool A1_friction_enabled = ((vval & 16) != 0);
         bool A2_friction_enabled = ((vval & 32) != 0);
-        vval = joint->getEngineIntParam(sim_vortex_joint_frictionproportionalbc, nullptr);
+        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, nullptr);
         bool P0_friction_proportional = ((vval & 1) != 0);
         bool P1_friction_proportional = ((vval & 2) != 0);
         bool P2_friction_proportional = ((vval & 4) != 0);
@@ -372,21 +372,21 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
         QJsonObject jvortexXaxisPositionRelax;
         annJson.addJson(jvortexXaxisPositionRelax, "enabled", P0_relaxation_enabled);
         annJson.addJson(jvortexXaxisPositionRelax, "stiffness",
-                        joint->getEngineFloatParam(sim_vortex_joint_p0stiffness, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p0stiffness, nullptr));
         annJson.addJson(jvortexXaxisPositionRelax, "damping",
-                        joint->getEngineFloatParam(sim_vortex_joint_p0damping, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p0damping, nullptr));
         annJson.addJson(jvortexXaxisPositionRelax, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_p0loss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p0loss, nullptr));
         annJson.addJson(jvortexXaxisPosition, "relaxation", jvortexXaxisPositionRelax);
         QJsonObject jvortexXaxisPositionFric;
         annJson.addJson(jvortexXaxisPositionFric, "enabled", P0_friction_enabled);
         annJson.addJson(jvortexXaxisPositionFric, "proportional", P0_friction_proportional);
         annJson.addJson(jvortexXaxisPositionFric, "value",
-                        joint->getEngineFloatParam(sim_vortex_joint_p0frictioncoeff, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p0frictioncoeff, nullptr));
         annJson.addJson(jvortexXaxisPositionFric, "maxForce",
-                        joint->getEngineFloatParam(sim_vortex_joint_p0frictionmaxforce, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p0frictionmaxforce, nullptr));
         annJson.addJson(jvortexXaxisPositionFric, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_p0frictionloss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p0frictionloss, nullptr));
         annJson.addJson(jvortexXaxisPosition, "friction", jvortexXaxisPositionFric);
         annJson.addJson(jvortex, "xAxisPos", jvortexXaxisPosition);
 
@@ -394,21 +394,21 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
         QJsonObject jvortexYaxisPositionRelax;
         annJson.addJson(jvortexYaxisPositionRelax, "enabled", P1_relaxation_enabled);
         annJson.addJson(jvortexYaxisPositionRelax, "stiffness",
-                        joint->getEngineFloatParam(sim_vortex_joint_p1stiffness, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p1stiffness, nullptr));
         annJson.addJson(jvortexYaxisPositionRelax, "damping",
-                        joint->getEngineFloatParam(sim_vortex_joint_p1damping, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p1damping, nullptr));
         annJson.addJson(jvortexYaxisPositionRelax, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_p1loss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p1loss, nullptr));
         annJson.addJson(jvortexYaxisPosition, "relaxation", jvortexYaxisPositionRelax);
         QJsonObject jvortexYaxisPositionFric;
         annJson.addJson(jvortexYaxisPositionFric, "enabled", P1_friction_enabled);
         annJson.addJson(jvortexYaxisPositionFric, "proportional", P1_friction_proportional);
         annJson.addJson(jvortexYaxisPositionFric, "value",
-                        joint->getEngineFloatParam(sim_vortex_joint_p1frictioncoeff, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p1frictioncoeff, nullptr));
         annJson.addJson(jvortexYaxisPositionFric, "maxForce",
-                        joint->getEngineFloatParam(sim_vortex_joint_p1frictionmaxforce, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p1frictionmaxforce, nullptr));
         annJson.addJson(jvortexYaxisPositionFric, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_p1frictionloss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p1frictionloss, nullptr));
         annJson.addJson(jvortexYaxisPosition, "friction", jvortexYaxisPositionFric);
         annJson.addJson(jvortex, "yAxisPos", jvortexYaxisPosition);
 
@@ -416,21 +416,21 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
         QJsonObject jvortexZaxisPositionRelax;
         annJson.addJson(jvortexZaxisPositionRelax, "enabled", P2_relaxation_enabled);
         annJson.addJson(jvortexZaxisPositionRelax, "stiffness",
-                        joint->getEngineFloatParam(sim_vortex_joint_p2stiffness, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p2stiffness, nullptr));
         annJson.addJson(jvortexZaxisPositionRelax, "damping",
-                        joint->getEngineFloatParam(sim_vortex_joint_p2damping, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p2damping, nullptr));
         annJson.addJson(jvortexZaxisPositionRelax, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_p2loss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p2loss, nullptr));
         annJson.addJson(jvortexZaxisPosition, "relaxation", jvortexZaxisPositionRelax);
         QJsonObject jvortexZaxisPositionFric;
         annJson.addJson(jvortexZaxisPositionFric, "enabled", P2_friction_enabled);
         annJson.addJson(jvortexZaxisPositionFric, "proportional", P2_friction_proportional);
         annJson.addJson(jvortexZaxisPositionFric, "value",
-                        joint->getEngineFloatParam(sim_vortex_joint_p2frictioncoeff, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p2frictioncoeff, nullptr));
         annJson.addJson(jvortexZaxisPositionFric, "maxForce",
-                        joint->getEngineFloatParam(sim_vortex_joint_p2frictionmaxforce, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p2frictionmaxforce, nullptr));
         annJson.addJson(jvortexZaxisPositionFric, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_p2frictionloss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_p2frictionloss, nullptr));
         annJson.addJson(jvortexZaxisPosition, "friction", jvortexZaxisPositionFric);
         annJson.addJson(jvortex, "zAxisPos", jvortexZaxisPosition);
 
@@ -438,21 +438,21 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
         QJsonObject jvortexXaxisOrientationRelax;
         annJson.addJson(jvortexXaxisOrientationRelax, "enabled", A0_relaxation_enabled);
         annJson.addJson(jvortexXaxisOrientationRelax, "stiffness",
-                        joint->getEngineFloatParam(sim_vortex_joint_a0stiffness, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a0stiffness, nullptr));
         annJson.addJson(jvortexXaxisOrientationRelax, "damping",
-                        joint->getEngineFloatParam(sim_vortex_joint_a0damping, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a0damping, nullptr));
         annJson.addJson(jvortexXaxisOrientationRelax, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_a0loss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a0loss, nullptr));
         annJson.addJson(jvortexXaxisOrientation, "relaxation", jvortexXaxisOrientationRelax);
         QJsonObject jvortexXaxisOrientationFric;
         annJson.addJson(jvortexXaxisOrientationFric, "enabled", A0_friction_enabled);
         annJson.addJson(jvortexXaxisOrientationFric, "proportional", A0_friction_proportional);
         annJson.addJson(jvortexXaxisOrientationFric, "value",
-                        joint->getEngineFloatParam(sim_vortex_joint_a0frictioncoeff, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a0frictioncoeff, nullptr));
         annJson.addJson(jvortexXaxisOrientationFric, "maxTorque",
-                        joint->getEngineFloatParam(sim_vortex_joint_a0frictionmaxforce, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a0frictionmaxforce, nullptr));
         annJson.addJson(jvortexXaxisOrientationFric, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_a0frictionloss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a0frictionloss, nullptr));
         annJson.addJson(jvortexXaxisOrientation, "friction", jvortexXaxisOrientationFric);
         annJson.addJson(jvortex, "xAxisOrient", jvortexXaxisOrientation);
 
@@ -460,21 +460,21 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
         QJsonObject jvortexYaxisOrientationRelax;
         annJson.addJson(jvortexYaxisOrientationRelax, "enabled", A1_relaxation_enabled);
         annJson.addJson(jvortexYaxisOrientationRelax, "stiffness",
-                        joint->getEngineFloatParam(sim_vortex_joint_a1stiffness, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a1stiffness, nullptr));
         annJson.addJson(jvortexYaxisOrientationRelax, "damping",
-                        joint->getEngineFloatParam(sim_vortex_joint_a1damping, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a1damping, nullptr));
         annJson.addJson(jvortexYaxisOrientationRelax, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_a1loss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a1loss, nullptr));
         annJson.addJson(jvortexYaxisOrientation, "relaxation", jvortexYaxisOrientationRelax);
         QJsonObject jvortexYaxisOrientationFric;
         annJson.addJson(jvortexYaxisOrientationFric, "enabled", A1_friction_enabled);
         annJson.addJson(jvortexYaxisOrientationFric, "proportional", A1_friction_proportional);
         annJson.addJson(jvortexYaxisOrientationFric, "value",
-                        joint->getEngineFloatParam(sim_vortex_joint_a1frictioncoeff, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a1frictioncoeff, nullptr));
         annJson.addJson(jvortexYaxisOrientationFric, "maxTorque",
-                        joint->getEngineFloatParam(sim_vortex_joint_a1frictionmaxforce, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a1frictionmaxforce, nullptr));
         annJson.addJson(jvortexYaxisOrientationFric, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_a1frictionloss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a1frictionloss, nullptr));
         annJson.addJson(jvortexYaxisOrientation, "friction", jvortexYaxisOrientationFric);
         annJson.addJson(jvortex, "yAxisOrient", jvortexYaxisOrientation);
 
@@ -482,27 +482,27 @@ void CEngineProperties::_writeJoint(int engine, int jointHandle, CAnnJson &annJs
         QJsonObject jvortexZaxisOrientationRelax;
         annJson.addJson(jvortexZaxisOrientationRelax, "enabled", A2_relaxation_enabled);
         annJson.addJson(jvortexZaxisOrientationRelax, "stiffness",
-                        joint->getEngineFloatParam(sim_vortex_joint_a2stiffness, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a2stiffness, nullptr));
         annJson.addJson(jvortexZaxisOrientationRelax, "damping",
-                        joint->getEngineFloatParam(sim_vortex_joint_a2damping, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a2damping, nullptr));
         annJson.addJson(jvortexZaxisOrientationRelax, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_a2loss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a2loss, nullptr));
         annJson.addJson(jvortexZaxisOrientation, "relaxation", jvortexZaxisOrientationRelax);
         QJsonObject jvortexZaxisOrientationFric;
         annJson.addJson(jvortexZaxisOrientationFric, "enabled", A2_friction_enabled);
         annJson.addJson(jvortexZaxisOrientationFric, "proportional", A2_friction_proportional);
         annJson.addJson(jvortexZaxisOrientationFric, "value",
-                        joint->getEngineFloatParam(sim_vortex_joint_a2frictioncoeff, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a2frictioncoeff, nullptr));
         annJson.addJson(jvortexZaxisOrientationFric, "maxTorque",
-                        joint->getEngineFloatParam(sim_vortex_joint_a2frictionmaxforce, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a2frictionmaxforce, nullptr));
         annJson.addJson(jvortexZaxisOrientationFric, "loss",
-                        joint->getEngineFloatParam(sim_vortex_joint_a2frictionloss, nullptr));
+                        joint->getEngineFloatParam_old(sim_vortex_joint_a2frictionloss, nullptr));
         annJson.addJson(jvortexZaxisOrientation, "friction", jvortexZaxisOrientationFric);
         annJson.addJson(jvortex, "zAxisOrient", jvortexZaxisOrientation);
 
         double v[3];
         for (size_t j = 0; j < 3; j++)
-            v[j] = joint->getEngineFloatParam(sim_vortex_joint_pospid1 + int(j), nullptr);
+            v[j] = joint->getEngineFloatParam_old(sim_vortex_joint_pospid1 + int(j), nullptr);
         annJson.addJson(jvortex, "posPid", v, 3);
 
         annJson.addJson(annJson.getMainObject()[0], "vortex", jvortex);
@@ -521,15 +521,15 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
             double w[3];
             QJsonObject bullet(val.toObject());
             if (annJson.getValue(bullet, "normalCfm", QJsonValue::Double, val, allErrors))
-                joint->setEngineFloatParam(sim_bullet_joint_normalcfm, val.toDouble());
+                joint->setEngineFloatParam_old(sim_bullet_joint_normalcfm, val.toDouble());
             if (annJson.getValue(bullet, "stopErp", QJsonValue::Double, val, allErrors))
-                joint->setEngineFloatParam(sim_bullet_joint_stoperp, val.toDouble());
+                joint->setEngineFloatParam_old(sim_bullet_joint_stoperp, val.toDouble());
             if (annJson.getValue(bullet, "stopCfm", QJsonValue::Double, val, allErrors))
-                joint->setEngineFloatParam(sim_bullet_joint_stopcfm, val.toDouble());
+                joint->setEngineFloatParam_old(sim_bullet_joint_stopcfm, val.toDouble());
             if (annJson.getValue(bullet, "posPid", w, 3, allErrors))
             {
                 for (size_t j = 0; j < 3; j++)
-                    joint->setEngineFloatParam(sim_bullet_joint_pospid1 + int(j), w[j]);
+                    joint->setEngineFloatParam_old(sim_bullet_joint_pospid1 + int(j), w[j]);
             }
         }
     }
@@ -541,19 +541,19 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
             double w[3];
             QJsonObject ode(val.toObject());
             if (annJson.getValue(ode, "normalCfm", QJsonValue::Double, val, allErrors))
-                joint->setEngineFloatParam(sim_ode_joint_normalcfm, val.toDouble());
+                joint->setEngineFloatParam_old(sim_ode_joint_normalcfm, val.toDouble());
             if (annJson.getValue(ode, "stopErp", QJsonValue::Double, val, allErrors))
-                joint->setEngineFloatParam(sim_ode_joint_stoperp, val.toDouble());
+                joint->setEngineFloatParam_old(sim_ode_joint_stoperp, val.toDouble());
             if (annJson.getValue(ode, "stopCfm", QJsonValue::Double, val, allErrors))
-                joint->setEngineFloatParam(sim_ode_joint_stopcfm, val.toDouble());
+                joint->setEngineFloatParam_old(sim_ode_joint_stopcfm, val.toDouble());
             if (annJson.getValue(ode, "bounce", QJsonValue::Double, val, allErrors))
-                joint->setEngineFloatParam(sim_ode_joint_bounce, val.toDouble());
+                joint->setEngineFloatParam_old(sim_ode_joint_bounce, val.toDouble());
             if (annJson.getValue(ode, "fudge", QJsonValue::Double, val, allErrors))
-                joint->setEngineFloatParam(sim_ode_joint_fudgefactor, val.toDouble());
+                joint->setEngineFloatParam_old(sim_ode_joint_fudgefactor, val.toDouble());
             if (annJson.getValue(ode, "posPid", w, 3, allErrors))
             {
                 for (size_t j = 0; j < 3; j++)
-                    joint->setEngineFloatParam(sim_ode_joint_pospid1 + int(j), w[j]);
+                    joint->setEngineFloatParam_old(sim_ode_joint_pospid1 + int(j), w[j]);
             }
         }
     }
@@ -579,7 +579,7 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
             )
                         {
                             h=obj->getObjectHandle();
-                            joint->setEngineIntParam(sim_newton_joint_dependentobjectid,h);
+                            joint->setEngineIntParam_old(sim_newton_joint_dependentobjectid,h);
                         }
                         else
                         {
@@ -590,19 +590,19 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                         }
                     }
                     else
-                        joint->setEngineIntParam(sim_newton_joint_dependentobjectid,h);
+                        joint->setEngineIntParam_old(sim_newton_joint_dependentobjectid,h);
                 }
                 if (annJson.getValue(sub,"mult",QJsonValue::Double,val,allErrors))
-                    joint->setEngineFloatParam(sim_newton_joint_dependencyfactor,val.toDouble());
+                    joint->setEngineFloatParam_old(sim_newton_joint_dependencyfactor,val.toDouble());
                 if (annJson.getValue(sub,"offset",QJsonValue::Double,val,allErrors))
-                    joint->setEngineFloatParam(sim_newton_joint_dependencyoffset,val.toDouble());
+                    joint->setEngineFloatParam_old(sim_newton_joint_dependencyoffset,val.toDouble());
             }
             */
             double w[3];
             if (annJson.getValue(newton, "posPid", w, 3, allErrors))
             {
                 for (size_t j = 0; j < 3; j++)
-                    joint->setEngineFloatParam(sim_newton_joint_pospid1 + int(j), w[j]);
+                    joint->setEngineFloatParam_old(sim_newton_joint_pospid1 + int(j), w[j]);
             }
         }
     }
@@ -613,53 +613,53 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
         {
             QJsonObject mujoco(val.toObject());
             if (annJson.getValue(mujoco, "armature", QJsonValue::Double, val, allErrors))
-                joint->setEngineFloatParam(sim_mujoco_joint_armature, val.toDouble());
+                joint->setEngineFloatParam_old(sim_mujoco_joint_armature, val.toDouble());
             if (annJson.getValue(mujoco, "margin", QJsonValue::Double, val, allErrors))
-                joint->setEngineFloatParam(sim_mujoco_joint_margin, val.toDouble());
+                joint->setEngineFloatParam_old(sim_mujoco_joint_margin, val.toDouble());
             double w[5];
             if (annJson.getValue(mujoco, "limits", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
                 {
-                    joint->setEngineFloatParam(sim_mujoco_joint_solreflimit1, w[0]);
-                    joint->setEngineFloatParam(sim_mujoco_joint_solreflimit2, w[1]);
+                    joint->setEngineFloatParam_old(sim_mujoco_joint_solreflimit1, w[0]);
+                    joint->setEngineFloatParam_old(sim_mujoco_joint_solreflimit2, w[1]);
                 }
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
                 {
                     for (size_t j = 0; j < 5; j++)
-                        joint->setEngineFloatParam(sim_mujoco_joint_solimplimit1 + int(j), w[j]);
+                        joint->setEngineFloatParam_old(sim_mujoco_joint_solimplimit1 + int(j), w[j]);
                 }
             }
             if (annJson.getValue(mujoco, "friction", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "loss", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_mujoco_joint_frictionloss, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_mujoco_joint_frictionloss, val.toDouble());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
                 {
-                    joint->setEngineFloatParam(sim_mujoco_joint_solreffriction1, w[0]);
-                    joint->setEngineFloatParam(sim_mujoco_joint_solreffriction2, w[1]);
+                    joint->setEngineFloatParam_old(sim_mujoco_joint_solreffriction1, w[0]);
+                    joint->setEngineFloatParam_old(sim_mujoco_joint_solreffriction2, w[1]);
                 }
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
                 {
                     for (size_t j = 0; j < 5; j++)
-                        joint->setEngineFloatParam(sim_mujoco_joint_solimpfriction1 + int(j), w[j]);
+                        joint->setEngineFloatParam_old(sim_mujoco_joint_solimpfriction1 + int(j), w[j]);
                 }
             }
             if (annJson.getValue(mujoco, "spring", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "stiffness", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_mujoco_joint_stiffness, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_mujoco_joint_stiffness, val.toDouble());
                 if (annJson.getValue(sub, "damping", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_mujoco_joint_damping, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_mujoco_joint_damping, val.toDouble());
                 if (annJson.getValue(sub, "ref", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_mujoco_joint_springref, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_mujoco_joint_springref, val.toDouble());
                 if (annJson.getValue(sub, "springDamper", w, 2, allErrors))
                 {
-                    joint->setEngineFloatParam(sim_mujoco_joint_springdamper1, w[0]);
-                    joint->setEngineFloatParam(sim_mujoco_joint_springdamper2, w[1]);
+                    joint->setEngineFloatParam_old(sim_mujoco_joint_springdamper1, w[0]);
+                    joint->setEngineFloatParam_old(sim_mujoco_joint_springdamper2, w[1]);
                 }
             }
             if (annJson.getValue(mujoco, "dependency", QJsonValue::Object, val, allErrors))
@@ -678,7 +678,7 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                 )
                         {
                             h=obj->getObjectHandle();
-                            joint->setEngineIntParam(sim_mujoco_joint_dependentobjectid,h);
+                            joint->setEngineIntParam_old(sim_mujoco_joint_dependentobjectid,h);
                         }
                         else
                         {
@@ -689,19 +689,19 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                         }
                     }
                     else
-                        joint->setEngineIntParam(sim_mujoco_joint_dependentobjectid,h);
+                        joint->setEngineIntParam_old(sim_mujoco_joint_dependentobjectid,h);
                 }
                 */
                 if (annJson.getValue(sub, "polyCoeff", w, 5, allErrors))
                 {
                     for (size_t j = 0; j < 5; j++)
-                        joint->setEngineFloatParam(sim_mujoco_joint_polycoef1 + int(j), w[j]);
+                        joint->setEngineFloatParam_old(sim_mujoco_joint_polycoef1 + int(j), w[j]);
                 }
             }
             if (annJson.getValue(mujoco, "posPid", w, 3, allErrors))
             {
                 for (size_t j = 0; j < 3; j++)
-                    joint->setEngineFloatParam(sim_mujoco_joint_pospid1 + int(j), w[j]);
+                    joint->setEngineFloatParam_old(sim_mujoco_joint_pospid1 + int(j), w[j]);
             }
         }
     }
@@ -716,35 +716,35 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "enabled", QJsonValue::Bool, val, allErrors))
-                    joint->setEngineBoolParam(sim_vortex_joint_motorfrictionenabled, val.toBool());
+                    joint->setEngineBoolParam_old(sim_vortex_joint_motorfrictionenabled, val.toBool());
                 if (annJson.getValue(sub, "proportional", QJsonValue::Bool, val, allErrors))
-                    joint->setEngineBoolParam(sim_vortex_joint_proportionalmotorfriction, val.toBool());
+                    joint->setEngineBoolParam_old(sim_vortex_joint_proportionalmotorfriction, val.toBool());
                 if (annJson.getValue(sub, "value", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_motorconstraintfrictioncoeff, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_motorconstraintfrictioncoeff, val.toDouble());
                 if (annJson.getValue(sub, "maxForce", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_motorconstraintfrictionmaxforce, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_motorconstraintfrictionmaxforce, val.toDouble());
                 if (annJson.getValue(sub, "loss", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_motorconstraintfrictionloss, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_motorconstraintfrictionloss, val.toDouble());
             }
             if (annJson.getValue(vortex, "axisLimits", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "lowerRestitution", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_lowerlimitrestitution, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_lowerlimitrestitution, val.toDouble());
                 if (annJson.getValue(sub, "upperRestitution", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_upperlimitrestitution, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_upperlimitrestitution, val.toDouble());
                 if (annJson.getValue(sub, "lowerStiffness", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_lowerlimitstiffness, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_lowerlimitstiffness, val.toDouble());
                 if (annJson.getValue(sub, "upperStiffness", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_upperlimitstiffness, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_upperlimitstiffness, val.toDouble());
                 if (annJson.getValue(sub, "lowerDamping", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_lowerlimitdamping, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_lowerlimitdamping, val.toDouble());
                 if (annJson.getValue(sub, "upperDamping", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_upperlimitdamping, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_upperlimitdamping, val.toDouble());
                 if (annJson.getValue(sub, "lowerMaxForce", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_lowerlimitmaxforce, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_lowerlimitmaxforce, val.toDouble());
                 if (annJson.getValue(sub, "upperMaxForce", QJsonValue::Double, val, allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_upperlimitmaxforce, val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_upperlimitmaxforce, val.toDouble());
             }
             /*
             if (annJson.getValue(vortex,"dependency",QJsonValue::Object,val,allErrors))
@@ -762,7 +762,7 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
             )
                         {
                             h=obj->getObjectHandle();
-                            joint->setEngineIntParam(sim_vortex_joint_dependentobjectid,h);
+                            joint->setEngineIntParam_old(sim_vortex_joint_dependentobjectid,h);
                         }
                         else
                         {
@@ -773,12 +773,12 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                         }
                     }
                     else
-                        joint->setEngineIntParam(sim_vortex_joint_dependentobjectid,h);
+                        joint->setEngineIntParam_old(sim_vortex_joint_dependentobjectid,h);
                 }
                 if (annJson.getValue(sub,"mult",QJsonValue::Double,val,allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_dependencyfactor,val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_dependencyfactor,val.toDouble());
                 if (annJson.getValue(sub,"offset",QJsonValue::Double,val,allErrors))
-                    joint->setEngineFloatParam(sim_vortex_joint_dependencyoffset,val.toDouble());
+                    joint->setEngineFloatParam_old(sim_vortex_joint_dependencyoffset,val.toDouble());
             }
             */
             if (annJson.getValue(vortex, "xAxisPos", QJsonValue::Object, val, allErrors))
@@ -789,44 +789,44 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_relaxationenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, nullptr);
                         vval = (vval | 1) - 1;
                         if (val.toBool())
                             vval |= 1;
-                        joint->setEngineIntParam(sim_vortex_joint_relaxationenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "stiffness", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p0stiffness, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p0stiffness, val.toDouble());
                     if (annJson.getValue(sub2, "damping", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p0damping, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p0damping, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p0loss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p0loss, val.toDouble());
                 }
                 if (annJson.getValue(sub, "friction", QJsonValue::Object, val, allErrors))
                 {
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionenabledbc, nullptr);
                         vval = (vval | 1) - 1;
                         if (val.toBool())
                             vval |= 1;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "proportional", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionproportionalbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, nullptr);
                         vval = (vval | 1) - 1;
                         if (val.toBool())
                             vval |= 1;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionproportionalbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, vval);
                     }
                     if (annJson.getValue(sub2, "value", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p0frictioncoeff, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p0frictioncoeff, val.toDouble());
                     if (annJson.getValue(sub2, "maxForce", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p0frictionmaxforce, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p0frictionmaxforce, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p0frictionloss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p0frictionloss, val.toDouble());
                 }
             }
             if (annJson.getValue(vortex, "yAxisPos", QJsonValue::Object, val, allErrors))
@@ -837,44 +837,44 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_relaxationenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, nullptr);
                         vval = (vval | 2) - 2;
                         if (val.toBool())
                             vval |= 2;
-                        joint->setEngineIntParam(sim_vortex_joint_relaxationenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "stiffness", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p1stiffness, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p1stiffness, val.toDouble());
                     if (annJson.getValue(sub2, "damping", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p1damping, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p1damping, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p1loss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p1loss, val.toDouble());
                 }
                 if (annJson.getValue(sub, "friction", QJsonValue::Object, val, allErrors))
                 {
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionenabledbc, nullptr);
                         vval = (vval | 2) - 2;
                         if (val.toBool())
                             vval |= 2;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "proportional", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionproportionalbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, nullptr);
                         vval = (vval | 2) - 2;
                         if (val.toBool())
                             vval |= 2;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionproportionalbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, vval);
                     }
                     if (annJson.getValue(sub2, "value", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p1frictioncoeff, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p1frictioncoeff, val.toDouble());
                     if (annJson.getValue(sub2, "maxForce", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p1frictionmaxforce, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p1frictionmaxforce, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p1frictionloss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p1frictionloss, val.toDouble());
                 }
             }
             if (annJson.getValue(vortex, "zAxisPos", QJsonValue::Object, val, allErrors))
@@ -885,44 +885,44 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_relaxationenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, nullptr);
                         vval = (vval | 4) - 4;
                         if (val.toBool())
                             vval |= 4;
-                        joint->setEngineIntParam(sim_vortex_joint_relaxationenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "stiffness", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p2stiffness, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p2stiffness, val.toDouble());
                     if (annJson.getValue(sub2, "damping", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p2damping, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p2damping, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p2loss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p2loss, val.toDouble());
                 }
                 if (annJson.getValue(sub, "friction", QJsonValue::Object, val, allErrors))
                 {
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionenabledbc, nullptr);
                         vval = (vval | 4) - 4;
                         if (val.toBool())
                             vval |= 4;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "proportional", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionproportionalbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, nullptr);
                         vval = (vval | 4) - 4;
                         if (val.toBool())
                             vval |= 4;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionproportionalbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, vval);
                     }
                     if (annJson.getValue(sub2, "value", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p2frictioncoeff, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p2frictioncoeff, val.toDouble());
                     if (annJson.getValue(sub2, "maxForce", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p2frictionmaxforce, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p2frictionmaxforce, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_p2frictionloss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_p2frictionloss, val.toDouble());
                 }
             }
             if (annJson.getValue(vortex, "xAxisOrient", QJsonValue::Object, val, allErrors))
@@ -933,44 +933,44 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_relaxationenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, nullptr);
                         vval = (vval | 8) - 8;
                         if (val.toBool())
                             vval |= 8;
-                        joint->setEngineIntParam(sim_vortex_joint_relaxationenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "stiffness", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a0stiffness, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a0stiffness, val.toDouble());
                     if (annJson.getValue(sub2, "damping", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a0damping, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a0damping, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a0loss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a0loss, val.toDouble());
                 }
                 if (annJson.getValue(sub, "friction", QJsonValue::Object, val, allErrors))
                 {
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionenabledbc, nullptr);
                         vval = (vval | 8) - 8;
                         if (val.toBool())
                             vval |= 8;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "proportional", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionproportionalbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, nullptr);
                         vval = (vval | 8) - 8;
                         if (val.toBool())
                             vval |= 8;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionproportionalbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, vval);
                     }
                     if (annJson.getValue(sub2, "value", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a0frictioncoeff, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a0frictioncoeff, val.toDouble());
                     if (annJson.getValue(sub2, "maxTorque", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a0frictionmaxforce, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a0frictionmaxforce, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a0frictionloss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a0frictionloss, val.toDouble());
                 }
             }
             if (annJson.getValue(vortex, "yAxisOrient", QJsonValue::Object, val, allErrors))
@@ -981,44 +981,44 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_relaxationenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, nullptr);
                         vval = (vval | 16) - 16;
                         if (val.toBool())
                             vval |= 16;
-                        joint->setEngineIntParam(sim_vortex_joint_relaxationenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "stiffness", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a1stiffness, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a1stiffness, val.toDouble());
                     if (annJson.getValue(sub2, "damping", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a1damping, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a1damping, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a1loss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a1loss, val.toDouble());
                 }
                 if (annJson.getValue(sub, "friction", QJsonValue::Object, val, allErrors))
                 {
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionenabledbc, nullptr);
                         vval = (vval | 16) - 16;
                         if (val.toBool())
                             vval |= 16;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "proportional", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionproportionalbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, nullptr);
                         vval = (vval | 16) - 16;
                         if (val.toBool())
                             vval |= 16;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionproportionalbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, vval);
                     }
                     if (annJson.getValue(sub2, "value", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a1frictioncoeff, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a1frictioncoeff, val.toDouble());
                     if (annJson.getValue(sub2, "maxTorque", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a1frictionmaxforce, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a1frictionmaxforce, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a1frictionloss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a1frictionloss, val.toDouble());
                 }
             }
             if (annJson.getValue(vortex, "zAxisOrient", QJsonValue::Object, val, allErrors))
@@ -1029,51 +1029,51 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson &annJso
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_relaxationenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, nullptr);
                         vval = (vval | 32) - 32;
                         if (val.toBool())
                             vval |= 32;
-                        joint->setEngineIntParam(sim_vortex_joint_relaxationenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_relaxationenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "stiffness", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a2stiffness, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a2stiffness, val.toDouble());
                     if (annJson.getValue(sub2, "damping", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a2damping, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a2damping, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a2loss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a2loss, val.toDouble());
                 }
                 if (annJson.getValue(sub, "friction", QJsonValue::Object, val, allErrors))
                 {
                     QJsonObject sub2(val.toObject());
                     if (annJson.getValue(sub2, "enabled", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionenabledbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionenabledbc, nullptr);
                         vval = (vval | 32) - 32;
                         if (val.toBool())
                             vval |= 32;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionenabledbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionenabledbc, vval);
                     }
                     if (annJson.getValue(sub2, "proportional", QJsonValue::Bool, val, allErrors))
                     {
-                        vval = joint->getEngineIntParam(sim_vortex_joint_frictionproportionalbc, nullptr);
+                        vval = joint->getEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, nullptr);
                         vval = (vval | 32) - 32;
                         if (val.toBool())
                             vval |= 32;
-                        joint->setEngineIntParam(sim_vortex_joint_frictionproportionalbc, vval);
+                        joint->setEngineIntParam_old(sim_vortex_joint_frictionproportionalbc, vval);
                     }
                     if (annJson.getValue(sub2, "value", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a2frictioncoeff, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a2frictioncoeff, val.toDouble());
                     if (annJson.getValue(sub2, "maxTorque", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a2frictionmaxforce, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a2frictionmaxforce, val.toDouble());
                     if (annJson.getValue(sub2, "loss", QJsonValue::Double, val, allErrors))
-                        joint->setEngineFloatParam(sim_vortex_joint_a2frictionloss, val.toDouble());
+                        joint->setEngineFloatParam_old(sim_vortex_joint_a2frictionloss, val.toDouble());
                 }
             }
             double w[3];
             if (annJson.getValue(vortex, "posPid", w, 3, allErrors))
             {
                 for (size_t j = 0; j < 3; j++)
-                    joint->setEngineFloatParam(sim_vortex_joint_pospid1 + int(j), w[j]);
+                    joint->setEngineFloatParam_old(sim_vortex_joint_pospid1 + int(j), w[j]);
             }
         }
     }
@@ -1087,53 +1087,53 @@ void CEngineProperties::_writeShape(int engine, int shapeHandle, CAnnJson &annJs
     if (engine == sim_physics_bullet)
     {
         QJsonObject jbullet;
-        annJson.addJson(jbullet, "stickyContact", mat->getEngineBoolParam(sim_bullet_body_sticky, nullptr),
+        annJson.addJson(jbullet, "stickyContact", mat->getEngineBoolParam_old(sim_bullet_body_sticky, nullptr),
                         "only Bullet V2.78");
-        annJson.addJson(jbullet, "frictionOld", mat->getEngineFloatParam(sim_bullet_body_oldfriction, nullptr),
+        annJson.addJson(jbullet, "frictionOld", mat->getEngineFloatParam_old(sim_bullet_body_oldfriction, nullptr),
                         "only Bullet V2.78");
-        annJson.addJson(jbullet, "friction", mat->getEngineFloatParam(sim_bullet_body_friction, nullptr),
+        annJson.addJson(jbullet, "friction", mat->getEngineFloatParam_old(sim_bullet_body_friction, nullptr),
                         "only Bullet V2.83 and later");
-        annJson.addJson(jbullet, "restitution", mat->getEngineFloatParam(sim_bullet_body_restitution, nullptr));
-        annJson.addJson(jbullet, "linearDamping", mat->getEngineFloatParam(sim_bullet_body_lineardamping, nullptr));
-        annJson.addJson(jbullet, "angularDamping", mat->getEngineFloatParam(sim_bullet_body_angulardamping, nullptr));
+        annJson.addJson(jbullet, "restitution", mat->getEngineFloatParam_old(sim_bullet_body_restitution, nullptr));
+        annJson.addJson(jbullet, "linearDamping", mat->getEngineFloatParam_old(sim_bullet_body_lineardamping, nullptr));
+        annJson.addJson(jbullet, "angularDamping", mat->getEngineFloatParam_old(sim_bullet_body_angulardamping, nullptr));
         QJsonObject jbulletCollMargin;
         annJson.addJson(jbulletCollMargin, "enabled",
-                        mat->getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmargin, nullptr));
+                        mat->getEngineBoolParam_old(sim_bullet_body_usenondefaultcollisionmargin, nullptr));
         annJson.addJson(jbulletCollMargin, "value",
-                        mat->getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactor, nullptr));
+                        mat->getEngineFloatParam_old(sim_bullet_body_nondefaultcollisionmargingfactor, nullptr));
         annJson.addJson(jbullet, "customCollisionMargin", jbulletCollMargin);
         QJsonObject jbulletCollMarginConvex;
         annJson.addJson(jbulletCollMarginConvex, "enabled",
-                        mat->getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmarginconvex, nullptr));
+                        mat->getEngineBoolParam_old(sim_bullet_body_usenondefaultcollisionmarginconvex, nullptr));
         annJson.addJson(jbulletCollMarginConvex, "value",
-                        mat->getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactorconvex, nullptr));
+                        mat->getEngineFloatParam_old(sim_bullet_body_nondefaultcollisionmargingfactorconvex, nullptr));
         annJson.addJson(jbullet, "customCollisionMarginConvex", jbulletCollMarginConvex);
         annJson.addJson(jbullet, "autoShrinkConvexMeshes",
-                        mat->getEngineBoolParam(sim_bullet_body_autoshrinkconvex, nullptr));
+                        mat->getEngineBoolParam_old(sim_bullet_body_autoshrinkconvex, nullptr));
         annJson.addJson(annJson.getMainObject()[0], "bullet", jbullet);
     }
 
     if (engine == sim_physics_ode)
     {
         QJsonObject jode;
-        annJson.addJson(jode, "friction", mat->getEngineFloatParam(sim_ode_body_friction, nullptr));
-        annJson.addJson(jode, "softErp", mat->getEngineFloatParam(sim_ode_body_softerp, nullptr));
-        annJson.addJson(jode, "softCfm", mat->getEngineFloatParam(sim_ode_body_softcfm, nullptr));
-        annJson.addJson(jode, "linearDamping", mat->getEngineFloatParam(sim_ode_body_lineardamping, nullptr));
-        annJson.addJson(jode, "angularDamping", mat->getEngineFloatParam(sim_ode_body_angulardamping, nullptr));
-        annJson.addJson(jode, "maxContacts", mat->getEngineIntParam(sim_ode_body_maxcontacts, nullptr));
+        annJson.addJson(jode, "friction", mat->getEngineFloatParam_old(sim_ode_body_friction, nullptr));
+        annJson.addJson(jode, "softErp", mat->getEngineFloatParam_old(sim_ode_body_softerp, nullptr));
+        annJson.addJson(jode, "softCfm", mat->getEngineFloatParam_old(sim_ode_body_softcfm, nullptr));
+        annJson.addJson(jode, "linearDamping", mat->getEngineFloatParam_old(sim_ode_body_lineardamping, nullptr));
+        annJson.addJson(jode, "angularDamping", mat->getEngineFloatParam_old(sim_ode_body_angulardamping, nullptr));
+        annJson.addJson(jode, "maxContacts", mat->getEngineIntParam_old(sim_ode_body_maxcontacts, nullptr));
         annJson.addJson(annJson.getMainObject()[0], "ode", jode);
     }
 
     if (engine == sim_physics_newton)
     {
         QJsonObject jnewton;
-        annJson.addJson(jnewton, "staticFriction", mat->getEngineFloatParam(sim_newton_body_staticfriction, nullptr));
-        annJson.addJson(jnewton, "kineticFriction", mat->getEngineFloatParam(sim_newton_body_kineticfriction, nullptr));
-        annJson.addJson(jnewton, "restitution", mat->getEngineFloatParam(sim_newton_body_restitution, nullptr));
-        annJson.addJson(jnewton, "linearDrag", mat->getEngineFloatParam(sim_newton_body_lineardrag, nullptr));
-        annJson.addJson(jnewton, "angularDrag", mat->getEngineFloatParam(sim_newton_body_angulardrag, nullptr));
-        annJson.addJson(jnewton, "fastMoving", mat->getEngineBoolParam(sim_newton_body_fastmoving, nullptr));
+        annJson.addJson(jnewton, "staticFriction", mat->getEngineFloatParam_old(sim_newton_body_staticfriction, nullptr));
+        annJson.addJson(jnewton, "kineticFriction", mat->getEngineFloatParam_old(sim_newton_body_kineticfriction, nullptr));
+        annJson.addJson(jnewton, "restitution", mat->getEngineFloatParam_old(sim_newton_body_restitution, nullptr));
+        annJson.addJson(jnewton, "linearDrag", mat->getEngineFloatParam_old(sim_newton_body_lineardrag, nullptr));
+        annJson.addJson(jnewton, "angularDrag", mat->getEngineFloatParam_old(sim_newton_body_angulardrag, nullptr));
+        annJson.addJson(jnewton, "fastMoving", mat->getEngineBoolParam_old(sim_newton_body_fastmoving, nullptr));
         annJson.addJson(annJson.getMainObject()[0], "newton", jnewton);
     }
 
@@ -1141,142 +1141,142 @@ void CEngineProperties::_writeShape(int engine, int shapeHandle, CAnnJson &annJs
     {
         QJsonObject jmujoco;
         double v[5];
-        v[0] = mat->getEngineFloatParam(sim_mujoco_body_friction1, nullptr);
-        v[1] = mat->getEngineFloatParam(sim_mujoco_body_friction2, nullptr);
-        v[2] = mat->getEngineFloatParam(sim_mujoco_body_friction3, nullptr);
+        v[0] = mat->getEngineFloatParam_old(sim_mujoco_body_friction1, nullptr);
+        v[1] = mat->getEngineFloatParam_old(sim_mujoco_body_friction2, nullptr);
+        v[2] = mat->getEngineFloatParam_old(sim_mujoco_body_friction3, nullptr);
         annJson.addJson(jmujoco, "friction", v, 3);
-        v[0] = mat->getEngineFloatParam(sim_mujoco_body_solref1, nullptr);
-        v[1] = mat->getEngineFloatParam(sim_mujoco_body_solref2, nullptr);
+        v[0] = mat->getEngineFloatParam_old(sim_mujoco_body_solref1, nullptr);
+        v[1] = mat->getEngineFloatParam_old(sim_mujoco_body_solref2, nullptr);
         annJson.addJson(jmujoco, "solref", v, 2);
-        v[0] = mat->getEngineFloatParam(sim_mujoco_body_solimp1, nullptr);
-        v[1] = mat->getEngineFloatParam(sim_mujoco_body_solimp2, nullptr);
-        v[2] = mat->getEngineFloatParam(sim_mujoco_body_solimp3, nullptr);
-        v[3] = mat->getEngineFloatParam(sim_mujoco_body_solimp4, nullptr);
-        v[4] = mat->getEngineFloatParam(sim_mujoco_body_solimp5, nullptr);
+        v[0] = mat->getEngineFloatParam_old(sim_mujoco_body_solimp1, nullptr);
+        v[1] = mat->getEngineFloatParam_old(sim_mujoco_body_solimp2, nullptr);
+        v[2] = mat->getEngineFloatParam_old(sim_mujoco_body_solimp3, nullptr);
+        v[3] = mat->getEngineFloatParam_old(sim_mujoco_body_solimp4, nullptr);
+        v[4] = mat->getEngineFloatParam_old(sim_mujoco_body_solimp5, nullptr);
         annJson.addJson(jmujoco, "solimp", v, 5);
-        annJson.addJson(jmujoco, "condim", mat->getEngineIntParam(sim_mujoco_body_condim, nullptr));
-        annJson.addJson(jmujoco, "solmix", mat->getEngineFloatParam(sim_mujoco_body_solmix, nullptr));
-        annJson.addJson(jmujoco, "margin", mat->getEngineFloatParam(sim_mujoco_body_margin, nullptr));
-        annJson.addJson(jmujoco, "priority", mat->getEngineIntParam(sim_mujoco_body_priority, nullptr));
+        annJson.addJson(jmujoco, "condim", mat->getEngineIntParam_old(sim_mujoco_body_condim, nullptr));
+        annJson.addJson(jmujoco, "solmix", mat->getEngineFloatParam_old(sim_mujoco_body_solmix, nullptr));
+        annJson.addJson(jmujoco, "margin", mat->getEngineFloatParam_old(sim_mujoco_body_margin, nullptr));
+        annJson.addJson(jmujoco, "priority", mat->getEngineIntParam_old(sim_mujoco_body_priority, nullptr));
         annJson.addJson(annJson.getMainObject()[0], "mujoco", jmujoco);
     }
 
     if (engine == sim_physics_vortex)
     {
         QJsonObject jvortex;
-        annJson.addJson(jvortex, "restitution", mat->getEngineFloatParam(sim_vortex_body_restitution, nullptr));
+        annJson.addJson(jvortex, "restitution", mat->getEngineFloatParam_old(sim_vortex_body_restitution, nullptr));
         annJson.addJson(jvortex, "restitutionThreshold",
-                        mat->getEngineFloatParam(sim_vortex_body_restitutionthreshold, nullptr));
-        annJson.addJson(jvortex, "compliance", mat->getEngineFloatParam(sim_vortex_body_compliance, nullptr));
-        annJson.addJson(jvortex, "damping", mat->getEngineFloatParam(sim_vortex_body_damping, nullptr));
-        annJson.addJson(jvortex, "adhesiveForce", mat->getEngineFloatParam(sim_vortex_body_adhesiveforce, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_restitutionthreshold, nullptr));
+        annJson.addJson(jvortex, "compliance", mat->getEngineFloatParam_old(sim_vortex_body_compliance, nullptr));
+        annJson.addJson(jvortex, "damping", mat->getEngineFloatParam_old(sim_vortex_body_damping, nullptr));
+        annJson.addJson(jvortex, "adhesiveForce", mat->getEngineFloatParam_old(sim_vortex_body_adhesiveforce, nullptr));
         annJson.addJson(jvortex, "linearVelDamping",
-                        mat->getEngineFloatParam(sim_vortex_body_linearvelocitydamping, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_linearvelocitydamping, nullptr));
         annJson.addJson(jvortex, "angularVelDamping",
-                        mat->getEngineFloatParam(sim_vortex_body_angularvelocitydamping, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_angularvelocitydamping, nullptr));
         QJsonObject jvortexAutoAngularDamping;
         annJson.addJson(jvortexAutoAngularDamping, "enabled",
-                        mat->getEngineBoolParam(sim_vortex_body_autoangulardamping, nullptr));
+                        mat->getEngineBoolParam_old(sim_vortex_body_autoangulardamping, nullptr));
         annJson.addJson(jvortexAutoAngularDamping, "tensionRatio",
-                        mat->getEngineFloatParam(sim_vortex_body_autoangulardampingtensionratio, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_autoangulardampingtensionratio, nullptr));
         annJson.addJson(jvortex, "autoAngularDamping", jvortexAutoAngularDamping);
-        annJson.addJson(jvortex, "skinThickness", mat->getEngineFloatParam(sim_vortex_body_skinthickness, nullptr));
-        annJson.addJson(jvortex, "autoSlip", mat->getEngineBoolParam(sim_vortex_body_autoslip, nullptr));
-        annJson.addJson(jvortex, "fastMoving", mat->getEngineBoolParam(sim_vortex_body_fastmoving, nullptr));
+        annJson.addJson(jvortex, "skinThickness", mat->getEngineFloatParam_old(sim_vortex_body_skinthickness, nullptr));
+        annJson.addJson(jvortex, "autoSlip", mat->getEngineBoolParam_old(sim_vortex_body_autoslip, nullptr));
+        annJson.addJson(jvortex, "fastMoving", mat->getEngineBoolParam_old(sim_vortex_body_fastmoving, nullptr));
         annJson.addJson(jvortex, "primitiveAsConvex",
-                        mat->getEngineBoolParam(sim_vortex_body_pureshapesasconvex, nullptr));
+                        mat->getEngineBoolParam_old(sim_vortex_body_pureshapesasconvex, nullptr));
         annJson.addJson(jvortex, "convexAsRandom",
-                        mat->getEngineBoolParam(sim_vortex_body_convexshapesasrandom, nullptr));
+                        mat->getEngineBoolParam_old(sim_vortex_body_convexshapesasrandom, nullptr));
         annJson.addJson(jvortex, "randomAsTerrain",
-                        mat->getEngineBoolParam(sim_vortex_body_randomshapesasterrain, nullptr));
+                        mat->getEngineBoolParam_old(sim_vortex_body_randomshapesasterrain, nullptr));
         QJsonObject jvortexautoSleep;
         annJson.addJson(jvortexautoSleep, "linearSpeed",
-                        mat->getEngineFloatParam(sim_vortex_body_autosleeplinearspeedthreshold, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_autosleeplinearspeedthreshold, nullptr));
         annJson.addJson(jvortexautoSleep, "linearAccel",
-                        mat->getEngineFloatParam(sim_vortex_body_autosleeplinearaccelthreshold, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_autosleeplinearaccelthreshold, nullptr));
         annJson.addJson(jvortexautoSleep, "angularSpeed",
-                        mat->getEngineFloatParam(sim_vortex_body_autosleepangularspeedthreshold, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_autosleepangularspeedthreshold, nullptr));
         annJson.addJson(jvortexautoSleep, "angularAccel",
-                        mat->getEngineFloatParam(sim_vortex_body_autosleepangularaccelthreshold, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_autosleepangularaccelthreshold, nullptr));
         annJson.addJson(jvortexautoSleep, "steps",
-                        mat->getEngineIntParam(sim_vortex_body_autosleepsteplivethreshold, nullptr));
+                        mat->getEngineIntParam_old(sim_vortex_body_autosleepsteplivethreshold, nullptr));
         annJson.addJson(jvortex, "autoSleepThreshold", jvortexautoSleep);
         std::string fricModelInfo("0=box, 1=scaled box, 2=prop low, 3=prop high, 4=scaled box fast, 5=neutral, 6=none");
         QJsonObject jvortexlinPrimAxis;
         double v[3];
-        v[0] = mat->getEngineFloatParam(sim_vortex_body_primaxisvectorx, nullptr);
-        v[1] = mat->getEngineFloatParam(sim_vortex_body_primaxisvectory, nullptr);
-        v[2] = mat->getEngineFloatParam(sim_vortex_body_primaxisvectorz, nullptr);
+        v[0] = mat->getEngineFloatParam_old(sim_vortex_body_primaxisvectorx, nullptr);
+        v[1] = mat->getEngineFloatParam_old(sim_vortex_body_primaxisvectory, nullptr);
+        v[2] = mat->getEngineFloatParam_old(sim_vortex_body_primaxisvectorz, nullptr);
         annJson.addJson(jvortexlinPrimAxis, "value", v, 3);
         annJson.addJson(jvortexlinPrimAxis, "frictionModel",
-                        mat->getEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel, nullptr),
+                        mat->getEngineIntParam_old(sim_vortex_body_primlinearaxisfrictionmodel, nullptr),
                         fricModelInfo.c_str());
         annJson.addJson(jvortexlinPrimAxis, "frictionCoeff",
-                        mat->getEngineFloatParam(sim_vortex_body_primlinearaxisfriction, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_primlinearaxisfriction, nullptr));
         annJson.addJson(jvortexlinPrimAxis, "staticFrictionScale",
-                        mat->getEngineFloatParam(sim_vortex_body_primlinearaxisstaticfrictionscale, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_primlinearaxisstaticfrictionscale, nullptr));
         annJson.addJson(jvortexlinPrimAxis, "slip",
-                        mat->getEngineFloatParam(sim_vortex_body_primlinearaxisslip, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_primlinearaxisslip, nullptr));
         annJson.addJson(jvortexlinPrimAxis, "slide",
-                        mat->getEngineFloatParam(sim_vortex_body_primlinearaxisslide, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_primlinearaxisslide, nullptr));
         annJson.addJson(jvortex, "linearPrimaryAxis", jvortexlinPrimAxis);
         QJsonObject jvortexlinSecAxis;
         annJson.addJson(jvortexlinSecAxis, "followPrimaryAxis",
-                        mat->getEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis, nullptr));
+                        mat->getEngineBoolParam_old(sim_vortex_body_seclinaxissameasprimlinaxis, nullptr));
         annJson.addJson(jvortexlinSecAxis, "frictionModel",
-                        mat->getEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel, nullptr),
+                        mat->getEngineIntParam_old(sim_vortex_body_seclinearaxisfrictionmodel, nullptr),
                         fricModelInfo.c_str());
         annJson.addJson(jvortexlinSecAxis, "frictionCoeff",
-                        mat->getEngineFloatParam(sim_vortex_body_seclinearaxisfriction, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_seclinearaxisfriction, nullptr));
         annJson.addJson(jvortexlinSecAxis, "staticFrictionScale",
-                        mat->getEngineFloatParam(sim_vortex_body_seclinearaxisstaticfrictionscale, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_seclinearaxisstaticfrictionscale, nullptr));
         annJson.addJson(jvortexlinSecAxis, "slip",
-                        mat->getEngineFloatParam(sim_vortex_body_seclinearaxisslip, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_seclinearaxisslip, nullptr));
         annJson.addJson(jvortexlinSecAxis, "slide",
-                        mat->getEngineFloatParam(sim_vortex_body_seclinearaxisslide, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_seclinearaxisslide, nullptr));
         annJson.addJson(jvortex, "linearSecondaryAxis", jvortexlinSecAxis);
         QJsonObject jvortexangPrimAxis;
         annJson.addJson(jvortexangPrimAxis, "frictionModel",
-                        mat->getEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel, nullptr),
+                        mat->getEngineIntParam_old(sim_vortex_body_primangulararaxisfrictionmodel, nullptr),
                         fricModelInfo.c_str());
         annJson.addJson(jvortexangPrimAxis, "frictionCoeff",
-                        mat->getEngineFloatParam(sim_vortex_body_primangularaxisfriction, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_primangularaxisfriction, nullptr));
         annJson.addJson(jvortexangPrimAxis, "staticFrictionScale",
-                        mat->getEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_primangularaxisstaticfrictionscale, nullptr));
         annJson.addJson(jvortexangPrimAxis, "slip",
-                        mat->getEngineFloatParam(sim_vortex_body_primangularaxisslip, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_primangularaxisslip, nullptr));
         annJson.addJson(jvortexangPrimAxis, "slide",
-                        mat->getEngineFloatParam(sim_vortex_body_primangularaxisslide, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_primangularaxisslide, nullptr));
         annJson.addJson(jvortex, "angularPrimaryAxis", jvortexangPrimAxis);
         QJsonObject jvortexangSecAxis;
         annJson.addJson(jvortexangSecAxis, "followPrimaryAxis",
-                        mat->getEngineBoolParam(sim_vortex_body_secangaxissameasprimangaxis, nullptr));
+                        mat->getEngineBoolParam_old(sim_vortex_body_secangaxissameasprimangaxis, nullptr));
         annJson.addJson(jvortexangSecAxis, "frictionModel",
-                        mat->getEngineIntParam(sim_vortex_body_secmangulararaxisfrictionmodel, nullptr),
+                        mat->getEngineIntParam_old(sim_vortex_body_secmangulararaxisfrictionmodel, nullptr),
                         fricModelInfo.c_str());
         annJson.addJson(jvortexangSecAxis, "frictionCoeff",
-                        mat->getEngineFloatParam(sim_vortex_body_secangularaxisfriction, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_secangularaxisfriction, nullptr));
         annJson.addJson(jvortexangSecAxis, "staticFrictionScale",
-                        mat->getEngineFloatParam(sim_vortex_body_secangularaxisstaticfrictionscale, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_secangularaxisstaticfrictionscale, nullptr));
         annJson.addJson(jvortexangSecAxis, "slip",
-                        mat->getEngineFloatParam(sim_vortex_body_secangularaxisslip, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_secangularaxisslip, nullptr));
         annJson.addJson(jvortexangSecAxis, "slide",
-                        mat->getEngineFloatParam(sim_vortex_body_secangularaxisslide, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_secangularaxisslide, nullptr));
         annJson.addJson(jvortex, "angularSecondaryAxis", jvortexangSecAxis);
         QJsonObject jvortexangNormAxis;
         annJson.addJson(jvortexangNormAxis, "followPrimaryAxis",
-                        mat->getEngineBoolParam(sim_vortex_body_normangaxissameasprimangaxis, nullptr));
+                        mat->getEngineBoolParam_old(sim_vortex_body_normangaxissameasprimangaxis, nullptr));
         annJson.addJson(jvortexangNormAxis, "frictionModel",
-                        mat->getEngineIntParam(sim_vortex_body_normalmangulararaxisfrictionmodel, nullptr),
+                        mat->getEngineIntParam_old(sim_vortex_body_normalmangulararaxisfrictionmodel, nullptr),
                         fricModelInfo.c_str());
         annJson.addJson(jvortexangNormAxis, "frictionCoeff",
-                        mat->getEngineFloatParam(sim_vortex_body_normalangularaxisfriction, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_normalangularaxisfriction, nullptr));
         annJson.addJson(jvortexangNormAxis, "staticFrictionScale",
-                        mat->getEngineFloatParam(sim_vortex_body_normalangularaxisstaticfrictionscale, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_normalangularaxisstaticfrictionscale, nullptr));
         annJson.addJson(jvortexangNormAxis, "slip",
-                        mat->getEngineFloatParam(sim_vortex_body_normalangularaxisslip, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_normalangularaxisslip, nullptr));
         annJson.addJson(jvortexangNormAxis, "slide",
-                        mat->getEngineFloatParam(sim_vortex_body_normalangularaxisslide, nullptr));
+                        mat->getEngineFloatParam_old(sim_vortex_body_normalangularaxisslide, nullptr));
         annJson.addJson(jvortex, "angularNormalAxis", jvortexangNormAxis);
         annJson.addJson(annJson.getMainObject()[0], "vortex", jvortex);
     }
@@ -1294,35 +1294,35 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson &annJso
         {
             QJsonObject bullet(val.toObject());
             if (annJson.getValue(bullet, "stickyContact", QJsonValue::Bool, val, allErrors))
-                mat->setEngineBoolParam(sim_bullet_body_sticky, val.toBool());
+                mat->setEngineBoolParam_old(sim_bullet_body_sticky, val.toBool());
             if (annJson.getValue(bullet, "frictionOld", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_bullet_body_oldfriction, val.toDouble());
+                mat->setEngineFloatParam_old(sim_bullet_body_oldfriction, val.toDouble());
             if (annJson.getValue(bullet, "friction", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_bullet_body_friction, val.toDouble());
+                mat->setEngineFloatParam_old(sim_bullet_body_friction, val.toDouble());
             if (annJson.getValue(bullet, "restitution", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_bullet_body_restitution, val.toDouble());
+                mat->setEngineFloatParam_old(sim_bullet_body_restitution, val.toDouble());
             if (annJson.getValue(bullet, "linearDamping", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_bullet_body_lineardamping, val.toDouble());
+                mat->setEngineFloatParam_old(sim_bullet_body_lineardamping, val.toDouble());
             if (annJson.getValue(bullet, "angularDamping", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_bullet_body_angulardamping, val.toDouble());
+                mat->setEngineFloatParam_old(sim_bullet_body_angulardamping, val.toDouble());
             if (annJson.getValue(bullet, "customCollisionMargin", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "enabled", QJsonValue::Bool, val, allErrors))
-                    mat->setEngineBoolParam(sim_bullet_body_usenondefaultcollisionmargin, val.toBool());
+                    mat->setEngineBoolParam_old(sim_bullet_body_usenondefaultcollisionmargin, val.toBool());
                 if (annJson.getValue(sub, "value", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactor, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_bullet_body_nondefaultcollisionmargingfactor, val.toDouble());
             }
             if (annJson.getValue(bullet, "customCollisionMarginConvex", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "enabled", QJsonValue::Bool, val, allErrors))
-                    mat->setEngineBoolParam(sim_bullet_body_usenondefaultcollisionmarginconvex, val.toBool());
+                    mat->setEngineBoolParam_old(sim_bullet_body_usenondefaultcollisionmarginconvex, val.toBool());
                 if (annJson.getValue(sub, "value", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactorconvex, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_bullet_body_nondefaultcollisionmargingfactorconvex, val.toDouble());
             }
             if (annJson.getValue(bullet, "autoShrinkConvexMeshes", QJsonValue::Bool, val, allErrors))
-                mat->setEngineBoolParam(sim_bullet_body_autoshrinkconvex, val.toBool());
+                mat->setEngineBoolParam_old(sim_bullet_body_autoshrinkconvex, val.toBool());
         }
     }
 
@@ -1332,17 +1332,17 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson &annJso
         {
             QJsonObject ode(val.toObject());
             if (annJson.getValue(ode, "friction", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_ode_body_friction, val.toDouble());
+                mat->setEngineFloatParam_old(sim_ode_body_friction, val.toDouble());
             if (annJson.getValue(ode, "softErp", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_ode_body_softerp, val.toDouble());
+                mat->setEngineFloatParam_old(sim_ode_body_softerp, val.toDouble());
             if (annJson.getValue(ode, "softCfm", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_ode_body_softcfm, val.toDouble());
+                mat->setEngineFloatParam_old(sim_ode_body_softcfm, val.toDouble());
             if (annJson.getValue(ode, "linearDamping", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_ode_body_lineardamping, val.toDouble());
+                mat->setEngineFloatParam_old(sim_ode_body_lineardamping, val.toDouble());
             if (annJson.getValue(ode, "angularDamping", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_ode_body_angulardamping, val.toDouble());
+                mat->setEngineFloatParam_old(sim_ode_body_angulardamping, val.toDouble());
             if (annJson.getValue(ode, "maxContacts", QJsonValue::Double, val, allErrors))
-                mat->setEngineIntParam(sim_ode_body_maxcontacts, val.toInt());
+                mat->setEngineIntParam_old(sim_ode_body_maxcontacts, val.toInt());
         }
     }
 
@@ -1352,17 +1352,17 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson &annJso
         {
             QJsonObject newton(val.toObject());
             if (annJson.getValue(newton, "staticFriction", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_newton_body_staticfriction, val.toDouble());
+                mat->setEngineFloatParam_old(sim_newton_body_staticfriction, val.toDouble());
             if (annJson.getValue(newton, "kineticFriction", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_newton_body_kineticfriction, val.toDouble());
+                mat->setEngineFloatParam_old(sim_newton_body_kineticfriction, val.toDouble());
             if (annJson.getValue(newton, "restitution", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_newton_body_restitution, val.toDouble());
+                mat->setEngineFloatParam_old(sim_newton_body_restitution, val.toDouble());
             if (annJson.getValue(newton, "linearDrag", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_newton_body_lineardrag, val.toDouble());
+                mat->setEngineFloatParam_old(sim_newton_body_lineardrag, val.toDouble());
             if (annJson.getValue(newton, "angularDrag", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_newton_body_angulardrag, val.toDouble());
+                mat->setEngineFloatParam_old(sim_newton_body_angulardrag, val.toDouble());
             if (annJson.getValue(newton, "fastMoving", QJsonValue::Bool, val, allErrors))
-                mat->setEngineBoolParam(sim_newton_body_fastmoving, val.toBool());
+                mat->setEngineBoolParam_old(sim_newton_body_fastmoving, val.toBool());
         }
     }
 
@@ -1374,31 +1374,31 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson &annJso
             double v[5];
             if (annJson.getValue(mujoco, "friction", v, 3, allErrors))
             {
-                mat->setEngineFloatParam(sim_mujoco_body_friction1, v[0]);
-                mat->setEngineFloatParam(sim_mujoco_body_friction2, v[1]);
-                mat->setEngineFloatParam(sim_mujoco_body_friction3, v[2]);
+                mat->setEngineFloatParam_old(sim_mujoco_body_friction1, v[0]);
+                mat->setEngineFloatParam_old(sim_mujoco_body_friction2, v[1]);
+                mat->setEngineFloatParam_old(sim_mujoco_body_friction3, v[2]);
             }
             if (annJson.getValue(mujoco, "solref", v, 2, allErrors))
             {
-                mat->setEngineFloatParam(sim_mujoco_body_solref1, v[0]);
-                mat->setEngineFloatParam(sim_mujoco_body_solref2, v[1]);
+                mat->setEngineFloatParam_old(sim_mujoco_body_solref1, v[0]);
+                mat->setEngineFloatParam_old(sim_mujoco_body_solref2, v[1]);
             }
             if (annJson.getValue(mujoco, "solimp", v, 5, allErrors))
             {
-                mat->setEngineFloatParam(sim_mujoco_body_solimp1, v[0]);
-                mat->setEngineFloatParam(sim_mujoco_body_solimp2, v[1]);
-                mat->setEngineFloatParam(sim_mujoco_body_solimp3, v[2]);
-                mat->setEngineFloatParam(sim_mujoco_body_solimp4, v[3]);
-                mat->setEngineFloatParam(sim_mujoco_body_solimp5, v[4]);
+                mat->setEngineFloatParam_old(sim_mujoco_body_solimp1, v[0]);
+                mat->setEngineFloatParam_old(sim_mujoco_body_solimp2, v[1]);
+                mat->setEngineFloatParam_old(sim_mujoco_body_solimp3, v[2]);
+                mat->setEngineFloatParam_old(sim_mujoco_body_solimp4, v[3]);
+                mat->setEngineFloatParam_old(sim_mujoco_body_solimp5, v[4]);
             }
             if (annJson.getValue(mujoco, "condim", QJsonValue::Double, val, allErrors))
-                mat->setEngineIntParam(sim_mujoco_body_condim, val.toInt());
+                mat->setEngineIntParam_old(sim_mujoco_body_condim, val.toInt());
             if (annJson.getValue(mujoco, "solmix", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_mujoco_body_solmix, val.toDouble());
+                mat->setEngineFloatParam_old(sim_mujoco_body_solmix, val.toDouble());
             if (annJson.getValue(mujoco, "margin", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_mujoco_body_margin, val.toDouble());
+                mat->setEngineFloatParam_old(sim_mujoco_body_margin, val.toDouble());
             if (annJson.getValue(mujoco, "priority", QJsonValue::Double, val, allErrors))
-                mat->setEngineIntParam(sim_mujoco_body_priority, val.toInt());
+                mat->setEngineIntParam_old(sim_mujoco_body_priority, val.toInt());
         }
     }
 
@@ -1408,52 +1408,52 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson &annJso
         {
             QJsonObject vortex(val.toObject());
             if (annJson.getValue(vortex, "restitution", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_vortex_body_restitution, val.toDouble());
+                mat->setEngineFloatParam_old(sim_vortex_body_restitution, val.toDouble());
             if (annJson.getValue(vortex, "restitutionThreshold", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_vortex_body_restitutionthreshold, val.toDouble());
+                mat->setEngineFloatParam_old(sim_vortex_body_restitutionthreshold, val.toDouble());
             if (annJson.getValue(vortex, "compliance", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_vortex_body_compliance, val.toDouble());
+                mat->setEngineFloatParam_old(sim_vortex_body_compliance, val.toDouble());
             if (annJson.getValue(vortex, "damping", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_vortex_body_damping, val.toDouble());
+                mat->setEngineFloatParam_old(sim_vortex_body_damping, val.toDouble());
             if (annJson.getValue(vortex, "adhesiveForce", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_vortex_body_adhesiveforce, val.toDouble());
+                mat->setEngineFloatParam_old(sim_vortex_body_adhesiveforce, val.toDouble());
             if (annJson.getValue(vortex, "linearVelDamping", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_vortex_body_linearvelocitydamping, val.toDouble());
+                mat->setEngineFloatParam_old(sim_vortex_body_linearvelocitydamping, val.toDouble());
             if (annJson.getValue(vortex, "angularVelDamping", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_vortex_body_angularvelocitydamping, val.toDouble());
+                mat->setEngineFloatParam_old(sim_vortex_body_angularvelocitydamping, val.toDouble());
             if (annJson.getValue(vortex, "autoAngularDamping", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "enabled", QJsonValue::Bool, val, allErrors))
-                    mat->setEngineBoolParam(sim_vortex_body_autoangulardamping, val.toBool());
+                    mat->setEngineBoolParam_old(sim_vortex_body_autoangulardamping, val.toBool());
                 if (annJson.getValue(sub, "tensionRatio", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_autoangulardampingtensionratio, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_autoangulardampingtensionratio, val.toDouble());
             }
             if (annJson.getValue(vortex, "skinThickness", QJsonValue::Double, val, allErrors))
-                mat->setEngineFloatParam(sim_vortex_body_skinthickness, val.toDouble());
+                mat->setEngineFloatParam_old(sim_vortex_body_skinthickness, val.toDouble());
             if (annJson.getValue(vortex, "autoSlip", QJsonValue::Bool, val, allErrors))
-                mat->setEngineBoolParam(sim_vortex_body_autoslip, val.toBool());
+                mat->setEngineBoolParam_old(sim_vortex_body_autoslip, val.toBool());
             if (annJson.getValue(vortex, "fastMoving", QJsonValue::Bool, val, allErrors))
-                mat->setEngineBoolParam(sim_vortex_body_fastmoving, val.toBool());
+                mat->setEngineBoolParam_old(sim_vortex_body_fastmoving, val.toBool());
             if (annJson.getValue(vortex, "primitiveAsConvex", QJsonValue::Bool, val, allErrors))
-                mat->setEngineBoolParam(sim_vortex_body_pureshapesasconvex, val.toBool());
+                mat->setEngineBoolParam_old(sim_vortex_body_pureshapesasconvex, val.toBool());
             if (annJson.getValue(vortex, "convexAsRandom", QJsonValue::Bool, val, allErrors))
-                mat->setEngineBoolParam(sim_vortex_body_convexshapesasrandom, val.toBool());
+                mat->setEngineBoolParam_old(sim_vortex_body_convexshapesasrandom, val.toBool());
             if (annJson.getValue(vortex, "randomAsTerrain", QJsonValue::Bool, val, allErrors))
-                mat->setEngineBoolParam(sim_vortex_body_randomshapesasterrain, val.toBool());
+                mat->setEngineBoolParam_old(sim_vortex_body_randomshapesasterrain, val.toBool());
             if (annJson.getValue(vortex, "autoSleepThreshold", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "linearSpeed", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_autosleeplinearspeedthreshold, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_autosleeplinearspeedthreshold, val.toDouble());
                 if (annJson.getValue(sub, "linearAccel", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_autosleeplinearaccelthreshold, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_autosleeplinearaccelthreshold, val.toDouble());
                 if (annJson.getValue(sub, "angularSpeed", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_autosleepangularspeedthreshold, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_autosleepangularspeedthreshold, val.toDouble());
                 if (annJson.getValue(sub, "angularAccel", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_autosleepangularaccelthreshold, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_autosleepangularaccelthreshold, val.toDouble());
                 if (annJson.getValue(sub, "steps", QJsonValue::Double, val, allErrors))
-                    mat->setEngineIntParam(sim_vortex_body_autosleepsteplivethreshold, val.toInt());
+                    mat->setEngineIntParam_old(sim_vortex_body_autosleepsteplivethreshold, val.toInt());
             }
             if (annJson.getValue(vortex, "linearPrimaryAxis", QJsonValue::Object, val, allErrors))
             {
@@ -1461,82 +1461,82 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson &annJso
                 double v[3];
                 if (annJson.getValue(sub, "value", v, 3, allErrors))
                 {
-                    mat->setEngineFloatParam(sim_vortex_body_primaxisvectorx, v[0]);
-                    mat->setEngineFloatParam(sim_vortex_body_primaxisvectory, v[1]);
-                    mat->setEngineFloatParam(sim_vortex_body_primaxisvectorz, v[2]);
+                    mat->setEngineFloatParam_old(sim_vortex_body_primaxisvectorx, v[0]);
+                    mat->setEngineFloatParam_old(sim_vortex_body_primaxisvectory, v[1]);
+                    mat->setEngineFloatParam_old(sim_vortex_body_primaxisvectorz, v[2]);
                 }
                 if (annJson.getValue(sub, "frictionModel", QJsonValue::Double, val, allErrors))
-                    mat->setEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel, val.toInt());
+                    mat->setEngineIntParam_old(sim_vortex_body_primlinearaxisfrictionmodel, val.toInt());
                 if (annJson.getValue(sub, "frictionCoeff", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_primlinearaxisfriction, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_primlinearaxisfriction, val.toDouble());
                 if (annJson.getValue(sub, "staticFrictionScale", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_primlinearaxisstaticfrictionscale, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_primlinearaxisstaticfrictionscale, val.toDouble());
                 if (annJson.getValue(sub, "slip", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_primlinearaxisslip, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_primlinearaxisslip, val.toDouble());
                 if (annJson.getValue(sub, "slide", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_primlinearaxisslide, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_primlinearaxisslide, val.toDouble());
             }
             if (annJson.getValue(vortex, "linearSecondaryAxis", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "followPrimaryAxis", QJsonValue::Bool, val, allErrors))
-                    mat->setEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis, val.toInt());
+                    mat->setEngineBoolParam_old(sim_vortex_body_seclinaxissameasprimlinaxis, val.toInt());
                 if (annJson.getValue(sub, "frictionModel", QJsonValue::Double, val, allErrors))
-                    mat->setEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel, val.toInt());
+                    mat->setEngineIntParam_old(sim_vortex_body_seclinearaxisfrictionmodel, val.toInt());
                 if (annJson.getValue(sub, "frictionCoeff", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_seclinearaxisfriction, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_seclinearaxisfriction, val.toDouble());
                 if (annJson.getValue(sub, "staticFrictionScale", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_seclinearaxisstaticfrictionscale, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_seclinearaxisstaticfrictionscale, val.toDouble());
                 if (annJson.getValue(sub, "slip", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_seclinearaxisslip, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_seclinearaxisslip, val.toDouble());
                 if (annJson.getValue(sub, "slide", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_seclinearaxisslide, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_seclinearaxisslide, val.toDouble());
             }
             if (annJson.getValue(vortex, "angularPrimaryAxis", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "frictionModel", QJsonValue::Double, val, allErrors))
-                    mat->setEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel, val.toInt());
+                    mat->setEngineIntParam_old(sim_vortex_body_primangulararaxisfrictionmodel, val.toInt());
                 if (annJson.getValue(sub, "frictionCoeff", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_primangularaxisfriction, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_primangularaxisfriction, val.toDouble());
                 if (annJson.getValue(sub, "staticFrictionScale", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_primangularaxisstaticfrictionscale, val.toDouble());
                 if (annJson.getValue(sub, "slip", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_primangularaxisslip, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_primangularaxisslip, val.toDouble());
                 if (annJson.getValue(sub, "slide", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_primangularaxisslide, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_primangularaxisslide, val.toDouble());
             }
             if (annJson.getValue(vortex, "angularSecondaryAxis", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "followPrimaryAxis", QJsonValue::Bool, val, allErrors))
-                    mat->setEngineBoolParam(sim_vortex_body_secangaxissameasprimangaxis, val.toInt());
+                    mat->setEngineBoolParam_old(sim_vortex_body_secangaxissameasprimangaxis, val.toInt());
                 if (annJson.getValue(sub, "frictionModel", QJsonValue::Double, val, allErrors))
-                    mat->setEngineIntParam(sim_vortex_body_secmangulararaxisfrictionmodel, val.toInt());
+                    mat->setEngineIntParam_old(sim_vortex_body_secmangulararaxisfrictionmodel, val.toInt());
                 if (annJson.getValue(sub, "frictionCoeff", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_secangularaxisfriction, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_secangularaxisfriction, val.toDouble());
                 if (annJson.getValue(sub, "staticFrictionScale", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_secangularaxisstaticfrictionscale, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_secangularaxisstaticfrictionscale, val.toDouble());
                 if (annJson.getValue(sub, "slip", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_secangularaxisslip, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_secangularaxisslip, val.toDouble());
                 if (annJson.getValue(sub, "slide", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_secangularaxisslide, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_secangularaxisslide, val.toDouble());
             }
             if (annJson.getValue(vortex, "angularNormalAxis", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "followPrimaryAxis", QJsonValue::Bool, val, allErrors))
-                    mat->setEngineBoolParam(sim_vortex_body_normangaxissameasprimangaxis, val.toInt());
+                    mat->setEngineBoolParam_old(sim_vortex_body_normangaxissameasprimangaxis, val.toInt());
                 if (annJson.getValue(sub, "frictionModel", QJsonValue::Double, val, allErrors))
-                    mat->setEngineIntParam(sim_vortex_body_normalmangulararaxisfrictionmodel, val.toInt());
+                    mat->setEngineIntParam_old(sim_vortex_body_normalmangulararaxisfrictionmodel, val.toInt());
                 if (annJson.getValue(sub, "frictionCoeff", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_normalangularaxisfriction, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_normalangularaxisfriction, val.toDouble());
                 if (annJson.getValue(sub, "staticFrictionScale", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_normalangularaxisstaticfrictionscale, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_normalangularaxisstaticfrictionscale, val.toDouble());
                 if (annJson.getValue(sub, "slip", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_normalangularaxisslip, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_normalangularaxisslip, val.toDouble());
                 if (annJson.getValue(sub, "slide", QJsonValue::Double, val, allErrors))
-                    mat->setEngineFloatParam(sim_vortex_body_normalangularaxisslide, val.toDouble());
+                    mat->setEngineFloatParam_old(sim_vortex_body_normalangularaxisslide, val.toDouble());
             }
         }
     }
@@ -1714,26 +1714,26 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
         {
             QJsonObject bullet(val.toObject());
             if (annJson.getValue(bullet, "solver", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_bullet_global_constraintsolvertype,
+                App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_bullet_global_constraintsolvertype,
                                                                         val.toInt());
             if (annJson.getValue(bullet, "iterations", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_bullet_global_constraintsolvingiterations,
+                App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_bullet_global_constraintsolvingiterations,
                                                                         val.toInt());
             if (annJson.getValue(bullet, "computeInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_bullet_global_computeinertias,
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_bullet_global_computeinertias,
                                                                          val.toBool());
             if (annJson.getValue(bullet, "internalScaling", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "full", QJsonValue::Bool, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_bullet_global_fullinternalscaling,
+                    App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_bullet_global_fullinternalscaling,
                                                                              val.toBool());
                 if (annJson.getValue(sub, "value", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_bullet_global_internalscalingfactor,
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_bullet_global_internalscalingfactor,
                                                                               val.toDouble());
             }
             if (annJson.getValue(bullet, "collisionMarginScaling", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_bullet_global_collisionmarginfactor,
+                App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_bullet_global_collisionmarginfactor,
                                                                           val.toDouble());
         }
     }
@@ -1747,27 +1747,27 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "enabled", QJsonValue::Bool, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_ode_global_quickstep, val.toBool());
+                    App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_ode_global_quickstep, val.toBool());
                 if (annJson.getValue(sub, "iterations", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
                         sim_ode_global_constraintsolvingiterations, val.toDouble());
             }
             if (annJson.getValue(ode, "computeInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_ode_global_computeinertias, val.toBool());
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_ode_global_computeinertias, val.toBool());
             if (annJson.getValue(ode, "internalScaling", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "full", QJsonValue::Bool, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_ode_global_fullinternalscaling,
+                    App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_ode_global_fullinternalscaling,
                                                                              val.toBool());
                 if (annJson.getValue(sub, "value", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_ode_global_internalscalingfactor,
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_ode_global_internalscalingfactor,
                                                                               val.toDouble());
             }
             if (annJson.getValue(ode, "globalErp", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_ode_global_erp, val.toDouble());
+                App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_ode_global_erp, val.toDouble());
             if (annJson.getValue(ode, "globalCfm", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_ode_global_cfm, val.toDouble());
+                App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_ode_global_cfm, val.toDouble());
         }
     }
 
@@ -1777,21 +1777,21 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
         {
             QJsonObject newton(val.toObject());
             if (annJson.getValue(newton, "iterations", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_newton_global_constraintsolvingiterations,
+                App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_newton_global_constraintsolvingiterations,
                                                                         val.toInt());
             if (annJson.getValue(newton, "computeInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_newton_global_computeinertias,
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_newton_global_computeinertias,
                                                                          val.toBool());
             if (annJson.getValue(newton, "multithreading", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_newton_global_multithreading,
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_newton_global_multithreading,
                                                                          val.toBool());
             if (annJson.getValue(newton, "exactSolver", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_newton_global_exactsolver, val.toBool());
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_newton_global_exactsolver, val.toBool());
             if (annJson.getValue(newton, "highJointAccuracy", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_newton_global_highjointaccuracy,
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_newton_global_highjointaccuracy,
                                                                          val.toBool());
             if (annJson.getValue(newton, "contactMergeTolerance", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_newton_global_contactmergetolerance,
+                App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_newton_global_contactmergetolerance,
                                                                           val.toDouble());
         }
     }
@@ -1803,81 +1803,81 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
             double w[5];
             QJsonObject mujoco(val.toObject());
             if (annJson.getValue(mujoco, "integrator", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_integrator, val.toInt());
+                App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_mujoco_global_integrator, val.toInt());
             if (annJson.getValue(mujoco, "solver", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_solver, val.toInt());
+                App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_mujoco_global_solver, val.toInt());
             if (annJson.getValue(mujoco, "integrations", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_iterations, val.toInt());
+                App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_mujoco_global_iterations, val.toInt());
             if (annJson.getValue(mujoco, "rebuildTrigger", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_rebuildtrigger, val.toInt());
+                App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_mujoco_global_rebuildtrigger, val.toInt());
             if (annJson.getValue(mujoco, "computeInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_mujoco_global_computeinertias,
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_mujoco_global_computeinertias,
                                                                          val.toBool());
             if (annJson.getValue(mujoco, "njmax", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_njmax, val.toInt());
+                App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_mujoco_global_njmax, val.toInt());
             if (annJson.getValue(mujoco, "nconmax", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_nconmax, val.toInt());
+                App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_mujoco_global_nconmax, val.toInt());
             if (annJson.getValue(mujoco, "nstack", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_nstack, val.toInt());
+                App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_mujoco_global_nstack, val.toInt());
             if (annJson.getValue(mujoco, "cone", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_cone, val.toInt());
+                App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_mujoco_global_cone, val.toInt());
             if (annJson.getValue(mujoco, "kinematicBodies", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "overrideFlags", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineIntParam(sim_mujoco_global_overridekin, val.toInt());
+                    App::currentWorld->dynamicsContainer->setEngineIntParam_old(sim_mujoco_global_overridekin, val.toInt());
                 if (annJson.getValue(sub, "mass", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_kinmass,
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_mujoco_global_kinmass,
                                                                               val.toDouble());
                 if (annJson.getValue(sub, "inertia", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_kininertia,
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_mujoco_global_kininertia,
                                                                               val.toDouble());
             }
             if (annJson.getValue(mujoco, "boundMass", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_boundmass, val.toDouble());
+                App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_mujoco_global_boundmass, val.toDouble());
             if (annJson.getValue(mujoco, "boundInertia", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_boundinertia,
+                App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_mujoco_global_boundinertia,
                                                                           val.toDouble());
             if (annJson.getValue(mujoco, "balanceInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_mujoco_global_balanceinertias,
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_mujoco_global_balanceinertias,
                                                                          val.toBool());
             if (annJson.getValue(mujoco, "multithreaded", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_mujoco_global_multithreaded, val.toBool());
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_mujoco_global_multithreaded, val.toBool());
             if (annJson.getValue(mujoco, "multiccd", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_mujoco_global_multiccd, val.toBool());
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_mujoco_global_multiccd, val.toBool());
             if (annJson.getValue(mujoco, "contactParams", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "override", QJsonValue::Bool, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_mujoco_global_overridecontacts,
+                    App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_mujoco_global_overridecontacts,
                                                                              val.toBool());
                 if (annJson.getValue(sub, "margin", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_overridemargin,
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_mujoco_global_overridemargin,
                                                                               val.toDouble());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
                 {
                     for (size_t j = 0; j < 2; j++)
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam(
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
                             sim_mujoco_global_overridesolref1 + int(j), w[j]);
                 }
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
                 {
                     for (size_t j = 0; j < 5; j++)
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam(
+                        App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
                             sim_mujoco_global_overridesolimp1 + int(j), w[j]);
                 }
             }
             if (annJson.getValue(mujoco, "impratio", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_impratio, val.toDouble());
+                App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_mujoco_global_impratio, val.toDouble());
             if (annJson.getValue(mujoco, "wind", w, 3, allErrors))
             {
                 for (size_t j = 0; j < 3; j++)
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_wind1 + int(j), w[j]);
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_mujoco_global_wind1 + int(j), w[j]);
             }
             if (annJson.getValue(mujoco, "density", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_density, val.toDouble());
+                App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_mujoco_global_density, val.toDouble());
             if (annJson.getValue(mujoco, "viscosity", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_mujoco_global_viscosity, val.toDouble());
+                App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_mujoco_global_viscosity, val.toDouble());
         }
     }
 
@@ -1888,36 +1888,36 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
         {
             QJsonObject vortex(val.toObject());
             if (annJson.getValue(vortex, "computeInertias", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_vortex_global_computeinertias,
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_vortex_global_computeinertias,
                                                                          val.toBool());
             if (annJson.getValue(vortex, "contactTolerance", QJsonValue::Double, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_vortex_global_contacttolerance,
+                App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_vortex_global_contacttolerance,
                                                                           val.toDouble());
             if (annJson.getValue(vortex, "autoSleep", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_vortex_global_autosleep, val.toBool());
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_vortex_global_autosleep, val.toBool());
             if (annJson.getValue(vortex, "multithreading", QJsonValue::Bool, val, allErrors))
-                App::currentWorld->dynamicsContainer->setEngineBoolParam(sim_vortex_global_multithreading,
+                App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_vortex_global_multithreading,
                                                                          val.toBool());
             if (annJson.getValue(vortex, "constraints", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "linearCompliance", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
                         sim_vortex_global_constraintlinearcompliance, val.toDouble());
                 if (annJson.getValue(sub, "linearDamping", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(sim_vortex_global_constraintlineardamping,
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_vortex_global_constraintlineardamping,
                                                                               val.toDouble());
                 if (annJson.getValue(sub, "linearKineticLoss", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
                         sim_vortex_global_constraintlinearkineticloss, val.toDouble());
                 if (annJson.getValue(sub, "angularCompliance", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
                         sim_vortex_global_constraintangularcompliance, val.toDouble());
                 if (annJson.getValue(sub, "angularDamping", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
                         sim_vortex_global_constraintangulardamping, val.toDouble());
                 if (annJson.getValue(sub, "angularKineticLoss", QJsonValue::Double, val, allErrors))
-                    App::currentWorld->dynamicsContainer->setEngineFloatParam(
+                    App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
                         sim_vortex_global_constraintangularkineticloss, val.toDouble());
             }
         }
@@ -1927,8 +1927,8 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson &annJson, std::string *
 double CEngineProperties::_getGlobalFloatParam(int item, std::string &comment,
                                                const char *additionalComment /*=nullptr*/) const
 {
-    double retVal = App::currentWorld->dynamicsContainer->getEngineFloatParam(item, nullptr, false);
-    double def = App::currentWorld->dynamicsContainer->getEngineFloatParam(item, nullptr, true);
+    double retVal = App::currentWorld->dynamicsContainer->getEngineFloatParam_old(item, nullptr, false);
+    double def = App::currentWorld->dynamicsContainer->getEngineFloatParam_old(item, nullptr, true);
     bool similar = true;
     if ((retVal == 0.0) || (def == 0.0))
         similar = (retVal == def);
@@ -1957,8 +1957,8 @@ double CEngineProperties::_getGlobalFloatParam(int item, std::string &comment,
 int CEngineProperties::_getGlobalIntParam(int item, std::string &comment,
                                           const char *additionalComment /*=nullptr*/) const
 {
-    int retVal = App::currentWorld->dynamicsContainer->getEngineIntParam(item, nullptr, false);
-    int def = App::currentWorld->dynamicsContainer->getEngineIntParam(item, nullptr, true);
+    int retVal = App::currentWorld->dynamicsContainer->getEngineIntParam_old(item, nullptr, false);
+    int def = App::currentWorld->dynamicsContainer->getEngineIntParam_old(item, nullptr, true);
     comment.clear();
     if (retVal != def)
     {
@@ -1982,8 +1982,8 @@ int CEngineProperties::_getGlobalIntParam(int item, std::string &comment,
 bool CEngineProperties::_getGlobalBoolParam(int item, std::string &comment,
                                             const char *additionalComment /*=nullptr*/) const
 {
-    bool retVal = App::currentWorld->dynamicsContainer->getEngineBoolParam(item, nullptr, false);
-    bool def = App::currentWorld->dynamicsContainer->getEngineBoolParam(item, nullptr, true);
+    bool retVal = App::currentWorld->dynamicsContainer->getEngineBoolParam_old(item, nullptr, false);
+    bool def = App::currentWorld->dynamicsContainer->getEngineBoolParam_old(item, nullptr, true);
     comment.clear();
     if (retVal != def)
     {
@@ -2015,8 +2015,8 @@ void CEngineProperties::_getGlobalFloatParams(int item, double *w, size_t cnt, s
     bool similar = true;
     for (size_t i = 0; i < cnt; i++)
     {
-        w[i] = App::currentWorld->dynamicsContainer->getEngineFloatParam(item + int(i), nullptr, false);
-        def[i] = App::currentWorld->dynamicsContainer->getEngineFloatParam(item + int(i), nullptr, true);
+        w[i] = App::currentWorld->dynamicsContainer->getEngineFloatParam_old(item + int(i), nullptr, false);
+        def[i] = App::currentWorld->dynamicsContainer->getEngineFloatParam_old(item + int(i), nullptr, true);
         if ((w[i] == 0.0) || (def[i] == 0.0))
         {
             if (w[i] != def[i])
@@ -2079,27 +2079,27 @@ void CEngineProperties::_writeDummy(int engine, int dummyHandle, CAnnJson &annJs
     {
         QJsonObject jmujoco;
         QJsonObject jmujocoLimits;
-        annJson.addJson(jmujocoLimits, "limited", dummy->getEngineBoolParam(sim_mujoco_dummy_limited, nullptr));
+        annJson.addJson(jmujocoLimits, "enabled", dummy->getEngineBoolParam_old(sim_mujoco_dummy_limited, nullptr));
         double v[5];
-        v[0] = dummy->getEngineFloatParam(sim_mujoco_dummy_range1, nullptr);
-        v[1] = dummy->getEngineFloatParam(sim_mujoco_dummy_range2, nullptr);
+        v[0] = dummy->getEngineFloatParam_old(sim_mujoco_dummy_range1, nullptr);
+        v[1] = dummy->getEngineFloatParam_old(sim_mujoco_dummy_range2, nullptr);
         annJson.addJson(jmujocoLimits, "range", v, 2);
-        v[0] = dummy->getEngineFloatParam(sim_mujoco_dummy_solreflimit1, nullptr);
-        v[1] = dummy->getEngineFloatParam(sim_mujoco_dummy_solreflimit2, nullptr);
+        v[0] = dummy->getEngineFloatParam_old(sim_mujoco_dummy_solreflimit1, nullptr);
+        v[1] = dummy->getEngineFloatParam_old(sim_mujoco_dummy_solreflimit2, nullptr);
         annJson.addJson(jmujocoLimits, "solref", v, 2);
         for (size_t j = 0; j < 5; j++)
-            v[j] = dummy->getEngineFloatParam(sim_mujoco_dummy_solimplimit1 + int(j), nullptr);
+            v[j] = dummy->getEngineFloatParam_old(sim_mujoco_dummy_solimplimit1 + int(j), nullptr);
         annJson.addJson(jmujocoLimits, "solimp", v, 5);
         annJson.addJson(jmujoco, "limits", jmujocoLimits);
         QJsonObject jmujocoSpring;
-        annJson.addJson(jmujocoSpring, "stiffness", dummy->getEngineFloatParam(sim_mujoco_dummy_stiffness, nullptr));
-        annJson.addJson(jmujocoSpring, "damping", dummy->getEngineFloatParam(sim_mujoco_dummy_damping, nullptr));
-        annJson.addJson(jmujocoSpring, "springLength",
-                        dummy->getEngineFloatParam(sim_mujoco_dummy_springlength, nullptr));
+        annJson.addJson(jmujocoSpring, "stiffness", dummy->getEngineFloatParam_old(sim_mujoco_dummy_stiffness, nullptr));
+        annJson.addJson(jmujocoSpring, "damping", dummy->getEngineFloatParam_old(sim_mujoco_dummy_damping, nullptr));
+        annJson.addJson(jmujocoSpring, "length",
+                        dummy->getEngineFloatParam_old(sim_mujoco_dummy_springlength, nullptr));
         annJson.addJson(jmujoco, "spring", jmujocoSpring);
-        annJson.addJson(jmujoco, "margin", dummy->getEngineFloatParam(sim_mujoco_dummy_margin, nullptr));
+        annJson.addJson(jmujoco, "margin", dummy->getEngineFloatParam_old(sim_mujoco_dummy_margin, nullptr));
         QJsonObject jmujocoDependency;
-        int h = dummy->getEngineIntParam(sim_mujoco_dummy_proxyjointid, nullptr);
+        int h = dummy->getEngineIntParam_old(sim_mujoco_dummy_proxyjointid, nullptr);
         std::string nameAndPath;
         if (h >= 0)
         {
@@ -2107,7 +2107,7 @@ void CEngineProperties::_writeDummy(int engine, int dummyHandle, CAnnJson &annJs
             if (obj != nullptr)
                 nameAndPath = obj->getObjectAlias_shortPath();
         }
-        annJson.addJson(jmujocoDependency, "joint", nameAndPath.c_str(), "specify the full, unique path");
+        annJson.addJson(jmujocoDependency, "name", nameAndPath.c_str(), "specify the full, unique path");
         annJson.addJson(jmujoco, "jointProxy", jmujocoDependency);
         annJson.addJson(annJson.getMainObject()[0], "mujoco", jmujoco);
     }
@@ -2154,40 +2154,40 @@ void CEngineProperties::_readDummy(int engine, int dummyHandle, CAnnJson &annJso
             if (annJson.getValue(mujoco, "limits", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
-                if (annJson.getValue(sub, "limited", QJsonValue::Bool, val, allErrors))
-                    dummy->setEngineBoolParam(sim_mujoco_dummy_limited, val.toBool());
+                if (annJson.getValue(sub, "enabled", QJsonValue::Bool, val, allErrors))
+                    dummy->setEngineBoolParam_old(sim_mujoco_dummy_limited, val.toBool());
                 if (annJson.getValue(sub, "range", w, 2, allErrors))
                 {
-                    dummy->setEngineFloatParam(sim_mujoco_dummy_range1, w[0]);
-                    dummy->setEngineFloatParam(sim_mujoco_dummy_range2, w[1]);
+                    dummy->setEngineFloatParam_old(sim_mujoco_dummy_range1, w[0]);
+                    dummy->setEngineFloatParam_old(sim_mujoco_dummy_range2, w[1]);
                 }
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
                 {
-                    dummy->setEngineFloatParam(sim_mujoco_dummy_solreflimit1, w[0]);
-                    dummy->setEngineFloatParam(sim_mujoco_dummy_solreflimit2, w[1]);
+                    dummy->setEngineFloatParam_old(sim_mujoco_dummy_solreflimit1, w[0]);
+                    dummy->setEngineFloatParam_old(sim_mujoco_dummy_solreflimit2, w[1]);
                 }
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
                 {
                     for (size_t j = 0; j < 5; j++)
-                        dummy->setEngineFloatParam(sim_mujoco_dummy_solimplimit1 + int(j), w[j]);
+                        dummy->setEngineFloatParam_old(sim_mujoco_dummy_solimplimit1 + int(j), w[j]);
                 }
             }
             if (annJson.getValue(mujoco, "spring", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "stiffness", QJsonValue::Double, val, allErrors))
-                    dummy->setEngineFloatParam(sim_mujoco_dummy_stiffness, val.toDouble());
+                    dummy->setEngineFloatParam_old(sim_mujoco_dummy_stiffness, val.toDouble());
                 if (annJson.getValue(sub, "damping", QJsonValue::Double, val, allErrors))
-                    dummy->setEngineFloatParam(sim_mujoco_dummy_damping, val.toDouble());
-                if (annJson.getValue(sub, "springLength", QJsonValue::Double, val, allErrors))
-                    dummy->setEngineFloatParam(sim_mujoco_dummy_springlength, val.toDouble());
+                    dummy->setEngineFloatParam_old(sim_mujoco_dummy_damping, val.toDouble());
+                if (annJson.getValue(sub, "length", QJsonValue::Double, val, allErrors))
+                    dummy->setEngineFloatParam_old(sim_mujoco_dummy_springlength, val.toDouble());
             }
             if (annJson.getValue(mujoco, "margin", QJsonValue::Double, val, allErrors))
-                dummy->setEngineFloatParam(sim_mujoco_dummy_margin, val.toDouble());
+                dummy->setEngineFloatParam_old(sim_mujoco_dummy_margin, val.toDouble());
             if (annJson.getValue(mujoco, "jointProxy", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
-                if (annJson.getValue(sub, "joint", QJsonValue::String, val, allErrors))
+                if (annJson.getValue(sub, "name", QJsonValue::String, val, allErrors))
                 {
                     int h = -1;
                     std::string str(val.toString().toStdString());
@@ -2197,18 +2197,18 @@ void CEngineProperties::_readDummy(int engine, int dummyHandle, CAnnJson &annJso
                         if ((obj != nullptr) && (obj->getObjectType() == sim_sceneobject_joint))
                         {
                             h = obj->getObjectHandle();
-                            dummy->setEngineIntParam(sim_mujoco_dummy_proxyjointid, h);
+                            dummy->setEngineIntParam_old(sim_mujoco_dummy_proxyjointid, h);
                         }
                         else
                         {
                             if (allErrors->size() > 0)
                                 allErrors[0] += "\n";
                             allErrors[0] +=
-                                "Key 'jointProxy/joint' does not point to a valid joint object and will be ignored.";
+                                "Key 'jointProxy/name' does not point to a valid joint object and will be ignored.";
                         }
                     }
                     else
-                        dummy->setEngineIntParam(sim_mujoco_dummy_proxyjointid, h);
+                        dummy->setEngineIntParam_old(sim_mujoco_dummy_proxyjointid, h);
                 }
             }
         }

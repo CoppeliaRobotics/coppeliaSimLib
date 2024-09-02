@@ -294,12 +294,12 @@ class CDynMaterialObject
 
     // Engine properties
     // ---------------------
-    double getEngineFloatParam(int what, bool *ok);
-    int getEngineIntParam(int what, bool *ok);
-    bool getEngineBoolParam(int what, bool *ok);
-    bool setEngineFloatParam(int what, double v);
-    bool setEngineIntParam(int what, int v);
-    bool setEngineBoolParam(int what, bool v);
+    double getEngineFloatParam_old(int what, bool *ok);
+    int getEngineIntParam_old(int what, bool *ok);
+    bool getEngineBoolParam_old(int what, bool *ok);
+    bool setEngineFloatParam_old(int what, double v);
+    bool setEngineIntParam_old(int what, int v);
+    bool setEngineBoolParam_old(int what, bool v);
 
     void getBulletFloatParams(std::vector<double> &p);
     void setBulletFloatParams(const std::vector<double> &p);
