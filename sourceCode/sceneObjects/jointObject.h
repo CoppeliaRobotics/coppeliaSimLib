@@ -35,7 +35,7 @@ struct SJointProperty {
     FUNCX(propJoint_vortexUpperLimitMaxForce,  "vortexAxisLimitsUpperMaxForce",                    sim_propertytype_float,     0, sim_vortex_joint_upperlimitmaxforce, -1, -1, -1, -1) \
     FUNCX(propJoint_vortexAxisFrictionEnabled,     "vortexAxisFrictionEnabled",                        sim_propertytype_bool,      0, sim_vortex_joint_motorfrictionenabled, -1, -1, -1, -1) \
     FUNCX(propJoint_vortexAxisFrictionProportional,"vortexAxisFrictionProportional",                   sim_propertytype_bool,      0, sim_vortex_joint_proportionalmotorfriction, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexAxisFrictionCoeff,       "vortexAxisFrictionCoeff",                          sim_propertytype_float,     0, sim_vortex_joint_motorconstraintfrictioncoeff, -1, -1, -1, -1) \
+    FUNCX(propJoint_vortexAxisFrictionCoeff,       "vortexAxisFrictionValue",                          sim_propertytype_float,     0, sim_vortex_joint_motorconstraintfrictioncoeff, -1, -1, -1, -1) \
     FUNCX(propJoint_vortexAxisFrictionMaxForce,    "vortexAxisFrictionMaxForce",                       sim_propertytype_float,     0, sim_vortex_joint_motorconstraintfrictionmaxforce, -1, -1, -1, -1) \
     FUNCX(propJoint_vortexAxisFrictionLoss,        "vortexAxisFrictionLoss",                           sim_propertytype_float,     0, sim_vortex_joint_motorconstraintfrictionloss, -1, -1, -1, -1) \
     FUNCX(propJoint_vortexRelaxationEnabledBits,    "vortexRelaxationEnabledBits",                  sim_propertytype_int,      0, sim_vortex_joint_relaxationenabledbc, -1, -1, -1, -1) \
@@ -81,17 +81,17 @@ struct SJointProperty {
     FUNCX(propJoint_newtonPosPid,                  "newtonPosPid",                                     sim_propertytype_vector,    0, sim_newton_joint_pospid1, sim_newton_joint_pospid2, sim_newton_joint_pospid3, -1, -1) \
     FUNCX(propJoint_mujocoArmature,                "mujocoArmature",                                   sim_propertytype_float,     0, sim_mujoco_joint_armature, -1, -1, -1, -1) \
     FUNCX(propJoint_mujocoMargin,                  "mujocoMargin",                                     sim_propertytype_float,     0, sim_mujoco_joint_margin, -1, -1, -1, -1) \
-    FUNCX(propJoint_mujocoFrictionLoss,            "mujocoFrictionFrictionLoss",                       sim_propertytype_float,     0, sim_mujoco_joint_frictionloss, -1, -1, -1, -1) \
+    FUNCX(propJoint_mujocoFrictionLoss,            "mujocoFrictionLoss",                               sim_propertytype_float,     0, sim_mujoco_joint_frictionloss, -1, -1, -1, -1) \
     FUNCX(propJoint_mujocoSpringStiffness,         "mujocoSpringStiffness",                            sim_propertytype_float,     0, sim_mujoco_joint_stiffness, -1, -1, -1, -1) \
     FUNCX(propJoint_mujocoSpringDamping,           "mujocoSpringDamping",                              sim_propertytype_float,     0, sim_mujoco_joint_damping, -1, -1, -1, -1) \
-    FUNCX(propJoint_mujocoSpringRef,               "mujocoSpringSpringRef",                            sim_propertytype_float,     0, sim_mujoco_joint_springref, -1, -1, -1, -1) \
+    FUNCX(propJoint_mujocoSpringRef,               "mujocoSpringRef",                                  sim_propertytype_float,     0, sim_mujoco_joint_springref, -1, -1, -1, -1) \
     FUNCX(propJoint_mujocoPosPid,                  "mujocoPosPid",                                     sim_propertytype_vector,    0, sim_mujoco_joint_pospid1, sim_mujoco_joint_pospid2, sim_mujoco_joint_pospid3, -1, -1) \
-    FUNCX(propJoint_mujocoLimitsSolRef,            "mujocoLimitsSolRef",                               sim_propertytype_vector,    0, sim_mujoco_joint_solreflimit1, sim_mujoco_joint_solreflimit2, -1, -1, -1) \
-    FUNCX(propJoint_mujocoLimitsSolImp,            "mujocoLimitsSolImp",                               sim_propertytype_vector,    0, sim_mujoco_joint_solimplimit1, sim_mujoco_joint_solimplimit2, sim_mujoco_joint_solimplimit3, sim_mujoco_joint_solimplimit4, sim_mujoco_joint_solimplimit5) \
-    FUNCX(propJoint_mujocoFrictionSolRef,          "mujocoFrictionSolRef",                             sim_propertytype_vector,    0, sim_mujoco_joint_solreffriction1, sim_mujoco_joint_solreffriction2, -1, -1, -1) \
-    FUNCX(propJoint_mujocoFrictionSolImp,          "mujocoFrictionSolImp",                             sim_propertytype_vector,    0, sim_mujoco_joint_solimpfriction1, sim_mujoco_joint_solimpfriction2, sim_mujoco_joint_solimpfriction3, sim_mujoco_joint_solimpfriction4, sim_mujoco_joint_solimpfriction5) \
+    FUNCX(propJoint_mujocoLimitsSolRef,            "mujocoLimitsSolref",                               sim_propertytype_vector,    0, sim_mujoco_joint_solreflimit1, sim_mujoco_joint_solreflimit2, -1, -1, -1) \
+    FUNCX(propJoint_mujocoLimitsSolImp,            "mujocoLimitsSolimp",                               sim_propertytype_vector,    0, sim_mujoco_joint_solimplimit1, sim_mujoco_joint_solimplimit2, sim_mujoco_joint_solimplimit3, sim_mujoco_joint_solimplimit4, sim_mujoco_joint_solimplimit5) \
+    FUNCX(propJoint_mujocoFrictionSolRef,          "mujocoFrictionSolref",                             sim_propertytype_vector,    0, sim_mujoco_joint_solreffriction1, sim_mujoco_joint_solreffriction2, -1, -1, -1) \
+    FUNCX(propJoint_mujocoFrictionSolImp,          "mujocoFrictionSolimp",                             sim_propertytype_vector,    0, sim_mujoco_joint_solimpfriction1, sim_mujoco_joint_solimpfriction2, sim_mujoco_joint_solimpfriction3, sim_mujoco_joint_solimpfriction4, sim_mujoco_joint_solimpfriction5) \
     FUNCX(propJoint_mujocoSpringDamper,            "mujocoSpringSpringDamper",                         sim_propertytype_vector,    0, sim_mujoco_joint_springdamper1, sim_mujoco_joint_springdamper2, -1, -1, -1) \
-    FUNCX(propJoint_mujocoDependencyPolyCoef,      "mujocoDependencyPolyCoef",                         sim_propertytype_vector,    0, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5) \
+    FUNCX(propJoint_mujocoDependencyPolyCoef,      "mujocoDependencyPolyCoeff",                        sim_propertytype_vector,    0, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5) \
 
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4) const SJointProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}};
 DEFINE_PROPERTIES
@@ -290,8 +290,6 @@ class CJoint : public CSceneObject
     void computeBoundingBox();
     void setIsInScene(bool s);
 
-    void sendEngineString(CCbor* eev = nullptr);
-
     int setBoolProperty(const char* pName, bool pState, CCbor* eev = nullptr);
     int getBoolProperty(const char* pName, bool& pState) const;
     int setIntProperty(const char* pName, int pState, CCbor* eev = nullptr);
@@ -449,6 +447,7 @@ class CJoint : public CSceneObject
     void setPid_old(double p_param, double i_param, double d_param);
 
   protected:
+    void _sendEngineString(CCbor* eev = nullptr);
     std::string _enumToProperty(int oldEnum, int type, int& indexWithArrays) const;
     void updateSelfAsSlave();
     void _fixVortexInfVals();

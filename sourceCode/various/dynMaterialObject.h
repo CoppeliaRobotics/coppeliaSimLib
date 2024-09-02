@@ -20,8 +20,8 @@ struct SEngMaterialProperty {
     FUNCX(propMaterial_bulletFriction,              "bulletFriction",           sim_propertytype_float, 0, sim_bullet_body_friction, -1, -1, -1, -1) \
     FUNCX(propMaterial_bulletLinearDamping,         "bulletLinearDamping",      sim_propertytype_float, 0, sim_bullet_body_lineardamping, -1, -1, -1, -1) \
     FUNCX(propMaterial_bulletAngularDamping,        "bulletAngularDamping",     sim_propertytype_float, 0, sim_bullet_body_angulardamping, -1, -1, -1, -1) \
-    FUNCX(propMaterial_bulletNonDefaultCollisionMarginFactor,        "bulletCustomCollisionMargin",           sim_propertytype_float, 0, sim_bullet_body_nondefaultcollisionmargingfactor, -1, -1, -1, -1) \
-    FUNCX(propMaterial_bulletNonDefaultCollisionMarginFactorConvex,  "bulletCustomCollisionMarginConvex",     sim_propertytype_float, 0, sim_bullet_body_nondefaultcollisionmargingfactorconvex, -1, -1, -1, -1) \
+    FUNCX(propMaterial_bulletNonDefaultCollisionMarginFactor,        "bulletCustomCollisionMarginValue",           sim_propertytype_float, 0, sim_bullet_body_nondefaultcollisionmargingfactor, -1, -1, -1, -1) \
+    FUNCX(propMaterial_bulletNonDefaultCollisionMarginFactorConvex,  "bulletCustomCollisionMarginConvexValue",     sim_propertytype_float, 0, sim_bullet_body_nondefaultcollisionmargingfactorconvex, -1, -1, -1, -1) \
     FUNCX(propMaterial_bulletSticky,                "bulletStickyContact",             sim_propertytype_bool,  0, sim_bullet_body_sticky, -1, -1, -1, -1) \
     FUNCX(propMaterial_bulletNonDefaultCollisionMargin,              "bulletCustomCollisionMarginEnabled",                 sim_propertytype_bool, 0, sim_bullet_body_usenondefaultcollisionmargin, -1, -1, -1, -1) \
     FUNCX(propMaterial_bulletNonDefaultCollisionMarginConvex,        "bulletCustomCollisionMarginConvexEnabled",           sim_propertytype_bool, 0, sim_bullet_body_usenondefaultcollisionmarginconvex, -1, -1, -1, -1) \
@@ -32,11 +32,11 @@ struct SEngMaterialProperty {
     FUNCX(propMaterial_odeLinearDamping,            "odeLinearDamping",         sim_propertytype_float, 0, sim_ode_body_lineardamping, -1, -1, -1, -1) \
     FUNCX(propMaterial_odeAngularDamping,           "odeAngularDamping",        sim_propertytype_float, 0, sim_ode_body_angulardamping, -1, -1, -1, -1) \
     FUNCX(propMaterial_odeMaxContacts,              "odeMaxContacts",           sim_propertytype_int,   0, sim_ode_body_maxcontacts, -1, -1, -1, -1) \
-    FUNCX(propMaterial_vortexPrimaryLinearAxisFriction,  "vortexLinearPrimaryAxisFrictionCoeff",              sim_propertytype_float, 0, sim_vortex_body_primlinearaxisfriction, -1, -1, -1, -1) \
-    FUNCX(propMaterial_vortexSecondaryLinearAxisFriction,   "vortexLinearSecondaryAxisFrictionCoeff",               sim_propertytype_float, 0, sim_vortex_body_seclinearaxisfriction,  -1, -1, -1, -1) \
-    FUNCX(propMaterial_vortexPrimaryAngularAxisFriction, "vortexAngularPrimaryAxisFrictionCoeff",             sim_propertytype_float, 0, sim_vortex_body_primangularaxisfriction,  -1, -1, -1, -1) \
-    FUNCX(propMaterial_vortexSecondaryAngularAxisFriction,  "vortexAngularSecondaryAxisFrictionCoeff",              sim_propertytype_float, 0, sim_vortex_body_secangularaxisfriction,  -1, -1, -1, -1) \
-    FUNCX(propMaterial_vortexNormalAngularAxisFriction,"vortexAngularNormalAxisFrictionCoeff",          sim_propertytype_float, 0, sim_vortex_body_normalangularaxisfriction,  -1, -1, -1, -1) \
+    FUNCX(propMaterial_vortexPrimaryLinearAxisFriction,  "vortexLinearPrimaryAxisFrictionValue",              sim_propertytype_float, 0, sim_vortex_body_primlinearaxisfriction, -1, -1, -1, -1) \
+    FUNCX(propMaterial_vortexSecondaryLinearAxisFriction,   "vortexLinearSecondaryAxisFrictionValue",               sim_propertytype_float, 0, sim_vortex_body_seclinearaxisfriction,  -1, -1, -1, -1) \
+    FUNCX(propMaterial_vortexPrimaryAngularAxisFriction, "vortexAngularPrimaryAxisFrictionValue",             sim_propertytype_float, 0, sim_vortex_body_primangularaxisfriction,  -1, -1, -1, -1) \
+    FUNCX(propMaterial_vortexSecondaryAngularAxisFriction,  "vortexAngularSecondaryAxisFrictionValue",              sim_propertytype_float, 0, sim_vortex_body_secangularaxisfriction,  -1, -1, -1, -1) \
+    FUNCX(propMaterial_vortexNormalAngularAxisFriction,"vortexAngularNormalAxisFrictionValue",          sim_propertytype_float, 0, sim_vortex_body_normalangularaxisfriction,  -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexPrimaryLinearAxisStaticFrictionScale,  "vortexLinearPrimaryAxisStaticFrictionScale",              sim_propertytype_float, 0, sim_vortex_body_primlinearaxisstaticfrictionscale, -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexSecondaryLinearAxisStaticFrictionScale,   "vortexLinearSecondaryAxisStaticFrictionScale",               sim_propertytype_float, 0, sim_vortex_body_seclinearaxisstaticfrictionscale,  -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexPrimaryAngularAxisStaticFrictionScale, "vortexAngularPrimaryAxisStaticFrictionScale",             sim_propertytype_float, 0, sim_vortex_body_primangularaxisstaticfrictionscale,  -1, -1, -1, -1) \
@@ -65,7 +65,7 @@ struct SEngMaterialProperty {
     FUNCX(propMaterial_vortexAutoSleepAngularAccelerationThreshold,"vortexAutoSleepThresholdAngularAccel", sim_propertytype_float, 0, sim_vortex_body_autosleepangularaccelthreshold, -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexSkinThickness,"vortexSkinThickness", sim_propertytype_float, 0, sim_vortex_body_skinthickness, -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexAutoAngularDampingTensionRatio,"vortexAutoAngularDampingTensionRatio", sim_propertytype_float, 0, sim_vortex_body_autoangulardampingtensionratio, -1, -1, -1, -1) \
-    FUNCX(propMaterial_vortexPrimaryAxisVector,"vortexLinearPrimaryAxisOrient", sim_propertytype_vector3, 0, sim_vortex_body_primaxisvectorx, sim_vortex_body_primaxisvectory, sim_vortex_body_primaxisvectorz, -1, -1) \
+    FUNCX(propMaterial_vortexPrimaryAxisVector,"vortexLinearPrimaryValue", sim_propertytype_vector3, 0, sim_vortex_body_primaxisvectorx, sim_vortex_body_primaxisvectory, sim_vortex_body_primaxisvectorz, -1, -1) \
     FUNCX(propMaterial_vortexPrimaryLinearAxisFrictionModel,              "vortexLinearPrimaryAxisFrictionModel",           sim_propertytype_int,   0, sim_vortex_body_primlinearaxisfrictionmodel, -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexSecondaryLinearAxisFrictionModel,            "vortexLinearSecondaryAxisFrictionModel",         sim_propertytype_int,   0, sim_vortex_body_seclinearaxisfrictionmodel, -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexPrimaryAngularAxisFrictionModel,             "vortexAngularPrimaryAxisFrictionModel",          sim_propertytype_int,   0, sim_vortex_body_primangulararaxisfrictionmodel, -1, -1, -1, -1) \
@@ -73,9 +73,9 @@ struct SEngMaterialProperty {
     FUNCX(propMaterial_vortexNormalAngularAxisFrictionModel,              "vortexAngularNormalAxisFrictionModel",           sim_propertytype_int,   0, sim_vortex_body_normalangularaxisfrictionmodel, -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexAutoSleepStepLiveThreshold,                  "vortexAutoSleepThresholdSteps",                  sim_propertytype_int,   0, sim_vortex_body_autosleepsteplivethreshold, -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexMaterialUniqueId,                            "vortexMaterialUniqueId",                         sim_propertytype_int,   0, sim_vortex_body_materialuniqueid, -1, -1, -1, -1) \
-    FUNCX(propMaterial_vortexPrimitiveShapesAsConvex,                     "vortexPureShapeAsConvex",                       sim_propertytype_bool,  0, sim_vortex_body_pureshapesasconvex, -1, -1, -1, -1) \
-    FUNCX(propMaterial_vortexConvexShapesAsRandom,                        "vortexConvexShapeAsMesh",                       sim_propertytype_bool,  0, sim_vortex_body_convexshapesasrandom, -1, -1, -1, -1) \
-    FUNCX(propMaterial_vortexRandomShapesAsTerrain,                       "vortexRandomShapeAsTerrain",                     sim_propertytype_bool,  0, sim_vortex_body_randomshapesasterrain, -1, -1, -1, -1) \
+    FUNCX(propMaterial_vortexPrimitiveShapesAsConvex,                     "vortexPrimitiveAsConvex",                        sim_propertytype_bool,  0, sim_vortex_body_pureshapesasconvex, -1, -1, -1, -1) \
+    FUNCX(propMaterial_vortexConvexShapesAsRandom,                        "vortexConvexAsRandom",                           sim_propertytype_bool,  0, sim_vortex_body_convexshapesasrandom, -1, -1, -1, -1) \
+    FUNCX(propMaterial_vortexRandomShapesAsTerrain,                       "vortexRandomAsTerrain",                          sim_propertytype_bool,  0, sim_vortex_body_randomshapesasterrain, -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexFastMoving,                                  "vortexFastMoving",                               sim_propertytype_bool,  0, sim_vortex_body_fastmoving, -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexAutoSlip,                                    "vortexAutoSlip",                                 sim_propertytype_bool,  0, sim_vortex_body_autoslip, -1, -1, -1, -1) \
     FUNCX(propMaterial_vortexSecondaryLinearAxisSameAsPrimaryLinearAxis,  "vortexLinearSecondaryAxisFollowPrimaryAxis", sim_propertytype_bool,  0, sim_vortex_body_seclinaxissameasprimlinaxis, -1, -1, -1, -1) \

@@ -4,6 +4,7 @@
 #include <utils.h>
 #include <interfaceStackString.h>
 #include <interfaceStackInteger.h>
+#include <vDateTime.h>
 #ifdef SIM_WITH_GUI
 #include <rendering.h>
 #include <guiApp.h>
@@ -658,9 +659,13 @@ void CWorldContainer::dispatchEvents()
         // Push the last changes that are not immediate:
         currentWorld->drawingCont->pushAppendNewPointEvents();
         _eventMutex.lock("CWorldContainer::dispatchEvents");
-        int evCnt = _events->getEventCnt();
-        if (evCnt > 0)
+        if (_events->getEventCnt() > 0)
         {
+            _eventMutex.unlock();
+            CCbor *ev_ = _createGeneralEvent(EVENTTYPE_MSGDISPATCHTIME, -1, -1, nullptr, nullptr, false);
+            ev_->appendKeyDouble("time", VDateTime::getTime());
+            pushEvent();
+            _eventMutex.lock("CWorldContainer::dispatchEvents");
             _eventSeq = _events->finalizeEvents(_eventSeq, true);
             std::vector<unsigned char> ev;
             _events->swapWithEmptyBuffer(&ev);
@@ -668,7 +673,7 @@ void CWorldContainer::dispatchEvents()
             stack->pushBufferOntoStack((char *)ev.data(), ev.size());
             _eventMutex.unlock(); // below might lead to a deadlock if _eventMutex still locked
             int auxData[2];
-            auxData[0] = evCnt;
+            auxData[0] = int(_events->getEventCnt());
             auxData[1] = int(ev.size());
             pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_events, auxData, ev.data());
             if (getSysFuncAndHookCnt(sim_syscb_event) > 0)

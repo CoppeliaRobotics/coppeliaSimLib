@@ -2218,10 +2218,10 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev)
 
     // Engine properties:
     setBoolProperty(nullptr, false, ev);
-    setIntProperty(nullptr, false, ev);
-    setFloatProperty(nullptr, false, ev);
+    setIntProperty(nullptr, 0, ev);
+    setFloatProperty(nullptr, 0.0, ev);
     setVectorProperty(nullptr, nullptr, 0, ev);
-    sendEngineString(ev);
+    _sendEngineString(ev);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // joint
@@ -5077,14 +5077,14 @@ int CJoint::setBoolProperty(const char* ppName, bool pState, CCbor* eev/* = null
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                     ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
                     if (pName != nullptr)
-                        sendEngineString(ev);
+                        _sendEngineString(ev);
                 }
             }
         }
     };
 
-    handleProp(propJoint_vortexAxisFrictionEnabled.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_joint_motorfrictionenabled);
-    handleProp(propJoint_vortexAxisFrictionProportional.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_joint_proportionalmotorfriction);
+    handleProp(propJoint_vortexAxisFrictionEnabled.name, _vortexIntParams, simi_vortex_joint_bitcoded, simi_vortex_joint_motorfrictionenabled);
+    handleProp(propJoint_vortexAxisFrictionProportional.name, _vortexIntParams, simi_vortex_joint_bitcoded, simi_vortex_joint_proportionalmotorfriction);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
@@ -5114,12 +5114,12 @@ int CJoint::getBoolProperty(const char* ppName, bool& pState) const
         if (_pName == propJoint_vortexAxisFrictionEnabled.name)
         {
             retVal = 1;
-            pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_joint_motorfrictionenabled;
+            pState = _vortexIntParams[simi_vortex_joint_bitcoded] & simi_vortex_joint_motorfrictionenabled;
         }
         else if (_pName == propJoint_vortexAxisFrictionProportional.name)
         {
             retVal = 1;
-            pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_joint_proportionalmotorfriction;
+            pState = _vortexIntParams[simi_vortex_joint_bitcoded] & simi_vortex_joint_proportionalmotorfriction;
         }
         // ------------------------
     }
@@ -5167,7 +5167,7 @@ int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev/* = nullpt
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                     ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
                     if (pName != nullptr)
-                        sendEngineString(ev);
+                        _sendEngineString(ev);
                 }
             }
         }
@@ -5276,7 +5276,7 @@ int CJoint::setFloatProperty(const char* ppName, double pState, CCbor* eev/* = n
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                     ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
                     if (pName != nullptr)
-                        sendEngineString(ev);
+                        _sendEngineString(ev);
                 }
             }
         }
@@ -5700,7 +5700,7 @@ int CJoint::setStringProperty(const char* pName, const char* pState)
                 retVal = 1;
                 std::string current2(prop.getObjectProperties(_objectHandle));
                 if (current != current2)
-                    sendEngineString();
+                    _sendEngineString();
             }
         }
     }
@@ -5808,7 +5808,7 @@ int CJoint::setVectorProperty(const char* ppName, const double* v, int vL, CCbor
                         ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                     ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
                     if (pName != nullptr)
-                        sendEngineString(ev);
+                        _sendEngineString(ev);
                 }
             }
         }
@@ -5979,7 +5979,7 @@ int CJoint::getPropertyInfo_static(const char* ppName, int& info, int& size)
     return retVal;
 }
 
-void CJoint::sendEngineString(CCbor* eev /*= nullptr*/)
+void CJoint::_sendEngineString(CCbor* eev /*= nullptr*/)
 {
     if ( _isInScene && App::worldContainer->getEventsEnabled() )
     {

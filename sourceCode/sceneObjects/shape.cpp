@@ -1434,8 +1434,8 @@ void CShape::addSpecializedObjectEventData(CCbor *ev)
     ev->openKeyMap(getObjectTypeInfo().c_str());
 #endif
     _dynMaterial->setBoolProperty(nullptr, false, ev);
-    _dynMaterial->setIntProperty(nullptr, false, ev);
-    _dynMaterial->setFloatProperty(nullptr, false, ev);
+    _dynMaterial->setIntProperty(nullptr, 0, ev);
+    _dynMaterial->setFloatProperty(nullptr, 0.0, ev);
     _dynMaterial->setVector3Property(nullptr, nullptr, ev);
     _dynMaterial->setVectorProperty(nullptr, nullptr, 0, ev);
     _dynMaterial->sendEngineString(ev);

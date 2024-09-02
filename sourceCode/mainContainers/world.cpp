@@ -1180,6 +1180,7 @@ void CWorld::pushGenesisEvents()
 {
     simulation->pushGenesisEvents();
     environment->pushGenesisEvents();
+    dynamicsContainer->pushGenesisEvents();
     sceneObjects->pushGenesisEvents();
 
     drawingCont->pushGenesisEvents();
@@ -2439,7 +2440,11 @@ int CWorld::setBoolProperty(int target, const char* ppName, bool pState)
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->setBoolProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->setBoolProperty(target, pName, pState);
@@ -2455,7 +2460,11 @@ int CWorld::getBoolProperty(int target, const char* ppName, bool& pState) const
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->getBoolProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->getBoolProperty(target, pName, pState);
@@ -2471,10 +2480,15 @@ int CWorld::setIntProperty(int target, const char* ppName, int pState)
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        if (strcmp(pName, propScene_visibilityLayers.name) == 0)
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->setIntProperty(pName, pState);
+        if (retVal == -1)
         {
-            environment->setActiveLayers(pState);
-            retVal = 1;
+            if (strcmp(pName, propScene_visibilityLayers.name) == 0)
+            {
+                environment->setActiveLayers(pState);
+                retVal = 1;
+            }
         }
     }
     else if (target >= 0)
@@ -2491,15 +2505,20 @@ int CWorld::getIntProperty(int target, const char* ppName, int& pState) const
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        if (strcmp(pName, propScene_sceneUid.name) == 0)
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->getIntProperty(pName, pState);
+        if (retVal == -1)
         {
-            pState = environment->getSceneUniqueID();
-            retVal = 1;
-        }
-        else if (strcmp(pName, propScene_visibilityLayers.name) == 0)
-        {
-            pState = environment->getActiveLayers();
-            retVal = 1;
+            if (strcmp(pName, propScene_sceneUid.name) == 0)
+            {
+                pState = environment->getSceneUniqueID();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propScene_visibilityLayers.name) == 0)
+            {
+                pState = environment->getActiveLayers();
+                retVal = 1;
+            }
         }
     }
     else if (target >= 0)
@@ -2516,7 +2535,11 @@ int CWorld::setFloatProperty(int target, const char* ppName, double pState)
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->setFloatProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->setFloatProperty(target, pName, pState);
@@ -2532,7 +2555,11 @@ int CWorld::getFloatProperty(int target, const char* ppName, double& pState) con
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->getFloatProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->getFloatProperty(target, pName, pState);
@@ -2548,6 +2575,11 @@ int CWorld::setStringProperty(int target, const char* ppName, const char* pState
     int retVal = -1;
     if (target == sim_handle_scene)
     {
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->setStringProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->setStringProperty(target, pName, pState);
@@ -2563,6 +2595,11 @@ int CWorld::getStringProperty(int target, const char* ppName, std::string& pStat
     int retVal = -1;
     if (target == sim_handle_scene)
     {
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->getStringProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->getStringProperty(target, pName, pState);
@@ -2631,7 +2668,11 @@ int CWorld::setVector3Property(int target, const char* ppName, const C3Vector& p
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->setVector3Property(pName, &pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->setVector3Property(target, pName, pState);
@@ -2647,7 +2688,11 @@ int CWorld::getVector3Property(int target, const char* ppName, C3Vector& pState)
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->getVector3Property(pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->getVector3Property(target, pName, pState);
@@ -2823,7 +2868,11 @@ int CWorld::setVectorProperty(int target, const char* ppName, const double* v, i
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->setVectorProperty(pName, v, vL);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->setVectorProperty(target, pName, v, vL);
@@ -2839,7 +2888,11 @@ int CWorld::getVectorProperty(int target, const char* ppName, std::vector<double
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->getVectorProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->getVectorProperty(target, pName, pState);
@@ -2915,15 +2968,20 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName, std::str
     appartenance += ".scene";
     if (target == sim_handle_scene)
     {
-        for (size_t i = 0; i < allProps_scene.size(); i++)
+        if (App::currentWorld->dynamicsContainer != nullptr)
+            retVal = App::currentWorld->dynamicsContainer->getPropertyName(index, pName);
+        if (retVal == -1)
         {
-            index--;
-            if (index == -1)
+            for (size_t i = 0; i < allProps_scene.size(); i++)
             {
-                pName = allProps_scene[i].name;
-                //pName = "scene." + pName;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_scene[i].name;
+                    //pName = "scene." + pName;
+                    retVal = 1;
+                    break;
+                }
             }
         }
         if (retVal == -1)
@@ -2958,14 +3016,19 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, int& size
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-        for (size_t i = 0; i < allProps_scene.size(); i++)
+        if (App::currentWorld->dynamicsContainer != nullptr)
+            retVal = App::currentWorld->dynamicsContainer->getPropertyInfo(pName, info, size);
+        if (retVal == -1)
         {
-            if (strcmp(allProps_scene[i].name, pName) == 0)
+            for (size_t i = 0; i < allProps_scene.size(); i++)
             {
-                retVal = allProps_scene[i].type;
-                info = allProps_scene[i].flags;
-                size = 0;
-                break;
+                if (strcmp(allProps_scene[i].name, pName) == 0)
+                {
+                    retVal = allProps_scene[i].type;
+                    info = allProps_scene[i].flags;
+                    size = 0;
+                    break;
+                }
             }
         }
         if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )

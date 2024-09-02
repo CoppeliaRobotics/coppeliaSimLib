@@ -24,6 +24,7 @@
 #define EVENTTYPE_OBJECTREMOVED "objectRemoved"
 
 #define EVENTTYPE_ENVIRONMENTCHANGED "environmentChanged"
+#define EVENTTYPE_DYNSETTINGSCHANGED "dynSettingsChanged"
 
 #define EVENTTYPE_DRAWINGOBJECTADDED "drawingObjectAdded"
 #define EVENTTYPE_DRAWINGOBJECTCHANGED "drawingObjectChanged"
@@ -34,6 +35,7 @@
 #define EVENTTYPE_SIMULATIONCHANGED "simulationChanged"
 #define EVENTTYPE_GENESISBEGIN "genesisBegin"
 #define EVENTTYPE_GENESISEND "genesisEnd"
+#define EVENTTYPE_MSGDISPATCHTIME "msgDispatchTime"
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
