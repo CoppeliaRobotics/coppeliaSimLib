@@ -15,11 +15,10 @@ class CEngineProperties
     bool setObjectProperties(int objectHandle, const char* prop, std::string* errorString = nullptr, int* parseErrorLine = nullptr) const;
 
   private:
-    double _getGlobalFloatParam(int item, std::string &comment, const char *additionalComment = nullptr) const;
-    int _getGlobalIntParam(int item, std::string &comment, const char *additionalComment = nullptr) const;
-    bool _getGlobalBoolParam(int item, std::string &comment, const char *additionalComment = nullptr) const;
-    void _getGlobalFloatParams(int item, double *w, size_t cnt, std::string &comment,
-                               const char *additionalComment = nullptr) const;
+    double _getGlobalFloatParam(const char* item, std::string &comment, const char *additionalComment = nullptr) const;
+    int _getGlobalIntParam(const char* item, std::string &comment, const char *additionalComment = nullptr) const;
+    bool _getGlobalBoolParam(const char* item, std::string &comment, const char *additionalComment = nullptr) const;
+    void _getGlobalFloatParams(const char* item, double *w, std::string &comment, const char *additionalComment = nullptr) const;
 
     void _writeGlobal(int engine, CAnnJson &annJson) const;
     void _readGlobal(int engine, CAnnJson &annJson, std::string *allErrors) const;

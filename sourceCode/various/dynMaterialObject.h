@@ -88,7 +88,7 @@ struct SEngMaterialProperty {
     FUNCX(propMaterial_newtonLinearDrag,                    "newtonLinearDrag",             sim_propertytype_float, 0,      sim_newton_body_lineardrag, -1, -1, -1, -1) \
     FUNCX(propMaterial_newtonAngularDrag,                   "newtonAngularDrag",            sim_propertytype_float, 0,      sim_newton_body_angulardrag, -1, -1, -1, -1) \
     FUNCX(propMaterial_newtonFastMoving,                    "newtonFastMoving",             sim_propertytype_bool,  0,      sim_newton_body_fastmoving, -1, -1, -1, -1) \
-    FUNCX(propMaterial_mujocoFriction,                      "mujocoFriction",               sim_propertytype_vector3, 0,    sim_mujoco_body_friction1, sim_mujoco_body_friction2, sim_mujoco_body_friction3, -1, -1) \
+    FUNCX(propMaterial_mujocoFriction,                      "mujocoFriction",               sim_propertytype_vector, 0,     sim_mujoco_body_friction1, sim_mujoco_body_friction2, sim_mujoco_body_friction3, -1, -1) \
     FUNCX(propMaterial_mujocoSolref,                        "mujocoSolref",                 sim_propertytype_vector, 0,     sim_mujoco_body_solref1, sim_mujoco_body_solref2, -1, -1, -1) \
     FUNCX(propMaterial_mujocoSolimp,                        "mujocoSolimp",                 sim_propertytype_vector, 0,     sim_mujoco_body_solimp1, sim_mujoco_body_solimp2, sim_mujoco_body_solimp3, sim_mujoco_body_solimp4, sim_mujoco_body_solimp5) \
     FUNCX(propMaterial_mujocoSolmix,                        "mujocoSolmix",                 sim_propertytype_float, 0,      sim_mujoco_body_solmix, -1, -1, -1, -1) \
@@ -291,6 +291,10 @@ class CDynMaterialObject
     static int getPropertyName_static(int& index, std::string& pName);
     int getPropertyInfo(const char* pName, int& info, int& size) const;
     static int getPropertyInfo_static(const char* pName, int& info, int& size);
+    // Some helpers:
+    bool getBoolPropertyValue(const char* pName) const;
+    int getIntPropertyValue(const char* pName) const;
+    double getFloatPropertyValue(const char* pName) const;
 
     // Engine properties
     // ---------------------
@@ -301,30 +305,11 @@ class CDynMaterialObject
     bool setEngineIntParam_old(int what, int v);
     bool setEngineBoolParam_old(int what, bool v);
 
-    void getBulletFloatParams(std::vector<double> &p);
-    void setBulletFloatParams(const std::vector<double> &p);
-    void getBulletIntParams(std::vector<int> &p);
-    void setBulletIntParams(const std::vector<int> &p);
-
-    void getOdeFloatParams(std::vector<double> &p);
-    void setOdeFloatParams(const std::vector<double> &p);
-    void getOdeIntParams(std::vector<int> &p);
-    void setOdeIntParams(const std::vector<int> &p);
-
     void getVortexFloatParams(std::vector<double> &p);
-    void setVortexFloatParams(const std::vector<double> &p);
     void getVortexIntParams(std::vector<int> &p);
-    void setVortexIntParams(const std::vector<int> &p);
 
     void getNewtonFloatParams(std::vector<double> &p);
-    void setNewtonFloatParams(const std::vector<double> &p);
     void getNewtonIntParams(std::vector<int> &p);
-    void setNewtonIntParams(const std::vector<int> &p);
-
-    void getMujocoFloatParams(std::vector<double> &p);
-    void setMujocoFloatParams(const std::vector<double> &p);
-    void getMujocoIntParams(std::vector<int> &p);
-    void setMujocoIntParams(const std::vector<int> &p);
     // ---------------------
 
   protected:

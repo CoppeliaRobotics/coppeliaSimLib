@@ -14,7 +14,12 @@ struct SDynProperty {
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propGlobal_engineProperties,          "engineProperties",                           sim_propertytype_string,    0, -1, -1, -1, -1, -1) \
+    FUNCX(propDyn_dynamicsEnabled,                       "dynamicsEnabled",                             sim_propertytype_bool,      0, -1, -1, -1, -1, -1) \
+    FUNCX(propDyn_showContactPoints,                     "showContactPoints",                           sim_propertytype_bool,      0, -1, -1, -1, -1, -1) \
+    FUNCX(propDyn_dynamicsEngine,                        "dynamicsEngine",                              sim_propertytype_intvector, 0, -1, -1, -1, -1, -1) \
+    FUNCX(propDyn_dynamicsStepSize,                      "dynamicsStepSize",                            sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
+    FUNCX(propDyn_gravity,                               "gravity",                                     sim_propertytype_vector3,   0, -1, -1, -1, -1, -1) \
+    FUNCX(propDyn_engineProperties,                      "engineProperties",                            sim_propertytype_string,    0, -1, -1, -1, -1, -1) \
     FUNCX(propDyn_bulletSolver,                          "bulletSolver",                                sim_propertytype_int,       0, sim_bullet_global_constraintsolvertype, -1, -1, -1, -1) \
     FUNCX(propDyn_bulletIterations,                      "bulletIterations",                            sim_propertytype_int,       0, sim_bullet_global_constraintsolvingiterations, -1, -1, -1, -1) \
     FUNCX(propDyn_bulletComputeInertias,                 "bulletComputeInertias",                       sim_propertytype_bool,      0, sim_bullet_global_computeinertias, -1, -1, -1, -1) \
@@ -255,7 +260,7 @@ class CDynamicsContainer
     bool getComputeInertias() const;
     void setDynamicsEnabled(bool e);
     bool getDynamicsEnabled() const;
-    void setGravity(const C3Vector &gr);
+    void setGravity(C3Vector gr);
     C3Vector getGravity() const;
 
     double getPositionScalingFactorDyn() const;
@@ -281,60 +286,47 @@ class CDynamicsContainer
     bool setEngineIntParam_old(int what, int v);
     bool setEngineBoolParam_old(int what, bool v);
 
-    void getBulletFloatParams(std::vector<double> &p, bool getDefault = false) const;
-    void setBulletFloatParams(const std::vector<double> &p);
-    void getBulletIntParams(std::vector<int> &p, bool getDefault = false) const;
-    void setBulletIntParams(const std::vector<int> &p);
-
     void getBulletDefaultFloatParams(std::vector<double> &p, int defType = -1) const;
     void getBulletDefaultIntParams(std::vector<int> &p, int defType = -1) const;
-
-    void getOdeFloatParams(std::vector<double> &p, bool getDefault = false) const;
-    void setOdeFloatParams(const std::vector<double> &p);
-    void getOdeIntParams(std::vector<int> &p, bool getDefault = false) const;
-    void setOdeIntParams(const std::vector<int> &p);
 
     void getOdeDefaultFloatParams(std::vector<double> &p, int defType = -1) const;
     void getOdeDefaultIntParams(std::vector<int> &p, int defType = -1) const;
 
     void getVortexFloatParams(std::vector<double> &p, bool getDefault = false) const;
-    void setVortexFloatParams(const std::vector<double> &p);
     void getVortexIntParams(std::vector<int> &p, bool getDefault = false) const;
-    void setVortexIntParams(const std::vector<int> &p);
 
     void getVortexDefaultFloatParams(std::vector<double> &p, int defType = -1) const;
     void getVortexDefaultIntParams(std::vector<int> &p, int defType = -1) const;
 
     void getNewtonFloatParams(std::vector<double> &p, bool getDefault = false) const;
-    void setNewtonFloatParams(const std::vector<double> &p);
     void getNewtonIntParams(std::vector<int> &p, bool getDefault = false) const;
-    void setNewtonIntParams(const std::vector<int> &p);
 
     void getNewtonDefaultFloatParams(std::vector<double> &p, int defType = -1) const;
     void getNewtonDefaultIntParams(std::vector<int> &p, int defType = -1) const;
-
-    void getMujocoFloatParams(std::vector<double> &p, bool getDefault = false) const;
-    void setMujocoFloatParams(const std::vector<double> &p);
-    void getMujocoIntParams(std::vector<int> &p, bool getDefault = false) const;
-    void setMujocoIntParams(const std::vector<int> &p);
 
     void getMujocoDefaultFloatParams(std::vector<double> &p, int defType = -1) const;
     void getMujocoDefaultIntParams(std::vector<int> &p, int defType = -1) const;
 
     int setBoolProperty(const char* pName, bool pState, CCbor* eev = nullptr);
-    int getBoolProperty(const char* pName, bool& pState) const;
+    int getBoolProperty(const char* pName, bool& pState, bool getDefaultValue = false) const;
     int setIntProperty(const char* pName, int pState, CCbor* eev = nullptr);
-    int getIntProperty(const char* pName, int& pState) const;
+    int getIntProperty(const char* pName, int& pState, bool getDefaultValue = false) const;
     int setFloatProperty(const char* pName, double pState, CCbor* eev = nullptr);
-    int getFloatProperty(const char* pName, double& pState) const;
+    int getFloatProperty(const char* pName, double& pState, bool getDefaultValue = false) const;
     int setStringProperty(const char* pName, const char* pState);
     int getStringProperty(const char* pName, std::string& pState) const;
     int setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev = nullptr);
-    int getVector3Property(const char* pName, C3Vector& pState) const;
+    int getVector3Property(const char* pName, C3Vector& pState, bool getDefaultValue = false) const;
     int setVectorProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);
-    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
+    int getVectorProperty(const char* pName, std::vector<double>& pState, bool getDefaultValue = false) const;
+    int setIntVectorProperty(const char* pName, const int* v, int vL);
+    int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName) const;
     int getPropertyInfo(const char* pName, int& info, int& size) const;
+    // Some helpers:
+    bool getBoolPropertyValue(const char* pName, bool getDefaultValue = false) const;
+    int getIntPropertyValue(const char* pName, bool getDefaultValue = false) const;
+    double getFloatPropertyValue(const char* pName, bool getDefaultValue = false) const;
 
     CColorObject contactPointColor;
 

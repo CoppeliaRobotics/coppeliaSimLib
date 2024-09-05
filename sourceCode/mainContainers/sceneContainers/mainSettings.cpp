@@ -161,8 +161,7 @@ void CMainSettings::serialize(CSer &ar)
                         bool _dynamicODEUseQuickStep = !SIM_IS_BIT_SET(dummy, 6);
                         statusBoxOpenState = SIM_IS_BIT_SET(dummy, 7);
                         if ((!bulletUseDefault) || (!odeUseDefault))
-                            App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_ode_global_quickstep,
-                                                                                     _dynamicODEUseQuickStep);
+                            App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_odeQuickStepEnabled.name, _dynamicODEUseQuickStep);
                         forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers = true;
                     }
 
@@ -185,8 +184,7 @@ void CMainSettings::serialize(CSer &ar)
                         App::currentWorld->dynamicsContainer->setDisplayContactPoints(_displayContactPoints);
                         proximitySensorsEnabled = SIM_IS_BIT_SET(dummy, 5);
                         bool _dynamicODEUseQuickStep = !SIM_IS_BIT_SET(dummy, 6);
-                        App::currentWorld->dynamicsContainer->setEngineBoolParam_old(sim_ode_global_quickstep,
-                                                                                 _dynamicODEUseQuickStep);
+                        App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_odeQuickStepEnabled.name, _dynamicODEUseQuickStep);
                         statusBoxOpenState = SIM_IS_BIT_SET(dummy, 7);
                     }
                     if (theName.compare("Va5") == 0)
@@ -261,8 +259,7 @@ void CMainSettings::serialize(CSer &ar)
                         ar >> byteQuantity;
                         float _dynamicBULLETInternalScalingFactor;
                         ar >> _dynamicBULLETInternalScalingFactor;
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
-                            sim_bullet_global_internalscalingfactor, (double)_dynamicBULLETInternalScalingFactor);
+                        App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_bulletInternalScalingScaling.name, (double)_dynamicBULLETInternalScalingFactor);
                     }
                     if (theName.compare("Dcs") == 0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -270,8 +267,7 @@ void CMainSettings::serialize(CSer &ar)
                         ar >> byteQuantity;
                         int _dynamicBULLETConstraintSolvingIterations;
                         ar >> _dynamicBULLETConstraintSolvingIterations;
-                        App::currentWorld->dynamicsContainer->setEngineIntParam_old(
-                            sim_bullet_global_constraintsolvingiterations, _dynamicBULLETConstraintSolvingIterations);
+                        App::currentWorld->dynamicsContainer->setIntProperty(propDyn_bulletIterations.name, _dynamicBULLETConstraintSolvingIterations);
                     }
                     if (theName.compare("Gvy") == 0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -296,14 +292,10 @@ void CMainSettings::serialize(CSer &ar)
                         ar >> _dynamicODEInternalScalingFactor;
                         ar >> _dynamicODEConstraintSolvingIterations;
                         ar >> _dynamicODEGlobalERP >> _dynamicODEGlobalCFM;
-                        App::currentWorld->dynamicsContainer->setEngineIntParam_old(
-                            sim_ode_global_constraintsolvingiterations, _dynamicODEConstraintSolvingIterations);
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
-                            sim_ode_global_internalscalingfactor, (double)_dynamicODEInternalScalingFactor);
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_ode_global_erp,
-                                                                                  (double)_dynamicODEGlobalERP);
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_ode_global_cfm,
-                                                                                  (double)_dynamicODEGlobalCFM);
+                        App::currentWorld->dynamicsContainer->setIntProperty(propDyn_odeQuickStepIterations.name, _dynamicODEConstraintSolvingIterations);
+                        App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_odeInternalScalingScaling.name, (double)_dynamicODEInternalScalingFactor);
+                        App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_odeGlobalErp.name, (double)_dynamicODEGlobalERP);
+                        App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_odeGlobalCfm.name, (double)_dynamicODEGlobalCFM);
                     }
                     if (theName.compare("Od2") == 0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -314,14 +306,10 @@ void CMainSettings::serialize(CSer &ar)
                         ar >> _dynamicODEInternalScalingFactor;
                         ar >> _dynamicODEConstraintSolvingIterations;
                         ar >> _dynamicODEGlobalERP >> _dynamicODEGlobalCFM;
-                        App::currentWorld->dynamicsContainer->setEngineIntParam_old(
-                            sim_ode_global_constraintsolvingiterations, _dynamicODEConstraintSolvingIterations);
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
-                            sim_ode_global_internalscalingfactor, (double)_dynamicODEInternalScalingFactor);
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_ode_global_erp,
-                                                                                  (double)_dynamicODEGlobalERP);
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam_old(sim_ode_global_cfm,
-                                                                                  (double)_dynamicODEGlobalCFM);
+                        App::currentWorld->dynamicsContainer->setIntProperty(propDyn_odeQuickStepIterations.name, _dynamicODEConstraintSolvingIterations);
+                        App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_odeInternalScalingScaling.name, (double)_dynamicODEInternalScalingFactor);
+                        App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_odeGlobalErp.name, (double)_dynamicODEGlobalERP);
+                        App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_odeGlobalCfm.name, (double)_dynamicODEGlobalCFM);
                     }
                     if (theName.compare("Deu") == 0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -337,8 +325,7 @@ void CMainSettings::serialize(CSer &ar)
                         ar >> byteQuantity;
                         float _dynamicBULLETCollisionMarginFactor;
                         ar >> _dynamicBULLETCollisionMarginFactor;
-                        App::currentWorld->dynamicsContainer->setEngineFloatParam_old(
-                            sim_bullet_global_collisionmarginfactor, (double)_dynamicBULLETCollisionMarginFactor);
+                        App::currentWorld->dynamicsContainer->setFloatProperty(propDyn_bulletCollMarginScaling.name, (double)_dynamicBULLETCollisionMarginFactor);
                     }
                     if (noHit)
                         ar.loadUnknownData();

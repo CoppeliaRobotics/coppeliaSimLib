@@ -306,6 +306,10 @@ class CJoint : public CSceneObject
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, int& size) const;
     static int getPropertyInfo_static(const char* pName, int& info, int& size);
+    // Some helpers:
+    bool getBoolPropertyValue(const char* pName) const;
+    int getIntPropertyValue(const char* pName) const;
+    double getFloatPropertyValue(const char* pName) const;
 
     // Overridden from CSceneObject:
     virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent, bool *available = nullptr) const;
@@ -326,16 +330,11 @@ class CJoint : public CSceneObject
     double getEngineFloatParam_old(int what, bool *ok) const;
     int getEngineIntParam_old(int what, bool *ok) const;
     bool getEngineBoolParam_old(int what, bool *ok) const;
-    void getBulletFloatParams(std::vector<double> &p) const;
-    void getBulletIntParams(std::vector<int> &p) const;
-    void getOdeFloatParams(std::vector<double> &p) const;
-    void getOdeIntParams(std::vector<int> &p) const;
+
     void getVortexFloatParams(std::vector<double> &p) const;
     void getVortexIntParams(std::vector<int> &p) const;
     void getNewtonFloatParams(std::vector<double> &p) const;
     void getNewtonIntParams(std::vector<int> &p) const;
-    void getMujocoFloatParams(std::vector<double> &p) const;
-    void getMujocoIntParams(std::vector<int> &p) const;
     int getVortexDependentJointId() const;
     int getNewtonDependentJointId() const;
     int getMujocoDependentJointId() const;
@@ -384,17 +383,6 @@ class CJoint : public CSceneObject
     void setDynCtrlMode(int mode);
     void setDynVelCtrlType(int mode);
     void setDynPosCtrlType(int mode);
-
-    void setBulletFloatParams(const std::vector<double> &p);
-    void setOdeFloatParams(const std::vector<double> &p);
-    void setVortexFloatParams(const std::vector<double> &p);
-    void setNewtonFloatParams(const std::vector<double> &p);
-    void setMujocoFloatParams(const std::vector<double> &p);
-    void setBulletIntParams(const std::vector<int> &p);
-    void setOdeIntParams(const std::vector<int> &p);
-    void setVortexIntParams(const std::vector<int> &p);
-    void setNewtonIntParams(const std::vector<int> &p);
-    void setMujocoIntParams(const std::vector<int> &p);
 
     bool setJointMode_noDynMotorTargetPosCorrection(int newMode);
 

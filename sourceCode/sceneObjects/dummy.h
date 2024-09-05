@@ -20,7 +20,7 @@ struct SDummyProperty {
     FUNCX(propDummy_mujocoLimitsEnabled,     "mujocoLimitsEnabled",                      sim_propertytype_bool,      0, sim_mujoco_dummy_limited, -1, -1, -1, -1) \
     FUNCX(propDummy_mujocoLimitsRange,       "mujocoLimitsRange",                        sim_propertytype_vector,    0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1) \
     FUNCX(propDummy_mujocoLimitsSolref,      "mujocoLimitsSolref",                       sim_propertytype_vector,    0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1) \
-    FUNCX(propDummy_mujocoLimitsSolimp,      "mujocoLimitsSolimp",                       sim_propertytype_vector,    0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, -1, -1) \
+    FUNCX(propDummy_mujocoLimitsSolimp,      "mujocoLimitsSolimp",                       sim_propertytype_vector,    0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, sim_mujoco_dummy_solimplimit4, sim_mujoco_dummy_solimplimit5) \
     FUNCX(propDummy_mujocoMargin,            "mujocoMargin",                             sim_propertytype_float,     0, sim_mujoco_dummy_margin, -1, -1, -1, -1) \
     FUNCX(propDummy_mujocoSpringStiffness,   "mujocoSpringStiffness",                    sim_propertytype_float,     0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1) \
     FUNCX(propDummy_mujocoSpringDamping,     "mujocoSpringDamping",                      sim_propertytype_float,     0, sim_mujoco_dummy_damping, -1, -1, -1, -1) \
@@ -118,6 +118,10 @@ class CDummy : public CSceneObject
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, int& size) const;
     static int getPropertyInfo_static(const char* pName, int& info, int& size);
+    // Some helpers:
+    bool getBoolPropertyValue(const char* pName) const;
+    int getIntPropertyValue(const char* pName) const;
+    double getFloatPropertyValue(const char* pName) const;
 
     bool getFreeOnPathTrajectory() const;
     double getVirtualDistanceOffsetOnPath() const;
@@ -156,10 +160,6 @@ class CDummy : public CSceneObject
   protected:
     void _sendEngineString(CCbor* eev = nullptr);
     std::string _enumToProperty(int oldEnum, int type, int& indexWithArrays) const;
-    void getMujocoFloatParams(std::vector<double> &p) const;
-    void getMujocoIntParams(std::vector<int> &p) const;
-    void setMujocoFloatParams(const std::vector<double> &p, bool reflectToLinkedDummy = true);
-    void setMujocoIntParams(const std::vector<int> &p, bool reflectToLinkedDummy = true);
 
     void _reflectPropToLinkedDummy() const;
     void _setLinkedDummyHandle_sendOldIk(int h) const;

@@ -840,11 +840,9 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
                 if (mat->getEngineBoolParam_old(sim_bullet_body_sticky, nullptr))
                 { // Formely sticky contact objects need to be adjusted for the new Bullet:
                     if (shape->getStatic())
-                        mat->setEngineFloatParam_old(
-                            sim_bullet_body_friction,
-                            mat->getEngineFloatParam_old(sim_bullet_body_oldfriction, nullptr)); // the new Bullet friction
+                        mat->setFloatProperty(propMaterial_bulletFriction.name, mat->getFloatPropertyValue(propMaterial_bulletFriction0.name)); // the new Bullet friction
                     else
-                        mat->setEngineFloatParam_old(sim_bullet_body_friction, 0.25); // the new Bullet friction
+                        mat->setFloatProperty(propMaterial_bulletFriction.name, 0.25); // the new Bullet friction
                 }
             }
             shape->getMesh()->setDynMaterialId_old(-1);
@@ -2909,7 +2907,11 @@ int CWorld::setIntVectorProperty(int target, const char* ppName, const int* v, i
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->setIntVectorProperty(pName, v, vL);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->setIntVectorProperty(target, pName, v, vL);
@@ -2926,7 +2928,11 @@ int CWorld::getIntVectorProperty(int target, const char* ppName, std::vector<int
     pState.clear();
     if (target == sim_handle_scene)
     {
-
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->getIntVectorProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->getIntVectorProperty(target, pName, pState);

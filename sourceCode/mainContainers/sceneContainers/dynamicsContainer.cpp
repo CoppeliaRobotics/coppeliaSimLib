@@ -292,11 +292,22 @@ void CDynamicsContainer::displayWarningsIfNeeded()
 
 void CDynamicsContainer::setDynamicEngineType(int t, int version)
 {
-    _dynamicEngineToUse = t;
-    _dynamicEngineVersionToUse = version;
+    bool diff = (_dynamicEngineToUse != t) || (_dynamicEngineVersionToUse != version);
+    if (diff)
+    {
+        _dynamicEngineToUse = t;
+        _dynamicEngineVersionToUse = version;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_dynamicsEngine.name, true);
+            int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
+            ev->appendKeyIntArray(propDyn_dynamicsEngine.name, ar, 2);
+            App::worldContainer->pushEvent();
+        }
 #ifdef SIM_WITH_GUI
-    GuiApp::setLightDialogRefreshFlag(); // will trigger a refresh
+        GuiApp::setLightDialogRefreshFlag();
 #endif
+    }
 }
 
 int CDynamicsContainer::getDynamicEngineType(int *version) const
@@ -308,7 +319,17 @@ int CDynamicsContainer::getDynamicEngineType(int *version) const
 
 void CDynamicsContainer::setDisplayContactPoints(bool d)
 {
-    _displayContactPoints = d;
+    bool diff = (_displayContactPoints != d);
+    if (diff)
+    {
+        _displayContactPoints = d;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_showContactPoints.name, true);
+            ev->appendKeyBool(propDyn_showContactPoints.name, _displayContactPoints);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 bool CDynamicsContainer::getDisplayContactPoints() const
@@ -322,14 +343,24 @@ bool CDynamicsContainer::setDesiredStepSize(double s)
     if (App::currentWorld->simulation->isSimulationStopped())
     {
         s = tt::getLimitedFloat(0.00001, 1.0, s);
-        _stepSize = s;
-        // Following for backward compatibility:
-        setEngineFloatParam_old(sim_bullet_global_stepsize, s);
-        setEngineFloatParam_old(sim_ode_global_stepsize, s);
-        setEngineFloatParam_old(sim_vortex_global_stepsize, s);
-        setEngineFloatParam_old(sim_newton_global_stepsize, s);
-        setEngineFloatParam_old(sim_mujoco_global_stepsize, s);
-        retVal = true;
+        bool diff = (_stepSize != s);
+        if (diff)
+        {
+            _stepSize = s;
+            // Following for backward compatibility:
+            _bulletFloatParams[simi_bullet_global_stepsize] = s;
+            _odeFloatParams[simi_ode_global_stepsize] = s;
+            _vortexFloatParams[simi_vortex_global_stepsize] = s;
+            _newtonFloatParams[simi_newton_global_stepsize] = s;
+            _mujocoFloatParams[simi_mujoco_global_stepsize] = s;
+            if (App::worldContainer->getEventsEnabled())
+            {
+                CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_dynamicsStepSize.name, true);
+                ev->appendKeyDouble(propDyn_dynamicsStepSize.name, _stepSize);
+                App::worldContainer->pushEvent();
+            }
+            retVal = true;
+        }
     }
     return (retVal);
 }
@@ -353,15 +384,15 @@ double CDynamicsContainer::getEffectiveStepSize() const
 bool CDynamicsContainer::getComputeInertias() const
 {
     if (_dynamicEngineToUse == sim_physics_bullet)
-        return (getEngineBoolParam_old(sim_bullet_global_computeinertias, nullptr));
+        return getBoolPropertyValue(propDyn_bulletComputeInertias.name);
     if (_dynamicEngineToUse == sim_physics_ode)
-        return (getEngineBoolParam_old(sim_ode_global_computeinertias, nullptr));
+        return getBoolPropertyValue(propDyn_odeComputeInertias.name);
     if (_dynamicEngineToUse == sim_physics_vortex)
-        return (getEngineBoolParam_old(sim_vortex_global_computeinertias, nullptr));
+        return getBoolPropertyValue(propDyn_vortexComputeInertias.name);
     if (_dynamicEngineToUse == sim_physics_newton)
-        return (getEngineBoolParam_old(sim_newton_global_computeinertias, nullptr));
+        return getBoolPropertyValue(propDyn_newtonComputeInertias.name);
     if (_dynamicEngineToUse == sim_physics_mujoco)
-        return (getEngineBoolParam_old(sim_mujoco_global_computeinertias, nullptr));
+        return getBoolPropertyValue(propDyn_mujocoComputeInertias.name);
     return (false);
 }
 
@@ -371,15 +402,15 @@ bool CDynamicsContainer::setIterationCount(int c)
     if (App::currentWorld->simulation->isSimulationStopped())
     {
         if (_dynamicEngineToUse == sim_physics_bullet)
-            setEngineIntParam_old(sim_bullet_global_constraintsolvingiterations, c);
+            setIntProperty(propDyn_bulletIterations.name, c);
         if (_dynamicEngineToUse == sim_physics_ode)
-            setEngineIntParam_old(sim_ode_global_constraintsolvingiterations, c);
+            setIntProperty(propDyn_odeQuickStepIterations.name, c);
         if (_dynamicEngineToUse == sim_physics_vortex)
             return (false); // not available
         if (_dynamicEngineToUse == sim_physics_newton)
-            setEngineIntParam_old(sim_newton_global_constraintsolvingiterations, c);
+            setIntProperty(propDyn_newtonIterations.name, c);
         if (_dynamicEngineToUse == sim_physics_mujoco)
-            setEngineIntParam_old(sim_mujoco_global_iterations, c);
+            setIntProperty(propDyn_mujocoIterations.name, c);
         retVal = true;
     }
     return (retVal);
@@ -388,15 +419,15 @@ bool CDynamicsContainer::setIterationCount(int c)
 int CDynamicsContainer::getIterationCount() const
 {
     if (_dynamicEngineToUse == sim_physics_bullet)
-        return (getEngineIntParam_old(sim_bullet_global_constraintsolvingiterations, nullptr));
+        return (_bulletIntParams[simi_bullet_global_constraintsolvingiterations]);
     if (_dynamicEngineToUse == sim_physics_ode)
-        return (getEngineIntParam_old(sim_ode_global_constraintsolvingiterations, nullptr));
+        return (_odeIntParams[simi_ode_global_constraintsolvingiterations]);
     if (_dynamicEngineToUse == sim_physics_vortex)
         return (0); // not available
     if (_dynamicEngineToUse == sim_physics_newton)
-        return (getEngineIntParam_old(sim_newton_global_constraintsolvingiterations, nullptr));
+        return (_newtonIntParams[simi_newton_global_constraintsolvingiterations]);
     if (_dynamicEngineToUse == sim_physics_mujoco)
-        return (getEngineIntParam_old(sim_mujoco_global_iterations, nullptr));
+        return (_mujocoIntParams[simi_mujoco_global_iterations]);
     return (0);
 }
 
@@ -426,66 +457,12 @@ double CDynamicsContainer::getEngineFloatParam_old(int what, bool *ok, bool getD
         if (getVector3Property(prop.c_str(), v) > 0)
             return v(indexWithArrays);
     }
-    // For backward compatibility:
     if ( (what == sim_bullet_global_stepsize) || (what == sim_ode_global_stepsize) || (what == sim_vortex_global_stepsize) || (what == sim_newton_global_stepsize) || (what == sim_mujoco_global_stepsize) )
         return (_stepSize);
 
     if (ok != nullptr)
         ok[0] = false;
     return 0.0;
-
-/*
-    if (ok != nullptr)
-        ok[0] = true;
-    if ((what > sim_bullet_global_float_start) && (what < sim_bullet_global_float_end))
-    {
-        std::vector<double> fp;
-        getBulletFloatParams(fp, getDefault);
-        int w = what - sim_bullet_global_stepsize + simi_bullet_global_stepsize;
-        if (what == sim_bullet_global_stepsize) // for backw. compatibility
-            return (_stepSize);
-        return (fp[w]);
-    }
-    if ((what > sim_ode_global_float_start) && (what < sim_ode_global_float_end))
-    {
-        std::vector<double> fp;
-        getOdeFloatParams(fp, getDefault);
-        int w = what - sim_ode_global_stepsize + simi_ode_global_stepsize;
-        if (what == sim_ode_global_stepsize) // for backw. compatibility
-            return (_stepSize);
-        return (fp[w]);
-    }
-    if ((what > sim_vortex_global_float_start) && (what < sim_vortex_global_float_end))
-    {
-        std::vector<double> fp;
-        getVortexFloatParams(fp, getDefault);
-        int w = what - sim_vortex_global_stepsize + simi_vortex_global_stepsize;
-        if (what == sim_vortex_global_stepsize) // for backw. compatibility
-            return (_stepSize);
-        return (fp[w]);
-    }
-    if ((what > sim_newton_global_float_start) && (what < sim_newton_global_float_end))
-    {
-        std::vector<double> fp;
-        getNewtonFloatParams(fp, getDefault);
-        int w = what - sim_newton_global_stepsize + simi_newton_global_stepsize;
-        if (what == sim_newton_global_stepsize) // for backw. compatibility
-            return (_stepSize);
-        return (fp[w]);
-    }
-    if ((what > sim_mujoco_global_float_start) && (what < sim_mujoco_global_float_end))
-    {
-        std::vector<double> fp;
-        getMujocoFloatParams(fp, getDefault);
-        int w = what - sim_mujoco_global_stepsize + simi_mujoco_global_stepsize;
-        if (what == sim_mujoco_global_stepsize) // for backw. compatibility
-            return (_stepSize);
-        return (fp[w]);
-    }
-    if (ok != nullptr)
-        ok[0] = false;
-    return (0.0);
-    */
 }
 
 int CDynamicsContainer::getEngineIntParam_old(int what, bool *ok, bool getDefault /*=false*/) const
@@ -503,49 +480,6 @@ int CDynamicsContainer::getEngineIntParam_old(int what, bool *ok, bool getDefaul
     if (ok != nullptr)
         ok[0] = false;
     return 0;
-
-/*
-    if (ok != nullptr)
-        ok[0] = true;
-    if ((what > sim_bullet_global_int_start) && (what < sim_bullet_global_int_end))
-    {
-        std::vector<int> ip;
-        getBulletIntParams(ip, getDefault);
-        int w = what - sim_bullet_global_constraintsolvingiterations + simi_bullet_global_constraintsolvingiterations;
-        return (ip[w]);
-    }
-    if ((what > sim_ode_global_int_start) && (what < sim_ode_global_int_end))
-    {
-        std::vector<int> ip;
-        getOdeIntParams(ip, getDefault);
-        int w = what - sim_ode_global_constraintsolvingiterations + simi_ode_global_constraintsolvingiterations;
-        return (ip[w]);
-    }
-    if ((what > sim_vortex_global_int_start) && (what < sim_vortex_global_int_end))
-    {
-        std::vector<int> ip;
-        getVortexIntParams(ip, getDefault);
-        int w = what - sim_vortex_global_bitcoded + simi_vortex_global_bitcoded;
-        return (ip[w]);
-    }
-    if ((what > sim_newton_global_int_start) && (what < sim_newton_global_int_end))
-    {
-        std::vector<int> ip;
-        getNewtonIntParams(ip, getDefault);
-        int w = what - sim_newton_global_constraintsolvingiterations + simi_newton_global_constraintsolvingiterations;
-        return (ip[w]);
-    }
-    if ((what > sim_mujoco_global_int_start) && (what < sim_mujoco_global_int_end))
-    {
-        std::vector<int> ip;
-        getMujocoIntParams(ip, getDefault);
-        int w = what - sim_mujoco_global_bitcoded + simi_mujoco_global_bitcoded;
-        return (ip[w]);
-    }
-    if (ok != nullptr)
-        ok[0] = false;
-    return (0);
-    */
 }
 
 bool CDynamicsContainer::getEngineBoolParam_old(int what, bool *ok, bool getDefault /*=false*/) const
@@ -563,79 +497,6 @@ bool CDynamicsContainer::getEngineBoolParam_old(int what, bool *ok, bool getDefa
     if (ok != nullptr)
         ok[0] = false;
     return false;
-
-/*
-    if (ok != nullptr)
-        ok[0] = true;
-    if ((what > sim_bullet_global_bool_start) && (what < sim_bullet_global_bool_end))
-    {
-        int b = 1;
-        int w = (what - sim_bullet_global_fullinternalscaling);
-        while (w > 0)
-        {
-            b *= 2;
-            w--;
-        }
-        std::vector<int> ip;
-        getBulletIntParams(ip, getDefault);
-        return ((ip[simi_bullet_global_bitcoded] & b) != 0);
-    }
-    if ((what > sim_ode_global_bool_start) && (what < sim_ode_global_bool_end))
-    {
-        int b = 1;
-        int w = (what - sim_ode_global_fullinternalscaling);
-        while (w > 0)
-        {
-            b *= 2;
-            w--;
-        }
-        std::vector<int> ip;
-        getOdeIntParams(ip, getDefault);
-        return ((ip[simi_ode_global_bitcoded] & b) != 0);
-    }
-    if ((what > sim_vortex_global_bool_start) && (what < sim_vortex_global_bool_end))
-    {
-        int b = 1;
-        int w = (what - sim_vortex_global_autosleep);
-        while (w > 0)
-        {
-            b *= 2;
-            w--;
-        }
-        std::vector<int> ip;
-        getVortexIntParams(ip, getDefault);
-        return ((ip[simi_vortex_global_bitcoded] & b) != 0);
-    }
-    if ((what > sim_newton_global_bool_start) && (what < sim_newton_global_bool_end))
-    {
-        int b = 1;
-        int w = (what - sim_newton_global_multithreading);
-        while (w > 0)
-        {
-            b *= 2;
-            w--;
-        }
-        std::vector<int> ip;
-        getNewtonIntParams(ip, getDefault);
-        return ((ip[simi_newton_global_bitcoded] & b) != 0);
-    }
-    if ((what > sim_mujoco_global_bool_start) && (what < sim_mujoco_global_bool_end))
-    {
-        int b = 1;
-        int w = (what - sim_mujoco_global_computeinertias);
-        while (w > 0)
-        {
-            b *= 2;
-            w--;
-        }
-        std::vector<int> ip;
-        getMujocoIntParams(ip, getDefault);
-        return ((ip[simi_mujoco_global_bitcoded] & b) != 0);
-    }
-    if (ok != nullptr)
-        ok[0] = false;
-    return (0);
-    */
 }
 
 bool CDynamicsContainer::setEngineFloatParam_old(int what, double v)
@@ -683,68 +544,10 @@ bool CDynamicsContainer::setEngineFloatParam_old(int what, double v)
         {
             _stepSize = v;
             retVal = true;
+            checkIfEngineSettingsAreDefault();
         }
     }
 
-/*
-    if ((what > sim_bullet_global_float_start) && (what < sim_bullet_global_float_end))
-    {
-        int w = what - sim_bullet_global_stepsize + simi_bullet_global_stepsize;
-        std::vector<double> fp;
-        getBulletFloatParams(fp);
-        fp[w] = v;
-        setBulletFloatParams(fp);
-        if (what == sim_bullet_global_stepsize) // for backw. compatibility
-            _stepSize = v;
-        retVal = true;
-    }
-    if ((what > sim_ode_global_float_start) && (what < sim_ode_global_float_end))
-    {
-        int w = what - sim_ode_global_stepsize + simi_ode_global_stepsize;
-        std::vector<double> fp;
-        getOdeFloatParams(fp);
-        fp[w] = v;
-        setOdeFloatParams(fp);
-        if (what == sim_ode_global_stepsize) // for backw. compatibility
-            _stepSize = v;
-        retVal = true;
-    }
-    if ((what > sim_vortex_global_float_start) && (what < sim_vortex_global_float_end))
-    {
-        int w = what - sim_vortex_global_stepsize + simi_vortex_global_stepsize;
-        std::vector<double> fp;
-        getVortexFloatParams(fp);
-        fp[w] = v;
-        setVortexFloatParams(fp);
-        if (what == sim_vortex_global_stepsize) // for backw. compatibility
-            _stepSize = v;
-        retVal = true;
-    }
-    if ((what > sim_newton_global_float_start) && (what < sim_newton_global_float_end))
-    {
-        int w = what - sim_newton_global_stepsize + simi_newton_global_stepsize;
-        std::vector<double> fp;
-        getNewtonFloatParams(fp);
-        fp[w] = v;
-        setNewtonFloatParams(fp);
-        if (what == sim_newton_global_stepsize) // for backw. compatibility
-            _stepSize = v;
-        retVal = true;
-    }
-    if ((what > sim_mujoco_global_float_start) && (what < sim_mujoco_global_float_end))
-    {
-        int w = what - sim_mujoco_global_stepsize + simi_mujoco_global_stepsize;
-        std::vector<double> fp;
-        getMujocoFloatParams(fp);
-        fp[w] = v;
-        setMujocoFloatParams(fp);
-        if (what == sim_mujoco_global_stepsize) // for backw. compatibility
-            _stepSize = v;
-        retVal = true;
-    }
-    */
-    if (retVal)
-        checkIfEngineSettingsAreDefault();
     return (retVal);
 }
 
@@ -758,56 +561,6 @@ bool CDynamicsContainer::setEngineIntParam_old(int what, int v)
         if (setIntProperty(prop.c_str(), v) > 0)
             retVal = true;
     }
-
-    /*
-    if ((what > sim_bullet_global_int_start) && (what < sim_bullet_global_int_end))
-    {
-        int w = what - sim_bullet_global_constraintsolvingiterations + simi_bullet_global_constraintsolvingiterations;
-        std::vector<int> ip;
-        getBulletIntParams(ip);
-        ip[w] = v;
-        setBulletIntParams(ip);
-        retVal = true;
-    }
-    if ((what > sim_ode_global_int_start) && (what < sim_ode_global_int_end))
-    {
-        int w = what - sim_ode_global_constraintsolvingiterations + simi_ode_global_constraintsolvingiterations;
-        std::vector<int> ip;
-        getOdeIntParams(ip);
-        ip[w] = v;
-        setOdeIntParams(ip);
-        retVal = true;
-    }
-    if ((what > sim_vortex_global_int_start) && (what < sim_vortex_global_int_end))
-    {
-        int w = what - sim_vortex_global_bitcoded + simi_vortex_global_bitcoded;
-        std::vector<int> ip;
-        getVortexIntParams(ip);
-        ip[w] = v;
-        setVortexIntParams(ip);
-        retVal = true;
-    }
-    if ((what > sim_newton_global_int_start) && (what < sim_newton_global_int_end))
-    {
-        int w = what - sim_newton_global_constraintsolvingiterations + simi_newton_global_constraintsolvingiterations;
-        std::vector<int> ip;
-        getNewtonIntParams(ip);
-        ip[w] = v;
-        setNewtonIntParams(ip);
-        retVal = true;
-    }
-    if ((what > sim_mujoco_global_int_start) && (what < sim_mujoco_global_int_end))
-    {
-        int w = what - sim_mujoco_global_bitcoded + simi_mujoco_global_bitcoded;
-        std::vector<int> ip;
-        getMujocoIntParams(ip);
-        ip[w] = v;
-        setMujocoIntParams(ip);
-        retVal = true;
-    }
-    */
-    if (retVal)
-        checkIfEngineSettingsAreDefault();
     return (retVal);
 }
 
@@ -821,168 +574,7 @@ bool CDynamicsContainer::setEngineBoolParam_old(int what, bool v)
         if (setBoolProperty(prop.c_str(), v) > 0)
             retVal = true;
     }
-
-/*
-    if ((what > sim_bullet_global_bool_start) && (what < sim_bullet_global_bool_end))
-    {
-        int b = 1;
-        int w = (what - sim_bullet_global_fullinternalscaling);
-        while (w > 0)
-        {
-            b *= 2;
-            w--;
-        }
-        std::vector<int> ip;
-        getBulletIntParams(ip);
-        ip[simi_bullet_global_bitcoded] |= b;
-        if (!v)
-            ip[simi_bullet_global_bitcoded] -= b;
-        setBulletIntParams(ip);
-        retVal = true;
-    }
-    if ((what > sim_ode_global_bool_start) && (what < sim_ode_global_bool_end))
-    {
-        int b = 1;
-        int w = (what - sim_ode_global_fullinternalscaling);
-        while (w > 0)
-        {
-            b *= 2;
-            w--;
-        }
-        std::vector<int> ip;
-        getOdeIntParams(ip);
-        ip[simi_ode_global_bitcoded] |= b;
-        if (!v)
-            ip[simi_ode_global_bitcoded] -= b;
-        setOdeIntParams(ip);
-        retVal = true;
-    }
-    if ((what > sim_vortex_global_bool_start) && (what < sim_vortex_global_bool_end))
-    {
-        int b = 1;
-        int w = (what - sim_vortex_global_autosleep);
-        while (w > 0)
-        {
-            b *= 2;
-            w--;
-        }
-        std::vector<int> ip;
-        getVortexIntParams(ip);
-        ip[simi_vortex_global_bitcoded] |= b;
-        if (!v)
-            ip[simi_vortex_global_bitcoded] -= b;
-        setVortexIntParams(ip);
-        retVal = true;
-    }
-    if ((what > sim_newton_global_bool_start) && (what < sim_newton_global_bool_end))
-    {
-        int b = 1;
-        int w = (what - sim_newton_global_multithreading);
-        while (w > 0)
-        {
-            b *= 2;
-            w--;
-        }
-        std::vector<int> ip;
-        getNewtonIntParams(ip);
-        ip[simi_newton_global_bitcoded] |= b;
-        if (!v)
-            ip[simi_newton_global_bitcoded] -= b;
-        setNewtonIntParams(ip);
-        retVal = true;
-    }
-    if ((what > sim_mujoco_global_bool_start) && (what < sim_mujoco_global_bool_end))
-    {
-        int b = 1;
-        int w = (what - sim_mujoco_global_computeinertias);
-        while (w > 0)
-        {
-            b *= 2;
-            w--;
-        }
-        std::vector<int> ip;
-        getMujocoIntParams(ip);
-        ip[simi_mujoco_global_bitcoded] |= b;
-        if (!v)
-            ip[simi_mujoco_global_bitcoded] -= b;
-        setMujocoIntParams(ip);
-        retVal = true;
-    }
-    */
-
-    if (retVal)
-        checkIfEngineSettingsAreDefault();
     return (retVal);
-}
-
-void CDynamicsContainer::getBulletFloatParams(std::vector<double> &p, bool getDefault /*=false*/) const
-{
-    if (getDefault)
-        getBulletDefaultFloatParams(p);
-    else
-        p.assign(_bulletFloatParams.begin(), _bulletFloatParams.end());
-}
-
-void CDynamicsContainer::setBulletFloatParams(const std::vector<double> &p)
-{
-    _bulletFloatParams.assign(p.begin(), p.end());
-    _bulletFloatParams[simi_bullet_global_stepsize] =
-        tt::getLimitedFloat(0.00001, 1.0, _bulletFloatParams[simi_bullet_global_stepsize]); // step size
-    _bulletFloatParams[simi_bullet_global_internalscalingfactor] = tt::getLimitedFloat(
-        0.0001, 10000.0, _bulletFloatParams[simi_bullet_global_internalscalingfactor]); // internal scaling factor
-    _bulletFloatParams[simi_bullet_global_collisionmarginfactor] = tt::getLimitedFloat(
-        0.001, 100.0, _bulletFloatParams[simi_bullet_global_collisionmarginfactor]); // collision margin factor
-}
-
-void CDynamicsContainer::getBulletIntParams(std::vector<int> &p, bool getDefault /*=false*/) const
-{
-    if (getDefault)
-        getBulletDefaultIntParams(p);
-    else
-        p.assign(_bulletIntParams.begin(), _bulletIntParams.end());
-}
-
-void CDynamicsContainer::setBulletIntParams(const std::vector<int> &p)
-{
-    _bulletIntParams.assign(p.begin(), p.end());
-    _bulletIntParams[simi_bullet_global_constraintsolvingiterations] = tt::getLimitedFloat(
-        1, 10000, _bulletIntParams[simi_bullet_global_constraintsolvingiterations]); // constr. solv. iterations
-}
-
-void CDynamicsContainer::getOdeFloatParams(std::vector<double> &p, bool getDefault /*=false*/) const
-{
-    if (getDefault)
-        getOdeDefaultFloatParams(p);
-    else
-        p.assign(_odeFloatParams.begin(), _odeFloatParams.end());
-}
-
-void CDynamicsContainer::setOdeFloatParams(const std::vector<double> &p)
-{
-    _odeFloatParams.assign(p.begin(), p.end());
-    _odeFloatParams[simi_ode_global_stepsize] =
-        tt::getLimitedFloat(0.00001, 1.0, _odeFloatParams[simi_ode_global_stepsize]); // step size
-    _odeFloatParams[simi_ode_global_internalscalingfactor] = tt::getLimitedFloat(
-        0.0001, 10000.0, _odeFloatParams[simi_ode_global_internalscalingfactor]); // internal scaling factor
-    _odeFloatParams[simi_ode_global_cfm] =
-        tt::getLimitedFloat(0.0, 1.0, _odeFloatParams[simi_ode_global_cfm]); // global CFM
-    _odeFloatParams[simi_ode_global_erp] =
-        tt::getLimitedFloat(0.0, 1.0, _odeFloatParams[simi_ode_global_erp]); // global ERP
-}
-
-void CDynamicsContainer::getOdeIntParams(std::vector<int> &p, bool getDefault /*=false*/) const
-{
-    if (getDefault)
-        getOdeDefaultIntParams(p);
-    else
-        p.assign(_odeIntParams.begin(), _odeIntParams.end());
-}
-
-void CDynamicsContainer::setOdeIntParams(const std::vector<int> &p)
-{
-    _odeIntParams.assign(p.begin(), p.end());
-    _odeIntParams[simi_ode_global_constraintsolvingiterations] = tt::getLimitedFloat(
-        1, 10000, _odeIntParams[simi_ode_global_constraintsolvingiterations]); // constr. solv. iterations
 }
 
 void CDynamicsContainer::getVortexFloatParams(std::vector<double> &p, bool getDefault /*=false*/) const
@@ -993,28 +585,12 @@ void CDynamicsContainer::getVortexFloatParams(std::vector<double> &p, bool getDe
         p.assign(_vortexFloatParams.begin(), _vortexFloatParams.end());
 }
 
-void CDynamicsContainer::setVortexFloatParams(const std::vector<double> &p)
-{
-    _vortexFloatParams.assign(p.begin(), p.end());
-    _vortexFloatParams[simi_vortex_global_stepsize] =
-        tt::getLimitedFloat(0.00001, 1.0, _vortexFloatParams[simi_vortex_global_stepsize]); // step size
-    _vortexFloatParams[simi_vortex_global_internalscalingfactor] = tt::getLimitedFloat(
-        0.0001, 10000.0, _vortexFloatParams[simi_vortex_global_internalscalingfactor]); // internal scaling factor
-    _vortexFloatParams[simi_vortex_global_contacttolerance] =
-        tt::getLimitedFloat(0.0, 10.0, _vortexFloatParams[simi_vortex_global_contacttolerance]); // contact tolerance
-}
-
 void CDynamicsContainer::getVortexIntParams(std::vector<int> &p, bool getDefault /*=false*/) const
 {
     if (getDefault)
         getVortexDefaultIntParams(p);
     else
         p.assign(_vortexIntParams.begin(), _vortexIntParams.end());
-}
-
-void CDynamicsContainer::setVortexIntParams(const std::vector<int> &p)
-{
-    _vortexIntParams.assign(p.begin(), p.end());
 }
 
 void CDynamicsContainer::getNewtonFloatParams(std::vector<double> &p, bool getDefault /*=false*/) const
@@ -1025,68 +601,12 @@ void CDynamicsContainer::getNewtonFloatParams(std::vector<double> &p, bool getDe
         p.assign(_newtonFloatParams.begin(), _newtonFloatParams.end());
 }
 
-void CDynamicsContainer::setNewtonFloatParams(const std::vector<double> &p)
-{
-    _newtonFloatParams.assign(p.begin(), p.end());
-    _newtonFloatParams[simi_newton_global_stepsize] =
-        tt::getLimitedFloat(0.00001, 1.0, _newtonFloatParams[simi_newton_global_stepsize]); // step size
-    _newtonFloatParams[simi_newton_global_contactmergetolerance] = tt::getLimitedFloat(
-        0.0001, 1.0, _newtonFloatParams[simi_newton_global_contactmergetolerance]); // contact merge tolerance
-}
-
 void CDynamicsContainer::getNewtonIntParams(std::vector<int> &p, bool getDefault /*=false*/) const
 {
     if (getDefault)
         getNewtonDefaultIntParams(p);
     else
         p.assign(_newtonIntParams.begin(), _newtonIntParams.end());
-}
-
-void CDynamicsContainer::setNewtonIntParams(const std::vector<int> &p)
-{
-    _newtonIntParams.assign(p.begin(), p.end());
-    _newtonIntParams[simi_newton_global_constraintsolvingiterations] = tt::getLimitedInt(
-        1, 128, _newtonIntParams[simi_newton_global_constraintsolvingiterations]); // solving iterations
-}
-
-void CDynamicsContainer::getMujocoFloatParams(std::vector<double> &p, bool getDefault /*=false*/) const
-{
-    if (getDefault)
-        getMujocoDefaultFloatParams(p);
-    else
-        p.assign(_mujocoFloatParams.begin(), _mujocoFloatParams.end());
-}
-
-void CDynamicsContainer::setMujocoFloatParams(const std::vector<double> &p)
-{
-    _mujocoFloatParams.assign(p.begin(), p.end());
-    _mujocoFloatParams[simi_mujoco_global_stepsize] =
-        tt::getLimitedFloat(0.00001, 1.0, _mujocoFloatParams[simi_mujoco_global_stepsize]);
-}
-
-void CDynamicsContainer::getMujocoIntParams(std::vector<int> &p, bool getDefault /*=false*/) const
-{
-    if (getDefault)
-        getMujocoDefaultIntParams(p);
-    else
-        p.assign(_mujocoIntParams.begin(), _mujocoIntParams.end());
-}
-
-void CDynamicsContainer::setMujocoIntParams(const std::vector<int> &p)
-{
-    _mujocoIntParams.assign(p.begin(), p.end());
-    _mujocoIntParams[simi_mujoco_global_iterations] =
-        tt::getLimitedInt(1, 1000, _mujocoIntParams[simi_mujoco_global_iterations]);
-    _mujocoIntParams[simi_mujoco_global_integrator] =
-        tt::getLimitedInt(0, 2, _mujocoIntParams[simi_mujoco_global_integrator]);
-    _mujocoIntParams[simi_mujoco_global_solver] = tt::getLimitedInt(0, 2, _mujocoIntParams[simi_mujoco_global_solver]);
-    _mujocoIntParams[simi_mujoco_global_njmax] =
-        tt::getLimitedInt(100, 50000, _mujocoIntParams[simi_mujoco_global_njmax]);
-    _mujocoIntParams[simi_mujoco_global_nconmax] =
-        tt::getLimitedInt(100, 50000, _mujocoIntParams[simi_mujoco_global_nconmax]);
-    _mujocoIntParams[simi_mujoco_global_cone] = tt::getLimitedInt(0, 1, _mujocoIntParams[simi_mujoco_global_cone]);
-    _mujocoIntParams[simi_mujoco_global_overridekin] =
-        tt::getLimitedInt(0, 2, _mujocoIntParams[simi_mujoco_global_overridekin]);
 }
 
 double CDynamicsContainer::getPositionScalingFactorDyn() const
@@ -1179,13 +699,23 @@ double CDynamicsContainer::getTorqueScalingFactorDyn() const
 
 void CDynamicsContainer::setDynamicsEnabled(bool e)
 {
-    _dynamicsEnabled = e;
-    if (!e)
-        App::currentWorld->dynamicsContainer->removeWorld();
-    else
+    bool diff = (_dynamicsEnabled != e);
+    if (diff)
     {
-        if (App::currentWorld->simulation->isSimulationRunning())
-            App::currentWorld->dynamicsContainer->addWorldIfNotThere();
+        _dynamicsEnabled = e;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_dynamicsEnabled.name, true);
+            ev->appendKeyBool(propDyn_dynamicsEnabled.name, _dynamicsEnabled);
+            App::worldContainer->pushEvent();
+        }
+        if (!e)
+            App::currentWorld->dynamicsContainer->removeWorld();
+        else
+        {
+            if (App::currentWorld->simulation->isSimulationRunning())
+                App::currentWorld->dynamicsContainer->addWorldIfNotThere();
+        }
     }
 }
 
@@ -1194,12 +724,22 @@ bool CDynamicsContainer::getDynamicsEnabled() const
     return (_dynamicsEnabled);
 }
 
-void CDynamicsContainer::setGravity(const C3Vector &gr)
+void CDynamicsContainer::setGravity(C3Vector gr)
 {
-    _gravity = gr;
-    _gravity(0) = tt::getLimitedFloat(-1000.0, +1000.0, _gravity(0));
-    _gravity(1) = tt::getLimitedFloat(-1000.0, +1000.0, _gravity(1));
-    _gravity(2) = tt::getLimitedFloat(-1000.0, +1000.0, _gravity(2));
+    gr(0) = tt::getLimitedFloat(-1000.0, +1000.0, gr(0));
+    gr(1) = tt::getLimitedFloat(-1000.0, +1000.0, gr(1));
+    gr(2) = tt::getLimitedFloat(-1000.0, +1000.0, gr(2));
+    bool diff = (_gravity != gr);
+    if (diff)
+    {
+        _gravity = gr;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_gravity.name, true);
+            ev->appendKeyDoubleArray(propDyn_gravity.name, _gravity.data, 3);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 C3Vector CDynamicsContainer::getGravity() const
@@ -1977,107 +1517,104 @@ void CDynamicsContainer::serialize(CSer &ar)
             ar.xmlAddNode_comment(" 'stepsize' tag: used for backward compatibility", exhaustiveXml);
             ar.xmlAddNode_float("stepsize", _stepSize);
             ar.xmlAddNode_float("internalscalingfactor",
-                                getEngineFloatParam_old(sim_bullet_global_internalscalingfactor, nullptr));
+                                _bulletFloatParams[simi_bullet_global_internalscalingfactor]);
             ar.xmlAddNode_float("collisionmarginfactor",
-                                getEngineFloatParam_old(sim_bullet_global_collisionmarginfactor, nullptr));
+                                _bulletFloatParams[simi_bullet_global_collisionmarginfactor]);
 
             ar.xmlAddNode_int("constraintsolvingiterations",
-                              getEngineIntParam_old(sim_bullet_global_constraintsolvingiterations, nullptr));
+                              _bulletIntParams[simi_bullet_global_constraintsolvingiterations]);
             ar.xmlAddNode_int("constraintsolvertype",
-                              getEngineIntParam_old(sim_bullet_global_constraintsolvertype, nullptr));
+                              _bulletIntParams[simi_bullet_global_constraintsolvertype]);
 
-            ar.xmlAddNode_bool("fullinternalscaling",
-                               getEngineBoolParam_old(sim_bullet_global_fullinternalscaling, nullptr));
-            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam_old(sim_bullet_global_computeinertias, nullptr));
+            ar.xmlAddNode_bool("fullinternalscaling", _bulletIntParams[simi_bullet_global_bitcoded] & simi_bullet_global_fullinternalscaling);
+            ar.xmlAddNode_bool("computeinertias", _bulletIntParams[simi_bullet_global_bitcoded] & simi_bullet_global_computeinertias);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("ode");
             ar.xmlAddNode_comment(" 'stepsize' tag: used for backward compatibility", exhaustiveXml);
             ar.xmlAddNode_float("stepsize", _stepSize);
             ar.xmlAddNode_float("internalscalingfactor",
-                                getEngineFloatParam_old(sim_ode_global_internalscalingfactor, nullptr));
-            ar.xmlAddNode_float("cfm", getEngineFloatParam_old(sim_ode_global_cfm, nullptr));
-            ar.xmlAddNode_float("erp", getEngineFloatParam_old(sim_ode_global_erp, nullptr));
+                                _odeFloatParams[simi_ode_global_internalscalingfactor]);
+            ar.xmlAddNode_float("cfm", _odeFloatParams[simi_ode_global_cfm]);
+            ar.xmlAddNode_float("erp", _odeFloatParams[simi_ode_global_erp]);
 
             ar.xmlAddNode_int("constraintsolvingiterations",
-                              getEngineIntParam_old(sim_ode_global_constraintsolvingiterations, nullptr));
-            ar.xmlAddNode_int("randomseed", getEngineIntParam_old(sim_ode_global_randomseed, nullptr));
+                              _odeIntParams[simi_ode_global_constraintsolvingiterations]);
+            ar.xmlAddNode_int("randomseed", _odeIntParams[simi_ode_global_randomseed]);
 
-            ar.xmlAddNode_bool("fullinternalscaling", getEngineBoolParam_old(sim_ode_global_fullinternalscaling, nullptr));
-            ar.xmlAddNode_bool("quickstep", getEngineBoolParam_old(sim_ode_global_quickstep, nullptr));
-            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam_old(sim_ode_global_computeinertias, nullptr));
+            ar.xmlAddNode_bool("fullinternalscaling", getBoolPropertyValue(propDyn_odeInternalScalingFull.name));
+            ar.xmlAddNode_bool("quickstep", getBoolPropertyValue(propDyn_odeQuickStepEnabled.name));
+            ar.xmlAddNode_bool("computeinertias", getBoolPropertyValue(propDyn_odeComputeInertias.name));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("vortex");
             ar.xmlAddNode_comment(" 'stepsize' tag: used for backward compatibility", exhaustiveXml);
             ar.xmlAddNode_float("stepsize", _stepSize);
             ar.xmlAddNode_float("internalscalingfactor",
-                                getEngineFloatParam_old(sim_vortex_global_internalscalingfactor, nullptr));
-            ar.xmlAddNode_float("contacttolerance", getEngineFloatParam_old(sim_vortex_global_contacttolerance, nullptr));
+                                _vortexFloatParams[simi_vortex_global_internalscalingfactor]);
+            ar.xmlAddNode_float("contacttolerance", _vortexFloatParams[simi_vortex_global_contacttolerance]);
             ar.xmlAddNode_float("constraintlinearcompliance",
-                                getEngineFloatParam_old(sim_vortex_global_constraintlinearcompliance, nullptr));
+                                _vortexFloatParams[simi_vortex_global_constraintlinearcompliance]);
             ar.xmlAddNode_float("constraintlineardamping",
-                                getEngineFloatParam_old(sim_vortex_global_constraintlineardamping, nullptr));
+                                _vortexFloatParams[simi_vortex_global_constraintlineardamping]);
             ar.xmlAddNode_float("constraintlinearkineticloss",
-                                getEngineFloatParam_old(sim_vortex_global_constraintlinearkineticloss, nullptr));
+                                _vortexFloatParams[simi_vortex_global_constraintlinearkineticloss]);
             ar.xmlAddNode_float("constraintangularcompliance",
-                                getEngineFloatParam_old(sim_vortex_global_constraintangularcompliance, nullptr));
+                                _vortexFloatParams[simi_vortex_global_constraintangularcompliance]);
             ar.xmlAddNode_float("constraintangulardamping",
-                                getEngineFloatParam_old(sim_vortex_global_constraintangulardamping, nullptr));
+                                _vortexFloatParams[simi_vortex_global_constraintangulardamping]);
             ar.xmlAddNode_float("constraintangularkineticloss",
-                                getEngineFloatParam_old(sim_vortex_global_constraintangularkineticloss, nullptr));
+                                _vortexFloatParams[simi_vortex_global_constraintangularkineticloss]);
 
-            ar.xmlAddNode_bool("autosleep", getEngineBoolParam_old(sim_vortex_global_autosleep, nullptr));
-            ar.xmlAddNode_bool("multithreading", getEngineBoolParam_old(sim_vortex_global_multithreading, nullptr));
-            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam_old(sim_vortex_global_computeinertias, nullptr));
+            ar.xmlAddNode_bool("autosleep", getBoolPropertyValue(propDyn_vortexAutoSleep.name));
+            ar.xmlAddNode_bool("multithreading", getBoolPropertyValue(propDyn_vortexMultithreading.name));
+            ar.xmlAddNode_bool("computeinertias", getBoolPropertyValue(propDyn_vortexComputeInertias.name));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("newton");
             ar.xmlAddNode_comment(" 'stepsize' tag: used for backward compatibility", exhaustiveXml);
             ar.xmlAddNode_float("stepsize", _stepSize);
-            ar.xmlAddNode_float("contactmergetolerance",
-                                getEngineFloatParam_old(sim_newton_global_contactmergetolerance, nullptr));
-            ar.xmlAddNode_int("constraintsolvingiterations",
-                              getEngineIntParam_old(sim_newton_global_constraintsolvingiterations, nullptr));
-            ar.xmlAddNode_bool("multithreading", getEngineBoolParam_old(sim_newton_global_multithreading, nullptr));
-            ar.xmlAddNode_bool("exactsolver", getEngineBoolParam_old(sim_newton_global_exactsolver, nullptr));
-            ar.xmlAddNode_bool("highjointaccuracy", getEngineBoolParam_old(sim_newton_global_highjointaccuracy, nullptr));
-            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam_old(sim_newton_global_computeinertias, nullptr));
+            ar.xmlAddNode_float("contactmergetolerance", _newtonFloatParams[simi_newton_global_contactmergetolerance]);
+            ar.xmlAddNode_int("constraintsolvingiterations", _newtonFloatParams[simi_newton_global_constraintsolvingiterations]);
+            ar.xmlAddNode_bool("multithreading", getBoolPropertyValue(propDyn_newtonMultithreading.name));
+            ar.xmlAddNode_bool("exactsolver", getBoolPropertyValue(propDyn_newtonExactSolver.name));
+            ar.xmlAddNode_bool("highjointaccuracy", getBoolPropertyValue(propDyn_newtonHighJointAccuracy.name));
+            ar.xmlAddNode_bool("computeinertias", getBoolPropertyValue(propDyn_newtonComputeInertias.name));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("mujoco");
-            ar.xmlAddNode_float("impratio", getEngineFloatParam_old(sim_mujoco_global_impratio, nullptr));
+            ar.xmlAddNode_float("impratio", _mujocoFloatParams[simi_mujoco_global_impratio]);
             double w[5];
             for (size_t j = 0; j < 3; j++)
-                w[j] = getEngineFloatParam_old(sim_mujoco_global_wind1 + int(j), nullptr);
+                w[j] = _mujocoFloatParams[simi_mujoco_global_wind1 + int(j)];
             ar.xmlAddNode_floats("wind", w, 3);
-            ar.xmlAddNode_float("density", getEngineFloatParam_old(sim_mujoco_global_density, nullptr));
-            ar.xmlAddNode_float("viscosity", getEngineFloatParam_old(sim_mujoco_global_viscosity, nullptr));
-            ar.xmlAddNode_float("boundmass", getEngineFloatParam_old(sim_mujoco_global_boundmass, nullptr));
-            ar.xmlAddNode_float("boundinertia", getEngineFloatParam_old(sim_mujoco_global_boundinertia, nullptr));
-            ar.xmlAddNode_float("overridemargin", getEngineFloatParam_old(sim_mujoco_global_overridemargin, nullptr));
+            ar.xmlAddNode_float("density", _mujocoFloatParams[simi_mujoco_global_density]);
+            ar.xmlAddNode_float("viscosity", _mujocoFloatParams[simi_mujoco_global_viscosity]);
+            ar.xmlAddNode_float("boundmass", _mujocoFloatParams[simi_mujoco_global_boundmass]);
+            ar.xmlAddNode_float("boundinertia", _mujocoFloatParams[simi_mujoco_global_boundinertia]);
+            ar.xmlAddNode_float("overridemargin", _mujocoFloatParams[simi_mujoco_global_overridemargin]);
             for (size_t j = 0; j < 2; j++)
-                w[j] = getEngineFloatParam_old(sim_mujoco_global_overridesolref1 + int(j), nullptr);
+                w[j] = _mujocoFloatParams[simi_mujoco_global_overridesolref1 + int(j)];
             ar.xmlAddNode_floats("overridesolref", w, 2);
             for (size_t j = 0; j < 5; j++)
-                w[j] = getEngineFloatParam_old(sim_mujoco_global_overridesolimp1 + int(j), nullptr);
+                w[j] = _mujocoFloatParams[simi_mujoco_global_overridesolimp1 + int(j)];
             ar.xmlAddNode_floats("overridesolimp", w, 5);
-            ar.xmlAddNode_float("kinmass", getEngineFloatParam_old(sim_mujoco_global_kinmass, nullptr));
-            ar.xmlAddNode_float("kininertia", getEngineFloatParam_old(sim_mujoco_global_kininertia, nullptr));
-            ar.xmlAddNode_int("iterations", getEngineIntParam_old(sim_mujoco_global_iterations, nullptr));
-            ar.xmlAddNode_int("integrator", getEngineIntParam_old(sim_mujoco_global_integrator, nullptr));
-            ar.xmlAddNode_int("solver", getEngineIntParam_old(sim_mujoco_global_solver, nullptr));
-            ar.xmlAddNode_int("njmax", getEngineIntParam_old(sim_mujoco_global_njmax, nullptr));
-            ar.xmlAddNode_int("nconmax", getEngineIntParam_old(sim_mujoco_global_nconmax, nullptr));
-            ar.xmlAddNode_int("nstack", getEngineIntParam_old(sim_mujoco_global_nstack, nullptr));
-            ar.xmlAddNode_int("cone", getEngineIntParam_old(sim_mujoco_global_cone, nullptr));
-            ar.xmlAddNode_int("overridekin", getEngineIntParam_old(sim_mujoco_global_overridekin, nullptr));
-            ar.xmlAddNode_int("rebuildtrigger", getEngineIntParam_old(sim_mujoco_global_rebuildtrigger, nullptr));
-            ar.xmlAddNode_bool("computeinertias", getEngineBoolParam_old(sim_mujoco_global_computeinertias, nullptr));
-            ar.xmlAddNode_bool("multithreaded", getEngineBoolParam_old(sim_mujoco_global_multithreaded, nullptr));
-            ar.xmlAddNode_bool("multiccd", getEngineBoolParam_old(sim_mujoco_global_multiccd, nullptr));
-            ar.xmlAddNode_bool("balanceinertias", getEngineBoolParam_old(sim_mujoco_global_balanceinertias, nullptr));
-            ar.xmlAddNode_bool("overridecontacts", getEngineBoolParam_old(sim_mujoco_global_overridecontacts, nullptr));
+            ar.xmlAddNode_float("kinmass", _mujocoFloatParams[simi_mujoco_global_kinmass]);
+            ar.xmlAddNode_float("kininertia", _mujocoFloatParams[simi_mujoco_global_kininertia]);
+            ar.xmlAddNode_int("iterations", _mujocoIntParams[simi_mujoco_global_iterations]);
+            ar.xmlAddNode_int("integrator", _mujocoIntParams[simi_mujoco_global_integrator]);
+            ar.xmlAddNode_int("solver", _mujocoIntParams[simi_mujoco_global_solver]);
+            ar.xmlAddNode_int("njmax", _mujocoIntParams[simi_mujoco_global_njmax]);
+            ar.xmlAddNode_int("nconmax", _mujocoIntParams[simi_mujoco_global_nconmax]);
+            ar.xmlAddNode_int("nstack", _mujocoIntParams[simi_mujoco_global_nstack]);
+            ar.xmlAddNode_int("cone", _mujocoIntParams[simi_mujoco_global_cone]);
+            ar.xmlAddNode_int("overridekin", _mujocoIntParams[simi_mujoco_global_overridekin]);
+            ar.xmlAddNode_int("rebuildtrigger", _mujocoIntParams[simi_mujoco_global_rebuildtrigger]);
+            ar.xmlAddNode_bool("computeinertias", getBoolPropertyValue(propDyn_mujocoComputeInertias.name));
+            ar.xmlAddNode_bool("multithreaded", getBoolPropertyValue(propDyn_mujocoMultithreaded.name));
+            ar.xmlAddNode_bool("multiccd", getBoolPropertyValue(propDyn_mujocoMulticcd.name));
+            ar.xmlAddNode_bool("balanceinertias", getBoolPropertyValue(propDyn_mujocoBalanceInertias.name));
+            ar.xmlAddNode_bool("overridecontacts", getBoolPropertyValue(propDyn_mujocoContactParamsOverride.name));
             ar.xmlPopNode();
 
             ar.xmlPopNode();
@@ -2129,19 +1666,27 @@ void CDynamicsContainer::serialize(CSer &ar)
                             _stepSize = v;
                     }
                     if (ar.xmlGetNode_float("internalscalingfactor", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_bullet_global_internalscalingfactor, v);
+                        _bulletFloatParams[simi_bullet_global_internalscalingfactor] = v;
                     if (ar.xmlGetNode_float("collisionmarginfactor", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_bullet_global_collisionmarginfactor, v);
+                        _bulletFloatParams[simi_bullet_global_collisionmarginfactor] = v;
 
                     if (ar.xmlGetNode_int("constraintsolvingiterations", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_bullet_global_constraintsolvingiterations, vi);
+                        _bulletIntParams[simi_bullet_global_constraintsolvingiterations] = vi;
                     if (ar.xmlGetNode_int("constraintsolvertype", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_bullet_global_constraintsolvertype, vi);
+                        _bulletIntParams[simi_bullet_global_constraintsolvertype] = vi;
 
                     if (ar.xmlGetNode_bool("fullinternalscaling", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_bullet_global_fullinternalscaling, vb);
+                    {
+                        _bulletIntParams[simi_bullet_global_bitcoded] |= simi_bullet_global_fullinternalscaling;
+                        if (!vb)
+                            _bulletIntParams[simi_bullet_global_bitcoded] -= simi_bullet_global_fullinternalscaling;
+                    }
                     if (ar.xmlGetNode_bool("computeinertias", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_bullet_global_computeinertias, vb);
+                    {
+                        _bulletIntParams[simi_bullet_global_bitcoded] |= simi_bullet_global_computeinertias;
+                        if (!vb)
+                            _bulletIntParams[simi_bullet_global_bitcoded] -= simi_bullet_global_computeinertias;
+                    }
                     ar.xmlPopNode();
                 }
 
@@ -2153,23 +1698,35 @@ void CDynamicsContainer::serialize(CSer &ar)
                             _stepSize = v;
                     }
                     if (ar.xmlGetNode_float("internalscalingfactor", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_ode_global_internalscalingfactor, v);
+                        _odeFloatParams[simi_ode_global_internalscalingfactor] = v;
                     if (ar.xmlGetNode_float("cfm", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_ode_global_cfm, v);
+                        _odeFloatParams[simi_ode_global_cfm] = v;
                     if (ar.xmlGetNode_float("erp", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_ode_global_erp, v);
+                        _odeFloatParams[simi_ode_global_erp] = v;
 
                     if (ar.xmlGetNode_int("constraintsolvingiterations", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_ode_global_constraintsolvingiterations, vi);
+                        _odeIntParams[simi_ode_global_constraintsolvingiterations] = vi;
                     if (ar.xmlGetNode_int("randomseed", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_ode_global_randomseed, vi);
+                        _odeIntParams[simi_ode_global_randomseed] = vi;
 
                     if (ar.xmlGetNode_bool("fullinternalscaling", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_ode_global_fullinternalscaling, vb);
+                    {
+                        _odeIntParams[simi_ode_global_bitcoded] |= simi_ode_global_fullinternalscaling;
+                        if (!vb)
+                            _odeIntParams[simi_ode_global_bitcoded] -= simi_ode_global_fullinternalscaling;
+                    }
                     if (ar.xmlGetNode_bool("quickstep", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_ode_global_quickstep, vb);
+                    {
+                        _odeIntParams[simi_ode_global_bitcoded] |= simi_ode_global_quickstep;
+                        if (!vb)
+                            _odeIntParams[simi_ode_global_bitcoded] -= simi_ode_global_quickstep;
+                    }
                     if (ar.xmlGetNode_bool("computeinertias", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_ode_global_computeinertias, vb);
+                    {
+                        _odeIntParams[simi_ode_global_bitcoded] |= simi_ode_global_computeinertias;
+                        if (!vb)
+                            _odeIntParams[simi_ode_global_bitcoded] -= simi_ode_global_computeinertias;
+                    }
                     ar.xmlPopNode();
                 }
 
@@ -2181,28 +1738,40 @@ void CDynamicsContainer::serialize(CSer &ar)
                             _stepSize = v;
                     }
                     if (ar.xmlGetNode_float("internalscalingfactor", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_vortex_global_internalscalingfactor, v);
+                        _vortexFloatParams[simi_vortex_global_internalscalingfactor] = v;
                     if (ar.xmlGetNode_float("contacttolerance", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_vortex_global_contacttolerance, v);
+                        _vortexFloatParams[simi_vortex_global_contacttolerance] = v;
                     if (ar.xmlGetNode_float("constraintlinearcompliance", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_vortex_global_constraintlinearcompliance, v);
+                        _vortexFloatParams[simi_vortex_global_constraintlinearcompliance] = v;
                     if (ar.xmlGetNode_float("constraintlineardamping", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_vortex_global_constraintlineardamping, v);
+                        _vortexFloatParams[simi_vortex_global_constraintlineardamping] = v;
                     if (ar.xmlGetNode_float("constraintlinearkineticloss", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_vortex_global_constraintlinearkineticloss, v);
+                        _vortexFloatParams[simi_vortex_global_constraintlinearkineticloss] = v;
                     if (ar.xmlGetNode_float("constraintangularcompliance", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_vortex_global_constraintangularcompliance, v);
+                        _vortexFloatParams[simi_vortex_global_constraintangularcompliance] = v;
                     if (ar.xmlGetNode_float("constraintangulardamping", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_vortex_global_constraintangulardamping, v);
+                        _vortexFloatParams[simi_vortex_global_constraintangulardamping] = v;
                     if (ar.xmlGetNode_float("constraintangularkineticloss", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_vortex_global_constraintangularkineticloss, v);
+                        _vortexFloatParams[simi_vortex_global_constraintangularkineticloss] = v;
 
                     if (ar.xmlGetNode_bool("autosleep", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_vortex_global_autosleep, vb);
+                    {
+                        _vortexIntParams[simi_vortex_global_bitcoded] |= simi_vortex_global_autosleep;
+                        if (!vb)
+                            _vortexIntParams[simi_vortex_global_bitcoded] -= simi_vortex_global_autosleep;
+                    }
                     if (ar.xmlGetNode_bool("multithreading", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_vortex_global_multithreading, vb);
+                    {
+                        _vortexIntParams[simi_vortex_global_bitcoded] |= simi_vortex_global_multithreading;
+                        if (!vb)
+                            _vortexIntParams[simi_vortex_global_bitcoded] -= simi_vortex_global_multithreading;
+                    }
                     if (ar.xmlGetNode_bool("computeinertias", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_vortex_global_computeinertias, vb);
+                    {
+                        _vortexIntParams[simi_vortex_global_bitcoded] |= simi_vortex_global_computeinertias;
+                        if (!vb)
+                            _vortexIntParams[simi_vortex_global_bitcoded] -= simi_vortex_global_computeinertias;
+                    }
                     ar.xmlPopNode();
                 }
 
@@ -2214,82 +1783,118 @@ void CDynamicsContainer::serialize(CSer &ar)
                             _stepSize = v;
                     }
                     if (ar.xmlGetNode_float("contactmergetolerance", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_newton_global_contactmergetolerance, v);
+                        _newtonFloatParams[simi_newton_global_contactmergetolerance] = v;
                     if (ar.xmlGetNode_int("constraintsolvingiterations", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_newton_global_constraintsolvingiterations, vi);
+                        _newtonIntParams[simi_newton_global_constraintsolvingiterations] = vi;
                     if (ar.xmlGetNode_bool("multithreading", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_newton_global_multithreading, vb);
+                    {
+                        _newtonIntParams[simi_newton_global_bitcoded] |= simi_newton_global_multithreading;
+                        if (!vb)
+                            _newtonIntParams[simi_newton_global_bitcoded] -= simi_newton_global_multithreading;
+                    }
                     if (ar.xmlGetNode_bool("exactsolver", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_newton_global_exactsolver, vb);
+                    {
+                        _newtonIntParams[simi_newton_global_bitcoded] |= simi_newton_global_exactsolver;
+                        if (!vb)
+                            _newtonIntParams[simi_newton_global_bitcoded] -= simi_newton_global_exactsolver;
+                    }
                     if (ar.xmlGetNode_bool("highjointaccuracy", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_newton_global_highjointaccuracy, vb);
+                    {
+                        _newtonIntParams[simi_newton_global_bitcoded] |= simi_newton_global_highjointaccuracy;
+                        if (!vb)
+                            _newtonIntParams[simi_newton_global_bitcoded] -= simi_newton_global_highjointaccuracy;
+                    }
                     if (ar.xmlGetNode_bool("computeinertias", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_newton_global_computeinertias, vb);
+                    {
+                        _newtonIntParams[simi_newton_global_bitcoded] |= simi_newton_global_computeinertias;
+                        if (!vb)
+                            _newtonIntParams[simi_newton_global_bitcoded] -= simi_newton_global_computeinertias;
+                    }
                     ar.xmlPopNode();
                 }
 
                 if (ar.xmlPushChildNode("mujoco"))
                 {
                     if (ar.xmlGetNode_float("impratio", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_mujoco_global_impratio, v);
+                        _mujocoFloatParams[simi_mujoco_global_impratio] = v;
                     double w[5];
                     if (ar.xmlGetNode_floats("wind", w, 3, exhaustiveXml))
                     {
                         for (size_t j = 0; j < 3; j++)
-                            setEngineFloatParam_old(sim_mujoco_global_wind1 + int(j), w[j]);
+                            _mujocoFloatParams[simi_mujoco_global_wind1 + int(j)] = w[j];
                     }
                     if (ar.xmlGetNode_float("density", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_mujoco_global_density, v);
+                        _mujocoFloatParams[simi_mujoco_global_density] = v;
                     if (ar.xmlGetNode_float("viscosity", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_mujoco_global_viscosity, v);
+                        _mujocoFloatParams[simi_mujoco_global_viscosity] = v;
                     if (ar.xmlGetNode_float("boundmass", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_mujoco_global_boundmass, v);
+                        _mujocoFloatParams[simi_mujoco_global_boundmass] = v;
                     if (ar.xmlGetNode_float("boundinertia", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_mujoco_global_boundinertia, v);
+                        _mujocoFloatParams[simi_mujoco_global_boundinertia] = v;
                     if (ar.xmlGetNode_float("overridemargin", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_mujoco_global_overridemargin, v);
+                        _mujocoFloatParams[simi_mujoco_global_overridemargin] = v;
                     if (ar.xmlGetNode_floats("overridesolref", w, 2, exhaustiveXml))
                     {
                         for (size_t j = 0; j < 2; j++)
-                            setEngineFloatParam_old(sim_mujoco_global_overridesolref1 + int(j), w[j]);
+                            _mujocoFloatParams[simi_mujoco_global_overridesolref1 + int(j)] = w[j];
                     }
                     if (ar.xmlGetNode_floats("overridesolimp", w, 5, exhaustiveXml))
                     {
                         for (size_t j = 0; j < 5; j++)
-                            setEngineFloatParam_old(sim_mujoco_global_overridesolimp1 + int(j), w[j]);
+                            _mujocoFloatParams[simi_mujoco_global_overridesolimp1 + int(j)] = w[j];
                     }
                     if (ar.xmlGetNode_float("kinmass", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_mujoco_global_kinmass, v);
+                        _mujocoFloatParams[simi_mujoco_global_kinmass] = v;
                     if (ar.xmlGetNode_float("kininertia", v, exhaustiveXml))
-                        setEngineFloatParam_old(sim_mujoco_global_kininertia, v);
+                        _mujocoFloatParams[simi_mujoco_global_kininertia] = v;
                     if (ar.xmlGetNode_int("iterations", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_mujoco_global_iterations, vi);
+                        _mujocoIntParams[simi_mujoco_global_iterations] = vi;
                     if (ar.xmlGetNode_int("integrator", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_mujoco_global_integrator, vi);
+                        _mujocoIntParams[simi_mujoco_global_integrator] = vi;
                     if (ar.xmlGetNode_int("solver", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_mujoco_global_solver, vi);
+                        _mujocoIntParams[simi_mujoco_global_solver] = vi;
                     if (ar.xmlGetNode_int("njmax", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_mujoco_global_njmax, vi);
+                        _mujocoIntParams[simi_mujoco_global_njmax] = vi;
                     if (ar.xmlGetNode_int("nconmax", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_mujoco_global_nconmax, vi);
+                        _mujocoIntParams[simi_mujoco_global_nconmax] = vi;
                     if (ar.xmlGetNode_int("nstack", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_mujoco_global_nstack, vi);
+                        _mujocoIntParams[simi_mujoco_global_nstack] = vi;
                     if (ar.xmlGetNode_int("cone", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_mujoco_global_cone, vi);
+                        _mujocoIntParams[simi_mujoco_global_cone] = vi;
                     if (ar.xmlGetNode_int("overridekin", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_mujoco_global_overridekin, vi);
+                        _mujocoIntParams[simi_mujoco_global_overridekin] = vi;
                     if (ar.xmlGetNode_int("rebuildtrigger", vi, exhaustiveXml))
-                        setEngineIntParam_old(sim_mujoco_global_rebuildtrigger, vi);
+                        _mujocoIntParams[simi_mujoco_global_rebuildtrigger] = vi;
                     if (ar.xmlGetNode_bool("computeinertias", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_mujoco_global_computeinertias, vb);
+                    {
+                        _mujocoIntParams[simi_mujoco_global_bitcoded] |= simi_mujoco_global_computeinertias;
+                        if (!vb)
+                            _mujocoIntParams[simi_mujoco_global_bitcoded] -= simi_mujoco_global_computeinertias;
+                    }
                     if (ar.xmlGetNode_bool("multithreaded", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_mujoco_global_multithreaded, vb);
+                    {
+                        _mujocoIntParams[simi_mujoco_global_bitcoded] |= simi_mujoco_global_multithreaded;
+                        if (!vb)
+                            _mujocoIntParams[simi_mujoco_global_bitcoded] -= simi_mujoco_global_multithreaded;
+                    }
                     if (ar.xmlGetNode_bool("multiccd", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_mujoco_global_multiccd, vb);
+                    {
+                        _mujocoIntParams[simi_mujoco_global_bitcoded] |= simi_mujoco_global_multiccd;
+                        if (!vb)
+                            _mujocoIntParams[simi_mujoco_global_bitcoded] -= simi_mujoco_global_multiccd;
+                    }
                     if (ar.xmlGetNode_bool("balanceinertias", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_mujoco_global_balanceinertias, vb);
+                    {
+                        _mujocoIntParams[simi_mujoco_global_bitcoded] |= simi_mujoco_global_balanceinertias;
+                        if (!vb)
+                            _mujocoIntParams[simi_mujoco_global_bitcoded] -= simi_mujoco_global_balanceinertias;
+                    }
                     if (ar.xmlGetNode_bool("overridecontacts", vb, exhaustiveXml))
-                        setEngineBoolParam_old(sim_mujoco_global_overridecontacts, vb);
+                    {
+                        _mujocoIntParams[simi_mujoco_global_bitcoded] |= simi_mujoco_global_overridecontacts;
+                        if (!vb)
+                            _mujocoIntParams[simi_mujoco_global_bitcoded] -= simi_mujoco_global_overridecontacts;
+                    }
                     ar.xmlPopNode();
                 }
                 ar.xmlPopNode();
@@ -2545,6 +2150,13 @@ void CDynamicsContainer::pushGenesisEvents()
 {
     CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, nullptr, false);
 
+    ev->appendKeyBool(propDyn_dynamicsEnabled.name, _dynamicsEnabled);
+    ev->appendKeyBool(propDyn_showContactPoints.name, _displayContactPoints);
+    int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
+    ev->appendKeyIntArray(propDyn_dynamicsEngine.name, ar, 2);
+    ev->appendKeyDouble(propDyn_dynamicsStepSize.name, _stepSize);
+    ev->appendKeyDoubleArray(propDyn_gravity.name, _gravity.data, 3);
+
     // Engine properties:
     setBoolProperty(nullptr, false, ev);
     setIntProperty(nullptr, 0, ev);
@@ -2565,155 +2177,200 @@ int CDynamicsContainer::setBoolProperty(const char* pName, bool pState, CCbor* e
 
     if ( (eev == nullptr) && (pName != nullptr) )
     { // regular properties (i.e. non-engine properties)
-    }
-
-    // Following only for engine properties:
-    // -------------------------------------
-    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex)
-    {
-        if ((pName == nullptr) || (propertyName == pName))
+        if (strcmp(pName, propDyn_dynamicsEnabled.name) == 0)
         {
             retVal = 1;
-            int nv = (arr[simiIndexBitCoded] | simiIndex) - (1 - pState) * simiIndex;
-            if ( (nv != arr[simiIndexBitCoded]) ||(pName == nullptr) )
+            setDynamicsEnabled(pState);
+        }
+        else if (strcmp(pName, propDyn_showContactPoints.name) == 0)
+        {
+            retVal = 1;
+            setDisplayContactPoints(pState);
+        }
+    }
+
+    if (retVal == -1)
+    {
+        // Following only for engine properties:
+        // -------------------------------------
+        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex)
+        {
+            if ((pName == nullptr) || (propertyName == pName))
             {
-                if (pName != nullptr)
-                    arr[simiIndexBitCoded] = nv;
-                if (App::worldContainer->getEventsEnabled())
+                retVal = 1;
+                int nv = (arr[simiIndexBitCoded] | simiIndex) - (1 - pState) * simiIndex;
+                if ( (nv != arr[simiIndexBitCoded]) || (pName == nullptr) )
                 {
-                    if (ev == nullptr)
-                        ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
-                    ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
                     if (pName != nullptr)
-                        _sendEngineString(ev);
+                        arr[simiIndexBitCoded] = nv;
+                    if (App::worldContainer->getEventsEnabled())
+                    {
+                        if (ev == nullptr)
+                            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
+                        ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
+                        if (pName != nullptr)
+                            _sendEngineString(ev);
+                    }
                 }
             }
-        }
-    };
+        };
 
-    handleProp(propDyn_bulletComputeInertias.name, _bulletIntParams, simi_bullet_global_bitcoded, simi_bullet_global_computeinertias);
-    handleProp(propDyn_bulletInternalScalingFull.name, _bulletIntParams, simi_bullet_global_bitcoded, simi_bullet_global_fullinternalscaling);
-    handleProp(propDyn_odeQuickStepEnabled.name, _odeIntParams, simi_ode_global_bitcoded, simi_ode_global_quickstep);
-    handleProp(propDyn_odeComputeInertias.name, _odeIntParams, simi_ode_global_bitcoded, simi_ode_global_computeinertias);
-    handleProp(propDyn_odeInternalScalingFull.name, _odeIntParams, simi_ode_global_bitcoded, simi_ode_global_fullinternalscaling);
-    handleProp(propDyn_vortexComputeInertias.name, _vortexIntParams, simi_vortex_global_bitcoded, simi_vortex_global_computeinertias);
-    handleProp(propDyn_vortexAutoSleep.name, _vortexIntParams, simi_vortex_global_bitcoded, simi_vortex_global_autosleep);
-    handleProp(propDyn_vortexMultithreading.name, _vortexIntParams, simi_vortex_global_bitcoded, simi_vortex_global_multithreading);
-    handleProp(propDyn_newtonComputeInertias.name, _newtonIntParams, simi_newton_global_bitcoded, simi_newton_global_computeinertias);
-    handleProp(propDyn_newtonMultithreading.name, _newtonIntParams, simi_newton_global_bitcoded, simi_newton_global_multithreading);
-    handleProp(propDyn_newtonExactSolver.name, _newtonIntParams, simi_newton_global_bitcoded, simi_newton_global_exactsolver);
-    handleProp(propDyn_newtonHighJointAccuracy.name, _newtonIntParams, simi_newton_global_bitcoded, simi_newton_global_highjointaccuracy);
-    handleProp(propDyn_mujocoComputeInertias.name, _mujocoIntParams, simi_mujoco_global_bitcoded, simi_mujoco_global_computeinertias);
-    handleProp(propDyn_mujocoBalanceInertias.name, _mujocoIntParams, simi_mujoco_global_bitcoded, simi_mujoco_global_balanceinertias);
-    handleProp(propDyn_mujocoMultithreaded.name, _mujocoIntParams, simi_mujoco_global_bitcoded, simi_mujoco_global_multithreaded);
-    handleProp(propDyn_mujocoMulticcd.name, _mujocoIntParams, simi_mujoco_global_bitcoded, simi_mujoco_global_multiccd);
-    handleProp(propDyn_mujocoContactParamsOverride.name, _mujocoIntParams, simi_mujoco_global_bitcoded, simi_mujoco_global_overridecontacts);
+        handleProp(propDyn_bulletComputeInertias.name, _bulletIntParams, simi_bullet_global_bitcoded, simi_bullet_global_computeinertias);
+        handleProp(propDyn_bulletInternalScalingFull.name, _bulletIntParams, simi_bullet_global_bitcoded, simi_bullet_global_fullinternalscaling);
+        handleProp(propDyn_odeQuickStepEnabled.name, _odeIntParams, simi_ode_global_bitcoded, simi_ode_global_quickstep);
+        handleProp(propDyn_odeComputeInertias.name, _odeIntParams, simi_ode_global_bitcoded, simi_ode_global_computeinertias);
+        handleProp(propDyn_odeInternalScalingFull.name, _odeIntParams, simi_ode_global_bitcoded, simi_ode_global_fullinternalscaling);
+        handleProp(propDyn_vortexComputeInertias.name, _vortexIntParams, simi_vortex_global_bitcoded, simi_vortex_global_computeinertias);
+        handleProp(propDyn_vortexAutoSleep.name, _vortexIntParams, simi_vortex_global_bitcoded, simi_vortex_global_autosleep);
+        handleProp(propDyn_vortexMultithreading.name, _vortexIntParams, simi_vortex_global_bitcoded, simi_vortex_global_multithreading);
+        handleProp(propDyn_newtonComputeInertias.name, _newtonIntParams, simi_newton_global_bitcoded, simi_newton_global_computeinertias);
+        handleProp(propDyn_newtonMultithreading.name, _newtonIntParams, simi_newton_global_bitcoded, simi_newton_global_multithreading);
+        handleProp(propDyn_newtonExactSolver.name, _newtonIntParams, simi_newton_global_bitcoded, simi_newton_global_exactsolver);
+        handleProp(propDyn_newtonHighJointAccuracy.name, _newtonIntParams, simi_newton_global_bitcoded, simi_newton_global_highjointaccuracy);
+        handleProp(propDyn_mujocoComputeInertias.name, _mujocoIntParams, simi_mujoco_global_bitcoded, simi_mujoco_global_computeinertias);
+        handleProp(propDyn_mujocoBalanceInertias.name, _mujocoIntParams, simi_mujoco_global_bitcoded, simi_mujoco_global_balanceinertias);
+        handleProp(propDyn_mujocoMultithreaded.name, _mujocoIntParams, simi_mujoco_global_bitcoded, simi_mujoco_global_multithreaded);
+        handleProp(propDyn_mujocoMulticcd.name, _mujocoIntParams, simi_mujoco_global_bitcoded, simi_mujoco_global_multiccd);
+        handleProp(propDyn_mujocoContactParamsOverride.name, _mujocoIntParams, simi_mujoco_global_bitcoded, simi_mujoco_global_overridecontacts);
 
-    if ( (ev != nullptr) && (eev == nullptr) )
-        App::worldContainer->pushEvent();
-    // -------------------------------------
+        if ( (ev != nullptr) && (eev == nullptr) )
+            App::worldContainer->pushEvent();
+        // -------------------------------------
+    }
+
+    if (retVal == 1)
+        checkIfEngineSettingsAreDefault();
 
     return retVal;
 }
 
-int CDynamicsContainer::getBoolProperty(const char* pName, bool& pState) const
+int CDynamicsContainer::getBoolProperty(const char* pName, bool& pState, bool getDefaultValue /*= false*/) const
 {
     int retVal = -1;
     // First non-engine properties:
-    /*
-    if (strcmp(pName, propJoint_length.name) == 0)
+    if (strcmp(pName, propDyn_dynamicsEnabled.name) == 0)
     {
-        pState = _length;
+        pState = _dynamicsEnabled;
         retVal = 1;
     }
-    */
+    else if (strcmp(pName, propDyn_showContactPoints.name) == 0)
+    {
+        pState = _displayContactPoints;
+        retVal = 1;
+    }
 
     // Engine-only properties:
     // ------------------------
-    if (strcmp(pName, propDyn_bulletComputeInertias.name) == 0)
+    if (retVal == -1)
     {
-        retVal = 1;
-        pState = _bulletIntParams[simi_bullet_global_computeinertias];
-    }
-    else if (strcmp(pName, propDyn_bulletInternalScalingFull.name) == 0)
-    {
-        retVal = 1;
-        pState = _bulletIntParams[simi_bullet_global_fullinternalscaling];
-    }
-    else if (strcmp(pName, propDyn_odeQuickStepEnabled.name) == 0)
-    {
-        retVal = 1;
-        pState = _odeIntParams[simi_ode_global_quickstep];
-    }
-    else if (strcmp(pName, propDyn_odeComputeInertias.name) == 0)
-    {
-        retVal = 1;
-        pState = _odeIntParams[simi_ode_global_computeinertias];
-    }
-    else if (strcmp(pName, propDyn_odeInternalScalingFull.name) == 0)
-    {
-        retVal = 1;
-        pState = _odeIntParams[simi_ode_global_fullinternalscaling];
-    }
-    else if (strcmp(pName, propDyn_vortexComputeInertias.name) == 0)
-    {
-        retVal = 1;
-        pState = _vortexIntParams[simi_vortex_global_computeinertias];
-    }
-    else if (strcmp(pName, propDyn_vortexAutoSleep.name) == 0)
-    {
-        retVal = 1;
-        pState = _vortexIntParams[simi_vortex_global_autosleep];
-    }
-    else if (strcmp(pName, propDyn_vortexMultithreading.name) == 0)
-    {
-        retVal = 1;
-        pState = _vortexIntParams[simi_vortex_global_multithreading];
-    }
-    else if (strcmp(pName, propDyn_newtonComputeInertias.name) == 0)
-    {
-        retVal = 1;
-        pState = _newtonIntParams[simi_newton_global_computeinertias];
-    }
-    else if (strcmp(pName, propDyn_newtonMultithreading.name) == 0)
-    {
-        retVal = 1;
-        pState = _newtonIntParams[simi_newton_global_multithreading];
-    }
-    else if (strcmp(pName, propDyn_newtonExactSolver.name) == 0)
-    {
-        retVal = 1;
-        pState = _newtonIntParams[simi_newton_global_exactsolver];
-    }
-    else if (strcmp(pName, propDyn_newtonHighJointAccuracy.name) == 0)
-    {
-        retVal = 1;
-        pState = _newtonIntParams[simi_newton_global_highjointaccuracy];
-    }
-    else if (strcmp(pName, propDyn_mujocoComputeInertias.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_computeinertias];
-    }
-    else if (strcmp(pName, propDyn_mujocoBalanceInertias.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_balanceinertias];
-    }
-    else if (strcmp(pName, propDyn_mujocoMultithreaded.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_multithreaded];
-    }
-    else if (strcmp(pName, propDyn_mujocoMulticcd.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_multiccd];
-    }
-    else if (strcmp(pName, propDyn_mujocoContactParamsOverride.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_overridecontacts];
+        const int* bulletIntParams = _bulletIntParams.data();
+        const int* odeIntParams = _odeIntParams.data();
+        const int* vortexIntParams = _vortexIntParams.data();
+        const int* newtonIntParams = _newtonIntParams.data();
+        const int* mujocoIntParams = _mujocoIntParams.data();
+        std::vector<int> __bulletIntParams;
+        std::vector<int> __odeIntParams;
+        std::vector<int> __vortexIntParams;
+        std::vector<int> __newtonIntParams;
+        std::vector<int> __mujocoIntParams;
+        if (getDefaultValue)
+        {
+            getBulletDefaultIntParams(__bulletIntParams);
+            getOdeDefaultIntParams(__odeIntParams);
+            getVortexDefaultIntParams(__vortexIntParams);
+            getNewtonDefaultIntParams(__newtonIntParams);
+            getMujocoDefaultIntParams(__mujocoIntParams);
+            bulletIntParams = __bulletIntParams.data();
+            odeIntParams = __odeIntParams.data();
+            vortexIntParams = __vortexIntParams.data();
+            newtonIntParams = __newtonIntParams.data();
+            mujocoIntParams = __mujocoIntParams.data();
+        }
+        if (strcmp(pName, propDyn_bulletComputeInertias.name) == 0)
+        {
+            retVal = 1;
+            pState = bulletIntParams[simi_bullet_global_bitcoded] & simi_bullet_global_computeinertias;
+        }
+        else if (strcmp(pName, propDyn_bulletInternalScalingFull.name) == 0)
+        {
+            retVal = 1;
+            pState = bulletIntParams[simi_bullet_global_bitcoded] & simi_bullet_global_fullinternalscaling;
+        }
+        else if (strcmp(pName, propDyn_odeQuickStepEnabled.name) == 0)
+        {
+            retVal = 1;
+            pState = odeIntParams[simi_ode_global_bitcoded] & simi_ode_global_quickstep;
+        }
+        else if (strcmp(pName, propDyn_odeComputeInertias.name) == 0)
+        {
+            retVal = 1;
+            pState = odeIntParams[simi_ode_global_bitcoded] & simi_ode_global_computeinertias;
+        }
+        else if (strcmp(pName, propDyn_odeInternalScalingFull.name) == 0)
+        {
+            retVal = 1;
+            pState = odeIntParams[simi_ode_global_bitcoded] & simi_ode_global_fullinternalscaling;
+        }
+        else if (strcmp(pName, propDyn_vortexComputeInertias.name) == 0)
+        {
+            retVal = 1;
+            pState = vortexIntParams[simi_vortex_global_bitcoded] & simi_vortex_global_computeinertias;
+        }
+        else if (strcmp(pName, propDyn_vortexAutoSleep.name) == 0)
+        {
+            retVal = 1;
+            pState = vortexIntParams[simi_vortex_global_bitcoded] & simi_vortex_global_autosleep;
+        }
+        else if (strcmp(pName, propDyn_vortexMultithreading.name) == 0)
+        {
+            retVal = 1;
+            pState = vortexIntParams[simi_vortex_global_bitcoded] & simi_vortex_global_multithreading;
+        }
+        else if (strcmp(pName, propDyn_newtonComputeInertias.name) == 0)
+        {
+            retVal = 1;
+            pState = newtonIntParams[simi_newton_global_bitcoded] & simi_newton_global_computeinertias;
+        }
+        else if (strcmp(pName, propDyn_newtonMultithreading.name) == 0)
+        {
+            retVal = 1;
+            pState = newtonIntParams[simi_newton_global_bitcoded] & simi_newton_global_multithreading;
+        }
+        else if (strcmp(pName, propDyn_newtonExactSolver.name) == 0)
+        {
+            retVal = 1;
+            pState = newtonIntParams[simi_newton_global_bitcoded] & simi_newton_global_exactsolver;
+        }
+        else if (strcmp(pName, propDyn_newtonHighJointAccuracy.name) == 0)
+        {
+            retVal = 1;
+            pState = newtonIntParams[simi_newton_global_bitcoded] & simi_newton_global_highjointaccuracy;
+        }
+        else if (strcmp(pName, propDyn_mujocoComputeInertias.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_bitcoded] & simi_mujoco_global_computeinertias;
+        }
+        else if (strcmp(pName, propDyn_mujocoBalanceInertias.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_bitcoded] & simi_mujoco_global_balanceinertias;
+        }
+        else if (strcmp(pName, propDyn_mujocoMultithreaded.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_bitcoded] & simi_mujoco_global_multithreaded;
+        }
+        else if (strcmp(pName, propDyn_mujocoMulticcd.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_bitcoded] & simi_mujoco_global_multiccd;
+        }
+        else if (strcmp(pName, propDyn_mujocoContactParamsOverride.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_bitcoded] & simi_mujoco_global_overridecontacts;
+        }
     }
     // ------------------------
 
@@ -2731,51 +2388,57 @@ int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev
     { // regular properties (i.e. non-engine properties)
     }
 
-    // Following only for engine properties:
-    // -------------------------------------
-    auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex)
+    if (retVal == -1)
     {
-        if ((pName == nullptr) || (propertyName == pName))
+        // Following only for engine properties:
+        // -------------------------------------
+        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex)
         {
-            retVal = 1;
-            if ((pState != arr[simiIndex]) || (pName == nullptr))
+            if ((pName == nullptr) || (propertyName == pName))
             {
-                if (pName != nullptr)
-                    arr[simiIndex] = pState;
-                if (App::worldContainer->getEventsEnabled())
+                retVal = 1;
+                if ((pState != arr[simiIndex]) || (pName == nullptr))
                 {
-                    if (ev == nullptr)
-                        ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
-                    ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
                     if (pName != nullptr)
-                        _sendEngineString(ev);
+                        arr[simiIndex] = pState;
+                    if (App::worldContainer->getEventsEnabled())
+                    {
+                        if (ev == nullptr)
+                            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
+                        ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
+                        if (pName != nullptr)
+                            _sendEngineString(ev);
+                    }
                 }
             }
-        }
-    };
+        };
 
-    handleProp(propDyn_bulletSolver.name, _bulletIntParams, simi_bullet_global_constraintsolvertype);
-    handleProp(propDyn_bulletIterations.name, _bulletIntParams, simi_bullet_global_constraintsolvingiterations);
-    handleProp(propDyn_odeQuickStepIterations.name, _odeIntParams, simi_ode_global_constraintsolvingiterations);
-    handleProp(propDyn_newtonIterations.name, _newtonIntParams, simi_newton_global_constraintsolvingiterations);
-    handleProp(propDyn_mujocoIntegrator.name, _mujocoIntParams, simi_mujoco_global_integrator);
-    handleProp(propDyn_mujocoSolver.name, _mujocoIntParams, simi_mujoco_global_solver);
-    handleProp(propDyn_mujocoIterations.name, _mujocoIntParams, simi_mujoco_global_iterations);
-    handleProp(propDyn_mujocoRebuildTrigger.name, _mujocoIntParams, simi_mujoco_global_rebuildtrigger);
-    handleProp(propDyn_mujocoNjMax.name, _mujocoIntParams, simi_mujoco_global_njmax);
-    handleProp(propDyn_mujocoNconMax.name, _mujocoIntParams, simi_mujoco_global_nconmax);
-    handleProp(propDyn_mujocoNstack.name, _mujocoIntParams, simi_mujoco_global_nstack);
-    handleProp(propDyn_mujocoCone.name, _mujocoIntParams, simi_mujoco_global_cone);
-    handleProp(propDyn_mujocoKinematicBodiesOverrideFlags.name, _mujocoIntParams, simi_mujoco_global_overridekin);
+        handleProp(propDyn_bulletSolver.name, _bulletIntParams, simi_bullet_global_constraintsolvertype);
+        handleProp(propDyn_bulletIterations.name, _bulletIntParams, simi_bullet_global_constraintsolvingiterations);
+        handleProp(propDyn_odeQuickStepIterations.name, _odeIntParams, simi_ode_global_constraintsolvingiterations);
+        handleProp(propDyn_newtonIterations.name, _newtonIntParams, simi_newton_global_constraintsolvingiterations);
+        handleProp(propDyn_mujocoIntegrator.name, _mujocoIntParams, simi_mujoco_global_integrator);
+        handleProp(propDyn_mujocoSolver.name, _mujocoIntParams, simi_mujoco_global_solver);
+        handleProp(propDyn_mujocoIterations.name, _mujocoIntParams, simi_mujoco_global_iterations);
+        handleProp(propDyn_mujocoRebuildTrigger.name, _mujocoIntParams, simi_mujoco_global_rebuildtrigger);
+        handleProp(propDyn_mujocoNjMax.name, _mujocoIntParams, simi_mujoco_global_njmax);
+        handleProp(propDyn_mujocoNconMax.name, _mujocoIntParams, simi_mujoco_global_nconmax);
+        handleProp(propDyn_mujocoNstack.name, _mujocoIntParams, simi_mujoco_global_nstack);
+        handleProp(propDyn_mujocoCone.name, _mujocoIntParams, simi_mujoco_global_cone);
+        handleProp(propDyn_mujocoKinematicBodiesOverrideFlags.name, _mujocoIntParams, simi_mujoco_global_overridekin);
 
-    if ( (ev != nullptr) && (eev == nullptr) )
-        App::worldContainer->pushEvent();
-    // -------------------------------------
+        if ( (ev != nullptr) && (eev == nullptr) )
+            App::worldContainer->pushEvent();
+        // -------------------------------------
+    }
+
+    if (retVal == 1)
+        checkIfEngineSettingsAreDefault();
 
     return retVal;
 }
 
-int CDynamicsContainer::getIntProperty(const char* pName, int& pState) const
+int CDynamicsContainer::getIntProperty(const char* pName, int& pState, bool getDefaultValue /*= false*/) const
 {
     int retVal = -1;
     // First non-engine properties:
@@ -2789,70 +2452,96 @@ int CDynamicsContainer::getIntProperty(const char* pName, int& pState) const
 
     // Engine-only properties:
     // ------------------------
-    if (strcmp(pName, propDyn_bulletSolver.name) == 0)
+    if (retVal == -1)
     {
-        retVal = 1;
-        pState = _bulletIntParams[simi_bullet_global_constraintsolvertype];
-    }
-    else if (strcmp(pName, propDyn_bulletIterations.name) == 0)
-    {
-        retVal = 1;
-        pState = _bulletIntParams[simi_bullet_global_constraintsolvingiterations];
-    }
-    else if (strcmp(pName, propDyn_odeQuickStepIterations.name) == 0)
-    {
-        retVal = 1;
-        pState = _odeIntParams[simi_ode_global_constraintsolvingiterations];
-    }
-    else if (strcmp(pName, propDyn_newtonIterations.name) == 0)
-    {
-        retVal = 1;
-        pState = _newtonIntParams[simi_newton_global_constraintsolvingiterations];
-    }
-    else if (strcmp(pName, propDyn_mujocoIntegrator.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_integrator];
-    }
-    else if (strcmp(pName, propDyn_mujocoSolver.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_solver];
-    }
-    else if (strcmp(pName, propDyn_mujocoIterations.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_iterations];
-    }
-    else if (strcmp(pName, propDyn_mujocoRebuildTrigger.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_rebuildtrigger];
-    }
-    else if (strcmp(pName, propDyn_mujocoNjMax.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_njmax];
-    }
-    else if (strcmp(pName, propDyn_mujocoNconMax.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_nconmax];
-    }
-    else if (strcmp(pName, propDyn_mujocoNstack.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_nstack];
-    }
-    else if (strcmp(pName, propDyn_mujocoCone.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_cone];
-    }
-    else if (strcmp(pName, propDyn_mujocoKinematicBodiesOverrideFlags.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoIntParams[simi_mujoco_global_overridekin];
+        const int* bulletIntParams = _bulletIntParams.data();
+        const int* odeIntParams = _odeIntParams.data();
+        const int* vortexIntParams = _vortexIntParams.data();
+        const int* newtonIntParams = _newtonIntParams.data();
+        const int* mujocoIntParams = _mujocoIntParams.data();
+        std::vector<int> __bulletIntParams;
+        std::vector<int> __odeIntParams;
+        std::vector<int> __vortexIntParams;
+        std::vector<int> __newtonIntParams;
+        std::vector<int> __mujocoIntParams;
+        if (getDefaultValue)
+        {
+            getBulletDefaultIntParams(__bulletIntParams);
+            getOdeDefaultIntParams(__odeIntParams);
+            getVortexDefaultIntParams(__vortexIntParams);
+            getNewtonDefaultIntParams(__newtonIntParams);
+            getMujocoDefaultIntParams(__mujocoIntParams);
+            bulletIntParams = __bulletIntParams.data();
+            odeIntParams = __odeIntParams.data();
+            vortexIntParams = __vortexIntParams.data();
+            newtonIntParams = __newtonIntParams.data();
+            mujocoIntParams = __mujocoIntParams.data();
+        }
+        if (strcmp(pName, propDyn_bulletSolver.name) == 0)
+        {
+            retVal = 1;
+            pState = bulletIntParams[simi_bullet_global_constraintsolvertype];
+        }
+        else if (strcmp(pName, propDyn_bulletIterations.name) == 0)
+        {
+            retVal = 1;
+            pState = bulletIntParams[simi_bullet_global_constraintsolvingiterations];
+        }
+        else if (strcmp(pName, propDyn_odeQuickStepIterations.name) == 0)
+        {
+            retVal = 1;
+            pState = odeIntParams[simi_ode_global_constraintsolvingiterations];
+        }
+        else if (strcmp(pName, propDyn_newtonIterations.name) == 0)
+        {
+            retVal = 1;
+            pState = newtonIntParams[simi_newton_global_constraintsolvingiterations];
+        }
+        else if (strcmp(pName, propDyn_mujocoIntegrator.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_integrator];
+        }
+        else if (strcmp(pName, propDyn_mujocoSolver.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_solver];
+        }
+        else if (strcmp(pName, propDyn_mujocoIterations.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_iterations];
+        }
+        else if (strcmp(pName, propDyn_mujocoRebuildTrigger.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_rebuildtrigger];
+        }
+        else if (strcmp(pName, propDyn_mujocoNjMax.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_njmax];
+        }
+        else if (strcmp(pName, propDyn_mujocoNconMax.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_nconmax];
+        }
+        else if (strcmp(pName, propDyn_mujocoNstack.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_nstack];
+        }
+        else if (strcmp(pName, propDyn_mujocoCone.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_cone];
+        }
+        else if (strcmp(pName, propDyn_mujocoKinematicBodiesOverrideFlags.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoIntParams[simi_mujoco_global_overridekin];
+        }
     }
     // ------------------------
 
@@ -2868,179 +2557,214 @@ int CDynamicsContainer::setFloatProperty(const char* pName, double pState, CCbor
 
     if ( (eev == nullptr) && (pName != nullptr) )
     { // regular properties (i.e. non-engine properties)
+        if (strcmp(pName, propDyn_dynamicsStepSize.name) == 0)
+        {
+            setDesiredStepSize(pState);
+            retVal = 1;
+        }
     }
 
-    // Following only for engine properties:
-    // -------------------------------------
-    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex)
+    if (retVal == -1)
     {
-        if ((pName == nullptr) || (propertyName == pName))
+        // Following only for engine properties:
+        // -------------------------------------
+        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex)
         {
-            retVal = 1;
-            if ((pState != arr[simiIndex]) || (pName == nullptr))
+            if ((pName == nullptr) || (propertyName == pName))
             {
-                if (pName != nullptr)
-                    arr[simiIndex] = pState;
-                if (App::worldContainer->getEventsEnabled())
+                retVal = 1;
+                if ((pState != arr[simiIndex]) || (pName == nullptr))
                 {
-                    if (ev == nullptr)
-                        ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
-                    ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
                     if (pName != nullptr)
-                        _sendEngineString(ev);
+                        arr[simiIndex] = pState;
+                    if (App::worldContainer->getEventsEnabled())
+                    {
+                        if (ev == nullptr)
+                            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
+                        ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
+                        if (pName != nullptr)
+                            _sendEngineString(ev);
+                    }
                 }
             }
-        }
-    };
+        };
 
-    handleProp(propDyn_bulletInternalScalingScaling.name, _bulletFloatParams, simi_bullet_global_internalscalingfactor);
-    handleProp(propDyn_bulletCollMarginScaling.name, _bulletFloatParams, simi_bullet_global_collisionmarginfactor);
-    handleProp(propDyn_odeInternalScalingScaling.name, _odeFloatParams, simi_ode_global_internalscalingfactor);
-    handleProp(propDyn_odeGlobalErp.name, _odeFloatParams, simi_ode_global_erp);
-    handleProp(propDyn_odeGlobalCfm.name, _odeFloatParams, simi_ode_global_cfm);
-    handleProp(propDyn_vortexContactTolerance.name, _vortexFloatParams, simi_vortex_global_contacttolerance);
-    handleProp(propDyn_vortexConstraintsLinearCompliance.name, _vortexFloatParams, simi_vortex_global_constraintlinearcompliance);
-    handleProp(propDyn_vortexConstraintsLinearDamping.name, _vortexFloatParams, simi_vortex_global_constraintlineardamping);
-    handleProp(propDyn_vortexConstraintsLinearKineticLoss.name, _vortexFloatParams, simi_vortex_global_constraintlinearkineticloss);
-    handleProp(propDyn_vortexConstraintsAngularCompliance.name, _vortexFloatParams, simi_vortex_global_constraintangularcompliance);
-    handleProp(propDyn_vortexConstraintsAngularDamping.name, _vortexFloatParams, simi_vortex_global_constraintangulardamping);
-    handleProp(propDyn_vortexConstraintsAngularKineticLoss.name, _vortexFloatParams, simi_vortex_global_constraintangularkineticloss);
-    handleProp(propDyn_newtonContactMergeTolerance.name, _newtonFloatParams, simi_newton_global_contactmergetolerance);
-    handleProp(propDyn_mujocoKinematicBodiesMass.name, _mujocoFloatParams, simi_mujoco_global_kinmass);
-    handleProp(propDyn_mujocoKinematicBodiesInertia.name, _mujocoFloatParams, simi_mujoco_global_kininertia);
-    handleProp(propDyn_mujocoBoundMass.name, _mujocoFloatParams, simi_mujoco_global_boundmass);
-    handleProp(propDyn_mujocoBoundInertia.name, _mujocoFloatParams, simi_mujoco_global_boundinertia);
-    handleProp(propDyn_mujocoContactParamsMargin.name, _mujocoFloatParams, simi_mujoco_global_overridemargin);
-    handleProp(propDyn_mujocoImpRatio.name, _mujocoFloatParams, simi_mujoco_global_impratio);
-    handleProp(propDyn_mujocoDensity.name, _mujocoFloatParams, simi_mujoco_global_density);
-    handleProp(propDyn_mujocoViscosity.name, _mujocoFloatParams, simi_mujoco_global_viscosity);
+        handleProp(propDyn_bulletInternalScalingScaling.name, _bulletFloatParams, simi_bullet_global_internalscalingfactor);
+        handleProp(propDyn_bulletCollMarginScaling.name, _bulletFloatParams, simi_bullet_global_collisionmarginfactor);
+        handleProp(propDyn_odeInternalScalingScaling.name, _odeFloatParams, simi_ode_global_internalscalingfactor);
+        handleProp(propDyn_odeGlobalErp.name, _odeFloatParams, simi_ode_global_erp);
+        handleProp(propDyn_odeGlobalCfm.name, _odeFloatParams, simi_ode_global_cfm);
+        handleProp(propDyn_vortexContactTolerance.name, _vortexFloatParams, simi_vortex_global_contacttolerance);
+        handleProp(propDyn_vortexConstraintsLinearCompliance.name, _vortexFloatParams, simi_vortex_global_constraintlinearcompliance);
+        handleProp(propDyn_vortexConstraintsLinearDamping.name, _vortexFloatParams, simi_vortex_global_constraintlineardamping);
+        handleProp(propDyn_vortexConstraintsLinearKineticLoss.name, _vortexFloatParams, simi_vortex_global_constraintlinearkineticloss);
+        handleProp(propDyn_vortexConstraintsAngularCompliance.name, _vortexFloatParams, simi_vortex_global_constraintangularcompliance);
+        handleProp(propDyn_vortexConstraintsAngularDamping.name, _vortexFloatParams, simi_vortex_global_constraintangulardamping);
+        handleProp(propDyn_vortexConstraintsAngularKineticLoss.name, _vortexFloatParams, simi_vortex_global_constraintangularkineticloss);
+        handleProp(propDyn_newtonContactMergeTolerance.name, _newtonFloatParams, simi_newton_global_contactmergetolerance);
+        handleProp(propDyn_mujocoKinematicBodiesMass.name, _mujocoFloatParams, simi_mujoco_global_kinmass);
+        handleProp(propDyn_mujocoKinematicBodiesInertia.name, _mujocoFloatParams, simi_mujoco_global_kininertia);
+        handleProp(propDyn_mujocoBoundMass.name, _mujocoFloatParams, simi_mujoco_global_boundmass);
+        handleProp(propDyn_mujocoBoundInertia.name, _mujocoFloatParams, simi_mujoco_global_boundinertia);
+        handleProp(propDyn_mujocoContactParamsMargin.name, _mujocoFloatParams, simi_mujoco_global_overridemargin);
+        handleProp(propDyn_mujocoImpRatio.name, _mujocoFloatParams, simi_mujoco_global_impratio);
+        handleProp(propDyn_mujocoDensity.name, _mujocoFloatParams, simi_mujoco_global_density);
+        handleProp(propDyn_mujocoViscosity.name, _mujocoFloatParams, simi_mujoco_global_viscosity);
 
-    if ( (ev != nullptr) && (eev == nullptr) )
-        App::worldContainer->pushEvent();
-    // -------------------------------------
+        if ( (ev != nullptr) && (eev == nullptr) )
+            App::worldContainer->pushEvent();
+        // -------------------------------------
+    }
+
+    if (retVal == 1)
+        checkIfEngineSettingsAreDefault();
 
     return retVal;
 }
 
-int CDynamicsContainer::getFloatProperty(const char* pName, double& pState) const
+int CDynamicsContainer::getFloatProperty(const char* pName, double& pState, bool getDefaultValue /*= false*/) const
 {
     int retVal = -1;
 
     // First non-engine properties:
-    /*
-    if (strcmp(pName, propJoint_length.name) == 0)
+    if (strcmp(pName, propDyn_dynamicsStepSize.name) == 0)
     {
-        pState = _length;
+        pState = _stepSize;
         retVal = 1;
     }
-    */
 
     // Engine-only properties:
     // ------------------------
-    if (strcmp(pName, propDyn_bulletInternalScalingScaling.name) == 0)
+    if (retVal == -1)
     {
-        retVal = 1;
-        pState = _bulletFloatParams[simi_bullet_global_internalscalingfactor];
-    }
-    else if (strcmp(pName, propDyn_bulletCollMarginScaling.name) == 0)
-    {
-        retVal = 1;
-        pState = _bulletFloatParams[simi_bullet_global_collisionmarginfactor];
-    }
-    else if (strcmp(pName, propDyn_odeInternalScalingScaling.name) == 0)
-    {
-        retVal = 1;
-        pState = _odeFloatParams[simi_ode_global_internalscalingfactor];
-    }
-    else if (strcmp(pName, propDyn_odeGlobalErp.name) == 0)
-    {
-        retVal = 1;
-        pState = _odeFloatParams[simi_ode_global_erp];
-    }
-    else if (strcmp(pName, propDyn_odeGlobalCfm.name) == 0)
-    {
-        retVal = 1;
-        pState = _odeFloatParams[simi_ode_global_cfm];
-    }
-    else if (strcmp(pName, propDyn_vortexContactTolerance.name) == 0)
-    {
-        retVal = 1;
-        pState = _vortexFloatParams[simi_vortex_global_contacttolerance];
-    }
-    else if (strcmp(pName, propDyn_vortexConstraintsLinearCompliance.name) == 0)
-    {
-        retVal = 1;
-        pState = _vortexFloatParams[simi_vortex_global_constraintlinearcompliance];
-    }
-    else if (strcmp(pName, propDyn_vortexConstraintsLinearDamping.name) == 0)
-    {
-        retVal = 1;
-        pState = _vortexFloatParams[simi_vortex_global_constraintlineardamping];
-    }
-    else if (strcmp(pName, propDyn_vortexConstraintsLinearKineticLoss.name) == 0)
-    {
-        retVal = 1;
-        pState = _vortexFloatParams[simi_vortex_global_constraintlinearkineticloss];
-    }
-    else if (strcmp(pName, propDyn_vortexConstraintsAngularCompliance.name) == 0)
-    {
-        retVal = 1;
-        pState = _vortexFloatParams[simi_vortex_global_constraintangularcompliance];
-    }
-    else if (strcmp(pName, propDyn_vortexConstraintsAngularDamping.name) == 0)
-    {
-        retVal = 1;
-        pState = _vortexFloatParams[simi_vortex_global_constraintangulardamping];
-    }
-    else if (strcmp(pName, propDyn_vortexConstraintsAngularKineticLoss.name) == 0)
-    {
-        retVal = 1;
-        pState = _vortexFloatParams[simi_vortex_global_constraintangularkineticloss];
-    }
-    else if (strcmp(pName, propDyn_newtonContactMergeTolerance.name) == 0)
-    {
-        retVal = 1;
-        pState = _newtonFloatParams[simi_newton_global_contactmergetolerance];
-    }
-    else if (strcmp(pName, propDyn_mujocoKinematicBodiesMass.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoFloatParams[simi_mujoco_global_kinmass];
-    }
-    else if (strcmp(pName, propDyn_mujocoKinematicBodiesInertia.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoFloatParams[simi_mujoco_global_kininertia];
-    }
-    else if (strcmp(pName, propDyn_mujocoBoundMass.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoFloatParams[simi_mujoco_global_boundmass];
-    }
-    else if (strcmp(pName, propDyn_mujocoBoundInertia.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoFloatParams[simi_mujoco_global_boundinertia];
-    }
-    else if (strcmp(pName, propDyn_mujocoContactParamsMargin.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoFloatParams[simi_mujoco_global_overridemargin];
-    }
-    else if (strcmp(pName, propDyn_mujocoImpRatio.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoFloatParams[simi_mujoco_global_impratio];
-    }
-    else if (strcmp(pName, propDyn_mujocoDensity.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoFloatParams[simi_mujoco_global_density];
-    }
-    else if (strcmp(pName, propDyn_mujocoViscosity.name) == 0)
-    {
-        retVal = 1;
-        pState = _mujocoFloatParams[simi_mujoco_global_viscosity];
+        const double* bulletFloatParams = _bulletFloatParams.data();
+        const double* odeFloatParams = _odeFloatParams.data();
+        const double* vortexFloatParams = _vortexFloatParams.data();
+        const double* newtonFloatParams = _newtonFloatParams.data();
+        const double* mujocoFloatParams = _mujocoFloatParams.data();
+        std::vector<double> __bulletFloatParams;
+        std::vector<double> __odeFloatParams;
+        std::vector<double> __vortexFloatParams;
+        std::vector<double> __newtonFloatParams;
+        std::vector<double> __mujocoFloatParams;
+        if (getDefaultValue)
+        {
+            getBulletDefaultFloatParams(__bulletFloatParams);
+            getOdeDefaultFloatParams(__odeFloatParams);
+            getVortexDefaultFloatParams(__vortexFloatParams);
+            getNewtonDefaultFloatParams(__newtonFloatParams);
+            getMujocoDefaultFloatParams(__mujocoFloatParams);
+            bulletFloatParams = __bulletFloatParams.data();
+            odeFloatParams = __odeFloatParams.data();
+            vortexFloatParams = __vortexFloatParams.data();
+            newtonFloatParams = __newtonFloatParams.data();
+            mujocoFloatParams = __mujocoFloatParams.data();
+        }
+        if (strcmp(pName, propDyn_bulletInternalScalingScaling.name) == 0)
+        {
+            retVal = 1;
+            pState = bulletFloatParams[simi_bullet_global_internalscalingfactor];
+        }
+        else if (strcmp(pName, propDyn_bulletCollMarginScaling.name) == 0)
+        {
+            retVal = 1;
+            pState = bulletFloatParams[simi_bullet_global_collisionmarginfactor];
+        }
+        else if (strcmp(pName, propDyn_odeInternalScalingScaling.name) == 0)
+        {
+            retVal = 1;
+            pState = odeFloatParams[simi_ode_global_internalscalingfactor];
+        }
+        else if (strcmp(pName, propDyn_odeGlobalErp.name) == 0)
+        {
+            retVal = 1;
+            pState = odeFloatParams[simi_ode_global_erp];
+        }
+        else if (strcmp(pName, propDyn_odeGlobalCfm.name) == 0)
+        {
+            retVal = 1;
+            pState = odeFloatParams[simi_ode_global_cfm];
+        }
+        else if (strcmp(pName, propDyn_vortexContactTolerance.name) == 0)
+        {
+            retVal = 1;
+            pState = vortexFloatParams[simi_vortex_global_contacttolerance];
+        }
+        else if (strcmp(pName, propDyn_vortexConstraintsLinearCompliance.name) == 0)
+        {
+            retVal = 1;
+            pState = vortexFloatParams[simi_vortex_global_constraintlinearcompliance];
+        }
+        else if (strcmp(pName, propDyn_vortexConstraintsLinearDamping.name) == 0)
+        {
+            retVal = 1;
+            pState = vortexFloatParams[simi_vortex_global_constraintlineardamping];
+        }
+        else if (strcmp(pName, propDyn_vortexConstraintsLinearKineticLoss.name) == 0)
+        {
+            retVal = 1;
+            pState = vortexFloatParams[simi_vortex_global_constraintlinearkineticloss];
+        }
+        else if (strcmp(pName, propDyn_vortexConstraintsAngularCompliance.name) == 0)
+        {
+            retVal = 1;
+            pState = vortexFloatParams[simi_vortex_global_constraintangularcompliance];
+        }
+        else if (strcmp(pName, propDyn_vortexConstraintsAngularDamping.name) == 0)
+        {
+            retVal = 1;
+            pState = vortexFloatParams[simi_vortex_global_constraintangulardamping];
+        }
+        else if (strcmp(pName, propDyn_vortexConstraintsAngularKineticLoss.name) == 0)
+        {
+            retVal = 1;
+            pState = vortexFloatParams[simi_vortex_global_constraintangularkineticloss];
+        }
+        else if (strcmp(pName, propDyn_newtonContactMergeTolerance.name) == 0)
+        {
+            retVal = 1;
+            pState = newtonFloatParams[simi_newton_global_contactmergetolerance];
+        }
+        else if (strcmp(pName, propDyn_mujocoKinematicBodiesMass.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoFloatParams[simi_mujoco_global_kinmass];
+        }
+        else if (strcmp(pName, propDyn_mujocoKinematicBodiesInertia.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoFloatParams[simi_mujoco_global_kininertia];
+        }
+        else if (strcmp(pName, propDyn_mujocoBoundMass.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoFloatParams[simi_mujoco_global_boundmass];
+        }
+        else if (strcmp(pName, propDyn_mujocoBoundInertia.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoFloatParams[simi_mujoco_global_boundinertia];
+        }
+        else if (strcmp(pName, propDyn_mujocoContactParamsMargin.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoFloatParams[simi_mujoco_global_overridemargin];
+        }
+        else if (strcmp(pName, propDyn_mujocoImpRatio.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoFloatParams[simi_mujoco_global_impratio];
+        }
+        else if (strcmp(pName, propDyn_mujocoDensity.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoFloatParams[simi_mujoco_global_density];
+        }
+        else if (strcmp(pName, propDyn_mujocoViscosity.name) == 0)
+        {
+            retVal = 1;
+            pState = mujocoFloatParams[simi_mujoco_global_viscosity];
+        }
     }
     // ------------------------
 
@@ -3050,7 +2774,7 @@ int CDynamicsContainer::getFloatProperty(const char* pName, double& pState) cons
 int CDynamicsContainer::setStringProperty(const char* pName, const char* pState)
 {
     int retVal = -1;
-    if (strcmp(pName, propGlobal_engineProperties.name) == 0)
+    if (strcmp(pName, propDyn_engineProperties.name) == 0)
     {
         retVal = 0;
         CEngineProperties prop;
@@ -3063,13 +2787,17 @@ int CDynamicsContainer::setStringProperty(const char* pName, const char* pState)
                 _sendEngineString();
         }
     }
+
+    if (retVal == 1)
+        checkIfEngineSettingsAreDefault();
+
     return retVal;
 }
 
 int CDynamicsContainer::getStringProperty(const char* pName, std::string& pState) const
 {
     int retVal = -1;
-    if (strcmp(pName, propGlobal_engineProperties.name) == 0)
+    if (strcmp(pName, propDyn_engineProperties.name) == 0)
     {
         retVal = 1;
         CEngineProperties prop;
@@ -3088,69 +2816,104 @@ int CDynamicsContainer::setVector3Property(const char* pName, const C3Vector* pS
 
     if ( (eev == nullptr) && (pName != nullptr) )
     { // regular properties (i.e. non-engine properties)
+        if (strcmp(pName, propDyn_gravity.name) == 0)
+        {
+            setGravity(pState[0]);
+            retVal = 1;
+        }
     }
 
-    // Following only for engine properties:
-    // -------------------------------------
-    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1)
+    if (retVal == -1)
     {
-        if ((pName == nullptr) || (propertyName == pName))
+        // Following only for engine properties:
+        // -------------------------------------
+        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1)
         {
-            retVal = 1;
-            bool pa = false;
-            for (size_t i = 0; i < 3; i++)
-                pa = pa || ((pState != nullptr) && (arr[simiIndex1 + i] != pState->data[i]));
-            if ( (pName == nullptr) || pa )
+            if ((pName == nullptr) || (propertyName == pName))
             {
-                if (pName != nullptr)
+                retVal = 1;
+                bool pa = false;
+                for (size_t i = 0; i < 3; i++)
+                    pa = pa || ((pState != nullptr) && (arr[simiIndex1 + i] != pState->data[i]));
+                if ( (pName == nullptr) || pa )
                 {
-                    for (size_t i = 0; i < 3; i++)
-                        arr[simiIndex1 + i] = pState->data[i];
-                }
-                if (App::worldContainer->getEventsEnabled())
-                {
-                    if (ev == nullptr)
-                        ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
-                    ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 3);
                     if (pName != nullptr)
-                        _sendEngineString(ev);
+                    {
+                        for (size_t i = 0; i < 3; i++)
+                            arr[simiIndex1 + i] = pState->data[i];
+                    }
+                    if (App::worldContainer->getEventsEnabled())
+                    {
+                        if (ev == nullptr)
+                            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
+                        ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 3);
+                        if (pName != nullptr)
+                            _sendEngineString(ev);
+                    }
                 }
             }
-        }
-    };
+        };
 
-    handleProp(propDyn_mujocoWind.name, _mujocoFloatParams, simi_mujoco_global_wind1);
+        handleProp(propDyn_mujocoWind.name, _mujocoFloatParams, simi_mujoco_global_wind1);
 
-    if ( (ev != nullptr) && (eev == nullptr) )
-        App::worldContainer->pushEvent();
-    // -------------------------------------
+        if ( (ev != nullptr) && (eev == nullptr) )
+            App::worldContainer->pushEvent();
+        // -------------------------------------
+    }
+
+    if (retVal == 1)
+        checkIfEngineSettingsAreDefault();
 
     return retVal;
 }
 
-int CDynamicsContainer::getVector3Property(const char* pName, C3Vector& pState) const
+int CDynamicsContainer::getVector3Property(const char* pName, C3Vector& pState, bool getDefaultValue /*= false*/) const
 {
     int retVal = -1;
     // First non-engine properties:
-    /*
-    if (strcmp(pName, propJoint_length.name) == 0)
+    if (strcmp(pName, propDyn_gravity.name) == 0)
     {
-        pState = _length;
+        pState = _gravity;
         retVal = 1;
     }
-    */
 
     // Engine-only properties:
     // ------------------------
-    auto handleProp = [&](const std::vector<double>& arr, int simiIndex1)
+    if (retVal == -1)
     {
-        retVal = 1;
-        for (size_t i = 0; i < 3; i++)
-            pState(i) = arr[simiIndex1 + i];
-    };
+        const double* bulletFloatParams = _bulletFloatParams.data();
+        const double* odeFloatParams = _odeFloatParams.data();
+        const double* vortexFloatParams = _vortexFloatParams.data();
+        const double* newtonFloatParams = _newtonFloatParams.data();
+        const double* mujocoFloatParams = _mujocoFloatParams.data();
+        std::vector<double> __bulletFloatParams;
+        std::vector<double> __odeFloatParams;
+        std::vector<double> __vortexFloatParams;
+        std::vector<double> __newtonFloatParams;
+        std::vector<double> __mujocoFloatParams;
+        if (getDefaultValue)
+        {
+            getBulletDefaultFloatParams(__bulletFloatParams);
+            getOdeDefaultFloatParams(__odeFloatParams);
+            getVortexDefaultFloatParams(__vortexFloatParams);
+            getNewtonDefaultFloatParams(__newtonFloatParams);
+            getMujocoDefaultFloatParams(__mujocoFloatParams);
+            bulletFloatParams = __bulletFloatParams.data();
+            odeFloatParams = __odeFloatParams.data();
+            vortexFloatParams = __vortexFloatParams.data();
+            newtonFloatParams = __newtonFloatParams.data();
+            mujocoFloatParams = __mujocoFloatParams.data();
+        }
+        auto handleProp = [&](const double* arr, int simiIndex1)
+        {
+            retVal = 1;
+            for (size_t i = 0; i < 3; i++)
+                pState(i) = arr[simiIndex1 + i];
+        };
 
-    if (strcmp(pName, propDyn_mujocoWind.name) == 0)
-        handleProp(_mujocoFloatParams, simi_mujoco_global_wind1);
+        if (strcmp(pName, propDyn_mujocoWind.name) == 0)
+            handleProp(mujocoFloatParams, simi_mujoco_global_wind1);
+    }
     // ------------------------
 
     return retVal;
@@ -3167,49 +2930,55 @@ int CDynamicsContainer::setVectorProperty(const char* pName, const double* v, in
     { // regular properties (i.e. non-engine properties)
     }
 
-    // Following only for engine properties:
-    // -------------------------------------
-    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n)
+    if (retVal == -1)
     {
-        if ((pName == nullptr) || (propertyName == pName))
+        // Following only for engine properties:
+        // -------------------------------------
+        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n)
         {
-            retVal = 1;
-            bool pa = false;
-            for (size_t i = 0; i < n; i++)
-                pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
-            if ( (pName == nullptr) || pa )
+            if ((pName == nullptr) || (propertyName == pName))
             {
-                if (pName != nullptr)
+                retVal = 1;
+                bool pa = false;
+                for (size_t i = 0; i < n; i++)
+                    pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
+                if ( (pName == nullptr) || pa )
                 {
-                    for (size_t i = 0; i < n; i++)
+                    if (pName != nullptr)
                     {
-                        if (vL > i)
-                            arr[simiIndex1 + i] = v[i];
+                        for (size_t i = 0; i < n; i++)
+                        {
+                            if (vL > i)
+                                arr[simiIndex1 + i] = v[i];
+                        }
+                    }
+                    if (App::worldContainer->getEventsEnabled())
+                    {
+                        if (ev == nullptr)
+                            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
+                        ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
+                        if (pName != nullptr)
+                            _sendEngineString(ev);
                     }
                 }
-                if (App::worldContainer->getEventsEnabled())
-                {
-                    if (ev == nullptr)
-                        ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
-                    ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
-                    if (pName != nullptr)
-                        _sendEngineString(ev);
-                }
             }
-        }
-    };
+        };
 
-    handleProp(propDyn_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1, 2);
-    handleProp(propDyn_mujocoContactParamsSolimp.name, _mujocoFloatParams, simi_mujoco_global_overridesolimp1, 5);
+        handleProp(propDyn_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1, 2);
+        handleProp(propDyn_mujocoContactParamsSolimp.name, _mujocoFloatParams, simi_mujoco_global_overridesolimp1, 5);
 
-    if ( (ev != nullptr) && (eev == nullptr) )
-        App::worldContainer->pushEvent();
-    // -------------------------------------
+        if ( (ev != nullptr) && (eev == nullptr) )
+            App::worldContainer->pushEvent();
+        // -------------------------------------
+    }
+
+    if (retVal == 1)
+        checkIfEngineSettingsAreDefault();
 
     return retVal;
 }
 
-int CDynamicsContainer::getVectorProperty(const char* pName, std::vector<double>& pState) const
+int CDynamicsContainer::getVectorProperty(const char* pName, std::vector<double>& pState, bool getDefaultValue /*= false*/) const
 {
     int retVal = -1;
     pState.clear();
@@ -3224,18 +2993,80 @@ int CDynamicsContainer::getVectorProperty(const char* pName, std::vector<double>
 
     // Engine-only properties:
     // ------------------------
-    auto handleProp = [&](const std::vector<double>& arr, int simiIndex1, size_t n)
+    if (retVal == -1)
     {
-        retVal = 1;
-        for (size_t i = 0; i < n; i++)
-            pState.push_back(arr[simiIndex1 + i]);
-    };
+        const double* bulletFloatParams = _bulletFloatParams.data();
+        const double* odeFloatParams = _odeFloatParams.data();
+        const double* vortexFloatParams = _vortexFloatParams.data();
+        const double* newtonFloatParams = _newtonFloatParams.data();
+        const double* mujocoFloatParams = _mujocoFloatParams.data();
+        std::vector<double> __bulletFloatParams;
+        std::vector<double> __odeFloatParams;
+        std::vector<double> __vortexFloatParams;
+        std::vector<double> __newtonFloatParams;
+        std::vector<double> __mujocoFloatParams;
+        if (getDefaultValue)
+        {
+            getBulletDefaultFloatParams(__bulletFloatParams);
+            getOdeDefaultFloatParams(__odeFloatParams);
+            getVortexDefaultFloatParams(__vortexFloatParams);
+            getNewtonDefaultFloatParams(__newtonFloatParams);
+            getMujocoDefaultFloatParams(__mujocoFloatParams);
+            bulletFloatParams = __bulletFloatParams.data();
+            odeFloatParams = __odeFloatParams.data();
+            vortexFloatParams = __vortexFloatParams.data();
+            newtonFloatParams = __newtonFloatParams.data();
+            mujocoFloatParams = __mujocoFloatParams.data();
+        }
+        auto handleProp = [&](const double* arr, int simiIndex1, size_t n)
+        {
+            retVal = 1;
+            for (size_t i = 0; i < n; i++)
+                pState.push_back(arr[simiIndex1 + i]);
+        };
 
-    if (strcmp(pName, propDyn_mujocoContactParamsSolref.name) == 0)
-        handleProp(_mujocoFloatParams, simi_mujoco_global_overridesolref1, 2);
-    if (strcmp(pName, propDyn_mujocoContactParamsSolimp.name) == 0)
-        handleProp(_mujocoFloatParams, simi_mujoco_global_overridesolimp1, 5);
+        if (strcmp(pName, propDyn_mujocoContactParamsSolref.name) == 0)
+            handleProp(mujocoFloatParams, simi_mujoco_global_overridesolref1, 2);
+        if (strcmp(pName, propDyn_mujocoContactParamsSolimp.name) == 0)
+            handleProp(mujocoFloatParams, simi_mujoco_global_overridesolimp1, 5);
+    }
     // ------------------------
+
+    return retVal;
+}
+
+int CDynamicsContainer::setIntVectorProperty(const char* pName, const int* v, int vL)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propDyn_dynamicsEngine.name) == 0)
+    {
+        int w[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
+        if (vL >= 1)
+            w[0] = v[0];
+        if (vL >= 2)
+            w[1] = v[1];
+        setDynamicEngineType(w[0], w[1]);
+        retVal = 1;
+    }
+
+    if (retVal == 1)
+        checkIfEngineSettingsAreDefault();
+
+    return retVal;
+}
+
+int CDynamicsContainer::getIntVectorProperty(const char* pName, std::vector<int>& pState) const
+{
+    int retVal = -1;
+    pState.clear();
+
+    if (strcmp(pName, propDyn_dynamicsEngine.name) == 0)
+    {
+        pState.push_back(_dynamicEngineToUse);
+        pState.push_back(_dynamicEngineVersionToUse);
+        retVal = 1;
+    }
 
     return retVal;
 }
@@ -3282,8 +3113,8 @@ void CDynamicsContainer::_sendEngineString(CCbor* eev /*= nullptr*/)
         CEngineProperties prop;
         std::string current(prop.getObjectProperties(-1));
         if (ev == nullptr)
-            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propGlobal_engineProperties.name, true);
-        ev->appendKeyString(propGlobal_engineProperties.name, current.c_str());
+            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_engineProperties.name, true);
+        ev->appendKeyString(propDyn_engineProperties.name, current.c_str());
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();
     }
@@ -3318,3 +3149,24 @@ std::string CDynamicsContainer::_enumToProperty(int oldEnum, int type, int& inde
     return retVal;
 }
 
+// Some helpers:
+bool CDynamicsContainer::getBoolPropertyValue(const char* pName, bool getDefaultValue /*= false*/) const
+{
+    bool retVal = false;
+    getBoolProperty(pName, retVal, getDefaultValue);
+    return retVal;
+}
+
+int CDynamicsContainer::getIntPropertyValue(const char* pName, bool getDefaultValue /*= false*/) const
+{
+    int retVal = 0;
+    getIntProperty(pName, retVal, getDefaultValue);
+    return retVal;
+}
+
+double CDynamicsContainer::getFloatPropertyValue(const char* pName, bool getDefaultValue /*= false*/) const
+{
+    double retVal = 0.0;
+    getFloatProperty(pName, retVal, getDefaultValue);
+    return retVal;
+}
