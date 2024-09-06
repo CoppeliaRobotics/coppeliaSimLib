@@ -299,7 +299,7 @@ void CDynamicsContainer::setDynamicEngineType(int t, int version)
         _dynamicEngineVersionToUse = version;
         if (App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_dynamicsEngine.name, true);
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_dynamicsEngine.name, true);
             int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
             ev->appendKeyIntArray(propDyn_dynamicsEngine.name, ar, 2);
             App::worldContainer->pushEvent();
@@ -325,7 +325,7 @@ void CDynamicsContainer::setDisplayContactPoints(bool d)
         _displayContactPoints = d;
         if (App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_showContactPoints.name, true);
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_showContactPoints.name, true);
             ev->appendKeyBool(propDyn_showContactPoints.name, _displayContactPoints);
             App::worldContainer->pushEvent();
         }
@@ -355,7 +355,7 @@ bool CDynamicsContainer::setDesiredStepSize(double s)
             _mujocoFloatParams[simi_mujoco_global_stepsize] = s;
             if (App::worldContainer->getEventsEnabled())
             {
-                CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_dynamicsStepSize.name, true);
+                CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_dynamicsStepSize.name, true);
                 ev->appendKeyDouble(propDyn_dynamicsStepSize.name, _stepSize);
                 App::worldContainer->pushEvent();
             }
@@ -705,7 +705,7 @@ void CDynamicsContainer::setDynamicsEnabled(bool e)
         _dynamicsEnabled = e;
         if (App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_dynamicsEnabled.name, true);
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_dynamicsEnabled.name, true);
             ev->appendKeyBool(propDyn_dynamicsEnabled.name, _dynamicsEnabled);
             App::worldContainer->pushEvent();
         }
@@ -735,7 +735,7 @@ void CDynamicsContainer::setGravity(C3Vector gr)
         _gravity = gr;
         if (App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_gravity.name, true);
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_gravity.name, true);
             ev->appendKeyDoubleArray(propDyn_gravity.name, _gravity.data, 3);
             App::worldContainer->pushEvent();
         }
@@ -2146,10 +2146,8 @@ void CDynamicsContainer::renderYour3DStuff_overlay(CViewableBase *renderingObjec
 }
 #endif
 
-void CDynamicsContainer::pushGenesisEvents()
+void CDynamicsContainer::appendGenesisData(CCbor *ev)
 {
-    CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, nullptr, false);
-
     ev->appendKeyBool(propDyn_dynamicsEnabled.name, _dynamicsEnabled);
     ev->appendKeyBool(propDyn_showContactPoints.name, _displayContactPoints);
     int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
@@ -2164,8 +2162,6 @@ void CDynamicsContainer::pushGenesisEvents()
     setVector3Property(nullptr, nullptr, ev);
     setVectorProperty(nullptr, nullptr, 0, ev);
     _sendEngineString(ev);
-
-    App::worldContainer->pushEvent();
 }
 
 int CDynamicsContainer::setBoolProperty(const char* pName, bool pState, CCbor* eev/* = nullptr*/)
@@ -2206,7 +2202,7 @@ int CDynamicsContainer::setBoolProperty(const char* pName, bool pState, CCbor* e
                     if (App::worldContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
+                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
                         ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -2404,7 +2400,7 @@ int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev
                     if (App::worldContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
+                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
                         ev->appendKeyInt(propertyName.c_str(), arr[simiIndex]);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -2580,7 +2576,7 @@ int CDynamicsContainer::setFloatProperty(const char* pName, double pState, CCbor
                     if (App::worldContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
+                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
                         ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -2845,7 +2841,7 @@ int CDynamicsContainer::setVector3Property(const char* pName, const C3Vector* pS
                     if (App::worldContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
+                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
                         ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 3);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -2955,7 +2951,7 @@ int CDynamicsContainer::setVectorProperty(const char* pName, const double* v, in
                     if (App::worldContainer->getEventsEnabled())
                     {
                         if (ev == nullptr)
-                            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propertyName.c_str(), true);
+                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
                         ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
                         if (pName != nullptr)
                             _sendEngineString(ev);
@@ -3113,7 +3109,7 @@ void CDynamicsContainer::_sendEngineString(CCbor* eev /*= nullptr*/)
         CEngineProperties prop;
         std::string current(prop.getObjectProperties(-1));
         if (ev == nullptr)
-            ev = App::worldContainer->createEvent(EVENTTYPE_DYNSETTINGSCHANGED, -1, propDyn_engineProperties.name, true);
+            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_engineProperties.name, true);
         ev->appendKeyString(propDyn_engineProperties.name, current.c_str());
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();

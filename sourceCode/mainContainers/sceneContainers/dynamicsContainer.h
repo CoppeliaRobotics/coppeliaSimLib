@@ -3,6 +3,7 @@
 #include <simMath/3Vector.h>
 #include <ser.h>
 #include <colorObject.h>
+#include <cbor.h>
 
 struct SDynProperty {
     const char* name;
@@ -235,7 +236,7 @@ class CDynamicsContainer
     void removeWorld();
     bool isWorldThere() const;
 
-    void pushGenesisEvents();
+    void appendGenesisData(CCbor *ev);
 
     void markForWarningDisplay_pureSpheroidNotSupported();
     void markForWarningDisplay_pureConeNotSupported();

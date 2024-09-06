@@ -23,16 +23,12 @@
 #define EVENTTYPE_OBJECTCHANGED "objectChanged"
 #define EVENTTYPE_OBJECTREMOVED "objectRemoved"
 
-#define EVENTTYPE_ENVIRONMENTCHANGED "environmentChanged"
-#define EVENTTYPE_DYNSETTINGSCHANGED "dynSettingsChanged"
-
 #define EVENTTYPE_DRAWINGOBJECTADDED "drawingObjectAdded"
 #define EVENTTYPE_DRAWINGOBJECTCHANGED "drawingObjectChanged"
 #define EVENTTYPE_DRAWINGOBJECTREMOVED "drawingObjectRemoved"
 
 #define EVENTTYPE_APPSESSION "appSession"
 #define EVENTTYPE_APPSETTINGSCHANGED "appSettingsChanged"
-#define EVENTTYPE_SIMULATIONCHANGED "simulationChanged"
 #define EVENTTYPE_GENESISBEGIN "genesisBegin"
 #define EVENTTYPE_GENESISEND "genesisEnd"
 #define EVENTTYPE_MSGDISPATCHTIME "msgDispatchTime"

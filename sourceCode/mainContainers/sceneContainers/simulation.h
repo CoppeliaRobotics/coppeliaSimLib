@@ -2,6 +2,7 @@
 
 #include <vThread.h>
 #include <ser.h>
+#include <cbor.h>
 #ifdef SIM_WITH_GUI
 #include <vMenubar.h>
 #endif
@@ -61,7 +62,7 @@ class CSimulation
     int getStopRequestCounter() const;
     bool didStopRequestCounterChangeSinceSimulationStart() const;
 
-    void pushGenesisEvents() const;
+    void appendGenesisData(CCbor *ev) const;
 
     bool canGoSlower() const;
     bool canGoFaster() const;

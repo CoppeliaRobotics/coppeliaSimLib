@@ -147,9 +147,8 @@ void CEnvironment::setUpDefaultValues()
     _saveExistingCalculationStructures = false;
 }
 
-void CEnvironment::pushGenesisEvents() const
+void CEnvironment::appendGenesisData(CCbor *ev) const
 {
-    CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED, -1, nullptr, false);
     ev->appendKeyBool(propScene_finalSaveRequest.name, _requestFinalSave);
     ev->appendKeyBool(propScene_sceneIsLocked.name, _sceneIsLocked);
     ev->appendKeyBool(propScene_saveCalculationStructs.name, _saveExistingCalculationStructures);
@@ -159,7 +158,6 @@ void CEnvironment::pushGenesisEvents() const
     ev->appendKeyString(propScene_acknowledgment.name, _acknowledgement.c_str());
     ev->appendKeyString(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
     ev->appendKeyFloatArray(propScene_ambientLight.name, ambientLightColor, 3);
-    App::worldContainer->pushEvent();
 }
 
 void CEnvironment::setAmbientLight(const float c[3])
@@ -172,7 +170,7 @@ void CEnvironment::setAmbientLight(const float c[3])
         if (App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propScene_ambientLight.name;
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED, -1, cmd, true);
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyFloatArray(cmd, ambientLightColor, 3);
             App::worldContainer->pushEvent();
         }
@@ -188,7 +186,7 @@ void CEnvironment::setActiveLayers(unsigned short l)
         if (App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propScene_visibilityLayers.name;
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED, -1, cmd, true);
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyInt(cmd, _activeLayers);
             App::worldContainer->pushEvent();
         }
@@ -228,7 +226,7 @@ void CEnvironment::setSaveExistingCalculationStructures(bool s)
         if (App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propScene_saveCalculationStructs.name;
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED, -1, cmd, true);
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _saveExistingCalculationStructures);
             App::worldContainer->pushEvent();
         }
@@ -307,7 +305,7 @@ void CEnvironment::setRequestFinalSave(bool finalSaveActivated)
         if (App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propScene_finalSaveRequest.name;
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED, -1, cmd, true);
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _requestFinalSave);
             App::worldContainer->pushEvent();
         }
@@ -328,7 +326,7 @@ void CEnvironment::setSceneLocked()
         if (App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propScene_sceneIsLocked.name;
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED, -1, cmd, true);
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _sceneIsLocked);
             App::worldContainer->pushEvent();
         }
@@ -426,7 +424,7 @@ void CEnvironment::setAcknowledgement(const char *a)
         if (App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propScene_acknowledgment.name;
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED, -1, cmd, true);
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyString(cmd, _acknowledgement.c_str());
             App::worldContainer->pushEvent();
         }
@@ -1032,7 +1030,7 @@ void CEnvironment::setScenePathAndName(const char *pathAndName)
         if (App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propScene_scenePath.name;
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_ENVIRONMENTCHANGED, -1, cmd, true);
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyString(cmd, _scenePathAndName.c_str());
             App::worldContainer->pushEvent();
         }

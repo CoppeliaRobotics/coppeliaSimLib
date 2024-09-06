@@ -1176,9 +1176,12 @@ void CWorld::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack
 
 void CWorld::pushGenesisEvents()
 {
-    simulation->pushGenesisEvents();
-    environment->pushGenesisEvents();
-    dynamicsContainer->pushGenesisEvents();
+    CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+    simulation->appendGenesisData(ev);
+    environment->appendGenesisData(ev);
+    dynamicsContainer->appendGenesisData(ev);
+    App::worldContainer->pushEvent();
+
     sceneObjects->pushGenesisEvents();
 
     drawingCont->pushGenesisEvents();

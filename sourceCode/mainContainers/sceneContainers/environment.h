@@ -2,6 +2,7 @@
 
 #include <colorObject.h>
 #include <thumbnail.h>
+#include <cbor.h>
 #ifdef SIM_WITH_GUI
 #include <vMenubar.h>
 #endif
@@ -49,7 +50,7 @@ class CEnvironment
     void setShapeTexturesEnabled(bool e);
     bool getShapeTexturesEnabled() const;
 
-    void pushGenesisEvents() const;
+    void appendGenesisData(CCbor *ev) const;
 
     static int getNextSceneUniqueId();
     static void setShapeTexturesTemporarilyDisabled(bool d);
