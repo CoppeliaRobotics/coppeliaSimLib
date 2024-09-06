@@ -153,8 +153,8 @@ void CPageContainer::setPageSizeAndPosition(int sizeX, int sizeY, int posX, int 
     _pagePosition[0] = posX;
     _pagePosition[1] = posY;
     // We set the view position and size for all soft dialogs:
-    if (App::currentWorld->buttonBlockContainer != nullptr)
-        App::currentWorld->buttonBlockContainer->setViewSizeAndPosition(sizeX, sizeY, posX, posY);
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
+        App::currentWorld->buttonBlockContainer_old->setViewSizeAndPosition(sizeX, sizeY, posX, posY);
     // We set the view position and size for all views:
     for (int i = 0; i < PAGES_COUNT; i++)
     {
@@ -447,8 +447,8 @@ bool CPageContainer::getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2]
     if ((x < 0) || (x > _pageSize[0]) || (y < 0) || (y > _pageSize[1]))
         return (false);
     // The position is in this window zone
-    if ((App::currentWorld->buttonBlockContainer != nullptr) &&
-        App::currentWorld->buttonBlockContainer->mouseDownTest(x, y, _activePageIndex))
+    if ((App::currentWorld->buttonBlockContainer_old != nullptr) &&
+        App::currentWorld->buttonBlockContainer_old->mouseDownTest(x, y, _activePageIndex))
     { // not yet supported
         objType = -1;
         return (true);
@@ -472,15 +472,15 @@ bool CPageContainer::leftMouseButtonDown(int x, int y, int selectionStatus)
         if (_allPages[i] != nullptr)
             _allPages[i]->clearCaughtElements(0xffff - sim_left_button);
     }
-    if (App::currentWorld->buttonBlockContainer != nullptr)
-        App::currentWorld->buttonBlockContainer->clearCaughtElements(0xffff - sim_left_button);
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
+        App::currentWorld->buttonBlockContainer_old->clearCaughtElements(0xffff - sim_left_button);
 
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
     leftMouseCaughtBy = -1;
     leftMouseCaughtSoftDialog = false;
-    if ((App::currentWorld->buttonBlockContainer != nullptr) &&
-        App::currentWorld->buttonBlockContainer->mouseDown(mouseRelativePosition[0], mouseRelativePosition[1],
+    if ((App::currentWorld->buttonBlockContainer_old != nullptr) &&
+        App::currentWorld->buttonBlockContainer_old->mouseDown(mouseRelativePosition[0], mouseRelativePosition[1],
                                                            _activePageIndex, selectionStatus))
     {
         setFocusObject(FOCUS_ON_SOFT_DIALOG);
@@ -513,8 +513,8 @@ int CPageContainer::getCursor(int x, int y) const
 {
     if ((x < 0) || (x > _pageSize[0]) || (y < 0) || (y > _pageSize[1]))
         return (-1);
-    if ((App::currentWorld->buttonBlockContainer != nullptr) &&
-        App::currentWorld->buttonBlockContainer->mouseDownTest(x, y, _activePageIndex))
+    if ((App::currentWorld->buttonBlockContainer_old != nullptr) &&
+        App::currentWorld->buttonBlockContainer_old->mouseDownTest(x, y, _activePageIndex))
         return (-1);
     CSPage *it = getPage(_activePageIndex);
     if (it == nullptr)
@@ -526,10 +526,10 @@ void CPageContainer::leftMouseButtonUp(int x, int y)
 {
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
-    if (App::currentWorld->buttonBlockContainer != nullptr)
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
     {
-        if (App::currentWorld->buttonBlockContainer->getCaughtElements() & sim_left_button)
-            App::currentWorld->buttonBlockContainer->mouseUp(mouseRelativePosition[0], mouseRelativePosition[1],
+        if (App::currentWorld->buttonBlockContainer_old->getCaughtElements() & sim_left_button)
+            App::currentWorld->buttonBlockContainer_old->mouseUp(mouseRelativePosition[0], mouseRelativePosition[1],
                                                              _activePageIndex);
     }
 
@@ -547,15 +547,15 @@ void CPageContainer::mouseMove(int x, int y, bool passiveAndFocused)
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
 
-    if (App::currentWorld->buttonBlockContainer != nullptr)
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
     {
         if (!passiveAndFocused)
         {
-            if (App::currentWorld->buttonBlockContainer->getCaughtElements() & bts)
-                App::currentWorld->buttonBlockContainer->mouseMove(mouseRelativePosition[0], mouseRelativePosition[1]);
+            if (App::currentWorld->buttonBlockContainer_old->getCaughtElements() & bts)
+                App::currentWorld->buttonBlockContainer_old->mouseMove(mouseRelativePosition[0], mouseRelativePosition[1]);
         }
         else
-            App::currentWorld->buttonBlockContainer->mouseMove(mouseRelativePosition[0], mouseRelativePosition[1]);
+            App::currentWorld->buttonBlockContainer_old->mouseMove(mouseRelativePosition[0], mouseRelativePosition[1]);
     }
     for (int i = 0; i < PAGES_COUNT; i++)
     {
@@ -596,8 +596,8 @@ void CPageContainer::mouseWheel(int deltaZ, int x, int y)
 
 void CPageContainer::looseFocus()
 {
-    if (App::currentWorld->buttonBlockContainer != nullptr)
-        App::currentWorld->buttonBlockContainer->looseFocus();
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
+        App::currentWorld->buttonBlockContainer_old->looseFocus();
     setFocusObject(FOCUS_ON_UNKNOWN_OBJECT);
 }
 
@@ -611,19 +611,19 @@ void CPageContainer::setFocusObject(int obj)
     focusObject = obj;
     if (focusObject == FOCUS_ON_PAGE)
     {
-        if (App::currentWorld->buttonBlockContainer != nullptr)
+        if (App::currentWorld->buttonBlockContainer_old != nullptr)
         {
-            App::currentWorld->buttonBlockContainer->setEditBoxEdition(-1, -1, false);
-            App::currentWorld->buttonBlockContainer->looseFocus();
+            App::currentWorld->buttonBlockContainer_old->setEditBoxEdition(-1, -1, false);
+            App::currentWorld->buttonBlockContainer_old->looseFocus();
         }
     }
 }
 
 void CPageContainer::keyPress(int key, QWidget *mainWindow)
 {
-    if ((focusObject == FOCUS_ON_SOFT_DIALOG) && (App::currentWorld->buttonBlockContainer != nullptr))
+    if ((focusObject == FOCUS_ON_SOFT_DIALOG) && (App::currentWorld->buttonBlockContainer_old != nullptr))
     {
-        App::currentWorld->buttonBlockContainer->onKeyDown(key);
+        App::currentWorld->buttonBlockContainer_old->onKeyDown(key);
         return;
     }
 
@@ -693,8 +693,8 @@ bool CPageContainer::rightMouseButtonDown(int x, int y)
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
 
-    if (App::currentWorld->buttonBlockContainer != nullptr)
-        App::currentWorld->buttonBlockContainer->clearCaughtElements(0xffff - sim_right_button);
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
+        App::currentWorld->buttonBlockContainer_old->clearCaughtElements(0xffff - sim_right_button);
     for (int i = 0; i < PAGES_COUNT; i++)
     {
         if (_allPages[i] != nullptr)
@@ -703,11 +703,11 @@ bool CPageContainer::rightMouseButtonDown(int x, int y)
     prepareForPopupMenu = -1;
     // First we check the soft dialogs:
 
-    if (App::currentWorld->buttonBlockContainer != nullptr)
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
     {
         // Following 2 lines should be replaced with the right button down handling routine (when it exists)! (and then
         // return true!)
-        if (App::currentWorld->buttonBlockContainer->mouseDownTest(mouseRelativePosition[0], mouseRelativePosition[1],
+        if (App::currentWorld->buttonBlockContainer_old->mouseDownTest(mouseRelativePosition[0], mouseRelativePosition[1],
                                                                    _activePageIndex))
             return (false);
     }
@@ -733,7 +733,7 @@ void CPageContainer::rightMouseButtonUp(int x, int y, int absX, int absY, QWidge
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
 
-    if (App::currentWorld->buttonBlockContainer != nullptr)
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
     {
         // ROUTINE DOES NOT YET EXIST!
     }
@@ -783,8 +783,8 @@ bool CPageContainer::middleMouseButtonDown(int x, int y)
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
 
-    if (App::currentWorld->buttonBlockContainer != nullptr)
-        App::currentWorld->buttonBlockContainer->clearCaughtElements(0xffff - sim_middle_button);
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
+        App::currentWorld->buttonBlockContainer_old->clearCaughtElements(0xffff - sim_middle_button);
 
     for (int i = 0; i < PAGES_COUNT; i++)
     {
@@ -793,11 +793,11 @@ bool CPageContainer::middleMouseButtonDown(int x, int y)
     }
 
     // First we check the soft dialogs:
-    if (App::currentWorld->buttonBlockContainer != nullptr)
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
     {
         // Following 2 lines should be replaced with the right button down handling routine (when it exists)! (and then
         // return true!)
-        if (App::currentWorld->buttonBlockContainer->mouseDownTest(mouseRelativePosition[0], mouseRelativePosition[1],
+        if (App::currentWorld->buttonBlockContainer_old->mouseDownTest(mouseRelativePosition[0], mouseRelativePosition[1],
                                                                    _activePageIndex))
             return (false);
     }
@@ -817,7 +817,7 @@ void CPageContainer::middleMouseButtonUp(int x, int y)
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
 
-    if (App::currentWorld->buttonBlockContainer != nullptr)
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
     {
         // ROUTINE DOES NOT YET EXIST!
     }
@@ -838,9 +838,9 @@ bool CPageContainer::leftMouseButtonDoubleClick(int x, int y, int selectionStatu
     mouseRelativePosition[0] = x;
     mouseRelativePosition[1] = y;
     // Soft dialogs:
-    if (App::currentWorld->buttonBlockContainer != nullptr)
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
     {
-        if (App::currentWorld->buttonBlockContainer->leftMouseButtonDoubleClick(x, y, _activePageIndex))
+        if (App::currentWorld->buttonBlockContainer_old->leftMouseButtonDoubleClick(x, y, _activePageIndex))
         {
             setFocusObject(FOCUS_ON_SOFT_DIALOG);
             return (true);
@@ -863,8 +863,8 @@ int CPageContainer::getCaughtElements() const
         if (_allPages[i] != nullptr)
             retVal |= _allPages[i]->getCaughtElements();
     }
-    if (App::currentWorld->buttonBlockContainer != nullptr)
-        retVal |= App::currentWorld->buttonBlockContainer->getCaughtElements();
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
+        retVal |= App::currentWorld->buttonBlockContainer_old->getCaughtElements();
     retVal |= _caughtElements;
     return (retVal);
 }
@@ -876,8 +876,8 @@ void CPageContainer::clearCaughtElements(int keepMask)
         if (_allPages[i] != nullptr)
             _allPages[i]->clearCaughtElements(keepMask);
     }
-    if (App::currentWorld->buttonBlockContainer != nullptr)
-        App::currentWorld->buttonBlockContainer->clearCaughtElements(keepMask);
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
+        App::currentWorld->buttonBlockContainer_old->clearCaughtElements(keepMask);
     _caughtElements &= keepMask;
 }
 

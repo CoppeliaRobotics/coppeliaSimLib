@@ -1,5 +1,5 @@
 #include <simInternal.h>
-#include <mainSettings.h>
+#include <mainSettings_old.h>
 #include <global.h>
 #include <tt.h>
 #include <app.h>
@@ -19,15 +19,8 @@ CMainSettings::~CMainSettings()
 
 void CMainSettings::setUpDefaultValues()
 {
-    _scenePathAndName = "";
-
     infoWindowColorStyle = 0; // default
-    statusBoxOpenState = false;
     infoWindowOpenState = true;
-
-    collisionColor.setDefaultValues();
-    collisionColor.setColor(0.0, 0.0, 0.0, sim_colorcomponent_ambient_diffuse);
-    collisionColor.setColor(1.0, 0.0, 0.0, sim_colorcomponent_emission);
 
     proximitySensorsEnabled = true;
     visionSensorsEnabled = true;
@@ -44,45 +37,6 @@ void CMainSettings::setUpDefaultValues()
     forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers = false;
 }
 
-void CMainSettings::setScenePathAndName(const char *pathAndName)
-{
-    _scenePathAndName = pathAndName;
-#ifdef SIM_WITH_GUI
-    SUIThreadCommand cmdIn;
-    SUIThreadCommand cmdOut;
-    cmdIn.cmdId = NEW_SCENE_NAME_UITHREADCMD;
-    cmdIn.stringParams.push_back(getSceneNameForUi());
-    GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
-#endif
-}
-
-std::string CMainSettings::getScenePathAndName() const
-{
-    return (_scenePathAndName);
-}
-
-std::string CMainSettings::getScenePath() const
-{
-    return (VVarious::splitPath_path(_scenePathAndName.c_str()));
-}
-
-std::string CMainSettings::getSceneName() const
-{
-    return (VVarious::splitPath_fileBase(_scenePathAndName.c_str()));
-}
-
-std::string CMainSettings::getSceneNameForUi() const
-{
-    if (_scenePathAndName == "")
-        return ("new scene");
-    return (getSceneName());
-}
-
-std::string CMainSettings::getSceneNameWithExt() const
-{
-    return (VVarious::splitPath_fileBaseAndExtension(_scenePathAndName.c_str()));
-}
-
 void CMainSettings::serialize(CSer &ar)
 {
     if (ar.isBinary())
@@ -93,7 +47,7 @@ void CMainSettings::serialize(CSer &ar)
             ar.storeDataName("Va5");
             unsigned char dummy = 0;
             SIM_SET_CLEAR_BIT(dummy, 0, proximitySensorsEnabled);
-            SIM_SET_CLEAR_BIT(dummy, 1, statusBoxOpenState);
+            SIM_SET_CLEAR_BIT(dummy, 1, false);
             ar << dummy;
             ar.flush();
 
@@ -118,12 +72,6 @@ void CMainSettings::serialize(CSer &ar)
             // 27/11/2012       SIM_SET_CLEAR_BIT(dummy,7,!_dynamicsEnabled);
             ar << dummy;
             ar.flush();
-
-            ar.storeDataName("Crc");
-            ar.setCountingMode();
-            collisionColor.serialize(ar, 0);
-            if (ar.setWritingMode())
-                collisionColor.serialize(ar, 0);
 
             ar.storeDataName("Al2"); // Kept for backward compatibility
             ar << App::currentWorld->environment->getActiveLayers();
@@ -159,7 +107,6 @@ void CMainSettings::serialize(CSer &ar)
                         bool odeUseDefault = !SIM_IS_BIT_SET(dummy, 3);
                         proximitySensorsEnabled = SIM_IS_BIT_SET(dummy, 5);
                         bool _dynamicODEUseQuickStep = !SIM_IS_BIT_SET(dummy, 6);
-                        statusBoxOpenState = SIM_IS_BIT_SET(dummy, 7);
                         if ((!bulletUseDefault) || (!odeUseDefault))
                             App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_odeQuickStepEnabled.name, _dynamicODEUseQuickStep);
                         forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers = true;
@@ -185,7 +132,6 @@ void CMainSettings::serialize(CSer &ar)
                         proximitySensorsEnabled = SIM_IS_BIT_SET(dummy, 5);
                         bool _dynamicODEUseQuickStep = !SIM_IS_BIT_SET(dummy, 6);
                         App::currentWorld->dynamicsContainer->setBoolProperty(propDyn_odeQuickStepEnabled.name, _dynamicODEUseQuickStep);
-                        statusBoxOpenState = SIM_IS_BIT_SET(dummy, 7);
                     }
                     if (theName.compare("Va5") == 0)
                     {
@@ -194,7 +140,6 @@ void CMainSettings::serialize(CSer &ar)
                         unsigned char dummy;
                         ar >> dummy;
                         proximitySensorsEnabled = SIM_IS_BIT_SET(dummy, 0);
-                        statusBoxOpenState = SIM_IS_BIT_SET(dummy, 1);
                     }
 
                     if (theName.compare("Va2") == 0)
@@ -224,12 +169,6 @@ void CMainSettings::serialize(CSer &ar)
                         millsEnabled = !SIM_IS_BIT_SET(dummy, 6);
                         bool _dynamicsEnabled = !SIM_IS_BIT_SET(dummy, 7);
                         App::currentWorld->dynamicsContainer->setDynamicsEnabled(_dynamicsEnabled);
-                    }
-                    if (theName.compare("Crc") == 0)
-                    {
-                        noHit = false;
-                        ar >> byteQuantity;
-                        collisionColor.serialize(ar, 0);
                     }
                     if (theName.compare("Al2") == 0)
                     { // For backward compatibility
@@ -353,13 +292,6 @@ void CMainSettings::serialize(CSer &ar)
             ar.xmlAddNode_bool("collisionDetectionsEnabled", collisionDetectionEnabled);
             ar.xmlAddNode_bool("distanceCalculationsEnabled", distanceCalculationEnabled);
             ar.xmlPopNode();
-
-            if (exhaustiveXml)
-            {
-                ar.xmlPushNewNode("collisionColor");
-                collisionColor.serialize(ar, 0);
-                ar.xmlPopNode();
-            }
         }
         else
         {
@@ -382,12 +314,6 @@ void CMainSettings::serialize(CSer &ar)
                 ar.xmlGetNode_bool("ikEnabled", ikCalculationEnabled, exhaustiveXml);
                 ar.xmlGetNode_bool("collisionDetectionsEnabled", collisionDetectionEnabled, exhaustiveXml);
                 ar.xmlGetNode_bool("distanceCalculationsEnabled", distanceCalculationEnabled, exhaustiveXml);
-                ar.xmlPopNode();
-            }
-
-            if (exhaustiveXml && ar.xmlPushChildNode("collisionColor"))
-            {
-                collisionColor.serialize(ar, 0);
                 ar.xmlPopNode();
             }
         }

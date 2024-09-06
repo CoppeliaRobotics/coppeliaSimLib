@@ -52,21 +52,7 @@ void displayDummy(CDummy *dummy, CViewableBase *renderingObject, int displayAttr
         if (displayAttrib & sim_displayattribute_dynamiccontentonly)
             ogl::setMaterialColor(0.0f, 0.6f, 0.6f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f);
         else
-        {
-            bool setOtherColor = (App::currentWorld->collisions->getCollisionColor(dummy->getObjectHandle()) != 0);
-            for (size_t i = 0; i < App::currentWorld->collections->getObjectCount(); i++)
-            {
-                if (App::currentWorld->collections->getObjectFromIndex(i)->isObjectInCollection(
-                        dummy->getObjectHandle()))
-                    setOtherColor |=
-                        (App::currentWorld->collisions->getCollisionColor(
-                             App::currentWorld->collections->getObjectFromIndex(i)->getCollectionHandle()) != 0);
-            }
-            if (!setOtherColor)
-                dummy->getDummyColor()->makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
-            else
-                App::currentWorld->mainSettings->collisionColor.makeCurrentColor(false);
-        }
+            dummy->getDummyColor()->makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
         CDummy *linkedDummy = nullptr;
         if (dummy->getLinkedDummyHandle() != -1)
             linkedDummy = App::currentWorld->sceneObjects->getDummyFromHandle(dummy->getLinkedDummyHandle());

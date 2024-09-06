@@ -430,20 +430,20 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
         if (coll->getCreatorHandle() == -2)
             collectionBuffer.push_back(coll->copyYourself());
     }
-    for (size_t i = 0; i < App::currentWorld->collisions->getObjectCount(); i++)
-        collisionBuffer.push_back(App::currentWorld->collisions->getObjectFromIndex(i)->copyYourself());
-    for (size_t i = 0; i < App::currentWorld->distances->getObjectCount(); i++)
-        distanceBuffer.push_back(App::currentWorld->distances->getObjectFromIndex(i)->copyYourself());
-    for (size_t i = 0; i < App::currentWorld->ikGroups->getObjectCount(); i++)
-        ikGroupBuffer.push_back(App::currentWorld->ikGroups->getObjectFromIndex(i)->copyYourself());
-    for (size_t i = 0; i < App::currentWorld->pathPlanning->allObjects.size(); i++)
-        pathPlanningTaskBuffer.push_back(App::currentWorld->pathPlanning->allObjects[i]->copyYourself());
-    for (size_t i = 0; i < App::currentWorld->buttonBlockContainer->allBlocks.size(); i++)
+    for (size_t i = 0; i < App::currentWorld->collisions_old->getObjectCount(); i++)
+        collisionBuffer.push_back(App::currentWorld->collisions_old->getObjectFromIndex(i)->copyYourself());
+    for (size_t i = 0; i < App::currentWorld->distances_old->getObjectCount(); i++)
+        distanceBuffer.push_back(App::currentWorld->distances_old->getObjectFromIndex(i)->copyYourself());
+    for (size_t i = 0; i < App::currentWorld->ikGroups_old->getObjectCount(); i++)
+        ikGroupBuffer.push_back(App::currentWorld->ikGroups_old->getObjectFromIndex(i)->copyYourself());
+    for (size_t i = 0; i < App::currentWorld->pathPlanning_old->allObjects.size(); i++)
+        pathPlanningTaskBuffer.push_back(App::currentWorld->pathPlanning_old->allObjects[i]->copyYourself());
+    for (size_t i = 0; i < App::currentWorld->buttonBlockContainer_old->allBlocks.size(); i++)
     {
-        if (((App::currentWorld->buttonBlockContainer->allBlocks[i]->getAttributes() & sim_ui_property_systemblock) ==
+        if (((App::currentWorld->buttonBlockContainer_old->allBlocks[i]->getAttributes() & sim_ui_property_systemblock) ==
              0) &&
-            (App::currentWorld->buttonBlockContainer->allBlocks[i]->getObjectIDAttachedTo() != -1))
-            buttonBlockBuffer.push_back(App::currentWorld->buttonBlockContainer->allBlocks[i]->copyYourself());
+            (App::currentWorld->buttonBlockContainer_old->allBlocks[i]->getObjectIDAttachedTo() != -1))
+            buttonBlockBuffer.push_back(App::currentWorld->buttonBlockContainer_old->allBlocks[i]->copyYourself());
     }
 
     std::vector<CSceneObject *> unselected;

@@ -381,7 +381,7 @@ bool CIkGroup_old::setObjectName(const char *newName, bool check)
     bool diff = false;
     CIkGroup_old *it = nullptr;
     if (check)
-        it = App::currentWorld->ikGroups->getObjectFromHandle(_objectHandle);
+        it = App::currentWorld->ikGroups_old->getObjectFromHandle(_objectHandle);
     if (it != this)
         diff = _CIkGroup_old::setObjectName(newName, check); // no checking or object not yet in world
     else
@@ -392,7 +392,7 @@ bool CIkGroup_old::setObjectName(const char *newName, bool check)
         {
             if (getObjectName() != nm)
             {
-                while (App::currentWorld->ikGroups->getObjectFromName(nm.c_str()) != nullptr)
+                while (App::currentWorld->ikGroups_old->getObjectFromName(nm.c_str()) != nullptr)
                     nm = tt::generateNewName_hashOrNoHash(nm.c_str(), !tt::isHashFree(nm.c_str()));
                 diff = _CIkGroup_old::setObjectName(nm.c_str(), check);
             }
@@ -406,14 +406,14 @@ bool CIkGroup_old::setDoOnFailOrSuccessOf(int groupID, bool check)
     bool diff = false;
     CIkGroup_old *it = nullptr;
     if (check)
-        it = App::currentWorld->ikGroups->getObjectFromHandle(_objectHandle);
+        it = App::currentWorld->ikGroups_old->getObjectFromHandle(_objectHandle);
     if (it != this)
         diff = _CIkGroup_old::setDoOnFailOrSuccessOf(groupID, false); // no checking or object not yet in world
     else
     { // object is in world
-        for (size_t i = 0; i < App::currentWorld->ikGroups->getObjectCount(); i++)
+        for (size_t i = 0; i < App::currentWorld->ikGroups_old->getObjectCount(); i++)
         {
-            CIkGroup_old *prev = App::currentWorld->ikGroups->getObjectFromIndex(i);
+            CIkGroup_old *prev = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
             if (prev->getObjectHandle() == groupID)
             {
                 diff = _CIkGroup_old::setDoOnFailOrSuccessOf(groupID, false);
@@ -507,7 +507,7 @@ int CIkGroup_old::computeGroupIk(bool independentComputation)
         {
             if (_doOnFailOrSuccessOf != -1)
             { // Conditional execution part:
-                CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(_doOnFailOrSuccessOf);
+                CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(_doOnFailOrSuccessOf);
                 if (it != nullptr)
                 {
                     if (_doOnPerformed)

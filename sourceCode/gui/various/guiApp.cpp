@@ -814,7 +814,7 @@ float *GuiApp::getRGBPointerFromItem(int objType, int objID1, int objID2, int co
             _auxDlgTitle->assign("Button - down");
         if (objType == COLOR_ID_OPENGLBUTTON_TEXT)
             _auxDlgTitle->assign("Button - text");
-        CButtonBlock *block = App::currentWorld->buttonBlockContainer->getBlockWithID(objID1);
+        CButtonBlock *block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(objID1);
         if (block != nullptr)
         {
             CSoftButton *itButton = block->getButtonWithID(objID2);
@@ -914,17 +914,11 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
                 return (&grDataComb->curveColor);
         }
     }
-    if (objType == COLOR_ID_COLLISION)
-    {
-        _auxDlgTitle->assign("Collision");
-        _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        return (&App::currentWorld->mainSettings->collisionColor);
-    }
     if (objType == COLOR_ID_COLLISIONCONTOUR)
     {
         _auxDlgTitle->assign("Collision contour");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CCollisionObject_old *it = App::currentWorld->collisions->getObjectFromHandle(objID1);
+        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(objID1);
         if (it != nullptr)
             return (it->getContourColor());
     }
@@ -932,7 +926,7 @@ CColorObject *GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Distance segment");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CDistanceObject_old *it = App::currentWorld->distances->getObjectFromHandle(objID1);
+        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(objID1);
         if (it != nullptr)
             return (it->getSegmentColor());
     }
@@ -1103,7 +1097,7 @@ CTextureProperty *GuiApp::getTexturePropertyPointerFromItem(int objType, int obj
     {
         _auxDlgTitle->assign("OpenGl custom UI background");
         _is3D[0] = false;
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(objID1);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(objID1);
         if (it != nullptr)
         {
             _isValid[0] = true;
@@ -1114,7 +1108,7 @@ CTextureProperty *GuiApp::getTexturePropertyPointerFromItem(int objType, int obj
     {
         _auxDlgTitle->assign("OpenGl custom UI button");
         _is3D[0] = false;
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(objID1);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(objID1);
         if (it != nullptr)
         {
             CSoftButton *butt = it->getButtonWithID(objID2);

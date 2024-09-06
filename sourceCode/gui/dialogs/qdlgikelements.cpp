@@ -41,7 +41,7 @@ void CQDlgIkElements::updateObjectsInList()
 {
     noListSelectionAllowed = true;
     ui->qqList->clear();
-    CIkGroup_old *ikGroup = App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
+    CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(_ikGroupHandle);
     if (ikGroup != nullptr)
     {
         for (size_t i = 0; i < ikGroup->getIkElementCount(); i++)
@@ -95,7 +95,7 @@ bool CQDlgIkElements::needsDestruction()
 void CQDlgIkElements::_initialize(int ikGroupHandle)
 {
     _ikGroupHandle = ikGroupHandle;
-    CIkGroup_old *ikGroup = App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
+    CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(_ikGroupHandle);
     if (ikGroup != nullptr)
     {
         std::string titleText("IK Group (");
@@ -113,7 +113,7 @@ bool CQDlgIkElements::isLinkedDataValid()
         return (false);
     if (GuiApp::getEditModeType() != NO_EDIT_MODE)
         return (false);
-    if (App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle) != nullptr)
+    if (App::currentWorld->ikGroups_old->getObjectFromHandle(_ikGroupHandle) != nullptr)
         return (!_invalid);
     return (false);
 }
@@ -156,7 +156,7 @@ void CQDlgIkElements::refresh()
         (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentWorld->simulation->isSimulationStopped();
     if (!isLinkedDataValid())
         return;
-    CIkGroup_old *ikGroup = App::currentWorld->ikGroups->getObjectFromHandle(_ikGroupHandle);
+    CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(_ikGroupHandle);
     int elementID = getSelectedObjectID();
     CIkElement_old *it = ikGroup->getIkElementFromHandle(elementID);
 

@@ -38,9 +38,9 @@ void CQDlgIkConditional::refresh()
 
         ui->qqIkGroupCombo->clear();
         ui->qqIkGroupCombo->addItem(IDSN_PERFORM_ALWAYS, QVariant(-1));
-        for (size_t i = 0; i < App::currentWorld->ikGroups->getObjectCount(); i++)
+        for (size_t i = 0; i < App::currentWorld->ikGroups_old->getObjectCount(); i++)
         {
-            CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromIndex(i);
+            CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromIndex(i);
             if (it->getObjectHandle() == ikGroup->getObjectHandle())
                 break; // If no ik group comes before, we can't do anything!
             names.push_back(it->getObjectName());

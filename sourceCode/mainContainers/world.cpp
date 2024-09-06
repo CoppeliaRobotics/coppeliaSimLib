@@ -13,28 +13,28 @@ std::vector<SLoadOperationIssue> CWorld::_loadOperationIssues;
 CWorld::CWorld()
 {
     collections = nullptr;
-    distances = nullptr;
-    collisions = nullptr;
-    ikGroups = nullptr;
+    distances_old = nullptr;
+    collisions_old = nullptr;
+    ikGroups_old = nullptr;
     sceneObjects = nullptr;
-    commTubeContainer = nullptr;
+    commTubeContainer_old = nullptr;
     signalContainer = nullptr;
     dynamicsContainer = nullptr;
     undoBufferContainer = nullptr;
-    outsideCommandQueue = nullptr;
-    buttonBlockContainer = nullptr;
+    outsideCommandQueue_old = nullptr;
+    buttonBlockContainer_old = nullptr;
     environment = nullptr;
     pageContainer = nullptr;
-    mainSettings = nullptr;
-    pathPlanning = nullptr;
+    mainSettings_old = nullptr;
+    pathPlanning_old = nullptr;
     textureContainer = nullptr;
     simulation = nullptr;
     customSceneData_old = nullptr;
     cacheData = nullptr;
     drawingCont = nullptr;
-    pointCloudCont = nullptr;
-    ghostObjectCont = nullptr;
-    bannerCont = nullptr;
+    pointCloudCont_old = nullptr;
+    ghostObjectCont_old = nullptr;
+    bannerCont_old = nullptr;
     _worldHandle = -1;
 }
 
@@ -46,34 +46,34 @@ void CWorld::removeWorld_oldIk()
 {
     App::worldContainer->pluginContainer->oldIkPlugin_emptyEnvironment();
     sceneObjects->remove_oldIk();
-    ikGroups->remove_oldIk();
+    ikGroups_old->remove_oldIk();
 }
 
 void CWorld::initializeWorld()
 {
     undoBufferContainer = new CUndoBufferCont();
-    outsideCommandQueue = new COutsideCommandQueue();
-    buttonBlockContainer = new CButtonBlockContainer(true);
+    outsideCommandQueue_old = new COutsideCommandQueue();
+    buttonBlockContainer_old = new CButtonBlockContainer(true);
     simulation = new CSimulation();
     textureContainer = new CTextureContainer();
-    ikGroups = new CIkGroupContainer();
+    ikGroups_old = new CIkGroupContainer();
     collections = new CCollectionContainer();
-    distances = new CDistanceObjectContainer_old();
-    collisions = new CCollisionObjectContainer_old();
+    distances_old = new CDistanceObjectContainer_old();
+    collisions_old = new CCollisionObjectContainer_old();
     sceneObjects = new CSceneObjectContainer();
-    pathPlanning = new CRegisteredPathPlanningTasks();
+    pathPlanning_old = new CRegisteredPathPlanningTasks();
     environment = new CEnvironment();
     pageContainer = new CPageContainer();
-    mainSettings = new CMainSettings();
+    mainSettings_old = new CMainSettings();
     customSceneData_old = new CCustomData_old();
     cacheData = new CCacheCont();
     drawingCont = new CDrawingContainer();
-    pointCloudCont = new CPointCloudContainer_old();
-    ghostObjectCont = new CGhostObjectContainer();
-    bannerCont = new CBannerContainer();
+    pointCloudCont_old = new CPointCloudContainer_old();
+    ghostObjectCont_old = new CGhostObjectContainer();
+    bannerCont_old = new CBannerContainer();
     dynamicsContainer = new CDynamicsContainer();
     signalContainer = new CSignalContainer();
-    commTubeContainer = new CCommTubeContainer();
+    commTubeContainer_old = new CCommTubeContainer();
 }
 
 void CWorld::clearScene(bool notCalledFromUndoFunction)
@@ -89,16 +89,16 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
     sceneObjects->eraseAllObjects(true);
     collections->removeAllCollections();
     collections->setUpDefaultValues();
-    ikGroups->removeAllIkGroups();
-    distances->removeAllDistanceObjects();
-    distances->setUpDefaultValues();
-    collisions->removeAllCollisionObjects();
-    collisions->setUpDefaultValues();
-    pathPlanning->removeAllTasks();
+    ikGroups_old->removeAllIkGroups();
+    distances_old->removeAllDistanceObjects();
+    distances_old->setUpDefaultValues();
+    collisions_old->removeAllCollisionObjects();
+    collisions_old->setUpDefaultValues();
+    pathPlanning_old->removeAllTasks();
 
     simulation->setUpDefaultValues();
-    if (buttonBlockContainer != nullptr)
-        buttonBlockContainer->removeAllBlocks(false);
+    if (buttonBlockContainer_old != nullptr)
+        buttonBlockContainer_old->removeAllBlocks(false);
     environment->setUpDefaultValues();
     pageContainer->emptySceneProcedure();
 
@@ -109,7 +109,7 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
     customSceneData_tempData.setData(nullptr, nullptr, 0, true);
     customSceneData_old->removeAllData();
     if (notCalledFromUndoFunction)
-        mainSettings->setUpDefaultValues();
+        mainSettings_old->setUpDefaultValues();
     cacheData->clearCache();
     environment->setSceneIsClosingFlag(false);
 }
@@ -120,56 +120,56 @@ void CWorld::deleteWorld()
     undoBufferContainer = nullptr;
     delete dynamicsContainer;
     dynamicsContainer = nullptr;
-    delete mainSettings;
-    mainSettings = nullptr;
+    delete mainSettings_old;
+    mainSettings_old = nullptr;
     delete pageContainer;
     pageContainer = nullptr;
     delete environment;
     environment = nullptr;
-    delete pathPlanning;
-    pathPlanning = nullptr;
+    delete pathPlanning_old;
+    pathPlanning_old = nullptr;
     delete sceneObjects;
     sceneObjects = nullptr;
-    delete collisions;
-    collisions = nullptr;
-    delete distances;
-    distances = nullptr;
+    delete collisions_old;
+    collisions_old = nullptr;
+    delete distances_old;
+    distances_old = nullptr;
     delete collections;
     collections = nullptr;
-    delete ikGroups;
-    ikGroups = nullptr;
+    delete ikGroups_old;
+    ikGroups_old = nullptr;
     delete textureContainer;
     textureContainer = nullptr;
     delete simulation;
     simulation = nullptr;
-    delete buttonBlockContainer;
-    buttonBlockContainer = nullptr;
-    delete outsideCommandQueue;
-    outsideCommandQueue = nullptr;
+    delete buttonBlockContainer_old;
+    buttonBlockContainer_old = nullptr;
+    delete outsideCommandQueue_old;
+    outsideCommandQueue_old = nullptr;
     delete customSceneData_old;
     customSceneData_old = nullptr;
     delete cacheData;
     cacheData = nullptr;
     delete drawingCont;
     drawingCont = nullptr;
-    delete pointCloudCont;
-    pointCloudCont = nullptr;
-    delete ghostObjectCont;
-    ghostObjectCont = nullptr;
-    delete bannerCont;
-    bannerCont = nullptr;
+    delete pointCloudCont_old;
+    pointCloudCont_old = nullptr;
+    delete ghostObjectCont_old;
+    ghostObjectCont_old = nullptr;
+    delete bannerCont_old;
+    bannerCont_old = nullptr;
     delete signalContainer;
     signalContainer = nullptr;
-    delete commTubeContainer;
-    commTubeContainer = nullptr;
+    delete commTubeContainer_old;
+    commTubeContainer_old = nullptr;
 }
 
 void CWorld::rebuildWorld_oldIk()
 {
     sceneObjects->buildOrUpdate_oldIk();
     sceneObjects->connect_oldIk();
-    ikGroups->buildOrUpdate_oldIk();
-    ikGroups->connect_oldIk();
+    ikGroups_old->buildOrUpdate_oldIk();
+    ikGroups_old->connect_oldIk();
 }
 
 bool CWorld::loadScene(CSer &ar, bool forUndoRedoOperation)
@@ -189,7 +189,7 @@ bool CWorld::loadScene(CSer &ar, bool forUndoRedoOperation)
             App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_sceneloaded);
             App::worldContainer->setModificationFlag(8); // scene loaded
-            outsideCommandQueue->addCommand(sim_message_scene_loaded, 0, 0, 0, 0, nullptr, 0);
+            outsideCommandQueue_old->addCommand(sim_message_scene_loaded, 0, 0, 0, 0, nullptr, 0);
         }
     }
     return (retVal);
@@ -311,14 +311,14 @@ void CWorld::saveScene(CSer &ar)
     {
         ar.storeDataName(SER_GHOSTS);
         ar.setCountingMode();
-        ghostObjectCont->serialize(ar);
+        ghostObjectCont_old->serialize(ar);
         if (ar.setWritingMode())
-            ghostObjectCont->serialize(ar);
+            ghostObjectCont_old->serialize(ar);
     }
     else
     {
         ar.xmlPushNewNode(SERX_GHOSTS);
-        ghostObjectCont->serialize(ar);
+        ghostObjectCont_old->serialize(ar);
         ar.xmlPopNode();
     }
     // --------------------------
@@ -327,14 +327,14 @@ void CWorld::saveScene(CSer &ar)
     {
         ar.storeDataName(SER_SETTINGS);
         ar.setCountingMode();
-        mainSettings->serialize(ar);
+        mainSettings_old->serialize(ar);
         if (ar.setWritingMode())
-            mainSettings->serialize(ar);
+            mainSettings_old->serialize(ar);
     }
     else
     {
         ar.xmlPushNewNode(SERX_SETTINGS);
-        mainSettings->serialize(ar);
+        mainSettings_old->serialize(ar);
         ar.xmlPopNode();
     }
 
@@ -355,9 +355,9 @@ void CWorld::saveScene(CSer &ar)
 
     // Old:
     // --------------------------
-    for (size_t i = 0; i < collisions->getObjectCount(); i++)
+    for (size_t i = 0; i < collisions_old->getObjectCount(); i++)
     {
-        CCollisionObject_old *collObj = collisions->getObjectFromIndex(i);
+        CCollisionObject_old *collObj = collisions_old->getObjectFromIndex(i);
         if (ar.isBinary())
         {
             ar.storeDataName(SER_COLLISION);
@@ -373,9 +373,9 @@ void CWorld::saveScene(CSer &ar)
             ar.xmlPopNode();
         }
     }
-    for (size_t i = 0; i < distances->getObjectCount(); i++)
+    for (size_t i = 0; i < distances_old->getObjectCount(); i++)
     {
-        CDistanceObject_old *distObj = distances->getObjectFromIndex(i);
+        CDistanceObject_old *distObj = distances_old->getObjectFromIndex(i);
         if (ar.isBinary())
         {
             ar.storeDataName(SER_DISTANCE);
@@ -391,9 +391,9 @@ void CWorld::saveScene(CSer &ar)
             ar.xmlPopNode();
         }
     }
-    for (size_t i = 0; i < ikGroups->getObjectCount(); i++)
+    for (size_t i = 0; i < ikGroups_old->getObjectCount(); i++)
     {
-        CIkGroup_old *ikg = ikGroups->getObjectFromIndex(i);
+        CIkGroup_old *ikg = ikGroups_old->getObjectFromIndex(i);
         if (ar.isBinary())
         {
             ar.storeDataName(SER_IK);
@@ -411,13 +411,13 @@ void CWorld::saveScene(CSer &ar)
     }
     if (ar.isBinary())
     {
-        for (size_t i = 0; i < pathPlanning->allObjects.size(); i++)
+        for (size_t i = 0; i < pathPlanning_old->allObjects.size(); i++)
         {
             ar.storeDataName(SER_PATH_PLANNING);
             ar.setCountingMode();
-            pathPlanning->allObjects[i]->serialize(ar);
+            pathPlanning_old->allObjects[i]->serialize(ar);
             if (ar.setWritingMode())
-                pathPlanning->allObjects[i]->serialize(ar);
+                pathPlanning_old->allObjects[i]->serialize(ar);
         }
     }
     // --------------------------
@@ -523,9 +523,9 @@ void CWorld::saveScene(CSer &ar)
     }
     if (ar.isBinary() && (!App::userSettings->disableOpenGlBasedCustomUi))
     {
-        for (size_t i = 0; i < buttonBlockContainer->allBlocks.size(); i++)
+        for (size_t i = 0; i < buttonBlockContainer_old->allBlocks.size(); i++)
         {
-            CButtonBlock *bblk = buttonBlockContainer->allBlocks[i];
+            CButtonBlock *bblk = buttonBlockContainer_old->allBlocks[i];
             if ((bblk->getAttributes() & sim_ui_property_systemblock) == 0)
             {
                 ar.storeDataName(SER_BUTTON_BLOCK_old);
@@ -584,7 +584,7 @@ bool CWorld::loadModel(CSer &ar, bool justLoadThumbnail, bool forceModelAsCopy, 
         App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
             sim_message_model_loaded); // for backward compatibility
 
-        outsideCommandQueue->addCommand(sim_message_model_loaded, 0, 0, 0, 0, nullptr, 0); // only for Lua
+        outsideCommandQueue_old->addCommand(sim_message_model_loaded, 0, 0, 0, 0, nullptr, 0); // only for Lua
         App::worldContainer->setModificationFlag(4);                                       // model loaded
     }
     return (retVal);
@@ -631,15 +631,15 @@ void CWorld::simulationAboutToStart()
                                           "  distance calculation, and proximity sensor simulation will not work.");
     }
 
-    buttonBlockContainer->simulationAboutToStart(); // old
+    buttonBlockContainer_old->simulationAboutToStart(); // old
     sceneObjects->simulationAboutToStart();
     dynamicsContainer->simulationAboutToStart();
     pageContainer->simulationAboutToStart();
-    collisions->simulationAboutToStart(); // old
-    distances->simulationAboutToStart();  // old
+    collisions_old->simulationAboutToStart(); // old
+    distances_old->simulationAboutToStart();  // old
     collections->simulationAboutToStart();
-    ikGroups->simulationAboutToStart();     // old
-    pathPlanning->simulationAboutToStart(); // old
+    ikGroups_old->simulationAboutToStart();     // old
+    pathPlanning_old->simulationAboutToStart(); // old
     simulation->simulationAboutToStart();
 
     App::worldContainer->calcInfo->simulationAboutToStart();
@@ -689,7 +689,7 @@ void CWorld::simulationAboutToResume()
 
 void CWorld::simulationAboutToStep()
 {
-    ikGroups->resetCalculationResults();
+    ikGroups_old->resetCalculationResults();
 }
 
 void CWorld::simulationAboutToEnd()
@@ -741,20 +741,20 @@ void CWorld::simulationEnded(bool removeNewObjects)
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
 
     drawingCont->simulationEnded();
-    pointCloudCont->simulationEnded();
-    bannerCont->simulationEnded();
-    buttonBlockContainer->simulationEnded();
+    pointCloudCont_old->simulationEnded();
+    bannerCont_old->simulationEnded();
+    buttonBlockContainer_old->simulationEnded();
     dynamicsContainer->simulationEnded();
     signalContainer->simulationEnded();
     sceneObjects->simulationEnded();
     pageContainer->simulationEnded();
-    collisions->simulationEnded();
-    distances->simulationEnded();
+    collisions_old->simulationEnded();
+    distances_old->simulationEnded();
     collections->simulationEnded();
-    ikGroups->simulationEnded();
-    pathPlanning->simulationEnded();
+    ikGroups_old->simulationEnded();
+    pathPlanning_old->simulationEnded();
     simulation->simulationEnded();
-    commTubeContainer->simulationEnded();
+    commTubeContainer_old->simulationEnded();
     App::worldContainer->calcInfo->simulationEnded();
 #ifdef SIM_WITH_GUI
     App::worldContainer->serialPortContainer->simulationEnded();
@@ -871,7 +871,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     for (size_t i = 0; i < loadedCollisionList->size(); i++)
     {
         int oldHandle = loadedCollisionList->at(i)->getObjectHandle();
-        collisions->addObjectWithSuffixOffset(loadedCollisionList->at(i), objectIsACopy, suffixOffset);
+        collisions_old->addObjectWithSuffixOffset(loadedCollisionList->at(i), objectIsACopy, suffixOffset);
         collisionMapping[oldHandle] = loadedCollisionList->at(i)->getObjectHandle();
     }
     // We add all the distances:
@@ -879,7 +879,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     for (size_t i = 0; i < loadedDistanceList->size(); i++)
     {
         int oldHandle = loadedDistanceList->at(i)->getObjectHandle();
-        distances->addObjectWithSuffixOffset(loadedDistanceList->at(i), objectIsACopy, suffixOffset);
+        distances_old->addObjectWithSuffixOffset(loadedDistanceList->at(i), objectIsACopy, suffixOffset);
         distanceMapping[oldHandle] = loadedDistanceList->at(i)->getObjectHandle();
     }
     // We add all the ik groups:
@@ -887,7 +887,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     for (size_t i = 0; i < loadedIkGroupList->size(); i++)
     {
         int oldHandle = loadedIkGroupList->at(i)->getObjectHandle();
-        ikGroups->addIkGroupWithSuffixOffset(loadedIkGroupList->at(i), objectIsACopy, suffixOffset);
+        ikGroups_old->addIkGroupWithSuffixOffset(loadedIkGroupList->at(i), objectIsACopy, suffixOffset);
         ikGroupMapping[oldHandle] = loadedIkGroupList->at(i)->getObjectHandle();
     }
     // We add all the path planning tasks:
@@ -895,7 +895,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     for (size_t i = 0; i < loadedPathPlanningTaskList->size(); i++)
     {
         int oldHandle = loadedPathPlanningTaskList->at(i)->getObjectID();
-        pathPlanning->addObjectWithSuffixOffset(loadedPathPlanningTaskList->at(i), objectIsACopy, suffixOffset);
+        pathPlanning_old->addObjectWithSuffixOffset(loadedPathPlanningTaskList->at(i), objectIsACopy, suffixOffset);
         pathPlanningTaskMapping[oldHandle] = loadedPathPlanningTaskList->at(i)->getObjectID();
     }
     // We add all the button blocks:
@@ -903,7 +903,7 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
     for (size_t i = 0; i < loadedButtonBlockList->size(); i++)
     {
         int oldHandle = loadedButtonBlockList->at(i)->getBlockID();
-        buttonBlockContainer->insertBlockWithSuffixOffset(loadedButtonBlockList->at(i), objectIsACopy, suffixOffset);
+        buttonBlockContainer_old->insertBlockWithSuffixOffset(loadedButtonBlockList->at(i), objectIsACopy, suffixOffset);
         buttonBlockMapping[oldHandle] = loadedButtonBlockList->at(i)->getBlockID();
     }
     // -----------------
@@ -980,12 +980,12 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
 
     // We do the mapping for the ghost objects (OLD):
     if (!model)
-        ghostObjectCont->performObjectLoadingMapping(&objectMapping);
+        ghostObjectCont_old->performObjectLoadingMapping(&objectMapping);
 
     // We set ALL texture object dependencies (not just for loaded objects):
     // We cannot use textureCont->updateAllDependencies, since the shape list is not yet actualized!
     textureContainer->clearAllDependencies();
-    buttonBlockContainer->setTextureDependencies();
+    buttonBlockContainer_old->setTextureDependencies();
     sceneObjects->setTextureDependencies();
 
     sceneObjects->enableObjectActualization(true);
@@ -1045,15 +1045,15 @@ void CWorld::addGeneralObjectsToWorldAndPerformMappings(
             CSceneObject *obj = sceneObjects->getObjectFromIndex(i);
             uniquePersistentIds[obj->getUniquePersistentIdString()] = obj->getObjectHandle();
         }
-        for (size_t i = 0; i < collisions->getObjectCount(); i++)
-            uniquePersistentIds[collisions->getObjectFromIndex(i)->getUniquePersistentIdString()] =
-                collisions->getObjectFromIndex(i)->getObjectHandle();
-        for (size_t i = 0; i < distances->getObjectCount(); i++)
-            uniquePersistentIds[distances->getObjectFromIndex(i)->getUniquePersistentIdString()] =
-                distances->getObjectFromIndex(i)->getObjectHandle();
-        for (size_t i = 0; i < ikGroups->getObjectCount(); i++)
-            uniquePersistentIds[ikGroups->getObjectFromIndex(i)->getUniquePersistentIdString()] =
-                ikGroups->getObjectFromIndex(i)->getObjectHandle();
+        for (size_t i = 0; i < collisions_old->getObjectCount(); i++)
+            uniquePersistentIds[collisions_old->getObjectFromIndex(i)->getUniquePersistentIdString()] =
+                collisions_old->getObjectFromIndex(i)->getObjectHandle();
+        for (size_t i = 0; i < distances_old->getObjectCount(); i++)
+            uniquePersistentIds[distances_old->getObjectFromIndex(i)->getUniquePersistentIdString()] =
+                distances_old->getObjectFromIndex(i)->getObjectHandle();
+        for (size_t i = 0; i < ikGroups_old->getObjectCount(); i++)
+            uniquePersistentIds[ikGroups_old->getObjectFromIndex(i)->getUniquePersistentIdString()] =
+                ikGroups_old->getObjectFromIndex(i)->getObjectHandle();
         for (size_t i = 0; i < collections->getObjectCount(); i++)
             uniquePersistentIds[collections->getObjectFromIndex(i)->getUniquePersistentIdString()] =
                 collections->getObjectFromIndex(i)->getCollectionHandle();
@@ -1129,15 +1129,15 @@ void CWorld::announceObjectWillBeErased(const CSceneObject *object)
     pageContainer->announceObjectWillBeErased(object->getObjectHandle()); // might trigger a view destruction!
 
     // Old:
-    buttonBlockContainer->announceObjectWillBeErased(object->getObjectHandle());
-    pathPlanning->announceObjectWillBeErased(object->getObjectHandle());
-    collisions->announceObjectWillBeErased(object->getObjectHandle());
-    distances->announceObjectWillBeErased(object->getObjectHandle());
-    pointCloudCont->announceObjectWillBeErased(object->getObjectHandle());
-    ghostObjectCont->announceObjectWillBeErased(object->getObjectHandle());
-    bannerCont->announceObjectWillBeErased(object->getObjectHandle());
+    buttonBlockContainer_old->announceObjectWillBeErased(object->getObjectHandle());
+    pathPlanning_old->announceObjectWillBeErased(object->getObjectHandle());
+    collisions_old->announceObjectWillBeErased(object->getObjectHandle());
+    distances_old->announceObjectWillBeErased(object->getObjectHandle());
+    pointCloudCont_old->announceObjectWillBeErased(object->getObjectHandle());
+    ghostObjectCont_old->announceObjectWillBeErased(object->getObjectHandle());
+    bannerCont_old->announceObjectWillBeErased(object->getObjectHandle());
     collections->announceObjectWillBeErased(object->getObjectHandle()); // can trigger distance, collision
-    ikGroups->announceObjectWillBeErased(object->getObjectHandle());
+    ikGroups_old->announceObjectWillBeErased(object->getObjectHandle());
 }
 
 void CWorld::announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
@@ -1182,7 +1182,7 @@ void CWorld::pushGenesisEvents()
     sceneObjects->pushGenesisEvents();
 
     drawingCont->pushGenesisEvents();
-    pointCloudCont->pushGenesisEvents();
+    pointCloudCont_old->pushGenesisEvents();
 }
 
 // Old:
@@ -1190,15 +1190,15 @@ void CWorld::pushGenesisEvents()
 void CWorld::announceIkGroupWillBeErased(int ikGroupHandle)
 {
     sceneObjects->announceIkGroupWillBeErased(ikGroupHandle);
-    ikGroups->announceIkGroupWillBeErased(ikGroupHandle);
+    ikGroups_old->announceIkGroupWillBeErased(ikGroupHandle);
 }
 
 void CWorld::announceCollectionWillBeErased(int collectionHandle)
 {
     sceneObjects->announceCollectionWillBeErased(collectionHandle);
-    collisions->announceCollectionWillBeErased(collectionHandle); // This can trigger a collision destruction!
-    distances->announceCollectionWillBeErased(collectionHandle);  // This can trigger a distance destruction!
-    pathPlanning->announceCollectionWillBeErased(
+    collisions_old->announceCollectionWillBeErased(collectionHandle); // This can trigger a collision destruction!
+    distances_old->announceCollectionWillBeErased(collectionHandle);  // This can trigger a distance destruction!
+    pathPlanning_old->announceCollectionWillBeErased(
         collectionHandle); // This can trigger a path planning object destruction!
 }
 
@@ -1317,13 +1317,13 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
                 if (theName.compare(SER_GHOSTS) == 0)
                 {
                     ar >> byteQuantity;
-                    ghostObjectCont->serialize(ar);
+                    ghostObjectCont_old->serialize(ar);
                     noHit = false;
                 }
                 if (theName.compare(SER_SETTINGS) == 0)
                 {
                     ar >> byteQuantity;
-                    mainSettings->serialize(ar);
+                    mainSettings_old->serialize(ar);
                     noHit = false;
                 }
                 if (theName.compare(SER_ENVIRONMENT) == 0)
@@ -1346,11 +1346,11 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
 
                     // For backward compatibility (3/1/2012):
                     //************************************************
-                    if (mainSettings->forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers)
+                    if (mainSettings_old->forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers)
                     { // This needs to be done AFTER simulation settings are loaded!
                         double bulletStepSize =
                             simulation->getTimeStep() /
-                            double(mainSettings->dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012);
+                            double(mainSettings_old->dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012);
                         dynamicsContainer->setDesiredStepSize(bulletStepSize);
                     }
                     //************************************************
@@ -1512,12 +1512,12 @@ bool CWorld::_loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool j
         }
         if (ar.xmlPushChildNode(SERX_GHOSTS, isScene))
         {
-            ghostObjectCont->serialize(ar);
+            ghostObjectCont_old->serialize(ar);
             ar.xmlPopNode();
         }
         if (ar.xmlPushChildNode(SERX_SETTINGS, isScene))
         {
-            mainSettings->serialize(ar);
+            mainSettings_old->serialize(ar);
             ar.xmlPopNode();
         }
         if (ar.xmlPushChildNode(SERX_ENVIRONMENT, isScene))
@@ -1821,7 +1821,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
 
     if (isScene && ar.xmlPushChildNode(SERX_SETTINGS, false))
     {
-        mainSettings->serialize(ar);
+        mainSettings_old->serialize(ar);
         ar.xmlPopNode();
     }
 
@@ -2060,7 +2060,7 @@ bool CWorld::_loadSimpleXmlSceneOrModel(CSer &ar)
             }
         }
         if (it->getIkElementCount() > 0)
-            ikGroups->addIkGroupWithSuffixOffset(it, objectIsACopy, suffixOffset);
+            ikGroups_old->addIkGroupWithSuffixOffset(it, objectIsACopy, suffixOffset);
         else
         {
             delete it;
@@ -2199,7 +2199,7 @@ bool CWorld::_saveSimpleXmlScene(CSer &ar)
 
     ar.xmlAddNode_comment(" 'settings' tag: has no effect when loading a model ", false);
     ar.xmlPushNewNode(SERX_SETTINGS);
-    mainSettings->serialize(ar);
+    mainSettings_old->serialize(ar);
     ar.xmlPopNode();
 
     ar.xmlAddNode_comment(" 'dynamics' tag: has no effect when loading a model ", false);
@@ -2219,10 +2219,10 @@ bool CWorld::_saveSimpleXmlScene(CSer &ar)
         ar.xmlPopNode();
     }
 
-    for (size_t i = 0; i < ikGroups->getObjectCount(); i++)
+    for (size_t i = 0; i < ikGroups_old->getObjectCount(); i++)
     { // Old:
         ar.xmlPushNewNode(SERX_IK);
-        ikGroups->getObjectFromIndex(i)->serialize(ar);
+        ikGroups_old->getObjectFromIndex(i)->serialize(ar);
         ar.xmlPopNode();
     }
 
@@ -2237,7 +2237,7 @@ void CWorld::_getMinAndMaxNameSuffixes(int &smallestSuffix, int &biggestSuffix) 
     smallestSuffix = SIM_MAX_INT;
     biggestSuffix = -1;
     int minS, maxS;
-    buttonBlockContainer->getMinAndMaxNameSuffixes(minS, maxS);
+    buttonBlockContainer_old->getMinAndMaxNameSuffixes(minS, maxS);
     if (minS < smallestSuffix)
         smallestSuffix = minS;
     if (maxS > biggestSuffix)
@@ -2247,12 +2247,12 @@ void CWorld::_getMinAndMaxNameSuffixes(int &smallestSuffix, int &biggestSuffix) 
         smallestSuffix = minS;
     if (maxS > biggestSuffix)
         biggestSuffix = maxS;
-    collisions->getMinAndMaxNameSuffixes(minS, maxS);
+    collisions_old->getMinAndMaxNameSuffixes(minS, maxS);
     if (minS < smallestSuffix)
         smallestSuffix = minS;
     if (maxS > biggestSuffix)
         biggestSuffix = maxS;
-    distances->getMinAndMaxNameSuffixes(minS, maxS);
+    distances_old->getMinAndMaxNameSuffixes(minS, maxS);
     if (minS < smallestSuffix)
         smallestSuffix = minS;
     if (maxS > biggestSuffix)
@@ -2262,12 +2262,12 @@ void CWorld::_getMinAndMaxNameSuffixes(int &smallestSuffix, int &biggestSuffix) 
         smallestSuffix = minS;
     if (maxS > biggestSuffix)
         biggestSuffix = maxS;
-    ikGroups->getMinAndMaxNameSuffixes(minS, maxS);
+    ikGroups_old->getMinAndMaxNameSuffixes(minS, maxS);
     if (minS < smallestSuffix)
         smallestSuffix = minS;
     if (maxS > biggestSuffix)
         biggestSuffix = maxS;
-    pathPlanning->getMinAndMaxNameSuffixes(minS, maxS);
+    pathPlanning_old->getMinAndMaxNameSuffixes(minS, maxS);
     if (minS < smallestSuffix)
         smallestSuffix = minS;
     if (maxS > biggestSuffix)
@@ -2372,17 +2372,17 @@ bool CWorld::_canSuffix1BeSetToSuffix2(int suffix1, int suffix2) const
 {
     if (!sceneObjects->canSuffix1BeSetToSuffix2(suffix1, suffix2))
         return (false);
-    if (!buttonBlockContainer->canSuffix1BeSetToSuffix2(suffix1, suffix2))
+    if (!buttonBlockContainer_old->canSuffix1BeSetToSuffix2(suffix1, suffix2))
         return (false);
-    if (!collisions->canSuffix1BeSetToSuffix2(suffix1, suffix2))
+    if (!collisions_old->canSuffix1BeSetToSuffix2(suffix1, suffix2))
         return (false);
-    if (!distances->canSuffix1BeSetToSuffix2(suffix1, suffix2))
+    if (!distances_old->canSuffix1BeSetToSuffix2(suffix1, suffix2))
         return (false);
     if (!collections->canSuffix1BeSetToSuffix2(suffix1, suffix2))
         return (false);
-    if (!ikGroups->canSuffix1BeSetToSuffix2(suffix1, suffix2))
+    if (!ikGroups_old->canSuffix1BeSetToSuffix2(suffix1, suffix2))
         return (false);
-    if (!pathPlanning->canSuffix1BeSetToSuffix2(suffix1, suffix2))
+    if (!pathPlanning_old->canSuffix1BeSetToSuffix2(suffix1, suffix2))
         return (false);
     return (true);
 }
@@ -2390,12 +2390,12 @@ bool CWorld::_canSuffix1BeSetToSuffix2(int suffix1, int suffix2) const
 void CWorld::_setSuffix1ToSuffix2(int suffix1, int suffix2)
 {
     sceneObjects->setSuffix1ToSuffix2(suffix1, suffix2);
-    buttonBlockContainer->setSuffix1ToSuffix2(suffix1, suffix2);
-    collisions->setSuffix1ToSuffix2(suffix1, suffix2);
-    distances->setSuffix1ToSuffix2(suffix1, suffix2);
+    buttonBlockContainer_old->setSuffix1ToSuffix2(suffix1, suffix2);
+    collisions_old->setSuffix1ToSuffix2(suffix1, suffix2);
+    distances_old->setSuffix1ToSuffix2(suffix1, suffix2);
     collections->setSuffix1ToSuffix2(suffix1, suffix2);
-    ikGroups->setSuffix1ToSuffix2(suffix1, suffix2);
-    pathPlanning->setSuffix1ToSuffix2(suffix1, suffix2);
+    ikGroups_old->setSuffix1ToSuffix2(suffix1, suffix2);
+    pathPlanning_old->setSuffix1ToSuffix2(suffix1, suffix2);
 }
 
 void CWorld::appendLoadOperationIssue(int verbosity, const char *text, int objectId)
@@ -2440,6 +2440,10 @@ int CWorld::setBoolProperty(int target, const char* ppName, bool pState)
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setBoolProperty(pName, pState);
+        if ( (retVal == -1) && (simulation != nullptr) )
+            retVal = simulation->setBoolProperty(pName, pState);
+        if ( (retVal == -1) && (environment != nullptr) )
+            retVal = environment->setBoolProperty(pName, pState);
         if (retVal == -1)
         {
         }
@@ -2460,6 +2464,10 @@ int CWorld::getBoolProperty(int target, const char* ppName, bool& pState) const
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getBoolProperty(pName, pState);
+        if ( (retVal == -1) && (simulation != nullptr) )
+            retVal = simulation->getBoolProperty(pName, pState);
+        if ( (retVal == -1) && (environment != nullptr) )
+            retVal = environment->getBoolProperty(pName, pState);
         if (retVal == -1)
         {
         }
@@ -2480,13 +2488,12 @@ int CWorld::setIntProperty(int target, const char* ppName, int pState)
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntProperty(pName, pState);
+        if ( (retVal == -1) && (simulation != nullptr) )
+            retVal = simulation->setIntProperty(pName, pState);
+        if ( (retVal == -1) && (environment != nullptr) )
+            retVal = environment->setIntProperty(pName, pState);
         if (retVal == -1)
         {
-            if (strcmp(pName, propScene_visibilityLayers.name) == 0)
-            {
-                environment->setActiveLayers(pState);
-                retVal = 1;
-            }
         }
     }
     else if (target >= 0)
@@ -2505,18 +2512,12 @@ int CWorld::getIntProperty(int target, const char* ppName, int& pState) const
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntProperty(pName, pState);
+        if ( (retVal == -1) && (simulation != nullptr) )
+            retVal = simulation->getIntProperty(pName, pState);
+        if ( (retVal == -1) && (environment != nullptr) )
+            retVal = environment->getIntProperty(pName, pState);
         if (retVal == -1)
         {
-            if (strcmp(pName, propScene_sceneUid.name) == 0)
-            {
-                pState = environment->getSceneUniqueID();
-                retVal = 1;
-            }
-            else if (strcmp(pName, propScene_visibilityLayers.name) == 0)
-            {
-                pState = environment->getActiveLayers();
-                retVal = 1;
-            }
         }
     }
     else if (target >= 0)
@@ -2535,6 +2536,8 @@ int CWorld::setFloatProperty(int target, const char* ppName, double pState)
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setFloatProperty(pName, pState);
+        if ( (retVal == -1) && (simulation != nullptr) )
+            retVal = simulation->setFloatProperty(pName, pState);
         if (retVal == -1)
         {
         }
@@ -2555,6 +2558,8 @@ int CWorld::getFloatProperty(int target, const char* ppName, double& pState) con
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getFloatProperty(pName, pState);
+        if ( (retVal == -1) && (simulation != nullptr) )
+            retVal = simulation->getFloatProperty(pName, pState);
         if (retVal == -1)
         {
         }
@@ -2575,6 +2580,8 @@ int CWorld::setStringProperty(int target, const char* ppName, const char* pState
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setStringProperty(pName, pState);
+        if ( (retVal == -1) && (environment != nullptr) )
+            retVal = environment->setStringProperty(pName, pState);
         if (retVal == -1)
         {
         }
@@ -2595,6 +2602,8 @@ int CWorld::getStringProperty(int target, const char* ppName, std::string& pStat
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getStringProperty(pName, pState);
+        if ( (retVal == -1) && (environment != nullptr) )
+            retVal = environment->getStringProperty(pName, pState);
         if (retVal == -1)
         {
         }
@@ -2834,7 +2843,11 @@ int CWorld::setColorProperty(int target, const char* ppName, const float* pState
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (environment != nullptr)
+            retVal = environment->setColorProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->setColorProperty(target, pName, pState);
@@ -2850,7 +2863,11 @@ int CWorld::getColorProperty(int target, const char* ppName, float* pState) cons
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (environment != nullptr)
+            retVal = environment->getColorProperty(pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->getColorProperty(target, pName, pState);
@@ -2978,20 +2995,10 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName, std::str
     {
         if (App::currentWorld->dynamicsContainer != nullptr)
             retVal = App::currentWorld->dynamicsContainer->getPropertyName(index, pName);
-        if (retVal == -1)
-        {
-            for (size_t i = 0; i < allProps_scene.size(); i++)
-            {
-                index--;
-                if (index == -1)
-                {
-                    pName = allProps_scene[i].name;
-                    //pName = "scene." + pName;
-                    retVal = 1;
-                    break;
-                }
-            }
-        }
+        if ( (retVal == -1) && (App::currentWorld->simulation != nullptr) )
+            retVal = App::currentWorld->simulation->getPropertyName(index, pName);
+        if ( (retVal == -1) && (App::currentWorld->environment != nullptr) )
+            retVal = App::currentWorld->environment->getPropertyName(index, pName);
         if (retVal == -1)
         {
             if (targetObject != nullptr)
@@ -3026,19 +3033,10 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, int& size
     {
         if (App::currentWorld->dynamicsContainer != nullptr)
             retVal = App::currentWorld->dynamicsContainer->getPropertyInfo(pName, info, size);
-        if (retVal == -1)
-        {
-            for (size_t i = 0; i < allProps_scene.size(); i++)
-            {
-                if (strcmp(allProps_scene[i].name, pName) == 0)
-                {
-                    retVal = allProps_scene[i].type;
-                    info = allProps_scene[i].flags;
-                    size = 0;
-                    break;
-                }
-            }
-        }
+        if ( (retVal == -1) && (App::currentWorld->simulation != nullptr) )
+            retVal = App::currentWorld->simulation->getPropertyInfo(pName, info, size);
+        if ( (retVal == -1) && (App::currentWorld->environment != nullptr) )
+            retVal = App::currentWorld->environment->getPropertyInfo(pName, info, size);
         if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
         {
             if (targetObject != nullptr)
@@ -3072,11 +3070,11 @@ void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase *
                                                                  int windowSize[2], double verticalViewSizeOrAngle,
                                                                  bool perspective)
 {
-    distances->renderYour3DStuff(renderingObject, displayAttrib);
+    distances_old->renderYour3DStuff(renderingObject, displayAttrib);
     drawingCont->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib);
-    pointCloudCont->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib);
-    ghostObjectCont->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib);
-    bannerCont->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
+    pointCloudCont_old->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib);
+    ghostObjectCont_old->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib);
+    bannerCont_old->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
                                                  perspective);
     dynamicsContainer->renderYour3DStuff(renderingObject, displayAttrib);
 }
@@ -3086,9 +3084,9 @@ void CWorld::renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase *r
                                                                 bool perspective)
 {
     drawingCont->renderYour3DStuff_transparent(renderingObject, displayAttrib);
-    pointCloudCont->renderYour3DStuff_transparent(renderingObject, displayAttrib);
-    ghostObjectCont->renderYour3DStuff_transparent(renderingObject, displayAttrib);
-    bannerCont->renderYour3DStuff_transparent(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
+    pointCloudCont_old->renderYour3DStuff_transparent(renderingObject, displayAttrib);
+    ghostObjectCont_old->renderYour3DStuff_transparent(renderingObject, displayAttrib);
+    bannerCont_old->renderYour3DStuff_transparent(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
                                               perspective);
 }
 
@@ -3097,11 +3095,11 @@ void CWorld::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase 
                                                                   bool perspective)
 {
     drawingCont->renderYour3DStuff_overlay(renderingObject, displayAttrib);
-    pointCloudCont->renderYour3DStuff_overlay(renderingObject, displayAttrib);
-    ghostObjectCont->renderYour3DStuff_overlay(renderingObject, displayAttrib);
-    bannerCont->renderYour3DStuff_overlay(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
+    pointCloudCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib);
+    ghostObjectCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib);
+    bannerCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
                                           perspective);
-    collisions->renderYour3DStuff(renderingObject, displayAttrib);
+    collisions_old->renderYour3DStuff(renderingObject, displayAttrib);
     dynamicsContainer->renderYour3DStuff_overlay(renderingObject, displayAttrib);
 }
 #endif

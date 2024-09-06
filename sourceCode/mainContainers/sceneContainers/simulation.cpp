@@ -101,7 +101,17 @@ bool CSimulation::getFullscreenAtSimulationStart() const
 
 void CSimulation::setRemoveNewObjectsAtSimulationEnd(bool r)
 {
-    _removeNewObjectsAtSimulationEnd = r;
+    bool diff = (_removeNewObjectsAtSimulationEnd != r);
+    if (diff)
+    {
+        _removeNewObjectsAtSimulationEnd = r;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_removeNewObjectsAtEnd.name, true);
+            ev->appendKeyBool(propSim_removeNewObjectsAtEnd.name, _removeNewObjectsAtSimulationEnd);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 bool CSimulation::getRemoveNewObjectsAtSimulationEnd() const
@@ -111,7 +121,17 @@ bool CSimulation::getRemoveNewObjectsAtSimulationEnd() const
 
 void CSimulation::setResetSceneAtSimulationEnd(bool r)
 {
-    _resetSimulationAtEnd = r;
+    bool diff = (_resetSimulationAtEnd != r);
+    if (diff)
+    {
+        _resetSimulationAtEnd = r;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_resetSimulationAtEnd.name, true);
+            ev->appendKeyBool(propSim_resetSimulationAtEnd.name, _resetSimulationAtEnd);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 bool CSimulation::getResetSceneAtSimulationEnd() const
@@ -235,7 +255,7 @@ bool CSimulation::startOrResumeSimulation()
         _requestToStop = false;
         _requestToPause = false;
         simulationTime_real_lastInMs = (int)VDateTime::getTimeInMs();
-        _simulationStepCount = 0;
+        setSimulationStepCount(0);
         setSimulationState(sim_simulation_advancing_firstafterstop);
         return (true);
     }
@@ -335,7 +355,7 @@ void CSimulation::advanceSimulationByOneStep()
 
     App::worldContainer->simulationAboutToStep();
 
-    _simulationStepCount++;
+    setSimulationStepCount(_simulationStepCount + 1);
     if (_simulationStepCount == 1)
         _realTimeCorrection = 0.0;
 
@@ -407,7 +427,7 @@ void CSimulation::advanceSimulationByOneStep()
 
 int CSimulation::getSimulationState() const
 {
-    return (_simulationState);
+    return _simulationState;
 }
 
 void CSimulation::setTimeStep(double dt)
@@ -418,10 +438,20 @@ void CSimulation::setTimeStep(double dt)
             dt = 0.0001;
         if (dt > 10.0)
             dt = 10.0;
-        _simulationTimeStep = dt;
+        bool diff = (_simulationTimeStep != dt);
+        if (diff)
+        {
+            _simulationTimeStep = dt;
+            if (App::worldContainer->getEventsEnabled())
+            {
+                CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_timeStep.name, true);
+                ev->appendKeyDouble(propSim_timeStep.name, _simulationTimeStep);
+                App::worldContainer->pushEvent();
+            }
 #ifdef SIM_WITH_GUI
-        GuiApp::setFullDialogRefreshFlag();
+            GuiApp::setFullDialogRefreshFlag();
 #endif
+        }
     }
 }
 
@@ -446,7 +476,19 @@ double CSimulation::getRealTimeCoeff() const
 void CSimulation::setIsRealTimeSimulation(bool realTime)
 {
     if (isSimulationStopped())
-        _realTimeSimulation = realTime;
+    {
+        bool diff = (_realTimeSimulation != realTime);
+        if (diff)
+        {
+            _realTimeSimulation = realTime;
+            if (App::worldContainer->getEventsEnabled())
+            {
+                CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_realtimeSimulation.name, true);
+                ev->appendKeyBool(propSim_realtimeSimulation.name, _realTimeSimulation);
+                App::worldContainer->pushEvent();
+            }
+        }
+    }
 }
 
 bool CSimulation::isRealTimeCalculationStepNeeded() const
@@ -472,7 +514,17 @@ void CSimulation::setRealTimeCoeff(double coeff)
         coeff = 0.0;
     if (coeff > 100.0)
         coeff = 100.0;
-    _realTimeCoefficient = coeff;
+    bool diff = (_realTimeCoefficient != coeff);
+    if (diff)
+    {
+        _realTimeCoefficient = coeff;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_realtimeModifier.name, true);
+            ev->appendKeyDouble(propSim_realtimeModifier.name, _realTimeCoefficient);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 void CSimulation::setPassesPerRendering(int n)
@@ -480,15 +532,55 @@ void CSimulation::setPassesPerRendering(int n)
     if (isSimulationStopped())
     {
         tt::limitValue(1, 200, n);
-        _simulationPassesPerRendering = n;
+        bool diff = (_simulationPassesPerRendering != n);
+        if (diff)
+        {
+            _simulationPassesPerRendering = n;
+            if (App::worldContainer->getEventsEnabled())
+            {
+                CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_stepsPerRendering.name, true);
+                ev->appendKeyInt(propSim_stepsPerRendering.name, _simulationPassesPerRendering);
+                App::worldContainer->pushEvent();
+            }
+        }
+    }
+}
+
+void CSimulation::setSimulationStepCount(int cnt)
+{
+    bool diff = (_simulationStepCount != cnt);
+    if (diff)
+    {
+        _simulationStepCount = cnt;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_stepCount.name, true);
+            ev->appendKeyInt(propSim_stepCount.name, _simulationStepCount);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
 void CSimulation::pushGenesisEvents() const
 {
     CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, nullptr, false);
-    ev->appendKeyInt("state", getSimulationState());
-    ev->appendKeyInt("time", int(getSimulationTime() * 1000.0));
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    ev->appendKeyInt("state", _simulationState);
+    ev->appendKeyInt("time", int(_simulationTime * 1000.0));
+#else
+    ev->appendKeyBool(propSim_resetSimulationAtEnd.name, _resetSimulationAtEnd);
+    ev->appendKeyBool(propSim_removeNewObjectsAtEnd.name, _removeNewObjectsAtSimulationEnd);
+    ev->appendKeyBool(propSim_realtimeSimulation.name, _realTimeSimulation);
+    ev->appendKeyBool(propSim_pauseSimulationAtTime.name, _pauseAtSpecificTime);
+    ev->appendKeyBool(propSim_pauseSimulationAtError.name, _pauseAtError);
+    ev->appendKeyInt(propSim_simulationState.name, _simulationState);
+    ev->appendKeyInt(propSim_stepCount.name, _simulationStepCount);
+    ev->appendKeyInt(propSim_stepsPerRendering.name, _simulationPassesPerRendering);
+    ev->appendKeyDouble(propSim_simulationTime.name, _simulationTime);
+    ev->appendKeyDouble(propSim_timeStep.name, _simulationTimeStep);
+    ev->appendKeyDouble(propSim_timeToPause.name, _simulationTimeToPause);
+    ev->appendKeyDouble(propSim_realtimeModifier.name, _realTimeCoefficient);
+#endif
     App::worldContainer->pushEvent();
 }
 
@@ -500,9 +592,14 @@ void CSimulation::setSimulationState(int state)
         _simulationState = state;
         if (App::worldContainer->getEventsEnabled())
         {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
             const char *cmd = "state";
             CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, cmd, true);
             ev->appendKeyInt(cmd, _simulationState);
+#else
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_simulationState.name, true);
+            ev->appendKeyInt(propSim_simulationState.name, _simulationState);
+#endif
             App::worldContainer->pushEvent();
         }
     }
@@ -545,7 +642,17 @@ bool CSimulation::_getSimulationTimeHistoryDurations(double &simTime, double &si
 
 void CSimulation::setPauseAtError(bool br)
 {
-    _pauseAtError = br;
+    bool diff = (_pauseAtError != br);
+    if (diff)
+    {
+        _pauseAtError = br;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_pauseSimulationAtError.name, true);
+            ev->appendKeyBool(propSim_pauseSimulationAtError.name, _pauseAtError);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 bool CSimulation::getPauseAtError() const
@@ -568,7 +675,17 @@ void CSimulation::setPauseTime(double time)
         time = 0.001;
     if (time > 604800.0)
         time = 604800.0;
-    _simulationTimeToPause = time;
+    bool diff = (_simulationTimeToPause != time);
+    if (diff)
+    {
+        _simulationTimeToPause = time;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_timeToPause.name, true);
+            ev->appendKeyDouble(propSim_timeToPause.name, _simulationTimeToPause);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 double CSimulation::getPauseTime() const
@@ -583,12 +700,22 @@ bool CSimulation::getPauseAtSpecificTime() const
 
 void CSimulation::setPauseAtSpecificTime(bool e)
 {
-    _pauseAtSpecificTime = e;
+    bool diff = (_pauseAtSpecificTime != e);
+    if (diff)
+    {
+        _pauseAtSpecificTime = e;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_pauseSimulationAtTime.name, true);
+            ev->appendKeyBool(propSim_pauseSimulationAtTime.name, _pauseAtSpecificTime);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 double CSimulation::getSimulationTime() const
 {
-    return (_simulationTime);
+    return _simulationTime;
 }
 
 void CSimulation::_setSimulationTime(double t)
@@ -599,9 +726,14 @@ void CSimulation::_setSimulationTime(double t)
         _simulationTime = t;
         if (App::worldContainer->getEventsEnabled())
         {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
             const char *cmd = "time";
             CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, cmd, true);
             ev->appendKeyInt(cmd, int(_simulationTime * 1000.0));
+#else
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_SIMULATIONCHANGED, -1, propSim_simulationTime.name, true);
+            ev->appendKeyDouble(propSim_simulationTime.name, _simulationTime);
+#endif
             App::worldContainer->pushEvent();
         }
     }
@@ -1383,3 +1515,189 @@ void CSimulation::keyPress(int key)
 }
 
 #endif
+
+int CSimulation::setBoolProperty(const char* pName, bool pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propSim_resetSimulationAtEnd.name) == 0)
+    {
+        retVal = 1;
+        setResetSceneAtSimulationEnd(pState);
+    }
+    else if (strcmp(pName, propSim_removeNewObjectsAtEnd.name) == 0)
+    {
+        retVal = 1;
+        setRemoveNewObjectsAtSimulationEnd(pState);
+    }
+    else if (strcmp(pName, propSim_realtimeSimulation.name) == 0)
+    {
+        retVal = 1;
+        setIsRealTimeSimulation(pState);
+    }
+    else if (strcmp(pName, propSim_pauseSimulationAtTime.name) == 0)
+    {
+        retVal = 1;
+        setPauseAtSpecificTime(pState);
+    }
+    else if (strcmp(pName, propSim_pauseSimulationAtError.name) == 0)
+    {
+        retVal = 1;
+        setPauseAtError(pState);
+    }
+
+    return retVal;
+}
+
+int CSimulation::getBoolProperty(const char* pName, bool& pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propSim_resetSimulationAtEnd.name) == 0)
+    {
+        pState = _resetSimulationAtEnd;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_removeNewObjectsAtEnd.name) == 0)
+    {
+        pState = _removeNewObjectsAtSimulationEnd;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_realtimeSimulation.name) == 0)
+    {
+        pState = _realTimeSimulation;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_pauseSimulationAtTime.name) == 0)
+    {
+        pState = _pauseAtSpecificTime;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_pauseSimulationAtError.name) == 0)
+    {
+        pState = _pauseAtError;
+        retVal = 1;
+    }
+
+    return retVal;
+}
+
+int CSimulation::setIntProperty(const char* pName, int pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propSim_stepsPerRendering.name) == 0)
+    {
+        retVal = 1;
+        setPassesPerRendering(pState);
+    }
+
+    return retVal;
+}
+
+int CSimulation::getIntProperty(const char* pName, int& pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propSim_stepCount.name) == 0)
+    {
+        pState = _simulationStepCount;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_stepsPerRendering.name) == 0)
+    {
+        pState = _simulationPassesPerRendering;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_simulationState.name) == 0)
+    {
+        pState = _simulationState;
+        retVal = 1;
+    }
+
+    return retVal;
+}
+
+int CSimulation::setFloatProperty(const char* pName, double pState)
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propSim_timeStep.name) == 0)
+    {
+        setTimeStep(pState);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_timeToPause.name) == 0)
+    {
+        setPauseTime(pState);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_realtimeModifier.name) == 0)
+    {
+        setRealTimeCoeff(pState);
+        retVal = 1;
+    }
+
+    return retVal;
+}
+
+int CSimulation::getFloatProperty(const char* pName, double& pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propSim_timeStep.name) == 0)
+    {
+        pState = _simulationTimeStep;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_timeToPause.name) == 0)
+    {
+        pState = _simulationTimeToPause;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_realtimeModifier.name) == 0)
+    {
+        pState = _realTimeCoefficient;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_simulationTime.name) == 0)
+    {
+        pState = _simulationTime;
+        retVal = 1;
+    }
+
+    return retVal;
+}
+
+int CSimulation::getPropertyName(int& index, std::string& pName) const
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_sim.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps_sim[i].name;
+            retVal = 1;
+            break;
+        }
+    }
+    return retVal;
+}
+
+int CSimulation::getPropertyInfo(const char* pName, int& info, int& size) const
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_sim.size(); i++)
+    {
+        if (strcmp(allProps_sim[i].name, pName) == 0)
+        {
+            retVal = allProps_sim[i].type;
+            info = allProps_sim[i].flags;
+            size = 0;
+            break;
+        }
+    }
+    return retVal;
+}
+

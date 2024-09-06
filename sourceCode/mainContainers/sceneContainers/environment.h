@@ -6,6 +6,28 @@
 #include <vMenubar.h>
 #endif
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propScene_finalSaveRequest,       "finalSaveRequest",             sim_propertytype_bool,       0) \
+    FUNCX(propScene_sceneIsLocked,          "sceneIsLocked",                sim_propertytype_bool,       1) \
+    FUNCX(propScene_saveCalculationStructs, "saveCalculationStructs",       sim_propertytype_bool,       0) \
+    FUNCX(propScene_sceneUid,               "sceneUid",                     sim_propertytype_int,        1) \
+    FUNCX(propScene_visibilityLayers,       "visibilityLayers",             sim_propertytype_int,        0) \
+    FUNCX(propScene_scenePath,              "scenePath",                    sim_propertytype_string,     0) \
+    FUNCX(propScene_acknowledgment,         "acknowledgment",               sim_propertytype_string,     0) \
+    FUNCX(propScene_sceneUidString,         "sceneUidString",               sim_propertytype_string,     1) \
+    FUNCX(propScene_ambientLight,           "ambientLight",                 sim_propertytype_color,      0) \
+
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<SProperty> allProps_scene = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 class CCamera;
 class CViewableBase;
 
@@ -61,6 +83,18 @@ class CEnvironment
     std::string getExtensionString() const;
     void setExtensionString(const char *str);
 
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState) const;
+    int setStringProperty(const char* pName, const char* pState);
+    int getStringProperty(const char* pName, std::string& pState) const;
+    int setColorProperty(const char* pName, const float* pState);
+    int getColorProperty(const char* pName, float* pState) const;
+    int getPropertyName(int& index, std::string& pName);
+    int getPropertyInfo(const char* pName, int& info, int& size);
+
+    void setAmbientLight(const float c[3]);
     void setFogEnabled(bool e);
     bool getFogEnabled() const;
     void setFogDensity(double d);
@@ -75,6 +109,13 @@ class CEnvironment
     void setNonAmbientLightsActive(bool a);
     void setActiveLayers(unsigned short l);
     unsigned short getActiveLayers() const;
+
+    void setScenePathAndName(const char *pathAndName);
+    std::string getScenePathAndName() const;
+    std::string getScenePath() const;
+    std::string getSceneName() const;
+    std::string getSceneNameForUi() const;
+    std::string getSceneNameWithExt() const;
 
     void generateNewUniquePersistentIdString();
     std::string getUniquePersistentIdString() const;
@@ -119,6 +160,8 @@ class CEnvironment
     std::string _extensionString;
 
     int _sceneUniqueID;
+
+    std::string _scenePathAndName;
 
     static bool _shapeTexturesTemporarilyDisabled;
     static bool _shapeEdgesTemporarilyDisabled;

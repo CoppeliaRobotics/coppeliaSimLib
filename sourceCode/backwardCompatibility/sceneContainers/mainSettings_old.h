@@ -1,7 +1,5 @@
 #pragma once
-
-#include <colorObject.h>
-#include <viewableBase.h>
+#include <ser.h>
 
 class CMainSettings
 {
@@ -11,18 +9,9 @@ class CMainSettings
     void serialize(CSer &ar);
     void setUpDefaultValues();
 
-    void setScenePathAndName(const char *pathAndName);
-    std::string getScenePathAndName() const;
-    std::string getScenePath() const;
-    std::string getSceneName() const;
-    std::string getSceneNameForUi() const;
-    std::string getSceneNameWithExt() const;
-
     int dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012;
     int dynamicsODEStepSizeDivider_forBackwardCompatibility_03_01_2012;
     bool forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers;
-
-    CColorObject collisionColor;
 
     bool ikCalculationEnabled;
     bool gcsCalculationEnabled;
@@ -37,8 +26,4 @@ class CMainSettings
     bool clippingPlanesDisabled;
     int infoWindowColorStyle;
     bool infoWindowOpenState;
-    bool statusBoxOpenState;
-
-  private:
-    std::string _scenePathAndName;
 };

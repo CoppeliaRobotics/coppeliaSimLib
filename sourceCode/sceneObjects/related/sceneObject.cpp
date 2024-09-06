@@ -4015,17 +4015,17 @@ void CSceneObject::setReferencedHandles(size_t cnt, const int *handles, const ch
                         r.generalObjectHandle = handles[i];
                     else
                     { // backw. compatibility:
-                        if (App::currentWorld->collisions->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentWorld->collisions_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_collision_type;
                             r.generalObjectHandle = handles[i];
                         }
-                        if (App::currentWorld->distances->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentWorld->distances_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_distance_type;
                             r.generalObjectHandle = handles[i];
                         }
-                        if (App::currentWorld->ikGroups->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentWorld->ikGroups_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_ik_type;
                             r.generalObjectHandle = handles[i];
@@ -4108,26 +4108,26 @@ void CSceneObject::setReferencedOriginalHandles(int cnt, const int *handles, con
                     }
                     else
                     { // backw. compatibility
-                        if (App::currentWorld->collisions->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentWorld->collisions_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_collision_type;
                             r.generalObjectHandle = handles[i];
                             r.uniquePersistentIdString =
-                                App::currentWorld->collisions->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                                App::currentWorld->collisions_old->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
                         }
-                        if (App::currentWorld->distances->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentWorld->distances_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_distance_type;
                             r.generalObjectHandle = handles[i];
                             r.uniquePersistentIdString =
-                                App::currentWorld->distances->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                                App::currentWorld->distances_old->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
                         }
-                        if (App::currentWorld->ikGroups->getObjectFromHandle(handles[i]) != nullptr)
+                        if (App::currentWorld->ikGroups_old->getObjectFromHandle(handles[i]) != nullptr)
                         {
                             r.generalObjectType = sim_appobj_ik_type;
                             r.generalObjectHandle = handles[i];
                             r.uniquePersistentIdString =
-                                App::currentWorld->ikGroups->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
+                                App::currentWorld->ikGroups_old->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
                         }
                         if (App::currentWorld->collections->getObjectFromHandle(handles[i]) != nullptr)
                         {

@@ -38,8 +38,8 @@ void CQDlgMirrors::refresh()
     ui->qqDisableAllMirrors->setEnabled(noEditMode);
     ui->qqDisableAllClippingPlanes->setEnabled(noEditMode);
 
-    ui->qqDisableAllMirrors->setChecked(App::currentWorld->mainSettings->mirrorsDisabled);
-    ui->qqDisableAllClippingPlanes->setChecked(App::currentWorld->mainSettings->clippingPlanesDisabled);
+    ui->qqDisableAllMirrors->setChecked(App::currentWorld->mainSettings_old->mirrorsDisabled);
+    ui->qqDisableAllClippingPlanes->setChecked(App::currentWorld->mainSettings_old->clippingPlanesDisabled);
 
     ui->qqEnabled->setEnabled((it != nullptr) && noEditModeAndNoSim);
     ui->qqWidth->setEnabled((it != nullptr) && noEditModeAndNoSim);

@@ -2193,7 +2193,7 @@ void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int 
 
         C3Vector MirrCam(camTr.X - mtr.X);
         bool inFrontOfMirror =
-            (((MirrCam * mtrN) > 0.0) && myMirror->getActive() && (!App::currentWorld->mainSettings->mirrorsDisabled));
+            (((MirrCam * mtrN) > 0.0) && myMirror->getActive() && (!App::currentWorld->mainSettings_old->mirrorsDisabled));
 
         glStencilFunc(GL_ALWAYS, drawOk, drawOk);  // we can draw everywhere
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); // we draw drawOk where depth test passes
@@ -3185,7 +3185,7 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
             int data[4] = {hitThatIgnoresTheSelectableFlag, 0, 0, 0};
             App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
                 sim_message_eventcallback_pickselectdown, data);
-            App::currentWorld->outsideCommandQueue->addCommand(sim_message_pick_select_down,
+            App::currentWorld->outsideCommandQueue_old->addCommand(sim_message_pick_select_down,
                                                                hitThatIgnoresTheSelectableFlag, 0, 0, 0, nullptr, 0);
 
             return (hitId);
@@ -3199,7 +3199,7 @@ void CCamera::_handleBannerClick(int bannerID)
     TRACE_INTERNAL;
     if (GuiApp::getEditModeType() != NO_EDIT_MODE)
         return;
-    CBannerObject *it = App::currentWorld->bannerCont->getObject(bannerID);
+    CBannerObject *it = App::currentWorld->bannerCont_old->getObject(bannerID);
     if ((it != nullptr) && it->isVisible())
     {
         if (it->getOptions() & sim_banner_clickselectsparent)
@@ -3208,7 +3208,7 @@ void CCamera::_handleBannerClick(int bannerID)
                 App::currentWorld->sceneObjects->addObjectToSelection(it->getParentObjectHandle());
         }
         if (it->getOptions() & sim_banner_clicktriggersevent)
-            App::currentWorld->outsideCommandQueue->addCommand(sim_message_bannerclicked, bannerID, 0, 0, 0, nullptr,
+            App::currentWorld->outsideCommandQueue_old->addCommand(sim_message_bannerclicked, bannerID, 0, 0, 0, nullptr,
                                                                0);
     }
 }

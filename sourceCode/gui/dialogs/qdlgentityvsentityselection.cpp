@@ -259,9 +259,9 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
     if (mode == 0)
     {
         // We check if such an object already exists:
-        for (size_t i = 0; i < App::currentWorld->collisions->getObjectCount(); i++)
+        for (size_t i = 0; i < App::currentWorld->collisions_old->getObjectCount(); i++)
         {
-            if (App::currentWorld->collisions->getObjectFromIndex(i)->isSame(entity1, entity2))
+            if (App::currentWorld->collisions_old->getObjectFromIndex(i)->isSame(entity1, entity2))
             {
                 GuiApp::uiThread->messageBox_warning(this, IDSN_COLLISION_DISTANCE_OBJECT,
                                                      IDS_SIMILAR_OBJECT_ALREADY_EXISTS, VMESSAGEBOX_OKELI,
@@ -327,9 +327,9 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         if (mode == 1)
         {
             // We check if such an object already exists:
-            for (size_t i = 0; i < App::currentWorld->distances->getObjectCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->distances_old->getObjectCount(); i++)
             {
-                if (App::currentWorld->distances->getObjectFromIndex(i)->isSame(entity1, entity2))
+                if (App::currentWorld->distances_old->getObjectFromIndex(i)->isSame(entity1, entity2))
                 {
                     GuiApp::uiThread->messageBox_warning(this, IDSN_COLLISION_DISTANCE_OBJECT,
                                                          IDS_SIMILAR_OBJECT_ALREADY_EXISTS, VMESSAGEBOX_OKELI,

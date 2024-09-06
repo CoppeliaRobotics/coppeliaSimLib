@@ -792,9 +792,9 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double &va
         if (dataIndex == GRAPH_NOOBJECT_COLLISION_QUANTITY)
         {
             int q = 0;
-            for (size_t i = 0; i < App::currentWorld->collisions->getObjectCount(); i++)
+            for (size_t i = 0; i < App::currentWorld->collisions_old->getObjectCount(); i++)
             {
-                CCollisionObject_old *aColl = App::currentWorld->collisions->getObjectFromIndex(i);
+                CCollisionObject_old *aColl = App::currentWorld->collisions_old->getObjectFromIndex(i);
                 if (aColl != nullptr)
                     if (aColl->getCollisionResult())
                         q++;
@@ -869,7 +869,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double &va
 
     if ((dataIndex > GRAPH_IK_START) && (dataIndex < GRAPH_IK_END))
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(objectID);
+        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         if (dataIndex == GRAPH_IK_CALCULATION_TIME)
@@ -885,7 +885,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double &va
 
     if ((dataIndex > GRAPH_COLLISION_START) && (dataIndex < GRAPH_COLLISION_END))
     {
-        CCollisionObject_old *it = App::currentWorld->collisions->getObjectFromHandle(objectID);
+        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         if (dataIndex == GRAPH_COLLISION_BOOLEAN)
@@ -909,7 +909,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double &va
     }
     if ((dataIndex > GRAPH_DISTANCE_START) && (dataIndex < GRAPH_DISTANCE_END))
     {
-        CDistanceObject_old *it = App::currentWorld->distances->getObjectFromHandle(objectID);
+        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         double dist[7];
@@ -1494,7 +1494,7 @@ bool CGraphingRoutines_old::getGraphObjectName(int dataIndex, int objectID, std:
     // objName is valid only if return value is true
     if ((dataIndex > GRAPH_IK_START) && (dataIndex < GRAPH_IK_END))
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(objectID);
+        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         objName = it->getObjectName();
@@ -1504,7 +1504,7 @@ bool CGraphingRoutines_old::getGraphObjectName(int dataIndex, int objectID, std:
         return (false); // not supported anymore
     if ((dataIndex > GRAPH_COLLISION_START) && (dataIndex < GRAPH_COLLISION_END))
     {
-        CCollisionObject_old *it = App::currentWorld->collisions->getObjectFromHandle(objectID);
+        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         objName = it->getObjectName();
@@ -1512,7 +1512,7 @@ bool CGraphingRoutines_old::getGraphObjectName(int dataIndex, int objectID, std:
     }
     if ((dataIndex > GRAPH_DISTANCE_START) && (dataIndex < GRAPH_DISTANCE_END))
     {
-        CDistanceObject_old *it = App::currentWorld->distances->getObjectFromHandle(objectID);
+        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         objName = it->getObjectName();
@@ -1601,9 +1601,9 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index, int dataIndex
     }
     if ((dataIndex > GRAPH_IK_START) && (dataIndex < GRAPH_IK_END))
     {
-        if (index >= int(App::currentWorld->ikGroups->getObjectCount()))
+        if (index >= int(App::currentWorld->ikGroups_old->getObjectCount()))
             return (false);
-        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromIndex(index);
+        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromIndex(index);
         if (it == nullptr)
             return (false);
         objectID = it->getObjectHandle();
@@ -1613,9 +1613,9 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index, int dataIndex
         return (false); // not supported anymore
     if ((dataIndex > GRAPH_COLLISION_START) && (dataIndex < GRAPH_COLLISION_END))
     {
-        if (index >= int(App::currentWorld->collisions->getObjectCount()))
+        if (index >= int(App::currentWorld->collisions_old->getObjectCount()))
             return (false);
-        CCollisionObject_old *it = App::currentWorld->collisions->getObjectFromIndex(index);
+        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromIndex(index);
         if (it == nullptr)
             return (false);
         objectID = it->getObjectHandle();
@@ -1623,9 +1623,9 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index, int dataIndex
     }
     if ((dataIndex > GRAPH_DISTANCE_START) && (dataIndex < GRAPH_DISTANCE_END))
     {
-        if (index >= int(App::currentWorld->distances->getObjectCount()))
+        if (index >= int(App::currentWorld->distances_old->getObjectCount()))
             return (false);
-        CDistanceObject_old *it = App::currentWorld->distances->getObjectFromIndex(index);
+        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromIndex(index);
         if (it == nullptr)
             return (false);
         objectID = it->getObjectHandle();

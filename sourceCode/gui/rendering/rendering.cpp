@@ -449,7 +449,7 @@ void _enableAuxClippingPlanes(int objID)
 
 void _prepareOrEnableAuxClippingPlanes(bool prepare, int objID)
 {
-    if (App::currentWorld->mainSettings->clippingPlanesDisabled)
+    if (App::currentWorld->mainSettings_old->clippingPlanesDisabled)
         return;
     int cpi = 0;
     for (size_t i = 0; i < App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mirror); i++)

@@ -66,8 +66,8 @@ void displayContainerPageOverlay(const int *position, const int *size, int activ
     glDisable(GL_DEPTH_TEST);
 
     // Now we draw soft dialogs:
-    if (App::currentWorld->buttonBlockContainer != nullptr)
-        App::currentWorld->buttonBlockContainer->displayAllBlocks(activePageIndex, focusObject);
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
+        App::currentWorld->buttonBlockContainer_old->displayAllBlocks(activePageIndex, focusObject);
 
     App::worldContainer->calcInfo->printInformation();
 

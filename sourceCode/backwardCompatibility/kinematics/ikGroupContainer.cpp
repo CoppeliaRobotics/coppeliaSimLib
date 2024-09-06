@@ -193,7 +193,7 @@ void CIkGroupContainer::announceIkGroupWillBeErased(int ikGroupHandle)
 int CIkGroupContainer::computeAllIkGroups(bool exceptExplicitHandling)
 {
     int performedCount = 0;
-    if (App::currentWorld->mainSettings->ikCalculationEnabled)
+    if (App::currentWorld->mainSettings_old->ikCalculationEnabled)
     {
         for (size_t i = 0; i < getObjectCount(); i++)
         {

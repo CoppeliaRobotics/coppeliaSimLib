@@ -4157,7 +4157,7 @@ int _simCheckCollision(luaWrap_lua_State *L)
                 if (entity2Handle == sim_handle_all)
                     entity2Handle = -1;
 
-                if (App::currentWorld->mainSettings->collisionDetectionEnabled)
+                if (App::currentWorld->mainSettings_old->collisionDetectionEnabled)
                 {
                     if (CCollisionRoutine::doEntitiesCollide(entity1Handle, entity2Handle, nullptr, true, true,
                                                              collidingIds))
@@ -4222,7 +4222,7 @@ int _simCheckDistance(luaWrap_lua_State *L)
                     if (entity2Handle == sim_handle_all)
                         entity2Handle = -1;
                     retVal = 0;
-                    if (App::currentWorld->mainSettings->distanceCalculationEnabled)
+                    if (App::currentWorld->mainSettings_old->distanceCalculationEnabled)
                     {
                         int buffer[4];
                         App::currentWorld->cacheData->getCacheDataDist(entity1Handle, entity2Handle, buffer);
@@ -18010,7 +18010,7 @@ int _simSearchPath(luaWrap_lua_State *L)
         }
         if (!foundError)
         {
-            CPathPlanningTask *it = App::currentWorld->pathPlanning->getObject(pathPlanningObjectHandle);
+            CPathPlanningTask *it = App::currentWorld->pathPlanning_old->getObject(pathPlanningObjectHandle);
             if (it == nullptr)
                 errorString = SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT;
             else
@@ -19913,7 +19913,7 @@ int _simTubeOpen(luaWrap_lua_State *L)
         std::string strTmp = luaWrap_lua_tostring(L, 2);
         int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-        retVal = App::currentWorld->commTubeContainer->openTube(luaToInt(L, 1), strTmp.c_str(),
+        retVal = App::currentWorld->commTubeContainer_old->openTube(luaToInt(L, 1), strTmp.c_str(),
                                                                 (it->getScriptType() == sim_scripttype_main) ||
                                                                     (it->getScriptType() == sim_scripttype_simulation),
                                                                 luaToInt(L, 3));
@@ -21174,7 +21174,7 @@ int _simHandleCollision(luaWrap_lua_State *L)
         if ((retVal > 0) && (objHandle >= 0))
         {
             int collObjHandles[2];
-            CCollisionObject_old *it = App::currentWorld->collisions->getObjectFromHandle(objHandle);
+            CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(objHandle);
             if (it != nullptr)
             {
                 it->readCollision(collObjHandles);
@@ -21203,7 +21203,7 @@ int _simReadCollision(luaWrap_lua_State *L)
         if (retVal > 0)
         {
             int collObjHandles[2];
-            CCollisionObject_old *it = App::currentWorld->collisions->getObjectFromHandle(objHandle);
+            CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(objHandle);
             if (it != nullptr)
             {
                 it->readCollision(collObjHandles);
@@ -21414,7 +21414,7 @@ int _simAddBanner(luaWrap_lua_State *L)
                   // interface or an add-on:
                     int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                     CScriptObject *itScrObj = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                    CBannerObject *anObj = App::currentWorld->bannerCont->getObject(retVal);
+                    CBannerObject *anObj = App::currentWorld->bannerCont_old->getObject(retVal);
                     if (anObj != nullptr)
                         anObj->setCreatedFromScript((itScrObj->getScriptType() == sim_scripttype_main) ||
                                                     (itScrObj->getScriptType() == sim_scripttype_simulation));
@@ -21439,7 +21439,7 @@ int _simRemoveBanner(luaWrap_lua_State *L)
         int objectHandle = luaToInt(L, 1);
         if (objectHandle == sim_handle_all)
         { // following condition added here on 2011/01/06 so as not to remove objects created from a C/c++ call
-            App::currentWorld->bannerCont->eraseAllObjects(true);
+            App::currentWorld->bannerCont_old->eraseAllObjects(true);
             retVal = 1;
         }
         else

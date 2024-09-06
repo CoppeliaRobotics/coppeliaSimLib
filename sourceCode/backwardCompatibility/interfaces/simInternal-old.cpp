@@ -220,7 +220,7 @@ int simGetPathPlanningHandle_internal(const char *pathPlanningObjectName)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CPathPlanningTask *it = App::currentWorld->pathPlanning->getObject(pathPlanningObjectNameAdjusted);
+        CPathPlanningTask *it = App::currentWorld->pathPlanning_old->getObject(pathPlanningObjectNameAdjusted);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT);
@@ -299,7 +299,7 @@ int simSearchPath_internal(int pathPlanningObjectHandle, double maximumSearchTim
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CPathPlanningTask *it = App::currentWorld->pathPlanning->getObject(pathPlanningObjectHandle);
+        CPathPlanningTask *it = App::currentWorld->pathPlanning_old->getObject(pathPlanningObjectHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT);
@@ -320,13 +320,13 @@ int simInitializePathSearch_internal(int pathPlanningObjectHandle, double maximu
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CPathPlanningTask *it = App::currentWorld->pathPlanning->getObject(pathPlanningObjectHandle);
+        CPathPlanningTask *it = App::currentWorld->pathPlanning_old->getObject(pathPlanningObjectHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT);
             return (-1);
         }
-        if (App::currentWorld->pathPlanning->getTemporaryPathSearchObjectCount() > 100)
+        if (App::currentWorld->pathPlanning_old->getTemporaryPathSearchObjectCount() > 100)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TOO_MANY_TEMP_OBJECTS);
             return (-1);
@@ -339,7 +339,7 @@ int simInitializePathSearch_internal(int pathPlanningObjectHandle, double maximu
         it->setOriginalTask(oldIt);
         int retVal = -1; // error
         if (it->initiateSteppedSearch(false, maximumSearchTime, searchTimeStep))
-            retVal = App::currentWorld->pathPlanning->addTemporaryPathSearchObject(it);
+            retVal = App::currentWorld->pathPlanning_old->addTemporaryPathSearchObject(it);
         else
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PATH_PLANNING_OBJECT_NOT_CONSISTENT);
@@ -358,7 +358,7 @@ int simPerformPathSearchStep_internal(int temporaryPathSearchObject, bool abortS
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CPathPlanningTask *it =
-            App::currentWorld->pathPlanning->getTemporaryPathSearchObject(temporaryPathSearchObject);
+            App::currentWorld->pathPlanning_old->getTemporaryPathSearchObject(temporaryPathSearchObject);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TEMP_PATH_SEARCH_OBJECT_INEXISTANT);
@@ -366,23 +366,23 @@ int simPerformPathSearchStep_internal(int temporaryPathSearchObject, bool abortS
         }
         if (abortSearch)
         {
-            App::currentWorld->pathPlanning->removeTemporaryPathSearchObjectButDontDestroyIt(it);
+            App::currentWorld->pathPlanning_old->removeTemporaryPathSearchObjectButDontDestroyIt(it);
             delete it;
             return (0);
         }
         int retVal = it->performSteppedSearch();
         if (retVal != -2)
         {
-            App::currentWorld->pathPlanning->removeTemporaryPathSearchObjectButDontDestroyIt(it);
+            App::currentWorld->pathPlanning_old->removeTemporaryPathSearchObjectButDontDestroyIt(it);
             CPathPlanningTask *originalIt = it->getOriginalTask();
             int tree1Handle, tree2Handle;
             it->getAndDisconnectSearchTrees(tree1Handle, tree2Handle); // to keep trees visible!
             delete it;
             // Now we connect the trees only if the originalTask still exists:
             bool found = false;
-            for (int ot = 0; ot < int(App::currentWorld->pathPlanning->allObjects.size()); ot++)
+            for (int ot = 0; ot < int(App::currentWorld->pathPlanning_old->allObjects.size()); ot++)
             {
-                if (App::currentWorld->pathPlanning->allObjects[ot] == originalIt)
+                if (App::currentWorld->pathPlanning_old->allObjects[ot] == originalIt)
                 {
                     found = true;
                     break;
@@ -1092,7 +1092,7 @@ int simCreateUI_internal(const char *elementName, int menuAttributes, const int 
         it->setBlockName(elementName);
         if ((menuAttributes & sim_ui_menu_systemblock) != 0)
             it->setAttributes(it->getAttributes() | sim_ui_property_systemblock);
-        App::currentWorld->buttonBlockContainer->insertBlock(it, false);
+        App::currentWorld->buttonBlockContainer_old->insertBlock(it, false);
         int retVal = it->getBlockID();
         int retHandlesP = 0;
         float white[3] = {1.0, 1.0, 1.0};
@@ -1152,7 +1152,7 @@ int simCreateUIButton_internal(int elementHandle, const int *position, const int
     {
         if (!doesUIExist(__func__, elementHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = new CSoftButton("", position[0], position[1], size[0], size[1]);
         if (!it->insertButton(but))
         {
@@ -1177,7 +1177,7 @@ int simGetUIHandle_internal(const char *elementName)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithName(elementNameAdjusted);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithName(elementNameAdjusted);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UI_INEXISTANT);
@@ -1198,7 +1198,7 @@ int simGetUIProperty_internal(int elementHandle)
     {
         if (!doesUIExist(__func__, elementHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         int retVal = it->getAttributes();
         return (retVal);
     }
@@ -1216,7 +1216,7 @@ int simGetUIEventButton_internal(int elementHandle, int *auxiliaryValues)
             return (-1);
         int retVal = -1;
 #ifdef SIM_WITH_GUI
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         retVal = it->getLastEventButtonID(auxiliaryValues);
 #endif
         return (retVal);
@@ -1233,13 +1233,13 @@ int simSetUIProperty_internal(int elementHandle, int elementProperty)
     {
         if (!doesUIExist(__func__, elementHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         // Following few new since 4/2/2013 (to bring newly made visible UI to the front)
         int attrib = it->getAttributes();
         it->setAttributes(elementProperty);
         int attribNew = it->getAttributes();
         if (((attrib & sim_ui_property_visible) == 0) && ((attribNew & sim_ui_property_visible) != 0))
-            App::currentWorld->buttonBlockContainer->sendBlockToFront(it->getBlockID());
+            App::currentWorld->buttonBlockContainer_old->sendBlockToFront(it->getBlockID());
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -1254,7 +1254,7 @@ int simGetUIButtonSize_internal(int elementHandle, int buttonHandle, int *size)
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         size[0] = but->getLength();
         size[1] = but->getHeight();
@@ -1272,7 +1272,7 @@ int simGetUIButtonProperty_internal(int elementHandle, int buttonHandle)
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         int retVal = but->getAttributes();
         return (retVal);
@@ -1289,7 +1289,7 @@ int simSetUIButtonProperty_internal(int elementHandle, int buttonHandle, int but
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         but->setAttributes(buttonProperty);
         return (1);
@@ -1307,7 +1307,7 @@ int simSetUIButtonLabel_internal(int elementHandle, int buttonHandle, const char
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         if (upStateLabel != nullptr)
             but->label = std::string(upStateLabel);
@@ -1327,7 +1327,7 @@ char *simGetUIButtonLabel_internal(int elementHandle, int buttonHandle)
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (nullptr);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         char *retVal = new char[but->label.length() + 1];
         for (unsigned int i = 0; i < but->label.length(); i++)
@@ -1347,7 +1347,7 @@ int simSetUISlider_internal(int elementHandle, int buttonHandle, int position)
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         if (but->getButtonType() != sim_buttonproperty_slider)
         {
@@ -1369,7 +1369,7 @@ int simGetUISlider_internal(int elementHandle, int buttonHandle)
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         if (but->getButtonType() != sim_buttonproperty_slider)
         {
@@ -1392,7 +1392,7 @@ int simSetUIButtonColor_internal(int elementHandle, int buttonHandle, const floa
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         for (int i = 0; i < 3; i++)
         {
@@ -1417,16 +1417,16 @@ int simRemoveUI_internal(int elementHandle)
     {
         if (elementHandle == sim_handle_all)
         {
-            App::currentWorld->buttonBlockContainer->removeAllBlocks(false);
+            App::currentWorld->buttonBlockContainer_old->removeAllBlocks(false);
             return (1);
         }
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UI_INEXISTANT);
             return (-1);
         }
-        App::currentWorld->buttonBlockContainer->removeBlockFromID(elementHandle);
+        App::currentWorld->buttonBlockContainer_old->removeBlockFromID(elementHandle);
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -1441,7 +1441,7 @@ int simCreateUIButtonArray_internal(int elementHandle, int buttonHandle)
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         but->enableArray(true);
         return (1);
@@ -1458,7 +1458,7 @@ int simSetUIButtonArrayColor_internal(int elementHandle, int buttonHandle, const
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         if (!but->setArrayColor(position[0], position[1], color))
         {
@@ -1479,7 +1479,7 @@ int simDeleteUIButtonArray_internal(int elementHandle, int buttonHandle)
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         but->enableArray(false);
         return (1);
@@ -1496,7 +1496,7 @@ int simSetUIButtonTexture_internal(int elementHandle, int buttonHandle, const in
     {
         if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         CSoftButton *but = it->getButtonWithID(buttonHandle);
         CTextureProperty *tp = but->getTextureProperty();
         if (tp != nullptr)
@@ -1559,7 +1559,7 @@ int simGetUIPosition_internal(int elementHandle, int *position)
         if (!doesUIExist(__func__, elementHandle))
             return (-1);
 
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         VPoint p;
         it->getBlockPositionAbsolute(p);
         position[0] = p.x;
@@ -1578,7 +1578,7 @@ int simSetUIPosition_internal(int elementHandle, const int *position)
     {
         if (!doesUIExist(__func__, elementHandle))
             return (-1);
-        CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+        CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
         it->setDesiredBlockPosition(position[0], position[1]);
         return (1);
     }
@@ -2075,7 +2075,7 @@ int simCheckIkGroup_internal(int ikGroupHandle, int jointCnt, const int *jointHa
         if (!doesIKGroupExist(__func__, ikGroupHandle))
             return (-1);
         int retVal = -1;
-        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupHandle);
         int r = it->checkIkGroup(jointCnt, jointHandles, jointValues, jointOptions);
         if (r == -1)
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -2097,7 +2097,7 @@ int simCreateIkGroup_internal(int options, const int *intParams, const double *f
     {
         CIkGroup_old *ikGroup = new CIkGroup_old();
         ikGroup->setObjectName("IK_Group", false);
-        App::currentWorld->ikGroups->addIkGroup(ikGroup, false);
+        App::currentWorld->ikGroups_old->addIkGroup(ikGroup, false);
         ikGroup->setEnabled((options & 1) == 0);
         ikGroup->setRestoreIfPositionNotReached((options & 4) != 0);
         ikGroup->setRestoreIfOrientationNotReached((options & 8) != 0);
@@ -2122,13 +2122,13 @@ int simRemoveIkGroup_internal(int ikGroupHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_IK_GROUP_INEXISTANT);
             return (-1);
         }
-        App::currentWorld->ikGroups->removeIkGroup(it->getObjectHandle());
+        App::currentWorld->ikGroups_old->removeIkGroup(it->getObjectHandle());
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -2142,7 +2142,7 @@ int simCreateIkElement_internal(int ikGroupHandle, int options, const int *intPa
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -2192,7 +2192,7 @@ int simComputeJacobian_internal(int ikGroupHandle, int options, void *reserved)
         if (!doesIKGroupExist(__func__, ikGroupHandle))
             return (-1);
         int returnValue = -1;
-        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupHandle);
         if (it->computeOnlyJacobian(options))
             returnValue = 0;
         return (returnValue);
@@ -2214,7 +2214,7 @@ int simGetConfigForTipPose_internal(int ikGroupHandle, int jointCnt, const int *
         if (!doesIKGroupExist(__func__, ikGroupHandle))
             return (-1);
 
-        CIkGroup_old *ikGroup = App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupHandle);
         std::string err;
         int retVal =
             ikGroup->getConfigForTipPose(jointCnt, jointHandles, thresholdDist, maxTimeInMs, retConfig, metric,
@@ -2239,7 +2239,7 @@ double *simGenerateIkPath_internal(int ikGroupHandle, int jointCnt, const int *j
         if (!doesIKGroupExist(__func__, ikGroupHandle))
             return (nullptr);
         std::vector<CJoint *> joints;
-        CIkGroup_old *ikGroup = App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old *ikGroup = App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupHandle);
         bool err = false;
         for (int i = 0; i < jointCnt; i++)
         {
@@ -2445,7 +2445,7 @@ int simGetIkGroupHandle_internal(const char *ikGroupName)
     std::string ikGroupNameAdjusted = getIndexAdjustedObjectName(nm.c_str());
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromName(ikGroupNameAdjusted.c_str());
+        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromName(ikGroupNameAdjusted.c_str());
         if (it == nullptr)
         {
             if (silentErrorPos == std::string::npos)
@@ -2465,7 +2465,7 @@ double *simGetIkGroupMatrix_internal(int ikGroupHandle, int options, int *matrix
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -2496,10 +2496,10 @@ int simHandleIkGroup_internal(int ikGroupHandle)
         int returnValue = 0;
         if (ikGroupHandle < 0)
             returnValue =
-                App::currentWorld->ikGroups->computeAllIkGroups(ikGroupHandle == sim_handle_all_except_explicit);
+                App::currentWorld->ikGroups_old->computeAllIkGroups(ikGroupHandle == sim_handle_all_except_explicit);
         else
         { // explicit handling
-            CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+            CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -2520,7 +2520,7 @@ int simSetIkGroupProperties_internal(int ikGroupHandle, int resolutionMethod, in
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -2542,7 +2542,7 @@ int simSetIkElementProperties_internal(int ikGroupHandle, int tipDummyHandle, in
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(ikGroupHandle);
+        CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -2595,7 +2595,7 @@ int simTubeOpen_internal(int dataHeader, const char *dataName, int readBufferSiz
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal;
-        retVal = App::currentWorld->commTubeContainer->openTube(dataHeader, dataName, false, readBufferSize);
+        retVal = App::currentWorld->commTubeContainer_old->openTube(dataHeader, dataName, false, readBufferSize);
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -2614,7 +2614,7 @@ int simTubeClose_internal(int tubeHandle)
         }
         else
         {
-            if (App::currentWorld->commTubeContainer->closeTube(tubeHandle))
+            if (App::currentWorld->commTubeContainer_old->closeTube(tubeHandle))
                 retVal = 1;
         }
         return (retVal);
@@ -2635,7 +2635,7 @@ int simTubeWrite_internal(int tubeHandle, const char *data, int dataLength)
         }
         else
         {
-            if (App::currentWorld->commTubeContainer->writeToTube_copyBuffer(tubeHandle, data, dataLength))
+            if (App::currentWorld->commTubeContainer_old->writeToTube_copyBuffer(tubeHandle, data, dataLength))
                 retVal = 1;
         }
         return (retVal);
@@ -2651,7 +2651,7 @@ char *simTubeRead_internal(int tubeHandle, int *dataLength)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         char *retVal;
-        retVal = App::currentWorld->commTubeContainer->readFromTube_bufferNotCopied(tubeHandle, dataLength[0]);
+        retVal = App::currentWorld->commTubeContainer_old->readFromTube_bufferNotCopied(tubeHandle, dataLength[0]);
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -2667,7 +2667,7 @@ int simTubeStatus_internal(int tubeHandle, int *readPacketsCount, int *writePack
         int readP = 0;
         int writeP = 0;
         int retVal;
-        retVal = App::currentWorld->commTubeContainer->getTubeStatus(tubeHandle, readP, writeP);
+        retVal = App::currentWorld->commTubeContainer_old->getTubeStatus(tubeHandle, readP, writeP);
         if (readPacketsCount != nullptr)
             readPacketsCount[0] = readP;
         if (writePacketsCount != nullptr)
@@ -3526,11 +3526,11 @@ int simHandleCollision_internal(int collisionObjectHandle)
         }
         int colCnt = 0;
         if (collisionObjectHandle < 0)
-            colCnt = App::currentWorld->collisions->handleAllCollisions(
+            colCnt = App::currentWorld->collisions_old->handleAllCollisions(
                 collisionObjectHandle == sim_handle_all_except_explicit); // implicit handling
         else
         { // explicit handling
-            CCollisionObject_old *it = App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
+            CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(collisionObjectHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -3555,7 +3555,7 @@ int simReadCollision_internal(int collisionObjectHandle)
         {
             return (-1);
         }
-        CCollisionObject_old *it = App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
+        CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(collisionObjectHandle);
         int retVal = it->readCollision(nullptr);
         return (retVal);
     }
@@ -3576,11 +3576,11 @@ int simHandleDistance_internal(int distanceObjectHandle, double *smallestDistanc
         }
         double d;
         if (distanceObjectHandle < 0)
-            d = App::currentWorld->distances->handleAllDistances(distanceObjectHandle ==
+            d = App::currentWorld->distances_old->handleAllDistances(distanceObjectHandle ==
                                                                  sim_handle_all_except_explicit); // implicit handling
         else
         { // explicit handling
-            CDistanceObject_old *it = App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
+            CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(distanceObjectHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -3610,7 +3610,7 @@ int simReadDistance_internal(int distanceObjectHandle, double *smallestDistance)
         if (!doesDistanceObjectExist(__func__, distanceObjectHandle))
             return (-1);
         double d;
-        CDistanceObject_old *it = App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
+        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(distanceObjectHandle);
         d = it->readDistance();
         if (d >= 0.0)
         {
@@ -3637,7 +3637,7 @@ int simGetCollisionHandle_internal(const char *collisionObjectName)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CCollisionObject_old *it =
-            App::currentWorld->collisions->getObjectFromName(collisionObjectNameAdjusted.c_str());
+            App::currentWorld->collisions_old->getObjectFromName(collisionObjectNameAdjusted.c_str());
         if (it == nullptr)
         {
             if (silentErrorPos == std::string::npos)
@@ -3663,7 +3663,7 @@ int simGetDistanceHandle_internal(const char *distanceObjectName)
     std::string distanceObjectNameAdjusted = getIndexAdjustedObjectName(nm.c_str());
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDistanceObject_old *it = App::currentWorld->distances->getObjectFromName(distanceObjectNameAdjusted.c_str());
+        CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromName(distanceObjectNameAdjusted.c_str());
         if (it == nullptr)
         {
             if (silentErrorPos == std::string::npos)
@@ -3689,10 +3689,10 @@ int simResetCollision_internal(int collisionObjectHandle)
                 return (-1);
         }
         if (collisionObjectHandle < 0)
-            App::currentWorld->collisions->resetAllCollisions(collisionObjectHandle == sim_handle_all_except_explicit);
+            App::currentWorld->collisions_old->resetAllCollisions(collisionObjectHandle == sim_handle_all_except_explicit);
         else
         { // Explicit handling
-            CCollisionObject_old *it = App::currentWorld->collisions->getObjectFromHandle(collisionObjectHandle);
+            CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(collisionObjectHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -3718,10 +3718,10 @@ int simResetDistance_internal(int distanceObjectHandle)
                 return (-1);
         }
         if (distanceObjectHandle < 0)
-            App::currentWorld->distances->resetAllDistances(distanceObjectHandle == sim_handle_all_except_explicit);
+            App::currentWorld->distances_old->resetAllDistances(distanceObjectHandle == sim_handle_all_except_explicit);
         else
         { // Explicit handling
-            CDistanceObject_old *it = App::currentWorld->distances->getObjectFromHandle(distanceObjectHandle);
+            CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(distanceObjectHandle);
             if (!it->getExplicitHandling())
             {
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_NOT_TAGGED_FOR_EXPLICIT_HANDLING);
@@ -3746,7 +3746,7 @@ int simAddBanner_internal(const char *label, double size, int options, const dou
 
         CBannerObject *it = new CBannerObject(label, options, parentObjectHandle, positionAndEulerAngles, labelColors,
                                               backgroundColors, size);
-        retVal = App::currentWorld->bannerCont->addObject(it);
+        retVal = App::currentWorld->bannerCont_old->addObject(it);
 
         return (retVal);
     }
@@ -3761,7 +3761,7 @@ int simRemoveBanner_internal(int bannerID)
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (bannerID == sim_handle_all)
-            App::currentWorld->bannerCont->eraseAllObjects(false);
+            App::currentWorld->bannerCont_old->eraseAllObjects(false);
         else
         {
             int handleFlags = 0;
@@ -3770,7 +3770,7 @@ int simRemoveBanner_internal(int bannerID)
                 handleFlags = bannerID & 0xff00000;
                 bannerID = bannerID & 0xfffff;
             }
-            CBannerObject *it = App::currentWorld->bannerCont->getObject(bannerID);
+            CBannerObject *it = App::currentWorld->bannerCont_old->getObject(bannerID);
             if (it == nullptr)
             {
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
@@ -3783,7 +3783,7 @@ int simRemoveBanner_internal(int bannerID)
                 return (0);
             }
             else
-                App::currentWorld->bannerCont->removeObject(bannerID);
+                App::currentWorld->bannerCont_old->removeObject(bannerID);
         }
         return (1);
     }
@@ -3801,7 +3801,7 @@ int simAddGhost_internal(int ghostGroup, int objectHandle, int options, double s
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
         int retVal =
-            App::currentWorld->ghostObjectCont->addGhost(ghostGroup, objectHandle, options, startTime, endTime, color);
+            App::currentWorld->ghostObjectCont_old->addGhost(ghostGroup, objectHandle, options, startTime, endTime, color);
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -3815,7 +3815,7 @@ int simModifyGhost_internal(int ghostGroup, int ghostId, int operation, double f
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        int retVal = App::currentWorld->ghostObjectCont->modifyGhost(ghostGroup, ghostId, operation, floatValue,
+        int retVal = App::currentWorld->ghostObjectCont_old->modifyGhost(ghostGroup, ghostId, operation, floatValue,
                                                                      options, optionsMask, colorOrTransformation);
         return (retVal);
     }
@@ -3868,7 +3868,7 @@ int simAddPointCloud_internal(int pageMask, int layerMask, int objectHandle, int
         CPtCloud_old *ptCloud =
             new CPtCloud_old(pageMask, layerMask, objectHandle, options, pointSize, ptCnt, pointCoordinates,
                              (unsigned char *)pointColors, pointNormals, (unsigned char *)defaultColors);
-        retVal = App::currentWorld->pointCloudCont->addObject(ptCloud);
+        retVal = App::currentWorld->pointCloudCont_old->addObject(ptCloud);
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -3883,7 +3883,7 @@ int simModifyPointCloud_internal(int pointCloudHandle, int operation, const int 
     {
         if (operation == 0)
         {
-            if (App::currentWorld->pointCloudCont->removeObject(pointCloudHandle))
+            if (App::currentWorld->pointCloudCont_old->removeObject(pointCloudHandle))
                 return (1);
         }
         return (-1);

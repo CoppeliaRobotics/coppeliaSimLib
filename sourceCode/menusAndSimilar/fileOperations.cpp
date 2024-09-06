@@ -34,7 +34,7 @@ void CFileOperations::createNewScene(bool keepCurrentScene)
     std::string fullPathAndFilename = App::folders->getSystemPath() + "/";
     fullPathAndFilename += CSimFlavor::getStringVal(16);
     loadScene(fullPathAndFilename.c_str(), false);
-    App::currentWorld->mainSettings->setScenePathAndName("");
+    App::currentWorld->environment->setScenePathAndName("");
     App::currentWorld->environment->generateNewUniquePersistentIdString();
     App::currentWorld->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!
     App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
@@ -48,12 +48,12 @@ void CFileOperations::closeScene()
         App::worldContainer->destroyCurrentWorld();
     else
     { // simply set-up an empty (default) scene
-        std::string savedLoc = App::currentWorld->mainSettings->getScenePathAndName();
+        std::string savedLoc = App::currentWorld->environment->getScenePathAndName();
         std::string fullPathAndFilename = App::folders->getSystemPath() + "/";
         fullPathAndFilename += "dfltscn.";
         fullPathAndFilename += SIM_SCENE_EXTENSION;
         loadScene(fullPathAndFilename.c_str(), false);
-        App::currentWorld->mainSettings->setScenePathAndName(""); // savedLoc.c_str());
+        App::currentWorld->environment->setScenePathAndName(""); // savedLoc.c_str());
         App::currentWorld->environment->generateNewUniquePersistentIdString();
         App::currentWorld->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!
         App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
@@ -81,11 +81,11 @@ bool CFileOperations::loadScene(const char *pathAndFilename, bool setCurrentDir,
         {
             App::currentWorld->clearScene(true);
             if (pathAndFilename != nullptr)
-                App::currentWorld->mainSettings->setScenePathAndName(pathAndFilename);
+                App::currentWorld->environment->setScenePathAndName(pathAndFilename);
             if (setCurrentDir)
-                App::folders->setScenesPath(App::currentWorld->mainSettings->getScenePath().c_str());
-            if (CSimFlavor::getBoolVal_str(1, App::currentWorld->mainSettings->getScenePathAndName().c_str()))
-                App::currentWorld->mainSettings->setScenePathAndName("");
+                App::folders->setScenesPath(App::currentWorld->environment->getScenePath().c_str());
+            if (CSimFlavor::getBoolVal_str(1, App::currentWorld->environment->getScenePathAndName().c_str()))
+                App::currentWorld->environment->setScenePathAndName("");
 
             if (pathAndFilename != nullptr)
             { // loading from file...
@@ -97,7 +97,7 @@ bool CFileOperations::loadScene(const char *pathAndFilename, bool setCurrentDir,
                     if (serObj->getFileType() ==
                         CSer::filetype_csim_xml_simplescene_file) // final file type is set in readOpenXml (whether
                                                                   // exhaustive or simple scene)
-                        App::currentWorld->mainSettings->setScenePathAndName(""); // since lossy format
+                        App::currentWorld->environment->setScenePathAndName(""); // since lossy format
                 }
                 else
                 {
@@ -280,7 +280,7 @@ bool CFileOperations::saveScene(const char *pathAndFilename, bool setCurrentDir,
             if (retVal)
             {
                 if (!simpleXml) // because lossy
-                    App::currentWorld->mainSettings->setScenePathAndName(_pathAndFilename.c_str());
+                    App::currentWorld->environment->setScenePathAndName(_pathAndFilename.c_str());
 
                 App::currentWorld->sceneObjects->embeddedScriptContainer->sceneOrModelAboutToBeSaved_old(-1);
 
@@ -288,7 +288,7 @@ bool CFileOperations::saveScene(const char *pathAndFilename, bool setCurrentDir,
                     App::currentWorld->environment->generateNewUniquePersistentIdString();
 
                 if (setCurrentDir)
-                    App::folders->setScenesPath(App::currentWorld->mainSettings->getScenePath().c_str());
+                    App::folders->setScenesPath(App::currentWorld->environment->getScenePath().c_str());
 
                 if (infoStr != nullptr)
                 {
@@ -666,7 +666,7 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
     bool retVal = false;
     if (!App::currentWorld->environment->getSceneLocked())
     {
-        if (App::currentWorld->mainSettings->getScenePathAndName() == "")
+        if (App::currentWorld->environment->getScenePathAndName() == "")
             retVal = _saveSceneAsWithDialogAndEverything(CSimFlavor::getIntVal(1));
         else
         {
@@ -682,7 +682,7 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
                 App::logMsg(sim_verbosity_msgs, infoPrintOut.c_str());
                 std::string infoStr;
                 std::string errorStr;
-                if (saveScene(App::currentWorld->mainSettings->getScenePathAndName().c_str(), true, false, nullptr,
+                if (saveScene(App::currentWorld->environment->getScenePathAndName().c_str(), true, false, nullptr,
                               &infoStr, &errorStr))
                 {
                     if (infoStr.size() > 0)
@@ -690,7 +690,7 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
                     App::logMsg(sim_verbosity_msgs, IDSNS_SCENE_WAS_SAVED);
                     GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect
                                                        // it
-                    _addToRecentlyOpenedScenes(App::currentWorld->mainSettings->getScenePathAndName());
+                    _addToRecentlyOpenedScenes(App::currentWorld->environment->getScenePathAndName());
                     App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
                 }
                 else
@@ -726,12 +726,12 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
             infoPrintOut += "...";
             App::logMsg(sim_verbosity_msgs, infoPrintOut.c_str());
             std::string initPath;
-            if (App::currentWorld->mainSettings->getScenePathAndName().size() == 0)
+            if (App::currentWorld->environment->getScenePathAndName().size() == 0)
                 initPath = App::folders->getScenesPath();
             else
-                initPath = App::currentWorld->mainSettings->getScenePath();
+                initPath = App::currentWorld->environment->getScenePath();
             std::string filenameAndPath;
-            std::string sceneName(App::currentWorld->mainSettings->getScenePathAndName());
+            std::string sceneName(App::currentWorld->environment->getScenePathAndName());
             sceneName = VVarious::splitPath_fileBaseAndExtension(sceneName.c_str());
             std::string ext = VVarious::splitPath_fileExtension(sceneName.c_str());
             std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
@@ -826,7 +826,7 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
                         App::logMsg(sim_verbosity_msgs, IDSNS_SCENE_WAS_SAVED);
                         GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to
                                                            // reflect it
-                        _addToRecentlyOpenedScenes(App::currentWorld->mainSettings->getScenePathAndName());
+                        _addToRecentlyOpenedScenes(App::currentWorld->environment->getScenePathAndName());
                         App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
                         retVal = true;
                     }

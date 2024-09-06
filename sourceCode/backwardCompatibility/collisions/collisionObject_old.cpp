@@ -234,7 +234,7 @@ bool CCollisionObject_old::setObjectName(const char *newName, bool check)
     std::string nnn;
     CCollisionObject_old *it = nullptr;
     if (check)
-        it = App::currentWorld->collisions->getObjectFromHandle(_objectHandle);
+        it = App::currentWorld->collisions_old->getObjectFromHandle(_objectHandle);
     if (it != this)
         nnn = newName;
     else
@@ -245,7 +245,7 @@ bool CCollisionObject_old::setObjectName(const char *newName, bool check)
         {
             if (getObjectName() != nm)
             {
-                while (App::currentWorld->collisions->getObjectFromName(nm.c_str()) != nullptr)
+                while (App::currentWorld->collisions_old->getObjectFromName(nm.c_str()) != nullptr)
                     nm = tt::generateNewName_hashOrNoHash(nm.c_str(), !tt::isHashFree(nm.c_str()));
                 nnn = nm.c_str();
             }
@@ -264,7 +264,7 @@ bool CCollisionObject_old::setObjectName(const char *newName, bool check)
 bool CCollisionObject_old::handleCollision()
 { // Return value true means there was a collision
     clearCollisionResult();
-    if (!App::currentWorld->mainSettings->collisionDetectionEnabled)
+    if (!App::currentWorld->mainSettings_old->collisionDetectionEnabled)
         return (false);
     if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
         return (false);

@@ -185,7 +185,7 @@ CMainWindow::CMainWindow(int operationalUiParts) : QMainWindow()
 
     // --- Tab widget ---
     tabBar = new QTabBar();
-    int ind = tabBar->addTab(App::currentWorld->mainSettings->getSceneNameForUi().c_str());
+    int ind = tabBar->addTab(App::currentWorld->environment->getSceneNameForUi().c_str());
     tabBar->setTabVisible(ind, _operationalUiParts & sim_gui_menubar);
 
 #ifdef MAC_SIM
@@ -615,7 +615,7 @@ void CMainWindow::callDialogFunction(const SUIThreadCommand *cmdIn, SUIThreadCom
 void CMainWindow::refreshDialogs_uiThread()
 {
     static std::string scenePath;
-    std::string p(App::currentWorld->mainSettings->getScenePathAndName());
+    std::string p(App::currentWorld->environment->getScenePathAndName());
     if (scenePath != p)
     {
         scenePath = p;
@@ -700,10 +700,10 @@ void CMainWindow::refreshDialogs_uiThread()
                 title += IDS____SIMULATION_STOPPED;
         }
 
-        if (App::currentWorld->mainSettings->getScenePathAndName().compare("") == 0)
+        if (App::currentWorld->environment->getScenePathAndName().compare("") == 0)
             title = std::string(IDS_NEW_FILE) + title;
         else
-            title = App::currentWorld->mainSettings->getSceneName() + title;
+            title = App::currentWorld->environment->getSceneName() + title;
         title = CSimFlavor::getStringVal(2) + " - " + title;
         setWindowTitle(title.c_str());
     }
@@ -2035,7 +2035,7 @@ void CMainWindow::newInstanceAboutToBeCreated()
 void CMainWindow::newInstanceWasJustCreated()
 {
     TRACE_INTERNAL;
-    int ind = tabBar->addTab(App::currentWorld->mainSettings->getSceneNameForUi().c_str());
+    int ind = tabBar->addTab(App::currentWorld->environment->getSceneNameForUi().c_str());
     tabBar->setTabVisible(ind, _operationalUiParts & sim_gui_menubar);
     tabBar->setCurrentIndex(App::worldContainer->getCurrentWorldIndex());
 }

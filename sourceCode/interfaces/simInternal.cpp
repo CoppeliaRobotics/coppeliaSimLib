@@ -234,7 +234,7 @@ bool doesCollectionExist(const char *functionName, int identifier)
 
 bool doesCollisionObjectExist(const char *functionName, int identifier)
 {
-    if (App::currentWorld->collisions->getObjectFromHandle(identifier) == nullptr)
+    if (App::currentWorld->collisions_old->getObjectFromHandle(identifier) == nullptr)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_COLLISION_INEXISTANT);
         return (false);
@@ -245,7 +245,7 @@ bool doesCollisionObjectExist(const char *functionName, int identifier)
 
 bool doesDistanceObjectExist(const char *functionName, int identifier)
 {
-    if (App::currentWorld->distances->getObjectFromHandle(identifier) == nullptr)
+    if (App::currentWorld->distances_old->getObjectFromHandle(identifier) == nullptr)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_DISTANCE_INEXISTANT);
         return (false);
@@ -451,7 +451,7 @@ bool isPointCloud(const char *functionName, int identifier)
 }
 bool doesUIExist(const char *functionName, int elementHandle)
 {
-    CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+    CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
     if (it == nullptr)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_UI_INEXISTANT);
@@ -462,7 +462,7 @@ bool doesUIExist(const char *functionName, int elementHandle)
 
 bool doesUIButtonExist(const char *functionName, int elementHandle, int buttonHandle)
 {
-    CButtonBlock *it = App::currentWorld->buttonBlockContainer->getBlockWithID(elementHandle);
+    CButtonBlock *it = App::currentWorld->buttonBlockContainer_old->getBlockWithID(elementHandle);
     if (it == nullptr)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_UI_INEXISTANT);
@@ -478,7 +478,7 @@ bool doesUIButtonExist(const char *functionName, int elementHandle, int buttonHa
 
 bool doesIKGroupExist(const char *functionName, int identifier)
 {
-    CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(identifier);
+    CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(identifier);
     if (it == nullptr)
     {
         CApiErrors::setLastWarningOrError(functionName, SIM_ERROR_IK_GROUP_INEXISTANT);
@@ -3688,9 +3688,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->infoWindowOpenState = (boolState != 0);
+            App::currentWorld->mainSettings_old->infoWindowOpenState = (boolState != 0);
             return (1);
         }
 
@@ -3717,11 +3717,6 @@ int simSetBoolParam_internal(int parameter, bool boolState)
 
         if (parameter == sim_boolparam_statustext_open)
         {
-            if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 8 + 16 + 32))
-                return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
-                return (-1);
-            App::currentWorld->mainSettings->statusBoxOpenState = (boolState != 0);
             return (1);
         }
 
@@ -3755,9 +3750,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->collisionDetectionEnabled = (boolState != 0);
+            App::currentWorld->mainSettings_old->collisionDetectionEnabled = (boolState != 0);
             return (1);
         }
 
@@ -3765,9 +3760,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->distanceCalculationEnabled = (boolState != 0);
+            App::currentWorld->mainSettings_old->distanceCalculationEnabled = (boolState != 0);
             return (1);
         }
 
@@ -3775,9 +3770,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->ikCalculationEnabled = (boolState != 0);
+            App::currentWorld->mainSettings_old->ikCalculationEnabled = (boolState != 0);
             return (1);
         }
 
@@ -3785,9 +3780,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->gcsCalculationEnabled = (boolState != 0);
+            App::currentWorld->mainSettings_old->gcsCalculationEnabled = (boolState != 0);
             return (1);
         }
 
@@ -3805,9 +3800,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->jointMotionHandlingEnabled_DEPRECATED = (boolState != 0);
+            App::currentWorld->mainSettings_old->jointMotionHandlingEnabled_DEPRECATED = (boolState != 0);
             return (1);
         }
 
@@ -3815,9 +3810,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->pathMotionHandlingEnabled_DEPRECATED = (boolState != 0);
+            App::currentWorld->mainSettings_old->pathMotionHandlingEnabled_DEPRECATED = (boolState != 0);
             return (1);
         }
 
@@ -3825,9 +3820,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->proximitySensorsEnabled = (boolState != 0);
+            App::currentWorld->mainSettings_old->proximitySensorsEnabled = (boolState != 0);
             return (1);
         }
 
@@ -3835,9 +3830,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->visionSensorsEnabled = (boolState != 0);
+            App::currentWorld->mainSettings_old->visionSensorsEnabled = (boolState != 0);
             return (1);
         }
 
@@ -3845,9 +3840,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->mirrorsDisabled = (boolState == 0);
+            App::currentWorld->mainSettings_old->mirrorsDisabled = (boolState == 0);
             return (1);
         }
 
@@ -3855,9 +3850,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->clippingPlanesDisabled = (boolState == 0);
+            App::currentWorld->mainSettings_old->clippingPlanesDisabled = (boolState == 0);
             return (1);
         }
         if (parameter == sim_boolparam_reserved3)
@@ -3895,9 +3890,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->millsEnabled = (boolState != 0);
+            App::currentWorld->mainSettings_old->millsEnabled = (boolState != 0);
             return (1);
         }
         if (parameter == sim_boolparam_video_recording_triggered)
@@ -4226,24 +4221,15 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 0;
-            if (App::currentWorld->mainSettings->infoWindowOpenState)
+            if (App::currentWorld->mainSettings_old->infoWindowOpenState)
                 retVal = 1;
             return (retVal);
         }
         if (parameter == sim_boolparam_statustext_open)
-        {
-            if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 8 + 16 + 32))
-                return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
-                return (-1);
-            int retVal = 0;
-            if (App::currentWorld->mainSettings->statusBoxOpenState)
-                retVal = 1;
-            return (retVal);
-        }
+            return false;
         if (parameter == sim_boolparam_fog_enabled)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 8 + 16 + 32))
@@ -4305,10 +4291,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 0;
-            if (App::currentWorld->mainSettings->collisionDetectionEnabled)
+            if (App::currentWorld->mainSettings_old->collisionDetectionEnabled)
                 retVal = 1;
             return (retVal);
         }
@@ -4316,10 +4302,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 0;
-            if (App::currentWorld->mainSettings->distanceCalculationEnabled)
+            if (App::currentWorld->mainSettings_old->distanceCalculationEnabled)
                 retVal = 1;
             return (retVal);
         }
@@ -4327,10 +4313,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 0;
-            if (App::currentWorld->mainSettings->ikCalculationEnabled)
+            if (App::currentWorld->mainSettings_old->ikCalculationEnabled)
                 retVal = 1;
             return (retVal);
         }
@@ -4338,10 +4324,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 0;
-            if (App::currentWorld->mainSettings->gcsCalculationEnabled)
+            if (App::currentWorld->mainSettings_old->gcsCalculationEnabled)
                 retVal = 1;
             return (retVal);
         }
@@ -4360,10 +4346,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 0;
-            if (App::currentWorld->mainSettings->jointMotionHandlingEnabled_DEPRECATED)
+            if (App::currentWorld->mainSettings_old->jointMotionHandlingEnabled_DEPRECATED)
                 retVal = 1;
             return (retVal);
         }
@@ -4371,10 +4357,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 0;
-            if (App::currentWorld->mainSettings->pathMotionHandlingEnabled_DEPRECATED)
+            if (App::currentWorld->mainSettings_old->pathMotionHandlingEnabled_DEPRECATED)
                 retVal = 1;
             return (retVal);
         }
@@ -4382,10 +4368,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 0;
-            if (App::currentWorld->mainSettings->proximitySensorsEnabled)
+            if (App::currentWorld->mainSettings_old->proximitySensorsEnabled)
                 retVal = 1;
             return (retVal);
         }
@@ -4393,10 +4379,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 0;
-            if (App::currentWorld->mainSettings->visionSensorsEnabled)
+            if (App::currentWorld->mainSettings_old->visionSensorsEnabled)
                 retVal = 1;
             return (retVal);
         }
@@ -4404,10 +4390,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 1;
-            if (App::currentWorld->mainSettings->mirrorsDisabled)
+            if (App::currentWorld->mainSettings_old->mirrorsDisabled)
                 retVal = 0;
             return (retVal);
         }
@@ -4415,10 +4401,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 1;
-            if (App::currentWorld->mainSettings->clippingPlanesDisabled)
+            if (App::currentWorld->mainSettings_old->clippingPlanesDisabled)
                 retVal = 0;
             return (retVal);
         }
@@ -4433,10 +4419,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             int retVal = 0;
-            if (App::currentWorld->mainSettings->millsEnabled)
+            if (App::currentWorld->mainSettings_old->millsEnabled)
                 retVal = 1;
             return (retVal);
         }
@@ -4748,7 +4734,7 @@ int simSetInt32Param_internal(int parameter, int intState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             App::currentWorld->environment->setActiveLayers((unsigned short)intState);
             return (1);
@@ -4757,9 +4743,9 @@ int simSetInt32Param_internal(int parameter, int intState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->mainSettings->infoWindowColorStyle = intState;
+            App::currentWorld->mainSettings_old->infoWindowColorStyle = intState;
             return (1);
         }
         if (parameter == sim_intparam_settings)
@@ -5069,7 +5055,7 @@ int simGetInt32Param_internal(int parameter, int *intState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
             intState[0] = int(App::currentWorld->environment->getActiveLayers());
             return (1);
@@ -5078,9 +5064,9 @@ int simGetInt32Param_internal(int parameter, int *intState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 8 + 16 + 32))
                 return (-1);
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            intState[0] = int(App::currentWorld->mainSettings->infoWindowColorStyle);
+            intState[0] = int(App::currentWorld->mainSettings_old->infoWindowColorStyle);
             return (1);
         }
         if (parameter == sim_intparam_edit_mode_type)
@@ -5631,16 +5617,16 @@ char *simGetStringParam_internal(int parameter)
         if (parameter == sim_stringparam_scene_path_and_name)
         {
             validParam = true;
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (nullptr);
-            retVal = App::currentWorld->mainSettings->getScenePathAndName();
+            retVal = App::currentWorld->environment->getScenePathAndName();
         }
         if (parameter == sim_stringparam_scene_name)
         {
             validParam = true;
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (nullptr);
-            retVal = App::currentWorld->mainSettings->getSceneNameWithExt();
+            retVal = App::currentWorld->environment->getSceneNameWithExt();
         }
         if (parameter == sim_stringparam_scene_unique_id)
         {
@@ -5653,9 +5639,9 @@ char *simGetStringParam_internal(int parameter)
         if (parameter == sim_stringparam_scene_path)
         {
             validParam = true;
-            if (App::currentWorld->mainSettings == nullptr)
+            if (App::currentWorld->mainSettings_old == nullptr)
                 return (nullptr);
-            retVal = App::currentWorld->mainSettings->getScenePath();
+            retVal = App::currentWorld->environment->getScenePath();
         }
         if (parameter == sim_stringparam_remoteapi_temp_file_dir)
         {
@@ -5860,7 +5846,7 @@ int simSaveScene_internal(const char *filename)
             GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
 #endif
             // 21.07.2023
-            // CFileOperations::_addToRecentlyOpenedScenes(App::currentWorld->mainSettings->getScenePathAndName());
+            // CFileOperations::_addToRecentlyOpenedScenes(App::currentWorld->mainSettings_old->getScenePathAndName());
             App::currentWorld->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
             return (1);
         }
@@ -6217,7 +6203,7 @@ int simCheckProximitySensorEx_internal(int sensorHandle, int entityHandle, int d
             return (-1);
         if (entityHandle == sim_handle_all)
             entityHandle = -1;
-        if (!App::currentWorld->mainSettings->proximitySensorsEnabled)
+        if (!App::currentWorld->mainSettings_old->proximitySensorsEnabled)
             return (0);
 
         bool frontFace = SIM_IS_BIT_SET(detectionMode, 0);
@@ -6279,7 +6265,7 @@ int simCheckProximitySensorEx2_internal(int sensorHandle, double *vertexPointer,
             return (-1);
         }
 
-        if (!App::currentWorld->mainSettings->proximitySensorsEnabled)
+        if (!App::currentWorld->mainSettings_old->proximitySensorsEnabled)
         {
             return (0);
         }
@@ -6472,7 +6458,7 @@ int simCheckCollision_internal(int entity1Handle, int entity2Handle)
         if (entity2Handle == sim_handle_all)
             entity2Handle = -1;
 
-        if (!App::currentWorld->mainSettings->collisionDetectionEnabled)
+        if (!App::currentWorld->mainSettings_old->collisionDetectionEnabled)
             return (0);
         bool returnValue =
             CCollisionRoutine::doEntitiesCollide(entity1Handle, entity2Handle, nullptr, true, true, nullptr);
@@ -6496,7 +6482,7 @@ int simCheckCollisionEx_internal(int entity1Handle, int entity2Handle, double **
         if (entity2Handle == sim_handle_all)
             entity2Handle = -1;
 
-        if (!App::currentWorld->mainSettings->collisionDetectionEnabled)
+        if (!App::currentWorld->mainSettings_old->collisionDetectionEnabled)
         {
             return (0);
         }
@@ -6529,7 +6515,7 @@ int simCheckDistance_internal(int entity1Handle, int entity2Handle, double thres
         if (entity2Handle == sim_handle_all)
             entity2Handle = -1;
 
-        if (!App::currentWorld->mainSettings->distanceCalculationEnabled)
+        if (!App::currentWorld->mainSettings_old->distanceCalculationEnabled)
             return (0);
 
         int buffer[4];
@@ -7832,7 +7818,7 @@ int simSetExplicitHandling_internal(int objectHandle, int explicitFlags)
             {
                 return (-1);
             }
-            CCollisionObject_old *it = App::currentWorld->collisions->getObjectFromHandle(objectHandle);
+            CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags & 1);
             return (1);
         }
@@ -7842,7 +7828,7 @@ int simSetExplicitHandling_internal(int objectHandle, int explicitFlags)
             {
                 return (-1);
             }
-            CDistanceObject_old *it = App::currentWorld->distances->getObjectFromHandle(objectHandle);
+            CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags & 1);
             return (1);
         }
@@ -7852,7 +7838,7 @@ int simSetExplicitHandling_internal(int objectHandle, int explicitFlags)
             {
                 return (-1);
             }
-            CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(objectHandle);
+            CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(objectHandle);
             it->setExplicitHandling(explicitFlags & 1);
             return (1);
         }
@@ -7914,7 +7900,7 @@ int simGetExplicitHandling_internal(int objectHandle)
             {
                 return (-1);
             }
-            CCollisionObject_old *it = App::currentWorld->collisions->getObjectFromHandle(objectHandle);
+            CCollisionObject_old *it = App::currentWorld->collisions_old->getObjectFromHandle(objectHandle);
             bool exp = it->getExplicitHandling();
             return (exp);
         }
@@ -7924,7 +7910,7 @@ int simGetExplicitHandling_internal(int objectHandle)
             {
                 return (-1);
             }
-            CDistanceObject_old *it = App::currentWorld->distances->getObjectFromHandle(objectHandle);
+            CDistanceObject_old *it = App::currentWorld->distances_old->getObjectFromHandle(objectHandle);
             bool exp = it->getExplicitHandling();
             return (exp);
         }
@@ -7934,7 +7920,7 @@ int simGetExplicitHandling_internal(int objectHandle)
             {
                 return (-1);
             }
-            CIkGroup_old *it = App::currentWorld->ikGroups->getObjectFromHandle(objectHandle);
+            CIkGroup_old *it = App::currentWorld->ikGroups_old->getObjectFromHandle(objectHandle);
             bool exp = it->getExplicitHandling();
             return (exp);
         }
@@ -10276,7 +10262,7 @@ int simGetObjectFloatParam_internal(int objectHandle, int parameterID, double *p
         CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
         CLight *light = App::currentWorld->sceneObjects->getLightFromHandle(objectHandle);
         CMirror *mirror = App::currentWorld->sceneObjects->getMirrorFromHandle(objectHandle);
-        CPathPlanningTask *pathPlanningObject = App::currentWorld->pathPlanning->getObject(objectHandle);
+        CPathPlanningTask *pathPlanningObject = App::currentWorld->pathPlanning_old->getObject(objectHandle);
         CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(objectHandle);
         CDummy *dummy = App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
         COcTree *octree = App::currentWorld->sceneObjects->getOctreeFromHandle(objectHandle);
@@ -10799,7 +10785,7 @@ int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double pa
         CShape *shape = App::currentWorld->sceneObjects->getShapeFromHandle(objectHandle);
         CLight *light = App::currentWorld->sceneObjects->getLightFromHandle(objectHandle);
         CMirror *mirror = App::currentWorld->sceneObjects->getMirrorFromHandle(objectHandle);
-        CPathPlanningTask *pathPlanningObject = App::currentWorld->pathPlanning->getObject(objectHandle);
+        CPathPlanningTask *pathPlanningObject = App::currentWorld->pathPlanning_old->getObject(objectHandle);
         CCamera *camera = App::currentWorld->sceneObjects->getCameraFromHandle(objectHandle);
         CDummy *dummy = App::currentWorld->sceneObjects->getDummyFromHandle(objectHandle);
         COcTree *octree = App::currentWorld->sceneObjects->getOctreeFromHandle(objectHandle);
@@ -11663,19 +11649,19 @@ int simIsHandle_internal(int generalObjectHandle, int generalObjectType)
 
         // Old:
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_ui_type)) &&
-            (App::currentWorld->buttonBlockContainer->getBlockWithID(generalObjectHandle) != nullptr))
+            (App::currentWorld->buttonBlockContainer_old->getBlockWithID(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_collision_type)) &&
-            (App::currentWorld->collisions->getObjectFromHandle(generalObjectHandle) != nullptr))
+            (App::currentWorld->collisions_old->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_distance_type)) &&
-            (App::currentWorld->distances->getObjectFromHandle(generalObjectHandle) != nullptr))
+            (App::currentWorld->distances_old->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_ik_type)) &&
-            (App::currentWorld->ikGroups->getObjectFromHandle(generalObjectHandle) != nullptr))
+            (App::currentWorld->ikGroups_old->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_appobj_pathplanning_type)) &&
-            (App::currentWorld->pathPlanning->getObject(generalObjectHandle) != nullptr))
+            (App::currentWorld->pathPlanning_old->getObject(generalObjectHandle) != nullptr))
             return (1);
         return (0); // handle is not valid!
     }
@@ -11839,7 +11825,7 @@ int simCheckVisionSensor_internal(int sensorHandle, int entityHandle, double **a
         if (entityHandle == sim_handle_all)
             entityHandle = -1;
 
-        if (!App::currentWorld->mainSettings->visionSensorsEnabled)
+        if (!App::currentWorld->mainSettings_old->visionSensorsEnabled)
             return (0);
 
         if (auxValues != nullptr)
@@ -11889,7 +11875,7 @@ float *simCheckVisionSensorEx_internal(int sensorHandle, int entityHandle, bool 
         if (entityHandle == sim_handle_all)
             entityHandle = -1;
 
-        if (!App::currentWorld->mainSettings->visionSensorsEnabled)
+        if (!App::currentWorld->mainSettings_old->visionSensorsEnabled)
             return (nullptr);
 
         CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(sensorHandle);
@@ -17323,7 +17309,7 @@ const void *_simGetObject_internal(int objID)
 const void *_simGetIkGroupObject_internal(int ikGroupID)
 {
     C_API_START;
-    return (App::currentWorld->ikGroups->getObjectFromHandle(ikGroupID));
+    return (App::currentWorld->ikGroups_old->getObjectFromHandle(ikGroupID));
 }
 
 int _simMpHandleIkGroupObject_internal(const void *ikGroup)

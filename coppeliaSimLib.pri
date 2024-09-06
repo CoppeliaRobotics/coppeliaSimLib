@@ -367,6 +367,7 @@ HEADERS += $$PWD/sourceCode/backwardCompatibility/kinematics/ikGroup_old.h \
     $$PWD/sourceCode/backwardCompatibility/sceneContainers/ghostObjectContainer.h \
     $$PWD/sourceCode/backwardCompatibility/sceneContainers/pointCloudContainer_old.h \
     $$PWD/sourceCode/backwardCompatibility/sceneContainers/buttonBlockContainer.h \
+    $$PWD/sourceCode/backwardCompatibility/sceneContainers/mainSettings_old.h \
     $$PWD/sourceCode/backwardCompatibility/sceneObjects/mill.h \
     $$PWD/sourceCode/backwardCompatibility/sceneObjects/path_old.h \
     $$PWD/sourceCode/backwardCompatibility/sceneObjects/bezierPathPoint_old.h \
@@ -444,7 +445,6 @@ HEADERS += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/simulation.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/collectionContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.h \
-    $$PWD/sourceCode/mainContainers/sceneContainers/mainSettings.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/embeddedScriptContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/environment.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/dynamicsContainer.h \
@@ -750,6 +750,7 @@ SOURCES += $$PWD/sourceCode/backwardCompatibility/kinematics/ikGroup_old.cpp \
     $$PWD/sourceCode/backwardCompatibility/sceneContainers/ghostObjectContainer.cpp \
     $$PWD/sourceCode/backwardCompatibility/sceneContainers/pointCloudContainer_old.cpp \
     $$PWD/sourceCode/backwardCompatibility/sceneContainers/buttonBlockContainer.cpp \
+    $$PWD/sourceCode/backwardCompatibility/sceneContainers/mainSettings_old.cpp \
     $$PWD/sourceCode/backwardCompatibility/sceneObjects/mill.cpp \
     $$PWD/sourceCode/backwardCompatibility/sceneObjects/path_old.cpp \
     $$PWD/sourceCode/backwardCompatibility/sceneObjects/bezierPathPoint_old.cpp \
@@ -829,7 +830,6 @@ SOURCES += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.cpp 
     $$PWD/sourceCode/mainContainers/sceneContainers/collectionContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp \
-    $$PWD/sourceCode/mainContainers/sceneContainers/mainSettings.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/embeddedScriptContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/environment.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/dynamicsContainer.cpp \

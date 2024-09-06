@@ -252,22 +252,22 @@ bool CQDlgTextures::isLinkedDataValid()
     }
     if (_objType == TEXTURE_ID_OPENGL_GUI_BACKGROUND)
     {
-        if (App::currentWorld->buttonBlockContainer->getBlockInEdition() != _objID1)
+        if (App::currentWorld->buttonBlockContainer_old->getBlockInEdition() != _objID1)
             return (false);
-        if (App::currentWorld->buttonBlockContainer->selectedButtons.size() > 0)
+        if (App::currentWorld->buttonBlockContainer_old->selectedButtons.size() > 0)
             return (false);
     }
     if (_objType == TEXTURE_ID_OPENGL_GUI_BUTTON)
     {
-        if (App::currentWorld->buttonBlockContainer->getBlockInEdition() != _objID1)
+        if (App::currentWorld->buttonBlockContainer_old->getBlockInEdition() != _objID1)
             return (false);
-        CButtonBlock *itBlock = App::currentWorld->buttonBlockContainer->getBlockWithID(_objID1);
+        CButtonBlock *itBlock = App::currentWorld->buttonBlockContainer_old->getBlockWithID(_objID1);
         if (itBlock == nullptr)
             return (false);
-        if (App::currentWorld->buttonBlockContainer->selectedButtons.size() <= 0)
+        if (App::currentWorld->buttonBlockContainer_old->selectedButtons.size() <= 0)
             return (false);
-        int butt = App::currentWorld->buttonBlockContainer
-                       ->selectedButtons[App::currentWorld->buttonBlockContainer->selectedButtons.size() - 1];
+        int butt = App::currentWorld->buttonBlockContainer_old
+                       ->selectedButtons[App::currentWorld->buttonBlockContainer_old->selectedButtons.size() - 1];
         VPoint size;
         itBlock->getBlockSize(size);
         CSoftButton *itButton = itBlock->getButtonAtPos(butt % size.x, butt / size.x);

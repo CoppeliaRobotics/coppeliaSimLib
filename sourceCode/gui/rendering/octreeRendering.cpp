@@ -64,21 +64,7 @@ void displayOctree(COcTree *octree, CViewableBase *renderingObject, int displayA
         {
             std::vector<double> &_voxelPositions = octree->getCubePositions()[0];
             float *_cubeVertices = octree->getCubeVertices();
-            bool setOtherColor = (App::currentWorld->collisions->getCollisionColor(octree->getObjectHandle()) != 0);
-            for (size_t i = 0; i < App::currentWorld->collections->getObjectCount(); i++)
-            {
-                if (App::currentWorld->collections->getObjectFromIndex(i)->isObjectInCollection(
-                        octree->getObjectHandle()))
-                    setOtherColor |=
-                        (App::currentWorld->collisions->getCollisionColor(
-                             App::currentWorld->collections->getObjectFromIndex(i)->getCollectionHandle()) != 0);
-            }
-            if (displayAttrib & sim_displayattribute_forvisionsensor)
-                setOtherColor = false;
-            if (!setOtherColor)
-                octree->getColor()->makeCurrentColor(false);
-            else
-                App::currentWorld->mainSettings->collisionColor.makeCurrentColor(false);
+            octree->getColor()->makeCurrentColor(false);
 
             if (octree->getShowOctree() && ((displayAttrib & sim_displayattribute_forvisionsensor) == 0))
             {
@@ -212,14 +198,37 @@ void displayOctree(COcTree *octree, CViewableBase *renderingObject, int displayA
                 octree->setNormalBufferId(-1);
             }
 
-            if (setOtherColor)
+            const float blk[4] = {0.0, 0.0, 0.0, 0.0};
+            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blk);
+            if (octree->getUsePointsInsteadOfCubes())
             {
-                if (octree->getUsePointsInsteadOfCubes())
+                glPointSize(float(octree->getPointSize()));
+                ogl::drawRandom3dPointsEx(&_voxelPositions[0], (int)_voxelPositions.size() / 3, nullptr,
+                                          octree->getColors(), nullptr, octree->getColorIsEmissive(),
+                                          normalVectorForLinesAndPoints.data);
+                glPointSize(1.0);
+            }
+            else
+            {
+                if (octree->getColorIsEmissive())
                 {
-                    glPointSize(float(octree->getPointSize()));
-                    ogl::drawRandom3dPoints(&_voxelPositions[0], (int)_voxelPositions.size() / 3,
-                                            normalVectorForLinesAndPoints.data);
-                    glPointSize(1.0);
+                    for (size_t i = 0; i < _voxelPositions.size() / 3; i++)
+                    {
+                        glPushMatrix();
+                        glTranslated(_voxelPositions[3 * i + 0], _voxelPositions[3 * i + 1],
+                                     _voxelPositions[3 * i + 2]);
+                        const float *cc = octree->getColors();
+                        float c[4] = {cc[4 * i + 0], cc[4 * i + 1], cc[4 * i + 2], cc[4 * i + 3]};
+                        glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, c);
+                        int _vertexBufferId = octree->getVertexBufferId();
+                        int _normalBufferId = octree->getNormalBufferId();
+                        _drawTriangles(_cubeVertices, 24, _cubeIndices, 36, _cubeNormals, nullptr, &_vertexBufferId,
+                                       &_normalBufferId, nullptr);
+                        octree->setVertexBufferId(_vertexBufferId);
+                        octree->setNormalBufferId(_normalBufferId);
+                        glEnd();
+                        glPopMatrix();
+                    }
                 }
                 else
                 {
@@ -228,70 +237,18 @@ void displayOctree(COcTree *octree, CViewableBase *renderingObject, int displayA
                         glPushMatrix();
                         glTranslated(_voxelPositions[3 * i + 0], _voxelPositions[3 * i + 1],
                                      _voxelPositions[3 * i + 2]);
+
+                        const float *cc = octree->getColors();
+                        float c[4] = {cc[4 * i + 0], cc[4 * i + 1], cc[4 * i + 2], cc[4 * i + 3]};
+                        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, c);
                         int _vertexBufferId = octree->getVertexBufferId();
                         int _normalBufferId = octree->getNormalBufferId();
                         _drawTriangles(_cubeVertices, 24, _cubeIndices, 36, _cubeNormals, nullptr, &_vertexBufferId,
                                        &_normalBufferId, nullptr);
                         octree->setVertexBufferId(_vertexBufferId);
                         octree->setNormalBufferId(_normalBufferId);
+                        glEnd();
                         glPopMatrix();
-                    }
-                }
-            }
-            else
-            {
-                const float blk[4] = {0.0, 0.0, 0.0, 0.0};
-                glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blk);
-                if (octree->getUsePointsInsteadOfCubes())
-                {
-                    glPointSize(float(octree->getPointSize()));
-                    ogl::drawRandom3dPointsEx(&_voxelPositions[0], (int)_voxelPositions.size() / 3, nullptr,
-                                              octree->getColors(), nullptr, octree->getColorIsEmissive(),
-                                              normalVectorForLinesAndPoints.data);
-                    glPointSize(1.0);
-                }
-                else
-                {
-                    if (octree->getColorIsEmissive())
-                    {
-                        for (size_t i = 0; i < _voxelPositions.size() / 3; i++)
-                        {
-                            glPushMatrix();
-                            glTranslated(_voxelPositions[3 * i + 0], _voxelPositions[3 * i + 1],
-                                         _voxelPositions[3 * i + 2]);
-                            const float *cc = octree->getColors();
-                            float c[4] = {cc[4 * i + 0], cc[4 * i + 1], cc[4 * i + 2], cc[4 * i + 3]};
-                            glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, c);
-                            int _vertexBufferId = octree->getVertexBufferId();
-                            int _normalBufferId = octree->getNormalBufferId();
-                            _drawTriangles(_cubeVertices, 24, _cubeIndices, 36, _cubeNormals, nullptr, &_vertexBufferId,
-                                           &_normalBufferId, nullptr);
-                            octree->setVertexBufferId(_vertexBufferId);
-                            octree->setNormalBufferId(_normalBufferId);
-                            glEnd();
-                            glPopMatrix();
-                        }
-                    }
-                    else
-                    {
-                        for (size_t i = 0; i < _voxelPositions.size() / 3; i++)
-                        {
-                            glPushMatrix();
-                            glTranslated(_voxelPositions[3 * i + 0], _voxelPositions[3 * i + 1],
-                                         _voxelPositions[3 * i + 2]);
-
-                            const float *cc = octree->getColors();
-                            float c[4] = {cc[4 * i + 0], cc[4 * i + 1], cc[4 * i + 2], cc[4 * i + 3]};
-                            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, c);
-                            int _vertexBufferId = octree->getVertexBufferId();
-                            int _normalBufferId = octree->getNormalBufferId();
-                            _drawTriangles(_cubeVertices, 24, _cubeIndices, 36, _cubeNormals, nullptr, &_vertexBufferId,
-                                           &_normalBufferId, nullptr);
-                            octree->setVertexBufferId(_vertexBufferId);
-                            octree->setNormalBufferId(_normalBufferId);
-                            glEnd();
-                            glPopMatrix();
-                        }
                     }
                 }
             }

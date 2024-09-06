@@ -76,7 +76,7 @@ void CCalculationInfo::formatInfo()
     // Proximity sensor calculation:
     if (App::worldContainer->pluginContainer->isGeomPluginAvailable())
     {
-        if (!App::currentWorld->mainSettings->proximitySensorsEnabled)
+        if (!App::currentWorld->mainSettings_old->proximitySensorsEnabled)
             _sensTxt[0] = "&&fg930Proximity sensor handling disabled";
         else
             _sensTxt[0] = "Proximity sensor handling enabled";
@@ -90,7 +90,7 @@ void CCalculationInfo::formatInfo()
     _sensTxt[1] += boost::lexical_cast<std::string>(_sensCalcDuration) + " ms)";
 
     // Vision sensor calculation:
-    if (!App::currentWorld->mainSettings->visionSensorsEnabled)
+    if (!App::currentWorld->mainSettings_old->visionSensorsEnabled)
         _visionSensTxt[0] = "&&fg930Vision sensor handling disabled";
     else
         _visionSensTxt[0] = "Vision sensor handling enabled (FBO)";
@@ -245,20 +245,20 @@ void CCalculationInfo::dynamicsEnd(int calcPasses, bool dynamicContent)
 #ifdef SIM_WITH_GUI
 void CCalculationInfo::printInformation()
 {
-    if (App::currentWorld->buttonBlockContainer == nullptr)
+    if (App::currentWorld->buttonBlockContainer_old == nullptr)
         return;
     if (App::currentWorld->sceneObjects == nullptr)
         return;
     for (int i = 0; i < INFO_BOX_ROW_COUNT; i++)
     {
-        if (App::currentWorld->buttonBlockContainer->getInfoBoxButton(i, 0) == nullptr)
+        if (App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(i, 0) == nullptr)
             return;
-        if (App::currentWorld->buttonBlockContainer->getInfoBoxButton(i, 1) == nullptr)
+        if (App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(i, 1) == nullptr)
             return;
-        App::currentWorld->buttonBlockContainer->getInfoBoxButton(i, 0)->label = "";
-        App::currentWorld->buttonBlockContainer->getInfoBoxButton(i, 1)->label = "";
+        App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(i, 0)->label = "";
+        App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(i, 1)->label = "";
     }
-    if (App::currentWorld->buttonBlockContainer != nullptr)
+    if (App::currentWorld->buttonBlockContainer_old != nullptr)
     {
         int pos = 0;
         std::string tmp;
@@ -269,7 +269,7 @@ void CCalculationInfo::printInformation()
             if (it != nullptr)
             {
 
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = "Selected objects:";
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected objects:";
                 if (App::currentWorld->sceneObjects->getSelectionCount() != 2)
                     tmp = boost::lexical_cast<std::string>(App::currentWorld->sceneObjects->getSelectionCount());
                 else
@@ -280,47 +280,47 @@ void CCalculationInfo::printInformation()
                     C7Vector v1(it2->getFullCumulativeTransformation());
                     tmp = "2 (frame-frame distance=" + utils::getSizeString(false, (v0.X - v1.X).getLength()) + ")";
                 }
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = tmp;
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
 
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label =
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                     "Last selected object alias:";
                 tmp = it->getObjectAlias_printPath();
                 tmp += "    (deprecated name:";
                 tmp += it->getObjectName_old();
                 tmp += ")";
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = tmp;
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
 
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = "Last selected object type:";
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Last selected object type:";
                 tmp = it->getObjectTypeInfoExtended();
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = tmp;
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
 
                 C7Vector m(it->getCumulativeTransformation());
                 C3Vector euler(m.Q.getEulerAngles());
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label =
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                     "Last selected object position:";
                 txt = "x: " + utils::getPosString(true, m.X(0)) + "    y: " + utils::getPosString(true, m.X(1)) +
                       "    z: " + utils::getPosString(true, m.X(2));
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = txt;
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label =
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                     "Last selected object orientation:";
                 txt = "a: " + utils::getAngleString(true, euler(0)) +
                       "    b: " + utils::getAngleString(true, euler(1)) +
                       "    g: " + utils::getAngleString(true, euler(2));
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = txt;
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
             }
             else
             {
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = "Selected objects:";
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = "0";
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected objects:";
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = "0";
             }
         }
         if (GuiApp::getEditModeType() & VERTEX_EDIT_MODE)
         {
             if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 2)
             {
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = "Selected vertices:";
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected vertices:";
                 tmp = boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize());
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = tmp;
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
             }
             else
             {
@@ -329,9 +329,9 @@ void CCalculationInfo::printInformation()
                 C3Vector p2(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(
                     GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(1)));
                 double dist = (p2 - p1).getLength();
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = "Selected vertices:";
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected vertices:";
                 txt = "2 (distance=" + utils::getSizeString(false, dist) + ")";
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = txt;
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
             }
             if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0)
             {
@@ -342,27 +342,27 @@ void CCalculationInfo::printInformation()
                     int lastV = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
                     C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(lastV));
                     v *= m;
-                    App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label =
+                    App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                         "Last selected vertex position:";
                     txt = "x: " + utils::getPosString(true, v(0)) + "    y: " + utils::getPosString(true, v(1)) +
                           "    z: " + utils::getPosString(true, v(2));
-                    App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = txt;
+                    App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
                 }
             }
         }
         if (GuiApp::getEditModeType() & TRIANGLE_EDIT_MODE)
         {
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = "Selected triangles:";
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected triangles:";
             tmp = boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize());
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = tmp;
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
         }
         if (GuiApp::getEditModeType() & EDGE_EDIT_MODE)
         {
             if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() == 0)
             {
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = "Selected edges:";
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected edges:";
                 tmp = "0";
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = tmp;
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
             }
             else
             {
@@ -377,10 +377,10 @@ void CCalculationInfo::printInformation()
                     double dist = (p2 - p1).getLength();
                     totLength += dist;
                 }
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = "Selected edges:";
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected edges:";
                 txt = boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()) +
                       " (total edge length=" + utils::getSizeString(false, totLength) + ")";
-                App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = txt;
+                App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
             }
         }
 
@@ -392,11 +392,11 @@ void CCalculationInfo::printInformation()
             {
                 if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 2)
                 {
-                    App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = "Selected path points:";
+                    App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected path points:";
                     txt = boost::lexical_cast<std::string>(
                         GuiApp::mainWindow->editModeContainer->getEditModeBufferSize());
                     txt += " (Bezier path length=" + utils::getSizeString(false, pc->getBezierNormalPathLength()) + ")";
-                    App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = txt;
+                    App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
                 }
                 else
                 {
@@ -405,9 +405,9 @@ void CCalculationInfo::printInformation()
                     CSimplePathPoint_old *pt2(
                         GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(1));
                     double dist = (pt2->getTransformation().X - pt1->getTransformation().X).getLength();
-                    App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = "Selected path points:";
+                    App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected path points:";
                     txt = "2 (distance=" + utils::getSizeString(false, dist) + ")";
-                    App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = txt;
+                    App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
                 }
                 if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0)
                 {
@@ -418,18 +418,18 @@ void CCalculationInfo::printInformation()
                     //                  pt(pc->getSimplePathPoint(App::currentWorld->objCont->editModeBuffer[App::currentWorld->objCont->editModeBuffer.size()-1]));
                     C7Vector tr(path->getCumulativeTransformation());
                     C3Vector v(tr * pt->getTransformation().X);
-                    App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label =
+                    App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                         "Last selected path point position:";
                     txt = "x: " + utils::getPosString(true, v(0)) + "    y: " + utils::getPosString(true, v(1)) +
                           "    z: " + utils::getPosString(true, v(2));
-                    App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = txt;
+                    App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
                     C3Vector euler((tr.Q * pt->getTransformation().Q).getEulerAngles());
-                    App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label =
+                    App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                         "Last selected path point orientation:";
                     txt = "a: " + utils::getAngleString(true, euler(0)) +
                           "    b: " + utils::getAngleString(true, euler(1)) +
                           "    g: " + utils::getAngleString(true, euler(2));
-                    App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = txt;
+                    App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
                 }
             }
         }
@@ -438,24 +438,24 @@ void CCalculationInfo::printInformation()
         int index = 0;
         while (App::currentWorld->simulation->getInfo(txtLeft, txtRight, index))
         {
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = txtLeft;
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = txtRight;
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = txtLeft;
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txtRight;
         }
         if (App::currentWorld->simulation->isSimulationRunning())
         {
             // Script functionality:
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = _scriptTxt[0];
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = _scriptTxt[1];
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _scriptTxt[0];
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _scriptTxt[1];
             // Proximity sensor simulation:
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = _sensTxt[0];
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = _sensTxt[1];
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _sensTxt[0];
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _sensTxt[1];
 
             // Vision sensor simulation:
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = _visionSensTxt[0];
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = _visionSensTxt[1];
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _visionSensTxt[0];
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _visionSensTxt[1];
             // Dynamics calculation:
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos, 0)->label = _dynamicsTxt[0];
-            App::currentWorld->buttonBlockContainer->getInfoBoxButton(pos++, 1)->label = _dynamicsTxt[1];
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _dynamicsTxt[0];
+            App::currentWorld->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _dynamicsTxt[1];
         }
     }
 }

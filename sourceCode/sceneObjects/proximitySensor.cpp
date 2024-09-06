@@ -870,7 +870,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectH
     _sensorResultValid = false;
     _detectedPointValid = false;
     _calcTimeInMs = 0;
-    if (!App::currentWorld->mainSettings->proximitySensorsEnabled)
+    if (!App::currentWorld->mainSettings_old->proximitySensorsEnabled)
         return (false);
     if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
         return (false);

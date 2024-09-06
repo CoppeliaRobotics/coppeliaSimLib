@@ -237,7 +237,7 @@ void CDistanceObjectContainer_old::setUpDefaultValues()
 double CDistanceObjectContainer_old::handleAllDistances(bool exceptExplicitHandling)
 { // Return value is the smallest distance measured or negative if nothing was measured
     resetAllDistances(exceptExplicitHandling);
-    if (!App::currentWorld->mainSettings->distanceCalculationEnabled)
+    if (!App::currentWorld->mainSettings_old->distanceCalculationEnabled)
         return (-1.0);
 
     double retVal = DBL_MAX;

@@ -104,7 +104,7 @@ void CHierarchy::rebuildHierarchy()
     {
         CHierarchyElement *newEl = new CHierarchyElement(-App::worldContainer->getCurrentWorldIndex() - 1);
         newEl->addYourChildren();
-        std::string sceneName = App::currentWorld->mainSettings->getSceneName();
+        std::string sceneName = App::currentWorld->environment->getSceneName();
         newEl->setSceneName(sceneName.c_str());
         rootElements.push_back(newEl);
     }
@@ -209,7 +209,7 @@ void CHierarchy::keyPress(int key)
         if (em == NO_EDIT_MODE)
         {
             CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(labelEditObjectID);
-            CButtonBlock *blk = App::currentWorld->buttonBlockContainer->getBlockWithID(labelEditObjectID);
+            CButtonBlock *blk = App::currentWorld->buttonBlockContainer_old->getBlockWithID(labelEditObjectID);
             if ((key == ENTER_KEY) || (key == TAB_KEY))
             {
                 if ((em == NO_EDIT_MODE) && (it != nullptr))

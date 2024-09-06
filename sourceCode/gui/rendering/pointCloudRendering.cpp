@@ -52,23 +52,7 @@ void displayPointCloud(CPointCloud *pointCloud, CViewableBase *renderingObject, 
         std::vector<double> &_points = pointCloud->getPoints()[0];
         if (_points.size() > 0)
         {
-            bool setOtherColor = (App::currentWorld->collisions->getCollisionColor(pointCloud->getObjectHandle()) != 0);
-            for (size_t i = 0; i < App::currentWorld->collections->getObjectCount(); i++)
-            {
-                if (App::currentWorld->collections->getObjectFromIndex(i)->isObjectInCollection(
-                        pointCloud->getObjectHandle()))
-                    setOtherColor |=
-                        (App::currentWorld->collisions->getCollisionColor(
-                             App::currentWorld->collections->getObjectFromIndex(i)->getCollectionHandle()) != 0);
-            }
-
-            if (displayAttrib & sim_displayattribute_forvisionsensor)
-                setOtherColor = false;
-
-            if (!setOtherColor)
-                pointCloud->getColor()->makeCurrentColor(false);
-            else
-                App::currentWorld->mainSettings->collisionColor.makeCurrentColor(false);
+            pointCloud->getColor()->makeCurrentColor(false);
 
             if (pointCloud->getShowOctree() && (pointCloud->getPointCloudInfo() != nullptr) &&
                 ((displayAttrib & sim_displayattribute_forvisionsensor) == 0))
@@ -124,7 +108,7 @@ void displayPointCloud(CPointCloud *pointCloud, CViewableBase *renderingObject, 
                 cols = pointCloud->getDisplayColors();
             }
 
-            if ((cols->size() == 0) || setOtherColor)
+            if (cols->size() == 0)
             {
                 glBegin(GL_POINTS);
                 glNormal3dv(normalVectorForLinesAndPoints.data);

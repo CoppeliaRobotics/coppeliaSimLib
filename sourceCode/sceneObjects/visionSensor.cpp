@@ -723,7 +723,7 @@ bool CVisionSensor::handleSensor()
         sensorResult.sensorDataIntensity[i] = 0;
         sensorResult.sensorDataDepth[i] = 0.0;
     }
-    if (!App::currentWorld->mainSettings->visionSensorsEnabled)
+    if (!App::currentWorld->mainSettings_old->visionSensorsEnabled)
         return (false);
     if (_useExternalImage) // those 2 lines added on 2010/12/12
         return (false);
@@ -1334,10 +1334,10 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
                                                                 getFullCumulativeTransformation().getMatrix());
 
         // Point clouds:
-        App::currentWorld->pointCloudCont->renderYour3DStuff_nonTransparent(this, rendAttrib);
+        App::currentWorld->pointCloudCont_old->renderYour3DStuff_nonTransparent(this, rendAttrib);
 
         // Ghost objects:
-        App::currentWorld->ghostObjectCont->renderYour3DStuff_nonTransparent(this, rendAttrib);
+        App::currentWorld->ghostObjectCont_old->renderYour3DStuff_nonTransparent(this, rendAttrib);
 
         // particles:
         App::currentWorld->dynamicsContainer->renderYour3DStuff(this, rendAttrib);
@@ -1393,7 +1393,7 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
                                                                 getFullCumulativeTransformation().getMatrix());
 
         // Ghost objects:
-        App::currentWorld->ghostObjectCont->renderYour3DStuff_transparent(this, rendAttrib);
+        App::currentWorld->ghostObjectCont_old->renderYour3DStuff_transparent(this, rendAttrib);
     }
     if (getInternalRendering()) // for now
     {
@@ -1407,7 +1407,7 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
                                                                 getFullCumulativeTransformation().getMatrix());
 
         // Ghosts:
-        App::currentWorld->ghostObjectCont->renderYour3DStuff_overlay(this, rendAttrib);
+        App::currentWorld->ghostObjectCont_old->renderYour3DStuff_overlay(this, rendAttrib);
     }
     if (getInternalRendering())
         _disableAuxClippingPlanes();
@@ -1764,7 +1764,7 @@ int CVisionSensor::_getActiveMirrors(int entityID, bool detectAll,
 {
     if (App::currentWorld->sceneObjects->getObjectCount(sim_sceneobject_mirror) == 0)
         return (0);
-    if (App::currentWorld->mainSettings->mirrorsDisabled)
+    if (App::currentWorld->mainSettings_old->mirrorsDisabled)
         return (0);
     if (_renderMode != sim_rendermode_opengl)
         return (0);

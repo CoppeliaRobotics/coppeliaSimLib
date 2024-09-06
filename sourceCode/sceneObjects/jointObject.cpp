@@ -792,7 +792,7 @@ void CJoint::simulationEnded()
 void CJoint::resetJoint_DEPRECATED()
 { // DEPRECATED
     if ((_jointMode != sim_jointmode_motion_deprecated) ||
-        (!App::currentWorld->mainSettings->jointMotionHandlingEnabled_DEPRECATED))
+        (!App::currentWorld->mainSettings_old->jointMotionHandlingEnabled_DEPRECATED))
         return;
     if (_initialValuesInitialized)
     {
@@ -804,7 +804,7 @@ void CJoint::resetJoint_DEPRECATED()
 void CJoint::handleJoint_DEPRECATED(double deltaTime)
 { // DEPRECATED
     if ((_jointMode != sim_jointmode_motion_deprecated) ||
-        (!App::currentWorld->mainSettings->jointMotionHandlingEnabled_DEPRECATED))
+        (!App::currentWorld->mainSettings_old->jointMotionHandlingEnabled_DEPRECATED))
         return;
     if (_unlimitedAcceleration_DEPRECATED)
     {

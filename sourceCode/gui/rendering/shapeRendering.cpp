@@ -104,26 +104,6 @@ void displayShape(CShape *shape, CViewableBase *renderingObject, int displayAttr
         {
             _enableAuxClippingPlanes(shape->getObjectHandle());
 
-            CColorObject otherColor;
-            CColorObject *otherColorP = nullptr;
-            if ((displayAttrib & sim_displayattribute_originalcolors) == 0)
-            {
-                bool setOtherColor = (App::currentWorld->collisions->getCollisionColor(shape->getObjectHandle()) != 0);
-                for (size_t i = 0; i < App::currentWorld->collections->getObjectCount(); i++)
-                {
-                    if (App::currentWorld->collections->getObjectFromIndex(i)->isObjectInCollection(
-                            shape->getObjectHandle()))
-                        setOtherColor |=
-                            (App::currentWorld->collisions->getCollisionColor(
-                                 App::currentWorld->collections->getObjectFromIndex(i)->getCollectionHandle()) != 0);
-                }
-                if (setOtherColor)
-                {
-                    App::currentWorld->mainSettings->collisionColor.copyYourselfInto(&otherColor);
-                    otherColorP = &otherColor;
-                }
-            }
-
             if (renderingObject->isObjectInsideView(shape->getCumulativeTransformation() * shape->getBB(nullptr),
                                                     shape->getBBHSize()))
             { // the bounding box is inside of the view (at least some part of it!)
@@ -131,13 +111,13 @@ void displayShape(CShape *shape, CViewableBase *renderingObject, int displayAttr
                 { // normal visualization
                     if (shape->getContainsTransparentComponent())
                     {
-                        shape->getMesh()->display(C7Vector::identityTransformation, shape, displayAttrib, otherColorP,
+                        shape->getMesh()->display(C7Vector::identityTransformation, shape, displayAttrib, nullptr,
                                                   shape->getDynamicFlag(), 2, false);
-                        shape->getMesh()->display(C7Vector::identityTransformation, shape, displayAttrib, otherColorP,
+                        shape->getMesh()->display(C7Vector::identityTransformation, shape, displayAttrib, nullptr,
                                                   shape->getDynamicFlag(), 1, false);
                     }
                     else
-                        shape->getMesh()->display(C7Vector::identityTransformation, shape, displayAttrib, otherColorP,
+                        shape->getMesh()->display(C7Vector::identityTransformation, shape, displayAttrib, nullptr,
                                                   shape->getDynamicFlag(), 0, false);
                 }
                 else

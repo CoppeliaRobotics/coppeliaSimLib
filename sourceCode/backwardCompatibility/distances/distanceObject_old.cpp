@@ -183,7 +183,7 @@ bool CDistanceObject_old::setObjectName(const char *newName, bool check)
     std::string nnn;
     CDistanceObject_old *it = nullptr;
     if (check)
-        it = App::currentWorld->distances->getObjectFromHandle(_objectHandle);
+        it = App::currentWorld->distances_old->getObjectFromHandle(_objectHandle);
     if (it != this)
         nnn = newName;
     else
@@ -194,7 +194,7 @@ bool CDistanceObject_old::setObjectName(const char *newName, bool check)
         {
             if (getObjectName() != nm)
             {
-                while (App::currentWorld->distances->getObjectFromName(nm.c_str()) != nullptr)
+                while (App::currentWorld->distances_old->getObjectFromName(nm.c_str()) != nullptr)
                     nm = tt::generateNewName_hashOrNoHash(nm.c_str(), !tt::isHashFree(nm.c_str()));
                 nnn = nm;
             }
@@ -228,7 +228,7 @@ void CDistanceObject_old::clearDistanceResult()
 double CDistanceObject_old::handleDistance()
 {
     clearDistanceResult();
-    if (!App::currentWorld->mainSettings->distanceCalculationEnabled)
+    if (!App::currentWorld->mainSettings_old->distanceCalculationEnabled)
         return (-1.0);
     if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
         return (-1.0);

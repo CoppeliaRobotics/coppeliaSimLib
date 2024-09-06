@@ -479,6 +479,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/backwardCompatibility/sceneContainers/ghostObjectContainer.cpp
     sourceCode/backwardCompatibility/sceneContainers/pointCloudContainer_old.cpp
     sourceCode/backwardCompatibility/sceneContainers/buttonBlockContainer.cpp
+    sourceCode/backwardCompatibility/sceneContainers/mainSettings_old.cpp
     sourceCode/backwardCompatibility/sceneObjects/mill.cpp
     sourceCode/backwardCompatibility/sceneObjects/path_old.cpp
     sourceCode/backwardCompatibility/collisions/collisionObject_old.cpp
@@ -558,7 +559,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/sceneContainers/collectionContainer.cpp
     sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp
     sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp
-    sourceCode/mainContainers/sceneContainers/mainSettings.cpp
     sourceCode/mainContainers/sceneContainers/embeddedScriptContainer.cpp
     sourceCode/mainContainers/sceneContainers/environment.cpp
     sourceCode/mainContainers/sceneContainers/dynamicsContainer.cpp

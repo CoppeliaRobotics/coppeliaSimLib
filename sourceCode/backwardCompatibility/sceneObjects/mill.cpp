@@ -469,7 +469,7 @@ int CMill::handleMill(bool exceptExplicitHandling, double &milledSurface, double
         return (0); // We don't want to handle those
     _millDataValid = false;
     _calcTimeInMs = 0;
-    if (!App::currentWorld->mainSettings->millsEnabled)
+    if (!App::currentWorld->mainSettings_old->millsEnabled)
         return (0);
     if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
         return (0);

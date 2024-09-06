@@ -3,7 +3,7 @@
 #include <registeredPathPlanningTasks.h>
 #include <environment.h>
 #include <pageContainer.h>
-#include <mainSettings.h>
+#include <mainSettings_old.h>
 #include <simulation.h>
 #include <buttonBlockContainer.h>
 #include <outsideCommandQueue.h>
@@ -24,21 +24,6 @@
 #include <collisionObjectContainer_old.h>
 #include <ikGroupContainer.h>
 #include <sceneObjectContainer.h>
-
-// ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propScene_sceneUid,                "sceneUid",                     sim_propertytype_int,       1) \
-    FUNCX(propScene_visibilityLayers,        "visibilityLayers",             sim_propertytype_int,       0) \
-
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
-DEFINE_PROPERTIES
-#undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
-const std::vector<SProperty> allProps_scene = { DEFINE_PROPERTIES };
-#undef FUNCX
-#undef DEFINE_PROPERTIES
-// ----------------------------------------------------------------------------------------------
 
 struct SLoadOperationIssue
 {
@@ -144,28 +129,28 @@ class CWorld
     CDynamicsContainer *dynamicsContainer;
     CEnvironment *environment;
     CPageContainer *pageContainer;
-    CMainSettings *mainSettings;
     CTextureContainer *textureContainer;
     CSimulation *simulation;
     CCustomData customSceneData;
     CCustomData customSceneData_tempData; // same as above, but not serialized!
-    CCustomData_old *customSceneData_old;
     CCacheCont *cacheData;
     CDrawingContainer *drawingCont;
     CCollectionContainer *collections;
     CSceneObjectContainer *sceneObjects;
 
     // Old:
-    CDistanceObjectContainer_old *distances;
-    CCollisionObjectContainer_old *collisions;
-    CIkGroupContainer *ikGroups;
-    CRegisteredPathPlanningTasks *pathPlanning;
-    CPointCloudContainer_old *pointCloudCont;
-    CGhostObjectContainer *ghostObjectCont;
-    CCommTubeContainer *commTubeContainer;
-    CBannerContainer *bannerCont;
-    COutsideCommandQueue *outsideCommandQueue;
-    CButtonBlockContainer *buttonBlockContainer;
+    CMainSettings *mainSettings_old;
+    CCustomData_old *customSceneData_old;
+    CDistanceObjectContainer_old *distances_old;
+    CCollisionObjectContainer_old *collisions_old;
+    CIkGroupContainer *ikGroups_old;
+    CRegisteredPathPlanningTasks *pathPlanning_old;
+    CPointCloudContainer_old *pointCloudCont_old;
+    CGhostObjectContainer *ghostObjectCont_old;
+    CCommTubeContainer *commTubeContainer_old;
+    CBannerContainer *bannerCont_old;
+    COutsideCommandQueue *outsideCommandQueue_old;
+    CButtonBlockContainer *buttonBlockContainer_old;
 
   private:
     bool _loadModelOrScene(CSer &ar, bool selectLoaded, bool isScene, bool justLoadThumbnail, bool forceModelAsCopy,

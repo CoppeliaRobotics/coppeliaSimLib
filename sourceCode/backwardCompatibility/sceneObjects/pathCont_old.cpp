@@ -217,7 +217,7 @@ bool CPathCont_old::_getBezierPointsForVirtualDistance(double &l, int &index0, i
 
 void CPathCont_old::handlePath(CPath_old *it, double deltaTime)
 { // DEPRECATED
-    if (App::currentWorld->mainSettings->pathMotionHandlingEnabled_DEPRECATED)
+    if (App::currentWorld->mainSettings_old->pathMotionHandlingEnabled_DEPRECATED)
     { // we should not forget to call _handleAttachedDummies even when the path motion is disabled!!
         handlePath_keepObjectUnchanged(deltaTime, _position, _nominalVelocity, _targetNominalVelocity, _maxAcceleration,
                                        (_attributes & sim_pathproperty_invert_velocity_deprecated) != 0,

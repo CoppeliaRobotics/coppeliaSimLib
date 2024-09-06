@@ -1825,7 +1825,7 @@ void CSceneObjectContainer::addObjectToSelection(int objectHandle)
                 {
                     std::vector<int> _sel(getSelectedObjectHandlesPtr()[0]);
                     _sel.push_back(objectHandle);
-                    App::currentWorld->buttonBlockContainer->aSceneObjectWasSelected(objectHandle);
+                    App::currentWorld->buttonBlockContainer_old->aSceneObjectWasSelected(objectHandle);
                     if (setSelectedObjectHandles(&_sel))
                     {
 #ifdef SIM_WITH_GUI

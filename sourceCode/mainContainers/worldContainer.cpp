@@ -381,7 +381,7 @@ void CWorldContainer::getAllSceneNames(std::vector<std::string> &l) const
 {
     l.clear();
     for (size_t i = 0; i < _worlds.size(); i++)
-        l.push_back(VVarious::splitPath_fileBase(_worlds[i]->mainSettings->getScenePathAndName().c_str()));
+        l.push_back(VVarious::splitPath_fileBase(_worlds[i]->environment->getScenePathAndName().c_str()));
 }
 
 CScriptObject *CWorldContainer::getScriptObjectFromHandle(int scriptHandle) const
@@ -696,7 +696,7 @@ void CWorldContainer::addMenu(VMenu *menu)
 
     for (size_t i = 0; i < _worlds.size(); i++)
     {
-        std::string txt = _worlds[i]->mainSettings->getSceneName();
+        std::string txt = _worlds[i]->environment->getSceneName();
         if (txt == "")
             txt = "new scene";
         txt += tt::decorateString(" (scene ", utils::getIntString(false, int(i) + 1), ")");

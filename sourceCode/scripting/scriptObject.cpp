@@ -204,7 +204,7 @@ std::string CScriptObject::getFilenameForExternalScriptEditor()
             else
                 _filenameForExternalScriptEditor = "error-";
         }
-        std::string tmp(App::currentWorld->mainSettings->getSceneName());
+        std::string tmp(App::currentWorld->environment->getSceneName());
         if (tmp.size() == 0)
             tmp = "newScene";
         _filenameForExternalScriptEditor += tmp + "-" + std::to_string(_scriptHandle);
@@ -2670,10 +2670,10 @@ std::string CScriptObject::getSearchPath_lua()
     retVal += "/bwf/?.lua;";
     retVal += App::folders->getInterpretersRootPath();
     retVal += "/luarocks/share/lua/5.3/?.lua";
-    if (App::currentWorld->mainSettings->getScenePathAndName().compare("") != 0)
+    if (App::currentWorld->environment->getScenePathAndName().compare("") != 0)
     {
         retVal += ";";
-        retVal += App::currentWorld->mainSettings->getScenePath();
+        retVal += App::currentWorld->environment->getScenePath();
         retVal += "/?.lua";
     }
     if (App::userSettings->additionalLuaPath.length() > 0)
@@ -2703,10 +2703,10 @@ std::string CScriptObject::getSearchPath_python()
     retVal += "/?.py;";
     retVal += App::folders->getInterpretersRootPath();
     retVal += "/python/?.py;";
-    if (App::currentWorld->mainSettings->getScenePathAndName().compare("") != 0)
+    if (App::currentWorld->environment->getScenePathAndName().compare("") != 0)
     {
         retVal += ";";
-        retVal += App::currentWorld->mainSettings->getScenePath();
+        retVal += App::currentWorld->environment->getScenePath();
         retVal += "/?.py";
     }
     if (App::userSettings->additionalPythonPath.length() > 0)
