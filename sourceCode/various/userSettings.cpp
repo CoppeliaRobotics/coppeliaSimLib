@@ -821,7 +821,7 @@ void CUserSettings::loadUserSettings()
 #endif
     c.getBoolean(_USR_SCENEHIERARCHY_INITIALLY_VISIBLE, sceneHierarchyInitiallyVisible);
 #ifdef SIM_WITH_GUI
-    COglSurface::_hierarchyEnabled = sceneHierarchyInitiallyVisible;
+    App::setHierarchyEnabled(sceneHierarchyInitiallyVisible);
 #endif
     c.getBoolean(_USR_SCENEHIERARCHY_HIDDEN_DURING_SIMULATION, sceneHierarchyHiddenDuringSimulation);
 

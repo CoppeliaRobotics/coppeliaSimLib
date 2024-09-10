@@ -63,7 +63,6 @@ CMainWindow::CMainWindow(int operationalUiParts) : QMainWindow()
     _hasStereo = false;
     _stereoDistance = 0.0;
     _leftEye = true;
-    _openGlDisplayEnabled = true;
     _mouseMode = DEFAULT_MOUSE_MODE;
     _proxSensorClickSelectDown = 0;
     _proxSensorClickSelectUp = 0;
@@ -502,18 +501,6 @@ void CMainWindow::setFullScreen(bool f)
     _fullscreen = f;
 }
 
-void CMainWindow::setOpenGlDisplayEnabled(bool e)
-{
-    _openGlDisplayEnabled = e;
-    GuiApp::setToolbarRefreshFlag();
-    GuiApp::setRefreshHierarchyViewFlag();
-}
-
-bool CMainWindow::getOpenGlDisplayEnabled()
-{
-    return (_openGlDisplayEnabled);
-}
-
 void CMainWindow::setFocusObject(int f)
 {
     _focusObject = f;
@@ -664,11 +651,11 @@ void CMainWindow::refreshDialogs_uiThread()
     // setWindowTitle somehow adds multiple app icons on Linux...
     int ct = (int)VDateTime::getTimeInMs();
     if ((VDateTime::getTimeDiffInMs(timeCounter) > 1000) ||
-        ((VDateTime::getTimeDiffInMs(timeCounter) > 100) && (!getOpenGlDisplayEnabled())))
+        ((VDateTime::getTimeDiffInMs(timeCounter) > 100) && (!App::getOpenGlDisplayEnabled())))
     { // Refresh the main window text every 1/4 seconds:
         timeCounter = ct;
         std::string title;
-        if (getOpenGlDisplayEnabled())
+        if (App::getOpenGlDisplayEnabled())
         {
             title = (IDS____RENDERING__);
             title += boost::lexical_cast<std::string>(_renderingTimeInMs) + " ms";
@@ -747,12 +734,12 @@ void CMainWindow::renderScene()
 
             if (windowHandle()->isExposed())
             {
-                if ((!getOpenGlDisplayEnabled()) && (App::currentWorld->simulation != nullptr) &&
+                if ((!App::getOpenGlDisplayEnabled()) && (App::currentWorld->simulation != nullptr) &&
                     (App::currentWorld->simulation->isSimulationStopped()))
-                    setOpenGlDisplayEnabled(true);
+                    App::setOpenGlDisplayEnabled(true);
 
                 bool swapTheBuffers = false;
-                if (getOpenGlDisplayEnabled())
+                if (App::getOpenGlDisplayEnabled())
                 {
                     swapTheBuffers = true;
                     openglWidget->makeContextCurrent();
@@ -1225,7 +1212,7 @@ bool CMainWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::Close)
     {
-        setOpenGlDisplayEnabled(true); // We might be in fast simulation mode...
+        App::setOpenGlDisplayEnabled(true); // We might be in fast simulation mode...
         CFileOperations::processCommand(FILE_OPERATION_EXIT_SIMULATOR_FOCMD);
         event->ignore();
         return (true);
@@ -1280,9 +1267,9 @@ void CMainWindow::onLeftMouseButtonDoubleClickTT(int xPos, int yPos)
         selectionStatus = SHIFTSELECTION;
     else if ((getKeyDownState() & 1) && (mm & sim_navigation_ctrlselection))
         selectionStatus = CTRLSELECTION;
-    if (getOpenGlDisplayEnabled())
+    if (App::getOpenGlDisplayEnabled())
         oglSurface->leftMouseButtonDoubleClick(_mouseRenderingPos[0], _mouseRenderingPos[1], selectionStatus);
-    setOpenGlDisplayEnabled(true); // enable the display again
+    App::setOpenGlDisplayEnabled(true); // enable the display again
 }
 
 void CMainWindow::onLeftMouseButtonDownTT(int xPos, int yPos)
@@ -1299,9 +1286,9 @@ void CMainWindow::onLeftMouseButtonDownTT(int xPos, int yPos)
     else if ((getKeyDownState() & 1) && (mm & sim_navigation_ctrlselection))
         selectionStatus = CTRLSELECTION;
     oglSurface->clearCaughtElements(0xffff - sim_left_button);
-    if (getOpenGlDisplayEnabled())
+    if (App::getOpenGlDisplayEnabled())
         oglSurface->leftMouseButtonDown(_mouseRenderingPos[0], _mouseRenderingPos[1], selectionStatus);
-    setOpenGlDisplayEnabled(true); // Enable the display again
+    App::setOpenGlDisplayEnabled(true); // Enable the display again
     setCurrentCursor(oglSurface->getCursor(xPos, yPos));
 }
 
@@ -1319,9 +1306,9 @@ void CMainWindow::onMiddleMouseButtonDownTT(int xPos, int yPos)
     else
         setMouseMode(upperMouseMode | sim_navigation_passive);
 
-    if (getOpenGlDisplayEnabled())
+    if (App::getOpenGlDisplayEnabled())
         oglSurface->middleMouseButtonDown(_mouseRenderingPos[0], _mouseRenderingPos[1]);
-    setOpenGlDisplayEnabled(true); // Enable the display again
+    App::setOpenGlDisplayEnabled(true); // Enable the display again
 }
 
 void CMainWindow::onRightMouseButtonDownTT(int xPos, int yPos)
@@ -1332,9 +1319,9 @@ void CMainWindow::onRightMouseButtonDownTT(int xPos, int yPos)
     if (App::userSettings->navigationBackwardCompatibility)
         GuiApp::setLightDialogRefreshFlag();
     oglSurface->clearCaughtElements(0xffff - sim_right_button);
-    if (getOpenGlDisplayEnabled())
+    if (App::getOpenGlDisplayEnabled())
         oglSurface->rightMouseButtonDown(_mouseRenderingPos[0], _mouseRenderingPos[1]);
-    setOpenGlDisplayEnabled(true); // Enable the display again
+    App::setOpenGlDisplayEnabled(true); // Enable the display again
 }
 
 void CMainWindow::onLeftMouseButtonUpTT(int xPos, int yPos)
@@ -1384,7 +1371,7 @@ void CMainWindow::onWheelRotateTT(int delta, int xPos, int yPos)
     setMouseButtonState(getMouseButtonState() | 2);
     if (getMouseMode() & sim_navigation_camerazoomwheel)
     {
-        if (getOpenGlDisplayEnabled())
+        if (App::getOpenGlDisplayEnabled())
             oglSurface->mouseWheel(delta, _mouseRenderingPos[0], _mouseRenderingPos[1]);
     }
     _mouseWheelEventTime = (int)VDateTime::getTimeInMs();
@@ -1396,7 +1383,7 @@ void CMainWindow::onMouseMoveTT(int xPos, int yPos)
     _mouseRenderingPos[0] = xPos;
     _mouseRenderingPos[1] = _clientArea[1] - yPos;
     int cur = -1;
-    if (getOpenGlDisplayEnabled())
+    if (App::getOpenGlDisplayEnabled())
     {
         int bts = sim_right_button | sim_middle_button | sim_left_button;
         if (App::userSettings->navigationBackwardCompatibility)
@@ -1414,7 +1401,7 @@ int CMainWindow::modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPo
 {
     _mouseRenderingPos[0] = xPos;
     _mouseRenderingPos[1] = _clientArea[1] - yPos;
-    if (getOpenGlDisplayEnabled())
+    if (App::getOpenGlDisplayEnabled())
     {
         int ret = oglSurface->modelDragMoveEvent(_mouseRenderingPos[0], _mouseRenderingPos[1], desiredModelPosition);
         return (ret);
@@ -1630,7 +1617,7 @@ void CMainWindow::_actualizetoolbarButtonState()
 
         _toolbarActionRealTime->setChecked(App::currentWorld->simulation->getIsRealTimeSimulation());
 
-        _toolbarActionToggleVisualization->setChecked(!getOpenGlDisplayEnabled());
+        _toolbarActionToggleVisualization->setChecked(!App::getOpenGlDisplayEnabled());
         _toolbarActionPageSelector->setChecked(oglSurface->isPageSelectionActive());
 
         _toolbarLabel->setText(CSimFlavor::getStringVal(21).c_str());
@@ -1849,41 +1836,40 @@ void CMainWindow::onKeyPress(SMouseOrKeyboardOrResizeEvent e)
         if (e.key == Qt::Key_Up)
         {
             setKeyDownState(getKeyDownState() | 4);
-            if (getOpenGlDisplayEnabled())
+            if (App::getOpenGlDisplayEnabled())
                 oglSurface->keyPress(UP_KEY, this);
             processed = true;
         }
         if (e.key == Qt::Key_Down)
         {
             setKeyDownState(getKeyDownState() | 8);
-            if (getOpenGlDisplayEnabled())
+            if (App::getOpenGlDisplayEnabled())
                 oglSurface->keyPress(DOWN_KEY, this);
             processed = true;
         }
         if (e.key == Qt::Key_Left)
         {
             setKeyDownState(getKeyDownState() | 16);
-            if (getOpenGlDisplayEnabled())
+            if (App::getOpenGlDisplayEnabled())
                 oglSurface->keyPress(LEFT_KEY, this);
             processed = true;
         }
         if (e.key == Qt::Key_Right)
         {
             setKeyDownState(getKeyDownState() | 32);
-            if (getOpenGlDisplayEnabled())
+            if (App::getOpenGlDisplayEnabled())
                 oglSurface->keyPress(RIGHT_KEY, this);
             processed = true;
         }
         if (e.key == Qt::Key_Delete)
         {
-            if (getOpenGlDisplayEnabled())
+            if (App::getOpenGlDisplayEnabled())
                 oglSurface->keyPress(DELETE_KEY, this);
             processed = true;
         }
         if (e.key == Qt::Key_Escape)
         {
-            if (!getOpenGlDisplayEnabled())
-                setOpenGlDisplayEnabled(true); // Esc enables the display again
+            App::setOpenGlDisplayEnabled(true); // Esc enables the display again
             oglSurface->setFocusObject(FOCUS_ON_PAGE);
             setFocusObject(oglSurface->getFocusObject());
             oglSurface->keyPress(ESC_KEY, this);
@@ -1891,19 +1877,19 @@ void CMainWindow::onKeyPress(SMouseOrKeyboardOrResizeEvent e)
         }
         if (e.key == Qt::Key_Tab)
         {
-            if (getOpenGlDisplayEnabled())
+            if (App::getOpenGlDisplayEnabled())
                 oglSurface->keyPress(TAB_KEY, this);
             processed = true;
         }
         if ((e.key == Qt::Key_Enter) || (e.key == Qt::Key_Return))
         {
-            if (getOpenGlDisplayEnabled())
+            if (App::getOpenGlDisplayEnabled())
                 oglSurface->keyPress(ENTER_KEY, this);
             processed = true;
         }
         if (e.key == Qt::Key_Backspace)
         {
-            if (getOpenGlDisplayEnabled())
+            if (App::getOpenGlDisplayEnabled())
                 oglSurface->keyPress(BACKSPACE_KEY, this);
             processed = true;
         }
@@ -1946,7 +1932,7 @@ void CMainWindow::onKeyPress(SMouseOrKeyboardOrResizeEvent e)
             QByteArray ba(e.unicodeText.toLatin1());
             if (ba.length() >= 1)
             {
-                if (getOpenGlDisplayEnabled())
+                if (App::getOpenGlDisplayEnabled())
                     oglSurface->keyPress(int(ba.at(0)), this);
             }
         }
@@ -2062,7 +2048,7 @@ void CMainWindow::instanceHasChanged(int newInstanceIndex)
     if (tabBar->currentIndex() != newInstanceIndex)
         tabBar->setCurrentIndex(newInstanceIndex);
 
-    setOpenGlDisplayEnabled(true);
+    App::setOpenGlDisplayEnabled(true);
     if (codeEditorContainer != nullptr)
         codeEditorContainer->showOrHideAll(true);
 }

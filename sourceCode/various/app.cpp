@@ -45,6 +45,8 @@ int App::_statusbarVerbosity = sim_verbosity_msgs;
 int App::_dlgVerbosity = sim_verbosity_infos;
 int App::_exitCode = 0;
 bool App::_exitRequest = false;
+bool App::_hierarchyEnabled = false;
+bool App::_openGlDisplayEnabled = true;
 volatile int App::_appStage = App::appstage_none;
 std::string App::_consoleLogFilterStr;
 std::string App::_startupScriptString;
@@ -1094,7 +1096,20 @@ void App::setConsoleVerbosity(int v, const char *pluginName /*=nullptr*/)
             pl->setConsoleVerbosity(v);
     }
     else
-        _consoleVerbosity = v;
+    {
+        bool diff = (_consoleVerbosity != v);
+        if (diff)
+        {
+            _consoleVerbosity = v;
+            if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+            {
+                const char *cmd = propApp_consoleVerbosity.name;
+                CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+                ev->appendKeyInt(cmd, _consoleVerbosity);
+                App::worldContainer->pushEvent();
+            }
+        }
+    }
 }
 
 int App::getStatusbarVerbosity(const char *pluginName /*=nullptr*/)
@@ -1121,7 +1136,20 @@ void App::setStatusbarVerbosity(int v, const char *pluginName /*=nullptr*/)
             pl->setStatusbarVerbosity(v);
     }
     else
-        _statusbarVerbosity = v;
+    {
+        bool diff = (_statusbarVerbosity != v);
+        if (diff)
+        {
+            _statusbarVerbosity = v;
+            if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+            {
+                const char *cmd = propApp_statusbarVerbosity.name;
+                CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+                ev->appendKeyInt(cmd, _statusbarVerbosity);
+                App::worldContainer->pushEvent();
+            }
+        }
+    }
 }
 
 bool App::getConsoleOrStatusbarVerbosityTriggered(int verbosityLevel)
@@ -1953,3 +1981,72 @@ int App::getPropertyInfo(int target, const char* pName, int& info, int& size, bo
     return retVal;
 }
 
+void App::setHierarchyEnabled(bool v)
+{
+    bool diff = (_hierarchyEnabled != v);
+    if (diff)
+    {
+        _hierarchyEnabled = v;
+        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propApp_hierarchyEnabled.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            ev->appendKeyBool(cmd, _hierarchyEnabled);
+            App::worldContainer->pushEvent();
+        }
+#ifdef SIM_WITH_GUI
+        if (GuiApp::mainWindow != nullptr)
+        {
+            if (!_hierarchyEnabled)
+                GuiApp::mainWindow->oglSurface->setFocusObject(FOCUS_ON_PAGE);
+            GuiApp::mainWindow->oglSurface->actualizeAllSurfacesSizeAndPosition();
+            GuiApp::setToolbarRefreshFlag();
+        }
+#endif
+    }
+}
+
+bool App::getHierarchyEnabled()
+{
+    return _hierarchyEnabled;
+}
+
+void App::setOpenGlDisplayEnabled(bool e)
+{
+    bool diff = (_openGlDisplayEnabled != e);
+    if (diff)
+    {
+        _openGlDisplayEnabled = e;
+        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propApp_displayEnabled.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            ev->appendKeyBool(cmd, _openGlDisplayEnabled);
+            App::worldContainer->pushEvent();
+        }
+#ifdef SIM_WITH_GUI
+        GuiApp::setToolbarRefreshFlag();
+        GuiApp::setRefreshHierarchyViewFlag();
+#endif
+    }
+}
+
+bool App::getOpenGlDisplayEnabled()
+{
+    return _openGlDisplayEnabled;
+}
+
+int App::getPlatform()
+{
+    int retVal;
+#ifdef WIN_SIM
+    retVal = 0;
+#endif
+#ifdef MAC_SIM
+    retVal = 1;
+#endif
+#ifdef LIN_SIM
+    retVal = 2;
+#endif
+    return retVal;
+}

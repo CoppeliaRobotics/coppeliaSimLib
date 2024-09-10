@@ -5,6 +5,7 @@
 #include <interfaceStackString.h>
 #include <interfaceStackInteger.h>
 #include <vDateTime.h>
+#include <simFlavor.h>
 #ifdef SIM_WITH_GUI
 #include <rendering.h>
 #include <guiApp.h>
@@ -634,15 +635,43 @@ void CWorldContainer::pushGenesisEvents()
         CCbor *ev = _createGeneralEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, nullptr, false);
         pushEvent();
 
-        ev = _createGeneralEvent(EVENTTYPE_APPSESSION, -1, -1, nullptr, nullptr, false);
+        ev = _createGeneralEvent(EVENTTYPE_APPSESSION, sim_handle_app, sim_handle_app, nullptr, nullptr, false);
         ev->appendKeyString(propApp_sessionId.name, _sessionId.c_str());
         ev->appendKeyInt(propApp_protocolVersion.name, SIM_EVENT_PROTOCOL_VERSION);
         ev->appendKeyString(propApp_productVersion.name, PRODUCT_VERSION);
+        ev->appendKeyInt(propApp_productVersionNb.name, SIM_PROGRAM_FULL_VERSION_NB);
+        ev->appendKeyInt(propApp_platform.name, App::getPlatform());
+        ev->appendKeyInt(propApp_flavor.name, SIM_FL);
+        ev->appendKeyInt(propApp_qtVersion.name, (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1);
+        ev->appendKeyInt(propApp_processId.name, App::instancesList->thisInstanceId());
+        ev->appendKeyInt(propApp_processCnt.name, App::instancesList->numInstances());
+        ev->appendKeyInt(propApp_consoleVerbosity.name, App::getConsoleVerbosity());
+        ev->appendKeyInt(propApp_statusbarVerbosity.name, App::getStatusbarVerbosity());
+        ev->appendKeyString(propApp_appDir.name, App::folders->getExecutablePath().c_str());
+//        ev->appendKeyString(propApp_machineId.name, CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id).c_str());
+//        ev->appendKeyString(propApp_legacyMachineId.name, CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id_legacy).c_str());
+        ev->appendKeyString(propApp_tempDir.name, App::folders->getTempDataPath().c_str());
+        ev->appendKeyString(propApp_sceneTempDir.name, App::folders->getSceneTempDataPath().c_str());
+        ev->appendKeyString(propApp_settingsDir.name, App::folders->getUserSettingsPath().c_str());
+        ev->appendKeyString(propApp_luaDir.name, App::folders->getLuaPath().c_str());
+        ev->appendKeyString(propApp_pythonDir.name, App::folders->getPythonPath().c_str());
+        ev->appendKeyString(propApp_mujocoDir.name, App::folders->getMujocoPath().c_str());
+        ev->appendKeyString(propApp_systemDir.name, App::folders->getSystemPath().c_str());
+        ev->appendKeyString(propApp_resourceDir.name, App::folders->getResourcesPath().c_str());
+        ev->appendKeyString(propApp_addOnDir.name, App::folders->getAddOnPath().c_str());
+        ev->appendKeyString(propApp_sceneDir.name, App::folders->getScenesPath().c_str());
+        ev->appendKeyString(propApp_modelDir.name, App::folders->getModelsPath().c_str());
+        ev->appendKeyString(propApp_importExportDir.name, App::folders->getImportExportPath().c_str());
+        ev->appendKeyString(propApp_defaultPython.name, App::userSettings->defaultPython.c_str());
+        ev->appendKeyString(propApp_sandboxLang.name, App::userSettings->preferredSandboxLang.c_str());
         pushEvent();
 
-        ev = _createGeneralEvent(EVENTTYPE_APPSETTINGSCHANGED, -1, -1, nullptr, nullptr, false);
+        ev = _createGeneralEvent(EVENTTYPE_APPSETTINGSCHANGED, sim_handle_app, sim_handle_app, nullptr, nullptr, false);
         ev->appendKeyDouble(propApp_defaultTranslationStepSize.name, App::userSettings->getTranslationStepSize());
         ev->appendKeyDouble(propApp_defaultRotationStepSize.name, App::userSettings->getRotationStepSize());
+        ev->appendKeyBool(propApp_hierarchyEnabled.name, App::getHierarchyEnabled());
+        ev->appendKeyBool(propApp_browserEnabled.name, GuiApp::getBrowserEnabled());
+        ev->appendKeyBool(propApp_displayEnabled.name, App::getOpenGlDisplayEnabled());
         pushEvent();
 
         currentWorld->pushGenesisEvents();
@@ -822,6 +851,22 @@ int CWorldContainer::setBoolProperty(const char* ppName, bool pState)
     const char* pName = _pName.c_str();
     int retVal = -1;
 
+    if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
+    {
+        App::setHierarchyEnabled(pState);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_browserEnabled.name) == 0)
+    {
+        GuiApp::setBrowserEnabled(pState);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_displayEnabled.name) == 0)
+    {
+        App::setOpenGlDisplayEnabled(pState);
+        retVal = 1;
+    }
+
     return retVal;
 }
 
@@ -831,6 +876,22 @@ int CWorldContainer::getBoolProperty(const char* ppName, bool& pState) const
     const char* pName = _pName.c_str();
     int retVal = -1;
 
+    if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
+    {
+        pState = App::getHierarchyEnabled();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_browserEnabled.name) == 0)
+    {
+        pState = GuiApp::getBrowserEnabled();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_displayEnabled.name) == 0)
+    {
+        pState = App::getOpenGlDisplayEnabled();
+        retVal = 1;
+    }
+
     return retVal;
 }
 
@@ -839,6 +900,17 @@ int CWorldContainer::setIntProperty(const char* ppName, int pState)
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
     int retVal = -1;
+
+    if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
+    {
+        App::setConsoleVerbosity(pState);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
+    {
+        App::setStatusbarVerbosity(pState);
+        retVal = 1;
+    }
 
     return retVal;
 }
@@ -852,6 +924,46 @@ int CWorldContainer::getIntProperty(const char* ppName, int& pState) const
     if (strcmp(pName, propApp_protocolVersion.name) == 0)
     {
         pState = SIM_EVENT_PROTOCOL_VERSION;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_productVersionNb.name) == 0)
+    {
+        pState = SIM_PROGRAM_FULL_VERSION_NB;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_platform.name) == 0)
+    {
+        pState = App::getPlatform();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_flavor.name) == 0)
+    {
+        pState = SIM_FL;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_qtVersion.name) == 0)
+    {
+        pState = (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_processId.name) == 0)
+    {
+        pState = App::instancesList->thisInstanceId();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_processCnt.name) == 0)
+    {
+        pState = App::instancesList->numInstances();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
+    {
+        pState = App::getConsoleVerbosity();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_statusbarVerbosity.name) == 0)
+    {
+        pState = App::getStatusbarVerbosity();
         retVal = 1;
     }
 
@@ -904,6 +1016,22 @@ int CWorldContainer::setStringProperty(const char* ppName, const char* pState)
     const char* pName = _pName.c_str();
     int retVal = -1;
 
+    if (strcmp(pName, propApp_sceneDir.name) == 0)
+    {
+        App::folders->setScenesPath(pState);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_modelDir.name) == 0)
+    {
+        App::folders->setModelsPath(pState);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_importExportDir.name) == 0)
+    {
+        App::folders->setImportExportPath(pState);
+        retVal = 1;
+    }
+
     return retVal;
 }
 
@@ -921,6 +1049,91 @@ int CWorldContainer::getStringProperty(const char* ppName, std::string& pState) 
     else if (strcmp(pName, propApp_productVersion.name) == 0)
     {
         pState = PRODUCT_VERSION;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_appDir.name) == 0)
+    {
+        pState = App::folders->getExecutablePath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_machineId.name) == 0)
+    {
+        pState = CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_legacyMachineId.name) == 0)
+    {
+        pState = CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id_legacy);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_tempDir.name) == 0)
+    {
+        pState = App::folders->getTempDataPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_sceneTempDir.name) == 0)
+    {
+        pState = App::folders->getSceneTempDataPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_settingsDir.name) == 0)
+    {
+        pState = App::folders->getUserSettingsPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_luaDir.name) == 0)
+    {
+        pState = App::folders->getLuaPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_pythonDir.name) == 0)
+    {
+        pState = App::folders->getPythonPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_mujocoDir.name) == 0)
+    {
+        pState = App::folders->getMujocoPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_systemDir.name) == 0)
+    {
+        pState = App::folders->getSystemPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_resourceDir.name) == 0)
+    {
+        pState = App::folders->getResourcesPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_addOnDir.name) == 0)
+    {
+        pState = App::folders->getAddOnPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_sceneDir.name) == 0)
+    {
+        pState = App::folders->getScenesPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_modelDir.name) == 0)
+    {
+        pState = App::folders->getModelsPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_importExportDir.name) == 0)
+    {
+        pState = App::folders->getImportExportPath();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_defaultPython.name) == 0)
+    {
+        pState = App::userSettings->defaultPython;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_sandboxLang.name) == 0)
+    {
+        pState = App::userSettings->preferredSandboxLang;
         retVal = 1;
     }
 

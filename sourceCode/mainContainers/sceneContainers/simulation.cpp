@@ -151,7 +151,7 @@ void CSimulation::simulationAboutToStart()
 #ifdef SIM_WITH_GUI
     if ((GuiApp::mainWindow != nullptr) && App::userSettings->sceneHierarchyHiddenDuringSimulation)
     {
-        _hierarchyWasEnabledBeforeSimulation = GuiApp::mainWindow->oglSurface->isHierarchyEnabled();
+        _hierarchyWasEnabledBeforeSimulation = App::getHierarchyEnabled();
         GuiApp::mainWindow->dlgCont->processCommand(CLOSE_HIERARCHY_DLG_CMD);
     }
 #endif
@@ -174,11 +174,11 @@ void CSimulation::simulationEnded()
 #endif
     if (_initialValuesInitialized)
     {
-        _pauseAtSpecificTime = _initialPauseAtSpecificTime;
-        _simulationTimeStep = _initialSimulationTimeStep;
+        setPauseAtSpecificTime(_initialPauseAtSpecificTime);
+        setTimeStep(_initialSimulationTimeStep, true);
     }
     _initialValuesInitialized = false;
-    _speedModifierCount = 0;
+    _setSpeedModifierRaw(0);
     _desiredFasterOrSlowerSpeed = 0;
 
 #ifdef SIM_WITH_GUI
@@ -349,7 +349,7 @@ void CSimulation::advanceSimulationByOneStep()
         if (_pauseAtSpecificTime && (getSimulationTime() >= _simulationTimeToPause))
         {
             pauseSimulation();
-            _pauseAtSpecificTime = false;
+            setPauseAtSpecificTime(false);
         }
     }
 
@@ -430,9 +430,9 @@ int CSimulation::getSimulationState() const
     return _simulationState;
 }
 
-void CSimulation::setTimeStep(double dt)
+void CSimulation::setTimeStep(double dt, bool alsoWhenRunning /*= false*/)
 {
-    if (isSimulationStopped())
+    if (isSimulationStopped() || alsoWhenRunning)
     {
         if (dt < 0.0001)
             dt = 0.0001;
@@ -575,6 +575,7 @@ void CSimulation::appendGenesisData(CCbor *ev) const
     ev->appendKeyInt(propSim_simulationState.name, _simulationState);
     ev->appendKeyInt(propSim_stepCount.name, _simulationStepCount);
     ev->appendKeyInt(propSim_stepsPerRendering.name, _simulationPassesPerRendering);
+    ev->appendKeyInt(propSim_speedModifier.name, _speedModifierCount);
     ev->appendKeyDouble(propSim_simulationTime.name, _simulationTime);
     ev->appendKeyDouble(propSim_timeStep.name, _simulationTimeStep);
     ev->appendKeyDouble(propSim_timeToPause.name, _simulationTimeToPause);
@@ -767,42 +768,61 @@ double CSimulation::_getNewTimeStep(int newSpeedModifierCount) const
 bool CSimulation::_goFasterOrSlower(int action)
 {
     bool retVal = false;
-    if (action < 0)
-    { // We wanna go slower
-        if (_speedModifierCount > 0)
-        {
-            _speedModifierCount--;
-            retVal = true;
-        }
-        else
-        {
-            double newDt = _getNewTimeStep(_speedModifierCount - 1);
-            if (newDt != 0.0)
+    if (!App::currentWorld->simulation->isSimulationStopped())
+    {
+        int sm = _speedModifierCount;
+        if (action < 0)
+        { // We wanna go slower
+            if (sm > 0)
             {
-                _speedModifierCount--;
-                _simulationTimeStep = newDt;
+                sm--;
+                retVal = true;
+            }
+            else
+            {
+                double newDt = _getNewTimeStep(sm - 1);
+                if (newDt != 0.0)
+                {
+                    sm--;
+                    setTimeStep(newDt, true);
+                    retVal = true;
+                }
+            }
+        }
+        if (action > 0)
+        { // We wanna go faster
+            if (canGoFaster())
+            {
+                sm++;
+                if (sm <= 0)
+                    setTimeStep(_getNewTimeStep(sm), true);
                 retVal = true;
             }
         }
+        if (retVal)
+            _setSpeedModifierRaw(sm);
     }
-    if (action > 0)
-    { // We wanna go faster
-        if (canGoFaster())
-        {
-            _speedModifierCount++;
-            if (_speedModifierCount <= 0)
-                _simulationTimeStep = _getNewTimeStep(_speedModifierCount);
-            retVal = true;
-        }
-    }
-#ifdef SIM_WITH_GUI
-    if (retVal)
+    return (retVal);
+}
+
+void CSimulation::_setSpeedModifierRaw(int sm)
+{
+    bool diff = (_speedModifierCount != sm);
+    if (diff)
     {
+        _speedModifierCount = sm;
+        if (App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propSim_speedModifier.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            ev->appendKeyInt(cmd, _speedModifierCount);
+            App::worldContainer->pushEvent();
+        }
+    #ifdef SIM_WITH_GUI
         GuiApp::setLightDialogRefreshFlag();
         GuiApp::setToolbarRefreshFlag();
+    #endif
     }
-#endif
-    return (retVal);
 }
 
 void CSimulation::incrementStopRequestCounter()
@@ -1229,7 +1249,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (VThread::isUiThread())
         { // We are in the UI thread. We execute the command now:
-            GuiApp::mainWindow->setOpenGlDisplayEnabled(!GuiApp::mainWindow->getOpenGlDisplayEnabled());
+            App::setOpenGlDisplayEnabled(!App::getOpenGlDisplayEnabled());
         }
         else
         { // We are not in the UI thread. Execute the command via the UI thread:
@@ -1487,7 +1507,7 @@ void CSimulation::addMenu(VMenu *menu)
     menu->appendMenuItem(canGoFaster, false, SIMULATION_COMMANDS_FASTER_SIMULATION_SCCMD, IDSN_SPEED_UP_SIMULATION);
     menu->appendMenuItem(simRunning && (!(GuiApp::mainWindow->oglSurface->isPageSelectionActive() ||
                                           GuiApp::mainWindow->oglSurface->isViewSelectionActive())),
-                         !GuiApp::mainWindow->getOpenGlDisplayEnabled(), SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,
+                         !App::getOpenGlDisplayEnabled(), SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,
                          "Toggle visualization", true);
     menu->appendMenuSeparator();
     if (GuiApp::canShowDialogs())
@@ -1589,6 +1609,11 @@ int CSimulation::setIntProperty(const char* pName, int pState)
         retVal = 1;
         setPassesPerRendering(pState);
     }
+    else if (strcmp(pName, propSim_speedModifier.name) == 0)
+    {
+        retVal = 1;
+        setSpeedModifierCount(pState);
+    }
 
     return retVal;
 }
@@ -1610,6 +1635,11 @@ int CSimulation::getIntProperty(const char* pName, int& pState) const
     else if (strcmp(pName, propSim_simulationState.name) == 0)
     {
         pState = _simulationState;
+        retVal = 1;
+    }
+    else if (strcmp(pName, propSim_speedModifier.name) == 0)
+    {
+        pState = _speedModifierCount;
         retVal = 1;
     }
 

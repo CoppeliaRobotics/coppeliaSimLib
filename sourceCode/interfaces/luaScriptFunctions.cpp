@@ -6077,8 +6077,7 @@ int _simGetStringParam(luaWrap_lua_State *L)
         if (sim_stringparam_addonpath == param)
         {
             std::string s;
-            CScriptObject *it =
-                App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+            CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
             if (it != nullptr)
                 s = it->getAddOnFilePath();
             luaWrap_lua_pushtext(L, s.c_str());

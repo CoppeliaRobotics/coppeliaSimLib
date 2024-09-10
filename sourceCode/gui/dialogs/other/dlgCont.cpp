@@ -135,7 +135,7 @@ bool CDlgCont::openOrBringToFront(int dlgID)
     if (!_destroyingContainerNow)
     {
         if (dlgID == HIERARCHY_DLG)
-            GuiApp::mainWindow->oglSurface->setHierarchyEnabled(true);
+            App::setHierarchyEnabled(true);
         else if (dlgID == BROWSER_DLG)
             GuiApp::setBrowserEnabled(true);
         else
@@ -157,7 +157,7 @@ void CDlgCont::close(int dlgID)
     if (!_destroyingContainerNow)
     {
         if (dlgID == HIERARCHY_DLG)
-            GuiApp::mainWindow->oglSurface->setHierarchyEnabled(false);
+            App::setHierarchyEnabled(false);
         else if (dlgID == BROWSER_DLG)
             GuiApp::setBrowserEnabled(false);
         else
@@ -175,7 +175,7 @@ bool CDlgCont::toggle(int dlgID)
     if (!_destroyingContainerNow)
     {
         if (dlgID == HIERARCHY_DLG)
-            GuiApp::mainWindow->oglSurface->setHierarchyEnabled(!GuiApp::mainWindow->oglSurface->isHierarchyEnabled());
+            App::setHierarchyEnabled(!App::getHierarchyEnabled());
         else if (dlgID == BROWSER_DLG)
             GuiApp::setBrowserEnabled(!GuiApp::getBrowserEnabled());
         else
@@ -224,7 +224,7 @@ bool CDlgCont::isVisible(int dlgID)
     if (!_destroyingContainerNow)
     {
         if (dlgID == HIERARCHY_DLG)
-            return (GuiApp::mainWindow->oglSurface->isHierarchyEnabled());
+            return (App::getHierarchyEnabled());
         else if (dlgID == BROWSER_DLG)
             return (GuiApp::getBrowserEnabled());
         else
@@ -253,7 +253,7 @@ void CDlgCont::getWindowPos(int dlgID, int pos[2], bool &visible)
         {
             pos[0] = GuiApp::mainWindow->oglSurface->getHierarchyWidth();
             pos[1] = 0;
-            visible = GuiApp::mainWindow->oglSurface->isHierarchyEnabled();
+            visible = App::getHierarchyEnabled();
         }
         else if (dlgID == BROWSER_DLG)
         {
@@ -277,7 +277,7 @@ void CDlgCont::setWindowPos(int dlgID, int pos[2], bool visible)
         if (dlgID == HIERARCHY_DLG)
         {
             GuiApp::mainWindow->oglSurface->setHierarchyWidth(pos[0]);
-            GuiApp::mainWindow->oglSurface->setHierarchyEnabled(visible);
+            App::setHierarchyEnabled(visible);
         }
         else if (dlgID == BROWSER_DLG)
         {
@@ -332,14 +332,14 @@ void CDlgCont::addMenu(VMenu *menu)
         menu->appendMenuItem(noShapePathEditModeNoSelector && GuiApp::mainWindow->getBrowserToggleViaGuiEnabled(),
                              GuiApp::getBrowserEnabled(), TOGGLE_BROWSER_DLG_CMD, IDSN_MODEL_BROWSER, true);
         menu->appendMenuItem(GuiApp::mainWindow->getHierarchyToggleViaGuiEnabled(),
-                             GuiApp::mainWindow->oglSurface->isHierarchyEnabled(), TOGGLE_HIERARCHY_DLG_CMD,
+                             App::getHierarchyEnabled(), TOGGLE_HIERARCHY_DLG_CMD,
                              IDSN_SCENE_HIERARCHY, true);
     }
     if (CSimFlavor::getIntVal(2) == 0)
     {
         menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::getBrowserEnabled(), TOGGLE_BROWSER_DLG_CMD,
                              IDSN_MODEL_BROWSER, true);
-        menu->appendMenuItem(true, GuiApp::mainWindow->oglSurface->isHierarchyEnabled(), TOGGLE_HIERARCHY_DLG_CMD,
+        menu->appendMenuItem(true, App::getHierarchyEnabled(), TOGGLE_HIERARCHY_DLG_CMD,
                              IDSN_SCENE_HIERARCHY, true);
         menu->appendMenuItem(true, GuiApp::mainWindow->dlgCont->isVisible(LAYERS_DLG), TOGGLE_LAYERS_DLG_CMD,
                              IDS_LAYERS, true);

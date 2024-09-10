@@ -36,8 +36,6 @@ class COglSurface
     void setUpDefaultValues();
     void startViewSelection(int objectType, int subViewIndex);
     void keyPress(int key, QWidget *mainWindow);
-    void setHierarchyEnabled(bool isEnabled);
-    bool isHierarchyEnabled();
     int getHierarchyWidth();
     void setHierarchyWidth(int w);
     void setFocusObject(int obj);
@@ -52,8 +50,6 @@ class COglSurface
     CPageSelector *pageSelector;
 
     CHierarchy *hierarchy;
-
-    static bool _hierarchyEnabled;
 
   private:
     bool viewSelectionActive;

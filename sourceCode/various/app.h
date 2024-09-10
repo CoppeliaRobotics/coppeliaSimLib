@@ -170,6 +170,13 @@ class App
     static void undoRedo_sceneChanged(const char *txt);
     static void undoRedo_sceneChangedGradual(const char *txt);
 
+    static void setHierarchyEnabled(bool v);
+    static bool getHierarchyEnabled();
+    static void setOpenGlDisplayEnabled(bool e);
+    static bool getOpenGlDisplayEnabled();
+    static int getPlatform();
+
+
     static CFolderSystem *folders;
     static CUserSettings *userSettings;
     static CSimThread *simThread;
@@ -197,8 +204,9 @@ class App
     static std::string _consoleMsgsFilename;
     static VFile *_consoleMsgsFile;
     static VArchive *_consoleMsgsArchive;
-//    static std::string _instanceId;
-//    static int _instanceIndex;
+    static bool _hierarchyEnabled;
+    static bool _openGlDisplayEnabled;
+
 
     static long long int _nextUniqueId;
     static SignalHandler *_sigHandler;

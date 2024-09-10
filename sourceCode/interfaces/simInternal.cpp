@@ -3665,7 +3665,7 @@ int simSetBoolParam_internal(int parameter, bool boolState)
             {
                 if (VThread::isUiThread())
                 { // We are in the UI thread. We execute the command now:
-                    GuiApp::mainWindow->setOpenGlDisplayEnabled(boolState != 0);
+                    App::setOpenGlDisplayEnabled(boolState != 0);
                 }
                 else
                 { // We are not in the UI thread. Execute the command via the UI thread:
@@ -4211,10 +4211,8 @@ int simGetBoolParam_internal(int parameter)
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 8 + 16 + 32))
                 return (-1);
             int retVal = 0;
-#ifdef SIM_WITH_GUI
-            if ((GuiApp::mainWindow != nullptr) && GuiApp::mainWindow->getOpenGlDisplayEnabled())
+            if (App::getOpenGlDisplayEnabled())
                 retVal = 1;
-#endif
             return (retVal);
         }
         if (parameter == sim_boolparam_infotext_visible)
@@ -4988,15 +4986,7 @@ int simGetInt32Param_internal(int parameter, int *intState)
         }
         if (parameter == sim_intparam_platform)
         {
-#ifdef WIN_SIM
-            intState[0] = 0;
-#endif
-#ifdef MAC_SIM
-            intState[0] = 1;
-#endif
-#ifdef LIN_SIM
-            intState[0] = 2;
-#endif
+            intState[0] = App::getPlatform();
             return (1);
         }
         if (parameter == sim_intparam_event_flags_read_old)

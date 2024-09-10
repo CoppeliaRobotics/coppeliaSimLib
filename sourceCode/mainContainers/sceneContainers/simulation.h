@@ -22,6 +22,7 @@
     FUNCX(propSim_stepCount,                                "stepCount",                                    sim_propertytype_int,    1) \
     FUNCX(propSim_simulationState,                          "simulationState",                              sim_propertytype_int,    1) \
     FUNCX(propSim_stepsPerRendering,                        "stepsPerRendering",                            sim_propertytype_int,    0) \
+    FUNCX(propSim_speedModifier,                            "speedModifier",                                sim_propertytype_int,    0) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -71,7 +72,7 @@ class CSimulation
     void setSpeedModifierCount(int sm);
     int getSpeedModifierCount() const;
 
-    void setTimeStep(double dt);
+    void setTimeStep(double dt, bool alsoWhenRunning = false);
     double getTimeStep() const;
 
     void setPassesPerRendering(int n);
@@ -122,6 +123,7 @@ class CSimulation
 #endif
 
   private:
+    void _setSpeedModifierRaw(int sm);
     double _getNewTimeStep(int newSpeedModifierCount) const;
     bool _goFasterOrSlower(int action);
     void _setSimulationTime(double t);

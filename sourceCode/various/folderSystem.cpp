@@ -193,8 +193,20 @@ std::string CFolderSystem::getScenesPath() const
 
 void CFolderSystem::setScenesPath(const char *path)
 {
-    _scenesPath = path;
-    VVarious::removePathFinalSlashOrBackslash(_scenesPath);
+    std::string pp(path);
+    VVarious::removePathFinalSlashOrBackslash(pp);
+    bool diff = (_scenesPath != pp);
+    if (diff)
+    {
+        _scenesPath = pp;
+        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propApp_sceneDir.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            ev->appendKeyString(cmd, _scenesPath.c_str());
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 std::string CFolderSystem::getModelsPath() const
@@ -204,8 +216,20 @@ std::string CFolderSystem::getModelsPath() const
 
 void CFolderSystem::setModelsPath(const char *path)
 {
-    _modelsPath = path;
-    VVarious::removePathFinalSlashOrBackslash(_modelsPath);
+    std::string pp(path);
+    VVarious::removePathFinalSlashOrBackslash(pp);
+    bool diff = (_modelsPath != pp);
+    if (diff)
+    {
+        _modelsPath = pp;
+        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propApp_modelDir.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            ev->appendKeyString(cmd, _modelsPath.c_str());
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 std::string CFolderSystem::getImportExportPath() const
@@ -215,8 +239,20 @@ std::string CFolderSystem::getImportExportPath() const
 
 void CFolderSystem::setImportExportPath(const char *path)
 {
-    _importExportPath = path;
-    VVarious::removePathFinalSlashOrBackslash(_importExportPath);
+    std::string pp(path);
+    VVarious::removePathFinalSlashOrBackslash(pp);
+    bool diff = (_importExportPath != pp);
+    if (diff)
+    {
+        _importExportPath = pp;
+        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propApp_importExportDir.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            ev->appendKeyString(cmd, _importExportPath.c_str());
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 std::string CFolderSystem::getTexturesPath() const

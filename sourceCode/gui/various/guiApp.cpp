@@ -293,7 +293,7 @@ void GuiApp::runGui(int options)
 
     // Browser and hierarchy visibility is set in userset.txt. We can override it here:
     if ((operationalUIParts & sim_gui_hierarchy) == 0)
-        COglSurface::_hierarchyEnabled = false;
+        App::setHierarchyEnabled(false);
     if ((operationalUIParts & sim_gui_browser) == 0)
         setBrowserEnabled(false);
     setIcon();
@@ -373,12 +373,23 @@ void GuiApp::runGui(int options)
 
 void GuiApp::setBrowserEnabled(bool e)
 {
-    _browserEnabled = e;
-    setToolbarRefreshFlag();
+    bool diff = (_browserEnabled != e);
+    if (diff)
+    {
+        _browserEnabled = e;
+        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propApp_browserEnabled.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            ev->appendKeyBool(cmd, _browserEnabled);
+            App::worldContainer->pushEvent();
+        }
 #ifdef SIM_WITH_GUI
-    if (mainWindow != nullptr)
-        mainWindow->setBrowserVisible(_browserEnabled);
+        setToolbarRefreshFlag();
+        if (mainWindow != nullptr)
+            mainWindow->setBrowserVisible(_browserEnabled);
 #endif
+    }
 }
 
 bool GuiApp::getBrowserEnabled()

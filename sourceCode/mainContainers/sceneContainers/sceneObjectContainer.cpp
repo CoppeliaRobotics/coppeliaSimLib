@@ -665,7 +665,7 @@ void CSceneObjectContainer::checkObjectIsInstanciated(CSceneObject *obj, const c
     }
 }
 
-void CSceneObjectContainer::pushGenesisEvents() const
+void CSceneObjectContainer::pushObjectGenesisEvents() const
 {
     std::vector<CSceneObject *> orderedObjects;
     for (size_t i = 0; i < getOrphanCount(); i++)
@@ -1383,7 +1383,18 @@ bool CSceneObjectContainer::setObjectParent(CSceneObject *object, CSceneObject *
                     ((CForceSensor *)oldParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
             }
             else
-                _removeFromOrphanObjects(object);
+            {
+                std::vector<CSceneObject *> allOrphs(_orphanObjects);
+                for (size_t i = 0; i < allOrphs.size(); i++)
+                {
+                    if (allOrphs[i] == object)
+                    {
+                        allOrphs.erase(allOrphs.begin() + i);
+                        break;
+                    }
+                }
+                _setOrphanObjects(allOrphs);
+            }
             if (newParent != nullptr)
             {
                 newParent->addChild(object);
@@ -1393,7 +1404,11 @@ bool CSceneObjectContainer::setObjectParent(CSceneObject *object, CSceneObject *
                     ((CForceSensor *)newParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
             }
             else
-                _addToOrphanObjects(object);
+            {
+                std::vector<CSceneObject *> allOrphs(_orphanObjects);
+                allOrphs.push_back(object);
+                _setOrphanObjects(allOrphs);
+            }
             object->setParent(newParent);
             object->recomputeModelInfluencedValues();
             _handleOrderIndexOfOrphans();
@@ -1457,8 +1472,10 @@ bool CSceneObjectContainer::setObjectSequence(CSceneObject *object, int order)
                 {
                     if (order != i)
                     {
-                        _orphanObjects.erase(_orphanObjects.begin() + i);
-                        _orphanObjects.insert(_orphanObjects.begin() + order, object);
+                        std::vector<CSceneObject *> allOrphs(_orphanObjects);
+                        allOrphs.erase(allOrphs.begin() + i);
+                        allOrphs.insert(allOrphs.begin() + order, object);
+                        _setOrphanObjects(allOrphs);
                         _handleOrderIndexOfOrphans();
                     }
                     retVal = true;
@@ -1579,15 +1596,21 @@ bool CSceneObjectContainer::setSelectedObjectHandles(const std::vector<int> *v)
         if (v != nullptr)
             _selectedObjectHandles.assign(w.begin(), w.end());
 
+        std::set<int> selected;
+        for (size_t i = 0; i < _selectedObjectHandles.size(); i++)
+        {
+            CSceneObject *it = getObjectFromHandle(_selectedObjectHandles[i]);
+            it->setSelected(true);
+            selected.insert(_selectedObjectHandles[i]);
+        }
         for (size_t i = 0; i < prevSel.size(); i++)
         {
-            CSceneObject *it = getObjectFromHandle(prevSel[i]);
-            it->setSelected(false);
-        }
-        for (size_t i = 0; i < getSelectedObjectHandlesPtr()->size(); i++)
-        {
-            CSceneObject *it = getObjectFromHandle(getSelectedObjectHandlesPtr()->at(i));
-            it->setSelected(true);
+            if (selected.find(prevSel[i]) == selected.end())
+            {
+                CSceneObject *it = getObjectFromHandle(prevSel[i]);
+                if (it != nullptr)
+                    it->setSelected(false);
+            }
         }
     }
     return (diff);
@@ -2658,8 +2681,14 @@ void CSceneObjectContainer::_addObject(CSceneObject *object)
 {
     object->setSelected(false);
 
-    _orphanObjects.push_back(object);
-    _allObjects.push_back(object);
+    std::vector<CSceneObject *> allOrphs(_orphanObjects);
+    allOrphs.push_back(object);
+    _setOrphanObjects(allOrphs);
+
+    std::vector<CSceneObject *> allObjs(_allObjects);
+    allObjs.push_back(object);
+    _setAllObjects(allObjs);
+
     _objectHandleMap[object->getObjectHandle()] = object;
     _objectNameMap_old[object->getObjectName_old()] = object;
     _objectAltNameMap_old[object->getObjectAltName_old()] = object;
@@ -3018,22 +3047,29 @@ void CSceneObjectContainer::_removeObject(CSceneObject *object)
     object->setIsInScene(false);
     setObjectParent(object, nullptr, true);
     object->remove_oldIk();
-    for (size_t i = 0; i < _allObjects.size(); i++)
+
+    std::vector<CSceneObject *> allObjs(_allObjects);
+    for (size_t i = 0; i < allObjs.size(); i++)
     {
-        if (_allObjects[i] == object)
+        if (allObjs[i] == object)
         {
-            _allObjects.erase(_allObjects.begin() + i);
+            allObjs.erase(allObjs.begin() + i);
             break;
         }
     }
-    for (size_t i = 0; i < _orphanObjects.size(); i++)
+    _setAllObjects(allObjs);
+
+    std::vector<CSceneObject *> allOrphs(_orphanObjects);
+    for (size_t i = 0; i < allOrphs.size(); i++)
     {
-        if (_orphanObjects[i] == object)
+        if (allOrphs[i] == object)
         {
-            _orphanObjects.erase(_orphanObjects.begin() + i);
+            allOrphs.erase(allOrphs.begin() + i);
             break;
         }
     }
+    _setOrphanObjects(allOrphs);
+
     int t = object->getObjectType();
     std::vector<CSceneObject *> *list;
     if (t == sim_sceneobject_joint)
@@ -3074,18 +3110,21 @@ void CSceneObjectContainer::_removeObject(CSceneObject *object)
             break;
         }
     }
+    _objectHandleMap.erase(object->getObjectHandle());
+    _objectNameMap_old.erase(object->getObjectName_old());
+    _objectAltNameMap_old.erase(object->getObjectAltName_old());
+
     for (size_t i = 0; i < _selectedObjectHandles.size(); i++)
     {
         if (_selectedObjectHandles[i] == object->getObjectHandle())
         {
-            _selectedObjectHandles.erase(_selectedObjectHandles.begin() + i);
+            std::vector v(_selectedObjectHandles);
+            v.erase(v.begin() + i);
+            setSelectedObjectHandles(&v);
             break;
         }
     }
 
-    _objectHandleMap.erase(object->getObjectHandle());
-    _objectNameMap_old.erase(object->getObjectName_old());
-    _objectAltNameMap_old.erase(object->getObjectAltName_old());
     delete object;
     _handleOrderIndexOfOrphans();
 
@@ -3905,9 +3944,9 @@ bool CSceneObjectContainer::isObjectInSelection(int objectHandle, const std::vec
     for (size_t i = 0; i < sel->size(); i++)
     {
         if (sel->at(i) == objectHandle)
-            return (true);
+            return true;
     }
-    return (false);
+    return false;
 }
 
 size_t CSceneObjectContainer::getSimpleShapeCount() const
@@ -3930,23 +3969,6 @@ size_t CSceneObjectContainer::getCompoundShapeCount() const
 size_t CSceneObjectContainer::getOrphanCount() const
 {
     return (_orphanObjects.size());
-}
-
-void CSceneObjectContainer::_addToOrphanObjects(CSceneObject *object)
-{
-    _orphanObjects.push_back(object);
-}
-
-void CSceneObjectContainer::_removeFromOrphanObjects(CSceneObject *object)
-{
-    for (size_t i = 0; i < _orphanObjects.size(); i++)
-    {
-        if (_orphanObjects[i] == object)
-        {
-            _orphanObjects.erase(_orphanObjects.begin() + i);
-            break;
-        }
-    }
 }
 
 int CSceneObjectContainer::getObjectSequence(const CSceneObject *object, int* totalSiblings /*= nullptr*/) const
@@ -5738,4 +5760,44 @@ CMesh* CSceneObjectContainer::getMeshFromUid(int meshUid, C7Vector* optShapeRelT
         }
     }
     return mesh;
+}
+
+void CSceneObjectContainer::_setOrphanObjects(const std::vector<CSceneObject *>& newOrphanObjects)
+{
+    bool diff = (_orphanObjects.size() != newOrphanObjects.size());
+    if (!diff)
+    {
+        for (size_t i = 0; i < newOrphanObjects.size(); i++)
+        {
+            if (newOrphanObjects[i] != _orphanObjects[i])
+            {
+                diff = true;
+                break;
+            }
+        }
+    }
+    if (diff)
+    {
+        _orphanObjects.assign(newOrphanObjects.begin(), newOrphanObjects.end());
+    }
+}
+
+void CSceneObjectContainer::_setAllObjects(const std::vector<CSceneObject *>& newAllObjects)
+{
+    bool diff = (_allObjects.size() != newAllObjects.size());
+    if (!diff)
+    {
+        for (size_t i = 0; i < newAllObjects.size(); i++)
+        {
+            if (newAllObjects[i] != _allObjects[i])
+            {
+                diff = true;
+                break;
+            }
+        }
+    }
+    if (diff)
+    {
+        _allObjects.assign(newAllObjects.begin(), newAllObjects.end());
+    }
 }

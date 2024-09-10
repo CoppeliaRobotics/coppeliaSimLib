@@ -39,8 +39,36 @@
     FUNCX(propApp_sessionId,                   "sessionId",                        sim_propertytype_string,    1) \
     FUNCX(propApp_protocolVersion,             "protocolVersion",                  sim_propertytype_int,       1) \
     FUNCX(propApp_productVersion,              "productVersion",                   sim_propertytype_string,    1) \
+    FUNCX(propApp_productVersionNb,            "productVersionNb",                 sim_propertytype_int,    1) \
+    FUNCX(propApp_platform,                    "platform",                         sim_propertytype_int,    1) \
+    FUNCX(propApp_flavor,                      "flavor",                           sim_propertytype_int,    1) \
+    FUNCX(propApp_qtVersion,                   "qtVersion",                        sim_propertytype_int,    1) \
+    FUNCX(propApp_processId,                   "processId",                        sim_propertytype_int,    1) \
+    FUNCX(propApp_processCnt,                  "processCnt",                       sim_propertytype_int,    1) \
+    FUNCX(propApp_consoleVerbosity,            "consoleVerbosity",                 sim_propertytype_int,    0) \
+    FUNCX(propApp_statusbarVerbosity,          "statusbarVerbosity",               sim_propertytype_int,    0) \
     FUNCX(propApp_defaultTranslationStepSize,  "defaultTranslationStepSize",       sim_propertytype_float,     0) \
     FUNCX(propApp_defaultRotationStepSize,     "defaultRotationStepSize",          sim_propertytype_float,     0) \
+    FUNCX(propApp_hierarchyEnabled,            "hierarchyEnabled",                 sim_propertytype_bool,      0) \
+    FUNCX(propApp_browserEnabled,              "browserEnabled",                   sim_propertytype_bool,      0) \
+    FUNCX(propApp_displayEnabled,              "displayEnabled",                   sim_propertytype_bool,      0) \
+    FUNCX(propApp_appDir,                      "appDir",                           sim_propertytype_string,    1) \
+    FUNCX(propApp_machineId,                   "machineId",                        sim_propertytype_string,    1) \
+    FUNCX(propApp_legacyMachineId,             "legacyMachineId",                  sim_propertytype_string,    1) \
+    FUNCX(propApp_tempDir,                     "tempDir",                          sim_propertytype_string,    1) \
+    FUNCX(propApp_sceneTempDir,                "sceneTempDir",                     sim_propertytype_string,    1) \
+    FUNCX(propApp_settingsDir,                 "settingsDir",                      sim_propertytype_string,    1) \
+    FUNCX(propApp_luaDir,                      "luaDir",                           sim_propertytype_string,    1) \
+    FUNCX(propApp_pythonDir,                   "pythonDir",                        sim_propertytype_string,    1) \
+    FUNCX(propApp_mujocoDir,                   "mujocoDir",                        sim_propertytype_string,    1) \
+    FUNCX(propApp_systemDir,                   "systemDir",                        sim_propertytype_string,    1) \
+    FUNCX(propApp_resourceDir,                 "resourceDir",                      sim_propertytype_string,    1) \
+    FUNCX(propApp_addOnDir,                    "addOnDir",                         sim_propertytype_string,    1) \
+    FUNCX(propApp_sceneDir,                    "sceneDir",                         sim_propertytype_string,    0) \
+    FUNCX(propApp_modelDir,                    "modelDir",                         sim_propertytype_string,    0) \
+    FUNCX(propApp_importExportDir,             "importExportDir",                  sim_propertytype_string,    0) \
+    FUNCX(propApp_defaultPython,               "defaultPython",                    sim_propertytype_string,    1) \
+    FUNCX(propApp_sandboxLang,                 "sandboxLang",                      sim_propertytype_string,    1) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES

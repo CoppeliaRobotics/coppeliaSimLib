@@ -65,7 +65,7 @@ bool CEditModeContainer::enterEditMode(int objID, int modeType)
 
     _editModeObject = objID;
 
-    _editMode_hierarchyWasEnabledBeforeEditMode = GuiApp::mainWindow->oglSurface->isHierarchyEnabled();
+    _editMode_hierarchyWasEnabledBeforeEditMode = App::getHierarchyEnabled();
     if (!_editMode_hierarchyWasEnabledBeforeEditMode)
     {
         SUIThreadCommand cmdIn;

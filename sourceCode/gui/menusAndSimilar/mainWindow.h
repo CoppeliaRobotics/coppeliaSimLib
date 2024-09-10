@@ -59,8 +59,6 @@ class CMainWindow : public QMainWindow
     void windowResizeEvent(int x, int y);
     bool isFullScreen();
     void setFullScreen(bool f);
-    void setOpenGlDisplayEnabled(bool e);
-    bool getOpenGlDisplayEnabled();
     void setFocusObject(int f);
     void setCurrentCursor(int cur);
     void setBrowserVisible(bool v);
@@ -255,7 +253,6 @@ class CMainWindow : public QMainWindow
     int _focusObject;
     int _currentCursor;
     int _mouseWheelEventTime;
-    bool _openGlDisplayEnabled;
     int _mouseMode;
     int _proxSensorClickSelectDown;
     int _proxSensorClickSelectUp;

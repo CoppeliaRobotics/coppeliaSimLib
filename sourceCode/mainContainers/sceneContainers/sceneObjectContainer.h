@@ -217,7 +217,7 @@ class CSceneObjectContainer
     void removeSceneDependencies();
 
     void checkObjectIsInstanciated(CSceneObject *obj, const char *location) const;
-    void pushGenesisEvents() const;
+    void pushObjectGenesisEvents() const;
 
     void getAllCollidableObjectsFromSceneExcept(const std::vector<CSceneObject *> *exceptionObjects,
                                                 std::vector<CSceneObject *> &objects);
@@ -267,9 +267,9 @@ class CSceneObjectContainer
     CEmbeddedScriptContainer *embeddedScriptContainer;
 
   protected:
+    void _setOrphanObjects(const std::vector<CSceneObject *>& newOrphanObjects);
+    void _setAllObjects(const std::vector<CSceneObject *>& newAllObjects);
     void _handleOrderIndexOfOrphans();
-    void _addToOrphanObjects(CSceneObject *object);
-    void _removeFromOrphanObjects(CSceneObject *object);
     CSceneObject *_getObjectInTree(const CSceneObject *treeBase, const char *objectAliasAndPath, int &index) const;
     CSceneObject *_getObjectFromSimplePath(const CSceneObject *emittingObject, const char *objectAliasAndPath,
                                            int index) const;

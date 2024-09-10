@@ -29,7 +29,6 @@ enum
 #define HIERARCHY_WIDTH 300
 #define HIERARCHY_MIN_WIDTH 150
 
-bool COglSurface::_hierarchyEnabled = false;
 int COglSurface::_hierarchyWidth = HIERARCHY_WIDTH;
 int COglSurface::_hierarchyMinWidth = HIERARCHY_MIN_WIDTH;
 
@@ -80,7 +79,7 @@ bool COglSurface::getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], i
         return (false);
     if (viewSelectionActive)
         return (false);
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
     {
         VPoint btl(offx + _hierarchyWidth - BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH * GuiApp::sc -
                        BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,
@@ -100,7 +99,7 @@ bool COglSurface::getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], i
             return (true); // We are in the hierarchy window
         }
     }
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
     if (App::currentWorld->pageContainer->getMouseRelPosObjectAndViewSize(x - offx, y - offy, relPos, objType, objID,
                                                                           vSize, viewIsPerspective))
@@ -131,7 +130,7 @@ bool COglSurface::leftMouseButtonDown(int x, int y, int selectionStatus)
         viewSelector->leftMouseButtonDown(mouseRelativePosition[0], mouseRelativePosition[1], selectionStatus);
         return (true); // We want the mouse captured!
     }
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
     {
         VPoint btl(offx + _hierarchyWidth - BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH * GuiApp::sc -
                        BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,
@@ -156,7 +155,7 @@ bool COglSurface::leftMouseButtonDown(int x, int y, int selectionStatus)
             return (true); // We want the mouse captured!
         }
     }
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
     if (App::currentWorld->pageContainer->leftMouseButtonDown(mouseRelativePosition[0] - offx,
                                                               mouseRelativePosition[1] - offy, selectionStatus))
@@ -189,7 +188,7 @@ void COglSurface::leftMouseButtonUp(int x, int y)
         viewSelector->leftMouseButtonUp(mouseRelativePosition[0], mouseRelativePosition[1]);
     if (pageSelectionActive && (pageSelector->getCaughtElements() & sim_left_button))
         pageSelector->leftMouseButtonUp(mouseRelativePosition[0], mouseRelativePosition[1]);
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
     {
         if (_caughtElements & sim_left_button)
         {
@@ -205,14 +204,14 @@ void COglSurface::leftMouseButtonUp(int x, int y)
                 { // We have to close the hierarchy!!
                     if (GuiApp::getEditModeType() ==
                         NO_EDIT_MODE) // In edit mode, we disable the close button (needs to stay open)
-                        setHierarchyEnabled(false);
+                        App::setHierarchyEnabled(false);
                 }
             }
         }
         if (hierarchy->getCaughtElements() & sim_left_button)
             hierarchy->leftMouseUp(mouseRelativePosition[0] - offx, mouseRelativePosition[1]);
     }
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
     if (App::currentWorld->pageContainer->getCaughtElements() & sim_left_button)
         App::currentWorld->pageContainer->leftMouseButtonUp(mouseRelativePosition[0] - offx,
@@ -226,7 +225,7 @@ void COglSurface::mouseWheel(int deltaZ, int x, int y)
         return;
     if (viewSelectionActive)
         return;
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
     {
         hierarchy->mouseWheel(deltaZ, x - offx, y - offy);
         offx += _hierarchyWidth;
@@ -268,7 +267,7 @@ void COglSurface::mouseMove(int x, int y, bool passiveAndFocused)
         else
             viewSelector->mouseMove(mouseRelativePosition[0], mouseRelativePosition[1], passiveAndFocused);
     }
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
     {
         int b = 0;
         VPoint btl(b + _hierarchyWidth - BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH * GuiApp::sc -
@@ -297,7 +296,7 @@ void COglSurface::mouseMove(int x, int y, bool passiveAndFocused)
         else
             hierarchy->mouseMove(mouseRelativePosition[0] - offx, mouseRelativePosition[1], passiveAndFocused);
     }
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
     if (!passiveAndFocused)
     {
@@ -322,7 +321,7 @@ int COglSurface::modelDragMoveEvent(int xPos, int yPos, C3Vector *desiredModelPo
 
     if (pageSelectionActive || viewSelectionActive)
         return (-2); // not allowed to drop
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
     {
         offx += _hierarchyWidth;
         if (xPos - offx <= 0)
@@ -341,13 +340,13 @@ int COglSurface::getCursor(int x, int y)
 {
     int offx = 0;
     int offy = 0;
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
     if (pageSelectionActive)
         return (pageSelector->getCursor(x, y));
     if (viewSelectionActive)
         return (viewSelector->getCursor(x, y));
-    if (_hierarchyEnabled && _hierarchyResizingMousePosition(x, y))
+    if (App::getHierarchyEnabled() && _hierarchyResizingMousePosition(x, y))
         return (sim_cursor_horizontal_directions);
     return (App::currentWorld->pageContainer->getCursor(x - offx, y - offy));
 }
@@ -374,12 +373,12 @@ bool COglSurface::rightMouseButtonDown(int x, int y)
         setFocusObject(FOCUS_ON_VIEW_SELECTION_WINDOW);
         return (viewSelector->rightMouseButtonDown(mouseRelativePosition[0], mouseRelativePosition[1]));
     }
-    if (_hierarchyEnabled && hierarchy->rightMouseDown(mouseRelativePosition[0] - offx, mouseRelativePosition[1]))
+    if (App::getHierarchyEnabled() && hierarchy->rightMouseDown(mouseRelativePosition[0] - offx, mouseRelativePosition[1]))
     { // Mouse went down on hierarchy window
         setFocusObject(FOCUS_ON_HIERARCHY);
         return (true); // We want the mouse captured!
     }
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
     if (App::currentWorld->pageContainer->rightMouseButtonDown(mouseRelativePosition[0] - offx,
                                                                mouseRelativePosition[1] - offy))
@@ -405,9 +404,9 @@ void COglSurface::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget *
         if (viewSelectionActive && (viewSelector->getCaughtElements() & sim_right_button))
             viewSelector->rightMouseButtonUp(mouseRelativePosition[0], mouseRelativePosition[1], absX, absY,
                                              mainWindow);
-        if (_hierarchyEnabled && (hierarchy->getCaughtElements() & sim_right_button))
+        if (App::getHierarchyEnabled() && (hierarchy->getCaughtElements() & sim_right_button))
             hierarchy->rightMouseUp(mouseRelativePosition[0] - offx, mouseRelativePosition[1], absX, absY, mainWindow);
-        if (_hierarchyEnabled)
+        if (App::getHierarchyEnabled())
             offx += _hierarchyWidth;
         if (App::currentWorld->pageContainer->getCaughtElements() & sim_right_button)
             App::currentWorld->pageContainer->rightMouseButtonUp(
@@ -431,7 +430,7 @@ bool COglSurface::middleMouseButtonDown(int x, int y)
     viewSelector->clearCaughtElements(0xffff - sim_middle_button);
     hierarchy->clearCaughtElements(0xffff - sim_middle_button);
     App::currentWorld->pageContainer->clearCaughtElements(0xffff - sim_middle_button);
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
     if ((!pageSelectionActive) && (!viewSelectionActive))
     {
@@ -453,7 +452,7 @@ void COglSurface::middleMouseButtonUp(int x, int y)
     mouseRelativePosition[1] = y;
     mousePreviousRelativePosition[0] = mouseRelativePosition[0];
     mousePreviousRelativePosition[1] = mouseRelativePosition[1];
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
     if ((!pageSelectionActive) && (!viewSelectionActive))
     {
@@ -475,13 +474,13 @@ bool COglSurface::leftMouseButtonDoubleClick(int x, int y, int selectionStatus)
     mouseRelativePosition[1] = y;
     mousePreviousRelativePosition[0] = mouseRelativePosition[0];
     mousePreviousRelativePosition[1] = mouseRelativePosition[1];
-    if (_hierarchyEnabled &&
+    if (App::getHierarchyEnabled() &&
         (hierarchy->leftMouseDblClick(mouseRelativePosition[0] - offx, mouseRelativePosition[1], selectionStatus)))
     {
         setFocusObject(FOCUS_ON_HIERARCHY);
         return (true); // We inform that this action was processed
     }
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
     if (App::currentWorld->pageContainer->leftMouseButtonDoubleClick(mouseRelativePosition[0] - offx,
                                                                      mouseRelativePosition[1] - offy, selectionStatus))
@@ -521,7 +520,7 @@ unsigned char *COglSurface::render(int currentCursor, int mouseButtonState, int 
         // We render from right to left for the hierarchy and object browser (since both will render larger on their
         // left)
         bool hierarchyWasRendered = false;
-        if (_hierarchyEnabled)
+        if (App::getHierarchyEnabled())
         {
             int b = 0;
             hierarchyWasRendered = hierarchy->render();
@@ -593,7 +592,7 @@ unsigned char *COglSurface::render(int currentCursor, int mouseButtonState, int 
         }
         App::currentWorld->pageContainer->renderCurrentPage(frameResol != nullptr);
         // We now have to draw separations between the different parts:
-        if (_hierarchyEnabled)
+        if (App::getHierarchyEnabled())
         {
             int b = 0;
             ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
@@ -755,7 +754,7 @@ unsigned char *COglSurface::render(int currentCursor, int mouseButtonState, int 
 
         glEnable(GL_DEPTH_TEST);
         int b = 0;
-        if ((_hierarchyEnabled) && (mousePos[0] <= b + _hierarchyWidth + 6) &&
+        if ((App::getHierarchyEnabled()) && (mousePos[0] <= b + _hierarchyWidth + 6) &&
             (mousePos[0] >=
              b - 36)) // 36 because the cursor can be very wide (when the mouse button states are displayed)
             GuiApp::setRefreshHierarchyViewFlag();
@@ -813,7 +812,7 @@ int COglSurface::getCaughtElements()
         retVal |= pageSelector->getCaughtElements();
     if (viewSelectionActive)
         retVal |= viewSelector->getCaughtElements();
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
         retVal |= hierarchy->getCaughtElements();
     retVal |= App::currentWorld->pageContainer->getCaughtElements();
     retVal |= _caughtElements;
@@ -877,15 +876,6 @@ int COglSurface::getFocusObject()
     return (focusObject);
 }
 
-void COglSurface::setHierarchyEnabled(bool isEnabled)
-{
-    _hierarchyEnabled = isEnabled;
-    if (!isEnabled)
-        setFocusObject(FOCUS_ON_PAGE);
-    actualizeAllSurfacesSizeAndPosition();
-    GuiApp::setToolbarRefreshFlag();
-}
-
 void COglSurface::setPageSelectionActive(bool isActive)
 {
     if (pageSelectionActive != isActive)
@@ -936,7 +926,7 @@ void COglSurface::setHierarchySurfaceSizeAndPosition()
 {
     TRACE_INTERNAL;
     int b = 0;
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
     {
         if (_hierarchyWidth > surfaceSize[0] - b)
             _hierarchyWidth = surfaceSize[0] - b;
@@ -953,7 +943,7 @@ void COglSurface::setViewSurfaceSizeAndPosition()
 {
     int h = 0;
     int b = 0;
-    if (_hierarchyEnabled)
+    if (App::getHierarchyEnabled())
         h = _hierarchyWidth;
     App::currentWorld->pageContainer->setPageSizeAndPosition(surfaceSize[0] - h - b, surfaceSize[1],
                                                              surfacePosition[0] + h + b, surfacePosition[1]);
@@ -966,11 +956,6 @@ void COglSurface::actualizeAllSurfacesSizeAndPosition()
     setViewSurfaceSizeAndPosition();
     pageSelector->setViewSizeAndPosition(surfaceSize[0], surfaceSize[1], surfacePosition[0], surfacePosition[1]);
     viewSelector->setViewSizeAndPosition(surfaceSize[0], surfaceSize[1], surfacePosition[0], surfacePosition[1]);
-}
-
-bool COglSurface::isHierarchyEnabled()
-{
-    return (_hierarchyEnabled);
 }
 
 void COglSurface::keyPress(int key, QWidget *mainWindow)

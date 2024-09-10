@@ -193,13 +193,13 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand *cmdIn, SUIThreadCo
         GuiApp::clearStatusbar();
 
     if ((GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == VISUALIZATION_OFF_UITHREADCMD))
-        GuiApp::mainWindow->setOpenGlDisplayEnabled(false);
+        App::setOpenGlDisplayEnabled(false);
 
     if ((GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == VISUALIZATION_ON_UITHREADCMD))
-        GuiApp::mainWindow->setOpenGlDisplayEnabled(true);
+        App::setOpenGlDisplayEnabled(true);
 
     if ((GuiApp::mainWindow != nullptr) && (cmdIn->cmdId == TOGGLE_VISUALIZATION_UITHREADCMD))
-        GuiApp::mainWindow->setOpenGlDisplayEnabled(!GuiApp::mainWindow->getOpenGlDisplayEnabled());
+        App::setOpenGlDisplayEnabled(!App::getOpenGlDisplayEnabled());
 
     if (GuiApp::canShowDialogs() && (cmdIn->cmdId == OPEN_OR_CLOSE_UITHREADCMD))
         GuiApp::mainWindow->dlgCont->processCommand(cmdIn->intParams[0]);

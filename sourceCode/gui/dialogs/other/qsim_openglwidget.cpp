@@ -441,37 +441,37 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void *event, int t)
                 e.specialKey = -1;
                 if (kEvent->matches(QKeySequence::Cut))
                 {
-                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
+                    if (App::getOpenGlDisplayEnabled())
                         e.specialKey = CTRL_X_KEY;
                     processed = true;
                 }
                 if (kEvent->matches(QKeySequence::Copy))
                 {
-                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
+                    if (App::getOpenGlDisplayEnabled())
                         e.specialKey = CTRL_C_KEY;
                     processed = true;
                 }
                 if (kEvent->matches(QKeySequence::Paste))
                 {
-                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
+                    if (App::getOpenGlDisplayEnabled())
                         e.specialKey = CTRL_V_KEY;
                     processed = true;
                 }
                 if (kEvent->matches(QKeySequence::Undo))
                 {
-                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
+                    if (App::getOpenGlDisplayEnabled())
                         e.specialKey = CTRL_Z_KEY;
                     processed = true;
                 }
                 if (kEvent->matches(QKeySequence::Redo))
                 {
-                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
+                    if (App::getOpenGlDisplayEnabled())
                         e.specialKey = CTRL_Y_KEY;
                     processed = true;
                 }
                 if (kEvent->matches(QKeySequence::Save))
                 {
-                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
+                    if (App::getOpenGlDisplayEnabled())
                         e.specialKey = CTRL_S_KEY;
                     processed = true;
                 }
@@ -479,26 +479,26 @@ void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void *event, int t)
                 {
                     if (CSimFlavor::getBoolVal(2))
                     {
-                        if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
+                        if (App::getOpenGlDisplayEnabled())
                             e.specialKey = CTRL_A_KEY;
                         processed = true;
                     }
                 }
                 if (kEvent->matches(QKeySequence::Open))
                 {
-                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
+                    if (App::getOpenGlDisplayEnabled())
                         e.specialKey = CTRL_O_KEY;
                     processed = true;
                 }
                 if (kEvent->matches(QKeySequence::Close))
                 {
-                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
+                    if (App::getOpenGlDisplayEnabled())
                         e.specialKey = CTRL_W_KEY;
                     processed = true;
                 }
                 if (kEvent->matches(QKeySequence::New))
                 {
-                    if (GuiApp::mainWindow->getOpenGlDisplayEnabled())
+                    if (App::getOpenGlDisplayEnabled())
                         e.specialKey = CTRL_N_KEY;
                     processed = true;
                 }
