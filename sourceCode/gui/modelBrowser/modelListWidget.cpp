@@ -160,7 +160,7 @@ CThumbnail *CModelListWidget::loadModelThumbnail(const char *pathAndFilename, in
 void CModelListWidget::setFolder(const char *folderPath)
 {
     clearAll();
-    const std::vector<int> *initialSelection = App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
+    std::vector<int> initialSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
     if (folderPath != nullptr)
     {
         // 1. Get all files and their info from the folder:
@@ -344,7 +344,7 @@ void CModelListWidget::setFolder(const char *folderPath)
             serObj.writeClose();
         }
     }
-    App::currentWorld->sceneObjects->setSelectedObjectHandles(initialSelection);
+    App::currentWorld->sceneObjects->setSelectedObjectHandles(initialSelection.data(), initialSelection.size());
 }
 
 std::string CModelListWidget::_getFirstDifferentDir(const char *pathA, const char *pathB)

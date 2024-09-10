@@ -6542,13 +6542,12 @@ int _simSaveModel(luaWrap_lua_State *L)
                     {
                         if (it->getModelBase())
                         {
-                            const std::vector<int> *initSelection =
-                                App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
+                            std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
                             std::vector<char> buffer;
                             std::string infoStr;
                             if (CFileOperations::saveModel(model, nullptr, false, &buffer, &infoStr, &errorString))
                             {
-                                App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection);
+                                App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection.data(), initSelection.size());
                                 setLastInfo(infoStr.c_str());
                                 luaWrap_lua_pushbuffer(L, &buffer[0], buffer.size());
                                 LUA_END(1);

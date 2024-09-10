@@ -4641,7 +4641,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
     CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cameraHandle);
     if (cam != nullptr)
     {
-        const std::vector<int> *currentSelectionState = App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
+        std::vector<int> currentSelectionState(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
         C3Vector pt, triNormal;
         int obj = -1;
 
@@ -4694,7 +4694,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
         else
             msg = sim_message_prox_sensor_select_up;
         App::currentWorld->outsideCommandQueue_old->addCommand(msg, obj, 0, 0, 0, ptdata, 6);
-        App::currentWorld->sceneObjects->setSelectedObjectHandles(currentSelectionState);
+        App::currentWorld->sceneObjects->setSelectedObjectHandles(currentSelectionState.data(), currentSelectionState.size());
     }
 }
 

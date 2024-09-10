@@ -5869,11 +5869,11 @@ int simSaveModel_internal(int baseOfModelHandle, const char *filename)
     }
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        const std::vector<int> *initSelection = App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr();
+        std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
         std::string errorStr;
         if (CFileOperations::saveModel(baseOfModelHandle, filename, false, nullptr, &lastInfoString, &errorStr))
         {
-            App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection);
+            App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection.data(), initSelection.size());
             return (1);
         }
         else
@@ -12714,13 +12714,13 @@ int simGroupShapes_internal(const int *shapeHandles, int shapeCount)
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_NOT_ENOUGH_SHAPES);
             return (-1);
         }
-        const std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
+        std::vector<int> initSelection(App::currentWorld->sceneObjects->getSelectedObjectHandlesPtr()[0]);
         int retVal;
         if (merging)
             retVal = CSceneObjectOperations::mergeSelection(&shapes);
         else
             retVal = CSceneObjectOperations::groupSelection(&shapes);
-        App::currentWorld->sceneObjects->setSelectedObjectHandles(&initSelection);
+        App::currentWorld->sceneObjects->setSelectedObjectHandles(initSelection.data(), initSelection.size());
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);

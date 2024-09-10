@@ -718,7 +718,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
 
     if (removeNewObjects)
     {
-        const std::vector<int> *savedSelection = sceneObjects->getSelectedObjectHandlesPtr();
+        std::vector<int> savedSelection(sceneObjects->getSelectedObjectHandlesPtr()[0]);
         std::vector<int> toRemove;
         for (size_t i = 0; i < sceneObjects->getObjectCount(); i++)
         {
@@ -736,7 +736,7 @@ void CWorld::simulationEnded(bool removeNewObjects)
                 toRemove.push_back(it->getObjectHandle());
         }
         sceneObjects->eraseObjects(&toRemove, true);
-        sceneObjects->setSelectedObjectHandles(savedSelection);
+        sceneObjects->setSelectedObjectHandles(savedSelection.data(), savedSelection.size());
     }
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
 
@@ -1180,9 +1180,10 @@ void CWorld::pushGenesisEvents()
     simulation->appendGenesisData(ev);
     environment->appendGenesisData(ev);
     dynamicsContainer->appendGenesisData(ev);
+    sceneObjects->appendNonObjectGenesisData(ev);
     App::worldContainer->pushEvent();
 
-    sceneObjects->pushGenesisEvents();
+    sceneObjects->pushObjectGenesisEvents();
 
     drawingCont->pushGenesisEvents();
     pointCloudCont_old->pushGenesisEvents();
@@ -2447,6 +2448,8 @@ int CWorld::setBoolProperty(int target, const char* ppName, bool pState)
             retVal = simulation->setBoolProperty(pName, pState);
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->setBoolProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setBoolProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2471,6 +2474,8 @@ int CWorld::getBoolProperty(int target, const char* ppName, bool& pState) const
             retVal = simulation->getBoolProperty(pName, pState);
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->getBoolProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->getBoolProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2495,6 +2500,8 @@ int CWorld::setIntProperty(int target, const char* ppName, int pState)
             retVal = simulation->setIntProperty(pName, pState);
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->setIntProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setIntProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2519,6 +2526,8 @@ int CWorld::getIntProperty(int target, const char* ppName, int& pState) const
             retVal = simulation->getIntProperty(pName, pState);
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->getIntProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->getIntProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2541,6 +2550,8 @@ int CWorld::setFloatProperty(int target, const char* ppName, double pState)
             retVal = dynamicsContainer->setFloatProperty(pName, pState);
         if ( (retVal == -1) && (simulation != nullptr) )
             retVal = simulation->setFloatProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setFloatProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2563,6 +2574,8 @@ int CWorld::getFloatProperty(int target, const char* ppName, double& pState) con
             retVal = dynamicsContainer->getFloatProperty(pName, pState);
         if ( (retVal == -1) && (simulation != nullptr) )
             retVal = simulation->getFloatProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->getFloatProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2585,6 +2598,8 @@ int CWorld::setStringProperty(int target, const char* ppName, const char* pState
             retVal = dynamicsContainer->setStringProperty(pName, pState);
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->setStringProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setStringProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2607,6 +2622,8 @@ int CWorld::getStringProperty(int target, const char* ppName, std::string& pStat
             retVal = dynamicsContainer->getStringProperty(pName, pState);
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->getStringProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->getStringProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2680,6 +2697,8 @@ int CWorld::setVector3Property(int target, const char* ppName, const C3Vector& p
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVector3Property(pName, &pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setVector3Property(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2700,6 +2719,8 @@ int CWorld::getVector3Property(int target, const char* ppName, C3Vector& pState)
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVector3Property(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->getVector3Property(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2718,7 +2739,11 @@ int CWorld::setQuaternionProperty(int target, const char* ppName, const C4Vector
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (sceneObjects != nullptr)
+            retVal = sceneObjects->setQuaternionProperty(-1, pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->setQuaternionProperty(target, pName, pState);
@@ -2734,7 +2759,11 @@ int CWorld::getQuaternionProperty(int target, const char* ppName, C4Vector& pSta
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (sceneObjects != nullptr)
+            retVal = sceneObjects->getQuaternionProperty(-1, pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->getQuaternionProperty(target, pName, pState);
@@ -2750,7 +2779,11 @@ int CWorld::setPoseProperty(int target, const char* ppName, const C7Vector& pSta
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (sceneObjects != nullptr)
+            retVal = sceneObjects->setPoseProperty(-1, pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->setPoseProperty(target, pName, pState);
@@ -2766,7 +2799,11 @@ int CWorld::getPoseProperty(int target, const char* ppName, C7Vector& pState) co
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (sceneObjects != nullptr)
+            retVal = sceneObjects->getPoseProperty(-1, pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->getPoseProperty(target, pName, pState);
@@ -2782,7 +2819,11 @@ int CWorld::setMatrix3x3Property(int target, const char* ppName, const C3X3Matri
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (sceneObjects != nullptr)
+            retVal = sceneObjects->setMatrix3x3Property(-1, pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->setMatrix3x3Property(target, pName, pState);
@@ -2798,7 +2839,11 @@ int CWorld::getMatrix3x3Property(int target, const char* ppName, C3X3Matrix& pSt
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (sceneObjects != nullptr)
+            retVal = sceneObjects->getMatrix3x3Property(-1, pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->getMatrix3x3Property(target, pName, pState);
@@ -2814,7 +2859,11 @@ int CWorld::setMatrix4x4Property(int target, const char* ppName, const C4X4Matri
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (sceneObjects != nullptr)
+            retVal = sceneObjects->setMatrix4x4Property(-1, pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->setMatrix4x4Property(target, pName, pState);
@@ -2830,7 +2879,11 @@ int CWorld::getMatrix4x4Property(int target, const char* ppName, C4X4Matrix& pSt
     int retVal = -1;
     if (target == sim_handle_scene)
     {
-
+        if (sceneObjects != nullptr)
+            retVal = sceneObjects->getMatrix4x4Property(-1, pName, pState);
+        if (retVal == -1)
+        {
+        }
     }
     else if (target >= 0)
         retVal = sceneObjects->getMatrix4x4Property(target, pName, pState);
@@ -2848,6 +2901,8 @@ int CWorld::setColorProperty(int target, const char* ppName, const float* pState
     {
         if (environment != nullptr)
             retVal = environment->setColorProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setColorProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2868,6 +2923,8 @@ int CWorld::getColorProperty(int target, const char* ppName, float* pState) cons
     {
         if (environment != nullptr)
             retVal = environment->getColorProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->getColorProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2888,6 +2945,8 @@ int CWorld::setVectorProperty(int target, const char* ppName, const double* v, i
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVectorProperty(pName, v, vL);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setVectorProperty(-1, pName, v, vL);
         if (retVal == -1)
         {
         }
@@ -2909,6 +2968,8 @@ int CWorld::getVectorProperty(int target, const char* ppName, std::vector<double
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVectorProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->getVectorProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -2929,6 +2990,8 @@ int CWorld::setIntVectorProperty(int target, const char* ppName, const int* v, i
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntVectorProperty(pName, v, vL);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setIntVectorProperty(-1, pName, v, vL);
         if (retVal == -1)
         {
         }
@@ -2950,6 +3013,8 @@ int CWorld::getIntVectorProperty(int target, const char* ppName, std::vector<int
     {
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntVectorProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->getIntVectorProperty(-1, pName, pState);
         if (retVal == -1)
         {
         }
@@ -3004,6 +3069,13 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName, std::str
             retVal = App::currentWorld->environment->getPropertyName(index, pName);
         if (retVal == -1)
         {
+            CSceneObjectContainer* soc = nullptr;
+            if (targetObject != nullptr)
+                soc = targetObject->sceneObjects;
+            retVal = CSceneObjectContainer::getPropertyName(-1, index, pName, appartenance, soc);
+        }
+        if (retVal == -1)
+        {
             if (targetObject != nullptr)
             {
                 if (targetObject->customSceneData.getPropertyName(index, pName))
@@ -3040,6 +3112,13 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, int& size
             retVal = App::currentWorld->simulation->getPropertyInfo(pName, info, size);
         if ( (retVal == -1) && (App::currentWorld->environment != nullptr) )
             retVal = App::currentWorld->environment->getPropertyInfo(pName, info, size);
+        if (retVal == -1)
+        {
+            CSceneObjectContainer* soc = nullptr;
+            if (targetObject != nullptr)
+                soc = targetObject->sceneObjects;
+            retVal = CSceneObjectContainer::getPropertyInfo(-1, pName, info, size, soc);
+        }
         if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
         {
             if (targetObject != nullptr)

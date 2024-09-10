@@ -18,6 +18,22 @@
 #include <sceneObject.h>
 #include <embeddedScriptContainer.h>
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propObjCont_objectHandles,                "objectHandles",                    sim_propertytype_intvector, 1) \
+    FUNCX(propObjCont_orphanHandles,                "orphanHandles",                    sim_propertytype_intvector, 1) \
+    FUNCX(propObjCont_selectionHandles,             "selectionHandles",                 sim_propertytype_intvector, 0) \
+
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<SProperty> allProps_objCont = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 class CJoint;
 class CDummy;
 class CGraph;
@@ -218,6 +234,7 @@ class CSceneObjectContainer
 
     void checkObjectIsInstanciated(CSceneObject *obj, const char *location) const;
     void pushObjectGenesisEvents() const;
+    void appendNonObjectGenesisData(CCbor *ev) const;
 
     void getAllCollidableObjectsFromSceneExcept(const std::vector<CSceneObject *> *exceptionObjects,
                                                 std::vector<CSceneObject *> &objects);
@@ -237,7 +254,7 @@ class CSceneObjectContainer
     bool setObjectParent(CSceneObject *object, CSceneObject *newParent, bool keepInPlace);
 
     bool setObjectSequence(CSceneObject *object, int order);
-    bool setSelectedObjectHandles(const std::vector<int> *v);
+    bool setSelectedObjectHandles(const int *v, size_t length);
     bool setObjectName_old(CSceneObject *object, const char *newName, bool allowNameAdjustment);
     bool setObjectAltName_old(CSceneObject *object, const char *newAltName, bool allowNameAdjustment);
 

@@ -245,7 +245,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         it->computeMassAndInertia(density);
                     }
                 }
-                App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
+                App::currentWorld->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
                 App::logMsg(sim_verbosity_msgs, "done.");
                 GuiApp::uiThread->showOrHideProgressBar(false);
                 App::undoRedo_sceneChanged("");
@@ -284,7 +284,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         it->getMesh()->setMass(it->getMesh()->getMass() * fact);
                     }
                 }
-                App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
+                App::currentWorld->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
                 App::logMsg(sim_verbosity_msgs, "done.");
                 App::undoRedo_sceneChanged("");
             }
@@ -322,7 +322,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         it->getMesh()->setInertia(it->getMesh()->getInertia() * fact);
                     }
                 }
-                App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
+                App::currentWorld->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
                 App::logMsg(sim_verbosity_msgs, "done.");
                 App::undoRedo_sceneChanged("");
             }
@@ -564,7 +564,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     toSelect.push_back(theShape->getObjectHandle());
                 success = r && success;
             }
-            App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
+            App::currentWorld->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
             App::undoRedo_sceneChanged("");
             if (success)
                 App::logMsg(sim_verbosity_msgs, "done.");
@@ -605,7 +605,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                     toSelect.push_back(theShape->getObjectHandle());
                 success = r && success;
             }
-            App::currentWorld->sceneObjects->setSelectedObjectHandles(&toSelect);
+            App::currentWorld->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
             App::undoRedo_sceneChanged("");
             if (success)
                 App::logMsg(sim_verbosity_msgs, "done.");
@@ -1003,7 +1003,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int> *selection)
         }
     }
 
-    App::currentWorld->sceneObjects->setSelectedObjectHandles(selection);
+    App::currentWorld->sceneObjects->setSelectedObjectHandles(selection->data(), selection->size());
 }
 
 bool CSceneObjectOperations::_divideShape(CShape *it, std::vector<CShape *> &newShapes)
