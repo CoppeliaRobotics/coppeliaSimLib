@@ -177,7 +177,7 @@ void CEnvironment::setAmbientLight(const float c[3])
     }
 }
 
-void CEnvironment::setActiveLayers(unsigned short l)
+void CEnvironment::setActiveLayers(int l)
 {
     bool diff = (_activeLayers != l);
     if (diff)
@@ -197,7 +197,7 @@ void CEnvironment::setActiveLayers(unsigned short l)
     }
 }
 
-unsigned short CEnvironment::getActiveLayers() const
+int CEnvironment::getActiveLayers() const
 {
     return (_activeLayers);
 }
@@ -447,7 +447,7 @@ void CEnvironment::serialize(CSer &ar)
             ar.flush();
 
             ar.storeDataName("Vil");
-            ar << _activeLayers;
+            ar << (unsigned short) _activeLayers;
             ar.flush();
 
             ar.storeDataName("_d2");
@@ -561,7 +561,9 @@ void CEnvironment::serialize(CSer &ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _activeLayers;
+                        unsigned short al;
+                        ar >> al;
+                        _activeLayers = (int)al;
                     }
                     if (theName.compare("Fd2") == 0)
                     { // for backward comp. (flt->dbl)

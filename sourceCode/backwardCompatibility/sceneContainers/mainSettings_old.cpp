@@ -74,7 +74,7 @@ void CMainSettings::serialize(CSer &ar)
             ar.flush();
 
             ar.storeDataName("Al2"); // Kept for backward compatibility
-            ar << App::currentWorld->environment->getActiveLayers();
+            ar << (unsigned short) App::currentWorld->environment->getActiveLayers();
             ar.flush();
 
             ar.storeDataName("Iwc");
@@ -176,7 +176,7 @@ void CMainSettings::serialize(CSer &ar)
                         ar >> byteQuantity;
                         unsigned short l;
                         ar >> l;
-                        App::currentWorld->environment->setActiveLayers(l);
+                        App::currentWorld->environment->setActiveLayers((int)l);
                     }
                     if (theName.compare("Iwc") == 0)
                     {
@@ -280,8 +280,7 @@ void CMainSettings::serialize(CSer &ar)
         {
             ar.xmlAddNode_comment(" 'visibleLayers' tag: deprecated. Use equivalent in 'environment' section ",
                                   exhaustiveXml);
-            ar.xmlAddNode_int("visibleLayers",
-                              App::currentWorld->environment->getActiveLayers()); // Kept for backward compatibility
+            ar.xmlAddNode_int("visibleLayers", App::currentWorld->environment->getActiveLayers()); // Kept for backward compatibility
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("visionSensorsEnabled", visionSensorsEnabled);

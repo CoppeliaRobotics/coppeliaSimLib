@@ -18,6 +18,21 @@
     FUNCX(propObject_layer,                   "layer",                            sim_propertytype_int,       0) \
     FUNCX(propObject_childOrder,              "childOrder",                       sim_propertytype_int,       1) \
     FUNCX(propObject_parentUid,               "parentUid",                        sim_propertytype_int,       1) \
+    FUNCX(propObject_parentHandle,            "parentHandle",                     sim_propertytype_int,       1) \
+    FUNCX(propObject_selected,                "selected",                         sim_propertytype_bool,      0) \
+    FUNCX(propObject_hierarchyColor,          "hierarchyColor",                   sim_propertytype_int,       0) \
+    FUNCX(propObject_collectionSelfCollInd,   "collectionSelfCollisionIndicator", sim_propertytype_int,       0) \
+    FUNCX(propObject_collidable,              "collidable",                       sim_propertytype_bool,      0) \
+    FUNCX(propObject_measurable,              "measurable",                       sim_propertytype_bool,      0) \
+    FUNCX(propObject_detectable,              "detectable",                       sim_propertytype_bool,      0) \
+    FUNCX(propObject_modelAcknowledgment,     "modelAcknowledgment",              sim_propertytype_string,    0) \
+    FUNCX(propObject_dna,                     "dna",                              sim_propertytype_string,    1) \
+    FUNCX(propObject_persistentUid,           "persistentUid",                    sim_propertytype_string,    1) \
+    FUNCX(propObject_calcLinearVelocity,      "calcLinearVelocity",               sim_propertytype_vector3,   1) \
+    FUNCX(propObject_calcRotationAxis,        "calcRotationAxis",                 sim_propertytype_vector3,   1) \
+    FUNCX(propObject_calcRotationVelocity,    "calcRotationVelocity",             sim_propertytype_float,     1) \
+    FUNCX(propObject_dynamicIcon,             "dynamicIcon",                      sim_propertytype_int,       1) \
+    FUNCX(propObject_dynamicFlag,             "dynamicFlag",                      sim_propertytype_int,       1) \
     FUNCX(propObject_objectProperty,          "objectPropertyFlags", /*redund.*/  sim_propertytype_int,       0) \
     FUNCX(propObject_ignoreViewFitting,       "ignoreViewFitting",                sim_propertytype_bool,      0) \
     FUNCX(propObject_collapsed,               "collapsed",                        sim_propertytype_bool,      0) \
@@ -196,7 +211,7 @@ class CSceneObject
     bool getIsInScene() const;
     bool getModelBase() const;
     std::string getExtensionString() const;
-    unsigned short getVisibilityLayer() const;
+    int getVisibilityLayer() const;
     int getChildOrder() const;
     int getHierarchyTreeObjects(std::vector<CSceneObject *> &allObjects);
     std::string getObjectAlias() const;
@@ -216,7 +231,7 @@ class CSceneObject
 
     void setChildOrder(int order);
     void setExtensionString(const char *str);
-    void setVisibilityLayer(unsigned short l);
+    void setVisibilityLayer(int l);
     void setObjectAlias_direct(const char *newAlias);
     void setObjectName_direct_old(const char *newName);
     void setObjectAltName_direct_old(const char *newAltName);
@@ -406,6 +421,7 @@ class CSceneObject
     CCustomData customObjectData_tempData_old; // this one is not serialized (but copied)!
 
   protected:
+    void _setMeasuredVelocity(const C3Vector& lin, const C3Vector& ang, const C3Vector& rotAxis, double angle);
     void _setModelInvisible(bool inv);
     void _setBB(const C7Vector &bbFrame, const C3Vector &bbHalfSize);
     void _addCommonObjectEventData(CCbor *ev) const;
@@ -413,7 +429,7 @@ class CSceneObject
     int _objectHandle;
     long long int _objectUid; // valid for a given session (non-persistent)
     std::string _extensionString;
-    unsigned short _visibilityLayer;
+    int _visibilityLayer;
     bool _selected;
     bool _isInScene;
     bool _modelInvisible; // derived from parent model's modelProperty
@@ -508,7 +524,7 @@ class CSceneObject
     int _initialMainPropertyOverride;
     C7Vector _initialLocalPose;
     C7Vector _initialAbsPose;
-    unsigned short _initialVisibilityLayer;
+    int _initialVisibilityLayer;
 
     int _dynamicFlag; // 1=respondableShape, 2=nonStaticShape, 4=dynJoint, 32=dynForceSensor, 64=dynDummy
 

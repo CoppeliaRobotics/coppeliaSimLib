@@ -2992,8 +2992,8 @@ int simGetJointInterval_internal(int objectHandle, bool *cyclic, double *interva
         cyclic[0] = 0;
         if (it->getIsCyclic())
             cyclic[0] = 1;
-        interval[0] = it->getPositionMin();
-        interval[1] = it->getPositionRange();
+        it->getInterval(interval[0], interval[1]);
+        interval[1] = interval[1] - interval[0];
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -3023,8 +3023,7 @@ int simSetJointInterval_internal(int objectHandle, bool cyclic, const double *in
         {
             double previousPos = it->getPosition();
             it->setIsCyclic(cyclic != 0);
-            it->setPositionMin(interval[0]);
-            it->setPositionRange(interval[1]);
+            it->setInterval(interval[0], interval[0] + interval[1]);
             it->setPosition(previousPos);
             return (1);
         }
@@ -4734,7 +4733,7 @@ int simSetInt32Param_internal(int parameter, int intState)
                 return (-1);
             if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            App::currentWorld->environment->setActiveLayers((unsigned short)intState);
+            App::currentWorld->environment->setActiveLayers(intState);
             return (1);
         }
         if (parameter == sim_intparam_infotext_style)
@@ -5047,7 +5046,7 @@ int simGetInt32Param_internal(int parameter, int *intState)
                 return (-1);
             if (App::currentWorld->mainSettings_old == nullptr)
                 return (-1);
-            intState[0] = int(App::currentWorld->environment->getActiveLayers());
+            intState[0] = App::currentWorld->environment->getActiveLayers();
             return (1);
         }
         if (parameter == sim_intparam_infotext_style)
@@ -9030,8 +9029,7 @@ int simCreateJoint_internal(int jointType, int jointMode, int options, const dou
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_DATA);
                 return (-1);
             }
-            it->setLength(sizes[0]);
-            it->setDiameter(sizes[1]);
+            it->setSize(sizes[0], sizes[1]);
         }
         App::currentWorld->sceneObjects->addObjectToScene(it, false, true);
         int retVal = it->getObjectHandle();
@@ -9786,7 +9784,7 @@ int simGetObjectInt32Param_internal(int objectHandle, int parameterID, int *para
             }
             if (parameterID == sim_shapeintparam_respondable_mask)
             {
-                parameter[0] = int(shape->getDynamicCollisionMask());
+                parameter[0] = shape->getRespondableMask();
                 retVal = 1;
             }
             if (parameterID == sim_shapeintparam_edge_visibility)
@@ -10206,7 +10204,7 @@ int simSetObjectInt32Param_internal(int objectHandle, int parameterID, int param
             }
             if (parameterID == sim_shapeintparam_respondable_mask)
             {
-                shape->setDynamicCollisionMask((unsigned short)parameter);
+                shape->setRespondableMask(parameter);
                 retVal = 1;
             }
             if (parameterID == sim_shapeintparam_edge_visibility)
@@ -16864,8 +16862,7 @@ int simSetJointDependency_internal(int jointHandle, int masterJointHandle, doubl
                 joint->setDependencyMasterJointHandle(masterJointHandle);
                 if (joint->getDependencyMasterJointHandle() == masterJointHandle)
                 {
-                    joint->setDependencyJointOffset(offset);
-                    joint->setDependencyJointMult(multCoeff);
+                    joint->setDependencyParams(offset, multCoeff);
                     retVal = 0;
                     return (retVal);
                 }
@@ -16887,8 +16884,7 @@ int simGetJointDependency_internal(int jointHandle, int *masterJointHandle, doub
         {
             CJoint *joint = App::currentWorld->sceneObjects->getJointFromHandle(jointHandle);
             masterJointHandle[0] = joint->getDependencyMasterJointHandle();
-            offset[0] = joint->getDependencyJointOffset();
-            multCoeff[0] = joint->getDependencyJointMult();
+            joint->getDependencyParams(offset[0], multCoeff[0]);
             retVal = 0;
             return (retVal);
         }
@@ -17189,7 +17185,7 @@ bool _simIsShapeDynamicallyRespondable_internal(const void *shape)
 int _simGetDynamicCollisionMask_internal(const void *shape)
 {
     C_API_START;
-    return (((CShape *)shape)->getDynamicCollisionMask());
+    return (((CShape *)shape)->getRespondableMask());
 }
 
 const void *_simGetLastParentForLocalGlobalCollidable_internal(const void *shape)
@@ -17283,10 +17279,12 @@ void _simClearAdditionalForceAndTorque_internal(const void *shape)
 bool _simGetJointPositionInterval_internal(const void *joint, double *minValue, double *rangeValue)
 {
     C_API_START;
+    double minV, maxV;
+    ((CJoint *)joint)->getInterval(minV, maxV);
     if (minValue != nullptr)
-        minValue[0] = ((CJoint *)joint)->getPositionMin();
+        minValue[0] = minV;
     if (rangeValue != nullptr)
-        rangeValue[0] = ((CJoint *)joint)->getPositionRange();
+        rangeValue[0] = maxV - minV;
     return (!((CJoint *)joint)->getIsCyclic());
 }
 

@@ -16,6 +16,9 @@ struct SDummyProperty {
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
     FUNCX(propDummy_size,                    "size",                                     sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
+    FUNCX(propDummy_linkedDummyHandle,       "linkedDummyHandle",                        sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
+    FUNCX(propDummy_dummyType,               "dummyType",                                sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
+    FUNCX(propDummy_assemblyTag,             "assemblyTag",                              sim_propertytype_string,    0, -1, -1, -1, -1, -1) \
     FUNCX(propDummy_engineProperties,        "engineProperties",                         sim_propertytype_string,    0, -1, -1, -1, -1, -1) \
     FUNCX(propDummy_mujocoLimitsEnabled,     "mujocoLimitsEnabled",                      sim_propertytype_bool,      0, sim_mujoco_dummy_limited, -1, -1, -1, -1) \
     FUNCX(propDummy_mujocoLimitsRange,       "mujocoLimitsRange",                        sim_propertytype_vector,    0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1) \

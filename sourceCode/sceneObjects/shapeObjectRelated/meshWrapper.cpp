@@ -195,6 +195,18 @@ void CMeshWrapper::setShadingAngle(double angle)
         childList[i]->setShadingAngle(angle);
 }
 
+void CMeshWrapper::setCulling(bool c)
+{ // function has virtual/non-virtual counterpart!
+    for (size_t i = 0; i < childList.size(); i++)
+        childList[i]->setCulling(c);
+}
+
+void CMeshWrapper::setVisibleEdges(bool v)
+{ // function has virtual/non-virtual counterpart!
+    for (size_t i = 0; i < childList.size(); i++)
+        childList[i]->setVisibleEdges(v);
+}
+
 double CMeshWrapper::getEdgeThresholdAngle() const
 {                                                   // function has virtual/non-virtual counterpart!
     return (childList[0]->getEdgeThresholdAngle()); // we just return the first angle we encounter! Normally never used

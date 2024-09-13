@@ -17621,8 +17621,8 @@ int _sim_moveToJointPos_1(luaWrap_lua_State *L)
                 if ((it != nullptr) && (it->getJointType() != sim_joint_spherical))
                 { // make sure target is within allowed range, and check the maximum virtual distance:
                     jointStartPositions[i] = it->getPosition();
-                    double minP = it->getPositionMin();
-                    double maxP = minP + it->getPositionRange();
+                    double minP, maxP;
+                    it->getInterval(minP, maxP);
                     if (it->getIsCyclic())
                     {
                         double da = tt::getAngleMinusAlpha(jointTargetPositions[i], jointStartPositions[i]);

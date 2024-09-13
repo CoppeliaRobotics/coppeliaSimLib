@@ -161,7 +161,18 @@ C3Vector CShape::getInitialDynamicLinearVelocity()
 
 void CShape::setInitialDynamicLinearVelocity(const C3Vector &vel)
 {
-    _initialDynamicLinearVelocity = vel;
+    bool diff = (_initialDynamicLinearVelocity != vel);
+    if (diff)
+    {
+        _initialDynamicLinearVelocity = vel;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propShape_initLinearVelocity.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDoubleArray(cmd, _initialDynamicLinearVelocity.data, 3);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 C3Vector CShape::getInitialDynamicAngularVelocity()
@@ -171,7 +182,18 @@ C3Vector CShape::getInitialDynamicAngularVelocity()
 
 void CShape::setInitialDynamicAngularVelocity(const C3Vector &vel)
 {
-    _initialDynamicAngularVelocity = vel;
+    bool diff = (_initialDynamicAngularVelocity != vel);
+    if (diff)
+    {
+        _initialDynamicAngularVelocity = vel;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propShape_initAngularVelocity.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDoubleArray(cmd, _initialDynamicAngularVelocity.data, 3);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 void CShape::setRigidBodyWasAlreadyPutToSleepOnce(bool s)
@@ -199,14 +221,25 @@ void CShape::prepareVerticesIndicesNormalsAndEdgesForSerialization()
     getMesh()->prepareVerticesIndicesNormalsAndEdgesForSerialization();
 }
 
-void CShape::setDynamicCollisionMask(unsigned short m)
+void CShape::setRespondableMask(int m)
 {
-    _dynamicCollisionMask = m;
+    bool diff = (_respondableMask != m);
+    if (diff)
+    {
+        _respondableMask = m;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propShape_respondableMask.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _respondableMask);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
-unsigned short CShape::getDynamicCollisionMask()
+int CShape::getRespondableMask()
 {
-    return (_dynamicCollisionMask);
+    return _respondableMask;
 }
 
 CSceneObject *CShape::getLastParentForLocalGlobalRespondable()
@@ -299,7 +332,7 @@ void CShape::commonInit()
     _setAutomaticallyToNonStaticIfGetsParent = false;
     _shapeIsDynamicallyRespondable = false; // keep false, otherwise too many "default" problems
     _respondableSuspendCount = 0;
-    _dynamicCollisionMask = 0xffff;
+    _respondableMask = 0xffff;
     _lastParentForLocalGlobalRespondable = nullptr;
     _initialDynamicLinearVelocity.clear();
     _initialDynamicAngularVelocity.clear();
@@ -325,8 +358,20 @@ void CShape::commonInit()
 
 void CShape::setDynamicVelocity(const C3Vector &linearV, const C3Vector &angularV)
 {
-    _dynamicLinearVelocity = linearV;
-    _dynamicAngularVelocity = angularV;
+    bool diff = ( (_dynamicLinearVelocity != linearV) || (_dynamicAngularVelocity != angularV) );
+    if (diff)
+    {
+        _dynamicLinearVelocity = linearV;
+        _dynamicAngularVelocity = angularV;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propShape_dynLinearVelocity.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDoubleArray(cmd, _dynamicLinearVelocity.data, 3);
+            ev->appendKeyDoubleArray(propShape_dynAngularVelocity.name, _dynamicAngularVelocity.data, 3);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 C3Vector CShape::getDynamicLinearVelocity()
@@ -373,7 +418,18 @@ C3Vector CShape::getAdditionalTorque()
 
 void CShape::setRespondable(bool r)
 {
-    _shapeIsDynamicallyRespondable = r;
+    bool diff = (_shapeIsDynamicallyRespondable != r);
+    if (diff)
+    {
+        _shapeIsDynamicallyRespondable = r;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propShape_respondable.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _shapeIsDynamicallyRespondable);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 bool CShape::getRespondable()
@@ -388,7 +444,18 @@ bool CShape::getSetAutomaticallyToNonStaticIfGetsParent()
 
 void CShape::setSetAutomaticallyToNonStaticIfGetsParent(bool autoNonStatic)
 {
-    _setAutomaticallyToNonStaticIfGetsParent = autoNonStatic;
+    bool diff = (_setAutomaticallyToNonStaticIfGetsParent != autoNonStatic);
+    if (diff)
+    {
+        _setAutomaticallyToNonStaticIfGetsParent = autoNonStatic;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propShape_setToDynamicWithParent.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _setAutomaticallyToNonStaticIfGetsParent);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 bool CShape::getStartInDynamicSleeping() const
@@ -398,7 +465,18 @@ bool CShape::getStartInDynamicSleeping() const
 
 void CShape::setStartInDynamicSleeping(bool sleeping)
 {
-    _startInDynamicSleeping = sleeping;
+    bool diff = (_startInDynamicSleeping != sleeping);
+    if (diff)
+    {
+        _startInDynamicSleeping = sleeping;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propShape_startInDynSleepMode.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _startInDynamicSleeping);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 bool CShape::getStatic() const
@@ -408,9 +486,20 @@ bool CShape::getStatic() const
 
 void CShape::setStatic(bool sta)
 {
-    _shapeIsDynamicallyStatic = sta;
-    if (!sta)
-        _setAutomaticallyToNonStaticIfGetsParent = false;
+    bool diff = (_shapeIsDynamicallyStatic != sta);
+    if (diff)
+    {
+        _shapeIsDynamicallyStatic = sta;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propShape_dynamic.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, !_shapeIsDynamicallyStatic);
+            App::worldContainer->pushEvent();
+        }
+        if (!sta)
+            setSetAutomaticallyToNonStaticIfGetsParent(false);
+    }
 }
 
 bool CShape::getDynKinematic() const
@@ -424,10 +513,21 @@ bool CShape::getDynKinematic() const
 
 void CShape::setDynKinematic(bool kin)
 {
-    _shapeIsDynamicallyKinematic = kin;
     // commented on 12.06.2024
     // if (_objectAlias == "Floor")
-    //    _shapeIsDynamicallyKinematic = false;
+    //    kin = false;
+    bool diff = (_shapeIsDynamicallyKinematic != kin);
+    if (diff)
+    {
+        _shapeIsDynamicallyKinematic = kin;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propShape_kinematic.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _shapeIsDynamicallyKinematic);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 void CShape::setInsideAndOutsideFacesSameColor_DEPRECATED(bool s)
@@ -617,8 +717,7 @@ void CShape::performDynMaterialObjectLoadingMapping(const std::map<int, int> *ma
 void CShape::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
-    _dynamicLinearVelocity.clear();
-    _dynamicAngularVelocity.clear();
+    setDynamicVelocity(C3Vector::zeroVector, C3Vector::zeroVector);
     _additionalForce.clear();
     _additionalTorque.clear();
     _initialInitialDynamicLinearVelocity = _initialDynamicLinearVelocity;
@@ -644,13 +743,12 @@ void CShape::simulationEnded()
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
             ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0))
         {
-            _initialDynamicLinearVelocity = _initialInitialDynamicLinearVelocity;
-            _initialDynamicAngularVelocity = _initialInitialDynamicAngularVelocity;
+            setInitialDynamicLinearVelocity(_initialInitialDynamicLinearVelocity);
+            setInitialDynamicAngularVelocity(_initialInitialDynamicAngularVelocity);
         }
     }
 
-    _dynamicLinearVelocity.clear();
-    _dynamicAngularVelocity.clear();
+    setDynamicVelocity(C3Vector::zeroVector, C3Vector::zeroVector);
     _additionalForce.clear();
     _additionalTorque.clear();
     _respondableSuspendCount = 0;
@@ -677,7 +775,7 @@ void CShape::serialize(CSer &ar)
                 _dynMaterial->serialize(ar);
 
             ar.storeDataName("Dc2");
-            ar << _dynamicCollisionMask;
+            ar << (unsigned short)_respondableMask;
             ar.flush();
 
             ar.storeDataName("_dv");
@@ -741,7 +839,9 @@ void CShape::serialize(CSer &ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _dynamicCollisionMask;
+                        unsigned short m;
+                        ar >> m;
+                        _respondableMask = m;
                     }
 
                     if (theName.compare("Idv") == 0)
@@ -804,8 +904,8 @@ void CShape::serialize(CSer &ar)
             }
             actualizeContainsTransparentComponent();
             computeBoundingBox();
-            if (_objectAlias == "Floor")
-                _shapeIsDynamicallyKinematic = false;
+            //if (_objectAlias == "Floor")
+            //    _shapeIsDynamicallyKinematic = false;
         }
     }
     else
@@ -821,7 +921,7 @@ void CShape::serialize(CSer &ar)
                 ar.xmlPopNode();
 
                 ar.xmlPushNewNode("dynamics");
-                ar.xmlAddNode_int("respondableMask", _dynamicCollisionMask);
+                ar.xmlAddNode_int("respondableMask", _respondableMask);
                 C3Vector vel = _initialDynamicLinearVelocity;
                 vel *= 180.0 / piValue;
                 ar.xmlAddNode_floats("initialLinearVelocity", vel.data, 3);
@@ -855,7 +955,7 @@ void CShape::serialize(CSer &ar)
                 {
                     int m;
                     ar.xmlGetNode_int("respondableMask", m);
-                    _dynamicCollisionMask = (unsigned short)m;
+                    _respondableMask = m;
                     C3Vector vel;
                     ar.xmlGetNode_floats("initialLinearVelocity", vel.data, 3);
                     _initialDynamicLinearVelocity = vel * piValue / 180.0;
@@ -1241,24 +1341,18 @@ bool CShape::getCulling() const
 
 void CShape::setCulling(bool culState)
 {
-    if (getMesh()->isMesh())
+    _mesh->setCulling(culState);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    if (_isInScene && App::worldContainer->getEventsEnabled())
     {
-        CMesh *m = getSingleMesh();
-        if (m->getCulling() != culState)
-        {
-            m->setCulling(culState);
-
-            if (_isInScene && App::worldContainer->getEventsEnabled())
-            {
-                const char *cmd = "color";
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-                ev->openKeyMap(cmd);
-                ev->appendKeyBool("culling", culState);
-                ev->appendKeyInt("index", 0);
-                App::worldContainer->pushEvent();
-            }
-        }
+        const char *cmd = "color";
+        CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        ev->openKeyMap(cmd);
+        ev->appendKeyBool("culling", culState);
+        ev->appendKeyInt("index", 0);
+        App::worldContainer->pushEvent();
     }
+#endif
 }
 
 bool CShape::getVisibleEdges() const
@@ -1270,24 +1364,18 @@ bool CShape::getVisibleEdges() const
 
 void CShape::setVisibleEdges(bool v)
 {
-    if (getMesh()->isMesh())
+    _mesh->setVisibleEdges(v);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+    if (_isInScene && App::worldContainer->getEventsEnabled())
     {
-        CMesh *m = getSingleMesh();
-        if (m->getVisibleEdges() != v)
-        {
-            m->setVisibleEdges(v);
-
-            if (_isInScene && App::worldContainer->getEventsEnabled())
-            {
-                const char *cmd = "color";
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, false);
-                ev->openKeyMap(cmd);
-                ev->appendKeyBool("showEdges", v);
-                ev->appendKeyInt("index", 0);
-                App::worldContainer->pushEvent();
-            }
-        }
+        const char *cmd = "color";
+        CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, false);
+        ev->openKeyMap(cmd);
+        ev->appendKeyBool("showEdges", v);
+        ev->appendKeyInt("index", 0);
+        App::worldContainer->pushEvent();
     }
+#endif
 }
 
 double CShape::getShadingAngle() const
@@ -1300,15 +1388,7 @@ double CShape::getShadingAngle() const
 
 void CShape::setShadingAngle(double a)
 {
-    if (getMesh()->isMesh())
-    {
-        CMesh *m = getSingleMesh();
-        if (fabs(m->getShadingAngle() - a) > 0.001)
-        {
-            m->setShadingAngle(a);
-            pushObjectRefreshEvent();
-        }
-    }
+    _mesh->setShadingAngle(a);
 }
 
 void CShape::setRespondableSuspendCount(int cnt)
@@ -1536,6 +1616,16 @@ void CShape::addSpecializedObjectEventData(CCbor *ev)
 #endif
     }
     ev->closeArrayOrMap(); // meshes
+    ev->appendKeyInt(propShape_respondableMask.name, _respondableMask);
+    ev->appendKeyBool(propShape_startInDynSleepMode.name, _startInDynamicSleeping);
+    ev->appendKeyBool(propShape_dynamic.name, !_shapeIsDynamicallyStatic);
+    ev->appendKeyBool(propShape_kinematic.name, _shapeIsDynamicallyKinematic);
+    ev->appendKeyBool(propShape_respondable.name, _shapeIsDynamicallyRespondable);
+    ev->appendKeyBool(propShape_setToDynamicWithParent.name, _setAutomaticallyToNonStaticIfGetsParent);
+    ev->appendKeyDoubleArray(propShape_initLinearVelocity.name, _initialDynamicLinearVelocity.data, 3);
+    ev->appendKeyDoubleArray(propShape_initAngularVelocity.name, _initialDynamicAngularVelocity.data, 3);
+    ev->appendKeyDoubleArray(propShape_dynLinearVelocity.name, _dynamicLinearVelocity.data, 3);
+    ev->appendKeyDoubleArray(propShape_dynAngularVelocity.name, _dynamicAngularVelocity.data, 3);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // shape
@@ -1550,7 +1640,7 @@ void CShape::copyAttributesTo(CShape *target)
     target->_startInDynamicSleeping = _startInDynamicSleeping;
     target->_shapeIsDynamicallyStatic = _shapeIsDynamicallyStatic;
     target->_shapeIsDynamicallyRespondable = _shapeIsDynamicallyRespondable;
-    target->_dynamicCollisionMask = _dynamicCollisionMask;
+    target->_respondableMask = _respondableMask;
     target->_setAutomaticallyToNonStaticIfGetsParent = _setAutomaticallyToNonStaticIfGetsParent;
 
     target->setVisibilityLayer(getVisibilityLayer()); // actually a CSceneObject property
@@ -1575,7 +1665,7 @@ CSceneObject *CShape::copyYourself()
     newShape->_startInDynamicSleeping = _startInDynamicSleeping;
     newShape->_shapeIsDynamicallyStatic = _shapeIsDynamicallyStatic;
     newShape->_shapeIsDynamicallyRespondable = _shapeIsDynamicallyRespondable;
-    newShape->_dynamicCollisionMask = _dynamicCollisionMask;
+    newShape->_respondableMask = _respondableMask;
     newShape->_containsTransparentComponents = _containsTransparentComponents;
     newShape->_rigidBodyWasAlreadyPutToSleepOnce = _rigidBodyWasAlreadyPutToSleepOnce;
     newShape->_setAutomaticallyToNonStaticIfGetsParent = _setAutomaticallyToNonStaticIfGetsParent;
@@ -1683,6 +1773,49 @@ int CShape::setBoolProperty(const char* ppName, bool pState)
     int retVal = CSceneObject::setBoolProperty(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->setBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propShape_applyCulling.name)
+        {
+            setCulling(pState);
+            retVal = 1;
+        }
+        else if (_pName == propShape_applyShowEdges.name)
+        {
+            setVisibleEdges(pState);
+            retVal = 1;
+        }
+        else if (_pName == propShape_flipFaces.name)
+        {
+            invertFrontBack();
+            retVal = 1;
+        }
+        else if (_pName == propShape_startInDynSleepMode.name)
+        {
+            setStartInDynamicSleeping(pState);
+            retVal = 1;
+        }
+        else if (_pName == propShape_dynamic.name)
+        {
+            setStatic(!pState);
+            retVal = 1;
+        }
+        else if (_pName == propShape_kinematic.name)
+        {
+            setDynKinematic(pState);
+            retVal = 1;
+        }
+        else if (_pName == propShape_respondable.name)
+        {
+            setRespondable(pState);
+            retVal = 1;
+        }
+        else if (_pName == propShape_setToDynamicWithParent.name)
+        {
+            setSetAutomaticallyToNonStaticIfGetsParent(pState);
+            retVal = 1;
+        }
+    }
 
     return retVal;
 }
@@ -1694,6 +1827,34 @@ int CShape::getBoolProperty(const char* ppName, bool& pState) const
     int retVal = CSceneObject::getBoolProperty(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->getBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propShape_startInDynSleepMode.name)
+        {
+            pState = _startInDynamicSleeping;
+            retVal = 1;
+        }
+        else if (_pName == propShape_dynamic.name)
+        {
+            pState = !_shapeIsDynamicallyStatic;
+            retVal = 1;
+        }
+        else if (_pName == propShape_kinematic.name)
+        {
+            pState = _shapeIsDynamicallyKinematic;
+            retVal = 1;
+        }
+        else if (_pName == propShape_respondable.name)
+        {
+            pState = _shapeIsDynamicallyRespondable;
+            retVal = 1;
+        }
+        else if (_pName == propShape_setToDynamicWithParent.name)
+        {
+            pState = _setAutomaticallyToNonStaticIfGetsParent;
+            retVal = 1;
+        }
+    }
 
     return retVal;
 }
@@ -1705,6 +1866,14 @@ int CShape::setIntProperty(const char* ppName, int pState)
     int retVal = CSceneObject::setIntProperty(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->setIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propShape_respondableMask.name)
+        {
+            setRespondableMask(pState);
+            retVal = 1;
+        }
+    }
 
     return retVal;
 }
@@ -1716,6 +1885,14 @@ int CShape::getIntProperty(const char* ppName, int& pState) const
     int retVal = CSceneObject::getIntProperty(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->getIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propShape_respondableMask.name)
+        {
+            pState = _respondableMask;
+            retVal = 1;
+        }
+    }
 
     return retVal;
 }
@@ -1727,6 +1904,14 @@ int CShape::setFloatProperty(const char* ppName, double pState)
     int retVal = CSceneObject::setFloatProperty(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->setFloatProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propShape_applyShadingAngle.name)
+        {
+            setShadingAngle(pState);
+            retVal = 1;
+        }
+    }
 
     return retVal;
 }
@@ -1771,6 +1956,19 @@ int CShape::setVector3Property(const char* ppName, const C3Vector& pState)
     int retVal = CSceneObject::setVector3Property(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->setVector3Property(pName, &pState);
+    if (retVal == -1)
+    {
+        if (_pName == propShape_initLinearVelocity.name)
+        {
+            setInitialDynamicLinearVelocity(pState);
+            retVal = 1;
+        }
+        else if (_pName == propShape_initAngularVelocity.name)
+        {
+            setInitialDynamicAngularVelocity(pState);
+            retVal = 1;
+        }
+    }
 
     return retVal;
 }
@@ -1782,6 +1980,29 @@ int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
     int retVal = CSceneObject::getVector3Property(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->getVector3Property(pName, &pState);
+    if (retVal == -1)
+    {
+        if (_pName == propShape_initLinearVelocity.name)
+        {
+            pState = _initialDynamicLinearVelocity;
+            retVal = 1;
+        }
+        else if (_pName == propShape_initAngularVelocity.name)
+        {
+            pState = _initialDynamicAngularVelocity;
+            retVal = 1;
+        }
+        else if (_pName == propShape_dynLinearVelocity.name)
+        {
+            pState = _dynamicLinearVelocity;
+            retVal = 1;
+        }
+        else if (_pName == propShape_dynAngularVelocity.name)
+        {
+            pState = _dynamicAngularVelocity;
+            retVal = 1;
+        }
+    }
 
     return retVal;
 }

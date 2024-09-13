@@ -60,6 +60,8 @@ class CMeshWrapper
     virtual bool serialize(CSer &ar, const char *shapeName, const C7Vector &parentCumulIFrame, bool rootLevel);
     virtual void flipFaces();
     virtual double getShadingAngle() const;
+    virtual void setCulling(bool c);
+    virtual void setVisibleEdges(bool v);
     virtual void setShadingAngle(double angle);
     virtual double getEdgeThresholdAngle() const;
     virtual void setEdgeThresholdAngle(double angle);

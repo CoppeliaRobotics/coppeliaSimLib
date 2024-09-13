@@ -8,6 +8,20 @@
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
     FUNCX(propShape_meshes,                  "meshes",                                   sim_propertytype_intvector, 1) \
+    FUNCX(propShape_applyCulling,            "applyCulling",                             sim_propertytype_bool, 2) \
+    FUNCX(propShape_applyShadingAngle,       "applyShadingAngle",                        sim_propertytype_float, 2) \
+    FUNCX(propShape_applyShowEdges,          "applyShowEdges",                           sim_propertytype_bool, 2) \
+    FUNCX(propShape_flipFaces,               "flipFaces",                                sim_propertytype_bool, 2) \
+    FUNCX(propShape_respondableMask,         "respondableMask",                          sim_propertytype_int, 0) \
+    FUNCX(propShape_startInDynSleepMode,     "startInDynSleepMode",                      sim_propertytype_bool, 0) \
+    FUNCX(propShape_dynamic,                 "dynamic",                                  sim_propertytype_bool, 0) \
+    FUNCX(propShape_kinematic,               "kinematic",                                sim_propertytype_bool, 0) \
+    FUNCX(propShape_respondable,             "respondable",                              sim_propertytype_bool, 0) \
+    FUNCX(propShape_setToDynamicWithParent,  "setToDynamicWithParent",                   sim_propertytype_bool, 0) \
+    FUNCX(propShape_initLinearVelocity,      "initLinearVelocity",                       sim_propertytype_vector3, 0) \
+    FUNCX(propShape_initAngularVelocity,     "initAngularVelocity",                      sim_propertytype_vector3, 0) \
+    FUNCX(propShape_dynLinearVelocity,       "dynLinearVelocity",                        sim_propertytype_vector3, 1) \
+    FUNCX(propShape_dynAngularVelocity,     "dynAngularVelocity",                       sim_propertytype_vector3, 1) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -139,8 +153,8 @@ class CShape : public CSceneObject
     bool getColor(const char *colorName, int colorComponent, float *rgbData);
     void setRespondable(bool r);
     bool getRespondable();
-    void setDynamicCollisionMask(unsigned short m);
-    unsigned short getDynamicCollisionMask();
+    void setRespondableMask(int m);
+    int getRespondableMask();
 
     bool getSetAutomaticallyToNonStaticIfGetsParent();
     void setSetAutomaticallyToNonStaticIfGetsParent(bool autoNonStatic);
@@ -186,7 +200,7 @@ class CShape : public CSceneObject
     CMeshWrapper *_mesh;
     void _serializeMesh(CSer &ar);
 
-    unsigned short _dynamicCollisionMask;
+    int _respondableMask;
     CSceneObject *_lastParentForLocalGlobalRespondable;
 
     // Variables which need to be serialized
@@ -194,7 +208,6 @@ class CShape : public CSceneObject
     bool _shapeIsDynamicallyStatic;
     bool _shapeIsDynamicallyKinematic; // for static shapes that move (used by e.g. Mujoco)
     bool _shapeIsDynamicallyRespondable;
-    bool _parentFollowsDynamic;
     bool _containsTransparentComponents; // to be able to order shapes according to transparency
     bool _setAutomaticallyToNonStaticIfGetsParent;
     C3Vector _initialDynamicLinearVelocity;

@@ -90,6 +90,8 @@ void CQDlgJoints::refresh()
 
     if (sel)
     {
+        double minP, maxP;
+        it->getInterval(minP, maxP);
         if (revolute)
         {
             ui->qqLead->setText(utils::getPosString(true, it->getScrewLead()).c_str());
@@ -100,8 +102,8 @@ void CQDlgJoints::refresh()
             }
             else
             {
-                ui->qqMinimum->setText(utils::getAngleString(true, it->getPositionMin()).c_str());
-                ui->qqRange->setText(utils::getAngleString(false, it->getPositionRange()).c_str());
+                ui->qqMinimum->setText(utils::getAngleString(true, minP).c_str());
+                ui->qqRange->setText(utils::getAngleString(false, maxP - minP).c_str());
             }
             ui->qqPosition->setText(utils::getAngleString(true, it->getPosition()).c_str());
         }
@@ -110,8 +112,8 @@ void CQDlgJoints::refresh()
 
         if (prismatic)
         {
-            ui->qqMinimum->setText(utils::getPosString(true, it->getPositionMin()).c_str());
-            ui->qqRange->setText(utils::getPosString(false, it->getPositionRange()).c_str());
+            ui->qqMinimum->setText(utils::getPosString(true, minP).c_str());
+            ui->qqRange->setText(utils::getPosString(false, maxP - minP).c_str());
             ui->qqPosition->setText(utils::getPosString(true, it->getPosition()).c_str());
         }
 

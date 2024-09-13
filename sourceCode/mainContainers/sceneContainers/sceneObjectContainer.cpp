@@ -2049,7 +2049,7 @@ CShape *CSceneObjectContainer::_readSimpleXmlShape(CSer &ar, C7Vector &desiredLo
         {
             int m;
             if (ar.xmlGetNode_int("respondableMask", m, false))
-                shape->setDynamicCollisionMask((unsigned short)m);
+                shape->setRespondableMask(m);
             C3Vector vel;
             if (ar.xmlGetNode_floats("initialLinearVelocity", vel.data, 3, false))
                 shape->setInitialDynamicLinearVelocity(vel);
@@ -2568,7 +2568,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer &ar, CShape *shape)
 
     ar.xmlPushNewNode("dynamics");
 
-    ar.xmlAddNode_int("respondableMask", shape->getDynamicCollisionMask());
+    ar.xmlAddNode_int("respondableMask", shape->getRespondableMask());
     ar.xmlAddNode_floats("initialLinearVelocity", shape->getInitialDynamicLinearVelocity().data, 3);
     C3Vector vel(shape->getInitialDynamicAngularVelocity() * 180.0 / piValue);
     ar.xmlAddNode_floats("initialAngularVelocity", vel.data, 3);

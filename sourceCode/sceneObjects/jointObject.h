@@ -12,8 +12,25 @@ struct SJointProperty {
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propJoint_length,                    "length",                                     sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_diameter,                  "diameter",                                   sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_size,                      "size",                                       sim_propertytype_vector,    0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_position,                  "position",                                   sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_quaternion,                "quaternion",                                 sim_propertytype_quaternion,0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_screwLead,                 "screwLead",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_intrinsicError,            "intrinsicError",                             sim_propertytype_pose,      1, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_intrinsicPose,             "intrinsicPose",                              sim_propertytype_pose,      1, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_calcVelocity,              "calcVelocity",                               sim_propertytype_float,     1, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_jointType,                 "jointType",                                  sim_propertytype_int,       1, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_cyclic,                    "cyclic",                                     sim_propertytype_bool,      0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_interval,                  "interval",                                   sim_propertytype_vector,    0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_targetPos,                 "targetPos",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_targetVel,                 "targetVel",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_targetForce,               "targetForce",                                sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_jointMode,                 "jointMode",                                  sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_dynCtrlMode,               "dynCtrlMode",                                sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_dependencyMaster,          "dependencyMasterHandle",                     sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_dependencyParams,          "dependencyParams",                           sim_propertytype_vector,    0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_maxVelAccelJerk,           "maxVelAccelJerk",                            sim_propertytype_vector,    0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_springDamperParams,        "springDamperParams",                         sim_propertytype_vector,    0, -1, -1, -1, -1, -1) \
     FUNCX(propJoint_engineProperties,          "engineProperties",                           sim_propertytype_string,    0, -1, -1, -1, -1, -1) \
     FUNCX(propJoint_bulletStopErp,             "bulletStopErp",                              sim_propertytype_float,     0, sim_bullet_joint_stoperp, -1, -1, -1, -1) \
     FUNCX(propJoint_bulletStopCfm,             "bulletStopCfm",                              sim_propertytype_float,     0, sim_bullet_joint_stopcfm, -1, -1, -1, -1) \
@@ -298,6 +315,9 @@ class CJoint : public CSceneObject
     int getFloatProperty(const char* pName, double& pState) const;
     int setStringProperty(const char* pName, const char* pState);
     int getStringProperty(const char* pName, std::string& pState) const;
+    int setQuaternionProperty(const char* pName, const C4Vector& pState);
+    int getQuaternionProperty(const char* pName, C4Vector& pState) const;
+    int getPoseProperty(const char* pName, C7Vector& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
     int setVectorProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);
@@ -343,12 +363,10 @@ class CJoint : public CSceneObject
     int getJointType() const;
     C4Vector getSphericalTransformation() const;
     bool getIsCyclic() const;
-    double getPositionMin() const;
-    double getPositionRange() const;
+    void getInterval(double& minV, double& maxV) const;
     int getJointMode() const;
     int getDependencyMasterJointHandle() const;
-    double getDependencyJointMult() const;
-    double getDependencyJointOffset() const;
+    void getDependencyParams(double& off, double& mult) const;
     void getPid(double &p_param, double &i_param, double &d_param, int engine = -1) const;
     void getKc(double &k_param, double &c_param) const;
     double getTargetPosition() const;
@@ -359,16 +377,13 @@ class CJoint : public CSceneObject
     int getJointCallbackCallOrder_backwardCompatibility() const;
     void setDirectDependentJoints(const std::vector<CJoint *> &joints);
 
-    void setPositionMin(double min);
-    void setPositionRange(double range);
+    void setInterval(double minV, double maxV);
     void setIsCyclic(bool isCyclic);
-    void setLength(double l);
-    void setDiameter(double d);
+    void setSize(double l = 0.0, double d = 0.0);
     void setMaxVelAccelJerk(const double maxVelAccelJerk[3]);
     bool setScrewLead(double lead);
     void setDependencyMasterJointHandle(int depJointID);
-    void setDependencyJointMult(double coeff);
-    void setDependencyJointOffset(double off);
+    void setDependencyParams(double off, double mult);
     void setVelocity(double vel, const CJoint *masterJoint = nullptr);
     void setPosition(double pos, const CJoint *masterJoint = nullptr, bool setDirect = false);
     void setSphericalTransformation(const C4Vector &tr);
@@ -441,20 +456,6 @@ class CJoint : public CSceneObject
     void _fixVortexInfVals();
 
     void _commonInit();
-    void _sendDependencyChange() const;
-
-    void _setPositionIntervalMin_sendOldIk(double min) const;
-    void _setPositionIntervalRange_sendOldIk(double range) const;
-    void _setPositionIsCyclic_sendOldIk(bool isCyclic) const;
-    void _setScrewPitch_sendOldIk(double pitch) const;
-    void _setDependencyJointHandle_sendOldIk(int depJointID) const;
-    void _setDependencyJointMult_sendOldIk(double coeff) const;
-    void _setDependencyJointOffset_sendOldIk(double off) const;
-    void _setIkWeight_sendOldIk(double newWeight) const;
-    void _setMaxStepSize_sendOldIk(double stepS) const;
-    void _setPosition_sendOldIk(double pos) const;
-    void _setSphericalTransformation_sendOldIk(const C4Vector &tr) const;
-    void _setJointMode_sendOldIk(int theMode) const;
 
     std::vector<CJoint *> _directDependentJoints;
 
@@ -546,6 +547,19 @@ class CJoint : public CSceneObject
     bool _lastForceOrTorqueValid_dynStep;
 
     // DEPRECATED:
+    void _sendDependencyChange_old() const;
+    void _setPositionIntervalMin_sendOldIk(double min) const;
+    void _setPositionIntervalRange_sendOldIk(double range) const;
+    void _setPositionIsCyclic_sendOldIk(bool isCyclic) const;
+    void _setScrewPitch_sendOldIk(double pitch) const;
+    void _setDependencyJointHandle_sendOldIk(int depJointID) const;
+    void _setDependencyJointMult_sendOldIk(double coeff) const;
+    void _setDependencyJointOffset_sendOldIk(double off) const;
+    void _setIkWeight_sendOldIk(double newWeight) const;
+    void _setMaxStepSize_sendOldIk(double stepS) const;
+    void _setPosition_sendOldIk(double pos) const;
+    void _setSphericalTransformation_sendOldIk(const C4Vector &tr) const;
+    void _setJointMode_sendOldIk(int theMode) const;
     double _maxStepSize_old;
     double _ikWeight_old;
     std::string _dependencyJointLoadName_old;

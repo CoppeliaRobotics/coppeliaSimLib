@@ -2811,8 +2811,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == TOGGLE_LAYER_LAYERGUITRIGGEREDCMD)
     {
-        App::currentWorld->environment->setActiveLayers(App::currentWorld->environment->getActiveLayers() ^
-                                                        cmd.intParams[0]);
+        App::currentWorld->environment->setActiveLayers(App::currentWorld->environment->getActiveLayers() ^ cmd.intParams[0]);
     }
     if (cmd.cmdId == TOGGLE_SHOWDYNCONTENT_LAYERGUITRIGGEREDCMD)
     {
@@ -2839,13 +2838,21 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setDependencyJointOffset(cmd.doubleParams[0]);
+        {
+            double off, mult;
+            it->getDependencyParams(off, mult);
+            it->setDependencyParams(cmd.doubleParams[0], mult);
+        }
     }
     if (cmd.cmdId == SET_MULTFACT_JOINTDEPENDENCYGUITRIGGEREDCMD)
     {
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setDependencyJointMult(cmd.doubleParams[0]);
+        {
+            double off, mult;
+            it->getDependencyParams(off, mult);
+            it->setDependencyParams(off, cmd.doubleParams[0]);
+        }
     }
     if (cmd.cmdId == SET_OTHERJOINT_JOINTDEPENDENCYGUITRIGGEREDCMD)
     {
@@ -2870,13 +2877,21 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setPositionMin(cmd.doubleParams[0]);
+        {
+            double minP, maxP;
+            it->getInterval(minP, maxP);
+            it->setInterval(cmd.doubleParams[0], cmd.doubleParams[0] + maxP - minP);
+        }
     }
     if (cmd.cmdId == SET_RANGE_JOINTGUITRIGGEREDCMD)
     {
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setPositionRange(cmd.doubleParams[0]);
+        {
+            double minP, maxP;
+            it->getInterval(minP, maxP);
+            it->setInterval(minP, minP + cmd.doubleParams[0]);
+        }
     }
     if (cmd.cmdId == SET_POS_JOINTGUITRIGGEREDCMD)
     {
@@ -2898,8 +2913,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if ((it != nullptr) && (last->getJointType() == it->getJointType()))
                 {
                     it->setIsCyclic(last->getIsCyclic());
-                    it->setPositionRange(last->getPositionRange());
-                    it->setPositionMin(last->getPositionMin());
+                    double minV, maxV;
+                    last->getInterval(minV, maxV);
+                    it->setInterval(minV, maxV);
                     it->setPosition(last->getPosition());
                     it->setSphericalTransformation(last->getSphericalTransformation());
                     it->setScrewLead(last->getScrewLead());
@@ -2954,8 +2970,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     last->getColor(false)->copyYourselfInto(it->getColor(false));
                     last->getColor(true)->copyYourselfInto(it->getColor(true));
-                    it->setLength(last->getLength());
-                    it->setDiameter(last->getDiameter());
+                    it->setSize(last->getLength(), last->getDiameter());
                 }
             }
         }
@@ -2964,13 +2979,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setLength(cmd.doubleParams[0]);
+            it->setSize(cmd.doubleParams[0], 0.0);
     }
     if (cmd.cmdId == SET_DIAMETER_JOINTGUITRIGGEREDCMD)
     {
         CJoint *it = App::currentWorld->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setDiameter(cmd.doubleParams[0]);
+            it->setSize(0.0, cmd.doubleParams[0]);
     }
     if (cmd.cmdId == SET_TARGETVELOCITY_JOINTDYNGUITRIGGEREDCMD)
     {
@@ -3218,7 +3233,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CShape *it = App::currentWorld->sceneObjects->getShapeFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setDynamicCollisionMask(cmd.intParams[1]);
+            it->setRespondableMask(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_MASS_SHAPEDYNGUITRIGGEREDCMD)
     {
@@ -3296,7 +3311,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     it->setRespondable(last->getRespondable());
                     it->setDynMaterial(last->getDynMaterial()->copyYourself());
-                    it->setDynamicCollisionMask(last->getDynamicCollisionMask());
+                    it->setRespondableMask(last->getRespondableMask());
                 }
             }
         }

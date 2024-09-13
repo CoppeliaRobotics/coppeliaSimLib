@@ -71,22 +71,22 @@ void CQDlgShapeDyn::refresh()
     ui->qqApplyMaterialProperties->setEnabled((sc > 1) && sel && noEditModeAndNoSim);
 
     ui->qqRespondable->setChecked(sel && it->getRespondable());
-    ui->a_1->setChecked(sel && (it->getDynamicCollisionMask() & 0x0001));
-    ui->a_2->setChecked(sel && (it->getDynamicCollisionMask() & 0x0002));
-    ui->a_3->setChecked(sel && (it->getDynamicCollisionMask() & 0x0004));
-    ui->a_4->setChecked(sel && (it->getDynamicCollisionMask() & 0x0008));
-    ui->a_5->setChecked(sel && (it->getDynamicCollisionMask() & 0x0010));
-    ui->a_6->setChecked(sel && (it->getDynamicCollisionMask() & 0x0020));
-    ui->a_7->setChecked(sel && (it->getDynamicCollisionMask() & 0x0040));
-    ui->a_8->setChecked(sel && (it->getDynamicCollisionMask() & 0x0080));
-    ui->a_9->setChecked(sel && (it->getDynamicCollisionMask() & 0x0100));
-    ui->a_10->setChecked(sel && (it->getDynamicCollisionMask() & 0x0200));
-    ui->a_11->setChecked(sel && (it->getDynamicCollisionMask() & 0x0400));
-    ui->a_12->setChecked(sel && (it->getDynamicCollisionMask() & 0x0800));
-    ui->a_13->setChecked(sel && (it->getDynamicCollisionMask() & 0x1000));
-    ui->a_14->setChecked(sel && (it->getDynamicCollisionMask() & 0x2000));
-    ui->a_15->setChecked(sel && (it->getDynamicCollisionMask() & 0x4000));
-    ui->a_16->setChecked(sel && (it->getDynamicCollisionMask() & 0x8000));
+    ui->a_1->setChecked(sel && (it->getRespondableMask() & 0x0001));
+    ui->a_2->setChecked(sel && (it->getRespondableMask() & 0x0002));
+    ui->a_3->setChecked(sel && (it->getRespondableMask() & 0x0004));
+    ui->a_4->setChecked(sel && (it->getRespondableMask() & 0x0008));
+    ui->a_5->setChecked(sel && (it->getRespondableMask() & 0x0010));
+    ui->a_6->setChecked(sel && (it->getRespondableMask() & 0x0020));
+    ui->a_7->setChecked(sel && (it->getRespondableMask() & 0x0040));
+    ui->a_8->setChecked(sel && (it->getRespondableMask() & 0x0080));
+    ui->a_9->setChecked(sel && (it->getRespondableMask() & 0x0100));
+    ui->a_10->setChecked(sel && (it->getRespondableMask() & 0x0200));
+    ui->a_11->setChecked(sel && (it->getRespondableMask() & 0x0400));
+    ui->a_12->setChecked(sel && (it->getRespondableMask() & 0x0800));
+    ui->a_13->setChecked(sel && (it->getRespondableMask() & 0x1000));
+    ui->a_14->setChecked(sel && (it->getRespondableMask() & 0x2000));
+    ui->a_15->setChecked(sel && (it->getRespondableMask() & 0x4000));
+    ui->a_16->setChecked(sel && (it->getRespondableMask() & 0x8000));
 
     // Mass/inertia properties:
     ui->qqDynamic->setEnabled(sel && noEditModeAndNoSim && notHeightfield);
@@ -228,7 +228,7 @@ void CQDlgShapeDyn::_toggleRespondableBits(int bits)
         if (it != nullptr)
         {
             App::appendSimulationThreadCommand(SET_RESPONDABLEMASK_SHAPEDYNGUITRIGGEREDCMD, it->getObjectHandle(),
-                                               it->getDynamicCollisionMask() ^ bits);
+                                               it->getRespondableMask() ^ bits);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

@@ -1014,7 +1014,7 @@ bool CMesh::getVisibleEdges() const
 }
 
 void CMesh::setVisibleEdges(bool v)
-{
+{ // function has virtual/non-virtual counterpart!
     bool diff = (_visibleEdges != v);
     if (diff)
     {
@@ -1060,7 +1060,7 @@ bool CMesh::getCulling() const
 }
 
 void CMesh::setCulling(bool c)
-{
+{ // function has virtual/non-virtual counterpart!
     bool diff = (_culling != c);
     if (diff)
     {

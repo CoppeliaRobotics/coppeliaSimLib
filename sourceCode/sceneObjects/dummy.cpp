@@ -257,6 +257,9 @@ void CDummy::addSpecializedObjectEventData(CCbor *ev)
     _dummyColor.addGenesisEventData(ev);
 #endif
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
+    ev->appendKeyInt(propDummy_linkedDummyHandle.name, _linkedDummyHandle);
+    ev->appendKeyInt(propDummy_dummyType.name, _linkType);
+    ev->appendKeyString(propDummy_assemblyTag.name, _assemblyTag.c_str());
 
     // Engine properties:
     setBoolProperty(nullptr, false, ev);
@@ -881,6 +884,13 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
     }
     if (_linkedDummyHandleOld != _linkedDummyHandle)
     {
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propDummy_linkedDummyHandle.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _linkedDummyHandle);
+            App::worldContainer->pushEvent();
+        }
         _reflectPropToLinkedDummy();
         _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);
 #ifdef SIM_WITH_GUI
@@ -896,6 +906,13 @@ bool CDummy::setDummyType(int lt, bool check)
     if (diff)
     {
         _linkType = lt;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propDummy_dummyType.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _linkType);
+            App::worldContainer->pushEvent();
+        }
         _setLinkType_sendOldIk(lt);
         _dummyColor.setDefaultValues();
         if (lt == sim_dummytype_default)
@@ -933,7 +950,18 @@ bool CDummy::setDummyType(int lt, bool check)
 
 void CDummy::setAssemblyTag(const char *tag)
 {
-    _assemblyTag = tag;
+    bool diff = (_assemblyTag != tag);
+    if (diff)
+    {
+        _assemblyTag = tag;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propDummy_assemblyTag.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyString(cmd, _assemblyTag.c_str());
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 void CDummy::announceObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
@@ -1188,6 +1216,16 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev/* = nullpt
         retVal = CSceneObject::setIntProperty(pName, pState);
         if (retVal == -1)
         {
+            if (_pName == propDummy_linkedDummyHandle.name)
+            {
+                 setLinkedDummyHandle(pState, true);
+                 retVal = 1;
+            }
+            else if (_pName == propDummy_dummyType.name)
+            {
+                 setDummyType(pState, true);
+                 retVal = 1;
+            }
         }
     }
 
@@ -1234,14 +1272,19 @@ int CDummy::getIntProperty(const char* ppName, int& pState) const
     if (retVal == -1)
     {
         // First non-engine properties:
-        /*
-        if (_pName == propJoint_length.name)
+        if (_pName == propDummy_linkedDummyHandle.name)
         {
-            pState = _length;
+            pState = _linkedDummyHandle;
             retVal = 1;
         }
-        */
-
+        else if (_pName == propDummy_dummyType.name)
+        {
+            pState = _linkType;
+            retVal = 1;
+        }
+    }
+    if (retVal == -1)
+    {
         // Engine-only properties:
         // ------------------------
         if (_pName == propDummy_mujocoJointProxyHandle.name)
@@ -1250,7 +1293,6 @@ int CDummy::getIntProperty(const char* ppName, int& pState) const
             pState = _mujocoIntParams[simi_mujoco_dummy_proxyjointid];
         }
         // ------------------------
-
     }
 
     return retVal;
@@ -1373,6 +1415,15 @@ int CDummy::setStringProperty(const char* ppName, const char* pState)
     int retVal = CSceneObject::setStringProperty(pName, pState);
     if (retVal == -1)
     {
+        if (_pName == propDummy_assemblyTag.name)
+        {
+            retVal = 1;
+            setAssemblyTag(pState);
+        }
+
+    }
+    if (retVal == -1)
+    {
         if (strcmp(pName, propDummy_engineProperties.name) == 0)
         {
             retVal = 0;
@@ -1395,6 +1446,15 @@ int CDummy::getStringProperty(const char* ppName, std::string& pState) const
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getStringProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propDummy_assemblyTag.name)
+        {
+            retVal = 1;
+            pState = _assemblyTag;
+        }
+
+    }
     if (retVal == -1)
     {
         if (strcmp(pName, propDummy_engineProperties.name) == 0)

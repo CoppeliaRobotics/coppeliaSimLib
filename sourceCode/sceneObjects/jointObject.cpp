@@ -366,32 +366,32 @@ bool CJoint::setEngineFloatParam_old(int what, double v)
 
     if (what == sim_vortex_joint_dependencyoffset)
     {
-        _dependencyJointOffset = v;
+        setDependencyParams(v, _dependencyJointMult);
         return (true);
     }
     if (what == sim_vortex_joint_dependencyfactor)
     {
-        _dependencyJointMult = v;
+        setDependencyParams(_dependencyJointOffset, v);
         return (true);
     }
     if (what == sim_newton_joint_dependencyoffset)
     {
-        _dependencyJointOffset = v;
+        setDependencyParams(v, _dependencyJointMult);
         return (true);
     }
     if (what == sim_newton_joint_dependencyfactor)
     {
-        _dependencyJointMult = v;
+        setDependencyParams(_dependencyJointOffset, v);
         return (true);
     }
     if (what == sim_mujoco_joint_polycoef1)
     {
-        _dependencyJointOffset = v;
+        setDependencyParams(v, _dependencyJointMult);
         return (true);
     }
     if (what == sim_mujoco_joint_polycoef2)
     {
-        _dependencyJointMult = v;
+        setDependencyParams(_dependencyJointOffset, v);
         return (true);
     }
     return false;
@@ -447,6 +447,13 @@ void CJoint::setTargetVelocity(double v)
         if (diff)
         {
             _targetVel = v;
+            if (_isInScene && App::worldContainer->getEventsEnabled())
+            {
+                const char *cmd = propJoint_targetVel.name;
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev->appendKeyDouble(cmd, _targetVel);
+                App::worldContainer->pushEvent();
+            }
             if (_targetVel * _targetForce < 0.0)
                 setTargetForce(-_targetForce, true);
         }
@@ -468,6 +475,13 @@ void CJoint::setTargetForce(double f, bool isSigned)
         if (diff)
         {
             _targetForce = f;
+            if (_isInScene && App::worldContainer->getEventsEnabled())
+            {
+                const char *cmd = propJoint_targetForce.name;
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev->appendKeyDouble(cmd, _targetForce);
+                App::worldContainer->pushEvent();
+            }
             if (f * _targetVel < 0.0)
                 setTargetVelocity(-_targetVel);
         }
@@ -496,6 +510,13 @@ void CJoint::setKc(double k_param, double c_param)
     {
         _dynCtrl_kc[0] = k_param;
         _dynCtrl_kc[1] = c_param;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propJoint_springDamperParams.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDoubleArray(cmd, _dynCtrl_kc, 2);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
@@ -507,7 +528,16 @@ void CJoint::setTargetPosition(double pos)
             pos = tt::getNormalizedAngle(pos);
         bool diff = (_targetPos != pos);
         if (diff)
+        {
             _targetPos = pos;
+            if (_isInScene && App::worldContainer->getEventsEnabled())
+            {
+                const char *cmd = propJoint_targetPos.name;
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                ev->appendKeyDouble(cmd, _targetPos);
+                App::worldContainer->pushEvent();
+            }
+        }
     }
 }
 
@@ -528,6 +558,13 @@ void CJoint::setDependencyMasterJointHandle(int depJointID)
     if (diff)
     {
         _dependencyMasterJointHandle = depJointID;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propJoint_dependencyMaster.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _dependencyMasterJointHandle);
+            App::worldContainer->pushEvent();
+        }
         App::currentWorld->sceneObjects->actualizeObjectInformation();
         _setDependencyJointHandle_sendOldIk(_dependencyMasterJointHandle);
 
@@ -550,11 +587,13 @@ void CJoint::setDependencyMasterJointHandle(int depJointID)
             }
             updateSelfAsSlave();
         }
-        _sendDependencyChange();
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+        _sendDependencyChange_old();
+#endif
     }
 }
 
-void CJoint::_sendDependencyChange() const
+void CJoint::_sendDependencyChange_old() const
 {
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
@@ -589,22 +628,6 @@ void CJoint::_setDependencyJointHandle_sendOldIk(int depJointID) const
     }
 }
 
-void CJoint::setDependencyJointMult(double coeff)
-{
-    if (_jointType != sim_joint_spherical)
-    {
-        coeff = tt::getLimitedFloat(-10000.0, 10000.0, coeff);
-        bool diff = (_dependencyJointMult != coeff);
-        if (diff)
-        {
-            _dependencyJointMult = coeff;
-            _setDependencyJointMult_sendOldIk(coeff);
-            updateSelfAsSlave();
-            _sendDependencyChange();
-        }
-    }
-}
-
 void CJoint::_setDependencyJointMult_sendOldIk(double coeff) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
@@ -614,23 +637,35 @@ void CJoint::_setDependencyJointMult_sendOldIk(double coeff) const
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_dependencyMasterJointHandle);
         if (it != nullptr)
             dep = it->getIkPluginCounterpartHandle();
-        App::worldContainer->pluginContainer->oldIkPlugin_setJointDependency(_ikPluginCounterpartHandle, dep,
-                                                                             _dependencyJointOffset, coeff);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointDependency(_ikPluginCounterpartHandle, dep, _dependencyJointOffset, coeff);
     }
 }
 
-void CJoint::setDependencyJointOffset(double off)
+void CJoint::setDependencyParams(double off, double mult)
 {
     if (_jointType != sim_joint_spherical)
     {
         off = tt::getLimitedFloat(-10000.0, 10000.0, off);
-        bool diff = (_dependencyJointOffset != off);
+        mult = tt::getLimitedFloat(-10000.0, 10000.0, mult);
+        bool diff = ( (_dependencyJointOffset != off) || (_dependencyJointMult != mult) );
         if (diff)
         {
             _dependencyJointOffset = off;
+            _dependencyJointMult = mult;
+            if (_isInScene && App::worldContainer->getEventsEnabled())
+            {
+                const char *cmd = propJoint_dependencyParams.name;
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                double arr[2] = {_dependencyJointOffset, _dependencyJointMult};
+                ev->appendKeyDoubleArray(cmd, arr, 2);
+                App::worldContainer->pushEvent();
+            }
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+            _sendDependencyChange_old();
+#endif
             _setDependencyJointOffset_sendOldIk(off);
+            _setDependencyJointMult_sendOldIk(mult);
             updateSelfAsSlave();
-            _sendDependencyChange();
         }
     }
 }
@@ -644,8 +679,7 @@ void CJoint::_setDependencyJointOffset_sendOldIk(double off) const
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_dependencyMasterJointHandle);
         if (it != nullptr)
             dep = it->getIkPluginCounterpartHandle();
-        App::worldContainer->pluginContainer->oldIkPlugin_setJointDependency(
-            _ikPluginCounterpartHandle, dep, _dependencyJointOffset, _dependencyJointMult);
+        App::worldContainer->pluginContainer->oldIkPlugin_setJointDependency(_ikPluginCounterpartHandle, dep, _dependencyJointOffset, _dependencyJointMult);
     }
 }
 
@@ -671,11 +705,12 @@ void CJoint::measureJointVelocity(double simTime)
 
 void CJoint::setVelocity(double v, const CJoint *masterJoint /*=nullptr*/)
 { // sets the velocity, and overrides next velocity measurement in measureJointVelocity
+    double newVel = _velCalc_vel;
     if (masterJoint != nullptr)
     {
         if (_dependencyMasterJointHandle == masterJoint->getObjectHandle())
         {
-            _velCalc_vel = _dependencyJointMult * masterJoint->getMeasuredJointVelocity();
+            newVel = _dependencyJointMult * masterJoint->getMeasuredJointVelocity();
             _velCalc_prevPosValid = false;
         }
     }
@@ -683,8 +718,19 @@ void CJoint::setVelocity(double v, const CJoint *masterJoint /*=nullptr*/)
     {
         if (_dependencyMasterJointHandle == -1)
         {
-            _velCalc_vel = v;
+            newVel = v;
             _velCalc_prevPosValid = false; // if false, will use _velCalc_vel as current vel in sim.getJointVelocity
+        }
+    }
+    if (newVel != _velCalc_vel)
+    {
+        _velCalc_vel = newVel;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propJoint_calcVelocity.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDouble(cmd, _velCalc_vel);
+            App::worldContainer->pushEvent();
         }
     }
     // Handle dependent joints:
@@ -1061,6 +1107,16 @@ bool CJoint::setScrewLead(double lead)
             if (diff)
             {
                 _screwLead = lead;
+                if (_isInScene && App::worldContainer->getEventsEnabled())
+                {
+                    const char *cmd = propJoint_screwLead.name;
+                    CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                    ev->appendKeyDouble(cmd, _screwLead);
+                    double p[7];
+                    getIntrinsicTransformation(true).getData(p, true);
+                    ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
+                    App::worldContainer->pushEvent();
+                }
                 _setScrewPitch_sendOldIk(lead / piValT2);
                 if (lead != 0.0)
                     setHybridFunctionality_old(false);
@@ -1079,29 +1135,62 @@ void CJoint::_setScrewPitch_sendOldIk(double pitch) const
                                                                              _screwLead / piValT2);
 }
 
-void CJoint::setPositionMin(double min)
-{
+void CJoint::setInterval(double minV, double maxV)
+{ // input are min / max values
+    bool diff = false;
     if (_jointType != sim_joint_spherical)
     {
         if (_jointType == sim_joint_revolute)
-            min = tt::getLimitedFloat(-100000.0, 100000.0, min);
+            minV = tt::getLimitedFloat(-100000.0, 100000.0, minV);
         if (_jointType == sim_joint_prismatic)
-            min = tt::getLimitedFloat(-1000.0, 1000.0, min);
-        bool diff = (_posMin != min);
-        if (diff)
-        {
-            _posMin = min;
-            if (_isInScene && App::worldContainer->getEventsEnabled())
-            {
-                const char *cmd = "min";
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-                ev->appendKeyDouble(cmd, min);
-                App::worldContainer->pushEvent();
-            }
-            _setPositionIntervalMin_sendOldIk(min);
-            setPosition(getPosition());
-        }
+            minV = tt::getLimitedFloat(-1000.0, 1000.0, minV);
+        diff = (_posMin != minV);
     }
+
+    if (maxV < minV)
+        maxV = minV;
+    double dv = maxV - minV;
+
+    if (_jointType == sim_joint_revolute)
+        dv = tt::getLimitedFloat(0.001 * degToRad, 10000000.0 * degToRad, dv);
+    if (_jointType == sim_joint_prismatic)
+        dv = tt::getLimitedFloat(0.0, 1000.0, dv);
+    if (_jointType == sim_joint_spherical)
+    {
+        if (_jointMode != sim_jointmode_dynamic)
+            dv = tt::getLimitedFloat(0.001 * degToRad, 10000000.0 * degToRad, dv);
+        else
+            dv = piValue;
+    }
+    diff = diff || (_posRange != dv);
+
+    if (diff)
+    {
+        _posMin = minV;
+        _posRange = dv;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propJoint_interval.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+            ev->appendKeyDouble("min", _posMin);
+            ev->appendKeyDouble("range", _posRange);
+#endif
+            double arr[2] = {_posMin, _posMin + _posRange};
+            ev->appendKeyDoubleArray(cmd, arr, 2);
+            App::worldContainer->pushEvent();
+        }
+        _setPositionIntervalMin_sendOldIk(_posMin);
+        _setPositionIntervalRange_sendOldIk(_posRange);
+        setPosition(getPosition());
+        setSphericalTransformation(getSphericalTransformation());
+    }
+}
+
+void CJoint::getInterval(double& minV, double& maxV) const
+{ // returns min / max values
+    minV = _posMin;
+    maxV = _posMin + _posRange;
 }
 
 void CJoint::_setPositionIntervalMin_sendOldIk(double min) const
@@ -1112,36 +1201,6 @@ void CJoint::_setPositionIntervalMin_sendOldIk(double min) const
                                                                            _posMin, _posRange);
 }
 
-void CJoint::setPositionRange(double range)
-{
-    if (_jointType == sim_joint_revolute)
-        range = tt::getLimitedFloat(0.001 * degToRad, 10000000.0 * degToRad, range);
-    if (_jointType == sim_joint_prismatic)
-        range = tt::getLimitedFloat(0.0, 1000.0, range);
-    if (_jointType == sim_joint_spherical)
-    {
-        if (_jointMode != sim_jointmode_dynamic)
-            range = tt::getLimitedFloat(0.001 * degToRad, 10000000.0 * degToRad, range);
-        else
-            range = piValue;
-    }
-    bool diff = (_posRange != range);
-    if (diff)
-    {
-        _posRange = range;
-        if (_isInScene && App::worldContainer->getEventsEnabled())
-        {
-            const char *cmd = "range";
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, range);
-            App::worldContainer->pushEvent();
-        }
-        _setPositionIntervalRange_sendOldIk(range);
-        setPosition(getPosition());
-        setSphericalTransformation(getSphericalTransformation());
-    }
-}
-
 void CJoint::_setPositionIntervalRange_sendOldIk(double range) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
@@ -1150,37 +1209,26 @@ void CJoint::_setPositionIntervalRange_sendOldIk(double range) const
                                                                            _posMin, _posRange);
 }
 
-void CJoint::setLength(double l)
+void CJoint::setSize(double l /*= 0.0*/, double d /*= 0.0*/)
 {
+    if (l == 0.0)
+        l = _length;
+    if (d == 0.0)
+        d = _diameter;
     tt::limitValue(0.001, 1000.0, l);
-    bool diff = (_length != l);
+    tt::limitValue(0.0001, 100.0, d);
+    bool diff = ((_length != l) || (_diameter != d));
     if (diff)
     {
         _length = l;
-        computeBoundingBox();
-        if (_isInScene && App::worldContainer->getEventsEnabled())
-        {
-            const char *cmd = propJoint_length.name;
-            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, l);
-            App::worldContainer->pushEvent();
-        }
-    }
-}
-
-void CJoint::setDiameter(double d)
-{
-    tt::limitValue(0.0001, 100.0, d);
-    bool diff = (_diameter != d);
-    if (diff)
-    {
         _diameter = d;
         computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propJoint_diameter.name;
+            const char *cmd = propJoint_size.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, d);
+            double arr[2] = {_length, _diameter};
+            ev->appendKeyDoubleArray(cmd, arr, 2);
             App::worldContainer->pushEvent();
         }
     }
@@ -1188,16 +1236,14 @@ void CJoint::setDiameter(double d)
 
 void CJoint::scaleObject(double scalingFactor)
 {
-    setDiameter(_diameter * scalingFactor);
-    setLength(_length * scalingFactor);
+    setSize(_length * scalingFactor, _diameter * scalingFactor);
     setScrewLead(_screwLead * scalingFactor);
     if (_jointType == sim_joint_prismatic)
     {
         setPosition(_pos * scalingFactor);
         _jointPositionForMotionHandling_DEPRECATED *= scalingFactor;
-        setPositionMin(_posMin * scalingFactor);
-        setPositionRange(_posRange * scalingFactor);
-        setDependencyJointOffset(_dependencyJointOffset * scalingFactor);
+        setInterval(_posMin * scalingFactor, (_posMin + _posRange) * scalingFactor);
+        setDependencyParams(_dependencyJointOffset * scalingFactor, _dependencyJointMult);
         setMaxStepSize_old(_maxStepSize_old * scalingFactor);
         setTargetPosition(_targetPos * scalingFactor);
         setTargetVelocity(_targetVel * scalingFactor);
@@ -1205,21 +1251,15 @@ void CJoint::scaleObject(double scalingFactor)
         setKc(_dynCtrl_kc[0] * scalingFactor * scalingFactor, _dynCtrl_kc[1] * scalingFactor * scalingFactor);
 
         if ((_dynCtrlMode == sim_jointdynctrl_spring) || (_dynCtrlMode == sim_jointdynctrl_springcb))
-            setTargetForce(_targetForce * scalingFactor * scalingFactor,
-                           false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which
-                                   // doesn't change
+            setTargetForce(_targetForce * scalingFactor * scalingFactor, false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
         if ((_dynCtrlMode == sim_jointdynctrl_position) || (_dynCtrlMode == sim_jointdynctrl_positioncb))
-            setTargetForce(_targetForce * scalingFactor * scalingFactor * scalingFactor,
-                           false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which
-                                   // doesn't change
+            setTargetForce(_targetForce * scalingFactor * scalingFactor * scalingFactor, false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
 
         _maxAcceleration_DEPRECATED *= scalingFactor;
         _velocity_DEPRECATED *= scalingFactor;
 
-        _maxVelAccelJerk[0] *= scalingFactor;
-        _maxVelAccelJerk[1] *= scalingFactor;
-        _maxVelAccelJerk[2] *= scalingFactor;
-        setMaxVelAccelJerk(_maxVelAccelJerk);
+        double mvaj[3] = {_maxVelAccelJerk[0] * scalingFactor, _maxVelAccelJerk[1] * scalingFactor, _maxVelAccelJerk[2] * scalingFactor};
+        setMaxVelAccelJerk(mvaj);
 
         if (_initialValuesInitialized)
         {
@@ -1249,9 +1289,7 @@ void CJoint::scaleObject(double scalingFactor)
 
     if (_jointType == sim_joint_revolute)
     {
-        setTargetForce(
-            _targetForce * scalingFactor * scalingFactor * scalingFactor * scalingFactor,
-            false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
+        setTargetForce(_targetForce * scalingFactor * scalingFactor * scalingFactor * scalingFactor, false); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
 
         setKc(_dynCtrl_kc[0] * scalingFactor * scalingFactor * scalingFactor * scalingFactor,
               _dynCtrl_kc[1] * scalingFactor * scalingFactor * scalingFactor * scalingFactor);
@@ -1806,22 +1844,21 @@ void CJoint::setKinematicMotionType(int t, bool reset, double initVel /*=0.0*/)
 
 void CJoint::setIsCyclic(bool isCyclic)
 {
-    if (isCyclic)
-    {
-        if (getJointType() == sim_joint_revolute)
-        {
-            setScrewLead(0.0);
-            setPositionMin(-piValue);
-            setPositionRange(piValT2);
-        }
-    }
     bool diff = (_isCyclic != isCyclic);
     if (diff)
     {
+        if (isCyclic)
+        {
+            if (getJointType() == sim_joint_revolute)
+            {
+                setScrewLead(0.0);
+                setInterval(-piValue, +piValue);
+            }
+        }
         _isCyclic = isCyclic;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "cyclic";
+            const char *cmd = propJoint_cyclic.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, isCyclic);
             App::worldContainer->pushEvent();
@@ -1860,6 +1897,22 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev)
     _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
     ev->appendFloatArray(c, 9);
     ev->closeArrayOrMap(); // colors
+    ev->appendKeyDouble("length", _length);
+    ev->appendKeyDouble("diameter", _diameter);
+    ev->appendKeyDouble("min", _posMin);
+    ev->appendKeyDouble("range", _posRange);
+    ev->openKeyMap("dependency");
+    if (_dependencyMasterJointHandle != -1)
+    {
+        CSceneObject *master = App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
+        if (master != nullptr)
+        {
+            ev->appendKeyInt("masterUid", master->getObjectUid());
+            ev->appendKeyDouble("mult", _dependencyJointMult);
+            ev->appendKeyDouble("off", _dependencyJointOffset);
+        }
+    }
+    ev->closeArrayOrMap(); // dependency
 #else
     _color.addGenesisEventData(ev);
 #endif
@@ -1877,30 +1930,37 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev)
         break;
     }
     ev->appendKeyString("type", tmp.c_str());
-    double q[4] = {_sphericalTransf(1), _sphericalTransf(2), _sphericalTransf(3), _sphericalTransf(0)};
-    ev->appendKeyDoubleArray("quaternion", q, 4);
-    ev->appendKeyDouble("position", _pos);
-    C7Vector tr(getIntrinsicTransformation(true));
-    double p[7] = {tr.X(0), tr.X(1), tr.X(2), tr.Q(1), tr.Q(2), tr.Q(3), tr.Q(0)};
-    ev->appendKeyDoubleArray("intrinsicPose", p, 7);
-    ev->appendKeyDoubleArray("maxVelAccelJerk", _maxVelAccelJerk, 3);
-    ev->appendKeyBool("cyclic", _isCyclic);
-    ev->appendKeyDouble("min", _posMin);
-    ev->appendKeyDouble("range", _posRange);
-    ev->appendKeyDouble(propJoint_length.name, _length);
-    ev->appendKeyDouble(propJoint_diameter.name, _diameter);
-    ev->openKeyMap("dependency");
-    if (_dependencyMasterJointHandle != -1)
-    {
-        CSceneObject *master = App::currentWorld->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
-        if (master != nullptr)
-        {
-            ev->appendKeyInt("masterUid", master->getObjectUid());
-            ev->appendKeyDouble("mult", _dependencyJointMult);
-            ev->appendKeyDouble("off", _dependencyJointOffset);
-        }
-    }
-    ev->closeArrayOrMap(); // dependency
+    ev->appendKeyInt(propJoint_jointType.name, _jointType);
+    ev->appendKeyInt(propJoint_jointMode.name, _jointMode);
+    ev->appendKeyInt(propJoint_dynCtrlMode.name, _dynCtrlMode);
+    ev->appendKeyInt(propJoint_dependencyMaster.name, _dependencyMasterJointHandle);
+    double arr[2] = {_dependencyJointOffset, _dependencyJointMult};
+    ev->appendKeyDoubleArray(propJoint_dependencyParams.name, arr, 2);
+    ev->appendKeyBool(propJoint_cyclic.name, _isCyclic);
+    ev->appendKeyDouble(propJoint_targetPos.name, _targetPos);
+    ev->appendKeyDouble(propJoint_targetVel.name, _targetVel);
+    ev->appendKeyDouble(propJoint_targetForce.name, _targetForce);
+
+    double q[4];
+    _sphericalTransf.getData(q, true);
+    ev->appendKeyDoubleArray(propJoint_quaternion.name, q, 4);
+    ev->appendKeyDouble(propJoint_position.name, _pos);
+    ev->appendKeyDouble(propJoint_screwLead.name, _screwLead);
+    double p[7];
+    _intrinsicTransformationError.getData(p, true);
+    ev->appendKeyDoubleArray(propJoint_intrinsicError.name, p, 7);
+    getIntrinsicTransformation(true).getData(p, true);
+    ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
+
+    ev->appendKeyDoubleArray(propJoint_maxVelAccelJerk.name, _maxVelAccelJerk, 3);
+    ev->appendKeyDoubleArray(propJoint_springDamperParams.name, _dynCtrl_kc, 2);
+    getInterval(p[0], p[1]);
+    ev->appendKeyDoubleArray(propJoint_interval.name, p, 2);
+    p[0] = _length;
+    p[1] = _diameter;
+    ev->appendKeyDoubleArray(propJoint_size.name, p, 2);
+    ev->appendKeyDouble(propJoint_calcVelocity.name, _velCalc_vel);
+
 
     // Engine properties:
     setBoolProperty(nullptr, false, ev);
@@ -2073,15 +2133,10 @@ void CJoint::serialize(CSer &ar)
             SIM_SET_CLEAR_BIT(dummy, 1, _explicitHandling_DEPRECATED);
             SIM_SET_CLEAR_BIT(dummy, 2, _unlimitedAcceleration_DEPRECATED);
             SIM_SET_CLEAR_BIT(dummy, 3, _invertTargetVelocityAtLimits_DEPRECATED);
-            SIM_SET_CLEAR_BIT(dummy, 4,
-                              _dynCtrlMode != sim_jointdynctrl_free); // for backward comp. with V4.3 and earlier
-            SIM_SET_CLEAR_BIT(dummy, 5,
-                              _dynCtrlMode >= sim_jointdynctrl_position); // for backward comp. with V4.3 and earlier
+            SIM_SET_CLEAR_BIT(dummy, 4, _dynCtrlMode != sim_jointdynctrl_free); // for backward comp. with V4.3 and earlier
+            SIM_SET_CLEAR_BIT(dummy, 5, _dynCtrlMode >= sim_jointdynctrl_position); // for backward comp. with V4.3 and earlier
             SIM_SET_CLEAR_BIT(dummy, 6, _jointHasHybridFunctionality);
-            SIM_SET_CLEAR_BIT(
-                dummy, 7,
-                (_dynCtrlMode == sim_jointdynctrl_spring) ||
-                    (_dynCtrlMode == sim_jointdynctrl_springcb)); // for backward comp. with V4.3 and earlier
+            SIM_SET_CLEAR_BIT(dummy, 7, (_dynCtrlMode == sim_jointdynctrl_spring) || (_dynCtrlMode == sim_jointdynctrl_springcb)); // for backward comp. with V4.3 and earlier
             ar << dummy;
             ar.flush();
 
@@ -3765,7 +3820,14 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int newMode)
     if (diff)
     {
         _jointMode = newMode;
-        _dynCtrlMode = sim_jointdynctrl_free; // 21.08.2024: e.g. dependent joints need to be free when master joint is dyn. enabled
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propJoint_jointMode.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _jointMode);
+            App::worldContainer->pushEvent();
+        }
+        setDynCtrlMode(sim_jointdynctrl_free); // 21.08.2024: e.g. dependent joints need to be free when master joint is dyn. enabled
         _setJointMode_sendOldIk(_jointMode);
         if ((_jointMode != sim_jointmode_dependent) && (_jointMode != sim_jointmode_reserved_previously_ikdependent))
             setDependencyMasterJointHandle(-1);
@@ -3776,12 +3838,8 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int newMode)
                 setTargetVelocity(1000.0); // just a very high value
             setHybridFunctionality_old(false);
             setScrewLead(0.0);
-            // REMOVED FOLLOWING ON 24/7/2015: causes problem when switching modes. The physics engine plugin will now
-            // not set limits if the range>=360
-            //      if (_jointType==sim_joint_revolute)
-            //          _posRange=tt::getLimitedFloat(0.0,piValT2,_posRange);
             if (_jointType == sim_joint_spherical)
-                setPositionRange(piValue);
+                setInterval(0.0, piValue);
             _dynVelCtrl_currentVelAccel[0] = double(_velCalc_vel);
             _dynVelCtrl_currentVelAccel[1] = 0.0;
             _dynCtrl_pid_cumulErr = 0.0;
@@ -3835,13 +3893,15 @@ void CJoint::setSphericalTransformation(const C4Vector &tr)
         _sphericalTransf = tr;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "quaternion";
+            const char *cmd = propJoint_quaternion.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            double q[4] = {_sphericalTransf(1), _sphericalTransf(2), _sphericalTransf(3), _sphericalTransf(0)};
+            double q[4];
+            _sphericalTransf.getData(q, true);
             ev->appendKeyDoubleArray(cmd, q, 4);
-            C7Vector trr(getIntrinsicTransformation(true));
-            double p[7] = {trr.X(0), trr.X(1), trr.X(2), trr.Q(1), trr.Q(2), trr.Q(3), trr.Q(0)};
-            ev->appendKeyDoubleArray("intrinsicPose", p, 7);
+            C7Vector trr();
+            double p[7];
+            getIntrinsicTransformation(true).getData(p, true);
+            ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
             App::worldContainer->pushEvent();
         }
         _setSphericalTransformation_sendOldIk(_sphericalTransf);
@@ -3929,13 +3989,12 @@ void CJoint::setPosition(double pos, const CJoint *masterJoint /*=nullptr*/, boo
         _pos = pos;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "position";
+            const char *cmd = propJoint_position.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _pos);
-
-            C7Vector tr(getIntrinsicTransformation(true));
-            double p[7] = {tr.X(0), tr.X(1), tr.X(2), tr.Q(1), tr.Q(2), tr.Q(3), tr.Q(0)};
-            ev->appendKeyDoubleArray("intrinsicPose", p, 7);
+            double p[7];
+            getIntrinsicTransformation(true).getData(p, true);
+            ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
             App::worldContainer->pushEvent();
         }
         _setPosition_sendOldIk(pos);
@@ -4018,6 +4077,13 @@ void CJoint::setDynCtrlMode(int mode)
     if (mode != _dynCtrlMode)
     {
         _dynCtrlMode = mode;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propJoint_dynCtrlMode.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _dynCtrlMode);
+            App::worldContainer->pushEvent();
+        }
         if ((_dynCtrlMode == sim_jointdynctrl_spring) || (_dynCtrlMode == sim_jointdynctrl_springcb) ||
             (_dynCtrlMode == sim_jointdynctrl_force))
             setTargetVelocity(1000.0); // just a very high value
@@ -4090,8 +4156,7 @@ void CJoint::getMaxVelAccelJerk(double maxVelAccelJerk[3]) const
 
 void CJoint::setMaxVelAccelJerk(const double maxVelAccelJerk[3])
 {
-    bool diff = ((_maxVelAccelJerk[0] != maxVelAccelJerk[0]) || (_maxVelAccelJerk[1] != maxVelAccelJerk[1]) ||
-                 (_maxVelAccelJerk[2] != maxVelAccelJerk[2]));
+    bool diff = ((_maxVelAccelJerk[0] != maxVelAccelJerk[0]) || (_maxVelAccelJerk[1] != maxVelAccelJerk[1]) || (_maxVelAccelJerk[2] != maxVelAccelJerk[2]));
     if (diff)
     {
         _maxVelAccelJerk[0] = maxVelAccelJerk[0];
@@ -4099,7 +4164,7 @@ void CJoint::setMaxVelAccelJerk(const double maxVelAccelJerk[3])
         _maxVelAccelJerk[2] = maxVelAccelJerk[2];
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "maxVelAccelJerk";
+            const char *cmd = propJoint_maxVelAccelJerk.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, _maxVelAccelJerk, 3);
             App::worldContainer->pushEvent();
@@ -4344,16 +4409,6 @@ bool CJoint::getIsCyclic() const
     return (_isCyclic);
 }
 
-double CJoint::getPositionMin() const
-{
-    return (_posMin);
-}
-
-double CJoint::getPositionRange() const
-{
-    return (_posRange);
-}
-
 double CJoint::getIKWeight_old() const
 {
     return (_ikWeight_old);
@@ -4374,14 +4429,10 @@ int CJoint::getDependencyMasterJointHandle() const
     return (_dependencyMasterJointHandle);
 }
 
-double CJoint::getDependencyJointMult() const
+void CJoint::getDependencyParams(double& off, double& mult) const
 {
-    return (_dependencyJointMult);
-}
-
-double CJoint::getDependencyJointOffset() const
-{
-    return (_dependencyJointOffset);
+    off = _dependencyJointOffset;
+    mult = _dependencyJointMult;
 }
 
 void CJoint::setMotorLock(bool e)
@@ -4399,12 +4450,13 @@ void CJoint::setIntrinsicTransformationError(const C7Vector &tr)
         _intrinsicTransformationError = tr;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = "position";
+            const char *cmd = propJoint_intrinsicError.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, _pos);
-            C7Vector tr2(getIntrinsicTransformation(true));
-            double p[7] = {tr2.X(0), tr2.X(1), tr2.X(2), tr2.Q(1), tr2.Q(2), tr2.Q(3), tr2.Q(0)};
-            ev->appendKeyDoubleArray("intrinsicPose", p, 7);
+            double p[7];
+            _intrinsicTransformationError.getData(p, true);
+            ev->appendKeyDoubleArray(cmd, p, 7);
+            getIntrinsicTransformation(true).getData(p, true);
+            ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
             App::worldContainer->pushEvent();
         }
     }
@@ -4454,6 +4506,11 @@ int CJoint::setBoolProperty(const char* ppName, bool pState, CCbor* eev/* = null
         retVal = CSceneObject::setBoolProperty(pName, pState);
         if (retVal == -1)
         {
+            if (_pName == propJoint_cyclic.name)
+            {
+                setIsCyclic(pState);
+                retVal = 1;
+            }
         }
     }
 
@@ -4502,13 +4559,11 @@ int CJoint::getBoolProperty(const char* ppName, bool& pState) const
     if (retVal == -1)
     {
         // First non-engine properties:
-        /*
-        if (_pName == propJoint_length.name)
+        if (_pName == propJoint_cyclic.name)
         {
-            pState = _length;
+            pState = _isCyclic;
             retVal = 1;
         }
-        */
 
         // Engine-only properties:
         // ------------------------
@@ -4548,6 +4603,21 @@ int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev/* = nullpt
         retVal = CSceneObject::setIntProperty(pName, pState);
         if (retVal == -1)
         {
+            if (_pName == propJoint_jointMode.name)
+            {
+                setJointMode(pState);
+                retVal = 1;
+            }
+            else if (_pName == propJoint_dynCtrlMode.name)
+            {
+                setDynCtrlMode(pState);
+                retVal = 1;
+            }
+            else if (_pName == propJoint_dependencyMaster.name)
+            {
+                setDependencyMasterJointHandle(pState);
+                retVal = 1;
+            }
         }
     }
 
@@ -4596,13 +4666,26 @@ int CJoint::getIntProperty(const char* ppName, int& pState) const
     if (retVal == -1)
     {
         // First non-engine properties:
-        /*
-        if (_pName == propJoint_length.name)
+        if (_pName == propJoint_jointType.name)
         {
-            pState = _length;
             retVal = 1;
+            pState = _jointType;
         }
-        */
+        else if (_pName == propJoint_jointMode.name)
+        {
+            retVal = 1;
+            pState = _jointMode;
+        }
+        else if (_pName == propJoint_dynCtrlMode.name)
+        {
+            retVal = 1;
+            pState = _dynCtrlMode;
+        }
+        else if (_pName == propJoint_dependencyMaster.name)
+        {
+            retVal = 1;
+            pState = _dependencyMasterJointHandle;
+        }
 
         // Engine-only properties:
         // ------------------------
@@ -4650,14 +4733,29 @@ int CJoint::setFloatProperty(const char* ppName, double pState, CCbor* eev/* = n
             retVal = _color.setFloatProperty(pName, pState);
         if (retVal == -1)
         {
-            if (_pName == propJoint_length.name)
+            if (_pName == propJoint_position.name)
             {
-                setLength(pState);
+                setPosition(pState);
                 retVal = 1;
             }
-            else if (_pName == propJoint_diameter.name)
+            else if (_pName == propJoint_screwLead.name)
             {
-                setDiameter(pState);
+                setScrewLead(pState);
+                retVal = 1;
+            }
+            else if (_pName == propJoint_targetPos.name)
+            {
+                setTargetPosition(pState);
+                retVal = 1;
+            }
+            else if (_pName == propJoint_targetVel.name)
+            {
+                setTargetVelocity(pState);
+                retVal = 1;
+            }
+            else if (_pName == propJoint_targetForce.name)
+            {
+                setTargetForce(pState, true);
                 retVal = 1;
             }
         }
@@ -4767,17 +4865,39 @@ int CJoint::getFloatProperty(const char* ppName, double& pState) const
         retVal = _color.getFloatProperty(pName, pState);
     if (retVal == -1)
     {
-        if (_pName == propJoint_length.name)
+        if (_pName == propJoint_position.name)
         {
-            pState = _length;
             retVal = 1;
+            pState = _pos;
         }
-        else if (_pName == propJoint_diameter.name)
+        else if (_pName == propJoint_screwLead.name)
         {
-            pState = _diameter;
             retVal = 1;
+            pState = _screwLead;
         }
-
+        else if (_pName == propJoint_calcVelocity.name)
+        {
+            retVal = 1;
+            pState = _velCalc_vel;
+        }
+        else if (_pName == propJoint_targetPos.name)
+        {
+            retVal = 1;
+            pState = _targetPos;
+        }
+        else if (_pName == propJoint_targetVel.name)
+        {
+            retVal = 1;
+            pState = _targetVel;
+        }
+        else if (_pName == propJoint_targetForce.name)
+        {
+            retVal = 1;
+            pState = _targetForce;
+        }
+    }
+    if (retVal == -1)
+    {
         // Engine-only properties:
         // ------------------------
         if (_pName == propJoint_bulletStopErp.name)
@@ -5135,6 +5255,62 @@ int CJoint::getStringProperty(const char* ppName, std::string& pState) const
     return retVal;
 }
 
+int CJoint::setQuaternionProperty(const char* ppName, const C4Vector& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
+    const char* pName = _pName.c_str();
+
+    int retVal = CSceneObject::setQuaternionProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propJoint_quaternion.name)
+        {
+            retVal = 1;
+            setSphericalTransformation(pState);
+        }
+    }
+    return retVal;
+}
+
+int CJoint::getQuaternionProperty(const char* ppName, C4Vector& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getQuaternionProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propJoint_quaternion.name)
+        {
+            retVal = 1;
+            pState = _sphericalTransf;
+        }
+    }
+
+    return retVal;
+}
+
+int CJoint::getPoseProperty(const char* ppName, C7Vector& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getPoseProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propJoint_intrinsicError.name)
+        {
+            retVal = 1;
+            pState = _intrinsicTransformationError;
+        }
+        else if (_pName == propJoint_intrinsicPose.name)
+        {
+            retVal = 1;
+            pState = getIntrinsicTransformation(true);
+        }
+    }
+
+    return retVal;
+}
+
 int CJoint::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
@@ -5184,13 +5360,59 @@ int CJoint::setVectorProperty(const char* ppName, const double* v, int vL, CCbor
         retVal = CSceneObject::setVectorProperty(pName, v, vL);
         if (retVal == -1)
         {
-            /*
-            if (_pName == propJoint_length.name)
+            if (_pName == propJoint_size.name)
             {
-                setLength(pState);
+                if (vL >= 2)
+                    setSize(v[0], v[1]);
+                else if (vL == 1)
+                    setSize(v[0]);
                 retVal = 1;
             }
-            */
+            else if (_pName == propJoint_interval.name)
+            {
+                double minV, maxV;
+                getInterval(minV, maxV);
+                if (vL >= 2)
+                    maxV = v[1];
+                if (vL >= 1)
+                    minV = v[0];
+                setInterval(minV, maxV);
+                retVal = 1;
+            }
+            else if (_pName == propJoint_dependencyParams.name)
+            {
+                double off, mult;
+                getDependencyParams(off, mult);
+                if (vL >= 2)
+                    mult = v[1];
+                if (vL >= 1)
+                    off = v[0];
+                setDependencyParams(off, mult);
+                retVal = 1;
+            }
+            else if (_pName == propJoint_maxVelAccelJerk.name)
+            {
+                double arr[3] = {_maxVelAccelJerk[0], _maxVelAccelJerk[1], _maxVelAccelJerk[2]};
+                if (vL >= 3)
+                    arr[2] = v[2];
+                if (vL >= 2)
+                    arr[1] = v[1];
+                if (vL >= 1)
+                    arr[0] = v[0];
+                setMaxVelAccelJerk(arr);
+                retVal = 1;
+            }
+            else if (_pName == propJoint_springDamperParams.name)
+            {
+                double k, c;
+                getKc(k, c);
+                if (vL >= 2)
+                    c = v[1];
+                if (vL >= 1)
+                    k = v[0];
+                setKc(k, c);
+                retVal = 1;
+            }
         }
     }
 
@@ -5256,13 +5478,39 @@ int CJoint::getVectorProperty(const char* ppName, std::vector<double>& pState) c
     int retVal = CSceneObject::getVectorProperty(pName, pState);
     if (retVal == -1)
     {   // First non-engine properties:
-        /*
-        if (_pName == propJoint_length.name)
+        if (_pName == propJoint_size.name)
         {
-            pState = _length;
+            pState.push_back(_length);
+            pState.push_back(_diameter);
             retVal = 1;
         }
-        */
+        else if (_pName == propJoint_interval.name)
+        {
+            double minV, maxV;
+            getInterval(minV, maxV);
+            pState.push_back(minV);
+            pState.push_back(maxV);
+            retVal = 1;
+        }
+        else if (_pName == propJoint_dependencyParams.name)
+        {
+            pState.push_back(_dependencyJointOffset);
+            pState.push_back(_dependencyJointMult);
+            retVal = 1;
+        }
+        else if (_pName == propJoint_maxVelAccelJerk.name)
+        {
+            pState.push_back(_maxVelAccelJerk[0]);
+            pState.push_back(_maxVelAccelJerk[1]);
+            pState.push_back(_maxVelAccelJerk[2]);
+            retVal = 1;
+        }
+        else if (_pName == propJoint_springDamperParams.name)
+        {
+            pState.push_back(_dynCtrl_kc[0]);
+            pState.push_back(_dynCtrl_kc[1]);
+            retVal = 1;
+        }
 
         // Engine-only properties:
         // ------------------------

@@ -44,8 +44,10 @@ void CQDlgDependencyEquation::refresh()
 
     if (it != nullptr)
     {
-        ui->qqOffset->setText(utils::getPosString(true, it->getDependencyJointOffset()).c_str());
-        ui->qqCoeff->setText(utils::getMultString(true, it->getDependencyJointMult()).c_str());
+        double off, mult;
+        it->getDependencyParams(off, mult);
+        ui->qqOffset->setText(utils::getPosString(true, off).c_str());
+        ui->qqCoeff->setText(utils::getMultString(true, mult).c_str());
 
         ui->qqCombo->addItem(IDSN_NONE, QVariant(-1));
 
@@ -105,7 +107,9 @@ void CQDlgDependencyEquation::on_qqOffset_editingFinished()
         double newVal = GuiApp::getEvalDouble(ui->qqOffset->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
         {
-            it->setDependencyJointOffset(newVal); // we also modify the ui resources (dlg is modal)
+            double off, mult;
+            it->getDependencyParams(off, mult);
+            it->setDependencyParams(newVal, mult); // we also modify the ui resources (dlg is modal)
             App::appendSimulationThreadCommand(SET_OFFFSET_JOINTDEPENDENCYGUITRIGGEREDCMD, it->getObjectHandle(), -1,
                                                newVal);
             // scene change announcement at the end of this modal dlg
@@ -125,7 +129,9 @@ void CQDlgDependencyEquation::on_qqCoeff_editingFinished()
         double newVal = GuiApp::getEvalDouble(ui->qqCoeff->text().toStdString().c_str(), &ok);
         if (ok && (it != nullptr))
         {
-            it->setDependencyJointMult(newVal); // we also modify the ui resources (dlg is modal)
+            double off, mult;
+            it->getDependencyParams(off, mult);
+            it->setDependencyParams(off, newVal); // we also modify the ui resources (dlg is modal)
             App::appendSimulationThreadCommand(SET_MULTFACT_JOINTDEPENDENCYGUITRIGGEREDCMD, it->getObjectHandle(), -1,
                                                newVal);
             // scene change announcement at the end of this modal dlg

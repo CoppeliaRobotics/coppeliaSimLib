@@ -108,8 +108,8 @@ class CEnvironment
     int getFogType() const;
     bool areNonAmbientLightsActive() const;
     void setNonAmbientLightsActive(bool a);
-    void setActiveLayers(unsigned short l);
-    unsigned short getActiveLayers() const;
+    void setActiveLayers(int l);
+    int getActiveLayers() const;
 
     void setScenePathAndName(const char *pathAndName);
     std::string getScenePathAndName() const;
@@ -134,7 +134,7 @@ class CEnvironment
     CThumbnail modelThumbnail_notSerializedHere;
 
   protected:
-    unsigned short _activeLayers;
+    int _activeLayers;
 
     bool _nonAmbientLightsAreActive;
     bool fogEnabled;
