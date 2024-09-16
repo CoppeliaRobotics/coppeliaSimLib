@@ -3760,12 +3760,12 @@ int CVisionSensor::getPropertyInfo(const char* ppName, int& info)
             if (_pName == propVisionSensor_imageBuffer.name)
             {
                 if (3 * _resolution[0] * _resolution[1] > 1000)
-                    retVal = retVal | sim_propertytype_largedata;
+                    info = info | 256;
             }
             if (_pName == propVisionSensor_depthBuffer.name)
             {
                 if (_resolution[0] * _resolution[1] > 1000)
-                    retVal = retVal | sim_propertytype_largedata;
+                    info = info | 256;
             }
         }
     }

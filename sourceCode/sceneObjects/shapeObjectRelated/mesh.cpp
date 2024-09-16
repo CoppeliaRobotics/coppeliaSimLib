@@ -3274,29 +3274,29 @@ int CMesh::getPropertyInfo(const char* ppName, int& info, CMesh* targetObject)
             {
                 const std::vector<float>* tc = targetObject->_textureProperty->getTextureCoordinates(-1, targetObject->_verticesForDisplayAndDisk, targetObject->_indices);
                 if (tc->size() > 1000)
-                    retVal = retVal | sim_propertytype_largedata;
+                    info = info | 256;
             }
             else if ( (_pName == propMesh_texture.name) && (targetObject->_textureProperty != nullptr) )
             {
                 int ts[2];
                 targetObject->_textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);
                 if (ts[0] * ts[1] > 1000)
-                    retVal = retVal | sim_propertytype_largedata;
+                    info = info | 256;
             }
             else if (_pName == propMesh_vertices.name)
             {
                 if (targetObject->_verticesForDisplayAndDisk.size() > 1000)
-                    retVal = retVal | sim_propertytype_largedata;
+                    info = info | 256;
             }
             else if (_pName == propMesh_indices.name)
             {
                 if (targetObject->_indices.size() > 1000)
-                    retVal = retVal | sim_propertytype_largedata;
+                    info = info | 256;
             }
             else if (_pName == propMesh_normals.name)
             {
                 if (targetObject->_indices.size() * 3 > 1000)
-                    retVal = retVal | sim_propertytype_largedata;
+                    info = info | 256;
             }
         }
     }
