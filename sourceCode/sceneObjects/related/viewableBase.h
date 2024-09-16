@@ -3,6 +3,27 @@
 #include <sceneObject.h>
 #include <ser.h>
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propViewable_viewAngle,               "viewAngle",                                sim_propertytype_float,     0) \
+    FUNCX(propViewable_viewSize,                "viewSize",                                 sim_propertytype_float,     0) \
+    FUNCX(propViewable_clippingPlanes,          "clippingPlanes",                           sim_propertytype_vector,    0) \
+    FUNCX(propViewable_perspective,             "perspective",                              sim_propertytype_bool,      1) \
+    FUNCX(propViewable_showFrustum,             "showFrustum",                              sim_propertytype_bool,      0) \
+    FUNCX(propViewable_frustumCornerNear,       "frustumCornerNear",                        sim_propertytype_vector3,   1) \
+    FUNCX(propViewable_frustumCornerFar,        "frustumCornerFar",                         sim_propertytype_vector3,   1) \
+    FUNCX(propViewable_resolution,              "resolution",                               sim_propertytype_intvector, 0) \
+
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<SProperty> allProps_viewable = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 class CViewableBase : public CSceneObject
 {
   public:
@@ -10,6 +31,7 @@ class CViewableBase : public CSceneObject
     virtual ~CViewableBase();
 
     // Following functions need to be implemented in each class derived from CViewableBase
+    virtual void addSpecializedObjectEventData(CCbor *ev);
     virtual CSceneObject *copyYourself();
     virtual void display(CViewableBase *renderingObject, int displayAttrib);
     virtual void scaleObject(double scalingFactor);
@@ -32,10 +54,21 @@ class CViewableBase : public CSceneObject
     virtual bool isPotentiallyDetectable() const;
     virtual bool isPotentiallyRenderable() const;
 
-    void setNearClippingPlane(double nearPlane);
-    double getNearClippingPlane() const;
-    void setFarClippingPlane(double farPlane);
-    double getFarClippingPlane() const;
+    virtual int setBoolProperty(const char* pName, bool pState);
+    virtual int getBoolProperty(const char* pName, bool& pState);
+    virtual int setFloatProperty(const char* pName, double pState);
+    virtual int getFloatProperty(const char* pName, double& pState);
+    virtual int setVector3Property(const char* pName, const C3Vector& pState);
+    virtual int getVector3Property(const char* pName, C3Vector& pState) const;
+    virtual int setVectorProperty(const char* pName, const double* v, int vL);
+    virtual int getVectorProperty(const char* pName, std::vector<double>& pState) const;
+    virtual int setIntVectorProperty(const char* pName, const int* v, int vL);
+    virtual int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
+    static int getPropertyName_vstatic(int& index, std::string& pName);
+    static int getPropertyInfo_vstatic(const char* pName, int& info, int& size);
+
+    void setClippingPlanes(double nearPlane, double farPlane);
+    void getClippingPlanes(double& nearPlane, double& farPlane) const;
     void setViewAngle(double angle);
     double getViewAngle() const;
     void setOrthoViewSize(double theSize);

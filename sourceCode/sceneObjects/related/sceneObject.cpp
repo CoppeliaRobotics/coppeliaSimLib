@@ -5975,10 +5975,8 @@ int CSceneObject::setStringProperty(const char* ppName, const char* pState)
 
     if (_pName == propObject_alias.name)
     {
-        if (App::currentWorld->sceneObjects->setObjectAlias(this, pState, false))
-            retVal = 1;
-        else
-            retVal = 0;
+        App::currentWorld->sceneObjects->setObjectAlias(this, pState, false);
+        retVal = 1;
     }
     else if (_pName == propObject_modelAcknowledgment.name)
     {

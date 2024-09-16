@@ -1035,10 +1035,11 @@ bool CSView::mouseWheel(int deltaZ, int x, int y)
                 lastTime = ct;
                 C4X4Matrix local(((CCamera *)it)->getFullLocalTransformation().getMatrix());
                 C4X4Matrix localNew(local);
-                localNew.X -= localNew.M.axis[2] * 0.01 * (((CCamera *)it)->getNearClippingPlane() / 0.05) * fact *
+                double np, fp;
+                ((CCamera *)it)->getClippingPlanes(np, fp);
+                localNew.X -= localNew.M.axis[2] * 0.01 * (np / 0.05) * fact *
                               double(deltaZ) /
-                              120.0; // Added *(((CCamera*)it)->getNearClippingPlane()/0.05) on 23/02/2011 to make
-                                     // smaller displacements when near clip. plane is closer
+                              120.0;
                 ((CCamera *)it)->shiftCameraInCameraManipulationMode(localNew.X);
                 if (cameraParentProxy != nullptr)
                 { // We manipulate the parent object instead:
@@ -1153,7 +1154,9 @@ void CSView::_handleClickRayIntersection_old(int x, int y, bool mouseDown)
     SSimulationThreadCommand cmd;
     cmd.cmdId = CLICK_RAY_INTERSECTION_CMD_OLD;
     cmd.boolParams.push_back(mouseDown);
-    cmd.doubleParams.push_back(cam->getNearClippingPlane());
+    double np, fp;
+    cam->getClippingPlanes(np, fp);
+    cmd.doubleParams.push_back(np);
     cmd.intParams.push_back(cam->getObjectHandle());
     cmd.transfParams.push_back(tr);
     App::appendSimulationThreadCommand(cmd);
@@ -1307,7 +1310,9 @@ void CSView::mouseMove(int x, int y, bool passiveAndFocused)
                     tr.X = C3Vector(a0, a1, 0.0);
                 }
                 tr = cam->getFullCumulativeTransformation().getMatrix() * tr;
-                tr.X += tr.M.axis[2] * cam->getNearClippingPlane();
+                double np, fp;
+                cam->getClippingPlanes(np, fp);
+                tr.X += tr.M.axis[2] * np;
                 GuiApp::mainWindow->setMouseRay(&tr.X, &tr.M.axis[2]);
             }
         }
@@ -1412,9 +1417,11 @@ int CSView::modelDragMoveEvent(int x, int y, C3Vector *desiredModelPosition)
         }
         if (!singularityProblem)
         {
+            double np, fp;
+            thecam->getClippingPlanes(np, fp);
             C3Vector pRel(cam.getInverse() * p);
-            singularityProblem |= (pRel(2) < thecam->getNearClippingPlane());
-            singularityProblem |= (pRel(2) > thecam->getFarClippingPlane());
+            singularityProblem |= (pRel(2) < np);
+            singularityProblem |= (pRel(2) > fp);
         }
         if (singularityProblem)
             return (-2);

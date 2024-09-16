@@ -996,8 +996,9 @@ void CEnvironment::activateFogIfEnabled(CViewableBase *viewable, bool forDynamic
 #endif
     if (fogEnabled && viewable->getShowFogIfAvailable() && (!forDynamicContentOnly) && (editMode == NO_EDIT_MODE))
     {
-        activateFog(fogBackgroundColor, fogType, viewable->getFogStrength(), viewable->getFarClippingPlane(), fogStart,
-                    fogEnd, fogDensity);
+        double np, fp;
+        viewable->getClippingPlanes(np, fp);
+        activateFog(fogBackgroundColor, fogType, viewable->getFogStrength(), fp, fogStart, fogEnd, fogDensity);
         CViewableBase::fogWasActivated = true;
     }
     else

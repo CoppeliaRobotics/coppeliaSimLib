@@ -79,8 +79,10 @@ void CQDlgVisionSensors::refresh()
 
         ui->qqShowFog->setChecked(s->getShowFogIfAvailable());
 
-        ui->qqNearPlane->setText(utils::getSizeString(false, s->getNearClippingPlane()).c_str());
-        ui->qqFarPlane->setText(utils::getSizeString(false, s->getFarClippingPlane()).c_str());
+        double np, fp;
+        s->getClippingPlanes(np, fp);
+        ui->qqNearPlane->setText(utils::getSizeString(false, np).c_str());
+        ui->qqFarPlane->setText(utils::getSizeString(false, fp).c_str());
 
         if (s->getPerspective())
             ui->qqPerspectiveAngleOrOrthographicSize->setText(utils::getAngleString(false, s->getViewAngle()).c_str());

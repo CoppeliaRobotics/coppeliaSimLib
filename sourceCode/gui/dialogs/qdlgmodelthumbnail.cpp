@@ -57,8 +57,7 @@ void CQDlgModelThumbnail::initialize()
     rs->setPerspective(true);
     rs->setUseEnvironmentBackgroundColor(false);
     rs->setViewAngle(THUMBNAIL_THING_VIEW_ANGLE * degToRad);
-    rs->setNearClippingPlane(0.01);
-    rs->setFarClippingPlane(20.0);
+    rs->setClippingPlanes(0.01, 20.0);
     rs->setVisibilityLayer(0);
     sel.clear();
     sel.push_back(modelBaseDummyID);
@@ -153,8 +152,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
     double dddd = minDist + d * zoom * 0.5;
     if (dddd < 0.0001)
         dddd = 0.0001;
-    rs->setNearClippingPlane(dddd);
-    rs->setFarClippingPlane(maxDist + d * zoom * 2.0);
+    rs->setClippingPlanes(dddd, maxDist + d * zoom * 2.0);
 
     rs->setLocalTransformation(cameraTr.getTransformation());
     bool antialiasingSaved = App::userSettings->antiAliasing;

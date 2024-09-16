@@ -24,6 +24,18 @@ struct SHandlingResult
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
     FUNCX(propVisionSensor_size,                    "size",                                     sim_propertytype_float,     0) \
+    FUNCX(propVisionSensor_backgroundCol,           "backgroundColor",                          sim_propertytype_color,     0) \
+    FUNCX(propVisionSensor_renderMode,              "renderMode",                               sim_propertytype_int,     0) \
+    FUNCX(propVisionSensor_backgroundSameAsEnv,     "backgroundColorFromEnvironment",           sim_propertytype_bool,    0) \
+    FUNCX(propVisionSensor_explicitHandling,        "explicitHandling",                         sim_propertytype_bool,    0) \
+    FUNCX(propVisionSensor_useExtImage,             "useExtImage",                              sim_propertytype_bool,    0) \
+    FUNCX(propVisionSensor_ignoreRgbInfo,           "ignoreImageInfo",                          sim_propertytype_bool,    0) \
+    FUNCX(propVisionSensor_ignoreDepthInfo,         "ignoreDepthInfo",                          sim_propertytype_bool,    0) \
+    FUNCX(propVisionSensor_omitPacket1,             "omitPacket1",                              sim_propertytype_bool,    0) \
+    FUNCX(propVisionSensor_emitImageChangedEvent,   "emitImageChangedEvent",                    sim_propertytype_bool,    0) \
+    FUNCX(propVisionSensor_emitDepthChangedEvent,   "emitDepthChangedEvent",                    sim_propertytype_bool,    0) \
+    FUNCX(propVisionSensor_imageBuffer,             "imageBuffer",                              sim_propertytype_buffer,  0) \
+    FUNCX(propVisionSensor_depthBuffer,             "depthBuffer",                              sim_propertytype_vector,  1) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -69,10 +81,22 @@ class CVisionSensor : public CViewableBase
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
     void setIsInScene(bool s);
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState);
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState);
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState);
+    int setBufferProperty(const char* pName, const char* buffer, int bufferL);
+    int getBufferProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState);
+    int setVector3Property(const char* pName, const C3Vector& pState);
+    int getVector3Property(const char* pName, C3Vector& pState) const;
+    int setVectorProperty(const char* pName, const double* v, int vL);
+    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
+    int setIntVectorProperty(const char* pName, const int* v, int vL);
+    int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, int& size);
@@ -84,7 +108,7 @@ class CVisionSensor : public CViewableBase
 
     void setVisionSensorSize(double s);
     double getVisionSensorSize() const;
-    void setExplicitHandling(bool explicitHandl);
+    void setExplicitHandling(bool eh);
     bool getExplicitHandling() const;
     void resetSensor();
     bool handleSensor();
@@ -101,6 +125,9 @@ class CVisionSensor : public CViewableBase
 
     void setRenderMode(int mode);
     int getRenderMode() const;
+
+    void setEmitImageChangedEvent(bool e);
+    void setEmitDepthChangedEvent(bool e);
 
     void setAttributesForRendering(int attr);
     int getAttributesForRendering() const;
@@ -159,6 +186,8 @@ class CVisionSensor : public CViewableBase
     bool setExternalCharImage_old(const unsigned char *img, bool imgIsGreyScale, bool noProcessing);
 
   protected:
+    void _emitImageChangedEvent() const;
+    void _emitDepthChangedEvent() const;
     void _drawObjects(int entityID, bool detectAll, bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
                       bool hideEdgesIfModel, bool overrideRenderableFlagsForNonCollections);
     int _getActiveMirrors(int entityID, bool detectAll,
@@ -214,6 +243,8 @@ class CVisionSensor : public CViewableBase
     bool _initialExplicitHandling;
     std::string _detectableEntityLoadAlias;
     std::string _detectableEntityLoadName_old;
+    bool _emitImageChangedEventEnabled;
+    bool _emitDepthChangedEventEnabled;
 
 #ifdef SIM_WITH_GUI
   public:

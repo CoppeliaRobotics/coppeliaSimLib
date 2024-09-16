@@ -5588,8 +5588,10 @@ float *simGetVisionSensorDepthBuffer_internal(int sensorHandle)
         float *depthBuff = it->getDepthBufferPointer();
         if ((handleFlags & sim_handleflag_depthbuffermeters) != 0)
         { // Here we need to convert values to distances in meters:
-            float n = (float)it->getNearClippingPlane();
-            float f = (float)it->getFarClippingPlane();
+            double np, fp;
+            it->getClippingPlanes(np, fp);
+            float n = (float)np;
+            float f = (float)fp;
             float fmn = f - n;
             for (int i = 0; i < res[0] * res[1]; i++)
                 buff[i] = n + fmn * depthBuff[i];

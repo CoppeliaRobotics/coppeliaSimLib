@@ -6,6 +6,24 @@
 #include <light.h>
 #include <sView.h>
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propCamera_size,                    "size",                                     sim_propertytype_float,     0) \
+    FUNCX(propCamera_parentAsManipProxy,      "parentAsManipulationProxy",                sim_propertytype_bool,      0) \
+    FUNCX(propCamera_translationEnabled,      "translationEnabled",                       sim_propertytype_bool,      0) \
+    FUNCX(propCamera_rotationEnabled,         "rotationEnabled",                          sim_propertytype_bool,      0) \
+    FUNCX(propCamera_trackedObjectHandle,     "trackedObjectHandle",                      sim_propertytype_int,       0) \
+
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<SProperty> allProps_camera = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 const double ORTHO_CAMERA_NEAR_CLIPPING_PLANE = 0.0001;
 const double ORTHO_CAMERA_FAR_CLIPPING_PLANE = 300.0;
 
@@ -16,20 +34,6 @@ enum
     PICKPASS,
     COLORCODEDPICKPASS
 };
-
-// ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propCamera_size,                    "size",                                     sim_propertytype_float,     0) \
-
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
-DEFINE_PROPERTIES
-#undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
-const std::vector<SProperty> allProps_camera = { DEFINE_PROPERTIES };
-#undef FUNCX
-#undef DEFINE_PROPERTIES
-// ----------------------------------------------------------------------------------------------
 
 class CCamera : public CViewableBase
 {
@@ -60,10 +64,21 @@ class CCamera : public CViewableBase
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
     void setIsInScene(bool s);
+
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState);
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState);
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState);
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState);
+    int setVector3Property(const char* pName, const C3Vector& pState);
+    int getVector3Property(const char* pName, C3Vector& pState) const;
+    int setVectorProperty(const char* pName, const double* v, int vL);
+    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
+    int setIntVectorProperty(const char* pName, const int* v, int vL);
+    int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, int& size);

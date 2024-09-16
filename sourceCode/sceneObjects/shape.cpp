@@ -1768,7 +1768,7 @@ void CShape::setIsInScene(bool s)
 
 int CShape::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setBoolProperty(pName, pState);
     if (retVal == -1)
@@ -1822,7 +1822,7 @@ int CShape::setBoolProperty(const char* ppName, bool pState)
 
 int CShape::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getBoolProperty(pName, pState);
     if (retVal == -1)
@@ -1861,7 +1861,7 @@ int CShape::getBoolProperty(const char* ppName, bool& pState) const
 
 int CShape::setIntProperty(const char* ppName, int pState)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setIntProperty(pName, pState);
     if (retVal == -1)
@@ -1880,7 +1880,7 @@ int CShape::setIntProperty(const char* ppName, int pState)
 
 int CShape::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getIntProperty(pName, pState);
     if (retVal == -1)
@@ -1899,7 +1899,7 @@ int CShape::getIntProperty(const char* ppName, int& pState) const
 
 int CShape::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setFloatProperty(pName, pState);
     if (retVal == -1)
@@ -1918,7 +1918,7 @@ int CShape::setFloatProperty(const char* ppName, double pState)
 
 int CShape::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getFloatProperty(pName, pState);
     if (retVal == -1)
@@ -1929,7 +1929,7 @@ int CShape::getFloatProperty(const char* ppName, double& pState) const
 
 int CShape::setStringProperty(const char* ppName, const char* pState)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setStringProperty(pName, pState);
     if (retVal == -1)
@@ -1940,7 +1940,7 @@ int CShape::setStringProperty(const char* ppName, const char* pState)
 
 int CShape::getStringProperty(const char* ppName, std::string& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getStringProperty(pName, pState);
     if (retVal == -1)
@@ -1951,7 +1951,7 @@ int CShape::getStringProperty(const char* ppName, std::string& pState) const
 
 int CShape::setVector3Property(const char* ppName, const C3Vector& pState)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::setVector3Property(pName, pState);
     if (retVal == -1)
@@ -1975,7 +1975,7 @@ int CShape::setVector3Property(const char* ppName, const C3Vector& pState)
 
 int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     int retVal = CSceneObject::getVector3Property(pName, pState);
     if (retVal == -1)
@@ -2009,7 +2009,7 @@ int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
 
 int CShape::setVectorProperty(const char* ppName, const double* v, int vL)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     if (v == nullptr)
         vL = 0;
@@ -2022,7 +2022,7 @@ int CShape::setVectorProperty(const char* ppName, const double* v, int vL)
 
 int CShape::getVectorProperty(const char* ppName, std::vector<double>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     pState.clear();
     int retVal = CSceneObject::getVectorProperty(pName, pState);
@@ -2034,7 +2034,7 @@ int CShape::getVectorProperty(const char* ppName, std::vector<double>& pState) c
 
 int CShape::setIntVectorProperty(const char* ppName, const int* v, int vL)
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     if (v == nullptr)
         vL = 0;
@@ -2045,7 +2045,7 @@ int CShape::setIntVectorProperty(const char* ppName, const int* v, int vL)
 
 int CShape::getIntVectorProperty(const char* ppName, std::vector<int>& pState) const
 {
-    std::string _pName(utils::getWithoutPrefix(ppName, "shape."));
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     pState.clear();
     int retVal = CSceneObject::getIntVectorProperty(pName, pState);

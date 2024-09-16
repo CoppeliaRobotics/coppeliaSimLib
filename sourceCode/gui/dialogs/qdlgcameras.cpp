@@ -70,8 +70,10 @@ void CQDlgCameras::refresh()
         ui->qqPerspectiveProjectionAngle->setText(utils::getAngleString(false, it->getViewAngle()).c_str());
         ui->qqOrthographicProjectionSize->setText(utils::getSizeString(false, it->getOrthoViewSize()).c_str());
         ui->qqSize->setText(utils::getSizeString(false, it->getCameraSize()).c_str());
-        ui->qqNearClipping->setText(utils::getSizeString(false, it->getNearClippingPlane()).c_str());
-        ui->qqFarClipping->setText(utils::getSizeString(false, it->getFarClippingPlane()).c_str());
+        double np, fp;
+        it->getClippingPlanes(np, fp);
+        ui->qqNearClipping->setText(utils::getSizeString(false, np).c_str());
+        ui->qqFarClipping->setText(utils::getSizeString(false, fp).c_str());
         ui->qqShowFog->setChecked(it->getShowFogIfAvailable());
         ui->qqLocalLights->setChecked(it->getuseLocalLights());
         ui->qqAllowPicking->setChecked(it->getAllowPicking());

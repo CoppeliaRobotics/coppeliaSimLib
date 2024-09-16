@@ -8994,8 +8994,7 @@ int simCreateVisionSensor_internal(int options, const int *intParams, const doub
         it->setUseEnvironmentBackgroundColor((options & 128) == 0);
         it->setResolution(intParams);
 
-        it->setNearClippingPlane(floatParams[0]);
-        it->setFarClippingPlane(floatParams[1]);
+        it->setClippingPlanes(floatParams[0], floatParams[1]);
         if (it->getPerspective())
             it->setViewAngle(floatParams[2]);
         else
@@ -10349,12 +10348,16 @@ int simGetObjectFloatParam_internal(int objectHandle, int parameterID, double *p
         {
             if (parameterID == sim_visionfloatparam_near_clipping)
             {
-                parameter[0] = rendSens->getNearClippingPlane();
+                double np, fp;
+                rendSens->getClippingPlanes(np, fp);
+                parameter[0] = np;
                 retVal = 1;
             }
             if (parameterID == sim_visionfloatparam_far_clipping)
             {
-                parameter[0] = rendSens->getFarClippingPlane();
+                double np, fp;
+                rendSens->getClippingPlanes(np, fp);
+                parameter[0] = fp;
                 retVal = 1;
             }
             if (parameterID == sim_visionfloatparam_perspective_angle)
@@ -10706,12 +10709,14 @@ int simGetObjectFloatParam_internal(int objectHandle, int parameterID, double *p
         {
             if (parameterID == sim_camerafloatparam_near_clipping)
             {
-                parameter[0] = camera->getNearClippingPlane();
+                double fp;
+                camera->getClippingPlanes(parameter[0], fp);
                 retVal = 1;
             }
             if (parameterID == sim_camerafloatparam_far_clipping)
             {
-                parameter[0] = camera->getFarClippingPlane();
+                double np;
+                camera->getClippingPlanes(np, parameter[0]);
                 retVal = 1;
             }
             if (parameterID == sim_camerafloatparam_perspective_angle)
@@ -10834,12 +10839,14 @@ int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double pa
         {
             if (parameterID == sim_visionfloatparam_near_clipping)
             {
-                rendSens->setNearClippingPlane(parameter);
+                double np, fp;
+                rendSens->getClippingPlanes(parameter, fp);
                 retVal = 1;
             }
             if (parameterID == sim_visionfloatparam_far_clipping)
             {
-                rendSens->setFarClippingPlane(parameter);
+                double np, fp;
+                rendSens->getClippingPlanes(np, parameter);
                 retVal = 1;
             }
             if (parameterID == sim_visionfloatparam_perspective_angle)
@@ -11145,12 +11152,14 @@ int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double pa
         {
             if (parameterID == sim_camerafloatparam_near_clipping)
             {
-                camera->setNearClippingPlane(parameter);
+                double np, fp;
+                camera->getClippingPlanes(parameter, fp);
                 retVal = 1;
             }
             if (parameterID == sim_camerafloatparam_far_clipping)
             {
-                camera->setFarClippingPlane(parameter);
+                double np, fp;
+                camera->getClippingPlanes(np, parameter);
                 retVal = 1;
             }
             if (parameterID == sim_camerafloatparam_perspective_angle)
@@ -11990,8 +11999,10 @@ float *simGetVisionSensorDepth_internal(int sensorHandle, int options, const int
         float *retBuff = it->readPortionOfImage(posX, posY, sizeX, sizeY, 2);
         if (((options & 1) != 0) && retBuff)
         {
-            float n = (float)it->getNearClippingPlane();
-            float f = (float)it->getFarClippingPlane();
+            double np, fp;
+            it->getClippingPlanes(np, fp);
+            float n = (float)np;
+            float f = (float)fp;
             float fmn = f - n;
             for (int i = 0; i < sizeX * sizeY; i++)
                 retBuff[i] = n + fmn * retBuff[i];

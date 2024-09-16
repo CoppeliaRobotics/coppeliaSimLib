@@ -573,11 +573,11 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
             }
         }
         double zCorr = 0.0;
-        if (minw(2) < getNearClippingPlane())
-            zCorr = minw(2) - getNearClippingPlane();
+        if (minw(2) < _nearClippingPlane)
+            zCorr = minw(2) - _nearClippingPlane;
         relativeCameraTranslation += cm.M.axis[2] * zCorr; // zCorr is negative or 0
-        if (maxw(2) > getFarClippingPlane() + zCorr)
-            farClippingPlaneCorrection = maxw(2) - zCorr - getFarClippingPlane();
+        if (maxw(2) > _farClippingPlane + zCorr)
+            farClippingPlaneCorrection = maxw(2) - zCorr - _farClippingPlane;
     }
     else
     { // orthographic projection:
@@ -600,12 +600,12 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
         C3Vector center((minw + maxw) / 2.0);
         // Move the camera to look at the center of those points (just 2 translations) + backshift if needed:
         double backShift = 0.0;
-        if (minw(2) < getNearClippingPlane())
-            backShift = minw(2) - getNearClippingPlane();
+        if (minw(2) < _nearClippingPlane)
+            backShift = minw(2) - _nearClippingPlane;
         C4X4Matrix cm(getFullLocalTransformation().getMatrix());
         relativeCameraTranslation = cm.M.axis[0] * center(0) + cm.M.axis[1] * center(1) + cm.M.axis[2] * backShift;
-        if (maxw(2) > ((getFarClippingPlane() + backShift) / 1.2))
-            farClippingPlaneCorrection = (maxw(2) - (getFarClippingPlane() + backShift)) * 1.2;
+        if (maxw(2) > ((_farClippingPlane + backShift) / 1.2))
+            farClippingPlaneCorrection = (maxw(2) - (_farClippingPlane + backShift)) * 1.2;
         double vs = getOrthoViewSize();
         double dx = (maxw(0) - minw(0)) / scalingFactor;
         double dy = (maxw(1) - minw(1)) / scalingFactor;
@@ -630,8 +630,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
     C4X4Matrix cm(getFullLocalTransformation().getMatrix());
     cm.X += relativeCameraTranslation;
 
-    setNearClippingPlane(getNearClippingPlane() + nearClippingPlaneCorrection);
-    setFarClippingPlane(getFarClippingPlane() + farClippingPlaneCorrection);
+    setClippingPlanes(_nearClippingPlane + nearClippingPlaneCorrection, _farClippingPlane + farClippingPlaneCorrection);
     setOrthoViewSize(getOrthoViewSize() + viewSizeCorrection);
     CSceneObject *cameraParentProxy = nullptr;
     if (getUseParentObjectAsManipulationProxy())
@@ -709,7 +708,11 @@ void CCamera::setAllowTranslation(bool allow)
         _allowTranslation = allow;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
             const char *cmd = "allowTranslation";
+#else
+            const char *cmd = propCamera_translationEnabled.name;
+#endif
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _allowTranslation);
             App::worldContainer->pushEvent();
@@ -719,7 +722,7 @@ void CCamera::setAllowTranslation(bool allow)
 
 bool CCamera::getAllowTranslation() const
 {
-    return (_allowTranslation);
+    return _allowTranslation;
 }
 
 void CCamera::setAllowRotation(bool allow)
@@ -729,7 +732,11 @@ void CCamera::setAllowRotation(bool allow)
         _allowRotation = allow;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
             const char *cmd = "allowRotation";
+#else
+            const char *cmd = propCamera_rotationEnabled.name;
+#endif
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _allowRotation);
             App::worldContainer->pushEvent();
@@ -739,7 +746,7 @@ void CCamera::setAllowRotation(bool allow)
 
 bool CCamera::getAllowRotation() const
 {
-    return (_allowRotation);
+    return _allowRotation;
 }
 
 bool CCamera::getIsMainCamera()
@@ -812,7 +819,7 @@ void CCamera::handleCameraTracking()
     TRACE_INTERNAL;
     CSceneObject *tr = App::currentWorld->sceneObjects->getObjectFromHandle(_trackedObjectHandle);
     if ((tr == nullptr) || (tr == this) || tr->hasAncestor(this))
-        _trackedObjectHandle = -1;
+        setTrackedObjectHandle(-1);
     else
     {
         C7Vector tracked(tr->getFullCumulativeTransformation());
@@ -852,8 +859,7 @@ void CCamera::handleCameraTracking()
 void CCamera::scaleObject(double scalingFactor)
 {
     setCameraSize(_cameraSize * scalingFactor);
-    setNearClippingPlane(_nearClippingPlane * scalingFactor);
-    setFarClippingPlane(_farClippingPlane * scalingFactor);
+    setClippingPlanes(_nearClippingPlane * scalingFactor, _farClippingPlane * scalingFactor);
     setOrthoViewSize(_orthoViewSize * scalingFactor);
 
     CSceneObject::scaleObject(scalingFactor);
@@ -865,48 +871,68 @@ void CCamera::setCameraSize(double size)
     if (_cameraSize != size)
     {
         _cameraSize = size;
-        computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propCamera_size.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, size);
+            ev->appendKeyDouble(cmd, _cameraSize);
             App::worldContainer->pushEvent();
         }
+        computeBoundingBox();
     }
 }
 
 double CCamera::getCameraSize() const
 {
-    return (_cameraSize);
+    return _cameraSize;
 }
 
 int CCamera::getTrackedObjectHandle() const
 {
-    return (_trackedObjectHandle);
+    return _trackedObjectHandle;
 }
 
 void CCamera::setUseParentObjectAsManipulationProxy(bool useParent)
 {
-    _useParentObjectAsManipulationProxy = useParent;
+    bool diff = (_useParentObjectAsManipulationProxy != useParent);
+    if (diff)
+    {
+        _useParentObjectAsManipulationProxy = useParent;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propCamera_parentAsManipProxy.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _useParentObjectAsManipulationProxy);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 bool CCamera::getUseParentObjectAsManipulationProxy() const
 {
-    return (_useParentObjectAsManipulationProxy);
+    return _useParentObjectAsManipulationProxy;
 }
 
 void CCamera::setTrackedObjectHandle(int trackedObjHandle)
 {
+    int oldTr = _trackedObjectHandle;
     if ((trackedObjHandle != _objectHandle) && (trackedObjHandle != _trackedObjectHandle))
     {
         if (App::currentWorld->sceneObjects->getObjectFromHandle(trackedObjHandle) != nullptr)
-        {
             _trackedObjectHandle = trackedObjHandle;
-            handleCameraTracking();
-        }
         else
             _trackedObjectHandle = -1;
+    }
+    if (oldTr != _trackedObjectHandle)
+    {
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propCamera_trackedObjectHandle.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _trackedObjectHandle);
+            App::worldContainer->pushEvent();
+        }
+        handleCameraTracking();
 #ifdef SIM_WITH_GUI
         GuiApp::setLightDialogRefreshFlag();
 #endif
@@ -916,7 +942,7 @@ void CCamera::setTrackedObjectHandle(int trackedObjHandle)
 void CCamera::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();
-    _trackedObjectHandle = -1;
+    setTrackedObjectHandle(-1);
 }
 
 void CCamera::addSpecializedObjectEventData(CCbor *ev)
@@ -934,22 +960,25 @@ void CCamera::addSpecializedObjectEventData(CCbor *ev)
     _color_removeSoon.getColor(c + 6, sim_colorcomponent_emission);
     ev->appendFloatArray(c, 9);
     ev->closeArrayOrMap(); // "colors"
-#else
-    _color.addGenesisEventData(ev);
-#endif
     ev->appendKeyBool("perspectiveMode", _perspective);
     ev->appendKeyBool("allowTranslation", _allowTranslation);
     ev->appendKeyBool("allowRotation", _allowRotation);
     ev->appendKeyDouble("nearClippingPlane", _nearClippingPlane);
     ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
-    ev->appendKeyDouble("viewAngle", _viewAngle);
     ev->appendKeyDouble("orthoSize", _orthoViewSize);
-    ev->appendKeyDouble(propCamera_size.name, _cameraSize);
-    ev->appendKeyBool("showFrustum", _showVolume);
     ev->openKeyMap("frustumVectors");
     ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
     ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
     ev->closeArrayOrMap(); // "frustumVectors"
+#else
+    _color.addGenesisEventData(ev);
+#endif
+    ev->appendKeyDouble(propCamera_size.name, _cameraSize);
+    ev->appendKeyBool(propCamera_parentAsManipProxy.name, _useParentObjectAsManipulationProxy);
+    ev->appendKeyBool(propCamera_translationEnabled.name, _allowTranslation);
+    ev->appendKeyBool(propCamera_rotationEnabled.name, _allowRotation);
+    ev->appendKeyInt(propCamera_trackedObjectHandle.name, _trackedObjectHandle);
+    CViewableBase::addSpecializedObjectEventData(ev);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); //"camera"
 #endif
@@ -990,7 +1019,7 @@ void CCamera::announceObjectWillBeErased(const CSceneObject *object, bool copyBu
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
     if (_trackedObjectHandle == object->getObjectHandle())
-        _trackedObjectHandle = -1;
+        setTrackedObjectHandle(-1);
 }
 void CCamera::announceCollectionWillBeErased(int groupID, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
@@ -3257,11 +3286,99 @@ bool CCamera::getInternalRendering() const
 }
 #endif
 
+int CCamera::setBoolProperty(const char* ppName, bool pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::setBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propCamera_parentAsManipProxy.name)
+        {
+            setUseParentObjectAsManipulationProxy(pState);
+            retVal = 1;
+        }
+        else if (_pName == propCamera_translationEnabled.name)
+        {
+            setAllowTranslation(pState);
+            retVal = 1;
+        }
+        else if (_pName == propCamera_rotationEnabled.name)
+        {
+            setAllowRotation(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CCamera::getBoolProperty(const char* ppName, bool& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::getBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propCamera_parentAsManipProxy.name)
+        {
+            pState = _useParentObjectAsManipulationProxy;
+            retVal = 1;
+        }
+        else if (_pName == propCamera_translationEnabled.name)
+        {
+            pState = _allowTranslation;
+            retVal = 1;
+        }
+        else if (_pName == propCamera_rotationEnabled.name)
+        {
+            pState = _allowRotation;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CCamera::setIntProperty(const char* ppName, int pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::setIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propCamera_trackedObjectHandle.name)
+        {
+            setTrackedObjectHandle(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CCamera::getIntProperty(const char* ppName, int& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::getIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propCamera_trackedObjectHandle.name)
+        {
+            pState = _trackedObjectHandle;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
 int CCamera::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setFloatProperty(pName, pState);
+    int retVal = CViewableBase::setFloatProperty(pName, pState);
     if (retVal == -1)
         retVal = _color.setFloatProperty(pName, pState);
     if (retVal == -1)
@@ -3280,7 +3397,7 @@ int CCamera::getFloatProperty(const char* ppName, double& pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getFloatProperty(pName, pState);
+    int retVal = CViewableBase::getFloatProperty(pName, pState);
     if (retVal == -1)
         retVal = _color.getFloatProperty(pName, pState);
     if (retVal == -1)
@@ -3299,7 +3416,7 @@ int CCamera::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setColorProperty(pName, pState);
+    int retVal = CViewableBase::setColorProperty(pName, pState);
     if (retVal == -1)
         retVal = _color.setColorProperty(pName, pState);
     if (retVal != -1)
@@ -3313,13 +3430,92 @@ int CCamera::getColorProperty(const char* ppName, float* pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getColorProperty(pName, pState);
+    int retVal = CViewableBase::getColorProperty(pName, pState);
     if (retVal == -1)
         retVal = _color.getColorProperty(pName, pState);
     if (retVal != -1)
     {
 
     }
+    return retVal;
+}
+
+int CCamera::setVector3Property(const char* ppName, const C3Vector& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::setVector3Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CCamera::getVector3Property(const char* ppName, C3Vector& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::getVector3Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CCamera::setVectorProperty(const char* ppName, const double* v, int vL)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    if (v == nullptr)
+        vL = 0;
+    int retVal = CViewableBase::setVectorProperty(pName, v, vL);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CCamera::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    pState.clear();
+    int retVal = CViewableBase::getVectorProperty(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CCamera::setIntVectorProperty(const char* ppName, const int* v, int vL)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    if (v == nullptr)
+        vL = 0;
+    int retVal = CViewableBase::setIntVectorProperty(pName, v, vL);
+    if (retVal == -1)
+    {
+    }
+
+
+    return retVal;
+}
+
+int CCamera::getIntVectorProperty(const char* ppName, std::vector<int>& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    pState.clear();
+    int retVal = CViewableBase::getIntVectorProperty(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
     return retVal;
 }
 
@@ -3331,6 +3527,8 @@ int CCamera::getPropertyName(int& index, std::string& pName, std::string& appart
         appartenance += ".camera";
         retVal = _color.getPropertyName(index, pName);
     }
+    if (retVal == -1)
+        retVal = CViewableBase::getPropertyName_vstatic(index, pName);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)
@@ -3356,6 +3554,8 @@ int CCamera::getPropertyName_static(int& index, std::string& pName, std::string&
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)
+        retVal = CViewableBase::getPropertyName_vstatic(index, pName);
+    if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)
         {
@@ -3379,6 +3579,8 @@ int CCamera::getPropertyInfo(const char* ppName, int& info, int& size)
     if (retVal == -1)
         retVal = _color.getPropertyInfo(pName, info, size);
     if (retVal == -1)
+        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info, size);
+    if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)
         {
@@ -3401,6 +3603,8 @@ int CCamera::getPropertyInfo_static(const char* ppName, int& info, int& size)
     int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
     if (retVal == -1)
         retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+    if (retVal == -1)
+        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info, size);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)

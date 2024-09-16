@@ -23065,8 +23065,10 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State *L)
                             {
                                 if (toMeters)
                                 { // Here we need to convert values to distances in meters:
-                                    float n = (float)rs->getNearClippingPlane();
-                                    float f = (float)rs->getFarClippingPlane();
+                                    double np, fp;
+                                    rs->getClippingPlanes(np, fp);
+                                    float n = (float)np;
+                                    float f = (float)fp;
                                     float fmn = f - n;
                                     for (int i = 0; i < sizeX * sizeY; i++)
                                         buffer[i] = n + fmn * buffer[i];

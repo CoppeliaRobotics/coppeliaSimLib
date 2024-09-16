@@ -648,13 +648,21 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
-            cam->setNearClippingPlane(cmd.doubleParams[0]);
+        {
+            double np, fp;
+            cam->getClippingPlanes(np, fp);
+            cam->setClippingPlanes(cmd.doubleParams[0], fp);
+        }
     }
     if (cmd.cmdId == SET_FAR_CLIPPING_CAMERAGUITRIGGEREDCMD)
     {
         CCamera *cam = App::currentWorld->sceneObjects->getCameraFromHandle(cmd.intParams[0]);
         if (cam != nullptr)
-            cam->setFarClippingPlane(cmd.doubleParams[0]);
+        {
+            double np, fp;
+            cam->getClippingPlanes(np, fp);
+            cam->setClippingPlanes(np, cmd.doubleParams[0]);
+        }
     }
     if (cmd.cmdId == SET_TRACKED_OBJECT_CAMERAGUITRIGGEREDCMD)
     {
@@ -865,13 +873,21 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setNearClippingPlane(cmd.doubleParams[0]);
+        {
+            double np, fp;
+            it->getClippingPlanes(np, fp);
+            it->setClippingPlanes(cmd.doubleParams[0], fp);
+        }
     }
     if (cmd.cmdId == SET_FARCLIPPING_VISIONSENSORGUITRIGGEREDCMD)
     {
         CVisionSensor *it = App::currentWorld->sceneObjects->getVisionSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setFarClippingPlane(cmd.doubleParams[0]);
+        {
+            double np, fp;
+            it->getClippingPlanes(np, fp);
+            it->setClippingPlanes(np, cmd.doubleParams[0]);
+        }
     }
     if (cmd.cmdId == SET_PERSPECTANGLE_OR_ORTHOSIZE_VISIONSENSORGUITRIGGEREDCMD)
     {
@@ -928,8 +944,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     it->setIgnoreRGBInfo(last->getIgnoreRGBInfo());
                     it->setIgnoreDepthInfo(last->getIgnoreDepthInfo());
                     it->setComputeImageBasicStats(last->getComputeImageBasicStats());
-                    it->setNearClippingPlane(last->getNearClippingPlane());
-                    it->setFarClippingPlane(last->getFarClippingPlane());
+                    double np, fp;
+                    last->getClippingPlanes(np, fp);
+                    it->setClippingPlanes(np, fp);
                     it->setViewAngle(last->getViewAngle());
                     it->setOrthoViewSize(last->getOrthoViewSize());
                     it->setResolution(r);

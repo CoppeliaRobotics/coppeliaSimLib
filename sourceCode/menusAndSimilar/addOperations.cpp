@@ -757,7 +757,9 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                     C3Vector hs(myNewCamera->getBBHSize());
                     m = myNewCamera->getLocalTransformation();
                     double averageSize = (hs(0) + hs(1) + hs(2)) / 1.5;
-                    double shiftForward = camera->getNearClippingPlane() + hs(2) * 2.0 + 3.0 * averageSize;
+                    double np, fp;
+                    camera->getClippingPlanes(np, fp);
+                    double shiftForward = np + hs(2) * 2.0 + 3.0 * averageSize;
                     m.X += (m.Q.getAxis(2) * shiftForward);
                     myNewCamera->setLocalTransformation(m.X);
                 }
@@ -1109,9 +1111,17 @@ bool CAddOperations::processCommand(int commandID, CSView *subView)
                         double averageSize = (hs(0) + hs(1) + hs(2)) / 1.5;
                         double shiftForward;
                         if (camera != nullptr)
-                            shiftForward = camera->getNearClippingPlane() + hs(2) * 2.0 + 3.0 * averageSize;
+                        {
+                            double np, fp;
+                            camera->getClippingPlanes(np, fp);
+                            shiftForward = np + hs(2) * 2.0 + 3.0 * averageSize;
+                        }
                         if (sens != nullptr)
-                            shiftForward = sens->getNearClippingPlane() + hs(2) * 2.0 + 3.0 * averageSize;
+                        {
+                            double np, fp;
+                            sens->getClippingPlanes(np, fp);
+                            shiftForward = np + hs(2) * 2.0 + 3.0 * averageSize;
+                        }
                         m.X += (m.Q.getAxis(2) * shiftForward);
                         newObject->setLocalTransformation(m.X);
                     }
