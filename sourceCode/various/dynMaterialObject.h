@@ -289,8 +289,8 @@ class CDynMaterialObject
     int getVectorProperty(const char* pName, std::vector<double>& pState) const;
     int getPropertyName(int& index, std::string& pName) const;
     static int getPropertyName_static(int& index, std::string& pName);
-    int getPropertyInfo(const char* pName, int& info, int& size) const;
-    static int getPropertyInfo_static(const char* pName, int& info, int& size);
+    int getPropertyInfo(const char* pName, int& info) const;
+    static int getPropertyInfo_static(const char* pName, int& info);
     // Some helpers:
     bool getBoolPropertyValue(const char* pName) const;
     int getIntPropertyValue(const char* pName) const;

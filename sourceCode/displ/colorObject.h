@@ -62,8 +62,8 @@ class CColorObject
     int getColorProperty(const char* pName, float* pState) const;
     int getPropertyName(int& index, std::string& pName) const;
     static int getPropertyName_static(int& index, std::string& pName, int eventFlags, const char* eventSuffix);
-    int getPropertyInfo(const char* pName, int& info, int& size) const;
-    static int getPropertyInfo_static(const char* pName, int& info, int& size, int eventFlags, const char* eventSuffix);
+    int getPropertyInfo(const char* pName, int& info) const;
+    static int getPropertyInfo_static(const char* pName, int& info, int eventFlags, const char* eventSuffix);
 
     void setFlash(bool flashIsOn);
     bool getFlash() const;

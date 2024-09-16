@@ -1940,7 +1940,7 @@ int App::getPropertyName(int target, int& index, std::string& pName, std::string
     return retVal;
 }
 
-int App::getPropertyInfo(int target, const char* pName, int& info, int& size, bool staticParsing)
+int App::getPropertyInfo(int target, const char* pName, int& info, bool staticParsing)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1948,7 +1948,7 @@ int App::getPropertyInfo(int target, const char* pName, int& info, int& size, bo
         CWorldContainer* wc = nullptr;
         if (!staticParsing)
             wc = worldContainer;
-        retVal = CWorldContainer::getPropertyInfo(pName, info, size, wc);
+        retVal = CWorldContainer::getPropertyInfo(pName, info, wc);
     }
     else if (target == sim_handle_appstorage)
     {
@@ -1965,7 +1965,7 @@ int App::getPropertyInfo(int target, const char* pName, int& info, int& size, bo
             if (pN.size() > 0)
             {
                 CPersistentDataContainer cont("appStorage.dat");
-                retVal = cont.hasData(pN.c_str(), true, &size);
+                retVal = cont.hasData(pN.c_str(), true);
                 if (retVal >= 0)
                     info = inf;
             }
@@ -1976,7 +1976,7 @@ int App::getPropertyInfo(int target, const char* pName, int& info, int& size, bo
         CWorld* cw = nullptr;
         if (!staticParsing)
             cw = currentWorld;
-        retVal = CWorld::getPropertyInfo(target, pName, info, size, cw);
+        retVal = CWorld::getPropertyInfo(target, pName, info, cw);
     }
     return retVal;
 }

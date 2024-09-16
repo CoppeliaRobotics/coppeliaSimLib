@@ -6371,7 +6371,7 @@ int CSceneObject::getPropertyName_bstatic(int& index, std::string& pName, std::s
     return retVal;
 }
 
-int CSceneObject::getPropertyInfo(const char* ppName, int& info, int& size) const
+int CSceneObject::getPropertyInfo(const char* ppName, int& info) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -6382,7 +6382,6 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, int& size) cons
         {
             retVal = allProps_sceneObject[i].type;
             info = allProps_sceneObject[i].flags;
-            size = 0;
             break;
         }
     }
@@ -6392,15 +6391,20 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, int& size) cons
         pN.erase(0, 11);
         if (pN.size() > 0)
         {
-            retVal = customObjectData.hasData(pN.c_str(), true, &size);
+            int s;
+            retVal = customObjectData.hasData(pN.c_str(), true, &s);
             if (retVal >= 0)
+            {
                 info = 4; // removable
+                if (s > 1000)
+                    s = s | 32;
+            }
         }
     }
     return retVal;
 }
 
-int CSceneObject::getPropertyInfo_bstatic(const char* pName, int& info, int& size)
+int CSceneObject::getPropertyInfo_bstatic(const char* pName, int& info)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_sceneObject.size(); i++)
@@ -6409,7 +6413,6 @@ int CSceneObject::getPropertyInfo_bstatic(const char* pName, int& info, int& siz
         {
             retVal = allProps_sceneObject[i].type;
             info = allProps_sceneObject[i].flags;
-            size = 0;
             break;
         }
     }

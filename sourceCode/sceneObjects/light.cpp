@@ -880,15 +880,15 @@ int CLight::getPropertyName_static(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CLight::getPropertyInfo(const char* ppName, int& info, int& size)
+int CLight::getPropertyInfo(const char* ppName, int& info)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo(pName, info);
     if (retVal == -1)
-        retVal = objectColor.getPropertyInfo(pName, info, size);
+        retVal = objectColor.getPropertyInfo(pName, info);
     if (retVal == -1)
-        retVal = lightColor.getPropertyInfo(pName, info, size);
+        retVal = lightColor.getPropertyInfo(pName, info);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
@@ -897,7 +897,6 @@ int CLight::getPropertyInfo(const char* ppName, int& info, int& size)
             {
                 retVal = allProps_light[i].type;
                 info = allProps_light[i].flags;
-                size = 0;
                 break;
             }
         }
@@ -905,15 +904,15 @@ int CLight::getPropertyInfo(const char* ppName, int& info, int& size)
     return retVal;
 }
 
-int CLight::getPropertyInfo_static(const char* ppName, int& info, int& size)
+int CLight::getPropertyInfo_static(const char* ppName, int& info)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "");
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 2 + 4 + 8, "_light");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, 2 + 4 + 8, "_light");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
@@ -922,7 +921,6 @@ int CLight::getPropertyInfo_static(const char* ppName, int& info, int& size)
             {
                 retVal = allProps_light[i].type;
                 info = allProps_light[i].flags;
-                size = 0;
                 break;
             }
         }

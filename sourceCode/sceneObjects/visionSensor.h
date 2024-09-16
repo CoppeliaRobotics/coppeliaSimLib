@@ -99,8 +99,8 @@ class CVisionSensor : public CViewableBase
     int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info, int& size);
-    static int getPropertyInfo_static(const char* pName, int& info, int& size);
+    int getPropertyInfo(const char* pName, int& info);
+    static int getPropertyInfo_static(const char* pName, int& info);
 
     void commonInit();
 

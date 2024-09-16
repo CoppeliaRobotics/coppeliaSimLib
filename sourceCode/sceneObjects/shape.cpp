@@ -2114,14 +2114,14 @@ int CShape::getPropertyName_static(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CShape::getPropertyInfo(const char* ppName, int& info, int& size) const
+int CShape::getPropertyInfo(const char* ppName, int& info) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo(pName, info);
     if (retVal == -1)
     {
-        retVal = _dynMaterial->getPropertyInfo(pName, info, size);
+        retVal = _dynMaterial->getPropertyInfo(pName, info);
         if (retVal == -1)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
@@ -2130,7 +2130,6 @@ int CShape::getPropertyInfo(const char* ppName, int& info, int& size) const
                 {
                     retVal = allProps_shape[i].type;
                     info = allProps_shape[i].flags;
-                    size = 0;
                     break;
                 }
             }
@@ -2139,14 +2138,14 @@ int CShape::getPropertyInfo(const char* ppName, int& info, int& size) const
     return retVal;
 }
 
-int CShape::getPropertyInfo_static(const char* ppName, int& info, int& size)
+int CShape::getPropertyInfo_static(const char* ppName, int& info)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
     if (retVal == -1)
     {
-        retVal = CDynMaterialObject::getPropertyInfo_static(pName, info, size);
+        retVal = CDynMaterialObject::getPropertyInfo_static(pName, info);
         if (retVal == -1)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
@@ -2155,7 +2154,6 @@ int CShape::getPropertyInfo_static(const char* ppName, int& info, int& size)
                 {
                     retVal = allProps_shape[i].type;
                     info = allProps_shape[i].flags;
-                    size = 0;
                     break;
                 }
             }

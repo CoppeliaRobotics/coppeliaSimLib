@@ -1157,6 +1157,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_vector", sim_propertytype_vector},
     {"sim.propertytype_intvector", sim_propertytype_intvector},
     {"sim.propertytype_table", sim_propertytype_table},
+    {"sim.propertytype_largedata", sim_propertytype_largedata},
     // dummy-dummy link types
     {"sim.dummytype_dynloopclosure", sim_dummytype_dynloopclosure},
     {"sim.dummytype_dyntendon", sim_dummytype_dyntendon},
@@ -5856,8 +5857,7 @@ int _simGetPropertyInfo(luaWrap_lua_State *L)
         {
             luaWrap_lua_pushinteger(L, infos.type);
             luaWrap_lua_pushinteger(L, infos.flags);
-            luaWrap_lua_pushinteger(L, infos.dataSize);
-            LUA_END(3);
+            LUA_END(2);
         }
     }
 

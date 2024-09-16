@@ -196,8 +196,8 @@ class CSceneObject
     virtual int removeProperty(const char* pName);
     virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static  int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance);
-    virtual int getPropertyInfo(const char* pName, int& info, int& size) const;
-    static int getPropertyInfo_bstatic(const char* pName, int& info, int& size);
+    virtual int getPropertyInfo(const char* pName, int& info) const;
+    static int getPropertyInfo_bstatic(const char* pName, int& info);
 
 
     void setRestoreToDefaultLights(bool s);

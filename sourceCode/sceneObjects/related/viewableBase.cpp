@@ -824,7 +824,7 @@ int CViewableBase::getPropertyName_vstatic(int& index, std::string& pName)
     return retVal;
 }
 
-int CViewableBase::getPropertyInfo_vstatic(const char* pName, int& info, int& size)
+int CViewableBase::getPropertyInfo_vstatic(const char* pName, int& info)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_viewable.size(); i++)
@@ -833,9 +833,11 @@ int CViewableBase::getPropertyInfo_vstatic(const char* pName, int& info, int& si
         {
             retVal = allProps_viewable[i].type;
             info = allProps_viewable[i].flags;
-            size = 0;
             break;
         }
+    }
+    if (retVal != -1)
+    {
     }
     return retVal;
 }

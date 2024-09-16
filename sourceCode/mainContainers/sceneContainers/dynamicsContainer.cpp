@@ -3083,7 +3083,7 @@ int CDynamicsContainer::getPropertyName(int& index, std::string& pName) const
     return retVal;
 }
 
-int CDynamicsContainer::getPropertyInfo(const char* pName, int& info, int& size) const
+int CDynamicsContainer::getPropertyInfo(const char* pName, int& info) const
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_dyn.size(); i++)
@@ -3092,7 +3092,6 @@ int CDynamicsContainer::getPropertyInfo(const char* pName, int& info, int& size)
         {
             retVal = allProps_dyn[i].type;
             info = allProps_dyn[i].flags;
-            size = 0;
             break;
         }
     }

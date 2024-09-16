@@ -686,8 +686,7 @@ int simSetBoolProperty_internal(int target, const char* ppName, int pState)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_bool)
@@ -743,8 +742,7 @@ int simGetBoolProperty_internal(int target, const char* ppName, int* pState)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_bool)
@@ -782,8 +780,7 @@ int simSetIntProperty_internal(int target, const char* ppName, int pState)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_int)
@@ -835,8 +832,7 @@ int simGetIntProperty_internal(int target, const char* ppName, int* pState)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_int)
@@ -874,8 +870,7 @@ int simSetFloatProperty_internal(int target, const char* ppName, double pState)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_float)
@@ -927,8 +922,7 @@ int simGetFloatProperty_internal(int target, const char* ppName, double* pState)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_float)
@@ -966,11 +960,10 @@ int simSetStringProperty_internal(int target, const char* ppName, const char* pS
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                    else if (p == sim_propertytype_string)
+                    else if ( (p && 0xff) == sim_propertytype_string )
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
                     else
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
@@ -1022,11 +1015,10 @@ char* simGetStringProperty_internal(int target, const char* ppName)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                    else if (p == sim_propertytype_string)
+                    else if ( (p && 0xff) == sim_propertytype_string )
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
                     else
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
@@ -1059,11 +1051,10 @@ int simSetBufferProperty_internal(int target, const char* ppName, const char* bu
                 for (size_t i = 0; i < propertyTypes.size(); i++)
                     utils::replaceSubstring(pN, propertyTypes[i].second.c_str(), "");
                 int info;
-                int size;
-                int p = App::getPropertyInfo(target, pN.c_str(), info, size, false);
+                int p = App::getPropertyInfo(target, pN.c_str(), info, false);
                 if (p < 0)
                     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                else if (p == sim_propertytype_buffer)
+                else if ( (p && 0xff) == sim_propertytype_buffer )
                     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
                 else
                     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
@@ -1101,11 +1092,10 @@ char* simGetBufferProperty_internal(int target, const char* ppName, int* bufferL
                 for (size_t i = 0; i < propertyTypes.size(); i++)
                     utils::replaceSubstring(pN, propertyTypes[i].second.c_str(), "");
                 int info;
-                int size;
-                int p = App::getPropertyInfo(target, pN.c_str(), info, size, false);
+                int p = App::getPropertyInfo(target, pN.c_str(), info, false);
                 if (p < 0)
                     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                else if (p == sim_propertytype_buffer)
+                else if ( (p && 0xff) == sim_propertytype_buffer )
                     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
                 else
                     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
@@ -1140,8 +1130,7 @@ int simSetVector3Property_internal(int target, const char* ppName, const double*
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_vector3)
@@ -1198,8 +1187,7 @@ int simGetVector3Property_internal(int target, const char* ppName, double* pStat
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_vector3)
@@ -1238,8 +1226,7 @@ int simSetQuaternionProperty_internal(int target, const char* ppName, const doub
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_quaternion)
@@ -1296,8 +1283,7 @@ int simGetQuaternionProperty_internal(int target, const char* ppName, double* pS
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_quaternion)
@@ -1337,8 +1323,7 @@ int simSetPoseProperty_internal(int target, const char* ppName, const double* pS
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_pose)
@@ -1395,8 +1380,7 @@ int simGetPoseProperty_internal(int target, const char* ppName, double* pState)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_pose)
@@ -1436,8 +1420,7 @@ int simSetMatrix3x3Property_internal(int target, const char* ppName, const doubl
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix3x3)
@@ -1494,8 +1477,7 @@ int simGetMatrix3x3Property_internal(int target, const char* ppName, double* pSt
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix3x3)
@@ -1535,8 +1517,7 @@ int simSetMatrix4x4Property_internal(int target, const char* ppName, const doubl
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix4x4)
@@ -1601,8 +1582,7 @@ int simGetMatrix4x4Property_internal(int target, const char* ppName, double* pSt
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_matrix4x4)
@@ -1640,8 +1620,7 @@ int simSetColorProperty_internal(int target, const char* ppName, const float* pS
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_color)
@@ -1694,8 +1673,7 @@ int simGetColorProperty_internal(int target, const char* ppName, float* pState)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else if (p == sim_propertytype_color)
@@ -1735,11 +1713,10 @@ int simSetVectorProperty_internal(int target, const char* ppName, const double* 
                     else
                     {
                         int info;
-                        int size;
-                        int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                        int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                         if (p < 0)
                             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                        else if (p == sim_propertytype_vector)
+                        else if ( (p && 0xff) == sim_propertytype_vector )
                             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
                         else
                             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
@@ -1788,11 +1765,10 @@ double* simGetVectorProperty_internal(int target, const char* ppName, int* vL)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                    else if (p == sim_propertytype_vector)
+                    else if ( (p && 0xff) == sim_propertytype_vector )
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
                     else
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
@@ -1829,11 +1805,10 @@ int simSetIntVectorProperty_internal(int target, const char* ppName, const int* 
                     else
                     {
                         int info;
-                        int size;
-                        int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                        int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                         if (p < 0)
                             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                        else if (p == sim_propertytype_intvector)
+                        else if ( (p && 0xff) == sim_propertytype_intvector )
                             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
                         else
                             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
@@ -1882,11 +1857,10 @@ int* simGetIntVectorProperty_internal(int target, const char* ppName, int* vL)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, size, false);
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
-                    else if (p == sim_propertytype_intvector)
+                    else if ( (p && 0xff) == sim_propertytype_intvector )
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
                     else
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
@@ -1916,8 +1890,7 @@ int simRemoveProperty_internal(int target, const char* ppName)
                 else
                 {
                     int info;
-                    int size;
-                    int p = App::getPropertyInfo(target, ppName, info, size, false);
+                    int p = App::getPropertyInfo(target, ppName, info, false);
                     if (p < 0)
                         CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
                     else
@@ -1985,7 +1958,7 @@ int simGetPropertyInfo_internal(int target, const char* ppName, SPropertyInfo* i
                     staticParsing = true;
                 }
             }
-            int res = App::getPropertyInfo(target, ppName, infos->flags, infos->dataSize, staticParsing);
+            int res = App::getPropertyInfo(target, ppName, infos->flags, staticParsing);
             if (res == -2)
                 CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
             else if (res >= 0)

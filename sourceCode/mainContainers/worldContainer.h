@@ -161,7 +161,7 @@ class CWorldContainer
     int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int removeProperty(const char* pName);
     static int getPropertyName(int& index, std::string& pName, CWorldContainer* targetObject);
-    static int getPropertyInfo(const char* pName, int& info, int& size, CWorldContainer* targetObject);
+    static int getPropertyInfo(const char* pName, int& info, CWorldContainer* targetObject);
 
     CCopyBuffer *copyBuffer;
     CSimulatorMessageQueue *simulatorMessageQueue;

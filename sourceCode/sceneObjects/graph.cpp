@@ -3663,13 +3663,13 @@ int CGraph::getPropertyName_static(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CGraph::getPropertyInfo(const char* ppName, int& info, int& size)
+int CGraph::getPropertyInfo(const char* ppName, int& info)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo(pName, info);
     if (retVal == -1)
-        retVal = color.getPropertyInfo(pName, info, size);
+        retVal = color.getPropertyInfo(pName, info);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_graph.size(); i++)
@@ -3678,7 +3678,6 @@ int CGraph::getPropertyInfo(const char* ppName, int& info, int& size)
             {
                 retVal = allProps_graph[i].type;
                 info = allProps_graph[i].flags;
-                size = 0;
                 break;
             }
         }
@@ -3686,13 +3685,13 @@ int CGraph::getPropertyInfo(const char* ppName, int& info, int& size)
     return retVal;
 }
 
-int CGraph::getPropertyInfo_static(const char* ppName, int& info, int& size)
+int CGraph::getPropertyInfo_static(const char* ppName, int& info)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_graph.size(); i++)
@@ -3701,7 +3700,6 @@ int CGraph::getPropertyInfo_static(const char* ppName, int& info, int& size)
             {
                 retVal = allProps_graph[i].type;
                 info = allProps_graph[i].flags;
-                size = 0;
                 break;
             }
         }

@@ -3571,15 +3571,15 @@ int CCamera::getPropertyName_static(int& index, std::string& pName, std::string&
     return retVal;
 }
 
-int CCamera::getPropertyInfo(const char* ppName, int& info, int& size)
+int CCamera::getPropertyInfo(const char* ppName, int& info)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo(pName, info);
     if (retVal == -1)
-        retVal = _color.getPropertyInfo(pName, info, size);
+        retVal = _color.getPropertyInfo(pName, info);
     if (retVal == -1)
-        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info, size);
+        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)
@@ -3588,7 +3588,6 @@ int CCamera::getPropertyInfo(const char* ppName, int& info, int& size)
             {
                 retVal = allProps_camera[i].type;
                 info = allProps_camera[i].flags;
-                size = 0;
                 break;
             }
         }
@@ -3596,15 +3595,15 @@ int CCamera::getPropertyInfo(const char* ppName, int& info, int& size)
     return retVal;
 }
 
-int CCamera::getPropertyInfo_static(const char* ppName, int& info, int& size)
+int CCamera::getPropertyInfo_static(const char* ppName, int& info)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "");
     if (retVal == -1)
-        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info, size);
+        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)
@@ -3613,7 +3612,6 @@ int CCamera::getPropertyInfo_static(const char* ppName, int& info, int& size)
             {
                 retVal = allProps_camera[i].type;
                 info = allProps_camera[i].flags;
-                size = 0;
                 break;
             }
         }

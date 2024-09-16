@@ -3735,15 +3735,15 @@ int CVisionSensor::getPropertyName_static(int& index, std::string& pName, std::s
     return retVal;
 }
 
-int CVisionSensor::getPropertyInfo(const char* ppName, int& info, int& size)
+int CVisionSensor::getPropertyInfo(const char* ppName, int& info)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo(pName, info);
     if (retVal == -1)
-        retVal = color.getPropertyInfo(pName, info, size);
+        retVal = color.getPropertyInfo(pName, info);
     if (retVal == -1)
-        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info, size);
+        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_visionSensor.size(); i++)
@@ -3752,23 +3752,35 @@ int CVisionSensor::getPropertyInfo(const char* ppName, int& info, int& size)
             {
                 retVal = allProps_visionSensor[i].type;
                 info = allProps_visionSensor[i].flags;
-                size = 0;
                 break;
+            }
+        }
+        if (retVal != -1)
+        {
+            if (_pName == propVisionSensor_imageBuffer.name)
+            {
+                if (3 * _resolution[0] * _resolution[1] > 1000)
+                    retVal = retVal | sim_propertytype_largedata;
+            }
+            if (_pName == propVisionSensor_depthBuffer.name)
+            {
+                if (_resolution[0] * _resolution[1] > 1000)
+                    retVal = retVal | sim_propertytype_largedata;
             }
         }
     }
     return retVal;
 }
 
-int CVisionSensor::getPropertyInfo_static(const char* ppName, int& info, int& size)
+int CVisionSensor::getPropertyInfo_static(const char* ppName, int& info)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "");
     if (retVal == -1)
-        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info, size);
+        retVal = CViewableBase::getPropertyInfo_vstatic(pName, info);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_visionSensor.size(); i++)
@@ -3777,7 +3789,6 @@ int CVisionSensor::getPropertyInfo_static(const char* ppName, int& info, int& si
             {
                 retVal = allProps_visionSensor[i].type;
                 info = allProps_visionSensor[i].flags;
-                size = 0;
                 break;
             }
         }

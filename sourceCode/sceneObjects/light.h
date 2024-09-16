@@ -52,8 +52,8 @@ class CLight : public CSceneObject
     int getColorProperty(const char* pName, float* pState);
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info, int& size);
-    static int getPropertyInfo_static(const char* pName, int& info, int& size);
+    int getPropertyInfo(const char* pName, int& info);
+    static int getPropertyInfo_static(const char* pName, int& info);
 
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;

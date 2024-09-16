@@ -3099,7 +3099,7 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName, std::str
     return retVal;
 }
 
-int CWorld::getPropertyInfo(int target, const char* ppName, int& info, int& size, CWorld* targetObject)
+int CWorld::getPropertyInfo(int target, const char* ppName, int& info, CWorld* targetObject)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -3107,17 +3107,17 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, int& size
     if (target == sim_handle_scene)
     {
         if (App::currentWorld->dynamicsContainer != nullptr)
-            retVal = App::currentWorld->dynamicsContainer->getPropertyInfo(pName, info, size);
+            retVal = App::currentWorld->dynamicsContainer->getPropertyInfo(pName, info);
         if ( (retVal == -1) && (App::currentWorld->simulation != nullptr) )
-            retVal = App::currentWorld->simulation->getPropertyInfo(pName, info, size);
+            retVal = App::currentWorld->simulation->getPropertyInfo(pName, info);
         if ( (retVal == -1) && (App::currentWorld->environment != nullptr) )
-            retVal = App::currentWorld->environment->getPropertyInfo(pName, info, size);
+            retVal = App::currentWorld->environment->getPropertyInfo(pName, info);
         if (retVal == -1)
         {
             CSceneObjectContainer* soc = nullptr;
             if (targetObject != nullptr)
                 soc = targetObject->sceneObjects;
-            retVal = CSceneObjectContainer::getPropertyInfo(-1, pName, info, size, soc);
+            retVal = CSceneObjectContainer::getPropertyInfo(-1, pName, info, soc);
         }
         if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
         {
@@ -3127,9 +3127,14 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, int& size
                 pN.erase(0, 11);
                 if (pN.size() > 0)
                 {
-                    retVal = targetObject->customSceneData.hasData(pN.c_str(), true, &size);
+                    int s;
+                    retVal = targetObject->customSceneData.hasData(pN.c_str(), true, &s);
                     if (retVal >= 0)
+                    {
                         info = 4; // removable
+                        if (s > 1000)
+                            info = info | 32;
+                    }
                 }
             }
         }
@@ -3139,7 +3144,7 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, int& size
         CSceneObjectContainer* soc = nullptr;
         if (targetObject != nullptr)
             soc = targetObject->sceneObjects;
-        retVal = CSceneObjectContainer::getPropertyInfo(target, pName, info, size, soc);
+        retVal = CSceneObjectContainer::getPropertyInfo(target, pName, info, soc);
     }
     else
         retVal = -2; // target does not exist

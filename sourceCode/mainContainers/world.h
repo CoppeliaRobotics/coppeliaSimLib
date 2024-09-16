@@ -111,7 +111,7 @@ class CWorld
     int getIntVectorProperty(int target, const char* pName, std::vector<int>& pState) const;
     int removeProperty(int target, const char* pName);
     static int getPropertyName(int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject);
-    static int getPropertyInfo(int target, const char* pName, int& info, int& size, CWorld* targetObject);
+    static int getPropertyInfo(int target, const char* pName, int& info, CWorld* targetObject);
 
     // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);

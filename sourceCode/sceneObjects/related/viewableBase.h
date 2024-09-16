@@ -65,7 +65,7 @@ class CViewableBase : public CSceneObject
     virtual int setIntVectorProperty(const char* pName, const int* v, int vL);
     virtual int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     static int getPropertyName_vstatic(int& index, std::string& pName);
-    static int getPropertyInfo_vstatic(const char* pName, int& info, int& size);
+    static int getPropertyInfo_vstatic(const char* pName, int& info);
 
     void setClippingPlanes(double nearPlane, double farPlane);
     void getClippingPlanes(double& nearPlane, double& farPlane) const;

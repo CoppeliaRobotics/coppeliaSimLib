@@ -1213,15 +1213,15 @@ int CProxSensor::getPropertyName_static(int& index, std::string& pName, std::str
     return retVal;
 }
 
-int CProxSensor::getPropertyInfo(const char* ppName, int& info, int& size)
+int CProxSensor::getPropertyInfo(const char* ppName, int& info)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo(pName, info);
     if (retVal == -1)
-        retVal = volumeColor.getPropertyInfo(pName, info, size);
+        retVal = volumeColor.getPropertyInfo(pName, info);
     if (retVal == -1)
-        retVal = detectionRayColor.getPropertyInfo(pName, info, size);
+        retVal = detectionRayColor.getPropertyInfo(pName, info);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
@@ -1230,7 +1230,6 @@ int CProxSensor::getPropertyInfo(const char* ppName, int& info, int& size)
             {
                 retVal = allProps_proximitySensor[i].type;
                 info = allProps_proximitySensor[i].flags;
-                size = 0;
                 break;
             }
         }
@@ -1238,15 +1237,15 @@ int CProxSensor::getPropertyInfo(const char* ppName, int& info, int& size)
     return retVal;
 }
 
-int CProxSensor::getPropertyInfo_static(const char* ppName, int& info, int& size)
+int CProxSensor::getPropertyInfo_static(const char* ppName, int& info)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "");
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8, "_ray");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "_ray");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
@@ -1255,7 +1254,6 @@ int CProxSensor::getPropertyInfo_static(const char* ppName, int& info, int& size
             {
                 retVal = allProps_proximitySensor[i].type;
                 info = allProps_proximitySensor[i].flags;
-                size = 0;
                 break;
             }
         }

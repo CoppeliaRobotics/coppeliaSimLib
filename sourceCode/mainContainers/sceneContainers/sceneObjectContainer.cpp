@@ -5907,7 +5907,7 @@ int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& 
     return retVal;
 }
 
-int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& info, int& size, CSceneObjectContainer* targetObject)
+int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& info, CSceneObjectContainer* targetObject)
 {
     int retVal = -1;
     if (target == -1)
@@ -5918,7 +5918,6 @@ int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& i
             {
                 retVal = allProps_objCont[i].type;
                 info = allProps_objCont[i].flags;
-                size = 0;
                 break;
             }
         }
@@ -5932,71 +5931,71 @@ int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& i
             {
                 int objType = it->getObjectType();
                 if (objType == sim_sceneobject_shape)
-                    return ((CShape*)it)->getPropertyInfo(pName, info, size);
+                    return ((CShape*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_joint)
-                    return ((CJoint*)it)->getPropertyInfo(pName, info, size);
+                    return ((CJoint*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_dummy)
-                    return ((CDummy*)it)->getPropertyInfo(pName, info, size);
+                    return ((CDummy*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_script)
-                    return ((CScript*)it)->getPropertyInfo(pName, info, size);
+                    return ((CScript*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_proximitysensor)
-                    return ((CProxSensor*)it)->getPropertyInfo(pName, info, size);
+                    return ((CProxSensor*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_visionsensor)
-                    return ((CVisionSensor*)it)->getPropertyInfo(pName, info, size);
+                    return ((CVisionSensor*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_forcesensor)
-                    return ((CForceSensor*)it)->getPropertyInfo(pName, info, size);
+                    return ((CForceSensor*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_light)
-                    return ((CLight*)it)->getPropertyInfo(pName, info, size);
+                    return ((CLight*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_camera)
-                    return ((CCamera*)it)->getPropertyInfo(pName, info, size);
+                    return ((CCamera*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_graph)
-                    return ((CGraph*)it)->getPropertyInfo(pName, info, size);
+                    return ((CGraph*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_pointcloud)
-                    return ((CPointCloud*)it)->getPropertyInfo(pName, info, size);
+                    return ((CPointCloud*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_octree)
-                    return ((COcTree*)it)->getPropertyInfo(pName, info, size);
+                    return ((COcTree*)it)->getPropertyInfo(pName, info);
                 if (objType == sim_sceneobject_mirror)
-                    return ((CMirror*)it)->getPropertyInfo(pName, info, size);
+                    return ((CMirror*)it)->getPropertyInfo(pName, info);
             }
             else
             {
                 CMesh* mesh = targetObject->getMeshFromUid(target);
                 if (mesh != nullptr)
-                    return CMesh::getPropertyInfo(pName, info, size, mesh);
+                    return CMesh::getPropertyInfo(pName, info, mesh);
             }
         }
         else
         {
             if (target == sim_objecttype_mesh)
-                return CMesh::getPropertyInfo(pName, info, size, nullptr);
+                return CMesh::getPropertyInfo(pName, info, nullptr);
             if (target == sim_objecttype_sceneobject)
-                return CSceneObject::getPropertyInfo_bstatic(pName, info, size);
+                return CSceneObject::getPropertyInfo_bstatic(pName, info);
             if (target == sim_sceneobject_shape)
-                return CShape::getPropertyInfo_static(pName, info, size);
+                return CShape::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_dummy)
-                return CDummy::getPropertyInfo_static(pName, info, size);
+                return CDummy::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_joint)
-                return CJoint::getPropertyInfo_static(pName, info, size);
+                return CJoint::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_script)
-                return CScript::getPropertyInfo_static(pName, info, size);
+                return CScript::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_proximitysensor)
-                return CProxSensor::getPropertyInfo_static(pName, info, size);
+                return CProxSensor::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_visionsensor)
-                return CVisionSensor::getPropertyInfo_static(pName, info, size);
+                return CVisionSensor::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_forcesensor)
-                return CForceSensor::getPropertyInfo_static(pName, info, size);
+                return CForceSensor::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_light)
-                return CLight::getPropertyInfo_static(pName, info, size);
+                return CLight::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_camera)
-                return CCamera::getPropertyInfo_static(pName, info, size);
+                return CCamera::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_graph)
-                return CGraph::getPropertyInfo_static(pName, info, size);
+                return CGraph::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_pointcloud)
-                return CPointCloud::getPropertyInfo_static(pName, info, size);
+                return CPointCloud::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_octree)
-                return COcTree::getPropertyInfo_static(pName, info, size);
+                return COcTree::getPropertyInfo_static(pName, info);
             if (target == sim_sceneobject_mirror)
-                return CMirror::getPropertyInfo_static(pName, info, size);
+                return CMirror::getPropertyInfo_static(pName, info);
         }
         retVal = -2; // object does not exist
     }

@@ -167,7 +167,7 @@ class CMesh : public CMeshWrapper
     int getIntVectorProperty(const char* pName, std::vector<int>& pState, const C7Vector& shapeRelTr) const;
     int removeProperty(const char* pName);
     static int getPropertyName(int& index, std::string& pName, CMesh* targetObject);
-    static int getPropertyInfo(const char* pName, int& info, int& size, CMesh* targetObject);
+    static int getPropertyInfo(const char* pName, int& info, CMesh* targetObject);
 
     // Following few routines in order not to save duplicate data:
     static void clearTempVerticesIndicesNormalsAndEdges();

@@ -1378,7 +1378,7 @@ int CWorldContainer::getPropertyName(int& index, std::string& pName, CWorldConta
     return retVal;
 }
 
-int CWorldContainer::getPropertyInfo(const char* ppName, int& info, int& size, CWorldContainer* targetObject)
+int CWorldContainer::getPropertyInfo(const char* ppName, int& info, CWorldContainer* targetObject)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -1389,7 +1389,6 @@ int CWorldContainer::getPropertyInfo(const char* ppName, int& info, int& size, C
         {
             retVal = allProps_app[i].type;
             info = allProps_app[i].flags;
-            size = 0;
             break;
         }
     }
@@ -1401,9 +1400,14 @@ int CWorldContainer::getPropertyInfo(const char* ppName, int& info, int& size, C
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
-                retVal = targetObject->customAppData.hasData(pN.c_str(), true, &size);
+                int s;
+                retVal = targetObject->customAppData.hasData(pN.c_str(), true, &s);
                 if (retVal >= 0)
+                {
                     info = 4; // removable
+                    if (s > 1000)
+                        info = info | 32;
+                }
             }
         }
     }

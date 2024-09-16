@@ -93,7 +93,7 @@ class CEnvironment
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
     int getPropertyName(int& index, std::string& pName);
-    int getPropertyInfo(const char* pName, int& info, int& size);
+    int getPropertyInfo(const char* pName, int& info);
 
     void setAmbientLight(const float c[3]);
     void setFogEnabled(bool e);

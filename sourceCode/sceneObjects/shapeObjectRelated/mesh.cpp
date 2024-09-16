@@ -3248,15 +3248,15 @@ int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject)
     return retVal;
 }
 
-int CMesh::getPropertyInfo(const char* ppName,int& info, int& size, CMesh* targetObject)
+int CMesh::getPropertyInfo(const char* ppName, int& info, CMesh* targetObject)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();
     int retVal = -1;
     if (targetObject != nullptr)
-        retVal = targetObject->color.getPropertyInfo(pName, info, size);
+        retVal = targetObject->color.getPropertyInfo(pName, info);
     else
-        retVal = CColorObject::getPropertyInfo_static(pName, info, size, 1 + 4 + 8 + 16, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8 + 16, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_mesh.size(); i++)
@@ -3265,8 +3265,38 @@ int CMesh::getPropertyInfo(const char* ppName,int& info, int& size, CMesh* targe
             {
                 retVal = allProps_mesh[i].type;
                 info = allProps_mesh[i].flags;
-                size = 0;
                 break;
+            }
+        }
+        if ( (targetObject != nullptr) && (retVal != -1) )
+        {
+            if ( (_pName == propMesh_textureCoordinates.name) && (targetObject->_textureProperty != nullptr) )
+            {
+                const std::vector<float>* tc = targetObject->_textureProperty->getTextureCoordinates(-1, targetObject->_verticesForDisplayAndDisk, targetObject->_indices);
+                if (tc->size() > 1000)
+                    retVal = retVal | sim_propertytype_largedata;
+            }
+            else if ( (_pName == propMesh_texture.name) && (targetObject->_textureProperty != nullptr) )
+            {
+                int ts[2];
+                targetObject->_textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);
+                if (ts[0] * ts[1] > 1000)
+                    retVal = retVal | sim_propertytype_largedata;
+            }
+            else if (_pName == propMesh_vertices.name)
+            {
+                if (targetObject->_verticesForDisplayAndDisk.size() > 1000)
+                    retVal = retVal | sim_propertytype_largedata;
+            }
+            else if (_pName == propMesh_indices.name)
+            {
+                if (targetObject->_indices.size() > 1000)
+                    retVal = retVal | sim_propertytype_largedata;
+            }
+            else if (_pName == propMesh_normals.name)
+            {
+                if (targetObject->_indices.size() * 3 > 1000)
+                    retVal = retVal | sim_propertytype_largedata;
             }
         }
     }

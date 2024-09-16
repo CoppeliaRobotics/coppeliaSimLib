@@ -104,8 +104,8 @@ class CShape : public CSceneObject
     int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info, int& size) const;
-    static int getPropertyInfo_static(const char* pName, int& info, int& size);
+    int getPropertyInfo(const char* pName, int& info) const;
+    static int getPropertyInfo_static(const char* pName, int& info);
 
 
     // Various

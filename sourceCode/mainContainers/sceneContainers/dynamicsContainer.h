@@ -323,7 +323,7 @@ class CDynamicsContainer
     int setIntVectorProperty(const char* pName, const int* v, int vL);
     int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName) const;
-    int getPropertyInfo(const char* pName, int& info, int& size) const;
+    int getPropertyInfo(const char* pName, int& info) const;
     // Some helpers:
     bool getBoolPropertyValue(const char* pName, bool getDefaultValue = false) const;
     int getIntPropertyValue(const char* pName, bool getDefaultValue = false) const;
