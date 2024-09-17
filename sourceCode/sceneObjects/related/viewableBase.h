@@ -9,10 +9,10 @@
     FUNCX(propViewable_viewAngle,               "viewAngle",                                sim_propertytype_float,     0) \
     FUNCX(propViewable_viewSize,                "viewSize",                                 sim_propertytype_float,     0) \
     FUNCX(propViewable_clippingPlanes,          "clippingPlanes",                           sim_propertytype_vector,    0) \
-    FUNCX(propViewable_perspective,             "perspective",                              sim_propertytype_bool,      1) \
+    FUNCX(propViewable_perspective,             "perspective",                              sim_propertytype_bool,      sim_propertyinfo_notwritable) \
     FUNCX(propViewable_showFrustum,             "showFrustum",                              sim_propertytype_bool,      0) \
-    FUNCX(propViewable_frustumCornerNear,       "frustumCornerNear",                        sim_propertytype_vector3,   1) \
-    FUNCX(propViewable_frustumCornerFar,        "frustumCornerFar",                         sim_propertytype_vector3,   1) \
+    FUNCX(propViewable_frustumCornerNear,       "frustumCornerNear",                        sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
+    FUNCX(propViewable_frustumCornerFar,        "frustumCornerFar",                         sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
     FUNCX(propViewable_resolution,              "resolution",                               sim_propertytype_intvector, 0) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
@@ -55,9 +55,9 @@ class CViewableBase : public CSceneObject
     virtual bool isPotentiallyRenderable() const;
 
     virtual int setBoolProperty(const char* pName, bool pState);
-    virtual int getBoolProperty(const char* pName, bool& pState);
+    virtual int getBoolProperty(const char* pName, bool& pState) const;
     virtual int setFloatProperty(const char* pName, double pState);
-    virtual int getFloatProperty(const char* pName, double& pState);
+    virtual int getFloatProperty(const char* pName, double& pState) const;
     virtual int setVector3Property(const char* pName, const C3Vector& pState);
     virtual int getVector3Property(const char* pName, C3Vector& pState) const;
     virtual int setVectorProperty(const char* pName, const double* v, int vL);

@@ -1108,7 +1108,7 @@ int CProxSensor::setFloatProperty(const char* ppName, double pState)
     return retVal;
 }
 
-int CProxSensor::getFloatProperty(const char* ppName, double& pState)
+int CProxSensor::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
     const char* pName = _pName.c_str();
@@ -1145,7 +1145,7 @@ int CProxSensor::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CProxSensor::getColorProperty(const char* ppName, float* pState)
+int CProxSensor::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
     const char* pName = _pName.c_str();

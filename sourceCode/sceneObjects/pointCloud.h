@@ -8,7 +8,13 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propPointCloud_pointSize,                    "pointSize",                          sim_propertytype_float,     0) \
+    FUNCX(propPointCloud_noOcTreeStruct,               "noOcTreeStruct",                     sim_propertytype_bool,      0) \
+    FUNCX(propPointCloud_pointSize,                    "pointSize",                          sim_propertytype_int,       0) \
+    FUNCX(propPointCloud_maxPtsInCell,                 "maxPointsInCell",                    sim_propertytype_int,       0) \
+    FUNCX(propPointCloud_cellSize,                     "cellSize",                           sim_propertytype_float,     0) \
+    FUNCX(propPointCloud_pointDisplayFraction,         "pointDisplayFraction",               sim_propertytype_float,     0) \
+    FUNCX(propPointCloud_points,                       "points",                             sim_propertytype_vector,    sim_propertyinfo_notwritable) \
+    FUNCX(propPointCloud_colors,                       "colors",                             sim_propertytype_buffer,    sim_propertyinfo_notwritable) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -58,10 +64,19 @@ class CPointCloud : public CSceneObject
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer);
 
     void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
+
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState);
+    int getFloatProperty(const char* pName, double& pState) const;
+    int setBufferProperty(const char* pName, const char* buffer, int bufferL);
+    int getBufferProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState);
+    int getColorProperty(const char* pName, float* pState) const;
+    int setVectorProperty(const char* pName, const double* v, int vL);
+    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info);
@@ -107,8 +122,6 @@ class CPointCloud : public CSceneObject
     void setUseRandomColors(bool r);
     bool getColorIsEmissive() const;
     void setColorIsEmissive(bool e);
-    bool getSaveCalculationStructure() const;
-    void setSaveCalculationStructure(bool s);
     bool getDoNotUseCalculationStructure() const;
     void setDoNotUseCalculationStructure(bool s);
     double getPointDisplayRatio() const;
@@ -140,7 +153,6 @@ class CPointCloud : public CSceneObject
     std::vector<unsigned char> _displayColorsByte;
     bool _showOctreeStructure;
     bool _useRandomColors;
-    bool _saveCalculationStructure;
     int _pointSize;
     int _nonEmptyCells;
     double _buildResolution;

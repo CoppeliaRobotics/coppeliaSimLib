@@ -197,7 +197,6 @@ void CLight::setLightSize(double size)
     if (_lightSize != size)
     {
         _lightSize = size;
-        computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propLight_size.name;
@@ -205,6 +204,7 @@ void CLight::setLightSize(double size)
             ev->appendKeyDouble(cmd, _lightSize);
             App::worldContainer->pushEvent();
         }
+        computeBoundingBox();
     }
 }
 
@@ -213,65 +213,102 @@ double CLight::getLightSize() const
     return (_lightSize);
 }
 
-double CLight::getAttenuationFactor(int type) const
+void CLight::getAttenuationFactors(double fact[3]) const
 {
-    double retVal = 0.0;
-    if (type == CONSTANT_ATTENUATION)
-        retVal = constantAttenuation;
-    if (type == LINEAR_ATTENUATION)
-        retVal = linearAttenuation;
-    if (type == QUADRATIC_ATTENUATION)
-        retVal = quadraticAttenuation;
-    return (retVal);
+    fact[0] = constantAttenuation;
+    fact[1] = linearAttenuation;
+    fact[2] = quadraticAttenuation;
 }
 
-void CLight::setAttenuationFactor(int type, double value)
+void CLight::setAttenuationFactors(const double fact[3])
 {
-    if (type == CONSTANT_ATTENUATION)
-        constantAttenuation = value;
-    if (type == LINEAR_ATTENUATION)
-        linearAttenuation = value;
-    if (type == QUADRATIC_ATTENUATION)
-        quadraticAttenuation = value;
+    bool diff = ( (constantAttenuation != fact[0]) || (linearAttenuation != fact[1]) || (quadraticAttenuation != fact[2]) );
+    if (diff)
+    {
+        constantAttenuation = fact[0];
+        linearAttenuation = fact[1];
+        quadraticAttenuation = fact[2];
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propLight_attenuationFactors.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDoubleArray(cmd, fact, 3);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 void CLight::setLightActive(bool active)
 {
+    bool diff = (lightActive != active);
+    if (diff)
+    {
+        lightActive = active;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propLight_enabled.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, lightActive);
+            App::worldContainer->pushEvent();
+        }
 #ifdef SIM_WITH_GUI
-    if (active != lightActive)
         GuiApp::setRefreshHierarchyViewFlag();
 #endif
-    lightActive = active;
+    }
 }
 
 bool CLight::getLightActive() const
 {
-    return (lightActive);
+    return lightActive;
 }
 
 void CLight::setSpotExponent(int e)
 {
-    _spotExponent = tt::getLimitedInt(0, 128, e);
+    e = tt::getLimitedInt(0, 128, e);
+    bool diff = (_spotExponent != e);
+    if (diff)
+    {
+        _spotExponent = e;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propLight_spotExponent.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _spotExponent);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 int CLight::getSpotExponent() const
 {
-    return (_spotExponent);
+    return _spotExponent;
 }
 
 void CLight::setSpotCutoffAngle(double co)
 {
-    _spotCutoffAngle = tt::getLimitedFloat(5.0 * degToRad, 90.0 * degToRad, co);
+    co = tt::getLimitedFloat(5.0 * degToRad, 90.0 * degToRad, co);
+    bool diff = (_spotCutoffAngle != co);
+    if (diff)
+    {
+        _spotCutoffAngle = co;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propLight_spotCutoffAngle.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDouble(cmd, _spotCutoffAngle);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 double CLight::getSpotCutoffAngle() const
 {
-    return (_spotCutoffAngle);
+    return _spotCutoffAngle;
 }
 
 int CLight::getLightType() const
 {
-    return (_lightType);
+    return _lightType;
 }
 
 void CLight::removeSceneDependencies()
@@ -299,6 +336,12 @@ void CLight::addSpecializedObjectEventData(CCbor *ev)
     lightColor.addGenesisEventData(ev);
 #endif
     ev->appendKeyDouble(propLight_size.name, _lightSize);
+    ev->appendKeyDouble(propLight_spotCutoffAngle.name, _spotCutoffAngle);
+    ev->appendKeyInt(propLight_spotExponent.name, _spotExponent);
+    ev->appendKeyInt(propLight_lightType.name, _lightType);
+    ev->appendKeyBool(propLight_enabled.name, lightActive);
+    double arr[3] = {constantAttenuation, linearAttenuation, quadraticAttenuation};
+    ev->appendKeyDoubleArray(propLight_attenuationFactors.name, arr, 3);
     // todo
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // light
@@ -405,7 +448,7 @@ void CLight::simulationEnded()
         if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
             ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0))
         {
-            lightActive = _initialLightActive;
+            setLightActive(_initialLightActive);
         }
     }
     CSceneObject::simulationEnded();
@@ -691,12 +734,9 @@ void CLight::serialize(CSer &ar)
 
             if (ar.xmlPushChildNode("attenuationFactors", exhaustiveXml))
             {
-                if (ar.xmlGetNode_float("constant", constantAttenuation, exhaustiveXml))
-                    setAttenuationFactor(CONSTANT_ATTENUATION, constantAttenuation);
-                if (ar.xmlGetNode_float("linear", linearAttenuation, exhaustiveXml))
-                    setAttenuationFactor(LINEAR_ATTENUATION, linearAttenuation);
-                if (ar.xmlGetNode_float("quadratic", quadraticAttenuation, exhaustiveXml))
-                    setAttenuationFactor(QUADRATIC_ATTENUATION, quadraticAttenuation);
+                ar.xmlGetNode_float("constant", constantAttenuation, exhaustiveXml);
+                ar.xmlGetNode_float("linear", linearAttenuation, exhaustiveXml);
+                ar.xmlGetNode_float("quadratic", quadraticAttenuation, exhaustiveXml);
                 ar.xmlPopNode();
             }
 
@@ -754,6 +794,79 @@ void CLight::display(CViewableBase *renderingObject, int displayAttrib)
 }
 #endif
 
+int CLight::setBoolProperty(const char* ppName, bool pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propLight_enabled.name)
+        {
+            retVal = 1;
+            setLightActive(pState);
+        }
+    }
+
+    return retVal;
+}
+
+int CLight::getBoolProperty(const char* ppName, bool& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propLight_enabled.name)
+        {
+            retVal = 1;
+            pState = lightActive;
+        }
+    }
+
+    return retVal;
+}
+
+int CLight::setIntProperty(const char* ppName, int pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propLight_spotExponent.name)
+        {
+            retVal = 1;
+            setSpotExponent(pState);
+        }
+    }
+
+    return retVal;
+}
+
+int CLight::getIntProperty(const char* ppName, int& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propLight_spotExponent.name)
+        {
+            retVal = 1;
+            pState = _spotExponent;
+        }
+        else if (_pName == propLight_lightType.name)
+        {
+            retVal = 1;
+            pState = _lightType;
+        }
+    }
+
+    return retVal;
+}
+
 int CLight::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
@@ -770,12 +883,17 @@ int CLight::setFloatProperty(const char* ppName, double pState)
             setLightSize(pState);
             retVal = 1;
         }
+        else if (_pName == propLight_spotCutoffAngle.name)
+        {
+            setSpotCutoffAngle(pState);
+            retVal = 1;
+        }
     }
 
     return retVal;
 }
 
-int CLight::getFloatProperty(const char* ppName, double& pState)
+int CLight::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
     const char* pName = _pName.c_str();
@@ -789,6 +907,11 @@ int CLight::getFloatProperty(const char* ppName, double& pState)
         if (_pName == propLight_size.name)
         {
             pState = _lightSize;
+            retVal = 1;
+        }
+        else if (_pName == propLight_spotCutoffAngle.name)
+        {
+            pState = _spotCutoffAngle;
             retVal = 1;
         }
     }
@@ -812,7 +935,7 @@ int CLight::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CLight::getColorProperty(const char* ppName, float* pState)
+int CLight::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
     const char* pName = _pName.c_str();
@@ -825,6 +948,48 @@ int CLight::getColorProperty(const char* ppName, float* pState)
     {
 
     }
+    return retVal;
+}
+
+int CLight::setVectorProperty(const char* ppName, const double* v, int vL)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    if (v == nullptr)
+        vL = 0;
+    int retVal = CSceneObject::setVectorProperty(pName, v, vL);
+    if (retVal == -1)
+    {
+        if (_pName == propLight_attenuationFactors.name)
+        {
+            double arr[3] = {constantAttenuation, linearAttenuation, quadraticAttenuation};
+            for (size_t i = 0; i < std::min<int>(vL, 3); i++)
+                arr[i] = v[i];
+            setAttenuationFactors(arr);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CLight::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    pState.clear();
+    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propLight_attenuationFactors.name)
+        {
+            pState.push_back(constantAttenuation);
+            pState.push_back(linearAttenuation);
+            pState.push_back(quadraticAttenuation);
+            retVal = 1;
+        }
+    }
+
     return retVal;
 }
 

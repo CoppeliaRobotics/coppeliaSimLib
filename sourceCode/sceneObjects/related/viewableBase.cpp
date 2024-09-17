@@ -638,7 +638,7 @@ int CViewableBase::setBoolProperty(const char* pName, bool pState)
     return retVal;
 }
 
-int CViewableBase::getBoolProperty(const char* pName, bool& pState)
+int CViewableBase::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = CSceneObject::getBoolProperty(pName, pState);
     if (retVal == -1)
@@ -678,7 +678,7 @@ int CViewableBase::setFloatProperty(const char* pName, double pState)
     return retVal;
 }
 
-int CViewableBase::getFloatProperty(const char* pName, double& pState)
+int CViewableBase::getFloatProperty(const char* pName, double& pState) const
 {
     int retVal = CSceneObject::getFloatProperty(pName, pState);
     if (retVal == -1)

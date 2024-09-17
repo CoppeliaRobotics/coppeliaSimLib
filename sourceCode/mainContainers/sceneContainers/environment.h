@@ -11,13 +11,13 @@
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
     FUNCX(propScene_finalSaveRequest,       "finalSaveRequest",             sim_propertytype_bool,       0) \
-    FUNCX(propScene_sceneIsLocked,          "sceneIsLocked",                sim_propertytype_bool,       1) \
+    FUNCX(propScene_sceneIsLocked,          "sceneIsLocked",                sim_propertytype_bool,       sim_propertyinfo_notwritable) \
     FUNCX(propScene_saveCalculationStructs, "saveCalculationStructs",       sim_propertytype_bool,       0) \
-    FUNCX(propScene_sceneUid,               "sceneUid",                     sim_propertytype_int,        1) \
+    FUNCX(propScene_sceneUid,               "sceneUid",                     sim_propertytype_int,        sim_propertyinfo_notwritable) \
     FUNCX(propScene_visibilityLayers,       "visibilityLayers",             sim_propertytype_int,        0) \
     FUNCX(propScene_scenePath,              "scenePath",                    sim_propertytype_string,     0) \
     FUNCX(propScene_acknowledgment,         "acknowledgment",               sim_propertytype_string,     0) \
-    FUNCX(propScene_sceneUidString,         "sceneUidString",               sim_propertytype_string,     1) \
+    FUNCX(propScene_sceneUidString,         "sceneUidString",               sim_propertytype_string,     sim_propertyinfo_notwritable) \
     FUNCX(propScene_ambientLight,           "ambientLight",                 sim_propertytype_color,      0) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};

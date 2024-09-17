@@ -13,12 +13,12 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propObject_modelInvisible,          "modelInvisible",                   sim_propertytype_bool,      1) \
+    FUNCX(propObject_modelInvisible,          "modelInvisible",                   sim_propertytype_bool,      sim_propertyinfo_notwritable) \
     FUNCX(propObject_modelBase,               "modelBase",                        sim_propertytype_bool,      0) \
     FUNCX(propObject_layer,                   "layer",                            sim_propertytype_int,       0) \
-    FUNCX(propObject_childOrder,              "childOrder",                       sim_propertytype_int,       1) \
-    FUNCX(propObject_parentUid,               "parentUid",                        sim_propertytype_int,       1) \
-    FUNCX(propObject_parentHandle,            "parentHandle",                     sim_propertytype_int,       1) \
+    FUNCX(propObject_childOrder,              "childOrder",                       sim_propertytype_int,       sim_propertyinfo_notwritable) \
+    FUNCX(propObject_parentUid,               "parentUid",                        sim_propertytype_int,       sim_propertyinfo_notwritable) \
+    FUNCX(propObject_parentHandle,            "parentHandle",                     sim_propertytype_int,       sim_propertyinfo_notwritable) \
     FUNCX(propObject_selected,                "selected",                         sim_propertytype_bool,      0) \
     FUNCX(propObject_hierarchyColor,          "hierarchyColor",                   sim_propertytype_int,       0) \
     FUNCX(propObject_collectionSelfCollInd,   "collectionSelfCollisionIndicator", sim_propertytype_int,       0) \
@@ -26,13 +26,13 @@
     FUNCX(propObject_measurable,              "measurable",                       sim_propertytype_bool,      0) \
     FUNCX(propObject_detectable,              "detectable",                       sim_propertytype_bool,      0) \
     FUNCX(propObject_modelAcknowledgment,     "modelAcknowledgment",              sim_propertytype_string,    0) \
-    FUNCX(propObject_dna,                     "dna",                              sim_propertytype_string,    1) \
-    FUNCX(propObject_persistentUid,           "persistentUid",                    sim_propertytype_string,    1) \
-    FUNCX(propObject_calcLinearVelocity,      "calcLinearVelocity",               sim_propertytype_vector3,   1) \
-    FUNCX(propObject_calcRotationAxis,        "calcRotationAxis",                 sim_propertytype_vector3,   1) \
-    FUNCX(propObject_calcRotationVelocity,    "calcRotationVelocity",             sim_propertytype_float,     1) \
-    FUNCX(propObject_dynamicIcon,             "dynamicIcon",                      sim_propertytype_int,       1) \
-    FUNCX(propObject_dynamicFlag,             "dynamicFlag",                      sim_propertytype_int,       1) \
+    FUNCX(propObject_dna,                     "dna",                              sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propObject_persistentUid,           "persistentUid",                    sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propObject_calcLinearVelocity,      "calcLinearVelocity",               sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
+    FUNCX(propObject_calcRotationAxis,        "calcRotationAxis",                 sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
+    FUNCX(propObject_calcRotationVelocity,    "calcRotationVelocity",             sim_propertytype_float,     sim_propertyinfo_notwritable) \
+    FUNCX(propObject_dynamicIcon,             "dynamicIcon",                      sim_propertytype_int,       sim_propertyinfo_notwritable) \
+    FUNCX(propObject_dynamicFlag,             "dynamicFlag",                      sim_propertytype_int,       sim_propertyinfo_notwritable) \
     FUNCX(propObject_objectProperty,          "objectPropertyFlags", /*redund.*/  sim_propertytype_int,       0) \
     FUNCX(propObject_ignoreViewFitting,       "ignoreViewFitting",                sim_propertytype_bool,      0) \
     FUNCX(propObject_collapsed,               "collapsed",                        sim_propertytype_bool,      0) \
@@ -54,8 +54,8 @@
     FUNCX(propObject_modelNotInParentBB,      "modelNotInParentBB",               sim_propertytype_bool,      0) \
     FUNCX(propObject_pose,                    "pose",                             sim_propertytype_pose,      0) \
     FUNCX(propObject_alias,                   "alias",                            sim_propertytype_string,    0) \
-    FUNCX(propObject_bbPose,                  "bbPose",                           sim_propertytype_pose,      1) \
-    FUNCX(propObject_bbHsize,                 "bbHSize",                          sim_propertytype_vector3,   1) \
+    FUNCX(propObject_bbPose,                  "bbPose",                           sim_propertytype_pose,      sim_propertyinfo_notwritable) \
+    FUNCX(propObject_bbHsize,                 "bbHSize",                          sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
     FUNCX(propObject_movementOptions,         "movementOptionsFlags",             sim_propertytype_int,       0) \
     FUNCX(propObject_movTranslNoSim,          "movTranslNoSim",                   sim_propertytype_bool,      0) \
     FUNCX(propObject_movTranslInSim,          "movTranslInSim",                   sim_propertytype_bool,      0) \
@@ -72,7 +72,7 @@
     FUNCX(propObject_movPrefRotZ,             "movPrefRotZ",                      sim_propertytype_bool,      0) \
     FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_vector,    0) \
     FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intvector, 0) \
-    FUNCX(propObject_objectType,              "objectType",                       sim_propertytype_string,    1) \
+    FUNCX(propObject_objectType,              "objectType",                       sim_propertytype_string,    sim_propertyinfo_notwritable) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES

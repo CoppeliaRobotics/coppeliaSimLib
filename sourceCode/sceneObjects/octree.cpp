@@ -29,7 +29,6 @@ COcTree::COcTree()
     _useRandomColors = false;
     _colorIsEmissive = false;
     _usePointsInsteadOfCubes = false;
-    _saveCalculationStructure = true; // takes actually less disk space when true!
 
     _pointSize = 2;
     _cellSizeForDisplay = 0;
@@ -485,16 +484,6 @@ void COcTree::setUsePointsInsteadOfCubes(bool r)
     _usePointsInsteadOfCubes = r;
 }
 
-bool COcTree::getSaveCalculationStructure() const
-{
-    return (_saveCalculationStructure);
-}
-
-void COcTree::setSaveCalculationStructure(bool s)
-{
-    _saveCalculationStructure = s;
-}
-
 int COcTree::getPointSize() const
 {
     return (_pointSize);
@@ -630,7 +619,6 @@ CSceneObject *COcTree::copyYourself()
     newOctree->_useRandomColors = _useRandomColors;
     newOctree->_colorIsEmissive = _colorIsEmissive;
     newOctree->_usePointsInsteadOfCubes = _usePointsInsteadOfCubes;
-    newOctree->_saveCalculationStructure = _saveCalculationStructure;
 
     return (newOctree);
 }
@@ -776,7 +764,7 @@ void COcTree::serialize(CSer &ar)
             SIM_SET_CLEAR_BIT(dummy, 1, _showOctreeStructure);
             SIM_SET_CLEAR_BIT(dummy, 2, _useRandomColors);
             SIM_SET_CLEAR_BIT(dummy, 3, _usePointsInsteadOfCubes);
-            SIM_SET_CLEAR_BIT(dummy, 4, _saveCalculationStructure);
+            SIM_SET_CLEAR_BIT(dummy, 4, true);
             SIM_SET_CLEAR_BIT(dummy, 5, _colorIsEmissive);
             ar << dummy;
             ar.flush();
@@ -790,37 +778,19 @@ void COcTree::serialize(CSer &ar)
             // Keep this at the end
             if (_octreeInfo != nullptr)
             {
-                if (!_saveCalculationStructure)
-                {
-                    ar.storeDataName("_t2");
-                    ar << int(_voxelPositions.size() / 3);
-                    for (size_t i = 0; i < _voxelPositions.size() / 3; i++)
-                    {
-                        ar << _voxelPositions[3 * i + 0];
-                        ar << _voxelPositions[3 * i + 1];
-                        ar << _voxelPositions[3 * i + 2];
-                        ar << (unsigned char)(_colors[4 * i + 0] * 255.1);
-                        ar << (unsigned char)(_colors[4 * i + 1] * 255.1);
-                        ar << (unsigned char)(_colors[4 * i + 2] * 255.1);
-                    }
-                    ar.flush();
-                }
-                else
-                {
-                    std::vector<unsigned char> data;
+                std::vector<unsigned char> data;
 
-                    App::worldContainer->pluginContainer->geomPlugin_getOctreeSerializationData(_octreeInfo, data);
-                    ar.storeDataName("_o2");
-                    ar.setCountingMode(true);
+                App::worldContainer->pluginContainer->geomPlugin_getOctreeSerializationData(_octreeInfo, data);
+                ar.storeDataName("_o2");
+                ar.setCountingMode(true);
+                for (size_t i = 0; i < data.size(); i++)
+                    ar << data[i];
+                ar.flush(false);
+                if (ar.setWritingMode(true))
+                {
                     for (size_t i = 0; i < data.size(); i++)
                         ar << data[i];
                     ar.flush(false);
-                    if (ar.setWritingMode(true))
-                    {
-                        for (size_t i = 0; i < data.size(); i++)
-                            ar << data[i];
-                        ar.flush(false);
-                    }
                 }
             }
             ar.storeDataName(SER_END_OF_OBJECT);
@@ -862,7 +832,7 @@ void COcTree::serialize(CSer &ar)
                         _showOctreeStructure = SIM_IS_BIT_SET(dummy, 1);
                         _useRandomColors = SIM_IS_BIT_SET(dummy, 2);
                         _usePointsInsteadOfCubes = SIM_IS_BIT_SET(dummy, 3);
-                        _saveCalculationStructure = SIM_IS_BIT_SET(dummy, 4);
+                        // _saveCalculationStructure = SIM_IS_BIT_SET(dummy, 4);
                         _colorIsEmissive = SIM_IS_BIT_SET(dummy, 5);
                     }
                     if (theName.compare("Col") == 0)
@@ -990,8 +960,6 @@ void COcTree::serialize(CSer &ar)
             ar.xmlAddNode_bool("showStructure", _showOctreeStructure);
             ar.xmlAddNode_bool("randomColors", _useRandomColors);
             ar.xmlAddNode_bool("pointsInsteadOfCubes", _usePointsInsteadOfCubes);
-            if (exhaustiveXml)
-                ar.xmlAddNode_bool("saveCalculationStructure", _saveCalculationStructure);
             ar.xmlAddNode_bool("emissiveColor", _colorIsEmissive);
             ar.xmlPopNode();
 
@@ -1054,8 +1022,6 @@ void COcTree::serialize(CSer &ar)
                 ar.xmlGetNode_bool("showStructure", _showOctreeStructure, exhaustiveXml);
                 ar.xmlGetNode_bool("randomColors", _useRandomColors, exhaustiveXml);
                 ar.xmlGetNode_bool("pointsInsteadOfCubes", _usePointsInsteadOfCubes, exhaustiveXml);
-                if (exhaustiveXml)
-                    ar.xmlGetNode_bool("saveCalculationStructure", _saveCalculationStructure);
                 ar.xmlGetNode_bool("emissiveColor", _colorIsEmissive, exhaustiveXml);
                 ar.xmlPopNode();
             }
@@ -1185,7 +1151,7 @@ int COcTree::setFloatProperty(const char* ppName, double pState)
     return retVal;
 }
 
-int COcTree::getFloatProperty(const char* ppName, double& pState)
+int COcTree::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
     const char* pName = _pName.c_str();
@@ -1218,7 +1184,7 @@ int COcTree::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int COcTree::getColorProperty(const char* ppName, float* pState)
+int COcTree::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
     const char* pName = _pName.c_str();

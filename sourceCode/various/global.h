@@ -220,13 +220,6 @@ enum
     SHIFTSELECTION,
 };
 
-enum
-{
-    CONSTANT_ATTENUATION = 0,
-    LINEAR_ATTENUATION,
-    QUADRATIC_ATTENUATION
-};
-
 // Serialization types. Never delete an entry or change order!! (values are serialized!)
 enum
 {

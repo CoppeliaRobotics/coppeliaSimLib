@@ -1157,6 +1157,11 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_vector", sim_propertytype_vector},
     {"sim.propertytype_intvector", sim_propertytype_intvector},
     {"sim.propertytype_table", sim_propertytype_table},
+    // property info
+    {"sim.propertyinfo_notwritable", sim_propertyinfo_notwritable},
+    {"sim.propertyinfo_notreadable", sim_propertyinfo_notreadable},
+    {"sim.propertyinfo_removable", sim_propertyinfo_removable},
+    {"sim.propertyinfo_largedata", sim_propertyinfo_largedata},
     // dummy-dummy link types
     {"sim.dummytype_dynloopclosure", sim_dummytype_dynloopclosure},
     {"sim.dummytype_dyntendon", sim_dummytype_dyntendon},

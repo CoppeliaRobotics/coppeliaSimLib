@@ -7,11 +7,11 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propShape_meshes,                  "meshes",                                   sim_propertytype_intvector, 1) \
-    FUNCX(propShape_applyCulling,            "applyCulling",                             sim_propertytype_bool, 2) \
-    FUNCX(propShape_applyShadingAngle,       "applyShadingAngle",                        sim_propertytype_float, 2) \
-    FUNCX(propShape_applyShowEdges,          "applyShowEdges",                           sim_propertytype_bool, 2) \
-    FUNCX(propShape_flipFaces,               "flipFaces",                                sim_propertytype_bool, 2) \
+    FUNCX(propShape_meshes,                  "meshes",                                   sim_propertytype_intvector, sim_propertyinfo_notwritable) \
+    FUNCX(propShape_applyCulling,            "applyCulling",                             sim_propertytype_bool, sim_propertyinfo_notreadable) \
+    FUNCX(propShape_applyShadingAngle,       "applyShadingAngle",                        sim_propertytype_float, sim_propertyinfo_notreadable) \
+    FUNCX(propShape_applyShowEdges,          "applyShowEdges",                           sim_propertytype_bool, sim_propertyinfo_notreadable) \
+    FUNCX(propShape_flipFaces,               "flipFaces",                                sim_propertytype_bool, sim_propertyinfo_notreadable) \
     FUNCX(propShape_respondableMask,         "respondableMask",                          sim_propertytype_int, 0) \
     FUNCX(propShape_startInDynSleepMode,     "startInDynSleepMode",                      sim_propertytype_bool, 0) \
     FUNCX(propShape_dynamic,                 "dynamic",                                  sim_propertytype_bool, 0) \
@@ -20,8 +20,8 @@
     FUNCX(propShape_setToDynamicWithParent,  "setToDynamicWithParent",                   sim_propertytype_bool, 0) \
     FUNCX(propShape_initLinearVelocity,      "initLinearVelocity",                       sim_propertytype_vector3, 0) \
     FUNCX(propShape_initAngularVelocity,     "initAngularVelocity",                      sim_propertytype_vector3, 0) \
-    FUNCX(propShape_dynLinearVelocity,       "dynLinearVelocity",                        sim_propertytype_vector3, 1) \
-    FUNCX(propShape_dynAngularVelocity,     "dynAngularVelocity",                       sim_propertytype_vector3, 1) \
+    FUNCX(propShape_dynLinearVelocity,       "dynLinearVelocity",                        sim_propertytype_vector3, sim_propertyinfo_notwritable) \
+    FUNCX(propShape_dynAngularVelocity,     "dynAngularVelocity",                       sim_propertytype_vector3, sim_propertyinfo_notwritable) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES

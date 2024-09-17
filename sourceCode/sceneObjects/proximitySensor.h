@@ -56,9 +56,9 @@ class CProxSensor : public CSceneObject
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;
     int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState);
+    int getFloatProperty(const char* pName, double& pState) const;
     int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState);
+    int getColorProperty(const char* pName, float* pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info);

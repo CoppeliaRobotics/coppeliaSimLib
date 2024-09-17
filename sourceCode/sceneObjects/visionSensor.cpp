@@ -1290,11 +1290,14 @@ void CVisionSensor::_extRenderer_prepareLights()
             int spotExponent = light->getSpotExponent();
             data[2] = &spotExponent;
             data[3] = light->getColor(true)->getColorsPtr();
-            float constAttenuation = (float)light->getAttenuationFactor(CONSTANT_ATTENUATION);
+
+            double arr[3];
+            light->getAttenuationFactors(arr);
+            float constAttenuation = (float)arr[0];
             data[4] = &constAttenuation;
-            float linAttenuation = (float)light->getAttenuationFactor(LINEAR_ATTENUATION);
+            float linAttenuation = (float)arr[1];
             data[5] = &linAttenuation;
-            float quadAttenuation = (float)light->getAttenuationFactor(QUADRATIC_ATTENUATION);
+            float quadAttenuation = (float)arr[2];
             data[6] = &quadAttenuation;
             C7Vector tr(light->getFullCumulativeTransformation());
             float x[3] = {(float)tr.X(0), (float)tr.X(1), (float)tr.X(2)};
@@ -3397,7 +3400,7 @@ int CVisionSensor::setBoolProperty(const char* ppName, bool pState)
     return retVal;
 }
 
-int CVisionSensor::getBoolProperty(const char* ppName, bool& pState)
+int CVisionSensor::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
@@ -3466,7 +3469,7 @@ int CVisionSensor::setIntProperty(const char* ppName, int pState)
     return retVal;
 }
 
-int CVisionSensor::getIntProperty(const char* ppName, int& pState)
+int CVisionSensor::getIntProperty(const char* ppName, int& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
@@ -3502,7 +3505,7 @@ int CVisionSensor::setFloatProperty(const char* ppName, double pState)
     return retVal;
 }
 
-int CVisionSensor::getFloatProperty(const char* ppName, double& pState)
+int CVisionSensor::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
@@ -3579,7 +3582,7 @@ int CVisionSensor::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CVisionSensor::getColorProperty(const char* ppName, float* pState)
+int CVisionSensor::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
@@ -3759,13 +3762,13 @@ int CVisionSensor::getPropertyInfo(const char* ppName, int& info)
         {
             if (_pName == propVisionSensor_imageBuffer.name)
             {
-                if (3 * _resolution[0] * _resolution[1] > 1000)
-                    info = info | 256;
+                if (3 * _resolution[0] * _resolution[1] > LARGE_PROPERTY_SIZE)
+                    info = info | 0x100;
             }
             if (_pName == propVisionSensor_depthBuffer.name)
             {
-                if (_resolution[0] * _resolution[1] > 1000)
-                    info = info | 256;
+                if (_resolution[0] * _resolution[1] > LARGE_PROPERTY_SIZE)
+                    info = info | 0x100;
             }
         }
     }

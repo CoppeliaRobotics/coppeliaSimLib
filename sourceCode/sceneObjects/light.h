@@ -6,6 +6,11 @@
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
     FUNCX(propLight_size,                    "size",                                     sim_propertytype_float,     0) \
+    FUNCX(propLight_enabled,                 "on",                                       sim_propertytype_bool,      0) \
+    FUNCX(propLight_lightType,               "lightType",                                sim_propertytype_int,       sim_propertyinfo_notwritable) \
+    FUNCX(propLight_spotExponent,            "spotExponent",                             sim_propertytype_int,       0) \
+    FUNCX(propLight_spotCutoffAngle,         "spotCutoffAngle",                          sim_propertytype_float,     0) \
+    FUNCX(propLight_attenuationFactors,      "attenuationFactors",                       sim_propertytype_vector,    0) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -46,10 +51,16 @@ class CLight : public CSceneObject
     void initializeInitialValues(bool simulationAlreadyRunning);
     void computeBoundingBox();
     void setIsInScene(bool s);
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState);
+    int getFloatProperty(const char* pName, double& pState) const;
     int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState);
+    int getColorProperty(const char* pName, float* pState) const;
+    int setVectorProperty(const char* pName, const double* v, int vL);
+    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info);
@@ -64,8 +75,8 @@ class CLight : public CSceneObject
 
     void setLightActive(bool active);
     bool getLightActive() const;
-    double getAttenuationFactor(int type) const;
-    void setAttenuationFactor(int type, double value);
+    void getAttenuationFactors(double fact[3]) const;
+    void setAttenuationFactors(const double fact[3]);
     void setLightSize(double size);
     double getLightSize() const;
     void setSpotExponent(int e);

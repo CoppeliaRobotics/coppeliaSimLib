@@ -906,7 +906,7 @@ int CWorldContainer::setIntProperty(const char* ppName, int pState)
         App::setConsoleVerbosity(pState);
         retVal = 1;
     }
-    else if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
+    else if (strcmp(pName, propApp_statusbarVerbosity.name) == 0)
     {
         App::setStatusbarVerbosity(pState);
         retVal = 1;
@@ -1405,8 +1405,8 @@ int CWorldContainer::getPropertyInfo(const char* ppName, int& info, CWorldContai
                 if (retVal >= 0)
                 {
                     info = 4; // removable
-                    if (s > 1000)
-                        info = info | 32;
+                    if (s > LARGE_PROPERTY_SIZE)
+                        info = info | 0x100;
                 }
             }
         }

@@ -6396,8 +6396,8 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info) const
             if (retVal >= 0)
             {
                 info = 4; // removable
-                if (s > 1000)
-                    s = s | 32;
+                if (s > LARGE_PROPERTY_SIZE)
+                    s = s | 0x100;
             }
         }
     }

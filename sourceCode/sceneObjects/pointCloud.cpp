@@ -30,7 +30,6 @@ CPointCloud::CPointCloud()
     _showOctreeStructure = false;
     _useRandomColors = false;
     _colorIsEmissive = false;
-    _saveCalculationStructure = true; // when true, the file size is actually smaller!
     _doNotUseOctreeStructure = false;
     _pointSize = 4;
     _buildResolution = 0.01;
@@ -205,11 +204,18 @@ void CPointCloud::_updatePointCloudEvent() const
 {
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
         const char *cmd = "points";
         CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->openKeyMap(cmd);
         ev->appendKeyDoubleArray("points", _displayPoints.data(), _displayPoints.size());
         ev->appendKeyUCharArray("colors", _displayColorsByte.data(), _displayColorsByte.size());
+#else
+        const char *cmd = propPointCloud_points.name;
+        CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        ev->appendKeyDoubleArray(cmd, _displayPoints.data(), _displayPoints.size());
+        ev->appendKeyUCharArray(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
+#endif
         App::worldContainer->pushEvent();
     }
 }
@@ -604,21 +610,25 @@ std::string CPointCloud::getObjectTypeInfoExtended() const
 {
     return getObjectTypeInfo();
 }
+
 bool CPointCloud::isPotentiallyCollidable() const
 {
-    return (!_doNotUseOctreeStructure);
+    return !_doNotUseOctreeStructure;
 }
+
 bool CPointCloud::isPotentiallyMeasurable() const
 {
-    return (!_doNotUseOctreeStructure);
+    return !_doNotUseOctreeStructure;
 }
+
 bool CPointCloud::isPotentiallyDetectable() const
 {
-    return (!_doNotUseOctreeStructure);
+    return !_doNotUseOctreeStructure;
 }
+
 bool CPointCloud::isPotentiallyRenderable() const
 {
-    return (true);
+    return true;
 }
 
 void CPointCloud::computeBoundingBox()
@@ -661,8 +671,8 @@ void CPointCloud::setIsInScene(bool s)
 
 void CPointCloud::scaleObject(double scalingFactor)
 {
-    _cellSize *= scalingFactor;
-    _buildResolution *= scalingFactor;
+    setCellSize(_cellSize * scalingFactor);
+    setBuildResolution(_buildResolution * scalingFactor);
     _removalDistanceTolerance *= scalingFactor;
     _insertionDistanceTolerance *= scalingFactor;
     for (size_t i = 0; i < _points.size(); i++)
@@ -685,14 +695,21 @@ void CPointCloud::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
-#else
-    color.addGenesisEventData(ev);
-#endif
-    ev->appendKeyInt(propPointCloud_pointSize.name, _pointSize);
     ev->openKeyMap("points");
     ev->appendKeyDoubleArray("points", _displayPoints.data(), _displayPoints.size());
     ev->appendKeyUCharArray("colors", _displayColorsByte.data(), _displayColorsByte.size());
     ev->closeArrayOrMap(); // points
+#else
+    color.addGenesisEventData(ev);
+    ev->appendKeyBool(propPointCloud_noOcTreeStruct.name, _doNotUseOctreeStructure);
+    ev->appendKeyInt(propPointCloud_pointSize.name, _pointSize);
+    ev->appendKeyInt(propPointCloud_maxPtsInCell.name, _maxPointCountPerCell);
+    ev->appendKeyDouble(propPointCloud_cellSize.name, _cellSize);
+    ev->appendKeyDouble(propPointCloud_pointDisplayFraction.name, _pointDisplayRatio);
+    ev->appendKeyDoubleArray(propPointCloud_points.name, _displayPoints.data(), _displayPoints.size());
+    ev->appendKeyUCharArray(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
+#endif
+
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // pointCloud
 #endif
@@ -716,7 +733,6 @@ CSceneObject *CPointCloud::copyYourself()
     newPointcloud->_showOctreeStructure = _showOctreeStructure;
     newPointcloud->_useRandomColors = _useRandomColors;
     newPointcloud->_colorIsEmissive = _colorIsEmissive;
-    newPointcloud->_saveCalculationStructure = _saveCalculationStructure;
     newPointcloud->_pointSize = _pointSize;
     newPointcloud->_nonEmptyCells = _nonEmptyCells;
     newPointcloud->_doNotUseOctreeStructure = _doNotUseOctreeStructure;
@@ -734,6 +750,13 @@ void CPointCloud::setCellSize(double theNewSize)
     if (theNewSize != _cellSize)
     {
         _cellSize = theNewSize;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propPointCloud_cellSize.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDouble(cmd, _cellSize);
+            App::worldContainer->pushEvent();
+        }
         std::vector<double> pts(_points);
         std::vector<unsigned char> cols;
         _getCharRGB3Colors(_colors, cols);
@@ -745,7 +768,7 @@ void CPointCloud::setCellSize(double theNewSize)
 
 double CPointCloud::getCellSize() const
 {
-    return (_cellSize);
+    return _cellSize;
 }
 
 void CPointCloud::setMaxPointCountPerCell(int cnt)
@@ -754,6 +777,13 @@ void CPointCloud::setMaxPointCountPerCell(int cnt)
     if (cnt != _maxPointCountPerCell)
     {
         _maxPointCountPerCell = cnt;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propPointCloud_maxPtsInCell.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _maxPointCountPerCell);
+            App::worldContainer->pushEvent();
+        }
         std::vector<double> pts(_points);
         std::vector<unsigned char> cols;
         _getCharRGB3Colors(_colors, cols);
@@ -765,12 +795,12 @@ void CPointCloud::setMaxPointCountPerCell(int cnt)
 
 int CPointCloud::getMaxPointCountPerCell() const
 {
-    return (_maxPointCountPerCell);
+    return _maxPointCountPerCell;
 }
 
 bool CPointCloud::getShowOctree() const
 {
-    return (_showOctreeStructure);
+    return _showOctreeStructure;
 }
 
 void CPointCloud::setShowOctree(bool show)
@@ -787,7 +817,7 @@ double CPointCloud::getAveragePointCountInCell()
 
 int CPointCloud::getPointSize() const
 {
-    return (_pointSize);
+    return _pointSize;
 }
 
 void CPointCloud::setPointSize(int s)
@@ -809,7 +839,7 @@ void CPointCloud::setPointSize(int s)
 
 double CPointCloud::getBuildResolution() const
 {
-    return (_buildResolution);
+    return _buildResolution;
 }
 
 void CPointCloud::setBuildResolution(double r)
@@ -861,19 +891,9 @@ void CPointCloud::setColorIsEmissive(bool e)
     _colorIsEmissive = e;
 }
 
-bool CPointCloud::getSaveCalculationStructure() const
-{
-    return (_saveCalculationStructure);
-}
-
-void CPointCloud::setSaveCalculationStructure(bool s)
-{
-    _saveCalculationStructure = s;
-}
-
 bool CPointCloud::getDoNotUseCalculationStructure() const
 {
-    return (_doNotUseOctreeStructure);
+    return _doNotUseOctreeStructure;
 }
 
 void CPointCloud::setDoNotUseCalculationStructure(bool s)
@@ -881,6 +901,13 @@ void CPointCloud::setDoNotUseCalculationStructure(bool s)
     if (s != _doNotUseOctreeStructure)
     {
         _doNotUseOctreeStructure = s;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propPointCloud_noOcTreeStruct.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _doNotUseOctreeStructure);
+            App::worldContainer->pushEvent();
+        }
         if (_points.size() > 0)
         {
             std::vector<double> p(_points);
@@ -900,7 +927,7 @@ void CPointCloud::setDoNotUseCalculationStructure(bool s)
 
 double CPointCloud::getPointDisplayRatio() const
 {
-    return (_pointDisplayRatio);
+    return _pointDisplayRatio;
 }
 
 void CPointCloud::setPointDisplayRatio(double r)
@@ -909,6 +936,13 @@ void CPointCloud::setPointDisplayRatio(double r)
     if (r != _pointDisplayRatio)
     {
         _pointDisplayRatio = r;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propPointCloud_pointDisplayFraction.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDouble(cmd, _pointDisplayRatio);
+            App::worldContainer->pushEvent();
+        }
         _readPositionsAndColorsAndSetDimensions();
     }
 }
@@ -1017,7 +1051,7 @@ void CPointCloud::serialize(CSer &ar)
             unsigned char dummy = 0;
             SIM_SET_CLEAR_BIT(dummy, 1, _showOctreeStructure);
             SIM_SET_CLEAR_BIT(dummy, 2, _useRandomColors);
-            SIM_SET_CLEAR_BIT(dummy, 3, _saveCalculationStructure);
+            SIM_SET_CLEAR_BIT(dummy, 3, true);
             SIM_SET_CLEAR_BIT(dummy, 4, _doNotUseOctreeStructure);
             SIM_SET_CLEAR_BIT(dummy, 5, _colorIsEmissive);
             ar << dummy;
@@ -1029,7 +1063,7 @@ void CPointCloud::serialize(CSer &ar)
             if (ar.setWritingMode())
                 color.serialize(ar, 0);
 
-            if ((!_saveCalculationStructure) || _doNotUseOctreeStructure)
+            if (_doNotUseOctreeStructure)
             {
                 ar.storeDataName("_t2");
                 ar << int(_points.size() / 3);
@@ -1228,7 +1262,7 @@ void CPointCloud::serialize(CSer &ar)
                         ar >> dummy;
                         _showOctreeStructure = SIM_IS_BIT_SET(dummy, 1);
                         _useRandomColors = SIM_IS_BIT_SET(dummy, 2);
-                        _saveCalculationStructure = SIM_IS_BIT_SET(dummy, 3);
+                        // _saveCalculationStructure = SIM_IS_BIT_SET(dummy, 3);
                         _doNotUseOctreeStructure = SIM_IS_BIT_SET(dummy, 4);
                         _colorIsEmissive = SIM_IS_BIT_SET(dummy, 5);
                     }
@@ -1297,8 +1331,6 @@ void CPointCloud::serialize(CSer &ar)
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("showStructure", _showOctreeStructure);
             ar.xmlAddNode_bool("randomColors", _useRandomColors);
-            if (exhaustiveXml)
-                ar.xmlAddNode_bool("saveCalculationStructure", _saveCalculationStructure);
             ar.xmlAddNode_bool("emissiveColor", _colorIsEmissive);
             ar.xmlAddNode_bool("useOctreeStructure", !_doNotUseOctreeStructure);
             ar.xmlPopNode();
@@ -1372,8 +1404,6 @@ void CPointCloud::serialize(CSer &ar)
             {
                 ar.xmlGetNode_bool("showStructure", _showOctreeStructure, exhaustiveXml);
                 ar.xmlGetNode_bool("randomColors", _useRandomColors, exhaustiveXml);
-                if (exhaustiveXml)
-                    ar.xmlGetNode_bool("saveCalculationStructure", _saveCalculationStructure);
                 ar.xmlGetNode_bool("emissiveColor", _colorIsEmissive, exhaustiveXml);
                 if (ar.xmlGetNode_bool("useOctreeStructure", _doNotUseOctreeStructure, exhaustiveXml))
                     _doNotUseOctreeStructure = !_doNotUseOctreeStructure;
@@ -1491,6 +1521,84 @@ void CPointCloud::display(CViewableBase *renderingObject, int displayAttrib)
 }
 #endif
 
+int CPointCloud::setBoolProperty(const char* ppName, bool pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propPointCloud_noOcTreeStruct.name)
+        {
+            retVal = 1;
+            setDoNotUseCalculationStructure(pState);
+        }
+    }
+
+    return retVal;
+}
+
+int CPointCloud::getBoolProperty(const char* ppName, bool& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propPointCloud_noOcTreeStruct.name)
+        {
+            retVal = 1;
+            pState = _doNotUseOctreeStructure;
+        }
+    }
+
+    return retVal;
+}
+
+int CPointCloud::setIntProperty(const char* ppName, int pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propPointCloud_pointSize.name)
+        {
+            setPointSize(pState);
+            retVal = 1;
+        }
+        else if (_pName == propPointCloud_maxPtsInCell.name)
+        {
+            setMaxPointCountPerCell(pState);
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CPointCloud::getIntProperty(const char* ppName, int& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propPointCloud_pointSize.name)
+        {
+            pState = _pointSize;
+            retVal = 1;
+        }
+        else if (_pName == propPointCloud_maxPtsInCell.name)
+        {
+            pState = _maxPointCountPerCell;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
 int CPointCloud::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
@@ -1500,9 +1608,14 @@ int CPointCloud::setFloatProperty(const char* ppName, double pState)
         retVal = color.setFloatProperty(pName, pState);
     if (retVal == -1)
     {
-        if (_pName == propPointCloud_pointSize.name)
+        if (_pName == propPointCloud_cellSize.name)
         {
-            setPointSize(pState);
+            setCellSize(pState);
+            retVal = 1;
+        }
+        else if (_pName == propPointCloud_pointDisplayFraction.name)
+        {
+            setPointDisplayRatio(pState);
             retVal = 1;
         }
     }
@@ -1510,7 +1623,7 @@ int CPointCloud::setFloatProperty(const char* ppName, double pState)
     return retVal;
 }
 
-int CPointCloud::getFloatProperty(const char* ppName, double& pState)
+int CPointCloud::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
     const char* pName = _pName.c_str();
@@ -1519,10 +1632,45 @@ int CPointCloud::getFloatProperty(const char* ppName, double& pState)
         retVal = color.getFloatProperty(pName, pState);
     if (retVal == -1)
     {
-        if (_pName == propPointCloud_pointSize.name)
+        if (_pName == propPointCloud_cellSize.name)
         {
-            pState = _pointSize;
+            pState = _cellSize;
             retVal = 1;
+        }
+        else if (_pName == propPointCloud_pointDisplayFraction.name)
+        {
+            pState = _pointDisplayRatio;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+int CPointCloud::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setBufferProperty(pName, buffer, bufferL);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CPointCloud::getBufferProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
+    const char* pName = _pName.c_str();
+    pState.clear();
+    int retVal = CSceneObject::getBufferProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propPointCloud_colors.name)
+        {
+            retVal = 1;
+            pState.assign(_displayColorsByte.begin(), _displayColorsByte.end());
         }
     }
 
@@ -1543,7 +1691,7 @@ int CPointCloud::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CPointCloud::getColorProperty(const char* ppName, float* pState)
+int CPointCloud::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
     const char* pName = _pName.c_str();
@@ -1554,6 +1702,38 @@ int CPointCloud::getColorProperty(const char* ppName, float* pState)
     {
 
     }
+    return retVal;
+}
+
+int CPointCloud::setVectorProperty(const char* ppName, const double* v, int vL)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
+    const char* pName = _pName.c_str();
+    if (v == nullptr)
+        vL = 0;
+    int retVal = CSceneObject::setVectorProperty(pName, v, vL);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CPointCloud::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
+    const char* pName = _pName.c_str();
+    pState.clear();
+    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propPointCloud_points.name)
+        {
+            retVal = 1;
+            pState.assign(_displayPoints.begin(), _displayPoints.end());
+        }
+    }
+
     return retVal;
 }
 
@@ -1621,6 +1801,19 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info)
                 retVal = allProps_pointCloud[i].type;
                 info = allProps_pointCloud[i].flags;
                 break;
+            }
+        }
+        if (retVal != -1)
+        {
+            if (_pName == propPointCloud_points.name)
+            {
+                if (_displayPoints.size() > LARGE_PROPERTY_SIZE)
+                    info = info | 0x100;
+            }
+            if (_pName == propPointCloud_colors.name)
+            {
+                if (_displayColorsByte.size() * 3 > LARGE_PROPERTY_SIZE)
+                    info = info | 0x100;
             }
         }
     }

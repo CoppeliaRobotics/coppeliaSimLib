@@ -1780,19 +1780,34 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setAttenuationFactor(CONSTANT_ATTENUATION, cmd.doubleParams[0]);
+        {
+            double arr[3];
+            it->getAttenuationFactors(arr);
+            arr[0] = cmd.doubleParams[0];
+            it->setAttenuationFactors(arr);
+        }
     }
     if (cmd.cmdId == SET_LINATTENUATION_LIGHTGUITRIGGEREDCMD)
     {
         CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setAttenuationFactor(LINEAR_ATTENUATION, cmd.doubleParams[0]);
+        {
+            double arr[3];
+            it->getAttenuationFactors(arr);
+            arr[1] = cmd.doubleParams[0];
+            it->setAttenuationFactors(arr);
+        }
     }
     if (cmd.cmdId == SET_QUADATTENUATION_LIGHTGUITRIGGEREDCMD)
     {
         CLight *it = App::currentWorld->sceneObjects->getLightFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setAttenuationFactor(QUADRATIC_ATTENUATION, cmd.doubleParams[0]);
+        {
+            double arr[3];
+            it->getAttenuationFactors(arr);
+            arr[2] = cmd.doubleParams[0];
+            it->setAttenuationFactors(arr);
+        }
     }
 
     if (cmd.cmdId == SET_SIZE_SCRIPTGUITRIGGEREDCMD)

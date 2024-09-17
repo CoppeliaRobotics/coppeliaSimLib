@@ -21,8 +21,8 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propObjCont_objectHandles,                "objectHandles",                    sim_propertytype_intvector, 1) \
-    FUNCX(propObjCont_orphanHandles,                "orphanHandles",                    sim_propertytype_intvector, 1) \
+    FUNCX(propObjCont_objectHandles,                "objectHandles",                    sim_propertytype_intvector, sim_propertyinfo_notwritable) \
+    FUNCX(propObjCont_orphanHandles,                "orphanHandles",                    sim_propertytype_intvector, sim_propertyinfo_notwritable) \
     FUNCX(propObjCont_selectionHandles,             "selectionHandles",                 sim_propertytype_intvector, 0) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};

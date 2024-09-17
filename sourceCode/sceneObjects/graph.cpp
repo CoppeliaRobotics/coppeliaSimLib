@@ -3568,7 +3568,7 @@ int CGraph::setFloatProperty(const char* ppName, double pState)
     return retVal;
 }
 
-int CGraph::getFloatProperty(const char* ppName, double& pState)
+int CGraph::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
     const char* pName = _pName.c_str();
@@ -3601,7 +3601,7 @@ int CGraph::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CGraph::getColorProperty(const char* ppName, float* pState)
+int CGraph::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
     const char* pName = _pName.c_str();

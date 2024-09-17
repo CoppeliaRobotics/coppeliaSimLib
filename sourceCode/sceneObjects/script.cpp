@@ -430,7 +430,7 @@ int CScript::setFloatProperty(const char* ppName, double pState)
     return retVal;
 }
 
-int CScript::getFloatProperty(const char* ppName, double& pState)
+int CScript::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
     const char* pName = _pName.c_str();
@@ -463,7 +463,7 @@ int CScript::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CScript::getColorProperty(const char* ppName, float* pState)
+int CScript::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
     const char* pName = _pName.c_str();

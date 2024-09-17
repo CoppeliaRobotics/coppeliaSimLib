@@ -1965,9 +1965,14 @@ int App::getPropertyInfo(int target, const char* pName, int& info, bool staticPa
             if (pN.size() > 0)
             {
                 CPersistentDataContainer cont("appStorage.dat");
-                retVal = cont.hasData(pN.c_str(), true);
+                int s;
+                retVal = cont.hasData(pN.c_str(), true, &s);
                 if (retVal >= 0)
+                {
                     info = inf;
+                    if (s > LARGE_PROPERTY_SIZE)
+                        info = info | 0x100;
+                }
             }
         }
     }

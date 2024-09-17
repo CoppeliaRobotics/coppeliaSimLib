@@ -2412,11 +2412,13 @@ void CCamera::_extRenderer_prepareLights()
             int spotExponent = light->getSpotExponent();
             data[2] = &spotExponent;
             data[3] = light->getColor(true)->getColorsPtr();
-            float constAttenuation = (float)light->getAttenuationFactor(CONSTANT_ATTENUATION);
+            double arr[3];
+            light->getAttenuationFactors(arr);
+            float constAttenuation = (float)arr[0];
             data[4] = &constAttenuation;
-            float linAttenuation = (float)light->getAttenuationFactor(LINEAR_ATTENUATION);
+            float linAttenuation = (float)arr[1];
             data[5] = &linAttenuation;
-            float quadAttenuation = (float)light->getAttenuationFactor(QUADRATIC_ATTENUATION);
+            float quadAttenuation = (float)arr[2];
             data[6] = &quadAttenuation;
             C7Vector tr(light->getFullCumulativeTransformation());
             float x[3] = {(float)tr.X(0), (float)tr.X(1), (float)tr.X(2)};
@@ -3313,7 +3315,7 @@ int CCamera::setBoolProperty(const char* ppName, bool pState)
     return retVal;
 }
 
-int CCamera::getBoolProperty(const char* ppName, bool& pState)
+int CCamera::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
     const char* pName = _pName.c_str();
@@ -3357,7 +3359,7 @@ int CCamera::setIntProperty(const char* ppName, int pState)
     return retVal;
 }
 
-int CCamera::getIntProperty(const char* ppName, int& pState)
+int CCamera::getIntProperty(const char* ppName, int& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
     const char* pName = _pName.c_str();
@@ -3393,7 +3395,7 @@ int CCamera::setFloatProperty(const char* ppName, double pState)
     return retVal;
 }
 
-int CCamera::getFloatProperty(const char* ppName, double& pState)
+int CCamera::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
     const char* pName = _pName.c_str();
@@ -3426,7 +3428,7 @@ int CCamera::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CCamera::getColorProperty(const char* ppName, float* pState)
+int CCamera::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
     const char* pName = _pName.c_str();

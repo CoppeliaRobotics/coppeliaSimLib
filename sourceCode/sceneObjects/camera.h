@@ -66,13 +66,13 @@ class CCamera : public CViewableBase
     void setIsInScene(bool s);
 
     int setBoolProperty(const char* pName, bool pState);
-    int getBoolProperty(const char* pName, bool& pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
     int setIntProperty(const char* pName, int pState);
-    int getIntProperty(const char* pName, int& pState);
+    int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState);
+    int getFloatProperty(const char* pName, double& pState) const;
     int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState);
+    int getColorProperty(const char* pName, float* pState) const;
     int setVector3Property(const char* pName, const C3Vector& pState);
     int getVector3Property(const char* pName, C3Vector& pState) const;
     int setVectorProperty(const char* pName, const double* v, int vL);

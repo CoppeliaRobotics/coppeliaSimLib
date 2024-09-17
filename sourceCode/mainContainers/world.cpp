@@ -3132,8 +3132,8 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, CWorld* t
                     if (retVal >= 0)
                     {
                         info = 4; // removable
-                        if (s > 1000)
-                            info = info | 32;
+                        if (s > LARGE_PROPERTY_SIZE)
+                            info = info | 0x100;
                     }
                 }
             }

@@ -15,12 +15,12 @@
     FUNCX(propSim_realtimeSimulation,                         "realtimeSimulation",                         sim_propertytype_bool,      0) \
     FUNCX(propSim_pauseSimulationAtTime,                      "pauseSimulationAtTime",                      sim_propertytype_bool,      0) \
     FUNCX(propSim_pauseSimulationAtError,                     "pauseSimulationAtError",                     sim_propertytype_bool,      0) \
-    FUNCX(propSim_simulationTime,                           "simulationTime",                               sim_propertytype_float,      1) \
+    FUNCX(propSim_simulationTime,                           "simulationTime",                               sim_propertytype_float,      sim_propertyinfo_notwritable) \
     FUNCX(propSim_timeStep,                                 "timeStep",                                     sim_propertytype_float,      0) \
     FUNCX(propSim_timeToPause,                              "timeToPause",                                  sim_propertytype_float,      0) \
     FUNCX(propSim_realtimeModifier,                         "realtimeModifier",                             sim_propertytype_float,      0) \
-    FUNCX(propSim_stepCount,                                "stepCount",                                    sim_propertytype_int,    1) \
-    FUNCX(propSim_simulationState,                          "simulationState",                              sim_propertytype_int,    1) \
+    FUNCX(propSim_stepCount,                                "stepCount",                                    sim_propertytype_int,    sim_propertyinfo_notwritable) \
+    FUNCX(propSim_simulationState,                          "simulationState",                              sim_propertytype_int,    sim_propertyinfo_notwritable) \
     FUNCX(propSim_stepsPerRendering,                        "stepsPerRendering",                            sim_propertytype_int,    0) \
     FUNCX(propSim_speedModifier,                            "speedModifier",                                sim_propertytype_int,    0) \
 

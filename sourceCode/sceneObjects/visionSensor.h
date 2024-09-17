@@ -23,8 +23,8 @@ struct SHandlingResult
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propVisionSensor_size,                    "size",                                     sim_propertytype_float,     0) \
-    FUNCX(propVisionSensor_backgroundCol,           "backgroundColor",                          sim_propertytype_color,     0) \
+    FUNCX(propVisionSensor_size,                    "size",                                     sim_propertytype_float,   0) \
+    FUNCX(propVisionSensor_backgroundCol,           "backgroundColor",                          sim_propertytype_color,   0) \
     FUNCX(propVisionSensor_renderMode,              "renderMode",                               sim_propertytype_int,     0) \
     FUNCX(propVisionSensor_backgroundSameAsEnv,     "backgroundColorFromEnvironment",           sim_propertytype_bool,    0) \
     FUNCX(propVisionSensor_explicitHandling,        "explicitHandling",                         sim_propertytype_bool,    0) \
@@ -35,7 +35,7 @@ struct SHandlingResult
     FUNCX(propVisionSensor_emitImageChangedEvent,   "emitImageChangedEvent",                    sim_propertytype_bool,    0) \
     FUNCX(propVisionSensor_emitDepthChangedEvent,   "emitDepthChangedEvent",                    sim_propertytype_bool,    0) \
     FUNCX(propVisionSensor_imageBuffer,             "imageBuffer",                              sim_propertytype_buffer,  0) \
-    FUNCX(propVisionSensor_depthBuffer,             "depthBuffer",                              sim_propertytype_vector,  1) \
+    FUNCX(propVisionSensor_depthBuffer,             "depthBuffer",                              sim_propertytype_vector,  sim_propertyinfo_notwritable) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -82,15 +82,15 @@ class CVisionSensor : public CViewableBase
     bool isPotentiallyRenderable() const;
     void setIsInScene(bool s);
     int setBoolProperty(const char* pName, bool pState);
-    int getBoolProperty(const char* pName, bool& pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
     int setIntProperty(const char* pName, int pState);
-    int getIntProperty(const char* pName, int& pState);
+    int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState);
+    int getFloatProperty(const char* pName, double& pState) const;
     int setBufferProperty(const char* pName, const char* buffer, int bufferL);
     int getBufferProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState);
+    int getColorProperty(const char* pName, float* pState) const;
     int setVector3Property(const char* pName, const C3Vector& pState);
     int getVector3Property(const char* pName, C3Vector& pState) const;
     int setVectorProperty(const char* pName, const double* v, int vL);

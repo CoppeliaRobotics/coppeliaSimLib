@@ -421,12 +421,11 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase *viewable)
                     }
                     else
                         glLightfv(GL_LIGHT0 + activeLightCounter, GL_SPECULAR, black);
-                    glLightf(GL_LIGHT0 + activeLightCounter, GL_CONSTANT_ATTENUATION,
-                             (float)light->getAttenuationFactor(CONSTANT_ATTENUATION));
-                    glLightf(GL_LIGHT0 + activeLightCounter, GL_LINEAR_ATTENUATION,
-                             (float)light->getAttenuationFactor(LINEAR_ATTENUATION));
-                    glLightf(GL_LIGHT0 + activeLightCounter, GL_QUADRATIC_ATTENUATION,
-                             (float)light->getAttenuationFactor(QUADRATIC_ATTENUATION));
+                    double arr[3];
+                    light->getAttenuationFactors(arr);
+                    glLightf(GL_LIGHT0 + activeLightCounter, GL_CONSTANT_ATTENUATION, (float)arr[0]);
+                    glLightf(GL_LIGHT0 + activeLightCounter, GL_LINEAR_ATTENUATION, (float)arr[1]);
+                    glLightf(GL_LIGHT0 + activeLightCounter, GL_QUADRATIC_ATTENUATION, (float)arr[2]);
                     glEnable(GL_LIGHT0 + activeLightCounter);
                     activeLightCounter++;
                 }

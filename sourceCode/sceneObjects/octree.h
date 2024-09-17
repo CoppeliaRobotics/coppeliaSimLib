@@ -59,9 +59,9 @@ class COcTree : public CSceneObject
     void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
     void setIsInScene(bool s);
     int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState);
+    int getFloatProperty(const char* pName, double& pState) const;
     int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState);
+    int getColorProperty(const char* pName, float* pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info);
@@ -102,8 +102,6 @@ class COcTree : public CSceneObject
     void setColorIsEmissive(bool e);
     bool getUsePointsInsteadOfCubes() const;
     void setUsePointsInsteadOfCubes(bool r);
-    bool getSaveCalculationStructure() const;
-    void setSaveCalculationStructure(bool s);
     int getPointSize() const;
     void setPointSize(int s);
     const std::vector<double> *getCubePositions() const;
@@ -134,7 +132,6 @@ class COcTree : public CSceneObject
     bool _showOctreeStructure;
     bool _useRandomColors;
     bool _usePointsInsteadOfCubes;
-    bool _saveCalculationStructure;
     bool _colorIsEmissive;
 
     // following only for display:

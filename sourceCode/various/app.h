@@ -177,6 +177,7 @@ class App
     static int getPlatform();
 
 
+
     static CFolderSystem *folders;
     static CUserSettings *userSettings;
     static CSimThread *simThread;

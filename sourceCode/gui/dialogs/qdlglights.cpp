@@ -65,12 +65,11 @@ void CQDlgLights::refresh()
         }
         if (lt != sim_light_directional)
         {
-            ui->qqConstantFactor->setText(
-                utils::getDoubleString(false, it->getAttenuationFactor(CONSTANT_ATTENUATION), 2, 4).c_str());
-            ui->qqLinearFactor->setText(
-                utils::getDoubleString(false, it->getAttenuationFactor(LINEAR_ATTENUATION), 2, 4).c_str());
-            ui->qqQuadraticFactor->setText(
-                utils::getDoubleString(false, it->getAttenuationFactor(QUADRATIC_ATTENUATION), 2, 4).c_str());
+            double arr[3];
+            it->getAttenuationFactors(arr);
+            ui->qqConstantFactor->setText(utils::getDoubleString(false, arr[0], 2, 4).c_str());
+            ui->qqLinearFactor->setText(utils::getDoubleString(false, arr[1], 2, 4).c_str());
+            ui->qqQuadraticFactor->setText(utils::getDoubleString(false, arr[2], 2, 4).c_str());
         }
         else
         {

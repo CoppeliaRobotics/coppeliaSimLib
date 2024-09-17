@@ -10303,17 +10303,23 @@ int simGetObjectFloatParam_internal(int objectHandle, int parameterID, double *p
             }
             if (parameterID == sim_lightfloatparam_const_attenuation)
             {
-                parameter[0] = light->getAttenuationFactor(CONSTANT_ATTENUATION);
+                double arr[3];
+                light->getAttenuationFactors(arr);
+                parameter[0] = arr[0];
                 retVal = 1;
             }
             if (parameterID == sim_lightfloatparam_lin_attenuation)
             {
-                parameter[0] = light->getAttenuationFactor(LINEAR_ATTENUATION);
+                double arr[3];
+                light->getAttenuationFactors(arr);
+                parameter[0] = arr[1];
                 retVal = 1;
             }
             if (parameterID == sim_lightfloatparam_quad_attenuation)
             {
-                parameter[0] = light->getAttenuationFactor(QUADRATIC_ATTENUATION);
+                double arr[3];
+                light->getAttenuationFactors(arr);
+                parameter[0] = arr[2];
                 retVal = 1;
             }
         }
@@ -10794,17 +10800,26 @@ int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double pa
             }
             if (parameterID == sim_lightfloatparam_const_attenuation)
             {
-                light->setAttenuationFactor(CONSTANT_ATTENUATION, parameter);
+                double arr[3];
+                light->getAttenuationFactors(arr);
+                arr[0] = parameter;
+                light->setAttenuationFactors(arr);
                 retVal = 1;
             }
             if (parameterID == sim_lightfloatparam_lin_attenuation)
             {
-                light->setAttenuationFactor(LINEAR_ATTENUATION, parameter);
+                double arr[3];
+                light->getAttenuationFactors(arr);
+                arr[1] = parameter;
+                light->setAttenuationFactors(arr);
                 retVal = 1;
             }
             if (parameterID == sim_lightfloatparam_quad_attenuation)
             {
-                light->setAttenuationFactor(QUADRATIC_ATTENUATION, parameter);
+                double arr[3];
+                light->getAttenuationFactors(arr);
+                arr[2] = parameter;
+                light->setAttenuationFactors(arr);
                 retVal = 1;
             }
         }
