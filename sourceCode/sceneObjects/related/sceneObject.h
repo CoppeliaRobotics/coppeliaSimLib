@@ -329,7 +329,7 @@ class CSceneObject
     void setSizeValues(const double s[3]);
     void getSizeValues(double s[3]) const;
 
-    void setScriptExecPriority(int p);
+    void setScriptExecPriority_raw(int p);
     int getScriptExecPriority() const;
 
     void setDynamicsResetFlag(bool reset, bool fullHierarchyTree);

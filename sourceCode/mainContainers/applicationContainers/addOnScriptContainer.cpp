@@ -6,6 +6,7 @@
 #include <simStrings.h>
 #include <app.h>
 #include <vDateTime.h>
+#include <boost/algorithm/string.hpp>
 #ifdef SIM_WITH_GUI
 #include <guiApp.h>
 #endif
@@ -23,6 +24,7 @@ void CAddOnScriptContainer::loadAllAddOns()
   // is distributed)
     _insertAddOns(ADDON_EXTENTION_LUA);
     _insertAddOns(ADDON_EXTENTION_PY);
+    _insertAdditionalAddOns();
     _prepareAddOnFunctionNames_old();
 }
 
@@ -110,12 +112,11 @@ int CAddOnScriptContainer::_insertAddOn(CScriptObject *script)
     return (script->getScriptHandle());
 }
 
-int CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
+void CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
 {
     std::string lang = "lua";
     if (std::string(addOnExt) == "py")
         lang = "python";
-    int addOnsCount = 0;
     VFileFinder finder;
     finder.searchFiles(App::folders->getAddOnPath().c_str(), addOnExt, nullptr);
     int cnt = 0;
@@ -147,18 +148,17 @@ int CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
             defScript->setLang(lang.c_str());
             if (defScript->setScriptTextFromFile(fp.c_str()))
             {
-                defScript->setAddOnFilePath(fp.c_str());
+                defScript->setAddOnPath(fp.c_str());
                 _insertAddOn(defScript);
                 std::string nm(foundItem->name);
                 nm.erase(nm.begin(), nm.begin() + at.size());
                 nm.erase(nm.end() - strlen(addOnExt) - 1, nm.end());
-                defScript->setAddOnName(nm.c_str());
+                defScript->setDisplayAddOnName(nm.c_str());
                 if ((at.compare(ADDON_SCRIPT_PREFIX1_NOAUTOSTART) == 0) ||
                     (at.compare(ADDON_SCRIPT_PREFIX2_NOAUTOSTART) == 0))
                     defScript->setScriptState(CScriptObject::scriptState_ended);
                 App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "add-on '%s' was loaded.",
                             foundItem->name.c_str());
-                addOnsCount++;
             }
             else
                 App::logMsg(sim_verbosity_errors, "failed loading add-on '%s'.", foundItem->name.c_str());
@@ -166,8 +166,10 @@ int CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
         cnt++;
         foundItem = finder.getFoundItem(cnt);
     }
+}
 
-    // Now the additional add-ons (this is enabled via command line options -a and -b:
+void CAddOnScriptContainer::_insertAdditionalAddOns()
+{ // The additional add-ons (this is enabled via command line options -a and -b:
     std::vector<std::string> additionalScripts;
     if (App::getAdditionalAddOnScript1().length() > 0)
     {
@@ -181,7 +183,10 @@ int CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
     }
     for (size_t addScr = 0; addScr < additionalScripts.size(); addScr++)
     {
+        std::string lang("lua");
         std::string fp(additionalScripts[addScr]);
+        if (boost::algorithm::ends_with(fp, ".py"))
+            lang = "python";
         if (!VVarious::isAbsolutePath(fp.c_str()))
         {
             fp = App::folders->getAddOnPath() + "/";
@@ -202,21 +207,19 @@ int CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
                 script[archiveLength] = 0;
                 CScriptObject *defScript = new CScriptObject(sim_scripttype_addon);
                 defScript->setLang(lang.c_str());
-                defScript->setAddOnFilePath(fp.c_str());
+                defScript->setAddOnPath(fp.c_str());
                 _insertAddOn(defScript);
                 std::string sc(script);
                 defScript->setScriptText(sc.c_str());
 
-                defScript->setAddOnName(fileName_noExtension.c_str());
+                defScript->setDisplayAddOnName(fileName_noExtension.c_str());
                 defScript->setThreadedExecution_oldThreads(false);
 
                 delete[] script;
                 archive.close();
                 file.close();
 
-                addOnsCount++;
-                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "add-on '%s' was loaded.",
-                            fileName_withExtension.c_str());
+                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "add-on '%s' was loaded.", fileName_withExtension.c_str());
             }
             catch (VFILE_EXCEPTION_TYPE e)
             {
@@ -226,8 +229,6 @@ int CAddOnScriptContainer::_insertAddOns(const char *addOnExt)
         else
             App::logMsg(sim_verbosity_errors, "failed loading add-on '%s'.", fileName_withExtension.c_str());
     }
-
-    return (addOnsCount);
 }
 
 int CAddOnScriptContainer::_prepareAddOnFunctionNames_old()
@@ -340,6 +341,17 @@ void CAddOnScriptContainer::removeAllAddOns()
     }
 }
 
+void CAddOnScriptContainer::pushGenesisEvents() const
+{
+    for (size_t i = 0; i < _addOns.size(); i++)
+    {
+        CScriptObject *it = _addOns[i];
+        CCbor *ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTADDED, it->getScriptHandle(), it->getScriptHandle(), false);
+        it->addSpecializedObjectEventData(ev);
+        App::worldContainer->pushEvent();
+    }
+}
+
 #ifdef SIM_WITH_GUI
 bool CAddOnScriptContainer::processCommand(int commandID)
 { // Return value is true if the command belonged to hierarchy menu and was executed
@@ -420,7 +432,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                             defScript->setLang("lua");
                             int scriptID = _insertAddOn(defScript);
                             defScript->setScriptText(script);
-                            defScript->setAddOnName(_allAddOnFunctionNames_old[index].c_str());
+                            defScript->setDisplayAddOnName(_allAddOnFunctionNames_old[index].c_str());
                             defScript->setThreadedExecution_oldThreads(false);
                             defScript->systemCallScript(sim_syscb_init, nullptr, nullptr);
                             delete[] script;

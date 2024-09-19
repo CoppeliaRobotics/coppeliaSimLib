@@ -281,7 +281,7 @@ class CSceneObjectContainer
     void resetScriptFlagCalledInThisSimulationStep();
     int getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts);
 
-    CEmbeddedScriptContainer *embeddedScriptContainer;
+    CEmbeddedScriptContainer *embeddedScriptContainer; // contains the main script, and old associated scripts (simulation and customization)
 
   protected:
     void _setOrphanObjects(const std::vector<CSceneObject *>& newOrphanObjects);

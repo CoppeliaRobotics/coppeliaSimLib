@@ -7,7 +7,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propScript_size,                    "size",                                     sim_propertytype_float,     0) \
+    FUNCX(propScript_size,                      "size",                                     sim_propertytype_float,     0) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -56,8 +56,14 @@ class CScript : public CSceneObject
     void performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel);
     void setObjectHandle(int newObjectHandle);
     bool canDestroyNow();
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
+    int setStringProperty(const char* pName, const char* pState);
+    int getStringProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);

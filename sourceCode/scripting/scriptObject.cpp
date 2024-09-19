@@ -35,12 +35,12 @@ CScriptObject::CScriptObject(int scriptType)
     _tempSuspended = false;
     _sceneObjectScript = false;
     _parentIsProxy = false;
-    _objectHandleAttachedTo = -1;
+    _sceneObjectHandle = -1;
     _scriptText = "";
     _scriptTextExec = "";
     _numberOfPasses = 0;
     _addOnUiMenuHandle = -1;
-    _scriptExecPriority = sim_scriptexecorder_normal;
+    _addOnExecPriority = sim_scriptexecorder_normal;
     for (size_t i = 0; i < 3; i++)
     {
         _sysFuncAndHookCnt_event[i] = 0;
@@ -192,7 +192,7 @@ std::string CScriptObject::getFilenameForExternalScriptEditor()
             _filenameForExternalScriptEditor = "mainScript-";
         else
         {
-            CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+            CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
             if (obj != nullptr)
             {
                 _filenameForExternalScriptEditor = obj->getObjectAlias();
@@ -233,12 +233,13 @@ void CScriptObject::fromFileToBuffer()
         {
             VArchive arW(&myFile, VArchive::LOAD);
             unsigned int archiveLength = (unsigned int)myFile.getLength();
-
-            _scriptText.resize(archiveLength, ' ');
+            std::string t;
+            t.resize(archiveLength, ' ');
             for (unsigned int i = 0; i < archiveLength; i++)
-                arW >> _scriptText[i];
+                arW >> t[i];
             arW.close();
             myFile.close();
+            setScriptText(t.c_str(), false);
         }
     }
 }
@@ -1084,10 +1085,10 @@ std::string CScriptObject::getScriptName() const
     if (_scriptType == sim_scripttype_sandbox)
         return ("sandboxScript");
     if (_scriptType == sim_scripttype_addon)
-        return (_addOnName);
+        return (_displayAddOnName);
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_passive))
     {
-        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+        CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (obj != nullptr)
             return (obj->getObjectAlias());
         return ("error");
@@ -1101,50 +1102,93 @@ int CScriptObject::getAddOnUiMenuHandle() const
     return (_addOnUiMenuHandle);
 }
 
-void CScriptObject::setAddOnFilePath(const char *p)
+void CScriptObject::setAddOnPath(const char *p)
 {
-    _addOnFilePath = p;
+    _addOnPath = p;
 }
 
-std::string CScriptObject::getAddOnFilePath() const
+std::string CScriptObject::getAddOnPath() const
 {
-    return (_addOnFilePath);
+    return _addOnPath;
 }
 
 int CScriptObject::getScriptState() const
 {
-    return (_scriptState);
+    return _scriptState;
+}
+
+void CScriptObject::addSpecializedObjectEventData(CCbor *ev)
+{
+    ev->appendKeyBool(propScriptObj_scriptDisabled.name, _scriptIsDisabled);
+    ev->appendKeyBool(propScriptObj_restartOnError.name, _autoRestartOnError);
+    ev->appendKeyInt(propScriptObj_execPriority.name, getScriptExecPriority());
+    ev->appendKeyInt(propScriptObj_scriptType.name, _scriptType);
+    ev->appendKeyInt(propScriptObj_scriptState.name, _scriptState);
+    ev->appendKeyString(propScriptObj_language.name, _lang.c_str());
+    ev->appendKeyString(propScriptObj_code.name, _scriptText.c_str());
+    ev->appendKeyString(propScriptObj_scriptName.name, getScriptName().c_str());
+    ev->appendKeyString(propScriptObj_addOnPath.name, _addOnPath.c_str());
 }
 
 void CScriptObject::setScriptState(int state)
 {
-    _scriptState = state;
+    bool diff = (_scriptState != state);
+    if (diff)
+    {
+        _scriptState = state;
+        if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propScriptObj_scriptState.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(_scriptHandle, cmd, true);
+            ev->appendKeyInt(cmd, _scriptState);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 void CScriptObject::setScriptExecPriority(int priority)
 {
-    if (_objectHandleAttachedTo != -1)
-    {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+    bool diff = false;
+    if (_sceneObjectHandle != -1)
+    { // i.e. all new script objects, and all old associated scripts
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
-            it->setScriptExecPriority(priority);
+        {
+            int p = it->getScriptExecPriority();
+            diff = (p != priority);
+            if (diff)
+                it->setScriptExecPriority_raw(priority);
+        }
     }
     if (_scriptType == sim_scripttype_addon)
-        _scriptExecPriority = priority;
+    {
+        diff = (_addOnExecPriority != priority);
+        _addOnExecPriority = priority;
+    }
+    if (diff)
+    {
+        if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propScriptObj_execPriority.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(_scriptHandle, cmd, true);
+            ev->appendKeyInt(cmd, priority);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 int CScriptObject::getScriptExecPriority() const
 {
     int retVal = sim_scriptexecorder_normal;
-    if (_objectHandleAttachedTo != -1)
-    {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+    if (_sceneObjectHandle != -1)
+    { // i.e. all new script objects, and all old associated scripts
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             retVal = it->getScriptExecPriority();
     }
     if (_scriptType == sim_scripttype_addon)
-        retVal = _scriptExecPriority;
-    return (retVal);
+        retVal = _addOnExecPriority;
+    return retVal;
 }
 
 void CScriptObject::initializeInitialValues(bool simulationAlreadyRunning)
@@ -1162,7 +1206,7 @@ void CScriptObject::simulationAboutToStart()
     if (isSimulationOrMainScript())
     {
         resetScript(); // should already be reset! (should have been done in simulationEnded routine)
-        _numberOfPasses = 0;
+        setNumberOfPasses(0);
         _automaticCascadingCallsDisabled_old = false;
         initializeInitialValues(false);
         _warningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014 = false;
@@ -1196,12 +1240,23 @@ void CScriptObject::simulationAboutToEnd()
 
 void CScriptObject::setScriptIsDisabled(bool isDisabled)
 {
-    _scriptIsDisabled = isDisabled;
+    bool diff = (_scriptIsDisabled != isDisabled);
+    if (diff)
+    {
+        _scriptIsDisabled = isDisabled;
+        if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propScriptObj_scriptDisabled.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(_scriptHandle, cmd, true);
+            ev->appendKeyBool(cmd, _scriptIsDisabled);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 bool CScriptObject::getScriptIsDisabled() const
 {
-    return (_scriptIsDisabled);
+    return _scriptIsDisabled;
 }
 
 bool CScriptObject::getScriptHasError() const
@@ -1216,12 +1271,38 @@ void CScriptObject::setParentIsProxy(bool isProxy)
 
 bool CScriptObject::getParentIsProxy() const
 {
-    return (_parentIsProxy);
+    return _parentIsProxy;
+}
+
+bool CScriptObject::isNotInCopyBuffer() const
+{ // corresponds to the getIsInScene function with scene objects
+    bool retVal = ( (_scriptType == sim_scripttype_sandbox) || (_scriptType == sim_scripttype_addon) );
+    if (!retVal)
+    {
+        if (App::currentWorld->sceneObjects != nullptr)
+        {
+            CSceneObject* it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+            if (it != nullptr)
+                retVal = it->getIsInScene();
+        }
+    }
+    return retVal;
 }
 
 void CScriptObject::setAutoRestartOnError(bool restart)
 {
-    _autoRestartOnError = restart;
+    bool diff = (_autoRestartOnError != restart);
+    if (diff)
+    {
+        _autoRestartOnError = restart;
+        if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propScriptObj_restartOnError.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(_scriptHandle, cmd, true);
+            ev->appendKeyBool(cmd, _autoRestartOnError);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 bool CScriptObject::getScriptDisabledAndNoErrorRaised() const
@@ -1252,7 +1333,7 @@ bool CScriptObject::getFlaggedForDestruction() const
 
 bool CScriptObject::setScriptTextFromFile(const char *filename)
 {
-    _scriptText = "";
+    std::string t;
     bool retVal = false;
     if (VFile::doesFileExist(filename))
     {
@@ -1261,12 +1342,9 @@ bool CScriptObject::setScriptTextFromFile(const char *filename)
             VFile file(filename, VFile::READ | VFile::SHARE_DENY_NONE);
             VArchive archive(&file, VArchive::LOAD);
             unsigned int archiveLength = (unsigned int)file.getLength();
-            char *script = new char[archiveLength + 1];
+            t.resize(archiveLength, ' ');
             for (int i = 0; i < int(archiveLength); i++)
-                archive >> script[i];
-            script[archiveLength] = 0;
-            setScriptText(script);
-            delete[] script;
+                archive >> t[i];
             archive.close();
             file.close();
             retVal = true;
@@ -1275,15 +1353,32 @@ bool CScriptObject::setScriptTextFromFile(const char *filename)
         {
         }
     }
+    setScriptText(t.c_str());
     return (retVal);
 }
 
-void CScriptObject::setScriptText(const char *scriptTxt)
+void CScriptObject::setScriptText(const char *scriptTxt, bool toFileIfApplicable /*= true*/)
 {
-    _scriptText = "";
-    if (scriptTxt != nullptr)
-        _scriptText = scriptTxt;
-    fromBufferToFile();
+    bool diff = false;
+    if (scriptTxt == nullptr)
+        diff = (_scriptText != "");
+    else
+        diff = (_scriptText != scriptTxt);
+    if (diff)
+    {
+        _scriptText = "";
+        if (scriptTxt != nullptr)
+            _scriptText = scriptTxt;
+        if (isNotInCopyBuffer() && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propScriptObj_code.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(_scriptHandle, cmd, true);
+            ev->appendKeyString(cmd, scriptTxt);
+            App::worldContainer->pushEvent();
+        }
+        if (toFileIfApplicable)
+            fromBufferToFile();
+    }
 }
 
 const char *CScriptObject::getScriptText()
@@ -1331,7 +1426,7 @@ std::string CScriptObject::getDescriptiveName() const
             retVal += "Customization script";
         else
             retVal += "Passive script";
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it == nullptr)
             retVal += " (unassociated)";
         else
@@ -1344,13 +1439,13 @@ std::string CScriptObject::getDescriptiveName() const
     if (_scriptType == sim_scripttype_addon)
     {
         retVal += "Add-on script \"";
-        retVal += _addOnPathAndName;
+        retVal += _displayAddOnPath;
         retVal += "\"";
     }
     if (_scriptType == sim_scripttype_addonfunction)
     {
         retVal += "Add-on function \"";
-        retVal += _addOnPathAndName;
+        retVal += _displayAddOnPath;
         retVal += "\"";
     }
     if (_scriptType == sim_scripttype_sandbox)
@@ -1365,7 +1460,7 @@ std::string CScriptObject::getShortDescriptiveName() const
         retVal += "mainScript";
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it == nullptr)
             retVal += "???";
         else
@@ -1382,12 +1477,12 @@ std::string CScriptObject::getShortDescriptiveName() const
     }
     if (_scriptType == sim_scripttype_addon)
     {
-        retVal += _addOnPathAndName;
+        retVal += _displayAddOnPath;
         retVal += "@addOnScript";
     }
     if (_scriptType == sim_scripttype_addonfunction)
     {
-        retVal += _addOnPathAndName;
+        retVal += _displayAddOnPath;
         retVal += "@addOnFunction";
     }
     if (_scriptType == sim_scripttype_sandbox)
@@ -1395,27 +1490,27 @@ std::string CScriptObject::getShortDescriptiveName() const
     return (retVal);
 }
 
-void CScriptObject::setAddOnName(const char *name)
+void CScriptObject::setDisplayAddOnName(const char *name)
 {
-    _addOnName = name; // e.g. "Animation capture"
-    _addOnPathAndName = _addOnName; // e.g. "Tools >> Blabla" (if sysCall_info returns menu = 'Tools\nBlabla')
+    _displayAddOnName = name; // e.g. "Animation capture"
+    _displayAddOnPath = _displayAddOnName; // e.g. "Tools >> Blabla" (if sysCall_info returns menu = 'Tools\nBlabla')
 }
 
 void CScriptObject::performSceneObjectLoadingMapping(const std::map<int, int> *map)
 {
     if (App::currentWorld->sceneObjects != nullptr)
-        _objectHandleAttachedTo = CWorld::getLoadingMapping(map, _objectHandleAttachedTo);
+        _sceneObjectHandle = CWorld::getLoadingMapping(map, _sceneObjectHandle);
 }
 
 bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject *object, bool copyBuffer)
 { // script will be erased if attached to object (if threaded simulation is not running!)
     bool retVal = false;
     if (copyBuffer)
-        retVal = (_objectHandleAttachedTo == object->getObjectHandle());
+        retVal = (_sceneObjectHandle == object->getObjectHandle());
     else
     {
         bool closeCodeEditor = false;
-        if (_objectHandleAttachedTo == object->getObjectHandle())
+        if (_sceneObjectHandle == object->getObjectHandle())
         {
             closeCodeEditor = true;
             _flaggedForDestruction = true;
@@ -1423,7 +1518,7 @@ bool CScriptObject::announceSceneObjectWillBeErased(const CSceneObject *object, 
 
             // Old:
             if (_threadedExecution_oldThreads)
-                _objectHandleAttachedTo = -1;
+                _sceneObjectHandle = -1;
         }
         if (closeCodeEditor)
         {
@@ -1460,7 +1555,7 @@ int CScriptObject::getObjectHandleThatScriptIsAttachedTo(int scriptTypeToConside
 {
     int retVal = -1;
     if ((scriptTypeToConsider == -1) || (_scriptType == scriptTypeToConsider))
-        retVal = _objectHandleAttachedTo;
+        retVal = _sceneObjectHandle;
     return (retVal);
 }
 
@@ -1469,20 +1564,22 @@ void CScriptObject::setObjectHandleThatScriptIsAttachedTo(int newObjectHandle)
     if (newObjectHandle != -1)
     {
         if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
-            _objectHandleAttachedTo = newObjectHandle;
+            _sceneObjectHandle = newObjectHandle;
     }
     else
-        _objectHandleAttachedTo = -1;
+        _sceneObjectHandle = -1;
 }
 
 int CScriptObject::getNumberOfPasses() const
 {
-    return (_numberOfPasses);
+    return _numberOfPasses;
 }
 
 void CScriptObject::setNumberOfPasses(int p)
 {
-    _numberOfPasses = p;
+    bool diff = (_numberOfPasses != p);
+    if (diff)
+        _numberOfPasses = p;
 }
 
 void CScriptObject::resetCalledInThisSimulationStep()
@@ -1544,7 +1641,7 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
     }
 
     if ((callType == sim_syscb_init) && (_scriptType == sim_scripttype_addon))
-        CSimFlavor::getIntVal_str(3, _addOnName.c_str());
+        CSimFlavor::getIntVal_str(3, _displayAddOnName.c_str());
 
     int retVal = 0;
 
@@ -1595,7 +1692,7 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
                     {
                         retVal = _callSystemScriptFunction(callType, inStack, outStack);
                         if (_scriptType == sim_scripttype_sandbox)
-                            _scriptState &= 7; // remove a possible error flag
+                            setScriptState(_scriptState & 7); // remove a possible error flag
                     }
                     else
                         retVal = 0;
@@ -1609,7 +1706,7 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
         CModuleMenuItem *m = App::worldContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle);
         if (m != nullptr)
         {
-            std::string txt(_addOnPathAndName);
+            std::string txt(_displayAddOnPath);
             while (true)
             {
                 size_t p = txt.find(" >> ");
@@ -1635,7 +1732,7 @@ bool CScriptObject::shouldTemporarilySuspendMainScript()
 {
     bool retVal = false;
     if (_scriptType == sim_scripttype_sandbox)
-        _scriptState &= 7; // remove a possible error flag
+        setScriptState(_scriptState & 7); // remove a possible error flag
     CInterfaceStack *outStack = App::worldContainer->interfaceStackContainer->createStack();
     _callSystemScriptFunction(sim_syscb_beforemainscript, nullptr, outStack);
     bool doNotRunMainScript;
@@ -1661,16 +1758,16 @@ void CScriptObject::_handleInfoCallback()
             _autoStartAddOn = 1;
         else
             _autoStartAddOn = 0;
-        std::string menuEntry(_addOnName);
+        std::string menuEntry(_displayAddOnName);
         outStack->getStackMapStringValue("menu", menuEntry);
         if (menuEntry.size() > 0)
         { // might contain also path info, e.g. "Exporters/nURDF exporter"
-            _addOnPathAndName = menuEntry;
-            size_t r = _addOnPathAndName.find("\n");
+            _displayAddOnPath = menuEntry;
+            size_t r = _displayAddOnPath.find("\n");
             while (r != std::string::npos)
             {
-                _addOnPathAndName.replace(r, 1, " >> ");
-                r = _addOnPathAndName.find("\n");
+                _displayAddOnPath.replace(r, 1, " >> ");
+                r = _displayAddOnPath.find("\n");
             }
             _addOnUiMenuHandle = App::worldContainer->moduleMenuItemContainer->addMenuItem(menuEntry.c_str(), -1);
         }
@@ -1799,7 +1896,7 @@ int CScriptObject::___loadCode(const char *code, const char *functionsToFind, st
     {
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-        _executionDepth++;
+        setExecutionDepth(_executionDepth + 1);
         if (_callScriptFunction(-1, "", nullptr, nullptr, errorMsg) == -1)
             retVal = 0; // a runtime error occurred!
         else
@@ -1858,7 +1955,7 @@ int CScriptObject::___loadCode(const char *code, const char *functionsToFind, st
                 l = strlen(functionsToFind + off);
             }
         }
-        _executionDepth--;
+        setExecutionDepth(_executionDepth - 1);
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = -1;
     }
@@ -1898,7 +1995,7 @@ bool CScriptObject::_loadCode()
             {
                 if (r == 0)
                 { // a runtime error occurred!
-                    _scriptState |= scriptState_error;
+                    setScriptState(_scriptState | scriptState_error);
                     _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
                 }
                 else
@@ -1909,11 +2006,11 @@ bool CScriptObject::_loadCode()
                     if (_compatibilityMode_oldLua)
                     {
                         _execSimpleString_safe_lua((luaWrap_lua_State *)_interpreterState, "_S.sysCallEx_init()");
-                        _scriptState = scriptState_initialized;
+                        setScriptState(scriptState_initialized);
                     }
                     else
                     {
-                        _scriptState = scriptState_uninitialized;
+                        setScriptState(scriptState_uninitialized);
                         // Following because below funcs are speed-sensitive:
                         if (hasSystemFunction(sim_syscb_event, false))
                             setFuncAndHookCnt(sim_syscb_event, 0, 1);
@@ -1928,17 +2025,17 @@ bool CScriptObject::_loadCode()
                             setFuncAndHookCnt(sim_syscb_joint, 0, 1);
                     }
                 }
-                _numberOfPasses++;
+                setNumberOfPasses(_numberOfPasses + 1);
             }
             else
             { // A compilation/load error occurred!
-                _scriptState |= scriptState_error;
+                setScriptState(_scriptState | scriptState_error);
                 _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), false);
             }
         }
         else
         { // The interpreter state could not be created!
-            _scriptState |= scriptState_error;
+            setScriptState(_scriptState | scriptState_error);
             _announceErrorWasRaisedAndPossiblyPauseSimulation(intStateErr.c_str(), false);
         }
     }
@@ -1965,7 +2062,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
 #endif
         if (_scriptState != scriptState_uninitialized)
             return (0);
-        _scriptState = scriptState_initialized;
+        setScriptState(scriptState_initialized);
     }
     else
     {
@@ -1973,19 +2070,20 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
             return (0);
         if (callType == sim_syscb_cleanup)
         {
-            _scriptState &= scriptState_error; // keep the error flag
-            _scriptState |= scriptState_ended; // set the ended state
+            int ss = (_scriptState & scriptState_error); // keep the error flag
+            ss |= scriptState_ended; // set the ended state
+            setScriptState(ss);
         }
         else
         {
             if ((_scriptState & scriptState_error) != 0)
                 return (0);
             if (callType == sim_syscb_aos_resume)
-                _scriptState = (_scriptState | scriptState_suspended) - scriptState_suspended;
+                setScriptState( (_scriptState | scriptState_suspended) - scriptState_suspended);
             if ((_scriptState & scriptState_suspended) != 0)
                 return (0);
             if (callType == sim_syscb_aos_suspend)
-                _scriptState |= scriptState_suspended;
+                setScriptState(_scriptState | scriptState_suspended);
         }
     }
 
@@ -2030,17 +2128,17 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
     std::string errMsg;
     if (_executionDepth == 0)
         _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-    _executionDepth++;
+    setExecutionDepth(_executionDepth + 1);
     int retVal =
         _callScriptFunction(callType, getSystemCallbackString(callType, 0).c_str(), inStack, outStack, &errMsg);
-    _executionDepth--;
+    setExecutionDepth(_executionDepth - 1);
     if (_executionDepth == 0)
         _timeOfScriptExecutionStart = -1;
     if (retVal != 0)
     {
         if (retVal == -1)
         { // a runtime error occurred!
-            _scriptState |= scriptState_error;
+            setScriptState(_scriptState | scriptState_error);
             _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
             retVal = -1;
         }
@@ -2074,7 +2172,7 @@ int CScriptObject::_callSystemScriptFunction(int callType, const CInterfaceStack
         { // We got an error
             if (callType == sim_syscb_info)
             {
-                _scriptState = scriptState_ended | scriptState_error;
+                setScriptState(scriptState_ended | scriptState_error);
                 _killInterpreterState();
             }
             else
@@ -2306,7 +2404,7 @@ int CScriptObject::callCustomScriptFunction(const char *functionName, CInterface
         std::string errMsg;
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-        _executionDepth++;
+        setExecutionDepth(_executionDepth + 1);
 
         luaWrap_lua_State *L = (luaWrap_lua_State *)_interpreterState;
         luaWrap_lua_getglobal(L, "sysCall_ext");
@@ -2327,14 +2425,14 @@ int CScriptObject::callCustomScriptFunction(const char *functionName, CInterface
         if (!extFunc)
             retVal = _callScriptFunction(-1, functionName, inOutStack, outStack, &errMsg);
 
-        _executionDepth--;
+        setExecutionDepth(_executionDepth - 1);
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = -1;
         if (retVal != 0)
         {
             if (retVal == -1)
             { // a runtime error occurred!
-                _scriptState |= scriptState_error;
+                setScriptState(_scriptState | scriptState_error);
                 _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
                 retVal = -1;
             }
@@ -2345,7 +2443,7 @@ int CScriptObject::callCustomScriptFunction(const char *functionName, CInterface
         if (inOutStack != nullptr)
             inOutStack->clear();
         if (_scriptType == sim_scripttype_sandbox)
-            _scriptState &= 7; // remove a possible error flag
+            setScriptState(_scriptState & 7); // remove a possible error flag
         if ((retVal == -1) && (_scriptType != sim_scripttype_sandbox))
         {
             if (_executionDepth == 0)
@@ -2371,12 +2469,12 @@ int CScriptObject::executeScriptString(const char *scriptString, CInterfaceStack
     {
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-        _executionDepth++;
+        setExecutionDepth(_executionDepth + 1);
         if (_execScriptString(scriptString, outStack))
             retVal = 0; // success
         else
             retVal = -1;
-        _executionDepth--;
+        setExecutionDepth(_executionDepth - 1);
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = -1;
     }
@@ -2470,7 +2568,7 @@ bool CScriptObject::resetScript()
 {
     bool retVal = _killInterpreterState();
     fromFileToBuffer();
-    _scriptState = scriptState_unloaded;
+    setScriptState(scriptState_unloaded);
     return (retVal);
 }
 
@@ -2509,10 +2607,11 @@ bool CScriptObject::_killInterpreterState()
         _interpreterState = nullptr;
     }
 
-    _scriptState &= scriptState_error; // keep the error flag
-    _scriptState |= scriptState_ended; // set the ended state
+    int ss = (_scriptState & scriptState_error); // keep the error flag
+    ss |= scriptState_ended; // set the ended state
+    setScriptState(ss);
     _scriptTextExec.clear();
-    _executionDepth = 0;
+    setExecutionDepth(0);
 
     for (size_t i = 0; i < 3; i++)
     {
@@ -2531,14 +2630,14 @@ bool CScriptObject::_killInterpreterState()
     _loadBufferResult_lua = -1;
     _compatibilityMode_oldLua = false;
     if (!_threadedExecution_oldThreads) // those could run several times
-        _numberOfPasses = 0;
+        setNumberOfPasses(0);
 #ifdef SIM_WITH_GUI
     GuiApp::setRefreshHierarchyViewFlag();
 #endif
     if ((_scriptState & scriptState_error) && _autoRestartOnError)
     {
-        _autoRestartOnError = false;
-        _scriptState = scriptState_unloaded;
+        setAutoRestartOnError(false);
+        setScriptState(scriptState_unloaded);
     }
     return (retVal);
 }
@@ -2550,14 +2649,14 @@ CScriptObject *CScriptObject::copyYourself()
     it->_scriptType = _scriptType;
     // it->_scriptHandle=_scriptHandle;
     it->_tempSuspended = true;
-    it->_objectHandleAttachedTo = _objectHandleAttachedTo;
+    it->_sceneObjectHandle = _sceneObjectHandle;
     it->_threadedExecution_oldThreads = _threadedExecution_oldThreads;
     it->_scriptIsDisabled = _scriptIsDisabled;
     it->_parentIsProxy = _parentIsProxy;
     it->setScriptText(getScriptText());
     it->_lang = _lang;
     it->_scriptObjectInitialValuesInitialized = _scriptObjectInitialValuesInitialized;
-    it->_scriptExecPriority = _scriptExecPriority;
+    it->_addOnExecPriority = _addOnExecPriority;
 
     it->_executeJustOnce_oldThreads = _executeJustOnce_oldThreads;
     it->_executionPriority_old = _executionPriority_old;
@@ -2793,9 +2892,16 @@ void CScriptObject::setLang(const char* lang)
     }
 }
 
+void CScriptObject::setExecutionDepth(int d)
+{
+    bool diff = (_executionDepth != d);
+    if (diff)
+        _executionDepth = d;
+}
+
 int CScriptObject::getExecutionDepth() const
 {
-    return(_executionDepth);
+    return _executionDepth;
 }
 
 bool CScriptObject::_initInterpreterState(std::string *errorMsg)
@@ -3437,7 +3543,7 @@ void CScriptObject::serialize(CSer &ar)
         if (ar.isStoring())
         { // Storing
             ar.storeDataName("Si2");
-            ar << int(0) << _objectHandleAttachedTo << _scriptType;
+            ar << int(0) << _sceneObjectHandle << _scriptType;
             ar.flush();
 
             // Keep following close to the beginning!
@@ -3495,7 +3601,7 @@ void CScriptObject::serialize(CSer &ar)
 
             // keep a while so that older versions can read this. 11.06.2019, V3.6.1 is current
             ar.storeDataName("Coc");
-            ar << _objectHandleAttachedTo;
+            ar << _sceneObjectHandle;
             ar.flush();
 
             if (_customObjectData_old != nullptr)
@@ -3535,7 +3641,7 @@ void CScriptObject::serialize(CSer &ar)
                         noHit = false;
                         ar >> byteQuantity;
                         int dummy;
-                        ar >> dummy >> _objectHandleAttachedTo >> _scriptType;
+                        ar >> dummy >> _sceneObjectHandle >> _scriptType;
                     }
 
                     if (theName.compare("Seo") == 0)
@@ -3630,7 +3736,7 @@ void CScriptObject::serialize(CSer &ar)
                         int v;
                         ar >> v;
                         if (v >= 0)
-                            _objectHandleAttachedTo = v;
+                            _sceneObjectHandle = v;
                     }
                     if (theName.compare("Cod") == 0)
                     {
@@ -3711,7 +3817,7 @@ void CScriptObject::serialize(CSer &ar)
             if (exhaustiveXml)
             {
                 ar.xmlAddNode_int("handle", _scriptHandle);
-                ar.xmlAddNode_int("objectHandle", _objectHandleAttachedTo);
+                ar.xmlAddNode_int("objectHandle", _sceneObjectHandle);
 
                 ar.xmlAddNode_enum("type", _scriptType, sim_scripttype_main, "mainScript",
                                    sim_scripttype_simulation, "childScript", sim_scripttype_customization,
@@ -3762,7 +3868,7 @@ void CScriptObject::serialize(CSer &ar)
             if (exhaustiveXml)
             {
                 ar.xmlGetNode_int("handle", previousScriptHandle);
-                ar.xmlGetNode_int("objectHandle", _objectHandleAttachedTo);
+                ar.xmlGetNode_int("objectHandle", _sceneObjectHandle);
 
                 ar.xmlGetNode_enum("type", _scriptType, true, "mainScript", sim_scripttype_main, "childScript",
                                    sim_scripttype_simulation, "customizationScript",
@@ -4107,6 +4213,194 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void *LL, CInterfaceStackObjec
             }
         }
     }
+}
+
+int CScriptObject::setBoolProperty(const char* pName, bool pState)
+{
+    int retVal = -1;
+
+    if ( strcmp(propScriptObj_scriptDisabled.name, pName) == 0 )
+    {
+        retVal = 1;
+        setScriptIsDisabled(pState);
+    }
+    else if ( strcmp(propScriptObj_restartOnError.name, pName) == 0 )
+    {
+        retVal = 1;
+        setAutoRestartOnError(pState);
+    }
+
+    return retVal;
+}
+
+int CScriptObject::getBoolProperty(const char* pName, bool& pState) const
+{
+    int retVal = -1;
+
+    if ( strcmp(propScriptObj_scriptDisabled.name, pName) == 0 )
+    {
+        retVal = 1;
+        pState = _scriptIsDisabled;
+    }
+    else if ( strcmp(propScriptObj_restartOnError.name, pName) == 0 )
+    {
+        retVal = 1;
+        pState = _autoRestartOnError;
+    }
+
+    return retVal;
+}
+
+int CScriptObject::setIntProperty(const char* pName, int pState)
+{
+    int retVal = -1;
+
+    if ( strcmp(propScriptObj_execPriority.name, pName) == 0 )
+    {
+        retVal = 1;
+        setScriptExecPriority(pState);
+    }
+
+    return retVal;
+}
+
+int CScriptObject::getIntProperty(const char* pName, int& pState) const
+{
+    int retVal = -1;
+
+    if ( strcmp(propScriptObj_execPriority.name, pName) == 0 )
+    {
+        retVal = 1;
+        pState = getScriptExecPriority();
+    }
+    else if ( strcmp(propScriptObj_scriptType.name, pName) == 0 )
+    {
+        retVal = 1;
+        pState = _scriptType;
+    }
+    else if ( strcmp(propScriptObj_executionDepth.name, pName) == 0 )
+    {
+        retVal = 1;
+        pState = _executionDepth;
+    }
+    else if ( strcmp(propScriptObj_scriptState.name, pName) == 0 )
+    {
+        retVal = 1;
+        pState = _scriptState;
+    }
+
+    return retVal;
+}
+
+int CScriptObject::setStringProperty(const char* pName, const char* pState)
+{
+    int retVal = -1;
+
+    if ( strcmp(propScriptObj_code.name, pName) == 0 )
+    {
+        retVal = 1;
+        setScriptText(pState);
+    }
+
+    return retVal;
+}
+
+int CScriptObject::getStringProperty(const char* pName, std::string& pState) const
+{
+    int retVal = -1;
+
+    if ( strcmp(propScriptObj_code.name, pName) == 0 )
+    {
+        retVal = 1;
+        pState = _scriptText;
+    }
+    else if ( strcmp(propScriptObj_language.name, pName) == 0 )
+    {
+        retVal = 1;
+        pState = _lang;
+    }
+    else if ( strcmp(propScriptObj_scriptName.name, pName) == 0 )
+    {
+        retVal = 1;
+        pState = getScriptName();
+    }
+    else if ( strcmp(propScriptObj_addOnPath.name, pName) == 0 )
+    {
+        retVal = 1;
+        pState = getAddOnPath();
+    }
+
+    return retVal;
+}
+
+int CScriptObject::getPropertyName(int& index, std::string& pName)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_scriptObject.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps_scriptObject[i].name;
+            retVal = 1;
+            break;
+        }
+    }
+    return retVal;
+}
+
+int CScriptObject::getPropertyName_static(int& index, std::string& pName)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_scriptObject.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps_scriptObject[i].name;
+            retVal = 1;
+            break;
+        }
+    }
+    return retVal;
+}
+
+int CScriptObject::getPropertyInfo(const char* pName, int& info)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_scriptObject.size(); i++)
+    {
+        if (strcmp(allProps_scriptObject[i].name, pName) == 0)
+        {
+            retVal = allProps_scriptObject[i].type;
+            info = allProps_scriptObject[i].flags;
+            break;
+        }
+    }
+    if (retVal != -1)
+    {
+        if ( strcmp(propScriptObj_code.name, pName) == 0 )
+        {
+            if (_scriptText.size() > LARGE_PROPERTY_SIZE)
+                info = info | 0x100;
+        }
+    }
+    return retVal;
+}
+
+int CScriptObject::getPropertyInfo_static(const char* pName, int& info)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_scriptObject.size(); i++)
+    {
+        if (strcmp(allProps_scriptObject[i].name, pName) == 0)
+        {
+            retVal = allProps_scriptObject[i].type;
+            info = allProps_scriptObject[i].flags;
+            break;
+        }
+    }
+    return retVal;
 }
 
 // Old
@@ -7845,7 +8139,7 @@ int CScriptObject::_getScriptNameIndexNumber_old() const
     int retVal = -1;
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             retVal = tt::getNameSuffixNumber(it->getObjectName_old().c_str(), true);
     }
@@ -7855,12 +8149,12 @@ std::string CScriptObject::getScriptPseudoName_old() const
 {
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_objectHandleAttachedTo);
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             return (it->getObjectName_old());
     }
     if ((_scriptType == sim_scripttype_addon) || (_scriptType == sim_scripttype_addonfunction))
-        return (_addOnName);
+        return (_displayAddOnName);
     return ("");
 }
 void CScriptObject::setThreadedExecution_oldThreads(bool threadedExec)
@@ -7914,7 +8208,7 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
     TRACE_INTERNAL;
     if ((_scriptState & scriptState_error) != 0)
         return;
-    _scriptState = scriptState_unloaded;
+    setScriptState(scriptState_unloaded);
 
     _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
     _forbidOverallYieldingLevel = 0;
@@ -7937,13 +8231,13 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
         luaWrap_lua_insert(L, errindex);
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-        _executionDepth++;
+        setExecutionDepth(_executionDepth + 1);
         if (luaWrap_lua_pcall((luaWrap_lua_State *)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
         { // a runtime error occurred!
-            _executionDepth--;
+            setExecutionDepth(_executionDepth - 1);
             if (_executionDepth == 0)
                 _timeOfScriptExecutionStart = -1;
-            _scriptState |= scriptState_error;
+            setScriptState(_scriptState | scriptState_error);
             // We have to exit the thread free mode if we are still in there (the instance should automatically be
             // restored when this thread resumes):
             if (CThreadPool_old::isThreadInFreeMode())
@@ -7959,10 +8253,10 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
         }
         else
         {
-            _executionDepth--;
+            setExecutionDepth(_executionDepth - 1);
             if (_executionDepth == 0)
                 _timeOfScriptExecutionStart = -1;
-            _scriptState = scriptState_initialized;
+            setScriptState(scriptState_initialized);
             luaWrap_lua_getglobal(L, getSystemCallbackString(sim_syscb_vision, 0).c_str());
             _containedSystemCallbacks[sim_syscb_vision] = luaWrap_lua_isfunction(L, -1);
             luaWrap_lua_getglobal(L, getSystemCallbackString(sim_syscb_trigger, 0).c_str());
@@ -7987,14 +8281,14 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
                     luaWrap_lua_insert(L, errindex);
                     if (_executionDepth == 0)
                         _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-                    _executionDepth++;
+                    setExecutionDepth(_executionDepth + 1);
                     if (luaWrap_lua_pcall((luaWrap_lua_State *)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(),
                                           errindex) != 0)
                     { // a runtime error occurred!
-                        _executionDepth--;
+                        setExecutionDepth(_executionDepth - 1);
                         if (_executionDepth == 0)
                             _timeOfScriptExecutionStart = -1;
-                        _scriptState |= scriptState_error;
+                        setScriptState(_scriptState | scriptState_error);
                         if (CThreadPool_old::isThreadInFreeMode())
                             CThreadPool_old::setThreadFreeMode(false);
                         std::string errMsg;
@@ -8009,7 +8303,7 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
                     {
                         if (calls[callIndex] == sim_syscb_cleanup)
                             _handleCallbackEx_old(sim_syscb_cleanup);
-                        _executionDepth--;
+                        setExecutionDepth(_executionDepth - 1);
                         if (_executionDepth == 0)
                             _timeOfScriptExecutionStart = -1;
                     }
@@ -8017,15 +8311,16 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
                 else
                     luaWrap_lua_pop(L, 1); // pop the function name
             }
-            _scriptState &= scriptState_error; // keep the error flag
-            _scriptState |= scriptState_ended;
+            int ss = (_scriptState & scriptState_error); // keep the error flag
+            ss |= scriptState_ended;
+            setScriptState(ss);
             if (CThreadPool_old::isThreadInFreeMode())
                 CThreadPool_old::setThreadFreeMode(false);
         }
     }
     else
     { // A compilation error occurred!
-        _scriptState |= scriptState_error;
+        setScriptState(_scriptState | scriptState_error);
         std::string errMsg;
         if (luaWrap_lua_isstring(L, -1))
             errMsg = std::string(luaWrap_lua_tostring(L, -1));
@@ -8035,7 +8330,7 @@ void CScriptObject::_launchThreadedChildScriptNow_oldThreads()
         _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), false);
     }
     _killInterpreterState();
-    _numberOfPasses++;
+    setNumberOfPasses(_numberOfPasses + 1);
 }
 int CScriptObject::resumeThreadedChildScriptIfLocationMatch_oldThreads(int resumeLocation)
 { // returns 0 (not resumed) or 1
@@ -8078,13 +8373,13 @@ bool CScriptObject::_callScriptChunk_old(int callType, const CInterfaceStack *in
         luaWrap_lua_insert(L, errindex);
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-        _executionDepth++;
+        setExecutionDepth(_executionDepth + 1);
         if (luaWrap_lua_pcall((luaWrap_lua_State *)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
         { // a runtime error occurred!
-            _executionDepth--;
+            setExecutionDepth(_executionDepth - 1);
             if (_executionDepth == 0)
                 _timeOfScriptExecutionStart = -1;
-            _scriptState |= scriptState_error;
+            setScriptState(_scriptState | scriptState_error);
             std::string errMsg;
             if (luaWrap_lua_isstring(L, -1))
                 errMsg = std::string(luaWrap_lua_tostring(L, -1));
@@ -8096,7 +8391,7 @@ bool CScriptObject::_callScriptChunk_old(int callType, const CInterfaceStack *in
         else
         {
             _handleCallbackEx_old(callType);
-            _executionDepth--;
+            setExecutionDepth(_executionDepth - 1);
             if (_executionDepth == 0)
                 _timeOfScriptExecutionStart = -1;
             if (outStack != nullptr)
@@ -8107,7 +8402,7 @@ bool CScriptObject::_callScriptChunk_old(int callType, const CInterfaceStack *in
                                               numberOfArgs); // the first arg is linked to the debug mechanism
             }
         }
-        _numberOfPasses++;
+        setNumberOfPasses(_numberOfPasses + 1);
     }
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
 
@@ -8197,10 +8492,10 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char *functionName, SLuaC
 
     if (_executionDepth == 0)
         _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
-    _executionDepth++;
+    setExecutionDepth(_executionDepth + 1);
     if (luaWrap_lua_pcall((luaWrap_lua_State *)_interpreterState, argCnt, luaWrapGet_LUA_MULTRET(), errindex) != 0)
     { // a runtime error occurred!
-        _executionDepth--;
+        setExecutionDepth(_executionDepth - 1);
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = -1;
         std::string errMsg;
@@ -8221,7 +8516,7 @@ int CScriptObject::callScriptFunction_DEPRECATED(const char *functionName, SLuaC
     }
     else
     { // return values:
-        _executionDepth--;
+        setExecutionDepth(_executionDepth - 1);
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = -1;
         int currentTop = luaWrap_lua_gettop(L);
@@ -8557,22 +8852,6 @@ void CScriptObject::_insertScriptText_old(CScriptObject *scriptObject, bool toFr
     else
         theScript += txt;
     scriptObject->setScriptText(theScript.c_str());
-
-    /*
-        if (_scriptText_==nullptr)
-            return;
-        std::string theScript(_scriptText_);
-        if (toFront)
-            theScript=std::string(txt)+theScript;
-        else
-            theScript+=txt;
-        delete[] _scriptText_;
-        _scriptTextLength_=int(theScript.length())+1;
-        _scriptText_=new char[_scriptTextLength_];
-        for (int i=0;i<_scriptTextLength_-1;i++)
-            _scriptText_[i]=theScript[i];
-        _scriptText_[_scriptTextLength_-1]=0;
-        */
 }
 std::string CScriptObject::_replaceOldApi(const char *txt, bool forwardAdjustment)
 { // recursive

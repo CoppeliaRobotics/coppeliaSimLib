@@ -28,6 +28,7 @@ class CEmbeddedScriptContainer
 
     int getScriptsFromObjectAttachedTo(int objectHandle, std::vector<CScriptObject *> &scripts) const;
 
+    void pushObjectGenesisEvents() const;
     void killAllSimulationLuaStates();
     int insertDefaultScript(int scriptType, bool threaded, bool lua, bool oldThreadedScript = false);
     const std::vector<int> *getObjectIdsWhereDynCallbackFunctionsAvailable() const;

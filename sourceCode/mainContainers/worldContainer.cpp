@@ -674,6 +674,16 @@ void CWorldContainer::pushGenesisEvents()
         ev->appendKeyBool(propApp_displayEnabled.name, App::getOpenGlDisplayEnabled());
         pushEvent();
 
+        if (sandboxScript != nullptr)
+        {
+            ev = _createGeneralEvent(EVENTTYPE_OBJECTADDED, sandboxScript->getScriptHandle(), sandboxScript->getScriptHandle(), nullptr, nullptr, false);
+            sandboxScript->addSpecializedObjectEventData(ev);
+            App::worldContainer->pushEvent();
+        }
+
+        if (addOnScriptContainer != nullptr)
+            addOnScriptContainer->pushGenesisEvents();
+
         currentWorld->pushGenesisEvents();
 
         ev = _createGeneralEvent(EVENTTYPE_GENESISEND, -1, -1, nullptr, nullptr, false);

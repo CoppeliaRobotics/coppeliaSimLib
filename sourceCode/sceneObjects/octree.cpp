@@ -150,12 +150,20 @@ void COcTree::_updateOctreeEvent() const
 {
     if (_isInScene && App::worldContainer->getEventsEnabled())
     {
+#if SIM_EVENT_PROTOCOL_VERSION == 2
         const char *cmd = "voxels";
         CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
         ev->openKeyMap(cmd);
         ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
         ev->appendKeyUCharArray("colors", _colorsByte.data(), _colorsByte.size());
+#else
+        const char *cmd = propOctree_voxels.name;
+        CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+        ev->appendKeyDoubleArray(cmd, _voxelPositions.data(), _voxelPositions.size());
+        ev->appendKeyUCharArray(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
+        ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
+#endif
         App::worldContainer->pushEvent();
     }
 }
@@ -590,14 +598,16 @@ void COcTree::addSpecializedObjectEventData(CCbor *ev)
 {
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->openKeyMap(getObjectTypeInfo().c_str());
-#else
-    color.addGenesisEventData(ev);
-#endif
-    ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
     ev->openKeyMap("voxels");
     ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
     ev->appendKeyUCharArray("colors", _colorsByte.data(), _colorsByte.size());
     ev->closeArrayOrMap(); // voxels
+#else
+    color.addGenesisEventData(ev);
+    ev->appendKeyDoubleArray(propOctree_voxels.name, _voxelPositions.data(), _voxelPositions.size());
+    ev->appendKeyUCharArray(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
+#endif
+    ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // octree
 #endif
@@ -626,9 +636,7 @@ CSceneObject *COcTree::copyYourself()
 void COcTree::setCellSize(double theNewSize)
 {
     if (_octreeInfo != nullptr)
-        theNewSize = tt::getLimitedFloat(
-            _cellSize, 1.0,
-            theNewSize); // we can't reduce the cell size for an existing octree, because it doesn't make sense!
+        theNewSize = tt::getLimitedFloat(_cellSize, 1.0, theNewSize); // we can't reduce the cell size for an existing octree, because it doesn't make sense!
     else
         theNewSize = tt::getLimitedFloat(0.001, 1.0, theNewSize);
     if (theNewSize != _cellSize)
@@ -647,7 +655,7 @@ void COcTree::setCellSize(double theNewSize)
 
 double COcTree::getCellSize() const
 {
-    return (_cellSize);
+    return _cellSize;
 }
 
 void COcTree::setCellSizeForDisplay(double theNewSizeForDisplay)
@@ -657,12 +665,12 @@ void COcTree::setCellSizeForDisplay(double theNewSizeForDisplay)
 
 double COcTree::getCellSizeForDisplay() const
 {
-    return (_cellSizeForDisplay);
+    return _cellSizeForDisplay;
 }
 
 bool COcTree::getShowOctree() const
 {
-    return (_showOctreeStructure);
+    return _showOctreeStructure;
 }
 
 void COcTree::setShowOctree(bool show)
@@ -1170,6 +1178,36 @@ int COcTree::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int COcTree::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setBufferProperty(pName, buffer, bufferL);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int COcTree::getBufferProperty(const char* ppName, std::string& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    pState.clear();
+    int retVal = CSceneObject::getBufferProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propOctree_colors.name)
+        {
+            retVal = 1;
+            pState.assign(_colorsByte.begin(), _colorsByte.end());
+        }
+    }
+
+    return retVal;
+}
+
 int COcTree::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
@@ -1195,6 +1233,38 @@ int COcTree::getColorProperty(const char* ppName, float* pState) const
     {
 
     }
+    return retVal;
+}
+
+int COcTree::setVectorProperty(const char* ppName, const double* v, int vL)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    if (v == nullptr)
+        vL = 0;
+    int retVal = CSceneObject::setVectorProperty(pName, v, vL);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int COcTree::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
+    const char* pName = _pName.c_str();
+    pState.clear();
+    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propOctree_voxels.name)
+        {
+            retVal = 1;
+            pState.assign(_voxelPositions.begin(), _voxelPositions.end());
+        }
+    }
+
     return retVal;
 }
 
@@ -1262,6 +1332,19 @@ int COcTree::getPropertyInfo(const char* ppName, int& info)
                 retVal = allProps_ocTree[i].type;
                 info = allProps_ocTree[i].flags;
                 break;
+            }
+        }
+        if (retVal != -1)
+        {
+            if (_pName == propOctree_voxels.name)
+            {
+                if (_voxelPositions.size() > LARGE_PROPERTY_SIZE)
+                    info = info | 0x100;
+            }
+            if (_pName == propOctree_colors.name)
+            {
+                if (_colorsByte.size() * 3 > LARGE_PROPERTY_SIZE)
+                    info = info | 0x100;
             }
         }
     }

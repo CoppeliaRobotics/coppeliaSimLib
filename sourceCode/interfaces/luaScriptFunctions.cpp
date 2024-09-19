@@ -6083,7 +6083,7 @@ int _simGetStringParam(luaWrap_lua_State *L)
             std::string s;
             CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
             if (it != nullptr)
-                s = it->getAddOnFilePath();
+                s = it->getAddOnPath();
             luaWrap_lua_pushtext(L, s.c_str());
             LUA_END(1);
         }

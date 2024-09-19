@@ -293,7 +293,7 @@ bool CSceneObject::getSelected() const
 
 bool CSceneObject::getIsInScene() const
 {
-    return (_isInScene);
+    return _isInScene;
 }
 
 bool CSceneObject::getModelBase() const
@@ -760,7 +760,7 @@ void CSceneObject::getSizeValues(double s[3]) const
     s[2] = _sizeValues[2];
 }
 
-void CSceneObject::setScriptExecPriority(int p)
+void CSceneObject::setScriptExecPriority_raw(int p)
 {
     _scriptExecPriority = p;
 }

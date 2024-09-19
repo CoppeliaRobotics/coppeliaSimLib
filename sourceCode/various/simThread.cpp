@@ -3443,7 +3443,15 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setScriptExecPriority(cmd.intParams[1]);
+        {
+            if (it->getObjectType() == sim_sceneobject_script)
+            {
+                CScript* scr = (CScript*)it;
+                scr->scriptObject->setScriptExecPriority(cmd.intParams[1]); // new script objects
+            }
+            else
+                it->setScriptExecPriority_raw(cmd.intParams[1]); // old scripts
+        }
     }
     if (cmd.cmdId == SET_ALL_SCRIPTSIMULPARAMETERGUITRIGGEREDCMD)
     {

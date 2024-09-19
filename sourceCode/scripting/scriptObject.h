@@ -27,6 +27,29 @@
 #define SIM_SCRIPT_NAME_INDEX_OLD "sim_script_name_index" // keep this global, e.g. not _S.sim_script_name_index
 // **********************
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propScriptObj_scriptDisabled,                 "scriptDisabled",                               sim_propertytype_bool,      0) \
+    FUNCX(propScriptObj_restartOnError,                 "restartOnError",                               sim_propertytype_bool,      0) \
+    FUNCX(propScriptObj_execPriority,                   "execPriority",                                 sim_propertytype_int,       0) \
+    FUNCX(propScriptObj_scriptType,                     "scriptType",                                   sim_propertytype_int,       sim_propertyinfo_notwritable) \
+    FUNCX(propScriptObj_executionDepth,                 "executionDepth",                               sim_propertytype_int,       sim_propertyinfo_notwritable) \
+    FUNCX(propScriptObj_scriptState,                    "scriptState",                                  sim_propertytype_int,       sim_propertyinfo_notwritable) \
+    FUNCX(propScriptObj_language,                       "language",                                     sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propScriptObj_code,                           "code",                                         sim_propertytype_string,    0) \
+    FUNCX(propScriptObj_scriptName,                     "scriptName",                                   sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propScriptObj_addOnPath,                      "addOnPath",                                    sim_propertytype_string,    sim_propertyinfo_notwritable) \
+
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<SProperty> allProps_scriptObject = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 class CSceneObject;
 
 class CScriptObject
@@ -48,6 +71,7 @@ class CScriptObject
 
     static void destroy(CScriptObject *obj, bool registeredObject, bool announceScriptDestruction = true);
 
+    void addSpecializedObjectEventData(CCbor *ev);
     int setHandle();
     void initializeInitialValues(bool simulationAlreadyRunning);
     void simulationAboutToStart();
@@ -60,7 +84,7 @@ class CScriptObject
 
     std::string getDescriptiveName() const;
     std::string getShortDescriptiveName() const;
-    void setAddOnName(const char *name);
+    void setDisplayAddOnName(const char *name);
     std::string getScriptName() const;
 
     CScriptObject *copyYourself();
@@ -72,7 +96,7 @@ class CScriptObject
     void setObjectHandleThatScriptIsAttachedTo(int newObjectHandle);
     int getObjectHandleThatScriptIsAttachedTo(int scriptTypeToConsider) const;
 
-    void setScriptText(const char *scriptTxt);
+    void setScriptText(const char *scriptTxt, bool toFileIfApplicable = true);
     bool setScriptTextFromFile(const char *filename);
     const char *getScriptText();
 
@@ -87,6 +111,17 @@ class CScriptObject
 
     void initSandbox();
     int executeScriptString(const char *scriptString, CInterfaceStack *outStack);
+
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState) const;
+    int setStringProperty(const char* pName, const char* pState);
+    int getStringProperty(const char* pName, std::string& pState) const;
+    int getPropertyName(int& index, std::string& pName);
+    static int getPropertyName_static(int& index, std::string& pName);
+    int getPropertyInfo(const char* pName, int& info);
+    static int getPropertyInfo_static(const char* pName, int& info);
 
     void terminateScriptExecutionExternally(bool generateErrorMsg);
 
@@ -150,7 +185,9 @@ class CScriptObject
     int changeOverallYieldingForbidLevel(int dx, bool absolute);
     std::string getLang() const;
     void setLang(const char* lang);
+    void setExecutionDepth(int d);
     int getExecutionDepth() const;
+    bool isNotInCopyBuffer() const;
 
     void loadPluginFuncsAndVars(CPlugin *plug);
 
@@ -162,8 +199,8 @@ class CScriptObject
     void addModulesDetectedInCode();
 
     int getAddOnUiMenuHandle() const;
-    void setAddOnFilePath(const char *p);
-    std::string getAddOnFilePath() const;
+    void setAddOnPath(const char *p);
+    std::string getAddOnPath() const;
 
     void printInterpreterStack() const;
 
@@ -260,7 +297,8 @@ class CScriptObject
     bool _execScriptString(const char *scriptString, CInterfaceStack *outStack);
     void _handleInfoCallback();
 
-    int _scriptHandle; // is unique since 25.11.2022. Unique across scenes for old script, but not for new scripts!
+    int _scriptHandle; // is unique since 25.11.2022. Unique across scenes for old script, but not for new script objects (with new script objects, scriptHandle is same as scene object)
+    int _sceneObjectHandle; // is same as _scriptHandle with the new scene object scripts. With old associated scripts, is handle of scene object this script is associated with. -1 with add-ons and sandbox
     int _scriptUid; // unique across all scenes
     int _scriptType;
     bool _tempSuspended;
@@ -271,11 +309,9 @@ class CScriptObject
     bool _autoRestartOnError;
     int _scriptState;
     int _executionDepth;
-    int _objectHandleAttachedTo;
     int _autoStartAddOn;
     int _addOnUiMenuHandle;
-    int _scriptExecPriority; // only for add-ons. Not saved
-    std::string _addOnFilePath;
+    int _addOnExecPriority; // only for add-ons. Not saved
 
     bool _calledInThisSimulationStep;
 
@@ -307,8 +343,10 @@ class CScriptObject
     int _sysFuncAndHookCnt_joint[3];
     void _printContext(const char *str, size_t p);
 
-    std::string _addOnName;
-    std::string _addOnPathAndName;
+    std::string _addOnPath;        // "D:/coppeliaRobotics/coppeliaSim/addOns/Subdivide large triangles.lua"
+    std::string _displayAddOnName; // "Subdivide large triangles"
+    std::string _displayAddOnPath; // "Geometry / Mesh >> Subdivide large triangles..."
+
     std::mt19937 _randGen;
 
     bool _scriptObjectInitialValuesInitialized;

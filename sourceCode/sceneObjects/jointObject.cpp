@@ -3827,7 +3827,8 @@ bool CJoint::setJointMode_noDynMotorTargetPosCorrection(int newMode)
             ev->appendKeyInt(cmd, _jointMode);
             App::worldContainer->pushEvent();
         }
-        setDynCtrlMode(sim_jointdynctrl_free); // 21.08.2024: e.g. dependent joints need to be free when master joint is dyn. enabled
+        if (_jointMode == sim_jointmode_dependent)
+            setDynCtrlMode(sim_jointdynctrl_free); // 21.08.2024: e.g. dependent joints need to be free when master joint is dyn. enabled
         _setJointMode_sendOldIk(_jointMode);
         if ((_jointMode != sim_jointmode_dependent) && (_jointMode != sim_jointmode_reserved_previously_ikdependent))
             setDependencyMasterJointHandle(-1);

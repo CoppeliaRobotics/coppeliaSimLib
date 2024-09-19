@@ -724,6 +724,9 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
     ev->appendKeyIntArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
     App::worldContainer->pushEvent();
+
+    // Handle the main script and old associated scripts:
+    embeddedScriptContainer->pushObjectGenesisEvents();
 }
 
 void CSceneObjectContainer::appendNonObjectGenesisData(CCbor *ev) const

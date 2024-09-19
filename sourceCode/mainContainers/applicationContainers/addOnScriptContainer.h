@@ -33,6 +33,8 @@ class CAddOnScriptContainer
     int getSysFuncAndHookCnt(int sysCall) const;
     void setSysFuncAndHookCnt(int sysCall, int cnt);
 
+    void pushGenesisEvents() const;
+
     bool shouldTemporarilySuspendMainScript();
     int callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, int scriptToExclude = -1);
 
@@ -42,7 +44,8 @@ class CAddOnScriptContainer
   private:
     bool _removeAddOn(int scriptID);
     int _insertAddOn(CScriptObject *script);
-    int _insertAddOns(const char *addOnExt);
+    void _insertAddOns(const char *addOnExt);
+    void _insertAdditionalAddOns(); // -a, -b options
 
     int _sysFuncAndHookCnt_event;
     int _sysFuncAndHookCnt_dyn;

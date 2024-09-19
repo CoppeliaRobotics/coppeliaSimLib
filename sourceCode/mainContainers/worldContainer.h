@@ -52,21 +52,21 @@
     FUNCX(propApp_hierarchyEnabled,            "hierarchyEnabled",                 sim_propertytype_bool,      0) \
     FUNCX(propApp_browserEnabled,              "browserEnabled",                   sim_propertytype_bool,      0) \
     FUNCX(propApp_displayEnabled,              "displayEnabled",                   sim_propertytype_bool,      0) \
-    FUNCX(propApp_appDir,                      "appDir",                           sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propApp_appDir,                      "appPath",                          sim_propertytype_string,    sim_propertyinfo_notwritable) \
     FUNCX(propApp_machineId,                   "machineId",                        sim_propertytype_string,    sim_propertyinfo_notwritable) \
     FUNCX(propApp_legacyMachineId,             "legacyMachineId",                  sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propApp_tempDir,                     "tempDir",                          sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propApp_sceneTempDir,                "sceneTempDir",                     sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propApp_settingsDir,                 "settingsDir",                      sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propApp_luaDir,                      "luaDir",                           sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propApp_pythonDir,                   "pythonDir",                        sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propApp_mujocoDir,                   "mujocoDir",                        sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propApp_systemDir,                   "systemDir",                        sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propApp_resourceDir,                 "resourceDir",                      sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propApp_addOnDir,                    "addOnDir",                         sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propApp_sceneDir,                    "sceneDir",                         sim_propertytype_string,    0) \
-    FUNCX(propApp_modelDir,                    "modelDir",                         sim_propertytype_string,    0) \
-    FUNCX(propApp_importExportDir,             "importExportDir",                  sim_propertytype_string,    0) \
+    FUNCX(propApp_tempDir,                     "tempPath",                         sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propApp_sceneTempDir,                "sceneTempPath",                    sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propApp_settingsDir,                 "settingsPath",                     sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propApp_luaDir,                      "luaPath",                          sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propApp_pythonDir,                   "pythonPath",                       sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propApp_mujocoDir,                   "mujocoPath",                       sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propApp_systemDir,                   "systemPath",                       sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propApp_resourceDir,                 "resourcePath",                     sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propApp_addOnDir,                    "addOnPath",                        sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propApp_sceneDir,                    "scenePath",                        sim_propertytype_string,    0) \
+    FUNCX(propApp_modelDir,                    "modelPath",                        sim_propertytype_string,    0) \
+    FUNCX(propApp_importExportDir,             "importExportPath",                 sim_propertytype_string,    0) \
     FUNCX(propApp_defaultPython,               "defaultPython",                    sim_propertytype_string,    sim_propertyinfo_notwritable) \
     FUNCX(propApp_sandboxLang,                 "sandboxLang",                      sim_propertytype_string,    sim_propertyinfo_notwritable) \
 

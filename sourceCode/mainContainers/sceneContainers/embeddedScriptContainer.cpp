@@ -575,3 +575,17 @@ bool CEmbeddedScriptContainer::addCommandToOutsideCommandQueues(int commandID, i
     }
     return (true);
 }
+
+void CEmbeddedScriptContainer::pushObjectGenesisEvents() const
+{
+    for (size_t i = 0; i < allScripts.size(); i++)
+    {
+        CScriptObject* it = allScripts[i];
+        if (!it->getFlaggedForDestruction())
+        {
+            CCbor *ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTADDED, it->getScriptHandle(), it->getScriptHandle(), false);
+            it->addSpecializedObjectEventData(ev);
+            App::worldContainer->pushEvent();
+        }
+    }
+}

@@ -79,7 +79,7 @@ void CQDlgOldScripts::refresh()
             ui->qqExecutionOrder->addItem(IDSN_FIRST, QVariant(sim_scriptexecorder_first));
             ui->qqExecutionOrder->addItem(IDSN_NORMAL, QVariant(sim_scriptexecorder_normal));
             ui->qqExecutionOrder->addItem(IDSN_LAST, QVariant(sim_scriptexecorder_last));
-            ui->qqExecutionOrder->setCurrentIndex(associatedObject->getScriptExecPriority());
+            ui->qqExecutionOrder->setCurrentIndex(theScript->getScriptExecPriority());
         }
 
         ui->qqDisabled->setChecked(theScript->getScriptIsDisabled());
