@@ -8935,8 +8935,8 @@ int simCreateForceSensor_internal(int options, const int *intParams, const doubl
         it->setEnableTorqueThreshold((options & 2) != 0);
 
         it->setFilterType(intParams[0]);
-        it->setValueCountForFilter(intParams[1]);
-        it->setConsecutiveThresholdViolationsForBreaking(intParams[2]);
+        it->setFilterSampleSize(intParams[1]);
+        it->setConsecutiveViolationsToTrigger(intParams[2]);
 
         it->setForceSensorSize(floatParams[0]);
         it->setForceThreshold(floatParams[1]);

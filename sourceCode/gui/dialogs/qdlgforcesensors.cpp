@@ -55,7 +55,7 @@ void CQDlgForceSensors::refresh()
     {
         ui->qqSize->setText(utils::getSizeString(false, it->getForceSensorSize()).c_str());
 
-        ui->qqSampleSize->setText(utils::getIntString(false, it->getValueCountForFilter()).c_str());
+        ui->qqSampleSize->setText(utils::getIntString(false, it->getFilterSampleSize()).c_str());
         ui->qqAverage->setChecked(it->getFilterType() == 0);
         ui->qqMedian->setChecked(it->getFilterType() == 1);
 
@@ -64,7 +64,7 @@ void CQDlgForceSensors::refresh()
         ui->qqTorqueThresholdEnable->setChecked(it->getEnableTorqueThreshold());
         ui->qqTorqueThreshold->setText(utils::getForceTorqueString(false, it->getTorqueThreshold()).c_str());
         ui->qqViolationCount->setText(
-            utils::getIntString(false, it->getConsecutiveThresholdViolationsForBreaking()).c_str());
+            utils::getIntString(false, it->getConsecutiveViolationsToTrigger()).c_str());
     }
     else
     {

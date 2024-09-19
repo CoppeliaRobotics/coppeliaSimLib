@@ -2586,7 +2586,7 @@ int CWorld::setFloatProperty(int target, const char* ppName, double pState)
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->setFloatProperty(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -2616,7 +2616,7 @@ int CWorld::getFloatProperty(int target, const char* ppName, double& pState) con
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->getFloatProperty(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -2707,7 +2707,7 @@ int CWorld::setBufferProperty(int target, const char* ppName, const char* buffer
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->setBufferProperty(pName, buffer, bufferL);
     }
     else
         retVal = -2; // target does not exist
@@ -2741,7 +2741,7 @@ int CWorld::getBufferProperty(int target, const char* ppName, std::string& pStat
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->getBufferProperty(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -2769,7 +2769,7 @@ int CWorld::setVector3Property(int target, const char* ppName, const C3Vector& p
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->setVector3Property(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -2797,7 +2797,7 @@ int CWorld::getVector3Property(int target, const char* ppName, C3Vector& pState)
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->getVector3Property(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -2823,7 +2823,7 @@ int CWorld::setQuaternionProperty(int target, const char* ppName, const C4Vector
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->setQuaternionProperty(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -2849,7 +2849,7 @@ int CWorld::getQuaternionProperty(int target, const char* ppName, C4Vector& pSta
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->getQuaternionProperty(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -2875,7 +2875,7 @@ int CWorld::setPoseProperty(int target, const char* ppName, const C7Vector& pSta
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->setPoseProperty(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -2901,7 +2901,7 @@ int CWorld::getPoseProperty(int target, const char* ppName, C7Vector& pState) co
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->getPoseProperty(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -2927,7 +2927,7 @@ int CWorld::setMatrix3x3Property(int target, const char* ppName, const C3X3Matri
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->setMatrix3x3Property(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -2953,7 +2953,7 @@ int CWorld::getMatrix3x3Property(int target, const char* ppName, C3X3Matrix& pSt
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->getMatrix3x3Property(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -2979,7 +2979,7 @@ int CWorld::setMatrix4x4Property(int target, const char* ppName, const C4X4Matri
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->setMatrix4x4Property(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -3005,7 +3005,7 @@ int CWorld::getMatrix4x4Property(int target, const char* ppName, C4X4Matrix& pSt
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->getMatrix4x4Property(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -3033,7 +3033,7 @@ int CWorld::setColorProperty(int target, const char* ppName, const float* pState
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->setColorProperty(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -3061,7 +3061,7 @@ int CWorld::getColorProperty(int target, const char* ppName, float* pState) cons
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->getColorProperty(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -3089,7 +3089,7 @@ int CWorld::setVectorProperty(int target, const char* ppName, const double* v, i
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->setVectorProperty(pName, v, vL);
     }
     else
         retVal = -2; // target does not exist
@@ -3118,7 +3118,7 @@ int CWorld::getVectorProperty(int target, const char* ppName, std::vector<double
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->getVectorProperty(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -3146,7 +3146,7 @@ int CWorld::setIntVectorProperty(int target, const char* ppName, const int* v, i
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->setIntVectorProperty(pName, v, vL);
     }
     else
         retVal = -2; // target does not exist
@@ -3175,7 +3175,7 @@ int CWorld::getIntVectorProperty(int target, const char* ppName, std::vector<int
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->getIntVectorProperty(pName, pState);
     }
     else
         retVal = -2; // target does not exist
@@ -3210,7 +3210,7 @@ int CWorld::removeProperty(int target, const char* ppName)
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
         //if (script != nullptr)
-        //    retVal = script->XXXXXXXXXXXXXXX(pName, pState);
+        //    retVal = script->removeProperty(pName);
     }
     else
         retVal = -2; // target does not exist
@@ -3324,7 +3324,6 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, CWorld* t
         retVal = -2; // target does not exist
     return retVal;
 }
-
 
 #ifdef SIM_WITH_GUI
 void CWorld::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase *renderingObject, int displayAttrib,

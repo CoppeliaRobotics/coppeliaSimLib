@@ -260,11 +260,11 @@ void CJoint::_commonInit()
     _objectName_old = getObjectTypeInfo();
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
-    _cumulatedForceOrTorque = 0.0;
     _cumulativeForceOrTorqueTmp = 0.0;
     _lastForceOrTorque_dynStep = 0.0;
     _lastForceOrTorqueValid_dynStep = false;
-    _averageForceOrTorqueValid = false;
+    _filteredForceOrTorque = 0.0;
+    _filteredForceOrTorqueValid = false;
     _kinematicMotionType = 0;
     _kinematicMotionInitVel = 0.0;
     _velCalc_vel = 0.0;
@@ -768,12 +768,10 @@ void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
 
     _initialHybridOperation = _jointHasHybridFunctionality;
 
-    _averageForceOrTorqueValid = false;
+    _setFilteredForceOrTorque(false);
+    _setForceOrTorque(false);
     _kinematicMotionType = 0;
     _kinematicMotionInitVel = 0.0;
-    _cumulatedForceOrTorque = 0.0;
-    _lastForceOrTorqueValid_dynStep = false;
-    _lastForceOrTorque_dynStep = 0.0;
     _cumulativeForceOrTorqueTmp = 0.0;
 
     _jointPositionForMotionHandling_DEPRECATED = _pos;
@@ -824,10 +822,8 @@ void CJoint::simulationEnded()
         }
     }
 
-    _averageForceOrTorqueValid = false;
-    _cumulatedForceOrTorque = 0.0;
-    _lastForceOrTorqueValid_dynStep = false;
-    _lastForceOrTorque_dynStep = 0.0;
+    _setFilteredForceOrTorque(false);
+    _setForceOrTorque(false);
     _cumulativeForceOrTorqueTmp = 0.0;
     setIntrinsicTransformationError(C7Vector::identityTransformation);
     CSceneObject::simulationEnded();
@@ -1305,34 +1301,57 @@ void CJoint::scaleObject(double scalingFactor)
     }
 
     _dynamicsResetFlag = true;
-    _lastForceOrTorqueValid_dynStep = false;
-    _lastForceOrTorque_dynStep = 0.0;
-    _averageForceOrTorqueValid = false;
-    _cumulatedForceOrTorque = 0.0;
+    _setForceOrTorque(false);
+    _setFilteredForceOrTorque(false);
 
     CSceneObject::scaleObject(scalingFactor);
+}
+
+void CJoint::_setForceOrTorque(bool valid, double f /*= 0.0*/)
+{
+    if (!valid)
+        f = 0.0;
+    _lastForceOrTorqueValid_dynStep = valid;
+    bool diff = (_lastForceOrTorque_dynStep != f);
+    if (diff)
+        _lastForceOrTorque_dynStep = f;
+}
+
+void CJoint::_setFilteredForceOrTorque(bool valid, double f /*= 0.0*/)
+{
+    if (!valid)
+        f = 0.0;
+    _filteredForceOrTorqueValid = valid;
+    bool diff = (_filteredForceOrTorque != f);
+    if (diff)
+    {
+        _filteredForceOrTorque = f;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propJoint_averageJointForce.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDouble(cmd, _filteredForceOrTorque);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 void CJoint::addCumulativeForceOrTorque(double forceOrTorque, int countForAverage)
 { // The countForAverage mechanism is needed because we need to average all values in a simulation time step (but this
   // is called every dynamic simulation time step!!)
-    _lastForceOrTorque_dynStep = forceOrTorque;
-    _lastForceOrTorqueValid_dynStep = true;
+    _setForceOrTorque(true, forceOrTorque);
     _cumulativeForceOrTorqueTmp += forceOrTorque;
     if (countForAverage > 0)
     {
-        _cumulatedForceOrTorque = _cumulativeForceOrTorqueTmp / double(countForAverage);
-        _averageForceOrTorqueValid = true;
+        _setFilteredForceOrTorque(true, _cumulativeForceOrTorqueTmp / double(countForAverage));
         _cumulativeForceOrTorqueTmp = 0.0;
     }
 }
 
 void CJoint::setForceOrTorqueNotValid()
 {
-    _averageForceOrTorqueValid = false;
-    _cumulatedForceOrTorque = 0.0;
-    _lastForceOrTorqueValid_dynStep = false;
-    _lastForceOrTorque_dynStep = 0.0;
+    _setFilteredForceOrTorque(false);
+    _setForceOrTorque(false);
 }
 
 bool CJoint::getDynamicForceOrTorque(double &forceOrTorque, bool dynamicStepValue) const
@@ -1350,9 +1369,9 @@ bool CJoint::getDynamicForceOrTorque(double &forceOrTorque, bool dynamicStepValu
     }
     else
     {
-        if (!_averageForceOrTorqueValid) //(!_dynamicSecondPartIsValid)
+        if (!_filteredForceOrTorqueValid) //(!_dynamicSecondPartIsValid)
             return (false);
-        forceOrTorque = _cumulatedForceOrTorque;
+        forceOrTorque = _filteredForceOrTorque;
         return (true);
     }
 }
@@ -1940,6 +1959,7 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev)
     ev->appendKeyDouble(propJoint_targetPos.name, _targetPos);
     ev->appendKeyDouble(propJoint_targetVel.name, _targetVel);
     ev->appendKeyDouble(propJoint_targetForce.name, _targetForce);
+    ev->appendKeyDouble(propJoint_averageJointForce.name, _filteredForceOrTorque);
 
     double q[4];
     _sphericalTransf.getData(q, true);
@@ -4895,6 +4915,16 @@ int CJoint::getFloatProperty(const char* ppName, double& pState) const
         {
             retVal = 1;
             pState = _targetForce;
+        }
+        else if (_pName == propJoint_averageJointForce.name)
+        {
+            retVal = 1;
+            pState = _filteredForceOrTorque;
+        }
+        else if (_pName == propJoint_jointForce.name)
+        {
+            retVal = 1;
+            pState = _lastForceOrTorque_dynStep;
         }
     }
     if (retVal == -1)

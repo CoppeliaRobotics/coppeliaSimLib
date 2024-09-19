@@ -25,6 +25,8 @@ struct SJointProperty {
     FUNCX(propJoint_targetPos,                 "targetPos",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
     FUNCX(propJoint_targetVel,                 "targetVel",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
     FUNCX(propJoint_targetForce,               "targetForce",                                sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_jointForce,                "jointForce",                                 sim_propertytype_float,     sim_propertyinfo_notwritable, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_averageJointForce,         "averageJointForce",                          sim_propertytype_float,     sim_propertyinfo_notwritable, -1, -1, -1, -1, -1) \
     FUNCX(propJoint_jointMode,                 "jointMode",                                  sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
     FUNCX(propJoint_dynCtrlMode,               "dynCtrlMode",                                sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
     FUNCX(propJoint_dependencyMaster,          "dependencyMasterHandle",                     sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
@@ -450,6 +452,8 @@ class CJoint : public CSceneObject
     void setPid_old(double p_param, double i_param, double d_param);
 
   protected:
+    void _setForceOrTorque(bool valid, double f = 0.0);
+    void _setFilteredForceOrTorque(bool valid, double f = 0.0);
     void _sendEngineString(CCbor* eev = nullptr);
     std::string _enumToProperty(int oldEnum, int type, int& indexWithArrays) const;
     void updateSelfAsSlave();
@@ -487,9 +491,9 @@ class CJoint : public CSceneObject
     double _dynVelCtrl_currentVelAccel[2];
     double _dynCtrl_previousVelForce[2];
 
-    double _cumulatedForceOrTorque;
+    double _filteredForceOrTorque;
+    bool _filteredForceOrTorqueValid;
     double _cumulativeForceOrTorqueTmp;
-    bool _averageForceOrTorqueValid;
     int _kinematicMotionType; // 0=none, 1=pos ctrl, 2=vel ctrl, bit4 (16): reset motion
     double _kinematicMotionInitVel;
 

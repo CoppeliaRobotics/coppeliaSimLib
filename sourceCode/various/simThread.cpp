@@ -2292,7 +2292,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setValueCountForFilter(cmd.intParams[1]);
+            it->setFilterSampleSize(cmd.intParams[1]);
     }
     if (cmd.cmdId == SET_AVERAGEVALUE_FORCESENSORGUITRIGGEREDCMD)
     {
@@ -2316,7 +2316,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CForceSensor *it2 = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[i]);
                 if (it2 != nullptr)
                 {
-                    it2->setValueCountForFilter(it->getValueCountForFilter());
+                    it2->setFilterSampleSize(it->getFilterSampleSize());
                     it2->setFilterType(it->getFilterType());
                 }
             }
@@ -2350,7 +2350,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CForceSensor *it = App::currentWorld->sceneObjects->getForceSensorFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-            it->setConsecutiveThresholdViolationsForBreaking(cmd.intParams[1]);
+            it->setConsecutiveViolationsToTrigger(cmd.intParams[1]);
     }
     if (cmd.cmdId == APPLY_BREAKING_FORCESENSORGUITRIGGEREDCMD)
     {
@@ -2366,8 +2366,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     it2->setEnableTorqueThreshold(it->getEnableTorqueThreshold());
                     it2->setForceThreshold(it->getForceThreshold());
                     it2->setTorqueThreshold(it->getTorqueThreshold());
-                    it2->setConsecutiveThresholdViolationsForBreaking(
-                        it->getConsecutiveThresholdViolationsForBreaking());
+                    it2->setConsecutiveViolationsToTrigger(
+                        it->getConsecutiveViolationsToTrigger());
                 }
             }
         }

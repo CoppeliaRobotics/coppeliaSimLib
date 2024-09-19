@@ -5,7 +5,19 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propForceSensor_size,                    "size",                                     sim_propertytype_float,     0) \
+    FUNCX(propFSensor_size,                             "size",                                 sim_propertytype_float,     0) \
+    FUNCX(propFSensor_forceThresholdEnabled,            "forceThresholdEnabled",                sim_propertytype_bool,      0) \
+    FUNCX(propFSensor_torqueThresholdEnabled,           "torqueThresholdEnabled",               sim_propertytype_bool,      0) \
+    FUNCX(propFSensor_filterType,                       "filterType",                           sim_propertytype_int,       0) \
+    FUNCX(propFSensor_filterSampleSize,                 "filterSampleSize",                     sim_propertytype_int,       0) \
+    FUNCX(propFSensor_consecutiveViolationsToTrigger,   "consecutiveViolationsToTrigger",       sim_propertytype_int,       0) \
+    FUNCX(propFSensor_forceThreshold,                   "forceThreshold",                       sim_propertytype_float,     0) \
+    FUNCX(propFSensor_torqueThreshold,                  "torqueThreshold",                      sim_propertytype_float,     0) \
+    FUNCX(propFSensor_sensorForce,                      "sensorForce",                          sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
+    FUNCX(propFSensor_sensorTorque,                     "sensorTorque",                         sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
+    FUNCX(propFSensor_sensorAverageForce,               "filterSensorForce",                    sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
+    FUNCX(propFSensor_sensorAverageTorque,              "filterSensorTorque",                   sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
+    FUNCX(propFSensor_intrinsicError,                   "intrinsicError",                       sim_propertytype_pose,      sim_propertyinfo_notwritable) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -51,8 +63,16 @@ class CForceSensor : public CSceneObject
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
     void setIsInScene(bool s);
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
+    int setVector3Property(const char* pName, const C3Vector& pState);
+    int getVector3Property(const char* pName, C3Vector& pState) const;
+    int setPoseProperty(const char* pName, const C7Vector& pState);
+    int getPoseProperty(const char* pName, C7Vector& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
@@ -87,11 +107,11 @@ class CForceSensor : public CSceneObject
     bool getEnableForceThreshold() const;
     void setEnableTorqueThreshold(bool e);
     bool getEnableTorqueThreshold() const;
-    void setConsecutiveThresholdViolationsForBreaking(int count);
-    int getConsecutiveThresholdViolationsForBreaking() const;
+    void setConsecutiveViolationsToTrigger(int count);
+    int getConsecutiveViolationsToTrigger() const;
 
-    void setValueCountForFilter(int c);
-    int getValueCountForFilter() const;
+    void setFilterSampleSize(int c);
+    int getFilterSampleSize() const;
     void setFilterType(int t);
     int getFilterType() const;
 
@@ -102,18 +122,21 @@ class CForceSensor : public CSceneObject
     CColorObject *getColor(bool part2);
 
   protected:
+    void _setForceAndTorque(bool valid, const C3Vector* f = nullptr, const C3Vector* t = nullptr);
+    void _setFilteredForceAndTorque(bool valid, const C3Vector* f = nullptr, const C3Vector* t = nullptr);
+
     void _computeFilteredValues();
-    void _handleSensorBreaking();
+    void _handleSensorTriggering();
 
     double _forceThreshold;
     double _torqueThreshold;
-    int _valueCountForFilter;
+    int _filterSampleSize;
     int _filterType; // 0=average, 1=median
     bool _forceThresholdEnabled;
     bool _torqueThresholdEnabled;
     bool _stillAutomaticallyBreaking;
 
-    int _consecutiveThresholdViolationsForBreaking;
+    int _consecutiveViolationsToTrigger;
     int _currentThresholdViolationCount;
 
     C7Vector _intrinsicTransformationError; // from physics engine
@@ -125,11 +148,11 @@ class CForceSensor : public CSceneObject
     CColorObject _color_removeSoon;
 
     // Dynamic values:
-    std::vector<C3Vector> _cumulatedForces;
-    std::vector<C3Vector> _cumulatedTorques;
+    std::vector<C3Vector> _cumulatedForces_forFilter; // cumulated over the filter sample size
+    std::vector<C3Vector> _cumulatedTorques_forFilter;
 
-    C3Vector _cumulativeForcesTmp;
-    C3Vector _cumulativeTorquesTmp;
+    C3Vector _cumulativeForces_duringTimeStep; // cumulated over a time step
+    C3Vector _cumulativeTorques_duringTimeStep;
 
     // Following are forces/torques acquired during a single dyn. calculation step:
     C3Vector _lastForce_dynStep;
