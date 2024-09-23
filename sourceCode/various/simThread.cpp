@@ -1475,11 +1475,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     }
                     it->setFrontFaceDetection(last->getFrontFaceDetection());
                     it->setBackFaceDetection(last->getBackFaceDetection());
-                    it->setClosestObjectMode(last->getClosestObjectMode());
-                    it->setNormalCheck(last->getNormalCheck());
+                    it->setExactMode(last->getExactMode());
                     it->setAllowedNormal(last->getAllowedNormal());
-                    //                        it->setCheckOcclusions(last->getCheckOcclusions());
-                    it->convexVolume->setSmallestDistanceEnabled(last->convexVolume->getSmallestDistanceEnabled());
                     it->convexVolume->setSmallestDistanceAllowed(last->convexVolume->getSmallestDistanceAllowed());
                     it->setSensableObject(last->getSensableObject());
                 }
@@ -1514,12 +1511,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             it->setFrontFaceDetection(cmd.boolParams[0]);
             it->setBackFaceDetection(cmd.boolParams[1]);
-            it->setClosestObjectMode(cmd.boolParams[2]);
-            it->setNormalCheck(cmd.boolParams[3]);
+            it->setExactMode(cmd.boolParams[2]);
             it->setAllowedNormal(cmd.doubleParams[0]);
-            //                it->setCheckOcclusions(cmd.boolParams[4]);
-            it->convexVolume->setSmallestDistanceEnabled(cmd.boolParams[5]);
+            if (!cmd.boolParams[3])
+                it->setAllowedNormal(0.0);
             it->convexVolume->setSmallestDistanceAllowed(cmd.doubleParams[1]);
+            if (!cmd.boolParams[4])
+                it->convexVolume->setSmallestDistanceAllowed(0.0);
             if (it->getRandomizedDetection())
             {
                 it->setRandomizedDetectionSampleCount(cmd.intParams[1]);
@@ -1666,7 +1664,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if ((it != nullptr) && (it->getSensorType() == prox->getSensorType()))
                 {
                     double w = it->convexVolume->getSmallestDistanceAllowed();
-                    bool ww = it->convexVolume->getSmallestDistanceEnabled();
                     it->convexVolume->disableVolumeComputation(true);
                     // Volume parameters:
                     it->setRandomizedDetection(false); // somehow needed for next to work always...??
@@ -1689,7 +1686,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     it->convexVolume->disableVolumeComputation(false);
                     it->convexVolume->computeVolumes();
                     it->convexVolume->setSmallestDistanceAllowed(w);
-                    it->convexVolume->setSmallestDistanceEnabled(ww);
                 }
             }
         }

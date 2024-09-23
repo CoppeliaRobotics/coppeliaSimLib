@@ -1,10 +1,35 @@
 #pragma once
 
 #include <ser.h>
+#include <cbor.h>
 #include <simMath/3Vector.h>
 
 #define PROXSENSOR_MAX_FACE_NUMBER 1024  // Maximum faces of a disk or cone-type sensor
 #define PROXSENSOR_MAX_SUBDIVISIONS 1024 // Maximum subdivisions of a cone-type sensor
+
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propVolume_closeThreshold,                    "closeThreshold",                       sim_propertytype_float,     0) \
+    FUNCX(propVolume_offset,                            "volume_offset",                        sim_propertytype_float,     0) \
+    FUNCX(propVolume_range,                             "volume_range",                         sim_propertytype_float,     0) \
+    FUNCX(propVolume_xSize,                             "volume_xSize",                         sim_propertytype_vector,    0) \
+    FUNCX(propVolume_ySize,                             "volume_ySize",                         sim_propertytype_vector,    0) \
+    FUNCX(propVolume_radius,                            "volume_radius",                        sim_propertytype_vector,    0) \
+    FUNCX(propVolume_angle,                             "volume_angle",                         sim_propertytype_vector,    0) \
+    FUNCX(propVolume_faces,                             "volume_faces",                         sim_propertytype_intvector, 0) \
+    FUNCX(propVolume_subdivisions,                      "volume_subdivisions",                  sim_propertytype_intvector, 0) \
+    FUNCX(propVolume_edges,                             "volume_edges",                         sim_propertytype_vector,    sim_propertyinfo_notwritable) \
+    FUNCX(propVolume_closeEdges,                        "volume_closeEdges",                    sim_propertytype_vector,    sim_propertyinfo_notwritable) \
+
+#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2) name,
+const std::vector<SProperty> allProps_volume = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
 
 enum
 { // IS SERIALIZED!!!!
@@ -38,7 +63,28 @@ class CConvexVolume
     void removeEdgesNotInsideVolume(std::vector<double> &edges, std::vector<double> &planes, bool invertSides);
     void generateSphereEdges(std::vector<double> &edges, double radius);
 
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState) const;
+    int setFloatProperty(const char* pName, double pState);
+    int getFloatProperty(const char* pName, double& pState) const;
+    int setVector3Property(const char* pName, const C3Vector& pState);
+    int getVector3Property(const char* pName, C3Vector& pState) const;
+    int setColorProperty(const char* pName, const float* pState);
+    int getColorProperty(const char* pName, float* pState) const;
+    int setVectorProperty(const char* pName, const double* v, int vL);
+    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
+    int setIntVectorProperty(const char* pName, const int* v, int vL);
+    int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
+    int getPropertyName(int& index, std::string& pName);
+    static int getPropertyName_static(int& index, std::string& pName);
+    int getPropertyInfo(const char* pName, int& info);
+    static int getPropertyInfo_static(const char* pName, int& info);
+
     void computeVolumes();
+    void sendEventData(CCbor *eev);
+    void setParentObjHandleForEvents(int h);
 
     void setVolumeType(int theType, int objectTypeTheVolumeIsFor, double pointSize);
     int getVolumeType();
@@ -70,8 +116,6 @@ class CConvexVolume
     int getSubdivisions() const;
     void setSubdivisionsFar(int theSubdivisionsFar, bool recomputeVolume = true);
     int getSubdivisionsFar() const;
-    void setSmallestDistanceEnabled(bool e, bool recomputeVolume = true);
-    bool getSmallestDistanceEnabled() const;
     void setSmallestDistanceAllowed(double d, bool recomputeVolume = true);
     double getSmallestDistanceAllowed() const;
     void setDefaultVolumeParameters(int objectTypeTheVolumeIsFor, double pointSize);
@@ -86,11 +130,11 @@ class CConvexVolume
     std::vector<double> nonDetectingVolumeEdges;
 
   protected:
+    int _parentObjHandleForEvents;
     bool _volumeComputationTemporarilyDisabled;
 
     // Variables which need to be serialized & copied
-    double _smallestDistanceAllowed;
-    bool _smallestDistanceEnabled;
+    double _smallestDistanceAllowed; // 0.0 means disabled
     int _volumeType;
     double offset;
     double range;

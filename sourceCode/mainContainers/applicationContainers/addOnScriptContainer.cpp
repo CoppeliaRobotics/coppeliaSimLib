@@ -346,7 +346,7 @@ void CAddOnScriptContainer::pushGenesisEvents() const
     for (size_t i = 0; i < _addOns.size(); i++)
     {
         CScriptObject *it = _addOns[i];
-        CCbor *ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTADDED, it->getScriptHandle(), it->getScriptHandle(), false);
+        CCbor *ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTADDED, it->getScriptHandle(), it->getScriptUid(), false);
         it->addSpecializedObjectEventData(ev);
         App::worldContainer->pushEvent();
     }

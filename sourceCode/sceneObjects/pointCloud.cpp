@@ -664,9 +664,9 @@ void CPointCloud::setIsInScene(bool s)
 {
     CSceneObject::setIsInScene(s);
     if (s)
-        color.setEventParams(_objectHandle);
+        color.setEventParams(true, _objectHandle);
     else
-        color.setEventParams(-1);
+        color.setEventParams(true, -1);
 }
 
 void CPointCloud::scaleObject(double scalingFactor)

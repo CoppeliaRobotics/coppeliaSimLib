@@ -49,7 +49,6 @@ void CProxSensor::setRandomizedDetection(bool enable)
         double off = convexVolume->getOffset();
         double radius = convexVolume->getRadius();
         double range = convexVolume->getRange();
-        bool forbiddenDistEnable = convexVolume->getSmallestDistanceEnabled();
         double forbiddenDist = convexVolume->getSmallestDistanceAllowed();
 
         if (enable)
@@ -58,7 +57,6 @@ void CProxSensor::setRandomizedDetection(bool enable)
             convexVolume->setOffset(0.0);
             convexVolume->setRadius(off);
             convexVolume->setRange(range);
-            convexVolume->setSmallestDistanceEnabled(forbiddenDistEnable);
             convexVolume->setSmallestDistanceAllowed(forbiddenDist);
             convexVolume->setAngle(60.0 * degToRad);
             convexVolume->setFaceNumber(32);
@@ -71,7 +69,6 @@ void CProxSensor::setRandomizedDetection(bool enable)
             convexVolume->setVolumeType(RAY_TYPE_CONVEX_VOLUME, _objectType, _proxSensorSize);
             convexVolume->setOffset(radius);
             convexVolume->setRange(range);
-            convexVolume->setSmallestDistanceEnabled(forbiddenDistEnable);
             convexVolume->setSmallestDistanceAllowed(forbiddenDist);
         }
     }
@@ -84,33 +81,44 @@ bool CProxSensor::getRandomizedDetection() const
 
 void CProxSensor::setRandomizedDetectionSampleCount(int c)
 {
-    _randomizedDetectionSampleCount = tt::getLimitedInt(1, 5000, c);
-    _randomizedDetectionCountForDetection =
-        tt::getLimitedInt(1, _randomizedDetectionSampleCount, _randomizedDetectionCountForDetection);
+    _randomizedDetectionSampleCount_deprecated = tt::getLimitedInt(1, 5000, c);
+    _randomizedDetectionCountForDetection_deprecated =
+        tt::getLimitedInt(1, _randomizedDetectionSampleCount_deprecated, _randomizedDetectionCountForDetection_deprecated);
 }
 
 int CProxSensor::getRandomizedDetectionSampleCount() const
 {
-    return (_randomizedDetectionSampleCount);
+    return (_randomizedDetectionSampleCount_deprecated);
 }
 
 void CProxSensor::setRandomizedDetectionCountForDetection(int c)
 {
-    _randomizedDetectionCountForDetection = tt::getLimitedInt(1, _randomizedDetectionSampleCount, c);
+    _randomizedDetectionCountForDetection_deprecated = tt::getLimitedInt(1, _randomizedDetectionSampleCount_deprecated, c);
 }
 
 int CProxSensor::getRandomizedDetectionCountForDetection() const
 {
-    return (_randomizedDetectionCountForDetection);
+    return (_randomizedDetectionCountForDetection_deprecated);
 }
 
 void CProxSensor::setShowVolume(bool s)
 {
-    _showVolume = s;
+    if (_showVolume != s)
+    {
+        _showVolume = s;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propProximitySensor_showVolume.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _showVolume);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
+
 bool CProxSensor::getShowVolume() const
 {
-    return (_showVolume);
+    return _showVolume;
 }
 
 std::string CProxSensor::getObjectTypeInfo() const
@@ -150,35 +158,32 @@ bool CProxSensor::isPotentiallyRenderable() const
 void CProxSensor::commonInit()
 {
     convexVolume = new CConvexVolume();
-    explicitHandling = false;
-    displayNormals = false;
+    _explicitHandling = false;
     _objectType = sim_sceneobject_proximitysensor;
-    frontFaceDetection = true;
-    backFaceDetection = true;
-    closestObjectMode = true;
-    normalCheck = false;
-    allowedNormal = 45.0 * degToRad;
-    _hideDetectionRay = false;
+    _frontFaceDetection = true;
+    _backFaceDetection = true;
+    _exactMode = true;
+    _angleThreshold = 0.0; // means angle check disabled
+    _hideDetectionRay_deprecated = false;
 
     _randomizedDetection = false;
-    _randomizedDetectionSampleCount = 1;
-    _randomizedDetectionCountForDetection = 1;
+    _randomizedDetectionSampleCount_deprecated = 1;
+    _randomizedDetectionCountForDetection_deprecated = 1;
 
     _proxSensorSize = 0.01;
     _showVolume = true;
     _localObjectSpecialProperty = 0;
 
-    _sensableObject = -1;
-    _sensableType = sim_objectspecialproperty_detectable_ultrasonic;
-    _sensorResultValid = false;
-    _detectedPointValid = false;
+    _sensableObject_deprecated = -1;
+    _sensableType_deprecated = sim_objectspecialproperty_detectable_ultrasonic;
+    _detectedObjectHandle = -1;
     _calcTimeInMs = 0;
 
     volumeColor.setColorsAllBlack();
     volumeColor.setColor(0.9f, 0.0f, 0.5f, sim_colorcomponent_ambient_diffuse);
     detectionRayColor.setColorsAllBlack();
     detectionRayColor.setColor(1.0f, 1.0f, 0.0f, sim_colorcomponent_emission);
-    detectionRayColor.setEventParams(-1, -1, "_ray");
+    detectionRayColor.setEventParams(true, -1, -1, "_ray");
 
     _visibilityLayer = PROXIMITY_SENSOR_LAYER;
     _objectAlias = getObjectTypeInfo();
@@ -188,48 +193,83 @@ void CProxSensor::commonInit()
 
 void CProxSensor::setSensableType(int theType)
 {
-    _sensableType = theType;
+    _sensableType_deprecated = theType;
 }
 
 int CProxSensor::getSensableType() const
 {
-    return (_sensableType);
+    return (_sensableType_deprecated);
+}
+
+void CProxSensor::_setDetectedObjectAndInfo(int h, const C3Vector* detectedPt /*= nullptr*/, const C3Vector* detectedN /*= nullptr*/)
+{
+    bool diff = (_detectedObjectHandle != h);
+    if ( (h >= 0) && (!diff) )
+        diff = ((_detectedPoint != detectedPt[0]) ||(_detectedNormalVector != detectedN[0]));
+    if (diff)
+    {
+        _detectedObjectHandle = h;
+        if (_detectedObjectHandle >= 0)
+        {
+            _detectedPoint = detectedPt[0];
+            _detectedNormalVector = detectedN[0];
+        }
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propProximitySensor_detectedObjectHandle.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _detectedObjectHandle);
+            ev->appendKeyDoubleArray(propProximitySensor_detectedPoint.name, _detectedPoint.data, 3);
+            ev->appendKeyDoubleArray(propProximitySensor_detectedNormal.name, _detectedNormalVector.data, 3);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 void CProxSensor::setHideDetectionRay(bool hide)
 {
-    _hideDetectionRay = hide;
+    _hideDetectionRay_deprecated = hide;
 }
 
 bool CProxSensor::getHideDetectionRay() const
 {
-    return (_hideDetectionRay);
+    return (_hideDetectionRay_deprecated);
 }
 
 void CProxSensor::setExplicitHandling(bool setExplicit)
 {
-    explicitHandling = setExplicit;
+    if (_explicitHandling != setExplicit)
+    {
+        _explicitHandling = setExplicit;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propProximitySensor_explicitHandling.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _explicitHandling);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 bool CProxSensor::getExplicitHandling() const
 {
-    return (explicitHandling);
+    return _explicitHandling;
 }
 
 int CProxSensor::getSensableObject()
 {
-    return (_sensableObject);
+    return (_sensableObject_deprecated);
 }
 
 void CProxSensor::setSensableObject(int objectID)
 {
-    _sensableObject = objectID;
+    _sensableObject_deprecated = objectID;
 }
 
 void CProxSensor::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();
-    _sensableObject = -1;
+    _sensableObject_deprecated = -1;
 }
 
 void CProxSensor::addSpecializedObjectEventData(CCbor *ev)
@@ -241,7 +281,18 @@ void CProxSensor::addSpecializedObjectEventData(CCbor *ev)
     detectionRayColor.addGenesisEventData(ev);
 #endif
     ev->appendKeyDouble(propProximitySensor_size.name, _proxSensorSize);
-    // todo
+    ev->appendKeyBool(propProximitySensor_frontFaceDetection.name, _frontFaceDetection);
+    ev->appendKeyBool(propProximitySensor_backFaceDetection.name, _backFaceDetection);
+    ev->appendKeyBool(propProximitySensor_exactMode.name, _exactMode);
+    ev->appendKeyBool(propProximitySensor_explicitHandling.name, _explicitHandling);
+    ev->appendKeyBool(propProximitySensor_showVolume.name, _showVolume);
+    ev->appendKeyBool(propProximitySensor_randomizedDetection.name, _randomizedDetection);
+    ev->appendKeyInt(propProximitySensor_sensorType.name, sensorType);
+    ev->appendKeyInt(propProximitySensor_detectedObjectHandle.name, _detectedObjectHandle);
+    ev->appendKeyDouble(propProximitySensor_angleThreshold.name, _angleThreshold);
+    ev->appendKeyDoubleArray(propProximitySensor_detectedPoint.name, _detectedPoint.data, 3);
+    ev->appendKeyDoubleArray(propProximitySensor_detectedNormal.name, _detectedNormalVector.data, 3);
+    convexVolume->sendEventData(ev);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // proxSensor
 #endif
@@ -251,24 +302,20 @@ CSceneObject *CProxSensor::copyYourself()
 {
     CProxSensor *newSensor = (CProxSensor *)CSceneObject::copyYourself();
 
-    newSensor->_sensableObject = _sensableObject;
-    newSensor->_detectedPoint = _detectedPoint;
-    newSensor->_detectedPointValid = false;
-    newSensor->allowedNormal = allowedNormal;
+    newSensor->_sensableObject_deprecated = _sensableObject_deprecated;
+    newSensor->_angleThreshold = _angleThreshold;
     newSensor->_proxSensorSize = _proxSensorSize;
-    newSensor->normalCheck = normalCheck;
-    newSensor->closestObjectMode = closestObjectMode;
-    newSensor->frontFaceDetection = frontFaceDetection;
-    newSensor->backFaceDetection = backFaceDetection;
-    newSensor->explicitHandling = explicitHandling;
+    newSensor->_exactMode = _exactMode;
+    newSensor->_frontFaceDetection = _frontFaceDetection;
+    newSensor->_backFaceDetection = _backFaceDetection;
+    newSensor->_explicitHandling = _explicitHandling;
     newSensor->sensorType = sensorType;
-    newSensor->_sensableType = _sensableType;
-    newSensor->displayNormals = displayNormals;
+    newSensor->_sensableType_deprecated = _sensableType_deprecated;
     newSensor->_showVolume = _showVolume;
 
     newSensor->_randomizedDetection = _randomizedDetection;
-    newSensor->_randomizedDetectionSampleCount = _randomizedDetectionSampleCount;
-    newSensor->_randomizedDetectionCountForDetection = _randomizedDetectionCountForDetection;
+    newSensor->_randomizedDetectionSampleCount_deprecated = _randomizedDetectionSampleCount_deprecated;
+    newSensor->_randomizedDetectionCountForDetection_deprecated = _randomizedDetectionCountForDetection_deprecated;
 
     delete newSensor->convexVolume;
     newSensor->convexVolume = convexVolume->copyYourself();
@@ -286,16 +333,16 @@ void CProxSensor::announceObjectWillBeErased(const CSceneObject *object, bool co
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceObjectWillBeErased(object, copyBuffer);
-    if (_sensableObject == object->getObjectHandle())
-        _sensableObject = -1;
+    if (_sensableObject_deprecated == object->getObjectHandle())
+        _sensableObject_deprecated = -1;
 }
 
 void CProxSensor::announceCollectionWillBeErased(int groupID, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceCollectionWillBeErased(groupID, copyBuffer);
-    if (_sensableObject == groupID)
-        _sensableObject = -1;
+    if (_sensableObject_deprecated == groupID)
+        _sensableObject_deprecated = -1;
 }
 void CProxSensor::announceCollisionWillBeErased(int collisionID, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
@@ -316,14 +363,14 @@ void CProxSensor::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
 void CProxSensor::performObjectLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
 {
     CSceneObject::performObjectLoadingMapping(map, loadingAmodel);
-    if (_sensableObject <= SIM_IDEND_SCENEOBJECT)
-        _sensableObject = CWorld::getLoadingMapping(map, _sensableObject);
+    if (_sensableObject_deprecated <= SIM_IDEND_SCENEOBJECT)
+        _sensableObject_deprecated = CWorld::getLoadingMapping(map, _sensableObject_deprecated);
 }
 void CProxSensor::performCollectionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
 {
     CSceneObject::performCollectionLoadingMapping(map, loadingAmodel);
-    if (_sensableObject > SIM_IDEND_SCENEOBJECT)
-        _sensableObject = CWorld::getLoadingMapping(map, _sensableObject);
+    if (_sensableObject_deprecated > SIM_IDEND_SCENEOBJECT)
+        _sensableObject_deprecated = CWorld::getLoadingMapping(map, _sensableObject_deprecated);
 }
 void CProxSensor::performCollisionLoadingMapping(const std::map<int, int> *map, bool loadingAmodel)
 {
@@ -351,7 +398,7 @@ void CProxSensor::performDynMaterialObjectLoadingMapping(const std::map<int, int
 void CProxSensor::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
-    _initialExplicitHandling = explicitHandling;
+    _initialExplicitHandling = _explicitHandling;
 }
 
 void CProxSensor::simulationAboutToStart()
@@ -365,11 +412,8 @@ void CProxSensor::simulationEnded()
   // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
     {
-        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() &&
-            ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0))
-        {
-            explicitHandling = _initialExplicitHandling;
-        }
+        if (App::currentWorld->simulation->getResetSceneAtSimulationEnd() && ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0))
+            setExplicitHandling(_initialExplicitHandling);
     }
     CSceneObject::simulationEnded();
 }
@@ -395,20 +439,24 @@ void CProxSensor::serialize(CSer &ar)
             ar << _proxSensorSize;
             ar.flush();
 
-            ar.storeDataName("_l2");
-            ar << allowedNormal;
+            ar.storeDataName("al3");
+            ar << _angleThreshold;
+            ar.flush();
+
+            ar.storeDataName("_l2"); // for backw. comp. (before V4.8)
+            ar << _angleThreshold;
             ar.flush();
 
             ar.storeDataName("Pr4");
             unsigned char nothing = 0;
             SIM_SET_CLEAR_BIT(nothing, 0, _showVolume);
-            SIM_SET_CLEAR_BIT(nothing, 1, closestObjectMode);
-            SIM_SET_CLEAR_BIT(nothing, 2, normalCheck);
+            SIM_SET_CLEAR_BIT(nothing, 1, _exactMode);
+            SIM_SET_CLEAR_BIT(nothing, 2, _angleThreshold > 0.0); // for backw. comp. Now an angle of 0.0 means no angle check
             // 12/12/2011       SIM_SET_CLEAR_BIT(nothing,3,_detectAllDetectable);
-            SIM_SET_CLEAR_BIT(nothing, 4, !frontFaceDetection);
-            SIM_SET_CLEAR_BIT(nothing, 5, !backFaceDetection);
+            SIM_SET_CLEAR_BIT(nothing, 4, !_frontFaceDetection);
+            SIM_SET_CLEAR_BIT(nothing, 5, !_backFaceDetection);
             SIM_SET_CLEAR_BIT(nothing, 6, false); //_showVolumeWhenDetecting);
-            SIM_SET_CLEAR_BIT(nothing, 7, explicitHandling);
+            SIM_SET_CLEAR_BIT(nothing, 7, _explicitHandling);
             ar << nothing;
             ar.flush();
 
@@ -420,7 +468,7 @@ void CProxSensor::serialize(CSer &ar)
             ar.flush();
 
             ar.storeDataName("Rad");
-            ar << _randomizedDetectionSampleCount << _randomizedDetectionCountForDetection;
+            ar << _randomizedDetectionSampleCount_deprecated << _randomizedDetectionCountForDetection_deprecated;
             ar.flush();
 
             ar.storeDataName("Cl1");
@@ -436,11 +484,11 @@ void CProxSensor::serialize(CSer &ar)
                 detectionRayColor.serialize(ar, 1);
 
             ar.storeDataName("Sox");
-            ar << _sensableObject;
+            ar << _sensableObject_deprecated;
             ar.flush();
 
             ar.storeDataName("Sst");
-            ar << _sensableType;
+            ar << _sensableType_deprecated;
             ar.flush();
 
             ar.storeDataName(SER_END_OF_OBJECT);
@@ -449,6 +497,7 @@ void CProxSensor::serialize(CSer &ar)
         { // Loading
             int byteQuantity;
             std::string theName = "";
+            bool usingAl3 = false;
             while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
                 theName = ar.readDataName();
@@ -490,13 +539,13 @@ void CProxSensor::serialize(CSer &ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _sensableObject;
+                        ar >> _sensableObject_deprecated;
                     }
                     if (theName.compare("Sst") == 0)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _sensableType;
+                        ar >> _sensableType_deprecated;
                     }
                     if (theName.compare("Al2") == 0)
                     { // for backward comp. (flt->dbl)
@@ -504,14 +553,22 @@ void CProxSensor::serialize(CSer &ar)
                         ar >> byteQuantity;
                         float bla;
                         ar >> bla;
-                        allowedNormal = (double)bla;
+                        _angleThreshold = (double)bla;
                     }
 
                     if (theName.compare("_l2") == 0)
+                    { // for backward compatibility
+                        noHit = false;
+                        ar >> byteQuantity;
+                        ar >> _angleThreshold;
+                    }
+
+                    if (theName.compare("al3") == 0)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> allowedNormal;
+                        ar >> _angleThreshold;
+                        usingAl3 = true;
                     }
 
                     if (theName == "Pr4")
@@ -521,12 +578,13 @@ void CProxSensor::serialize(CSer &ar)
                         unsigned char nothing;
                         ar >> nothing;
                         _showVolume = SIM_IS_BIT_SET(nothing, 0);
-                        closestObjectMode = SIM_IS_BIT_SET(nothing, 1);
-                        normalCheck = SIM_IS_BIT_SET(nothing, 2);
-                        frontFaceDetection = !SIM_IS_BIT_SET(nothing, 4);
-                        backFaceDetection = !SIM_IS_BIT_SET(nothing, 5);
+                        _exactMode = SIM_IS_BIT_SET(nothing, 1);
+                        if ( (!SIM_IS_BIT_SET(nothing, 2)) && (!usingAl3) )
+                            _angleThreshold = 0.0;
+                        _frontFaceDetection = !SIM_IS_BIT_SET(nothing, 4);
+                        _backFaceDetection = !SIM_IS_BIT_SET(nothing, 5);
                         //_showVolumeWhenDetecting=SIM_IS_BIT_SET(nothing,6);
-                        explicitHandling = SIM_IS_BIT_SET(nothing, 7);
+                        _explicitHandling = SIM_IS_BIT_SET(nothing, 7);
                     }
                     if (theName == "Pr5")
                     {
@@ -541,7 +599,7 @@ void CProxSensor::serialize(CSer &ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _randomizedDetectionSampleCount >> _randomizedDetectionCountForDetection;
+                        ar >> _randomizedDetectionSampleCount_deprecated >> _randomizedDetectionCountForDetection_deprecated;
                     }
                     if (theName.compare("Cl1") == 0)
                     {
@@ -583,16 +641,16 @@ void CProxSensor::serialize(CSer &ar)
             ar.xmlAddNode_float("size", _proxSensorSize);
 
             if (exhaustiveXml)
-                ar.xmlAddNode_int("detectableEntity", _sensableObject);
+                ar.xmlAddNode_int("detectableEntity", _sensableObject_deprecated);
             else
             {
                 std::string str;
-                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sensableObject);
+                CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(_sensableObject_deprecated);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 else
                 {
-                    CCollection *coll = App::currentWorld->collections->getObjectFromHandle(_sensableObject);
+                    CCollection *coll = App::currentWorld->collections->getObjectFromHandle(_sensableObject_deprecated);
                     if (coll != nullptr)
                         str = "@collection@" + coll->getCollectionName();
                 }
@@ -611,27 +669,30 @@ void CProxSensor::serialize(CSer &ar)
             ar.xmlAddNode_comment(
                 " 'detectionType' tag: can be 'ultrasonic', 'infrared', 'laser', 'inductive' or 'capacitive' ",
                 exhaustiveXml);
-            ar.xmlAddNode_enum("detectionType", _sensableType, sim_objectspecialproperty_detectable_ultrasonic,
+            ar.xmlAddNode_enum("detectionType", _sensableType_deprecated, sim_objectspecialproperty_detectable_ultrasonic,
                                "ultrasonic", sim_objectspecialproperty_detectable_infrared, "infrared",
                                sim_objectspecialproperty_detectable_laser, "laser",
                                sim_objectspecialproperty_detectable_inductive, "inductive",
                                sim_objectspecialproperty_detectable_capacitive, "capacitive");
 
-            ar.xmlAddNode_float("allowedNormalAngle", allowedNormal * 180.0 / piValue);
+            ar.xmlAddNode_float("allowedAngle", _angleThreshold * 180.0 / piValue);
+            ar.xmlAddNode_comment(" 'allowedNormalAngle' tag: used for backward compatibility ", exhaustiveXml);
+            ar.xmlAddNode_float("allowedNormalAngle", _angleThreshold * 180.0 / piValue);
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("showVolumeWhenNotDetecting", _showVolume);
-            ar.xmlAddNode_bool("closestObjectMode", closestObjectMode);
-            ar.xmlAddNode_bool("normalCheck", normalCheck);
-            ar.xmlAddNode_bool("frontFaceDetection", frontFaceDetection);
-            ar.xmlAddNode_bool("backFaceDetection", backFaceDetection);
-            ar.xmlAddNode_bool("explicitHandling", explicitHandling);
+            ar.xmlAddNode_bool("closestObjectMode", _exactMode);
+            ar.xmlAddNode_comment(" 'normalCheck' tag: used for backward compatibility ", exhaustiveXml);
+            ar.xmlAddNode_bool("normalCheck", _angleThreshold > 0.0);
+            ar.xmlAddNode_bool("frontFaceDetection", _frontFaceDetection);
+            ar.xmlAddNode_bool("backFaceDetection", _backFaceDetection);
+            ar.xmlAddNode_bool("explicitHandling", _explicitHandling);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("randomizedDetection");
             ar.xmlAddNode_bool("enabled", _randomizedDetection);
-            ar.xmlAddNode_int("sampleCount", _randomizedDetectionSampleCount);
-            ar.xmlAddNode_int("countForTrigger", _randomizedDetectionCountForDetection);
+            ar.xmlAddNode_int("sampleCount", _randomizedDetectionSampleCount_deprecated);
+            ar.xmlAddNode_int("countForTrigger", _randomizedDetectionCountForDetection_deprecated);
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("color");
@@ -671,39 +732,55 @@ void CProxSensor::serialize(CSer &ar)
             ar.xmlGetNode_float("size", _proxSensorSize, exhaustiveXml);
 
             if (exhaustiveXml)
-                ar.xmlGetNode_int("detectableEntity", _sensableObject);
+                ar.xmlGetNode_int("detectableEntity", _sensableObject_deprecated);
             else
             {
                 ar.xmlGetNode_string("detectableObjectAlias", _sensableObjectLoadAlias, exhaustiveXml);
                 ar.xmlGetNode_string("detectableEntity", _sensableObjectLoadName_old, exhaustiveXml);
             }
 
-            ar.xmlGetNode_enum("detectionType", _sensableType, exhaustiveXml, "ultrasonic",
+            ar.xmlGetNode_enum("detectionType", _sensableType_deprecated, exhaustiveXml, "ultrasonic",
                                sim_objectspecialproperty_detectable_ultrasonic, "infrared",
                                sim_objectspecialproperty_detectable_infrared, "laser",
                                sim_objectspecialproperty_detectable_laser, "inductive",
                                sim_objectspecialproperty_detectable_inductive, "capacitive",
                                sim_objectspecialproperty_detectable_capacitive);
 
-            if (ar.xmlGetNode_float("allowedNormalAngle", allowedNormal, exhaustiveXml))
-                allowedNormal *= piValue / 180.0;
+            bool usingAllowedAngle =  ar.xmlGetNode_float("allowedAngle", _angleThreshold, exhaustiveXml);
+            if (usingAllowedAngle)
+                _angleThreshold *= piValue / 180.0;
+            else
+            {
+                if (ar.xmlGetNode_float("allowedNormalAngle", _angleThreshold, exhaustiveXml))
+                    _angleThreshold *= piValue / 180.0;
+            }
 
             if (ar.xmlPushChildNode("switches", exhaustiveXml))
             {
                 ar.xmlGetNode_bool("showVolumeWhenNotDetecting", _showVolume, exhaustiveXml);
-                ar.xmlGetNode_bool("closestObjectMode", closestObjectMode, exhaustiveXml);
-                ar.xmlGetNode_bool("normalCheck", normalCheck, exhaustiveXml);
-                ar.xmlGetNode_bool("frontFaceDetection", frontFaceDetection, exhaustiveXml);
-                ar.xmlGetNode_bool("backFaceDetection", backFaceDetection, exhaustiveXml);
-                ar.xmlGetNode_bool("explicitHandling", explicitHandling, exhaustiveXml);
+                ar.xmlGetNode_bool("closestObjectMode", _exactMode, exhaustiveXml);
+                if (!usingAllowedAngle)
+                {
+                    bool ac;
+                    if (ar.xmlGetNode_bool("normalCheck", ac, exhaustiveXml))
+                    {
+                        if (!ac)
+                            _angleThreshold = 0.0;
+                    }
+                    else
+                        _angleThreshold = 0.0;
+                }
+                ar.xmlGetNode_bool("frontFaceDetection", _frontFaceDetection, exhaustiveXml);
+                ar.xmlGetNode_bool("backFaceDetection", _backFaceDetection, exhaustiveXml);
+                ar.xmlGetNode_bool("explicitHandling", _explicitHandling, exhaustiveXml);
                 ar.xmlPopNode();
             }
 
             if (ar.xmlPushChildNode("randomizedDetection", exhaustiveXml))
             {
                 ar.xmlGetNode_bool("enabled", _randomizedDetection, exhaustiveXml);
-                ar.xmlGetNode_int("sampleCount", _randomizedDetectionSampleCount, exhaustiveXml);
-                ar.xmlGetNode_int("countForTrigger", _randomizedDetectionCountForDetection, exhaustiveXml);
+                ar.xmlGetNode_int("sampleCount", _randomizedDetectionSampleCount_deprecated, exhaustiveXml);
+                ar.xmlGetNode_int("countForTrigger", _randomizedDetectionCountForDetection_deprecated, exhaustiveXml);
                 ar.xmlPopNode();
             }
 
@@ -800,13 +877,15 @@ void CProxSensor::setIsInScene(bool s)
     CSceneObject::setIsInScene(s);
     if (s)
     {
-        volumeColor.setEventParams(_objectHandle);
-        detectionRayColor.setEventParams(_objectHandle);
+        volumeColor.setEventParams(true, _objectHandle);
+        detectionRayColor.setEventParams(true, _objectHandle);
+        convexVolume->setParentObjHandleForEvents(_objectHandle);
     }
     else
     {
-        volumeColor.setEventParams(-1);
-        detectionRayColor.setEventParams(-1);
+        volumeColor.setEventParams(true, -1);
+        detectionRayColor.setEventParams(true, -1);
+        convexVolume->setParentObjHandleForEvents(-1);
     }
 }
 
@@ -816,7 +895,7 @@ void CProxSensor::calculateFreshRandomizedRays()
     _randomizedVectorDetectionStates.clear();
     // Build the random rays (only direction)
     double angle = convexVolume->getAngle();
-    for (int i = 0; i < _randomizedDetectionSampleCount; i++)
+    for (int i = 0; i < _randomizedDetectionSampleCount_deprecated; i++)
     {
         double rZ, sZ, cZ;
         if (angle > 1.1 * piValD2)
@@ -857,8 +936,7 @@ void CProxSensor::resetSensor(bool exceptExplicitHandling)
 {
     if ((!exceptExplicitHandling) || (!getExplicitHandling()))
     {
-        _detectedPointValid = false;
-        _sensorResultValid = false;
+        _setDetectedObjectAndInfo(-1);
         _calcTimeInMs = 0;
     }
 }
@@ -867,32 +945,27 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectH
 {
     if (exceptExplicitHandling && getExplicitHandling())
         return (false); // We don't want to handle those
-    _sensorResultValid = false;
-    _detectedPointValid = false;
     _calcTimeInMs = 0;
     if (!App::currentWorld->mainSettings_old->proximitySensorsEnabled)
         return (false);
     if (!App::worldContainer->pluginContainer->isGeomPluginAvailable())
         return (false);
-
-    _sensorResultValid = true;
-
     int stTime = (int)VDateTime::getTimeInMs();
 
     double treshhold = DBL_MAX;
     double minThreshold = -1.0;
-    if (convexVolume->getSmallestDistanceEnabled())
+    if (convexVolume->getSmallestDistanceAllowed() > 0.0)
         minThreshold = convexVolume->getSmallestDistanceAllowed();
-
+    C3Vector detectedP;
     _randomizedVectors.clear();
     _randomizedVectorDetectionStates.clear();
-    _detectedPointValid = CProxSensorRoutine::detectEntity(
-        _objectHandle, _sensableObject, closestObjectMode, normalCheck, allowedNormal, _detectedPoint, treshhold,
-        frontFaceDetection, backFaceDetection, detectedObjectHandle, minThreshold, detectedNormalVector, false);
-    _detectedObjectHandle = detectedObjectHandle;
-    _detectedNormalVector = detectedNormalVector;
+    bool detectedPointValid = CProxSensorRoutine::detectEntity(
+        _objectHandle, _sensableObject_deprecated, _exactMode, _angleThreshold > 0.0, _angleThreshold, detectedP, treshhold,
+        _frontFaceDetection, _backFaceDetection, detectedObjectHandle, minThreshold, detectedNormalVector, false);
+    int detectedObject = detectedObjectHandle;
+    C3Vector detectedN = detectedNormalVector;
     _calcTimeInMs = VDateTime::getTimeDiffInMs(stTime);
-    if (_sensorResultValid && _detectedPointValid && VThread::isSimThread())
+    if (detectedPointValid && (detectedObject >= 0) && VThread::isSimThread())
     {
         std::vector<CScriptObject*> scripts;
         getAttachedScripts(scripts, -1, true);
@@ -904,9 +977,9 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectH
             inStack->pushTableOntoStack();
 
             inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
-            inStack->insertKeyInt32IntoStackTable("detectedObjectHandle", _detectedObjectHandle);
-            inStack->insertKeyDoubleArrayIntoStackTable("detectedPoint", _detectedPoint.data, 3);
-            inStack->insertKeyDoubleArrayIntoStackTable("normalVector", _detectedNormalVector.data, 3);
+            inStack->insertKeyInt32IntoStackTable("detectedObjectHandle", detectedObject);
+            inStack->insertKeyDoubleArrayIntoStackTable("detectedPoint", detectedP.data, 3);
+            inStack->insertKeyDoubleArrayIntoStackTable("normalVector", detectedN.data, 3);
 
             for (size_t i = 0; i < scripts.size(); i++)
             {
@@ -923,7 +996,8 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectH
                         if (outStack->getStackMapBoolValue("trigger", trig))
                         {
                             hasTriggerWord = true;
-                            _detectedPointValid = trig;
+                            if (!trig)
+                                detectedObject = -1;
                         }
                     }
                     App::worldContainer->interfaceStackContainer->destroyStack(outStack);
@@ -934,23 +1008,21 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int &detectedObjectH
             App::worldContainer->interfaceStackContainer->destroyStack(inStack);
         }
     }
-    return (_detectedPointValid);
+    _setDetectedObjectAndInfo(detectedObject, &detectedP, &detectedN);
+    return (detectedObject >= 0);
 }
 
 int CProxSensor::readSensor(C3Vector &detectPt, int &detectedObjectHandle, C3Vector &detectedNormalVector)
 {
-    if (_sensorResultValid)
+    int retVal = 0;
+    if (_detectedObjectHandle >= 0)
     {
-        if (_detectedPointValid)
-        {
-            detectPt = _detectedPoint;
-            detectedObjectHandle = _detectedObjectHandle;
-            detectedNormalVector = _detectedNormalVector;
-            return (1);
-        }
-        return (0);
+        detectPt = _detectedPoint;
+        detectedObjectHandle = _detectedObjectHandle;
+        detectedNormalVector = _detectedNormalVector;
+        retVal = 1;
     }
-    return (-1);
+    return retVal;
 }
 
 double CProxSensor::getCalculationTime() const
@@ -960,51 +1032,89 @@ double CProxSensor::getCalculationTime() const
 
 bool CProxSensor::getFrontFaceDetection() const
 {
-    return (frontFaceDetection);
+    return _frontFaceDetection;
 }
+
 bool CProxSensor::getBackFaceDetection() const
 {
-    return (backFaceDetection);
+    return _backFaceDetection;
 }
+
 void CProxSensor::setFrontFaceDetection(bool faceOn)
 {
-    frontFaceDetection = faceOn;
-    if (!faceOn)
-        backFaceDetection = true;
+    if (_frontFaceDetection != faceOn)
+    {
+        _frontFaceDetection = faceOn;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propProximitySensor_frontFaceDetection.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _frontFaceDetection);
+            App::worldContainer->pushEvent();
+        }
+        if (!faceOn)
+            setBackFaceDetection(true);
+    }
 }
+
 void CProxSensor::setBackFaceDetection(bool faceOn)
 {
-    backFaceDetection = faceOn;
-    if (!faceOn)
-        frontFaceDetection = true;
+    if (_backFaceDetection != faceOn)
+    {
+        _backFaceDetection = faceOn;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propProximitySensor_backFaceDetection.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _backFaceDetection);
+            App::worldContainer->pushEvent();
+        }
+        if (!faceOn)
+            setFrontFaceDetection(true);
+    }
 }
 
 void CProxSensor::setAllowedNormal(double al)
 {
-    tt::limitValue(0.1 * degToRad, 90.0 * degToRad, al);
-    allowedNormal = al;
+    tt::limitValue(0.0 * degToRad, 90.0 * degToRad, al);
+    if (_angleThreshold != al)
+    {
+        _angleThreshold = al;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propProximitySensor_angleThreshold.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDouble(cmd, _angleThreshold);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
+
 double CProxSensor::getAllowedNormal() const
 {
-    return (allowedNormal);
+    return _angleThreshold;
 }
-void CProxSensor::setNormalCheck(bool check)
+
+void CProxSensor::setExactMode(bool closestObjMode)
 {
-    normalCheck = check;
+    if (_exactMode != closestObjMode)
+    {
+        _exactMode = closestObjMode;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propProximitySensor_exactMode.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, _exactMode);
+            App::worldContainer->pushEvent();
+        }
+        _setDetectedObjectAndInfo(-1);
+        _calcTimeInMs = 0;
+    }
 }
-bool CProxSensor::getNormalCheck() const
+
+bool CProxSensor::getExactMode()
 {
-    return (normalCheck);
-}
-void CProxSensor::setClosestObjectMode(bool closestObjMode)
-{
-    closestObjectMode = closestObjMode;
-    _detectedPointValid = false;
-    _calcTimeInMs = 0;
-}
-bool CProxSensor::getClosestObjectMode()
-{
-    return (closestObjectMode);
+    return _exactMode;
 }
 
 void CProxSensor::setProxSensorSize(double newSize)
@@ -1014,7 +1124,6 @@ void CProxSensor::setProxSensorSize(double newSize)
     if (diff)
     {
         _proxSensorSize = newSize;
-        computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propProximitySensor_size.name;
@@ -1022,6 +1131,7 @@ void CProxSensor::setProxSensorSize(double newSize)
             ev->appendKeyDouble(cmd, _proxSensorSize);
             App::worldContainer->pushEvent();
         }
+        computeBoundingBox();
     }
 }
 
@@ -1032,10 +1142,13 @@ double CProxSensor::getProxSensorSize()
 
 bool CProxSensor::getSensedData(C3Vector &pt)
 {
-    if (!_detectedPointValid)
-        return (false);
-    pt = _detectedPoint;
-    return (true);
+    bool retVal = false;
+    if (_detectedObjectHandle >= 0)
+    {
+        pt = _detectedPoint;
+        retVal = true;
+    }
+    return retVal;
 }
 
 void CProxSensor::scaleObject(double scalingFactor)
@@ -1048,12 +1161,12 @@ void CProxSensor::scaleObject(double scalingFactor)
 
 C3Vector CProxSensor::getDetectedPoint() const
 {
-    return (_detectedPoint);
+    return _detectedPoint;
 }
 
 bool CProxSensor::getIsDetectedPointValid() const
 {
-    return (_detectedPointValid);
+    return (_detectedObjectHandle >= 0);
 }
 
 std::string CProxSensor::getSensableObjectLoadAlias() const
@@ -1077,7 +1190,7 @@ CColorObject *CProxSensor::getColor(int index)
 
 int CProxSensor::getSensorType() const
 {
-    return (sensorType);
+    return sensorType;
 }
 
 #ifdef SIM_WITH_GUI
@@ -1086,6 +1199,127 @@ void CProxSensor::display(CViewableBase *renderingObject, int displayAttrib)
     displayProximitySensor(this, renderingObject, displayAttrib);
 }
 #endif
+
+int CProxSensor::setBoolProperty(const char* ppName, bool pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    if (retVal == -1)
+        retVal = convexVolume->setBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propProximitySensor_frontFaceDetection.name)
+        {
+            retVal = 1;
+            setFrontFaceDetection(pState);
+        }
+        else if (_pName == propProximitySensor_backFaceDetection.name)
+        {
+            retVal = 1;
+            setBackFaceDetection(pState);
+        }
+        else if (_pName == propProximitySensor_exactMode.name)
+        {
+            retVal = 1;
+            setExactMode(pState);
+        }
+        else if (_pName == propProximitySensor_explicitHandling.name)
+        {
+            retVal = 1;
+            setExplicitHandling(pState);
+        }
+        else if (_pName == propProximitySensor_showVolume.name)
+        {
+            retVal = 1;
+            setShowVolume(pState);
+        }
+    }
+
+    return retVal;
+}
+
+int CProxSensor::getBoolProperty(const char* ppName, bool& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    if (retVal == -1)
+        retVal = convexVolume->getBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propProximitySensor_frontFaceDetection.name)
+        {
+            retVal = 1;
+            pState = _frontFaceDetection;
+        }
+        else if (_pName == propProximitySensor_backFaceDetection.name)
+        {
+            retVal = 1;
+            pState = _backFaceDetection;
+        }
+        else if (_pName == propProximitySensor_exactMode.name)
+        {
+            retVal = 1;
+            pState = _exactMode;
+        }
+        else if (_pName == propProximitySensor_explicitHandling.name)
+        {
+            retVal = 1;
+            pState = _explicitHandling;
+        }
+        else if (_pName == propProximitySensor_showVolume.name)
+        {
+            retVal = 1;
+            pState = _showVolume;
+        }
+        else if (_pName == propProximitySensor_randomizedDetection.name)
+        {
+            retVal = 1;
+            pState = _randomizedDetection;
+        }
+    }
+
+    return retVal;
+}
+
+int CProxSensor::setIntProperty(const char* ppName, int pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setIntProperty(pName, pState);
+    if (retVal == -1)
+        retVal = convexVolume->setIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CProxSensor::getIntProperty(const char* ppName, int& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getIntProperty(pName, pState);
+    if (retVal == -1)
+        retVal = convexVolume->getIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propProximitySensor_sensorType.name)
+        {
+            retVal = 1;
+            pState = sensorType;
+        }
+        else if (_pName == propProximitySensor_detectedObjectHandle.name)
+        {
+            retVal = 1;
+            pState = _detectedObjectHandle;
+        }
+    }
+
+    return retVal;
+}
 
 int CProxSensor::setFloatProperty(const char* ppName, double pState)
 {
@@ -1097,11 +1331,18 @@ int CProxSensor::setFloatProperty(const char* ppName, double pState)
     if (retVal == -1)
         retVal = detectionRayColor.setFloatProperty(pName, pState);
     if (retVal == -1)
+        retVal = convexVolume->setFloatProperty(pName, pState);
+    if (retVal == -1)
     {
         if (_pName == propProximitySensor_size.name)
         {
             setProxSensorSize(pState);
             retVal = 1;
+        }
+        else if (_pName == propProximitySensor_angleThreshold.name)
+        {
+            retVal = 1;
+            setAllowedNormal(pState);
         }
     }
 
@@ -1118,11 +1359,52 @@ int CProxSensor::getFloatProperty(const char* ppName, double& pState) const
     if (retVal == -1)
         retVal = detectionRayColor.getFloatProperty(pName, pState);
     if (retVal == -1)
+        retVal = convexVolume->getFloatProperty(pName, pState);
+    if (retVal == -1)
     {
         if (_pName == propProximitySensor_size.name)
         {
             pState = _proxSensorSize;
             retVal = 1;
+        }
+        else if (_pName == propProximitySensor_angleThreshold.name)
+        {
+            retVal = 1;
+            pState = _angleThreshold;
+        }
+    }
+
+    return retVal;
+}
+
+int CProxSensor::setVector3Property(const char* ppName, const C3Vector& pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setVector3Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CProxSensor::getVector3Property(const char* ppName, C3Vector& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getVector3Property(pName, pState);
+    if (retVal == -1)
+    {
+        if (_pName == propProximitySensor_detectedPoint.name)
+        {
+            pState = _detectedPoint;
+            retVal = 1;
+        }
+        else if (_pName == propProximitySensor_detectedNormal.name)
+        {
+            retVal = 1;
+            pState = _detectedNormalVector;
         }
     }
 
@@ -1161,6 +1443,69 @@ int CProxSensor::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
+int CProxSensor::setVectorProperty(const char* ppName, const double* v, int vL)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    if (v == nullptr)
+        vL = 0;
+    int retVal = CSceneObject::setVectorProperty(pName, v, vL);
+    if (retVal == -1)
+        retVal = convexVolume->setVectorProperty(pName, v, vL);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CProxSensor::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    pState.clear();
+    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = convexVolume->getVectorProperty(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CProxSensor::setIntVectorProperty(const char* ppName, const int* v, int vL)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    if (v == nullptr)
+        vL = 0;
+    int retVal = CSceneObject::setIntVectorProperty(pName, v, vL);
+    if (retVal == -1)
+        retVal = convexVolume->setIntVectorProperty(pName, v, vL);
+    if (retVal == -1)
+    {
+    }
+
+
+    return retVal;
+}
+
+int CProxSensor::getIntVectorProperty(const char* ppName, std::vector<int>& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    pState.clear();
+    int retVal = CSceneObject::getIntVectorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = convexVolume->getIntVectorProperty(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
 int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance)
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance);
@@ -1171,6 +1516,8 @@ int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& ap
     }
     if (retVal == -1)
         retVal = detectionRayColor.getPropertyName(index, pName);
+    if (retVal == -1)
+        retVal = convexVolume->getPropertyName(index, pName);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
@@ -1198,6 +1545,8 @@ int CProxSensor::getPropertyName_static(int& index, std::string& pName, std::str
     if (retVal == -1)
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "_ray");
     if (retVal == -1)
+        retVal = CConvexVolume::getPropertyName_static(index, pName);
+    if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
         {
@@ -1223,6 +1572,8 @@ int CProxSensor::getPropertyInfo(const char* ppName, int& info)
     if (retVal == -1)
         retVal = detectionRayColor.getPropertyInfo(pName, info);
     if (retVal == -1)
+        retVal = convexVolume->getPropertyInfo(pName, info);
+    if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
         {
@@ -1246,6 +1597,8 @@ int CProxSensor::getPropertyInfo_static(const char* ppName, int& info)
         retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "");
     if (retVal == -1)
         retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "_ray");
+    if (retVal == -1)
+        retVal = CConvexVolume::getPropertyInfo_static(pName, info);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)

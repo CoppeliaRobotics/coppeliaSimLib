@@ -6137,9 +6137,9 @@ int simCheckProximitySensor_internal(int sensorHandle, int entityHandle, double 
             options = options | 1;
         if (it->getBackFaceDetection())
             options = options | 2;
-        if (!it->getClosestObjectMode())
+        if (!it->getExactMode())
             options = options | 4;
-        if (it->getNormalCheck())
+        if (it->getAllowedNormal() > 0.0)
             options = options | 8;
         int retVal = simCheckProximitySensorEx_internal(sensorHandle, entityHandle, options, DBL_MAX,
                                                         it->getAllowedNormal(), detectedPoint, nullptr, nullptr);
@@ -6172,6 +6172,8 @@ int simCheckProximitySensorEx_internal(int sensorHandle, int entityHandle, int d
         bool backFace = SIM_IS_BIT_SET(detectionMode, 1);
         bool fastDetection = SIM_IS_BIT_SET(detectionMode, 2);
         bool limitedAngle = SIM_IS_BIT_SET(detectionMode, 3);
+        if (!limitedAngle)
+            maxAngle = 0.0;
         if (!(frontFace || backFace))
             frontFace = true;
         if (detectionThreshold < 0.0)
@@ -6181,11 +6183,11 @@ int simCheckProximitySensorEx_internal(int sensorHandle, int entityHandle, int d
         C3Vector dPoint;
         double minThreshold = -1.0;
         CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorHandle);
-        if ((it != nullptr) && (it->convexVolume->getSmallestDistanceEnabled()))
+        if ((it != nullptr) && (it->convexVolume->getSmallestDistanceAllowed() > 0.0))
             minThreshold = it->convexVolume->getSmallestDistanceAllowed();
         C3Vector normV;
         bool returnValue;
-        returnValue = CProxSensorRoutine::detectEntity(sensorHandle, entityHandle, !fastDetection, limitedAngle,
+        returnValue = CProxSensorRoutine::detectEntity(sensorHandle, entityHandle, !fastDetection, maxAngle > 0.0,
                                                        maxAngle, dPoint, detectionThreshold, frontFace, backFace,
                                                        detectedObj, minThreshold, normV, true);
 
@@ -6243,7 +6245,7 @@ int simCheckProximitySensorEx2_internal(int sensorHandle, double *vertexPointer,
         C3Vector dPoint;
         double minThreshold = -1.0;
         CProxSensor *it = App::currentWorld->sceneObjects->getProximitySensorFromHandle(sensorHandle);
-        if ((it != nullptr) && (it->convexVolume->getSmallestDistanceEnabled()))
+        if ((it != nullptr) && (it->convexVolume->getSmallestDistanceAllowed() > 0.0))
             minThreshold = it->convexVolume->getSmallestDistanceAllowed();
         C3Vector normV;
         bool returnValue;
@@ -8865,9 +8867,10 @@ int simCreateProximitySensor_internal(int sensorType, int subType, int options, 
         it->setShowVolume((options & 4) == 0);
         it->setFrontFaceDetection((options & 8) == 0);
         it->setBackFaceDetection((options & 16) == 0);
-        it->setClosestObjectMode((options & 32) == 0);
-        it->setNormalCheck((options & 64) != 0);
-        it->convexVolume->setSmallestDistanceEnabled((options & 256) != 0);
+        it->setExactMode((options & 32) == 0);
+        it->setAllowedNormal(floatParams[10]);
+        if ((options & 64) == 0) // was angle check
+            it->setAllowedNormal(0.0);
         it->setRandomizedDetection((sensorType == sim_proximitysensor_ray) && (options & 512) != 0);
 
         if ((sensorType == sim_proximitysensor_cylinder) || (sensorType == sim_proximitysensor_disc) ||
@@ -8911,8 +8914,11 @@ int simCreateProximitySensor_internal(int sensorType, int subType, int options, 
             (sensorType == sim_proximitysensor_cone) || (sensorType == sim_proximitysensor_disc))
             it->convexVolume->setAngle(floatParams[9]);
 
-        it->setAllowedNormal(floatParams[10]);
-        it->convexVolume->setSmallestDistanceAllowed(floatParams[11]);
+        double ddist = floatParams[11];
+        if ((options & 256) == 0)
+            ddist = 0.0;
+        it->convexVolume->setSmallestDistanceAllowed(ddist);
+
         it->setProxSensorSize(floatParams[12]);
 
         App::currentWorld->sceneObjects->addObjectToScene(it, false, true);

@@ -130,13 +130,13 @@ void CLight::setIsInScene(bool s)
     CSceneObject::setIsInScene(s);
     if (s)
     {
-        objectColor.setEventParams(_objectHandle);
-        lightColor.setEventParams(_objectHandle);
+        objectColor.setEventParams(true, _objectHandle);
+        lightColor.setEventParams(true, _objectHandle);
     }
     else
     {
-        objectColor.setEventParams(-1);
-        lightColor.setEventParams(-1);
+        objectColor.setEventParams(true, -1);
+        lightColor.setEventParams(true, -1);
     }
 }
 
@@ -165,7 +165,7 @@ void CLight::_setDefaultColors()
         lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_diffuse);
         lightColor.setColor(0.5f, 0.5f, 0.5f, sim_colorcomponent_specular);
     }
-    lightColor.setEventParams(-1, 2 + 4 + 8, "_light");
+    lightColor.setEventParams(true, -1, 2 + 4 + 8, "_light");
 }
 
 CLight::~CLight()

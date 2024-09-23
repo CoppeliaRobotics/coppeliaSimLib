@@ -91,9 +91,9 @@ void CMirror::setIsInScene(bool s)
 {
     CSceneObject::setIsInScene(s);
     if (s)
-        clipPlaneColor.setEventParams(_objectHandle);
+        clipPlaneColor.setEventParams(true, _objectHandle);
     else
-        clipPlaneColor.setEventParams(-1);
+        clipPlaneColor.setEventParams(true, -1);
 }
 
 CMirror::~CMirror()

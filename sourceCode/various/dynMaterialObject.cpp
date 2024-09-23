@@ -2233,7 +2233,7 @@ int CDynMaterialObject::setVectorProperty(const char* pName, const double* v, in
                 if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::worldContainer->createSceneObjectChangedEvent((_shapeHandleForEvents != -1), false, propertyName.c_str(), true);
+                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
                     if (pName != nullptr)
                         sendEngineString(ev);

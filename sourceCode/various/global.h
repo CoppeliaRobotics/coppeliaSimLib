@@ -1503,8 +1503,6 @@ enum
     SIM_IDSTART_SCENEOBJECT = 0,
     SIM_IDEND_SCENEOBJECT = 999999,
 
-    SIM_IDSTART_MESH = SIM_IDEND_SCENEOBJECT + 1,
-
     SIM_IDSTART_COLLECTION = 2000000, // for V4.6 can be set to 1000000, but then not backward compatible prior V4.5. Is
                                       // ok if we remove float support anyways
     SIM_IDEND_COLLECTION = 2010000,   // for V4.6 can be set to 1009999, but then not backward compatible prior V4.5. Is
@@ -1521,6 +1519,7 @@ enum
                                    // if we remove float support anyways
     SIM_IDEND_TEXTURE = 2280009,   // for V4.6 can be set to 1039999, but then not backward compatible prior V4.5. Is ok
                                    // if we remove float support anyways
+    SIM_IDSTART_MESH = 10000000,
     SIM_IDEND_MESH = 2000000000,
 };
 

@@ -106,7 +106,7 @@ void CMesh::_commonInit()
     _uniqueID = _nextUniqueID++;
     color.setDefaultValues();
     color.setColor(0.9f, 0.9f, 0.9f, sim_colorcomponent_ambient_diffuse);
-    color.setEventParams(-1, 1 + 4 + 8 + 16);
+    color.setEventParams(false, -1, 1 + 4 + 8 + 16);
     edgeColor_DEPRECATED.setColorsAllBlack();
     insideColor_DEPRECATED.setDefaultValues();
 
@@ -899,7 +899,7 @@ int CMesh::getComponentCount() const
 
 int CMesh::getUniqueID() const
 {
-    return (_uniqueID);
+    return _uniqueID;
 }
 
 void CMesh::setHeightfieldData(const std::vector<double> &heights, int xCount, int yCount)

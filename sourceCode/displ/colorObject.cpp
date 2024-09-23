@@ -22,7 +22,8 @@ CColorObject::CColorObject()
     _flashRatio = 0.5;
     _flashPhase = 0.0;
     _eventFlags = 1 + 4 + 8; // default: ambient/diffuse, specular and emission
-    _eventObjectUid = -1;
+    _eventObjectHandle = -1;
+    _belongsToSceneObject = false;
     setDefaultValues();
 }
 
@@ -30,10 +31,11 @@ CColorObject::~CColorObject()
 {
 }
 
-void CColorObject::setEventParams(int eventObjectUid, int eventFlags /*= -1*/, const char* eventSuffix /*= nullptr*/)
+void CColorObject::setEventParams(bool belongsToSceneObject, int eventObjectHandle, int eventFlags /*= -1*/, const char* eventSuffix /*= nullptr*/)
 { // bit0: ambient-diffuse, bit1: diffuse, bit2: specular, bit3: emission, bit4: transparency
-    if (eventObjectUid != -1)
-        _eventObjectUid = eventObjectUid;
+    _belongsToSceneObject = belongsToSceneObject;
+    if (eventObjectHandle != -1)
+        _eventObjectHandle = eventObjectHandle;
     if (eventFlags != -1)
         _eventFlags = eventFlags;
  //   _eventSuffix.clear();
@@ -160,25 +162,25 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
         if (colorMode == sim_colorcomponent_ambient_diffuse)
         { // objects only (no lights)
             offset = 0;
-            if ( (_eventFlags & 1) && (_eventObjectUid != -1) )
+            if ( (_eventFlags & 1) && (_eventObjectHandle != -1) )
                 cmd = propCol_colDiffuse.name;
         }
         else if (colorMode == sim_colorcomponent_diffuse)
         { // lights only (no objects)
             offset = 3;
-            if ( (_eventFlags & 2) && (_eventObjectUid != -1) )
+            if ( (_eventFlags & 2) && (_eventObjectHandle != -1) )
                 cmd = propCol_colDiffuse.name;
         }
         else if (colorMode == sim_colorcomponent_specular)
         {
             offset = 6;
-            if ( (_eventFlags & 4) && (_eventObjectUid != -1) )
+            if ( (_eventFlags & 4) && (_eventObjectHandle != -1) )
                 cmd = propCol_colSpecular.name;
         }
         else if (colorMode == sim_colorcomponent_emission)
         {
             offset = 9;
-            if ( (_eventFlags & 8) && (_eventObjectUid != -1) )
+            if ( (_eventFlags & 8) && (_eventObjectHandle != -1) )
                 cmd = propCol_colEmission.name;
         }
         else if (colorMode == sim_colorcomponent_auxiliary)
@@ -191,7 +193,11 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
         if ( retVal && App::worldContainer->getEventsEnabled() && (cmd.size() != 0) )
         {
             cmd += _eventSuffix;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(_eventObjectUid, cmd.c_str(), true);
+            CCbor *ev;
+            if (_belongsToSceneObject)
+                ev = App::worldContainer->createSceneObjectChangedEvent(_eventObjectHandle, false, cmd.c_str(), true);
+            else
+                ev = App::worldContainer->createObjectChangedEvent(_eventObjectHandle, cmd.c_str(), true);
             ev->appendKeyFloatArray(cmd.c_str(), col + offset, 3);
             App::worldContainer->pushEvent();
         }
@@ -725,11 +731,15 @@ bool CColorObject::setTransparency(float t)
     {
         setTranslucid(t != 0.0f);
         setOpacity(1.0f - t);
-        if ( (_eventFlags & 16) && (_eventObjectUid != -1) && App::worldContainer->getEventsEnabled() )
+        if ( (_eventFlags & 16) && (_eventObjectHandle != -1) && App::worldContainer->getEventsEnabled() )
         {
             std::string cmd = propCol_transparency.name;
             cmd += _eventSuffix;
-            CCbor *ev = App::worldContainer->createObjectChangedEvent(_eventObjectUid, cmd.c_str(), true);
+            CCbor *ev;
+            if (_belongsToSceneObject)
+                ev = App::worldContainer->createSceneObjectChangedEvent(_eventObjectHandle, false, cmd.c_str(), true);
+            else
+                ev = App::worldContainer->createObjectChangedEvent(_eventObjectHandle, cmd.c_str(), true);
             ev->appendKeyFloat(cmd.c_str(), t);
             App::worldContainer->pushEvent();
         }

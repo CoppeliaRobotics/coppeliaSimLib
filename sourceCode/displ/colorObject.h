@@ -30,7 +30,7 @@ class CColorObject
 
     void setDefaultValues();
     void setColorsAllBlack();
-    void setEventParams(int eventObjectUid, int eventFlags = -1, const char* eventSuffix = nullptr);
+    void setEventParams(bool belongsToSceneObject, int eventObjectHandle, int eventFlags = -1, const char* eventSuffix = nullptr);
     bool setColor(const float theColor[3], unsigned char colorMode);
     bool setColor(float r, float g, float b, unsigned char colorMode);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -93,7 +93,8 @@ class CColorObject
     float _opacity;
     bool _translucid;
     int _eventFlags;
-    int _eventObjectUid;
+    int _eventObjectHandle;
+    bool _belongsToSceneObject;
     std::string _eventSuffix;
     std::string _colorName;
 

@@ -1755,9 +1755,9 @@ void CShape::setIsInScene(bool s)
         for (size_t i = 0; i < all.size(); i++)
         {
             if (s)
-                all[i]->color.setEventParams(all[i]->getUniqueID());
+                all[i]->color.setEventParams(false, all[i]->getUniqueID());
             else
-                all[i]->color.setEventParams(-1);
+                all[i]->color.setEventParams(false, -1);
         }
     }
     if (s)

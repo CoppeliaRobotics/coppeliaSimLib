@@ -2449,12 +2449,12 @@ int CWorld::setBoolProperty(int target, const char* ppName, bool pState)
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->setBoolProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->setBoolProperty(-1, pName, pState);
+            retVal = sceneObjects->setBoolProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setBoolProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2481,12 +2481,12 @@ int CWorld::getBoolProperty(int target, const char* ppName, bool& pState) const
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->getBoolProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->getBoolProperty(-1, pName, pState);
+            retVal = sceneObjects->getBoolProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getBoolProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2513,12 +2513,12 @@ int CWorld::setIntProperty(int target, const char* ppName, int pState)
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->setIntProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->setIntProperty(-1, pName, pState);
+            retVal = sceneObjects->setIntProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setIntProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2545,12 +2545,12 @@ int CWorld::getIntProperty(int target, const char* ppName, int& pState) const
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->getIntProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->getIntProperty(-1, pName, pState);
+            retVal = sceneObjects->getIntProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getIntProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2575,12 +2575,12 @@ int CWorld::setFloatProperty(int target, const char* ppName, double pState)
         if ( (retVal == -1) && (simulation != nullptr) )
             retVal = simulation->setFloatProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->setFloatProperty(-1, pName, pState);
+            retVal = sceneObjects->setFloatProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setFloatProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2605,12 +2605,12 @@ int CWorld::getFloatProperty(int target, const char* ppName, double& pState) con
         if ( (retVal == -1) && (simulation != nullptr) )
             retVal = simulation->getFloatProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->getFloatProperty(-1, pName, pState);
+            retVal = sceneObjects->getFloatProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getFloatProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2635,12 +2635,12 @@ int CWorld::setStringProperty(int target, const char* ppName, const char* pState
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->setStringProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->setStringProperty(-1, pName, pState);
+            retVal = sceneObjects->setStringProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setStringProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2665,12 +2665,12 @@ int CWorld::getStringProperty(int target, const char* ppName, std::string& pStat
         if ( (retVal == -1) && (environment != nullptr) )
             retVal = environment->getStringProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->getStringProperty(-1, pName, pState);
+            retVal = sceneObjects->getStringProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getStringProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2701,7 +2701,7 @@ int CWorld::setBufferProperty(int target, const char* ppName, const char* buffer
             }
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setBufferProperty(target, pName, buffer, bufferL);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2735,7 +2735,7 @@ int CWorld::getBufferProperty(int target, const char* ppName, std::string& pStat
             }
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getBufferProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2758,12 +2758,12 @@ int CWorld::setVector3Property(int target, const char* ppName, const C3Vector& p
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVector3Property(pName, &pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->setVector3Property(-1, pName, pState);
+            retVal = sceneObjects->setVector3Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setVector3Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2786,12 +2786,12 @@ int CWorld::getVector3Property(int target, const char* ppName, C3Vector& pState)
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVector3Property(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->getVector3Property(-1, pName, pState);
+            retVal = sceneObjects->getVector3Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getVector3Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2812,12 +2812,12 @@ int CWorld::setQuaternionProperty(int target, const char* ppName, const C4Vector
     if (target == sim_handle_scene)
     {
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->setQuaternionProperty(-1, pName, pState);
+            retVal = sceneObjects->setQuaternionProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setQuaternionProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2838,12 +2838,12 @@ int CWorld::getQuaternionProperty(int target, const char* ppName, C4Vector& pSta
     if (target == sim_handle_scene)
     {
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->getQuaternionProperty(-1, pName, pState);
+            retVal = sceneObjects->getQuaternionProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getQuaternionProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2864,12 +2864,12 @@ int CWorld::setPoseProperty(int target, const char* ppName, const C7Vector& pSta
     if (target == sim_handle_scene)
     {
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->setPoseProperty(-1, pName, pState);
+            retVal = sceneObjects->setPoseProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setPoseProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2890,12 +2890,12 @@ int CWorld::getPoseProperty(int target, const char* ppName, C7Vector& pState) co
     if (target == sim_handle_scene)
     {
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->getPoseProperty(-1, pName, pState);
+            retVal = sceneObjects->getPoseProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getPoseProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2916,12 +2916,12 @@ int CWorld::setMatrix3x3Property(int target, const char* ppName, const C3X3Matri
     if (target == sim_handle_scene)
     {
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->setMatrix3x3Property(-1, pName, pState);
+            retVal = sceneObjects->setMatrix3x3Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setMatrix3x3Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2942,12 +2942,12 @@ int CWorld::getMatrix3x3Property(int target, const char* ppName, C3X3Matrix& pSt
     if (target == sim_handle_scene)
     {
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->getMatrix3x3Property(-1, pName, pState);
+            retVal = sceneObjects->getMatrix3x3Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getMatrix3x3Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2968,12 +2968,12 @@ int CWorld::setMatrix4x4Property(int target, const char* ppName, const C4X4Matri
     if (target == sim_handle_scene)
     {
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->setMatrix4x4Property(-1, pName, pState);
+            retVal = sceneObjects->setMatrix4x4Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setMatrix4x4Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -2994,12 +2994,12 @@ int CWorld::getMatrix4x4Property(int target, const char* ppName, C4X4Matrix& pSt
     if (target == sim_handle_scene)
     {
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->getMatrix4x4Property(-1, pName, pState);
+            retVal = sceneObjects->getMatrix4x4Property(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getMatrix4x4Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -3022,12 +3022,12 @@ int CWorld::setColorProperty(int target, const char* ppName, const float* pState
         if (environment != nullptr)
             retVal = environment->setColorProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->setColorProperty(-1, pName, pState);
+            retVal = sceneObjects->setColorProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setColorProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -3050,12 +3050,12 @@ int CWorld::getColorProperty(int target, const char* ppName, float* pState) cons
         if (environment != nullptr)
             retVal = environment->getColorProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->getColorProperty(-1, pName, pState);
+            retVal = sceneObjects->getColorProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getColorProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -3078,12 +3078,12 @@ int CWorld::setVectorProperty(int target, const char* ppName, const double* v, i
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setVectorProperty(pName, v, vL);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->setVectorProperty(-1, pName, v, vL);
+            retVal = sceneObjects->setVectorProperty(-1, pName, v, vL); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setVectorProperty(target, pName, v, vL);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -3107,12 +3107,12 @@ int CWorld::getVectorProperty(int target, const char* ppName, std::vector<double
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getVectorProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->getVectorProperty(-1, pName, pState);
+            retVal = sceneObjects->getVectorProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getVectorProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -3135,12 +3135,12 @@ int CWorld::setIntVectorProperty(int target, const char* ppName, const int* v, i
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->setIntVectorProperty(pName, v, vL);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->setIntVectorProperty(-1, pName, v, vL);
+            retVal = sceneObjects->setIntVectorProperty(-1, pName, v, vL); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->setIntVectorProperty(target, pName, v, vL);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -3164,12 +3164,12 @@ int CWorld::getIntVectorProperty(int target, const char* ppName, std::vector<int
         if (dynamicsContainer != nullptr)
             retVal = dynamicsContainer->getIntVectorProperty(pName, pState);
         if ( (retVal == -1) && (sceneObjects != nullptr) )
-            retVal = sceneObjects->getIntVectorProperty(-1, pName, pState);
+            retVal = sceneObjects->getIntVectorProperty(-1, pName, pState); // for the container itself
         if (retVal == -1)
         {
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->getIntVectorProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -3204,7 +3204,7 @@ int CWorld::removeProperty(int target, const char* ppName)
             }
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
         retVal = sceneObjects->removeProperty(target, pName);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
@@ -3234,7 +3234,7 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName, std::str
             CSceneObjectContainer* soc = nullptr;
             if (targetObject != nullptr)
                 soc = targetObject->sceneObjects;
-            retVal = CSceneObjectContainer::getPropertyName(-1, index, pName, appartenance, soc);
+            retVal = CSceneObjectContainer::getPropertyName(-1, index, pName, appartenance, soc); // for the container itself
         }
         if (retVal == -1)
         {
@@ -3249,7 +3249,7 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName, std::str
             }
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
     {
         CSceneObjectContainer* soc = nullptr;
         if (targetObject != nullptr)
@@ -3285,7 +3285,7 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, CWorld* t
             CSceneObjectContainer* soc = nullptr;
             if (targetObject != nullptr)
                 soc = targetObject->sceneObjects;
-            retVal = CSceneObjectContainer::getPropertyInfo(-1, pName, info, soc);
+            retVal = CSceneObjectContainer::getPropertyInfo(-1, pName, info, soc); // for the container itself
         }
         if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
         {
@@ -3307,7 +3307,7 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, CWorld* t
             }
         }
     }
-    else if ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
     {
         CSceneObjectContainer* soc = nullptr;
         if (targetObject != nullptr)

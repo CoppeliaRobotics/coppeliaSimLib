@@ -515,8 +515,7 @@ CCbor *CWorldContainer::createSceneObjectAddEvent(const CSceneObject *object)
                                 nullptr, false));
 }
 
-CCbor *CWorldContainer::createSceneObjectChangedEvent(int sceneObjectHandle, bool isCommonObjectData,
-                                                      const char *fieldName, bool mergeable)
+CCbor *CWorldContainer::createSceneObjectChangedEvent(int sceneObjectHandle, bool isCommonObjectData, const char *fieldName, bool mergeable)
 {
     CSceneObject *object = currentWorld->sceneObjects->getObjectFromHandle(sceneObjectHandle);
     return (createSceneObjectChangedEvent(object, isCommonObjectData, fieldName, mergeable));
@@ -676,7 +675,7 @@ void CWorldContainer::pushGenesisEvents()
 
         if (sandboxScript != nullptr)
         {
-            ev = _createGeneralEvent(EVENTTYPE_OBJECTADDED, sandboxScript->getScriptHandle(), sandboxScript->getScriptHandle(), nullptr, nullptr, false);
+            ev = _createGeneralEvent(EVENTTYPE_OBJECTADDED, sandboxScript->getScriptHandle(), sandboxScript->getScriptUid(), nullptr, nullptr, false);
             sandboxScript->addSpecializedObjectEventData(ev);
             App::worldContainer->pushEvent();
         }

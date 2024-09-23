@@ -3447,9 +3447,9 @@ int _simCheckProximitySensor(luaWrap_lua_State *L)
                 options = options | 1;
             if (it->getBackFaceDetection())
                 options = options | 2;
-            if (!it->getClosestObjectMode())
+            if (!it->getExactMode())
                 options = options | 4;
-            if (it->getNormalCheck())
+            if (it->getAllowedNormal() > 0.0)
                 options = options | 8;
             retVal = simCheckProximitySensorEx_internal(handle, luaToInt(L, 2), options, DBL_MAX,
                                                         it->getAllowedNormal(), detPt, &detectedObjectHandle, n);

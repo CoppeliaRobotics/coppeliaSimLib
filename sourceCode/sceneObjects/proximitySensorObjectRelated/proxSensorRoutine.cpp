@@ -137,7 +137,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double *vertexPointer, in
                             sens->convexVolume->planesInside, sens->convexVolume->planesOutside, a0, e0, e1, dist,
                             frontFace, backFace, _maxAngle, &detectedPt, &triNormal))
                     {
-                        if (sens->convexVolume->getSmallestDistanceEnabled())
+                        if (sens->convexVolume->getSmallestDistanceAllowed() > 0.0)
                         {
                             if (dist < sens->convexVolume->getSmallestDistanceAllowed())
                             { // We triggered the sensor in the forbiden zone
@@ -228,7 +228,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double *vertexPointer, in
             if (detect)
             {
                 returnValue = true;
-                if (sens->convexVolume->getSmallestDistanceEnabled())
+                if (sens->convexVolume->getSmallestDistanceAllowed() > 0.0)
                 {
                     if (dist < sens->convexVolume->getSmallestDistanceAllowed())
                     { // We triggered the sensor in the forbiden zone
@@ -313,7 +313,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor *sensor, CShape *shape, C3Vecto
     {
         bool *closeDetectionTriggered = nullptr;
         bool dummyVal = 0;
-        if (sensor->convexVolume->getSmallestDistanceEnabled())
+        if (sensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
             closeDetectionTriggered = &dummyVal;
         int normalDetectionCnt = 0;
         C3Vector averageDetectionVector;
@@ -373,7 +373,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor *sensor, CShape *shape, C3Vecto
             C3Vector lvFar(0.0, 0.0, sensor->convexVolume->getRange());
             bool *closeDetectionTriggered = nullptr;
             bool dummy = 0;
-            if (sensor->convexVolume->getSmallestDistanceEnabled())
+            if (sensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
                 closeDetectionTriggered = &dummy;
             double _maxAngle = 0.0;
             if (angleLimitation)
@@ -401,7 +401,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor *sensor, CShape *shape, C3Vecto
                     shape->_meshCalculationStructure, shapeITr, dist, !closestFeatureMode, frontFace, backFace,
                     _maxAngle, &detectedPt, &triNormalNotNormalized))
             {
-                if (sensor->convexVolume->getSmallestDistanceEnabled())
+                if (sensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
                 {
                     if (dist < sensor->convexVolume->getSmallestDistanceAllowed())
                         retVal = -2;
@@ -471,7 +471,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor *sensor, COcTree *octree, C3Ve
                 _maxAngle, &detectedPtTmp, &triNormalNotNormalizedTmp, nullptr);
             if (result)
             { // We triggered the sensor
-                if (sensor->convexVolume->getSmallestDistanceEnabled())
+                if (sensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
                 {
                     if (distTmp < sensor->convexVolume->getSmallestDistanceAllowed())
                     {
@@ -511,7 +511,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor *sensor, COcTree *octree, C3Ve
                 _maxAngle, &detectedPt, &triNormalNotNormalized, nullptr);
             if (result)
             {
-                if (sensor->convexVolume->getSmallestDistanceEnabled())
+                if (sensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
                 {
                     if (dist < sensor->convexVolume->getSmallestDistanceAllowed())
                         retVal = -2;
@@ -531,7 +531,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor *sensor, COcTree *octree, C3Ve
                     octreeITr, dist, !closestFeatureMode, frontFace, backFace, _maxAngle, &detectedPt,
                     &triNormalNotNormalized))
             {
-                if (sensor->convexVolume->getSmallestDistanceEnabled())
+                if (sensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
                 {
                     if (dist < sensor->convexVolume->getSmallestDistanceAllowed())
                         retVal = -2;
@@ -578,7 +578,7 @@ int CProxSensorRoutine::_detectPointCloud(CProxSensor *sensor, CPointCloud *poin
             pointCloudITr, dist, !closestFeatureMode, &detectedPt))
     {
         bool doIt = true;
-        if (sensor->convexVolume->getSmallestDistanceEnabled())
+        if (sensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
         {
             if (dist < sensor->convexVolume->getSmallestDistanceAllowed())
             {

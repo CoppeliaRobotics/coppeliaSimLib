@@ -4,9 +4,11 @@
 #include <global.h>
 #include <simMath/4X4Matrix.h>
 #include <algorithm>
+#include <app.h>
 
 CConvexVolume::CConvexVolume()
 {
+    _parentObjHandleForEvents = -1;
     commonInit();
 }
 
@@ -16,8 +18,7 @@ CConvexVolume::~CConvexVolume()
 
 void CConvexVolume::commonInit()
 {
-    _smallestDistanceAllowed = 0.1;
-    _smallestDistanceEnabled = false;
+    _smallestDistanceAllowed = 0.0; // 0.0 means disabled
 
     _volumeComputationTemporarilyDisabled = false;
     _volumeType = CYLINDER_TYPE_CONVEX_VOLUME;
@@ -29,8 +30,7 @@ void CConvexVolume::commonInit()
 }
 
 void CConvexVolume::disableVolumeComputation(bool disableIt)
-{ // Careful with this function (normally only used for compatibility with older serialization versions of the
-  // CProxSensor class (2009/08/14))
+{
     _volumeComputationTemporarilyDisabled = disableIt;
 }
 
@@ -83,7 +83,6 @@ CConvexVolume *CConvexVolume::copyYourself()
     newConvexVolume->faceNumberFar = faceNumberFar;
     newConvexVolume->subdivisions = subdivisions;
     newConvexVolume->subdivisionsFar = subdivisionsFar;
-    newConvexVolume->_smallestDistanceEnabled = _smallestDistanceEnabled;
     newConvexVolume->_smallestDistanceAllowed = _smallestDistanceAllowed;
 
     newConvexVolume->planesInside.insert(newConvexVolume->planesInside.end(), planesInside.begin(), planesInside.end());
@@ -123,13 +122,17 @@ void CConvexVolume::serialize(CSer &ar)
             ar << faceNumber << faceNumberFar << subdivisions << subdivisionsFar;
             ar.flush();
 
-            ar.storeDataName("_tf");
+            ar.storeDataName("at2");
+            ar << _smallestDistanceAllowed;
+            ar.flush();
+
+            ar.storeDataName("_tf"); // for backw. comp. (before V4.8)
             ar << _smallestDistanceAllowed;
             ar.flush();
 
             ar.storeDataName("Par");
             unsigned char nothing = 0;
-            SIM_SET_CLEAR_BIT(nothing, 0, _smallestDistanceEnabled);
+            SIM_SET_CLEAR_BIT(nothing, 0, _smallestDistanceAllowed > 0.0); // for backw. comp. (now 0.0 means smallest dist. disabled)
             ar << nothing;
             ar.flush();
 
@@ -180,6 +183,7 @@ void CConvexVolume::serialize(CSer &ar)
             int byteQuantity;
             bool recomputeVolumes = true; // for backward compatibility (2010/04/28)
             std::string theName = "";
+            bool usingAt2 = false;
             while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
                 theName = ar.readDataName();
@@ -250,19 +254,28 @@ void CConvexVolume::serialize(CSer &ar)
                     }
 
                     if (theName.compare("_tf") == 0)
-                    {
+                    { // for backward compatibility
                         noHit = false;
                         ar >> byteQuantity;
                         ar >> _smallestDistanceAllowed;
                     }
 
-                    if (theName == "Par")
+                    if (theName.compare("at2") == 0)
                     {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        ar >> _smallestDistanceAllowed;
+                        usingAt2 = true;
+                    }
+
+                    if (theName == "Par")
+                    { // for backward compatibility
                         noHit = false;
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        _smallestDistanceEnabled = SIM_IS_BIT_SET(nothing, 0);
+                        if ( (!SIM_IS_BIT_SET(nothing, 0)) && (!usingAt2) )
+                            _smallestDistanceAllowed = 0.0;
                     }
                     // Following added on 2010/04/28 because recomputing those values takes long:
                     //***************************************************************************
@@ -491,10 +504,13 @@ void CConvexVolume::serialize(CSer &ar)
             ar.xmlAddNode_float("insideAngleScaling", insideAngleThing);
             ar.xmlAddNode_2int("closeFarFaceCount", faceNumber, faceNumberFar);
             ar.xmlAddNode_2int("closeFarSubdivisions", subdivisions, subdivisionsFar);
+            ar.xmlAddNode_float("smallestDistance", _smallestDistanceAllowed);
+            ar.xmlAddNode_comment(" 'smallestAllowedDistance' tag: used for backward compatibility ", exhaustiveXml);
             ar.xmlAddNode_float("smallestAllowedDistance", _smallestDistanceAllowed);
 
             ar.xmlPushNewNode("switches");
-            ar.xmlAddNode_bool("smallestDistanceEnabled", _smallestDistanceEnabled);
+            ar.xmlAddNode_comment(" 'smallestDistanceEnabled' tag: used for backward compatibility ", exhaustiveXml);
+            ar.xmlAddNode_bool("smallestDistanceEnabled", _smallestDistanceAllowed > 0.0);
             ar.xmlPopNode();
         }
         else
@@ -539,12 +555,23 @@ void CConvexVolume::serialize(CSer &ar)
                 setSubdivisions(k, false);
                 setSubdivisionsFar(l, false);
             }
-            if (ar.xmlGetNode_float("smallestAllowedDistance", v, exhaustiveXml))
-                setSmallestDistanceAllowed(v, false);
+            bool usingSmallestDistance = ar.xmlGetNode_float("smallestDistance", _smallestDistanceAllowed, exhaustiveXml);
+            if (!usingSmallestDistance)
+                ar.xmlGetNode_float("smallestAllowedDistance", _smallestDistanceAllowed, exhaustiveXml); // backward compat.
 
             if (ar.xmlPushChildNode("switches", exhaustiveXml))
             {
-                ar.xmlGetNode_bool("smallestDistanceEnabled", _smallestDistanceEnabled, exhaustiveXml);
+                if (!usingSmallestDistance)
+                { // backw. compat.
+                    bool e;
+                    if (ar.xmlGetNode_bool("smallestDistanceEnabled", e, exhaustiveXml))
+                    {
+                        if (!e)
+                            _smallestDistanceAllowed = 0.0;
+                    }
+                    else
+                        _smallestDistanceAllowed = 0.0;
+                }
                 ar.xmlPopNode();
             }
             computeVolumes();
@@ -714,7 +741,7 @@ void CConvexVolume::setOffset(double theOffset, bool recomputeVolume /*=true*/)
 
 double CConvexVolume::getOffset() const
 {
-    return (offset);
+    return offset;
 }
 
 void CConvexVolume::setRange(double theRange, bool recomputeVolume /*=true*/)
@@ -728,7 +755,7 @@ void CConvexVolume::setRange(double theRange, bool recomputeVolume /*=true*/)
 
 double CConvexVolume::getRange() const
 {
-    return (range);
+    return range;
 }
 
 void CConvexVolume::setXSize(double theXSize, bool recomputeVolume /*=true*/)
@@ -741,7 +768,7 @@ void CConvexVolume::setXSize(double theXSize, bool recomputeVolume /*=true*/)
 
 double CConvexVolume::getXSize() const
 {
-    return (xSize);
+    return xSize;
 }
 
 void CConvexVolume::setYSize(double theYSize, bool recomputeVolume /*=true*/)
@@ -754,7 +781,7 @@ void CConvexVolume::setYSize(double theYSize, bool recomputeVolume /*=true*/)
 
 double CConvexVolume::getYSize() const
 {
-    return (ySize);
+    return ySize;
 }
 
 void CConvexVolume::setXSizeFar(double theXSizeFar, bool recomputeVolume /*=true*/)
@@ -767,7 +794,7 @@ void CConvexVolume::setXSizeFar(double theXSizeFar, bool recomputeVolume /*=true
 
 double CConvexVolume::getXSizeFar() const
 {
-    return (xSizeFar);
+    return xSizeFar;
 }
 
 void CConvexVolume::setYSizeFar(double theYSizeFar, bool recomputeVolume /*=true*/)
@@ -780,7 +807,7 @@ void CConvexVolume::setYSizeFar(double theYSizeFar, bool recomputeVolume /*=true
 
 double CConvexVolume::getYSizeFar() const
 {
-    return (ySizeFar);
+    return ySizeFar;
 }
 
 void CConvexVolume::setRadius(double theRadius, bool recomputeVolume /*=true*/)
@@ -804,7 +831,7 @@ void CConvexVolume::setRadius(double theRadius, bool recomputeVolume /*=true*/)
 
 double CConvexVolume::getRadius() const
 {
-    return (radius);
+    return radius;
 }
 
 void CConvexVolume::setRadiusFar(double theRadiusFar, bool recomputeVolume /*=true*/)
@@ -817,7 +844,7 @@ void CConvexVolume::setRadiusFar(double theRadiusFar, bool recomputeVolume /*=tr
 
 double CConvexVolume::getRadiusFar() const
 {
-    return (radiusFar);
+    return radiusFar;
 }
 
 void CConvexVolume::setAngle(double theAngle, bool recomputeVolume /*=true*/)
@@ -852,21 +879,20 @@ void CConvexVolume::setInsideAngleThing(double theAngle, bool recomputeVolume /*
         computeVolumes();
 }
 
-void CConvexVolume::setSmallestDistanceEnabled(bool e, bool recomputeVolume /*=true*/)
+double CConvexVolume::getAngle() const
 {
-    _smallestDistanceEnabled = e;
-    if (recomputeVolume)
-        computeVolumes();
+    return angle;
 }
 
-bool CConvexVolume::getSmallestDistanceEnabled() const
+double CConvexVolume::getInsideAngleThing() const
 {
-    return (_smallestDistanceEnabled);
+    return insideAngleThing;
 }
 
 void CConvexVolume::setSmallestDistanceAllowed(double d, bool recomputeVolume /*=true*/)
 {
-    tt::limitValue(0.0001, 10.0, d);
+    if (d < 0.0)
+        d = 0.0;
     _smallestDistanceAllowed = d;
     if (recomputeVolume)
         computeVolumes();
@@ -874,7 +900,7 @@ void CConvexVolume::setSmallestDistanceAllowed(double d, bool recomputeVolume /*
 
 double CConvexVolume::getSmallestDistanceAllowed() const
 {
-    return (_smallestDistanceAllowed);
+    return _smallestDistanceAllowed;
 }
 
 void CConvexVolume::solveInterferences()
@@ -913,16 +939,6 @@ void CConvexVolume::solveInterferences()
     }
 }
 
-double CConvexVolume::getAngle() const
-{
-    return (angle);
-}
-
-double CConvexVolume::getInsideAngleThing() const
-{
-    return (insideAngleThing);
-}
-
 void CConvexVolume::setFaceNumber(int theFaceNumber, bool recomputeVolume /*=true*/)
 {
     tt::limitValue(1, PROXSENSOR_MAX_FACE_NUMBER, theFaceNumber);
@@ -942,7 +958,7 @@ void CConvexVolume::setFaceNumber(int theFaceNumber, bool recomputeVolume /*=tru
 
 int CConvexVolume::getFaceNumber() const
 {
-    return (faceNumber);
+    return faceNumber;
 }
 
 void CConvexVolume::setFaceNumberFar(int theFaceNumberFar, bool recomputeVolume /*=true*/)
@@ -956,7 +972,7 @@ void CConvexVolume::setFaceNumberFar(int theFaceNumberFar, bool recomputeVolume 
 
 int CConvexVolume::getFaceNumberFar() const
 {
-    return (faceNumberFar);
+    return faceNumberFar;
 }
 
 void CConvexVolume::setSubdivisions(int theSubdivisions, bool recomputeVolume /*=true*/)
@@ -969,7 +985,7 @@ void CConvexVolume::setSubdivisions(int theSubdivisions, bool recomputeVolume /*
 
 int CConvexVolume::getSubdivisions() const
 {
-    return (subdivisions);
+    return subdivisions;
 }
 
 void CConvexVolume::setSubdivisionsFar(int theSubdivisionsFar, bool recomputeVolume /*=true*/)
@@ -983,14 +999,13 @@ void CConvexVolume::setSubdivisionsFar(int theSubdivisionsFar, bool recomputeVol
 
 int CConvexVolume::getSubdivisionsFar() const
 {
-    return (subdivisionsFar);
+    return subdivisionsFar;
 }
 
 void CConvexVolume::setDefaultVolumeParameters(int objectTypeTheVolumeIsFor, double pointSize)
 {
     insideAngleThing = 0.0;
-    _smallestDistanceAllowed = 0.1;
-    _smallestDistanceEnabled = false;
+    _smallestDistanceAllowed = 0.0;
     if (objectTypeTheVolumeIsFor == sim_sceneobject_proximitysensor)
     {
         if (_volumeType == CYLINDER_TYPE_CONVEX_VOLUME)
@@ -1407,7 +1422,7 @@ void CConvexVolume::computeVolumes()
     nonDetectingVolumeEdges.clear();
     volumeEdges.clear();
 
-    if (_smallestDistanceEnabled)
+    if (_smallestDistanceAllowed > 0.0)
     {
         std::vector<double> volEdges;
         computeVolumeEdges(volEdges);
@@ -1656,7 +1671,7 @@ void CConvexVolume::computeVolumes()
         }
     }
 
-    if (_smallestDistanceEnabled)
+    if (_smallestDistanceAllowed > 0.0)
     {
         if (_volumeType == RAY_TYPE_CONVEX_VOLUME)
         {
@@ -1742,6 +1757,7 @@ void CConvexVolume::computeVolumes()
         }
     }
     //*****************************************************
+    sendEventData(nullptr);
 }
 
 void CConvexVolume::getCloseAndFarVolumeEdges(std::vector<double> &allEdges, double distance,
@@ -1981,3 +1997,316 @@ void CConvexVolume::generateSphereEdges(std::vector<double> &edges, double radd)
         v1 += dv;
     }
 }
+
+void CConvexVolume::setParentObjHandleForEvents(int h)
+{
+    _parentObjHandleForEvents = h;
+}
+
+void CConvexVolume::sendEventData(CCbor *eev)
+{
+    CCbor* ev = eev;
+    if (ev == nullptr)
+    {
+        if ((_parentObjHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+            ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjHandleForEvents, false, "volumeData", false);
+        else
+            return;
+    }
+
+    ev->appendKeyDouble(propVolume_closeThreshold.name, _smallestDistanceAllowed);
+    ev->appendKeyDouble(propVolume_offset.name, offset);
+    ev->appendKeyDouble(propVolume_range.name, range);
+    double xsize[2] = {xSize, xSizeFar};
+    ev->appendKeyDoubleArray(propVolume_xSize.name, xsize, 2);
+    double ysize[2] = {ySize, ySizeFar};
+    ev->appendKeyDoubleArray(propVolume_ySize.name, ysize, 2);
+    double radd[2] = {radius, radiusFar};
+    ev->appendKeyDoubleArray(propVolume_radius.name, radd, 2);
+    double agl[2] = {angle, insideAngleThing};
+    ev->appendKeyDoubleArray(propVolume_angle.name, agl, 2);
+    int faceN[2] = {faceNumber, faceNumberFar};
+    ev->appendKeyIntArray(propVolume_faces.name, faceN, 2);
+    int subdivs[2] = {subdivisions, subdivisionsFar};
+    ev->appendKeyIntArray(propVolume_subdivisions.name, subdivs, 2);
+    ev->appendKeyDoubleArray(propVolume_edges.name, volumeEdges.data(), volumeEdges.size());
+    ev->appendKeyDoubleArray(propVolume_closeEdges.name, nonDetectingVolumeEdges.data(), nonDetectingVolumeEdges.size());
+
+    if (eev == nullptr)
+        App::worldContainer->pushEvent();
+}
+
+int CConvexVolume::setBoolProperty(const char* pName, bool pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CConvexVolume::getBoolProperty(const char* pName, bool& pState) const
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CConvexVolume::setIntProperty(const char* pName, int pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CConvexVolume::getIntProperty(const char* pName, int& pState) const
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CConvexVolume::setFloatProperty(const char* pName, double pState)
+{
+    int retVal = -1;
+
+    if (strcmp(propVolume_closeThreshold.name, pName) == 0)
+    {
+        retVal = 1;
+        setSmallestDistanceAllowed(pState);
+    }
+    else if (strcmp(propVolume_offset.name, pName) == 0)
+    {
+        retVal = 1;
+        setOffset(pState);
+    }
+    else if (strcmp(propVolume_range.name, pName) == 0)
+    {
+        retVal = 1;
+        setRange(pState);
+    }
+
+    return retVal;
+}
+
+int CConvexVolume::getFloatProperty(const char* pName, double& pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(propVolume_closeThreshold.name, pName) == 0)
+    {
+        retVal = 1;
+        pState = _smallestDistanceAllowed;
+    }
+    else if (strcmp(propVolume_offset.name, pName) == 0)
+    {
+        retVal = 1;
+        pState = offset;
+    }
+    else if (strcmp(propVolume_range.name, pName) == 0)
+    {
+        retVal = 1;
+        pState = range;
+    }
+
+    return retVal;
+}
+
+int CConvexVolume::setVectorProperty(const char* pName, const double* v, int vL)
+{
+    if (v == nullptr)
+        vL = 0;
+    int retVal = -1;
+
+    if (strcmp(propVolume_xSize.name, pName) == 0)
+    {
+        retVal = 1;
+        if (vL >= 1)
+            setXSize(v[0], false);
+        if (vL >= 2)
+            setXSizeFar(v[1], false);
+        computeVolumes();
+    }
+    else if (strcmp(propVolume_ySize.name, pName) == 0)
+    {
+        retVal = 1;
+        if (vL >= 1)
+            setYSize(v[0], false);
+        if (vL >= 2)
+            setYSizeFar(v[1], false);
+        computeVolumes();
+    }
+    else if (strcmp(propVolume_radius.name, pName) == 0)
+    {
+        retVal = 1;
+        if (vL >= 1)
+            setRadius(v[0], false);
+        if (vL >= 2)
+            setRadiusFar(v[1], false);
+        computeVolumes();
+    }
+    else if (strcmp(propVolume_angle.name, pName) == 0)
+    {
+        retVal = 1;
+        if (vL >= 1)
+            setAngle(v[0], false);
+        if (vL >= 2)
+            setInsideAngleThing(v[1], false);
+        computeVolumes();
+    }
+
+    return retVal;
+}
+
+int CConvexVolume::getVectorProperty(const char* pName, std::vector<double>& pState) const
+{
+    pState.clear();
+    int retVal = -1;
+
+    if (strcmp(propVolume_xSize.name, pName) == 0)
+    {
+        retVal = 1;
+        pState.push_back(xSize);
+        pState.push_back(xSizeFar);
+    }
+    else if (strcmp(propVolume_ySize.name, pName) == 0)
+    {
+        retVal = 1;
+        pState.push_back(ySize);
+        pState.push_back(ySizeFar);
+    }
+    else if (strcmp(propVolume_radius.name, pName) == 0)
+    {
+        retVal = 1;
+        pState.push_back(radius);
+        pState.push_back(radiusFar);
+    }
+    else if (strcmp(propVolume_angle.name, pName) == 0)
+    {
+        retVal = 1;
+        pState.push_back(angle);
+        pState.push_back(insideAngleThing);
+    }
+    else if (strcmp(propVolume_edges.name, pName) == 0)
+    {
+        retVal = 1;
+        pState.assign(volumeEdges.begin(), volumeEdges.end());
+    }
+    else if (strcmp(propVolume_closeEdges.name, pName) == 0)
+    {
+        retVal = 1;
+        pState.assign(nonDetectingVolumeEdges.begin(), nonDetectingVolumeEdges.end());
+    }
+
+    return retVal;
+}
+
+int CConvexVolume::setIntVectorProperty(const char* pName, const int* v, int vL)
+{
+    if (v == nullptr)
+        vL = 0;
+    int retVal = -1;
+
+    if (strcmp(propVolume_faces.name, pName) == 0)
+    {
+        retVal = 1;
+        if (vL >= 1)
+            setFaceNumber(v[0], false);
+        if (vL >= 2)
+            setFaceNumberFar(v[1], false);
+        computeVolumes();
+    }
+    else if (strcmp(propVolume_subdivisions.name, pName) == 0)
+    {
+        retVal = 1;
+        if (vL >= 1)
+            setSubdivisions(v[0], false);
+        if (vL >= 2)
+            setSubdivisionsFar(v[1], false);
+        computeVolumes();
+    }
+
+    return retVal;
+}
+
+int CConvexVolume::getIntVectorProperty(const char* pName, std::vector<int>& pState) const
+{
+    pState.clear();
+    int retVal = -1;
+
+    if (strcmp(propVolume_faces.name, pName) == 0)
+    {
+        retVal = 1;
+        pState.push_back(faceNumber);
+        pState.push_back(faceNumberFar);
+    }
+    else if (strcmp(propVolume_subdivisions.name, pName) == 0)
+    {
+        retVal = 1;
+        pState.push_back(subdivisions);
+        pState.push_back(subdivisionsFar);
+    }
+
+    return retVal;
+}
+
+int CConvexVolume::getPropertyName(int& index, std::string& pName)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_volume.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps_volume[i].name;
+            retVal = 1;
+            break;
+        }
+    }
+    return retVal;
+}
+
+int CConvexVolume::getPropertyName_static(int& index, std::string& pName)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_volume.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps_volume[i].name;
+            retVal = 1;
+            break;
+        }
+    }
+    return retVal;
+}
+
+int CConvexVolume::getPropertyInfo(const char* pName, int& info)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_volume.size(); i++)
+    {
+        if (strcmp(allProps_volume[i].name, pName) == 0)
+        {
+            retVal = allProps_volume[i].type;
+            info = allProps_volume[i].flags;
+            break;
+        }
+    }
+    return retVal;
+}
+
+int CConvexVolume::getPropertyInfo_static(const char* pName, int& info)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_volume.size(); i++)
+    {
+        if (strcmp(allProps_volume[i].name, pName) == 0)
+        {
+            retVal = allProps_volume[i].type;
+            info = allProps_volume[i].flags;
+            break;
+        }
+    }
+    return retVal;
+}
+

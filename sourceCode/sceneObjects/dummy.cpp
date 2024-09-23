@@ -222,9 +222,9 @@ void CDummy::setIsInScene(bool s)
 {
     CSceneObject::setIsInScene(s);
     if (s)
-        _dummyColor.setEventParams(_objectHandle);
+        _dummyColor.setEventParams(true, _objectHandle);
     else
-        _dummyColor.setEventParams(-1);
+        _dummyColor.setEventParams(true, -1);
 }
 
 void CDummy::scaleObject(double scalingFactor)

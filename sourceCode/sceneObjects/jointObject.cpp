@@ -1086,9 +1086,9 @@ void CJoint::setIsInScene(bool s)
 {
     CSceneObject::setIsInScene(s);
     if (s)
-        _color.setEventParams(_objectHandle);
+        _color.setEventParams(true, _objectHandle);
     else
-        _color.setEventParams(-1);
+        _color.setEventParams(true, -1);
 }
 
 bool CJoint::setScrewLead(double lead)

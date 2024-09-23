@@ -6,7 +6,18 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propProximitySensor_size,                    "size",                                     sim_propertytype_float,     0) \
+    FUNCX(propProximitySensor_size,                     "size",                                     sim_propertytype_float,     0) \
+    FUNCX(propProximitySensor_frontFaceDetection,       "frontFaceDetection",                       sim_propertytype_bool,      0) \
+    FUNCX(propProximitySensor_backFaceDetection,        "backFaceDetection",                        sim_propertytype_bool,      0) \
+    FUNCX(propProximitySensor_exactMode,                "exactMode",                                sim_propertytype_bool,      0) \
+    FUNCX(propProximitySensor_explicitHandling,         "explicitHandling",                         sim_propertytype_bool,      0) \
+    FUNCX(propProximitySensor_showVolume,               "showVolume",                               sim_propertytype_bool,      0) \
+    FUNCX(propProximitySensor_randomizedDetection,      "randomizedDetection",                      sim_propertytype_bool,      sim_propertyinfo_notwritable) \
+    FUNCX(propProximitySensor_sensorType,               "sensorType",                               sim_propertytype_int,       sim_propertyinfo_notwritable) \
+    FUNCX(propProximitySensor_detectedObjectHandle,     "detectedObjectHandle",                     sim_propertytype_int,       sim_propertyinfo_notwritable) \
+    FUNCX(propProximitySensor_angleThreshold,           "angleThreshold",                           sim_propertytype_float,     0) \
+    FUNCX(propProximitySensor_detectedPoint,            "detectedPoint",                            sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
+    FUNCX(propProximitySensor_detectedNormal,           "detectedNormal",                           sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -55,10 +66,21 @@ class CProxSensor : public CSceneObject
     bool isPotentiallyRenderable() const;
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;
+
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
+    int setVector3Property(const char* pName, const C3Vector& pState);
+    int getVector3Property(const char* pName, C3Vector& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
+    int setVectorProperty(const char* pName, const double* v, int vL);
+    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
+    int setIntVectorProperty(const char* pName, const int* v, int vL);
+    int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info);
@@ -74,15 +96,13 @@ class CProxSensor : public CSceneObject
 
     void commonInit();
     bool getSensedData(C3Vector &pt);
-    void setClosestObjectMode(bool closestObjMode);
-    bool getClosestObjectMode();
+    void setExactMode(bool closestObjMode);
+    bool getExactMode();
     void setProxSensorSize(double newSize);
     double getProxSensorSize();
 
     void setAllowedNormal(double al);
     double getAllowedNormal() const;
-    void setNormalCheck(bool check);
-    bool getNormalCheck() const;
     bool getFrontFaceDetection() const;
     bool getBackFaceDetection() const;
     void setFrontFaceDetection(bool faceOn);
@@ -127,38 +147,35 @@ class CProxSensor : public CSceneObject
     CConvexVolume *convexVolume;
 
   protected:
+    void _setDetectedObjectAndInfo(int h, const C3Vector* detectedPt = nullptr, const C3Vector* detectedN = nullptr);
     // Variables which need to be serialized & copied
     CColorObject volumeColor;
     CColorObject detectionRayColor;
-    double allowedNormal;
+    double _angleThreshold; // 0.0 means no threshold
     double _proxSensorSize;
-    bool normalCheck;
-    bool closestObjectMode;
-    bool frontFaceDetection;
-    bool backFaceDetection;
-    bool explicitHandling;
+    bool _exactMode; // otherwise approximate (non-closest item mode)
+    bool _frontFaceDetection;
+    bool _backFaceDetection;
+    bool _explicitHandling;
     bool _showVolume;
     int sensorType;
-    int _sensableType;
-    bool displayNormals;
-    int _sensableObject; // scene object handle or collection handle
     C3Vector _detectedPoint;
-    bool _detectedPointValid;
-    bool _sensorResultValid;
     int _detectedObjectHandle;
     C3Vector _detectedNormalVector;
     int _calcTimeInMs;
 
     bool _randomizedDetection;
-    int _randomizedDetectionSampleCount;
-    int _randomizedDetectionCountForDetection;
+    int _randomizedDetectionSampleCount_deprecated;         // 1
+    int _randomizedDetectionCountForDetection_deprecated;   // 1
+    int _sensableType_deprecated;   // sim_objectspecialproperty_detectable_ultrasonic
+    int _sensableObject_deprecated; // scene object handle or collection handle
+    bool _hideDetectionRay_deprecated;
 
     std::vector<C3Vector> _randomizedVectors;
     std::vector<double> _randomizedVectorDetectionStates;
 
     bool _initialExplicitHandling;
 
-    bool _hideDetectionRay;
     std::string _sensableObjectLoadAlias;
     std::string _sensableObjectLoadName_old;
 

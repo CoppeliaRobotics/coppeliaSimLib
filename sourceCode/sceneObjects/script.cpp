@@ -61,9 +61,9 @@ void CScript::setIsInScene(bool s)
 {
     CSceneObject::setIsInScene(s);
     if (s)
-        _scriptColor.setEventParams(_objectHandle);
+        _scriptColor.setEventParams(true, _objectHandle);
     else
-        _scriptColor.setEventParams(-1);
+        _scriptColor.setEventParams(true, -1);
 }
 
 void CScript::setObjectHandle(int newObjectHandle)
