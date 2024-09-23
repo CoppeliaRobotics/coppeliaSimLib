@@ -31,7 +31,7 @@ class CCbor
     void appendNull();
     void appendBool(bool v);
     void appendBuff(const unsigned char *v, size_t l);
-    void appendString(const char *v, int l = -1);
+    void appendText(const char *v, int l = -1);
 
     void appendKeyInt(const char *key, long long int v);
     void appendKeyUCharArray(const char *key, const unsigned char *v, size_t cnt);
@@ -44,7 +44,7 @@ class CCbor
     void appendKeyNull(const char *key);
     void appendKeyBool(const char *key, bool v);
     void appendKeyBuff(const char *key, const unsigned char *v, size_t l);
-    void appendKeyString(const char *key, const char *v, int l = -1);
+    void appendKeyText(const char *key, const char *v, int l = -1);
 
     void openArray();
     void openKeyArray(const char *key);

@@ -841,8 +841,8 @@ void App::__logMsg(const char *originName, int verbosityLevel, const char *msg, 
             if (originName != nullptr)
                 orig = originName;
             CCbor *ev = worldContainer->createEvent("logMsg", -1, nullptr, false);
-            ev->appendKeyString("origin", orig.c_str());
-            ev->appendKeyString("msg", msg);
+            ev->appendKeyText("origin", orig.c_str());
+            ev->appendKeyText("msg", msg);
             ev->appendKeyInt("verbosity", realVerbosityLevel);
             ev->openKeyMap("flags");
             ev->appendKeyBool("undecorated", verbosityLevel & sim_verbosity_undecorated);

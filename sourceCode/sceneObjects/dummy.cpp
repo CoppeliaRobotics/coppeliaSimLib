@@ -259,7 +259,7 @@ void CDummy::addSpecializedObjectEventData(CCbor *ev)
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
     ev->appendKeyInt(propDummy_linkedDummyHandle.name, _linkedDummyHandle);
     ev->appendKeyInt(propDummy_dummyType.name, _linkType);
-    ev->appendKeyString(propDummy_assemblyTag.name, _assemblyTag.c_str());
+    ev->appendKeyText(propDummy_assemblyTag.name, _assemblyTag.c_str());
 
     // Engine properties:
     setBoolProperty(nullptr, false, ev);
@@ -958,7 +958,7 @@ void CDummy::setAssemblyTag(const char *tag)
         {
             const char *cmd = propDummy_assemblyTag.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyString(cmd, _assemblyTag.c_str());
+            ev->appendKeyText(cmd, _assemblyTag.c_str());
             App::worldContainer->pushEvent();
         }
     }
@@ -1703,7 +1703,7 @@ void CDummy::_sendEngineString(CCbor* eev /*= nullptr*/)
         std::string current(prop.getObjectProperties(_objectHandle));
         if (ev == nullptr)
             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propDummy_engineProperties.name, true);
-        ev->appendKeyString(propDummy_engineProperties.name, current.c_str());
+        ev->appendKeyText(propDummy_engineProperties.name, current.c_str());
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();
     }

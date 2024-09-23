@@ -3109,7 +3109,7 @@ void CDynamicsContainer::_sendEngineString(CCbor* eev /*= nullptr*/)
         std::string current(prop.getObjectProperties(-1));
         if (ev == nullptr)
             ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propDyn_engineProperties.name, true);
-        ev->appendKeyString(propDyn_engineProperties.name, current.c_str());
+        ev->appendKeyText(propDyn_engineProperties.name, current.c_str());
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();
     }

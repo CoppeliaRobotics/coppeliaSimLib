@@ -2117,7 +2117,7 @@ void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
         std::string current(prop.getObjectProperties(_shapeHandleForEvents));
         if (ev == nullptr)
             ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propMaterial_engineProperties.name, true);
-        ev->appendKeyString(propMaterial_engineProperties.name, current.c_str());
+        ev->appendKeyText(propMaterial_engineProperties.name, current.c_str());
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();
     }

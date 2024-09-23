@@ -203,7 +203,7 @@ void CFolderSystem::setScenesPath(const char *path)
         {
             const char *cmd = propApp_sceneDir.name;
             CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
-            ev->appendKeyString(cmd, _scenesPath.c_str());
+            ev->appendKeyText(cmd, _scenesPath.c_str());
             App::worldContainer->pushEvent();
         }
     }
@@ -226,7 +226,7 @@ void CFolderSystem::setModelsPath(const char *path)
         {
             const char *cmd = propApp_modelDir.name;
             CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
-            ev->appendKeyString(cmd, _modelsPath.c_str());
+            ev->appendKeyText(cmd, _modelsPath.c_str());
             App::worldContainer->pushEvent();
         }
     }
@@ -249,7 +249,7 @@ void CFolderSystem::setImportExportPath(const char *path)
         {
             const char *cmd = propApp_importExportDir.name;
             CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
-            ev->appendKeyString(cmd, _importExportPath.c_str());
+            ev->appendKeyText(cmd, _importExportPath.c_str());
             App::worldContainer->pushEvent();
         }
     }

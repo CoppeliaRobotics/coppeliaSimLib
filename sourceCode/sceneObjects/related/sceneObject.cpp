@@ -693,7 +693,7 @@ void CSceneObject::setModelAcknowledgement(const char *a)
         {
             const char *cmd = propObject_modelAcknowledgment.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyString(cmd, _modelAcknowledgement.c_str());
+            ev->appendKeyText(cmd, _modelAcknowledgement.c_str());
             App::worldContainer->pushEvent();
         }
     }
@@ -1472,7 +1472,7 @@ void CSceneObject::pushObjectRefreshEvent()
 
 void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
 {
-    ev->appendKeyString(propObject_objectType.name, getObjectTypeInfo().c_str());
+    ev->appendKeyText(propObject_objectType.name, getObjectTypeInfo().c_str());
     ev->appendKeyInt(propObject_layer.name, _visibilityLayer);
     ev->appendKeyInt(propObject_childOrder.name, _childOrder);
     ev->appendKeyInt("dynamicFlag", _dynamicFlag);
@@ -1480,8 +1480,8 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
                    _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                    _localTransformation.Q(0)};
     ev->appendKeyDoubleArray(propObject_pose.name, p, 7);
-    ev->appendKeyString(propObject_alias.name, _objectAlias.c_str());
-    ev->appendKeyString("oldName", _objectName_old.c_str());
+    ev->appendKeyText(propObject_alias.name, _objectAlias.c_str());
+    ev->appendKeyText("oldName", _objectName_old.c_str());
     ev->appendKeyBool(propObject_modelInvisible.name, _modelInvisible);
     ev->appendKeyBool(propObject_modelBase.name, _modelBase);
 
@@ -1527,9 +1527,9 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     ev->appendKeyBool(propObject_collidable.name, _localObjectSpecialProperty & sim_objectspecialproperty_collidable);
     ev->appendKeyBool(propObject_measurable.name, _localObjectSpecialProperty & sim_objectspecialproperty_measurable);
     ev->appendKeyBool(propObject_detectable.name, _localObjectSpecialProperty & sim_objectspecialproperty_detectable);
-    ev->appendKeyString(propObject_modelAcknowledgment.name, _modelAcknowledgement.c_str());
-    ev->appendKeyString(propObject_dna.name, _dnaString.c_str());
-    ev->appendKeyString(propObject_persistentUid.name, _uniquePersistentIdString.c_str());
+    ev->appendKeyText(propObject_modelAcknowledgment.name, _modelAcknowledgement.c_str());
+    ev->appendKeyBuff(propObject_dna.name, (unsigned char*)_dnaString.data(), _dnaString.size());
+    ev->appendKeyBuff(propObject_persistentUid.name, (unsigned char*)_uniquePersistentIdString.data(), _uniquePersistentIdString.size());
     ev->appendKeyDoubleArray(propObject_calcLinearVelocity.name, _measuredLinearVelocity_velocityMeasurement.data, 3);
     ev->appendKeyDoubleArray(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
     ev->appendKeyDouble(propObject_calcRotationVelocity.name, _measuredAngularVelocity_velocityMeasurement);
@@ -2208,7 +2208,7 @@ void CSceneObject::generateDnaString()
     {
         const char *cmd = propObject_dna.name;
         CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-        ev->appendKeyString(cmd, _dnaString.c_str());
+        ev->appendKeyBuff(cmd, (unsigned char*)_dnaString.data(), _dnaString.size());
         App::worldContainer->pushEvent();
     }
 }
@@ -5267,7 +5267,7 @@ void CSceneObject::setObjectAlias_direct(const char *newName)
         {
             const char *cmd = propObject_alias.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, true);
-            ev->appendKeyString(cmd, newName);
+            ev->appendKeyText(cmd, newName);
             App::worldContainer->pushEvent();
         }
     }

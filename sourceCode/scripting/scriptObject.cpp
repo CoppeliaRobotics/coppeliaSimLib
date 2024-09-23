@@ -1124,10 +1124,10 @@ void CScriptObject::addSpecializedObjectEventData(CCbor *ev)
     ev->appendKeyInt(propScriptObj_execPriority.name, getScriptExecPriority());
     ev->appendKeyInt(propScriptObj_scriptType.name, _scriptType);
     ev->appendKeyInt(propScriptObj_scriptState.name, _scriptState);
-    ev->appendKeyString(propScriptObj_language.name, _lang.c_str());
-    ev->appendKeyString(propScriptObj_code.name, _scriptText.c_str());
-    ev->appendKeyString(propScriptObj_scriptName.name, getScriptName().c_str());
-    ev->appendKeyString(propScriptObj_addOnPath.name, _addOnPath.c_str());
+    ev->appendKeyText(propScriptObj_language.name, _lang.c_str());
+    ev->appendKeyText(propScriptObj_code.name, _scriptText.c_str());
+    ev->appendKeyText(propScriptObj_scriptName.name, getScriptName().c_str());
+    ev->appendKeyText(propScriptObj_addOnPath.name, _addOnPath.c_str());
 }
 
 void CScriptObject::setScriptState(int state)
@@ -1393,7 +1393,7 @@ void CScriptObject::setScriptText(const char *scriptTxt, bool toFileIfApplicable
                 ev = App::worldContainer->createSceneObjectChangedEvent(_scriptHandle, false, cmd, true); // scene object type scripts (new)
             else
                 ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTCHANGED, _scriptHandle, _scriptUid, false); // main, sandbox, add-ons, and old-type scripts
-            ev->appendKeyString(cmd, scriptTxt);
+            ev->appendKeyText(cmd, scriptTxt);
             App::worldContainer->pushEvent();
         }
         if (toFileIfApplicable)

@@ -734,7 +734,7 @@ void CSceneObjectContainer::appendNonObjectGenesisData(CCbor *ev) const
     std::vector<int> arr;
     ev->appendKeyIntArray(propObjCont_objectHandles.name, arr.data(), arr.size());
     ev->appendKeyIntArray(propObjCont_orphanHandles.name, arr.data(), arr.size());
-    ev->appendString(propObjCont_selectionHandles.name);
+    ev->appendText(propObjCont_selectionHandles.name);
     ev->openArray();
     ev->closeArrayOrMap();
 }

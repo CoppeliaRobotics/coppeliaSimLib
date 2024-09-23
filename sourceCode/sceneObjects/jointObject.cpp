@@ -1948,7 +1948,7 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev)
         tmp = "spherical";
         break;
     }
-    ev->appendKeyString("type", tmp.c_str());
+    ev->appendKeyText("type", tmp.c_str());
     ev->appendKeyInt(propJoint_jointType.name, _jointType);
     ev->appendKeyInt(propJoint_jointMode.name, _jointMode);
     ev->appendKeyInt(propJoint_dynCtrlMode.name, _dynCtrlMode);
@@ -5683,7 +5683,7 @@ void CJoint::_sendEngineString(CCbor* eev /*= nullptr*/)
         std::string current(prop.getObjectProperties(_objectHandle));
         if (ev == nullptr)
             ev = App::worldContainer->createSceneObjectChangedEvent(this, false, propJoint_engineProperties.name, true);
-        ev->appendKeyString(propJoint_engineProperties.name, current.c_str());
+        ev->appendKeyText(propJoint_engineProperties.name, current.c_str());
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();
     }

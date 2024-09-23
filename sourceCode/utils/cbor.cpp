@@ -274,7 +274,7 @@ void CCbor::appendBuff(const unsigned char *v, size_t l)
         _buff.push_back(v[i]);
 }
 
-void CCbor::appendString(const char *v, int l /*=-1*/)
+void CCbor::appendText(const char *v, int l /*=-1*/)
 {
     if (l < 0)
         l = int(strlen(v));
@@ -294,7 +294,7 @@ void CCbor::appendLuaString(const std::string &v, bool isBuffer, bool isText)
     if (v.size() >= 6)
         suff.assign(v.begin() + v.size() - 6, v.end());
     if (suff == "@:txt:")
-        appendString(v.c_str(), int(v.size()) - 6);
+        appendText(v.c_str(), int(v.size()) - 6);
     else if (suff == "@:dat:")
         appendBuff((unsigned char *)v.c_str(), v.size() - 6);
     else
@@ -304,11 +304,11 @@ void CCbor::appendLuaString(const std::string &v, bool isBuffer, bool isText)
         else
         {
             if (isText)
-                appendString(v.c_str(), int(v.size()));
+                appendText(v.c_str(), int(v.size()));
             else
             { // we have a binary string (could contain text chars only):
                 if (CCbor::isText(v.c_str(), int(v.size())))
-                    appendString(v.c_str(), int(v.size()));
+                    appendText(v.c_str(), int(v.size()));
                 else
                     appendBuff((unsigned char *)v.c_str(), v.size());
             }
@@ -394,14 +394,14 @@ void CCbor::createEvent(const char *event, const char *fieldName, const char *ob
     _eventInfos.push_back(inf);
 
     openMap(); // holding the event
-    appendKeyString("event", event);
+    appendKeyText("event", event);
     if (uid != -1)
         appendKeyInt("uid", uid);
     if (handle != -1)
         appendKeyInt("handle", handle);
     if (openDataField)
     {
-        appendString("data");
+        appendText("data");
         openMap(); // holding the data
 #if SIM_EVENT_PROTOCOL_VERSION == 2
         if (objType != nullptr)
@@ -464,84 +464,84 @@ size_t CCbor::getEventCnt() const
 
 void CCbor::appendKeyInt(const char *key, long long int v)
 {
-    appendString(key);
+    appendText(key);
     appendInt(v);
 }
 
 void CCbor::appendKeyUCharArray(const char *key, const unsigned char *v, size_t cnt)
 {
-    appendString(key);
+    appendText(key);
     appendUCharArray(v, cnt);
 }
 
 void CCbor::appendKeyIntArray(const char *key, const int *v, size_t cnt)
 {
-    appendString(key);
+    appendText(key);
     appendIntArray(v, cnt);
 }
 
 void CCbor::appendKeyIntArray(const char *key, const long long int *v, size_t cnt)
 {
-    appendString(key);
+    appendText(key);
     appendIntArray(v, cnt);
 }
 
 void CCbor::appendKeyFloat(const char *key, float v)
 {
-    appendString(key);
+    appendText(key);
     appendFloat(v);
 }
 
 void CCbor::appendKeyFloatArray(const char *key, const float *v, size_t cnt)
 {
-    appendString(key);
+    appendText(key);
     appendFloatArray(v, cnt);
 }
 
 void CCbor::appendKeyDouble(const char *key, double v)
 {
-    appendString(key);
+    appendText(key);
     appendDouble(v);
 }
 
 void CCbor::appendKeyDoubleArray(const char *key, const double *v, size_t cnt)
 {
-    appendString(key);
+    appendText(key);
     appendDoubleArray(v, cnt);
 }
 
 void CCbor::appendKeyNull(const char *key)
 {
-    appendString(key);
+    appendText(key);
     appendNull();
 }
 
 void CCbor::appendKeyBool(const char *key, bool v)
 {
-    appendString(key);
+    appendText(key);
     appendBool(v);
 }
 
 void CCbor::appendKeyBuff(const char *key, const unsigned char *v, size_t l)
 {
-    appendString(key);
+    appendText(key);
     appendBuff(v, l);
 }
 
-void CCbor::appendKeyString(const char *key, const char *v, int l /*=-1*/)
+void CCbor::appendKeyText(const char *key, const char *v, int l /*=-1*/)
 {
-    appendString(key);
-    appendString(v, l);
+    appendText(key);
+    appendText(v, l);
 }
 
 void CCbor::openKeyArray(const char *key)
 {
-    appendString(key);
+    appendText(key);
     openArray();
 }
 
 void CCbor::openKeyMap(const char *key)
 {
-    appendString(key);
+    appendText(key);
     openMap();
 }

@@ -366,7 +366,7 @@ void CCustomData::appendEventData(CCbor *ev) const
             else if (tg.find(proptypetag_string) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                ev->appendKeyString(tg.c_str(), _data[i].data.c_str());
+                ev->appendKeyText(tg.c_str(), _data[i].data.c_str());
             }
             else if (tg.find(proptypetag_vector3) != std::string::npos)
             {

@@ -148,7 +148,7 @@ void CPtCloud_old::pushAddEvent()
         }
 
         CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED, _uniqueId, nullptr, false);
-        ev->appendKeyString("type", "point");
+        ev->appendKeyText("type", "point");
         ev->appendKeyFloatArray("color", c, 9);
         ev->appendKeyInt("maxCnt", int(_vertices.size() / 3));
         ev->appendKeyDouble("size", _pointSize);

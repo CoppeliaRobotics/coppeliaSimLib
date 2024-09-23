@@ -12709,7 +12709,7 @@ int _simPushUserEvent(luaWrap_lua_State *L)
                 {
                     CCbor *ev =
                         App::worldContainer->createNakedEvent(eventStr.c_str(), handle, uid, (options & 1) != 0);
-                    ev->appendString("data");
+                    ev->appendText("data");
                     CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
                     CScriptObject::buildFromInterpreterStack_lua(L, stack, 4, 0); // skip the 3 first args
                     std::string buff = stack->getCborEncodedBuffer(0);

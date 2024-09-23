@@ -500,7 +500,7 @@ void CMesh::pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr)
 
     ev->openKeyMap("data");
     ev->appendKeyInt(propMesh_shapeUid.name, _isInSceneShapeUid);
-    ev->appendKeyString(propMesh_objectType.name, "mesh");
+    ev->appendKeyText(propMesh_objectType.name, "mesh");
     std::vector<float> vertices;
     vertices.resize(_verticesForDisplayAndDisk.size());
     for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)

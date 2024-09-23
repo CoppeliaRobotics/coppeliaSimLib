@@ -154,9 +154,9 @@ void CEnvironment::appendGenesisData(CCbor *ev) const
     ev->appendKeyBool(propScene_saveCalculationStructs.name, _saveExistingCalculationStructures);
     ev->appendKeyInt(propScene_sceneUid.name, _sceneUniqueID);
     ev->appendKeyInt(propScene_visibilityLayers.name, _activeLayers);
-    ev->appendKeyString(propScene_scenePath.name, _scenePathAndName.c_str());
-    ev->appendKeyString(propScene_acknowledgment.name, _acknowledgement.c_str());
-    ev->appendKeyString(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
+    ev->appendKeyText(propScene_scenePath.name, _scenePathAndName.c_str());
+    ev->appendKeyText(propScene_acknowledgment.name, _acknowledgement.c_str());
+    ev->appendKeyText(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
     ev->appendKeyFloatArray(propScene_ambientLight.name, ambientLightColor, 3);
 }
 
@@ -425,7 +425,7 @@ void CEnvironment::setAcknowledgement(const char *a)
         {
             const char *cmd = propScene_acknowledgment.name;
             CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-            ev->appendKeyString(cmd, _acknowledgement.c_str());
+            ev->appendKeyText(cmd, _acknowledgement.c_str());
             App::worldContainer->pushEvent();
         }
     }
@@ -1034,7 +1034,7 @@ void CEnvironment::setScenePathAndName(const char *pathAndName)
         {
             const char *cmd = propScene_scenePath.name;
             CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
-            ev->appendKeyString(cmd, _scenePathAndName.c_str());
+            ev->appendKeyText(cmd, _scenePathAndName.c_str());
             App::worldContainer->pushEvent();
         }
 #ifdef SIM_WITH_GUI

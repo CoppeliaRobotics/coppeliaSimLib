@@ -484,7 +484,7 @@ void CDrawingObject::pushAddEvent()
             tp = "spherePoint";
             break;
         }
-        ev->appendKeyString("type", tp.c_str());
+        ev->appendKeyText("type", tp.c_str());
         ev->appendKeyInt("maxCnt", _maxItemCount);
         ev->appendKeyDouble("size", _size);
         ev->appendKeyInt("parentUid", _sceneObjectUid);
