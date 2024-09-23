@@ -444,7 +444,7 @@ class CPlugin
         stage_uicleanupdone = 3, // set by UI thread
     };
 
-    CPlugin(const char *filename, const char *pluginnamespaceAndVersion, int loadOrigin);
+    CPlugin(const char *filename, const char *pluginnamespaceAndVersion, long long int loadOrigin);
     virtual ~CPlugin();
     int load(std::string *errStr);
 
@@ -478,9 +478,9 @@ class CPlugin
     void popCurrentPlugin();
     CPluginCallbackContainer *getPluginCallbackContainer();
     CPluginVariableContainer *getPluginVariableContainer();
-    void addDependency(int loadOrigin);
-    void removeDependency(int loadOrigin);
-    bool hasDependency(int loadOrigin) const;
+    void addDependency(long long int loadOrigin);
+    void removeDependency(long long int loadOrigin);
+    bool hasDependency(long long int loadOrigin) const;
     std::string getDependencies() const;
     bool hasAnyDependency() const;
 
@@ -681,7 +681,7 @@ class CPlugin
     CPluginCallbackContainer _pluginCallbackContainer;
     CPluginVariableContainer _pluginVariableContainer;
 
-    std::unordered_set<int> _dependencies; // -1=c++, otherwise script handles
+    std::unordered_set<long long int> _dependencies; // -1 = c++, otherwise script UIDs
 
     std::string _filename;
     int pluginVersion;

@@ -515,13 +515,13 @@ CCbor *CWorldContainer::createSceneObjectAddEvent(const CSceneObject *object)
                                 nullptr, false));
 }
 
-CCbor *CWorldContainer::createSceneObjectChangedEvent(int sceneObjectHandle, bool isCommonObjectData, const char *fieldName, bool mergeable)
+CCbor *CWorldContainer::createSceneObjectChangedEvent(long long int sceneObjectHandle, bool isCommonObjectData, const char *fieldName, bool mergeable)
 {
     CSceneObject *object = currentWorld->sceneObjects->getObjectFromHandle(sceneObjectHandle);
     return (createSceneObjectChangedEvent(object, isCommonObjectData, fieldName, mergeable));
 }
 
-CCbor *CWorldContainer::createObjectChangedEvent(int objectHandle, const char *fieldName, bool mergeable)
+CCbor *CWorldContainer::createObjectChangedEvent(long long int objectHandle, const char *fieldName, bool mergeable)
 {
     return _createGeneralEvent(EVENTTYPE_OBJECTCHANGED, objectHandle, objectHandle, nullptr, fieldName, mergeable);
 }
@@ -583,7 +583,7 @@ CCbor *CWorldContainer::createSceneObjectChangedEvent(const CSceneObject *object
     return (_createGeneralEvent(EVENTTYPE_OBJECTCHANGED, object->getObjectHandle(), object->getObjectUid(), ot, fieldName, mergeable));
 }
 
-CCbor *CWorldContainer::createNakedEvent(const char *event, int handle, long long int uid, bool mergeable)
+CCbor *CWorldContainer::createNakedEvent(const char *event, long long int handle, long long int uid, bool mergeable)
 {
     return (_createGeneralEvent(event, handle, uid, nullptr, nullptr, mergeable, false));
 }
@@ -599,7 +599,7 @@ void CWorldContainer::pushEvent()
     _eventMutex.unlock();
 }
 
-CCbor *CWorldContainer::_createGeneralEvent(const char *event, int objectHandle, long long int uid, const char *objType,
+CCbor *CWorldContainer::_createGeneralEvent(const char *event, long long int objectHandle, long long int uid, const char *objType,
                                             const char *fieldName, bool mergeable, bool openDataField /*=true*/)
 {
     CCbor *retVal = nullptr;
@@ -834,16 +834,16 @@ void CWorldContainer::announceObjectWillBeErased(const CSceneObject *object)
     currentWorld->announceObjectWillBeErased(object);
 }
 
-void CWorldContainer::announceScriptWillBeErased(int scriptHandle, int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
+void CWorldContainer::announceScriptWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     // Inform plugins about this event:
-    int pluginData[4] = {scriptHandle, scriptUid, 0, 0};
+    int pluginData[4] = {scriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
     App::worldContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptabouttobedestroyed, pluginData);
 
     currentWorld->announceScriptWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
-void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle, int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
+void CWorldContainer::announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     pluginContainer->announceScriptStateWillBeErased(scriptHandle, scriptUid);
     moduleMenuItemContainer->announceScriptStateWillBeErased(scriptHandle);

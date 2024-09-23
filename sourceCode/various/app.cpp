@@ -51,7 +51,7 @@ volatile int App::_appStage = App::appstage_none;
 std::string App::_consoleLogFilterStr;
 std::string App::_startupScriptString;
 std::map<std::string, std::map<int, std::map<std::string, bool>>> App::_logOnceMessages;
-long long int App::_nextUniqueId = 0;
+long long int App::_nextUniqueId = SIM_UIDSTART;
 std::string App::_applicationDir;
 std::vector<std::string> App::_applicationArguments;
 std::map<std::string, std::string> App::_applicationNamedParams;
@@ -1381,7 +1381,7 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
     return retVal;
 }
 
-int App::setBoolProperty(int target, const char* pName, bool pState)
+int App::setBoolProperty(long long int target, const char* pName, bool pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1398,7 +1398,7 @@ int App::setBoolProperty(int target, const char* pName, bool pState)
     return retVal;
 }
 
-int App::getBoolProperty(int target, const char* pName, bool& pState)
+int App::getBoolProperty(long long int target, const char* pName, bool& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1415,7 +1415,7 @@ int App::getBoolProperty(int target, const char* pName, bool& pState)
     return retVal;
 }
 
-int App::setIntProperty(int target, const char* pName, int pState)
+int App::setIntProperty(long long int target, const char* pName, int pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1432,7 +1432,7 @@ int App::setIntProperty(int target, const char* pName, int pState)
     return retVal;
 }
 
-int App::getIntProperty(int target, const char* pName, int& pState)
+int App::getIntProperty(long long int target, const char* pName, int& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1449,7 +1449,7 @@ int App::getIntProperty(int target, const char* pName, int& pState)
     return retVal;
 }
 
-int App::setFloatProperty(int target, const char* pName, double pState)
+int App::setFloatProperty(long long int target, const char* pName, double pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1466,7 +1466,7 @@ int App::setFloatProperty(int target, const char* pName, double pState)
     return retVal;
 }
 
-int App::getFloatProperty(int target, const char* pName, double& pState)
+int App::getFloatProperty(long long int target, const char* pName, double& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1483,7 +1483,7 @@ int App::getFloatProperty(int target, const char* pName, double& pState)
     return retVal;
 }
 
-int App::setStringProperty(int target, const char* pName, const char* pState)
+int App::setStringProperty(long long int target, const char* pName, const char* pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1500,7 +1500,7 @@ int App::setStringProperty(int target, const char* pName, const char* pState)
     return retVal;
 }
 
-int App::getStringProperty(int target, const char* pName, std::string& pState)
+int App::getStringProperty(long long int target, const char* pName, std::string& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1517,7 +1517,7 @@ int App::getStringProperty(int target, const char* pName, std::string& pState)
     return retVal;
 }
 
-int App::setBufferProperty(int target, const char* pName, const char* buffer, int bufferL)
+int App::setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL)
 {
     int retVal = -1;
     if (buffer == nullptr)
@@ -1558,7 +1558,7 @@ int App::setBufferProperty(int target, const char* pName, const char* buffer, in
     return retVal;
 }
 
-int App::getBufferProperty(int target, const char* pName, std::string& pState)
+int App::getBufferProperty(long long int target, const char* pName, std::string& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1586,7 +1586,7 @@ int App::getBufferProperty(int target, const char* pName, std::string& pState)
     return retVal;
 }
 
-int App::setVector3Property(int target, const char* pName, const C3Vector& pState)
+int App::setVector3Property(long long int target, const char* pName, const C3Vector& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1603,7 +1603,7 @@ int App::setVector3Property(int target, const char* pName, const C3Vector& pStat
     return retVal;
 }
 
-int App::getVector3Property(int target, const char* pName, C3Vector& pState)
+int App::getVector3Property(long long int target, const char* pName, C3Vector& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1620,7 +1620,7 @@ int App::getVector3Property(int target, const char* pName, C3Vector& pState)
     return retVal;
 }
 
-int App::setQuaternionProperty(int target, const char* pName, const C4Vector& pState)
+int App::setQuaternionProperty(long long int target, const char* pName, const C4Vector& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1637,7 +1637,7 @@ int App::setQuaternionProperty(int target, const char* pName, const C4Vector& pS
     return retVal;
 }
 
-int App::getQuaternionProperty(int target, const char* pName, C4Vector& pState)
+int App::getQuaternionProperty(long long int target, const char* pName, C4Vector& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1654,7 +1654,7 @@ int App::getQuaternionProperty(int target, const char* pName, C4Vector& pState)
     return retVal;
 }
 
-int App::setPoseProperty(int target, const char* pName, const C7Vector& pState)
+int App::setPoseProperty(long long int target, const char* pName, const C7Vector& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1671,7 +1671,7 @@ int App::setPoseProperty(int target, const char* pName, const C7Vector& pState)
     return retVal;
 }
 
-int App::getPoseProperty(int target, const char* pName, C7Vector& pState)
+int App::getPoseProperty(long long int target, const char* pName, C7Vector& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1688,7 +1688,7 @@ int App::getPoseProperty(int target, const char* pName, C7Vector& pState)
     return retVal;
 }
 
-int App::setMatrix3x3Property(int target, const char* pName, const C3X3Matrix& pState)
+int App::setMatrix3x3Property(long long int target, const char* pName, const C3X3Matrix& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1705,7 +1705,7 @@ int App::setMatrix3x3Property(int target, const char* pName, const C3X3Matrix& p
     return retVal;
 }
 
-int App::getMatrix3x3Property(int target, const char* pName, C3X3Matrix& pState)
+int App::getMatrix3x3Property(long long int target, const char* pName, C3X3Matrix& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1722,7 +1722,7 @@ int App::getMatrix3x3Property(int target, const char* pName, C3X3Matrix& pState)
     return retVal;
 }
 
-int App::setMatrix4x4Property(int target, const char* pName, const C4X4Matrix& pState)
+int App::setMatrix4x4Property(long long int target, const char* pName, const C4X4Matrix& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1739,7 +1739,7 @@ int App::setMatrix4x4Property(int target, const char* pName, const C4X4Matrix& p
     return retVal;
 }
 
-int App::getMatrix4x4Property(int target, const char* pName, C4X4Matrix& pState)
+int App::getMatrix4x4Property(long long int target, const char* pName, C4X4Matrix& pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1756,7 +1756,7 @@ int App::getMatrix4x4Property(int target, const char* pName, C4X4Matrix& pState)
     return retVal;
 }
 
-int App::setColorProperty(int target, const char* pName, const float* pState)
+int App::setColorProperty(long long int target, const char* pName, const float* pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1773,7 +1773,7 @@ int App::setColorProperty(int target, const char* pName, const float* pState)
     return retVal;
 }
 
-int App::getColorProperty(int target, const char* pName, float* pState)
+int App::getColorProperty(long long int target, const char* pName, float* pState)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1790,7 +1790,7 @@ int App::getColorProperty(int target, const char* pName, float* pState)
     return retVal;
 }
 
-int App::setVectorProperty(int target, const char* pName, const double* v, int vL)
+int App::setVectorProperty(long long int target, const char* pName, const double* v, int vL)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1807,7 +1807,7 @@ int App::setVectorProperty(int target, const char* pName, const double* v, int v
     return retVal;
 }
 
-int App::getVectorProperty(int target, const char* pName, std::vector<double>& pState)
+int App::getVectorProperty(long long int target, const char* pName, std::vector<double>& pState)
 {
     int retVal = -1;
     pState.clear();
@@ -1825,7 +1825,7 @@ int App::getVectorProperty(int target, const char* pName, std::vector<double>& p
     return retVal;
 }
 
-int App::setIntVectorProperty(int target, const char* pName, const int* v, int vL)
+int App::setIntVectorProperty(long long int target, const char* pName, const int* v, int vL)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1842,7 +1842,7 @@ int App::setIntVectorProperty(int target, const char* pName, const int* v, int v
     return retVal;
 }
 
-int App::getIntVectorProperty(int target, const char* pName, std::vector<int>& pState)
+int App::getIntVectorProperty(long long int target, const char* pName, std::vector<int>& pState)
 {
     int retVal = -1;
     pState.clear();
@@ -1860,7 +1860,7 @@ int App::getIntVectorProperty(int target, const char* pName, std::vector<int>& p
     return retVal;
 }
 
-int App::removeProperty(int target, const char* pName)
+int App::removeProperty(long long int target, const char* pName)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1899,7 +1899,7 @@ int App::removeProperty(int target, const char* pName)
     return retVal;
 }
 
-int App::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing)
+int App::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing)
 {
     int retVal = -1;
     if (target == sim_handle_app)
@@ -1940,7 +1940,7 @@ int App::getPropertyName(int target, int& index, std::string& pName, std::string
     return retVal;
 }
 
-int App::getPropertyInfo(int target, const char* pName, int& info, bool staticParsing)
+int App::getPropertyInfo(long long int target, const char* pName, int& info, bool staticParsing)
 {
     int retVal = -1;
     if (target == sim_handle_app)

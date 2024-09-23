@@ -98,7 +98,7 @@ bool CTextureProperty::getRepeatV()
     return (_repeatV);
 }
 
-void CTextureProperty::addTextureDependencies(int objID, int objSubID)
+void CTextureProperty::addTextureDependencies(long long int objID, long long int objSubID)
 {
     CTextureObject *it = App::currentWorld->textureContainer->getObject(_textureOrVisionSensorObjectID);
     if (it != nullptr)

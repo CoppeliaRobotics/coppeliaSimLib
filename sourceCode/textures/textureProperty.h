@@ -18,7 +18,7 @@ class CTextureProperty
     bool announceObjectWillBeErased(const CSceneObject *object);
     void performObjectLoadingMapping(const std::map<int, int> *map);
     void performTextureObjectLoadingMapping(const std::map<int, int> *map);
-    void addTextureDependencies(int objID, int objSubID);
+    void addTextureDependencies(long long int objID, long long int objSubID);
     void scaleObject(double scalingFactor);
     void setInterpolateColors(bool ic);
     bool getInterpolateColors();
@@ -29,8 +29,7 @@ class CTextureProperty
     int getTextureObjectID() const;
     void setTextureObjectID(int id);
     CTextureObject *getTextureObject();
-    std::vector<float> *getTextureCoordinates(int objectStateId, const std::vector<float> &vertices,
-                                              const std::vector<int> &triangles);
+    std::vector<float> *getTextureCoordinates(int objectStateId, const std::vector<float> &vertices, const std::vector<int> &triangles);
     std::vector<float> *getFixedTextureCoordinates();
     C7Vector getTextureRelativeConfig();
     void setTextureRelativeConfig(const C7Vector &c);

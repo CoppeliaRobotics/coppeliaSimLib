@@ -13,7 +13,6 @@
 #include <shapeRendering.h>
 #endif
 
-int CMesh::_nextUniqueID = SIM_IDSTART_MESH;
 unsigned int CMesh::_extRendererUniqueObjectID = 0;
 unsigned int CMesh::_extRendererUniqueMeshID = 0;
 unsigned int CMesh::_extRendererUniqueTextureID = 0;
@@ -103,7 +102,7 @@ CMesh::~CMesh()
 void CMesh::_commonInit()
 {
     _isInSceneShapeUid = -1;
-    _uniqueID = _nextUniqueID++;
+    _uniqueID = App::getFreshUniqueId();
     color.setDefaultValues();
     color.setColor(0.9f, 0.9f, 0.9f, sim_colorcomponent_ambient_diffuse);
     color.setEventParams(false, -1, 1 + 4 + 8 + 16);
@@ -475,7 +474,7 @@ CMesh *CMesh::getFirstMesh()
     return (this);
 }
 
-CMesh* CMesh::getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr)
+CMesh* CMesh::getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr)
 { // function has virtual/non-virtual counterpart!
     CMesh* retVal = nullptr;
     if (meshUid == _uniqueID)
@@ -897,7 +896,7 @@ int CMesh::getComponentCount() const
     return (1);
 }
 
-int CMesh::getUniqueID() const
+long long int CMesh::getUniqueID() const
 {
     return _uniqueID;
 }

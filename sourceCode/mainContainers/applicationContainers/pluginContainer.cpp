@@ -90,7 +90,7 @@ CPlugin *CPluginContainer::_tryToLoadPluginOnce(const char *namespaceAndVersion)
     return (retVal);
 }
 
-CPlugin *CPluginContainer::loadAndInitPlugin(const char *namespaceAndVersion, int loadOrigin)
+CPlugin *CPluginContainer::loadAndInitPlugin(const char *namespaceAndVersion, long long int loadOrigin)
 { // namespaceAndVersion: e.g. simAssimp, simAssimp-2-78, etc.
     // loadOrigin: -1: c++, otherwise script UID
     TRACE_INTERNAL;
@@ -170,9 +170,9 @@ CPlugin *CPluginContainer::loadAndInitPlugin(const char *namespaceAndVersion, in
     return (plug);
 }
 
-void CPluginContainer::announceScriptStateWillBeErased(int scriptHandle, int scriptUid)
+void CPluginContainer::announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid)
 {
-    int pluginData[4] = {scriptHandle, scriptUid, 0, 0};
+    int pluginData[4] = {scriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
     sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstateabouttobedestroyed, pluginData);
 
     for (size_t i = 0; i < _allPlugins.size(); i++)
@@ -269,7 +269,7 @@ void CPluginContainer::unlockInterface()
     _pluginInterfaceMutex.unlock();
 }
 
-bool CPluginContainer::deinitAndUnloadPlugin(int handle, int unloadOrigin, bool force /*=false*/)
+bool CPluginContainer::deinitAndUnloadPlugin(int handle, long long int unloadOrigin, bool force /*=false*/)
 { // not for legacy plugins
     TRACE_INTERNAL;
     bool retVal = false;

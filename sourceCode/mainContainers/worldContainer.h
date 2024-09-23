@@ -102,8 +102,8 @@ class CWorldContainer
     CScriptObject *getScriptObjectFromHandle(int scriptHandle) const;
     CScriptObject *getScriptObjectFromUid(int uid) const;
     void announceObjectWillBeErased(const CSceneObject *object);
-    void announceScriptWillBeErased(int scriptHandle, int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
-    void announceScriptStateWillBeErased(int scriptHandle, int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
 
     void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     void broadcastMsg(CInterfaceStack *inStack, int emittingScriptHandle, int options);
@@ -114,12 +114,12 @@ class CWorldContainer
     void pushSceneObjectRemoveEvent(const CSceneObject *object);
 
     bool getEventsEnabled() const;
-    CCbor *createNakedEvent(const char *event, int handle, long long int uid, bool mergeable);
+    CCbor *createNakedEvent(const char *event, long long int handle, long long int uid, bool mergeable);
     CCbor *createEvent(const char *event, long long int uid, const char *fieldName, bool mergeable);
     CCbor *createSceneObjectAddEvent(const CSceneObject *object);
     CCbor *createSceneObjectChangedEvent(const CSceneObject *object, bool isCommonObjectData, const char *fieldName, bool mergeable);
-    CCbor *createSceneObjectChangedEvent(int sceneObjectHandle, bool isCommonObjectData, const char *fieldName, bool mergeable);
-    CCbor *createObjectChangedEvent(int objectHandle, const char *fieldName, bool mergeable);
+    CCbor *createSceneObjectChangedEvent(long long int sceneObjectHandle, bool isCommonObjectData, const char *fieldName, bool mergeable);
+    CCbor *createObjectChangedEvent(long long int objectHandle, const char *fieldName, bool mergeable);
     void pushEvent();
 
     void pushGenesisEvents();
@@ -184,7 +184,7 @@ class CWorldContainer
 #endif
 
   private:
-    CCbor *_createGeneralEvent(const char *event, int objectHandle, long long int uid, const char *objType,
+    CCbor *_createGeneralEvent(const char *event, long long int objectHandle, long long int uid, const char *objType,
                                const char *fieldName, bool mergeable, bool openDataField = true);
     bool _switchToWorld(int newWorldIndex);
 

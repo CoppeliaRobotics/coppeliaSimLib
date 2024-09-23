@@ -541,7 +541,7 @@ CMesh *CMeshWrapper::getFirstMesh()
     return (childList[0]->getFirstMesh());
 }
 
-CMesh* CMeshWrapper::getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr)
+CMesh* CMeshWrapper::getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr)
 {
     CMesh* retVal = nullptr;
     for (size_t i = 0; i < childList.size(); i++)

@@ -10,9 +10,9 @@ struct SCodeEditor
     int handle;
     int uniqueId;
     int scriptHandle;
-    int scriptUid;
+    long long int scriptUid;
     int callingScriptHandle;
-    int callingScriptUid;
+    long long int callingScriptUid;
     int sceneUniqueId;
     bool openAcrossScenes;
     bool closeAtSimulationEnd;
@@ -35,7 +35,7 @@ class CCodeEditorContainer
 
     // From sim thread:
     int openScriptWithExternalEditor(int scriptHandle);
-    void announceScriptStateWillBeErased(int scriptHandle, int scriptUid);
+    void announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid);
 
     int open(const char *initText, const char *xml, int callingScriptHandle); // func. sim.textEditorOpen
     int openSimulationScript(int scriptHandle);      // main and simulation scripts
@@ -48,7 +48,7 @@ class CCodeEditorContainer
                            const CScriptObject *requestOrigin); // deprec. func. sim.openTextEditor
     bool close(int handle, int posAndSize[4], std::string *txt, std::string *callback);
     void applyChanges(int handle) const;
-    bool closeFromScriptUid(int scriptUid, int posAndSize[4], bool ignoreChange);
+    bool closeFromScriptUid(long long int scriptUid, int posAndSize[4], bool ignoreChange);
     void restartScript(int handle) const;
     int getCallingScriptHandle(int handle) const;
     bool getCloseAfterCallbackCalled(int handle) const;

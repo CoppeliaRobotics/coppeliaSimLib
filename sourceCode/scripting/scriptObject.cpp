@@ -26,12 +26,11 @@
 
 #define INITIALLY_SUSPEND_LOADED_SCRIPTS true
 int CScriptObject::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
-int CScriptObject::_nextScriptUid = 0;
 std::vector<int> CScriptObject::_externalScriptCalls;
 
 CScriptObject::CScriptObject(int scriptType)
 { // scriptType to -1 for serialization
-    _scriptUid = _nextScriptUid++;
+    _scriptUid = App::getFreshUniqueId();
     _tempSuspended = false;
     _sceneObjectScript = false;
     _parentIsProxy = false;
@@ -1119,6 +1118,17 @@ int CScriptObject::getScriptState() const
 
 void CScriptObject::addSpecializedObjectEventData(CCbor *ev)
 {
+    if (_scriptHandle >= SIM_IDSTART_LUASCRIPT)
+    {
+        if (_scriptType == sim_scripttype_main)
+            ev->appendKeyText(propObject_objectType.name, "mainScript");
+        else if (_scriptType == sim_scripttype_sandbox)
+            ev->appendKeyText(propObject_objectType.name, "sandbox");
+        else if (_scriptType == sim_scripttype_addon)
+            ev->appendKeyText(propObject_objectType.name, "addon");
+        else
+            ev->appendKeyText(propObject_objectType.name, "associatedScript");
+    }
     ev->appendKeyBool(propScriptObj_scriptDisabled.name, _scriptIsDisabled);
     ev->appendKeyBool(propScriptObj_restartOnError.name, _autoRestartOnError);
     ev->appendKeyInt(propScriptObj_execPriority.name, getScriptExecPriority());
@@ -1412,9 +1422,9 @@ int CScriptObject::getScriptHandle() const
     return (_scriptHandle);
 }
 
-int CScriptObject::getScriptUid() const
+long long int CScriptObject::getScriptUid() const
 {
-    return (_scriptUid);
+    return _scriptUid;
 }
 
 size_t CScriptObject::getSimpleHash() const

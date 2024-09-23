@@ -25,8 +25,8 @@ class CTextureObject
     void lightenUp();
     void setRandomContent();
 
-    bool announceGeneralObjectWillBeErased(int objectID, int subObjectID);
-    void addDependentObject(int objectID, int subObjectID);
+    bool announceGeneralObjectWillBeErased(long long int objectID, long long int subObjectID);
+    void addDependentObject(long long int objectID, long long int subObjectID);
     void clearAllDependencies();
     void transferDependenciesToThere(CTextureObject *receivingObject);
 
@@ -51,7 +51,7 @@ class CTextureObject
     bool _changedFlag;
     unsigned int _currentTextureContentUniqueId;
 
-    std::vector<int> _dependentObjects;
-    std::vector<int> _dependentSubObjects;
+    std::vector<long long int> _dependentObjects;
+    std::vector<long long int> _dependentSubObjects;
     static unsigned int _textureContentUniqueId;
 };

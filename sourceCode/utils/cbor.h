@@ -55,7 +55,7 @@ class CCbor
     void appendLuaString(const std::string &v, bool isBuffer, bool isText);
     void appendRaw(const unsigned char *v, size_t l);
 
-    void createEvent(const char *event, const char *fieldName, const char *objType, long long int uid, int handle,
+    void createEvent(const char *event, const char *fieldName, const char *objType, long long int uid, long long int handle,
                      bool mergeable, bool openDataField = true);
     void pushEvent();
     long long int finalizeEvents(long long int nextSeq, bool seqChanges);

@@ -57,7 +57,7 @@ class CMesh : public CMeshWrapper
     bool isConvex() const;
     bool checkIfConvex();
     CMesh *getFirstMesh();
-    CMesh* getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr);
+    CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr);
     void pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr);
     void pushObjectRemoveEvent();
 
@@ -83,7 +83,7 @@ class CMesh : public CMeshWrapper
     void getColorStrings(std::string &colorStrings, bool onlyNamed) const;
     void setHeightfieldDiamonds(bool d);
 
-    int getUniqueID() const;
+    long long int getUniqueID() const;
 
     void setHeightfieldData(const std::vector<double> &heights, int xCount, int yCount);
     double *getHeightfieldData(int &xCount, int &yCount, double &minHeight, double &maxHeight);
@@ -225,7 +225,7 @@ class CMesh : public CMeshWrapper
     int _isInSceneShapeUid;
 
     CTextureProperty *_textureProperty;
-    int _uniqueID;
+    long long int _uniqueID;
 
     int _purePrimitive;
     double _purePrimitiveXSizeOrDiameter;
@@ -251,8 +251,6 @@ class CMesh : public CMeshWrapper
     static unsigned int _extRendererUniqueObjectID;
     static unsigned int _extRendererUniqueMeshID;
     static unsigned int _extRendererUniqueTextureID;
-
-    static int _nextUniqueID;
 
     // temp, for serialization purpose:
     static std::vector<std::vector<float> *> _tempVerticesForDisk;

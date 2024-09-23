@@ -134,7 +134,7 @@ CMesh *CShape::getSingleMesh() const
     return (retVal);
 }
 
-CMesh* CShape::getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) const
+CMesh* CShape::getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) const
 {
     return _mesh->getMeshFromUid(meshUid, parentCumulTr, shapeRelTr);
 }

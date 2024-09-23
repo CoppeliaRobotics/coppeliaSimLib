@@ -2457,8 +2457,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     CTextureProperty *tp = components[j]->getTextureProperty();
                     if (tp != nullptr)
                     {
-                        App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),
-                                                                                               -1);
+                        App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
                         delete tp;
                         components[j]->setTextureProperty(nullptr);
                     }
@@ -2491,8 +2490,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     CTextureProperty *tp = components[j]->getTextureProperty();
                     if (tp != nullptr)
                     {
-                        App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),
-                                                                                               -1);
+                        App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
                         delete tp;
                         components[j]->setTextureProperty(nullptr);
                     }
@@ -2681,8 +2679,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 {
                     CButtonBlock *block = App::currentWorld->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
                     CSoftButton *butt = block->getButtonWithID(cmd.intParams[2]);
-                    textureObj->addDependentObject(cmd.intParams[1],
-                                                   butt->getUniqueID()); // Unique ID starts exceptionnally at 1
+                    textureObj->addDependentObject(cmd.intParams[1], butt->getUniqueID()); // Unique ID starts exceptionnally at 1
                 }
             }
             int textureID = App::currentWorld->textureContainer->addObject(
@@ -2718,8 +2715,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 if (tp != nullptr)
                 { // remove the texture
-                    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1],
-                                                                                           geom->getUniqueID());
+                    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1], geom->getUniqueID());
                     delete tp;
                     geom->setTextureProperty(nullptr);
                 }
@@ -2768,8 +2764,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CSoftButton *button = block->getButtonWithID(cmd.intParams[2]);
                 if (tp != nullptr)
                 { // remove the texture
-                    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1],
-                                                                                           cmd.intParams[2]);
+                    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1], cmd.intParams[2]);
                     delete tp;
                     button->setTextureProperty(nullptr);
                 }

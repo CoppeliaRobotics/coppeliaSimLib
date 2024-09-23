@@ -1519,8 +1519,7 @@ enum
                                    // if we remove float support anyways
     SIM_IDEND_TEXTURE = 2280009,   // for V4.6 can be set to 1039999, but then not backward compatible prior V4.5. Is ok
                                    // if we remove float support anyways
-    SIM_IDSTART_MESH = 10000000,
-    SIM_IDEND_MESH = 2000000000,
+    SIM_UIDSTART = 10000000,
 };
 
 enum

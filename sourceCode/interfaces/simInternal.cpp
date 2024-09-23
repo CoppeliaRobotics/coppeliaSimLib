@@ -664,7 +664,7 @@ bool isPropertyNameValid(const char *functionName, const char* pName)
     return true;
 }
 
-int simSetBoolProperty_internal(int target, const char* ppName, int pState)
+int simSetBoolProperty_internal(long long int target, const char* ppName, int pState)
 {
     C_API_START;
 
@@ -702,7 +702,7 @@ int simSetBoolProperty_internal(int target, const char* ppName, int pState)
     return -1;
 }
 
-int simGetBoolProperty_internal(int target, const char* ppName, int* pState)
+int simGetBoolProperty_internal(long long int target, const char* ppName, int* pState)
 {
     C_API_START;
 
@@ -758,7 +758,7 @@ int simGetBoolProperty_internal(int target, const char* ppName, int* pState)
     return -1;
 }
 
-int simSetIntProperty_internal(int target, const char* ppName, int pState)
+int simSetIntProperty_internal(long long int target, const char* ppName, int pState)
 {
     C_API_START;
 
@@ -796,7 +796,7 @@ int simSetIntProperty_internal(int target, const char* ppName, int pState)
     return -1;
 }
 
-int simGetIntProperty_internal(int target, const char* ppName, int* pState)
+int simGetIntProperty_internal(long long int target, const char* ppName, int* pState)
 {
     C_API_START;
 
@@ -848,7 +848,7 @@ int simGetIntProperty_internal(int target, const char* ppName, int* pState)
     return -1;
 }
 
-int simSetFloatProperty_internal(int target, const char* ppName, double pState)
+int simSetFloatProperty_internal(long long int target, const char* ppName, double pState)
 {
     C_API_START;
 
@@ -886,7 +886,7 @@ int simSetFloatProperty_internal(int target, const char* ppName, double pState)
     return -1;
 }
 
-int simGetFloatProperty_internal(int target, const char* ppName, double* pState)
+int simGetFloatProperty_internal(long long int target, const char* ppName, double* pState)
 {
     C_API_START;
 
@@ -938,7 +938,7 @@ int simGetFloatProperty_internal(int target, const char* ppName, double* pState)
     return -1;
 }
 
-int simSetStringProperty_internal(int target, const char* ppName, const char* pState)
+int simSetStringProperty_internal(long long int target, const char* ppName, const char* pState)
 {
     C_API_START;
 
@@ -976,7 +976,7 @@ int simSetStringProperty_internal(int target, const char* ppName, const char* pS
     return -1;
 }
 
-char* simGetStringProperty_internal(int target, const char* ppName)
+char* simGetStringProperty_internal(long long int target, const char* ppName)
 {
     C_API_START;
 
@@ -1031,7 +1031,7 @@ char* simGetStringProperty_internal(int target, const char* ppName)
     return nullptr;
 }
 
-int simSetBufferProperty_internal(int target, const char* ppName, const char* buffer, int bufferL)
+int simSetBufferProperty_internal(long long int target, const char* ppName, const char* buffer, int bufferL)
 { // this is also called from all other property type setters
     C_API_START;
 
@@ -1066,7 +1066,7 @@ int simSetBufferProperty_internal(int target, const char* ppName, const char* bu
     return -1;
 }
 
-char* simGetBufferProperty_internal(int target, const char* ppName, int* bufferL)
+char* simGetBufferProperty_internal(long long int target, const char* ppName, int* bufferL)
 {
     C_API_START;
 
@@ -1107,7 +1107,7 @@ char* simGetBufferProperty_internal(int target, const char* ppName, int* bufferL
     return nullptr;
 }
 
-int simSetVector3Property_internal(int target, const char* ppName, const double* pState)
+int simSetVector3Property_internal(long long int target, const char* ppName, const double* pState)
 {
     C_API_START;
 
@@ -1146,7 +1146,7 @@ int simSetVector3Property_internal(int target, const char* ppName, const double*
     return -1;
 }
 
-int simGetVector3Property_internal(int target, const char* ppName, double* pState)
+int simGetVector3Property_internal(long long int target, const char* ppName, double* pState)
 {
     C_API_START;
 
@@ -1203,7 +1203,7 @@ int simGetVector3Property_internal(int target, const char* ppName, double* pStat
     return -1;
 }
 
-int simSetQuaternionProperty_internal(int target, const char* ppName, const double* pState)
+int simSetQuaternionProperty_internal(long long int target, const char* ppName, const double* pState)
 {
     C_API_START;
 
@@ -1242,7 +1242,7 @@ int simSetQuaternionProperty_internal(int target, const char* ppName, const doub
     return -1;
 }
 
-int simGetQuaternionProperty_internal(int target, const char* ppName, double* pState)
+int simGetQuaternionProperty_internal(long long int target, const char* ppName, double* pState)
 {
     C_API_START;
 
@@ -1299,7 +1299,7 @@ int simGetQuaternionProperty_internal(int target, const char* ppName, double* pS
     return -1;
 }
 
-int simSetPoseProperty_internal(int target, const char* ppName, const double* pState)
+int simSetPoseProperty_internal(long long int target, const char* ppName, const double* pState)
 {
     C_API_START;
 
@@ -1339,7 +1339,7 @@ int simSetPoseProperty_internal(int target, const char* ppName, const double* pS
     return -1;
 }
 
-int simGetPoseProperty_internal(int target, const char* ppName, double* pState)
+int simGetPoseProperty_internal(long long int target, const char* ppName, double* pState)
 {
     C_API_START;
 
@@ -1396,7 +1396,7 @@ int simGetPoseProperty_internal(int target, const char* ppName, double* pState)
     return -1;
 }
 
-int simSetMatrix3x3Property_internal(int target, const char* ppName, const double* pState)
+int simSetMatrix3x3Property_internal(long long int target, const char* ppName, const double* pState)
 {
     C_API_START;
 
@@ -1436,7 +1436,7 @@ int simSetMatrix3x3Property_internal(int target, const char* ppName, const doubl
     return -1;
 }
 
-int simGetMatrix3x3Property_internal(int target, const char* ppName, double* pState)
+int simGetMatrix3x3Property_internal(long long int target, const char* ppName, double* pState)
 {
     C_API_START;
 
@@ -1493,7 +1493,7 @@ int simGetMatrix3x3Property_internal(int target, const char* ppName, double* pSt
     return -1;
 }
 
-int simSetMatrix4x4Property_internal(int target, const char* ppName, const double* pState)
+int simSetMatrix4x4Property_internal(long long int target, const char* ppName, const double* pState)
 {
     C_API_START;
 
@@ -1533,7 +1533,7 @@ int simSetMatrix4x4Property_internal(int target, const char* ppName, const doubl
     return -1;
 }
 
-int simGetMatrix4x4Property_internal(int target, const char* ppName, double* pState)
+int simGetMatrix4x4Property_internal(long long int target, const char* ppName, double* pState)
 {
     C_API_START;
 
@@ -1598,7 +1598,7 @@ int simGetMatrix4x4Property_internal(int target, const char* ppName, double* pSt
     return -1;
 }
 
-int simSetColorProperty_internal(int target, const char* ppName, const float* pState)
+int simSetColorProperty_internal(long long int target, const char* ppName, const float* pState)
 {
     C_API_START;
 
@@ -1636,7 +1636,7 @@ int simSetColorProperty_internal(int target, const char* ppName, const float* pS
     return -1;
 }
 
-int simGetColorProperty_internal(int target, const char* ppName, float* pState)
+int simGetColorProperty_internal(long long int target, const char* ppName, float* pState)
 {
     C_API_START;
 
@@ -1689,7 +1689,7 @@ int simGetColorProperty_internal(int target, const char* ppName, float* pState)
     return -1;
 }
 
-int simSetVectorProperty_internal(int target, const char* ppName, const double* v, int vL)
+int simSetVectorProperty_internal(long long int target, const char* ppName, const double* v, int vL)
 {
     C_API_START;
 
@@ -1732,7 +1732,7 @@ int simSetVectorProperty_internal(int target, const char* ppName, const double* 
     return -1;
 }
 
-double* simGetVectorProperty_internal(int target, const char* ppName, int* vL)
+double* simGetVectorProperty_internal(long long int target, const char* ppName, int* vL)
 {
     C_API_START;
 
@@ -1781,7 +1781,7 @@ double* simGetVectorProperty_internal(int target, const char* ppName, int* vL)
     return nullptr;
 }
 
-int simSetIntVectorProperty_internal(int target, const char* ppName, const int* v, int vL)
+int simSetIntVectorProperty_internal(long long int target, const char* ppName, const int* v, int vL)
 {
     C_API_START;
 
@@ -1824,7 +1824,7 @@ int simSetIntVectorProperty_internal(int target, const char* ppName, const int* 
     return -1;
 }
 
-int* simGetIntVectorProperty_internal(int target, const char* ppName, int* vL)
+int* simGetIntVectorProperty_internal(long long int target, const char* ppName, int* vL)
 {
     C_API_START;
 
@@ -1873,7 +1873,7 @@ int* simGetIntVectorProperty_internal(int target, const char* ppName, int* vL)
     return nullptr;
 }
 
-int simRemoveProperty_internal(int target, const char* ppName)
+int simRemoveProperty_internal(long long int target, const char* ppName)
 {
     C_API_START;
 
@@ -1904,7 +1904,7 @@ int simRemoveProperty_internal(int target, const char* ppName)
     return -1;
 }
 
-char* simGetPropertyName_internal(int target, int index, SOptions* options)
+char* simGetPropertyName_internal(long long int target, int index, SOptions* options)
 {
     C_API_START;
 
@@ -1940,7 +1940,7 @@ char* simGetPropertyName_internal(int target, int index, SOptions* options)
     return nullptr;
 }
 
-int simGetPropertyInfo_internal(int target, const char* ppName, SPropertyInfo* infos, SOptions* options)
+int simGetPropertyInfo_internal(long long int target, const char* ppName, SPropertyInfo* infos, SOptions* options)
 {
     C_API_START;
 
@@ -16813,8 +16813,7 @@ int simApplyTexture_internal(int shapeHandle, const double *textureCoordinates, 
                 CTextureProperty *tp = shape->getSingleMesh()->getTextureProperty();
                 if (tp != nullptr)
                 {
-                    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),
-                                                                                           -1);
+                    App::currentWorld->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
                     delete tp;
                     shape->getSingleMesh()->setTextureProperty(nullptr);
                 }

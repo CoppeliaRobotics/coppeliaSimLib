@@ -130,7 +130,7 @@ void CTextureObject::setImage(bool rgba, bool horizFlip, bool vertFlip, const un
     _currentTextureContentUniqueId = _textureContentUniqueId++;
 }
 
-bool CTextureObject::announceGeneralObjectWillBeErased(int objectID, int subObjectID)
+bool CTextureObject::announceGeneralObjectWillBeErased(long long int objectID, long long int subObjectID)
 { // return value true means this object needs destruction!
     for (int i = 0; i < int(_dependentObjects.size()); i++)
     {
@@ -156,7 +156,7 @@ void CTextureObject::transferDependenciesToThere(CTextureObject *receivingObject
     clearAllDependencies();
 }
 
-void CTextureObject::addDependentObject(int objectID, int subObjectID)
+void CTextureObject::addDependentObject(long long int objectID, long long int subObjectID)
 {
     _dependentObjects.push_back(objectID);
     _dependentSubObjects.push_back(subObjectID);
@@ -214,45 +214,6 @@ void CTextureObject::lightenUp()
         _textureBuffer[4 * i + 1] = avg;
         _textureBuffer[4 * i + 2] = avg;
     }
-    /*
-    // do some sort of contrast filter and shift all values upwards:
-    std::vector<unsigned char> tmp(int(_textureBuffer.size())/4);
-    for (int i=0;i<int(_textureBuffer.size())/4;i++)
-    {
-        int avg=_textureBuffer[4*i+0];
-        avg+=_textureBuffer[4*i+1];
-        avg+=_textureBuffer[4*i+2];
-        avg/=3;
-        tmp[i]=avg;
-        _textureBuffer[4*i+0]=avg;
-    }
-    std::sort(tmp.begin(),tmp.end());
-    unsigned char l0=tmp[tmp.size()/4];
-    unsigned char l2=tmp[tmp.size()/2];
-    unsigned char l3=tmp[3*tmp.size()/4];
-    for (int i=0;i<int(_textureBuffer.size())/4;i++)
-    {
-        int v=_textureBuffer[4*i+0];
-        if (v<=l0)
-            v=160;
-        else
-        {
-            if (v<=l2)
-                v=192;
-            else
-            {
-                if (v<=l3)
-                    v=224;
-                else
-                    v=255;
-            }
-        }
-        _textureBuffer[4*i+0]=v;
-        _textureBuffer[4*i+1]=v;
-        _textureBuffer[4*i+2]=v;
-        _textureBuffer[4*i+3]=255;
-    }
-*/
     _changedFlag = true;
     _currentTextureContentUniqueId = _textureContentUniqueId++;
 }

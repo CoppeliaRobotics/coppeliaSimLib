@@ -15,12 +15,12 @@ class CPluginContainer
     virtual ~CPluginContainer();
 
     CPlugin *getCurrentPlugin();
-    CPlugin *loadAndInitPlugin(const char *namespaceAndVersion, int loadOrigin);
-    bool deinitAndUnloadPlugin(int handle, int unloadOrigin, bool force = false);
+    CPlugin *loadAndInitPlugin(const char *namespaceAndVersion, long long int loadOrigin);
+    bool deinitAndUnloadPlugin(int handle, long long int unloadOrigin, bool force = false);
     void unloadNewPlugins();
     void unloadLegacyPlugins();
 
-    void announceScriptStateWillBeErased(int scriptHandle, int scriptUid);
+    void announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid);
 
     void uiCallAllPlugins(int msg, int *auxData = nullptr, void *auxPointer = nullptr);
     void sendEventCallbackMessageToAllPlugins(int msg, int *auxData = nullptr, void *auxPointer = nullptr,

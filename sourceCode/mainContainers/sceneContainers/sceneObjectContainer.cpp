@@ -4296,7 +4296,7 @@ int CSceneObjectContainer::getCalledScriptsCountInThisSimulationStep(bool onlySi
 }
 
 
-int CSceneObjectContainer::setBoolProperty(int target, const char* pName, bool pState)
+int CSceneObjectContainer::setBoolProperty(long long int target, const char* pName, bool pState)
 {
     int retVal = -1;
     if (target == -1)
@@ -4304,7 +4304,7 @@ int CSceneObjectContainer::setBoolProperty(int target, const char* pName, bool p
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4351,7 +4351,7 @@ int CSceneObjectContainer::setBoolProperty(int target, const char* pName, bool p
     return retVal;
 }
 
-int CSceneObjectContainer::getBoolProperty(int target, const char* pName, bool& pState) const
+int CSceneObjectContainer::getBoolProperty(long long int target, const char* pName, bool& pState) const
 {
     int retVal = -1;
     if (target == -1)
@@ -4359,7 +4359,7 @@ int CSceneObjectContainer::getBoolProperty(int target, const char* pName, bool& 
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4406,7 +4406,7 @@ int CSceneObjectContainer::getBoolProperty(int target, const char* pName, bool& 
     return retVal;
 }
 
-int CSceneObjectContainer::setIntProperty(int target, const char* pName, int pState)
+int CSceneObjectContainer::setIntProperty(long long int target, const char* pName, int pState)
 {
     int retVal = -1;
     if (target == -1)
@@ -4414,7 +4414,7 @@ int CSceneObjectContainer::setIntProperty(int target, const char* pName, int pSt
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4461,7 +4461,7 @@ int CSceneObjectContainer::setIntProperty(int target, const char* pName, int pSt
     return retVal;
 }
 
-int CSceneObjectContainer::getIntProperty(int target, const char* pName, int& pState) const
+int CSceneObjectContainer::getIntProperty(long long int target, const char* pName, int& pState) const
 {
     int retVal = -1;
     if (target == -1)
@@ -4469,7 +4469,7 @@ int CSceneObjectContainer::getIntProperty(int target, const char* pName, int& pS
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4516,7 +4516,7 @@ int CSceneObjectContainer::getIntProperty(int target, const char* pName, int& pS
     return retVal;
 }
 
-int CSceneObjectContainer::setFloatProperty(int target, const char* pName, double pState)
+int CSceneObjectContainer::setFloatProperty(long long int target, const char* pName, double pState)
 {
     int retVal = -1;
     if (target == -1)
@@ -4524,7 +4524,7 @@ int CSceneObjectContainer::setFloatProperty(int target, const char* pName, doubl
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4571,7 +4571,7 @@ int CSceneObjectContainer::setFloatProperty(int target, const char* pName, doubl
     return retVal;
 }
 
-int CSceneObjectContainer::getFloatProperty(int target, const char* pName, double& pState) const
+int CSceneObjectContainer::getFloatProperty(long long int target, const char* pName, double& pState) const
 {
     int retVal = -1;
     if (target == -1)
@@ -4579,7 +4579,7 @@ int CSceneObjectContainer::getFloatProperty(int target, const char* pName, doubl
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4626,7 +4626,7 @@ int CSceneObjectContainer::getFloatProperty(int target, const char* pName, doubl
     return retVal;
 }
 
-int CSceneObjectContainer::setStringProperty(int target, const char* pName, const char* pState)
+int CSceneObjectContainer::setStringProperty(long long int target, const char* pName, const char* pState)
 {
     int retVal = -1;
     if (target == -1)
@@ -4634,7 +4634,7 @@ int CSceneObjectContainer::setStringProperty(int target, const char* pName, cons
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4681,7 +4681,7 @@ int CSceneObjectContainer::setStringProperty(int target, const char* pName, cons
     return retVal;
 }
 
-int CSceneObjectContainer::getStringProperty(int target, const char* pName, std::string& pState) const
+int CSceneObjectContainer::getStringProperty(long long int target, const char* pName, std::string& pState) const
 {
     int retVal = -1;
     if (target == -1)
@@ -4689,7 +4689,7 @@ int CSceneObjectContainer::getStringProperty(int target, const char* pName, std:
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4736,7 +4736,7 @@ int CSceneObjectContainer::getStringProperty(int target, const char* pName, std:
     return retVal;
 }
 
-int CSceneObjectContainer::setBufferProperty(int target, const char* pName, const char* buffer, int bufferL)
+int CSceneObjectContainer::setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL)
 {
     int retVal = -1;
     if (target == -1)
@@ -4744,7 +4744,7 @@ int CSceneObjectContainer::setBufferProperty(int target, const char* pName, cons
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4791,7 +4791,7 @@ int CSceneObjectContainer::setBufferProperty(int target, const char* pName, cons
     return retVal;
 }
 
-int CSceneObjectContainer::getBufferProperty(int target, const char* pName, std::string& pState) const
+int CSceneObjectContainer::getBufferProperty(long long int target, const char* pName, std::string& pState) const
 {
     int retVal = -1;
     if (target == -1)
@@ -4799,7 +4799,7 @@ int CSceneObjectContainer::getBufferProperty(int target, const char* pName, std:
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4846,7 +4846,7 @@ int CSceneObjectContainer::getBufferProperty(int target, const char* pName, std:
     return retVal;
 }
 
-int CSceneObjectContainer::setVector3Property(int target, const char* pName, const C3Vector& pState)
+int CSceneObjectContainer::setVector3Property(long long int target, const char* pName, const C3Vector& pState)
 {
     int retVal = -1;
     if (target == -1)
@@ -4854,7 +4854,7 @@ int CSceneObjectContainer::setVector3Property(int target, const char* pName, con
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4901,7 +4901,7 @@ int CSceneObjectContainer::setVector3Property(int target, const char* pName, con
     return retVal;
 }
 
-int CSceneObjectContainer::getVector3Property(int target, const char* pName, C3Vector& pState) const
+int CSceneObjectContainer::getVector3Property(long long int target, const char* pName, C3Vector& pState) const
 {
     int retVal = -1;
     if (target == -1)
@@ -4909,7 +4909,7 @@ int CSceneObjectContainer::getVector3Property(int target, const char* pName, C3V
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -4956,7 +4956,7 @@ int CSceneObjectContainer::getVector3Property(int target, const char* pName, C3V
     return retVal;
 }
 
-int CSceneObjectContainer::setQuaternionProperty(int target, const char* pName, const C4Vector& pState)
+int CSceneObjectContainer::setQuaternionProperty(long long int target, const char* pName, const C4Vector& pState)
 {
     int retVal = -1;
     if (target == -1)
@@ -4964,7 +4964,7 @@ int CSceneObjectContainer::setQuaternionProperty(int target, const char* pName, 
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5011,7 +5011,7 @@ int CSceneObjectContainer::setQuaternionProperty(int target, const char* pName, 
     return retVal;
 }
 
-int CSceneObjectContainer::getQuaternionProperty(int target, const char* pName, C4Vector& pState) const
+int CSceneObjectContainer::getQuaternionProperty(long long int target, const char* pName, C4Vector& pState) const
 {
     int retVal = -1;
     if (target == -1)
@@ -5019,7 +5019,7 @@ int CSceneObjectContainer::getQuaternionProperty(int target, const char* pName, 
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5066,7 +5066,7 @@ int CSceneObjectContainer::getQuaternionProperty(int target, const char* pName, 
     return retVal;
 }
 
-int CSceneObjectContainer::setPoseProperty(int target, const char* pName, const C7Vector& pState)
+int CSceneObjectContainer::setPoseProperty(long long int target, const char* pName, const C7Vector& pState)
 {
     int retVal = -1;
     if (target == -1)
@@ -5074,7 +5074,7 @@ int CSceneObjectContainer::setPoseProperty(int target, const char* pName, const 
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5121,7 +5121,7 @@ int CSceneObjectContainer::setPoseProperty(int target, const char* pName, const 
     return retVal;
 }
 
-int CSceneObjectContainer::getPoseProperty(int target, const char* pName, C7Vector& pState) const
+int CSceneObjectContainer::getPoseProperty(long long int target, const char* pName, C7Vector& pState) const
 {
     int retVal = -1;
     if (target == -1)
@@ -5129,7 +5129,7 @@ int CSceneObjectContainer::getPoseProperty(int target, const char* pName, C7Vect
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5176,7 +5176,7 @@ int CSceneObjectContainer::getPoseProperty(int target, const char* pName, C7Vect
     return retVal;
 }
 
-int CSceneObjectContainer::setMatrix3x3Property(int target, const char* pName, const C3X3Matrix& pState)
+int CSceneObjectContainer::setMatrix3x3Property(long long int target, const char* pName, const C3X3Matrix& pState)
 {
     int retVal = -1;
     if (target == -1)
@@ -5184,7 +5184,7 @@ int CSceneObjectContainer::setMatrix3x3Property(int target, const char* pName, c
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5231,7 +5231,7 @@ int CSceneObjectContainer::setMatrix3x3Property(int target, const char* pName, c
     return retVal;
 }
 
-int CSceneObjectContainer::getMatrix3x3Property(int target, const char* pName, C3X3Matrix& pState) const
+int CSceneObjectContainer::getMatrix3x3Property(long long int target, const char* pName, C3X3Matrix& pState) const
 {
     int retVal = -1;
     if (target == -1)
@@ -5239,7 +5239,7 @@ int CSceneObjectContainer::getMatrix3x3Property(int target, const char* pName, C
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5286,7 +5286,7 @@ int CSceneObjectContainer::getMatrix3x3Property(int target, const char* pName, C
     return retVal;
 }
 
-int CSceneObjectContainer::setMatrix4x4Property(int target, const char* pName, const C4X4Matrix& pState)
+int CSceneObjectContainer::setMatrix4x4Property(long long int target, const char* pName, const C4X4Matrix& pState)
 {
     int retVal = -1;
     if (target == -1)
@@ -5294,7 +5294,7 @@ int CSceneObjectContainer::setMatrix4x4Property(int target, const char* pName, c
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5341,7 +5341,7 @@ int CSceneObjectContainer::setMatrix4x4Property(int target, const char* pName, c
     return retVal;
 }
 
-int CSceneObjectContainer::getMatrix4x4Property(int target, const char* pName, C4X4Matrix& pState) const
+int CSceneObjectContainer::getMatrix4x4Property(long long int target, const char* pName, C4X4Matrix& pState) const
 {
     int retVal = -1;
     if (target == -1)
@@ -5349,7 +5349,7 @@ int CSceneObjectContainer::getMatrix4x4Property(int target, const char* pName, C
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5396,7 +5396,7 @@ int CSceneObjectContainer::getMatrix4x4Property(int target, const char* pName, C
     return retVal;
 }
 
-int CSceneObjectContainer::setColorProperty(int target, const char* pName, const float* pState)
+int CSceneObjectContainer::setColorProperty(long long int target, const char* pName, const float* pState)
 {
     int retVal = -1;
     if (target == -1)
@@ -5404,7 +5404,7 @@ int CSceneObjectContainer::setColorProperty(int target, const char* pName, const
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5451,7 +5451,7 @@ int CSceneObjectContainer::setColorProperty(int target, const char* pName, const
     return retVal;
 }
 
-int CSceneObjectContainer::getColorProperty(int target, const char* pName, float* pState) const
+int CSceneObjectContainer::getColorProperty(long long int target, const char* pName, float* pState) const
 {
     int retVal = -1;
     if (target == -1)
@@ -5459,7 +5459,7 @@ int CSceneObjectContainer::getColorProperty(int target, const char* pName, float
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5506,7 +5506,7 @@ int CSceneObjectContainer::getColorProperty(int target, const char* pName, float
     return retVal;
 }
 
-int CSceneObjectContainer::setVectorProperty(int target, const char* pName, const double* v, int vL)
+int CSceneObjectContainer::setVectorProperty(long long int target, const char* pName, const double* v, int vL)
 {
     int retVal = -1;
     if (target == -1)
@@ -5514,7 +5514,7 @@ int CSceneObjectContainer::setVectorProperty(int target, const char* pName, cons
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5561,7 +5561,7 @@ int CSceneObjectContainer::setVectorProperty(int target, const char* pName, cons
     return retVal;
 }
 
-int CSceneObjectContainer::getVectorProperty(int target, const char* pName, std::vector<double>& pState) const
+int CSceneObjectContainer::getVectorProperty(long long int target, const char* pName, std::vector<double>& pState) const
 {
     int retVal = -1;
     pState.clear();
@@ -5570,7 +5570,7 @@ int CSceneObjectContainer::getVectorProperty(int target, const char* pName, std:
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5617,7 +5617,7 @@ int CSceneObjectContainer::getVectorProperty(int target, const char* pName, std:
     return retVal;
 }
 
-int CSceneObjectContainer::setIntVectorProperty(int target, const char* pName, const int* v, int vL)
+int CSceneObjectContainer::setIntVectorProperty(long long int target, const char* pName, const int* v, int vL)
 {
     int retVal = -1;
     if (target == -1)
@@ -5630,7 +5630,7 @@ int CSceneObjectContainer::setIntVectorProperty(int target, const char* pName, c
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5677,7 +5677,7 @@ int CSceneObjectContainer::setIntVectorProperty(int target, const char* pName, c
     return retVal;
 }
 
-int CSceneObjectContainer::getIntVectorProperty(int target, const char* pName, std::vector<int>& pState) const
+int CSceneObjectContainer::getIntVectorProperty(long long int target, const char* pName, std::vector<int>& pState) const
 {
     int retVal = -1;
     pState.clear();
@@ -5703,7 +5703,7 @@ int CSceneObjectContainer::getIntVectorProperty(int target, const char* pName, s
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5750,7 +5750,7 @@ int CSceneObjectContainer::getIntVectorProperty(int target, const char* pName, s
     return retVal;
 }
 
-int CSceneObjectContainer::removeProperty(int target, const char* pName)
+int CSceneObjectContainer::removeProperty(long long int target, const char* pName)
 {
     int retVal = -1;
     if (target == -1)
@@ -5758,7 +5758,7 @@ int CSceneObjectContainer::removeProperty(int target, const char* pName)
     }
     else
     {
-        CSceneObject* it = getObjectFromHandle(target);
+        CSceneObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
         {
             int objType = it->getObjectType();
@@ -5804,7 +5804,7 @@ int CSceneObjectContainer::removeProperty(int target, const char* pName)
     return retVal;
 }
 
-int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance, CSceneObjectContainer* targetObject)
+int CSceneObjectContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CSceneObjectContainer* targetObject)
 {
     int retVal = -1;
     if (target == -1)
@@ -5824,7 +5824,7 @@ int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& 
     {
         if (targetObject != nullptr)
         {
-            CSceneObject* it = targetObject->getObjectFromHandle(target);
+            CSceneObject* it = targetObject->getObjectFromHandle(int(target));
             if (it != nullptr)
             {
                 appartenance += ".object";
@@ -5910,7 +5910,7 @@ int CSceneObjectContainer::getPropertyName(int target, int& index, std::string& 
     return retVal;
 }
 
-int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& info, CSceneObjectContainer* targetObject)
+int CSceneObjectContainer::getPropertyInfo(long long int target, const char* pName, int& info, CSceneObjectContainer* targetObject)
 {
     int retVal = -1;
     if (target == -1)
@@ -5929,7 +5929,7 @@ int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& i
     {
         if (targetObject != nullptr)
         {
-            CSceneObject* it = targetObject->getObjectFromHandle(target);
+            CSceneObject* it = targetObject->getObjectFromHandle(int(target));
             if (it != nullptr)
             {
                 int objType = it->getObjectType();
@@ -6005,7 +6005,7 @@ int CSceneObjectContainer::getPropertyInfo(int target, const char* pName, int& i
     return retVal;
 }
 
-CMesh* CSceneObjectContainer::getMeshFromUid(int meshUid, C7Vector* optShapeRelTr /*= nullptr*/) const
+CMesh* CSceneObjectContainer::getMeshFromUid(long long int meshUid, C7Vector* optShapeRelTr /*= nullptr*/) const
 {
     CMesh* mesh = nullptr;
     for (size_t i = 0; i < _shapeList.size(); i++)

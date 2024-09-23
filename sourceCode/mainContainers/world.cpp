@@ -2435,7 +2435,7 @@ int CWorld::getWorldHandle() const
     return (_worldHandle);
 }
 
-int CWorld::setBoolProperty(int target, const char* ppName, bool pState)
+int CWorld::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2454,11 +2454,11 @@ int CWorld::setBoolProperty(int target, const char* ppName, bool pState)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setBoolProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
             retVal = script->setBoolProperty(pName, pState);
     }
@@ -2467,7 +2467,7 @@ int CWorld::setBoolProperty(int target, const char* ppName, bool pState)
     return retVal;
 }
 
-int CWorld::getBoolProperty(int target, const char* ppName, bool& pState) const
+int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2486,11 +2486,11 @@ int CWorld::getBoolProperty(int target, const char* ppName, bool& pState) const
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getBoolProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
             retVal = script->getBoolProperty(pName, pState);
     }
@@ -2499,7 +2499,7 @@ int CWorld::getBoolProperty(int target, const char* ppName, bool& pState) const
     return retVal;
 }
 
-int CWorld::setIntProperty(int target, const char* ppName, int pState)
+int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2518,11 +2518,11 @@ int CWorld::setIntProperty(int target, const char* ppName, int pState)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setIntProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
             retVal = script->setIntProperty(pName, pState);
     }
@@ -2531,7 +2531,7 @@ int CWorld::setIntProperty(int target, const char* ppName, int pState)
     return retVal;
 }
 
-int CWorld::getIntProperty(int target, const char* ppName, int& pState) const
+int CWorld::getIntProperty(long long int target, const char* ppName, int& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2550,11 +2550,11 @@ int CWorld::getIntProperty(int target, const char* ppName, int& pState) const
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getIntProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
             retVal = script->getIntProperty(pName, pState);
     }
@@ -2563,7 +2563,7 @@ int CWorld::getIntProperty(int target, const char* ppName, int& pState) const
     return retVal;
 }
 
-int CWorld::setFloatProperty(int target, const char* ppName, double pState)
+int CWorld::setFloatProperty(long long int target, const char* ppName, double pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2580,11 +2580,11 @@ int CWorld::setFloatProperty(int target, const char* ppName, double pState)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setFloatProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->setFloatProperty(pName, pState);
     }
@@ -2593,7 +2593,7 @@ int CWorld::setFloatProperty(int target, const char* ppName, double pState)
     return retVal;
 }
 
-int CWorld::getFloatProperty(int target, const char* ppName, double& pState) const
+int CWorld::getFloatProperty(long long int target, const char* ppName, double& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2610,11 +2610,11 @@ int CWorld::getFloatProperty(int target, const char* ppName, double& pState) con
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getFloatProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->getFloatProperty(pName, pState);
     }
@@ -2623,7 +2623,7 @@ int CWorld::getFloatProperty(int target, const char* ppName, double& pState) con
     return retVal;
 }
 
-int CWorld::setStringProperty(int target, const char* ppName, const char* pState)
+int CWorld::setStringProperty(long long int target, const char* ppName, const char* pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2640,11 +2640,11 @@ int CWorld::setStringProperty(int target, const char* ppName, const char* pState
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setStringProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
             retVal = script->setStringProperty(pName, pState);
     }
@@ -2653,7 +2653,7 @@ int CWorld::setStringProperty(int target, const char* ppName, const char* pState
     return retVal;
 }
 
-int CWorld::getStringProperty(int target, const char* ppName, std::string& pState) const
+int CWorld::getStringProperty(long long int target, const char* ppName, std::string& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2670,11 +2670,11 @@ int CWorld::getStringProperty(int target, const char* ppName, std::string& pStat
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getStringProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
             retVal = script->getStringProperty(pName, pState);
     }
@@ -2683,7 +2683,7 @@ int CWorld::getStringProperty(int target, const char* ppName, std::string& pStat
     return retVal;
 }
 
-int CWorld::setBufferProperty(int target, const char* ppName, const char* buffer, int bufferL)
+int CWorld::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2701,11 +2701,11 @@ int CWorld::setBufferProperty(int target, const char* ppName, const char* buffer
             }
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setBufferProperty(target, pName, buffer, bufferL);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->setBufferProperty(pName, buffer, bufferL);
     }
@@ -2714,7 +2714,7 @@ int CWorld::setBufferProperty(int target, const char* ppName, const char* buffer
     return retVal;
 }
 
-int CWorld::getBufferProperty(int target, const char* ppName, std::string& pState) const
+int CWorld::getBufferProperty(long long int target, const char* ppName, std::string& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2735,11 +2735,11 @@ int CWorld::getBufferProperty(int target, const char* ppName, std::string& pStat
             }
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getBufferProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->getBufferProperty(pName, pState);
     }
@@ -2748,7 +2748,7 @@ int CWorld::getBufferProperty(int target, const char* ppName, std::string& pStat
     return retVal;
 }
 
-int CWorld::setVector3Property(int target, const char* ppName, const C3Vector& pState)
+int CWorld::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2763,11 +2763,11 @@ int CWorld::setVector3Property(int target, const char* ppName, const C3Vector& p
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setVector3Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->setVector3Property(pName, pState);
     }
@@ -2776,7 +2776,7 @@ int CWorld::setVector3Property(int target, const char* ppName, const C3Vector& p
     return retVal;
 }
 
-int CWorld::getVector3Property(int target, const char* ppName, C3Vector& pState) const
+int CWorld::getVector3Property(long long int target, const char* ppName, C3Vector& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2791,11 +2791,11 @@ int CWorld::getVector3Property(int target, const char* ppName, C3Vector& pState)
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getVector3Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->getVector3Property(pName, pState);
     }
@@ -2804,7 +2804,7 @@ int CWorld::getVector3Property(int target, const char* ppName, C3Vector& pState)
     return retVal;
 }
 
-int CWorld::setQuaternionProperty(int target, const char* ppName, const C4Vector& pState)
+int CWorld::setQuaternionProperty(long long int target, const char* ppName, const C4Vector& pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2817,11 +2817,11 @@ int CWorld::setQuaternionProperty(int target, const char* ppName, const C4Vector
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setQuaternionProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->setQuaternionProperty(pName, pState);
     }
@@ -2830,7 +2830,7 @@ int CWorld::setQuaternionProperty(int target, const char* ppName, const C4Vector
     return retVal;
 }
 
-int CWorld::getQuaternionProperty(int target, const char* ppName, C4Vector& pState) const
+int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Vector& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2843,11 +2843,11 @@ int CWorld::getQuaternionProperty(int target, const char* ppName, C4Vector& pSta
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getQuaternionProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->getQuaternionProperty(pName, pState);
     }
@@ -2856,7 +2856,7 @@ int CWorld::getQuaternionProperty(int target, const char* ppName, C4Vector& pSta
     return retVal;
 }
 
-int CWorld::setPoseProperty(int target, const char* ppName, const C7Vector& pState)
+int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Vector& pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2869,11 +2869,11 @@ int CWorld::setPoseProperty(int target, const char* ppName, const C7Vector& pSta
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setPoseProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->setPoseProperty(pName, pState);
     }
@@ -2882,7 +2882,7 @@ int CWorld::setPoseProperty(int target, const char* ppName, const C7Vector& pSta
     return retVal;
 }
 
-int CWorld::getPoseProperty(int target, const char* ppName, C7Vector& pState) const
+int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2895,11 +2895,11 @@ int CWorld::getPoseProperty(int target, const char* ppName, C7Vector& pState) co
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getPoseProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->getPoseProperty(pName, pState);
     }
@@ -2908,7 +2908,7 @@ int CWorld::getPoseProperty(int target, const char* ppName, C7Vector& pState) co
     return retVal;
 }
 
-int CWorld::setMatrix3x3Property(int target, const char* ppName, const C3X3Matrix& pState)
+int CWorld::setMatrix3x3Property(long long int target, const char* ppName, const C3X3Matrix& pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2921,11 +2921,11 @@ int CWorld::setMatrix3x3Property(int target, const char* ppName, const C3X3Matri
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setMatrix3x3Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->setMatrix3x3Property(pName, pState);
     }
@@ -2934,7 +2934,7 @@ int CWorld::setMatrix3x3Property(int target, const char* ppName, const C3X3Matri
     return retVal;
 }
 
-int CWorld::getMatrix3x3Property(int target, const char* ppName, C3X3Matrix& pState) const
+int CWorld::getMatrix3x3Property(long long int target, const char* ppName, C3X3Matrix& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2947,11 +2947,11 @@ int CWorld::getMatrix3x3Property(int target, const char* ppName, C3X3Matrix& pSt
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getMatrix3x3Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->getMatrix3x3Property(pName, pState);
     }
@@ -2960,7 +2960,7 @@ int CWorld::getMatrix3x3Property(int target, const char* ppName, C3X3Matrix& pSt
     return retVal;
 }
 
-int CWorld::setMatrix4x4Property(int target, const char* ppName, const C4X4Matrix& pState)
+int CWorld::setMatrix4x4Property(long long int target, const char* ppName, const C4X4Matrix& pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2973,11 +2973,11 @@ int CWorld::setMatrix4x4Property(int target, const char* ppName, const C4X4Matri
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setMatrix4x4Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->setMatrix4x4Property(pName, pState);
     }
@@ -2986,7 +2986,7 @@ int CWorld::setMatrix4x4Property(int target, const char* ppName, const C4X4Matri
     return retVal;
 }
 
-int CWorld::getMatrix4x4Property(int target, const char* ppName, C4X4Matrix& pState) const
+int CWorld::getMatrix4x4Property(long long int target, const char* ppName, C4X4Matrix& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -2999,11 +2999,11 @@ int CWorld::getMatrix4x4Property(int target, const char* ppName, C4X4Matrix& pSt
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getMatrix4x4Property(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->getMatrix4x4Property(pName, pState);
     }
@@ -3012,7 +3012,7 @@ int CWorld::getMatrix4x4Property(int target, const char* ppName, C4X4Matrix& pSt
     return retVal;
 }
 
-int CWorld::setColorProperty(int target, const char* ppName, const float* pState)
+int CWorld::setColorProperty(long long int target, const char* ppName, const float* pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -3027,11 +3027,11 @@ int CWorld::setColorProperty(int target, const char* ppName, const float* pState
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setColorProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->setColorProperty(pName, pState);
     }
@@ -3040,7 +3040,7 @@ int CWorld::setColorProperty(int target, const char* ppName, const float* pState
     return retVal;
 }
 
-int CWorld::getColorProperty(int target, const char* ppName, float* pState) const
+int CWorld::getColorProperty(long long int target, const char* ppName, float* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -3055,11 +3055,11 @@ int CWorld::getColorProperty(int target, const char* ppName, float* pState) cons
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getColorProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->getColorProperty(pName, pState);
     }
@@ -3068,7 +3068,7 @@ int CWorld::getColorProperty(int target, const char* ppName, float* pState) cons
     return retVal;
 }
 
-int CWorld::setVectorProperty(int target, const char* ppName, const double* v, int vL)
+int CWorld::setVectorProperty(long long int target, const char* ppName, const double* v, int vL)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -3083,11 +3083,11 @@ int CWorld::setVectorProperty(int target, const char* ppName, const double* v, i
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setVectorProperty(target, pName, v, vL);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->setVectorProperty(pName, v, vL);
     }
@@ -3096,7 +3096,7 @@ int CWorld::setVectorProperty(int target, const char* ppName, const double* v, i
     return retVal;
 }
 
-int CWorld::getVectorProperty(int target, const char* ppName, std::vector<double>& pState) const
+int CWorld::getVectorProperty(long long int target, const char* ppName, std::vector<double>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -3112,11 +3112,11 @@ int CWorld::getVectorProperty(int target, const char* ppName, std::vector<double
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getVectorProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->getVectorProperty(pName, pState);
     }
@@ -3125,7 +3125,7 @@ int CWorld::getVectorProperty(int target, const char* ppName, std::vector<double
     return retVal;
 }
 
-int CWorld::setIntVectorProperty(int target, const char* ppName, const int* v, int vL)
+int CWorld::setIntVectorProperty(long long int target, const char* ppName, const int* v, int vL)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -3140,11 +3140,11 @@ int CWorld::setIntVectorProperty(int target, const char* ppName, const int* v, i
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->setIntVectorProperty(target, pName, v, vL);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->setIntVectorProperty(pName, v, vL);
     }
@@ -3153,7 +3153,7 @@ int CWorld::setIntVectorProperty(int target, const char* ppName, const int* v, i
     return retVal;
 }
 
-int CWorld::getIntVectorProperty(int target, const char* ppName, std::vector<int>& pState) const
+int CWorld::getIntVectorProperty(long long int target, const char* ppName, std::vector<int>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -3169,11 +3169,11 @@ int CWorld::getIntVectorProperty(int target, const char* ppName, std::vector<int
         {
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->getIntVectorProperty(target, pName, pState);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->getIntVectorProperty(pName, pState);
     }
@@ -3182,7 +3182,7 @@ int CWorld::getIntVectorProperty(int target, const char* ppName, std::vector<int
     return retVal;
 }
 
-int CWorld::removeProperty(int target, const char* ppName)
+int CWorld::removeProperty(long long int target, const char* ppName)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -3204,11 +3204,11 @@ int CWorld::removeProperty(int target, const char* ppName)
             }
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
         retVal = sceneObjects->removeProperty(target, pName);
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         //if (script != nullptr)
         //    retVal = script->removeProperty(pName);
     }
@@ -3217,7 +3217,7 @@ int CWorld::removeProperty(int target, const char* ppName)
     return retVal;
 }
 
-int CWorld::getPropertyName(int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject)
+int CWorld::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject)
 {
     int retVal = -1;
     appartenance += ".scene";
@@ -3249,7 +3249,7 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName, std::str
             }
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
     {
         CSceneObjectContainer* soc = nullptr;
         if (targetObject != nullptr)
@@ -3258,7 +3258,7 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName, std::str
     }
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) && (targetObject != nullptr) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
             retVal = script->getPropertyName(index, pName);
     }
@@ -3267,7 +3267,7 @@ int CWorld::getPropertyName(int target, int& index, std::string& pName, std::str
     return retVal;
 }
 
-int CWorld::getPropertyInfo(int target, const char* ppName, int& info, CWorld* targetObject)
+int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info, CWorld* targetObject)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -3307,7 +3307,7 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, CWorld* t
             }
         }
     }
-    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_IDSTART_MESH) )
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
     {
         CSceneObjectContainer* soc = nullptr;
         if (targetObject != nullptr)
@@ -3316,7 +3316,7 @@ int CWorld::getPropertyInfo(int target, const char* ppName, int& info, CWorld* t
     }
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) && (targetObject != nullptr) )
     { // sandbox, main, add-ons, or old associated scripts:
-        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(target);
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
             retVal = script->getPropertyInfo(pName, info);
     }

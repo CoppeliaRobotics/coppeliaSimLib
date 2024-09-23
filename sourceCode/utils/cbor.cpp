@@ -368,7 +368,7 @@ size_t CCbor::getEventDepth() const
     return (_eventDepth);
 }
 
-void CCbor::createEvent(const char *event, const char *fieldName, const char *objType, long long int uid, int handle,
+void CCbor::createEvent(const char *event, const char *fieldName, const char *objType, long long int uid, long long int handle,
                         bool mergeable, bool openDataField /*=true*/)
 {
     if (_eventOpen)

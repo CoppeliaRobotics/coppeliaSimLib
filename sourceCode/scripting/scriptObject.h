@@ -79,7 +79,7 @@ class CScriptObject
     void simulationEnded();
 
     int getScriptHandle() const;
-    int getScriptUid() const;
+    long long int getScriptUid() const;
     size_t getSimpleHash() const;
 
     std::string getDescriptiveName() const;
@@ -299,7 +299,7 @@ class CScriptObject
 
     int _scriptHandle; // is unique since 25.11.2022. Unique across scenes for old script, but not for new script objects (with new script objects, scriptHandle is same as scene object)
     int _sceneObjectHandle; // is same as _scriptHandle with the new scene object scripts. With old associated scripts, is handle of scene object this script is associated with. -1 with add-ons and sandbox
-    int _scriptUid; // unique across all scenes
+    long long int _scriptUid; // unique across all scenes
     int _scriptType;
     bool _tempSuspended;
     bool _sceneObjectScript;
@@ -357,8 +357,7 @@ class CScriptObject
     std::vector<std::string> _functionHooks_after;
     int _initFunctionHookCount;
 
-    static int _nextScriptHandle; // for old scripts
-    static int _nextScriptUid; // for all scripts
+    static int _nextScriptHandle; // for main, sandbox, add-ons and old scripts
     static std::vector<int> _externalScriptCalls;
 
     // Lua specific:

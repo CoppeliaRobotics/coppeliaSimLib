@@ -5223,7 +5223,7 @@ int _simSetBoolProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_bool, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5242,7 +5242,7 @@ int _simGetBoolProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5265,7 +5265,7 @@ int _simSetIntProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5284,7 +5284,7 @@ int _simGetIntProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5307,7 +5307,7 @@ int _simSetFloatProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5326,7 +5326,7 @@ int _simGetFloatProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5349,7 +5349,7 @@ int _simSetStringProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5368,7 +5368,7 @@ int _simGetStringProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5392,7 +5392,7 @@ int _simSetBufferProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_buffer, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5412,7 +5412,7 @@ int _simGetBufferProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5437,7 +5437,7 @@ int _simSetVector3Property(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 3))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5457,7 +5457,7 @@ int _simGetVector3Property(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5480,7 +5480,7 @@ int _simSetQuaternionProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 4))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5500,7 +5500,7 @@ int _simGetQuaternionProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5523,7 +5523,7 @@ int _simSetPoseProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 7))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5543,7 +5543,7 @@ int _simGetPoseProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5566,7 +5566,7 @@ int _simSetMatrix3x3Property(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 9))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5586,7 +5586,7 @@ int _simGetMatrix3x3Property(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5609,7 +5609,7 @@ int _simSetMatrix4x4Property(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 12))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5629,7 +5629,7 @@ int _simGetMatrix4x4Property(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5652,7 +5652,7 @@ int _simSetColorProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 3))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5672,7 +5672,7 @@ int _simGetColorProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5695,7 +5695,7 @@ int _simSetVectorProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 1))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5717,7 +5717,7 @@ int _simGetVectorProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5742,7 +5742,7 @@ int _simSetIntVectorProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 1))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5764,7 +5764,7 @@ int _simGetIntVectorProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5789,7 +5789,7 @@ int _simRemoveProperty(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5807,7 +5807,7 @@ int _simGetPropertyName(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_integer, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         int index = luaWrap_lua_tointeger(L,2);
@@ -5843,7 +5843,7 @@ int _simGetPropertyInfo(luaWrap_lua_State *L)
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        int target = luaWrap_lua_tointeger(L,1);
+        long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));

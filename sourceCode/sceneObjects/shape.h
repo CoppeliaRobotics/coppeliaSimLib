@@ -50,7 +50,7 @@ class CShape : public CSceneObject
     int getMeshModificationCounter();
     CMeshWrapper *getMesh() const;
     CMesh *getSingleMesh() const;
-    CMesh* getMeshFromUid(int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) const;
+    CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) const;
 
 
     void *_meshCalculationStructure;
