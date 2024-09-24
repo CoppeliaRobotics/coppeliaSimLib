@@ -873,7 +873,6 @@ void CGraph::setGraphSize(double theNewSize)
     if (_graphSize != theNewSize)
     {
         _graphSize = theNewSize;
-        computeBoundingBox();
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propGraph_size.name;
@@ -881,6 +880,7 @@ void CGraph::setGraphSize(double theNewSize)
             ev->appendKeyDouble(cmd, _graphSize);
             App::worldContainer->pushEvent();
         }
+        computeBoundingBox();
     }
 }
 
@@ -3548,6 +3548,54 @@ void CGraph::validateViewValues(int windowSize[2], double graphPosition[2], doub
     }
 }
 #endif
+
+int CGraph::setBoolProperty(const char* ppName, bool pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CGraph::getBoolProperty(const char* ppName, bool& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getBoolProperty(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CGraph::setIntProperty(const char* ppName, int pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CGraph::getIntProperty(const char* ppName, int& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getIntProperty(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
 
 int CGraph::setFloatProperty(const char* ppName, double pState)
 {

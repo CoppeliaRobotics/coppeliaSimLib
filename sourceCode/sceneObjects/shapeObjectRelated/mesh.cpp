@@ -497,7 +497,6 @@ void CMesh::pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr)
     _isInSceneShapeUid = shapeUid;
     CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _uniqueID, _uniqueID, nullptr, false);
 
-    ev->openKeyMap("data");
     ev->appendKeyInt(propMesh_shapeUid.name, _isInSceneShapeUid);
     ev->appendKeyText(propMesh_objectType.name, "mesh");
     std::vector<float> vertices;
@@ -554,7 +553,6 @@ void CMesh::pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr)
         ev->appendKeyInt(propMesh_textureID.name, _textureProperty->getTextureObjectID());
     }
 
-    ev->closeArrayOrMap();
     App::worldContainer->pushEvent();
 }
 

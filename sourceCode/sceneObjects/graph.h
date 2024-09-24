@@ -13,7 +13,11 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propGraph_size,                    "size",                                     sim_propertytype_float,     0) \
+    FUNCX(propGraph_size,                       "size",                                 sim_propertytype_float,     0) \
+    FUNCX(propGraph_bufferSize,                 "bufferSize",                           sim_propertytype_int,       0) \
+    FUNCX(propGraph_cyclic,                     "cyclic",                               sim_propertytype_bool,      0) \
+    FUNCX(propGraph_backgroundColor,            "backgroundColor",                      sim_propertytype_color,     0) \
+    FUNCX(propGraph_foregroundColor,            "foregroundColor",                      sim_propertytype_color,     0) \
 
 #define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
 DEFINE_PROPERTIES
@@ -44,6 +48,10 @@ class CGraph : public CSceneObject
     void performScriptLoadingMapping(const std::map<int, int> *map);
     void performTextureObjectLoadingMapping(const std::map<int, int> *map);
     void setIsInScene(bool s);
+    int setBoolProperty(const char* pName, bool pState);
+    int getBoolProperty(const char* pName, bool& pState) const;
+    int setIntProperty(const char* pName, int pState);
+    int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
     int setColorProperty(const char* pName, const float* pState);

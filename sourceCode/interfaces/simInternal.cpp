@@ -1698,7 +1698,7 @@ int simSetVectorProperty_internal(long long int target, const char* ppName, cons
         int retVal = -1;
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (vL > 0)
+            if (vL >= 0)
             {
                 std::string pName(ppName);
                 if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector)))
@@ -1790,7 +1790,7 @@ int simSetIntVectorProperty_internal(long long int target, const char* ppName, c
         int retVal = -1;
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            if (vL > 0)
+            if (vL >= 0)
             {
                 std::string pName(ppName);
                 if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_intvector)))
