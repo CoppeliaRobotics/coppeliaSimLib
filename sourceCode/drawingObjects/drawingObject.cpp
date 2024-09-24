@@ -158,7 +158,7 @@ bool CDrawingObject::addItem(const double *itemData)
 
         if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
         {
-            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, _objectUid, nullptr, false);
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, -1, _objectUid, nullptr, false);
             ev->appendKeyBool("clearPoints", true);
             App::worldContainer->pushEvent();
         }
@@ -452,7 +452,7 @@ void CDrawingObject::pushAddEvent()
 {
     if ((otherFloatsPerItem == 0) && App::worldContainer->getEventsEnabled())
     {
-        CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED, _objectUid, nullptr, false);
+        CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTADDED, -1, _objectUid, nullptr, false);
         std::string tp;
         switch (_objectType & 0x001f)
         {
@@ -506,7 +506,7 @@ void CDrawingObject::pushAppendNewPointEvent()
         std::vector<float> colors;
         _getEventData(points, quaternions, colors);
 
-        CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, _objectUid, nullptr, false);
+        CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_DRAWINGOBJECTCHANGED, -1, _objectUid, nullptr, false);
         ev->appendKeyFloatArray("points", points.data(), points.size());
         ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
         ev->appendKeyFloatArray("colors", colors.data(), colors.size());

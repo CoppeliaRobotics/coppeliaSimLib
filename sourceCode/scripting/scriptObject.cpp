@@ -1153,7 +1153,7 @@ void CScriptObject::setScriptState(int state)
             if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_scriptHandle, false, cmd, true); // scene object type scripts (new)
             else
-                ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTCHANGED, _scriptHandle, _scriptUid, false); // main, sandbox, add-ons, and old-type scripts
+                ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyInt(cmd, _scriptState);
             App::worldContainer->pushEvent();
         }
@@ -1188,7 +1188,7 @@ void CScriptObject::setScriptExecPriority(int priority)
             if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_scriptHandle, false, cmd, true); // scene object type scripts (new)
             else
-                ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTCHANGED, _scriptHandle, _scriptUid, false); // main, sandbox, add-ons, and old-type scripts
+                ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyInt(cmd, priority);
             App::worldContainer->pushEvent();
         }
@@ -1269,7 +1269,7 @@ void CScriptObject::setScriptIsDisabled(bool isDisabled)
             if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_scriptHandle, false, cmd, true); // scene object type scripts (new)
             else
-                ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTCHANGED, _scriptHandle, _scriptUid, false); // main, sandbox, add-ons, and old-type scripts
+                ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyBool(cmd, _scriptIsDisabled);
             App::worldContainer->pushEvent();
         }
@@ -1324,7 +1324,7 @@ void CScriptObject::setAutoRestartOnError(bool restart)
             if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_scriptHandle, false, cmd, true); // scene object type scripts (new)
             else
-                ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTCHANGED, _scriptHandle, _scriptUid, false); // main, sandbox, add-ons, and old-type scripts
+                ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyBool(cmd, _autoRestartOnError);
             App::worldContainer->pushEvent();
         }
@@ -1402,7 +1402,7 @@ void CScriptObject::setScriptText(const char *scriptTxt, bool toFileIfApplicable
             if (_scriptHandle <= SIM_IDEND_SCENEOBJECT)
                 ev = App::worldContainer->createSceneObjectChangedEvent(_scriptHandle, false, cmd, true); // scene object type scripts (new)
             else
-                ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTCHANGED, _scriptHandle, _scriptUid, false); // main, sandbox, add-ons, and old-type scripts
+                ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _scriptHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyText(cmd, scriptTxt);
             App::worldContainer->pushEvent();
         }

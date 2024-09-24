@@ -488,14 +488,14 @@ CMesh* CMesh::getMeshFromUid(long long int meshUid, const C7Vector& parentCumulT
 void CMesh::pushObjectRemoveEvent()
 {
     _isInSceneShapeUid = -1;
-    App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTREMOVED, _uniqueID, _uniqueID, false);
+    App::worldContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _uniqueID, _uniqueID, nullptr, false);
     App::worldContainer->pushEvent();
 }
 
 void CMesh::pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr)
 {
     _isInSceneShapeUid = shapeUid;
-    CCbor* ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTADDED, _uniqueID, _uniqueID, false);
+    CCbor* ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, _uniqueID, _uniqueID, nullptr, false);
 
     ev->openKeyMap("data");
     ev->appendKeyInt(propMesh_shapeUid.name, _isInSceneShapeUid);

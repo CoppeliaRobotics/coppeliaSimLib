@@ -584,13 +584,13 @@ CCbor *CWorldContainer::createSceneObjectChangedEvent(const CSceneObject *object
 }
 
 CCbor *CWorldContainer::createNakedEvent(const char *event, long long int handle, long long int uid, bool mergeable)
-{
+{ // has no 'data' field
     return (_createGeneralEvent(event, handle, uid, nullptr, nullptr, mergeable, false));
 }
 
-CCbor *CWorldContainer::createEvent(const char *event, long long int uid, const char *fieldName, bool mergeable)
+CCbor *CWorldContainer::createEvent(const char *event, long long int handle, long long int uid, const char *fieldName, bool mergeable)
 {
-    return (_createGeneralEvent(event, -1, uid, nullptr, fieldName, mergeable));
+    return (_createGeneralEvent(event, handle, uid, nullptr, fieldName, mergeable));
 }
 
 void CWorldContainer::pushEvent()
@@ -599,14 +599,13 @@ void CWorldContainer::pushEvent()
     _eventMutex.unlock();
 }
 
-CCbor *CWorldContainer::_createGeneralEvent(const char *event, long long int objectHandle, long long int uid, const char *objType,
-                                            const char *fieldName, bool mergeable, bool openDataField /*=true*/)
+CCbor *CWorldContainer::_createGeneralEvent(const char *event, long long int objectHandle, long long int uid, const char *objType, const char *fieldName, bool mergeable, bool openDataField /*=true*/)
 {
     CCbor *retVal = nullptr;
     if (getEventsEnabled())
     {
         _eventMutex.lock("CWorldContainer::_createGeneralEvent");
-        _events->createEvent(event, fieldName, objType, uid, objectHandle, mergeable, openDataField);
+        _events->createEvent(event, fieldName, objType, objectHandle, uid, mergeable, openDataField);
         retVal = _events;
     }
     return (retVal);

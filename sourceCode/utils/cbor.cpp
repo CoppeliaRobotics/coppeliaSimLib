@@ -368,8 +368,7 @@ size_t CCbor::getEventDepth() const
     return (_eventDepth);
 }
 
-void CCbor::createEvent(const char *event, const char *fieldName, const char *objType, long long int uid, long long int handle,
-                        bool mergeable, bool openDataField /*=true*/)
+void CCbor::createEvent(const char *event, const char *fieldName, const char *objType, long long int handle, long long int uid, bool mergeable, bool openDataField /*=true*/)
 {
     if (_eventOpen)
         App::logMsg(sim_verbosity_errors, "creating an event where an event push is expected.");

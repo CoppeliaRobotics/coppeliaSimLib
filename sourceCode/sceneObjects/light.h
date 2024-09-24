@@ -6,7 +6,7 @@
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
     FUNCX(propLight_size,                    "size",                                     sim_propertytype_float,     0) \
-    FUNCX(propLight_enabled,                 "on",                                       sim_propertytype_bool,      0) \
+    FUNCX(propLight_enabled,                 "enabled",                                  sim_propertytype_bool,      0) \
     FUNCX(propLight_lightType,               "lightType",                                sim_propertytype_int,       sim_propertyinfo_notwritable) \
     FUNCX(propLight_spotExponent,            "spotExponent",                             sim_propertytype_int,       0) \
     FUNCX(propLight_spotCutoffAngle,         "spotCutoffAngle",                          sim_propertytype_float,     0) \

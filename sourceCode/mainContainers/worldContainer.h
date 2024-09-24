@@ -114,8 +114,8 @@ class CWorldContainer
     void pushSceneObjectRemoveEvent(const CSceneObject *object);
 
     bool getEventsEnabled() const;
-    CCbor *createNakedEvent(const char *event, long long int handle, long long int uid, bool mergeable);
-    CCbor *createEvent(const char *event, long long int uid, const char *fieldName, bool mergeable);
+    CCbor *createNakedEvent(const char *event, long long int handle, long long int uid, bool mergeable); // has no 'data' field
+    CCbor *createEvent(const char *event, long long int handle, long long int uid, const char *fieldName, bool mergeable);
     CCbor *createSceneObjectAddEvent(const CSceneObject *object);
     CCbor *createSceneObjectChangedEvent(const CSceneObject *object, bool isCommonObjectData, const char *fieldName, bool mergeable);
     CCbor *createSceneObjectChangedEvent(long long int sceneObjectHandle, bool isCommonObjectData, const char *fieldName, bool mergeable);

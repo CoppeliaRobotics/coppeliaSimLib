@@ -583,7 +583,7 @@ void CEmbeddedScriptContainer::pushObjectGenesisEvents() const
         CScriptObject* it = allScripts[i];
         if (!it->getFlaggedForDestruction())
         {
-            CCbor *ev = App::worldContainer->createNakedEvent(EVENTTYPE_OBJECTADDED, it->getScriptHandle(), it->getScriptUid(), false);
+            CCbor *ev = App::worldContainer->createEvent(EVENTTYPE_OBJECTADDED, it->getScriptHandle(), it->getScriptUid(), nullptr, false);
             it->addSpecializedObjectEventData(ev);
             App::worldContainer->pushEvent();
         }
