@@ -5693,7 +5693,7 @@ int _simSetVectorProperty(luaWrap_lua_State *L)
     TRACE_LUA_API;
     LUA_START("sim.setVectorProperty");
 
-    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 1))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, -1))
     {
         long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
@@ -5740,7 +5740,7 @@ int _simSetIntVectorProperty(luaWrap_lua_State *L)
     TRACE_LUA_API;
     LUA_START("sim.setIntVectorProperty");
 
-    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 1))
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, -1))
     {
         long long int target = luaWrap_lua_tointeger(L,1);
         if (target == sim_handle_self)
