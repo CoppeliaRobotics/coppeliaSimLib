@@ -12707,11 +12707,10 @@ int _simPushUserEvent(luaWrap_lua_State *L)
                     options = luaToInt(L, 5);
                 if (App::worldContainer->getEventsEnabled())
                 {
-                    CCbor *ev =
-                        App::worldContainer->createNakedEvent(eventStr.c_str(), handle, uid, (options & 1) != 0);
+                    CCbor *ev = App::worldContainer->createNakedEvent(eventStr.c_str(), handle, uid, (options & 1) != 0);
                     ev->appendText("data");
                     CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
-                    CScriptObject::buildFromInterpreterStack_lua(L, stack, 4, 0); // skip the 3 first args
+                    CScriptObject::buildFromInterpreterStack_lua(L, stack, 4, 1); // skip the 3 first args
                     std::string buff = stack->getCborEncodedBuffer(0);
                     ev->appendRaw((unsigned char *)buff.data(), buff.size());
                     App::worldContainer->pushEvent();
@@ -14791,8 +14790,7 @@ int _simGetGraphCurve(luaWrap_lua_State *L)
             int curveWidth;
             float col[3];
             double minMax[6];
-            if (graph->getGraphCurveData(graphType, index, label, xVals, yVals, curveType, col, minMax, curveId,
-                                         curveWidth))
+            if (graph->getGraphCurveData(graphType, index, label, xVals, yVals, curveType, col, minMax, curveId, curveWidth))
             {
                 luaWrap_lua_pushtext(L, label.c_str());
                 luaWrap_lua_pushinteger(L, curveType);
@@ -14832,7 +14830,7 @@ int _simGetGraphInfo(luaWrap_lua_State *L)
             int bitCoded = 0;
             luaWrap_lua_pushinteger(L, bitCoded);
             pushFloatTableOntoStack(L, 3, graph->backgroundColor);
-            pushFloatTableOntoStack(L, 3, graph->textColor);
+            pushFloatTableOntoStack(L, 3, graph->foregroundColor);
             LUA_END(3);
         }
         else

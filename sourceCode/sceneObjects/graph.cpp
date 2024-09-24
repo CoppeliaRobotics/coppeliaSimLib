@@ -29,10 +29,7 @@ CGraph::CGraph()
     curves2d_old.clear();
     dataStreams_old.reserve(16);
     dataStreams_old.clear();
-    times.reserve(bufferSize);
-    times.clear();
-    for (int i = 0; i < bufferSize; i++)
-        times.push_back(0.0);
+    times.resize(bufferSize, 0.0);
 
     _localObjectSpecialProperty = 0; // actually also renderable, but turned off by default!
     cyclic = true;
@@ -47,9 +44,9 @@ CGraph::CGraph()
     backgroundColor[1] = 0.1f;
     backgroundColor[2] = 0.1f;
 
-    textColor[0] = 0.8f;
-    textColor[1] = 0.8f;
-    textColor[2] = 0.8f;
+    foregroundColor[0] = 0.8f;
+    foregroundColor[1] = 0.8f;
+    foregroundColor[2] = 0.8f;
     _visibilityLayer = GRAPH_LAYER;
     _objectAlias = getObjectTypeInfo();
     _objectName_old = getObjectTypeInfo();
@@ -63,6 +60,40 @@ CGraph::~CGraph()
 
     // Old:
     removeAllStreamsAndCurves_old();
+}
+
+void CGraph::_setBackgroundColor(const float col[3])
+{
+    bool diff = ( (backgroundColor[0] != col[0]) || (backgroundColor[1] != col[1]) || (backgroundColor[2] != col[2]) );
+    if (diff)
+    {
+        for (size_t i = 0; i < 3; i++)
+            backgroundColor[i] = col[i];
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propGraph_backgroundColor.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyFloatArray(cmd, backgroundColor, 3);
+            App::worldContainer->pushEvent();
+        }
+    }
+}
+
+void CGraph::_setForegroundColor(const float col[3])
+{
+    bool diff = ( (foregroundColor[0] != col[0]) || (foregroundColor[1] != col[1]) || (foregroundColor[2] != col[2]) );
+    if (diff)
+    {
+        for (size_t i = 0; i < 3; i++)
+            foregroundColor[i] = col[i];
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propGraph_foregroundColor.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyFloatArray(cmd, foregroundColor, 3);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 void CGraph::removeAllStreamsAndCurves_old()
@@ -543,14 +574,13 @@ void CGraph::addNextPoint(double time)
     C7Vector m(getCumulativeTransformation());
     for (size_t i = 0; i < dataStreams_old.size(); i++)
     {
-        bool cyclic;
+        bool cycl;
         double range;
-        CGraphingRoutines_old::getCyclicAndRangeValues(dataStreams_old[i], cyclic, range);
-        dataStreams_old[i]->setValue(&m, nextEntryPosition, nextEntryPosition == startingPoint, cyclic, range, times);
+        CGraphingRoutines_old::getCyclicAndRangeValues(dataStreams_old[i], cycl, range);
+        dataStreams_old[i]->setValue(&m, nextEntryPosition, nextEntryPosition == startingPoint, cycl, range, times);
         // Here we have to handle a special case: GRAPH_VARIOUS_TIME
         if (dataStreams_old[i]->getDataType() == GRAPH_NOOBJECT_TIME)
-            dataStreams_old[i]->setValueDirect(nextEntryPosition, time, nextEntryPosition == startingPoint, cyclic,
-                                               range, times);
+            dataStreams_old[i]->setValueDirect(nextEntryPosition, time, nextEntryPosition == startingPoint, cycl, range, times);
         dataStreams_old[i]->clearUserData();
     }
 }
@@ -588,7 +618,10 @@ void CGraph::addSpecializedObjectEventData(CCbor *ev)
     color.addGenesisEventData(ev);
 #endif
     ev->appendKeyDouble(propGraph_size.name, _graphSize);
-    // todo
+    ev->appendKeyInt(propGraph_bufferSize.name, bufferSize);
+    ev->appendKeyBool(propGraph_cyclic.name, cyclic);
+    ev->appendKeyFloatArray(propGraph_backgroundColor.name, backgroundColor, 3);
+    ev->appendKeyFloatArray(propGraph_foregroundColor.name, foregroundColor, 3);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // graph
 #endif
@@ -599,8 +632,8 @@ CSceneObject *CGraph::copyYourself()
     CGraph *newGraph = (CGraph *)CSceneObject::copyYourself();
     color.copyYourselfInto(&newGraph->color);
     newGraph->_graphSize = _graphSize;
-    newGraph->setCyclic(getCyclic());
-    newGraph->setBufferSize(getBufferSize());
+    newGraph->cyclic = cyclic;
+    newGraph->bufferSize = bufferSize;
     newGraph->numberOfPoints = numberOfPoints;
     newGraph->startingPoint = startingPoint;
     newGraph->xYZPlanesDisplay = xYZPlanesDisplay;
@@ -627,9 +660,9 @@ CSceneObject *CGraph::copyYourself()
     newGraph->backgroundColor[0] = backgroundColor[0];
     newGraph->backgroundColor[1] = backgroundColor[1];
     newGraph->backgroundColor[2] = backgroundColor[2];
-    newGraph->textColor[0] = textColor[0];
-    newGraph->textColor[1] = textColor[1];
-    newGraph->textColor[2] = textColor[2];
+    newGraph->foregroundColor[0] = foregroundColor[0];
+    newGraph->foregroundColor[1] = foregroundColor[1];
+    newGraph->foregroundColor[2] = foregroundColor[2];
     newGraph->graphGrid = graphGrid;
     newGraph->graphValues = graphValues;
     newGraph->setExplicitHandling(getExplicitHandling());
@@ -685,13 +718,13 @@ void CGraph::makeCurveStatic(int curveIndex, int dimensionIndex)
             int pos = 0;
             int absIndex;
             double yVal, xVal;
-            bool cyclic;
+            bool cycl;
             double range;
-            CGraphingRoutines_old::getCyclicAndRangeValues(it, cyclic, range);
+            CGraphingRoutines_old::getCyclicAndRangeValues(it, cycl, range);
             while (getAbsIndexOfPosition(pos++, absIndex))
             {
                 xVal = times[absIndex];
-                bool dataIsValid = getData(it, absIndex, yVal, cyclic, range, true);
+                bool dataIsValid = getData(it, absIndex, yVal, cycl, range, true);
                 if (dataIsValid)
                 {
                     timeValues.push_back(xVal);
@@ -1006,11 +1039,11 @@ void CGraph::exportGraphData(VArchive &ar)
                 txt += ",";
                 CGraphData_old *gr = dataStreams_old[i];
 
-                bool cyclic;
+                bool cycl;
                 double range;
-                CGraphingRoutines_old::getCyclicAndRangeValues(gr, cyclic, range);
+                CGraphingRoutines_old::getCyclicAndRangeValues(gr, cycl, range);
                 double val;
-                bool dataIsValid = getData(gr, absIndex, val, cyclic, range, true);
+                bool dataIsValid = getData(gr, absIndex, val, cycl, range, true);
                 if (dataIsValid)
                     txt += utils::getDoubleEString(true, val);
                 else
@@ -1124,10 +1157,10 @@ bool CGraph::getGraphCurveData(int graphType, int index, std::string &label, std
                     {
                         double xVal = times[absIndex];
                         double yVal;
-                        bool cyclic;
+                        bool cycl;
                         double range;
-                        CGraphingRoutines_old::getCyclicAndRangeValues(gr, cyclic, range);
-                        bool dataIsValid = getData(gr, absIndex, yVal, cyclic, range, true);
+                        CGraphingRoutines_old::getCyclicAndRangeValues(gr, cycl, range);
+                        bool dataIsValid = getData(gr, absIndex, yVal, cycl, range, true);
                         if (dataIsValid)
                         {
                             xVals.push_back(xVal);
@@ -1412,13 +1445,13 @@ void CGraph::curveToClipboard(int graphType, const char *curveName) const
             int pos = 0;
             int absIndex;
             double yVal, xVal;
-            bool cyclic;
+            bool cycl;
             double range;
-            CGraphingRoutines_old::getCyclicAndRangeValues(it, cyclic, range);
+            CGraphingRoutines_old::getCyclicAndRangeValues(it, cycl, range);
             while (getAbsIndexOfPosition(pos++, absIndex))
             {
                 xVal = times[absIndex];
-                bool dataIsValid = getData(it, absIndex, yVal, cyclic, range, true);
+                bool dataIsValid = getData(it, absIndex, yVal, cycl, range, true);
                 if (dataIsValid)
                 {
                     txt += boost::lexical_cast<std::string>(xVal) + char(9);
@@ -1570,13 +1603,13 @@ void CGraph::curveToStatic(int graphType, const char *curveName)
             int pos = 0;
             int absIndex;
             double yVal, xVal;
-            bool cyclic;
+            bool cycl;
             double range;
-            CGraphingRoutines_old::getCyclicAndRangeValues(it, cyclic, range);
+            CGraphingRoutines_old::getCyclicAndRangeValues(it, cycl, range);
             while (getAbsIndexOfPosition(pos++, absIndex))
             {
                 xVal = times[absIndex];
-                bool dataIsValid = getData(it, absIndex, yVal, cyclic, range, true);
+                bool dataIsValid = getData(it, absIndex, yVal, cycl, range, true);
                 if (dataIsValid)
                 {
                     timeValues.push_back(xVal);
@@ -1940,28 +1973,47 @@ void CGraph::performDynMaterialObjectLoadingMapping(const std::map<int, int> *ma
 void CGraph::setBufferSize(int buffSize)
 {
     tt::limitValue(10, 100000000, buffSize);
-    bufferSize = buffSize;
-    resetGraph();
+    if (bufferSize != buffSize)
+    {
+        bufferSize = buffSize;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propGraph_bufferSize.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDouble(cmd, bufferSize);
+            App::worldContainer->pushEvent();
+        }
+        resetGraph();
+    }
 }
+
 int CGraph::getBufferSize() const
 {
-    return (bufferSize);
+    return bufferSize;
 }
+
 void CGraph::setCyclic(bool isCyclic)
 {
     if (isCyclic != cyclic)
     {
         cyclic = isCyclic;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propGraph_cyclic.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyBool(cmd, cyclic);
+            App::worldContainer->pushEvent();
+        }
         resetGraph();
     }
 }
+
 bool CGraph::getCyclic() const
 {
-    return (cyclic);
+    return cyclic;
 }
 
-bool CGraph::getData(const CGraphData_old *it, int pos, double &outputValue, bool cyclic, double range,
-                     bool doUnitConversion) const
+bool CGraph::getData(const CGraphData_old *it, int pos, double &outputValue, bool cycl, double range, bool doUnitConversion) const
 {
     double cumulativeValue = 0.0;
     int cumulativeValueCount = 0;
@@ -1998,12 +2050,10 @@ void CGraph::resetGraph()
 {
     numberOfPoints = 0;
     startingPoint = 0;
-    times.reserve(bufferSize);
-    times.clear();
-    for (int i = 0; i < bufferSize; i++)
-        times.push_back(0.0);
+    times.resize(bufferSize, 0.0);
     for (size_t i = 0; i < _dataStreams.size(); i++)
         _dataStreams[i]->reset(bufferSize);
+
     // Old:
     for (int i = 0; i < int(dataStreams_old.size()); i++)
         dataStreams_old[i]->resetData(bufferSize);
@@ -2056,7 +2106,7 @@ void CGraph::serialize(CSer &ar)
 
             ar.storeDataName("Cl1");
             ar << backgroundColor[0] << backgroundColor[1] << backgroundColor[2];
-            ar << textColor[0] << textColor[1] << textColor[2];
+            ar << foregroundColor[0] << foregroundColor[1] << foregroundColor[2];
             ar.flush();
 
             ar.storeDataName("Gbv");
@@ -2173,7 +2223,7 @@ void CGraph::serialize(CSer &ar)
                         noHit = false;
                         ar >> byteQuantity;
                         ar >> backgroundColor[0] >> backgroundColor[1] >> backgroundColor[2];
-                        ar >> textColor[0] >> textColor[1] >> textColor[2];
+                        ar >> foregroundColor[0] >> foregroundColor[1] >> foregroundColor[2];
                     }
                     if (theName.compare("Gbv") == 0)
                     {
@@ -2316,7 +2366,7 @@ void CGraph::serialize(CSer &ar)
                 color.serialize(ar, 0);
                 ar.xmlPopNode();
                 ar.xmlAddNode_floats("background", backgroundColor, 3);
-                ar.xmlAddNode_floats("text", textColor, 3);
+                ar.xmlAddNode_floats("text", foregroundColor, 3);
             }
             else
             {
@@ -2328,7 +2378,7 @@ void CGraph::serialize(CSer &ar)
                     rgb[l] = int(backgroundColor[l] * 255.1);
                 ar.xmlAddNode_ints("background", rgb, 3);
                 for (size_t l = 0; l < 3; l++)
-                    rgb[l] = int(textColor[l] * 255.1);
+                    rgb[l] = int(foregroundColor[l] * 255.1);
                 ar.xmlAddNode_ints("text", rgb, 3);
             }
             ar.xmlPopNode();
@@ -2414,7 +2464,7 @@ void CGraph::serialize(CSer &ar)
                         ar.xmlPopNode();
                     }
                     ar.xmlGetNode_floats("background", backgroundColor, 3);
-                    ar.xmlGetNode_floats("text", textColor, 3);
+                    ar.xmlGetNode_floats("text", foregroundColor, 3);
                 }
                 else
                 {
@@ -2430,9 +2480,9 @@ void CGraph::serialize(CSer &ar)
                     }
                     if (ar.xmlGetNode_ints("text", rgb, 3, exhaustiveXml))
                     {
-                        textColor[0] = double(rgb[0]) / 255.1;
-                        textColor[1] = double(rgb[1]) / 255.1;
-                        textColor[2] = double(rgb[2]) / 255.1;
+                        foregroundColor[0] = double(rgb[0]) / 255.1;
+                        foregroundColor[1] = double(rgb[1]) / 255.1;
+                        foregroundColor[2] = double(rgb[2]) / 255.1;
                     }
                 }
                 ar.xmlPopNode();
@@ -2675,7 +2725,7 @@ void CGraph::drawGrid(int windowSize[2], double graphPosition[2], double graphSi
         gridSpacingY = gridSpacingY * 2.0;
     gridStartY = (((int)(gridStartY / gridSpacingY)) * gridSpacingY) - gridSpacingY;
 
-    ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, textColor);
+    ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, foregroundColor);
     if (graphGrid)
     {
         glLineStipple(1, 0x1111);
@@ -2742,7 +2792,7 @@ void CGraph::drawOverlay(int windowSize[2], double graphPosition[2], double grap
             glVertex3d(downRelPos[0], downRelPos[1], 0);
             glEnd();
             ogl::setBlending(false);
-            ogl::setMaterialColor(sim_colorcomponent_emission, textColor);
+            ogl::setMaterialColor(sim_colorcomponent_emission, foregroundColor);
             glBegin(GL_LINE_STRIP);
             glVertex3d(downRelPos[0], downRelPos[1], 0);
             glVertex3d(downRelPos[0], relPos[1], 0);
@@ -2750,11 +2800,11 @@ void CGraph::drawOverlay(int windowSize[2], double graphPosition[2], double grap
             glVertex3d(relPos[0], downRelPos[1], 0);
             glVertex3d(downRelPos[0], downRelPos[1], 0);
             glEnd();
-            ogl::setTextColor(textColor);
+            ogl::setTextColor(foregroundColor);
             ogl::drawBitmapTextIntoScene((relPos[0] + downRelPos[0]) / 2.0, (relPos[1] + downRelPos[1]) / 2.0, 0.0,
                                          IDSOGL_ZOOMING_IN);
         }
-        ogl::setTextColor(textColor);
+        ogl::setTextColor(foregroundColor);
         if ((relPos[0] > downRelPos[0]) && (relPos[1] > downRelPos[1]))
             ogl::drawBitmapTextIntoScene((relPos[0] + downRelPos[0]) / 2.0, (relPos[1] + downRelPos[1]) / 2.0, 0.0,
                                          IDSOGL_SETTING_PROPORTIONS_TO_1_1);
@@ -2801,7 +2851,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
         ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
         std::string tmp(IDSOGL_TIME_GRAPH_CURVES_);
         double tl = double(ogl::getTextLengthInPixels(tmp.c_str())) * pixelSizeCoeff;
-        ogl::setMaterialColor(sim_colorcomponent_emission, textColor);
+        ogl::setMaterialColor(sim_colorcomponent_emission, foregroundColor);
         ogl::drawBitmapTextTo2dPosition(labelPos[0] - tl, labelPos[1], tmp.c_str());
         labelPos[1] = labelPos[1] - interline;
         for (int i = 0; i < int(dataStreams_old.size()); i++)
@@ -2829,14 +2879,14 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
                     int absIndex;
                     double yVal, xVal;
 
-                    bool cyclic;
+                    bool cycl;
                     double range;
-                    CGraphingRoutines_old::getCyclicAndRangeValues(it, cyclic, range);
+                    CGraphingRoutines_old::getCyclicAndRangeValues(it, cycl, range);
 
                     while (getAbsIndexOfPosition(pos++, absIndex))
                     {
                         xVal = times[absIndex];
-                        bool dataIsValid = getData(it, absIndex, yVal, cyclic, range, true);
+                        bool dataIsValid = getData(it, absIndex, yVal, cycl, range, true);
                         if (dataIsValid)
                             ogl::addBuffer2DPoints(xVal, yVal);
                     }
@@ -2863,13 +2913,13 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
                     int pos = 0;
                     int absIndex;
                     double yVal, xVal;
-                    bool cyclic;
+                    bool cycl;
                     double range;
-                    CGraphingRoutines_old::getCyclicAndRangeValues(it, cyclic, range);
+                    CGraphingRoutines_old::getCyclicAndRangeValues(it, cycl, range);
                     while (getAbsIndexOfPosition(pos++, absIndex))
                     {
                         xVal = times[absIndex];
-                        bool dataIsValid = getData(it, absIndex, yVal, cyclic, range, true);
+                        bool dataIsValid = getData(it, absIndex, yVal, cycl, range, true);
                         if (xVal < minVal[0]) // keep those two outside of dataIsValid check!
                             minVal[0] = xVal;
                         if (xVal > maxVal[0])
@@ -3027,7 +3077,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
         ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
         std::string tmp(IDSOGL_X_Y_GRAPH_CURVES_);
         double tl = double(ogl::getTextLengthInPixels(tmp.c_str())) * pixelSizeCoeff;
-        ogl::setMaterialColor(sim_colorcomponent_emission, textColor);
+        ogl::setMaterialColor(sim_colorcomponent_emission, foregroundColor);
         ogl::drawBitmapTextTo2dPosition(labelPos[0] - tl, labelPos[1], tmp.c_str());
         labelPos[1] = labelPos[1] - interline;
         for (int i = 0; i < int(curves2d_old.size()); i++)
@@ -3322,7 +3372,7 @@ void CGraph::drawValues(int windowSize[2], double graphPosition[2], double graph
                 r[0] = squareSize * graphSize[0] / (double)windowSize[0];
                 r[1] = squareSize * graphSize[1] / (double)windowSize[1];
                 ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
-                ogl::setMaterialColor(sim_colorcomponent_emission, textColor);
+                ogl::setMaterialColor(sim_colorcomponent_emission, foregroundColor);
                 std::string tmp;
                 if (subView != nullptr)
                     subView->setTrackedGraphCurveIndex(-1);
@@ -3556,6 +3606,11 @@ int CGraph::setBoolProperty(const char* ppName, bool pState)
     int retVal = CSceneObject::setBoolProperty(pName, pState);
     if (retVal == -1)
     {
+        if (_pName == propGraph_cyclic.name)
+        {
+            retVal = 1;
+            setCyclic(pState);
+        }
     }
 
     return retVal;
@@ -3568,6 +3623,11 @@ int CGraph::getBoolProperty(const char* ppName, bool& pState) const
     int retVal = CSceneObject::getBoolProperty(pName, pState);
     if (retVal == -1)
     {
+        if (_pName == propGraph_cyclic.name)
+        {
+            retVal = 1;
+            pState = cyclic;
+        }
     }
 
     return retVal;
@@ -3580,6 +3640,11 @@ int CGraph::setIntProperty(const char* ppName, int pState)
     int retVal = CSceneObject::setIntProperty(pName, pState);
     if (retVal == -1)
     {
+        if (_pName == propGraph_bufferSize.name)
+        {
+            retVal = 1;
+            setBufferSize(pState);
+        }
     }
 
     return retVal;
@@ -3592,6 +3657,11 @@ int CGraph::getIntProperty(const char* ppName, int& pState) const
     int retVal = CSceneObject::getIntProperty(pName, pState);
     if (retVal == -1)
     {
+        if (_pName == propGraph_bufferSize.name)
+        {
+            retVal = 1;
+            pState = bufferSize;
+        }
     }
 
     return retVal;
@@ -3642,9 +3712,18 @@ int CGraph::setColorProperty(const char* ppName, const float* pState)
     int retVal = CSceneObject::setColorProperty(pName, pState);
     if (retVal == -1)
         retVal = color.setColorProperty(pName, pState);
-    if (retVal != -1)
+    if (retVal == -1)
     {
-
+        if (_pName == propGraph_backgroundColor.name)
+        {
+            _setBackgroundColor(pState);
+            retVal = 1;
+        }
+        else if (_pName == propGraph_foregroundColor.name)
+        {
+            _setForegroundColor(pState);
+            retVal = 1;
+        }
     }
     return retVal;
 }
@@ -3656,9 +3735,20 @@ int CGraph::getColorProperty(const char* ppName, float* pState) const
     int retVal = CSceneObject::getColorProperty(pName, pState);
     if (retVal == -1)
         retVal = color.getColorProperty(pName, pState);
-    if (retVal != -1)
+    if (retVal == -1)
     {
-
+        if (_pName == propGraph_backgroundColor.name)
+        {
+            for (size_t i = 0; i < 3; i++)
+                pState[i] = backgroundColor[i];
+            retVal = 1;
+        }
+        else if (_pName == propGraph_foregroundColor.name)
+        {
+            for (size_t i = 0; i < 3; i++)
+                pState[i] = foregroundColor[i];
+            retVal = 1;
+        }
     }
     return retVal;
 }

@@ -135,7 +135,7 @@ class CGraph : public CSceneObject
     bool graphGrid;
     bool graphValues;
     float backgroundColor[3];
-    float textColor[3];
+    float foregroundColor[3];
 
     // Old:
     void removeAllStreamsAndCurves_old();
@@ -168,6 +168,8 @@ class CGraph : public CSceneObject
     std::vector<CStaticGraphCurve_old *> staticStreamsAndCurves_old;
 
   protected:
+    void _setBackgroundColor(const float col[3]);
+    void _setForegroundColor(const float col[3]);
     CStaticGraphCurve_old *getStaticCurveFromName(int type, const char *name);
 
     std::vector<CGraphDataStream *> _dataStreams;

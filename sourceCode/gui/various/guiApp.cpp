@@ -803,7 +803,7 @@ float *GuiApp::getRGBPointerFromItem(int objType, int objID1, int objID2, int co
         _auxDlgTitle->assign("Graph - grid");
         CGraph *it = App::currentWorld->sceneObjects->getGraphFromHandle(objID1);
         if (it != nullptr)
-            return (it->textColor);
+            return (it->foregroundColor);
     }
     if (objType == COLOR_ID_GRAPH_TIMECURVE)
     {
