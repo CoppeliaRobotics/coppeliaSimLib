@@ -29,6 +29,7 @@ class CGraphDataStream
 
     void setId(int id);
     int getId() const;
+    long long int getUid() const;
     void setStreamName(const char *nm);
     std::string getStreamName() const;
     std::string getUnitStr() const;
@@ -60,6 +61,7 @@ class CGraphDataStream
     double _transformationOff;
     int _movingAveragePeriod;
     int _id;
+    long long int _uid;
 
     double _nextValueToInsert;
     bool _nextValueToInsertIsValid;

@@ -88,7 +88,7 @@ class CGraph : public CSceneObject
     // Various
     bool getGraphCurveData(int graphType, int index, std::string &label, std::vector<double> &xVals,
                            std::vector<double> &yVals, int &curveType, float col[3], double minMax[6], int &curveId,
-                           int &curveWidth) const;
+                           int &curveWidth, long long int& curveUid) const;
     void curveToClipboard(int graphType, const char *curveName) const;
     void curveToStatic(int graphType, const char *curveName);
     void removeStaticCurve(int graphType, const char *curveName);

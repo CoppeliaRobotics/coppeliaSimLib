@@ -12712,6 +12712,7 @@ int _simPushUserEvent(luaWrap_lua_State *L)
                     CInterfaceStack *stack = App::worldContainer->interfaceStackContainer->createStack();
                     CScriptObject::buildFromInterpreterStack_lua(L, stack, 4, 1); // skip the 3 first args
                     std::string buff = stack->getCborEncodedBuffer(0);
+                    App::worldContainer->interfaceStackContainer->destroyStack(stack);
                     ev->appendRaw((unsigned char *)buff.data(), buff.size());
                     App::worldContainer->pushEvent();
                 }
@@ -14787,10 +14788,11 @@ int _simGetGraphCurve(luaWrap_lua_State *L)
             std::string label;
             int curveType;
             int curveId;
+            long long int curveUid;
             int curveWidth;
             float col[3];
             double minMax[6];
-            if (graph->getGraphCurveData(graphType, index, label, xVals, yVals, curveType, col, minMax, curveId, curveWidth))
+            if (graph->getGraphCurveData(graphType, index, label, xVals, yVals, curveType, col, minMax, curveId, curveWidth, curveUid))
             {
                 luaWrap_lua_pushtext(L, label.c_str());
                 luaWrap_lua_pushinteger(L, curveType);
@@ -14806,7 +14808,8 @@ int _simGetGraphCurve(luaWrap_lua_State *L)
                 pushDoubleTableOntoStack(L, 6, minMax);
                 luaWrap_lua_pushinteger(L, curveId);
                 luaWrap_lua_pushinteger(L, curveWidth);
-                LUA_END(8);
+                luaWrap_lua_pushinteger(L, curveUid);
+                LUA_END(9);
             }
         }
         else

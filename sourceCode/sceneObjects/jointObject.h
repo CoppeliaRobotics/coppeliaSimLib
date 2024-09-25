@@ -13,7 +13,7 @@ struct SJointProperty {
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
     FUNCX(propJoint_size,                      "size",                                       sim_propertytype_vector,    0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_position,                  "position",                                   sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
+    FUNCX(propJoint_position,                  "jointPosition",                              sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
     FUNCX(propJoint_quaternion,                "quaternion",                                 sim_propertytype_quaternion,0, -1, -1, -1, -1, -1) \
     FUNCX(propJoint_screwLead,                 "screwLead",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
     FUNCX(propJoint_intrinsicError,            "intrinsicError",                             sim_propertytype_pose,      sim_propertyinfo_notwritable, -1, -1, -1, -1, -1) \

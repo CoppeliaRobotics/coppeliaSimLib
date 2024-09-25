@@ -1059,7 +1059,7 @@ void CGraph::exportGraphData(VArchive &ar)
 
 bool CGraph::getGraphCurveData(int graphType, int index, std::string &label, std::vector<double> &xVals,
                                std::vector<double> &yVals, int &curveType, float col[3], double minMax[6], int &curveId,
-                               int &curveWidth) const
+                               int &curveWidth, long long int& curveUid) const
 {
     if (graphType == 0)
     { // time curves (dyn then static curves)
@@ -1069,6 +1069,7 @@ bool CGraph::getGraphCurveData(int graphType, int index, std::string &label, std
                                               &curveType, col, minMax))
             {
                 curveId = _dataStreams[i]->getId();
+                curveUid = _dataStreams[i]->getUid();
                 return (true);
             }
         }
@@ -1078,6 +1079,7 @@ bool CGraph::getGraphCurveData(int graphType, int index, std::string &label, std
                                               &curveType, col, minMax))
             {
                 curveId = _dataStreams[i]->getId();
+                curveUid = _dataStreams[i]->getUid();
                 return (true);
             }
         }
@@ -1092,6 +1094,7 @@ bool CGraph::getGraphCurveData(int graphType, int index, std::string &label, std
                                             yVals, &curveType, col, minMax))
             {
                 curveId = _curves[i]->getId();
+                curveUid = _curves[i]->getUid();
                 return (true);
             }
         }
@@ -1101,6 +1104,7 @@ bool CGraph::getGraphCurveData(int graphType, int index, std::string &label, std
                                             yVals, &curveType, col, minMax))
             {
                 curveId = _curves[i]->getId();
+                curveUid = _curves[i]->getUid();
                 return (true);
             }
         }
@@ -1115,6 +1119,7 @@ bool CGraph::getGraphCurveData(int graphType, int index, std::string &label, std
                                              &curveType, col, minMax, &curveWidth))
             {
                 curveId = _curves[i]->getId();
+                curveUid = _curves[i]->getUid();
                 return (true);
             }
         }
@@ -1124,12 +1129,14 @@ bool CGraph::getGraphCurveData(int graphType, int index, std::string &label, std
                                              &curveType, col, minMax, &curveWidth))
             {
                 curveId = _curves[i]->getId();
+                curveUid = _curves[i]->getUid();
                 return (true);
             }
         }
     }
 
     curveId = -1;
+    curveUid = -1;
     // Old, Gui-created curves:
     if (graphType == 0)
     { // time
