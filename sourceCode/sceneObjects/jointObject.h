@@ -7,115 +7,117 @@ struct SJointProperty {
     int type;
     int flags;
     int oldEnums[5];
+    const char* shortInfoTxt;
+    const char* infoTxt;
 };
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propJoint_size,                      "size",                                       sim_propertytype_vector,    0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_position,                  "jointPosition",                              sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_quaternion,                "quaternion",                                 sim_propertytype_quaternion,0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_screwLead,                 "screwLead",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_intrinsicError,            "intrinsicError",                             sim_propertytype_pose,      sim_propertyinfo_notwritable, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_intrinsicPose,             "intrinsicPose",                              sim_propertytype_pose,      sim_propertyinfo_notwritable, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_calcVelocity,              "calcVelocity",                               sim_propertytype_float,     sim_propertyinfo_notwritable, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_jointType,                 "jointType",                                  sim_propertytype_int,       sim_propertyinfo_notwritable, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_cyclic,                    "cyclic",                                     sim_propertytype_bool,      0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_interval,                  "interval",                                   sim_propertytype_vector,    0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_targetPos,                 "targetPos",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_targetVel,                 "targetVel",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_targetForce,               "targetForce",                                sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_jointForce,                "jointForce",                                 sim_propertytype_float,     sim_propertyinfo_notwritable, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_averageJointForce,         "averageJointForce",                          sim_propertytype_float,     sim_propertyinfo_notwritable, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_jointMode,                 "jointMode",                                  sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_dynCtrlMode,               "dynCtrlMode",                                sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_dependencyMaster,          "dependencyMasterHandle",                     sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_dependencyParams,          "dependencyParams",                           sim_propertytype_vector,    0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_maxVelAccelJerk,           "maxVelAccelJerk",                            sim_propertytype_vector,    0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_springDamperParams,        "springDamperParams",                         sim_propertytype_vector,    0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_engineProperties,          "engineProperties",                           sim_propertytype_string,    0, -1, -1, -1, -1, -1) \
-    FUNCX(propJoint_bulletStopErp,             "bulletStopErp",                              sim_propertytype_float,     0, sim_bullet_joint_stoperp, -1, -1, -1, -1) \
-    FUNCX(propJoint_bulletStopCfm,             "bulletStopCfm",                              sim_propertytype_float,     0, sim_bullet_joint_stopcfm, -1, -1, -1, -1) \
-    FUNCX(propJoint_bulletNormalCfm,           "bulletNormalCfm",                            sim_propertytype_float,     0, sim_bullet_joint_normalcfm, -1, -1, -1, -1) \
-    FUNCX(propJoint_bulletPosPid,              "bulletPosPid",                               sim_propertytype_vector,    0, sim_bullet_joint_pospid1, sim_bullet_joint_pospid2, sim_bullet_joint_pospid3, -1, -1) \
-    FUNCX(propJoint_odeStopErp,                "odeStopErp",                                 sim_propertytype_float,     0, sim_ode_joint_stoperp, -1, -1, -1, -1) \
-    FUNCX(propJoint_odeStopCfm,                "odeStopCfm",                                 sim_propertytype_float,     0, sim_ode_joint_stopcfm, -1, -1, -1, -1) \
-    FUNCX(propJoint_odeNormalCfm,              "odeNormalCfm",                               sim_propertytype_float,     0, sim_ode_joint_normalcfm, -1, -1, -1, -1) \
-    FUNCX(propJoint_odeBounce,                 "odeBounce",                                  sim_propertytype_float,     0, sim_ode_joint_bounce, -1, -1, -1, -1) \
-    FUNCX(propJoint_odeFudgeFactor,            "odeFudge",                                   sim_propertytype_float,     0, sim_ode_joint_fudgefactor, -1, -1, -1, -1) \
-    FUNCX(propJoint_odePosPid,                 "odePosPid",                                  sim_propertytype_vector,    0, sim_ode_joint_pospid1, sim_ode_joint_pospid2, sim_ode_joint_pospid3, -1, -1) \
-    FUNCX(propJoint_vortexLowerLimitDamping,   "vortexAxisLimitsLowerDamping",                     sim_propertytype_float,     0, sim_vortex_joint_lowerlimitdamping, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexUpperLimitDamping,   "vortexAxisLimitsUpperDamping",                     sim_propertytype_float,     0, sim_vortex_joint_upperlimitdamping, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexLowerLimitStiffness, "vortexAxisLimitsLowerStiffness",                   sim_propertytype_float,     0, sim_vortex_joint_lowerlimitstiffness, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexUpperLimitStiffness, "vortexAxisLimitsUpperStiffness",                   sim_propertytype_float,     0, sim_vortex_joint_upperlimitstiffness, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexLowerLimitRestitution, "vortexAxisLimitsLowerRestitution",               sim_propertytype_float,     0, sim_vortex_joint_lowerlimitrestitution, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexUpperLimitRestitution, "vortexAxisLimitsUpperRestitution",               sim_propertytype_float,     0, sim_vortex_joint_upperlimitrestitution, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexLowerLimitMaxForce,  "vortexAxisLimitsLowerMaxForce",                    sim_propertytype_float,     0, sim_vortex_joint_lowerlimitmaxforce, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexUpperLimitMaxForce,  "vortexAxisLimitsUpperMaxForce",                    sim_propertytype_float,     0, sim_vortex_joint_upperlimitmaxforce, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexAxisFrictionEnabled,     "vortexAxisFrictionEnabled",                        sim_propertytype_bool,      0, sim_vortex_joint_motorfrictionenabled, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexAxisFrictionProportional,"vortexAxisFrictionProportional",                   sim_propertytype_bool,      0, sim_vortex_joint_proportionalmotorfriction, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexAxisFrictionCoeff,       "vortexAxisFrictionValue",                          sim_propertytype_float,     0, sim_vortex_joint_motorconstraintfrictioncoeff, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexAxisFrictionMaxForce,    "vortexAxisFrictionMaxForce",                       sim_propertytype_float,     0, sim_vortex_joint_motorconstraintfrictionmaxforce, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexAxisFrictionLoss,        "vortexAxisFrictionLoss",                           sim_propertytype_float,     0, sim_vortex_joint_motorconstraintfrictionloss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexRelaxationEnabledBits,    "vortexRelaxationEnabledBits",                  sim_propertytype_int,      0, sim_vortex_joint_relaxationenabledbc, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexFrictionEnabledBits,      "vortexFrictionEnabledBits",                    sim_propertytype_int,      0, sim_vortex_joint_frictionenabledbc, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexFrictionProportionalBits, "vortexFrictionProportionalBits",               sim_propertytype_int,      0, sim_vortex_joint_frictionproportionalbc, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisPosRelaxationStiffness,  "vortexXAxisPosRelaxationStiffness",                sim_propertytype_float,     0, sim_vortex_joint_p0stiffness, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisPosRelaxationDamping,    "vortexXAxisPosRelaxationDamping",                  sim_propertytype_float,     0, sim_vortex_joint_p0damping, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisPosRelaxationLoss,       "vortexXAxisPosRelaxationLoss",                     sim_propertytype_float,     0, sim_vortex_joint_p0loss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisPosFrictionCoeff,        "vortexXAxisPosFrictionCoeff",                      sim_propertytype_float,     0, sim_vortex_joint_p0frictioncoeff, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisPosFrictionMaxForce,     "vortexXAxisPosFrictionMaxForce",                   sim_propertytype_float,     0, sim_vortex_joint_p0frictionmaxforce, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisPosFrictionLoss,         "vortexXAxisPosFrictionLoss",                       sim_propertytype_float,     0, sim_vortex_joint_p0frictionloss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisPosRelaxationStiffness, "vortexYAxisPosRelaxationStiffness",                sim_propertytype_float,     0, sim_vortex_joint_p1stiffness, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisPosRelaxationDamping,   "vortexYAxisPosRelaxationDamping",                  sim_propertytype_float,     0, sim_vortex_joint_p1damping, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisPosRelaxationLoss,      "vortexYAxisPosRelaxationLoss",                     sim_propertytype_float,     0, sim_vortex_joint_p1loss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisPosFrictionCoeff,       "vortexYAxisPosFrictionCoeff",                      sim_propertytype_float,     0, sim_vortex_joint_p1frictioncoeff, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisPosFrictionMaxForce,    "vortexYAxisPosFrictionMaxForce",                   sim_propertytype_float,     0, sim_vortex_joint_p1frictionmaxforce, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisPosFrictionLoss,        "vortexYAxisPosFrictionLoss",                       sim_propertytype_float,     0, sim_vortex_joint_p1frictionloss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisPosRelaxationStiffness, "vortexZAxisPosRelaxationStiffness",                sim_propertytype_float,     0, sim_vortex_joint_p2stiffness, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisPosRelaxationDamping,   "vortexZAxisPosRelaxationDamping",                  sim_propertytype_float,     0, sim_vortex_joint_p2damping, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisPosRelaxationLoss,      "vortexZAxisPosRelaxationLoss",                     sim_propertytype_float,     0, sim_vortex_joint_p2loss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisPosFrictionCoeff,       "vortexZAxisPosFrictionCoeff",                      sim_propertytype_float,     0, sim_vortex_joint_p2frictioncoeff, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisPosFrictionMaxForce,    "vortexZAxisPosFrictionMaxForce",                   sim_propertytype_float,     0, sim_vortex_joint_p2frictionmaxforce, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisPosFrictionLoss,        "vortexZAxisPosFrictionLoss",                       sim_propertytype_float,     0, sim_vortex_joint_p2frictionloss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisOrientRelaxStiffness,"vortexXAxisOrientRelaxationStiffness",            sim_propertytype_float,     0, sim_vortex_joint_a0stiffness, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisOrientRelaxDamping, "vortexXAxisOrientRelaxationDamping",               sim_propertytype_float,     0, sim_vortex_joint_a0damping, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisOrientRelaxLoss,    "vortexXAxisOrientRelaxationLoss",                  sim_propertytype_float,     0, sim_vortex_joint_a0loss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisOrientFrictionCoeff,"vortexXAxisOrientFrictionCoeff",                   sim_propertytype_float,     0, sim_vortex_joint_a0frictioncoeff, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisOrientFrictionMaxTorque,"vortexXAxisOrientFrictionMaxTorque",           sim_propertytype_float,     0, sim_vortex_joint_a0frictionmaxforce, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexXAxisOrientFrictionLoss, "vortexXAxisOrientFrictionLoss",                    sim_propertytype_float,     0, sim_vortex_joint_a0frictionloss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisOrientRelaxStiffness,"vortexYAxisOrientRelaxationStiffness",            sim_propertytype_float,     0, sim_vortex_joint_a1stiffness, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisOrientRelaxDamping, "vortexYAxisOrientRelaxationDamping",               sim_propertytype_float,     0, sim_vortex_joint_a1damping, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisOrientRelaxLoss,    "vortexYAxisOrientRelaxationLoss",                  sim_propertytype_float,     0, sim_vortex_joint_a1loss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisOrientFrictionCoeff,"vortexYAxisOrientFrictionCoeff",                   sim_propertytype_float,     0, sim_vortex_joint_a1frictioncoeff, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisOrientFrictionMaxTorque,"vortexYAxisOrientFrictionMaxTorque",           sim_propertytype_float,     0, sim_vortex_joint_a1frictionmaxforce, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexYAxisOrientFrictionLoss, "vortexYAxisOrientFrictionLoss",                    sim_propertytype_float,     0, sim_vortex_joint_a1frictionloss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisOrientRelaxStiffness,"vortexZAxisOrientRelaxationStiffness",            sim_propertytype_float,     0, sim_vortex_joint_a2stiffness, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisOrientRelaxDamping, "vortexZAxisOrientRelaxationDamping",               sim_propertytype_float,     0, sim_vortex_joint_a2damping, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisOrientRelaxLoss,    "vortexZAxisOrientRelaxationLoss",                  sim_propertytype_float,     0, sim_vortex_joint_a2loss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisOrientFrictionCoeff,"vortexZAxisOrientFrictionCoeff",                   sim_propertytype_float,     0, sim_vortex_joint_a2frictioncoeff, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisOrientFrictionMaxTorque,"vortexZAxisOrientFrictionMaxTorque",           sim_propertytype_float,     0, sim_vortex_joint_a2frictionmaxforce, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexZAxisOrientFrictionLoss, "vortexZAxisOrientFrictionLoss",                    sim_propertytype_float,     0, sim_vortex_joint_a2frictionloss, -1, -1, -1, -1) \
-    FUNCX(propJoint_vortexPosPid,                  "vortexPosPid",                                     sim_propertytype_vector,    0, sim_vortex_joint_pospid1, sim_vortex_joint_pospid2, sim_vortex_joint_pospid3, -1, -1) \
-    FUNCX(propJoint_newtonPosPid,                  "newtonPosPid",                                     sim_propertytype_vector,    0, sim_newton_joint_pospid1, sim_newton_joint_pospid2, sim_newton_joint_pospid3, -1, -1) \
-    FUNCX(propJoint_mujocoArmature,                "mujocoArmature",                                   sim_propertytype_float,     0, sim_mujoco_joint_armature, -1, -1, -1, -1) \
-    FUNCX(propJoint_mujocoMargin,                  "mujocoMargin",                                     sim_propertytype_float,     0, sim_mujoco_joint_margin, -1, -1, -1, -1) \
-    FUNCX(propJoint_mujocoFrictionLoss,            "mujocoFrictionLoss",                               sim_propertytype_float,     0, sim_mujoco_joint_frictionloss, -1, -1, -1, -1) \
-    FUNCX(propJoint_mujocoSpringStiffness,         "mujocoSpringStiffness",                            sim_propertytype_float,     0, sim_mujoco_joint_stiffness, -1, -1, -1, -1) \
-    FUNCX(propJoint_mujocoSpringDamping,           "mujocoSpringDamping",                              sim_propertytype_float,     0, sim_mujoco_joint_damping, -1, -1, -1, -1) \
-    FUNCX(propJoint_mujocoSpringRef,               "mujocoSpringRef",                                  sim_propertytype_float,     0, sim_mujoco_joint_springref, -1, -1, -1, -1) \
-    FUNCX(propJoint_mujocoPosPid,                  "mujocoPosPid",                                     sim_propertytype_vector,    0, sim_mujoco_joint_pospid1, sim_mujoco_joint_pospid2, sim_mujoco_joint_pospid3, -1, -1) \
-    FUNCX(propJoint_mujocoLimitsSolRef,            "mujocoLimitsSolref",                               sim_propertytype_vector,    0, sim_mujoco_joint_solreflimit1, sim_mujoco_joint_solreflimit2, -1, -1, -1) \
-    FUNCX(propJoint_mujocoLimitsSolImp,            "mujocoLimitsSolimp",                               sim_propertytype_vector,    0, sim_mujoco_joint_solimplimit1, sim_mujoco_joint_solimplimit2, sim_mujoco_joint_solimplimit3, sim_mujoco_joint_solimplimit4, sim_mujoco_joint_solimplimit5) \
-    FUNCX(propJoint_mujocoFrictionSolRef,          "mujocoFrictionSolref",                             sim_propertytype_vector,    0, sim_mujoco_joint_solreffriction1, sim_mujoco_joint_solreffriction2, -1, -1, -1) \
-    FUNCX(propJoint_mujocoFrictionSolImp,          "mujocoFrictionSolimp",                             sim_propertytype_vector,    0, sim_mujoco_joint_solimpfriction1, sim_mujoco_joint_solimpfriction2, sim_mujoco_joint_solimpfriction3, sim_mujoco_joint_solimpfriction4, sim_mujoco_joint_solimpfriction5) \
-    FUNCX(propJoint_mujocoSpringDamper,            "mujocoSpringSpringDamper",                         sim_propertytype_vector,    0, sim_mujoco_joint_springdamper1, sim_mujoco_joint_springdamper2, -1, -1, -1) \
-    FUNCX(propJoint_mujocoDependencyPolyCoef,      "mujocoDependencyPolyCoeff",                        sim_propertytype_vector,    0, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5) \
+    FUNCX(propJoint_size,                      "jointSize",                                  sim_propertytype_vector,    0, -1, -1, -1, -1, -1, "Size", "Joint size") \
+    FUNCX(propJoint_position,                  "jointPosition",                              sim_propertytype_float,     0, -1, -1, -1, -1, -1, "Position", "Joint linear/angular displacement") \
+    FUNCX(propJoint_quaternion,                "quaternion",                                 sim_propertytype_quaternion,0, -1, -1, -1, -1, -1, "Spherical joint quaternion", "") \
+    FUNCX(propJoint_screwLead,                 "screwLead",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1, "Screw lead", "") \
+    FUNCX(propJoint_intrinsicError,            "intrinsicError",                             sim_propertytype_pose,      sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, "Intrinsic error", "Intrinsic error, generated by some physics engines") \
+    FUNCX(propJoint_intrinsicPose,             "intrinsicPose",                              sim_propertytype_pose,      sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, "Intrinsic pose", "Intrinsic pose (includes a possible intrinsic error)") \
+    FUNCX(propJoint_calcVelocity,              "calcVelocity",                               sim_propertytype_float,     sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, "Velocity", "Calculated joint linear or angular velocity") \
+    FUNCX(propJoint_jointType,                 "jointType",                                  sim_propertytype_int,       sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, "Type", "Joint type") \
+    FUNCX(propJoint_cyclic,                    "cyclic",                                     sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "Cyclic", "Cyclic revolute joint, has no limits") \
+    FUNCX(propJoint_interval,                  "interval",                                   sim_propertytype_vector,    0, -1, -1, -1, -1, -1, "Interval", "Joint limits (lower and upper bounds)") \
+    FUNCX(propJoint_targetPos,                 "targetPos",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1, "Target position", "Position to reach by controller") \
+    FUNCX(propJoint_targetVel,                 "targetVel",                                  sim_propertytype_float,     0, -1, -1, -1, -1, -1, "Target velocity", "Velocity to reach by controller") \
+    FUNCX(propJoint_targetForce,               "targetForce",                                sim_propertytype_float,     0, -1, -1, -1, -1, -1, "Target force", "Maximum force to exert") \
+    FUNCX(propJoint_jointForce,                "jointForce",                                 sim_propertytype_float,     sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, "Force", "Force applied") \
+    FUNCX(propJoint_averageJointForce,         "averageJointForce",                          sim_propertytype_float,     sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, "Average force", "Force applied on average (in a simulation step)") \
+    FUNCX(propJoint_jointMode,                 "jointMode",                                  sim_propertytype_int,       0, -1, -1, -1, -1, -1, "Mode", "Joint mode") \
+    FUNCX(propJoint_dynCtrlMode,               "dynCtrlMode",                                sim_propertytype_int,       0, -1, -1, -1, -1, -1, "Control mode", "Joint control mode, when in dynamic mode") \
+    FUNCX(propJoint_dependencyMaster,          "dependencyMasterHandle",                     sim_propertytype_int,       0, -1, -1, -1, -1, -1, "Dependency master", "Handle of master joint (in a dependency relationship)") \
+    FUNCX(propJoint_dependencyParams,          "dependencyParams",                           sim_propertytype_vector,    0, -1, -1, -1, -1, -1, "Dependency parameters", "Dependency parameters (offset and coefficient)") \
+    FUNCX(propJoint_maxVelAccelJerk,           "maxVelAccelJerk",                            sim_propertytype_vector,    0, -1, -1, -1, -1, -1, "Maximum velocity, acceleration and jerk", "") \
+    FUNCX(propJoint_springDamperParams,        "springDamperParams",                         sim_propertytype_vector,    0, -1, -1, -1, -1, -1, "Spring damper parameters", "") \
+    FUNCX(propJoint_engineProperties,          "engineProperties",                           sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text") \
+    FUNCX(propJoint_bulletStopErp,             "bulletStopErp",                              sim_propertytype_float,     0, sim_bullet_joint_stoperp, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_bulletStopCfm,             "bulletStopCfm",                              sim_propertytype_float,     0, sim_bullet_joint_stopcfm, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_bulletNormalCfm,           "bulletNormalCfm",                            sim_propertytype_float,     0, sim_bullet_joint_normalcfm, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_bulletPosPid,              "bulletPosPid",                               sim_propertytype_vector,    0, sim_bullet_joint_pospid1, sim_bullet_joint_pospid2, sim_bullet_joint_pospid3, -1, -1, "", "") \
+    FUNCX(propJoint_odeStopErp,                "odeStopErp",                                 sim_propertytype_float,     0, sim_ode_joint_stoperp, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_odeStopCfm,                "odeStopCfm",                                 sim_propertytype_float,     0, sim_ode_joint_stopcfm, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_odeNormalCfm,              "odeNormalCfm",                               sim_propertytype_float,     0, sim_ode_joint_normalcfm, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_odeBounce,                 "odeBounce",                                  sim_propertytype_float,     0, sim_ode_joint_bounce, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_odeFudgeFactor,            "odeFudge",                                   sim_propertytype_float,     0, sim_ode_joint_fudgefactor, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_odePosPid,                 "odePosPid",                                  sim_propertytype_vector,    0, sim_ode_joint_pospid1, sim_ode_joint_pospid2, sim_ode_joint_pospid3, -1, -1, "", "") \
+    FUNCX(propJoint_vortexLowerLimitDamping,   "vortexAxisLimitsLowerDamping",                     sim_propertytype_float,     0, sim_vortex_joint_lowerlimitdamping, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexUpperLimitDamping,   "vortexAxisLimitsUpperDamping",                     sim_propertytype_float,     0, sim_vortex_joint_upperlimitdamping, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexLowerLimitStiffness, "vortexAxisLimitsLowerStiffness",                   sim_propertytype_float,     0, sim_vortex_joint_lowerlimitstiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexUpperLimitStiffness, "vortexAxisLimitsUpperStiffness",                   sim_propertytype_float,     0, sim_vortex_joint_upperlimitstiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexLowerLimitRestitution, "vortexAxisLimitsLowerRestitution",               sim_propertytype_float,     0, sim_vortex_joint_lowerlimitrestitution, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexUpperLimitRestitution, "vortexAxisLimitsUpperRestitution",               sim_propertytype_float,     0, sim_vortex_joint_upperlimitrestitution, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexLowerLimitMaxForce,  "vortexAxisLimitsLowerMaxForce",                    sim_propertytype_float,     0, sim_vortex_joint_lowerlimitmaxforce, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexUpperLimitMaxForce,  "vortexAxisLimitsUpperMaxForce",                    sim_propertytype_float,     0, sim_vortex_joint_upperlimitmaxforce, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexAxisFrictionEnabled,     "vortexAxisFrictionEnabled",                        sim_propertytype_bool,      0, sim_vortex_joint_motorfrictionenabled, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexAxisFrictionProportional,"vortexAxisFrictionProportional",                   sim_propertytype_bool,      0, sim_vortex_joint_proportionalmotorfriction, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexAxisFrictionCoeff,       "vortexAxisFrictionValue",                          sim_propertytype_float,     0, sim_vortex_joint_motorconstraintfrictioncoeff, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexAxisFrictionMaxForce,    "vortexAxisFrictionMaxForce",                       sim_propertytype_float,     0, sim_vortex_joint_motorconstraintfrictionmaxforce, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexAxisFrictionLoss,        "vortexAxisFrictionLoss",                           sim_propertytype_float,     0, sim_vortex_joint_motorconstraintfrictionloss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexRelaxationEnabledBits,    "vortexRelaxationEnabledBits",                  sim_propertytype_int,      0, sim_vortex_joint_relaxationenabledbc, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexFrictionEnabledBits,      "vortexFrictionEnabledBits",                    sim_propertytype_int,      0, sim_vortex_joint_frictionenabledbc, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexFrictionProportionalBits, "vortexFrictionProportionalBits",               sim_propertytype_int,      0, sim_vortex_joint_frictionproportionalbc, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisPosRelaxationStiffness,  "vortexXAxisPosRelaxationStiffness",                sim_propertytype_float,     0, sim_vortex_joint_p0stiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisPosRelaxationDamping,    "vortexXAxisPosRelaxationDamping",                  sim_propertytype_float,     0, sim_vortex_joint_p0damping, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisPosRelaxationLoss,       "vortexXAxisPosRelaxationLoss",                     sim_propertytype_float,     0, sim_vortex_joint_p0loss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisPosFrictionCoeff,        "vortexXAxisPosFrictionCoeff",                      sim_propertytype_float,     0, sim_vortex_joint_p0frictioncoeff, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisPosFrictionMaxForce,     "vortexXAxisPosFrictionMaxForce",                   sim_propertytype_float,     0, sim_vortex_joint_p0frictionmaxforce, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisPosFrictionLoss,         "vortexXAxisPosFrictionLoss",                       sim_propertytype_float,     0, sim_vortex_joint_p0frictionloss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisPosRelaxationStiffness, "vortexYAxisPosRelaxationStiffness",                sim_propertytype_float,     0, sim_vortex_joint_p1stiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisPosRelaxationDamping,   "vortexYAxisPosRelaxationDamping",                  sim_propertytype_float,     0, sim_vortex_joint_p1damping, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisPosRelaxationLoss,      "vortexYAxisPosRelaxationLoss",                     sim_propertytype_float,     0, sim_vortex_joint_p1loss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisPosFrictionCoeff,       "vortexYAxisPosFrictionCoeff",                      sim_propertytype_float,     0, sim_vortex_joint_p1frictioncoeff, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisPosFrictionMaxForce,    "vortexYAxisPosFrictionMaxForce",                   sim_propertytype_float,     0, sim_vortex_joint_p1frictionmaxforce, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisPosFrictionLoss,        "vortexYAxisPosFrictionLoss",                       sim_propertytype_float,     0, sim_vortex_joint_p1frictionloss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisPosRelaxationStiffness, "vortexZAxisPosRelaxationStiffness",                sim_propertytype_float,     0, sim_vortex_joint_p2stiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisPosRelaxationDamping,   "vortexZAxisPosRelaxationDamping",                  sim_propertytype_float,     0, sim_vortex_joint_p2damping, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisPosRelaxationLoss,      "vortexZAxisPosRelaxationLoss",                     sim_propertytype_float,     0, sim_vortex_joint_p2loss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisPosFrictionCoeff,       "vortexZAxisPosFrictionCoeff",                      sim_propertytype_float,     0, sim_vortex_joint_p2frictioncoeff, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisPosFrictionMaxForce,    "vortexZAxisPosFrictionMaxForce",                   sim_propertytype_float,     0, sim_vortex_joint_p2frictionmaxforce, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisPosFrictionLoss,        "vortexZAxisPosFrictionLoss",                       sim_propertytype_float,     0, sim_vortex_joint_p2frictionloss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisOrientRelaxStiffness,"vortexXAxisOrientRelaxationStiffness",            sim_propertytype_float,     0, sim_vortex_joint_a0stiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisOrientRelaxDamping, "vortexXAxisOrientRelaxationDamping",               sim_propertytype_float,     0, sim_vortex_joint_a0damping, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisOrientRelaxLoss,    "vortexXAxisOrientRelaxationLoss",                  sim_propertytype_float,     0, sim_vortex_joint_a0loss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisOrientFrictionCoeff,"vortexXAxisOrientFrictionCoeff",                   sim_propertytype_float,     0, sim_vortex_joint_a0frictioncoeff, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisOrientFrictionMaxTorque,"vortexXAxisOrientFrictionMaxTorque",           sim_propertytype_float,     0, sim_vortex_joint_a0frictionmaxforce, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexXAxisOrientFrictionLoss, "vortexXAxisOrientFrictionLoss",                    sim_propertytype_float,     0, sim_vortex_joint_a0frictionloss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisOrientRelaxStiffness,"vortexYAxisOrientRelaxationStiffness",            sim_propertytype_float,     0, sim_vortex_joint_a1stiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisOrientRelaxDamping, "vortexYAxisOrientRelaxationDamping",               sim_propertytype_float,     0, sim_vortex_joint_a1damping, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisOrientRelaxLoss,    "vortexYAxisOrientRelaxationLoss",                  sim_propertytype_float,     0, sim_vortex_joint_a1loss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisOrientFrictionCoeff,"vortexYAxisOrientFrictionCoeff",                   sim_propertytype_float,     0, sim_vortex_joint_a1frictioncoeff, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisOrientFrictionMaxTorque,"vortexYAxisOrientFrictionMaxTorque",           sim_propertytype_float,     0, sim_vortex_joint_a1frictionmaxforce, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexYAxisOrientFrictionLoss, "vortexYAxisOrientFrictionLoss",                    sim_propertytype_float,     0, sim_vortex_joint_a1frictionloss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisOrientRelaxStiffness,"vortexZAxisOrientRelaxationStiffness",            sim_propertytype_float,     0, sim_vortex_joint_a2stiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisOrientRelaxDamping, "vortexZAxisOrientRelaxationDamping",               sim_propertytype_float,     0, sim_vortex_joint_a2damping, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisOrientRelaxLoss,    "vortexZAxisOrientRelaxationLoss",                  sim_propertytype_float,     0, sim_vortex_joint_a2loss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisOrientFrictionCoeff,"vortexZAxisOrientFrictionCoeff",                   sim_propertytype_float,     0, sim_vortex_joint_a2frictioncoeff, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisOrientFrictionMaxTorque,"vortexZAxisOrientFrictionMaxTorque",           sim_propertytype_float,     0, sim_vortex_joint_a2frictionmaxforce, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexZAxisOrientFrictionLoss, "vortexZAxisOrientFrictionLoss",                    sim_propertytype_float,     0, sim_vortex_joint_a2frictionloss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_vortexPosPid,                  "vortexPosPid",                                     sim_propertytype_vector,    0, sim_vortex_joint_pospid1, sim_vortex_joint_pospid2, sim_vortex_joint_pospid3, -1, -1, "", "") \
+    FUNCX(propJoint_newtonPosPid,                  "newtonPosPid",                                     sim_propertytype_vector,    0, sim_newton_joint_pospid1, sim_newton_joint_pospid2, sim_newton_joint_pospid3, -1, -1, "", "") \
+    FUNCX(propJoint_mujocoArmature,                "mujocoArmature",                                   sim_propertytype_float,     0, sim_mujoco_joint_armature, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_mujocoMargin,                  "mujocoMargin",                                     sim_propertytype_float,     0, sim_mujoco_joint_margin, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_mujocoFrictionLoss,            "mujocoFrictionLoss",                               sim_propertytype_float,     0, sim_mujoco_joint_frictionloss, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_mujocoSpringStiffness,         "mujocoSpringStiffness",                            sim_propertytype_float,     0, sim_mujoco_joint_stiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_mujocoSpringDamping,           "mujocoSpringDamping",                              sim_propertytype_float,     0, sim_mujoco_joint_damping, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_mujocoSpringRef,               "mujocoSpringRef",                                  sim_propertytype_float,     0, sim_mujoco_joint_springref, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_mujocoPosPid,                  "mujocoPosPid",                                     sim_propertytype_vector,    0, sim_mujoco_joint_pospid1, sim_mujoco_joint_pospid2, sim_mujoco_joint_pospid3, -1, -1, "", "") \
+    FUNCX(propJoint_mujocoLimitsSolRef,            "mujocoLimitsSolref",                               sim_propertytype_vector,    0, sim_mujoco_joint_solreflimit1, sim_mujoco_joint_solreflimit2, -1, -1, -1, "", "") \
+    FUNCX(propJoint_mujocoLimitsSolImp,            "mujocoLimitsSolimp",                               sim_propertytype_vector,    0, sim_mujoco_joint_solimplimit1, sim_mujoco_joint_solimplimit2, sim_mujoco_joint_solimplimit3, sim_mujoco_joint_solimplimit4, sim_mujoco_joint_solimplimit5, "", "") \
+    FUNCX(propJoint_mujocoFrictionSolRef,          "mujocoFrictionSolref",                             sim_propertytype_vector,    0, sim_mujoco_joint_solreffriction1, sim_mujoco_joint_solreffriction2, -1, -1, -1, "", "") \
+    FUNCX(propJoint_mujocoFrictionSolImp,          "mujocoFrictionSolimp",                             sim_propertytype_vector,    0, sim_mujoco_joint_solimpfriction1, sim_mujoco_joint_solimpfriction2, sim_mujoco_joint_solimpfriction3, sim_mujoco_joint_solimpfriction4, sim_mujoco_joint_solimpfriction5, "", "") \
+    FUNCX(propJoint_mujocoSpringDamper,            "mujocoSpringSpringDamper",                         sim_propertytype_vector,    0, sim_mujoco_joint_springdamper1, sim_mujoco_joint_springdamper2, -1, -1, -1, "", "") \
+    FUNCX(propJoint_mujocoDependencyPolyCoef,      "mujocoDependencyPolyCoeff",                        sim_propertytype_vector,    0, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5, "", "") \
 
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4) const SJointProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}};
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SJointProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4) name,
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) name,
 const std::vector<SJointProperty> allProps_joint = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -326,8 +328,8 @@ class CJoint : public CSceneObject
     int getVectorProperty(const char* pName, std::vector<double>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info) const;
-    static int getPropertyInfo_static(const char* pName, int& info);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
     // Some helpers:
     bool getBoolPropertyValue(const char* pName) const;
     int getIntPropertyValue(const char* pName) const;

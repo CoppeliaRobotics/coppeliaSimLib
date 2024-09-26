@@ -23,24 +23,24 @@ struct SHandlingResult
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propVisionSensor_size,                    "size",                                     sim_propertytype_float,   0) \
-    FUNCX(propVisionSensor_backgroundCol,           "backgroundColor",                          sim_propertytype_color,   0) \
-    FUNCX(propVisionSensor_renderMode,              "renderMode",                               sim_propertytype_int,     0) \
-    FUNCX(propVisionSensor_backgroundSameAsEnv,     "backgroundColorFromEnvironment",           sim_propertytype_bool,    0) \
-    FUNCX(propVisionSensor_explicitHandling,        "explicitHandling",                         sim_propertytype_bool,    0) \
-    FUNCX(propVisionSensor_useExtImage,             "useExtImage",                              sim_propertytype_bool,    0) \
-    FUNCX(propVisionSensor_ignoreRgbInfo,           "ignoreImageInfo",                          sim_propertytype_bool,    0) \
-    FUNCX(propVisionSensor_ignoreDepthInfo,         "ignoreDepthInfo",                          sim_propertytype_bool,    0) \
-    FUNCX(propVisionSensor_omitPacket1,             "omitPacket1",                              sim_propertytype_bool,    0) \
-    FUNCX(propVisionSensor_emitImageChangedEvent,   "emitImageChangedEvent",                    sim_propertytype_bool,    0) \
-    FUNCX(propVisionSensor_emitDepthChangedEvent,   "emitDepthChangedEvent",                    sim_propertytype_bool,    0) \
-    FUNCX(propVisionSensor_imageBuffer,             "imageBuffer",                              sim_propertytype_buffer,  0) \
-    FUNCX(propVisionSensor_depthBuffer,             "depthBuffer",                              sim_propertytype_vector,  sim_propertyinfo_notwritable) \
+    FUNCX(propVisionSensor_size,                    "sensorSize",                               sim_propertytype_float,   0, "Size", "Sensor size") \
+    FUNCX(propVisionSensor_backgroundCol,           "backgroundColor",                          sim_propertytype_color,   0, "Background color", "") \
+    FUNCX(propVisionSensor_renderMode,              "renderMode",                               sim_propertytype_int,     0, "Render mode", "") \
+    FUNCX(propVisionSensor_backgroundSameAsEnv,     "backgroundColorFromEnvironment",           sim_propertytype_bool,    0, "Background color from environment", "") \
+    FUNCX(propVisionSensor_explicitHandling,        "explicitHandling",                         sim_propertytype_bool,    0, "Explicit handling", "") \
+    FUNCX(propVisionSensor_useExtImage,             "useExtImage",                              sim_propertytype_bool,    0, "External input", "") \
+    FUNCX(propVisionSensor_ignoreRgbInfo,           "ignoreImageInfo",                          sim_propertytype_bool,    0, "Ignore RGB buffer", "Ignore RGB buffer (faster)") \
+    FUNCX(propVisionSensor_ignoreDepthInfo,         "ignoreDepthInfo",                          sim_propertytype_bool,    0, "Ignore Depth buffer", "Ignore Depth buffer (faster)") \
+    FUNCX(propVisionSensor_omitPacket1,             "omitPacket1",                              sim_propertytype_bool,    0, "Packet 1 is blank", "Omit packet 1 (faster)") \
+    FUNCX(propVisionSensor_emitImageChangedEvent,   "emitImageChangedEvent",                    sim_propertytype_bool,    0, "Emit image change event", "") \
+    FUNCX(propVisionSensor_emitDepthChangedEvent,   "emitDepthChangedEvent",                    sim_propertytype_bool,    0, "Emit depth change event", "") \
+    FUNCX(propVisionSensor_imageBuffer,             "imageBuffer",                              sim_propertytype_buffer,  0, "RGB buffer", "") \
+    FUNCX(propVisionSensor_depthBuffer,             "depthBuffer",                              sim_propertytype_vector,  sim_propertyinfo_notwritable, "Depth buffer", "") \
 
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
+#define FUNCX(name, str, v1, v2, t1, t2) name,
 const std::vector<SProperty> allProps_visionSensor = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -99,8 +99,8 @@ class CVisionSensor : public CViewableBase
     int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info);
-    static int getPropertyInfo_static(const char* pName, int& info);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     void commonInit();
 

@@ -3267,7 +3267,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
     return retVal;
 }
 
-int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info, CWorld* targetObject)
+int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt, CWorld* targetObject)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
     const char* pName = _pName.c_str();
@@ -3275,17 +3275,17 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
     if (target == sim_handle_scene)
     {
         if (App::currentWorld->dynamicsContainer != nullptr)
-            retVal = App::currentWorld->dynamicsContainer->getPropertyInfo(pName, info);
+            retVal = App::currentWorld->dynamicsContainer->getPropertyInfo(pName, info, infoTxt);
         if ( (retVal == -1) && (App::currentWorld->simulation != nullptr) )
-            retVal = App::currentWorld->simulation->getPropertyInfo(pName, info);
+            retVal = App::currentWorld->simulation->getPropertyInfo(pName, info, infoTxt);
         if ( (retVal == -1) && (App::currentWorld->environment != nullptr) )
-            retVal = App::currentWorld->environment->getPropertyInfo(pName, info);
+            retVal = App::currentWorld->environment->getPropertyInfo(pName, info, infoTxt);
         if (retVal == -1)
         {
             CSceneObjectContainer* soc = nullptr;
             if (targetObject != nullptr)
                 soc = targetObject->sceneObjects;
-            retVal = CSceneObjectContainer::getPropertyInfo(-1, pName, info, soc); // for the container itself
+            retVal = CSceneObjectContainer::getPropertyInfo(-1, pName, info, infoTxt, soc); // for the container itself
         }
         if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
         {
@@ -3312,13 +3312,13 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
         CSceneObjectContainer* soc = nullptr;
         if (targetObject != nullptr)
             soc = targetObject->sceneObjects;
-        retVal = CSceneObjectContainer::getPropertyInfo(target, pName, info, soc);
+        retVal = CSceneObjectContainer::getPropertyInfo(target, pName, info, infoTxt, soc);
     }
     else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) && (targetObject != nullptr) )
     { // sandbox, main, add-ons, or old associated scripts:
         CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
         if (script != nullptr)
-            retVal = script->getPropertyInfo(pName, info);
+            retVal = script->getPropertyInfo(pName, info, infoTxt);
     }
     else
         retVal = -2; // target does not exist

@@ -701,7 +701,7 @@ void CPointCloud::addSpecializedObjectEventData(CCbor *ev)
     ev->closeArrayOrMap(); // points
 #else
     color.addGenesisEventData(ev);
-    ev->appendKeyBool(propPointCloud_noOcTreeStruct.name, _doNotUseOctreeStructure);
+    ev->appendKeyBool(propPointCloud_ocTreeStruct.name, !_doNotUseOctreeStructure);
     ev->appendKeyInt(propPointCloud_pointSize.name, _pointSize);
     ev->appendKeyInt(propPointCloud_maxPtsInCell.name, _maxPointCountPerCell);
     ev->appendKeyDouble(propPointCloud_cellSize.name, _cellSize);
@@ -903,9 +903,9 @@ void CPointCloud::setDoNotUseCalculationStructure(bool s)
         _doNotUseOctreeStructure = s;
         if (_isInScene && App::worldContainer->getEventsEnabled())
         {
-            const char *cmd = propPointCloud_noOcTreeStruct.name;
+            const char *cmd = propPointCloud_ocTreeStruct.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyBool(cmd, _doNotUseOctreeStructure);
+            ev->appendKeyBool(cmd, !_doNotUseOctreeStructure);
             App::worldContainer->pushEvent();
         }
         if (_points.size() > 0)
@@ -1528,10 +1528,10 @@ int CPointCloud::setBoolProperty(const char* ppName, bool pState)
     int retVal = CSceneObject::setBoolProperty(pName, pState);
     if (retVal == -1)
     {
-        if (_pName == propPointCloud_noOcTreeStruct.name)
+        if (_pName == propPointCloud_ocTreeStruct.name)
         {
             retVal = 1;
-            setDoNotUseCalculationStructure(pState);
+            setDoNotUseCalculationStructure(!pState);
         }
     }
 
@@ -1545,10 +1545,10 @@ int CPointCloud::getBoolProperty(const char* ppName, bool& pState) const
     int retVal = CSceneObject::getBoolProperty(pName, pState);
     if (retVal == -1)
     {
-        if (_pName == propPointCloud_noOcTreeStruct.name)
+        if (_pName == propPointCloud_ocTreeStruct.name)
         {
             retVal = 1;
-            pState = _doNotUseOctreeStructure;
+            pState = !_doNotUseOctreeStructure;
         }
     }
 
@@ -1785,13 +1785,13 @@ int CPointCloud::getPropertyName_static(int& index, std::string& pName, std::str
     return retVal;
 }
 
-int CPointCloud::getPropertyInfo(const char* ppName, int& info)
+int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info);
+    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = color.getPropertyInfo(pName, info);
+        retVal = color.getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_pointCloud.size(); i++)
@@ -1800,6 +1800,10 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info)
             {
                 retVal = allProps_pointCloud[i].type;
                 info = allProps_pointCloud[i].flags;
+                if ( (infoTxt == "") && (strcmp(allProps_pointCloud[i].infoTxt, "") != 0) )
+                    infoTxt = allProps_pointCloud[i].infoTxt;
+                else
+                    infoTxt = allProps_pointCloud[i].shortInfoTxt;
                 break;
             }
         }
@@ -1820,13 +1824,13 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info)
     return retVal;
 }
 
-int CPointCloud::getPropertyInfo_static(const char* ppName, int& info)
+int CPointCloud::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "pointCloud."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_pointCloud.size(); i++)
@@ -1835,6 +1839,10 @@ int CPointCloud::getPropertyInfo_static(const char* ppName, int& info)
             {
                 retVal = allProps_pointCloud[i].type;
                 info = allProps_pointCloud[i].flags;
+                if ( (infoTxt == "") && (strcmp(allProps_pointCloud[i].infoTxt, "") != 0) )
+                    infoTxt = allProps_pointCloud[i].infoTxt;
+                else
+                    infoTxt = allProps_pointCloud[i].shortInfoTxt;
                 break;
             }
         }

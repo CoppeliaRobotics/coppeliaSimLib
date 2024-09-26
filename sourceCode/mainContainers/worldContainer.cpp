@@ -1386,7 +1386,7 @@ int CWorldContainer::getPropertyName(int& index, std::string& pName, CWorldConta
     return retVal;
 }
 
-int CWorldContainer::getPropertyInfo(const char* ppName, int& info, CWorldContainer* targetObject)
+int CWorldContainer::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt, CWorldContainer* targetObject)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "app."));
     const char* pName = _pName.c_str();
@@ -1397,6 +1397,10 @@ int CWorldContainer::getPropertyInfo(const char* ppName, int& info, CWorldContai
         {
             retVal = allProps_app[i].type;
             info = allProps_app[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_app[i].infoTxt, "") != 0) )
+                infoTxt = allProps_app[i].infoTxt;
+            else
+                infoTxt = allProps_app[i].shortInfoTxt;
             break;
         }
     }

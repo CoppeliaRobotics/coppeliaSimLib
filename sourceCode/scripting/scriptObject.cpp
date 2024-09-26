@@ -4395,7 +4395,7 @@ int CScriptObject::getPropertyName_static(int& index, std::string& pName)
     return retVal;
 }
 
-int CScriptObject::getPropertyInfo(const char* pName, int& info)
+int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& infoTxt)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_scriptObject.size(); i++)
@@ -4404,6 +4404,10 @@ int CScriptObject::getPropertyInfo(const char* pName, int& info)
         {
             retVal = allProps_scriptObject[i].type;
             info = allProps_scriptObject[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_scriptObject[i].infoTxt, "") != 0) )
+                infoTxt = allProps_scriptObject[i].infoTxt;
+            else
+                infoTxt = allProps_scriptObject[i].shortInfoTxt;
             break;
         }
     }
@@ -4418,7 +4422,7 @@ int CScriptObject::getPropertyInfo(const char* pName, int& info)
     return retVal;
 }
 
-int CScriptObject::getPropertyInfo_static(const char* pName, int& info)
+int CScriptObject::getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_scriptObject.size(); i++)
@@ -4427,6 +4431,10 @@ int CScriptObject::getPropertyInfo_static(const char* pName, int& info)
         {
             retVal = allProps_scriptObject[i].type;
             info = allProps_scriptObject[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_scriptObject[i].infoTxt, "") != 0) )
+                infoTxt = allProps_scriptObject[i].infoTxt;
+            else
+                infoTxt = allProps_scriptObject[i].shortInfoTxt;
             break;
         }
     }

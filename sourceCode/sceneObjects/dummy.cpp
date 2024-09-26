@@ -1648,13 +1648,13 @@ int CDummy::getPropertyName_static(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CDummy::getPropertyInfo(const char* ppName, int& info) const
+int CDummy::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info);
+    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = _dummyColor.getPropertyInfo(pName, info);
+        retVal = _dummyColor.getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_dummy.size(); i++)
@@ -1663,6 +1663,10 @@ int CDummy::getPropertyInfo(const char* ppName, int& info) const
             {
                 retVal = allProps_dummy[i].type;
                 info = allProps_dummy[i].flags;
+                if ( (infoTxt == "") && (strcmp(allProps_dummy[i].infoTxt, "") != 0) )
+                    infoTxt = allProps_dummy[i].infoTxt;
+                else
+                    infoTxt = allProps_dummy[i].shortInfoTxt;
                 break;
             }
         }
@@ -1670,13 +1674,13 @@ int CDummy::getPropertyInfo(const char* ppName, int& info) const
     return retVal;
 }
 
-int CDummy::getPropertyInfo_static(const char* ppName, int& info)
+int CDummy::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_dummy.size(); i++)
@@ -1685,6 +1689,10 @@ int CDummy::getPropertyInfo_static(const char* ppName, int& info)
             {
                 retVal = allProps_dummy[i].type;
                 info = allProps_dummy[i].flags;
+                if ( (infoTxt == "") && (strcmp(allProps_dummy[i].infoTxt, "") != 0) )
+                    infoTxt = allProps_dummy[i].infoTxt;
+                else
+                    infoTxt = allProps_dummy[i].shortInfoTxt;
                 break;
             }
         }

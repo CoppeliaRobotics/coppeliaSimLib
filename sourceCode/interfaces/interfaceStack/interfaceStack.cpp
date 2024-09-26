@@ -786,7 +786,7 @@ bool CInterfaceStack::pushTableFromBuffer(const char *data, unsigned int l)
                 int mainDataSize = 1 + table->createFromData(data + 1, version, allCreatedObjects);
                 // printf("Main dataSize: %i, total size: %i\n", mainDataSize, l);
                 // handle aux. data, for now only for strings:
-                if (mainDataSize < l)
+                if (mainDataSize < int(l))
                 {
                     size_t strCnt = 0;
                     for (size_t i = 0; i < allCreatedObjects.size(); i++)

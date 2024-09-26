@@ -574,13 +574,13 @@ int CMirror::getPropertyName_static(int& index, std::string& pName, std::string&
     return retVal;
 }
 
-int CMirror::getPropertyInfo(const char* ppName, int& info)
+int CMirror::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "mirror."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info);
+    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = clipPlaneColor.getPropertyInfo(pName, info);
+        retVal = clipPlaneColor.getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_mirror.size(); i++)
@@ -589,6 +589,10 @@ int CMirror::getPropertyInfo(const char* ppName, int& info)
             {
                 retVal = allProps_mirror[i].type;
                 info = allProps_mirror[i].flags;
+                if ( (infoTxt == "") && (strcmp(allProps_mirror[i].infoTxt, "") != 0) )
+                    infoTxt = allProps_mirror[i].infoTxt;
+                else
+                    infoTxt = allProps_mirror[i].shortInfoTxt;
                 break;
             }
         }
@@ -596,13 +600,13 @@ int CMirror::getPropertyInfo(const char* ppName, int& info)
     return retVal;
 }
 
-int CMirror::getPropertyInfo_static(const char* ppName, int& info)
+int CMirror::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "mirror."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_mirror.size(); i++)
@@ -611,6 +615,10 @@ int CMirror::getPropertyInfo_static(const char* ppName, int& info)
             {
                 retVal = allProps_mirror[i].type;
                 info = allProps_mirror[i].flags;
+                if ( (infoTxt == "") && (strcmp(allProps_mirror[i].infoTxt, "") != 0) )
+                    infoTxt = allProps_mirror[i].infoTxt;
+                else
+                    infoTxt = allProps_mirror[i].shortInfoTxt;
                 break;
             }
         }

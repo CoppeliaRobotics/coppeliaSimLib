@@ -8,18 +8,18 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propPointCloud_noOcTreeStruct,               "noOcTreeStruct",                     sim_propertytype_bool,      0) \
-    FUNCX(propPointCloud_pointSize,                    "pointSize",                          sim_propertytype_int,       0) \
-    FUNCX(propPointCloud_maxPtsInCell,                 "maxPointsInCell",                    sim_propertytype_int,       0) \
-    FUNCX(propPointCloud_cellSize,                     "cellSize",                           sim_propertytype_float,     0) \
-    FUNCX(propPointCloud_pointDisplayFraction,         "pointDisplayFraction",               sim_propertytype_float,     0) \
-    FUNCX(propPointCloud_points,                       "points",                             sim_propertytype_vector,    sim_propertyinfo_notwritable) \
-    FUNCX(propPointCloud_colors,                       "colors",                             sim_propertytype_buffer,    sim_propertyinfo_notwritable) \
+    FUNCX(propPointCloud_ocTreeStruct,                 "ocTreeStruct",                       sim_propertytype_bool,      0, "OC-Tree structure Enabled", "Use an oc-tree structure") \
+    FUNCX(propPointCloud_pointSize,                    "pointSize",                          sim_propertytype_int,       0, "Point size", "") \
+    FUNCX(propPointCloud_maxPtsInCell,                 "maxPointsInCell",                    sim_propertytype_int,       0, "Max. points in cell", "Maximum number of points in an oc-tree cell/voxel") \
+    FUNCX(propPointCloud_cellSize,                     "cellSize",                           sim_propertytype_float,     0, "Cell size", "Size of the oc-tree cell/voxel") \
+    FUNCX(propPointCloud_pointDisplayFraction,         "pointDisplayFraction",               sim_propertytype_float,     0, "Display fraction", "Fraction of points to be displayed in an oc-tree cell/voxel") \
+    FUNCX(propPointCloud_points,                       "points",                             sim_propertytype_vector,    sim_propertyinfo_notwritable, "Points", "Point positions") \
+    FUNCX(propPointCloud_colors,                       "colors",                             sim_propertytype_buffer,    sim_propertyinfo_notwritable, "Colors", "Point colors") \
 
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
+#define FUNCX(name, str, v1, v2, t1, t2) name,
 const std::vector<SProperty> allProps_pointCloud = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -79,8 +79,8 @@ class CPointCloud : public CSceneObject
     int getVectorProperty(const char* pName, std::vector<double>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info);
-    static int getPropertyInfo_static(const char* pName, int& info);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     // Various functions
     void setCellSize(double theNewSize);

@@ -10,76 +10,78 @@ struct SDynProperty {
     int type;
     int flags;
     int oldEnums[5];
+    const char* shortInfoTxt;
+    const char* infoTxt;
 };
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propDyn_dynamicsEnabled,                       "dynamicsEnabled",                             sim_propertytype_bool,      0, -1, -1, -1, -1, -1) \
-    FUNCX(propDyn_showContactPoints,                     "showContactPoints",                           sim_propertytype_bool,      0, -1, -1, -1, -1, -1) \
-    FUNCX(propDyn_dynamicsEngine,                        "dynamicsEngine",                              sim_propertytype_intvector, 0, -1, -1, -1, -1, -1) \
-    FUNCX(propDyn_dynamicsStepSize,                      "dynamicsStepSize",                            sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
-    FUNCX(propDyn_gravity,                               "gravity",                                     sim_propertytype_vector3,   0, -1, -1, -1, -1, -1) \
-    FUNCX(propDyn_engineProperties,                      "engineProperties",                            sim_propertytype_string,    0, -1, -1, -1, -1, -1) \
-    FUNCX(propDyn_bulletSolver,                          "bulletSolver",                                sim_propertytype_int,       0, sim_bullet_global_constraintsolvertype, -1, -1, -1, -1) \
-    FUNCX(propDyn_bulletIterations,                      "bulletIterations",                            sim_propertytype_int,       0, sim_bullet_global_constraintsolvingiterations, -1, -1, -1, -1) \
-    FUNCX(propDyn_bulletComputeInertias,                 "bulletComputeInertias",                       sim_propertytype_bool,      0, sim_bullet_global_computeinertias, -1, -1, -1, -1) \
-    FUNCX(propDyn_bulletInternalScalingFull,             "bulletInternalScalingFull",                   sim_propertytype_bool,      0, sim_bullet_global_fullinternalscaling, -1, -1, -1, -1) \
-    FUNCX(propDyn_bulletInternalScalingScaling,          "bulletInternalScalingValue",                  sim_propertytype_float,     0, sim_bullet_global_internalscalingfactor, -1, -1, -1, -1) \
-    FUNCX(propDyn_bulletCollMarginScaling,               "bulletCollisionMarginScaling",                sim_propertytype_float,     0, sim_bullet_global_collisionmarginfactor, -1, -1, -1, -1) \
-    FUNCX(propDyn_odeQuickStepEnabled,                   "odeQuickStepEnabled",                         sim_propertytype_bool,      0, sim_ode_global_quickstep, -1, -1, -1, -1) \
-    FUNCX(propDyn_odeQuickStepIterations,                "odeQuickStepIterations",                      sim_propertytype_int,       0, sim_ode_global_constraintsolvingiterations, -1, -1, -1, -1) \
-    FUNCX(propDyn_odeComputeInertias,                    "odeComputeInertias",                          sim_propertytype_bool,      0, sim_ode_global_computeinertias, -1, -1, -1, -1) \
-    FUNCX(propDyn_odeInternalScalingFull,                "odeInternalScalingFull",                      sim_propertytype_bool,      0, sim_ode_global_fullinternalscaling, -1, -1, -1, -1) \
-    FUNCX(propDyn_odeInternalScalingScaling,             "odeInternalScalingValue",                     sim_propertytype_float,     0, sim_ode_global_internalscalingfactor, -1, -1, -1, -1) \
-    FUNCX(propDyn_odeGlobalErp,                          "odeGlobalErp",                                sim_propertytype_float,     0, sim_ode_global_erp, -1, -1, -1, -1) \
-    FUNCX(propDyn_odeGlobalCfm,                          "odeGlobalCfm",                                sim_propertytype_float,     0, sim_ode_global_cfm, -1, -1, -1, -1) \
-    FUNCX(propDyn_vortexComputeInertias,                 "vortexComputeInertias",                       sim_propertytype_bool,      0, sim_vortex_global_computeinertias, -1, -1, -1, -1) \
-    FUNCX(propDyn_vortexContactTolerance,                "vortexContactTolerance",                      sim_propertytype_float,     0, sim_vortex_global_contacttolerance, -1, -1, -1, -1) \
-    FUNCX(propDyn_vortexAutoSleep,                       "vortexAutoSleep",                             sim_propertytype_bool,      0, sim_vortex_global_autosleep, -1, -1, -1, -1) \
-    FUNCX(propDyn_vortexMultithreading,                  "vortexMultithreading",                        sim_propertytype_bool,      0, sim_vortex_global_multithreading, -1, -1, -1, -1) \
-    FUNCX(propDyn_vortexConstraintsLinearCompliance,     "vortexConstraintsLinearCompliance",           sim_propertytype_float,     0, sim_vortex_global_constraintlinearcompliance, -1, -1, -1, -1) \
-    FUNCX(propDyn_vortexConstraintsLinearDamping,        "vortexConstraintsLinearDamping",              sim_propertytype_float,     0, sim_vortex_global_constraintlineardamping, -1, -1, -1, -1) \
-    FUNCX(propDyn_vortexConstraintsLinearKineticLoss,    "vortexConstraintsLinearKineticLoss",          sim_propertytype_float,     0, sim_vortex_global_constraintlinearkineticloss, -1, -1, -1, -1) \
-    FUNCX(propDyn_vortexConstraintsAngularCompliance,    "vortexConstraintsAngularCompliance",          sim_propertytype_float,     0, sim_vortex_global_constraintangularcompliance, -1, -1, -1, -1) \
-    FUNCX(propDyn_vortexConstraintsAngularDamping,       "vortexConstraintsAngularDamping",             sim_propertytype_float,     0, sim_vortex_global_constraintangulardamping, -1, -1, -1, -1) \
-    FUNCX(propDyn_vortexConstraintsAngularKineticLoss,   "vortexConstraintsAngularKineticLoss",         sim_propertytype_float,     0, sim_vortex_global_constraintangularkineticloss, -1, -1, -1, -1) \
-    FUNCX(propDyn_newtonIterations,                      "newtonIterations",                            sim_propertytype_int,       0, sim_newton_global_constraintsolvingiterations, -1, -1, -1, -1) \
-    FUNCX(propDyn_newtonComputeInertias,                 "newtonComputeInertias",                       sim_propertytype_bool,      0, sim_newton_global_computeinertias, -1, -1, -1, -1) \
-    FUNCX(propDyn_newtonMultithreading,                  "newtonMultithreading",                        sim_propertytype_bool,      0, sim_newton_global_multithreading, -1, -1, -1, -1) \
-    FUNCX(propDyn_newtonExactSolver,                     "newtonExactSolver",                           sim_propertytype_bool,      0, sim_newton_global_exactsolver, -1, -1, -1, -1) \
-    FUNCX(propDyn_newtonHighJointAccuracy,               "newtonHighJointAccuracy",                     sim_propertytype_bool,      0, sim_newton_global_highjointaccuracy, -1, -1, -1, -1) \
-    FUNCX(propDyn_newtonContactMergeTolerance,           "newtonContactMergeTolerance",                 sim_propertytype_float,     0, sim_newton_global_contactmergetolerance, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoIntegrator,                      "mujocoIntegrator",                            sim_propertytype_int,       0, sim_mujoco_global_integrator, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoSolver,                          "mujocoSolver",                                sim_propertytype_int,       0, sim_mujoco_global_solver, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoIterations,                      "mujocoIterations",                            sim_propertytype_int,       0, sim_mujoco_global_iterations, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoRebuildTrigger,                  "mujocoRebuildTrigger",                        sim_propertytype_int,       0, sim_mujoco_global_rebuildtrigger, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoComputeInertias,                 "mujocoComputeInertias",                       sim_propertytype_bool,      0, sim_mujoco_global_computeinertias, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoNjMax,                           "mujocoNjmax",                                 sim_propertytype_int,       0, sim_mujoco_global_njmax, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoNconMax,                         "mujocoNconmax",                               sim_propertytype_int,       0, sim_mujoco_global_nconmax, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoNstack,                          "mujocoNstack",                                sim_propertytype_int,       0, sim_mujoco_global_nstack, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoCone,                            "mujocoCone",                                  sim_propertytype_int,       0, sim_mujoco_global_cone, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoKinematicBodiesOverrideFlags,    "mujocoKinematicBodiesOverrideFlags",          sim_propertytype_int,       0, sim_mujoco_global_overridekin, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoKinematicBodiesMass,             "mujocoKinematicBodiesMass",                   sim_propertytype_float,     0, sim_mujoco_global_kinmass, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoKinematicBodiesInertia,          "mujocoKinematicBodiesInertia",                sim_propertytype_float,     0, sim_mujoco_global_kininertia, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoBoundMass,                       "mujocoBoundMass",                             sim_propertytype_float,     0, sim_mujoco_global_boundmass, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoBoundInertia,                    "mujocoBoundInertia",                          sim_propertytype_float,     0, sim_mujoco_global_boundinertia, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoBalanceInertias,                 "mujocoBalanceInertias",                       sim_propertytype_bool,      0, sim_mujoco_global_balanceinertias, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoMultithreaded,                   "mujocoMultithreaded",                         sim_propertytype_bool,      0, sim_mujoco_global_multithreaded, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoMulticcd,                        "mujocoMulticcd",                              sim_propertytype_bool,      0, sim_mujoco_global_multiccd, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoContactParamsOverride,           "mujocoContactParamsOverride",                 sim_propertytype_bool,      0, sim_mujoco_global_overridecontacts, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoContactParamsMargin,             "mujocoContactParamsMargin",                   sim_propertytype_float,     0, sim_mujoco_global_overridemargin, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoContactParamsSolref,             "mujocoContactParamsSolref",                   sim_propertytype_vector,    0, sim_mujoco_global_overridesolref1, sim_mujoco_global_overridesolref2, -1, -1, -1) \
-    FUNCX(propDyn_mujocoContactParamsSolimp,             "mujocoContactParamsSolimp",                   sim_propertytype_vector,    0, sim_mujoco_global_overridesolimp1, sim_mujoco_global_overridesolimp2, sim_mujoco_global_overridesolimp3, sim_mujoco_global_overridesolimp4, sim_mujoco_global_overridesolimp5) \
-    FUNCX(propDyn_mujocoImpRatio,                        "mujocoImpratio",                              sim_propertytype_float,     0, sim_mujoco_global_impratio, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoWind,                            "mujocoWind",                                  sim_propertytype_vector3,   0, sim_mujoco_global_wind1, sim_mujoco_global_wind2, sim_mujoco_global_wind3, -1, -1) \
-    FUNCX(propDyn_mujocoDensity,                         "mujocoDensity",                               sim_propertytype_float,     0, sim_mujoco_global_density, -1, -1, -1, -1) \
-    FUNCX(propDyn_mujocoViscosity,                       "mujocoViscosity",                             sim_propertytype_float,     0, sim_mujoco_global_viscosity, -1, -1, -1, -1)
+    FUNCX(propDyn_dynamicsEnabled,                       "dynamicsEnabled",                             sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "Dynamics enabled", "") \
+    FUNCX(propDyn_showContactPoints,                     "showContactPoints",                           sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "Show contact points", "") \
+    FUNCX(propDyn_dynamicsEngine,                        "dynamicsEngine",                              sim_propertytype_intvector, 0, -1, -1, -1, -1, -1, "Dynamics engine", "Selected dynamics engine") \
+    FUNCX(propDyn_dynamicsStepSize,                      "dynamicsStepSize",                            sim_propertytype_float,     0, -1, -1, -1, -1, -1, "Dynamics dt", "Dynamics step size") \
+    FUNCX(propDyn_gravity,                               "gravity",                                     sim_propertytype_vector3,   0, -1, -1, -1, -1, -1, "Gravity", "") \
+    FUNCX(propDyn_engineProperties,                      "engineProperties",                            sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text") \
+    FUNCX(propDyn_bulletSolver,                          "bulletSolver",                                sim_propertytype_int,       0, sim_bullet_global_constraintsolvertype, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_bulletIterations,                      "bulletIterations",                            sim_propertytype_int,       0, sim_bullet_global_constraintsolvingiterations, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_bulletComputeInertias,                 "bulletComputeInertias",                       sim_propertytype_bool,      0, sim_bullet_global_computeinertias, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_bulletInternalScalingFull,             "bulletInternalScalingFull",                   sim_propertytype_bool,      0, sim_bullet_global_fullinternalscaling, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_bulletInternalScalingScaling,          "bulletInternalScalingValue",                  sim_propertytype_float,     0, sim_bullet_global_internalscalingfactor, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_bulletCollMarginScaling,               "bulletCollisionMarginScaling",                sim_propertytype_float,     0, sim_bullet_global_collisionmarginfactor, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_odeQuickStepEnabled,                   "odeQuickStepEnabled",                         sim_propertytype_bool,      0, sim_ode_global_quickstep, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_odeQuickStepIterations,                "odeQuickStepIterations",                      sim_propertytype_int,       0, sim_ode_global_constraintsolvingiterations, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_odeComputeInertias,                    "odeComputeInertias",                          sim_propertytype_bool,      0, sim_ode_global_computeinertias, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_odeInternalScalingFull,                "odeInternalScalingFull",                      sim_propertytype_bool,      0, sim_ode_global_fullinternalscaling, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_odeInternalScalingScaling,             "odeInternalScalingValue",                     sim_propertytype_float,     0, sim_ode_global_internalscalingfactor, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_odeGlobalErp,                          "odeGlobalErp",                                sim_propertytype_float,     0, sim_ode_global_erp, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_odeGlobalCfm,                          "odeGlobalCfm",                                sim_propertytype_float,     0, sim_ode_global_cfm, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_vortexComputeInertias,                 "vortexComputeInertias",                       sim_propertytype_bool,      0, sim_vortex_global_computeinertias, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_vortexContactTolerance,                "vortexContactTolerance",                      sim_propertytype_float,     0, sim_vortex_global_contacttolerance, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_vortexAutoSleep,                       "vortexAutoSleep",                             sim_propertytype_bool,      0, sim_vortex_global_autosleep, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_vortexMultithreading,                  "vortexMultithreading",                        sim_propertytype_bool,      0, sim_vortex_global_multithreading, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_vortexConstraintsLinearCompliance,     "vortexConstraintsLinearCompliance",           sim_propertytype_float,     0, sim_vortex_global_constraintlinearcompliance, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_vortexConstraintsLinearDamping,        "vortexConstraintsLinearDamping",              sim_propertytype_float,     0, sim_vortex_global_constraintlineardamping, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_vortexConstraintsLinearKineticLoss,    "vortexConstraintsLinearKineticLoss",          sim_propertytype_float,     0, sim_vortex_global_constraintlinearkineticloss, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_vortexConstraintsAngularCompliance,    "vortexConstraintsAngularCompliance",          sim_propertytype_float,     0, sim_vortex_global_constraintangularcompliance, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_vortexConstraintsAngularDamping,       "vortexConstraintsAngularDamping",             sim_propertytype_float,     0, sim_vortex_global_constraintangulardamping, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_vortexConstraintsAngularKineticLoss,   "vortexConstraintsAngularKineticLoss",         sim_propertytype_float,     0, sim_vortex_global_constraintangularkineticloss, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_newtonIterations,                      "newtonIterations",                            sim_propertytype_int,       0, sim_newton_global_constraintsolvingiterations, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_newtonComputeInertias,                 "newtonComputeInertias",                       sim_propertytype_bool,      0, sim_newton_global_computeinertias, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_newtonMultithreading,                  "newtonMultithreading",                        sim_propertytype_bool,      0, sim_newton_global_multithreading, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_newtonExactSolver,                     "newtonExactSolver",                           sim_propertytype_bool,      0, sim_newton_global_exactsolver, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_newtonHighJointAccuracy,               "newtonHighJointAccuracy",                     sim_propertytype_bool,      0, sim_newton_global_highjointaccuracy, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_newtonContactMergeTolerance,           "newtonContactMergeTolerance",                 sim_propertytype_float,     0, sim_newton_global_contactmergetolerance, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoIntegrator,                      "mujocoIntegrator",                            sim_propertytype_int,       0, sim_mujoco_global_integrator, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoSolver,                          "mujocoSolver",                                sim_propertytype_int,       0, sim_mujoco_global_solver, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoIterations,                      "mujocoIterations",                            sim_propertytype_int,       0, sim_mujoco_global_iterations, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoRebuildTrigger,                  "mujocoRebuildTrigger",                        sim_propertytype_int,       0, sim_mujoco_global_rebuildtrigger, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoComputeInertias,                 "mujocoComputeInertias",                       sim_propertytype_bool,      0, sim_mujoco_global_computeinertias, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoNjMax,                           "mujocoNjmax",                                 sim_propertytype_int,       0, sim_mujoco_global_njmax, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoNconMax,                         "mujocoNconmax",                               sim_propertytype_int,       0, sim_mujoco_global_nconmax, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoNstack,                          "mujocoNstack",                                sim_propertytype_int,       0, sim_mujoco_global_nstack, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoCone,                            "mujocoCone",                                  sim_propertytype_int,       0, sim_mujoco_global_cone, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoKinematicBodiesOverrideFlags,    "mujocoKinematicBodiesOverrideFlags",          sim_propertytype_int,       0, sim_mujoco_global_overridekin, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoKinematicBodiesMass,             "mujocoKinematicBodiesMass",                   sim_propertytype_float,     0, sim_mujoco_global_kinmass, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoKinematicBodiesInertia,          "mujocoKinematicBodiesInertia",                sim_propertytype_float,     0, sim_mujoco_global_kininertia, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoBoundMass,                       "mujocoBoundMass",                             sim_propertytype_float,     0, sim_mujoco_global_boundmass, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoBoundInertia,                    "mujocoBoundInertia",                          sim_propertytype_float,     0, sim_mujoco_global_boundinertia, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoBalanceInertias,                 "mujocoBalanceInertias",                       sim_propertytype_bool,      0, sim_mujoco_global_balanceinertias, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoMultithreaded,                   "mujocoMultithreaded",                         sim_propertytype_bool,      0, sim_mujoco_global_multithreaded, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoMulticcd,                        "mujocoMulticcd",                              sim_propertytype_bool,      0, sim_mujoco_global_multiccd, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoContactParamsOverride,           "mujocoContactParamsOverride",                 sim_propertytype_bool,      0, sim_mujoco_global_overridecontacts, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoContactParamsMargin,             "mujocoContactParamsMargin",                   sim_propertytype_float,     0, sim_mujoco_global_overridemargin, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoContactParamsSolref,             "mujocoContactParamsSolref",                   sim_propertytype_vector,    0, sim_mujoco_global_overridesolref1, sim_mujoco_global_overridesolref2, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoContactParamsSolimp,             "mujocoContactParamsSolimp",                   sim_propertytype_vector,    0, sim_mujoco_global_overridesolimp1, sim_mujoco_global_overridesolimp2, sim_mujoco_global_overridesolimp3, sim_mujoco_global_overridesolimp4, sim_mujoco_global_overridesolimp5, "", "") \
+    FUNCX(propDyn_mujocoImpRatio,                        "mujocoImpratio",                              sim_propertytype_float,     0, sim_mujoco_global_impratio, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoWind,                            "mujocoWind",                                  sim_propertytype_vector3,   0, sim_mujoco_global_wind1, sim_mujoco_global_wind2, sim_mujoco_global_wind3, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoDensity,                         "mujocoDensity",                               sim_propertytype_float,     0, sim_mujoco_global_density, -1, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoViscosity,                       "mujocoViscosity",                             sim_propertytype_float,     0, sim_mujoco_global_viscosity, -1, -1, -1, -1, "", "")
 
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4) const SDynProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}};
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SDynProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4) name,
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) name,
 const std::vector<SDynProperty> allProps_dyn = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -323,7 +325,7 @@ class CDynamicsContainer
     int setIntVectorProperty(const char* pName, const int* v, int vL);
     int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName) const;
-    int getPropertyInfo(const char* pName, int& info) const;
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     // Some helpers:
     bool getBoolPropertyValue(const char* pName, bool getDefaultValue = false) const;
     int getIntPropertyValue(const char* pName, bool getDefaultValue = false) const;

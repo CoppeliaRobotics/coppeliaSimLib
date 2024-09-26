@@ -10,22 +10,22 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propVolume_closeThreshold,                    "closeThreshold",                       sim_propertytype_float,     0) \
-    FUNCX(propVolume_offset,                            "volume_offset",                        sim_propertytype_float,     0) \
-    FUNCX(propVolume_range,                             "volume_range",                         sim_propertytype_float,     0) \
-    FUNCX(propVolume_xSize,                             "volume_xSize",                         sim_propertytype_vector,    0) \
-    FUNCX(propVolume_ySize,                             "volume_ySize",                         sim_propertytype_vector,    0) \
-    FUNCX(propVolume_radius,                            "volume_radius",                        sim_propertytype_vector,    0) \
-    FUNCX(propVolume_angle,                             "volume_angle",                         sim_propertytype_vector,    0) \
-    FUNCX(propVolume_faces,                             "volume_faces",                         sim_propertytype_intvector, 0) \
-    FUNCX(propVolume_subdivisions,                      "volume_subdivisions",                  sim_propertytype_intvector, 0) \
-    FUNCX(propVolume_edges,                             "volume_edges",                         sim_propertytype_vector,    sim_propertyinfo_notwritable) \
-    FUNCX(propVolume_closeEdges,                        "volume_closeEdges",                    sim_propertytype_vector,    sim_propertyinfo_notwritable) \
+    FUNCX(propVolume_closeThreshold,                    "closeThreshold",                       sim_propertytype_float,     0, "Close threshold", "Close threshold: if a detection occures below that threshold, it is not registered. 0.0 to disable") \
+    FUNCX(propVolume_offset,                            "volume_offset",                        sim_propertytype_float,     0, "Offset", "Offset of detection volume") \
+    FUNCX(propVolume_range,                             "volume_range",                         sim_propertytype_float,     0, "Range", "Range/depth of detection volume") \
+    FUNCX(propVolume_xSize,                             "volume_xSize",                         sim_propertytype_vector,    0, "X-sizes", "X-size (near and far) for pyramid-type volumes") \
+    FUNCX(propVolume_ySize,                             "volume_ySize",                         sim_propertytype_vector,    0, "Y-sizes", "Y-size (near and far) for pyramid-type volumes") \
+    FUNCX(propVolume_radius,                            "volume_radius",                        sim_propertytype_vector,    0, "Radius", "Radius for cylinder-, disk- and cone-type volumes") \
+    FUNCX(propVolume_angle,                             "volume_angle",                         sim_propertytype_vector,    0, "Angles", "Angle and inside gap for disk- and cone-type volumes") \
+    FUNCX(propVolume_faces,                             "volume_faces",                         sim_propertytype_intvector, 0, "Faces", "Number of faces (near and far) for cylinder-, disk- and pyramid-type volumes") \
+    FUNCX(propVolume_subdivisions,                      "volume_subdivisions",                  sim_propertytype_intvector, 0, "Subdivisions", "Number of subdivisions (near and far) for cone-type volumes") \
+    FUNCX(propVolume_edges,                             "volume_edges",                         sim_propertytype_vector,    sim_propertyinfo_notwritable, "Volume edges", "List of segments (defined by pairs of end-point coordinates) visualizing the volume") \
+    FUNCX(propVolume_closeEdges,                        "volume_closeEdges",                    sim_propertytype_vector,    sim_propertyinfo_notwritable, "Volume close edges", "List of segments (defined by pairs of end-point coordinates) visualizing the close threshold of the volume") \
 
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
+#define FUNCX(name, str, v1, v2, t1, t2) name,
 const std::vector<SProperty> allProps_volume = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -79,8 +79,8 @@ class CConvexVolume
     int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName);
     static int getPropertyName_static(int& index, std::string& pName);
-    int getPropertyInfo(const char* pName, int& info);
-    static int getPropertyInfo_static(const char* pName, int& info);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     void computeVolumes();
     void sendEventData(CCbor *eev);

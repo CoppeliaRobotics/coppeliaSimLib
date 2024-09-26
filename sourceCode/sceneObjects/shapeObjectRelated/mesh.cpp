@@ -3245,15 +3245,15 @@ int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject)
     return retVal;
 }
 
-int CMesh::getPropertyInfo(const char* ppName, int& info, CMesh* targetObject)
+int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt, CMesh* targetObject)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
     const char* pName = _pName.c_str();
     int retVal = -1;
     if (targetObject != nullptr)
-        retVal = targetObject->color.getPropertyInfo(pName, info);
+        retVal = targetObject->color.getPropertyInfo(pName, info, infoTxt);
     else
-        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8 + 16, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8 + 16, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_mesh.size(); i++)
@@ -3262,6 +3262,10 @@ int CMesh::getPropertyInfo(const char* ppName, int& info, CMesh* targetObject)
             {
                 retVal = allProps_mesh[i].type;
                 info = allProps_mesh[i].flags;
+                if ( (infoTxt == "") && (strcmp(allProps_mesh[i].infoTxt, "") != 0) )
+                    infoTxt = allProps_mesh[i].infoTxt;
+                else
+                    infoTxt = allProps_mesh[i].shortInfoTxt;
                 break;
             }
         }

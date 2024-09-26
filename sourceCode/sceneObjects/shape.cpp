@@ -2114,14 +2114,14 @@ int CShape::getPropertyName_static(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CShape::getPropertyInfo(const char* ppName, int& info) const
+int CShape::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info);
+    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
     {
-        retVal = _dynMaterial->getPropertyInfo(pName, info);
+        retVal = _dynMaterial->getPropertyInfo(pName, info, infoTxt);
         if (retVal == -1)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
@@ -2130,6 +2130,10 @@ int CShape::getPropertyInfo(const char* ppName, int& info) const
                 {
                     retVal = allProps_shape[i].type;
                     info = allProps_shape[i].flags;
+                    if ( (infoTxt == "") && (strcmp(allProps_shape[i].infoTxt, "") != 0) )
+                        infoTxt = allProps_shape[i].infoTxt;
+                    else
+                        infoTxt = allProps_shape[i].shortInfoTxt;
                     break;
                 }
             }
@@ -2138,14 +2142,14 @@ int CShape::getPropertyInfo(const char* ppName, int& info) const
     return retVal;
 }
 
-int CShape::getPropertyInfo_static(const char* ppName, int& info)
+int CShape::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
     if (retVal == -1)
     {
-        retVal = CDynMaterialObject::getPropertyInfo_static(pName, info);
+        retVal = CDynMaterialObject::getPropertyInfo_static(pName, info, infoTxt);
         if (retVal == -1)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
@@ -2154,6 +2158,10 @@ int CShape::getPropertyInfo_static(const char* ppName, int& info)
                 {
                     retVal = allProps_shape[i].type;
                     info = allProps_shape[i].flags;
+                    if ( (infoTxt == "") && (strcmp(allProps_shape[i].infoTxt, "") != 0) )
+                        infoTxt = allProps_shape[i].infoTxt;
+                    else
+                        infoTxt = allProps_shape[i].shortInfoTxt;
                     break;
                 }
             }

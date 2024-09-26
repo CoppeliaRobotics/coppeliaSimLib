@@ -165,7 +165,7 @@ class App
     static int getIntVectorProperty(long long int target, const char* pName, std::vector<int>& pState);
     static int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing);
-    static int getPropertyInfo(long long int target, const char* pName, int& info, bool staticParsing);
+    static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, bool staticParsing);
 
     static void undoRedo_sceneChanged(const char *txt);
     static void undoRedo_sceneChangedGradual(const char *txt);

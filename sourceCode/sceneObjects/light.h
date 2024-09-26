@@ -5,17 +5,17 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propLight_size,                    "size",                                     sim_propertytype_float,     0) \
-    FUNCX(propLight_enabled,                 "enabled",                                  sim_propertytype_bool,      0) \
-    FUNCX(propLight_lightType,               "lightType",                                sim_propertytype_int,       sim_propertyinfo_notwritable) \
-    FUNCX(propLight_spotExponent,            "spotExponent",                             sim_propertytype_int,       0) \
-    FUNCX(propLight_spotCutoffAngle,         "spotCutoffAngle",                          sim_propertytype_float,     0) \
-    FUNCX(propLight_attenuationFactors,      "attenuationFactors",                       sim_propertytype_vector,    0) \
+    FUNCX(propLight_size,                    "lightSize",                                sim_propertytype_float,     0, "Size", "Light size") \
+    FUNCX(propLight_enabled,                 "enabled",                                  sim_propertytype_bool,      0, "Enabled", "") \
+    FUNCX(propLight_lightType,               "lightType",                                sim_propertytype_int,       sim_propertyinfo_notwritable, "Type", "Light type") \
+    FUNCX(propLight_spotExponent,            "spotExponent",                             sim_propertytype_int,       0, "Spot exponent", "") \
+    FUNCX(propLight_spotCutoffAngle,         "spotCutoffAngle",                          sim_propertytype_float,     0, "Cut off angle", "Spot cut off angle") \
+    FUNCX(propLight_attenuationFactors,      "attenuationFactors",                       sim_propertytype_vector,    0, "Attenuation factor", "") \
 
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
+#define FUNCX(name, str, v1, v2, t1, t2) name,
 const std::vector<SProperty> allProps_light = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -63,8 +63,8 @@ class CLight : public CSceneObject
     int getVectorProperty(const char* pName, std::vector<double>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info);
-    static int getPropertyInfo_static(const char* pName, int& info);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     std::string getObjectTypeInfo() const;
     std::string getObjectTypeInfoExtended() const;

@@ -7,26 +7,26 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propShape_meshes,                  "meshes",                                   sim_propertytype_intvector, sim_propertyinfo_notwritable) \
-    FUNCX(propShape_applyCulling,            "applyCulling",                             sim_propertytype_bool, sim_propertyinfo_notreadable) \
-    FUNCX(propShape_applyShadingAngle,       "applyShadingAngle",                        sim_propertytype_float, sim_propertyinfo_notreadable) \
-    FUNCX(propShape_applyShowEdges,          "applyShowEdges",                           sim_propertytype_bool, sim_propertyinfo_notreadable) \
-    FUNCX(propShape_flipFaces,               "flipFaces",                                sim_propertytype_bool, sim_propertyinfo_notreadable) \
-    FUNCX(propShape_respondableMask,         "respondableMask",                          sim_propertytype_int, 0) \
-    FUNCX(propShape_startInDynSleepMode,     "startInDynSleepMode",                      sim_propertytype_bool, 0) \
-    FUNCX(propShape_dynamic,                 "dynamic",                                  sim_propertytype_bool, 0) \
-    FUNCX(propShape_kinematic,               "kinematic",                                sim_propertytype_bool, 0) \
-    FUNCX(propShape_respondable,             "respondable",                              sim_propertytype_bool, 0) \
-    FUNCX(propShape_setToDynamicWithParent,  "setToDynamicWithParent",                   sim_propertytype_bool, 0) \
-    FUNCX(propShape_initLinearVelocity,      "initLinearVelocity",                       sim_propertytype_vector3, 0) \
-    FUNCX(propShape_initAngularVelocity,     "initAngularVelocity",                      sim_propertytype_vector3, 0) \
-    FUNCX(propShape_dynLinearVelocity,       "dynLinearVelocity",                        sim_propertytype_vector3, sim_propertyinfo_notwritable) \
-    FUNCX(propShape_dynAngularVelocity,     "dynAngularVelocity",                       sim_propertytype_vector3, sim_propertyinfo_notwritable) \
+    FUNCX(propShape_meshes,                  "meshes",                                   sim_propertytype_intvector, sim_propertyinfo_notwritable, "Meshes", "Mesh handles") \
+    FUNCX(propShape_applyCulling,            "applyCulling",                             sim_propertytype_bool, sim_propertyinfo_notreadable, "Apply culling", "Enables/disables culling for all contained meshes") \
+    FUNCX(propShape_applyShadingAngle,       "applyShadingAngle",                        sim_propertytype_float, sim_propertyinfo_notreadable, "Apply shading", "Applies a shading angle to all contained meshes") \
+    FUNCX(propShape_applyShowEdges,          "applyShowEdges",                           sim_propertytype_bool, sim_propertyinfo_notreadable, "Apply edges", "Enables/disables edges for all contained meshes") \
+    FUNCX(propShape_flipFaces,               "flipFaces",                                sim_propertytype_bool, sim_propertyinfo_notreadable, "Flip faces", "Flips faces of all contained meshes") \
+    FUNCX(propShape_respondableMask,         "respondableMask",                          sim_propertytype_int, 0, "Respondable mask", "") \
+    FUNCX(propShape_startInDynSleepMode,     "startInDynSleepMode",                      sim_propertytype_bool, 0, "Start in sleep mode", "") \
+    FUNCX(propShape_dynamic,                 "dynamic",                                  sim_propertytype_bool, 0, "Dynamic", "Shape is dynamic, i.e. not static") \
+    FUNCX(propShape_kinematic,               "kinematic",                                sim_propertytype_bool, 0, "Kinematic", "Special flag mainly used for MuJoCo static shapes that move and need to transmit a friction") \
+    FUNCX(propShape_respondable,             "respondable",                              sim_propertytype_bool, 0, "Respondable", "Shape will transmit a collision force") \
+    FUNCX(propShape_setToDynamicWithParent,  "setToDynamicWithParent",                   sim_propertytype_bool, 0, "Set to dynamic if gets parent", "Shape will be made dynamic if it receives a parent") \
+    FUNCX(propShape_initLinearVelocity,      "initLinearVelocity",                       sim_propertytype_vector3, 0, "Initial linear velocity", "") \
+    FUNCX(propShape_initAngularVelocity,     "initAngularVelocity",                      sim_propertytype_vector3, 0, "Initial rotational velocity", "") \
+    FUNCX(propShape_dynLinearVelocity,       "dynLinearVelocity",                        sim_propertytype_vector3, sim_propertyinfo_notwritable, "Linear velocity", "Linear velocity, as transmitted by the physics engine") \
+    FUNCX(propShape_dynAngularVelocity,      "dynAngularVelocity",                       sim_propertytype_vector3, sim_propertyinfo_notwritable, "Rotational velocity", "Rotational velocity, as transmitted by the physics engine") \
 
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
+#define FUNCX(name, str, v1, v2, t1, t2) name,
 const std::vector<SProperty> allProps_shape = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -104,8 +104,8 @@ class CShape : public CSceneObject
     int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info) const;
-    static int getPropertyInfo_static(const char* pName, int& info);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
 
     // Various

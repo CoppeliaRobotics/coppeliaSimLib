@@ -10,24 +10,24 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propSim_resetSimulationAtEnd,                       "resetSimulationAtEnd",                       sim_propertytype_bool,      0) \
-    FUNCX(propSim_removeNewObjectsAtEnd,                      "removeNewObjectsAtEnd",                      sim_propertytype_bool,      0) \
-    FUNCX(propSim_realtimeSimulation,                         "realtimeSimulation",                         sim_propertytype_bool,      0) \
-    FUNCX(propSim_pauseSimulationAtTime,                      "pauseSimulationAtTime",                      sim_propertytype_bool,      0) \
-    FUNCX(propSim_pauseSimulationAtError,                     "pauseSimulationAtError",                     sim_propertytype_bool,      0) \
-    FUNCX(propSim_simulationTime,                           "simulationTime",                               sim_propertytype_float,      sim_propertyinfo_notwritable) \
-    FUNCX(propSim_timeStep,                                 "timeStep",                                     sim_propertytype_float,      0) \
-    FUNCX(propSim_timeToPause,                              "timeToPause",                                  sim_propertytype_float,      0) \
-    FUNCX(propSim_realtimeModifier,                         "realtimeModifier",                             sim_propertytype_float,      0) \
-    FUNCX(propSim_stepCount,                                "stepCount",                                    sim_propertytype_int,    sim_propertyinfo_notwritable) \
-    FUNCX(propSim_simulationState,                          "simulationState",                              sim_propertytype_int,    sim_propertyinfo_notwritable) \
-    FUNCX(propSim_stepsPerRendering,                        "stepsPerRendering",                            sim_propertytype_int,    0) \
-    FUNCX(propSim_speedModifier,                            "speedModifier",                                sim_propertytype_int,    0) \
+    FUNCX(propSim_resetSimulationAtEnd,                       "resetSceneAtEnd",                            sim_propertytype_bool,      0, "Reset scene", "Reset scene to initial state at simulation end") \
+    FUNCX(propSim_removeNewObjectsAtEnd,                      "removeNewObjectsAtEnd",                      sim_propertytype_bool,      0, "Remove new objects", "Remove new scene objects at simulation end") \
+    FUNCX(propSim_realtimeSimulation,                         "realtimeSimulation",                         sim_propertytype_bool,      0, "Real-time simulation", "") \
+    FUNCX(propSim_pauseSimulationAtTime,                      "pauseSimulationAtTime",                      sim_propertytype_bool,      0, "Pause simulation at time", "Pause simulation when simulation time exceeds a threshold") \
+    FUNCX(propSim_pauseSimulationAtError,                     "pauseSimulationAtError",                     sim_propertytype_bool,      0, "Pause simulation on script error", "") \
+    FUNCX(propSim_simulationTime,                           "simulationTime",                               sim_propertytype_float,      sim_propertyinfo_notwritable, "Simulation time", "") \
+    FUNCX(propSim_timeStep,                                 "timeStep",                                     sim_propertytype_float,      0, "Simulation dt", "Simulation time step") \
+    FUNCX(propSim_timeToPause,                              "timeToPause",                                  sim_propertytype_float,      0, "Simulation pause time", "Time at which simulation should pause") \
+    FUNCX(propSim_realtimeModifier,                         "realtimeModifier",                             sim_propertytype_float,      0, "Real-time modifier", "Real-time multiplication factor") \
+    FUNCX(propSim_stepCount,                                "stepCount",                                    sim_propertytype_int,    sim_propertyinfo_notwritable, "Simulation steps", "Counter of simulation steps") \
+    FUNCX(propSim_simulationState,                          "simulationState",                              sim_propertytype_int,    sim_propertyinfo_notwritable, "Simulation state", "") \
+    FUNCX(propSim_stepsPerRendering,                        "stepsPerRendering",                            sim_propertytype_int,    0, "Steps per frame", "Simulation steps per frame") \
+    FUNCX(propSim_speedModifier,                            "speedModifier",                                sim_propertytype_int,    0, "Speed modifier", "") \
 
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
+#define FUNCX(name, str, v1, v2, t1, t2) name,
 const std::vector<SProperty> allProps_sim = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -112,7 +112,7 @@ class CSimulation
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
     int getPropertyName(int& index, std::string& pName) const;
-    int getPropertyInfo(const char* pName, int& info) const;
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
 
 
 #ifdef SIM_WITH_GUI

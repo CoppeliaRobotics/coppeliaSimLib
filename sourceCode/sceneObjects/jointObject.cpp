@@ -1935,6 +1935,7 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev)
 #else
     _color.addGenesisEventData(ev);
 #endif
+    /*
     std::string tmp;
     switch (_jointType)
     {
@@ -1949,6 +1950,7 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev)
         break;
     }
     ev->appendKeyText("type", tmp.c_str());
+    */
     ev->appendKeyInt(propJoint_jointType.name, _jointType);
     ev->appendKeyInt(propJoint_jointMode.name, _jointMode);
     ev->appendKeyInt(propJoint_dynCtrlMode.name, _dynCtrlMode);
@@ -3919,7 +3921,6 @@ void CJoint::setSphericalTransformation(const C4Vector &tr)
             double q[4];
             _sphericalTransf.getData(q, true);
             ev->appendKeyDoubleArray(cmd, q, 4);
-            C7Vector trr();
             double p[7];
             getIntrinsicTransformation(true).getData(p, true);
             ev->appendKeyDoubleArray(propJoint_intrinsicPose.name, p, 7);
@@ -5628,13 +5629,13 @@ int CJoint::getPropertyName_static(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CJoint::getPropertyInfo(const char* ppName, int& info) const
+int CJoint::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info);
+    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = _color.getPropertyInfo(pName, info);
+        retVal = _color.getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_joint.size(); i++)
@@ -5643,6 +5644,10 @@ int CJoint::getPropertyInfo(const char* ppName, int& info) const
             {
                 retVal = allProps_joint[i].type;
                 info = allProps_joint[i].flags;
+                if ( (infoTxt == "") && (strcmp(allProps_joint[i].infoTxt, "") != 0) )
+                    infoTxt = allProps_joint[i].infoTxt;
+                else
+                    infoTxt = allProps_joint[i].shortInfoTxt;
                 break;
             }
         }
@@ -5650,13 +5655,13 @@ int CJoint::getPropertyInfo(const char* ppName, int& info) const
     return retVal;
 }
 
-int CJoint::getPropertyInfo_static(const char* ppName, int& info)
+int CJoint::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_joint.size(); i++)
@@ -5665,6 +5670,10 @@ int CJoint::getPropertyInfo_static(const char* ppName, int& info)
             {
                 retVal = allProps_joint[i].type;
                 info = allProps_joint[i].flags;
+                if ( (infoTxt == "") && (strcmp(allProps_joint[i].infoTxt, "") != 0) )
+                    infoTxt = allProps_joint[i].infoTxt;
+                else
+                    infoTxt = allProps_joint[i].shortInfoTxt;
                 break;
             }
         }

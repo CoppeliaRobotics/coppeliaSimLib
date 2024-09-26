@@ -1475,18 +1475,18 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     ev->appendKeyText(propObject_objectType.name, getObjectTypeInfo().c_str());
     ev->appendKeyInt(propObject_layer.name, _visibilityLayer);
     ev->appendKeyInt(propObject_childOrder.name, _childOrder);
-    ev->appendKeyInt("dynamicFlag", _dynamicFlag);
     double p[7] = {_localTransformation.X(0), _localTransformation.X(1), _localTransformation.X(2),
                    _localTransformation.Q(1), _localTransformation.Q(2), _localTransformation.Q(3),
                    _localTransformation.Q(0)};
     ev->appendKeyDoubleArray(propObject_pose.name, p, 7);
     ev->appendKeyText(propObject_alias.name, _objectAlias.c_str());
-    ev->appendKeyText("oldName", _objectName_old.c_str());
     ev->appendKeyBool(propObject_modelInvisible.name, _modelInvisible);
     ev->appendKeyBool(propObject_modelBase.name, _modelBase);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->appendKeyInt("objectProperty", _objectProperty); // deprecated
+    ev->appendKeyInt("dynamicFlag", _dynamicFlag);
+    ev->appendKeyText("oldName", _objectName_old.c_str());
 #endif
     ev->appendKeyInt(propObject_objectProperty.name, _objectProperty);
     ev->appendKeyBool(propObject_ignoreViewFitting.name, _objectProperty & sim_objectproperty_ignoreviewfitting);
@@ -1529,7 +1529,7 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     ev->appendKeyBool(propObject_detectable.name, _localObjectSpecialProperty & sim_objectspecialproperty_detectable);
     ev->appendKeyText(propObject_modelAcknowledgment.name, _modelAcknowledgement.c_str());
     ev->appendKeyBuff(propObject_dna.name, (unsigned char*)_dnaString.data(), _dnaString.size());
-    ev->appendKeyBuff(propObject_persistentUid.name, (unsigned char*)_uniquePersistentIdString.data(), _uniquePersistentIdString.size());
+    ev->appendKeyText(propObject_persistentUid.name, _uniquePersistentIdString.c_str());
     ev->appendKeyDoubleArray(propObject_calcLinearVelocity.name, _measuredLinearVelocity_velocityMeasurement.data, 3);
     ev->appendKeyDoubleArray(propObject_calcRotationAxis.name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
     ev->appendKeyDouble(propObject_calcRotationVelocity.name, _measuredAngularVelocity_velocityMeasurement);
@@ -3418,11 +3418,11 @@ void CSceneObject::serialize(CSer &ar)
 
             ar.xmlPopNode();
 
-            ar.xmlAddNode_int(propObject_layer.name, _visibilityLayer);
-            ar.xmlAddNode_int(propObject_childOrder.name, _childOrder);
+            ar.xmlAddNode_int("layer", _visibilityLayer);
+            ar.xmlAddNode_int("childOrder", _childOrder);
 
             ar.xmlPushNewNode("switches");
-            ar.xmlAddNode_bool(propObject_modelBase.name, _modelBase);
+            ar.xmlAddNode_bool("modelBase", _modelBase);
             ar.xmlPopNode();
 
             if (exhaustiveXml)
@@ -3725,7 +3725,7 @@ void CSceneObject::serialize(CSer &ar)
 
                 if (ar.xmlPushChildNode("switches", exhaustiveXml))
                 {
-                    ar.xmlGetNode_bool(propObject_modelBase.name, _modelBase, exhaustiveXml);
+                    ar.xmlGetNode_bool("modelBase", _modelBase, exhaustiveXml);
                     ar.xmlGetNode_bool("ignoredByViewFitting", _ignoredByViewFitting_backCompat, false);
                     ar.xmlPopNode();
 
@@ -3758,11 +3758,10 @@ void CSceneObject::serialize(CSer &ar)
                 }
 
                 int l;
-                if (ar.xmlGetNode_int(propObject_layer.name, l, exhaustiveXml))
+                if (ar.xmlGetNode_int("layer", l, exhaustiveXml))
                     _visibilityLayer = l;
 
-                if (ar.xmlGetNode_int(propObject_childOrder.name, l,
-                                      false)) // Keep false for compatibility with older versions! exhaustiveXml))
+                if (ar.xmlGetNode_int("childOrder", l, false)) // Keep false for compatibility with older versions! exhaustiveXml))
                     _childOrder = l;
 
                 if (exhaustiveXml && ar.xmlPushChildNode("manipulation"))
@@ -6008,11 +6007,6 @@ int CSceneObject::getStringProperty(const char* ppName, std::string& pState) con
         retVal = 1;
         pState = _modelAcknowledgement;
     }
-    else if (_pName == propObject_dna.name)
-    {
-        retVal = 1;
-        pState = _dnaString;
-    }
     else if (_pName == propObject_persistentUid.name)
     {
         retVal = 1;
@@ -6068,6 +6062,15 @@ int CSceneObject::getBufferProperty(const char* ppName, std::string& pState) con
                 pState = customObjectData.getData(pN.c_str());
                 retVal = 1;
             }
+        }
+    }
+
+    if (retVal == -1)
+    {
+        if (_pName == propObject_dna.name)
+        {
+            retVal = 1;
+            pState = _dnaString;
         }
     }
 
@@ -6371,7 +6374,7 @@ int CSceneObject::getPropertyName_bstatic(int& index, std::string& pName, std::s
     return retVal;
 }
 
-int CSceneObject::getPropertyInfo(const char* ppName, int& info) const
+int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -6382,6 +6385,10 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info) const
         {
             retVal = allProps_sceneObject[i].type;
             info = allProps_sceneObject[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_sceneObject[i].infoTxt, "") != 0) )
+                infoTxt = allProps_sceneObject[i].infoTxt;
+            else
+                infoTxt = allProps_sceneObject[i].shortInfoTxt;
             break;
         }
     }
@@ -6404,7 +6411,7 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info) const
     return retVal;
 }
 
-int CSceneObject::getPropertyInfo_bstatic(const char* pName, int& info)
+int CSceneObject::getPropertyInfo_bstatic(const char* pName, int& info, std::string& infoTxt)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_sceneObject.size(); i++)
@@ -6413,6 +6420,10 @@ int CSceneObject::getPropertyInfo_bstatic(const char* pName, int& info)
         {
             retVal = allProps_sceneObject[i].type;
             info = allProps_sceneObject[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_sceneObject[i].infoTxt, "") != 0) )
+                infoTxt = allProps_sceneObject[i].infoTxt;
+            else
+                infoTxt = allProps_sceneObject[i].shortInfoTxt;
             break;
         }
     }

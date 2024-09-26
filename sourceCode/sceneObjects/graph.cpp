@@ -3808,13 +3808,13 @@ int CGraph::getPropertyName_static(int& index, std::string& pName, std::string& 
     return retVal;
 }
 
-int CGraph::getPropertyInfo(const char* ppName, int& info)
+int CGraph::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo(pName, info);
+    int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = color.getPropertyInfo(pName, info);
+        retVal = color.getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_graph.size(); i++)
@@ -3823,6 +3823,10 @@ int CGraph::getPropertyInfo(const char* ppName, int& info)
             {
                 retVal = allProps_graph[i].type;
                 info = allProps_graph[i].flags;
+                if ( (infoTxt == "") && (strcmp(allProps_graph[i].infoTxt, "") != 0) )
+                    infoTxt = allProps_graph[i].infoTxt;
+                else
+                    infoTxt = allProps_graph[i].shortInfoTxt;
                 break;
             }
         }
@@ -3830,13 +3834,13 @@ int CGraph::getPropertyInfo(const char* ppName, int& info)
     return retVal;
 }
 
-int CGraph::getPropertyInfo_static(const char* ppName, int& info)
+int CGraph::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "graph."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info);
+    int retVal = CSceneObject::getPropertyInfo_bstatic(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = CColorObject::getPropertyInfo_static(pName, info, 1 + 4 + 8, "");
+        retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_graph.size(); i++)
@@ -3845,6 +3849,10 @@ int CGraph::getPropertyInfo_static(const char* ppName, int& info)
             {
                 retVal = allProps_graph[i].type;
                 info = allProps_graph[i].flags;
+                if ( (infoTxt == "") && (strcmp(allProps_graph[i].infoTxt, "") != 0) )
+                    infoTxt = allProps_graph[i].infoTxt;
+                else
+                    infoTxt = allProps_graph[i].shortInfoTxt;
                 break;
             }
         }

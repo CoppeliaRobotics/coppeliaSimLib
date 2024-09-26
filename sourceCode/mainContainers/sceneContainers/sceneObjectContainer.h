@@ -21,14 +21,14 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propObjCont_objectHandles,                "objectHandles",                    sim_propertytype_intvector, sim_propertyinfo_notwritable) \
-    FUNCX(propObjCont_orphanHandles,                "orphanHandles",                    sim_propertytype_intvector, sim_propertyinfo_notwritable) \
-    FUNCX(propObjCont_selectionHandles,             "selectionHandles",                 sim_propertytype_intvector, 0) \
+    FUNCX(propObjCont_objectHandles,                "objectHandles",                    sim_propertytype_intvector, sim_propertyinfo_notwritable, "Objects", "Handles of all scene objects") \
+    FUNCX(propObjCont_orphanHandles,                "orphanHandles",                    sim_propertytype_intvector, sim_propertyinfo_notwritable, "Orphan objects", "Handles of all orphan scene objects") \
+    FUNCX(propObjCont_selectionHandles,             "selectionHandles",                 sim_propertytype_intvector, 0, "Selected objects", "Handles of selected scene objects") \
 
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
+#define FUNCX(name, str, v1, v2, t1, t2) name,
 const std::vector<SProperty> allProps_objCont = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -227,7 +227,7 @@ class CSceneObjectContainer
     int getIntVectorProperty(long long int target, const char* pName, std::vector<int>& pState) const;
     int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CSceneObjectContainer* targetObject);
-    static int getPropertyInfo(long long int target, const char* pName, int& info, CSceneObjectContainer* targetObject);
+    static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CSceneObjectContainer* targetObject);
 
     void setTextureDependencies();
     void removeSceneDependencies();

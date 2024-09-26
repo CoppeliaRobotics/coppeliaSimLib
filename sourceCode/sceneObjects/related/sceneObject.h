@@ -13,71 +13,71 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propObject_modelInvisible,          "modelInvisible",                   sim_propertytype_bool,      sim_propertyinfo_notwritable) \
-    FUNCX(propObject_modelBase,               "modelBase",                        sim_propertytype_bool,      0) \
-    FUNCX(propObject_layer,                   "layer",                            sim_propertytype_int,       0) \
-    FUNCX(propObject_childOrder,              "childOrder",                       sim_propertytype_int,       sim_propertyinfo_notwritable) \
-    FUNCX(propObject_parentUid,               "parentUid",                        sim_propertytype_int,       sim_propertyinfo_notwritable) \
-    FUNCX(propObject_parentHandle,            "parentHandle",                     sim_propertytype_int,       sim_propertyinfo_notwritable) \
-    FUNCX(propObject_selected,                "selected",                         sim_propertytype_bool,      0) \
-    FUNCX(propObject_hierarchyColor,          "hierarchyColor",                   sim_propertytype_int,       0) \
-    FUNCX(propObject_collectionSelfCollInd,   "collectionSelfCollisionIndicator", sim_propertytype_int,       0) \
-    FUNCX(propObject_collidable,              "collidable",                       sim_propertytype_bool,      0) \
-    FUNCX(propObject_measurable,              "measurable",                       sim_propertytype_bool,      0) \
-    FUNCX(propObject_detectable,              "detectable",                       sim_propertytype_bool,      0) \
-    FUNCX(propObject_modelAcknowledgment,     "modelAcknowledgment",              sim_propertytype_string,    0) \
-    FUNCX(propObject_dna,                     "dna",                              sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propObject_persistentUid,           "persistentUid",                    sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propObject_calcLinearVelocity,      "calcLinearVelocity",               sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
-    FUNCX(propObject_calcRotationAxis,        "calcRotationAxis",                 sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
-    FUNCX(propObject_calcRotationVelocity,    "calcRotationVelocity",             sim_propertytype_float,     sim_propertyinfo_notwritable) \
-    FUNCX(propObject_dynamicIcon,             "dynamicIcon",                      sim_propertytype_int,       sim_propertyinfo_notwritable) \
-    FUNCX(propObject_dynamicFlag,             "dynamicFlag",                      sim_propertytype_int,       sim_propertyinfo_notwritable) \
-    FUNCX(propObject_objectProperty,          "objectPropertyFlags", /*redund.*/  sim_propertytype_int,       0) \
-    FUNCX(propObject_ignoreViewFitting,       "ignoreViewFitting",                sim_propertytype_bool,      0) \
-    FUNCX(propObject_collapsed,               "collapsed",                        sim_propertytype_bool,      0) \
-    FUNCX(propObject_selectable,              "selectable",                       sim_propertytype_bool,      0) \
-    FUNCX(propObject_selectModel,             "selectModel",                      sim_propertytype_bool,      0) \
-    FUNCX(propObject_hideFromModelBB,         "hideFromModelBB",                  sim_propertytype_bool,      0) \
-    FUNCX(propObject_selectInvisible,         "selectInvisible",                  sim_propertytype_bool,      0) \
-    FUNCX(propObject_depthInvisible,          "depthInvisible",                   sim_propertytype_bool,      0) \
-    FUNCX(propObject_cannotDelete,            "cannotDelete",                     sim_propertytype_bool,      0) \
-    FUNCX(propObject_cannotDeleteSim,         "cannotDeleteInSim",                sim_propertytype_bool,      0) \
-    FUNCX(propObject_modelProperty,           "modelPropertyFlags", /*redund.*/   sim_propertytype_int,       0) \
-    FUNCX(propObject_modelNotCollidable,      "modelNotCollidable",               sim_propertytype_bool,      0) \
-    FUNCX(propObject_modelNotMeasurable,      "modelNotMeasurable",               sim_propertytype_bool,      0) \
-    FUNCX(propObject_modelNotDetectable,      "modelNotDetectable",               sim_propertytype_bool,      0) \
-    FUNCX(propObject_modelNotDynamic,         "modelNotDynamic",                  sim_propertytype_bool,      0) \
-    FUNCX(propObject_modelNotRespondable,     "modelNotRespondable",              sim_propertytype_bool,      0) \
-    FUNCX(propObject_modelNotVisible,         "modelNotVisible",                  sim_propertytype_bool,      0) \
-    FUNCX(propObject_modelScriptsNotActive,   "modelScriptsNotActive",            sim_propertytype_bool,      0) \
-    FUNCX(propObject_modelNotInParentBB,      "modelNotInParentBB",               sim_propertytype_bool,      0) \
-    FUNCX(propObject_pose,                    "pose",                             sim_propertytype_pose,      0) \
-    FUNCX(propObject_alias,                   "alias",                            sim_propertytype_string,    0) \
-    FUNCX(propObject_bbPose,                  "bbPose",                           sim_propertytype_pose,      sim_propertyinfo_notwritable) \
-    FUNCX(propObject_bbHsize,                 "bbHSize",                          sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
-    FUNCX(propObject_movementOptions,         "movementOptionsFlags",             sim_propertytype_int,       0) \
-    FUNCX(propObject_movTranslNoSim,          "movTranslNoSim",                   sim_propertytype_bool,      0) \
-    FUNCX(propObject_movTranslInSim,          "movTranslInSim",                   sim_propertytype_bool,      0) \
-    FUNCX(propObject_movRotNoSim,             "movRotNoSim",                      sim_propertytype_bool,      0) \
-    FUNCX(propObject_movRotInSim,             "movRotInSim",                      sim_propertytype_bool,      0) \
-    FUNCX(propObject_movAltTransl,            "movAltTransl",                     sim_propertytype_bool,      0) \
-    FUNCX(propObject_movAltRot,               "movAltRot",                        sim_propertytype_bool,      0) \
-    FUNCX(propObject_movementPreferredAxes,   "movementPreferredAxesFlags",       sim_propertytype_int,       0) \
-    FUNCX(propObject_movPrefTranslX,          "movPrefTranslX",                   sim_propertytype_bool,      0) \
-    FUNCX(propObject_movPrefTranslY,          "movPrefTranslY",                   sim_propertytype_bool,      0) \
-    FUNCX(propObject_movPrefTranslZ,          "movPrefTranslZ",                   sim_propertytype_bool,      0) \
-    FUNCX(propObject_movPrefRotX,             "movPrefRotX",                      sim_propertytype_bool,      0) \
-    FUNCX(propObject_movPrefRotY,             "movPrefRotY",                      sim_propertytype_bool,      0) \
-    FUNCX(propObject_movPrefRotZ,             "movPrefRotZ",                      sim_propertytype_bool,      0) \
-    FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_vector,    0) \
-    FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intvector, 0) \
-    FUNCX(propObject_objectType,              "objectType",                       sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propObject_modelInvisible,          "modelInvisible",                   sim_propertytype_bool,      sim_propertyinfo_notwritable, "Inherited model invisibility", "") \
+    FUNCX(propObject_modelBase,               "modelBase",                        sim_propertytype_bool,      0, "Model base", "Model base flag, indicates the scene object is the base of a model") \
+    FUNCX(propObject_layer,                   "layer",                            sim_propertytype_int,       0, "Visibility layer", "") \
+    FUNCX(propObject_childOrder,              "childOrder",                       sim_propertytype_int,       sim_propertyinfo_notwritable, "Child order", "") \
+    FUNCX(propObject_parentUid,               "parentUid",                        sim_propertytype_int,       sim_propertyinfo_notwritable, "Parent UID", "Parent scene object unique identifier") \
+    FUNCX(propObject_parentHandle,            "parentHandle",                     sim_propertytype_int,       sim_propertyinfo_notwritable, "Parent", "Parent scene object handle") \
+    FUNCX(propObject_selected,                "selected",                         sim_propertytype_bool,      0, "Selected", "Selection state") \
+    FUNCX(propObject_hierarchyColor,          "hierarchyColor",                   sim_propertytype_int,       0, "Hierarchy color", "Hierarchy color index") \
+    FUNCX(propObject_collectionSelfCollInd,   "collectionSelfCollisionIndicator", sim_propertytype_int,       0, "Collection self collision indicator", "") \
+    FUNCX(propObject_collidable,              "collidable",                       sim_propertytype_bool,      0, "Collidable", "") \
+    FUNCX(propObject_measurable,              "measurable",                       sim_propertytype_bool,      0, "Measurable", "") \
+    FUNCX(propObject_detectable,              "detectable",                       sim_propertytype_bool,      0, "Detectable", "") \
+    FUNCX(propObject_modelAcknowledgment,     "modelAcknowledgment",              sim_propertytype_string,    0, "Acknowledgment", "Model acknowledgment") \
+    FUNCX(propObject_dna,                     "dna",                              sim_propertytype_buffer,    sim_propertyinfo_notwritable, "DNA", "Scene object DNA") \
+    FUNCX(propObject_persistentUid,           "persistentUid",                    sim_propertytype_string,    sim_propertyinfo_notwritable, "Persistent UID", "Scene object persistent unique identifier") \
+    FUNCX(propObject_calcLinearVelocity,      "calcLinearVelocity",               sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Linear velocity", "Calculated scene object linear velocity vector") \
+    FUNCX(propObject_calcRotationAxis,        "calcRotationAxis",                 sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Rotation axis", "Calculated scene object rotation axis") \
+    FUNCX(propObject_calcRotationVelocity,    "calcRotationVelocity",             sim_propertytype_float,     sim_propertyinfo_notwritable, "Rotation velocity", "Calculated scene object rotation velocity") \
+    FUNCX(propObject_dynamicIcon,             "dynamicIcon",                      sim_propertytype_int,       sim_propertyinfo_notwritable, "Dynamic icon", "") \
+    FUNCX(propObject_dynamicFlag,             "dynamicFlag",                      sim_propertytype_int,       sim_propertyinfo_notwritable, "Dynamic flag", "") \
+    FUNCX(propObject_objectProperty,          "objectPropertyFlags", /*redund.*/  sim_propertytype_int,       0, "Object flags", "Scene object flags, redundant") \
+    FUNCX(propObject_ignoreViewFitting,       "ignoreViewFitting",                sim_propertytype_bool,      0, "Ignore view fitting", "View fitting is ignored for this scene object") \
+    FUNCX(propObject_collapsed,               "collapsed",                        sim_propertytype_bool,      0, "Collapsed hierarchy", "") \
+    FUNCX(propObject_selectable,              "selectable",                       sim_propertytype_bool,      0, "Selectable", "Scene object is selectable") \
+    FUNCX(propObject_selectModel,             "selectModel",                      sim_propertytype_bool,      0, "Select model instead", "Selecting the scene object instead selects the parent model") \
+    FUNCX(propObject_hideFromModelBB,         "hideFromModelBB",                  sim_propertytype_bool,      0, "Hide from model bounding box", "Scene object is not part of a parent model's bounding box") \
+    FUNCX(propObject_selectInvisible,         "selectInvisible",                  sim_propertytype_bool,      0, "Select invisible", "Scene object is invisible during a selection operation") \
+    FUNCX(propObject_depthInvisible,          "depthInvisible",                   sim_propertytype_bool,      0, "Depth pass invisible", "Scene object is invisible for the depth buffer during a click operation") \
+    FUNCX(propObject_cannotDelete,            "cannotDelete",                     sim_propertytype_bool,      0, "Cannot delete", "Scene object cannot be deleted while simulation is not running") \
+    FUNCX(propObject_cannotDeleteSim,         "cannotDeleteInSim",                sim_propertytype_bool,      0, "Cannot delete during simulation", "Scene object cannot be deleted while simulation is running") \
+    FUNCX(propObject_modelProperty,           "modelPropertyFlags", /*redund.*/   sim_propertytype_int,       0, "Model flags", "Model flags, redundant") \
+    FUNCX(propObject_modelNotCollidable,      "modelNotCollidable",               sim_propertytype_bool,      0, "Model not collidable", "Model is not collidable") \
+    FUNCX(propObject_modelNotMeasurable,      "modelNotMeasurable",               sim_propertytype_bool,      0, "Model not measurable", "Model is not measurable") \
+    FUNCX(propObject_modelNotDetectable,      "modelNotDetectable",               sim_propertytype_bool,      0, "Model not detectable", "Model is not detectable") \
+    FUNCX(propObject_modelNotDynamic,         "modelNotDynamic",                  sim_propertytype_bool,      0, "Model not dynamic", "Model is not dynamic, i.e. model is static") \
+    FUNCX(propObject_modelNotRespondable,     "modelNotRespondable",              sim_propertytype_bool,      0, "Model not respondable", "Model is not respondable") \
+    FUNCX(propObject_modelNotVisible,         "modelNotVisible",                  sim_propertytype_bool,      0, "Model not visible", "Model is not visible") \
+    FUNCX(propObject_modelScriptsNotActive,   "modelScriptsNotActive",            sim_propertytype_bool,      0, "Model scripts inactive", "Model scripts are not active") \
+    FUNCX(propObject_modelNotInParentBB,      "modelNotInParentBB",               sim_propertytype_bool,      0, "Model invisible to other model's bounding boxes", "Model is invisible to other model's bounding boxes") \
+    FUNCX(propObject_pose,                    "pose",                             sim_propertytype_pose,      0, "Pose", "Scene object local pose") \
+    FUNCX(propObject_alias,                   "alias",                            sim_propertytype_string,    0, "Alias", "Scene object alias") \
+    FUNCX(propObject_bbPose,                  "bbPose",                           sim_propertytype_pose,      sim_propertyinfo_notwritable, "Bounding box pose", "Bounding box local pose") \
+    FUNCX(propObject_bbHsize,                 "bbHSize",                          sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Bounding box half sizes", "") \
+    FUNCX(propObject_movementOptions,         "movementOptionsFlags",             sim_propertytype_int,       0, "Movement flags", "Scene object movement flags") \
+    FUNCX(propObject_movTranslNoSim,          "movTranslNoSim",                   sim_propertytype_bool,      0, "Translation enabled", "Translation enabled when simulation is not running") \
+    FUNCX(propObject_movTranslInSim,          "movTranslInSim",                   sim_propertytype_bool,      0, "Translation enabled during simulation", "Translation enabled when simulation is running") \
+    FUNCX(propObject_movRotNoSim,             "movRotNoSim",                      sim_propertytype_bool,      0, "Rotation enabled", "Rotation enabled when simulation is not running") \
+    FUNCX(propObject_movRotInSim,             "movRotInSim",                      sim_propertytype_bool,      0, "Rotation enabled during simulation", "Rotation enabled when simulation is running") \
+    FUNCX(propObject_movAltTransl,            "movAltTransl",                     sim_propertytype_bool,      0, "Alternate translation axes enabled", "") \
+    FUNCX(propObject_movAltRot,               "movAltRot",                        sim_propertytype_bool,      0, "Alternate rotation axes enabled", "") \
+    FUNCX(propObject_movementPreferredAxes,   "movementPreferredAxesFlags",       sim_propertytype_int,       0, "Preferred axes", "Preferred axes flags (redundant)") \
+    FUNCX(propObject_movPrefTranslX,          "movPrefTranslX",                   sim_propertytype_bool,      0, "Preferred X-translation", "") \
+    FUNCX(propObject_movPrefTranslY,          "movPrefTranslY",                   sim_propertytype_bool,      0, "Preferred Y-translation", "") \
+    FUNCX(propObject_movPrefTranslZ,          "movPrefTranslZ",                   sim_propertytype_bool,      0, "Preferred Z-translation", "") \
+    FUNCX(propObject_movPrefRotX,             "movPrefRotX",                      sim_propertytype_bool,      0, "Preferred X-axis rotation", "") \
+    FUNCX(propObject_movPrefRotY,             "movPrefRotY",                      sim_propertytype_bool,      0, "Preferred Y-axis rotation", "") \
+    FUNCX(propObject_movPrefRotZ,             "movPrefRotZ",                      sim_propertytype_bool,      0, "Preferred Z-axis rotation", "") \
+    FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_vector,    0, "Movement step sizes", "Linear and angular step sizes") \
+    FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intvector, 0, "Movement relativity", "") \
+    FUNCX(propObject_objectType,              "objectType",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "Type", "Scene object type") \
 
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
+#define FUNCX(name, str, v1, v2, t1, t2) name,
 const std::vector<SProperty> allProps_sceneObject = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -196,8 +196,8 @@ class CSceneObject
     virtual int removeProperty(const char* pName);
     virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static  int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance);
-    virtual int getPropertyInfo(const char* pName, int& info) const;
-    static int getPropertyInfo_bstatic(const char* pName, int& info);
+    virtual int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
+    static int getPropertyInfo_bstatic(const char* pName, int& info, std::string& infoTxt);
 
 
     void setRestoreToDefaultLights(bool s);

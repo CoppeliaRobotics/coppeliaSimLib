@@ -5811,7 +5811,7 @@ int _simGetPropertyName(luaWrap_lua_State *L)
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         int index = luaWrap_lua_tointeger(L,2);
-        SOptions opt;
+        SPropertyOptions opt;
         if (luaWrap_lua_isnonbuffertable(L, 3))
         {
             CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
@@ -5847,7 +5847,7 @@ int _simGetPropertyInfo(luaWrap_lua_State *L)
         if (target == sim_handle_self)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
-        SOptions opt;
+        SPropertyOptions opt;
         if (luaWrap_lua_isnonbuffertable(L, 3))
         {
             CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
@@ -5861,7 +5861,14 @@ int _simGetPropertyInfo(luaWrap_lua_State *L)
         {
             luaWrap_lua_pushinteger(L, infos.type);
             luaWrap_lua_pushinteger(L, infos.flags);
-            LUA_END(2);
+            if (infos.infoTxt == nullptr)
+                luaWrap_lua_pushtext(L, "");
+            else
+            {
+                luaWrap_lua_pushtext(L, infos.infoTxt);
+                delete[] infos.infoTxt;
+            }
+            LUA_END(3);
         }
     }
 

@@ -824,7 +824,7 @@ int CViewableBase::getPropertyName_vstatic(int& index, std::string& pName)
     return retVal;
 }
 
-int CViewableBase::getPropertyInfo_vstatic(const char* pName, int& info)
+int CViewableBase::getPropertyInfo_vstatic(const char* pName, int& info, std::string& infoTxt)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_viewable.size(); i++)
@@ -833,6 +833,10 @@ int CViewableBase::getPropertyInfo_vstatic(const char* pName, int& info)
         {
             retVal = allProps_viewable[i].type;
             info = allProps_viewable[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_viewable[i].infoTxt, "") != 0) )
+                infoTxt = allProps_viewable[i].infoTxt;
+            else
+                infoTxt = allProps_viewable[i].shortInfoTxt;
             break;
         }
     }

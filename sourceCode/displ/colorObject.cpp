@@ -1005,7 +1005,7 @@ int CColorObject::getPropertyName_static(int& index, std::string& pName, int eve
     return retVal;
 }
 
-int CColorObject::getPropertyInfo(const char* ppName, int& info) const
+int CColorObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = -1;
     if (boost::algorithm::ends_with(ppName, _eventSuffix))
@@ -1020,6 +1020,10 @@ int CColorObject::getPropertyInfo(const char* ppName, int& info) const
                 {
                     retVal = allProps_col[i].type;
                     info = allProps_col[i].flags;
+                    if ( (infoTxt == "") && (strcmp(allProps_col[i].infoTxt, "") != 0) )
+                        infoTxt = allProps_col[i].infoTxt;
+                    else
+                        infoTxt = allProps_col[i].shortInfoTxt;
                     break;
                 }
             }
@@ -1028,7 +1032,7 @@ int CColorObject::getPropertyInfo(const char* ppName, int& info) const
     return retVal;
 }
 
-int CColorObject::getPropertyInfo_static(const char* ppName, int& info, int eventFlags, const char* eventSuffix)
+int CColorObject::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt, int eventFlags, const char* eventSuffix)
 {
     int retVal = -1;
     if (boost::algorithm::ends_with(ppName, eventSuffix))
@@ -1043,6 +1047,10 @@ int CColorObject::getPropertyInfo_static(const char* ppName, int& info, int even
                 {
                     retVal = allProps_col[i].type;
                     info = allProps_col[i].flags;
+                    if ( (infoTxt == "") && (strcmp(allProps_col[i].infoTxt, "") != 0) )
+                        infoTxt = allProps_col[i].infoTxt;
+                    else
+                        infoTxt = allProps_col[i].shortInfoTxt;
                     break;
                 }
             }

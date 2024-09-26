@@ -6,23 +6,23 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propProximitySensor_size,                     "size",                                     sim_propertytype_float,     0) \
-    FUNCX(propProximitySensor_frontFaceDetection,       "frontFaceDetection",                       sim_propertytype_bool,      0) \
-    FUNCX(propProximitySensor_backFaceDetection,        "backFaceDetection",                        sim_propertytype_bool,      0) \
-    FUNCX(propProximitySensor_exactMode,                "exactMode",                                sim_propertytype_bool,      0) \
-    FUNCX(propProximitySensor_explicitHandling,         "explicitHandling",                         sim_propertytype_bool,      0) \
-    FUNCX(propProximitySensor_showVolume,               "showVolume",                               sim_propertytype_bool,      0) \
-    FUNCX(propProximitySensor_randomizedDetection,      "randomizedDetection",                      sim_propertytype_bool,      sim_propertyinfo_notwritable) \
-    FUNCX(propProximitySensor_sensorType,               "sensorType",                               sim_propertytype_int,       sim_propertyinfo_notwritable) \
-    FUNCX(propProximitySensor_detectedObjectHandle,     "detectedObjectHandle",                     sim_propertytype_int,       sim_propertyinfo_notwritable) \
-    FUNCX(propProximitySensor_angleThreshold,           "angleThreshold",                           sim_propertytype_float,     0) \
-    FUNCX(propProximitySensor_detectedPoint,            "detectedPoint",                            sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
-    FUNCX(propProximitySensor_detectedNormal,           "detectedNormal",                           sim_propertytype_vector3,   sim_propertyinfo_notwritable) \
+    FUNCX(propProximitySensor_size,                     "sensorPointSize",                          sim_propertytype_float,     0, "Sensor point size", "") \
+    FUNCX(propProximitySensor_frontFaceDetection,       "frontFaceDetection",                       sim_propertytype_bool,      0, "Front face detection", "") \
+    FUNCX(propProximitySensor_backFaceDetection,        "backFaceDetection",                        sim_propertytype_bool,      0, "Back face detection", "") \
+    FUNCX(propProximitySensor_exactMode,                "exactMode",                                sim_propertytype_bool,      0, "Exact mode", "") \
+    FUNCX(propProximitySensor_explicitHandling,         "explicitHandling",                         sim_propertytype_bool,      0, "Explicit handling", "") \
+    FUNCX(propProximitySensor_showVolume,               "showVolume",                               sim_propertytype_bool,      0, "Show volume", "") \
+    FUNCX(propProximitySensor_randomizedDetection,      "randomizedDetection",                      sim_propertytype_bool,      sim_propertyinfo_notwritable, "Randomized detection", "") \
+    FUNCX(propProximitySensor_sensorType,               "sensorType",                               sim_propertytype_int,       sim_propertyinfo_notwritable, "Type", "Sensor type") \
+    FUNCX(propProximitySensor_detectedObjectHandle,     "detectedObjectHandle",                     sim_propertytype_int,       sim_propertyinfo_notwritable, "Detected object", "Detected scene object handle") \
+    FUNCX(propProximitySensor_angleThreshold,           "angleThreshold",                           sim_propertytype_float,     0, "Angle threshold", "Angle threshold, 0.0 to disable") \
+    FUNCX(propProximitySensor_detectedPoint,            "detectedPoint",                            sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Detected point", "") \
+    FUNCX(propProximitySensor_detectedNormal,           "detectedNormal",                           sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Detected normal", "Detected normal vector") \
 
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
+#define FUNCX(name, str, v1, v2, t1, t2) name,
 const std::vector<SProperty> allProps_proximitySensor = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -83,8 +83,8 @@ class CProxSensor : public CSceneObject
     int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info);
-    static int getPropertyInfo_static(const char* pName, int& info);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     // Various
     void setSensableObject(int objectID);

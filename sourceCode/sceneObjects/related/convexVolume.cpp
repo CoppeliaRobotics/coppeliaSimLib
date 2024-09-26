@@ -2280,7 +2280,7 @@ int CConvexVolume::getPropertyName_static(int& index, std::string& pName)
     return retVal;
 }
 
-int CConvexVolume::getPropertyInfo(const char* pName, int& info)
+int CConvexVolume::getPropertyInfo(const char* pName, int& info, std::string& infoTxt)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_volume.size(); i++)
@@ -2289,13 +2289,17 @@ int CConvexVolume::getPropertyInfo(const char* pName, int& info)
         {
             retVal = allProps_volume[i].type;
             info = allProps_volume[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_volume[i].infoTxt, "") != 0) )
+                infoTxt = allProps_volume[i].infoTxt;
+            else
+                infoTxt = allProps_volume[i].shortInfoTxt;
             break;
         }
     }
     return retVal;
 }
 
-int CConvexVolume::getPropertyInfo_static(const char* pName, int& info)
+int CConvexVolume::getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_volume.size(); i++)
@@ -2304,6 +2308,10 @@ int CConvexVolume::getPropertyInfo_static(const char* pName, int& info)
         {
             retVal = allProps_volume[i].type;
             info = allProps_volume[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_volume[i].infoTxt, "") != 0) )
+                infoTxt = allProps_volume[i].infoTxt;
+            else
+                infoTxt = allProps_volume[i].shortInfoTxt;
             break;
         }
     }

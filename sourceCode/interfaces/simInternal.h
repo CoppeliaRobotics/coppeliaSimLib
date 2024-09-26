@@ -38,8 +38,8 @@ double* simGetVectorProperty_internal(long long int target, const char* pName, i
 int simSetIntVectorProperty_internal(long long int target, const char* pName, const int* v, int vL);
 int* simGetIntVectorProperty_internal(long long int target, const char* pName, int* vL);
 int simRemoveProperty_internal(long long int target, const char* pName);
-char* simGetPropertyName_internal(long long int target, int index, SOptions* options);
-int simGetPropertyInfo_internal(long long int target, const char* pName, SPropertyInfo* infos, SOptions* options);
+char* simGetPropertyName_internal(long long int target, int index, SPropertyOptions* options);
+int simGetPropertyInfo_internal(long long int target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options);
 
 void simRegCallback_internal(int index, void *callback);
 void simRunGui_internal(int options);

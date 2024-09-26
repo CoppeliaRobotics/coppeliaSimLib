@@ -1233,7 +1233,7 @@ int CEnvironment::getPropertyName(int& index, std::string& pName)
     return retVal;
 }
 
-int CEnvironment::getPropertyInfo(const char* pName, int& info)
+int CEnvironment::getPropertyInfo(const char* pName, int& info, std::string& infoTxt)
 {
     int retVal = -1;
 
@@ -1243,6 +1243,10 @@ int CEnvironment::getPropertyInfo(const char* pName, int& info)
         {
             retVal = allProps_scene[i].type;
             info = allProps_scene[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_scene[i].infoTxt, "") != 0) )
+                infoTxt = allProps_scene[i].infoTxt;
+            else
+                infoTxt = allProps_scene[i].shortInfoTxt;
             break;
         }
     }

@@ -7,15 +7,15 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propCol_colDiffuse,              "diffuseColor",                             sim_propertytype_color,     0) \
-    FUNCX(propCol_colSpecular,             "specularColor",                            sim_propertytype_color,     0) \
-    FUNCX(propCol_colEmission,             "emissionColor",                            sim_propertytype_color,     0) \
-    FUNCX(propCol_transparency,            "transparency",                             sim_propertytype_float,     0) \
+    FUNCX(propCol_colDiffuse,              "diffuseColor",                             sim_propertytype_color,     0, "Diffuse color", "") \
+    FUNCX(propCol_colSpecular,             "specularColor",                            sim_propertytype_color,     0, "Specular color", "") \
+    FUNCX(propCol_colEmission,             "emissionColor",                            sim_propertytype_color,     0, "Emission color", "") \
+    FUNCX(propCol_transparency,            "transparency",                             sim_propertytype_float,     0, "Transparency", "") \
 
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
+#define FUNCX(name, str, v1, v2, t1, t2) name,
 const std::vector<SProperty> allProps_col = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -62,8 +62,8 @@ class CColorObject
     int getColorProperty(const char* pName, float* pState) const;
     int getPropertyName(int& index, std::string& pName) const;
     static int getPropertyName_static(int& index, std::string& pName, int eventFlags, const char* eventSuffix);
-    int getPropertyInfo(const char* pName, int& info) const;
-    static int getPropertyInfo_static(const char* pName, int& info, int eventFlags, const char* eventSuffix);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt, int eventFlags, const char* eventSuffix);
 
     void setFlash(bool flashIsOn);
     bool getFlash() const;

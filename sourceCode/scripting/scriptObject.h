@@ -30,21 +30,21 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propScriptObj_scriptDisabled,                 "scriptDisabled",                               sim_propertytype_bool,      0) \
-    FUNCX(propScriptObj_restartOnError,                 "restartOnError",                               sim_propertytype_bool,      0) \
-    FUNCX(propScriptObj_execPriority,                   "execPriority",                                 sim_propertytype_int,       0) \
-    FUNCX(propScriptObj_scriptType,                     "scriptType",                                   sim_propertytype_int,       sim_propertyinfo_notwritable) \
-    FUNCX(propScriptObj_executionDepth,                 "executionDepth",                               sim_propertytype_int,       sim_propertyinfo_notwritable) \
-    FUNCX(propScriptObj_scriptState,                    "scriptState",                                  sim_propertytype_int,       sim_propertyinfo_notwritable) \
-    FUNCX(propScriptObj_language,                       "language",                                     sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propScriptObj_code,                           "code",                                         sim_propertytype_string,    0) \
-    FUNCX(propScriptObj_scriptName,                     "scriptName",                                   sim_propertytype_string,    sim_propertyinfo_notwritable) \
-    FUNCX(propScriptObj_addOnPath,                      "addOnPath",                                    sim_propertytype_string,    sim_propertyinfo_notwritable) \
+    FUNCX(propScriptObj_scriptDisabled,                 "scriptDisabled",                               sim_propertytype_bool,      0, "Enabled", "Script is enabled") \
+    FUNCX(propScriptObj_restartOnError,                 "restartOnError",                               sim_propertytype_bool,      0, "Restart", "Restart on error") \
+    FUNCX(propScriptObj_execPriority,                   "execPriority",                                 sim_propertytype_int,       0, "Execution priority", "") \
+    FUNCX(propScriptObj_scriptType,                     "scriptType",                                   sim_propertytype_int,       sim_propertyinfo_notwritable, "Type", "Script type") \
+    FUNCX(propScriptObj_executionDepth,                 "executionDepth",                               sim_propertytype_int,       sim_propertyinfo_notwritable, "Execution depth", "") \
+    FUNCX(propScriptObj_scriptState,                    "scriptState",                                  sim_propertytype_int,       sim_propertyinfo_notwritable, "State", "Script state") \
+    FUNCX(propScriptObj_language,                       "language",                                     sim_propertytype_string,    sim_propertyinfo_notwritable, "Language", "") \
+    FUNCX(propScriptObj_code,                           "code",                                         sim_propertytype_string,    0, "Code", "Script content") \
+    FUNCX(propScriptObj_scriptName,                     "scriptName",                                   sim_propertytype_string,    sim_propertyinfo_notwritable, "Name", "Script name") \
+    FUNCX(propScriptObj_addOnPath,                      "addOnPath",                                    sim_propertytype_string,    sim_propertyinfo_notwritable, "Add-on path", "Path of add-on") \
 
-#define FUNCX(name, str, v1, v2) const SProperty name = {str, v1, v2};
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2) name,
+#define FUNCX(name, str, v1, v2, t1, t2) name,
 const std::vector<SProperty> allProps_scriptObject = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -120,8 +120,8 @@ class CScriptObject
     int getStringProperty(const char* pName, std::string& pState) const;
     int getPropertyName(int& index, std::string& pName);
     static int getPropertyName_static(int& index, std::string& pName);
-    int getPropertyInfo(const char* pName, int& info);
-    static int getPropertyInfo_static(const char* pName, int& info);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
 
     void terminateScriptExecutionExternally(bool generateErrorMsg);
 

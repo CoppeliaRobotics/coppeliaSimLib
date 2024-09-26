@@ -1713,7 +1713,7 @@ int CSimulation::getPropertyName(int& index, std::string& pName) const
     return retVal;
 }
 
-int CSimulation::getPropertyInfo(const char* pName, int& info) const
+int CSimulation::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_sim.size(); i++)
@@ -1722,6 +1722,10 @@ int CSimulation::getPropertyInfo(const char* pName, int& info) const
         {
             retVal = allProps_sim[i].type;
             info = allProps_sim[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_sim[i].infoTxt, "") != 0) )
+                infoTxt = allProps_sim[i].infoTxt;
+            else
+                infoTxt = allProps_sim[i].shortInfoTxt;
             break;
         }
     }

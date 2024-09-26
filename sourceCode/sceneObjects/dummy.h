@@ -10,30 +10,32 @@ struct SDummyProperty {
     int type;
     int flags;
     int oldEnums[5];
+    const char* shortInfoTxt;
+    const char* infoTxt;
 };
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propDummy_size,                    "size",                                     sim_propertytype_float,     0, -1, -1, -1, -1, -1) \
-    FUNCX(propDummy_linkedDummyHandle,       "linkedDummyHandle",                        sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
-    FUNCX(propDummy_dummyType,               "dummyType",                                sim_propertytype_int,       0, -1, -1, -1, -1, -1) \
-    FUNCX(propDummy_assemblyTag,             "assemblyTag",                              sim_propertytype_string,    0, -1, -1, -1, -1, -1) \
-    FUNCX(propDummy_engineProperties,        "engineProperties",                         sim_propertytype_string,    0, -1, -1, -1, -1, -1) \
-    FUNCX(propDummy_mujocoLimitsEnabled,     "mujocoLimitsEnabled",                      sim_propertytype_bool,      0, sim_mujoco_dummy_limited, -1, -1, -1, -1) \
-    FUNCX(propDummy_mujocoLimitsRange,       "mujocoLimitsRange",                        sim_propertytype_vector,    0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1) \
-    FUNCX(propDummy_mujocoLimitsSolref,      "mujocoLimitsSolref",                       sim_propertytype_vector,    0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1) \
-    FUNCX(propDummy_mujocoLimitsSolimp,      "mujocoLimitsSolimp",                       sim_propertytype_vector,    0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, sim_mujoco_dummy_solimplimit4, sim_mujoco_dummy_solimplimit5) \
-    FUNCX(propDummy_mujocoMargin,            "mujocoMargin",                             sim_propertytype_float,     0, sim_mujoco_dummy_margin, -1, -1, -1, -1) \
-    FUNCX(propDummy_mujocoSpringStiffness,   "mujocoSpringStiffness",                    sim_propertytype_float,     0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1) \
-    FUNCX(propDummy_mujocoSpringDamping,     "mujocoSpringDamping",                      sim_propertytype_float,     0, sim_mujoco_dummy_damping, -1, -1, -1, -1) \
-    FUNCX(propDummy_mujocoSpringLength,      "mujocoSpringLength",                       sim_propertytype_float,     0, sim_mujoco_dummy_springlength, -1, -1, -1, -1) \
-    FUNCX(propDummy_mujocoJointProxyHandle,  "mujocoJointProxyHandle",                   sim_propertytype_int,       0, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1) \
+    FUNCX(propDummy_size,                    "dummySize",                                sim_propertytype_float,     0, -1, -1, -1, -1, -1, "Size", "Dummy size") \
+    FUNCX(propDummy_linkedDummyHandle,       "linkedDummyHandle",                        sim_propertytype_int,       0, -1, -1, -1, -1, -1, "Linked dummy", "Handle of the linked dummy") \
+    FUNCX(propDummy_dummyType,               "dummyType",                                sim_propertytype_int,       0, -1, -1, -1, -1, -1, "Type", "Dummy type") \
+    FUNCX(propDummy_assemblyTag,             "assemblyTag",                              sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Assembly tag", "") \
+    FUNCX(propDummy_engineProperties,        "engineProperties",                         sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text") \
+    FUNCX(propDummy_mujocoLimitsEnabled,     "mujocoLimitsEnabled",                      sim_propertytype_bool,      0, sim_mujoco_dummy_limited, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoLimitsRange,       "mujocoLimitsRange",                        sim_propertytype_vector,    0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoLimitsSolref,      "mujocoLimitsSolref",                       sim_propertytype_vector,    0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoLimitsSolimp,      "mujocoLimitsSolimp",                       sim_propertytype_vector,    0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, sim_mujoco_dummy_solimplimit4, sim_mujoco_dummy_solimplimit5, "", "") \
+    FUNCX(propDummy_mujocoMargin,            "mujocoMargin",                             sim_propertytype_float,     0, sim_mujoco_dummy_margin, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoSpringStiffness,   "mujocoSpringStiffness",                    sim_propertytype_float,     0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoSpringDamping,     "mujocoSpringDamping",                      sim_propertytype_float,     0, sim_mujoco_dummy_damping, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoSpringLength,      "mujocoSpringLength",                       sim_propertytype_float,     0, sim_mujoco_dummy_springlength, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoJointProxyHandle,  "mujocoJointProxyHandle",                   sim_propertytype_int,       0, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1, "Joint proxy", "Handle of the joint proxy (MuJoCo only)") \
 
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4) const SDummyProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}};
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SDummyProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
 DEFINE_PROPERTIES
 #undef FUNCX
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4) name,
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) name,
 const std::vector<SDummyProperty> allProps_dummy = { DEFINE_PROPERTIES };
 #undef FUNCX
 #undef DEFINE_PROPERTIES
@@ -119,8 +121,8 @@ class CDummy : public CSceneObject
     int getVectorProperty(const char* pName, std::vector<double>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
-    int getPropertyInfo(const char* pName, int& info) const;
-    static int getPropertyInfo_static(const char* pName, int& info);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
     // Some helpers:
     bool getBoolPropertyValue(const char* pName) const;
     int getIntPropertyValue(const char* pName) const;

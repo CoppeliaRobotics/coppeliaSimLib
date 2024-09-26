@@ -2294,12 +2294,12 @@ int CDynMaterialObject::getPropertyName_static(int& index, std::string& pName)
     return retVal;
 }
 
-int CDynMaterialObject::getPropertyInfo(const char* pName, int& info) const
+int CDynMaterialObject::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
-    return getPropertyInfo_static(pName, info);
+    return getPropertyInfo_static(pName, info, infoTxt);
 }
 
-int CDynMaterialObject::getPropertyInfo_static(const char* pName, int& info)
+int CDynMaterialObject::getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_material.size(); i++)
@@ -2308,6 +2308,10 @@ int CDynMaterialObject::getPropertyInfo_static(const char* pName, int& info)
         {
             retVal = allProps_material[i].type;
             info = allProps_material[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_material[i].infoTxt, "") != 0) )
+                infoTxt = allProps_material[i].infoTxt;
+            else
+                infoTxt = allProps_material[i].shortInfoTxt;
             break;
         }
     }
