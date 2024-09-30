@@ -1184,7 +1184,10 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson &annJso
             QJsonObject mujoco(val.toObject());
             double v[5];
             if (annJson.getValue(mujoco, "friction", v, 3, allErrors))
-                mat->setVector3Property(propMaterial_mujocoFriction.name, &C3Vector(v));
+            {
+                C3Vector vect3(v);
+                mat->setVector3Property(propMaterial_mujocoFriction.name, &vect3);
+            }
             if (annJson.getValue(mujoco, "solref", v, 2, allErrors))
                 mat->setVector2Property(propMaterial_mujocoSolref.name, v);
             if (annJson.getValue(mujoco, "solimp", v, 5, allErrors))

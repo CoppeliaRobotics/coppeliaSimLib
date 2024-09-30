@@ -287,7 +287,7 @@ void CMeshWrapper::setMass(double m)
     if (m != _mass)
     {
         _mass = m;
-        if (_parentObjectHandle && App::worldContainer->getEventsEnabled())
+        if ((_parentObjectHandle >=0) && App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propMeshWrap_mass.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
@@ -445,7 +445,7 @@ void CMeshWrapper::setCOM(const C3Vector &com)
     if (_com != com)
     {
         _com = com;
-        if (_parentObjectHandle && App::worldContainer->getEventsEnabled())
+        if ((_parentObjectHandle >=0) && App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propMeshWrap_com.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
@@ -484,7 +484,7 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia)
     {
         _iMatrix = _in;
         getPMIFromInertia(_iMatrix, _pmiRotFrame, _pmi);
-        if (_parentObjectHandle && App::worldContainer->getEventsEnabled())
+        if ((_parentObjectHandle >=0) && App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propMeshWrap_inertia.name;
             CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
@@ -813,8 +813,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                             ar >> bla;
                             localInertiaFrame_OLD(i) = (double)bla;
                         }
-                        localInertiaFrame_OLD.Q
-                            .normalize(); // we read from float. Make sure we are perfectly normalized!
+                        localInertiaFrame_OLD.Q.normalize(); // we read from float. Make sure we are perfectly normalized!
                         for (size_t i = 0; i < 3; i++)
                         {
                             ar >> bla;

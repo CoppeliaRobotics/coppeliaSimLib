@@ -1955,6 +1955,38 @@ int CShape::getStringProperty(const char* ppName, std::string& pState) const
     return retVal;
 }
 
+int CShape::setVector2Property(const char* ppName, const double* pState)
+{
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setVector2Property(pName, pState);
+    if (retVal == -1)
+        retVal = _dynMaterial->setVector2Property(pName, pState);
+//    if (retVal == -1)
+//        retVal = _mesh->setVector2Property_wrapper(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CShape::getVector2Property(const char* ppName, double* pState) const
+{
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getVector2Property(pName, pState);
+    if (retVal == -1)
+        retVal = _dynMaterial->getVector2Property(pName, pState);
+//    if (retVal == -1)
+//        retVal = _mesh->getVector2Property_wrapper(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
 int CShape::setVector3Property(const char* ppName, const C3Vector& pState)
 {
     std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
@@ -2012,6 +2044,38 @@ int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
             pState = _dynamicAngularVelocity;
             retVal = 1;
         }
+    }
+
+    return retVal;
+}
+
+int CShape::setQuaternionProperty(const char* ppName, const C4Vector& pState)
+{
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setQuaternionProperty(pName, pState);
+//    if (retVal == -1)
+//        retVal = _dynMaterial->setQuaternionProperty(pName, &pState);
+    if (retVal == -1)
+        retVal = _mesh->setQuaternionProperty_wrapper(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CShape::getQuaternionProperty(const char* ppName, C4Vector& pState) const
+{
+    std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getQuaternionProperty(pName, pState);
+ //   if (retVal == -1)
+ //       retVal = _dynMaterial->getQuaternionProperty(pName, &pState);
+    if (retVal == -1)
+        retVal = _mesh->getQuaternionProperty_wrapper(pName, pState);
+    if (retVal == -1)
+    {
     }
 
     return retVal;
