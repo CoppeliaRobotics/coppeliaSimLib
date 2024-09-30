@@ -2748,6 +2748,118 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
     return retVal;
 }
 
+int CWorld::setIntVector2Property(long long int target, const char* ppName, const int* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->setIntVector2Property(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setIntVector2Property(-1, pName, pState); // for the container itself
+        if (retVal == -1)
+        {
+        }
+    }
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+        retVal = sceneObjects->setIntVector2Property(target, pName, pState);
+    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    { // sandbox, main, add-ons, or old associated scripts:
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        //if (script != nullptr)
+        //    retVal = script->setIntVector2Property(pName, pState);
+    }
+    else
+        retVal = -2; // target does not exist
+    return retVal;
+}
+
+int CWorld::getIntVector2Property(long long int target, const char* ppName, int* pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->getIntVector2Property(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->getIntVector2Property(-1, pName, pState); // for the container itself
+        if (retVal == -1)
+        {
+        }
+    }
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+        retVal = sceneObjects->getIntVector2Property(target, pName, pState);
+    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    { // sandbox, main, add-ons, or old associated scripts:
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        //if (script != nullptr)
+        //    retVal = script->getIntVector2Property(pName, pState);
+    }
+    else
+        retVal = -2; // target does not exist
+    return retVal;
+}
+
+int CWorld::setVector2Property(long long int target, const char* ppName, const double* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->setVector2Property(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setVector2Property(-1, pName, pState); // for the container itself
+        if (retVal == -1)
+        {
+        }
+    }
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+        retVal = sceneObjects->setVector2Property(target, pName, pState);
+    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    { // sandbox, main, add-ons, or old associated scripts:
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        //if (script != nullptr)
+        //    retVal = script->setVector2Property(pName, pState);
+    }
+    else
+        retVal = -2; // target does not exist
+    return retVal;
+}
+
+int CWorld::getVector2Property(long long int target, const char* ppName, double* pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->getVector2Property(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->getVector2Property(-1, pName, pState); // for the container itself
+        if (retVal == -1)
+        {
+        }
+    }
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+        retVal = sceneObjects->getVector2Property(target, pName, pState);
+    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    { // sandbox, main, add-ons, or old associated scripts:
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        //if (script != nullptr)
+        //    retVal = script->getVector2Property(pName, pState);
+    }
+    else
+        retVal = -2; // target does not exist
+    return retVal;
+}
+
 int CWorld::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "app.").c_str(), "scene."));

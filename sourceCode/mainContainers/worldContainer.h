@@ -27,8 +27,6 @@
 #define EVENTTYPE_DRAWINGOBJECTCHANGED "drawingObjectChanged"
 #define EVENTTYPE_DRAWINGOBJECTREMOVED "drawingObjectRemoved"
 
-#define EVENTTYPE_APPSESSION "appSession"
-#define EVENTTYPE_APPSETTINGSCHANGED "appSettingsChanged"
 #define EVENTTYPE_GENESISBEGIN "genesisBegin"
 #define EVENTTYPE_GENESISEND "genesisEnd"
 #define EVENTTYPE_MSGDISPATCHTIME "msgDispatchTime"
@@ -143,6 +141,10 @@ class CWorldContainer
     int getStringProperty(const char* pName, std::string& pState) const;
     int setBufferProperty(const char* pName, const char* buffer, int bufferL);
     int getBufferProperty(const char* pName, std::string& pState) const;
+    int setIntVector2Property(const char* pName, const int* pState);
+    int getIntVector2Property(const char* pName, int* pState) const;
+    int setVector2Property(const char* pName, const double* pState);
+    int getVector2Property(const char* pName, double* pState) const;
     int setVector3Property(const char* pName, const C3Vector& pState);
     int getVector3Property(const char* pName, C3Vector& pState) const;
     int setQuaternionProperty(const char* pName, const C4Vector& pState);

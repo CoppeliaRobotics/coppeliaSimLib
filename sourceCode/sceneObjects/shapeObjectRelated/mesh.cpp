@@ -434,9 +434,8 @@ void CMesh::setPurePrimitiveType(int theType, double xOrDiameter, double y, doub
     _purePrimitiveZSizeOrHeight = zOrHeight;
 
     // Set the convex flag only to true!! never to false, at least not here
-    if ((theType != sim_primitiveshape_heightfield) && (theType != sim_primitiveshape_none) &&
-        (theType != sim_primitiveshape_plane) && (theType != sim_primitiveshape_disc))
-        _convex = true;
+    if ((theType != sim_primitiveshape_heightfield) && (theType != sim_primitiveshape_none) && (theType != sim_primitiveshape_plane) && (theType != sim_primitiveshape_disc))
+        setConvex_raw(true);
     if (theType != sim_primitiveshape_heightfield)
     {
         _heightfieldHeights.clear();
@@ -451,12 +450,12 @@ void CMesh::setPurePrimitiveType(int theType, double xOrDiameter, double y, doub
 
 int CMesh::getPurePrimitiveType() const
 { // function has virtual/non-virtual counterpart!
-    return (_purePrimitive);
+    return _purePrimitive;
 }
 
 bool CMesh::isMesh() const
 { // function has virtual/non-virtual counterpart!
-    return (true);
+    return true;
 }
 
 bool CMesh::isPure() const
@@ -466,12 +465,27 @@ bool CMesh::isPure() const
 
 bool CMesh::isConvex() const
 { // function has virtual/non-virtual counterpart!
-    return (_convex);
+    return _convex;
+}
+
+void CMesh::setConvex_raw(bool c)
+{
+    if (_convex != c)
+    {
+        _convex = c;
+        if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propMesh_convex.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(_uniqueID, cmd, true);
+            ev->appendKeyBool(cmd, _convex);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 CMesh *CMesh::getFirstMesh()
 { // function has virtual/non-virtual counterpart!
-    return (this);
+    return this;
 }
 
 CMesh* CMesh::getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr)
@@ -527,9 +541,10 @@ void CMesh::pushObjectCreationEvent(int shapeUid, const C7Vector& shapeRelTr)
     ev->appendKeyFloatArray(propMesh_normals.name, normals.data(), normals.size());
 
     color.addGenesisEventData(ev);
-    ev->appendKeyDouble(propMesh_shadingAngle.name, getShadingAngle());
-    ev->appendKeyBool(propMesh_showEdges.name, getVisibleEdges());
-    ev->appendKeyBool(propMesh_culling.name, getCulling());
+    ev->appendKeyDouble(propMesh_shadingAngle.name, _shadingAngle);
+    ev->appendKeyBool(propMesh_showEdges.name, _visibleEdges);
+    ev->appendKeyBool(propMesh_culling.name, _culling);
+    ev->appendKeyBool(propMesh_convex.name, _convex);
 
     CTextureObject *to = nullptr;
     const std::vector<float> *tc = nullptr;
@@ -1007,7 +1022,7 @@ bool CMesh::getInsideAndOutsideFacesSameColor_DEPRECATED() const
 
 bool CMesh::getVisibleEdges() const
 {
-    return (_visibleEdges);
+    return _visibleEdges;
 }
 
 void CMesh::setVisibleEdges(bool v)
@@ -1053,7 +1068,7 @@ void CMesh::setEdgeWidth_DEPRECATED(int w)
 
 bool CMesh::getCulling() const
 {
-    return (_culling);
+    return _culling;
 }
 
 void CMesh::setCulling(bool c)
@@ -1123,7 +1138,7 @@ void CMesh::copyVisualAttributesTo(CMeshWrapper *target)
 
 double CMesh::getShadingAngle() const
 { // function has virtual/non-virtual counterpart!
-    return (_shadingAngle);
+    return _shadingAngle;
 }
 
 void CMesh::setShadingAngle(double angle)
@@ -1133,9 +1148,6 @@ void CMesh::setShadingAngle(double angle)
     if (diff)
     {
         _shadingAngle = angle;
-        _recomputeNormals();
-        _edgeThresholdAngle = angle;
-        _computeVisibleEdges();
         if ((_isInSceneShapeUid != -1) && App::worldContainer->getEventsEnabled())
         {
             const char *cmd = propMesh_shadingAngle.name;
@@ -1143,6 +1155,9 @@ void CMesh::setShadingAngle(double angle)
             ev->appendKeyDouble(cmd, _shadingAngle);
             App::worldContainer->pushEvent();
         }
+        _recomputeNormals();
+        _edgeThresholdAngle = angle;
+        _computeVisibleEdges();
     }
 }
 
@@ -1418,9 +1433,8 @@ void CMesh::_computeVisibleEdges()
 
 bool CMesh::checkIfConvex()
 { // function has virtual/non-virtual counterpart!
-    _convex = (CMeshRoutines::getConvexType(_vertices, _indices, 0.015) ==
-               0); // 1.5% tolerance of the average bounding box side length
-    return (_convex);
+    setConvex_raw(CMeshRoutines::getConvexType(_vertices, _indices, 0.015) == 0); // 1.5% tolerance of the average bounding box side length
+    return _convex;
 }
 
 void CMesh::_loadPackedIntegers_OLD(CSer &ar, std::vector<int> &data)
@@ -2874,6 +2888,11 @@ int CMesh::getBoolProperty(const char* ppName, bool& pState, const C7Vector& sha
         retVal = 1;
         pState = getTextureInterpolate();
     }
+    else if (strcmp(pName, propMesh_convex.name) == 0)
+    {
+        retVal = 1;
+        pState = _convex;
+    }
 
     return retVal;
 }
@@ -3001,6 +3020,49 @@ int CMesh::getBufferProperty(const char* ppName, std::string& pState, const C7Ve
         const char* t = (const char*)_textureProperty->getTextureObject()->getTextureBufferPointer();
         pState.assign(t, t + 4 * ts[0] * ts[1]);
     }
+
+    return retVal;
+}
+
+int CMesh::setIntVector2Property(const char* ppName, const int* pState, const C7Vector& shapeRelTr)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getIntVector2Property(const char* ppName, int* pState, const C7Vector& shapeRelTr) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    if ( (strcmp(pName, propMesh_textureResolution.name) == 0) && (_textureProperty != nullptr) )
+    {
+        retVal = 1;
+        _textureProperty->getTextureObject()->getTextureSize(pState[0], pState[1]);
+    }
+
+
+    return retVal;
+}
+
+int CMesh::setVector2Property(const char* ppName, const double* pState, const C7Vector& shapeRelTr)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMesh::getVector2Property(const char* ppName, double* pState, const C7Vector& shapeRelTr) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "mesh."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
 
     return retVal;
 }
@@ -3199,12 +3261,6 @@ int CMesh::getIntVectorProperty(const char* ppName, std::vector<int>& pState, co
     {
         retVal = 1;
         pState.assign(_indices.begin(), _indices.end());
-    }
-    else if ( (strcmp(pName, propMesh_textureResolution.name) == 0) && (_textureProperty != nullptr) )
-    {
-        retVal = 1;
-        pState.resize(2);
-        _textureProperty->getTextureObject()->getTextureSize(pState[0], pState[1]);
     }
 
     return retVal;

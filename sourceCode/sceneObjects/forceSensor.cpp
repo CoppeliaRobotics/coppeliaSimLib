@@ -293,11 +293,6 @@ void CForceSensor::_setFilteredForceAndTorque(bool valid, const C3Vector* f /*= 
         if (t != nullptr)
             vt = t[0];
     }
-    else
-    {
-        _cumulatedForces_forFilter.clear();
-        _cumulatedTorques_forFilter.clear();
-    }
     _filteredValuesAreValid = valid;
     bool diff = ( (_filteredDynamicForces != vf) || (_filteredDynamicTorques != vt) );
     if (diff)
@@ -515,6 +510,8 @@ void CForceSensor::initializeInitialValues(bool simulationAlreadyRunning)
     _currentThresholdViolationCount = 0;
     _setFilteredForceAndTorque(false);
     _setForceAndTorque(false);
+    _cumulatedForces_forFilter.clear();
+    _cumulatedTorques_forFilter.clear();
     setIntrinsicTransformationError(C7Vector::identityTransformation);
 }
 
@@ -536,6 +533,8 @@ void CForceSensor::simulationEnded()
     }
     _setForceAndTorque(false);
     _setFilteredForceAndTorque(false);
+    _cumulatedForces_forFilter.clear();
+    _cumulatedTorques_forFilter.clear();
     setIntrinsicTransformationError(C7Vector::identityTransformation);
     CSceneObject::simulationEnded();
 }
@@ -620,7 +619,8 @@ void CForceSensor::scaleObject(double scalingFactor)
     setTorqueThreshold(_torqueThreshold * scalingFactor * scalingFactor * scalingFactor * scalingFactor); //*scalingFactor; removed one on 2010/02/17 b/c often working against gravity which doesn't change
     _setFilteredForceAndTorque(false);
     _setForceAndTorque(false);
-
+    _cumulatedForces_forFilter.clear();
+    _cumulatedTorques_forFilter.clear();
     CSceneObject::scaleObject(scalingFactor);
 }
 

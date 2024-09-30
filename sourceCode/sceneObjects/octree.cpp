@@ -161,7 +161,7 @@ void COcTree::_updateOctreeEvent() const
         const char *cmd = propOctree_voxels.name;
         CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyDoubleArray(cmd, _voxelPositions.data(), _voxelPositions.size());
-        ev->appendKeyUCharArray(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
+        ev->appendKeyBuff(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
         ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
 #endif
         App::worldContainer->pushEvent();
@@ -605,7 +605,7 @@ void COcTree::addSpecializedObjectEventData(CCbor *ev)
 #else
     color.addGenesisEventData(ev);
     ev->appendKeyDoubleArray(propOctree_voxels.name, _voxelPositions.data(), _voxelPositions.size());
-    ev->appendKeyUCharArray(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
+    ev->appendKeyBuff(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
 #endif
     ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
 #if SIM_EVENT_PROTOCOL_VERSION == 2

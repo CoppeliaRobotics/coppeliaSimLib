@@ -3524,6 +3524,54 @@ int CVisionSensor::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CVisionSensor::setIntVector2Property(const char* ppName, const int* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::setIntVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CVisionSensor::getIntVector2Property(const char* ppName, int* pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::getIntVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CVisionSensor::setVector2Property(const char* ppName, const double* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::setVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CVisionSensor::getVector2Property(const char* ppName, double* pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::getVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
 int CVisionSensor::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));

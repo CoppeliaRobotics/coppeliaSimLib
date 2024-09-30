@@ -16,6 +16,8 @@
 #define proptypetag_float "&dbl&."
 #define proptypetag_string "&str&."
 #define proptypetag_buffer ""
+#define proptypetag_intvector2 "&ivect2&."
+#define proptypetag_vector2 "&vect2&."
 #define proptypetag_vector3 "&vect3&."
 #define proptypetag_quaternion "&quat&."
 #define proptypetag_pose "&pose&."
@@ -31,6 +33,8 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_int, proptypetag_int},
     {sim_propertytype_float, proptypetag_float},
     {sim_propertytype_string, proptypetag_string},
+    {sim_propertytype_intvector2, proptypetag_intvector2},
+    {sim_propertytype_vector2, proptypetag_vector2},
     {sim_propertytype_vector3, proptypetag_vector3},
     {sim_propertytype_quaternion, proptypetag_quaternion},
     {sim_propertytype_pose, proptypetag_pose},
@@ -147,6 +151,10 @@ class App
     static int getStringProperty(long long int target, const char* pName, std::string& pState);
     static int setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL);
     static int getBufferProperty(long long int target, const char* pName, std::string& pState);
+    static int setIntVector2Property(long long int target, const char* pName, const int* pState);
+    static int getIntVector2Property(long long int target, const char* pName, int* pState);
+    static int setVector2Property(long long int target, const char* pName, const double* pState);
+    static int getVector2Property(long long int target, const char* pName, double* pState);
     static int setVector3Property(long long int target, const char* pName, const C3Vector& pState);
     static int getVector3Property(long long int target, const char* pName, C3Vector& pState);
     static int setQuaternionProperty(long long int target, const char* pName, const C4Vector& pState);

@@ -1119,16 +1119,7 @@ int CScriptObject::getScriptState() const
 void CScriptObject::addSpecializedObjectEventData(CCbor *ev)
 {
     if (_scriptHandle >= SIM_IDSTART_LUASCRIPT)
-    {
-        if (_scriptType == sim_scripttype_main)
-            ev->appendKeyText(propObject_objectType.name, "mainScript");
-        else if (_scriptType == sim_scripttype_sandbox)
-            ev->appendKeyText(propObject_objectType.name, "sandbox");
-        else if (_scriptType == sim_scripttype_addon)
-            ev->appendKeyText(propObject_objectType.name, "addon");
-        else
-            ev->appendKeyText(propObject_objectType.name, "associatedScript");
-    }
+        ev->appendKeyText(propObject_objectType.name, "detachedScript");
     ev->appendKeyBool(propScriptObj_scriptDisabled.name, _scriptIsDisabled);
     ev->appendKeyBool(propScriptObj_restartOnError.name, _autoRestartOnError);
     ev->appendKeyInt(propScriptObj_execPriority.name, getScriptExecPriority());
@@ -1375,7 +1366,7 @@ bool CScriptObject::setScriptTextFromFile(const char *filename)
             file.close();
             retVal = true;
         }
-        catch (VFILE_EXCEPTION_TYPE e)
+        catch (VFILE_EXCEPTION_TYPE)
         {
         }
     }

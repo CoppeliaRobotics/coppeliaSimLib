@@ -21,6 +21,10 @@ int simSetStringProperty_internal(long long int target, const char* pName, const
 char* simGetStringProperty_internal(long long int target, const char* pName);
 int simSetBufferProperty_internal(long long int target, const char* pName, const char* buffer, int bufferL);
 char* simGetBufferProperty_internal(long long int target, const char* pName, int* bufferL);
+int simSetIntVector2Property_internal(long long int target, const char* pName, const int* pState);
+int simGetIntVector2Property_internal(long long int target, const char* pName, int* pState);
+int simSetVector2Property_internal(long long int target, const char* pName, const double* pState);
+int simGetVector2Property_internal(long long int target, const char* pName, double* pState);
 int simSetVector3Property_internal(long long int target, const char* pName, const double* pState);
 int simGetVector3Property_internal(long long int target, const char* pName, double* pState);
 int simSetQuaternionProperty_internal(long long int target, const char* pName, const double* pState);

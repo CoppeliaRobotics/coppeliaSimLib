@@ -7,7 +7,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propMesh_textureResolution,       "textureResolution",                        sim_propertytype_intvector, sim_propertyinfo_notwritable, "Texture resolution", "") \
+    FUNCX(propMesh_textureResolution,       "textureResolution",                        sim_propertytype_intvector2,sim_propertyinfo_notwritable, "Texture resolution", "") \
     FUNCX(propMesh_textureCoordinates,      "textureCoordinates",                       sim_propertytype_vector,    sim_propertyinfo_notwritable, "Texture coordinates", "") \
     FUNCX(propMesh_textureApplyMode,        "textureApplyMode",                         sim_propertytype_int,       0, "Texture apply mode", "") \
     FUNCX(propMesh_textureRepeatU,          "textureRepeatU",                           sim_propertytype_bool,      0, "Texture repeat U", "") \
@@ -23,6 +23,7 @@
     FUNCX(propMesh_culling,                 "culling",                                  sim_propertytype_bool,      0, "Backface culling", "") \
     FUNCX(propMesh_objectType,              "objectType",                               sim_propertytype_string,    sim_propertyinfo_notwritable, "Object type", "") \
     FUNCX(propMesh_shapeUid,                "shapeUid",                                 sim_propertytype_int,       sim_propertyinfo_notwritable, "Shape UID", "Unique identifier of parent shape") \
+    FUNCX(propMesh_convex,                  "convex",                                   sim_propertytype_bool,      sim_propertyinfo_notwritable, "Convex", "Whether mesh is convex or not") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -55,6 +56,7 @@ class CMesh : public CMeshWrapper
     bool isMesh() const;
     bool isPure() const;
     bool isConvex() const;
+    void setConvex_raw(bool c);
     bool checkIfConvex();
     CMesh *getFirstMesh();
     CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr);
@@ -149,6 +151,10 @@ class CMesh : public CMeshWrapper
     int getStringProperty(const char* pName, std::string& pState, const C7Vector& shapeRelTr) const;
     int setBufferProperty(const char* pName, const char* buffer, int bufferL, const C7Vector& shapeRelTr);
     int getBufferProperty(const char* pName, std::string& pState, const C7Vector& shapeRelTr) const;
+    int setIntVector2Property(const char* pName, const int* pState, const C7Vector& shapeRelTr);
+    int getIntVector2Property(const char* pName, int* pState, const C7Vector& shapeRelTr) const;
+    int setVector2Property(const char* pName, const double* pState, const C7Vector& shapeRelTr);
+    int getVector2Property(const char* pName, double* pState, const C7Vector& shapeRelTr) const;
     int setVector3Property(const char* pName, const C3Vector& pState, const C7Vector& shapeRelTr);
     int getVector3Property(const char* pName, C3Vector& pState, const C7Vector& shapeRelTr) const;
     int setQuaternionProperty(const char* pName, const C4Vector& pState, const C7Vector& shapeRelTr);

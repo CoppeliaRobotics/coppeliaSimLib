@@ -18,6 +18,7 @@ CMeshWrapper::CMeshWrapper()
 
 void CMeshWrapper::_commonInit()
 {
+    _parentObjectHandle = -1;
     _mass = 1.0;
     _name = "sub__0";
     _dynMaterialId_old = -1; // not used anymore since V3.4.0
@@ -25,7 +26,13 @@ void CMeshWrapper::_commonInit()
     _iFrame.setIdentity();
     _bbFrame.setIdentity();
     _bbSize.clear();
-    setDefaultInertiaParams();
+
+    _com.clear();
+    _iMatrix.clear();
+    _iMatrix(0, 0) = 0.01;
+    _iMatrix(1, 1) = 0.01;
+    _iMatrix(2, 2) = 0.01;
+    getPMIFromInertia(_iMatrix, _pmiRotFrame, _pmi);
 }
 
 CMeshWrapper::~CMeshWrapper()
@@ -52,16 +59,18 @@ void CMeshWrapper::addItem(CMeshWrapper *m)
 
 void CMeshWrapper::_computeInertiaFromComposingInertias()
 {
-    _mass = 0.0;
-    _com.clear();
+    double mass = 0.0;
+    C3Vector com(C3Vector::zeroVector);
     for (size_t i = 0; i < childList.size(); i++)
     {
         CMeshWrapper *mesh = childList[i];
-        _mass += mesh->getMass();
-        _com = _com + mesh->getIFrame() * mesh->getCOM() * mesh->getMass();
+        mass += mesh->getMass();
+        com = com + mesh->getIFrame() * mesh->getCOM() * mesh->getMass();
     }
-    _com = _com / _mass;
-    _iMatrix.clear();
+    setMass(mass);
+    setCOM(com / _mass);
+    C3X3Matrix imatrix;
+    imatrix.clear();
     for (size_t i = 0; i < childList.size(); i++)
     {
         CMeshWrapper *mesh = childList[i];
@@ -78,10 +87,10 @@ void CMeshWrapper::_computeInertiaFromComposingInertias()
                 ddt(j, k) = d(j) * d(k);
         }
         matr = matr - (ddt * mesh->getMass());
-        _iMatrix = _iMatrix + matr;
+        imatrix = imatrix + matr;
     }
-    _iMatrix = _iMatrix / _mass;
-    fixInertiaAndComputePMI();
+    imatrix = imatrix / _mass;
+    setInertiaAndComputePMI(imatrix);
 }
 
 void CMeshWrapper::display(const C7Vector &cumulIFrameTr, CShape *geomData, int displayAttrib,
@@ -274,22 +283,23 @@ void CMeshWrapper::copyWrapperData(CMeshWrapper *target)
 
 void CMeshWrapper::setMass(double m)
 {
-    _mass = tt::getLimitedFloat(0.000000001, 100000.0, m);
+    m = tt::getLimitedFloat(0.000000001, 100000.0, m);
+    if (m != _mass)
+    {
+        _mass = m;
+        if (_parentObjectHandle && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propMeshWrap_mass.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
+            ev->appendKeyDouble(cmd, _mass);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 double CMeshWrapper::getMass() const
 {
-    return (_mass);
-}
-
-void CMeshWrapper::setDefaultInertiaParams()
-{
-    _com.clear();
-    _iMatrix.clear();
-    _iMatrix(0, 0) = 0.01;
-    _iMatrix(1, 1) = 0.01;
-    _iMatrix(2, 2) = 0.01;
-    fixInertiaAndComputePMI();
+    return _mass;
 }
 
 void CMeshWrapper::setName(std::string newName)
@@ -417,12 +427,12 @@ bool CMeshWrapper::getShapeRelBB(const C7Vector &parentCumulTr, const CMeshWrapp
 
 C3Vector CMeshWrapper::getCOM() const
 {
-    return (_com);
+    return _com;
 }
 
 C7Vector CMeshWrapper::getIFrame() const
 {
-    return (_iFrame);
+    return _iFrame;
 }
 
 void CMeshWrapper::setIFrame(const C7Vector &iframe)
@@ -432,39 +442,68 @@ void CMeshWrapper::setIFrame(const C7Vector &iframe)
 
 void CMeshWrapper::setCOM(const C3Vector &com)
 {
-    _com = com;
+    if (_com != com)
+    {
+        _com = com;
+        if (_parentObjectHandle && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propMeshWrap_com.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
+            ev->appendKeyDoubleArray(cmd, _com.data, 3);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 C3X3Matrix CMeshWrapper::getInertia() const
 {
-    return (_iMatrix);
+    return _iMatrix;
 }
 
 void CMeshWrapper::setInertia(const C3X3Matrix &im, int modifItemRow /*=-1*/, int modifItemCol /*=-1*/)
 {
-    _iMatrix = im;
+    C3X3Matrix imatrix(im);
     if ((modifItemRow != -1) && (modifItemCol != -1))
-        _iMatrix(modifItemCol, modifItemRow) = _iMatrix(modifItemRow, modifItemCol);
-    fixInertiaAndComputePMI();
+        imatrix(modifItemCol, modifItemRow) = imatrix(modifItemRow, modifItemCol);
+    setInertiaAndComputePMI(imatrix);
 }
 
-void CMeshWrapper::fixInertiaAndComputePMI()
+void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia)
 {
+    C3X3Matrix _in(inertia);
     for (size_t i = 0; i < 3; i++)
     {
         // Make sure we are symmetric;
         for (size_t j = 0; j < 3; j++)
-            _iMatrix(i, j) = _iMatrix(j, i);
+            _in(i, j) = _in(j, i);
         // Make sure diagonals are positive and above a certain threshold:
-        if (_iMatrix(i, i) < 1e-8)
-            _iMatrix(i, i) = 1e-8;
+        if (_in(i, i) < 1e-8)
+            _in(i, i) = 1e-8;
     }
-    getPMIFromInertia(_iMatrix, _pmiRotFrame, _pmi);
+    if (_in != _iMatrix)
+    {
+        _iMatrix = _in;
+        getPMIFromInertia(_iMatrix, _pmiRotFrame, _pmi);
+        if (_parentObjectHandle && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propMeshWrap_inertia.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
+            double dat[9];
+            _in *= _mass;
+            _in.getData(dat);
+            ev->appendKeyDoubleArray(cmd, dat, 9);
+            C3Vector pmi(_pmi * _mass);
+            ev->appendKeyDoubleArray(propMeshWrap_pmi.name, pmi.data, 3);
+            _pmiRotFrame.getData(dat, true);
+            ev->appendKeyDoubleArray(propMeshWrap_pmiQuaternion.name, dat, 4);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 C3Vector CMeshWrapper::getPMI() const
 {
-    return (_pmi);
+    return _pmi;
 }
 
 void CMeshWrapper::setPMI(const C3Vector &pmi)
@@ -485,15 +524,14 @@ void CMeshWrapper::prepareVerticesIndicesNormalsAndEdgesForSerialization()
 
 void CMeshWrapper::scaleMassAndInertia(double s)
 {
-    _mass *= s * s * s;
-    _iMatrix *= s * s;
-    fixInertiaAndComputePMI();
+    setMass(_mass * s * s * s);
+    setInertiaAndComputePMI(_iMatrix * s * s);
 }
 
 void CMeshWrapper::scale(double isoVal)
 { // function has virtual/non-virtual counterpart
     scaleMassAndInertia(isoVal);
-    _com *= isoVal;
+    setCOM(_com * isoVal);
     _iFrame.X *= isoVal;
     _bbFrame.X *= isoVal;
     _bbSize *= isoVal;
@@ -816,7 +854,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                         _com = inf.X;
                         inf.X.clear();
                         _iMatrix = getInertiaFromPMI(principalMomentsOfInertia_OLD, inf);
-                        fixInertiaAndComputePMI();
+                        setInertiaAndComputePMI(_iMatrix);
                     }
 
                     if (theName.compare("_tb") == 0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
@@ -836,7 +874,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                         _com = inf.X;
                         inf.X.clear();
                         _iMatrix = getInertiaFromPMI(principalMomentsOfInertia_OLD, inf);
-                        fixInertiaAndComputePMI();
+                        setInertiaAndComputePMI(_iMatrix);
                     }
 
                     if (theName.compare("Ifr") == 0)
@@ -864,7 +902,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                             for (size_t j = 0; j < 3; j++)
                                 ar >> _iMatrix(i, j);
                         }
-                        fixInertiaAndComputePMI();
+                        setInertiaAndComputePMI(_iMatrix);
                     }
                     if (theName.compare("Bbf") == 0)
                     {
@@ -1019,7 +1057,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                         _com = inf.X;
                         inf.X.clear();
                         _iMatrix = getInertiaFromPMI(principalMomentsOfInertia_OLD, inf);
-                        fixInertiaAndComputePMI();
+                        setInertiaAndComputePMI(_iMatrix);
                     }
 
                     if (ar.xmlPushChildNode("inertiaFrame"))
@@ -1043,7 +1081,7 @@ bool CMeshWrapper::serialize(CSer &ar, const char *shapeName, const C7Vector &pa
                             for (size_t j = 0; j < 3; j++)
                                 _iMatrix(i, j) = im[i * 3 + j];
                         }
-                        fixInertiaAndComputePMI();
+                        setInertiaAndComputePMI(_iMatrix);
                     }
 
                     if (ar.xmlPushChildNode("bbFrame"))
@@ -1198,3 +1236,183 @@ std::string CMeshWrapper::getInertiaErrorString(const C3X3Matrix &matrix)
     }
     return (retVal);
 }
+
+void CMeshWrapper::addSpecializedObjectEventData(int parentObjectHandle, CCbor *ev)
+{
+    _parentObjectHandle = parentObjectHandle;
+
+    if (_parentObjectHandle >= 0)
+    {
+        ev->appendKeyDouble(propMeshWrap_mass.name, _mass);
+        ev->appendKeyDoubleArray(propMeshWrap_com.name, _com.data, 3);
+        C3X3Matrix inertia(_iMatrix * _mass);
+        double dat[9];
+        inertia.getData(dat);
+        ev->appendKeyDoubleArray(propMeshWrap_inertia.name, dat, 9);
+        C3Vector pmi(_pmi * _mass);
+        ev->appendKeyDoubleArray(propMeshWrap_pmi.name, pmi.data, 3);
+        _pmiRotFrame.getData(dat, true);
+        ev->appendKeyDoubleArray(propMeshWrap_pmiQuaternion.name, dat, 4);
+    }
+}
+
+int CMeshWrapper::setFloatProperty_wrapper(const char* pName, double pState)
+{
+    int retVal = -1;
+
+    if (strcmp(propMeshWrap_mass.name, pName) == 0)
+    {
+        retVal = 1;
+        setMass(pState);
+    }
+
+    return retVal;
+}
+
+int CMeshWrapper::getFloatProperty_wrapper(const char* pName, double& pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(propMeshWrap_mass.name, pName) == 0)
+    {
+        retVal = 1;
+        pState = _mass;
+    }
+
+    return retVal;
+}
+
+int CMeshWrapper::setVector3Property_wrapper(const char* pName, const C3Vector& pState)
+{
+    int retVal = -1;
+
+    if (strcmp(propMeshWrap_com.name, pName) == 0)
+    {
+        retVal = 1;
+        setCOM(pState);
+    }
+
+    return retVal;
+}
+
+int CMeshWrapper::getVector3Property_wrapper(const char* pName, C3Vector& pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(propMeshWrap_com.name, pName) == 0)
+    {
+        retVal = 1;
+        pState = _com;
+    }
+    else if (strcmp(propMeshWrap_pmi.name, pName) == 0)
+    {
+        retVal = 1;
+        pState = _pmi;
+    }
+
+    return retVal;
+}
+
+int CMeshWrapper::setQuaternionProperty_wrapper(const char* pName, const C4Vector& pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CMeshWrapper::getQuaternionProperty_wrapper(const char* pName, C4Vector& pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(propMeshWrap_pmiQuaternion.name, pName) == 0)
+    {
+        retVal = 1;
+        pState = _pmiRotFrame;
+    }
+
+    return retVal;
+}
+
+int CMeshWrapper::setVectorProperty_wrapper(const char* pName, const double* v, int vL)
+{
+    int retVal = -1;
+
+    if (strcmp(propMeshWrap_inertia.name, pName) == 0)
+    {
+        if (vL >= 9)
+        {
+            retVal = 1;
+            C3X3Matrix m;
+            m.setData(v);
+            setInertiaAndComputePMI(m);
+        }
+        else
+            retVal = 0;
+    }
+
+    return retVal;
+}
+
+int CMeshWrapper::getVectorProperty_wrapper(const char* pName, std::vector<double>& pState) const
+{
+    int retVal = -1;
+    pState.clear();
+
+    if (strcmp(propMeshWrap_inertia.name, pName) == 0)
+    {
+        pState.resize(9, 0.0);
+        _iMatrix.getData(pState.data());
+        retVal = 1;
+    }
+
+    return retVal;
+}
+
+int CMeshWrapper::getPropertyName_wrapper(int& index, std::string& pName) const
+{
+    int retVal = getPropertyName_static_wrapper(index, pName);
+    return retVal;
+}
+
+int CMeshWrapper::getPropertyName_static_wrapper(int& index, std::string& pName)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_meshWrap.size(); i++)
+    {
+        index--;
+        if (index == -1)
+        {
+            pName = allProps_meshWrap[i].name;
+            retVal = 1;
+            break;
+        }
+    }
+    return retVal;
+}
+
+int CMeshWrapper::getPropertyInfo_wrapper(const char* pName, int& info, std::string& infoTxt) const
+{
+    int retVal = getPropertyInfo_static_wrapper(pName, info, infoTxt);
+    return retVal;
+}
+
+int CMeshWrapper::getPropertyInfo_static_wrapper(const char* pName, int& info, std::string& infoTxt)
+{
+    int retVal = -1;
+    for (size_t i = 0; i < allProps_meshWrap.size(); i++)
+    {
+        if (strcmp(allProps_meshWrap[i].name, pName) == 0)
+        {
+            retVal = allProps_meshWrap[i].type;
+            info = allProps_meshWrap[i].flags;
+            if ( (infoTxt == "") && (strcmp(allProps_meshWrap[i].infoTxt, "") != 0) )
+                infoTxt = allProps_meshWrap[i].infoTxt;
+            else
+                infoTxt = allProps_meshWrap[i].shortInfoTxt;
+            break;
+        }
+    }
+    return retVal;
+}
+
+

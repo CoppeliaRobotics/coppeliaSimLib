@@ -199,7 +199,7 @@ void CPersistentDataContainer::_readFromFile(std::vector<std::string> &dataNames
                 archive.close();
                 file.close();
             }
-            catch (VFILE_EXCEPTION_TYPE e)
+            catch (VFILE_EXCEPTION_TYPE)
             {
                 // silent error since 3/2/2012: when the system folder dowesn't exist, we don't want an error!!
                 // VFile::reportAndHandleFileExceptionError(e);
@@ -223,7 +223,7 @@ void CPersistentDataContainer::_writeToFile(std::vector<std::string> &dataNames,
         archive.close();
         myFile.close();
     }
-    catch (VFILE_EXCEPTION_TYPE e)
+    catch (VFILE_EXCEPTION_TYPE)
     {
         // silent error since 3/2/2012: when the system folder doesn't exist, we don't want an error!!
         // VFile::reportAndHandleFileExceptionError(e);

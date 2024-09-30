@@ -1377,6 +1377,62 @@ int CProxSensor::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CProxSensor::setIntVector2Property(const char* ppName, const int* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setIntVector2Property(pName, pState);
+    if (retVal == -1)
+        retVal = convexVolume->setIntVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CProxSensor::getIntVector2Property(const char* ppName, int* pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getIntVector2Property(pName, pState);
+    if (retVal == -1)
+        retVal = convexVolume->getIntVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CProxSensor::setVector2Property(const char* ppName, const double* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setVector2Property(pName, pState);
+    if (retVal == -1)
+        retVal = convexVolume->setVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CProxSensor::getVector2Property(const char* ppName, double* pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getVector2Property(pName, pState);
+    if (retVal == -1)
+        retVal = convexVolume->getVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
 int CProxSensor::setVector3Property(const char* ppName, const C3Vector& pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));

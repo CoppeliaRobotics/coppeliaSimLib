@@ -10,7 +10,7 @@
     FUNCX(propLight_lightType,               "lightType",                                sim_propertytype_int,       sim_propertyinfo_notwritable, "Type", "Light type") \
     FUNCX(propLight_spotExponent,            "spotExponent",                             sim_propertytype_int,       0, "Spot exponent", "") \
     FUNCX(propLight_spotCutoffAngle,         "spotCutoffAngle",                          sim_propertytype_float,     0, "Cut off angle", "Spot cut off angle") \
-    FUNCX(propLight_attenuationFactors,      "attenuationFactors",                       sim_propertytype_vector,    0, "Attenuation factor", "") \
+    FUNCX(propLight_attenuationFactors,      "attenuationFactors",                       sim_propertytype_vector3,   0, "Attenuation factor", "") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -59,6 +59,8 @@ class CLight : public CSceneObject
     int getFloatProperty(const char* pName, double& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
+    int setVector3Property(const char* pName, const C3Vector& pState);
+    int getVector3Property(const char* pName, C3Vector& pState) const;
     int setVectorProperty(const char* pName, const double* v, int vL);
     int getVectorProperty(const char* pName, std::vector<double>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);

@@ -1038,8 +1038,7 @@ void CShape::_serializeMesh(CSer &ar)
                         ar >> byteQuantity;
                         delete _mesh;
                         _mesh = new CMesh();
-                        ((CMesh *)_mesh)
-                            ->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
+                        ((CMesh *)_mesh)->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
                     }
                     if (theName.compare("Gsg") == 0)
                     { // geomWrap
@@ -1516,6 +1515,7 @@ void CShape::addSpecializedObjectEventData(CCbor *ev)
     _dynMaterial->setBoolProperty(nullptr, false, ev);
     _dynMaterial->setIntProperty(nullptr, 0, ev);
     _dynMaterial->setFloatProperty(nullptr, 0.0, ev);
+    _dynMaterial->setVector2Property(nullptr, nullptr, ev);
     _dynMaterial->setVector3Property(nullptr, nullptr, ev);
     _dynMaterial->setVectorProperty(nullptr, nullptr, 0, ev);
     _dynMaterial->sendEngineString(ev);
@@ -1626,6 +1626,8 @@ void CShape::addSpecializedObjectEventData(CCbor *ev)
     ev->appendKeyDoubleArray(propShape_initAngularVelocity.name, _initialDynamicAngularVelocity.data, 3);
     ev->appendKeyDoubleArray(propShape_dynLinearVelocity.name, _dynamicLinearVelocity.data, 3);
     ev->appendKeyDoubleArray(propShape_dynAngularVelocity.name, _dynamicAngularVelocity.data, 3);
+
+    _mesh->addSpecializedObjectEventData(_objectHandle, ev);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     ev->closeArrayOrMap(); // shape
@@ -1905,6 +1907,8 @@ int CShape::setFloatProperty(const char* ppName, double pState)
     if (retVal == -1)
         retVal = _dynMaterial->setFloatProperty(pName, pState);
     if (retVal == -1)
+        retVal = _mesh->setFloatProperty_wrapper(pName, pState);
+    if (retVal == -1)
     {
         if (_pName == propShape_applyShadingAngle.name)
         {
@@ -1923,6 +1927,8 @@ int CShape::getFloatProperty(const char* ppName, double& pState) const
     int retVal = CSceneObject::getFloatProperty(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->getFloatProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _mesh->getFloatProperty_wrapper(pName, pState);
 
     return retVal;
 }
@@ -1957,6 +1963,8 @@ int CShape::setVector3Property(const char* ppName, const C3Vector& pState)
     if (retVal == -1)
         retVal = _dynMaterial->setVector3Property(pName, &pState);
     if (retVal == -1)
+        retVal = _mesh->setVector3Property_wrapper(pName, pState);
+    if (retVal == -1)
     {
         if (_pName == propShape_initLinearVelocity.name)
         {
@@ -1980,6 +1988,8 @@ int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
     int retVal = CSceneObject::getVector3Property(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->getVector3Property(pName, &pState);
+    if (retVal == -1)
+        retVal = _mesh->getVector3Property_wrapper(pName, pState);
     if (retVal == -1)
     {
         if (_pName == propShape_initLinearVelocity.name)
@@ -2016,6 +2026,8 @@ int CShape::setVectorProperty(const char* ppName, const double* v, int vL)
     int retVal = CSceneObject::setVectorProperty(pName, v, vL);
     if (retVal == -1)
         retVal = _dynMaterial->setVectorProperty(pName, v, vL);
+    if (retVal == -1)
+        retVal = _mesh->setVectorProperty_wrapper(pName, v, vL);
 
     return retVal;
 }
@@ -2028,6 +2040,8 @@ int CShape::getVectorProperty(const char* ppName, std::vector<double>& pState) c
     int retVal = CSceneObject::getVectorProperty(pName, pState);
     if (retVal == -1)
         retVal = _dynMaterial->getVectorProperty(pName, pState);
+    if (retVal == -1)
+        retVal = _mesh->getVectorProperty_wrapper(pName, pState);
 
     return retVal;
 }
@@ -2072,6 +2086,8 @@ int CShape::getPropertyName(int& index, std::string& pName, std::string& apparte
         appartenance += ".shape";
         retVal = _dynMaterial->getPropertyName(index, pName);
         if (retVal == -1)
+            retVal = _mesh->getPropertyName_wrapper(index, pName);
+        if (retVal == -1)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
             {
@@ -2096,6 +2112,8 @@ int CShape::getPropertyName_static(int& index, std::string& pName, std::string& 
     {
         appartenance += ".shape";
         retVal = CDynMaterialObject::getPropertyName_static(index, pName);
+        if (retVal == -1)
+            retVal = CMeshWrapper::getPropertyName_static_wrapper(index, pName);
         if (retVal == -1)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
@@ -2122,6 +2140,8 @@ int CShape::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
     if (retVal == -1)
     {
         retVal = _dynMaterial->getPropertyInfo(pName, info, infoTxt);
+        if (retVal == -1)
+            retVal = _mesh->getPropertyInfo_wrapper(pName, info, infoTxt);
         if (retVal == -1)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
@@ -2150,6 +2170,8 @@ int CShape::getPropertyInfo_static(const char* ppName, int& info, std::string& i
     if (retVal == -1)
     {
         retVal = CDynMaterialObject::getPropertyInfo_static(pName, info, infoTxt);
+        if (retVal == -1)
+            retVal = CMeshWrapper::getPropertyInfo_static_wrapper(pName, info, infoTxt);
         if (retVal == -1)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)

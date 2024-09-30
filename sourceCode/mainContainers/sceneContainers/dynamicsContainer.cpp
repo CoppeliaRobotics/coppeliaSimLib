@@ -2159,6 +2159,8 @@ void CDynamicsContainer::appendGenesisData(CCbor *ev)
     setBoolProperty(nullptr, false, ev);
     setIntProperty(nullptr, 0, ev);
     setFloatProperty(nullptr, 0.0, ev);
+    setIntVector2Property(nullptr, nullptr, ev);
+    setVector2Property(nullptr, nullptr, ev);
     setVector3Property(nullptr, nullptr, ev);
     setVectorProperty(nullptr, nullptr, 0, ev);
     _sendEngineString(ev);
@@ -2803,6 +2805,159 @@ int CDynamicsContainer::getStringProperty(const char* pName, std::string& pState
     return retVal;
 }
 
+int CDynamicsContainer::setIntVector2Property(const char* pName, const int* pState, CCbor* eev/* = nullptr*/)
+{
+    int retVal = -1;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    if ( (eev == nullptr) && (pName != nullptr) )
+    { // regular properties (i.e. non-engine properties)
+        if (strcmp(pName, propDyn_dynamicsEngine.name) == 0)
+        {
+            int w[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
+            setDynamicEngineType(pState[0], pState[1]);
+            retVal = 1;
+        }
+    }
+
+    if (retVal == -1)
+    {
+        // Following only for engine properties:
+        // -------------------------------------
+        // -------------------------------------
+    }
+
+    if (retVal == 1)
+        checkIfEngineSettingsAreDefault();
+
+    return retVal;
+}
+
+int CDynamicsContainer::getIntVector2Property(const char* pName, int* pState, bool getDefaultValue /*= false*/) const
+{
+    int retVal = -1;
+    // First non-engine properties:
+    if (strcmp(pName, propDyn_dynamicsEngine.name) == 0)
+    {
+        pState[0] = _dynamicEngineToUse;
+        pState[1] = _dynamicEngineVersionToUse;
+        retVal = 1;
+    }
+
+    // Engine-only properties:
+    // ------------------------
+    // ------------------------
+
+    return retVal;
+}
+
+int CDynamicsContainer::setVector2Property(const char* pName, const double* pState, CCbor* eev/* = nullptr*/)
+{
+    int retVal = -1;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    if ( (eev == nullptr) && (pName != nullptr) )
+    { // regular properties (i.e. non-engine properties)
+    }
+
+    if (retVal == -1)
+    {
+        // Following only for engine properties:
+        // -------------------------------------
+        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1)
+        {
+            if ((pName == nullptr) || (propertyName == pName))
+            {
+                retVal = 1;
+                bool pa = false;
+                if (pState != nullptr)
+                {
+                    for (size_t i = 0; i < 2; i++)
+                        pa = pa || ((pState != nullptr) && (arr[simiIndex1 + i] != pState[i]));
+                }
+                if ( (pName == nullptr) || pa )
+                {
+                    if (pName != nullptr)
+                    {
+                        for (size_t i = 0; i < 2; i++)
+                            arr[simiIndex1 + i] = pState[i];
+                    }
+                    if (App::worldContainer->getEventsEnabled())
+                    {
+                        if (ev == nullptr)
+                            ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
+                        ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 2);
+                        if (pName != nullptr)
+                            _sendEngineString(ev);
+                    }
+                }
+            }
+        };
+
+        handleProp(propDyn_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1);
+
+        if ( (ev != nullptr) && (eev == nullptr) )
+            App::worldContainer->pushEvent();
+        // -------------------------------------
+    }
+
+    if (retVal == 1)
+        checkIfEngineSettingsAreDefault();
+
+    return retVal;
+}
+
+int CDynamicsContainer::getVector2Property(const char* pName, double* pState, bool getDefaultValue /*= false*/) const
+{
+    int retVal = -1;
+    // First non-engine properties:
+
+    // Engine-only properties:
+    // ------------------------
+    if (retVal == -1)
+    {
+        const double* bulletFloatParams = _bulletFloatParams.data();
+        const double* odeFloatParams = _odeFloatParams.data();
+        const double* vortexFloatParams = _vortexFloatParams.data();
+        const double* newtonFloatParams = _newtonFloatParams.data();
+        const double* mujocoFloatParams = _mujocoFloatParams.data();
+        std::vector<double> __bulletFloatParams;
+        std::vector<double> __odeFloatParams;
+        std::vector<double> __vortexFloatParams;
+        std::vector<double> __newtonFloatParams;
+        std::vector<double> __mujocoFloatParams;
+        if (getDefaultValue)
+        {
+            getBulletDefaultFloatParams(__bulletFloatParams);
+            getOdeDefaultFloatParams(__odeFloatParams);
+            getVortexDefaultFloatParams(__vortexFloatParams);
+            getNewtonDefaultFloatParams(__newtonFloatParams);
+            getMujocoDefaultFloatParams(__mujocoFloatParams);
+            bulletFloatParams = __bulletFloatParams.data();
+            odeFloatParams = __odeFloatParams.data();
+            vortexFloatParams = __vortexFloatParams.data();
+            newtonFloatParams = __newtonFloatParams.data();
+            mujocoFloatParams = __mujocoFloatParams.data();
+        }
+        auto handleProp = [&](const double* arr, int simiIndex1)
+        {
+            retVal = 1;
+            for (size_t i = 0; i < 2; i++)
+                pState[i] = arr[simiIndex1 + i];
+        };
+
+        if (strcmp(pName, propDyn_mujocoContactParamsSolref.name) == 0)
+            handleProp(mujocoFloatParams, simi_mujoco_global_overridesolref1);
+    }
+    // ------------------------
+
+    return retVal;
+}
+
 int CDynamicsContainer::setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev/* = nullptr*/)
 {
     int retVal = -1;
@@ -2960,7 +3115,6 @@ int CDynamicsContainer::setVectorProperty(const char* pName, const double* v, in
             }
         };
 
-        handleProp(propDyn_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1, 2);
         handleProp(propDyn_mujocoContactParamsSolimp.name, _mujocoFloatParams, simi_mujoco_global_overridesolimp1, 5);
 
         if ( (ev != nullptr) && (eev == nullptr) )
@@ -3021,8 +3175,6 @@ int CDynamicsContainer::getVectorProperty(const char* pName, std::vector<double>
                 pState.push_back(arr[simiIndex1 + i]);
         };
 
-        if (strcmp(pName, propDyn_mujocoContactParamsSolref.name) == 0)
-            handleProp(mujocoFloatParams, simi_mujoco_global_overridesolref1, 2);
         if (strcmp(pName, propDyn_mujocoContactParamsSolimp.name) == 0)
             handleProp(mujocoFloatParams, simi_mujoco_global_overridesolimp1, 5);
     }
@@ -3035,17 +3187,6 @@ int CDynamicsContainer::setIntVectorProperty(const char* pName, const int* v, in
 {
     int retVal = -1;
 
-    if (strcmp(pName, propDyn_dynamicsEngine.name) == 0)
-    {
-        int w[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
-        if (vL >= 1)
-            w[0] = v[0];
-        if (vL >= 2)
-            w[1] = v[1];
-        setDynamicEngineType(w[0], w[1]);
-        retVal = 1;
-    }
-
     if (retVal == 1)
         checkIfEngineSettingsAreDefault();
 
@@ -3056,13 +3197,6 @@ int CDynamicsContainer::getIntVectorProperty(const char* pName, std::vector<int>
 {
     int retVal = -1;
     pState.clear();
-
-    if (strcmp(pName, propDyn_dynamicsEngine.name) == 0)
-    {
-        pState.push_back(_dynamicEngineToUse);
-        pState.push_back(_dynamicEngineVersionToUse);
-        retVal = 1;
-    }
 
     return retVal;
 }

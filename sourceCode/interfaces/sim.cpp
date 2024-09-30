@@ -42,6 +42,22 @@ SIM_DLLEXPORT char* simGetBufferProperty(long long int target, const char* pName
 {
     return simGetBufferProperty_internal(target, pName, bufferL);
 }
+SIM_DLLEXPORT int simSetIntVector2Property(long long int target, const char* pName, const int* pState)
+{
+    return simSetIntVector2Property_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetIntVector2Property(long long int target, const char* pName, int* pState)
+{
+    return simGetIntVector2Property_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simSetVector2Property(long long int target, const char* pName, const double* pState)
+{
+    return simSetVector2Property_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetVector2Property(long long int target, const char* pName, double* pState)
+{
+    return simGetVector2Property_internal(target, pName, pState);
+}
 SIM_DLLEXPORT int simSetVector3Property(long long int target, const char* pName, const double* pState)
 {
     return simSetVector3Property_internal(target, pName, pState);

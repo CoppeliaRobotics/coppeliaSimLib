@@ -90,8 +90,8 @@ struct SEngMaterialProperty {
     FUNCX(propMaterial_newtonLinearDrag,                    "newtonLinearDrag",             sim_propertytype_float, 0,      sim_newton_body_lineardrag, -1, -1, -1, -1, "", "") \
     FUNCX(propMaterial_newtonAngularDrag,                   "newtonAngularDrag",            sim_propertytype_float, 0,      sim_newton_body_angulardrag, -1, -1, -1, -1, "", "") \
     FUNCX(propMaterial_newtonFastMoving,                    "newtonFastMoving",             sim_propertytype_bool,  0,      sim_newton_body_fastmoving, -1, -1, -1, -1, "", "") \
-    FUNCX(propMaterial_mujocoFriction,                      "mujocoFriction",               sim_propertytype_vector, 0,     sim_mujoco_body_friction1, sim_mujoco_body_friction2, sim_mujoco_body_friction3, -1, -1, "", "") \
-    FUNCX(propMaterial_mujocoSolref,                        "mujocoSolref",                 sim_propertytype_vector, 0,     sim_mujoco_body_solref1, sim_mujoco_body_solref2, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_mujocoFriction,                      "mujocoFriction",               sim_propertytype_vector3, 0,    sim_mujoco_body_friction1, sim_mujoco_body_friction2, sim_mujoco_body_friction3, -1, -1, "", "") \
+    FUNCX(propMaterial_mujocoSolref,                        "mujocoSolref",                 sim_propertytype_vector2, 0,    sim_mujoco_body_solref1, sim_mujoco_body_solref2, -1, -1, -1, "", "") \
     FUNCX(propMaterial_mujocoSolimp,                        "mujocoSolimp",                 sim_propertytype_vector, 0,     sim_mujoco_body_solimp1, sim_mujoco_body_solimp2, sim_mujoco_body_solimp3, sim_mujoco_body_solimp4, sim_mujoco_body_solimp5, "", "") \
     FUNCX(propMaterial_mujocoSolmix,                        "mujocoSolmix",                 sim_propertytype_float, 0,      sim_mujoco_body_solmix, -1, -1, -1, -1, "", "") \
     FUNCX(propMaterial_mujocoMargin,                        "mujocoMargin",                 sim_propertytype_float, 0,      sim_mujoco_body_margin, -1, -1, -1, -1, "", "") \
@@ -285,6 +285,8 @@ class CDynMaterialObject
     int getFloatProperty(const char* pName, double& pState) const;
     int setStringProperty(const char* pName, const char* pState);
     int getStringProperty(const char* pName, std::string& pState) const;
+    int setVector2Property(const char* pName, const double* pState, CCbor* eev = nullptr);
+    int getVector2Property(const char* pName, double* pState) const;
     int setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev = nullptr);
     int getVector3Property(const char* pName, C3Vector* pState) const;
     int setVectorProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);

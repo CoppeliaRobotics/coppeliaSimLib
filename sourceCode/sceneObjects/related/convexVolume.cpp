@@ -2110,48 +2110,106 @@ int CConvexVolume::getFloatProperty(const char* pName, double& pState) const
     return retVal;
 }
 
-int CConvexVolume::setVectorProperty(const char* pName, const double* v, int vL)
+int CConvexVolume::setIntVector2Property(const char* pName, const int* pState)
 {
-    if (v == nullptr)
-        vL = 0;
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CConvexVolume::getIntVector2Property(const char* pName, int* pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(propVolume_faces.name, pName) == 0)
+    {
+        retVal = 1;
+        pState[0] = faceNumber;
+        pState[1] = faceNumberFar;
+    }
+    else if (strcmp(propVolume_subdivisions.name, pName) == 0)
+    {
+        retVal = 1;
+        pState[0] = subdivisions;
+        pState[1] = subdivisionsFar;
+    }
+
+    return retVal;
+}
+
+int CConvexVolume::setVector2Property(const char* pName, const double* pState)
+{
     int retVal = -1;
 
     if (strcmp(propVolume_xSize.name, pName) == 0)
     {
         retVal = 1;
-        if (vL >= 1)
-            setXSize(v[0], false);
-        if (vL >= 2)
-            setXSizeFar(v[1], false);
+        setXSize(pState[0], false);
+        setXSizeFar(pState[1], false);
         computeVolumes();
     }
     else if (strcmp(propVolume_ySize.name, pName) == 0)
     {
         retVal = 1;
-        if (vL >= 1)
-            setYSize(v[0], false);
-        if (vL >= 2)
-            setYSizeFar(v[1], false);
+        setYSize(pState[0], false);
+        setYSizeFar(pState[1], false);
         computeVolumes();
     }
     else if (strcmp(propVolume_radius.name, pName) == 0)
     {
         retVal = 1;
-        if (vL >= 1)
-            setRadius(v[0], false);
-        if (vL >= 2)
-            setRadiusFar(v[1], false);
+        setRadius(pState[0], false);
+        setRadiusFar(pState[1], false);
         computeVolumes();
     }
     else if (strcmp(propVolume_angle.name, pName) == 0)
     {
         retVal = 1;
-        if (vL >= 1)
-            setAngle(v[0], false);
-        if (vL >= 2)
-            setInsideAngleThing(v[1], false);
+        setAngle(pState[0], false);
+        setInsideAngleThing(pState[1], false);
         computeVolumes();
     }
+
+    return retVal;
+}
+
+int CConvexVolume::getVector2Property(const char* pName, double* pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(propVolume_xSize.name, pName) == 0)
+    {
+        retVal = 1;
+        pState[0] = xSize;
+        pState[1] = xSizeFar;
+    }
+    else if (strcmp(propVolume_ySize.name, pName) == 0)
+    {
+        retVal = 1;
+        pState[0] = ySize;
+        pState[1] = ySizeFar;
+    }
+    else if (strcmp(propVolume_radius.name, pName) == 0)
+    {
+        retVal = 1;
+        pState[0] = radius;
+        pState[1] = radiusFar;
+    }
+    else if (strcmp(propVolume_angle.name, pName) == 0)
+    {
+        retVal = 1;
+        pState[0] = angle;
+        pState[1] = insideAngleThing;
+    }
+
+    return retVal;
+}
+
+int CConvexVolume::setVectorProperty(const char* pName, const double* v, int vL)
+{
+    if (v == nullptr)
+        vL = 0;
+    int retVal = -1;
 
     return retVal;
 }
@@ -2161,31 +2219,7 @@ int CConvexVolume::getVectorProperty(const char* pName, std::vector<double>& pSt
     pState.clear();
     int retVal = -1;
 
-    if (strcmp(propVolume_xSize.name, pName) == 0)
-    {
-        retVal = 1;
-        pState.push_back(xSize);
-        pState.push_back(xSizeFar);
-    }
-    else if (strcmp(propVolume_ySize.name, pName) == 0)
-    {
-        retVal = 1;
-        pState.push_back(ySize);
-        pState.push_back(ySizeFar);
-    }
-    else if (strcmp(propVolume_radius.name, pName) == 0)
-    {
-        retVal = 1;
-        pState.push_back(radius);
-        pState.push_back(radiusFar);
-    }
-    else if (strcmp(propVolume_angle.name, pName) == 0)
-    {
-        retVal = 1;
-        pState.push_back(angle);
-        pState.push_back(insideAngleThing);
-    }
-    else if (strcmp(propVolume_edges.name, pName) == 0)
+    if (strcmp(propVolume_edges.name, pName) == 0)
     {
         retVal = 1;
         pState.assign(volumeEdges.begin(), volumeEdges.end());
@@ -2205,24 +2239,6 @@ int CConvexVolume::setIntVectorProperty(const char* pName, const int* v, int vL)
         vL = 0;
     int retVal = -1;
 
-    if (strcmp(propVolume_faces.name, pName) == 0)
-    {
-        retVal = 1;
-        if (vL >= 1)
-            setFaceNumber(v[0], false);
-        if (vL >= 2)
-            setFaceNumberFar(v[1], false);
-        computeVolumes();
-    }
-    else if (strcmp(propVolume_subdivisions.name, pName) == 0)
-    {
-        retVal = 1;
-        if (vL >= 1)
-            setSubdivisions(v[0], false);
-        if (vL >= 2)
-            setSubdivisionsFar(v[1], false);
-        computeVolumes();
-    }
 
     return retVal;
 }
@@ -2231,19 +2247,6 @@ int CConvexVolume::getIntVectorProperty(const char* pName, std::vector<int>& pSt
 {
     pState.clear();
     int retVal = -1;
-
-    if (strcmp(propVolume_faces.name, pName) == 0)
-    {
-        retVal = 1;
-        pState.push_back(faceNumber);
-        pState.push_back(faceNumberFar);
-    }
-    else if (strcmp(propVolume_subdivisions.name, pName) == 0)
-    {
-        retVal = 1;
-        pState.push_back(subdivisions);
-        pState.push_back(subdivisionsFar);
-    }
 
     return retVal;
 }

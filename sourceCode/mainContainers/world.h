@@ -93,6 +93,10 @@ class CWorld
     int getStringProperty(long long int target, const char* pName, std::string& pState) const;
     int setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL);
     int getBufferProperty(long long int target, const char* pName, std::string& pState) const;
+    int setIntVector2Property(long long int target, const char* pName, const int* pState);
+    int getIntVector2Property(long long int target, const char* pName, int* pState) const;
+    int setVector2Property(long long int target, const char* pName, const double* pState);
+    int getVector2Property(long long int target, const char* pName, double* pState) const;
     int setVector3Property(long long int target, const char* pName, const C3Vector& pState);
     int getVector3Property(long long int target, const char* pName, C3Vector& pState) const;
     int setQuaternionProperty(long long int target, const char* pName, const C4Vector& pState);

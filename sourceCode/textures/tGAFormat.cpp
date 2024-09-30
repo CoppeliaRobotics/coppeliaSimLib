@@ -211,7 +211,7 @@ unsigned char *CTGAFormat::getQ_ImageData(const char *fileAndPathName, int &resX
         archive.close();
         file.close();
     }
-    catch (VFILE_EXCEPTION_TYPE e)
+    catch (VFILE_EXCEPTION_TYPE)
     {
     }
     return (retVal);

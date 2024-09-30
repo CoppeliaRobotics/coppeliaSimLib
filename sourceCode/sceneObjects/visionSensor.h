@@ -87,6 +87,10 @@ class CVisionSensor : public CViewableBase
     int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
+    int setIntVector2Property(const char* pName, const int* pState);
+    int getIntVector2Property(const char* pName, int* pState) const;
+    int setVector2Property(const char* pName, const double* pState);
+    int getVector2Property(const char* pName, double* pState) const;
     int setBufferProperty(const char* pName, const char* buffer, int bufferL);
     int getBufferProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);

@@ -15,6 +15,10 @@ SIM_DLLEXPORT int simSetStringProperty(long long int target, const char* pName, 
 SIM_DLLEXPORT char* simGetStringProperty(long long int target, const char* pName);
 SIM_DLLEXPORT int simSetBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL);
 SIM_DLLEXPORT char* simGetBufferProperty(long long int target, const char* pName, int* bufferL);
+SIM_DLLEXPORT int simSetIntVector2Property(long long int target, const char* pName, const int* pState);
+SIM_DLLEXPORT int simGetIntVector2Property(long long int target, const char* pName, int* pState);
+SIM_DLLEXPORT int simSetVector2Property(long long int target, const char* pName, const double* pState);
+SIM_DLLEXPORT int simGetVector2Property(long long int target, const char* pName, double* pState);
 SIM_DLLEXPORT int simSetVector3Property(long long int target, const char* pName, const double* pState);
 SIM_DLLEXPORT int simGetVector3Property(long long int target, const char* pName, double* pState);
 SIM_DLLEXPORT int simSetQuaternionProperty(long long int target, const char* pName, const double* pState);

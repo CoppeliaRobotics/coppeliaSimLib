@@ -1586,6 +1586,74 @@ int App::getBufferProperty(long long int target, const char* pName, std::string&
     return retVal;
 }
 
+int App::setIntVector2Property(long long int target, const char* pName, const int* pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setIntVector2Property(pName, pState);
+    }
+    else if (target == sim_handle_appstorage)
+    {
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->setIntVector2Property(target, pName, pState);
+    return retVal;
+}
+
+int App::getIntVector2Property(long long int target, const char* pName, int* pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getIntVector2Property(pName, pState);
+    }
+    else if (target == sim_handle_appstorage)
+    {
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getIntVector2Property(target, pName, pState);
+    return retVal;
+}
+
+int App::setVector2Property(long long int target, const char* pName, const double* pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+        if (worldContainer != nullptr)
+            retVal = worldContainer->setVector2Property(pName, pState);
+    }
+    else if (target == sim_handle_appstorage)
+    {
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->setVector2Property(target, pName, pState);
+    return retVal;
+}
+
+int App::getVector2Property(long long int target, const char* pName, double* pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_app)
+    {
+        if (worldContainer != nullptr)
+            retVal = worldContainer->getVector2Property(pName, pState);
+    }
+    else if (target == sim_handle_appstorage)
+    {
+        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    }
+    else if (currentWorld != nullptr)
+        retVal = currentWorld->getVector2Property(target, pName, pState);
+    return retVal;
+}
+
 int App::setVector3Property(long long int target, const char* pName, const C3Vector& pState)
 {
     int retVal = -1;

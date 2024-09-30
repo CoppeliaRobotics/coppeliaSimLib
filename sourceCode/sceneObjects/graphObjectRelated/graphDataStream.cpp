@@ -576,7 +576,6 @@ void CGraphDataStream::serialize(CSer &ar, int startPt, int ptCnt, int bufferSiz
                     if (theName.compare("Var") == 0)
                     { // for backward comp. (flt->dbl)
                         noHit = false;
-                        double dummy;
                         ar >> byteQuantity;
                         ar >> _transformationType;
                         float bla, bli;
@@ -592,7 +591,6 @@ void CGraphDataStream::serialize(CSer &ar, int startPt, int ptCnt, int bufferSiz
                     if (theName.compare("_ar") == 0)
                     {
                         noHit = false;
-                        double dummy;
                         ar >> byteQuantity;
                         ar >> _transformationType;
                         ar >> _transformationMult >> _transformationOff;

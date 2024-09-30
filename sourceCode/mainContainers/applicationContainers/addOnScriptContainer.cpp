@@ -221,7 +221,7 @@ void CAddOnScriptContainer::_insertAdditionalAddOns()
 
                 App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "add-on '%s' was loaded.", fileName_withExtension.c_str());
             }
-            catch (VFILE_EXCEPTION_TYPE e)
+            catch (VFILE_EXCEPTION_TYPE)
             {
                 App::logMsg(sim_verbosity_errors, "failed loading add-on '%s'.", fileName_withExtension.c_str());
             }
@@ -440,7 +440,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                             file.close();
                             _removeAddOn(scriptID);
                         }
-                        catch (VFILE_EXCEPTION_TYPE e)
+                        catch (VFILE_EXCEPTION_TYPE)
                         {
                         }
                     }

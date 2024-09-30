@@ -633,7 +633,11 @@ void CWorldContainer::pushGenesisEvents()
         CCbor *ev = _createGeneralEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, nullptr, false);
         pushEvent();
 
-        ev = _createGeneralEvent(EVENTTYPE_APPSESSION, sim_handle_app, sim_handle_app, nullptr, nullptr, false);
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+        ev = _createGeneralEvent("appSession", sim_handle_app, sim_handle_app, nullptr, nullptr, false);
+#else
+        ev = _createGeneralEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, nullptr, false);
+#endif
         ev->appendKeyText(propApp_sessionId.name, _sessionId.c_str());
         ev->appendKeyInt(propApp_protocolVersion.name, SIM_EVENT_PROTOCOL_VERSION);
         ev->appendKeyText(propApp_productVersion.name, PRODUCT_VERSION);
@@ -662,9 +666,10 @@ void CWorldContainer::pushGenesisEvents()
         ev->appendKeyText(propApp_importExportDir.name, App::folders->getImportExportPath().c_str());
         ev->appendKeyText(propApp_defaultPython.name, App::userSettings->defaultPython.c_str());
         ev->appendKeyText(propApp_sandboxLang.name, App::userSettings->preferredSandboxLang.c_str());
+#if SIM_EVENT_PROTOCOL_VERSION == 2
         pushEvent();
-
-        ev = _createGeneralEvent(EVENTTYPE_APPSETTINGSCHANGED, sim_handle_app, sim_handle_app, nullptr, nullptr, false);
+        ev = _createGeneralEvent("appSettingsChanged", sim_handle_app, sim_handle_app, nullptr, nullptr, false);
+#endif
         ev->appendKeyDouble(propApp_defaultTranslationStepSize.name, App::userSettings->getTranslationStepSize());
         ev->appendKeyDouble(propApp_defaultRotationStepSize.name, App::userSettings->getRotationStepSize());
         ev->appendKeyBool(propApp_hierarchyEnabled.name, App::getHierarchyEnabled());
@@ -1186,6 +1191,42 @@ int CWorldContainer::getBufferProperty(const char* ppName, std::string& pState) 
             }
         }
     }
+    return retVal;
+}
+
+int CWorldContainer::setIntVector2Property(const char* ppName, const int* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getIntVector2Property(const char* ppName, int* pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::setVector2Property(const char* ppName, const double* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CWorldContainer::getVector2Property(const char* ppName, double* pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "app."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
     return retVal;
 }
 

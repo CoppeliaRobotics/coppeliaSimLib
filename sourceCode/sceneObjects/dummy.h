@@ -23,8 +23,8 @@ struct SDummyProperty {
     FUNCX(propDummy_assemblyTag,             "assemblyTag",                              sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Assembly tag", "") \
     FUNCX(propDummy_engineProperties,        "engineProperties",                         sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text") \
     FUNCX(propDummy_mujocoLimitsEnabled,     "mujocoLimitsEnabled",                      sim_propertytype_bool,      0, sim_mujoco_dummy_limited, -1, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoLimitsRange,       "mujocoLimitsRange",                        sim_propertytype_vector,    0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoLimitsSolref,      "mujocoLimitsSolref",                       sim_propertytype_vector,    0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoLimitsRange,       "mujocoLimitsRange",                        sim_propertytype_vector2,   0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoLimitsSolref,      "mujocoLimitsSolref",                       sim_propertytype_vector2,   0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1, "", "") \
     FUNCX(propDummy_mujocoLimitsSolimp,      "mujocoLimitsSolimp",                       sim_propertytype_vector,    0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, sim_mujoco_dummy_solimplimit4, sim_mujoco_dummy_solimplimit5, "", "") \
     FUNCX(propDummy_mujocoMargin,            "mujocoMargin",                             sim_propertytype_float,     0, sim_mujoco_dummy_margin, -1, -1, -1, -1, "", "") \
     FUNCX(propDummy_mujocoSpringStiffness,   "mujocoSpringStiffness",                    sim_propertytype_float,     0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1, "", "") \
@@ -117,6 +117,8 @@ class CDummy : public CSceneObject
     int getStringProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
+    int setVector2Property(const char* pName, const double* pState, CCbor* eev = nullptr);
+    int getVector2Property(const char* pName, double* pState) const;
     int setVectorProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);
     int getVectorProperty(const char* pName, std::vector<double>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;

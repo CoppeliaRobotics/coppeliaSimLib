@@ -70,8 +70,8 @@
     FUNCX(propObject_movPrefRotX,             "movPrefRotX",                      sim_propertytype_bool,      0, "Preferred X-axis rotation", "") \
     FUNCX(propObject_movPrefRotY,             "movPrefRotY",                      sim_propertytype_bool,      0, "Preferred Y-axis rotation", "") \
     FUNCX(propObject_movPrefRotZ,             "movPrefRotZ",                      sim_propertytype_bool,      0, "Preferred Z-axis rotation", "") \
-    FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_vector,    0, "Movement step sizes", "Linear and angular step sizes") \
-    FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intvector, 0, "Movement relativity", "") \
+    FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_vector2,   0, "Movement step sizes", "Linear and angular step sizes") \
+    FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intvector2,0, "Movement relativity", "Movement relativity, linear and angular") \
     FUNCX(propObject_objectType,              "objectType",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "Type", "Scene object type") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -177,6 +177,10 @@ class CSceneObject
     virtual int getStringProperty(const char* pName, std::string& pState) const;
     virtual int setBufferProperty(const char* pName, const char* buffer, int bufferL);
     virtual int getBufferProperty(const char* pName, std::string& pState) const;
+    virtual int setIntVector2Property(const char* pName, const int* pState);
+    virtual int getIntVector2Property(const char* pName, int* pState) const;
+    virtual int setVector2Property(const char* pName, const double* pState);
+    virtual int getVector2Property(const char* pName, double* pState) const;
     virtual int setVector3Property(const char* pName, const C3Vector& pState);
     virtual int getVector3Property(const char* pName, C3Vector& pState) const;
     virtual int setQuaternionProperty(const char* pName, const C4Vector& pState);

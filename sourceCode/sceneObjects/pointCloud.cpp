@@ -214,7 +214,7 @@ void CPointCloud::_updatePointCloudEvent() const
         const char *cmd = propPointCloud_points.name;
         CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyDoubleArray(cmd, _displayPoints.data(), _displayPoints.size());
-        ev->appendKeyUCharArray(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
+        ev->appendKeyBuff(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
 #endif
         App::worldContainer->pushEvent();
     }
@@ -707,7 +707,7 @@ void CPointCloud::addSpecializedObjectEventData(CCbor *ev)
     ev->appendKeyDouble(propPointCloud_cellSize.name, _cellSize);
     ev->appendKeyDouble(propPointCloud_pointDisplayFraction.name, _pointDisplayRatio);
     ev->appendKeyDoubleArray(propPointCloud_points.name, _displayPoints.data(), _displayPoints.size());
-    ev->appendKeyUCharArray(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
+    ev->appendKeyBuff(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
 #endif
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2

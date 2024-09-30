@@ -698,6 +698,68 @@ int CViewableBase::getFloatProperty(const char* pName, double& pState) const
     return retVal;
 }
 
+int CViewableBase::setIntVector2Property(const char* pName, const int* pState)
+{
+    int retVal = CSceneObject::setIntVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(propViewable_resolution.name, pName) == 0)
+        {
+            retVal = 1;
+            setResolution(pState);
+        }
+    }
+
+    return retVal;
+}
+
+int CViewableBase::getIntVector2Property(const char* pName, int* pState) const
+{
+    int retVal = CSceneObject::getIntVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(propViewable_resolution.name, pName) == 0)
+        {
+            retVal = 1;
+            pState[0] = _resolution[0];
+            pState[1] = _resolution[1];
+        }
+    }
+
+    return retVal;
+}
+
+int CViewableBase::setVector2Property(const char* pName, const double* pState)
+{
+    int retVal = CSceneObject::setVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(propViewable_clippingPlanes.name, pName) == 0)
+        {
+            retVal = 1;
+            setClippingPlanes(pState[0], pState[1]);
+        }
+    }
+
+    return retVal;
+}
+
+int CViewableBase::getVector2Property(const char* pName, double* pState) const
+{
+    int retVal = CSceneObject::getVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+        if (strcmp(propViewable_clippingPlanes.name, pName) == 0)
+        {
+            pState[0] = _nearClippingPlane;
+            pState[1] = _farClippingPlane;
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
 int CViewableBase::setVector3Property(const char* pName, const C3Vector& pState)
 {
     int retVal = CSceneObject::setVector3Property(pName, pState);
@@ -735,17 +797,6 @@ int CViewableBase::setVectorProperty(const char* pName, const double* v, int vL)
     int retVal = CSceneObject::setVectorProperty(pName, v, vL);
     if (retVal == -1)
     {
-        if (strcmp(propViewable_clippingPlanes.name, pName) == 0)
-        {
-            retVal = 1;
-            double np = _nearClippingPlane;
-            double fp = _farClippingPlane;
-            if (vL >= 1)
-                np = v[0];
-            if (vL >= 2)
-                fp = v[1];
-            setClippingPlanes(np, fp);
-        }
     }
 
     return retVal;
@@ -757,12 +808,6 @@ int CViewableBase::getVectorProperty(const char* pName, std::vector<double>& pSt
     int retVal = CSceneObject::getVectorProperty(pName, pState);
     if (retVal == -1)
     {
-        if (strcmp(propViewable_clippingPlanes.name, pName) == 0)
-        {
-            pState.push_back(_nearClippingPlane);
-            pState.push_back(_farClippingPlane);
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -775,16 +820,6 @@ int CViewableBase::setIntVectorProperty(const char* pName, const int* v, int vL)
     int retVal = CSceneObject::setIntVectorProperty(pName, v, vL);
     if (retVal == -1)
     {
-        if (strcmp(propViewable_resolution.name, pName) == 0)
-        {
-            retVal = 1;
-            int r[2] = {_resolution[0], _resolution[1]};
-            if (vL >= 1)
-                r[0] = v[0];
-            if (vL >= 2)
-                r[1] = v[1];
-            setResolution(r);
-        }
     }
 
 
@@ -797,12 +832,6 @@ int CViewableBase::getIntVectorProperty(const char* pName, std::vector<int>& pSt
     int retVal = CSceneObject::getIntVectorProperty(pName, pState);
     if (retVal == -1)
     {
-        if (strcmp(propViewable_resolution.name, pName) == 0)
-        {
-            retVal = 1;
-            pState.push_back(_resolution[0]);
-            pState.push_back(_resolution[1]);
-        }
     }
 
     return retVal;

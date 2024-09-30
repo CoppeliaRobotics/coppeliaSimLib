@@ -73,6 +73,10 @@ class CProxSensor : public CSceneObject
     int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
+    int setIntVector2Property(const char* pName, const int* pState);
+    int getIntVector2Property(const char* pName, int* pState) const;
+    int setVector2Property(const char* pName, const double* pState);
+    int getVector2Property(const char* pName, double* pState) const;
     int setVector3Property(const char* pName, const C3Vector& pState);
     int getVector3Property(const char* pName, C3Vector& pState) const;
     int setColorProperty(const char* pName, const float* pState);

@@ -64,7 +64,7 @@ void CPluginContainer::printPluginStack()
 {
     if (currentPluginStack.size() > 0)
     {
-        for (size_t i = 0; i < currentPluginStack.size(); i++)
+        for (int i = 0; i < currentPluginStack.size(); i++)
             printf("Plugin stack at pos %i: %s\n", i, currentPluginStack[i]->getName().c_str());
     }
     else

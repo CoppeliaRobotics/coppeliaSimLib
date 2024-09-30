@@ -19,7 +19,7 @@ struct SDynProperty {
 #define DEFINE_PROPERTIES \
     FUNCX(propDyn_dynamicsEnabled,                       "dynamicsEnabled",                             sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "Dynamics enabled", "") \
     FUNCX(propDyn_showContactPoints,                     "showContactPoints",                           sim_propertytype_bool,      0, -1, -1, -1, -1, -1, "Show contact points", "") \
-    FUNCX(propDyn_dynamicsEngine,                        "dynamicsEngine",                              sim_propertytype_intvector, 0, -1, -1, -1, -1, -1, "Dynamics engine", "Selected dynamics engine") \
+    FUNCX(propDyn_dynamicsEngine,                        "dynamicsEngine",                              sim_propertytype_intvector2,0, -1, -1, -1, -1, -1, "Dynamics engine", "Selected dynamics engine index and version") \
     FUNCX(propDyn_dynamicsStepSize,                      "dynamicsStepSize",                            sim_propertytype_float,     0, -1, -1, -1, -1, -1, "Dynamics dt", "Dynamics step size") \
     FUNCX(propDyn_gravity,                               "gravity",                                     sim_propertytype_vector3,   0, -1, -1, -1, -1, -1, "Gravity", "") \
     FUNCX(propDyn_engineProperties,                      "engineProperties",                            sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text") \
@@ -71,7 +71,7 @@ struct SDynProperty {
     FUNCX(propDyn_mujocoMulticcd,                        "mujocoMulticcd",                              sim_propertytype_bool,      0, sim_mujoco_global_multiccd, -1, -1, -1, -1, "", "") \
     FUNCX(propDyn_mujocoContactParamsOverride,           "mujocoContactParamsOverride",                 sim_propertytype_bool,      0, sim_mujoco_global_overridecontacts, -1, -1, -1, -1, "", "") \
     FUNCX(propDyn_mujocoContactParamsMargin,             "mujocoContactParamsMargin",                   sim_propertytype_float,     0, sim_mujoco_global_overridemargin, -1, -1, -1, -1, "", "") \
-    FUNCX(propDyn_mujocoContactParamsSolref,             "mujocoContactParamsSolref",                   sim_propertytype_vector,    0, sim_mujoco_global_overridesolref1, sim_mujoco_global_overridesolref2, -1, -1, -1, "", "") \
+    FUNCX(propDyn_mujocoContactParamsSolref,             "mujocoContactParamsSolref",                   sim_propertytype_vector2,   0, sim_mujoco_global_overridesolref1, sim_mujoco_global_overridesolref2, -1, -1, -1, "", "") \
     FUNCX(propDyn_mujocoContactParamsSolimp,             "mujocoContactParamsSolimp",                   sim_propertytype_vector,    0, sim_mujoco_global_overridesolimp1, sim_mujoco_global_overridesolimp2, sim_mujoco_global_overridesolimp3, sim_mujoco_global_overridesolimp4, sim_mujoco_global_overridesolimp5, "", "") \
     FUNCX(propDyn_mujocoImpRatio,                        "mujocoImpratio",                              sim_propertytype_float,     0, sim_mujoco_global_impratio, -1, -1, -1, -1, "", "") \
     FUNCX(propDyn_mujocoWind,                            "mujocoWind",                                  sim_propertytype_vector3,   0, sim_mujoco_global_wind1, sim_mujoco_global_wind2, sim_mujoco_global_wind3, -1, -1, "", "") \
@@ -318,6 +318,10 @@ class CDynamicsContainer
     int getFloatProperty(const char* pName, double& pState, bool getDefaultValue = false) const;
     int setStringProperty(const char* pName, const char* pState);
     int getStringProperty(const char* pName, std::string& pState) const;
+    int setIntVector2Property(const char* pName, const int* pState, CCbor* eev = nullptr);
+    int getIntVector2Property(const char* pName, int* pState, bool getDefaultValue = false) const;
+    int setVector2Property(const char* pName, const double* pState, CCbor* eev = nullptr);
+    int getVector2Property(const char* pName, double* pState, bool getDefaultValue = false) const;
     int setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev = nullptr);
     int getVector3Property(const char* pName, C3Vector& pState, bool getDefaultValue = false) const;
     int setVectorProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);

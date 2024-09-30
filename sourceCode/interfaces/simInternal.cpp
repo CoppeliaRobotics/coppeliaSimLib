@@ -1117,6 +1117,192 @@ char* simGetBufferProperty_internal(long long int target, const char* ppName, in
     return nullptr;
 }
 
+int simSetIntVector2Property_internal(long long int target, const char* ppName, const int* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
+        {
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_intvector2)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 2 * sizeof(int));
+            else
+            {
+                int res = App::setIntVector2Property(target, pName.c_str(), pState);
+                if (res == 1)
+                    retVal = 1;
+                else if (res == -2)
+                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    if (p < 0)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    else if (p == sim_propertytype_intvector2)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    else
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetIntVector2Property_internal(long long int target, const char* ppName, int* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
+        {
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_intvector2)))
+            {
+                int l;
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
+                if (data != nullptr)
+                {
+                    if (l == 2 * sizeof(int))
+                    {
+                        for (size_t i = 0; i < 2; i++)
+                            pState[i] = ((int*)data)[i];
+                        retVal = 1;
+                    }
+                    else
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    delete[] data;
+                }
+            }
+            else
+            {
+                int res = App::getIntVector2Property(target, pName.c_str(), pState);
+                if (res == 1)
+                    retVal = 1;
+                else if (res == -2)
+                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    if (p < 0)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    else if (p == sim_propertytype_intvector2)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    else
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetVector2Property_internal(long long int target, const char* ppName, const double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
+        {
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector2)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 2 * sizeof(double));
+            else
+            {
+                int res = App::setVector2Property(target, pName.c_str(), pState);
+                if (res == 1)
+                    retVal = 1;
+                else if (res == -2)
+                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    if (p < 0)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    else if (p == sim_propertytype_vector2)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    else
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetVector2Property_internal(long long int target, const char* ppName, double* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
+        {
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector2)))
+            {
+                int l;
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
+                if (data != nullptr)
+                {
+                    if (l == 2 * sizeof(double))
+                    {
+                        for (size_t i = 0; i < 2; i++)
+                            pState[i] = ((double*)data)[i];
+                        retVal = 1;
+                    }
+                    else
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    delete[] data;
+                }
+            }
+            else
+            {
+                int res = App::getVector2Property(target, pName.c_str(), pState);
+                if (res == 1)
+                    retVal = 1;
+                else if (res == -2)
+                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    if (p < 0)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    else if (p == sim_propertytype_vector2)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    else
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
 int simSetVector3Property_internal(long long int target, const char* ppName, const double* pState)
 {
     C_API_START;
@@ -1979,10 +2165,9 @@ int simGetPropertyInfo_internal(long long int target, const char* ppName, SPrope
             bool staticParsing = false;
             bool shortInfoTxt = false;
             std::string infoTxt;
-            printf("SPropertyOptions size: %i\n", sizeof(SPropertyOptions));
             if (options != nullptr)
             {
-                if ( (options->structSize >= 8) && options->shortInfoTxt )
+                if ( (options->structSize >= 12) && options->shortInfoTxt )
                     infoTxt = "s";
                 if ( (options->structSize >= 8) && (options->objectType != -1) )
                 {

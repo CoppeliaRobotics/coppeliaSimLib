@@ -6,6 +6,24 @@
 #include <simMath/7Vector.h>
 #include <dynMaterialObject.h>
 
+// ----------------------------------------------------------------------------------------------
+// flags: bit0: not writable, bit1: not readable, bit2: removable
+#define DEFINE_PROPERTIES \
+    FUNCX(propMeshWrap_mass,                "mass",                                 sim_propertytype_float,     0, "Mass", "") \
+    FUNCX(propMeshWrap_com,                 "centerOfMass",                         sim_propertytype_vector3,   0, "Center of mass", "Center of mass, relative to the shape's reference frame") \
+    FUNCX(propMeshWrap_inertia,             "inertia",                              sim_propertytype_vector,    0, "Inertia tensor", "Inertia tensor, relative to the shape's reference frame") \
+    FUNCX(propMeshWrap_pmi,                 "principalMomentOfInertia",             sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Principal moment of inertia", "Principal moment of inertia, relative to pmiQuaternion") \
+    FUNCX(propMeshWrap_pmiQuaternion,       "pmiQuaternion",                        sim_propertytype_quaternion,sim_propertyinfo_notwritable, "Quaternion of the principal moment of inertia", "Quaternion of the principal moment of inertia, relative to the shape's reference frame") \
+
+#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
+DEFINE_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2, t1, t2) name,
+const std::vector<SProperty> allProps_meshWrap = { DEFINE_PROPERTIES };
+#undef FUNCX
+#undef DEFINE_PROPERTIES
+// ----------------------------------------------------------------------------------------------
+
 class CViewableBase;
 class CShape;
 class CMesh;
@@ -74,10 +92,22 @@ class CMeshWrapper
     virtual CMesh *getFirstMesh();
     virtual CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr);
 
+    void addSpecializedObjectEventData(int parentObjectHandle, CCbor *ev);
+    int setFloatProperty_wrapper(const char* pName, double pState);
+    int getFloatProperty_wrapper(const char* pName, double& pState) const;
+    int setVector3Property_wrapper(const char* pName, const C3Vector& pState);
+    int getVector3Property_wrapper(const char* pName, C3Vector& pState) const;
+    int setQuaternionProperty_wrapper(const char* pName, const C4Vector& pState);
+    int getQuaternionProperty_wrapper(const char* pName, C4Vector& pState) const;
+    int setVectorProperty_wrapper(const char* pName, const double* v, int vL);
+    int getVectorProperty_wrapper(const char* pName, std::vector<double>& pState) const;
+    int getPropertyName_wrapper(int& index, std::string& pName) const;
+    static  int getPropertyName_static_wrapper(int& index, std::string& pName);
+    int getPropertyInfo_wrapper(const char* pName, int& info, std::string& infoTxt) const;
+    static int getPropertyInfo_static_wrapper(const char* pName, int& info, std::string& infoTxt);
 
     void copyAttributesTo(CMeshWrapper *target);
     void copyWrapperData(CMeshWrapper *target);
-    void setDefaultInertiaParams();
     void scaleMassAndInertia(double s);
     void setMass(double m);
     double getMass() const;
@@ -104,7 +134,7 @@ class CMeshWrapper
     C3Vector getPMI() const;
     void setPMI(const C3Vector &pmi);
     std::string getInertiaErrorString() const;
-    void fixInertiaAndComputePMI();
+    void setInertiaAndComputePMI(const C3X3Matrix& inertia);
 
     static bool getPMIFromInertia(const C3X3Matrix &tensor, C4Vector &rotation, C3Vector &principalMoments);
     static C3X3Matrix getInertiaFromPMI(const C3Vector &principalMoments, const C7Vector &newFrame);
@@ -127,6 +157,8 @@ class CMeshWrapper
     C4Vector _pmiRotFrame;  // Frame of the principal moment of inertia (calculated from _iMatrix), expressed in the _iFrame
     C7Vector _bbFrame; // Ref. frame of the bounding box and vertices, relative to _iFrame
     C3Vector _bbSize;  // Size of the bounding box, relative to _iFrame
+
+    int _parentObjectHandle;
 
     int _dynMaterialId_old;
     bool _convex_OLD;

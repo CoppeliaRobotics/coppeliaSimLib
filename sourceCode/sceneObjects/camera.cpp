@@ -3415,6 +3415,54 @@ int CCamera::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CCamera::setIntVector2Property(const char* ppName, const int* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::setIntVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CCamera::getIntVector2Property(const char* ppName, int* pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::getIntVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CCamera::setVector2Property(const char* ppName, const double* pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::setVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CCamera::getVector2Property(const char* ppName, double* pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));
+    const char* pName = _pName.c_str();
+    int retVal = CViewableBase::getVector2Property(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
 int CCamera::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "camera."));

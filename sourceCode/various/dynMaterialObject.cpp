@@ -2154,6 +2154,65 @@ int CDynMaterialObject::getStringProperty(const char* pName, std::string& pState
     return retVal;
 }
 
+int CDynMaterialObject::setVector2Property(const char* pName, const double* pState, CCbor* eev/* = nullptr*/)
+{
+    int retVal = -1;
+    std::string N;
+    CCbor* ev = nullptr;
+    if (eev != nullptr)
+        ev = eev;
+
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1)
+    {
+        if ((pName == nullptr) || (propertyName == pName))
+        {
+            retVal = 1;
+            bool pa = false;
+            if (pState != nullptr)
+            {
+                for (size_t i = 0; i < 2; i++)
+                    pa = pa || (arr[simiIndex1 + i] != pState[i]);
+            }
+            if ( (pName == nullptr) || pa )
+            {
+                if (pName != nullptr)
+                {
+                    for (size_t i = 0; i < 2; i++)
+                        arr[simiIndex1 + i] = pState[i];
+                }
+                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                    ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 2);
+                    if (pName != nullptr)
+                        sendEngineString(ev);
+                }
+            }
+        }
+    };
+
+    handleProp(propMaterial_mujocoSolref.name, _mujocoFloatParams, simi_mujoco_body_solref1);
+
+    if ( (ev != nullptr) && (eev == nullptr) )
+        App::worldContainer->pushEvent();
+    return retVal;
+}
+
+int CDynMaterialObject::getVector2Property(const char* pName, double* pState) const
+{
+    int retVal = -1;
+
+    if (strcmp(pName, propMaterial_mujocoSolref.name) == 0)
+    {
+        retVal = 1;
+        pState[0] = _mujocoFloatParams[simi_mujoco_body_solref1 + 0];
+        pState[1] = _mujocoFloatParams[simi_mujoco_body_solref1 + 1];
+    }
+
+    return retVal;
+}
+
 int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev/* = nullptr*/)
 {
     int retVal = -1;
@@ -2162,30 +2221,38 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
     if (eev != nullptr)
         ev = eev;
 
-    N = propMaterial_vortexPrimaryAxisVector.name;
-    if ( (pName == nullptr) || (N == pName) )
+    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1)
     {
-        retVal = 1;
-        C3Vector current(_vortexFloatParams.data() + simi_vortex_body_primaxisvectorx);
-        if ( (pName == nullptr) || (current != pState[0]) )
+        if ((pName == nullptr) || (propertyName == pName))
         {
-            if (pName != nullptr)
+            retVal = 1;
+            bool pa = false;
+            if (pState != nullptr)
             {
-                current = pState[0];
-                current.normalize();
-                current.getData(_vortexFloatParams.data() + simi_vortex_body_primaxisvectorx);
+                for (size_t i = 0; i < 3; i++)
+                    pa = pa || (arr[simiIndex1 + i] != pState->data[i]);
             }
-            if ( (_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled() )
+            if ( (pName == nullptr) || pa )
             {
-                if (ev == nullptr)
-                    ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, N.c_str(), true);
-
-                ev->appendKeyDoubleArray(N.c_str(), _vortexFloatParams.data() + simi_vortex_body_primaxisvectorx, 3);
                 if (pName != nullptr)
-                    sendEngineString(ev);
+                {
+                    for (size_t i = 0; i < 3; i++)
+                        arr[simiIndex1 + i] = pState->data[i];
+                }
+                if ((_shapeHandleForEvents != -1) && App::worldContainer->getEventsEnabled())
+                {
+                    if (ev == nullptr)
+                        ev = App::worldContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                    ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 3);
+                    if (pName != nullptr)
+                        sendEngineString(ev);
+                }
             }
         }
-    }
+    };
+
+    handleProp(propMaterial_vortexPrimaryAxisVector.name, _vortexFloatParams, simi_vortex_body_primaxisvectorx);
+    handleProp(propMaterial_mujocoFriction.name, _mujocoFloatParams, simi_mujoco_body_friction1);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
@@ -2200,6 +2267,11 @@ int CDynMaterialObject::getVector3Property(const char* pName, C3Vector* pState) 
     {
         retVal = 1;
         pState->setData(_vortexFloatParams.data() + simi_vortex_body_primaxisvectorx);
+    }
+    else if (strcmp(pName, propMaterial_mujocoFriction.name) == 0)
+    {
+        retVal = 1;
+        pState->setData(_mujocoFloatParams.data() + simi_mujoco_body_friction1);
     }
 
     return retVal;
@@ -2242,9 +2314,7 @@ int CDynMaterialObject::setVectorProperty(const char* pName, const double* v, in
         }
     };
 
-    handleProp(propMaterial_mujocoSolref.name, _mujocoFloatParams, simi_mujoco_body_solref1, 2);
     handleProp(propMaterial_mujocoSolimp.name, _mujocoFloatParams, simi_mujoco_body_solimp1, 5);
-    handleProp(propMaterial_mujocoFriction.name, _mujocoFloatParams, simi_mujoco_body_friction1, 3);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
@@ -2263,12 +2333,8 @@ int CDynMaterialObject::getVectorProperty(const char* pName, std::vector<double>
             pState.push_back(arr[simiIndex1 + i]);
     };
 
-    if (strcmp(pName, propMaterial_mujocoSolref.name) == 0)
-        handleProp(_mujocoFloatParams, simi_mujoco_body_solref1, 2);
-    else if (strcmp(pName, propMaterial_mujocoSolimp.name) == 0)
+   if (strcmp(pName, propMaterial_mujocoSolimp.name) == 0)
         handleProp(_mujocoFloatParams, simi_mujoco_body_solimp1, 5);
-    else if (strcmp(pName, propMaterial_mujocoFriction.name) == 0)
-        handleProp(_mujocoFloatParams, simi_mujoco_body_friction1, 3);
 
     return retVal;
 }
