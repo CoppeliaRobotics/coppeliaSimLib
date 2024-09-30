@@ -40,6 +40,7 @@
     FUNCX(propScriptObj_code,                           "code",                                         sim_propertytype_string,    0, "Code", "Script content") \
     FUNCX(propScriptObj_scriptName,                     "scriptName",                                   sim_propertytype_string,    sim_propertyinfo_notwritable, "Name", "Script name") \
     FUNCX(propScriptObj_addOnPath,                      "addOnPath",                                    sim_propertytype_string,    sim_propertyinfo_notwritable, "Add-on path", "Path of add-on") \
+    FUNCX(propScriptObj_addOnMenuPath,                  "addOnMenuPath",                                sim_propertytype_string,    sim_propertyinfo_notwritable, "Add-on menu path", "Menu path of add-on") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -344,8 +345,8 @@ class CScriptObject
     void _printContext(const char *str, size_t p);
 
     std::string _addOnPath;        // "D:/coppeliaRobotics/coppeliaSim/addOns/Subdivide large triangles.lua"
-    std::string _displayAddOnName; // "Subdivide large triangles"
-    std::string _displayAddOnPath; // "Geometry / Mesh >> Subdivide large triangles..."
+    std::string _addOnMenuName; // "Subdivide large triangles"
+    std::string _addOnMenuPath; // "Geometry / Mesh >> Subdivide large triangles..."
 
     std::mt19937 _randGen;
 

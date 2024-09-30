@@ -1084,7 +1084,7 @@ std::string CScriptObject::getScriptName() const
     if (_scriptType == sim_scripttype_sandbox)
         return ("sandboxScript");
     if (_scriptType == sim_scripttype_addon)
-        return (_displayAddOnName);
+        return (_addOnMenuName);
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_passive))
     {
         CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
@@ -1129,6 +1129,7 @@ void CScriptObject::addSpecializedObjectEventData(CCbor *ev)
     ev->appendKeyText(propScriptObj_code.name, _scriptText.c_str());
     ev->appendKeyText(propScriptObj_scriptName.name, getScriptName().c_str());
     ev->appendKeyText(propScriptObj_addOnPath.name, _addOnPath.c_str());
+    ev->appendKeyText(propScriptObj_addOnMenuPath.name, _addOnMenuPath.c_str());
 }
 
 void CScriptObject::setScriptState(int state)
@@ -1460,13 +1461,13 @@ std::string CScriptObject::getDescriptiveName() const
     if (_scriptType == sim_scripttype_addon)
     {
         retVal += "Add-on script \"";
-        retVal += _displayAddOnPath;
+        retVal += _addOnMenuPath;
         retVal += "\"";
     }
     if (_scriptType == sim_scripttype_addonfunction)
     {
         retVal += "Add-on function \"";
-        retVal += _displayAddOnPath;
+        retVal += _addOnMenuPath;
         retVal += "\"";
     }
     if (_scriptType == sim_scripttype_sandbox)
@@ -1498,12 +1499,12 @@ std::string CScriptObject::getShortDescriptiveName() const
     }
     if (_scriptType == sim_scripttype_addon)
     {
-        retVal += _displayAddOnPath;
+        retVal += _addOnMenuPath;
         retVal += "@addOnScript";
     }
     if (_scriptType == sim_scripttype_addonfunction)
     {
-        retVal += _displayAddOnPath;
+        retVal += _addOnMenuPath;
         retVal += "@addOnFunction";
     }
     if (_scriptType == sim_scripttype_sandbox)
@@ -1513,8 +1514,8 @@ std::string CScriptObject::getShortDescriptiveName() const
 
 void CScriptObject::setDisplayAddOnName(const char *name)
 {
-    _displayAddOnName = name; // e.g. "Animation capture"
-    _displayAddOnPath = _displayAddOnName; // e.g. "Tools >> Blabla" (if sysCall_info returns menu = 'Tools\nBlabla')
+    _addOnMenuName = name; // e.g. "Animation capture"
+    _addOnMenuPath = _addOnMenuName; // e.g. "Tools >> Blabla" (if sysCall_info returns menu = 'Tools\nBlabla')
 }
 
 void CScriptObject::performSceneObjectLoadingMapping(const std::map<int, int> *map)
@@ -1662,7 +1663,7 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
     }
 
     if ((callType == sim_syscb_init) && (_scriptType == sim_scripttype_addon))
-        CSimFlavor::getIntVal_str(3, _displayAddOnName.c_str());
+        CSimFlavor::getIntVal_str(3, _addOnMenuName.c_str());
 
     int retVal = 0;
 
@@ -1727,7 +1728,7 @@ int CScriptObject::systemCallScript(int callType, const CInterfaceStack *inStack
         CModuleMenuItem *m = App::worldContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle);
         if (m != nullptr)
         {
-            std::string txt(_displayAddOnPath);
+            std::string txt(_addOnMenuPath);
             while (true)
             {
                 size_t p = txt.find(" >> ");
@@ -1779,16 +1780,16 @@ void CScriptObject::_handleInfoCallback()
             _autoStartAddOn = 1;
         else
             _autoStartAddOn = 0;
-        std::string menuEntry(_displayAddOnName);
+        std::string menuEntry(_addOnMenuName);
         outStack->getStackMapStringValue("menu", menuEntry);
         if (menuEntry.size() > 0)
         { // might contain also path info, e.g. "Exporters/nURDF exporter"
-            _displayAddOnPath = menuEntry;
-            size_t r = _displayAddOnPath.find("\n");
+            _addOnMenuPath = menuEntry;
+            size_t r = _addOnMenuPath.find("\n");
             while (r != std::string::npos)
             {
-                _displayAddOnPath.replace(r, 1, " >> ");
-                r = _displayAddOnPath.find("\n");
+                _addOnMenuPath.replace(r, 1, " >> ");
+                r = _addOnMenuPath.find("\n");
             }
             _addOnUiMenuHandle = App::worldContainer->moduleMenuItemContainer->addMenuItem(menuEntry.c_str(), -1);
         }
@@ -4348,7 +4349,12 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
     else if ( strcmp(propScriptObj_addOnPath.name, pName) == 0 )
     {
         retVal = 1;
-        pState = getAddOnPath();
+        pState = _addOnPath;
+    }
+    else if ( strcmp(propScriptObj_addOnMenuPath.name, pName) == 0 )
+    {
+        retVal = 1;
+        pState = _addOnMenuPath;
     }
 
     return retVal;
@@ -8183,7 +8189,7 @@ std::string CScriptObject::getScriptPseudoName_old() const
             return (it->getObjectName_old());
     }
     if ((_scriptType == sim_scripttype_addon) || (_scriptType == sim_scripttype_addonfunction))
-        return (_displayAddOnName);
+        return (_addOnMenuName);
     return ("");
 }
 void CScriptObject::setThreadedExecution_oldThreads(bool threadedExec)
