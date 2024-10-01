@@ -2533,8 +2533,7 @@ void CSceneObject::serialize(CSer &ar)
 
             ar.storeDataName("Op2");
             int objProp =
-                _objectProperty |
-                sim_objectproperty_reserved5; // Needed for backward compatibility (still in serialization version 15)
+                _objectProperty | sim_objectproperty_reserved5; // Needed for backward compatibility (still in serialization version 15)
             ar << objProp;
             ar.flush();
 
@@ -6139,6 +6138,11 @@ int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
         retVal = 1;
         pState = _measuredAngularVelocityAxis_velocityMeasurement;
     }
+    else if (_pName == propObject_bbHsize.name)
+    {
+        retVal = 1;
+        pState = _bbHalfSize;
+    }
 
     return retVal;
 }
@@ -6249,13 +6253,6 @@ int CSceneObject::getFloatArrayProperty(const char* ppName, std::vector<double>&
         pState.push_back(_objectMovementStepSize[0]);
         pState.push_back(_objectMovementStepSize[1]);
         retVal = 1;
-    }
-    else if (_pName == propObject_bbHsize.name)
-    {
-        retVal = 1;
-        pState.push_back(_bbHalfSize(0));
-        pState.push_back(_bbHalfSize(1));
-        pState.push_back(_bbHalfSize(2));
     }
 
     return retVal;

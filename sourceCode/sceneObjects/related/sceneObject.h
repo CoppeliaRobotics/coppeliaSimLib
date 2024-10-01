@@ -55,7 +55,7 @@
     FUNCX(propObject_pose,                    "pose",                             sim_propertytype_pose,      0, "Pose", "Scene object local pose") \
     FUNCX(propObject_alias,                   "alias",                            sim_propertytype_string,    0, "Alias", "Scene object alias") \
     FUNCX(propObject_bbPose,                  "bbPose",                           sim_propertytype_pose,      sim_propertyinfo_notwritable, "Bounding box pose", "Bounding box local pose") \
-    FUNCX(propObject_bbHsize,                 "bbHSize",                          sim_propertytype_floatarray,sim_propertyinfo_notwritable, "Bounding box half sizes", "") \
+    FUNCX(propObject_bbHsize,                 "bbHSize",                          sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Bounding box half sizes", "") \
     FUNCX(propObject_movementOptions,         "movementOptionsFlags",             sim_propertytype_int,       0, "Movement flags", "Scene object movement flags") \
     FUNCX(propObject_movTranslNoSim,          "movTranslNoSim",                   sim_propertytype_bool,      0, "Translation enabled", "Translation enabled when simulation is not running") \
     FUNCX(propObject_movTranslInSim,          "movTranslInSim",                   sim_propertytype_bool,      0, "Translation enabled during simulation", "Translation enabled when simulation is running") \
