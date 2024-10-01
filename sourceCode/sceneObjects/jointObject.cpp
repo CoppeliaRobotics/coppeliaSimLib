@@ -374,14 +374,14 @@ bool CJoint::setEngineFloatParam_old(int what, double v)
                 return true;
         }
     }
-    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    prop = _enumToProperty(what, sim_propertytype_floatarray, indexWithArrays);
     if (prop.size() > 0)
     {
         std::vector<double> w;
-        if (getVectorProperty(prop.c_str(), w) > 0)
+        if (getFloatArrayProperty(prop.c_str(), w) > 0)
         {
             w[indexWithArrays] = v;
-            if (setVectorProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+            if (setFloatArrayProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
                 return true;
         }
     }
@@ -2008,11 +2008,11 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev)
     setBoolProperty(nullptr, false, ev);
     setIntProperty(nullptr, 0, ev);
     setFloatProperty(nullptr, 0.0, ev);
-    setIntVector2Property(nullptr, nullptr, ev);
+    setIntArray2Property(nullptr, nullptr, ev);
     setVector2Property(nullptr, nullptr, ev);
     C3Vector dummy;
     setVector3Property(nullptr, dummy, ev);
-    setVectorProperty(nullptr, nullptr, 0, ev);
+    setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _sendEngineString(ev);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -4257,11 +4257,11 @@ double CJoint::getEngineFloatParam_old(int what, bool *ok) const
         if (getVector3Property(prop.c_str(), v) > 0)
             return v(indexWithArrays);
     }
-    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    prop = _enumToProperty(what, sim_propertytype_floatarray, indexWithArrays);
     if (prop.size() > 0)
     {
         std::vector<double> v;
-        if (getVectorProperty(prop.c_str(), v) > 0)
+        if (getFloatArrayProperty(prop.c_str(), v) > 0)
             return v[indexWithArrays];
     }
 
@@ -5302,7 +5302,7 @@ int CJoint::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
-int CJoint::setIntVector2Property(const char* ppName, const int* pState, CCbor* eev/* = nullptr*/)
+int CJoint::setIntArray2Property(const char* ppName, const int* pState, CCbor* eev/* = nullptr*/)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -5319,7 +5319,7 @@ int CJoint::setIntVector2Property(const char* ppName, const int* pState, CCbor* 
 
     if ( (eev == nullptr) && (pName != nullptr) )
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setIntVector2Property(pName, pState);
+        retVal = CSceneObject::setIntArray2Property(pName, pState);
         if (retVal == -1)
         {
         }
@@ -5369,11 +5369,11 @@ int CJoint::setIntVector2Property(const char* ppName, const int* pState, CCbor* 
     return retVal;
 }
 
-int CJoint::getIntVector2Property(const char* ppName, int* pState) const
+int CJoint::getIntArray2Property(const char* ppName, int* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntVector2Property(pName, pState);
+    int retVal = CSceneObject::getIntArray2Property(pName, pState);
     if (retVal == -1)
     {   // First non-engine properties:
 
@@ -5414,21 +5414,6 @@ int CJoint::setVector2Property(const char* ppName, const double* pState, CCbor* 
         retVal = CSceneObject::setVector2Property(pName, pState);
         if (retVal == -1)
         {
-            if (_pName == propJoint_interval.name)
-            {
-                setInterval(pState[0], pState[1]);
-                retVal = 1;
-            }
-            else if (_pName == propJoint_dependencyParams.name)
-            {
-                setDependencyParams(pState[0], pState[1]);
-                retVal = 1;
-            }
-            else if (_pName == propJoint_springDamperParams.name)
-            {
-                setKc(pState[0], pState[1]);
-                retVal = 1;
-            }
         }
     }
 
@@ -5466,9 +5451,6 @@ int CJoint::setVector2Property(const char* ppName, const double* pState, CCbor* 
             }
         };
 
-        handleProp(propJoint_mujocoLimitsSolRef.name, _mujocoFloatParams, simi_mujoco_joint_solreflimit1);
-        handleProp(propJoint_mujocoFrictionSolRef.name, _mujocoFloatParams, simi_mujoco_joint_solreffriction1);
-        handleProp(propJoint_mujocoSpringDamper.name, _mujocoFloatParams, simi_mujoco_joint_springdamper1);
 
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();
@@ -5485,26 +5467,6 @@ int CJoint::getVector2Property(const char* ppName, double* pState) const
     int retVal = CSceneObject::getVector2Property(pName, pState);
     if (retVal == -1)
     {   // First non-engine properties:
-        if (_pName == propJoint_interval.name)
-        {
-            double minV, maxV;
-            getInterval(minV, maxV);
-            pState[0] = minV;
-            pState[1] = maxV;
-            retVal = 1;
-        }
-        else if (_pName == propJoint_dependencyParams.name)
-        {
-            pState[0] = _dependencyJointOffset;
-            pState[1] = _dependencyJointMult;
-            retVal = 1;
-        }
-        else if (_pName == propJoint_springDamperParams.name)
-        {
-            pState[0] = _dynCtrl_kc[0];
-            pState[1] = _dynCtrl_kc[1];
-            retVal = 1;
-        }
 
         // Engine-only properties:
         // ------------------------
@@ -5515,12 +5477,6 @@ int CJoint::getVector2Property(const char* ppName, double* pState) const
                 pState[i] = arr[simiIndex1 + i];
         };
 
-        if (_pName == propJoint_mujocoLimitsSolRef.name)
-            handleProp(_mujocoFloatParams, simi_mujoco_joint_solreflimit1);
-        else if (_pName == propJoint_mujocoFrictionSolRef.name)
-            handleProp(_mujocoFloatParams, simi_mujoco_joint_solreffriction1);
-        else if (_pName == propJoint_mujocoSpringDamper.name)
-            handleProp(_mujocoFloatParams, simi_mujoco_joint_springdamper1);
         // ------------------------
     }
 
@@ -5547,11 +5503,6 @@ int CJoint::setVector3Property(const char* ppName, const C3Vector& pState, CCbor
         retVal = CSceneObject::setVector3Property(pName, pState);
         if (retVal == -1)
         {
-            if (_pName == propJoint_maxVelAccelJerk.name)
-            {
-                setMaxVelAccelJerk(pState.data);
-                retVal = 1;
-            }
         }
     }
 
@@ -5586,11 +5537,6 @@ int CJoint::setVector3Property(const char* ppName, const C3Vector& pState, CCbor
             }
         };
 
-        handleProp(propJoint_bulletPosPid.name, _bulletFloatParams, simi_bullet_joint_pospid1);
-        handleProp(propJoint_odePosPid.name, _odeFloatParams, simi_ode_joint_pospid1);
-        handleProp(propJoint_vortexPosPid.name, _vortexFloatParams, simi_vortex_joint_pospid1);
-        handleProp(propJoint_newtonPosPid.name, _newtonFloatParams, simi_newton_joint_pospid1);
-        handleProp(propJoint_mujocoPosPid.name, _mujocoFloatParams, simi_mujoco_joint_pospid1);
 
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();
@@ -5607,11 +5553,6 @@ int CJoint::getVector3Property(const char* ppName, C3Vector& pState) const
     int retVal = CSceneObject::getVector3Property(pName, pState);
     if (retVal == -1)
     {   // First non-engine properties:
-        if (_pName == propJoint_maxVelAccelJerk.name)
-        {
-            pState.setData(_maxVelAccelJerk);
-            retVal = 1;
-        }
 
         // Engine-only properties:
         // ------------------------
@@ -5621,16 +5562,6 @@ int CJoint::getVector3Property(const char* ppName, C3Vector& pState) const
             pState.setData(arr.data() + simiIndex1);
         };
 
-        if (_pName == propJoint_bulletPosPid.name)
-            handleProp(_bulletFloatParams, simi_bullet_joint_pospid1);
-        else if (_pName == propJoint_odePosPid.name)
-            handleProp(_odeFloatParams, simi_ode_joint_pospid1);
-        else if (_pName == propJoint_vortexPosPid.name)
-            handleProp(_vortexFloatParams, simi_vortex_joint_pospid1);
-        else if (_pName == propJoint_newtonPosPid.name)
-            handleProp(_newtonFloatParams, simi_newton_joint_pospid1);
-        else if (_pName == propJoint_mujocoPosPid.name)
-            handleProp(_mujocoFloatParams, simi_mujoco_joint_pospid1);
         // ------------------------
     }
 
@@ -5765,7 +5696,7 @@ int CJoint::getColorProperty(const char* ppName, float* pState) const
 }
 
 
-int CJoint::setVectorProperty(const char* ppName, const double* v, int vL, CCbor* eev/* = nullptr*/)
+int CJoint::setFloatArrayProperty(const char* ppName, const double* v, int vL, CCbor* eev/* = nullptr*/)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -5782,9 +5713,49 @@ int CJoint::setVectorProperty(const char* ppName, const double* v, int vL, CCbor
 
     if ( (eev == nullptr) && (pName != nullptr) )
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setVectorProperty(pName, v, vL);
+        retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
         if (retVal == -1)
         {
+            if (_pName == propJoint_maxVelAccelJerk.name)
+            {
+                if (vL >= 2)
+                {
+                    setMaxVelAccelJerk(v);
+                    retVal = 1;
+                }
+                else
+                    retVal = 0;
+            }
+            else if (_pName == propJoint_interval.name)
+            {
+                if (vL >= 2)
+                {
+                    setInterval(v[0], v[1]);
+                    retVal = 1;
+                }
+                else
+                    retVal = 0;
+            }
+            else if (_pName == propJoint_dependencyParams.name)
+            {
+                if (vL >= 2)
+                {
+                    setDependencyParams(v[0], v[1]);
+                    retVal = 1;
+                }
+                else
+                    retVal = 0;
+            }
+            else if (_pName == propJoint_springDamperParams.name)
+            {
+                if (vL >= 2)
+                {
+                    setKc(v[0], v[1]);
+                    retVal = 1;
+                }
+                else
+                    retVal = 0;
+            }
         }
     }
 
@@ -5822,9 +5793,17 @@ int CJoint::setVectorProperty(const char* ppName, const double* v, int vL, CCbor
             }
         };
 
+        handleProp(propJoint_mujocoLimitsSolRef.name, _mujocoFloatParams, simi_mujoco_joint_solreflimit1, 2);
+        handleProp(propJoint_mujocoFrictionSolRef.name, _mujocoFloatParams, simi_mujoco_joint_solreffriction1, 2);
+        handleProp(propJoint_mujocoSpringDamper.name, _mujocoFloatParams, simi_mujoco_joint_springdamper1, 2);
         handleProp(propJoint_mujocoLimitsSolImp.name, _mujocoFloatParams, simi_mujoco_joint_solimplimit1, 5);
         handleProp(propJoint_mujocoFrictionSolImp.name, _mujocoFloatParams, simi_mujoco_joint_solimpfriction1, 5);
         handleProp(propJoint_mujocoDependencyPolyCoef.name, _mujocoFloatParams, simi_mujoco_joint_polycoef1, 5);
+        handleProp(propJoint_bulletPosPid.name, _bulletFloatParams, simi_bullet_joint_pospid1, 3);
+        handleProp(propJoint_odePosPid.name, _odeFloatParams, simi_ode_joint_pospid1, 3);
+        handleProp(propJoint_vortexPosPid.name, _vortexFloatParams, simi_vortex_joint_pospid1, 3);
+        handleProp(propJoint_newtonPosPid.name, _newtonFloatParams, simi_newton_joint_pospid1, 3);
+        handleProp(propJoint_mujocoPosPid.name, _mujocoFloatParams, simi_mujoco_joint_pospid1, 3);
 
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();
@@ -5834,14 +5813,41 @@ int CJoint::setVectorProperty(const char* ppName, const double* v, int vL, CCbor
     return retVal;
 }
 
-int CJoint::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+int CJoint::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint."));
     const char* pName = _pName.c_str();
     pState.clear();
-    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
     if (retVal == -1)
     {   // First non-engine properties:
+        if (_pName == propJoint_maxVelAccelJerk.name)
+        {
+            pState.push_back(_maxVelAccelJerk[0]);
+            pState.push_back(_maxVelAccelJerk[1]);
+            pState.push_back(_maxVelAccelJerk[2]);
+            retVal = 1;
+        }
+        else if (_pName == propJoint_interval.name)
+        {
+            double minV, maxV;
+            getInterval(minV, maxV);
+            pState.push_back(minV);
+            pState.push_back(maxV);
+            retVal = 1;
+        }
+        else if (_pName == propJoint_dependencyParams.name)
+        {
+            pState.push_back(_dependencyJointOffset);
+            pState.push_back(_dependencyJointMult);
+            retVal = 1;
+        }
+        else if (_pName == propJoint_springDamperParams.name)
+        {
+            pState.push_back(_dynCtrl_kc[0]);
+            pState.push_back(_dynCtrl_kc[1]);
+            retVal = 1;
+        }
 
         // Engine-only properties:
         // ------------------------
@@ -5852,12 +5858,28 @@ int CJoint::getVectorProperty(const char* ppName, std::vector<double>& pState) c
                 pState.push_back(arr[simiIndex1 + i]);
         };
 
-        if (_pName == propJoint_mujocoLimitsSolImp.name)
+        if (_pName == propJoint_mujocoLimitsSolRef.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_joint_solreflimit1, 2);
+        else if (_pName == propJoint_mujocoFrictionSolRef.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_joint_solreffriction1, 2);
+        else if (_pName == propJoint_mujocoSpringDamper.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_joint_springdamper1, 2);
+        else if (_pName == propJoint_mujocoLimitsSolImp.name)
             handleProp(_mujocoFloatParams, simi_mujoco_joint_solimplimit1, 5);
         else if (_pName == propJoint_mujocoFrictionSolImp.name)
             handleProp(_mujocoFloatParams, simi_mujoco_joint_solimpfriction1, 5);
         else if (_pName == propJoint_mujocoDependencyPolyCoef.name)
             handleProp(_mujocoFloatParams, simi_mujoco_joint_polycoef1, 5);
+        else if (_pName == propJoint_bulletPosPid.name)
+            handleProp(_bulletFloatParams, simi_bullet_joint_pospid1, 3);
+        else if (_pName == propJoint_odePosPid.name)
+            handleProp(_odeFloatParams, simi_ode_joint_pospid1, 3);
+        else if (_pName == propJoint_vortexPosPid.name)
+            handleProp(_vortexFloatParams, simi_vortex_joint_pospid1, 3);
+        else if (_pName == propJoint_newtonPosPid.name)
+            handleProp(_newtonFloatParams, simi_newton_joint_pospid1, 3);
+        else if (_pName == propJoint_mujocoPosPid.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_joint_pospid1, 3);
         // ------------------------
     }
 

@@ -42,13 +42,13 @@ SIM_DLLEXPORT char* simGetBufferProperty(long long int target, const char* pName
 {
     return simGetBufferProperty_internal(target, pName, bufferL);
 }
-SIM_DLLEXPORT int simSetIntVector2Property(long long int target, const char* pName, const int* pState)
+SIM_DLLEXPORT int simSetIntArray2Property(long long int target, const char* pName, const int* pState)
 {
-    return simSetIntVector2Property_internal(target, pName, pState);
+    return simSetIntArray2Property_internal(target, pName, pState);
 }
-SIM_DLLEXPORT int simGetIntVector2Property(long long int target, const char* pName, int* pState)
+SIM_DLLEXPORT int simGetIntArray2Property(long long int target, const char* pName, int* pState)
 {
-    return simGetIntVector2Property_internal(target, pName, pState);
+    return simGetIntArray2Property_internal(target, pName, pState);
 }
 SIM_DLLEXPORT int simSetVector2Property(long long int target, const char* pName, const double* pState)
 {
@@ -82,22 +82,6 @@ SIM_DLLEXPORT int simGetPoseProperty(long long int target, const char* pName, do
 {
     return simGetPoseProperty_internal(target, pName, pState);
 }
-SIM_DLLEXPORT int simSetMatrix3x3Property(long long int target, const char* pName, const double* pState)
-{
-    return simSetMatrix3x3Property_internal(target, pName, pState);
-}
-SIM_DLLEXPORT int simGetMatrix3x3Property(long long int target, const char* pName, double* pState)
-{
-    return simGetMatrix3x3Property_internal(target, pName, pState);
-}
-SIM_DLLEXPORT int simSetMatrix4x4Property(long long int target, const char* pName, const double* pState)
-{
-    return simSetMatrix4x4Property_internal(target, pName, pState);
-}
-SIM_DLLEXPORT int simGetMatrix4x4Property(long long int target, const char* pName, double* pState)
-{
-    return simGetMatrix4x4Property_internal(target, pName, pState);
-}
 SIM_DLLEXPORT int simSetColorProperty(long long int target, const char* pName, const float* pState)
 {
     return simSetColorProperty_internal(target, pName, pState);
@@ -106,21 +90,21 @@ SIM_DLLEXPORT int simGetColorProperty(long long int target, const char* pName, f
 {
     return simGetColorProperty_internal(target, pName, pState);
 }
-SIM_DLLEXPORT int simSetVectorProperty(long long int target, const char* pName, const double* v, int vL)
+SIM_DLLEXPORT int simSetFloatArrayProperty(long long int target, const char* pName, const double* v, int vL)
 {
-    return simSetVectorProperty_internal(target, pName, v, vL);
+    return simSetFloatArrayProperty_internal(target, pName, v, vL);
 }
-SIM_DLLEXPORT double* simGetVectorProperty(long long int target, const char* pName, int* vL)
+SIM_DLLEXPORT double* simGetFloatArrayProperty(long long int target, const char* pName, int* vL)
 {
-    return simGetVectorProperty_internal(target, pName, vL);
+    return simGetFloatArrayProperty_internal(target, pName, vL);
 }
-SIM_DLLEXPORT int simSetIntVectorProperty(long long int target, const char* pName, const int* v, int vL)
+SIM_DLLEXPORT int simSetIntArrayProperty(long long int target, const char* pName, const int* v, int vL)
 {
-    return simSetIntVectorProperty_internal(target, pName, v, vL);
+    return simSetIntArrayProperty_internal(target, pName, v, vL);
 }
-SIM_DLLEXPORT int* simGetIntVectorProperty(long long int target, const char* pName, int* vL)
+SIM_DLLEXPORT int* simGetIntArrayProperty(long long int target, const char* pName, int* vL)
 {
-    return simGetIntVectorProperty_internal(target, pName, vL);
+    return simGetIntArrayProperty_internal(target, pName, vL);
 }
 SIM_DLLEXPORT int simRemoveProperty(long long int target, const char* pName)
 {

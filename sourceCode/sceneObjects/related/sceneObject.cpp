@@ -6077,34 +6077,21 @@ int CSceneObject::getBufferProperty(const char* ppName, std::string& pState) con
     return retVal;
 }
 
-int CSceneObject::setIntVector2Property(const char* ppName, const int* pState)
+int CSceneObject::setIntArray2Property(const char* ppName, const int* pState)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
     int retVal = -1;
-
-    if (strcmp(pName, propObject_movementRelativity.name) == 0)
-    {
-        retVal = 1;
-        setObjectMovementRelativity(0, pState[0]);
-        setObjectMovementRelativity(1, pState[1]);
-    }
 
     return retVal;
 }
 
-int CSceneObject::getIntVector2Property(const char* ppName, int* pState) const
+int CSceneObject::getIntArray2Property(const char* ppName, int* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
     int retVal = -1;
 
-    if (strcmp(pName, propObject_movementRelativity.name) == 0)
-    {
-        pState[0] = _objectMovementRelativity[0];
-        pState[1] = _objectMovementRelativity[1];
-        retVal = 1;
-    }
 
     return retVal;
 }
@@ -6115,13 +6102,6 @@ int CSceneObject::setVector2Property(const char* ppName, const double* pState)
     const char* pName = _pName.c_str();
     int retVal = -1;
 
-    if (strcmp(pName, propObject_movementStepSize.name) == 0)
-    {
-        retVal = 1;
-        setObjectMovementStepSize(0, pState[0]);
-        setObjectMovementStepSize(1, pState[1]);
-    }
-
     return retVal;
 }
 
@@ -6130,13 +6110,6 @@ int CSceneObject::getVector2Property(const char* ppName, double* pState) const
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
     int retVal = -1;
-
-    if (strcmp(pName, propObject_movementStepSize.name) == 0)
-    {
-        pState[0] = _objectMovementStepSize[0];
-        pState[1] = _objectMovementStepSize[1];
-        retVal = 1;
-    }
 
     return retVal;
 }
@@ -6156,12 +6129,7 @@ int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
     const char* pName = _pName.c_str();
     int retVal = -1;
 
-    if (_pName == propObject_bbHsize.name)
-    {
-        retVal = 1;
-        pState = _bbHalfSize;
-    }
-    else if (_pName == propObject_calcLinearVelocity.name)
+    if (_pName == propObject_calcLinearVelocity.name)
     {
         retVal = 1;
         pState = _measuredLinearVelocity_velocityMeasurement;
@@ -6228,42 +6196,6 @@ int CSceneObject::getPoseProperty(const char* ppName, C7Vector& pState) const
     return retVal;
 }
 
-int CSceneObject::setMatrix3x3Property(const char* ppName, const C3X3Matrix& pState)
-{
-    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
-    const char* pName = _pName.c_str();
-    int retVal = -1;
-
-    return retVal;
-}
-
-int CSceneObject::getMatrix3x3Property(const char* ppName, C3X3Matrix& pState) const
-{
-    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
-    const char* pName = _pName.c_str();
-    int retVal = -1;
-
-    return retVal;
-}
-
-int CSceneObject::setMatrix4x4Property(const char* ppName, const C4X4Matrix& pState)
-{
-    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
-    const char* pName = _pName.c_str();
-    int retVal = -1;
-
-    return retVal;
-}
-
-int CSceneObject::getMatrix4x4Property(const char* ppName, C4X4Matrix& pState) const
-{
-    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
-    const char* pName = _pName.c_str();
-    int retVal = -1;
-
-    return retVal;
-}
-
 int CSceneObject::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
@@ -6282,7 +6214,7 @@ int CSceneObject::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CSceneObject::setVectorProperty(const char* ppName, const double* v, int vL)
+int CSceneObject::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -6290,20 +6222,46 @@ int CSceneObject::setVectorProperty(const char* ppName, const double* v, int vL)
     if (v == nullptr)
         vL = 0;
 
+    if (strcmp(pName, propObject_movementStepSize.name) == 0)
+    {
+        if (vL >= 2)
+        {
+            retVal = 1;
+            setObjectMovementStepSize(0, v[0]);
+            setObjectMovementStepSize(1, v[1]);
+        }
+        else
+            retVal = 0;
+    }
+
     return retVal;
 }
 
-int CSceneObject::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+int CSceneObject::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
     int retVal = -1;
     pState.clear();
 
+    if (strcmp(pName, propObject_movementStepSize.name) == 0)
+    {
+        pState.push_back(_objectMovementStepSize[0]);
+        pState.push_back(_objectMovementStepSize[1]);
+        retVal = 1;
+    }
+    else if (_pName == propObject_bbHsize.name)
+    {
+        retVal = 1;
+        pState.push_back(_bbHalfSize(0));
+        pState.push_back(_bbHalfSize(1));
+        pState.push_back(_bbHalfSize(2));
+    }
+
     return retVal;
 }
 
-int CSceneObject::setIntVectorProperty(const char* ppName, const int* v, int vL)
+int CSceneObject::setIntArrayProperty(const char* ppName, const int* v, int vL)
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
@@ -6311,16 +6269,35 @@ int CSceneObject::setIntVectorProperty(const char* ppName, const int* v, int vL)
     if (v == nullptr)
         vL = 0;
 
+    if (strcmp(pName, propObject_movementRelativity.name) == 0)
+    {
+        if (vL >= 2)
+        {
+            retVal = 1;
+            setObjectMovementRelativity(0, v[0]);
+            setObjectMovementRelativity(1, v[1]);
+        }
+        else
+            retVal = 0;
+    }
+
 
     return retVal;
 }
 
-int CSceneObject::getIntVectorProperty(const char* ppName, std::vector<int>& pState) const
+int CSceneObject::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
     int retVal = -1;
     pState.clear();
+
+    if (strcmp(pName, propObject_movementRelativity.name) == 0)
+    {
+        pState.push_back(_objectMovementRelativity[0]);
+        pState.push_back(_objectMovementRelativity[1]);
+        retVal = 1;
+    }
 
     return retVal;
 }

@@ -1303,11 +1303,6 @@ int CMeshWrapper::getVector3Property_wrapper(const char* pName, C3Vector& pState
         retVal = 1;
         pState = _com;
     }
-    else if (strcmp(propMeshWrap_pmi.name, pName) == 0)
-    {
-        retVal = 1;
-        pState = _pmi;
-    }
 
     return retVal;
 }
@@ -1332,7 +1327,7 @@ int CMeshWrapper::getQuaternionProperty_wrapper(const char* pName, C4Vector& pSt
     return retVal;
 }
 
-int CMeshWrapper::setVectorProperty_wrapper(const char* pName, const double* v, int vL)
+int CMeshWrapper::setFloatArrayProperty_wrapper(const char* pName, const double* v, int vL)
 {
     int retVal = -1;
 
@@ -1352,7 +1347,7 @@ int CMeshWrapper::setVectorProperty_wrapper(const char* pName, const double* v, 
     return retVal;
 }
 
-int CMeshWrapper::getVectorProperty_wrapper(const char* pName, std::vector<double>& pState) const
+int CMeshWrapper::getFloatArrayProperty_wrapper(const char* pName, std::vector<double>& pState) const
 {
     int retVal = -1;
     pState.clear();
@@ -1362,6 +1357,13 @@ int CMeshWrapper::getVectorProperty_wrapper(const char* pName, std::vector<doubl
         pState.resize(9, 0.0);
         _iMatrix.getData(pState.data());
         retVal = 1;
+    }
+    else if (strcmp(propMeshWrap_pmi.name, pName) == 0)
+    {
+        retVal = 1;
+        pState.push_back(_pmi(0));
+        pState.push_back(_pmi(1));
+        pState.push_back(_pmi(2));
     }
 
     return retVal;

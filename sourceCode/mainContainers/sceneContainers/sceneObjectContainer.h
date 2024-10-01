@@ -21,9 +21,9 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propObjCont_objectHandles,                "objectHandles",                    sim_propertytype_intvector, sim_propertyinfo_notwritable, "Objects", "Handles of all scene objects") \
-    FUNCX(propObjCont_orphanHandles,                "orphanHandles",                    sim_propertytype_intvector, sim_propertyinfo_notwritable, "Orphan objects", "Handles of all orphan scene objects") \
-    FUNCX(propObjCont_selectionHandles,             "selectionHandles",                 sim_propertytype_intvector, 0, "Selected objects", "Handles of selected scene objects") \
+    FUNCX(propObjCont_objectHandles,                "objectHandles",                    sim_propertytype_intarray, sim_propertyinfo_notwritable, "Objects", "Handles of all scene objects") \
+    FUNCX(propObjCont_orphanHandles,                "orphanHandles",                    sim_propertytype_intarray, sim_propertyinfo_notwritable, "Orphan objects", "Handles of all orphan scene objects") \
+    FUNCX(propObjCont_selectionHandles,             "selectionHandles",                 sim_propertytype_intarray, 0, "Selected objects", "Handles of selected scene objects") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -209,8 +209,8 @@ class CSceneObjectContainer
     int getStringProperty(long long int target, const char* pName, std::string& pState) const;
     int setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL);
     int getBufferProperty(long long int target, const char* pName, std::string& pState) const;
-    int setIntVector2Property(long long int target, const char* pName, const int* pState);
-    int getIntVector2Property(long long int target, const char* pName, int* pState) const;
+    int setIntArray2Property(long long int target, const char* pName, const int* pState);
+    int getIntArray2Property(long long int target, const char* pName, int* pState) const;
     int setVector2Property(long long int target, const char* pName, const double* pState);
     int getVector2Property(long long int target, const char* pName, double* pState) const;
     int setVector3Property(long long int target, const char* pName, const C3Vector& pState);
@@ -219,16 +219,12 @@ class CSceneObjectContainer
     int getQuaternionProperty(long long int target, const char* pName, C4Vector& pState) const;
     int setPoseProperty(long long int target, const char* pName, const C7Vector& pState);
     int getPoseProperty(long long int target, const char* pName, C7Vector& pState) const;
-    int setMatrix3x3Property(long long int target, const char* pName, const C3X3Matrix& pState);
-    int getMatrix3x3Property(long long int target, const char* pName, C3X3Matrix& pState) const;
-    int setMatrix4x4Property(long long int target, const char* pName, const C4X4Matrix& pState);
-    int getMatrix4x4Property(long long int target, const char* pName, C4X4Matrix& pState) const;
     int setColorProperty(long long int target, const char* pName, const float* pState);
     int getColorProperty(long long int target, const char* pName, float* pState) const;
-    int setVectorProperty(long long int target, const char* pName, const double* v, int vL);
-    int getVectorProperty(long long int target, const char* pName, std::vector<double>& pState) const;
-    int setIntVectorProperty(long long int target, const char* pName, const int* v, int vL);
-    int getIntVectorProperty(long long int target, const char* pName, std::vector<int>& pState) const;
+    int setFloatArrayProperty(long long int target, const char* pName, const double* v, int vL);
+    int getFloatArrayProperty(long long int target, const char* pName, std::vector<double>& pState) const;
+    int setIntArrayProperty(long long int target, const char* pName, const int* v, int vL);
+    int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState) const;
     int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CSceneObjectContainer* targetObject);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, CSceneObjectContainer* targetObject);

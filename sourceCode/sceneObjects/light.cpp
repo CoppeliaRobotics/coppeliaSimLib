@@ -958,11 +958,6 @@ int CLight::setVector3Property(const char* ppName, const C3Vector& pState)
     int retVal = CSceneObject::setVector3Property(pName, pState);
     if (retVal == -1)
     {
-        if (_pName == propLight_attenuationFactors.name)
-        {
-            setAttenuationFactors(pState.data);
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -975,40 +970,50 @@ int CLight::getVector3Property(const char* ppName, C3Vector& pState) const
     int retVal = CSceneObject::getVector3Property(pName, pState);
     if (retVal == -1)
     {
+    }
+
+    return retVal;
+}
+
+int CLight::setFloatArrayProperty(const char* ppName, const double* v, int vL)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
+    const char* pName = _pName.c_str();
+    if (v == nullptr)
+        vL = 0;
+    int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
+    if (retVal == -1)
+    {
         if (_pName == propLight_attenuationFactors.name)
         {
-            pState(0) = constantAttenuation;
-            pState(1) = linearAttenuation;
-            pState(2) = quadraticAttenuation;
-            retVal = 1;
+            if (vL >= 3)
+            {
+                setAttenuationFactors(v);
+                retVal = 1;
+            }
+            else
+                retVal = 0;
         }
     }
 
     return retVal;
 }
 
-int CLight::setVectorProperty(const char* ppName, const double* v, int vL)
-{
-    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
-    const char* pName = _pName.c_str();
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CSceneObject::setVectorProperty(pName, v, vL);
-    if (retVal == -1)
-    {
-    }
-
-    return retVal;
-}
-
-int CLight::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+int CLight::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "light."));
     const char* pName = _pName.c_str();
     pState.clear();
-    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
     if (retVal == -1)
     {
+        if (_pName == propLight_attenuationFactors.name)
+        {
+            pState.push_back(constantAttenuation);
+            pState.push_back(linearAttenuation);
+            pState.push_back(quadraticAttenuation);
+            retVal = 1;
+        }
     }
 
     return retVal;

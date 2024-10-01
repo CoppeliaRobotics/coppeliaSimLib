@@ -405,12 +405,12 @@ void CCustomData::appendEventData(CCbor *ev) const
                 tg.erase(0, p + 2);
                 ev->appendKeyFloatArray(tg.c_str(), (float*)_data[i].data.data(), _data[i].data.size() / sizeof(float));
             }
-            else if (tg.find(proptypetag_vector) != std::string::npos)
+            else if (tg.find(proptypetag_floatarray) != std::string::npos)
             {
                 tg.erase(0, p + 2);
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)_data[i].data.data(), _data[i].data.size() / sizeof(double));
             }
-            else if (tg.find(proptypetag_intvector) != std::string::npos)
+            else if (tg.find(proptypetag_intarray) != std::string::npos)
             {
                 tg.erase(0, p + 2);
                 ev->appendKeyIntArray(tg.c_str(), (int*)_data[i].data.data(), _data[i].data.size() / sizeof(int));

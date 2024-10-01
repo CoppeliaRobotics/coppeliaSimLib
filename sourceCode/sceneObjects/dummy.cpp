@@ -91,11 +91,11 @@ double CDummy::getEngineFloatParam_old(int what, bool *ok) const
         if (getVector2Property(prop.c_str(), v) > 0)
             return v[indexWithArrays];
     }
-    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    prop = _enumToProperty(what, sim_propertytype_floatarray, indexWithArrays);
     if (prop.size() > 0)
     {
         std::vector<double> v;
-        if (getVectorProperty(prop.c_str(), v) > 0)
+        if (getFloatArrayProperty(prop.c_str(), v) > 0)
             return v[indexWithArrays];
     }
     if (ok != nullptr)
@@ -157,14 +157,14 @@ bool CDummy::setEngineFloatParam_old(int what, double v)
                 return true;
         }
     }
-    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    prop = _enumToProperty(what, sim_propertytype_floatarray, indexWithArrays);
     if (prop.size() > 0)
     {
         std::vector<double> w;
-        if (getVectorProperty(prop.c_str(), w) > 0)
+        if (getFloatArrayProperty(prop.c_str(), w) > 0)
         {
             w[indexWithArrays] = v;
-            if (setVectorProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+            if (setFloatArrayProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
                 return true;
         }
     }
@@ -284,7 +284,7 @@ void CDummy::addSpecializedObjectEventData(CCbor *ev)
     setIntProperty(nullptr, 0, ev);
     setFloatProperty(nullptr, 0.0, ev);
     setVector2Property(nullptr, nullptr, ev);
-    setVectorProperty(nullptr, nullptr, 0, ev);
+    setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _sendEngineString(ev);
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -727,11 +727,11 @@ void CDummy::serialize(CSer &ar)
             ar.xmlPushNewNode("engines");
             ar.xmlPushNewNode("mujoco");
             std::vector<double> v;
-            if (getVectorProperty(propDummy_mujocoLimitsRange.name, v) == 1)
+            if (getFloatArrayProperty(propDummy_mujocoLimitsRange.name, v) == 1)
                 ar.xmlAddNode_floats("range", v.data(), 2);
-            if (getVectorProperty(propDummy_mujocoLimitsSolref.name, v) == 1)
+            if (getFloatArrayProperty(propDummy_mujocoLimitsSolref.name, v) == 1)
                 ar.xmlAddNode_floats("solreflimit", v.data(), 2);
-            if (getVectorProperty(propDummy_mujocoLimitsSolimp.name, v) == 1)
+            if (getFloatArrayProperty(propDummy_mujocoLimitsSolimp.name, v) == 1)
                 ar.xmlAddNode_floats("solimplimit", v.data(), 5);
             ar.xmlAddNode_float("margin", _mujocoFloatParams[simi_mujoco_dummy_margin]);
             ar.xmlAddNode_float("springlength", _mujocoFloatParams[simi_mujoco_dummy_springlength]);
@@ -1572,8 +1572,6 @@ int CDummy::setVector2Property(const char* ppName, const double* pState, CCbor* 
             }
         };
 
-        handleProp(propDummy_mujocoLimitsRange.name, _mujocoFloatParams, simi_mujoco_dummy_range1);
-        handleProp(propDummy_mujocoLimitsSolref.name, _mujocoFloatParams, simi_mujoco_dummy_solreflimit1);
 
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();
@@ -1603,17 +1601,13 @@ int CDummy::getVector2Property(const char* ppName, double* pState) const
                 pState[i] = arr[simiIndex1 + i];
         };
 
-        if (_pName == propDummy_mujocoLimitsRange.name)
-            handleProp(_mujocoFloatParams, simi_mujoco_dummy_range1);
-        else if (_pName == propDummy_mujocoLimitsSolref.name)
-            handleProp(_mujocoFloatParams, simi_mujoco_dummy_solreflimit1);
         // ------------------------
     }
 
     return retVal;
 }
 
-int CDummy::setVectorProperty(const char* ppName, const double* v, int vL, CCbor* eev/* = nullptr*/)
+int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, CCbor* eev/* = nullptr*/)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1630,7 +1624,7 @@ int CDummy::setVectorProperty(const char* ppName, const double* v, int vL, CCbor
 
     if ( (eev == nullptr) && (pName != nullptr) )
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setVectorProperty(pName, v, vL);
+        retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
         if (retVal == -1)
         {
         }
@@ -1670,6 +1664,8 @@ int CDummy::setVectorProperty(const char* ppName, const double* v, int vL, CCbor
             }
         };
 
+        handleProp(propDummy_mujocoLimitsRange.name, _mujocoFloatParams, simi_mujoco_dummy_range1, 2);
+        handleProp(propDummy_mujocoLimitsSolref.name, _mujocoFloatParams, simi_mujoco_dummy_solreflimit1, 2);
         handleProp(propDummy_mujocoLimitsSolimp.name, _mujocoFloatParams, simi_mujoco_dummy_solimplimit1, 5);
 
         if ( (ev != nullptr) && (eev == nullptr) )
@@ -1680,12 +1676,12 @@ int CDummy::setVectorProperty(const char* ppName, const double* v, int vL, CCbor
     return retVal;
 }
 
-int CDummy::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+int CDummy::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "dummy."));
     const char* pName = _pName.c_str();
     pState.clear();
-    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
     if (retVal == -1)
     {   // First non-engine properties:
     }
@@ -1701,6 +1697,10 @@ int CDummy::getVectorProperty(const char* ppName, std::vector<double>& pState) c
                 pState.push_back(arr[simiIndex1 + i]);
         };
 
+        if (_pName == propDummy_mujocoLimitsRange.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_dummy_range1, 2);
+        else if (_pName == propDummy_mujocoLimitsSolref.name)
+            handleProp(_mujocoFloatParams, simi_mujoco_dummy_solreflimit1, 2);
         if (_pName == propDummy_mujocoLimitsSolimp.name)
             handleProp(_mujocoFloatParams, simi_mujoco_dummy_solimplimit1, 5);
         // ------------------------

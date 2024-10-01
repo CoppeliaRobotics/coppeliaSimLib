@@ -443,11 +443,11 @@ double CDynamicsContainer::getEngineFloatParam_old(int what, bool *ok, bool getD
         if (getFloatProperty(prop.c_str(), v) > 0)
             return v;
     }
-    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    prop = _enumToProperty(what, sim_propertytype_floatarray, indexWithArrays);
     if (prop.size() > 0)
     {
         std::vector<double> v;
-        if (getVectorProperty(prop.c_str(), v) > 0)
+        if (getFloatArrayProperty(prop.c_str(), v) > 0)
             return v[indexWithArrays];
     }
     prop = _enumToProperty(what, sim_propertytype_vector3, indexWithArrays);
@@ -512,14 +512,14 @@ bool CDynamicsContainer::setEngineFloatParam_old(int what, double v)
     }
     if (!retVal)
     {
-        prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+        prop = _enumToProperty(what, sim_propertytype_floatarray, indexWithArrays);
         if (prop.size() > 0)
         {
             std::vector<double> w;
-            if (getVectorProperty(prop.c_str(), w) > 0)
+            if (getFloatArrayProperty(prop.c_str(), w) > 0)
             {
                 w[indexWithArrays] = v;
-                if (setVectorProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+                if (setFloatArrayProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
                     retVal = true;
             }
         }
@@ -2159,10 +2159,10 @@ void CDynamicsContainer::appendGenesisData(CCbor *ev)
     setBoolProperty(nullptr, false, ev);
     setIntProperty(nullptr, 0, ev);
     setFloatProperty(nullptr, 0.0, ev);
-    setIntVector2Property(nullptr, nullptr, ev);
+    setIntArray2Property(nullptr, nullptr, ev);
     setVector2Property(nullptr, nullptr, ev);
     setVector3Property(nullptr, nullptr, ev);
-    setVectorProperty(nullptr, nullptr, 0, ev);
+    setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _sendEngineString(ev);
 }
 
@@ -2805,7 +2805,7 @@ int CDynamicsContainer::getStringProperty(const char* pName, std::string& pState
     return retVal;
 }
 
-int CDynamicsContainer::setIntVector2Property(const char* pName, const int* pState, CCbor* eev/* = nullptr*/)
+int CDynamicsContainer::setIntArray2Property(const char* pName, const int* pState, CCbor* eev/* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
@@ -2814,12 +2814,6 @@ int CDynamicsContainer::setIntVector2Property(const char* pName, const int* pSta
 
     if ( (eev == nullptr) && (pName != nullptr) )
     { // regular properties (i.e. non-engine properties)
-        if (strcmp(pName, propDyn_dynamicsEngine.name) == 0)
-        {
-            int w[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
-            setDynamicEngineType(pState[0], pState[1]);
-            retVal = 1;
-        }
     }
 
     if (retVal == -1)
@@ -2835,16 +2829,10 @@ int CDynamicsContainer::setIntVector2Property(const char* pName, const int* pSta
     return retVal;
 }
 
-int CDynamicsContainer::getIntVector2Property(const char* pName, int* pState, bool getDefaultValue /*= false*/) const
+int CDynamicsContainer::getIntArray2Property(const char* pName, int* pState, bool getDefaultValue /*= false*/) const
 {
     int retVal = -1;
     // First non-engine properties:
-    if (strcmp(pName, propDyn_dynamicsEngine.name) == 0)
-    {
-        pState[0] = _dynamicEngineToUse;
-        pState[1] = _dynamicEngineVersionToUse;
-        retVal = 1;
-    }
 
     // Engine-only properties:
     // ------------------------
@@ -2898,7 +2886,7 @@ int CDynamicsContainer::setVector2Property(const char* pName, const double* pSta
             }
         };
 
-        handleProp(propDyn_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1);
+//        handleProp(propDyn_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1);
 
         if ( (ev != nullptr) && (eev == nullptr) )
             App::worldContainer->pushEvent();
@@ -2950,8 +2938,8 @@ int CDynamicsContainer::getVector2Property(const char* pName, double* pState, bo
                 pState[i] = arr[simiIndex1 + i];
         };
 
-        if (strcmp(pName, propDyn_mujocoContactParamsSolref.name) == 0)
-            handleProp(mujocoFloatParams, simi_mujoco_global_overridesolref1);
+//        if (strcmp(pName, propDyn_mujocoContactParamsSolref.name) == 0)
+//            handleProp(mujocoFloatParams, simi_mujoco_global_overridesolref1);
     }
     // ------------------------
 
@@ -3070,7 +3058,7 @@ int CDynamicsContainer::getVector3Property(const char* pName, C3Vector& pState, 
     return retVal;
 }
 
-int CDynamicsContainer::setVectorProperty(const char* pName, const double* v, int vL, CCbor* eev/* = nullptr*/)
+int CDynamicsContainer::setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev/* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
@@ -3115,6 +3103,7 @@ int CDynamicsContainer::setVectorProperty(const char* pName, const double* v, in
             }
         };
 
+        handleProp(propDyn_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1, 2);
         handleProp(propDyn_mujocoContactParamsSolimp.name, _mujocoFloatParams, simi_mujoco_global_overridesolimp1, 5);
 
         if ( (ev != nullptr) && (eev == nullptr) )
@@ -3128,7 +3117,7 @@ int CDynamicsContainer::setVectorProperty(const char* pName, const double* v, in
     return retVal;
 }
 
-int CDynamicsContainer::getVectorProperty(const char* pName, std::vector<double>& pState, bool getDefaultValue /*= false*/) const
+int CDynamicsContainer::getFloatArrayProperty(const char* pName, std::vector<double>& pState, bool getDefaultValue /*= false*/) const
 {
     int retVal = -1;
     pState.clear();
@@ -3175,6 +3164,8 @@ int CDynamicsContainer::getVectorProperty(const char* pName, std::vector<double>
                 pState.push_back(arr[simiIndex1 + i]);
         };
 
+        if (strcmp(pName, propDyn_mujocoContactParamsSolref.name) == 0)
+            handleProp(mujocoFloatParams, simi_mujoco_global_overridesolref1, 2);
         if (strcmp(pName, propDyn_mujocoContactParamsSolimp.name) == 0)
             handleProp(mujocoFloatParams, simi_mujoco_global_overridesolimp1, 5);
     }
@@ -3183,9 +3174,20 @@ int CDynamicsContainer::getVectorProperty(const char* pName, std::vector<double>
     return retVal;
 }
 
-int CDynamicsContainer::setIntVectorProperty(const char* pName, const int* v, int vL)
+int CDynamicsContainer::setIntArrayProperty(const char* pName, const int* v, int vL)
 {
     int retVal = -1;
+
+    if (strcmp(pName, propDyn_dynamicsEngine.name) == 0)
+    {
+        if (vL >= 2)
+        {
+            setDynamicEngineType(v[0], v[1]);
+            retVal = 1;
+        }
+        else
+            retVal = 0;
+    }
 
     if (retVal == 1)
         checkIfEngineSettingsAreDefault();
@@ -3193,10 +3195,17 @@ int CDynamicsContainer::setIntVectorProperty(const char* pName, const int* v, in
     return retVal;
 }
 
-int CDynamicsContainer::getIntVectorProperty(const char* pName, std::vector<int>& pState) const
+int CDynamicsContainer::getIntArrayProperty(const char* pName, std::vector<int>& pState) const
 {
     int retVal = -1;
     pState.clear();
+
+    if (strcmp(pName, propDyn_dynamicsEngine.name) == 0)
+    {
+        pState.push_back(_dynamicEngineToUse);
+        pState.push_back(_dynamicEngineVersionToUse);
+        retVal = 1;
+    }
 
     return retVal;
 }

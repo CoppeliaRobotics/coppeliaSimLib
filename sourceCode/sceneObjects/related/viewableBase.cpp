@@ -698,9 +698,9 @@ int CViewableBase::getFloatProperty(const char* pName, double& pState) const
     return retVal;
 }
 
-int CViewableBase::setIntVector2Property(const char* pName, const int* pState)
+int CViewableBase::setIntArray2Property(const char* pName, const int* pState)
 {
-    int retVal = CSceneObject::setIntVector2Property(pName, pState);
+    int retVal = CSceneObject::setIntArray2Property(pName, pState);
     if (retVal == -1)
     {
         if (strcmp(propViewable_resolution.name, pName) == 0)
@@ -713,9 +713,9 @@ int CViewableBase::setIntVector2Property(const char* pName, const int* pState)
     return retVal;
 }
 
-int CViewableBase::getIntVector2Property(const char* pName, int* pState) const
+int CViewableBase::getIntArray2Property(const char* pName, int* pState) const
 {
-    int retVal = CSceneObject::getIntVector2Property(pName, pState);
+    int retVal = CSceneObject::getIntArray2Property(pName, pState);
     if (retVal == -1)
     {
         if (strcmp(propViewable_resolution.name, pName) == 0)
@@ -734,11 +734,6 @@ int CViewableBase::setVector2Property(const char* pName, const double* pState)
     int retVal = CSceneObject::setVector2Property(pName, pState);
     if (retVal == -1)
     {
-        if (strcmp(propViewable_clippingPlanes.name, pName) == 0)
-        {
-            retVal = 1;
-            setClippingPlanes(pState[0], pState[1]);
-        }
     }
 
     return retVal;
@@ -749,12 +744,6 @@ int CViewableBase::getVector2Property(const char* pName, double* pState) const
     int retVal = CSceneObject::getVector2Property(pName, pState);
     if (retVal == -1)
     {
-        if (strcmp(propViewable_clippingPlanes.name, pName) == 0)
-        {
-            pState[0] = _nearClippingPlane;
-            pState[1] = _farClippingPlane;
-            retVal = 1;
-        }
     }
 
     return retVal;
@@ -790,34 +779,50 @@ int CViewableBase::getVector3Property(const char* pName, C3Vector& pState) const
     return retVal;
 }
 
-int CViewableBase::setVectorProperty(const char* pName, const double* v, int vL)
+int CViewableBase::setFloatArrayProperty(const char* pName, const double* v, int vL)
 {
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setVectorProperty(pName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
     if (retVal == -1)
     {
+        if (strcmp(propViewable_clippingPlanes.name, pName) == 0)
+        {
+            if (vL >= 2)
+            {
+                retVal = 1;
+                setClippingPlanes(v[0], v[1]);
+            }
+            else
+                retVal = 0;
+        }
     }
 
     return retVal;
 }
 
-int CViewableBase::getVectorProperty(const char* pName, std::vector<double>& pState) const
+int CViewableBase::getFloatArrayProperty(const char* pName, std::vector<double>& pState) const
 {
     pState.clear();
-    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
     if (retVal == -1)
     {
+        if (strcmp(propViewable_clippingPlanes.name, pName) == 0)
+        {
+            pState.push_back(_nearClippingPlane);
+            pState.push_back(_farClippingPlane);
+            retVal = 1;
+        }
     }
 
     return retVal;
 }
 
-int CViewableBase::setIntVectorProperty(const char* pName, const int* v, int vL)
+int CViewableBase::setIntArrayProperty(const char* pName, const int* v, int vL)
 {
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setIntVectorProperty(pName, v, vL);
+    int retVal = CSceneObject::setIntArrayProperty(pName, v, vL);
     if (retVal == -1)
     {
     }
@@ -826,10 +831,10 @@ int CViewableBase::setIntVectorProperty(const char* pName, const int* v, int vL)
     return retVal;
 }
 
-int CViewableBase::getIntVectorProperty(const char* pName, std::vector<int>& pState) const
+int CViewableBase::getIntArrayProperty(const char* pName, std::vector<int>& pState) const
 {
     pState.clear();
-    int retVal = CSceneObject::getIntVectorProperty(pName, pState);
+    int retVal = CSceneObject::getIntArrayProperty(pName, pState);
     if (retVal == -1)
     {
     }

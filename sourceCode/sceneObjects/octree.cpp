@@ -1236,13 +1236,13 @@ int COcTree::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int COcTree::setVectorProperty(const char* ppName, const double* v, int vL)
+int COcTree::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
     const char* pName = _pName.c_str();
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setVectorProperty(pName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
     if (retVal == -1)
     {
     }
@@ -1250,12 +1250,12 @@ int COcTree::setVectorProperty(const char* ppName, const double* v, int vL)
     return retVal;
 }
 
-int COcTree::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+int COcTree::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "ocTree."));
     const char* pName = _pName.c_str();
     pState.clear();
-    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
     if (retVal == -1)
     {
         if (_pName == propOctree_voxels.name)

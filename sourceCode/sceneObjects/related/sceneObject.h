@@ -55,7 +55,7 @@
     FUNCX(propObject_pose,                    "pose",                             sim_propertytype_pose,      0, "Pose", "Scene object local pose") \
     FUNCX(propObject_alias,                   "alias",                            sim_propertytype_string,    0, "Alias", "Scene object alias") \
     FUNCX(propObject_bbPose,                  "bbPose",                           sim_propertytype_pose,      sim_propertyinfo_notwritable, "Bounding box pose", "Bounding box local pose") \
-    FUNCX(propObject_bbHsize,                 "bbHSize",                          sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Bounding box half sizes", "") \
+    FUNCX(propObject_bbHsize,                 "bbHSize",                          sim_propertytype_floatarray,sim_propertyinfo_notwritable, "Bounding box half sizes", "") \
     FUNCX(propObject_movementOptions,         "movementOptionsFlags",             sim_propertytype_int,       0, "Movement flags", "Scene object movement flags") \
     FUNCX(propObject_movTranslNoSim,          "movTranslNoSim",                   sim_propertytype_bool,      0, "Translation enabled", "Translation enabled when simulation is not running") \
     FUNCX(propObject_movTranslInSim,          "movTranslInSim",                   sim_propertytype_bool,      0, "Translation enabled during simulation", "Translation enabled when simulation is running") \
@@ -70,8 +70,8 @@
     FUNCX(propObject_movPrefRotX,             "movPrefRotX",                      sim_propertytype_bool,      0, "Preferred X-axis rotation", "") \
     FUNCX(propObject_movPrefRotY,             "movPrefRotY",                      sim_propertytype_bool,      0, "Preferred Y-axis rotation", "") \
     FUNCX(propObject_movPrefRotZ,             "movPrefRotZ",                      sim_propertytype_bool,      0, "Preferred Z-axis rotation", "") \
-    FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_vector2,   0, "Movement step sizes", "Linear and angular step sizes") \
-    FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intvector2,0, "Movement relativity", "Movement relativity, linear and angular") \
+    FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_floatarray,0, "Movement step sizes", "Linear and angular step sizes") \
+    FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intarray,  0, "Movement relativity", "Movement relativity, linear and angular") \
     FUNCX(propObject_objectType,              "objectType",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "Type", "Scene object type") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -177,8 +177,8 @@ class CSceneObject
     virtual int getStringProperty(const char* pName, std::string& pState) const;
     virtual int setBufferProperty(const char* pName, const char* buffer, int bufferL);
     virtual int getBufferProperty(const char* pName, std::string& pState) const;
-    virtual int setIntVector2Property(const char* pName, const int* pState);
-    virtual int getIntVector2Property(const char* pName, int* pState) const;
+    virtual int setIntArray2Property(const char* pName, const int* pState);
+    virtual int getIntArray2Property(const char* pName, int* pState) const;
     virtual int setVector2Property(const char* pName, const double* pState);
     virtual int getVector2Property(const char* pName, double* pState) const;
     virtual int setVector3Property(const char* pName, const C3Vector& pState);
@@ -187,16 +187,12 @@ class CSceneObject
     virtual int getQuaternionProperty(const char* pName, C4Vector& pState) const;
     virtual int setPoseProperty(const char* pName, const C7Vector& pState);
     virtual int getPoseProperty(const char* pName, C7Vector& pState) const;
-    virtual int setMatrix3x3Property(const char* pName, const C3X3Matrix& pState);
-    virtual int getMatrix3x3Property(const char* pName, C3X3Matrix& pState) const;
-    virtual int setMatrix4x4Property(const char* pName, const C4X4Matrix& pState);
-    virtual int getMatrix4x4Property(const char* pName, C4X4Matrix& pState) const;
     virtual int setColorProperty(const char* pName, const float* pState);
     virtual int getColorProperty(const char* pName, float* pState) const;
-    virtual int setVectorProperty(const char* pName, const double* v, int vL);
-    virtual int getVectorProperty(const char* pName, std::vector<double>& pState) const;
-    virtual int setIntVectorProperty(const char* pName, const int* v, int vL);
-    virtual int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
+    virtual int setFloatArrayProperty(const char* pName, const double* v, int vL);
+    virtual int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
+    virtual int setIntArrayProperty(const char* pName, const int* v, int vL);
+    virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
     virtual int removeProperty(const char* pName);
     virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static  int getPropertyName_bstatic(int& index, std::string& pName, std::string& appartenance);

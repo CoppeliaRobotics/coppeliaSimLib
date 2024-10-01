@@ -3524,11 +3524,11 @@ int CVisionSensor::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
-int CVisionSensor::setIntVector2Property(const char* ppName, const int* pState)
+int CVisionSensor::setIntArray2Property(const char* ppName, const int* pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
-    int retVal = CViewableBase::setIntVector2Property(pName, pState);
+    int retVal = CViewableBase::setIntArray2Property(pName, pState);
     if (retVal == -1)
     {
     }
@@ -3536,11 +3536,11 @@ int CVisionSensor::setIntVector2Property(const char* ppName, const int* pState)
     return retVal;
 }
 
-int CVisionSensor::getIntVector2Property(const char* ppName, int* pState) const
+int CVisionSensor::getIntArray2Property(const char* ppName, int* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
-    int retVal = CViewableBase::getIntVector2Property(pName, pState);
+    int retVal = CViewableBase::getIntArray2Property(pName, pState);
     if (retVal == -1)
     {
     }
@@ -3674,13 +3674,13 @@ int CVisionSensor::getVector3Property(const char* ppName, C3Vector& pState) cons
     return retVal;
 }
 
-int CVisionSensor::setVectorProperty(const char* ppName, const double* v, int vL)
+int CVisionSensor::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
     if (v == nullptr)
         vL = 0;
-    int retVal = CViewableBase::setVectorProperty(pName, v, vL);
+    int retVal = CViewableBase::setFloatArrayProperty(pName, v, vL);
     if (retVal == -1)
     {
     }
@@ -3688,12 +3688,12 @@ int CVisionSensor::setVectorProperty(const char* ppName, const double* v, int vL
     return retVal;
 }
 
-int CVisionSensor::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+int CVisionSensor::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
     pState.clear();
-    int retVal = CViewableBase::getVectorProperty(pName, pState);
+    int retVal = CViewableBase::getFloatArrayProperty(pName, pState);
     if (retVal == -1)
     {
         if (_pName == propVisionSensor_depthBuffer.name)
@@ -3706,13 +3706,13 @@ int CVisionSensor::getVectorProperty(const char* ppName, std::vector<double>& pS
     return retVal;
 }
 
-int CVisionSensor::setIntVectorProperty(const char* ppName, const int* v, int vL)
+int CVisionSensor::setIntArrayProperty(const char* ppName, const int* v, int vL)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
     if (v == nullptr)
         vL = 0;
-    int retVal = CViewableBase::setIntVectorProperty(pName, v, vL);
+    int retVal = CViewableBase::setIntArrayProperty(pName, v, vL);
     if (retVal == -1)
     {
     }
@@ -3721,12 +3721,12 @@ int CVisionSensor::setIntVectorProperty(const char* ppName, const int* v, int vL
     return retVal;
 }
 
-int CVisionSensor::getIntVectorProperty(const char* ppName, std::vector<int>& pState) const
+int CVisionSensor::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "visionSensor."));
     const char* pName = _pName.c_str();
     pState.clear();
-    int retVal = CViewableBase::getIntVectorProperty(pName, pState);
+    int retVal = CViewableBase::getIntArrayProperty(pName, pState);
     if (retVal == -1)
     {
     }

@@ -13,7 +13,7 @@
     FUNCX(propPointCloud_maxPtsInCell,                 "maxPointsInCell",                    sim_propertytype_int,       0, "Max. points in cell", "Maximum number of points in an oc-tree cell/voxel") \
     FUNCX(propPointCloud_cellSize,                     "cellSize",                           sim_propertytype_float,     0, "Cell size", "Size of the oc-tree cell/voxel") \
     FUNCX(propPointCloud_pointDisplayFraction,         "pointDisplayFraction",               sim_propertytype_float,     0, "Display fraction", "Fraction of points to be displayed in an oc-tree cell/voxel") \
-    FUNCX(propPointCloud_points,                       "points",                             sim_propertytype_vector,    sim_propertyinfo_notwritable, "Points", "Point positions") \
+    FUNCX(propPointCloud_points,                       "points",                             sim_propertytype_floatarray,    sim_propertyinfo_notwritable, "Points", "Point positions") \
     FUNCX(propPointCloud_colors,                       "colors",                             sim_propertytype_buffer,    sim_propertyinfo_notwritable, "Colors", "Point colors") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -75,8 +75,8 @@ class CPointCloud : public CSceneObject
     int getBufferProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
-    int setVectorProperty(const char* pName, const double* v, int vL);
-    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
+    int setFloatArrayProperty(const char* pName, const double* v, int vL);
+    int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);

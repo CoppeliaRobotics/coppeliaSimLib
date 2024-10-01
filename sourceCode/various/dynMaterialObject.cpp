@@ -210,11 +210,11 @@ double CDynMaterialObject::getEngineFloatParam_old(int what, bool *ok)
         if (getFloatProperty(prop.c_str(), v) > 0)
             return v;
     }
-    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    prop = _enumToProperty(what, sim_propertytype_floatarray, indexWithArrays);
     if (prop.size() > 0)
     {
         std::vector<double> v;
-        if (getVectorProperty(prop.c_str(), v) > 0)
+        if (getFloatArrayProperty(prop.c_str(), v) > 0)
             return v[indexWithArrays];
     }
     prop = _enumToProperty(what, sim_propertytype_vector3, indexWithArrays);
@@ -272,14 +272,14 @@ bool CDynMaterialObject::setEngineFloatParam_old(int what, double v)
         if (setFloatProperty(prop.c_str(), v) > 0)
             return true;
     }
-    prop = _enumToProperty(what, sim_propertytype_vector, indexWithArrays);
+    prop = _enumToProperty(what, sim_propertytype_floatarray, indexWithArrays);
     if (prop.size() > 0)
     {
         std::vector<double> w;
-        if (getVectorProperty(prop.c_str(), w) > 0)
+        if (getFloatArrayProperty(prop.c_str(), w) > 0)
         {
             w[indexWithArrays] = v;
-            if (setVectorProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+            if (setFloatArrayProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
                 return true;
         }
     }
@@ -2192,8 +2192,6 @@ int CDynMaterialObject::setVector2Property(const char* pName, const double* pSta
         }
     };
 
-    handleProp(propMaterial_mujocoSolref.name, _mujocoFloatParams, simi_mujoco_body_solref1);
-
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
     return retVal;
@@ -2202,13 +2200,6 @@ int CDynMaterialObject::setVector2Property(const char* pName, const double* pSta
 int CDynMaterialObject::getVector2Property(const char* pName, double* pState) const
 {
     int retVal = -1;
-
-    if (strcmp(pName, propMaterial_mujocoSolref.name) == 0)
-    {
-        retVal = 1;
-        pState[0] = _mujocoFloatParams[simi_mujoco_body_solref1 + 0];
-        pState[1] = _mujocoFloatParams[simi_mujoco_body_solref1 + 1];
-    }
 
     return retVal;
 }
@@ -2252,7 +2243,6 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
     };
 
     handleProp(propMaterial_vortexPrimaryAxisVector.name, _vortexFloatParams, simi_vortex_body_primaxisvectorx);
-    handleProp(propMaterial_mujocoFriction.name, _mujocoFloatParams, simi_mujoco_body_friction1);
 
     if ( (ev != nullptr) && (eev == nullptr) )
         App::worldContainer->pushEvent();
@@ -2268,16 +2258,11 @@ int CDynMaterialObject::getVector3Property(const char* pName, C3Vector* pState) 
         retVal = 1;
         pState->setData(_vortexFloatParams.data() + simi_vortex_body_primaxisvectorx);
     }
-    else if (strcmp(pName, propMaterial_mujocoFriction.name) == 0)
-    {
-        retVal = 1;
-        pState->setData(_mujocoFloatParams.data() + simi_mujoco_body_friction1);
-    }
 
     return retVal;
 }
 
-int CDynMaterialObject::setVectorProperty(const char* pName, const double* v, int vL, CCbor* eev/* = nullptr*/)
+int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev/* = nullptr*/)
 {
     int retVal = -1;
     CCbor* ev = nullptr;
@@ -2314,6 +2299,8 @@ int CDynMaterialObject::setVectorProperty(const char* pName, const double* v, in
         }
     };
 
+    handleProp(propMaterial_mujocoFriction.name, _mujocoFloatParams, simi_mujoco_body_friction1, 3);
+    handleProp(propMaterial_mujocoSolref.name, _mujocoFloatParams, simi_mujoco_body_solref1, 2);
     handleProp(propMaterial_mujocoSolimp.name, _mujocoFloatParams, simi_mujoco_body_solimp1, 5);
 
     if ( (ev != nullptr) && (eev == nullptr) )
@@ -2321,7 +2308,7 @@ int CDynMaterialObject::setVectorProperty(const char* pName, const double* v, in
     return retVal;
 }
 
-int CDynMaterialObject::getVectorProperty(const char* pName, std::vector<double>& pState) const
+int CDynMaterialObject::getFloatArrayProperty(const char* pName, std::vector<double>& pState) const
 {
     int retVal = -1;
     pState.clear();
@@ -2333,8 +2320,12 @@ int CDynMaterialObject::getVectorProperty(const char* pName, std::vector<double>
             pState.push_back(arr[simiIndex1 + i]);
     };
 
-   if (strcmp(pName, propMaterial_mujocoSolimp.name) == 0)
+    if (strcmp(pName, propMaterial_mujocoSolref.name) == 0)
+        handleProp(_mujocoFloatParams, simi_mujoco_body_solref1, 2);
+    else if (strcmp(pName, propMaterial_mujocoSolimp.name) == 0)
         handleProp(_mujocoFloatParams, simi_mujoco_body_solimp1, 5);
+    else if (strcmp(pName, propMaterial_mujocoFriction.name) == 0)
+        handleProp(_mujocoFloatParams, simi_mujoco_body_friction1, 3);
 
     return retVal;
 }

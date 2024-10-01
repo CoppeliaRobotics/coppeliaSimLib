@@ -11,8 +11,8 @@
 #define DEFINE_PROPERTIES \
     FUNCX(propMeshWrap_mass,                "mass",                                 sim_propertytype_float,     0, "Mass", "") \
     FUNCX(propMeshWrap_com,                 "centerOfMass",                         sim_propertytype_vector3,   0, "Center of mass", "Center of mass, relative to the shape's reference frame") \
-    FUNCX(propMeshWrap_inertia,             "inertia",                              sim_propertytype_vector,    0, "Inertia tensor", "Inertia tensor, relative to the shape's reference frame") \
-    FUNCX(propMeshWrap_pmi,                 "principalMomentOfInertia",             sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Principal moment of inertia", "Principal moment of inertia, relative to pmiQuaternion") \
+    FUNCX(propMeshWrap_inertia,             "inertia",                              sim_propertytype_floatarray,    0, "Inertia tensor", "Inertia tensor, relative to the shape's reference frame") \
+    FUNCX(propMeshWrap_pmi,                 "principalMomentOfInertia",             sim_propertytype_floatarray,   sim_propertyinfo_notwritable, "Principal moment of inertia", "Principal moment of inertia, relative to pmiQuaternion") \
     FUNCX(propMeshWrap_pmiQuaternion,       "pmiQuaternion",                        sim_propertytype_quaternion,sim_propertyinfo_notwritable, "Quaternion of the principal moment of inertia", "Quaternion of the principal moment of inertia, relative to the shape's reference frame") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -99,8 +99,8 @@ class CMeshWrapper
     int getVector3Property_wrapper(const char* pName, C3Vector& pState) const;
     int setQuaternionProperty_wrapper(const char* pName, const C4Vector& pState);
     int getQuaternionProperty_wrapper(const char* pName, C4Vector& pState) const;
-    int setVectorProperty_wrapper(const char* pName, const double* v, int vL);
-    int getVectorProperty_wrapper(const char* pName, std::vector<double>& pState) const;
+    int setFloatArrayProperty_wrapper(const char* pName, const double* v, int vL);
+    int getFloatArrayProperty_wrapper(const char* pName, std::vector<double>& pState) const;
     int getPropertyName_wrapper(int& index, std::string& pName) const;
     static  int getPropertyName_static_wrapper(int& index, std::string& pName);
     int getPropertyInfo_wrapper(const char* pName, int& info, std::string& infoTxt) const;

@@ -16,7 +16,7 @@
 #define proptypetag_float "&dbl&."
 #define proptypetag_string "&str&."
 #define proptypetag_buffer ""
-#define proptypetag_intvector2 "&ivect2&."
+#define proptypetag_intarray2 "&ivect2&."
 #define proptypetag_vector2 "&vect2&."
 #define proptypetag_vector3 "&vect3&."
 #define proptypetag_quaternion "&quat&."
@@ -24,8 +24,8 @@
 #define proptypetag_matrix3x3 "&mtrx33&."
 #define proptypetag_matrix4x4 "&mtrx44&."
 #define proptypetag_color "&col&."
-#define proptypetag_vector "&vect&."
-#define proptypetag_intvector "&ivect&."
+#define proptypetag_floatarray "&vect&."
+#define proptypetag_intarray "&ivect&."
 #define proptypetag_table "&tbl&."
 
 static std::vector<std::pair<int, std::string>> propertyTypes = {
@@ -33,7 +33,7 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_int, proptypetag_int},
     {sim_propertytype_float, proptypetag_float},
     {sim_propertytype_string, proptypetag_string},
-    {sim_propertytype_intvector2, proptypetag_intvector2},
+    {sim_propertytype_intarray2, proptypetag_intarray2},
     {sim_propertytype_vector2, proptypetag_vector2},
     {sim_propertytype_vector3, proptypetag_vector3},
     {sim_propertytype_quaternion, proptypetag_quaternion},
@@ -41,8 +41,8 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_matrix3x3, proptypetag_matrix3x3},
     {sim_propertytype_matrix4x4, proptypetag_matrix4x4},
     {sim_propertytype_color, proptypetag_color},
-    {sim_propertytype_vector, proptypetag_vector},
-    {sim_propertytype_intvector, proptypetag_intvector},
+    {sim_propertytype_floatarray, proptypetag_floatarray},
+    {sim_propertytype_intarray, proptypetag_intarray},
     {sim_propertytype_table, proptypetag_table},
 
     {sim_propertytype_buffer, proptypetag_buffer}, // keep always at the end
@@ -53,14 +53,16 @@ static std::map<int, std::string> propertyStrings = {
     {sim_propertytype_int, proptypetag_int},
     {sim_propertytype_float, proptypetag_float},
     {sim_propertytype_string, proptypetag_string},
+    {sim_propertytype_intarray2, proptypetag_intarray2},
+    {sim_propertytype_vector2, proptypetag_vector2},
     {sim_propertytype_vector3, proptypetag_vector3},
     {sim_propertytype_quaternion, proptypetag_quaternion},
     {sim_propertytype_pose, proptypetag_pose},
     {sim_propertytype_matrix3x3, proptypetag_matrix3x3},
     {sim_propertytype_matrix4x4, proptypetag_matrix4x4},
     {sim_propertytype_color, proptypetag_color},
-    {sim_propertytype_vector, proptypetag_vector},
-    {sim_propertytype_intvector, proptypetag_intvector},
+    {sim_propertytype_floatarray, proptypetag_floatarray},
+    {sim_propertytype_intarray, proptypetag_intarray},
     {sim_propertytype_table, proptypetag_table},
 
     {sim_propertytype_buffer, proptypetag_buffer},
@@ -151,8 +153,8 @@ class App
     static int getStringProperty(long long int target, const char* pName, std::string& pState);
     static int setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL);
     static int getBufferProperty(long long int target, const char* pName, std::string& pState);
-    static int setIntVector2Property(long long int target, const char* pName, const int* pState);
-    static int getIntVector2Property(long long int target, const char* pName, int* pState);
+    static int setIntArray2Property(long long int target, const char* pName, const int* pState);
+    static int getIntArray2Property(long long int target, const char* pName, int* pState);
     static int setVector2Property(long long int target, const char* pName, const double* pState);
     static int getVector2Property(long long int target, const char* pName, double* pState);
     static int setVector3Property(long long int target, const char* pName, const C3Vector& pState);
@@ -161,16 +163,12 @@ class App
     static int getQuaternionProperty(long long int target, const char* pName, C4Vector& pState);
     static int setPoseProperty(long long int target, const char* pName, const C7Vector& pState);
     static int getPoseProperty(long long int target, const char* pName, C7Vector& pState);
-    static int setMatrix3x3Property(long long int target, const char* pName, const C3X3Matrix& pState);
-    static int getMatrix3x3Property(long long int target, const char* pName, C3X3Matrix& pState);
-    static int setMatrix4x4Property(long long int target, const char* pName, const C4X4Matrix& pState);
-    static int getMatrix4x4Property(long long int target, const char* pName, C4X4Matrix& pState);
     static int setColorProperty(long long int target, const char* pName, const float* pState);
     static int getColorProperty(long long int target, const char* pName, float* pState);
-    static int setVectorProperty(long long int target, const char* pName, const double* v, int vL);
-    static int getVectorProperty(long long int target, const char* pName, std::vector<double>& pState);
-    static int setIntVectorProperty(long long int target, const char* pName, const int* v, int vL);
-    static int getIntVectorProperty(long long int target, const char* pName, std::vector<int>& pState);
+    static int setFloatArrayProperty(long long int target, const char* pName, const double* v, int vL);
+    static int getFloatArrayProperty(long long int target, const char* pName, std::vector<double>& pState);
+    static int setIntArrayProperty(long long int target, const char* pName, const int* v, int vL);
+    static int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState);
     static int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt, bool staticParsing);

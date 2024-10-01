@@ -8,12 +8,12 @@
 #define DEFINE_PROPERTIES \
     FUNCX(propViewable_viewAngle,               "viewAngle",                                sim_propertytype_float,     0, "View angle", "View angle (in perspective projection mode)") \
     FUNCX(propViewable_viewSize,                "viewSize",                                 sim_propertytype_float,     0, "View size", "View size (in orthogonal projection mode)") \
-    FUNCX(propViewable_clippingPlanes,          "clippingPlanes",                           sim_propertytype_vector2,   0, "Clipping planes", "Near and far clipping planes") \
+    FUNCX(propViewable_clippingPlanes,          "clippingPlanes",                           sim_propertytype_floatarray,0, "Clipping planes", "Near and far clipping planes") \
     FUNCX(propViewable_perspective,             "perspective",                              sim_propertytype_bool,      sim_propertyinfo_notwritable, "Perspective", "Perspective projection mode, otherwise orthogonal projection mode") \
     FUNCX(propViewable_showFrustum,             "showFrustum",                              sim_propertytype_bool,      0, "Show view frustum", "") \
     FUNCX(propViewable_frustumCornerNear,       "frustumCornerNear",                        sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Near corner of View frustum", "") \
     FUNCX(propViewable_frustumCornerFar,        "frustumCornerFar",                         sim_propertytype_vector3,   sim_propertyinfo_notwritable, "Far corner of view frustum", "") \
-    FUNCX(propViewable_resolution,              "resolution",                               sim_propertytype_intvector2,0, "Resolution", "Resolution (relevant only with vision sensors)") \
+    FUNCX(propViewable_resolution,              "resolution",                               sim_propertytype_intarray2,0, "Resolution", "Resolution (relevant only with vision sensors)") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -58,16 +58,16 @@ class CViewableBase : public CSceneObject
     virtual int getBoolProperty(const char* pName, bool& pState) const;
     virtual int setFloatProperty(const char* pName, double pState);
     virtual int getFloatProperty(const char* pName, double& pState) const;
-    virtual int setIntVector2Property(const char* pName, const int* pState);
-    virtual int getIntVector2Property(const char* pName, int* pState) const;
+    virtual int setIntArray2Property(const char* pName, const int* pState);
+    virtual int getIntArray2Property(const char* pName, int* pState) const;
     virtual int setVector2Property(const char* pName, const double* pState);
     virtual int getVector2Property(const char* pName, double* pState) const;
     virtual int setVector3Property(const char* pName, const C3Vector& pState);
     virtual int getVector3Property(const char* pName, C3Vector& pState) const;
-    virtual int setVectorProperty(const char* pName, const double* v, int vL);
-    virtual int getVectorProperty(const char* pName, std::vector<double>& pState) const;
-    virtual int setIntVectorProperty(const char* pName, const int* v, int vL);
-    virtual int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
+    virtual int setFloatArrayProperty(const char* pName, const double* v, int vL);
+    virtual int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
+    virtual int setIntArrayProperty(const char* pName, const int* v, int vL);
+    virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
     static int getPropertyName_vstatic(int& index, std::string& pName);
     static int getPropertyInfo_vstatic(const char* pName, int& info, std::string& infoTxt);
 

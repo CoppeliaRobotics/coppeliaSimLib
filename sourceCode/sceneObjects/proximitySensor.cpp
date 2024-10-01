@@ -1377,13 +1377,13 @@ int CProxSensor::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
-int CProxSensor::setIntVector2Property(const char* ppName, const int* pState)
+int CProxSensor::setIntArray2Property(const char* ppName, const int* pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::setIntVector2Property(pName, pState);
+    int retVal = CSceneObject::setIntArray2Property(pName, pState);
     if (retVal == -1)
-        retVal = convexVolume->setIntVector2Property(pName, pState);
+        retVal = convexVolume->setIntArray2Property(pName, pState);
     if (retVal == -1)
     {
     }
@@ -1391,13 +1391,13 @@ int CProxSensor::setIntVector2Property(const char* ppName, const int* pState)
     return retVal;
 }
 
-int CProxSensor::getIntVector2Property(const char* ppName, int* pState) const
+int CProxSensor::getIntArray2Property(const char* ppName, int* pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
     const char* pName = _pName.c_str();
-    int retVal = CSceneObject::getIntVector2Property(pName, pState);
+    int retVal = CSceneObject::getIntArray2Property(pName, pState);
     if (retVal == -1)
-        retVal = convexVolume->getIntVector2Property(pName, pState);
+        retVal = convexVolume->getIntArray2Property(pName, pState);
     if (retVal == -1)
     {
     }
@@ -1499,15 +1499,15 @@ int CProxSensor::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CProxSensor::setVectorProperty(const char* ppName, const double* v, int vL)
+int CProxSensor::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
     const char* pName = _pName.c_str();
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setVectorProperty(pName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
     if (retVal == -1)
-        retVal = convexVolume->setVectorProperty(pName, v, vL);
+        retVal = convexVolume->setFloatArrayProperty(pName, v, vL);
     if (retVal == -1)
     {
     }
@@ -1515,14 +1515,14 @@ int CProxSensor::setVectorProperty(const char* ppName, const double* v, int vL)
     return retVal;
 }
 
-int CProxSensor::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+int CProxSensor::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
     const char* pName = _pName.c_str();
     pState.clear();
-    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
     if (retVal == -1)
-        retVal = convexVolume->getVectorProperty(pName, pState);
+        retVal = convexVolume->getFloatArrayProperty(pName, pState);
     if (retVal == -1)
     {
     }
@@ -1530,15 +1530,15 @@ int CProxSensor::getVectorProperty(const char* ppName, std::vector<double>& pSta
     return retVal;
 }
 
-int CProxSensor::setIntVectorProperty(const char* ppName, const int* v, int vL)
+int CProxSensor::setIntArrayProperty(const char* ppName, const int* v, int vL)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
     const char* pName = _pName.c_str();
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setIntVectorProperty(pName, v, vL);
+    int retVal = CSceneObject::setIntArrayProperty(pName, v, vL);
     if (retVal == -1)
-        retVal = convexVolume->setIntVectorProperty(pName, v, vL);
+        retVal = convexVolume->setIntArrayProperty(pName, v, vL);
     if (retVal == -1)
     {
     }
@@ -1547,14 +1547,14 @@ int CProxSensor::setIntVectorProperty(const char* ppName, const int* v, int vL)
     return retVal;
 }
 
-int CProxSensor::getIntVectorProperty(const char* ppName, std::vector<int>& pState) const
+int CProxSensor::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "proximitySensor."));
     const char* pName = _pName.c_str();
     pState.clear();
-    int retVal = CSceneObject::getIntVectorProperty(pName, pState);
+    int retVal = CSceneObject::getIntArrayProperty(pName, pState);
     if (retVal == -1)
-        retVal = convexVolume->getIntVectorProperty(pName, pState);
+        retVal = convexVolume->getIntArrayProperty(pName, pState);
     if (retVal == -1)
     {
     }

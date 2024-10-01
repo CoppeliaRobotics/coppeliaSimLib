@@ -7,7 +7,7 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propShape_meshes,                  "meshes",                                   sim_propertytype_intvector, sim_propertyinfo_notwritable, "Meshes", "Mesh handles") \
+    FUNCX(propShape_meshes,                  "meshes",                                   sim_propertytype_intarray, sim_propertyinfo_notwritable, "Meshes", "Mesh handles") \
     FUNCX(propShape_applyCulling,            "applyCulling",                             sim_propertytype_bool, sim_propertyinfo_notreadable, "Apply culling", "Enables/disables culling for all contained meshes") \
     FUNCX(propShape_applyShadingAngle,       "applyShadingAngle",                        sim_propertytype_float, sim_propertyinfo_notreadable, "Apply shading", "Applies a shading angle to all contained meshes") \
     FUNCX(propShape_applyShowEdges,          "applyShowEdges",                           sim_propertytype_bool, sim_propertyinfo_notreadable, "Apply edges", "Enables/disables edges for all contained meshes") \
@@ -102,10 +102,10 @@ class CShape : public CSceneObject
     int getVector3Property(const char* pName, C3Vector& pState) const;
     int setQuaternionProperty(const char* pName, const C4Vector& pState);
     int getQuaternionProperty(const char* pName, C4Vector& pState) const;
-    int setVectorProperty(const char* pName, const double* v, int vL);
-    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
-    int setIntVectorProperty(const char* pName, const int* v, int vL);
-    int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
+    int setFloatArrayProperty(const char* pName, const double* v, int vL);
+    int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
+    int setIntArrayProperty(const char* pName, const int* v, int vL);
+    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance) const;
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;

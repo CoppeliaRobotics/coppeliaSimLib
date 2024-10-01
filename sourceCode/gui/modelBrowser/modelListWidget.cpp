@@ -199,7 +199,7 @@ void CModelListWidget::setFolder(const char *folderPath)
                         it.name = VVarious::splitPath_fileBase(it.path.c_str());
                         it.creationTime = (unsigned int)foundItem->lastWriteTime;
                         it.model = 0;
-                        visitedItems[base] = allItems.size();
+                        visitedItems[base] = int(allItems.size());
                         allItems.push_back(it);
                     }
                     else
@@ -232,7 +232,7 @@ void CModelListWidget::setFolder(const char *folderPath)
                 it.name = VVarious::splitPath_fileBase(it.path.c_str());
                 it.suffix = suffix;
                 if (visitedItems.find(base) == visitedItems.end())
-                    visitedItems[base] = allItems.size();
+                    visitedItems[base] = int(allItems.size());
                 it.creationTime = (unsigned int)foundItem->lastWriteTime;
                 it.model = 1;
                 allItems.push_back(it);

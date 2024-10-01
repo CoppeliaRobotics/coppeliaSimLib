@@ -461,8 +461,8 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getStringProperty", _simGetStringProperty},
     {"sim.setBufferProperty", _simSetBufferProperty},
     {"sim.getBufferProperty", _simGetBufferProperty},
-    {"sim.setIntVector2Property", _simSetIntVector2Property},
-    {"sim.getIntVector2Property", _simGetIntVector2Property},
+    {"sim.setIntArray2Property", _simSetIntArray2Property},
+    {"sim.getIntArray2Property", _simGetIntArray2Property},
     {"sim.setVector2Property", _simSetVector2Property},
     {"sim.getVector2Property", _simGetVector2Property},
     {"sim.setVector3Property", _simSetVector3Property},
@@ -471,16 +471,12 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getQuaternionProperty", _simGetQuaternionProperty},
     {"sim.setPoseProperty", _simSetPoseProperty},
     {"sim.getPoseProperty", _simGetPoseProperty},
-    {"sim.setMatrix3x3Property", _simSetMatrix3x3Property},
-    {"sim.getMatrix3x3Property", _simGetMatrix3x3Property},
-    {"sim.setMatrix4x4Property", _simSetMatrix4x4Property},
-    {"sim.getMatrix4x4Property", _simGetMatrix4x4Property},
     {"sim.setColorProperty", _simSetColorProperty},
     {"sim.getColorProperty", _simGetColorProperty},
-    {"sim.setVectorProperty", _simSetVectorProperty},
-    {"sim.getVectorProperty", _simGetVectorProperty},
-    {"sim.setIntVectorProperty", _simSetIntVectorProperty},
-    {"sim.getIntVectorProperty", _simGetIntVectorProperty},
+    {"sim.setFloatArrayProperty", _simSetFloatArrayProperty},
+    {"sim.getFloatArrayProperty", _simGetFloatArrayProperty},
+    {"sim.setIntArrayProperty", _simSetIntArrayProperty},
+    {"sim.getIntArrayProperty", _simGetIntArrayProperty},
     {"sim.removeProperty", _simRemoveProperty},
     {"sim.getPropertyName", _simGetPropertyName},
     {"sim.getPropertyInfo", _simGetPropertyInfo},
@@ -1152,7 +1148,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_float", sim_propertytype_float},
     {"sim.propertytype_string", sim_propertytype_string},
     {"sim.propertytype_buffer", sim_propertytype_buffer},
-    {"sim.propertytype_intvector2", sim_propertytype_intvector2},
+    {"sim.propertytype_intarray2", sim_propertytype_intarray2},
     {"sim.propertytype_vector2", sim_propertytype_vector2},
     {"sim.propertytype_vector3", sim_propertytype_vector3},
     {"sim.propertytype_quaternion", sim_propertytype_quaternion},
@@ -1160,8 +1156,8 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_matrix3x3", sim_propertytype_matrix3x3},
     {"sim.propertytype_matrix4x4", sim_propertytype_matrix4x4},
     {"sim.propertytype_color", sim_propertytype_color},
-    {"sim.propertytype_vector", sim_propertytype_vector},
-    {"sim.propertytype_intvector", sim_propertytype_intvector},
+    {"sim.propertytype_floatarray", sim_propertytype_floatarray},
+    {"sim.propertytype_intarray", sim_propertytype_intarray},
     {"sim.propertytype_table", sim_propertytype_table},
     // property info
     {"sim.propertyinfo_notwritable", sim_propertyinfo_notwritable},
@@ -5404,7 +5400,7 @@ int _simSetBufferProperty(luaWrap_lua_State *L)
         std::string pName(luaWrap_lua_tostring(L, 2));
         size_t pValueL;
         const char *pValue = ((char *)luaWrap_lua_tobuffer(L, 3, &pValueL));
-        simSetBufferProperty_internal(target, pName.c_str(), pValue, pValueL);
+        simSetBufferProperty_internal(target, pName.c_str(), pValue, int(pValueL));
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5436,10 +5432,10 @@ int _simGetBufferProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetIntVector2Property(luaWrap_lua_State *L)
+int _simSetIntArray2Property(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setIntVector2Property");
+    LUA_START("sim.setIntArray2Property");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 2))
     {
@@ -5449,17 +5445,17 @@ int _simSetIntVector2Property(luaWrap_lua_State *L)
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue[2];
         getIntsFromTable(L, 3, 2, pValue);
-        simSetIntVector2Property_internal(target, pName.c_str(), pValue);
+        simSetIntArray2Property_internal(target, pName.c_str(), pValue);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
-int _simGetIntVector2Property(luaWrap_lua_State *L)
+int _simGetIntArray2Property(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getIntVector2Property");
+    LUA_START("sim.getIntArray2Property");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
@@ -5468,7 +5464,7 @@ int _simGetIntVector2Property(luaWrap_lua_State *L)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue[2];
-        if (simGetIntVector2Property_internal(target, pName.c_str(), pValue) != -1)
+        if (simGetIntArray2Property_internal(target, pName.c_str(), pValue) != -1)
         {
             pushIntTableOntoStack(L, 2, pValue);
             LUA_END(1);
@@ -5651,92 +5647,6 @@ int _simGetPoseProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetMatrix3x3Property(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setMatrix3x3Property");
-
-    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 9))
-    {
-        long long int target = luaWrap_lua_tointeger(L,1);
-        if (target == sim_handle_self)
-            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        std::string pName(luaWrap_lua_tostring(L, 2));
-        double pValue[9];
-        getDoublesFromTable(L, 3, 9, pValue);
-        simSetMatrix3x3Property_internal(target, pName.c_str(), pValue);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetMatrix3x3Property(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getMatrix3x3Property");
-
-    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
-    {
-        long long int target = luaWrap_lua_tointeger(L,1);
-        if (target == sim_handle_self)
-            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        std::string pName(luaWrap_lua_tostring(L, 2));
-        double pValue[9];
-        if (simGetMatrix3x3Property_internal(target, pName.c_str(), pValue) != -1)
-        {
-            pushDoubleTableOntoStack(L, 9, pValue);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetMatrix4x4Property(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setMatrix4x4Property");
-
-    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 12))
-    {
-        long long int target = luaWrap_lua_tointeger(L,1);
-        if (target == sim_handle_self)
-            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        std::string pName(luaWrap_lua_tostring(L, 2));
-        double pValue[12];
-        getDoublesFromTable(L, 3, 12, pValue);
-        simSetMatrix4x4Property_internal(target, pName.c_str(), pValue);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetMatrix4x4Property(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getMatrix4x4Property");
-
-    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
-    {
-        long long int target = luaWrap_lua_tointeger(L,1);
-        if (target == sim_handle_self)
-            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
-        std::string pName(luaWrap_lua_tostring(L, 2));
-        double pValue[16];
-        if (simGetMatrix4x4Property_internal(target, pName.c_str(), pValue) != -1)
-        {
-            pushDoubleTableOntoStack(L, 16, pValue);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
 int _simSetColorProperty(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
@@ -5780,10 +5690,10 @@ int _simGetColorProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetVectorProperty(luaWrap_lua_State *L)
+int _simSetFloatArrayProperty(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setVectorProperty");
+    LUA_START("sim.setFloatArrayProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, -1))
     {
@@ -5795,17 +5705,17 @@ int _simSetVectorProperty(luaWrap_lua_State *L)
         std::vector<double> v;
         v.resize(cnt);
         getDoublesFromTable(L, 3, cnt, v.data());
-        simSetVectorProperty_internal(target, pName.c_str(), v.data(), cnt);
+        simSetFloatArrayProperty_internal(target, pName.c_str(), v.data(), cnt);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
-int _simGetVectorProperty(luaWrap_lua_State *L)
+int _simGetFloatArrayProperty(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getVectorProperty");
+    LUA_START("sim.getFloatArrayProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
@@ -5814,7 +5724,7 @@ int _simGetVectorProperty(luaWrap_lua_State *L)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValueL;
-        double* pValue = simGetVectorProperty_internal(target, pName.c_str(), &pValueL);
+        double* pValue = simGetFloatArrayProperty_internal(target, pName.c_str(), &pValueL);
         if (pValue != nullptr)
         {
             pushDoubleTableOntoStack(L, pValueL, pValue);
@@ -5827,10 +5737,10 @@ int _simGetVectorProperty(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
-int _simSetIntVectorProperty(luaWrap_lua_State *L)
+int _simSetIntArrayProperty(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.setIntVectorProperty");
+    LUA_START("sim.setIntArrayProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, -1))
     {
@@ -5842,17 +5752,17 @@ int _simSetIntVectorProperty(luaWrap_lua_State *L)
         std::vector<int> v;
         v.resize(cnt);
         getIntsFromTable(L, 3, cnt, v.data());
-        simSetIntVectorProperty_internal(target, pName.c_str(), v.data(), cnt);
+        simSetIntArrayProperty_internal(target, pName.c_str(), v.data(), cnt);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);
 }
 
-int _simGetIntVectorProperty(luaWrap_lua_State *L)
+int _simGetIntArrayProperty(luaWrap_lua_State *L)
 {
     TRACE_LUA_API;
-    LUA_START("sim.getIntVectorProperty");
+    LUA_START("sim.getIntArrayProperty");
 
     if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
     {
@@ -5861,7 +5771,7 @@ int _simGetIntVectorProperty(luaWrap_lua_State *L)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValueL;
-        int* pValue = simGetIntVectorProperty_internal(target, pName.c_str(), &pValueL);
+        int* pValue = simGetIntArrayProperty_internal(target, pName.c_str(), &pValueL);
         if (pValue != nullptr)
         {
             pushIntTableOntoStack(L, pValueL, pValue);
@@ -13939,7 +13849,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State *L)
             {
                 size_t dataLength;
                 const char *data = luaWrap_lua_tobuffer(L, 3, &dataLength);
-                int ptCnt = (dataLength / sizeof(float)) / 3;
+                int ptCnt = int((dataLength / sizeof(float)) / 3);
                 pts.resize(ptCnt * 3);
                 if (options & 2)
                     v = ptCnt * 3;

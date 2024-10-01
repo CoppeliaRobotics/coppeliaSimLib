@@ -1517,7 +1517,7 @@ void CShape::addSpecializedObjectEventData(CCbor *ev)
     _dynMaterial->setFloatProperty(nullptr, 0.0, ev);
     _dynMaterial->setVector2Property(nullptr, nullptr, ev);
     _dynMaterial->setVector3Property(nullptr, nullptr, ev);
-    _dynMaterial->setVectorProperty(nullptr, nullptr, 0, ev);
+    _dynMaterial->setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _dynMaterial->sendEngineString(ev);
     ev->openKeyArray(propShape_meshes.name);
     std::vector<CMesh *> all;
@@ -2081,52 +2081,52 @@ int CShape::getQuaternionProperty(const char* ppName, C4Vector& pState) const
     return retVal;
 }
 
-int CShape::setVectorProperty(const char* ppName, const double* v, int vL)
+int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
 {
     std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setVectorProperty(pName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
     if (retVal == -1)
-        retVal = _dynMaterial->setVectorProperty(pName, v, vL);
+        retVal = _dynMaterial->setFloatArrayProperty(pName, v, vL);
     if (retVal == -1)
-        retVal = _mesh->setVectorProperty_wrapper(pName, v, vL);
+        retVal = _mesh->setFloatArrayProperty_wrapper(pName, v, vL);
 
     return retVal;
 }
 
-int CShape::getVectorProperty(const char* ppName, std::vector<double>& pState) const
+int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
     std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     pState.clear();
-    int retVal = CSceneObject::getVectorProperty(pName, pState);
+    int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
     if (retVal == -1)
-        retVal = _dynMaterial->getVectorProperty(pName, pState);
+        retVal = _dynMaterial->getFloatArrayProperty(pName, pState);
     if (retVal == -1)
-        retVal = _mesh->getVectorProperty_wrapper(pName, pState);
+        retVal = _mesh->getFloatArrayProperty_wrapper(pName, pState);
 
     return retVal;
 }
 
-int CShape::setIntVectorProperty(const char* ppName, const int* v, int vL)
+int CShape::setIntArrayProperty(const char* ppName, const int* v, int vL)
 {
     std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     if (v == nullptr)
         vL = 0;
-    int retVal = CSceneObject::setIntVectorProperty(pName, v, vL);
+    int retVal = CSceneObject::setIntArrayProperty(pName, v, vL);
 
     return retVal;
 }
 
-int CShape::getIntVectorProperty(const char* ppName, std::vector<int>& pState) const
+int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
 {
     std::string _pName( utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "shape."));
     const char* pName = _pName.c_str();
     pState.clear();
-    int retVal = CSceneObject::getIntVectorProperty(pName, pState);
+    int retVal = CSceneObject::getIntArrayProperty(pName, pState);
     if (retVal == -1)
     {
         if (strcmp(pName, propShape_meshes.name) == 0)

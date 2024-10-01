@@ -35,7 +35,7 @@ struct SHandlingResult
     FUNCX(propVisionSensor_emitImageChangedEvent,   "emitImageChangedEvent",                    sim_propertytype_bool,    0, "Emit image change event", "") \
     FUNCX(propVisionSensor_emitDepthChangedEvent,   "emitDepthChangedEvent",                    sim_propertytype_bool,    0, "Emit depth change event", "") \
     FUNCX(propVisionSensor_imageBuffer,             "imageBuffer",                              sim_propertytype_buffer,  0, "RGB buffer", "") \
-    FUNCX(propVisionSensor_depthBuffer,             "depthBuffer",                              sim_propertytype_vector,  sim_propertyinfo_notwritable, "Depth buffer", "") \
+    FUNCX(propVisionSensor_depthBuffer,             "depthBuffer",                              sim_propertytype_floatarray,  sim_propertyinfo_notwritable, "Depth buffer", "") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -87,8 +87,8 @@ class CVisionSensor : public CViewableBase
     int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
-    int setIntVector2Property(const char* pName, const int* pState);
-    int getIntVector2Property(const char* pName, int* pState) const;
+    int setIntArray2Property(const char* pName, const int* pState);
+    int getIntArray2Property(const char* pName, int* pState) const;
     int setVector2Property(const char* pName, const double* pState);
     int getVector2Property(const char* pName, double* pState) const;
     int setBufferProperty(const char* pName, const char* buffer, int bufferL);
@@ -97,10 +97,10 @@ class CVisionSensor : public CViewableBase
     int getColorProperty(const char* pName, float* pState) const;
     int setVector3Property(const char* pName, const C3Vector& pState);
     int getVector3Property(const char* pName, C3Vector& pState) const;
-    int setVectorProperty(const char* pName, const double* v, int vL);
-    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
-    int setIntVectorProperty(const char* pName, const int* v, int vL);
-    int getIntVectorProperty(const char* pName, std::vector<int>& pState) const;
+    int setFloatArrayProperty(const char* pName, const double* v, int vL);
+    int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
+    int setIntArrayProperty(const char* pName, const int* v, int vL);
+    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);

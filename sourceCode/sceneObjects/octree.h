@@ -9,7 +9,7 @@
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
     FUNCX(propOctree_voxelSize,                    "voxelSize",                          sim_propertytype_float,     0, "Voxel size", "") \
-    FUNCX(propOctree_voxels,                       "voxels",                             sim_propertytype_vector,    sim_propertyinfo_notwritable, "Voxels", "Voxel positions") \
+    FUNCX(propOctree_voxels,                       "voxels",                             sim_propertytype_floatarray,    sim_propertyinfo_notwritable, "Voxels", "Voxel positions") \
     FUNCX(propOctree_colors,                       "colors",                             sim_propertytype_buffer,    sim_propertyinfo_notwritable, "Voxel Colors", "") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
@@ -66,8 +66,8 @@ class COcTree : public CSceneObject
     int getBufferProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
-    int setVectorProperty(const char* pName, const double* v, int vL);
-    int getVectorProperty(const char* pName, std::vector<double>& pState) const;
+    int setFloatArrayProperty(const char* pName, const double* v, int vL);
+    int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance);
     static int getPropertyName_static(int& index, std::string& pName, std::string& appartenance);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);

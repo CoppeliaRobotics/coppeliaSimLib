@@ -7,17 +7,17 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propMesh_textureResolution,       "textureResolution",                        sim_propertytype_intvector2,sim_propertyinfo_notwritable, "Texture resolution", "") \
-    FUNCX(propMesh_textureCoordinates,      "textureCoordinates",                       sim_propertytype_vector,    sim_propertyinfo_notwritable, "Texture coordinates", "") \
+    FUNCX(propMesh_textureResolution,       "textureResolution",                        sim_propertytype_intarray2,sim_propertyinfo_notwritable, "Texture resolution", "") \
+    FUNCX(propMesh_textureCoordinates,      "textureCoordinates",                       sim_propertytype_floatarray,    sim_propertyinfo_notwritable, "Texture coordinates", "") \
     FUNCX(propMesh_textureApplyMode,        "textureApplyMode",                         sim_propertytype_int,       0, "Texture apply mode", "") \
     FUNCX(propMesh_textureRepeatU,          "textureRepeatU",                           sim_propertytype_bool,      0, "Texture repeat U", "") \
     FUNCX(propMesh_textureRepeatV,          "textureRepeatV",                           sim_propertytype_bool,      0, "Texture repeat V", "") \
     FUNCX(propMesh_textureInterpolate,      "textureInterpolate",                       sim_propertytype_bool,      0, "Interpolate texture", "") \
     FUNCX(propMesh_texture,                 "rawTexture",                               sim_propertytype_buffer,    sim_propertyinfo_notwritable, "Texture", "") \
     FUNCX(propMesh_textureID,               "textureID",                                sim_propertytype_int,       sim_propertyinfo_notwritable, "Texture ID", "") \
-    FUNCX(propMesh_vertices,                "vertices",                                 sim_propertytype_vector,    sim_propertyinfo_notwritable, "Vertices", "") \
-    FUNCX(propMesh_indices,                 "indices",                                  sim_propertytype_intvector, sim_propertyinfo_notwritable, "Indices", "Indices (3 values per triangle)") \
-    FUNCX(propMesh_normals,                 "normals",                                  sim_propertytype_vector,    sim_propertyinfo_notwritable, "Normals", "Normals (3*3 values per triangle)") \
+    FUNCX(propMesh_vertices,                "vertices",                                 sim_propertytype_floatarray,    sim_propertyinfo_notwritable, "Vertices", "") \
+    FUNCX(propMesh_indices,                 "indices",                                  sim_propertytype_intarray, sim_propertyinfo_notwritable, "Indices", "Indices (3 values per triangle)") \
+    FUNCX(propMesh_normals,                 "normals",                                  sim_propertytype_floatarray,    sim_propertyinfo_notwritable, "Normals", "Normals (3*3 values per triangle)") \
     FUNCX(propMesh_shadingAngle,            "shadingAngle",                             sim_propertytype_float,     0, "Shading angle", "") \
     FUNCX(propMesh_showEdges,               "showEdges",                                sim_propertytype_bool,      0, "Visible edges", "") \
     FUNCX(propMesh_culling,                 "culling",                                  sim_propertytype_bool,      0, "Backface culling", "") \
@@ -151,8 +151,8 @@ class CMesh : public CMeshWrapper
     int getStringProperty(const char* pName, std::string& pState, const C7Vector& shapeRelTr) const;
     int setBufferProperty(const char* pName, const char* buffer, int bufferL, const C7Vector& shapeRelTr);
     int getBufferProperty(const char* pName, std::string& pState, const C7Vector& shapeRelTr) const;
-    int setIntVector2Property(const char* pName, const int* pState, const C7Vector& shapeRelTr);
-    int getIntVector2Property(const char* pName, int* pState, const C7Vector& shapeRelTr) const;
+    int setIntArray2Property(const char* pName, const int* pState, const C7Vector& shapeRelTr);
+    int getIntArray2Property(const char* pName, int* pState, const C7Vector& shapeRelTr) const;
     int setVector2Property(const char* pName, const double* pState, const C7Vector& shapeRelTr);
     int getVector2Property(const char* pName, double* pState, const C7Vector& shapeRelTr) const;
     int setVector3Property(const char* pName, const C3Vector& pState, const C7Vector& shapeRelTr);
@@ -161,16 +161,12 @@ class CMesh : public CMeshWrapper
     int getQuaternionProperty(const char* pName, C4Vector& pState, const C7Vector& shapeRelTr) const;
     int setPoseProperty(const char* pName, const C7Vector& pState, const C7Vector& shapeRelTr);
     int getPoseProperty(const char* pName, C7Vector& pState, const C7Vector& shapeRelTr) const;
-    int setMatrix3x3Property(const char* pName, const C3X3Matrix& pState, const C7Vector& shapeRelTr);
-    int getMatrix3x3Property(const char* pName, C3X3Matrix& pState, const C7Vector& shapeRelTr) const;
-    int setMatrix4x4Property(const char* pName, const C4X4Matrix& pState, const C7Vector& shapeRelTr);
-    int getMatrix4x4Property(const char* pName, C4X4Matrix& pState, const C7Vector& shapeRelTr) const;
     int setColorProperty(const char* pName, const float* pState, const C7Vector& shapeRelTr);
     int getColorProperty(const char* pName, float* pState, const C7Vector& shapeRelTr) const;
-    int setVectorProperty(const char* pName, const double* v, int vL, const C7Vector& shapeRelTr);
-    int getVectorProperty(const char* pName, std::vector<double>& pState, const C7Vector& shapeRelTr) const;
-    int setIntVectorProperty(const char* pName, const int* v, int vL, const C7Vector& shapeRelTr);
-    int getIntVectorProperty(const char* pName, std::vector<int>& pState, const C7Vector& shapeRelTr) const;
+    int setFloatArrayProperty(const char* pName, const double* v, int vL, const C7Vector& shapeRelTr);
+    int getFloatArrayProperty(const char* pName, std::vector<double>& pState, const C7Vector& shapeRelTr) const;
+    int setIntArrayProperty(const char* pName, const int* v, int vL, const C7Vector& shapeRelTr);
+    int getIntArrayProperty(const char* pName, std::vector<int>& pState, const C7Vector& shapeRelTr) const;
     int removeProperty(const char* pName);
     static int getPropertyName(int& index, std::string& pName, CMesh* targetObject);
     static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt, CMesh* targetObject);
