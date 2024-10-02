@@ -1676,76 +1676,13 @@ int simCallScriptFunction_internal(int scriptHandleOrType, const char *functionN
     CScriptObject *script = nullptr;
 
     std::string funcName;
-#if SIM_PROGRAM_VERSION_NB < 40800
-    if (scriptHandleOrType > sim_scripttype_sandbox)
-    { // script is identified by its ID
-#endif
-        std::string funcNameAtScriptName(functionNameAtScriptName);
-        size_t p = funcNameAtScriptName.find('@');
-        if (p != std::string::npos)
-            funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
-        else
-            funcName = funcNameAtScriptName;
-        script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
-#if SIM_PROGRAM_VERSION_NB < 40800
-    }
+    std::string funcNameAtScriptName(functionNameAtScriptName);
+    size_t p = funcNameAtScriptName.find('@');
+    if (p != std::string::npos)
+        funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
     else
-    { // script is identified by a script type and sometimes also a script name
-        App::logMsg(sim_verbosity_warnings, "C API call to 'simCallScriptFunction': support for legacy call arguments will be dropped in next release. Please adjust your code.");
-        if (reservedSetToNull == nullptr)
-        {
-            std::string scriptName;
-            std::string funcNameAtScriptName(functionNameAtScriptName);
-            size_t p = funcNameAtScriptName.find('@');
-            if (p != std::string::npos)
-            {
-                scriptName.assign(funcNameAtScriptName.begin() + p + 1, funcNameAtScriptName.end());
-                funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
-            }
-            else
-                funcName = funcNameAtScriptName;
-            if (scriptHandleOrType == sim_scripttype_main)
-                script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
-            if ((scriptHandleOrType == sim_scripttype_simulation) ||
-                (scriptHandleOrType == (sim_scripttype_simulation | sim_scripttype_threaded_old)) ||
-                (scriptHandleOrType == sim_scripttype_customization))
-            {
-                int objId = -1;
-                CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromPath(nullptr, scriptName.c_str(), 0);
-                if (obj != nullptr)
-                    objId = obj->getObjectHandle();
-                else
-                    objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-                if (scriptHandleOrType == sim_scripttype_customization)
-                    script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_customization, objId);
-                else
-                    script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_simulation, objId);
-            }
-            if (scriptHandleOrType == sim_scripttype_addon)
-                script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
-        }
-        else
-        { // this is the old way of doing it. Deprecated. Was only 2 months active, not officially
-            funcName = functionNameAtScriptName;
-            if (scriptHandleOrType == 0) // main script
-                script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
-            if (scriptHandleOrType == 3) // simulation script
-            {
-                int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
-                script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_simulation, objId);
-            }
-            if (scriptHandleOrType == 5) // customization
-            {
-                int objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(reservedSetToNull);
-                script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                    sim_scripttype_customization, objId);
-            }
-        }
-    }
-#endif
+        funcName = funcNameAtScriptName;
+    script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
 
     if (script != nullptr)
     {
@@ -1805,7 +1742,7 @@ char *simGetScriptSimulationParameter_internal(int scriptHandle, const char *par
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (App::userSettings->useSceneObjectScripts && (scriptHandle <= SIM_IDEND_SCENEOBJECT) )
+        if (scriptHandle <= SIM_IDEND_SCENEOBJECT)
         {
             CSceneObject* obj = nullptr;
             CScript* scr = App::currentWorld->sceneObjects->getScriptFromHandle(scriptHandle);
@@ -1878,7 +1815,7 @@ int simSetScriptSimulationParameter_internal(int scriptHandle, const char *param
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1;
-        if (App::userSettings->useSceneObjectScripts && (scriptHandle <= SIM_IDEND_SCENEOBJECT) )
+        if (scriptHandle <= SIM_IDEND_SCENEOBJECT)
         {
             CSceneObject* obj = nullptr;
             CScript* scr = App::currentWorld->sceneObjects->getScriptFromHandle(scriptHandle);
@@ -4283,26 +4220,23 @@ int simGetScriptAssociatedWithObject_internal(int objectHandle)
         int retVal = -1;
         if (it == nullptr)
         {
-            if (App::userSettings->useSceneObjectScripts)
+            if (App::currentWorld->sceneObjects->getScriptFromHandle(objectHandle) != nullptr)
+                retVal = objectHandle;
+            else
             {
-                if (App::currentWorld->sceneObjects->getScriptFromHandle(objectHandle) != nullptr)
-                    retVal = objectHandle;
-                else
+                CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+                if (obj != nullptr)
                 {
-                    CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-                    if (obj != nullptr)
+                    for (size_t i = 0; i < obj->getChildCount(); i++)
                     {
-                        for (size_t i = 0; i < obj->getChildCount(); i++)
+                        CSceneObject* c = obj->getChildFromIndex(i);
+                        if (c->getObjectType() == sim_sceneobject_script)
                         {
-                            CSceneObject* c = obj->getChildFromIndex(i);
-                            if (c->getObjectType() == sim_sceneobject_script)
+                            CScript* co = (CScript*) c;
+                            if (co->scriptObject->getScriptType() == sim_scripttype_simulation)
                             {
-                                CScript* co = (CScript*) c;
-                                if (co->scriptObject->getScriptType() == sim_scripttype_simulation)
-                                {
-                                    retVal = c->getObjectHandle();
-                                    break;
-                                }
+                                retVal = c->getObjectHandle();
+                                break;
                             }
                         }
                     }
@@ -4329,26 +4263,23 @@ int simGetCustomizationScriptAssociatedWithObject_internal(int objectHandle)
         int retVal = -1;
         if (it == nullptr)
         {
-            if (App::userSettings->useSceneObjectScripts)
+            if (App::currentWorld->sceneObjects->getScriptFromHandle(objectHandle) != nullptr)
+                retVal = objectHandle;
+            else
             {
-                if (App::currentWorld->sceneObjects->getScriptFromHandle(objectHandle) != nullptr)
-                    retVal = objectHandle;
-                else
+                CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+                if (obj != nullptr)
                 {
-                    CSceneObject* obj = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
-                    if (obj != nullptr)
+                    for (size_t i = 0; i < obj->getChildCount(); i++)
                     {
-                        for (size_t i = 0; i < obj->getChildCount(); i++)
+                        CSceneObject* c = obj->getChildFromIndex(i);
+                        if (c->getObjectType() == sim_sceneobject_script)
                         {
-                            CSceneObject* c = obj->getChildFromIndex(i);
-                            if (c->getObjectType() == sim_sceneobject_script)
+                            CScript* co = (CScript*) c;
+                            if (co->scriptObject->getScriptType() == sim_scripttype_customization)
                             {
-                                CScript* co = (CScript*) c;
-                                if (co->scriptObject->getScriptType() == sim_scripttype_customization)
-                                {
-                                    retVal = c->getObjectHandle();
-                                    break;
-                                }
+                                retVal = c->getObjectHandle();
+                                break;
                             }
                         }
                     }

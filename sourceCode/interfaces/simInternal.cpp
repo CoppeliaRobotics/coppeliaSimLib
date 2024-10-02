@@ -4142,12 +4142,7 @@ int simGetBoolParam_internal(int parameter)
             return (retVal);
         }
         if (parameter == sim_boolparam_usingscriptobjects)
-        {
-            int retVal = 0;
-            if (App::userSettings->useSceneObjectScripts)
-                retVal = 1;
-            return retVal;
-        }
+            return 1;
         if (parameter == sim_boolparam_cansave)
         {
             int retVal = 0;
@@ -4163,14 +4158,10 @@ int simGetBoolParam_internal(int parameter)
         }
         if (parameter == sim_boolparam_headless)
         {
-#ifdef SIM_WITH_GUI
             int retVal = 0;
-            if (GuiApp::mainWindow == nullptr)
+            if (App::getHeadlessMode() > 0)
                 retVal = 1;
-            return (retVal);
-#else
-            return (1);
-#endif
+            return retVal;
         }
         if (parameter == sim_boolparam_qglwidget)
         {
@@ -13214,61 +13205,6 @@ int simWriteCustomDataBlock_internal(int objectHandle, const char *tagName, cons
             CPersistentDataContainer cont("appStorage.dat");
             cont.writeData(tagName, std::string(data, data + dataSize), true, false);
         }
-
-        if (!App::userSettings->useSceneObjectScripts)
-        {
-            // ---------------------- Old -----------------------------
-            if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
-            { // here we have a script
-                CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(objectHandle);
-                if (script != nullptr)
-                { // here we have a script
-                    if (useTempBuffer)
-                    {
-                        if (strlen(tagName) != 0)
-                        {
-                            int l = script->getObjectCustomDataLength_tempData_old(356248756);
-                            if (l > 0)
-                            {
-                                buffer.resize(l, ' ');
-                                script->getObjectCustomData_tempData_old(356248756, &buffer[0]);
-                            }
-                            int extractedBufSize;
-                            delete[] _extractCustomDataFromBuffer(buffer, tagName, &extractedBufSize);
-                            _appendCustomDataToBuffer(buffer, tagName, data, dataSize);
-                            if (buffer.size() > 0)
-                                script->setObjectCustomData_tempData_old(356248756, &buffer[0], (int)buffer.size());
-                            else
-                                script->setObjectCustomData_tempData_old(356248756, nullptr, 0);
-                        }
-                        else
-                            script->setObjectCustomData_tempData_old(356248756, nullptr, 0);
-                    }
-                    else
-                    {
-                        if (strlen(tagName) != 0)
-                        {
-                            int l = script->getObjectCustomDataLength_old(356248756);
-                            if (l > 0)
-                            {
-                                buffer.resize(l, ' ');
-                                script->getObjectCustomData_old(356248756, &buffer[0]);
-                            }
-                            int extractedBufSize;
-                            delete[] _extractCustomDataFromBuffer(buffer, tagName, &extractedBufSize);
-                            _appendCustomDataToBuffer(buffer, tagName, data, dataSize);
-                            if (buffer.size() > 0)
-                                script->setObjectCustomData_old(356248756, &buffer[0], (int)buffer.size());
-                            else
-                                script->setObjectCustomData_old(356248756, nullptr, 0);
-                        }
-                        else
-                            script->setObjectCustomData_old(356248756, nullptr, 0);
-                    }
-                }
-            }
-            // ---------------------- Old -----------------------------
-        }
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -13339,39 +13275,6 @@ char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int
             else
                 return nullptr;
         }
-
-        if (!App::userSettings->useSceneObjectScripts)
-        {
-            // ---------------------- Old -----------------------------
-            if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
-            { // here we have a script
-                CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(objectHandle);
-                if (script != nullptr)
-                {
-                    std::vector<char> buffer;
-                    if (useTempBuffer)
-                    {
-                        int l = script->getObjectCustomDataLength_tempData_old(356248756);
-                        if (l > 0)
-                        {
-                            buffer.resize(l, ' ');
-                            script->getObjectCustomData_tempData_old(356248756, &buffer[0]);
-                        }
-                    }
-                    else
-                    {
-                        int l = script->getObjectCustomDataLength_old(356248756);
-                        if (l > 0)
-                        {
-                            buffer.resize(l, ' ');
-                            script->getObjectCustomData_old(356248756, &buffer[0]);
-                        }
-                    }
-                    retBuffer = _extractCustomDataFromBuffer(buffer, tagName, dataSize);
-                }
-            }
-            // ---------------------- Old -----------------------------
-        }
         return (retBuffer);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -13440,52 +13343,6 @@ char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount)
             }
             else
                 return nullptr;
-        }
-
-        if (!App::userSettings->useSceneObjectScripts)
-        {
-            // ---------------------- Old -----------------------------
-            if ((objectHandle >= SIM_IDSTART_LUASCRIPT) && (objectHandle <= SIM_IDEND_LUASCRIPT))
-            { // here we have a script
-                std::vector<std::string> allTags;
-                CScriptObject *script = App::worldContainer->getScriptObjectFromHandle(objectHandle);
-                if (script != nullptr)
-                {
-                    std::vector<char> buffer;
-                    int l = script->getObjectCustomDataLength_tempData_old(356248756);
-                    if (l > 0)
-                    {
-                        buffer.resize(l, ' ');
-                        script->getObjectCustomData_tempData_old(356248756, &buffer[0]);
-                        _extractCustomDataTagsFromBuffer(buffer, allTags);
-                    }
-
-                    l = script->getObjectCustomDataLength_old(356248756);
-                    if (l > 0)
-                    {
-                        buffer.resize(l, ' ');
-                        script->getObjectCustomData_old(356248756, &buffer[0]);
-                        _extractCustomDataTagsFromBuffer(buffer, allTags);
-                    }
-                }
-                if (allTags.size() > 0)
-                {
-                    tagCount[0] = int(allTags.size());
-                    int totChars = 0;
-                    for (size_t i = 0; i < allTags.size(); i++)
-                        totChars += (int)allTags[i].length() + 1;
-                    retBuffer = new char[totChars];
-                    totChars = 0;
-                    for (size_t i = 0; i < allTags.size(); i++)
-                    {
-                        for (size_t j = 0; j < allTags[i].length(); j++)
-                            retBuffer[totChars + j] = allTags[i][j];
-                        retBuffer[totChars + allTags[i].length()] = 0;
-                        totChars += (int)allTags[i].length() + 1;
-                    }
-                }
-            }
-            // ---------------------- Old -----------------------------
         }
         return (retBuffer);
     }
@@ -14090,67 +13947,12 @@ int simCallScriptFunctionEx_internal(int scriptHandleOrType, const char *functio
         funcNameAtScriptName.resize(funcNameAtScriptName.size() - 7);
     }
 
-#if SIM_PROGRAM_VERSION_NB < 40800
-    if (scriptHandleOrType > sim_scripttype_sandbox)
-    {
-#endif
-        size_t p = funcNameAtScriptName.rfind('@'); // back compat.
-        if (p != std::string::npos)
-            funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
-        else
-            funcName = funcNameAtScriptName;
-        script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
-#if SIM_PROGRAM_VERSION_NB < 40800
-    }
+    size_t p = funcNameAtScriptName.rfind('@'); // back compat.
+    if (p != std::string::npos)
+        funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
     else
-    {
-        if (scriptHandleOrType >= SIM_IDSTART_LUASCRIPT)
-        { // script is identified by its ID
-            size_t p = funcNameAtScriptName.rfind('@'); // back compat.
-            if (p != std::string::npos)
-                funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
-            else
-                funcName = funcNameAtScriptName;
-            script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
-        }
-        else
-        { // script is identified by a script type and sometimes also a script name
-            App::logMsg(sim_verbosity_warnings, "C API call to 'simCallScriptFunctionEx': support for legacy call arguments will be dropped in next release. Please adjust your code.");
-            std::string scriptName;
-            size_t p = funcNameAtScriptName.rfind('@'); // back compat.
-            if (p != std::string::npos)
-            {
-                scriptName.assign(funcNameAtScriptName.begin() + p + 1, funcNameAtScriptName.end());
-                funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
-            }
-            else
-                funcName = funcNameAtScriptName;
-            if (scriptHandleOrType == sim_scripttype_main)
-                script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
-            if (scriptHandleOrType == sim_scripttype_sandbox)
-                script = App::worldContainer->sandboxScript;
-            if (scriptHandleOrType == sim_scripttype_addon)
-                script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
-            if ((scriptHandleOrType == sim_scripttype_simulation) ||
-                (scriptHandleOrType == (sim_scripttype_simulation | sim_scripttype_threaded_old)) ||
-                (scriptHandleOrType == sim_scripttype_customization))
-            {
-                int objId = -1;
-                CSceneObject *obj = App::currentWorld->sceneObjects->getObjectFromPath(nullptr, scriptName.c_str(), 0);
-                if (obj != nullptr)
-                    objId = obj->getObjectHandle();
-                else
-                    objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-                if (scriptHandleOrType == sim_scripttype_customization)
-                    script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_customization, objId);
-                else
-                    script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                        sim_scripttype_simulation, objId);
-            }
-        }
-    }
-#endif
+        funcName = funcNameAtScriptName;
+    script = App::worldContainer->getScriptObjectFromHandle(scriptHandleOrType);
 
     std::string tmp("External call to simCallScriptFunction failed ('");
     tmp += functionNameAtScriptName;
@@ -16402,75 +16204,12 @@ int simExecuteScriptString_internal(int scriptHandle, const char *stringToExecut
             strAtScriptName.resize(strAtScriptName.size() - 7);
         }
 
-#if SIM_PROGRAM_VERSION_NB < 40800
-        if (scriptHandle > sim_scripttype_sandbox)
-        {
-#endif
-            size_t p = strAtScriptName.rfind('@'); // back compat.
-            if (p != std::string::npos)
-                stringToExec.assign(strAtScriptName.begin(), strAtScriptName.begin() + p);
-            else
-                stringToExec = strAtScriptName;
-            script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
-#if SIM_PROGRAM_VERSION_NB < 40800
-        }
+        size_t p = strAtScriptName.rfind('@'); // back compat.
+        if (p != std::string::npos)
+            stringToExec.assign(strAtScriptName.begin(), strAtScriptName.begin() + p);
         else
-        {
-            if (scriptHandle >= SIM_IDSTART_LUASCRIPT)
-            {                                          // script is identified by its ID
-                size_t p = strAtScriptName.rfind('@'); // back compat.
-                if (p != std::string::npos)
-                    stringToExec.assign(strAtScriptName.begin(), strAtScriptName.begin() + p);
-                else
-                    stringToExec = strAtScriptName;
-                script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
-            }
-            else
-            { // script is identified by its type
-                App::logMsg(sim_verbosity_warnings, "C API call to 'simExecuteScriptString': support for legacy call arguments will be dropped in next release. Please adjust your code.");
-                std::string scriptName;
-                size_t p = strAtScriptName.rfind('@'); // back compat.
-                if (p != std::string::npos)
-                {
-                    scriptName.assign(strAtScriptName.begin() + p + 1, strAtScriptName.end());
-                    stringToExec.assign(strAtScriptName.begin(), strAtScriptName.begin() + p);
-                }
-                else
-                    stringToExec = strAtScriptName;
-
-                if (scriptHandle == sim_scripttype_main)
-                    script = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
-                if (scriptHandle == sim_scripttype_addon)
-                {
-                    if (scriptName.size() > 0)
-                        script = App::worldContainer->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
-                }
-                if (scriptHandle == sim_scripttype_sandbox)
-                    script = App::worldContainer->sandboxScript;
-                if ((scriptHandle == sim_scripttype_simulation) || (scriptHandle == sim_scripttype_customization))
-                {
-                    if (scriptName.size() > 0)
-                    {
-                        int objId = -1;
-                        CSceneObject *obj =
-                            App::currentWorld->sceneObjects->getObjectFromPath(nullptr, scriptName.c_str(), 0);
-                        if (obj != nullptr)
-                            objId = obj->getObjectHandle();
-                        else
-                            objId = App::currentWorld->sceneObjects->getObjectHandleFromName_old(scriptName.c_str());
-                        script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                            sim_scripttype_simulation, objId);
-                        if (scriptHandle == sim_scripttype_customization)
-                            script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                                sim_scripttype_customization, objId);
-                        else
-                            script = App::currentWorld->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
-                                sim_scripttype_simulation, objId);
-                    }
-                }
-            }
-        }
-#endif
+            stringToExec = strAtScriptName;
+        script = App::worldContainer->getScriptObjectFromHandle(scriptHandle);
 
         if (script != nullptr)
         {

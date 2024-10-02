@@ -554,7 +554,7 @@ int App::setApplicationNamedParam(const char *paramName, const char *param, int 
         if (l == 0)
         {
             if (param != nullptr)
-                l = strlen(param);
+                l = int(strlen(param));
         }
         if (l != 0)
             _applicationNamedParams[paramName] = std::string(param, param + l);
@@ -1024,7 +1024,18 @@ int App::getDlgVerbosity()
 
 void App::setDlgVerbosity(int v)
 { // sim_verbosity_none, etc.
-    _dlgVerbosity = v;
+    bool diff = (_dlgVerbosity != v);
+    if (diff)
+    {
+        _dlgVerbosity = v;
+        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propApp_dialogVerbosity.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            ev->appendKeyInt(cmd, _dlgVerbosity);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 void App::setStartupScriptString(const char *str)
@@ -1398,6 +1409,9 @@ int App::setBoolProperty(long long int target, const char* ppName, bool pState)
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setBoolProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setBoolProperty(target, pName, pState);
@@ -1422,6 +1436,9 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getBoolProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getBoolProperty(target, pName, pState);
@@ -1446,6 +1463,9 @@ int App::setIntProperty(long long int target, const char* ppName, int pState)
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setIntProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setIntProperty(target, pName, pState);
@@ -1470,6 +1490,9 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getIntProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getIntProperty(target, pName, pState);
@@ -1494,6 +1517,9 @@ int App::setFloatProperty(long long int target, const char* ppName, double pStat
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setFloatProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setFloatProperty(target, pName, pState);
@@ -1518,6 +1544,9 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getFloatProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getFloatProperty(target, pName, pState);
@@ -1542,6 +1571,9 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setStringProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setStringProperty(target, pName, pState);
@@ -1566,6 +1598,9 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getStringProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getStringProperty(target, pName, pState);
@@ -1612,6 +1647,9 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setBufferProperty(pName, buffer, bufferL);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setBufferProperty(target, pName, buffer, bufferL);
@@ -1645,6 +1683,9 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getBufferProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getBufferProperty(target, pName, pState);
@@ -1669,6 +1710,9 @@ int App::setIntArray2Property(long long int target, const char* ppName, const in
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setIntArray2Property(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setIntArray2Property(target, pName, pState);
@@ -1693,6 +1737,9 @@ int App::getIntArray2Property(long long int target, const char* ppName, int* pSt
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getIntArray2Property(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getIntArray2Property(target, pName, pState);
@@ -1717,6 +1764,9 @@ int App::setVector2Property(long long int target, const char* ppName, const doub
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setVector2Property(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setVector2Property(target, pName, pState);
@@ -1741,6 +1791,9 @@ int App::getVector2Property(long long int target, const char* ppName, double* pS
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getVector2Property(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getVector2Property(target, pName, pState);
@@ -1765,6 +1818,9 @@ int App::setVector3Property(long long int target, const char* ppName, const C3Ve
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setVector3Property(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setVector3Property(target, pName, pState);
@@ -1789,6 +1845,9 @@ int App::getVector3Property(long long int target, const char* ppName, C3Vector& 
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getVector3Property(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getVector3Property(target, pName, pState);
@@ -1813,6 +1872,9 @@ int App::setQuaternionProperty(long long int target, const char* ppName, const C
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setQuaternionProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setQuaternionProperty(target, pName, pState);
@@ -1837,6 +1899,9 @@ int App::getQuaternionProperty(long long int target, const char* ppName, C4Vecto
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getQuaternionProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getQuaternionProperty(target, pName, pState);
@@ -1861,6 +1926,9 @@ int App::setPoseProperty(long long int target, const char* ppName, const C7Vecto
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setPoseProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setPoseProperty(target, pName, pState);
@@ -1885,6 +1953,9 @@ int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pSt
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getPoseProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getPoseProperty(target, pName, pState);
@@ -1909,6 +1980,9 @@ int App::setColorProperty(long long int target, const char* ppName, const float*
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setColorProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setColorProperty(target, pName, pState);
@@ -1933,6 +2007,9 @@ int App::getColorProperty(long long int target, const char* ppName, float* pStat
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getColorProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getColorProperty(target, pName, pState);
@@ -1957,6 +2034,9 @@ int App::setFloatArrayProperty(long long int target, const char* ppName, const d
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setFloatArrayProperty(pName, v, vL);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setFloatArrayProperty(target, pName, v, vL);
@@ -1982,6 +2062,9 @@ int App::getFloatArrayProperty(long long int target, const char* ppName, std::ve
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getFloatArrayProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getFloatArrayProperty(target, pName, pState);
@@ -2006,6 +2089,9 @@ int App::setIntArrayProperty(long long int target, const char* ppName, const int
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->setIntArrayProperty(pName, v, vL);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setIntArrayProperty(target, pName, v, vL);
@@ -2031,6 +2117,9 @@ int App::getIntArrayProperty(long long int target, const char* ppName, std::vect
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->getIntArrayProperty(pName, pState);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getIntArrayProperty(target, pName, pState);
@@ -2075,6 +2164,9 @@ int App::removeProperty(long long int target, const char* ppName)
         {
             if (worldContainer != nullptr)
                 retVal = worldContainer->removeProperty(pName);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->removeProperty(target, pName);
@@ -2113,6 +2205,9 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
             if (!staticParsing)
                 wc = worldContainer;
             retVal = CWorldContainer::getPropertyName(index, pName, wc);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
         {
@@ -2164,6 +2259,9 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
             if (!staticParsing)
                 wc = worldContainer;
             retVal = CWorldContainer::getPropertyInfo(pName, info, infoTxt, wc);
+            if (retVal == -1)
+            {
+            }
         }
         else if (currentWorld != nullptr)
         {
@@ -2229,6 +2327,31 @@ void App::setOpenGlDisplayEnabled(bool e)
 bool App::getOpenGlDisplayEnabled()
 {
     return _openGlDisplayEnabled;
+}
+
+int App::getHeadlessMode()
+{ // 0: no, 1: suppressed GUI, 2: true headless mode
+    int retVal = 2;
+#ifdef SIM_WITH_GUI
+    retVal = 1;
+    if (GuiApp::mainWindow != nullptr)
+        retVal = 0;
+#endif
+    return retVal;
+}
+
+bool App::canSave()
+{
+    bool retVal = false;
+    if (App::currentWorld->simulation->isSimulationStopped() && CSimFlavor::getBoolVal(16))
+    {
+        retVal = true;
+#ifdef SIM_WITH_GUI
+        if (GuiApp::getEditModeType() != NO_EDIT_MODE)
+            retVal = false;
+#endif
+    }
+    return retVal;
 }
 
 int App::getPlatform()

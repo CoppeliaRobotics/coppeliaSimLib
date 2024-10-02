@@ -208,22 +208,13 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject *newObj
     newObject->setObjectAltName_direct_old(newObjAltName.c_str());
 
     int objectHandle = _nextObjectHandle;
-#if SIM_PROGRAM_VERSION_NB < 40800
-    // We make sure that new script objects do not have a handle below sim_scripttype_sandbox+1, so that we
-    // can still allow the legacy call arguments for V4.7 with simCallScriptFunction, simCallScriptFunctionEx, simExecuteScriptString,
-    // before dropping the legacy call argument support with V4.8 and later
-    while ( (getObjectFromHandle(objectHandle) != nullptr) || ((newObject->getObjectType() == sim_sceneobject_script) && (objectHandle <= sim_scripttype_sandbox)) )
-#else
     while (getObjectFromHandle(objectHandle) != nullptr)
-#endif
     {
         objectHandle++;
         if (objectHandle >= (SIM_IDEND_SCENEOBJECT - SIM_IDSTART_SCENEOBJECT))
             objectHandle = SIM_IDSTART_SCENEOBJECT;
     }
     _nextObjectHandle = objectHandle + 1;
-    if (_nextObjectHandle >= (SIM_IDEND_SCENEOBJECT - SIM_IDSTART_SCENEOBJECT))
-        _nextObjectHandle = SIM_IDSTART_SCENEOBJECT;
 
     newObject->setObjectHandle(objectHandle);
     newObject->setObjectUniqueId();

@@ -77,7 +77,6 @@
 #define _USR_READDELAY "readDelay"
 #define _USR_WRITEDELAY "writeDelay"
 #define _USR_USEBUFFERS "useBuffers"
-#define _USR_USESCENEOBJECTSCRIPTS "useSceneObjectScripts"
 #define _USR_SCRIPTCONVERSION "scriptConversion"
 #define _USR_NOTIFY_DEPRECATED "notifyDeprecated"
 #define _USR_SUPPORT_old_THREADED_SCRIPTS "keepOldThreadedScripts"
@@ -282,7 +281,6 @@ CUserSettings::CUserSettings()
     readDelay = -500;
     writeDelay = 1000;
     useBuffers = true;
-    useSceneObjectScripts = true;
     scriptConversion = 0;
     notifyDeprecated = 1;
 
@@ -431,7 +429,17 @@ void CUserSettings::setIdleFps(int fps)
 
 void CUserSettings::setIdleFps_session(int fps)
 {
-    _idleFps_session = fps;
+    if (fps != _idleFps_session)
+    {
+        _idleFps_session = fps;
+        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propApp_idleFps.name;
+            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd, true);
+            ev->appendKeyInt(cmd, _idleFps_session);
+            App::worldContainer->pushEvent();
+        }
+    }
 }
 
 int CUserSettings::getAbortScriptExecutionTiming()
@@ -623,7 +631,6 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         c.addInteger(_USR_READDELAY, readDelay, "");
         c.addInteger(_USR_WRITEDELAY, writeDelay, "");
         c.addBoolean(_USR_USEBUFFERS, useBuffers, "");
-        c.addBoolean(_USR_USESCENEOBJECTSCRIPTS, useSceneObjectScripts, "");
         c.addInteger(_USR_SCRIPTCONVERSION, scriptConversion, "-1: convert to old scripts, 1: convert to new script objects");
         c.addInteger(_USR_NOTIFY_DEPRECATED, notifyDeprecated, "0: no notification, 1: simple notification, 2: exhaustive notification");
 
@@ -896,7 +903,6 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_READDELAY, readDelay);
     c.getInteger(_USR_WRITEDELAY, writeDelay);
     c.getBoolean(_USR_USEBUFFERS, useBuffers);
-    c.getBoolean(_USR_USESCENEOBJECTSCRIPTS, useSceneObjectScripts);
     c.getInteger(_USR_SCRIPTCONVERSION, scriptConversion);
     c.getInteger(_USR_NOTIFY_DEPRECATED, notifyDeprecated);
 

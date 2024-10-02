@@ -321,8 +321,6 @@ void CDlgCont::addMenu(VMenu *menu)
                                  GuiApp::mainWindow->dlgCont->isVisible(CALCULATION_DLG_OLD),
                                  TOGGLE_CALCULATION_DLG_CMD_OLD, "Old dialogs", true);
         menu->appendMenuSeparator();
-        if (!App::userSettings->useSceneObjectScripts)
-            menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(OLD_LUA_SCRIPT_DLG), TOGGLE_OLD_LUA_SCRIPT_DLG_CMD, "Scripts", true);
 
         if (App::userSettings->showOldDlgs)
             menu->appendMenuItem(noShapePathEditModeNoSelector, GuiApp::mainWindow->dlgCont->isVisible(COLLECTION_DLG),

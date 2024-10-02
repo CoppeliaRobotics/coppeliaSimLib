@@ -649,6 +649,7 @@ void CWorldContainer::pushGenesisEvents()
         ev->appendKeyInt(propApp_processCnt.name, App::instancesList->numInstances());
         ev->appendKeyInt(propApp_consoleVerbosity.name, App::getConsoleVerbosity());
         ev->appendKeyInt(propApp_statusbarVerbosity.name, App::getStatusbarVerbosity());
+        ev->appendKeyInt(propApp_dialogVerbosity.name, App::getDlgVerbosity());
         ev->appendKeyText(propApp_appDir.name, App::folders->getExecutablePath().c_str());
 //        ev->appendKeyString(propApp_machineId.name, CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id).c_str());
 //        ev->appendKeyString(propApp_legacyMachineId.name, CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id_legacy).c_str());
@@ -673,8 +674,15 @@ void CWorldContainer::pushGenesisEvents()
         ev->appendKeyDouble(propApp_defaultTranslationStepSize.name, App::userSettings->getTranslationStepSize());
         ev->appendKeyDouble(propApp_defaultRotationStepSize.name, App::userSettings->getRotationStepSize());
         ev->appendKeyBool(propApp_hierarchyEnabled.name, App::getHierarchyEnabled());
+#ifdef SIM_WITH_GUI
         ev->appendKeyBool(propApp_browserEnabled.name, GuiApp::getBrowserEnabled());
+#else
+        ev->appendKeyBool(propApp_browserEnabled.name, false);
+#endif
         ev->appendKeyBool(propApp_displayEnabled.name, App::getOpenGlDisplayEnabled());
+        ev->appendKeyInt(propApp_headlessMode.name, App::getHeadlessMode());
+        ev->appendKeyInt(propApp_idleFps.name, App::userSettings->getIdleFps());
+
         pushEvent();
 
         if (sandboxScript != nullptr)
@@ -869,7 +877,9 @@ int CWorldContainer::setBoolProperty(const char* pName, bool pState)
     }
     else if (strcmp(pName, propApp_browserEnabled.name) == 0)
     {
+#ifdef SIM_WITH_GUI
         GuiApp::setBrowserEnabled(pState);
+#endif
         retVal = 1;
     }
     else if (strcmp(pName, propApp_displayEnabled.name) == 0)
@@ -892,7 +902,11 @@ int CWorldContainer::getBoolProperty(const char* pName, bool& pState) const
     }
     else if (strcmp(pName, propApp_browserEnabled.name) == 0)
     {
+#ifdef SIM_WITH_GUI
         pState = GuiApp::getBrowserEnabled();
+#else
+        pState = false;
+#endif
         retVal = 1;
     }
     else if (strcmp(pName, propApp_displayEnabled.name) == 0)
@@ -900,6 +914,12 @@ int CWorldContainer::getBoolProperty(const char* pName, bool& pState) const
         pState = App::getOpenGlDisplayEnabled();
         retVal = 1;
     }
+    else if (strcmp(pName, propApp_canSave.name) == 0)
+    {
+        pState = App::canSave();
+        retVal = 1;
+    }
+
 
     return retVal;
 }
@@ -916,6 +936,16 @@ int CWorldContainer::setIntProperty(const char* pName, int pState)
     else if (strcmp(pName, propApp_statusbarVerbosity.name) == 0)
     {
         App::setStatusbarVerbosity(pState);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_dialogVerbosity.name) == 0)
+    {
+        App::setDlgVerbosity(pState);
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_idleFps.name) == 0)
+    {
+        App::userSettings->setIdleFps_session(pState);
         retVal = 1;
     }
 
@@ -969,6 +999,21 @@ int CWorldContainer::getIntProperty(const char* pName, int& pState) const
     else if (strcmp(pName, propApp_statusbarVerbosity.name) == 0)
     {
         pState = App::getStatusbarVerbosity();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_dialogVerbosity.name) == 0)
+    {
+        pState = App::getDlgVerbosity();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_headlessMode.name) == 0)
+    {
+        pState = App::getHeadlessMode();
+        retVal = 1;
+    }
+    else if (strcmp(pName, propApp_idleFps.name) == 0)
+    {
+        pState = App::userSettings->getIdleFps();
         retVal = 1;
     }
 

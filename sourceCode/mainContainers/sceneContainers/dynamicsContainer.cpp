@@ -271,7 +271,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
     }
 #endif
 
-    if ((_stringsNotSupportedWarning == 0))
+    if (_stringsNotSupportedWarning == 0)
     {
         if (_dynamicEngineToUse != sim_physics_mujoco)
         {
@@ -280,8 +280,7 @@ void CDynamicsContainer::displayWarningsIfNeeded()
                 CDummy *it = App::currentWorld->sceneObjects->getDummyFromIndex(i);
                 if ((it->getLinkedDummyHandle() != -1) && (it->getDummyType() == sim_dummytype_dyntendon))
                 {
-                    App::logMsg(sim_verbosity_warnings,
-                                "Detected tendon constraints, which are only supported with the MuJoCo engine");
+                    App::logMsg(sim_verbosity_warnings, "Detected tendon constraints, which are only supported with the MuJoCo engine");
                     _stringsNotSupportedWarning++;
                     break;
                 }

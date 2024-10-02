@@ -31,52 +31,6 @@
 #define EVENTTYPE_GENESISEND "genesisEnd"
 #define EVENTTYPE_MSGDISPATCHTIME "msgDispatchTime"
 
-// ----------------------------------------------------------------------------------------------
-// flags: bit0: not writable, bit1: not readable, bit2: removable
-#define DEFINE_PROPERTIES \
-    FUNCX(propApp_sessionId,                   "sessionId",                        sim_propertytype_string,    sim_propertyinfo_notwritable, "Session ID", "") \
-    FUNCX(propApp_protocolVersion,             "protocolVersion",                  sim_propertytype_int,       sim_propertyinfo_notwritable, "Protocol", "Protocol version") \
-    FUNCX(propApp_productVersion,              "productVersion",                   sim_propertytype_string,    sim_propertyinfo_notwritable, "Product string", "Product version (string)") \
-    FUNCX(propApp_productVersionNb,            "productVersionNb",                 sim_propertytype_int,    sim_propertyinfo_notwritable, "Product", "Product version (number)") \
-    FUNCX(propApp_platform,                    "platform",                         sim_propertytype_int,    sim_propertyinfo_notwritable, "Platform", "OS") \
-    FUNCX(propApp_flavor,                      "flavor",                           sim_propertytype_int,    sim_propertyinfo_notwritable, "Flavor", "") \
-    FUNCX(propApp_qtVersion,                   "qtVersion",                        sim_propertytype_int,    sim_propertyinfo_notwritable, "Qt", "Qt version") \
-    FUNCX(propApp_processId,                   "processId",                        sim_propertytype_int,    sim_propertyinfo_notwritable, "Process", "Process ID") \
-    FUNCX(propApp_processCnt,                  "processCnt",                       sim_propertytype_int,    sim_propertyinfo_notwritable, "Processes", "Overall processes") \
-    FUNCX(propApp_consoleVerbosity,            "consoleVerbosity",                 sim_propertytype_int,    0, "Console verbosity", "") \
-    FUNCX(propApp_statusbarVerbosity,          "statusbarVerbosity",               sim_propertytype_int,    0, "Statusbar verbosity", "") \
-    FUNCX(propApp_defaultTranslationStepSize,  "defaultTranslationStepSize",       sim_propertytype_float,     0, "Translation step size", "Default translation step size") \
-    FUNCX(propApp_defaultRotationStepSize,     "defaultRotationStepSize",          sim_propertytype_float,     0, "Rotation step size", "Default rotation step size") \
-    FUNCX(propApp_hierarchyEnabled,            "hierarchyEnabled",                 sim_propertytype_bool,      0, "Hierarchy enabled", "") \
-    FUNCX(propApp_browserEnabled,              "browserEnabled",                   sim_propertytype_bool,      0, "Browser enabled", "") \
-    FUNCX(propApp_displayEnabled,              "displayEnabled",                   sim_propertytype_bool,      0, "Display enabled", "") \
-    FUNCX(propApp_appDir,                      "appPath",                          sim_propertytype_string,    sim_propertyinfo_notwritable, "Application path", "") \
-    FUNCX(propApp_machineId,                   "machineId",                        sim_propertytype_string,    sim_propertyinfo_notwritable, "Machine ID", "") \
-    FUNCX(propApp_legacyMachineId,             "legacyMachineId",                  sim_propertytype_string,    sim_propertyinfo_notwritable, "Legacy machine ID", "") \
-    FUNCX(propApp_tempDir,                     "tempPath",                         sim_propertytype_string,    sim_propertyinfo_notwritable, "Temporary path", "") \
-    FUNCX(propApp_sceneTempDir,                "sceneTempPath",                    sim_propertytype_string,    sim_propertyinfo_notwritable, "Scene temporary path", "") \
-    FUNCX(propApp_settingsDir,                 "settingsPath",                     sim_propertytype_string,    sim_propertyinfo_notwritable, "Settings path", "") \
-    FUNCX(propApp_luaDir,                      "luaPath",                          sim_propertytype_string,    sim_propertyinfo_notwritable, "Lua path", "") \
-    FUNCX(propApp_pythonDir,                   "pythonPath",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "Python path", "") \
-    FUNCX(propApp_mujocoDir,                   "mujocoPath",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "MuJoCo path", "") \
-    FUNCX(propApp_systemDir,                   "systemPath",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "System path", "") \
-    FUNCX(propApp_resourceDir,                 "resourcePath",                     sim_propertytype_string,    sim_propertyinfo_notwritable, "Resource path", "") \
-    FUNCX(propApp_addOnDir,                    "addOnPath",                        sim_propertytype_string,    sim_propertyinfo_notwritable, "Add-on path", "") \
-    FUNCX(propApp_sceneDir,                    "scenePath",                        sim_propertytype_string,    0, "Scene path", "") \
-    FUNCX(propApp_modelDir,                    "modelPath",                        sim_propertytype_string,    0, "Model path", "") \
-    FUNCX(propApp_importExportDir,             "importExportPath",                 sim_propertytype_string,    0, "Import/export path", "") \
-    FUNCX(propApp_defaultPython,               "defaultPython",                    sim_propertytype_string,    sim_propertyinfo_notwritable, "Default Python", "Default Python interpreter") \
-    FUNCX(propApp_sandboxLang,                 "sandboxLang",                      sim_propertytype_string,    sim_propertyinfo_notwritable, "Sandbox language", "Default sandbox language") \
-
-#define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
-DEFINE_PROPERTIES
-#undef FUNCX
-#define FUNCX(name, str, v1, v2, t1, t2) name,
-const std::vector<SProperty> allProps_app = { DEFINE_PROPERTIES };
-#undef FUNCX
-#undef DEFINE_PROPERTIES
-// ----------------------------------------------------------------------------------------------
-
 class CWorldContainer
 {
   public:
