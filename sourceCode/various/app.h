@@ -54,6 +54,20 @@
     FUNCX(propApp_headlessMode,                "headlessMode",                     sim_propertytype_int,       sim_propertyinfo_notwritable, "Headless mode", "Headless mode (0: not headless, 1: GUI suppressed, 2: headless library)") \
     FUNCX(propApp_canSave,                     "canSave",                          sim_propertytype_bool,      sim_propertyinfo_notwritable, "Can save", "Whether save operation is allowed in given state") \
     FUNCX(propApp_idleFps,                     "idleFps",                          sim_propertytype_int,       0, "Idle FPS", "Desired maximum rendering frames per second, when simulation is not running") \
+    FUNCX(propApp_appArg1,                     "appArg1",                          sim_propertytype_string,    0, "App arg. 1", "") \
+    FUNCX(propApp_appArg2,                     "appArg2",                          sim_propertytype_string,    0, "App arg. 2", "") \
+    FUNCX(propApp_appArg3,                     "appArg3",                          sim_propertytype_string,    0, "App arg. 3", "") \
+    FUNCX(propApp_appArg4,                     "appArg4",                          sim_propertytype_string,    0, "App arg. 4", "") \
+    FUNCX(propApp_appArg5,                     "appArg5",                          sim_propertytype_string,    0, "App arg. 5", "") \
+    FUNCX(propApp_appArg6,                     "appArg6",                          sim_propertytype_string,    0, "App arg. 6", "") \
+    FUNCX(propApp_appArg7,                     "appArg7",                          sim_propertytype_string,    0, "App arg. 7", "") \
+    FUNCX(propApp_appArg8,                     "appArg8",                          sim_propertytype_string,    0, "App arg. 8", "") \
+    FUNCX(propApp_appArg9,                     "appArg9",                          sim_propertytype_string,    0, "App arg. 9", "") \
+    FUNCX(propApp_randomQuaternion,            "randomQuaternion",                 sim_propertytype_quaternion, sim_propertyinfo_notwritable, "Random quaternion", "") \
+    FUNCX(propApp_randomFloat,                 "randomFloat",                      sim_propertytype_float,     sim_propertyinfo_notwritable, "Random number", "") \
+    FUNCX(propApp_notifyDeprecated,            "notifyDeprecated",                 sim_propertytype_int,       sim_propertyinfo_notwritable, "Notify deprecated", "Notify deprecated API (0: off, 1: light, 2: full)") \
+    FUNCX(propApp_execUnsafe,                  "execUnsafe",                       sim_propertytype_bool,      sim_propertyinfo_notwritable, "Execute unsafe", "") \
+    FUNCX(propApp_execUnsafeExt,               "execUnsafeExt",                    sim_propertytype_bool,      sim_propertyinfo_notwritable, "Execute unsafe extended", "Execute unsafe for code triggered externally") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -178,6 +192,7 @@ class App
                        const char *subStr3 = nullptr);
     static void logMsg(int verbosityLevel, const char *msg, int int1, int int2 = 0, int int3 = 0);
     static void logScriptMsg(const CScriptObject *script, int verbosityLevel, const char *msg);
+    static void setStringVerbosity(int what, const char* str);
     static int getConsoleVerbosity(const char *pluginName = nullptr);
     static void setConsoleVerbosity(int v, const char *pluginName = nullptr);
     static int getStatusbarVerbosity(const char *pluginName = nullptr);
@@ -195,6 +210,8 @@ class App
     static int getExitCode();
     static int getAppStage();
     static void setAppStage(int s);
+
+    static void pushGenesisEvents();
 
     static int setBoolProperty(long long int target, const char* pName, bool pState);
     static int getBoolProperty(long long int target, const char* pName, bool& pState);

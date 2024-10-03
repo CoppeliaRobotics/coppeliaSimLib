@@ -119,10 +119,10 @@ class CScriptObject
     int getIntProperty(const char* pName, int& pState) const;
     int setStringProperty(const char* pName, const char* pState);
     int getStringProperty(const char* pName, std::string& pState) const;
-    int getPropertyName(int& index, std::string& pName);
-    static int getPropertyName_static(int& index, std::string& pName);
-    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt);
-    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt);
+    int getPropertyName(int& index, std::string& pName, std::string* appartenance);
+    static int getPropertyName_static(int& index, std::string& pName, std::string* appartenance);
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt, bool detachedScript);
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt, bool detachedScript);
 
     void terminateScriptExecutionExternally(bool generateErrorMsg);
 

@@ -4456,6 +4456,21 @@ int CSceneObjectContainer::getIntProperty(long long int target, const char* pNam
     int retVal = -1;
     if (target == -1)
     {
+        if (strcmp(pName, propObjCont_objectCreationCounter.name) == 0)
+        {
+            pState = _objectCreationCounter;
+            retVal = 1;
+        }
+        else if (strcmp(pName, propObjCont_objectDestructionCounter.name) == 0)
+        {
+            pState = _objectDestructionCounter;
+            retVal = 1;
+        }
+        else if (strcmp(pName, propObjCont_hierarchyChangeCounter.name) == 0)
+        {
+            pState = _hierarchyChangeCounter;
+            retVal = 1;
+        }
     }
     else
     {

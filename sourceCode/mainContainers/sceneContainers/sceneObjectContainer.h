@@ -24,6 +24,9 @@
     FUNCX(propObjCont_objectHandles,                "objectHandles",                    sim_propertytype_intarray, sim_propertyinfo_notwritable, "Objects", "Handles of all scene objects") \
     FUNCX(propObjCont_orphanHandles,                "orphanHandles",                    sim_propertytype_intarray, sim_propertyinfo_notwritable, "Orphan objects", "Handles of all orphan scene objects") \
     FUNCX(propObjCont_selectionHandles,             "selectionHandles",                 sim_propertytype_intarray, 0, "Selected objects", "Handles of selected scene objects") \
+    FUNCX(propObjCont_objectCreationCounter,        "objectCreationCounter",            sim_propertytype_int,      sim_propertyinfo_notwritable, "Object creation counter", "Counter of created scene objects") \
+    FUNCX(propObjCont_objectDestructionCounter,     "objectDestructionCounter",         sim_propertytype_int,      sim_propertyinfo_notwritable, "Object destruction counter", "Counter of destroyed scene objects") \
+    FUNCX(propObjCont_hierarchyChangeCounter,       "hierarchyChangeCounter",           sim_propertytype_int,      sim_propertyinfo_notwritable, "Hierarchy change counter", "Counter of scene hierarchy changes") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

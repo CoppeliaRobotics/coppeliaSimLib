@@ -4360,7 +4360,13 @@ int CScriptObject::getStringProperty(const char* pName, std::string& pState) con
     return retVal;
 }
 
-int CScriptObject::getPropertyName(int& index, std::string& pName)
+int CScriptObject::getPropertyName(int& index, std::string& pName, std::string* appartenance)
+{
+    int retVal = CScriptObject::getPropertyName_static(index, pName, appartenance);
+    return retVal;
+}
+
+int CScriptObject::getPropertyName_static(int& index, std::string& pName, std::string* appartenance)
 {
     int retVal = -1;
     for (size_t i = 0; i < allProps_scriptObject.size(); i++)
@@ -4370,44 +4376,17 @@ int CScriptObject::getPropertyName(int& index, std::string& pName)
         {
             pName = allProps_scriptObject[i].name;
             retVal = 1;
+            if (appartenance != nullptr)
+                appartenance[0] += ".detachedScript";
             break;
         }
     }
     return retVal;
 }
 
-int CScriptObject::getPropertyName_static(int& index, std::string& pName)
+int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& infoTxt, bool detachedScript)
 {
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_scriptObject.size(); i++)
-    {
-        index--;
-        if (index == -1)
-        {
-            pName = allProps_scriptObject[i].name;
-            retVal = 1;
-            break;
-        }
-    }
-    return retVal;
-}
-
-int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& infoTxt)
-{
-    int retVal = -1;
-    for (size_t i = 0; i < allProps_scriptObject.size(); i++)
-    {
-        if (strcmp(allProps_scriptObject[i].name, pName) == 0)
-        {
-            retVal = allProps_scriptObject[i].type;
-            info = allProps_scriptObject[i].flags;
-            if ( (infoTxt == "") && (strcmp(allProps_scriptObject[i].infoTxt, "") != 0) )
-                infoTxt = allProps_scriptObject[i].infoTxt;
-            else
-                infoTxt = allProps_scriptObject[i].shortInfoTxt;
-            break;
-        }
-    }
+    int retVal = CScriptObject::getPropertyInfo_static(pName, info, infoTxt, detachedScript);
     if (retVal != -1)
     {
         if ( strcmp(propScriptObj_code.name, pName) == 0 )
@@ -4419,8 +4398,12 @@ int CScriptObject::getPropertyInfo(const char* pName, int& info, std::string& in
     return retVal;
 }
 
-int CScriptObject::getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt)
+int CScriptObject::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt, bool detachedScript)
 {
+    std::string _pName(utils::getWithoutPrefix(ppName, "detachedScript."));
+    const char* pName = ppName;
+    if (detachedScript)
+        pName = _pName.c_str();
     int retVal = -1;
     for (size_t i = 0; i < allProps_scriptObject.size(); i++)
     {

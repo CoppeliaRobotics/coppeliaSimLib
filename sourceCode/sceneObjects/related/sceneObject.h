@@ -18,6 +18,7 @@
     FUNCX(propObject_layer,                   "layer",                            sim_propertytype_int,       0, "Visibility layer", "") \
     FUNCX(propObject_childOrder,              "childOrder",                       sim_propertytype_int,       sim_propertyinfo_notwritable, "Child order", "") \
     FUNCX(propObject_parentUid,               "parentUid",                        sim_propertytype_int,       sim_propertyinfo_notwritable, "Parent UID", "Parent scene object unique identifier") \
+    FUNCX(propObject_objectUid,               "objectUid",                        sim_propertytype_int,       sim_propertyinfo_notwritable, "Object UID", "Scene object unique identifier") \
     FUNCX(propObject_parentHandle,            "parentHandle",                     sim_propertytype_int,       sim_propertyinfo_notwritable, "Parent", "Parent scene object handle") \
     FUNCX(propObject_selected,                "selected",                         sim_propertytype_bool,      0, "Selected", "Selection state") \
     FUNCX(propObject_hierarchyColor,          "hierarchyColor",                   sim_propertytype_int,       0, "Hierarchy color", "Hierarchy color index") \
@@ -73,6 +74,7 @@
     FUNCX(propObject_movementStepSize,        "movementStepSize",                 sim_propertytype_floatarray,0, "Movement step sizes", "Linear and angular step sizes") \
     FUNCX(propObject_movementRelativity,      "movementRelativity",               sim_propertytype_intarray,  0, "Movement relativity", "Movement relativity, linear and angular") \
     FUNCX(propObject_objectType,              "objectType",                       sim_propertytype_string,    sim_propertyinfo_notwritable, "Type", "Scene object type") \
+    FUNCX(propObject_visible,                 "visible",                          sim_propertytype_bool,      sim_propertyinfo_notwritable, "Visible", "Whether the scene object is currently visible") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES
@@ -308,7 +310,7 @@ class CSceneObject
     int getLocalObjectSpecialProperty() const;
     bool setModelProperty(int prop);
     int getModelProperty() const;
-    int getCumulativeModelProperty();
+    int getCumulativeModelProperty() const;
     int getCumulativeObjectSpecialProperty();
 
     int getTreeDynamicProperty(); // combination of sim_objdynprop_dynamic and sim_objdynprop_respondable
@@ -340,9 +342,9 @@ class CSceneObject
 
     void clearManipulationModeOverlayGridFlag();
 
-    bool isObjectVisible();
-    bool isObjectInVisibleLayer();
-    bool isObjectPartOfInvisibleModel();
+    bool isObjectVisible() const;
+    bool isObjectInVisibleLayer() const;
+    bool isObjectPartOfInvisibleModel() const;
 
     void setModelAcknowledgement(const char *a);
     std::string getModelAcknowledgement() const;

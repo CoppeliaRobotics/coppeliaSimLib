@@ -1098,6 +1098,43 @@ int App::getConsoleVerbosity(const char *pluginName /*=nullptr*/)
     return (retVal);
 }
 
+void App::setStringVerbosity(int what, const char* str)
+{
+    int v = sim_verbosity_none;
+    if (strcmp(str, "errors") == 0)
+        v = sim_verbosity_errors;
+    if (strcmp(str, "warnings") == 0)
+        v = sim_verbosity_warnings;
+    if (strcmp(str, "loadinfos") == 0)
+        v = sim_verbosity_loadinfos;
+    if (strcmp(str, "questions") == 0)
+        v = sim_verbosity_questions;
+    if (strcmp(str, "scripterrors") == 0)
+        v = sim_verbosity_scripterrors;
+    if (strcmp(str, "scriptwarnings") == 0)
+        v = sim_verbosity_scriptwarnings;
+    if (strcmp(str, "scriptinfos") == 0)
+        v = sim_verbosity_scriptinfos;
+    if (strcmp(str, "msgs") == 0)
+        v = sim_verbosity_msgs;
+    if (strcmp(str, "infos") == 0)
+        v = sim_verbosity_infos;
+    if (strcmp(str, "debug") == 0)
+        v = sim_verbosity_debug;
+    if (strcmp(str, "trace") == 0)
+        v = sim_verbosity_trace;
+    if (strcmp(str, "tracelua") == 0)
+        v = sim_verbosity_tracelua;
+    if (strcmp(str, "traceall") == 0)
+        v = sim_verbosity_traceall;
+    if (what == 0)
+        App::setConsoleVerbosity(v);
+    else if (what == 1)
+        App::setStatusbarVerbosity(v);
+    else
+        App::setDlgVerbosity(v);
+}
+
 void App::setConsoleVerbosity(int v, const char *pluginName /*=nullptr*/)
 { // sim_verbosity_none, etc.
     if (pluginName != nullptr)
@@ -1407,10 +1444,22 @@ int App::setBoolProperty(long long int target, const char* ppName, bool pState)
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setBoolProperty(pName, pState);
-            if (retVal == -1)
+            if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
             {
+                setHierarchyEnabled(pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_browserEnabled.name) == 0)
+            {
+        #ifdef SIM_WITH_GUI
+                GuiApp::setBrowserEnabled(pState);
+        #endif
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_displayEnabled.name) == 0)
+            {
+                setOpenGlDisplayEnabled(pState);
+                retVal = 1;
             }
         }
         else if (currentWorld != nullptr)
@@ -1434,10 +1483,49 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getBoolProperty(pName, pState);
-            if (retVal == -1)
+            if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
             {
+                pState = getHierarchyEnabled();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_browserEnabled.name) == 0)
+            {
+        #ifdef SIM_WITH_GUI
+                pState = GuiApp::getBrowserEnabled();
+        #else
+                pState = false;
+        #endif
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_displayEnabled.name) == 0)
+            {
+                pState = getOpenGlDisplayEnabled();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_canSave.name) == 0)
+            {
+                pState = canSave();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_execUnsafe.name) == 0)
+            {
+                if (userSettings != nullptr)
+                {
+                    pState = userSettings->execUnsafe;
+                    retVal = 1;
+                }
+                else
+                    retVal = 0;
+            }
+            else if (strcmp(pName, propApp_execUnsafeExt.name) == 0)
+            {
+                if (userSettings != nullptr)
+                {
+                    pState = userSettings->execUnsafeExt;
+                    retVal = 1;
+                }
+                else
+                    retVal = 0;
             }
         }
         else if (currentWorld != nullptr)
@@ -1461,10 +1549,26 @@ int App::setIntProperty(long long int target, const char* ppName, int pState)
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setIntProperty(pName, pState);
-            if (retVal == -1)
+            if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
             {
+                setConsoleVerbosity(pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_statusbarVerbosity.name) == 0)
+            {
+                setStatusbarVerbosity(pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_dialogVerbosity.name) == 0)
+            {
+                setDlgVerbosity(pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_idleFps.name) == 0)
+            {
+                if (userSettings != nullptr)
+                    userSettings->setIdleFps_session(pState);
+                retVal = 1;
             }
         }
         else if (currentWorld != nullptr)
@@ -1488,10 +1592,82 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getIntProperty(pName, pState);
-            if (retVal == -1)
+            if (strcmp(pName, propApp_protocolVersion.name) == 0)
             {
+                pState = SIM_EVENT_PROTOCOL_VERSION;
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_productVersionNb.name) == 0)
+            {
+                pState = SIM_PROGRAM_FULL_VERSION_NB;
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_platform.name) == 0)
+            {
+                pState = getPlatform();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_flavor.name) == 0)
+            {
+                pState = SIM_FL;
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_qtVersion.name) == 0)
+            {
+                pState = (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1;
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_processId.name) == 0)
+            {
+                if (instancesList != nullptr)
+                    pState = instancesList->thisInstanceId();
+                else
+                    pState = -1;
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_processCnt.name) == 0)
+            {
+                if (instancesList != nullptr)
+                    pState = instancesList->numInstances();
+                else
+                    pState = -1;
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
+            {
+                pState = getConsoleVerbosity();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_statusbarVerbosity.name) == 0)
+            {
+                pState = getStatusbarVerbosity();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_dialogVerbosity.name) == 0)
+            {
+                pState = getDlgVerbosity();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_headlessMode.name) == 0)
+            {
+                pState = getHeadlessMode();
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_idleFps.name) == 0)
+            {
+                if (userSettings != nullptr)
+                    pState = userSettings->getIdleFps();
+                else
+                    pState = -1;
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_notifyDeprecated.name) == 0)
+            {
+                if (userSettings != nullptr)
+                    pState = userSettings->notifyDeprecated;
+                else
+                    pState = -1;
+                retVal = 1;
             }
         }
         else if (currentWorld != nullptr)
@@ -1515,10 +1691,17 @@ int App::setFloatProperty(long long int target, const char* ppName, double pStat
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setFloatProperty(pName, pState);
-            if (retVal == -1)
+            if (strcmp(pName, propApp_defaultTranslationStepSize.name) == 0)
             {
+                if (userSettings != nullptr)
+                    userSettings->setTranslationStepSize(pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_defaultRotationStepSize.name) == 0)
+            {
+                if (userSettings != nullptr)
+                    userSettings->setRotationStepSize(pState);
+                retVal = 1;
             }
         }
         else if (currentWorld != nullptr)
@@ -1542,10 +1725,26 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getFloatProperty(pName, pState);
-            if (retVal == -1)
+            if (strcmp(pName, propApp_defaultTranslationStepSize.name) == 0)
             {
+                if (userSettings != nullptr)
+                    pState = userSettings->getTranslationStepSize();
+                else
+                    pState = 0.0;
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_defaultRotationStepSize.name) == 0)
+            {
+                if (userSettings != nullptr)
+                    pState = userSettings->getRotationStepSize();
+                else
+                    pState = 0.0;
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_randomFloat.name) == 0)
+            {
+                pState = SIM_RAND_FLOAT;
+                retVal = 1;
             }
         }
         else if (currentWorld != nullptr)
@@ -1569,10 +1768,83 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setStringProperty(pName, pState);
-            if (retVal == -1)
+            if (strcmp(pName, propApp_sceneDir.name) == 0)
             {
+                if (folders != nullptr)
+                    folders->setScenesPath(pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_modelDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    folders->setModelsPath(pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_importExportDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    folders->setImportExportPath(pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_consoleVerbosityStr.name) == 0)
+            {
+                setStringVerbosity(0, pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_statusbarVerbosityStr.name) == 0)
+            {
+                setStringVerbosity(1, pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_dialogVerbosityStr.name) == 0)
+            {
+                setStringVerbosity(2, pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg1.name) == 0)
+            {
+                setApplicationArgument(0, pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg2.name) == 0)
+            {
+                setApplicationArgument(1, pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg3.name) == 0)
+            {
+                setApplicationArgument(2, pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg4.name) == 0)
+            {
+                setApplicationArgument(3, pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg5.name) == 0)
+            {
+                setApplicationArgument(4, pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg6.name) == 0)
+            {
+                setApplicationArgument(5, pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg7.name) == 0)
+            {
+                setApplicationArgument(6, pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg8.name) == 0)
+            {
+                setApplicationArgument(7, pState);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg9.name) == 0)
+            {
+                setApplicationArgument(8, pState);
+                retVal = 1;
             }
         }
         else if (currentWorld != nullptr)
@@ -1596,10 +1868,193 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getStringProperty(pName, pState);
-            if (retVal == -1)
+            if (strcmp(pName, propApp_sessionId.name) == 0)
             {
+                if (worldContainer != nullptr)
+                    pState = worldContainer->getSessionId();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_productVersion.name) == 0)
+            {
+                pState = SIM_VERSION_STR_SHORT;
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getExecutablePath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_machineId.name) == 0)
+            {
+                pState = CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_legacyMachineId.name) == 0)
+            {
+                pState = CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id_legacy);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_tempDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getTempDataPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_sceneTempDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getSceneTempDataPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_settingsDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getUserSettingsPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_luaDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getLuaPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_pythonDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getPythonPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_mujocoDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getMujocoPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_systemDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getSystemPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_resourceDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getResourcesPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_addOnDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getAddOnPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_sceneDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getScenesPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_modelDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getModelsPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_importExportDir.name) == 0)
+            {
+                if (folders != nullptr)
+                    pState = folders->getImportExportPath();
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_defaultPython.name) == 0)
+            {
+                if (userSettings != nullptr)
+                    pState = userSettings->defaultPython;
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_sandboxLang.name) == 0)
+            {
+                if (userSettings != nullptr)
+                    pState = userSettings->preferredSandboxLang;
+                else
+                    pState = "";
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg1.name) == 0)
+            {
+                pState = getApplicationArgument(0);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg2.name) == 0)
+            {
+                pState = getApplicationArgument(1);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg3.name) == 0)
+            {
+                pState = getApplicationArgument(2);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg4.name) == 0)
+            {
+                pState = getApplicationArgument(3);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg5.name) == 0)
+            {
+                pState = getApplicationArgument(4);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg6.name) == 0)
+            {
+                pState = getApplicationArgument(5);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg7.name) == 0)
+            {
+                pState = getApplicationArgument(6);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg8.name) == 0)
+            {
+                pState = getApplicationArgument(7);
+                retVal = 1;
+            }
+            else if (strcmp(pName, propApp_appArg9.name) == 0)
+            {
+                pState = getApplicationArgument(8);
+                retVal = 1;
             }
         }
         else if (currentWorld != nullptr)
@@ -1645,10 +2100,20 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setBufferProperty(pName, buffer, bufferL);
-            if (retVal == -1)
+            if (strncmp(pName, "customData.", 11) == 0)
             {
+                std::string pN(pName);
+                pN.erase(0, 11);
+                if (pN.size() > 0)
+                {
+                    if (worldContainer != nullptr)
+                    {
+                        worldContainer->customAppData.setData(pN.c_str(), buffer, bufferL, true);
+                        retVal = 1;
+                    }
+                    else
+                        retVal = 0;
+                }
             }
         }
         else if (currentWorld != nullptr)
@@ -1681,10 +2146,21 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getBufferProperty(pName, pState);
-            if (retVal == -1)
+            if (strncmp(pName, "customData.", 11) == 0)
             {
+                std::string pN(pName);
+                pN.erase(0, 11);
+                if (pN.size() > 0)
+                {
+                    if (worldContainer != nullptr)
+                    {
+                        if (worldContainer->customAppData.hasData(pN.c_str(), false) >= 0)
+                        {
+                            pState = worldContainer->customAppData.getData(pN.c_str());
+                            retVal = 1;
+                        }
+                    }
+                }
             }
         }
         else if (currentWorld != nullptr)
@@ -1708,11 +2184,6 @@ int App::setIntArray2Property(long long int target, const char* ppName, const in
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setIntArray2Property(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setIntArray2Property(target, pName, pState);
@@ -1735,11 +2206,6 @@ int App::getIntArray2Property(long long int target, const char* ppName, int* pSt
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getIntArray2Property(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getIntArray2Property(target, pName, pState);
@@ -1762,11 +2228,6 @@ int App::setVector2Property(long long int target, const char* ppName, const doub
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setVector2Property(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setVector2Property(target, pName, pState);
@@ -1789,11 +2250,6 @@ int App::getVector2Property(long long int target, const char* ppName, double* pS
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getVector2Property(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getVector2Property(target, pName, pState);
@@ -1816,11 +2272,6 @@ int App::setVector3Property(long long int target, const char* ppName, const C3Ve
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setVector3Property(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setVector3Property(target, pName, pState);
@@ -1843,11 +2294,6 @@ int App::getVector3Property(long long int target, const char* ppName, C3Vector& 
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getVector3Property(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getVector3Property(target, pName, pState);
@@ -1870,11 +2316,6 @@ int App::setQuaternionProperty(long long int target, const char* ppName, const C
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setQuaternionProperty(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setQuaternionProperty(target, pName, pState);
@@ -1897,10 +2338,10 @@ int App::getQuaternionProperty(long long int target, const char* ppName, C4Vecto
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getQuaternionProperty(pName, pState);
-            if (retVal == -1)
+            if (strcmp(pName, propApp_randomQuaternion.name) == 0)
             {
+                pState.buildRandomOrientation();
+                retVal = 1;
             }
         }
         else if (currentWorld != nullptr)
@@ -1924,11 +2365,6 @@ int App::setPoseProperty(long long int target, const char* ppName, const C7Vecto
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setPoseProperty(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setPoseProperty(target, pName, pState);
@@ -1951,11 +2387,6 @@ int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pSt
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getPoseProperty(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getPoseProperty(target, pName, pState);
@@ -1978,11 +2409,6 @@ int App::setColorProperty(long long int target, const char* ppName, const float*
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setColorProperty(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setColorProperty(target, pName, pState);
@@ -2005,11 +2431,6 @@ int App::getColorProperty(long long int target, const char* ppName, float* pStat
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getColorProperty(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getColorProperty(target, pName, pState);
@@ -2032,11 +2453,6 @@ int App::setFloatArrayProperty(long long int target, const char* ppName, const d
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setFloatArrayProperty(pName, v, vL);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setFloatArrayProperty(target, pName, v, vL);
@@ -2060,11 +2476,6 @@ int App::getFloatArrayProperty(long long int target, const char* ppName, std::ve
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getFloatArrayProperty(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getFloatArrayProperty(target, pName, pState);
@@ -2087,11 +2498,6 @@ int App::setIntArrayProperty(long long int target, const char* ppName, const int
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->setIntArrayProperty(pName, v, vL);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->setIntArrayProperty(target, pName, v, vL);
@@ -2115,11 +2521,6 @@ int App::getIntArrayProperty(long long int target, const char* ppName, std::vect
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->getIntArrayProperty(pName, pState);
-            if (retVal == -1)
-            {
-            }
         }
         else if (currentWorld != nullptr)
             retVal = currentWorld->getIntArrayProperty(target, pName, pState);
@@ -2162,10 +2563,22 @@ int App::removeProperty(long long int target, const char* ppName)
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (worldContainer != nullptr)
-                retVal = worldContainer->removeProperty(pName);
-            if (retVal == -1)
+            if (strncmp(pName, "customData.", 11) == 0)
             {
+                std::string pN(pName);
+                pN.erase(0, 11);
+                if (pN.size() > 0)
+                {
+                    if (worldContainer != nullptr)
+                    {
+                        int tp = worldContainer->customAppData.hasData(pN.c_str(), true);
+                        if (tp >= 0)
+                        {
+                            worldContainer->customAppData.clearData((propertyStrings[tp] + pN).c_str());
+                            retVal = 1;
+                        }
+                    }
+                }
             }
         }
         else if (currentWorld != nullptr)
@@ -2201,12 +2614,25 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
         appartenance = "app";
         if (target == sim_handle_app)
         {
-            CWorldContainer* wc = nullptr;
-            if (!staticParsing)
-                wc = worldContainer;
-            retVal = CWorldContainer::getPropertyName(index, pName, wc);
-            if (retVal == -1)
+            for (size_t i = 0; i < allProps_app.size(); i++)
             {
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_app[i].name;
+                    //pName = "app." + pName;
+                    retVal = 1;
+                    break;
+                }
+            }
+            if ( (retVal == -1) && (worldContainer != nullptr) && (!staticParsing))
+            {
+                if (worldContainer->customAppData.getPropertyName(index, pName))
+                {
+                    pName = "customData." + pName;
+                    //pName = "app." + pName;
+                    retVal = 1;
+                }
             }
         }
         else if (currentWorld != nullptr)
@@ -2255,12 +2681,34 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            CWorldContainer* wc = nullptr;
-            if (!staticParsing)
-                wc = worldContainer;
-            retVal = CWorldContainer::getPropertyInfo(pName, info, infoTxt, wc);
-            if (retVal == -1)
+            for (size_t i = 0; i < allProps_app.size(); i++)
             {
+                if (strcmp(allProps_app[i].name, pName) == 0)
+                {
+                    retVal = allProps_app[i].type;
+                    info = allProps_app[i].flags;
+                    if ( (infoTxt == "") && (strcmp(allProps_app[i].infoTxt, "") != 0) )
+                        infoTxt = allProps_app[i].infoTxt;
+                    else
+                        infoTxt = allProps_app[i].shortInfoTxt;
+                    break;
+                }
+            }
+            if ( (retVal == -1) && (worldContainer != nullptr) && (!staticParsing))
+            {
+                std::string pN(pName);
+                pN.erase(0, 11);
+                if (pN.size() > 0)
+                {
+                    int s;
+                    retVal = worldContainer->customAppData.hasData(pN.c_str(), true, &s);
+                    if (retVal >= 0)
+                    {
+                        info = 4; // removable
+                        if (s > LARGE_PROPERTY_SIZE)
+                            info = info | 0x100;
+                    }
+                }
             }
         }
         else if (currentWorld != nullptr)
@@ -2368,3 +2816,116 @@ int App::getPlatform()
 #endif
     return retVal;
 }
+
+void App::pushGenesisEvents()
+{
+    if ((worldContainer != nullptr) && worldContainer->getEventsEnabled())
+    {
+        CCbor *ev = worldContainer->createEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, false);
+        worldContainer->pushEvent();
+
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+        ev = worldContainer->createEvent("appSession", sim_handle_app, sim_handle_app, nullptr, false);
+#else
+        ev = worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
+#endif
+        ev->appendKeyText(propApp_sessionId.name, worldContainer->getSessionId().c_str());
+        ev->appendKeyInt(propApp_protocolVersion.name, SIM_EVENT_PROTOCOL_VERSION);
+        ev->appendKeyText(propApp_productVersion.name, SIM_VERSION_STR_SHORT);
+        ev->appendKeyInt(propApp_productVersionNb.name, SIM_PROGRAM_FULL_VERSION_NB);
+        ev->appendKeyInt(propApp_platform.name, getPlatform());
+        ev->appendKeyInt(propApp_flavor.name, SIM_FL);
+        ev->appendKeyInt(propApp_qtVersion.name, (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1);
+        if (instancesList != nullptr)
+        {
+            ev->appendKeyInt(propApp_processId.name, instancesList->thisInstanceId());
+            ev->appendKeyInt(propApp_processCnt.name, instancesList->numInstances());
+        }
+        ev->appendKeyInt(propApp_consoleVerbosity.name, getConsoleVerbosity());
+        ev->appendKeyInt(propApp_statusbarVerbosity.name, getStatusbarVerbosity());
+        ev->appendKeyInt(propApp_dialogVerbosity.name, getDlgVerbosity());
+        ev->appendKeyText(propApp_appArg1.name, getApplicationArgument(0).c_str());
+        ev->appendKeyText(propApp_appArg2.name, getApplicationArgument(1).c_str());
+        ev->appendKeyText(propApp_appArg3.name, getApplicationArgument(2).c_str());
+        ev->appendKeyText(propApp_appArg4.name, getApplicationArgument(3).c_str());
+        ev->appendKeyText(propApp_appArg5.name, getApplicationArgument(4).c_str());
+        ev->appendKeyText(propApp_appArg6.name, getApplicationArgument(5).c_str());
+        ev->appendKeyText(propApp_appArg7.name, getApplicationArgument(6).c_str());
+        ev->appendKeyText(propApp_appArg8.name, getApplicationArgument(7).c_str());
+        ev->appendKeyText(propApp_appArg9.name, getApplicationArgument(8).c_str());
+
+        //        ev->appendKeyString(propApp_machineId.name, CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id).c_str());
+        //        ev->appendKeyString(propApp_legacyMachineId.name, CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id_legacy).c_str());
+        if (folders != nullptr)
+        {
+            ev->appendKeyText(propApp_appDir.name, folders->getExecutablePath().c_str());
+            ev->appendKeyText(propApp_tempDir.name, folders->getTempDataPath().c_str());
+            ev->appendKeyText(propApp_sceneTempDir.name, folders->getSceneTempDataPath().c_str());
+            ev->appendKeyText(propApp_settingsDir.name, folders->getUserSettingsPath().c_str());
+            ev->appendKeyText(propApp_luaDir.name, folders->getLuaPath().c_str());
+            ev->appendKeyText(propApp_pythonDir.name, folders->getPythonPath().c_str());
+            ev->appendKeyText(propApp_mujocoDir.name, folders->getMujocoPath().c_str());
+            ev->appendKeyText(propApp_systemDir.name, folders->getSystemPath().c_str());
+            ev->appendKeyText(propApp_resourceDir.name, folders->getResourcesPath().c_str());
+            ev->appendKeyText(propApp_addOnDir.name, folders->getAddOnPath().c_str());
+            ev->appendKeyText(propApp_sceneDir.name, folders->getScenesPath().c_str());
+            ev->appendKeyText(propApp_modelDir.name, folders->getModelsPath().c_str());
+            ev->appendKeyText(propApp_importExportDir.name, folders->getImportExportPath().c_str());
+        }
+        if (userSettings != nullptr)
+        {
+            ev->appendKeyText(propApp_defaultPython.name, userSettings->defaultPython.c_str());
+            ev->appendKeyText(propApp_sandboxLang.name, userSettings->preferredSandboxLang.c_str());
+        }
+#if SIM_EVENT_PROTOCOL_VERSION == 2
+        worldContainer->pushEvent();
+        ev = worldContainer->createEvent("appSettingsChanged", sim_handle_app, sim_handle_app, nullptr, false);
+#endif
+        if (userSettings != nullptr)
+        {
+            ev->appendKeyDouble(propApp_defaultTranslationStepSize.name, userSettings->getTranslationStepSize());
+            ev->appendKeyDouble(propApp_defaultRotationStepSize.name, userSettings->getRotationStepSize());
+            ev->appendKeyInt(propApp_notifyDeprecated.name, userSettings->notifyDeprecated);
+            ev->appendKeyBool(propApp_execUnsafe.name, userSettings->execUnsafe);
+            ev->appendKeyBool(propApp_execUnsafeExt.name, userSettings->execUnsafeExt);
+        }
+#ifdef SIM_WITH_GUI
+        ev->appendKeyBool(propApp_browserEnabled.name, GuiApp::getBrowserEnabled());
+#else
+        ev->appendKeyBool(propApp_browserEnabled.name, false);
+#endif
+        ev->appendKeyBool(propApp_hierarchyEnabled.name, getHierarchyEnabled());
+        ev->appendKeyBool(propApp_displayEnabled.name, getOpenGlDisplayEnabled());
+        ev->appendKeyInt(propApp_headlessMode.name, getHeadlessMode());
+        ev->appendKeyText(propApp_appArg1.name, getApplicationArgument(0).c_str());
+        ev->appendKeyText(propApp_appArg2.name, getApplicationArgument(1).c_str());
+        ev->appendKeyText(propApp_appArg3.name, getApplicationArgument(2).c_str());
+        ev->appendKeyText(propApp_appArg4.name, getApplicationArgument(3).c_str());
+        ev->appendKeyText(propApp_appArg5.name, getApplicationArgument(4).c_str());
+        ev->appendKeyText(propApp_appArg6.name, getApplicationArgument(5).c_str());
+        ev->appendKeyText(propApp_appArg7.name, getApplicationArgument(6).c_str());
+        ev->appendKeyText(propApp_appArg8.name, getApplicationArgument(7).c_str());
+        ev->appendKeyText(propApp_appArg9.name, getApplicationArgument(8).c_str());
+
+        if (userSettings != nullptr)
+            ev->appendKeyInt(propApp_idleFps.name, userSettings->getIdleFps());
+
+        worldContainer->pushEvent();
+
+        if (worldContainer->sandboxScript != nullptr)
+        {
+            ev = worldContainer->createEvent(EVENTTYPE_OBJECTADDED, worldContainer->sandboxScript->getScriptHandle(), worldContainer->sandboxScript->getScriptUid(), nullptr, false);
+            worldContainer->sandboxScript->addSpecializedObjectEventData(ev);
+            worldContainer->pushEvent();
+        }
+
+        if (worldContainer->addOnScriptContainer != nullptr)
+            worldContainer->addOnScriptContainer->pushGenesisEvents();
+
+        currentWorld->pushGenesisEvents();
+
+        ev = worldContainer->createEvent(EVENTTYPE_GENESISEND, -1, -1, nullptr, false);
+        worldContainer->pushEvent();
+    }
+}
+

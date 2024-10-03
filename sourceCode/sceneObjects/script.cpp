@@ -569,7 +569,7 @@ int CScript::getPropertyName(int& index, std::string& pName, std::string& appart
         retVal = _scriptColor.getPropertyName(index, pName);
     }
     if (retVal == -1)
-        retVal = scriptObject->getPropertyName(index, pName);
+        retVal = scriptObject->getPropertyName(index, pName, nullptr);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
@@ -595,7 +595,7 @@ int CScript::getPropertyName_static(int& index, std::string& pName, std::string&
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)
-        retVal = CScriptObject::getPropertyName_static(index, pName);
+        retVal = CScriptObject::getPropertyName_static(index, pName, nullptr);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
@@ -620,7 +620,7 @@ int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
     if (retVal == -1)
         retVal = _scriptColor.getPropertyInfo(pName, info, infoTxt);
     if (retVal == -1)
-        retVal = scriptObject->getPropertyInfo(pName, info, infoTxt);
+        retVal = scriptObject->getPropertyInfo(pName, info, infoTxt, false);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)
@@ -648,7 +648,7 @@ int CScript::getPropertyInfo_static(const char* ppName, int& info, std::string& 
     if (retVal == -1)
         retVal = CColorObject::getPropertyInfo_static(pName, info, infoTxt, 1 + 4 + 8, "");
     if (retVal == -1)
-        retVal = CScriptObject::getPropertyInfo_static(pName, info, infoTxt);
+        retVal = CScriptObject::getPropertyInfo_static(pName, info, infoTxt, false);
     if (retVal == -1)
     {
         for (size_t i = 0; i < allProps_script.size(); i++)

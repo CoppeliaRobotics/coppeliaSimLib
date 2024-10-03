@@ -1001,22 +1001,22 @@ int CSceneObject::getModelProperty() const
     return (_modelProperty);
 }
 
-int CSceneObject::getCumulativeModelProperty()
+int CSceneObject::getCumulativeModelProperty() const
 { // model properties are actually override properties. This func. returns the cumulative value
-    return (_calculatedModelProperty);
+    return _calculatedModelProperty;
 }
 
-bool CSceneObject::isObjectVisible()
+bool CSceneObject::isObjectVisible() const
 {
     return (isObjectInVisibleLayer() && (!isObjectPartOfInvisibleModel()));
 }
 
-bool CSceneObject::isObjectInVisibleLayer()
+bool CSceneObject::isObjectInVisibleLayer() const
 {
     return ((App::currentWorld->environment->getActiveLayers() & _visibilityLayer) != 0);
 }
 
-bool CSceneObject::isObjectPartOfInvisibleModel()
+bool CSceneObject::isObjectPartOfInvisibleModel() const
 {
     return ((getCumulativeModelProperty() & sim_modelproperty_not_visible) != 0);
 }
@@ -5818,6 +5818,11 @@ int CSceneObject::getBoolProperty(const char* ppName, bool& pState) const
         retVal = 1;
         pState = (_localObjectSpecialProperty & sim_objectspecialproperty_detectable) != 0;
     }
+    else if (_pName == propObject_visible.name)
+    {
+        retVal = 1;
+        pState = isObjectVisible();
+    }
 
     return retVal;
 }
@@ -5889,6 +5894,11 @@ int CSceneObject::getIntProperty(const char* ppName, int& pState) const
         pState = -1;
         if (_parentObject != nullptr)
             pState = _parentObject->getObjectUid();
+    }
+    else if (strcmp(pName, propObject_objectUid.name) == 0)
+    {
+        retVal = 1;
+        pState = _objectUid;
     }
     else if (strcmp(pName, propObject_parentHandle.name) == 0)
     {

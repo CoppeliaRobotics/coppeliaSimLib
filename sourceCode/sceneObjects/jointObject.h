@@ -36,6 +36,8 @@ struct SJointProperty {
     FUNCX(propJoint_dependencyParams,          "dependencyParams",                           sim_propertytype_floatarray,0, -1, -1, -1, -1, -1, "Dependency parameters", "Dependency parameters (offset and coefficient)") \
     FUNCX(propJoint_maxVelAccelJerk,           "maxVelAccelJerk",                            sim_propertytype_floatarray,0, -1, -1, -1, -1, -1, "Maximum velocity, acceleration and jerk", "") \
     FUNCX(propJoint_springDamperParams,        "springDamperParams",                         sim_propertytype_floatarray,0, -1, -1, -1, -1, -1, "Spring damper parameters", "") \
+    FUNCX(propJoint_dynVelMode,                "dynVelMode",                                 sim_propertytype_int,       0, -1, -1, -1, -1, -1, "Dynamic velocity mode", "Dynamic velocity mode (0: default, 1: Ruckig)") \
+    FUNCX(propJoint_dynPosMode,                "dynPosMode",                                 sim_propertytype_int,       0, -1, -1, -1, -1, -1, "Dynamic position mode", "Dynamic position mode (0: default, 1: Ruckig)") \
     FUNCX(propJoint_engineProperties,          "engineProperties",                           sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text") \
     FUNCX(propJoint_bulletStopErp,             "bullet_stopErp",                              sim_propertytype_float,     0, sim_bullet_joint_stoperp, -1, -1, -1, -1, "", "") \
     FUNCX(propJoint_bulletStopCfm,             "bullet_stopCfm",                              sim_propertytype_float,     0, sim_bullet_joint_stopcfm, -1, -1, -1, -1, "", "") \
@@ -533,7 +535,7 @@ class CJoint : public CSceneObject
 
     double _dynCtrl_kc[2];
     int _dynCtrlMode;
-    int _dynPositionCtrlType; // built-in velocity mode + pos PID (0) or Ruckig (1)
+    int _dynPositionCtrlType; // built-in position mode + pos PID (0) or Ruckig (1)
     int _dynVelocityCtrlType; // built-in velocity mode (0) or Ruckig (1)
 
     bool _jointHasHybridFunctionality;

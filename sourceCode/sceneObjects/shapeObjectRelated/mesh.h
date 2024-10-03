@@ -24,6 +24,7 @@
     FUNCX(propMesh_objectType,              "objectType",                               sim_propertytype_string,    sim_propertyinfo_notwritable, "Object type", "") \
     FUNCX(propMesh_shapeUid,                "shapeUid",                                 sim_propertytype_int,       sim_propertyinfo_notwritable, "Shape UID", "Unique identifier of parent shape") \
     FUNCX(propMesh_convex,                  "convex",                                   sim_propertytype_bool,      sim_propertyinfo_notwritable, "Convex", "Whether mesh is convex or not") \
+    FUNCX(propMesh_colorName,               "colorName",                                sim_propertytype_string,    0, "Color name", "") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
 DEFINE_PROPERTIES

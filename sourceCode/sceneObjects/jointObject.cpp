@@ -1976,6 +1976,8 @@ void CJoint::addSpecializedObjectEventData(CCbor *ev)
     ev->appendKeyInt(propJoint_jointType.name, _jointType);
     ev->appendKeyInt(propJoint_jointMode.name, _jointMode);
     ev->appendKeyInt(propJoint_dynCtrlMode.name, _dynCtrlMode);
+    ev->appendKeyInt(propJoint_dynVelMode.name, _dynVelocityCtrlType);
+    ev->appendKeyInt(propJoint_dynPosMode.name, _dynPositionCtrlType);
     ev->appendKeyInt(propJoint_dependencyMaster.name, _dependencyMasterJointHandle);
     double arr[2] = {_dependencyJointOffset, _dependencyJointMult};
     ev->appendKeyDoubleArray(propJoint_dependencyParams.name, arr, 2);
@@ -4148,12 +4150,12 @@ void CJoint::setDynCtrlMode(int mode)
 
 int CJoint::getDynVelCtrlType() const
 {
-    return (_dynVelocityCtrlType);
+    return _dynVelocityCtrlType;
 }
 
 int CJoint::getDynPosCtrlType() const
 {
-    return (_dynPositionCtrlType);
+    return _dynPositionCtrlType;
 }
 
 void CJoint::setDynVelCtrlType(int mode)
@@ -4166,6 +4168,13 @@ void CJoint::setDynVelCtrlType(int mode)
             _dynVelCtrl_currentVelAccel[1] = 0.0;
         }
         _dynVelocityCtrlType = mode;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propJoint_dynVelMode.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _dynVelocityCtrlType);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
@@ -4180,6 +4189,13 @@ void CJoint::setDynPosCtrlType(int mode)
             _dynCtrl_pid_cumulErr = 0.0;
         }
         _dynPositionCtrlType = mode;
+        if (_isInScene && App::worldContainer->getEventsEnabled())
+        {
+            const char *cmd = propJoint_dynPosMode.name;
+            CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyInt(cmd, _dynPositionCtrlType);
+            App::worldContainer->pushEvent();
+        }
     }
 }
 
@@ -4678,6 +4694,16 @@ int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev/* = nullpt
                 setDependencyMasterJointHandle(pState);
                 retVal = 1;
             }
+            else if (_pName == propJoint_dynVelMode.name)
+            {
+                setDynVelCtrlType(pState);
+                retVal = 1;
+            }
+            else if (_pName == propJoint_dynPosMode.name)
+            {
+                setDynPosCtrlType(pState);
+                retVal = 1;
+            }
         }
     }
 
@@ -4745,6 +4771,16 @@ int CJoint::getIntProperty(const char* ppName, int& pState) const
         {
             retVal = 1;
             pState = _dependencyMasterJointHandle;
+        }
+        else if (_pName == propJoint_dynVelMode.name)
+        {
+            pState = _dynVelocityCtrlType;
+            retVal = 1;
+        }
+        else if (_pName == propJoint_dynPosMode.name)
+        {
+            pState = _dynPositionCtrlType;
+            retVal = 1;
         }
 
         // Engine-only properties:

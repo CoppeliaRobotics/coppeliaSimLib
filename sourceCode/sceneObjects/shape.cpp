@@ -1856,6 +1856,11 @@ int CShape::getBoolProperty(const char* ppName, bool& pState) const
             pState = _setAutomaticallyToNonStaticIfGetsParent;
             retVal = 1;
         }
+        else if (_pName == propShape_convex.name)
+        {
+            pState = _mesh->isConvex();
+            retVal = 1;
+        }
     }
 
     return retVal;

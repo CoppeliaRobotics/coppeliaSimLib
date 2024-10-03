@@ -2976,6 +2976,12 @@ int CMesh::setStringProperty(const char* ppName, const char* pState, const C7Vec
     const char* pName = _pName.c_str();
     int retVal = -1;
 
+    if (strcmp(pName, propMesh_colorName.name) == 0)
+    {
+        retVal = 1;
+        color.setColorName(pState);
+    }
+
     return retVal;
 }
 
@@ -2989,6 +2995,11 @@ int CMesh::getStringProperty(const char* ppName, std::string& pState, const C7Ve
     {
         retVal = 1;
         pState = "mesh";
+    }
+    else if (strcmp(pName, propMesh_colorName.name) == 0)
+    {
+        retVal = 1;
+        pState = color.getColorName();
     }
 
 

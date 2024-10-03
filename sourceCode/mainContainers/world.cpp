@@ -3542,7 +3542,7 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
         {
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 appartenance += ".scene";
-            retVal = script->getPropertyName(index, pName);
+            retVal = script->getPropertyName(index, pName, &appartenance);
         }
     }
     else
@@ -3608,7 +3608,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
             if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
                 _pName = utils::getWithoutPrefix(ppName, "scene.");
             const char* pName = _pName.c_str();
-            retVal = script->getPropertyInfo(pName, info, infoTxt);
+            retVal = script->getPropertyInfo(pName, info, infoTxt, true);
         }
     }
     else

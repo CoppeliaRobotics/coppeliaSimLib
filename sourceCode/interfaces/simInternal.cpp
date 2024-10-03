@@ -5386,39 +5386,12 @@ int simSetStringParam_internal(int parameter, const char *str)
     if ((parameter == sim_stringparam_verbosity) || (parameter == sim_stringparam_statusbarverbosity) ||
         (parameter == sim_stringparam_dlgverbosity))
     { // called by client app when lib not yet initialized
-        int v = sim_verbosity_none;
-        if (strcmp(str, "errors") == 0)
-            v = sim_verbosity_errors;
-        if (strcmp(str, "warnings") == 0)
-            v = sim_verbosity_warnings;
-        if (strcmp(str, "loadinfos") == 0)
-            v = sim_verbosity_loadinfos;
-        if (strcmp(str, "questions") == 0)
-            v = sim_verbosity_questions;
-        if (strcmp(str, "scripterrors") == 0)
-            v = sim_verbosity_scripterrors;
-        if (strcmp(str, "scriptwarnings") == 0)
-            v = sim_verbosity_scriptwarnings;
-        if (strcmp(str, "scriptinfos") == 0)
-            v = sim_verbosity_scriptinfos;
-        if (strcmp(str, "msgs") == 0)
-            v = sim_verbosity_msgs;
-        if (strcmp(str, "infos") == 0)
-            v = sim_verbosity_infos;
-        if (strcmp(str, "debug") == 0)
-            v = sim_verbosity_debug;
-        if (strcmp(str, "trace") == 0)
-            v = sim_verbosity_trace;
-        if (strcmp(str, "tracelua") == 0)
-            v = sim_verbosity_tracelua;
-        if (strcmp(str, "traceall") == 0)
-            v = sim_verbosity_traceall;
+        int what = 2;
         if (parameter == sim_stringparam_verbosity)
-            App::setConsoleVerbosity(v);
-        if (parameter == sim_stringparam_statusbarverbosity)
-            App::setStatusbarVerbosity(v);
-        if (parameter == sim_stringparam_dlgverbosity)
-            App::setDlgVerbosity(v);
+            what = 0;
+        else if (parameter == sim_stringparam_statusbarverbosity)
+            what = 1;
+        App::setStringVerbosity(what, str);
         return (1);
     }
 

@@ -66,6 +66,7 @@ class CWorldContainer
     void pushSceneObjectRemoveEvent(const CSceneObject *object);
 
     bool getEventsEnabled() const;
+    std::string getSessionId() const;
     CCbor *createNakedEvent(const char *event, long long int handle, long long int uid, bool mergeable); // has no 'data' field
     CCbor *createEvent(const char *event, long long int handle, long long int uid, const char *fieldName, bool mergeable);
     CCbor *createSceneObjectAddEvent(const CSceneObject *object);
@@ -74,7 +75,6 @@ class CWorldContainer
     CCbor *createObjectChangedEvent(long long int objectHandle, const char *fieldName, bool mergeable);
     void pushEvent();
 
-    void pushGenesisEvents();
     void getGenesisEvents(std::vector<unsigned char> *genesisEvents, CInterfaceStack *stack);
     void dispatchEvents();
 
@@ -84,36 +84,6 @@ class CWorldContainer
     void simulationAboutToStep();
     void simulationAboutToEnd();
     void simulationEnded(bool removeNewObjects);
-
-    int setBoolProperty(const char* pName, bool pState);
-    int getBoolProperty(const char* pName, bool& pState) const;
-    int setIntProperty(const char* pName, int pState);
-    int getIntProperty(const char* pName, int& pState) const;
-    int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState) const;
-    int setStringProperty(const char* pName, const char* pState);
-    int getStringProperty(const char* pName, std::string& pState) const;
-    int setBufferProperty(const char* pName, const char* buffer, int bufferL);
-    int getBufferProperty(const char* pName, std::string& pState) const;
-    int setIntArray2Property(const char* pName, const int* pState);
-    int getIntArray2Property(const char* pName, int* pState) const;
-    int setVector2Property(const char* pName, const double* pState);
-    int getVector2Property(const char* pName, double* pState) const;
-    int setVector3Property(const char* pName, const C3Vector& pState);
-    int getVector3Property(const char* pName, C3Vector& pState) const;
-    int setQuaternionProperty(const char* pName, const C4Vector& pState);
-    int getQuaternionProperty(const char* pName, C4Vector& pState) const;
-    int setPoseProperty(const char* pName, const C7Vector& pState);
-    int getPoseProperty(const char* pName, C7Vector& pState) const;
-    int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState) const;
-    int setFloatArrayProperty(const char* pName, const double* v, int vL);
-    int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
-    int setIntArrayProperty(const char* pName, const int* v, int vL);
-    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
-    int removeProperty(const char* pName);
-    static int getPropertyName(int& index, std::string& pName, CWorldContainer* targetObject);
-    static int getPropertyInfo(const char* pName, int& info, std::string& infoTxt, CWorldContainer* targetObject);
 
     CCopyBuffer *copyBuffer;
     CSimulatorMessageQueue *simulatorMessageQueue;
