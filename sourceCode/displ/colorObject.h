@@ -7,9 +7,9 @@
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \
-    FUNCX(propCol_colDiffuse,              "diffuseColor",                             sim_propertytype_color,     0, "Diffuse color", "") \
-    FUNCX(propCol_colSpecular,             "specularColor",                            sim_propertytype_color,     0, "Specular color", "") \
-    FUNCX(propCol_colEmission,             "emissionColor",                            sim_propertytype_color,     0, "Emission color", "") \
+    FUNCX(propCol_colDiffuse,              "diffuse",                             sim_propertytype_color,     0, "Diffuse color", "") \
+    FUNCX(propCol_colSpecular,             "specular",                            sim_propertytype_color,     0, "Specular color", "") \
+    FUNCX(propCol_colEmission,             "emission",                            sim_propertytype_color,     0, "Emission color", "") \
     FUNCX(propCol_transparency,            "transparency",                             sim_propertytype_float,     0, "Transparency", "") \
 
 #define FUNCX(name, str, v1, v2, t1, t2) const SProperty name = {str, v1, v2, t1, t2};
