@@ -468,6 +468,34 @@ int CScript::getIntProperty(const char* ppName, int& pState) const
     return retVal;
 }
 
+int CScript::setLongProperty(const char* ppName, long long int pState)
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::setLongProperty(pName, pState);
+    if (retVal == -1)
+        retVal = scriptObject->setLongProperty(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
+int CScript::getLongProperty(const char* ppName, long long int& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));
+    const char* pName = _pName.c_str();
+    int retVal = CSceneObject::getLongProperty(pName, pState);
+    if (retVal == -1)
+        retVal = scriptObject->getLongProperty(pName, pState);
+    if (retVal == -1)
+    {
+    }
+
+    return retVal;
+}
+
 int CScript::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "script."));

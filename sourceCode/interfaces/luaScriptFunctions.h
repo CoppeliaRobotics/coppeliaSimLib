@@ -421,6 +421,8 @@ extern int _simSetBoolProperty(luaWrap_lua_State *L);
 extern int _simGetBoolProperty(luaWrap_lua_State *L);
 extern int _simSetIntProperty(luaWrap_lua_State *L);
 extern int _simGetIntProperty(luaWrap_lua_State *L);
+extern int _simSetLongProperty(luaWrap_lua_State *L);
+extern int _simGetLongProperty(luaWrap_lua_State *L);
 extern int _simSetFloatProperty(luaWrap_lua_State *L);
 extern int _simGetFloatProperty(luaWrap_lua_State *L);
 extern int _simSetStringProperty(luaWrap_lua_State *L);

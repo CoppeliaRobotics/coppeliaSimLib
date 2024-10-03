@@ -206,6 +206,8 @@ class CSceneObjectContainer
     int getBoolProperty(long long int target, const char* pName, bool& pState) const;
     int setIntProperty(long long int target, const char* pName, int pState);
     int getIntProperty(long long int target, const char* pName, int& pState) const;
+    int setLongProperty(long long int target, const char* pName, long long int pState);
+    int getLongProperty(long long int target, const char* pName, long long int& pState) const;
     int setFloatProperty(long long int target, const char* pName, double pState);
     int getFloatProperty(long long int target, const char* pName, double& pState) const;
     int setStringProperty(long long int target, const char* pName, const char* pState);

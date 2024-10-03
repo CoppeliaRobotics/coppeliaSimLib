@@ -5888,18 +5888,6 @@ int CSceneObject::getIntProperty(const char* ppName, int& pState) const
         retVal = 1;
         pState = _childOrder;
     }
-    else if (strcmp(pName, propObject_parentUid.name) == 0)
-    {
-        retVal = 1;
-        pState = -1;
-        if (_parentObject != nullptr)
-            pState = _parentObject->getObjectUid();
-    }
-    else if (strcmp(pName, propObject_objectUid.name) == 0)
-    {
-        retVal = 1;
-        pState = _objectUid;
-    }
     else if (strcmp(pName, propObject_parentHandle.name) == 0)
     {
         retVal = 1;
@@ -5946,6 +5934,37 @@ int CSceneObject::getIntProperty(const char* ppName, int& pState) const
     {
         retVal = 1;
         pState = _dynamicFlag;
+    }
+
+    return retVal;
+}
+
+int CSceneObject::setLongProperty(const char* ppName, long long int pState)
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CSceneObject::getLongProperty(const char* ppName, long long int& pState) const
+{
+    std::string _pName(utils::getWithoutPrefix(ppName, "object."));
+    const char* pName = _pName.c_str();
+    int retVal = -1;
+
+    if (strcmp(pName, propObject_parentUid.name) == 0)
+    {
+        retVal = 1;
+        pState = -1;
+        if (_parentObject != nullptr)
+            pState = _parentObject->getObjectUid();
+    }
+    else if (strcmp(pName, propObject_objectUid.name) == 0)
+    {
+        retVal = 1;
+        pState = _objectUid;
     }
 
     return retVal;

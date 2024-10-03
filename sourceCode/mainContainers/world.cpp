@@ -2603,6 +2603,94 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
     return retVal;
 }
 
+int CWorld::setLongProperty(long long int target, const char* ppName, long long int pState)
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        const char* pName = _pName.c_str();
+        /*
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->setLongProperty(pName, pState);
+        if ( (retVal == -1) && (simulation != nullptr) )
+            retVal = simulation->setLongProperty(pName, pState);
+        if ( (retVal == -1) && (environment != nullptr) )
+            retVal = environment->setLongProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setLongProperty(-1, pName, pState); // for the container itself
+        if (retVal == -1)
+        {
+        }
+        */
+    }
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    {
+        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        const char* pName = _pName.c_str();
+        retVal = sceneObjects->setLongProperty(target, pName, pState);
+    }
+    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    { // sandbox, main, add-ons, or old associated scripts:
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        if (script != nullptr)
+        {
+            std::string _pName(ppName);
+            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
+                _pName = utils::getWithoutPrefix(ppName, "scene.");
+            const char* pName = _pName.c_str();
+            retVal = script->setLongProperty(pName, pState);
+        }
+    }
+    else
+        retVal = -2; // target does not exist
+    return retVal;
+}
+
+int CWorld::getLongProperty(long long int target, const char* ppName, long long int& pState) const
+{
+    int retVal = -1;
+    if (target == sim_handle_scene)
+    {
+        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        const char* pName = _pName.c_str();
+        /*
+        if (dynamicsContainer != nullptr)
+            retVal = dynamicsContainer->setLongProperty(pName, pState);
+        if ( (retVal == -1) && (simulation != nullptr) )
+            retVal = simulation->setLongProperty(pName, pState);
+        if ( (retVal == -1) && (environment != nullptr) )
+            retVal = environment->setLongProperty(pName, pState);
+        if ( (retVal == -1) && (sceneObjects != nullptr) )
+            retVal = sceneObjects->setLongProperty(-1, pName, pState); // for the container itself
+        if (retVal == -1)
+        {
+        }
+        */
+    }
+    else if ( ( (target >= 0) && (target <= SIM_IDEND_SCENEOBJECT) ) || (target >= SIM_UIDSTART) )
+    {
+        std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
+        const char* pName = _pName.c_str();
+        retVal = sceneObjects->getLongProperty(target, pName, pState);
+    }
+    else if ( (target >= SIM_IDSTART_LUASCRIPT) && (target <= SIM_IDEND_LUASCRIPT) )
+    { // sandbox, main, add-ons, or old associated scripts:
+        CScriptObject* script = App::worldContainer->getScriptObjectFromHandle(int(target));
+        if (script != nullptr)
+        {
+            std::string _pName(ppName);
+            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
+                _pName = utils::getWithoutPrefix(ppName, "scene.");
+            const char* pName = _pName.c_str();
+            retVal = script->getLongProperty(pName, pState);
+        }
+    }
+    else
+        retVal = -2; // target does not exist
+    return retVal;
+}
+
 int CWorld::setFloatProperty(long long int target, const char* ppName, double pState)
 {
     int retVal = -1;

@@ -117,6 +117,8 @@ class CScriptObject
     int getBoolProperty(const char* pName, bool& pState) const;
     int setIntProperty(const char* pName, int pState);
     int getIntProperty(const char* pName, int& pState) const;
+    int setLongProperty(const char* pName, long long int pState);
+    int getLongProperty(const char* pName, long long int& pState) const;
     int setStringProperty(const char* pName, const char* pState);
     int getStringProperty(const char* pName, std::string& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string* appartenance);

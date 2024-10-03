@@ -4314,6 +4314,20 @@ int CScriptObject::getIntProperty(const char* pName, int& pState) const
     return retVal;
 }
 
+int CScriptObject::setLongProperty(const char* pName, long long int pState)
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
+int CScriptObject::getLongProperty(const char* pName, long long int& pState) const
+{
+    int retVal = -1;
+
+    return retVal;
+}
+
 int CScriptObject::setStringProperty(const char* pName, const char* pState)
 {
     int retVal = -1;

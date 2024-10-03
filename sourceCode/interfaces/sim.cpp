@@ -18,6 +18,14 @@ SIM_DLLEXPORT int simGetIntProperty(long long int target, const char* pName, int
 {
     return simGetIntProperty_internal(target, pName, pState);
 }
+SIM_DLLEXPORT int simSetLongProperty(long long int target, const char* pName, long long int pState)
+{
+    return simSetLongProperty_internal(target, pName, pState);
+}
+SIM_DLLEXPORT int simGetLongProperty(long long int target, const char* pName, long long int* pState)
+{
+    return simGetLongProperty_internal(target, pName, pState);
+}
 SIM_DLLEXPORT int simSetFloatProperty(long long int target, const char* pName, double pState)
 {
     return simSetFloatProperty_internal(target, pName, pState);

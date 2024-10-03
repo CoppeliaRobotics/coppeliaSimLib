@@ -4521,6 +4521,120 @@ int CSceneObjectContainer::getIntProperty(long long int target, const char* pNam
     return retVal;
 }
 
+int CSceneObjectContainer::setLongProperty(long long int target, const char* pName, long long int pState)
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->setLongProperty(pName, pState);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->setLongProperty(pName, pState);
+        }
+        else
+        {
+            /*
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return mesh->setLongProperty(pName, pState, shapeRelTr);
+                */
+        }
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+
+int CSceneObjectContainer::getLongProperty(long long int target, const char* pName, long long int& pState) const
+{
+    int retVal = -1;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->getLongProperty(pName, pState);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->getLongProperty(pName, pState);
+        }
+        else
+        {
+            /*
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return mesh->getLongProperty(pName, pState, shapeRelTr);
+                */
+        }
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+
 int CSceneObjectContainer::setFloatProperty(long long int target, const char* pName, double pState)
 {
     int retVal = -1;

@@ -60,6 +60,8 @@ class CScript : public CSceneObject
     int getBoolProperty(const char* pName, bool& pState) const;
     int setIntProperty(const char* pName, int pState);
     int getIntProperty(const char* pName, int& pState) const;
+    int setLongProperty(const char* pName, long long int pState);
+    int getLongProperty(const char* pName, long long int& pState) const;
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
     int setStringProperty(const char* pName, const char* pState);

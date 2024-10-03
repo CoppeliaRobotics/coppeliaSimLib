@@ -455,6 +455,8 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getBoolProperty", _simGetBoolProperty},
     {"sim.setIntProperty", _simSetIntProperty},
     {"sim.getIntProperty", _simGetIntProperty},
+    {"sim.setLongProperty", _simSetLongProperty},
+    {"sim.getLongProperty", _simGetLongProperty},
     {"sim.setFloatProperty", _simSetFloatProperty},
     {"sim.getFloatProperty", _simGetFloatProperty},
     {"sim.setStringProperty", _simSetStringProperty},
@@ -1149,6 +1151,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_string", sim_propertytype_string},
     {"sim.propertytype_buffer", sim_propertytype_buffer},
     {"sim.propertytype_intarray2", sim_propertytype_intarray2},
+    {"sim.propertytype_long", sim_propertytype_long},
     {"sim.propertytype_vector2", sim_propertytype_vector2},
     {"sim.propertytype_vector3", sim_propertytype_vector3},
     {"sim.propertytype_quaternion", sim_propertytype_quaternion},
@@ -5292,6 +5295,48 @@ int _simGetIntProperty(luaWrap_lua_State *L)
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue;
         if (simGetIntProperty_internal(target, pName.c_str(), &pValue) != -1)
+        {
+            luaWrap_lua_pushinteger(L, pValue);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetLongProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setIntProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L,1);
+        if (target == sim_handle_self)
+            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        long long int pValue = luaWrap_lua_tointeger(L,3);
+        simSetLongProperty_internal(target, pName.c_str(), pValue);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetLongProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getIntProperty");
+
+    if (checkInputArguments(L, &errorString, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L,1);
+        if (target == sim_handle_self)
+            target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        long long int pValue;
+        if (simGetLongProperty_internal(target, pName.c_str(), &pValue) != -1)
         {
             luaWrap_lua_pushinteger(L, pValue);
             LUA_END(1);

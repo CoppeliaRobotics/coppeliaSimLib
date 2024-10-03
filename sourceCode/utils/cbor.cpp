@@ -219,7 +219,7 @@ void CCbor::appendDoubleArray(const double *v, size_t cnt)
 
 void CCbor::appendNull()
 {
-    _buff.push_back(128 + 64 + 32 + 22);
+     _buff.push_back(128 + 64 + 32 + 22);
 }
 
 void CCbor::appendBool(bool v)

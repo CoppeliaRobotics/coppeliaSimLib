@@ -15,6 +15,8 @@ int simSetBoolProperty_internal(long long int target, const char* pName, int pSt
 int simGetBoolProperty_internal(long long int target, const char* pName, int* pState);
 int simSetIntProperty_internal(long long int target, const char* pName, int pState);
 int simGetIntProperty_internal(long long int target, const char* pName, int* pState);
+int simSetLongProperty_internal(long long int target, const char* pName, long long int pState);
+int simGetLongProperty_internal(long long int target, const char* pName, long long int* pState);
 int simSetFloatProperty_internal(long long int target, const char* pName, double pState);
 int simGetFloatProperty_internal(long long int target, const char* pName, double* pState);
 int simSetStringProperty_internal(long long int target, const char* pName, const char* pState);

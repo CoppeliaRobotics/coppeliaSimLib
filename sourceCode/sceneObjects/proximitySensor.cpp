@@ -183,7 +183,7 @@ void CProxSensor::commonInit()
     volumeColor.setColor(0.9f, 0.0f, 0.5f, sim_colorcomponent_ambient_diffuse);
     detectionRayColor.setColorsAllBlack();
     detectionRayColor.setColor(1.0f, 1.0f, 0.0f, sim_colorcomponent_emission);
-    detectionRayColor.setEventParams(true, -1, -1, "_ray");
+    detectionRayColor.setEventParams(true, -1, -1, "ray_");
 
     _visibilityLayer = PROXIMITY_SENSOR_LAYER;
     _objectAlias = getObjectTypeInfo();
@@ -1599,7 +1599,7 @@ int CProxSensor::getPropertyName_static(int& index, std::string& pName, std::str
         retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "");
     }
     if (retVal == -1)
-        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "_ray");
+        retVal = CColorObject::getPropertyName_static(index, pName, 1 + 4 + 8, "ray_");
     if (retVal == -1)
         retVal = CConvexVolume::getPropertyName_static(index, pName);
     if (retVal == -1)

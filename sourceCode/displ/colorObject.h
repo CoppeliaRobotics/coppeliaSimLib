@@ -30,7 +30,7 @@ class CColorObject
 
     void setDefaultValues();
     void setColorsAllBlack();
-    void setEventParams(bool belongsToSceneObject, int eventObjectHandle, int eventFlags = -1, const char* eventSuffix = nullptr);
+    void setEventParams(bool belongsToSceneObject, int eventObjectHandle, int eventFlags = -1, const char* eventPrefix = nullptr);
     bool setColor(const float theColor[3], unsigned char colorMode);
     bool setColor(float r, float g, float b, unsigned char colorMode);
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -61,9 +61,9 @@ class CColorObject
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
     int getPropertyName(int& index, std::string& pName) const;
-    static int getPropertyName_static(int& index, std::string& pName, int eventFlags, const char* eventSuffix);
+    static int getPropertyName_static(int& index, std::string& pName, int eventFlags, const char* eventPrefix);
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
-    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt, int eventFlags, const char* eventSuffix);
+    static int getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt, int eventFlags, const char* eventPrefix);
 
     void setFlash(bool flashIsOn);
     bool getFlash() const;
@@ -95,7 +95,7 @@ class CColorObject
     int _eventFlags;
     int _eventObjectHandle;
     bool _belongsToSceneObject;
-    std::string _eventSuffix;
+    std::string _eventPrefix;
     std::string _colorName;
 
     std::string _extensionString;

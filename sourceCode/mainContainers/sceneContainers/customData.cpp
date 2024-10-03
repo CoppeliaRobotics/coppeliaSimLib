@@ -368,6 +368,11 @@ void CCustomData::appendEventData(CCbor *ev) const
                 tg.erase(0, p + 2);
                 ev->appendKeyText(tg.c_str(), _data[i].data.c_str());
             }
+            else if (tg.find(proptypetag_vector2) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyDoubleArray(tg.c_str(), (double*)_data[i].data.data(), _data[i].data.size() / sizeof(double));
+            }
             else if (tg.find(proptypetag_vector3) != std::string::npos)
             {
                 tg.erase(0, p + 2);
@@ -414,6 +419,16 @@ void CCustomData::appendEventData(CCbor *ev) const
             {
                 tg.erase(0, p + 2);
                 ev->appendKeyIntArray(tg.c_str(), (int*)_data[i].data.data(), _data[i].data.size() / sizeof(int));
+            }
+            else if (tg.find(proptypetag_intarray2) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyIntArray(tg.c_str(), (int*)_data[i].data.data(), _data[i].data.size() / sizeof(int));
+            }
+            else if (tg.find(proptypetag_long) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                ev->appendKeyIntArray(tg.c_str(), (int*)_data[i].data.data(), _data[i].data.size() / sizeof(long long int));
             }
             else
             {

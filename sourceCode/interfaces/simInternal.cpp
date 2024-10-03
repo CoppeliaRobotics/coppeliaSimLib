@@ -852,6 +852,98 @@ int simGetIntProperty_internal(long long int target, const char* ppName, int* pS
     return -1;
 }
 
+int simSetLongProperty_internal(long long int target, const char* ppName, long long int pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = -1;
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
+        {
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_long)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(pState));
+            else
+            {
+                int res = App::setLongProperty(target, pName.c_str(), pState);
+                if (res == 1)
+                    retVal = 1;
+                else if (res == -2)
+                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    if (p < 0)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    else if (p == sim_propertytype_long)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN);
+                    else
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetLongProperty_internal(long long int target, const char* ppName, long long int* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = -1;
+        // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
+        {
+            std::string pName(ppName);
+            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_long)))
+            {
+                int l;
+                const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
+                if (data != nullptr)
+                {
+                    if (l == sizeof(long long int))
+                    {
+                        pState[0] = ((long long int*)data)[0];
+                        retVal = 1;
+                    }
+                    else
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    delete[] data;
+                }
+            }
+            else
+            {
+                int res = App::getLongProperty(target, pName.c_str(), pState[0]);
+                if (res == 1)
+                    retVal = 1;
+                else if (res == -2)
+                    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                else
+                {
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt, false);
+                    if (p < 0)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_UNKNOWN_PROPERTY);
+                    else if (p == sim_propertytype_long)
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_CANNOT_BE_READ);
+                    else
+                        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_PROPERTY_TYPE_MISMATCH);
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
 int simSetFloatProperty_internal(long long int target, const char* ppName, double pState)
 {
     C_API_START;
@@ -16628,14 +16720,26 @@ int simSetNamedStringParam_internal(const char *paramName, const char *stringPar
     int retVal = -1;
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        retVal = App::setApplicationNamedParam(paramName, stringParam, paramLength);
-        if (retVal >= 0)
-            return (retVal);
-        CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENT);
-        return (retVal);
+        int retVal = -1;
+        if (strlen(paramName) > 0)
+        {
+            std::string currentVal;
+            bool exists = App::getAppNamedParam(paramName, currentVal);
+            if ( (stringParam == nullptr) || ((paramLength == 0) && (strlen(stringParam) == 0)) )
+                App::removeAppNamedParam(paramName);
+            else
+                App::setAppNamedParam(paramName, stringParam, paramLength);
+            if (exists)
+                retVal = 0;
+            else
+                retVal = 1;
+        }
+        else
+            CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENT);
+        return retVal;
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return (retVal);
+    return retVal;
 }
 
 char *simGetNamedStringParam_internal(const char *paramName, int *paramLength)
@@ -16644,7 +16748,8 @@ char *simGetNamedStringParam_internal(const char *paramName, int *paramLength)
     char *retVal = nullptr;
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        std::string val = App::getApplicationNamedParam(paramName);
+        std::string val;
+        App::getAppNamedParam(paramName, val);
         if (val.size() > 0)
         {
             retVal = new char[val.size() + 1];

@@ -17,8 +17,8 @@
     FUNCX(propObject_modelBase,               "modelBase",                        sim_propertytype_bool,      0, "Model base", "Model base flag, indicates the scene object is the base of a model") \
     FUNCX(propObject_layer,                   "layer",                            sim_propertytype_int,       0, "Visibility layer", "") \
     FUNCX(propObject_childOrder,              "childOrder",                       sim_propertytype_int,       sim_propertyinfo_notwritable, "Child order", "") \
-    FUNCX(propObject_parentUid,               "parentUid",                        sim_propertytype_int,       sim_propertyinfo_notwritable, "Parent UID", "Parent scene object unique identifier") \
-    FUNCX(propObject_objectUid,               "objectUid",                        sim_propertytype_int,       sim_propertyinfo_notwritable, "Object UID", "Scene object unique identifier") \
+    FUNCX(propObject_parentUid,               "parentUid",                        sim_propertytype_long,      sim_propertyinfo_notwritable, "Parent UID", "Parent scene object unique identifier") \
+    FUNCX(propObject_objectUid,               "objectUid",                        sim_propertytype_long,      sim_propertyinfo_notwritable, "Object UID", "Scene object unique identifier") \
     FUNCX(propObject_parentHandle,            "parentHandle",                     sim_propertytype_int,       sim_propertyinfo_notwritable, "Parent", "Parent scene object handle") \
     FUNCX(propObject_selected,                "selected",                         sim_propertytype_bool,      0, "Selected", "Selection state") \
     FUNCX(propObject_hierarchyColor,          "hierarchyColor",                   sim_propertytype_int,       0, "Hierarchy color", "Hierarchy color index") \
@@ -173,6 +173,8 @@ class CSceneObject
     virtual int getBoolProperty(const char* pName, bool& pState) const;
     virtual int setIntProperty(const char* pName, int pState);
     virtual int getIntProperty(const char* pName, int& pState) const;
+    virtual int setLongProperty(const char* pName, long long int pState);
+    virtual int getLongProperty(const char* pName, long long int& pState) const;
     virtual int setFloatProperty(const char* pName, double pState);
     virtual int getFloatProperty(const char* pName, double& pState) const;
     virtual int setStringProperty(const char* pName, const char* pState);

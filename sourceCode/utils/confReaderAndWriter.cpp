@@ -58,13 +58,12 @@ bool CConfReaderAndWriter::readConfiguration(const char *filename, const char *n
             {
                 for (size_t i = 0; i < _variables.size(); i++)
                 {
-                    std::string ns =
-                        App::getApplicationNamedParam((std::string(namespaceNamedParam) + "." + _variables[i]).c_str());
+                    std::string ns;
+                    App::getAppNamedParam((std::string(namespaceNamedParam) + "." + _variables[i]).c_str(), ns);
                     if (ns.size() > 0)
                         _values[i] = ns;
                     else
-                        App::setApplicationNamedParam((std::string(namespaceNamedParam) + "." + _variables[i]).c_str(),
-                                                      _values[i].c_str());
+                        App::setAppNamedParam((std::string(namespaceNamedParam) + "." + _variables[i]).c_str(), _values[i].c_str());
                 }
             }
         }

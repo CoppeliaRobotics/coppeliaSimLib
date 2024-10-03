@@ -84,6 +84,7 @@ const std::vector<SProperty> allProps_app = { DEFINE_PROPERTIES };
 #define proptypetag_string "&str&."
 #define proptypetag_buffer ""
 #define proptypetag_intarray2 "&ivect2&."
+#define proptypetag_long "&lng&."
 #define proptypetag_vector2 "&vect2&."
 #define proptypetag_vector3 "&vect3&."
 #define proptypetag_quaternion "&quat&."
@@ -101,6 +102,7 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_float, proptypetag_float},
     {sim_propertytype_string, proptypetag_string},
     {sim_propertytype_intarray2, proptypetag_intarray2},
+    {sim_propertytype_long, proptypetag_long},
     {sim_propertytype_vector2, proptypetag_vector2},
     {sim_propertytype_vector3, proptypetag_vector3},
     {sim_propertytype_quaternion, proptypetag_quaternion},
@@ -121,6 +123,7 @@ static std::map<int, std::string> propertyStrings = {
     {sim_propertytype_float, proptypetag_float},
     {sim_propertytype_string, proptypetag_string},
     {sim_propertytype_intarray2, proptypetag_intarray2},
+    {sim_propertytype_long, proptypetag_long},
     {sim_propertytype_vector2, proptypetag_vector2},
     {sim_propertytype_vector3, proptypetag_vector3},
     {sim_propertytype_quaternion, proptypetag_quaternion},
@@ -175,8 +178,11 @@ class App
 
     static std::string getApplicationArgument(int index);
     static void setApplicationArgument(int index, std::string arg);
-    static std::string getApplicationNamedParam(const char *paramName);
-    static int setApplicationNamedParam(const char *paramName, const char *param, int paramLength = 0);
+
+    static bool getAppNamedParam(const char *paramName, std::string& param);
+    static void setAppNamedParam(const char *paramName, const char *param, int paramLength = 0);
+    static bool removeAppNamedParam(const char *paramName);
+
     static void setAdditionalAddOnScript1(const char *script);
     static std::string getAdditionalAddOnScript1();
     static void setAdditionalAddOnScript2(const char *script);
@@ -217,6 +223,8 @@ class App
     static int getBoolProperty(long long int target, const char* pName, bool& pState);
     static int setIntProperty(long long int target, const char* pName, int pState);
     static int getIntProperty(long long int target, const char* pName, int& pState);
+    static int setLongProperty(long long int target, const char* pName, long long int pState);
+    static int getLongProperty(long long int target, const char* pName, long long int& pState);
     static int setFloatProperty(long long int target, const char* pName, double pState);
     static int getFloatProperty(long long int target, const char* pName, double& pState);
     static int setStringProperty(long long int target, const char* pName, const char* pState);
