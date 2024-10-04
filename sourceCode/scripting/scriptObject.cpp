@@ -27,6 +27,7 @@
 #define INITIALLY_SUSPEND_LOADED_SCRIPTS true
 int CScriptObject::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
 std::vector<int> CScriptObject::_externalScriptCalls;
+std::map<std::string, int> CScriptObject::_signalNameToScriptHandle;
 
 CScriptObject::CScriptObject(int scriptType)
 { // scriptType to -1 for serialization
@@ -2661,6 +2662,19 @@ bool CScriptObject::_killInterpreterState()
         setAutoRestartOnError(false);
         setScriptState(scriptState_unloaded);
     }
+
+    std::vector<std::string> toRem;
+    for (const auto& entry : _signalNameToScriptHandle)
+    {
+        if (entry.second == _scriptHandle)
+            toRem.push_back(entry.first);
+    }
+    for (size_t i = 0; i < toRem.size(); i++)
+    {
+        simRemoveProperty_internal(sim_handle_scene, toRem[i].c_str());
+        signalRemoved(toRem[i].c_str());
+    }
+
     return (retVal);
 }
 
@@ -4235,6 +4249,16 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void *LL, CInterfaceStackObjec
             }
         }
     }
+}
+
+void CScriptObject::signalSet(const char* sigName)
+{ // sigName is signal.name (no type info)
+    _signalNameToScriptHandle[sigName] = _scriptHandle;
+}
+
+void CScriptObject::signalRemoved(const char* sigName)
+{ // sigName is signal.name (no type info)
+    _signalNameToScriptHandle.erase(sigName);
 }
 
 int CScriptObject::setBoolProperty(const char* pName, bool pState)

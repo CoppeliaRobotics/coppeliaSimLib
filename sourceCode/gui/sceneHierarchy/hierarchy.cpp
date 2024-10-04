@@ -1562,7 +1562,7 @@ void CHierarchy::drawEditionLabel(int textPosX, int textPosY)
 
 void CHierarchy::addMenu(VMenu *menu)
 {
-    int selCnt = App::currentWorld->sceneObjects->getSelectionCount();
+    int selCnt = int(App::currentWorld->sceneObjects->getSelectionCount());
     bool selection = selCnt > 0;
     menu->appendMenuItem(true, false, EXPAND_HIERARCHY_CMD, "Expand all");
     menu->appendMenuItem(true, false, COLLAPSE_HIERARCHY_CMD, "Collapse all");

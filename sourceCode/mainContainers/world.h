@@ -134,7 +134,7 @@ class CWorld
     CTextureContainer *textureContainer;
     CSimulation *simulation;
     CCustomData customSceneData;
-    CCustomData customSceneData_tempData; // same as above, but not serialized!
+    CCustomData customSceneData_volatile; // same as above, but not serialized!
     CCacheCont *cacheData;
     CDrawingContainer *drawingCont;
     CCollectionContainer *collections;

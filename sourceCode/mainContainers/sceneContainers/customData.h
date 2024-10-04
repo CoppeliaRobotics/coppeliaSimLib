@@ -15,6 +15,7 @@ class CCustomData
     CCustomData();
     virtual ~CCustomData();
 
+    void setItemsAreVolatile();
     bool setData(const char *tag, const char *data, size_t dataLen, bool allowEmptyData = true);
     bool clearData(const char *tag);
     int hasData(const char* tag, bool checkAllTypes, int* dataSize = nullptr) const;
@@ -28,7 +29,10 @@ class CCustomData
     void serializeData(CSer &ar, const char *objectName);
     void appendEventData(const char* tag, CCbor *ev, bool remove = false) const;
 
+    std::string getLegacySignalFromIndex(const char* legacyTag, int index);
+
   protected:
+    std::string _eventPrefix;
     std::vector<SCustomData> _data;
     std::map<std::string, bool> _dataEvents; // tag, true=present, false=absent. Different from above cbor events
 };

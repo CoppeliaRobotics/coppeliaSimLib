@@ -5233,7 +5233,15 @@ int _simSetBoolProperty(luaWrap_lua_State *L)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue = luaToBool(L, 3);
-        simSetBoolProperty_internal(target, pName.c_str(), pValue);
+        if ( 1 == simSetBoolProperty_internal(target, pName.c_str(), pValue))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5275,7 +5283,15 @@ int _simSetIntProperty(luaWrap_lua_State *L)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue = luaWrap_lua_tointeger(L,3);
-        simSetIntProperty_internal(target, pName.c_str(), pValue);
+        if (1 == simSetIntProperty_internal(target, pName.c_str(), pValue))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5317,7 +5333,15 @@ int _simSetLongProperty(luaWrap_lua_State *L)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         long long int pValue = luaWrap_lua_tointeger(L,3);
-        simSetLongProperty_internal(target, pName.c_str(), pValue);
+        if (1 == simSetLongProperty_internal(target, pName.c_str(), pValue))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5359,7 +5383,15 @@ int _simSetFloatProperty(luaWrap_lua_State *L)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue = luaToDouble(L,3);
-        simSetFloatProperty_internal(target, pName.c_str(), pValue);
+        if (1 == simSetFloatProperty_internal(target, pName.c_str(), pValue))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5401,7 +5433,15 @@ int _simSetStringProperty(luaWrap_lua_State *L)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         std::string pValue(luaWrap_lua_tostring(L, 3));
-        simSetStringProperty_internal(target, pName.c_str(), pValue.c_str());
+        if (1 == simSetStringProperty_internal(target, pName.c_str(), pValue.c_str()))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5445,7 +5485,15 @@ int _simSetBufferProperty(luaWrap_lua_State *L)
         std::string pName(luaWrap_lua_tostring(L, 2));
         size_t pValueL;
         const char *pValue = ((char *)luaWrap_lua_tobuffer(L, 3, &pValueL));
-        simSetBufferProperty_internal(target, pName.c_str(), pValue, int(pValueL));
+        if (1 == simSetBufferProperty_internal(target, pName.c_str(), pValue, int(pValueL)))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5490,7 +5538,15 @@ int _simSetIntArray2Property(luaWrap_lua_State *L)
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue[2];
         getIntsFromTable(L, 3, 2, pValue);
-        simSetIntArray2Property_internal(target, pName.c_str(), pValue);
+        if (1 == simSetIntArray2Property_internal(target, pName.c_str(), pValue))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5533,7 +5589,15 @@ int _simSetVector2Property(luaWrap_lua_State *L)
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue[2];
         getDoublesFromTable(L, 3, 2, pValue);
-        simSetVector2Property_internal(target, pName.c_str(), pValue);
+        if (1 == simSetVector2Property_internal(target, pName.c_str(), pValue))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5576,7 +5640,15 @@ int _simSetVector3Property(luaWrap_lua_State *L)
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue[3];
         getDoublesFromTable(L, 3, 3, pValue);
-        simSetVector3Property_internal(target, pName.c_str(), pValue);
+        if (1 == simSetVector3Property_internal(target, pName.c_str(), pValue))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5619,7 +5691,15 @@ int _simSetQuaternionProperty(luaWrap_lua_State *L)
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue[4];
         getDoublesFromTable(L, 3, 4, pValue);
-        simSetQuaternionProperty_internal(target, pName.c_str(), pValue);
+        if (1 == simSetQuaternionProperty_internal(target, pName.c_str(), pValue))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5662,7 +5742,15 @@ int _simSetPoseProperty(luaWrap_lua_State *L)
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue[7];
         getDoublesFromTable(L, 3, 7, pValue);
-        simSetPoseProperty_internal(target, pName.c_str(), pValue);
+        if (1 == simSetPoseProperty_internal(target, pName.c_str(), pValue))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5705,7 +5793,15 @@ int _simSetColorProperty(luaWrap_lua_State *L)
         std::string pName(luaWrap_lua_tostring(L, 2));
         float pValue[3];
         getFloatsFromTable(L, 3, 3, pValue);
-        simSetColorProperty_internal(target, pName.c_str(), pValue);
+        if (1 == simSetColorProperty_internal(target, pName.c_str(), pValue))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5750,7 +5846,15 @@ int _simSetFloatArrayProperty(luaWrap_lua_State *L)
         std::vector<double> v;
         v.resize(cnt);
         getDoublesFromTable(L, 3, cnt, v.data());
-        simSetFloatArrayProperty_internal(target, pName.c_str(), v.data(), cnt);
+        if (1 == simSetFloatArrayProperty_internal(target, pName.c_str(), v.data(), cnt))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5797,7 +5901,15 @@ int _simSetIntArrayProperty(luaWrap_lua_State *L)
         std::vector<int> v;
         v.resize(cnt);
         getIntsFromTable(L, 3, cnt, v.data());
-        simSetIntArrayProperty_internal(target, pName.c_str(), v.data(), cnt);
+        if (1 == simSetIntArrayProperty_internal(target, pName.c_str(), v.data(), cnt))
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+            {
+                int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+                CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+                it->signalSet(pName.c_str());
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5841,6 +5953,12 @@ int _simRemoveProperty(luaWrap_lua_State *L)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         simRemoveProperty_internal(target, pName.c_str());
+        if (utils::startsWith(pName.c_str(), SIGNALDOTSTR))
+        {
+            int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
+            CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
+            it->signalRemoved(pName.c_str());
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

@@ -5,10 +5,16 @@
 
 CCustomData::CCustomData()
 {
+    _eventPrefix = CUSTOMDATAUNDERSCORESTR;
 }
 
 CCustomData::~CCustomData()
 {
+}
+
+void CCustomData::setItemsAreVolatile()
+{
+    _eventPrefix = SIGNALUNDERSCORESTR;
 }
 
 bool CCustomData::setData(const char *tag, const char *data, size_t dataLen, bool allowEmptyData /*= true*/)
@@ -351,55 +357,55 @@ void CCustomData::appendEventData(const char* tag, CCbor *ev, bool remove /*= fa
             if (tg.find(proptypetag_bool) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyBool(tg.c_str(), ((unsigned char*)dat.data())[0]);
             }
             else if (tg.find(proptypetag_int) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyInt(tg.c_str(), ((int*)dat.data())[0]);
             }
             else if (tg.find(proptypetag_float) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyDouble(tg.c_str(), ((double*)dat.data())[0]);
             }
             else if (tg.find(proptypetag_string) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyText(tg.c_str(), dat.c_str());
             }
             else if (tg.find(proptypetag_vector2) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_vector3) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_quaternion) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_pose) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_matrix3x3) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_matrix4x4) != std::string::npos)
@@ -412,49 +418,49 @@ void CCustomData::appendEventData(const char* tag, CCbor *ev, bool remove /*= fa
                 m[14] = 0.0;
                 m[15] = 1.0;
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), m, 16);
             }
             else if (tg.find(proptypetag_color) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyFloatArray(tg.c_str(), (float*)dat.data(), dat.size() / sizeof(float));
             }
             else if (tg.find(proptypetag_floatarray) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_intarray) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyIntArray(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(int));
             }
             else if (tg.find(proptypetag_intarray2) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyIntArray(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(int));
             }
             else if (tg.find(proptypetag_long) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyIntArray(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(long long int));
             }
             else
             {
                 tg.erase(0, p + 2);
-                tg = "customData_" + tg;
+                tg = _eventPrefix + tg;
                 ev->appendKeyBuff(tg.c_str(), (unsigned char *)dat.data(), dat.size());
             }
         }
         else
         {
-            tg = "customData_" + tg;
+            tg = _eventPrefix + tg;
             ev->appendKeyBuff(tg.c_str(), (unsigned char *)dat.data(), dat.size());
         }
     };
@@ -465,7 +471,7 @@ void CCustomData::appendEventData(const char* tag, CCbor *ev, bool remove /*= fa
         size_t p = tg.find("&.");
         if (p != std::string::npos)
             tg.erase(0, p + 2);
-        tg = "customData_" + tg;
+        tg = _eventPrefix + tg;
         ev->appendKeyNull(tg.c_str());
     }
     else
@@ -487,4 +493,22 @@ void CCustomData::getDataEvents(std::map<std::string, bool> &dataEvents)
 void CCustomData::clearDataEvents()
 {
     _dataEvents.clear();
+}
+
+std::string CCustomData::getLegacySignalFromIndex(const char* legacyTag, int index)
+{
+    std::string retVal;
+    for (size_t i = 0; i < _data.size(); i++)
+    {
+        if (_data[i].tag.find(legacyTag) != std::string::npos)
+        {
+            index--;
+            if (index == -1)
+            {
+                retVal = _data[i].tag;
+                break;
+            }
+        }
+    }
+    return retVal;
 }

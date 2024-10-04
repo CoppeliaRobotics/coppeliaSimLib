@@ -6050,10 +6050,9 @@ int CSceneObject::setBufferProperty(const char* ppName, const char* buffer, int 
     int retVal = -1;
     if (buffer == nullptr)
         bufferL = 0;
-    if (strncmp(pName, "customData.", 11) == 0)
+    std::string pN(pName);
+    if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
     {
-        std::string pN(pName);
-        pN.erase(0, 11);
         if (pN.size() > 0)
         {
             bool diff = customObjectData.setData(pN.c_str(), buffer, bufferL, true);
@@ -6076,10 +6075,9 @@ int CSceneObject::getBufferProperty(const char* ppName, std::string& pState) con
     std::string _pName(utils::getWithoutPrefix(ppName, "object."));
     const char* pName = _pName.c_str();
     int retVal = -1;
-    if (strncmp(pName, "customData.", 11) == 0)
+    std::string pN(pName);
+    if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
     {
-        std::string pN(pName);
-        pN.erase(0, 11);
         if (pN.size() > 0)
         {
             if (customObjectData.hasData(pN.c_str(), false) >= 0)
@@ -6331,10 +6329,9 @@ int CSceneObject::removeProperty(const char* ppName)
     const char* pName = _pName.c_str();
     int retVal = -1;
 
-    if (strncmp(pName, "customData.", 11) == 0)
+    std::string pN(pName);
+    if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
     {
-        std::string pN(pName);
-        pN.erase(0, 11);
         if (pN.size() > 0)
         {
             int tp = customObjectData.hasData(pN.c_str(), true);
@@ -6373,7 +6370,7 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
     {
         if (customObjectData.getPropertyName(index, pName))
         {
-            pName = "customData." + pName;
+            pName = CUSTOMDATADOTSTR + pName;
             //pName = "object." + pName;
             retVal = 1;
         }
@@ -6416,19 +6413,21 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
             break;
         }
     }
-    if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
+    if (retVal == -1)
     {
         std::string pN(pName);
-        pN.erase(0, 11);
-        if (pN.size() > 0)
+        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
         {
-            int s;
-            retVal = customObjectData.hasData(pN.c_str(), true, &s);
-            if (retVal >= 0)
+            if (pN.size() > 0)
             {
-                info = 4; // removable
-                if (s > LARGE_PROPERTY_SIZE)
-                    s = s | 0x100;
+                int s;
+                retVal = customObjectData.hasData(pN.c_str(), true, &s);
+                if (retVal >= 0)
+                {
+                    info = 4; // removable
+                    if (s > LARGE_PROPERTY_SIZE)
+                        s = s | 0x100;
+                }
             }
         }
     }

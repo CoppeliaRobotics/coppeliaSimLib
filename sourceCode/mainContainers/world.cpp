@@ -51,6 +51,7 @@ void CWorld::removeWorld_oldIk()
 
 void CWorld::initializeWorld()
 {
+    customSceneData_volatile.setItemsAreVolatile();
     undoBufferContainer = new CUndoBufferCont();
     outsideCommandQueue_old = new COutsideCommandQueue();
     buttonBlockContainer_old = new CButtonBlockContainer(true);
@@ -106,7 +107,7 @@ void CWorld::clearScene(bool notCalledFromUndoFunction)
     pageContainer->emptySceneProcedure();
 
     customSceneData.setData(nullptr, nullptr, 0, true);
-    customSceneData_tempData.setData(nullptr, nullptr, 0, true);
+    customSceneData_volatile.setData(nullptr, nullptr, 0, true);
     customSceneData_old->removeAllData();
     if (notCalledFromUndoFunction)
         mainSettings_old->setUpDefaultValues();
@@ -1180,6 +1181,7 @@ void CWorld::pushGenesisEvents()
     simulation->appendGenesisData(ev);
     environment->appendGenesisData(ev);
     customSceneData.appendEventData(nullptr, ev);
+    customSceneData_volatile.appendEventData(nullptr, ev);
     dynamicsContainer->appendGenesisData(ev);
     sceneObjects->appendNonObjectGenesisData(ev);
     App::worldContainer->pushEvent();
@@ -2861,10 +2863,9 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
-        if (strncmp(pName, "customData.", 11) == 0)
+        std::string pN(pName);
+        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
         {
-            std::string pN(pName);
-            pN.erase(0, 11);
             if (pN.size() > 0)
             {
                 bool diff = customSceneData.setData(pN.c_str(), buffer, bufferL, true);
@@ -2872,6 +2873,20 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
                 {
                     CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
                     customSceneData.appendEventData(pN.c_str(), ev);
+                    App::worldContainer->pushEvent();
+                }
+                retVal = 1;
+            }
+        }
+        else if (utils::replaceSubstringStart(pN, SIGNALDOTSTR, ""))
+        {
+            if (pN.size() > 0)
+            {
+                bool diff = customSceneData_volatile.setData(pN.c_str(), buffer, bufferL, true);
+                if (diff && App::worldContainer->getEventsEnabled())
+                {
+                    CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+                    customSceneData_volatile.appendEventData(pN.c_str(), ev);
                     App::worldContainer->pushEvent();
                 }
                 retVal = 1;
@@ -2908,15 +2923,25 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
-        if (strncmp(pName, "customData.", 11) == 0)
+        std::string pN(pName);
+        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
         {
-            std::string pN(pName);
-            pN.erase(0, 11);
             if (pN.size() > 0)
             {
                 if (customSceneData.hasData(pN.c_str(), false) >= 0)
                 {
                     pState = customSceneData.getData(pN.c_str());
+                    retVal = 1;
+                }
+            }
+        }
+        if (utils::replaceSubstringStart(pN, SIGNALDOTSTR, ""))
+        {
+            if (pN.size() > 0)
+            {
+                if (customSceneData_volatile.hasData(pN.c_str(), false) >= 0)
+                {
+                    pState = customSceneData_volatile.getData(pN.c_str());
                     retVal = 1;
                 }
             }
@@ -3554,10 +3579,9 @@ int CWorld::removeProperty(long long int target, const char* ppName)
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
-        if (strncmp(pName, "customData.", 11) == 0)
+        std::string pN(pName);
+        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
         {
-            std::string pN(pName);
-            pN.erase(0, 11);
             if (pN.size() > 0)
             {
                 int tp = customSceneData.hasData(pN.c_str(), true);
@@ -3568,6 +3592,24 @@ int CWorld::removeProperty(long long int target, const char* ppName)
                     {
                         CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
                         customSceneData.appendEventData(pN.c_str(), ev, true);
+                        App::worldContainer->pushEvent();
+                    }
+                    retVal = 1;
+                }
+            }
+        }
+        else if (utils::replaceSubstringStart(pN, SIGNALDOTSTR, ""))
+        {
+            if (pN.size() > 0)
+            {
+                int tp = customSceneData_volatile.hasData(pN.c_str(), true);
+                if (tp >= 0)
+                {
+                    bool diff = customSceneData_volatile.clearData((propertyStrings[tp] + pN).c_str());
+                    if (diff && App::worldContainer->getEventsEnabled())
+                    {
+                        CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+                        customSceneData_volatile.appendEventData(pN.c_str(), ev, true);
                         App::worldContainer->pushEvent();
                     }
                     retVal = 1;
@@ -3623,8 +3665,12 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
             {
                 if (targetObject->customSceneData.getPropertyName(index, pName))
                 {
-                    pName = "customData." + pName;
-                    //pName = "scene." + pName;
+                    pName = CUSTOMDATADOTSTR + pName;
+                    retVal = 1;
+                }
+                else if (targetObject->customSceneData_volatile.getPropertyName(index, pName))
+                {
+                    pName = SIGNALDOTSTR + pName;
                     retVal = 1;
                 }
             }
@@ -3673,21 +3719,40 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
                 soc = targetObject->sceneObjects;
             retVal = CSceneObjectContainer::getPropertyInfo(-1, pName, info, infoTxt, soc); // for the container itself
         }
-        if ( (retVal == -1) && (strncmp(pName, "customData.", 11) == 0) )
+        if (retVal == -1)
         {
-            if (targetObject != nullptr)
+            std::string pN(pName);
+            if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
-                if (pN.size() > 0)
+                if (targetObject != nullptr)
                 {
-                    int s;
-                    retVal = targetObject->customSceneData.hasData(pN.c_str(), true, &s);
-                    if (retVal >= 0)
+                    if (pN.size() > 0)
                     {
-                        info = 4; // removable
-                        if (s > LARGE_PROPERTY_SIZE)
-                            info = info | 0x100;
+                        int s;
+                        retVal = targetObject->customSceneData.hasData(pN.c_str(), true, &s);
+                        if (retVal >= 0)
+                        {
+                            info = 4; // removable
+                            if (s > LARGE_PROPERTY_SIZE)
+                                info = info | 0x100;
+                        }
+                    }
+                }
+            }
+            else if (utils::replaceSubstringStart(pN, SIGNALDOTSTR, ""))
+            {
+                if (targetObject != nullptr)
+                {
+                    if (pN.size() > 0)
+                    {
+                        int s;
+                        retVal = targetObject->customSceneData_volatile.hasData(pN.c_str(), true, &s);
+                        if (retVal >= 0)
+                        {
+                            info = 4; // removable
+                            if (s > LARGE_PROPERTY_SIZE)
+                                info = info | 0x100;
+                        }
                     }
                 }
             }

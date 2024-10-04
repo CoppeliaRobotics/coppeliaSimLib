@@ -233,14 +233,14 @@ void utils::scaleColorUp_(float *rgb)
 
 std::string utils::decode64(const std::string &data)
 {
-    QByteArray arr(data.c_str(), data.size());
+    QByteArray arr(data.c_str(), int(data.size()));
     return (QByteArray::fromBase64(arr, QByteArray::Base64Encoding).toStdString());
     // return(base64_decode(data));
 }
 
 std::string utils::encode64(const std::string &data)
 {
-    QByteArray arr(data.c_str(), data.size());
+    QByteArray arr(data.c_str(), int(data.size()));
     return (arr.toBase64().toStdString());
     // return(base64_encode((const unsigned char*)data.c_str(),(unsigned int)data.size()));
 }
@@ -429,6 +429,29 @@ bool utils::replaceSubstring(std::string &str, const char *subStr, const char *r
     return retVal;
 }
 
+bool utils::replaceSubstringStart(std::string &str, const char *subStr, const char *replacementSubStr)
+{
+    bool retVal = false;
+    size_t str1L = strlen(subStr);
+    if (str1L > 0)
+    {
+        size_t index = str.find(subStr, 0);
+        if (index == 0)
+        {
+            str.replace(0, str1L, replacementSubStr);
+            retVal = true;
+        }
+    }
+    return retVal;
+}
+
+bool utils::startsWith(const char* str, const char* prefix)
+{
+    std::string s(str);
+    bool retVal = (s.find(prefix, 0) == 0);
+    return retVal;
+}
+
 void utils::regexReplace(std::string &str, const char *regexStr, const char *regexReplacementSubStr)
 {
     str = std::regex_replace(str, std::regex(regexStr), regexReplacementSubStr);
@@ -487,7 +510,7 @@ std::string utils::getDoubleString(bool sign, double num, int minDecimals, int m
         if (sign && (num >= 0.0))
             retVal = "+" + retVal;
         // Following very unelegant but temporary (to avoid an exponent of 3 width):
-        int l = retVal.size();
+        int l = int(retVal.size());
         if (((retVal[l - 4] == '-') || (retVal[l - 4] == '+')) && (retVal[l - 3] == '0'))
             retVal.erase(retVal.begin() + l - 3);
     }
@@ -496,7 +519,7 @@ std::string utils::getDoubleString(bool sign, double num, int minDecimals, int m
         std::ostringstream stream;
         stream << std::fixed << std::setprecision(maxDecimals) << num;
         retVal = stream.str();
-        int total_decimals = retVal.length() - (retVal.find(".") + 1);
+        int total_decimals = int(retVal.length() - (retVal.find(".") + 1));
         while (total_decimals < maxDecimals)
         {
             retVal += '0';

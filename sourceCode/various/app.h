@@ -11,6 +11,11 @@
 #include <simQApp.h>
 #endif
 
+#define CUSTOMDATADOTSTR "customData."
+#define CUSTOMDATAUNDERSCORESTR "customData_"
+#define SIGNALDOTSTR "signal."
+#define SIGNALUNDERSCORESTR "signal_"
+
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable
 #define DEFINE_PROPERTIES \

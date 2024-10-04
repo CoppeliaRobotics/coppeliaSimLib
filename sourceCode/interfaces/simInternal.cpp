@@ -674,7 +674,7 @@ int simSetBoolProperty_internal(long long int target, const char* ppName, int pS
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_bool)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_bool))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_bool))) )
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(int));
             else
             {
@@ -713,7 +713,7 @@ int simGetBoolProperty_internal(long long int target, const char* ppName, int* p
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_bool)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_bool))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_bool))) )
             {
                 int l;
                 const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -770,7 +770,7 @@ int simSetIntProperty_internal(long long int target, const char* ppName, int pSt
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_int)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_int))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_int))) )
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(pState));
             else
             {
@@ -809,7 +809,7 @@ int simGetIntProperty_internal(long long int target, const char* ppName, int* pS
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_int)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_int))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_int))) )
             {
                 int l;
                 const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -862,7 +862,7 @@ int simSetLongProperty_internal(long long int target, const char* ppName, long l
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_long)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_long))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_long))) )
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(pState));
             else
             {
@@ -901,7 +901,7 @@ int simGetLongProperty_internal(long long int target, const char* ppName, long l
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_long)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_long))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_long))) )
             {
                 int l;
                 const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -954,7 +954,7 @@ int simSetFloatProperty_internal(long long int target, const char* ppName, doubl
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_float)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_float))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_float))) )
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(double));
             else
             {
@@ -993,7 +993,7 @@ int simGetFloatProperty_internal(long long int target, const char* ppName, doubl
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_float)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_float))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_float))) )
             {
                 int l;
                 const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -1046,7 +1046,7 @@ int simSetStringProperty_internal(long long int target, const char* ppName, cons
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_string)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_string))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_string))) )
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), pState, int(strlen(pState)));
             else
             {
@@ -1085,7 +1085,7 @@ char* simGetStringProperty_internal(long long int target, const char* ppName)
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_string)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_string))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_string))) )
             {
                 int l;
                 char* dat = simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -1219,7 +1219,7 @@ int simSetIntArray2Property_internal(long long int target, const char* ppName, c
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_intarray2)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_intarray2))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_intarray2))) )
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 2 * sizeof(int));
             else
             {
@@ -1258,7 +1258,7 @@ int simGetIntArray2Property_internal(long long int target, const char* ppName, i
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_intarray2)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_intarray2))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_intarray2))) )
             {
                 int l;
                 const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -1312,7 +1312,7 @@ int simSetVector2Property_internal(long long int target, const char* ppName, con
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector2)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_vector2))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_vector2))) )
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 2 * sizeof(double));
             else
             {
@@ -1351,7 +1351,7 @@ int simGetVector2Property_internal(long long int target, const char* ppName, dou
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector2)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_vector2))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_vector2))) )
             {
                 int l;
                 const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -1405,7 +1405,7 @@ int simSetVector3Property_internal(long long int target, const char* ppName, con
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector3)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_vector3))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_vector3))) )
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 3 * sizeof(double));
             else
             {
@@ -1445,7 +1445,7 @@ int simGetVector3Property_internal(long long int target, const char* ppName, dou
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_vector3)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_vector3))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_vector3))) )
             {
                 int l;
                 const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -1503,7 +1503,7 @@ int simSetQuaternionProperty_internal(long long int target, const char* ppName, 
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_quaternion)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_quaternion))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_quaternion))) )
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 4 * sizeof(double));
             else
             {
@@ -1543,7 +1543,7 @@ int simGetQuaternionProperty_internal(long long int target, const char* ppName, 
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_quaternion)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_quaternion))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_quaternion))) )
             {
                 int l;
                 const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -1601,7 +1601,7 @@ int simSetPoseProperty_internal(long long int target, const char* ppName, const 
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_pose)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_pose))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_pose))) )
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 7 * sizeof(double));
             else
             {
@@ -1642,7 +1642,7 @@ int simGetPoseProperty_internal(long long int target, const char* ppName, double
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_pose)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_pose))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_pose))) )
             {
                 int l;
                 const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -1700,7 +1700,7 @@ int simSetColorProperty_internal(long long int target, const char* ppName, const
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_color)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_color))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_color))) )
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 3 * sizeof(float));
             else
             {
@@ -1739,7 +1739,7 @@ int simGetColorProperty_internal(long long int target, const char* ppName, float
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_color)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_color))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_color))) )
             {
                 int l;
                 const char* data = simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -1795,7 +1795,7 @@ int simSetFloatArrayProperty_internal(long long int target, const char* ppName, 
             if (vL >= 0)
             {
                 std::string pName(ppName);
-                if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_floatarray)))
+                if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_floatarray))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_floatarray))) )
                     retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(double));
                 else
                 {
@@ -1837,7 +1837,7 @@ double* simGetFloatArrayProperty_internal(long long int target, const char* ppNa
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_floatarray)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_floatarray))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_floatarray))) )
             {
                 int l;
                 retVal = (double*)simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -1889,7 +1889,7 @@ int simSetIntArrayProperty_internal(long long int target, const char* ppName, co
             if (vL >= 0)
             {
                 std::string pName(ppName);
-                if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_intarray)))
+                if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_intarray))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_intarray))) )
                     retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(int));
                 else
                 {
@@ -1931,7 +1931,7 @@ int* simGetIntArrayProperty_internal(long long int target, const char* ppName, i
         // should always pass when reading, (for legacy data names) if (isPropertyNameValid(__func__, ppName))
         {
             std::string pName(ppName);
-            if (utils::replaceSubstring(pName, "customData.", STRCONCAT("customData.", proptypetag_intarray)))
+            if ( (utils::replaceSubstringStart(pName, CUSTOMDATADOTSTR, STRCONCAT(CUSTOMDATADOTSTR, proptypetag_intarray))) || (utils::replaceSubstringStart(pName, SIGNALDOTSTR, STRCONCAT(SIGNALDOTSTR, proptypetag_intarray))) )
             {
                 int l;
                 retVal = (int*)simGetBufferProperty_internal(target, pName.c_str(), &l);
@@ -7236,7 +7236,16 @@ int simSetInt32Signal_internal(const char *signalName, int signalValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->signalContainer->setIntegerSignal(signalName, signalValue, _currentScriptHandle);
+        std::string pName(SIGNALDOTSTR);
+        pName += "ILEGACY.";
+        pName += signalName;
+        simSetIntProperty_internal(sim_handle_scene, pName.c_str(), signalValue);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(_currentScriptHandle);
+        if (it != nullptr)
+            it->signalSet(pName.c_str());
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
+        // App::currentWorld->signalContainer->setIntegerSignal(signalName, signalValue, _currentScriptHandle);
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7250,10 +7259,14 @@ int simGetInt32Signal_internal(const char *signalName, int *signalValue)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = 0;
-
-        if (App::currentWorld->signalContainer->getIntegerSignal(signalName, signalValue[0]))
+        std::string pName(SIGNALDOTSTR);
+        pName += "ILEGACY.";
+        pName += signalName;
+        if (1 == simGetIntProperty_internal(sim_handle_scene, pName.c_str(), signalValue))
+        // if (App::currentWorld->signalContainer->getIntegerSignal(signalName, signalValue[0]))
             retVal = 1;
-
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7269,10 +7282,36 @@ int simClearInt32Signal_internal(const char *signalName)
         int retVal;
 
         if (signalName == nullptr)
+        {
+            retVal = 0;
+            while (true)
+            {
+                std::string sn(App::currentWorld->customSceneData_volatile.getLegacySignalFromIndex("ILEGACY.", 0));
+                if (sn.size() != 0)
+                {
+                    retVal ++;
+                    sn = SIGNALDOTSTR + sn;
+                    simRemoveProperty_internal(sim_handle_scene, sn.c_str());
+                }
+            }
+        }
+        else
+        {
+            retVal = 0;
+            std::string pName(SIGNALDOTSTR);
+            pName += "ILEGACY.";
+            pName += signalName;
+            if (1 == simRemoveProperty_internal(sim_handle_scene, pName.c_str()))
+                retVal = 1;
+        }
+        /*
+        if (signalName == nullptr)
             retVal = App::currentWorld->signalContainer->clearAllIntegerSignals();
         else
             retVal = App::currentWorld->signalContainer->clearIntegerSignal(signalName);
-
+        */
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7285,7 +7324,16 @@ int simSetFloatSignal_internal(const char *signalName, double signalValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->signalContainer->setFloatSignal(signalName, signalValue, _currentScriptHandle);
+        std::string pName(SIGNALDOTSTR);
+        pName += "FLEGACY.";
+        pName += signalName;
+        simSetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(_currentScriptHandle);
+        if (it != nullptr)
+            it->signalSet(pName.c_str());
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
+        //App::currentWorld->signalContainer->setFloatSignal(signalName, signalValue, _currentScriptHandle);
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7299,10 +7347,15 @@ int simGetFloatSignal_internal(const char *signalName, double *signalValue)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = 0;
-
-        if (App::currentWorld->signalContainer->getFloatSignal(signalName, signalValue[0]))
+        std::string pName(SIGNALDOTSTR);
+        pName += "FLEGACY.";
+        pName += signalName;
+        if (1 == simGetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue))
+        //if (App::currentWorld->signalContainer->getFloatSignal(signalName, signalValue[0]))
             retVal = 1;
 
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7318,10 +7371,36 @@ int simClearFloatSignal_internal(const char *signalName)
         int retVal;
 
         if (signalName == nullptr)
+        {
+            retVal = 0;
+            while (true)
+            {
+                std::string sn(App::currentWorld->customSceneData_volatile.getLegacySignalFromIndex("FLEGACY.", 0));
+                if (sn.size() != 0)
+                {
+                    retVal ++;
+                    sn = SIGNALDOTSTR + sn;
+                    simRemoveProperty_internal(sim_handle_scene, sn.c_str());
+                }
+            }
+        }
+        else
+        {
+            retVal = 0;
+            std::string pName(SIGNALDOTSTR);
+            pName += "FLEGACY.";
+            pName += signalName;
+            if (1 == simRemoveProperty_internal(sim_handle_scene, pName.c_str()))
+                retVal = 1;
+        }
+/*
+        if (signalName == nullptr)
             retVal = App::currentWorld->signalContainer->clearAllFloatSignals();
         else
             retVal = App::currentWorld->signalContainer->clearFloatSignal(signalName);
-
+*/
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7334,8 +7413,16 @@ int simSetStringSignal_internal(const char *signalName, const char *signalValue,
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->signalContainer->setStringSignal(signalName, std::string(signalValue, stringLength),
-                                                            _currentScriptHandle);
+        std::string pName(SIGNALDOTSTR);
+        pName += "SLEGACY.";
+        pName += signalName;
+        simSetBufferProperty_internal(sim_handle_scene, pName.c_str(), signalValue, stringLength);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(_currentScriptHandle);
+        if (it != nullptr)
+            it->signalSet(pName.c_str());
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
+        // App::currentWorld->signalContainer->setStringSignal(signalName, std::string(signalValue, stringLength), _currentScriptHandle);
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7349,7 +7436,14 @@ char *simGetStringSignal_internal(const char *signalName, int *stringLength)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         std::string sigVal;
-
+        std::string pName(SIGNALDOTSTR);
+        pName += "SLEGACY.";
+        pName += signalName;
+        char* retVal = simGetBufferProperty_internal(sim_handle_scene, pName.c_str(), stringLength);
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
+        return retVal;
+            /*
         if (App::currentWorld->signalContainer->getStringSignal(signalName, sigVal))
         {
             char *retVal = new char[sigVal.length()];
@@ -7357,9 +7451,10 @@ char *simGetStringSignal_internal(const char *signalName, int *stringLength)
                 retVal[i] = sigVal[i];
             stringLength[0] = (int)sigVal.length();
             return (retVal);
+            return (nullptr); // signal does not exist
         }
+        */
 
-        return (nullptr); // signal does not exist
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (nullptr);
@@ -7374,10 +7469,37 @@ int simClearStringSignal_internal(const char *signalName)
         int retVal;
 
         if (signalName == nullptr)
+        {
+            retVal = 0;
+            while (true)
+            {
+                std::string sn(App::currentWorld->customSceneData_volatile.getLegacySignalFromIndex("SLEGACY.", 0));
+                if (sn.size() != 0)
+                {
+                    retVal ++;
+                    sn = SIGNALDOTSTR + sn;
+                    simRemoveProperty_internal(sim_handle_scene, sn.c_str());
+                }
+            }
+        }
+        else
+        {
+            retVal = 0;
+            std::string pName(SIGNALDOTSTR);
+            pName += "SLEGACY.";
+            pName += signalName;
+            if (1 == simRemoveProperty_internal(sim_handle_scene, pName.c_str()))
+                retVal = 1;
+        }
+
+/*
+        if (signalName == nullptr)
             retVal = App::currentWorld->signalContainer->clearAllStringSignals();
         else
             retVal = App::currentWorld->signalContainer->clearStringSignal(signalName);
-
+*/
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -7390,6 +7512,32 @@ char *simGetSignalName_internal(int signalIndex, int signalType)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        std::string sigTag("NLEGACY.");
+        if (signalType == 0)
+            sigTag = "ILEGACY.";
+        else if (signalType == 1)
+            sigTag = "FLEGACY.";
+        else if (signalType == 2)
+            sigTag = "SLEGACY.";
+        if (signalIndex >= 0)
+        {
+            std::string sn(App::currentWorld->customSceneData_volatile.getLegacySignalFromIndex(sigTag.c_str(), signalIndex));
+            if (sn.size() != 0)
+            {
+                size_t p = sn.find(sigTag, 0);
+                if (p != std::string::npos)
+                    sn.erase(0, p + sigTag.size());
+                char *retVal = new char[sn.length() + 1];
+                for (unsigned int i = 0; i < sn.length(); i++)
+                    retVal[i] = sn[i];
+                retVal[sn.length()] = 0;
+                return retVal;
+            }
+        }
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
+
+/*
         if ((signalType != 0) && (signalType != 1) && (signalType != 2) && (signalType != 3))
         {
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_INVALID_ARGUMENT);
@@ -7415,6 +7563,7 @@ char *simGetSignalName_internal(int signalIndex, int signalType)
             retVal[sigName.length()] = 0;
             return (retVal);
         }
+        */
         return (nullptr); // signal does not exist
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -13212,7 +13361,7 @@ int simWriteCustomDataBlock_internal(int objectHandle, const char *tagName, cons
         if (objectHandle == sim_handle_scene)
         {
             if (useTempBuffer)
-                App::currentWorld->customSceneData_tempData.setData(tagName, data, dataSize, false);
+                App::currentWorld->customSceneData_volatile.setData(tagName, data, dataSize, false);
             else
                 App::currentWorld->customSceneData.setData(tagName, data, dataSize, false);
             // ---------------------- Old -----------------------------
@@ -13308,7 +13457,7 @@ char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int
         if (objectHandle == sim_handle_scene)
         { // here we have a scene
             if (useTempBuffer)
-                rrr = App::currentWorld->customSceneData_tempData.getData(tagName);
+                rrr = App::currentWorld->customSceneData_volatile.getData(tagName);
             else
                 rrr = App::currentWorld->customSceneData.getData(tagName);
             hand = true;
@@ -13374,7 +13523,7 @@ char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount)
             size_t tc;
             tags = App::currentWorld->customSceneData.getAllTags(&tc);
             tagCount[0] += int(tc);
-            tags += App::currentWorld->customSceneData_tempData.getAllTags(&tc);
+            tags += App::currentWorld->customSceneData_volatile.getAllTags(&tc);
             tagCount[0] += int(tc);
             hand = true;
         }

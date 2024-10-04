@@ -2135,10 +2135,9 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
     if (target == sim_handle_appstorage)
     {
         std::string PPName(utils::getWithoutPrefix(ppName, "appstorage."));
-        if (strncmp(PPName.c_str(), "customData.", 11) == 0)
+        std::string pN(PPName);
+        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
         {
-            std::string pN(PPName);
-            pN.erase(0, 11);
             if (pN.size() > 0)
             {
                 pN += "&customData"; // we add a suffix to separate user and system data
@@ -2180,10 +2179,9 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pN(pName);
+            if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
                 if (pN.size() > 0)
                 {
                     if (worldContainer != nullptr)
@@ -2214,11 +2212,8 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
     if (target == sim_handle_appstorage)
     {
         std::string pN(utils::getWithoutPrefix(ppName, "appstorage."));
-        if (strncmp(pN.c_str(), "customData.", 11) == 0)
-        {
-            pN.erase(0, 11);
+        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
             pN += "&customData"; // we add a suffix to separate user and system data
-        }
         if (pN.size() > 0)
         {
             CPersistentDataContainer cont("appStorage.dat");
@@ -2232,10 +2227,9 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pN(pName);
+            if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
                 if (pN.size() > 0)
                 {
                     if (worldContainer != nullptr)
@@ -2573,10 +2567,9 @@ int App::removeProperty(long long int target, const char* ppName)
     {
         std::string pN(utils::getWithoutPrefix(ppName, "appstorage."));
         bool canBeRemoved = false;
-        if (strncmp(pN.c_str(), "customData.", 11) == 0)
+        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
         {
             canBeRemoved = true;
-            pN.erase(0, 11);
             pN += "&customData"; // we add a suffix to separate user and system data
         }
         if (pN.size() > 0)
@@ -2609,10 +2602,9 @@ int App::removeProperty(long long int target, const char* ppName)
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (strncmp(pName, "customData.", 11) == 0)
+            std::string pN(pName);
+            if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
                 if (pN.size() > 0)
                 {
                     if (worldContainer != nullptr)
@@ -2666,7 +2658,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
                 if (p != std::string::npos)
                 {
                     pName.erase(p);
-                    pName = "customData." + pName;
+                    pName = CUSTOMDATADOTSTR + pName;
                     //pName = "appstorage." + pName;
                 }
                 retVal = 1;
@@ -2695,7 +2687,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
                 {
                     if (worldContainer->customAppData.getPropertyName(index, pName))
                     {
-                        pName = "customData." + pName;
+                        pName = CUSTOMDATADOTSTR + pName;
                         retVal = 1;
                     }
                 }
@@ -2734,9 +2726,8 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
         {
             std::string pN(utils::getWithoutPrefix(ppName, "appstorage."));
             int inf = 0;
-            if (strncmp(pN.c_str(), "customData.", 11) == 0)
+            if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
             {
-                pN.erase(0, 11);
                 pN += "&customData";
                 inf = 4; // removable
             }
