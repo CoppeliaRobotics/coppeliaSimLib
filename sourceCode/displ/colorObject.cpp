@@ -8,6 +8,7 @@
 #endif
 
 #define COL_EVENT_PREFIX "color_"
+#define COL_EVENT_PREFIX_CAP "Color_"
 
 CColorObject::CColorObject()
 {
@@ -42,8 +43,8 @@ void CColorObject::setEventParams(bool belongsToSceneObject, int eventObjectHand
     if (eventFlags != -1)
         _eventFlags = eventFlags;
  //   _eventPrefix.clear();
-    if (eventPrefix != nullptr)
-        _eventPrefix = std::string(eventPrefix) + COL_EVENT_PREFIX;
+    if ( (eventPrefix != nullptr) && (strlen(eventPrefix) != 0) )
+        _eventPrefix = std::string(eventPrefix) + COL_EVENT_PREFIX_CAP;
 }
 
 void CColorObject::setFlash(bool flashIsOn)
@@ -994,7 +995,10 @@ int CColorObject::getPropertyName_static(int& index, std::string& pName, int eve
             if (index == -1)
             {
                 pName = std::string(allProps_col[i].name);
-                pName = std::string(eventPrefix) + COL_EVENT_PREFIX + pName;
+                if ( (eventPrefix != nullptr) && (strlen(eventPrefix) != 0) )
+                    pName = std::string(eventPrefix) + COL_EVENT_PREFIX_CAP + pName;
+                else
+                    pName = COL_EVENT_PREFIX + pName;
                 retVal = 1;
                 break;
             }
@@ -1033,10 +1037,15 @@ int CColorObject::getPropertyInfo(const char* ppName, int& info, std::string& in
 int CColorObject::getPropertyInfo_static(const char* ppName, int& info, std::string& infoTxt, int eventFlags, const char* eventPrefix)
 {
     int retVal = -1;
-    if (boost::algorithm::starts_with(ppName, std::string(eventPrefix) + COL_EVENT_PREFIX))
+
+    std::string pr(COL_EVENT_PREFIX);
+    if ( (eventPrefix != nullptr) && (strlen(eventPrefix) != 0) )
+        pr = std::string(eventPrefix) + COL_EVENT_PREFIX_CAP;
+
+    if (boost::algorithm::starts_with(ppName, pr))
     {
         std::string pName(ppName);
-        pName.erase(0, (std::string(eventPrefix) + COL_EVENT_PREFIX).size());
+        pName.erase(0, pr.size());
         for (size_t i = 0; i < allProps_col.size(); i++)
         {
             if ( ((i == 0) && (eventFlags & (1|2))) || ((i == 1) && (eventFlags & 4)) || ((i == 2) && (eventFlags & 8)) || ((i == 3) && (eventFlags & 16)) )

@@ -26,7 +26,7 @@ class CCustomData
     size_t getDataCount() const;
     void copyYourselfInto(CCustomData &theCopy) const;
     void serializeData(CSer &ar, const char *objectName);
-    void appendEventData(CCbor *ev) const;
+    void appendEventData(const char* tag, CCbor *ev, bool remove = false) const;
 
   protected:
     std::vector<SCustomData> _data;

@@ -1179,6 +1179,7 @@ void CWorld::pushGenesisEvents()
     CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
     simulation->appendGenesisData(ev);
     environment->appendGenesisData(ev);
+    customSceneData.appendEventData(nullptr, ev);
     dynamicsContainer->appendGenesisData(ev);
     sceneObjects->appendNonObjectGenesisData(ev);
     App::worldContainer->pushEvent();
@@ -2854,6 +2855,8 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
 int CWorld::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
 {
     int retVal = -1;
+    if (buffer == nullptr)
+        bufferL = 0;
     if (target == sim_handle_scene)
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
@@ -2864,7 +2867,13 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
             pN.erase(0, 11);
             if (pN.size() > 0)
             {
-                customSceneData.setData(pN.c_str(), buffer, bufferL, true);
+                bool diff = customSceneData.setData(pN.c_str(), buffer, bufferL, true);
+                if (diff && App::worldContainer->getEventsEnabled())
+                {
+                    CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+                    customSceneData.appendEventData(pN.c_str(), ev);
+                    App::worldContainer->pushEvent();
+                }
                 retVal = 1;
             }
         }
@@ -3554,7 +3563,13 @@ int CWorld::removeProperty(long long int target, const char* ppName)
                 int tp = customSceneData.hasData(pN.c_str(), true);
                 if (tp >= 0)
                 {
-                    customSceneData.clearData((propertyStrings[tp] + pN).c_str());
+                    bool diff = customSceneData.clearData((propertyStrings[tp] + pN).c_str());
+                    if (diff && App::worldContainer->getEventsEnabled())
+                    {
+                        CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+                        customSceneData.appendEventData(pN.c_str(), ev, true);
+                        App::worldContainer->pushEvent();
+                    }
                     retVal = 1;
                 }
             }

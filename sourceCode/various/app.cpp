@@ -1457,10 +1457,7 @@ int App::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -1496,10 +1493,7 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -1562,10 +1556,7 @@ int App::setIntProperty(long long int target, const char* ppName, int pState)
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -1605,10 +1596,7 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -1704,10 +1692,7 @@ int App::setLongProperty(long long int target, const char* ppName, long long int
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -1726,10 +1711,7 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -1748,10 +1730,7 @@ int App::setFloatProperty(long long int target, const char* ppName, double pStat
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -1782,10 +1761,7 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -1825,10 +1801,7 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -1938,10 +1911,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2164,7 +2134,7 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
         bufferL = 0;
     if (target == sim_handle_appstorage)
     {
-        std::string PPName(utils::getWithoutPrefix(ppName, "storage."));
+        std::string PPName(utils::getWithoutPrefix(ppName, "appstorage."));
         if (strncmp(PPName.c_str(), "customData.", 11) == 0)
         {
             std::string pN(PPName);
@@ -2173,17 +2143,33 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
             {
                 pN += "&customData"; // we add a suffix to separate user and system data
                 CPersistentDataContainer cont("appStorage.dat");
-                cont.writeData(pN.c_str(), std::string(buffer, buffer + bufferL), true, true);
+                if (cont.writeData(pN.c_str(), std::string(buffer, buffer + bufferL), true, true))
+                {
+                    if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+                    {
+                        CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_appstorage, nullptr, false);
+                        cont.appendEventData(pN.c_str(), ev);
+                        App::worldContainer->pushEvent();
+                    }
+                }
                 retVal = 1;
             }
         }
         else
-        {
+        { // those are values not set via properties functions, i.e. system data
             std::string dummyVal;
             if (getBufferProperty(target, PPName.c_str(), dummyVal) == 1)
             { // we can only modify it if it exists
                 CPersistentDataContainer cont("appStorage.dat");
-                cont.writeData(PPName.c_str(), std::string(buffer, buffer + bufferL), true, true);
+                if (cont.writeData(PPName.c_str(), std::string(buffer, buffer + bufferL), true, true))
+                {
+                    if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+                    {
+                        CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_appstorage, nullptr, false);
+                        cont.appendEventData(PPName.c_str(), ev);
+                        App::worldContainer->pushEvent();
+                    }
+                }
                 retVal = 1;
             }
         }
@@ -2202,7 +2188,13 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
                 {
                     if (worldContainer != nullptr)
                     {
-                        worldContainer->customAppData.setData(pN.c_str(), buffer, bufferL, true);
+                        bool diff = worldContainer->customAppData.setData(pN.c_str(), buffer, bufferL, true);
+                        if (diff && worldContainer->getEventsEnabled())
+                        {
+                            CCbor *ev = worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                            worldContainer->customAppData.appendEventData(pN.c_str(), ev);
+                            worldContainer->pushEvent();
+                        }
                         retVal = 1;
                     }
                     else
@@ -2221,7 +2213,7 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
     int retVal = -1;
     if (target == sim_handle_appstorage)
     {
-        std::string pN(utils::getWithoutPrefix(ppName, "storage."));
+        std::string pN(utils::getWithoutPrefix(ppName, "appstorage."));
         if (strncmp(pN.c_str(), "customData.", 11) == 0)
         {
             pN.erase(0, 11);
@@ -2267,10 +2259,7 @@ int App::setIntArray2Property(long long int target, const char* ppName, const in
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2289,10 +2278,7 @@ int App::getIntArray2Property(long long int target, const char* ppName, int* pSt
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2311,10 +2297,7 @@ int App::setVector2Property(long long int target, const char* ppName, const doub
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2333,10 +2316,7 @@ int App::getVector2Property(long long int target, const char* ppName, double* pS
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2355,10 +2335,7 @@ int App::setVector3Property(long long int target, const char* ppName, const C3Ve
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2377,10 +2354,7 @@ int App::getVector3Property(long long int target, const char* ppName, C3Vector& 
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2399,10 +2373,7 @@ int App::setQuaternionProperty(long long int target, const char* ppName, const C
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2421,10 +2392,7 @@ int App::getQuaternionProperty(long long int target, const char* ppName, C4Vecto
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2448,10 +2416,7 @@ int App::setPoseProperty(long long int target, const char* ppName, const C7Vecto
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2470,10 +2435,7 @@ int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pSt
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2492,10 +2454,7 @@ int App::setColorProperty(long long int target, const char* ppName, const float*
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2514,10 +2473,7 @@ int App::getColorProperty(long long int target, const char* ppName, float* pStat
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2536,10 +2492,7 @@ int App::setFloatArrayProperty(long long int target, const char* ppName, const d
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2559,10 +2512,7 @@ int App::getFloatArrayProperty(long long int target, const char* ppName, std::ve
     int retVal = -1;
     pState.clear();
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2581,10 +2531,7 @@ int App::setIntArrayProperty(long long int target, const char* ppName, const int
 {
     int retVal = -1;
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2604,10 +2551,7 @@ int App::getIntArrayProperty(long long int target, const char* ppName, std::vect
     int retVal = -1;
     pState.clear();
     if (target == sim_handle_appstorage)
-    {
-        std::string _pName(utils::getWithoutPrefix(ppName, "storage."));
-        const char* pName = _pName.c_str();
-        // only setBufferProperty/getBufferProperty are operations with appstorage!
+    { // all appstorage function go through setBufferProperty/getBufferProperty
     }
     else
     {
@@ -2627,7 +2571,7 @@ int App::removeProperty(long long int target, const char* ppName)
     int retVal = -1;
     if (target == sim_handle_appstorage)
     {
-        std::string pN(utils::getWithoutPrefix(ppName, "storage."));
+        std::string pN(utils::getWithoutPrefix(ppName, "appstorage."));
         bool canBeRemoved = false;
         if (strncmp(pN.c_str(), "customData.", 11) == 0)
         {
@@ -2643,7 +2587,15 @@ int App::removeProperty(long long int target, const char* ppName)
             {
                 if (canBeRemoved)
                 {
-                    cont.clearData((propertyStrings[tp] + pN).c_str(), true);
+                    if (cont.clearData((propertyStrings[tp] + pN).c_str(), true))
+                    {
+                        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
+                        {
+                            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_appstorage, nullptr, false);
+                            cont.appendEventData(pN.c_str(), ev, true);
+                            App::worldContainer->pushEvent();
+                        }
+                    }
                     retVal = 1;
                 }
                 else
@@ -2668,7 +2620,13 @@ int App::removeProperty(long long int target, const char* ppName)
                         int tp = worldContainer->customAppData.hasData(pN.c_str(), true);
                         if (tp >= 0)
                         {
-                            worldContainer->customAppData.clearData((propertyStrings[tp] + pN).c_str());
+                            bool diff = worldContainer->customAppData.clearData((propertyStrings[tp] + pN).c_str());
+                            if (diff && worldContainer->getEventsEnabled())
+                            {
+                                CCbor *ev = worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                                worldContainer->customAppData.appendEventData(pN.c_str(), ev, true);
+                                worldContainer->pushEvent();
+                            }
                             retVal = 1;
                         }
                     }
@@ -2709,7 +2667,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
                 {
                     pName.erase(p);
                     pName = "customData." + pName;
-                    //pName = "storage." + pName;
+                    //pName = "appstorage." + pName;
                 }
                 retVal = 1;
             }
@@ -2774,7 +2732,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
     {
         if (!staticParsing)
         {
-            std::string pN(utils::getWithoutPrefix(ppName, "storage."));
+            std::string pN(utils::getWithoutPrefix(ppName, "appstorage."));
             int inf = 0;
             if (strncmp(pN.c_str(), "customData.", 11) == 0)
             {
@@ -3019,6 +2977,9 @@ void App::pushGenesisEvents()
             ev->appendKeyText(propApp_modelDir.name, folders->getModelsPath().c_str());
             ev->appendKeyText(propApp_importExportDir.name, folders->getImportExportPath().c_str());
         }
+
+        worldContainer->customAppData.appendEventData(nullptr, ev);
+
         if (userSettings != nullptr)
         {
             ev->appendKeyText(propApp_defaultPython.name, userSettings->defaultPython.c_str());
@@ -3058,6 +3019,12 @@ void App::pushGenesisEvents()
             ev->appendKeyInt(propApp_idleFps.name, userSettings->getIdleFps());
 
         worldContainer->pushEvent();
+
+        ev = worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_appstorage, sim_handle_appstorage, nullptr, false);
+        CPersistentDataContainer cont("appStorage.dat");
+        cont.appendEventData(nullptr, ev);
+        worldContainer->pushEvent();
+
 
         if (worldContainer->sandboxScript != nullptr)
         {

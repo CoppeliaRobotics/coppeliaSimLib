@@ -1547,10 +1547,11 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     ev->appendKeyDoubleArray(propObject_bbPose.name, p, 7);
     ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
 
-    ev->openKeyMap("customData");
-    customObjectData.appendEventData(ev);
-    customObjectData_tempData_old.appendEventData(ev);
-    ev->closeArrayOrMap(); // customData
+    customObjectData.appendEventData(nullptr, ev);
+//    ev->openKeyMap("customData");
+//    customObjectData.appendEventData(ev);
+//    customObjectData_tempData_old.appendEventData(ev);
+//    ev->closeArrayOrMap(); // customData
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
     // deprecated
@@ -1719,13 +1720,11 @@ void CSceneObject::writeCustomDataBlock(bool tmpData, const char *dataName, cons
     else
         diff = customObjectData.setData(dataName, data, dataLength, false);
 
-    if (diff && _isInScene && App::worldContainer->getEventsEnabled())
+    if (diff && (!tmpData) && _isInScene && App::worldContainer->getEventsEnabled())
     {
-        const char *cmd = "customData";
-        CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, false);
-        ev->openKeyMap(cmd);
-        customObjectData.appendEventData(ev);
-        customObjectData_tempData_old.appendEventData(ev);
+        CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+        customObjectData.appendEventData(dataName, ev);
+        //ev->appendKeyBuffer(cmd.c_str(), data, dataLength);
         App::worldContainer->pushEvent();
     }
 }
@@ -6060,11 +6059,9 @@ int CSceneObject::setBufferProperty(const char* ppName, const char* buffer, int 
             bool diff = customObjectData.setData(pN.c_str(), buffer, bufferL, true);
             if (diff && _isInScene && App::worldContainer->getEventsEnabled())
             {
-                const char *cmd = "customData";
-                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, false);
-                ev->openKeyMap(cmd);
-                customObjectData.appendEventData(ev);
-                customObjectData_tempData_old.appendEventData(ev);
+                CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+                customObjectData.appendEventData(pN.c_str(), ev);
+                // ev->appendKeyBuffer(cmd.c_str(), buffer, bufferL);
                 App::worldContainer->pushEvent();
             }
             retVal = 1;
@@ -6346,11 +6343,8 @@ int CSceneObject::removeProperty(const char* ppName)
                 bool diff = customObjectData.clearData((propertyStrings[tp] + pN).c_str());
                 if (diff && _isInScene && App::worldContainer->getEventsEnabled())
                 {
-                    const char *cmd = "customData";
-                    CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, cmd, false);
-                    ev->openKeyMap(cmd);
-                    customObjectData.appendEventData(ev);
-                    customObjectData_tempData_old.appendEventData(ev);
+                    CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
+                    customObjectData.appendEventData(pN.c_str(), ev, true);
                     App::worldContainer->pushEvent();
                 }
                 retVal = 1;

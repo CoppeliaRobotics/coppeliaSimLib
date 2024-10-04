@@ -2,6 +2,7 @@
 
 #include <vArchive.h>
 #include <vMutex.h>
+#include <cbor.h>
 
 class CPersistentDataContainer
 {
@@ -14,15 +15,16 @@ class CPersistentDataContainer
 
     void initializeWithDataFromFile();
 
-    void clearData(const char *dataName, bool toFile);
-    void writeData(const char *dataName, const std::string &value, bool toFile, bool allowEmptyString);
+    bool clearData(const char *dataName, bool toFile);
+    bool writeData(const char *dataName, const std::string &value, bool toFile, bool allowEmptyString);
     bool readData(const char *dataName, std::string &value);
     int hasData(const char* dataName, bool checkAllTypes, int* dataSize = nullptr);
     bool getPropertyName(int& index, std::string& pName);
     int getAllDataNames(std::vector<std::string> &names);
+    void appendEventData(const char* dataName, CCbor *ev, bool remove = false) const;
 
   protected:
-    void _writeData(const char *dataName, const std::string &value, bool allowEmptyString);
+    bool _writeData(const char *dataName, const std::string &value, bool allowEmptyString);
     int _getDataIndex(const char *dataName);
 
     void _readFromFile(std::vector<std::string> &dataNames, std::vector<std::string> &dataValues);

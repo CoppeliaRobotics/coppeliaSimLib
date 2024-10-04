@@ -413,15 +413,18 @@ bool utils::replaceSubstring(std::string &str, const char *subStr, const char *r
     bool retVal = false;
     size_t index = 0;
     size_t str1L = strlen(subStr);
-    size_t str2L = strlen(replacementSubStr);
-    while (true)
+    if (str1L > 0)
     {
-        index = str.find(subStr, index);
-        if (index == std::string::npos)
-            break;
-        str.replace(index, str1L, replacementSubStr);
-        index += str2L;
-        retVal = true;
+        size_t str2L = strlen(replacementSubStr);
+        while (true)
+        {
+            index = str.find(subStr, index);
+            if (index == std::string::npos)
+                break;
+            str.replace(index, str1L, replacementSubStr);
+            index += str2L;
+            retVal = true;
+        }
     }
     return retVal;
 }
