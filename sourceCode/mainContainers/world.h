@@ -16,7 +16,6 @@
 #include <ghostObjectContainer.h>
 #include <bannerContainer.h>
 #include <dynamicsContainer.h>
-#include <signalContainer.h>
 #include <commTubeContainer.h>
 #include <undoBufferCont.h>
 #include <collectionContainer.h>
@@ -127,7 +126,6 @@ class CWorld
     static int getLoadingMapping(const std::map<int, int> *map, int oldVal);
 
     CUndoBufferCont *undoBufferContainer;
-    CSignalContainer *signalContainer;
     CDynamicsContainer *dynamicsContainer;
     CEnvironment *environment;
     CPageContainer *pageContainer;

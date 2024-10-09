@@ -1749,12 +1749,15 @@ int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& ap
     {
         for (size_t i = 0; i < allProps_pointCloud.size(); i++)
         {
-            index--;
-            if (index == -1)
+            if ( (pName.size() == 0) || utils::startsWith(allProps_pointCloud[i].name, pName.c_str()) )
             {
-                pName = allProps_pointCloud[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_pointCloud[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }
@@ -1773,12 +1776,15 @@ int CPointCloud::getPropertyName_static(int& index, std::string& pName, std::str
     {
         for (size_t i = 0; i < allProps_pointCloud.size(); i++)
         {
-            index--;
-            if (index == -1)
+            if ( (pName.size() == 0) || utils::startsWith(allProps_pointCloud[i].name, pName.c_str()) )
             {
-                pName = allProps_pointCloud[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_pointCloud[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }

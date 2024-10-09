@@ -555,7 +555,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/sceneContainers/drawingContainer.cpp
     sourceCode/mainContainers/sceneContainers/textureContainer.cpp
     sourceCode/mainContainers/sceneContainers/simulation.cpp
-    sourceCode/mainContainers/sceneContainers/signalContainer.cpp
     sourceCode/mainContainers/sceneContainers/collectionContainer.cpp
     sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp
     sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp

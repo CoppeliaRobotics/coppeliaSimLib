@@ -18,7 +18,6 @@ CWorld::CWorld()
     ikGroups_old = nullptr;
     sceneObjects = nullptr;
     commTubeContainer_old = nullptr;
-    signalContainer = nullptr;
     dynamicsContainer = nullptr;
     undoBufferContainer = nullptr;
     outsideCommandQueue_old = nullptr;
@@ -73,7 +72,6 @@ void CWorld::initializeWorld()
     ghostObjectCont_old = new CGhostObjectContainer();
     bannerCont_old = new CBannerContainer();
     dynamicsContainer = new CDynamicsContainer();
-    signalContainer = new CSignalContainer();
     commTubeContainer_old = new CCommTubeContainer();
 }
 
@@ -159,8 +157,6 @@ void CWorld::deleteWorld()
     ghostObjectCont_old = nullptr;
     delete bannerCont_old;
     bannerCont_old = nullptr;
-    delete signalContainer;
-    signalContainer = nullptr;
     delete commTubeContainer_old;
     commTubeContainer_old = nullptr;
 }
@@ -746,7 +742,6 @@ void CWorld::simulationEnded(bool removeNewObjects)
     bannerCont_old->simulationEnded();
     buttonBlockContainer_old->simulationEnded();
     dynamicsContainer->simulationEnded();
-    signalContainer->simulationEnded();
     sceneObjects->simulationEnded();
     pageContainer->simulationEnded();
     collisions_old->simulationEnded();
@@ -1149,7 +1144,6 @@ void CWorld::announceScriptWillBeErased(int scriptHandle, bool simulationScript,
 void CWorld::announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     collections->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
-    signalContainer->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
     drawingCont->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 

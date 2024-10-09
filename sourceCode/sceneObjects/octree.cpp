@@ -1280,12 +1280,15 @@ int COcTree::getPropertyName(int& index, std::string& pName, std::string& appart
     {
         for (size_t i = 0; i < allProps_ocTree.size(); i++)
         {
-            index--;
-            if (index == -1)
+            if ( (pName.size() == 0) || utils::startsWith(allProps_ocTree[i].name, pName.c_str()) )
             {
-                pName = allProps_ocTree[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_ocTree[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }
@@ -1304,12 +1307,15 @@ int COcTree::getPropertyName_static(int& index, std::string& pName, std::string&
     {
         for (size_t i = 0; i < allProps_ocTree.size(); i++)
         {
-            index--;
-            if (index == -1)
+            if ( (pName.size() == 0) || utils::startsWith(allProps_ocTree[i].name, pName.c_str()) )
             {
-                pName = allProps_ocTree[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_ocTree[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }

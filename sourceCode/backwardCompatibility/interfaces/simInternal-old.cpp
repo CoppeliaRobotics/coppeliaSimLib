@@ -5673,7 +5673,16 @@ int simSetDoubleSignalOld_internal(const char *signalName, double signalValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::currentWorld->signalContainer->setDoubleSignal_old(signalName, signalValue, _currentScriptHandle);
+        std::string pName(SIGNALDOTSTR);
+        pName += "DLEGACY.";
+        pName += signalName;
+        simSetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue);
+        CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(_currentScriptHandle);
+        if (it != nullptr)
+            it->signalSet(pName.c_str());
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
+//        App::currentWorld->signalContainer->setDoubleSignal_old(signalName, signalValue, _currentScriptHandle);
         return (1);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5687,10 +5696,13 @@ int simGetDoubleSignalOld_internal(const char *signalName, double *signalValue)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = 0;
-
-        if (App::currentWorld->signalContainer->getDoubleSignal_old(signalName, signalValue[0]))
+        std::string pName(SIGNALDOTSTR);
+        pName += "DLEGACY.";
+        pName += signalName;
+        if (1 == simGetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue))
             retVal = 1;
-
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5704,12 +5716,37 @@ int simClearDoubleSignalOld_internal(const char *signalName)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal;
-
+        if (signalName == nullptr)
+        {
+            retVal = 0;
+            while (true)
+            {
+                std::string sn(App::currentWorld->customSceneData_volatile.getLegacySignalFromIndex("DLEGACY.", 0));
+                if (sn.size() != 0)
+                {
+                    retVal ++;
+                    sn = SIGNALDOTSTR + sn;
+                    simRemoveProperty_internal(sim_handle_scene, sn.c_str());
+                }
+            }
+        }
+        else
+        {
+            retVal = 0;
+            std::string pName(SIGNALDOTSTR);
+            pName += "DLEGACY.";
+            pName += signalName;
+            if (1 == simRemoveProperty_internal(sim_handle_scene, pName.c_str()))
+                retVal = 1;
+        }
+/*
         if (signalName == nullptr)
             retVal = App::currentWorld->signalContainer->clearAllDoubleSignals_old();
         else
             retVal = App::currentWorld->signalContainer->clearDoubleSignal_old(signalName);
-
+*/
+        CApiErrors::getAndClearLastWarningOrError();
+        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
         return (retVal);
     }
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

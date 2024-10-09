@@ -153,15 +153,19 @@ bool CPersistentDataContainer::getPropertyName(int& index, std::string& pName)
     bool retVal = false;
     for (size_t i = 0; i < _dataNames.size(); i++)
     {
-        index--;
-        if (index == -1)
+        std::string nnmm(_dataNames[i]);
+        size_t p = nnmm.find("&.");
+        if (p != std::string::npos)
+            nnmm.erase(0, p + 2);
+        if ( (pName.size() == 0) || utils::startsWith((CUSTOMDATADOTSTR + nnmm).c_str(), pName.c_str()) )
         {
-            pName = _dataNames[i].c_str();
-            size_t p = pName.find("&.");
-            if (p != std::string::npos)
-                pName.erase(0, p + 2);
-            retVal = true;
-            break;
+            index--;
+            if (index == -1)
+            {
+                pName = nnmm;
+                retVal = true;
+                break;
+            }
         }
     }
     return retVal;

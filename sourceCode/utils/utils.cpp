@@ -109,7 +109,7 @@ std::string utils::getLightEncodedString(const std::string &ss)
     for (size_t i = 0; i < txt.length(); i++)
     {
         int n[2];
-        n[0] = (unsigned char)(txt[i]) + i;
+        n[0] = int((unsigned char)(txt[i]) + i);
         n[1] = n[0] / 16;
         n[0] -= n[1] * 16;
         for (size_t j = 0; j < 2; j++)

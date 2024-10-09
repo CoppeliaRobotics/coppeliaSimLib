@@ -3263,12 +3263,15 @@ int CMesh::getPropertyName(int& index, std::string& pName, CMesh* targetObject)
         {
             if ( (targetObject == nullptr) || (targetObject->_textureProperty != nullptr) || (i > 7) )
             {
-                index--;
-                if (index == -1)
+                if ( (pName.size() == 0) || utils::startsWith(allProps_mesh[i].name, pName.c_str()) )
                 {
-                    pName = allProps_mesh[i].name;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_mesh[i].name;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
         }

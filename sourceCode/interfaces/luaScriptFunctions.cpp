@@ -5977,13 +5977,17 @@ int _simGetPropertyName(luaWrap_lua_State *L)
             target = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
         int index = luaWrap_lua_tointeger(L,2);
         SPropertyOptions opt;
+        std::string propertyPrefix;
         if (luaWrap_lua_isnonbuffertable(L, 3))
         {
             CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
             CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 1);
             stack->getStackMapInt32Value("objectType", opt.objectType);
+            stack->getStackMapStringValue("prefix", propertyPrefix);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
+        if (propertyPrefix.size() > 0)
+            opt.prefix = propertyPrefix.c_str();
         char* pValue = simGetPropertyName_internal(target, index, &opt);
         if (pValue != nullptr)
         {

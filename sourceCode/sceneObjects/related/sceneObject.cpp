@@ -6357,13 +6357,16 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
     int retVal = -1;
     for (size_t i = 0; i < allProps_sceneObject.size(); i++)
     {
-        index--;
-        if (index == -1)
+        if ( (pName.size() == 0) || utils::startsWith(allProps_sceneObject[i].name, pName.c_str()) )
         {
-            pName = allProps_sceneObject[i].name;
-            //pName = "object." + pName;
-            retVal = 1;
-            break;
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_sceneObject[i].name;
+                //pName = "object." + pName;
+                retVal = 1;
+                break;
+            }
         }
     }
     if (retVal == -1)
@@ -6383,13 +6386,17 @@ int CSceneObject::getPropertyName_bstatic(int& index, std::string& pName, std::s
     int retVal = -1;
     for (size_t i = 0; i < allProps_sceneObject.size(); i++)
     {
-        index--;
-        if (index == -1)
+        if ( (pName.size() == 0) || utils::startsWith(allProps_sceneObject[i].name, pName.c_str()) )
         {
-            pName = allProps_sceneObject[i].name;
-            //pName = "object." + pName;
-            retVal = 1;
-            break;
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_sceneObject[i].name;
+                //pName = "object." + pName;
+                retVal = 1;
+                break;
+            }
+
         }
     }
     return retVal;

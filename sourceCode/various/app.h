@@ -15,6 +15,8 @@
 #define CUSTOMDATAUNDERSCORESTR "customData_"
 #define SIGNALDOTSTR "signal."
 #define SIGNALUNDERSCORESTR "signal_"
+#define NAMEDPARAMDOTSTR "namedParam."
+#define NAMEDPARAMUNDERSCORESTR "namedParam_"
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable

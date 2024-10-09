@@ -437,7 +437,6 @@ HEADERS += $$PWD/sourceCode/mainContainers/worldContainer.h \
 
 HEADERS += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/textureContainer.h \
-    $$PWD/sourceCode/mainContainers/sceneContainers/signalContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/simulation.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/collectionContainer.h \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.h \
@@ -822,7 +821,6 @@ SOURCES += $$PWD/sourceCode/mainContainers/worldContainer.cpp \
 SOURCES += $$PWD/sourceCode/mainContainers/sceneContainers/drawingContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/textureContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/simulation.cpp \
-    $$PWD/sourceCode/mainContainers/sceneContainers/signalContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/collectionContainer.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/outsideCommandQueue.cpp \
     $$PWD/sourceCode/mainContainers/sceneContainers/sceneObjectContainer.cpp \

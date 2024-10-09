@@ -3,6 +3,7 @@
 #include <vDateTime.h>
 #include <tt.h>
 #include <boost/algorithm/string/predicate.hpp>
+#include <utils.h>
 #ifdef SIM_WITH_GUI
 #include <rendering.h>
 #endif
@@ -972,12 +973,15 @@ int CColorObject::getPropertyName(int& index, std::string& pName) const
     {
         if ( ((i == 0) && (_eventFlags & (1|2))) || ((i == 1) && (_eventFlags & 4)) || ((i == 2) && (_eventFlags & 8)) || ((i == 3) && (_eventFlags & 16)) )
         {
-            index--;
-            if (index == -1)
+            if ( (pName.size() == 0) || utils::startsWith((_eventPrefix + allProps_col[i].name).c_str(), pName.c_str()) )
             {
-                pName = _eventPrefix + allProps_col[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = _eventPrefix + allProps_col[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }
@@ -991,16 +995,20 @@ int CColorObject::getPropertyName_static(int& index, std::string& pName, int eve
     {
         if ( ((i == 0) && (eventFlags & (1|2))) || ((i == 1) && (eventFlags & 4)) || ((i == 2) && (eventFlags & 8)) || ((i == 3) && (eventFlags & 16)) )
         {
-            index--;
-            if (index == -1)
+            std::string nnmm(allProps_col[i].name);
+            if ( (eventPrefix != nullptr) && (strlen(eventPrefix) != 0) )
+                nnmm = std::string(eventPrefix) + COL_EVENT_PREFIX_CAP + nnmm;
+            else
+                nnmm = COL_EVENT_PREFIX + nnmm;
+            if ( (pName.size() == 0) || utils::startsWith(nnmm.c_str(), pName.c_str()) )
             {
-                pName = std::string(allProps_col[i].name);
-                if ( (eventPrefix != nullptr) && (strlen(eventPrefix) != 0) )
-                    pName = std::string(eventPrefix) + COL_EVENT_PREFIX_CAP + pName;
-                else
-                    pName = COL_EVENT_PREFIX + pName;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = nnmm;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }

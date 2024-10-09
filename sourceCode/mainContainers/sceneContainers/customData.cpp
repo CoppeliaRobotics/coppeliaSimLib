@@ -2,6 +2,7 @@
 #include <app.h>
 #include <base64.h>
 #include <tt.h>
+#include <utils.h>
 
 CCustomData::CCustomData()
 {
@@ -177,15 +178,19 @@ bool CCustomData::getPropertyName(int& index, std::string& pName) const
     bool retVal = false;
     for (size_t i = 0; i < _data.size(); i++)
     {
-        index--;
-        if (index == -1)
+        std::string nnmm(_data[i].tag);
+        size_t p = nnmm.find("&.");
+        if (p != std::string::npos)
+            nnmm.erase(0, p + 2);
+        if ( (pName.size() == 0) || utils::startsWith((CUSTOMDATADOTSTR + nnmm).c_str(), pName.c_str()) )
         {
-            pName = _data[i].tag;
-            size_t p = pName.find("&.");
-            if (p != std::string::npos)
-                pName.erase(0, p + 2);
-            retVal = true;
-            break;
+            index--;
+            if (index == -1)
+            {
+                pName = nnmm;
+                retVal = true;
+                break;
+            }
         }
     }
     return retVal;

@@ -1220,13 +1220,16 @@ int CEnvironment::getPropertyName(int& index, std::string& pName)
 
     for (size_t i = 0; i < allProps_scene.size(); i++)
     {
-        index--;
-        if (index == -1)
+        if ( (pName.size() == 0) || utils::startsWith(allProps_scene[i].name, pName.c_str()) )
         {
-            pName = allProps_scene[i].name;
-            //pName = "scene." + pName;
-            retVal = 1;
-            break;
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_scene[i].name;
+                //pName = "scene." + pName;
+                retVal = 1;
+                break;
+            }
         }
     }
 

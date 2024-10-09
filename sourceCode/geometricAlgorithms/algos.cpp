@@ -524,7 +524,7 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double> &vertices, const std::v
     C3X3Matrix alternativeFrame(bestSmallestDirection);
     std::vector<int> tris;
     for (size_t i = 0; i < indices.size() / 3; i++)
-        tris.push_back(i);
+        tris.push_back(int(i));
     // Now search for the triangle with largest surface:
     double ls = 0.0;
     C3Vector ltn;

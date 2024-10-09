@@ -562,7 +562,7 @@ void App::setAppNamedParam(const char *paramName, const char *param, int paramLe
         _applicationNamedParams[paramName] = newVal;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            std::string cmd("namedParam_");
+            std::string cmd(NAMEDPARAMUNDERSCORESTR);
             cmd += paramName;
             CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyText(cmd.c_str(), param);
@@ -581,7 +581,7 @@ bool App::removeAppNamedParam(const char *paramName)
         retVal = true;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            std::string cmd("namedParam_");
+            std::string cmd(NAMEDPARAMUNDERSCORESTR);
             cmd += paramName;
             CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyNull(cmd.c_str());
@@ -1809,10 +1809,9 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (strncmp(pName, "namedParam.", 11) == 0)
+            std::string pN(pName);
+            if (utils::replaceSubstringStart(pN, NAMEDPARAMDOTSTR, ""))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
                 if (pN.size() > 0)
                 {
                     setAppNamedParam(pN.c_str(), pState);
@@ -1919,10 +1918,9 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
         const char* pName = _pName.c_str();
         if (target == sim_handle_app)
         {
-            if (strncmp(pName, "namedParam.", 11) == 0)
+            std::string pN(pName);
+            if (utils::replaceSubstringStart(pN, NAMEDPARAMDOTSTR, ""))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
                 if (pN.size() > 0)
                 {
                     if (getAppNamedParam(pN.c_str(), pState))
@@ -2624,10 +2622,8 @@ int App::removeProperty(long long int target, const char* ppName)
                     }
                 }
             }
-            else if (strncmp(pName, "namedParam.", 11) == 0)
+            else if (utils::replaceSubstringStart(pN, NAMEDPARAMDOTSTR, ""))
             {
-                std::string pN(pName);
-                pN.erase(0, 11);
                 if (pN.size() > 0)
                 {
                     if (removeAppNamedParam(pN.c_str()))
@@ -2672,13 +2668,16 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
         {
             for (size_t i = 0; i < allProps_app.size(); i++)
             {
-                index--;
-                if (index == -1)
+                if ( (pName.size() == 0) || utils::startsWith(allProps_app[i].name, pName.c_str()) )
                 {
-                    pName = allProps_app[i].name;
-                    //pName = "app." + pName;
-                    retVal = 1;
-                    break;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_app[i].name;
+                        //pName = "app." + pName;
+                        retVal = 1;
+                        break;
+                    }
                 }
             }
             if (!staticParsing)
@@ -2695,12 +2694,15 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
                 {
                     for (const auto& pair : _applicationNamedParams)
                     {
-                        index--;
-                        if (index == -1)
+                        if ( (pName.size() == 0) || utils::startsWith((NAMEDPARAMDOTSTR + pair.first).c_str(), pName.c_str()) )
                         {
-                            pName = "namedParam." + pair.first;
-                            retVal = 1;
-                            break;
+                            index--;
+                            if (index == -1)
+                            {
+                                pName = NAMEDPARAMDOTSTR + pair.first;
+                                retVal = 1;
+                                break;
+                            }
                         }
                     }
                 }
@@ -2945,7 +2947,7 @@ void App::pushGenesisEvents()
 
         for (const auto& pair : _applicationNamedParams)
         {
-            std::string t("namedParam_");
+            std::string t(NAMEDPARAMUNDERSCORESTR);
             t += pair.first;
             ev->appendKeyText(t.c_str(), pair.second.c_str());
         }

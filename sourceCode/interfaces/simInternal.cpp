@@ -2020,11 +2020,13 @@ char* simGetPropertyName_internal(long long int target, int index, SPropertyOpti
                 target = options->objectType;
                 staticParsing = true;
             }
+            if ( (options->structSize >= 24) && (options->prefix != nullptr) )
+                pName = options->prefix;
         }
         int res = App::getPropertyName(target, index, pName, appartenance, staticParsing);
         if (res == -2)
             CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
-        else if (pName.size() > 0)
+        else if ( (res == 1) && (pName.size() > 0) )
         {
             pName += ",";
             pName += appartenance;
@@ -7512,7 +7514,7 @@ char *simGetSignalName_internal(int signalIndex, int signalType)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        std::string sigTag("NLEGACY.");
+        std::string sigTag("DLEGACY.");
         if (signalType == 0)
             sigTag = "ILEGACY.";
         else if (signalType == 1)
@@ -7534,9 +7536,6 @@ char *simGetSignalName_internal(int signalIndex, int signalType)
                 return retVal;
             }
         }
-        CApiErrors::getAndClearLastWarningOrError();
-        CApiErrors::getAndClearThreadBasedFirstCapiError_old();
-
 /*
         if ((signalType != 0) && (signalType != 1) && (signalType != 2) && (signalType != 3))
         {

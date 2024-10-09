@@ -5,6 +5,7 @@
 #include <simMath/4X4Matrix.h>
 #include <algorithm>
 #include <app.h>
+#include <utils.h>
 
 CConvexVolume::CConvexVolume()
 {
@@ -2302,12 +2303,15 @@ int CConvexVolume::getPropertyName(int& index, std::string& pName)
     int retVal = -1;
     for (size_t i = 0; i < allProps_volume.size(); i++)
     {
-        index--;
-        if (index == -1)
+        if ( (pName.size() == 0) || utils::startsWith(allProps_volume[i].name, pName.c_str()) )
         {
-            pName = allProps_volume[i].name;
-            retVal = 1;
-            break;
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_volume[i].name;
+                retVal = 1;
+                break;
+            }
         }
     }
     return retVal;
@@ -2318,12 +2322,15 @@ int CConvexVolume::getPropertyName_static(int& index, std::string& pName)
     int retVal = -1;
     for (size_t i = 0; i < allProps_volume.size(); i++)
     {
-        index--;
-        if (index == -1)
+        if ( (pName.size() == 0) || utils::startsWith(allProps_volume[i].name, pName.c_str()) )
         {
-            pName = allProps_volume[i].name;
-            retVal = 1;
-            break;
+            index--;
+            if (index == -1)
+            {
+                pName = allProps_volume[i].name;
+                retVal = 1;
+                break;
+            }
         }
     }
     return retVal;

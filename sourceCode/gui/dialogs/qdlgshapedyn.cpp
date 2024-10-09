@@ -392,8 +392,8 @@ void CQDlgShapeDyn::_inertiaChanged(size_t row, size_t col, QLineEdit *ct)
             SSimulationThreadCommand cmd;
             cmd.cmdId = SET_INERTIAMATRIX_SHAPEDYNGUITRIGGEREDCMD;
             cmd.intParams.push_back(shape->getObjectHandle());
-            cmd.intParams.push_back(row);
-            cmd.intParams.push_back(col);
+            cmd.intParams.push_back(int(row));
+            cmd.intParams.push_back(int(col));
             cmd.doubleParams.push_back(newVal);
             cmd.boolParams.push_back(masslessInertia);
             App::appendSimulationThreadCommand(cmd);

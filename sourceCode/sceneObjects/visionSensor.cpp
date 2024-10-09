@@ -3748,12 +3748,15 @@ int CVisionSensor::getPropertyName(int& index, std::string& pName, std::string& 
     {
         for (size_t i = 0; i < allProps_visionSensor.size(); i++)
         {
-            index--;
-            if (index == -1)
+            if ( (pName.size() == 0) || utils::startsWith(allProps_visionSensor[i].name, pName.c_str()) )
             {
-                pName = allProps_visionSensor[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_visionSensor[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }
@@ -3774,12 +3777,15 @@ int CVisionSensor::getPropertyName_static(int& index, std::string& pName, std::s
     {
         for (size_t i = 0; i < allProps_visionSensor.size(); i++)
         {
-            index--;
-            if (index == -1)
+            if ( (pName.size() == 0) || utils::startsWith(allProps_visionSensor[i].name, pName.c_str()) )
             {
-                pName = allProps_visionSensor[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_visionSensor[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }

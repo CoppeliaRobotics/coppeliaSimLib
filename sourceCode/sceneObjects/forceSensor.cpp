@@ -1269,12 +1269,15 @@ int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& a
     {
         for (size_t i = 0; i < allProps_forceSensor.size(); i++)
         {
-            index--;
-            if (index == -1)
+            if ( (pName.size() == 0) || utils::startsWith(allProps_forceSensor[i].name, pName.c_str()) )
             {
-                pName = allProps_forceSensor[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_forceSensor[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }
@@ -1293,12 +1296,15 @@ int CForceSensor::getPropertyName_static(int& index, std::string& pName, std::st
     {
         for (size_t i = 0; i < allProps_forceSensor.size(); i++)
         {
-            index--;
-            if (index == -1)
+            if ( (pName.size() == 0) || utils::startsWith(allProps_forceSensor[i].name, pName.c_str()) )
             {
-                pName = allProps_forceSensor[i].name;
-                retVal = 1;
-                break;
+                index--;
+                if (index == -1)
+                {
+                    pName = allProps_forceSensor[i].name;
+                    retVal = 1;
+                    break;
+                }
             }
         }
     }
