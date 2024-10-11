@@ -54,19 +54,6 @@ int simTest_internal(int mode, void *ptr1, void *ptr2, void *ptr3);
 void *simGetMainWindow_internal(int type);
 char *simGetLastError_internal();
 char *simGetLastInfo_internal();
-int simSetBoolParam_internal(int parameter, bool boolState);
-int simGetBoolParam_internal(int parameter);
-int simSetInt32Param_internal(int parameter, int intState);
-int simGetInt32Param_internal(int parameter, int *intState);
-int simGetUInt64Param_internal(int parameter, unsigned long long int *intState);
-int simSetFloatParam_internal(int parameter, double floatState);
-int simGetFloatParam_internal(int parameter, double *floatState);
-int simSetStringParam_internal(int parameter, const char *str);
-char *simGetStringParam_internal(int parameter);
-int simSetArrayParam_internal(int parameter, const double *arrayOfValues);
-int simGetArrayParam_internal(int parameter, double *arrayOfValues);
-int simSetNamedStringParam_internal(const char *paramName, const char *stringParam, int paramLength);
-char *simGetNamedStringParam_internal(const char *paramName, int *paramLength);
 int simGetObject_internal(const char *objectPath, int index, int proxy, int options);
 long long int simGetObjectUid_internal(int objectHandle);
 int simGetObjectFromUid_internal(long long int uid, int options);
@@ -191,24 +178,11 @@ int simRemoveDrawingObject_internal(int objectHandle);
 int simAddDrawingObjectItem_internal(int objectHandle, const double *itemData);
 double simGetObjectSizeFactor_internal(int objectHandle);
 int simAnnounceSceneContentChange_internal();
-int simSetInt32Signal_internal(const char *signalName, int signalValue);
-int simGetInt32Signal_internal(const char *signalName, int *signalValue);
-int simClearInt32Signal_internal(const char *signalName);
-int simSetFloatSignal_internal(const char *signalName, double signalValue);
-int simGetFloatSignal_internal(const char *signalName, double *signalValue);
-int simClearFloatSignal_internal(const char *signalName);
-int simSetStringSignal_internal(const char *signalName, const char *signalValue, int stringLength);
-char *simGetStringSignal_internal(const char *signalName, int *stringLength);
-int simClearStringSignal_internal(const char *signalName);
-char *simGetSignalName_internal(int signalIndex, int signalType);
 int simSetObjectProperty_internal(int objectHandle, int prop);
 int simGetObjectProperty_internal(int objectHandle);
 int simSetObjectSpecialProperty_internal(int objectHandle, int prop);
 int simGetObjectSpecialProperty_internal(int objectHandle);
 int simReadForceSensor_internal(int objectHandle, double *forceVector, double *torqueVector);
-int simSetLightParameters_internal(int objectHandle, int state, const float *setToNULL, const float *diffusePart,
-                                   const float *specularPart);
-int simGetLightParameters_internal(int objectHandle, double *setToNULL, double *diffusePart, double *specularPart);
 int simGetVelocity_internal(int shapeHandle, double *linearVelocity, double *angularVelocity);
 int simGetObjectVelocity_internal(int objectHandle, double *linearVelocity, double *angularVelocity);
 int simGetJointVelocity_internal(int jointHandle, double *velocity);
@@ -258,14 +232,6 @@ int simGetShapeMesh_internal(int shapeHandle, double **vertices, int *verticesSi
                              double **normals);
 int simCreateJoint_internal(int jointType, int jointMode, int options, const double *sizes, const double *reservedA,
                             const double *reservedB);
-int simGetObjectInt32Param_internal(int objectHandle, int parameterID, int *parameter);
-int simSetObjectInt32Param_internal(int objectHandle, int parameterID, int parameter);
-int simGetObjectFloatParam_internal(int objectHandle, int parameterID, double *parameter);
-int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double parameter);
-double *simGetObjectFloatArrayParam_internal(int objectHandle, int parameterID, int *size);
-int simSetObjectFloatArrayParam_internal(int objectHandle, int parameterID, const double *params, int size);
-char *simGetObjectStringParam_internal(int objectHandle, int parameterID, int *parameterLength);
-int simSetObjectStringParam_internal(int objectHandle, int parameterID, const char *parameter, int parameterLength);
 int simGetRotationAxis_internal(const double *matrixStart, const double *matrixGoal, double *axis, double *angle);
 int simRotateAroundAxis_internal(const double *matrixIn, const double *axis, const double *axisPos, double angle,
                                  double *matrixOut);
@@ -316,9 +282,6 @@ int simWriteTexture_internal(int textureId, int options, const char *data, int p
 int simCreateTexture_internal(const char *fileName, int options, const double *planeSizes, const double *scalingUV,
                               const double *xy_g, int fixedResolution, int *textureId, int *resolution,
                               const void *reserved);
-int simWriteCustomDataBlock_internal(int objectHandle, const char *tagName, const char *data, int dataSize);
-char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int *dataSize);
-char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount);
 int simGetShapeGeomInfo_internal(int shapeHandle, int *intData, double *floatData, void *reserved);
 int simGetObjects_internal(int index, int objectType);
 int *simGetObjectsInTree_internal(int treeBaseHandle, int objectType, int options, int *objectCount);
@@ -388,12 +351,6 @@ int simGetStackFloatTable_internal(int stackHandle, float *array, int count);
 int simGetStackDoubleTable_internal(int stackHandle, double *array, int count);
 int simUnfoldStackTable_internal(int stackHandle);
 int simDebugStack_internal(int stackHandle, int cIndex);
-double simGetEngineFloatParam_internal(int paramId, int objectHandle, const void *object, bool *ok);
-int simGetEngineInt32Param_internal(int paramId, int objectHandle, const void *object, bool *ok);
-bool simGetEngineBoolParam_internal(int paramId, int objectHandle, const void *object, bool *ok);
-int simSetEngineFloatParam_internal(int paramId, int objectHandle, const void *object, double val);
-int simSetEngineInt32Param_internal(int paramId, int objectHandle, const void *object, int val);
-int simSetEngineBoolParam_internal(int paramId, int objectHandle, const void *object, bool val);
 int simCreateOctree_internal(double voxelSize, int options, double pointSize, void *reserved);
 int simCreatePointCloud_internal(double maxVoxelSize, int maxPtCntPerVoxel, int options, double pointSize,
                                  void *reserved);
@@ -536,6 +493,7 @@ const void *_simGetIkGroupObject_internal(int ikGroupID);
 int _simMpHandleIkGroupObject_internal(const void *ikGroup);
 double _simGetPureHollowScaling_internal(const void *geometric);
 void _simDynCallback_internal(const int *intData, const double *floatData);
+
 int simGetVisionSensorRes_internal(int visionSensorHandle, int *resolution);
 int simGetObjectHierarchyOrder_internal(int objectHandle, int* totalSiblings);
 int simSetObjectHierarchyOrder_internal(int objectHandle, int order);

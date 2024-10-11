@@ -172,42 +172,6 @@ SIM_DLLEXPORT char *simGetLastInfo()
 {
     return (simGetLastInfo_internal());
 }
-SIM_DLLEXPORT int simSetBoolParam(int parameter, bool boolState)
-{
-    return (simSetBoolParam_internal(parameter, boolState));
-}
-SIM_DLLEXPORT int simGetBoolParam(int parameter)
-{
-    return (simGetBoolParam_internal(parameter));
-}
-SIM_DLLEXPORT int simSetInt32Param(int parameter, int intState)
-{
-    return (simSetInt32Param_internal(parameter, intState));
-}
-SIM_DLLEXPORT int simGetInt32Param(int parameter, int *intState)
-{
-    return (simGetInt32Param_internal(parameter, intState));
-}
-SIM_DLLEXPORT int simGetUInt64Param(int parameter, unsigned long long int *intState)
-{
-    return (simGetUInt64Param_internal(parameter, intState));
-}
-SIM_DLLEXPORT int simSetStringParam(int parameter, const char *str)
-{
-    return (simSetStringParam_internal(parameter, str));
-}
-SIM_DLLEXPORT char *simGetStringParam(int parameter)
-{
-    return (simGetStringParam_internal(parameter));
-}
-SIM_DLLEXPORT int simSetNamedStringParam(const char *paramName, const char *stringParam, int paramLength)
-{
-    return (simSetNamedStringParam_internal(paramName, stringParam, paramLength));
-}
-SIM_DLLEXPORT char *simGetNamedStringParam(const char *paramName, int *paramLength)
-{
-    return (simGetNamedStringParam_internal(paramName, paramLength));
-}
 SIM_DLLEXPORT int simGetObject(const char *objectPath, int index, int proxy, int options)
 {
     return (simGetObject_internal(objectPath, index, proxy, options));
@@ -425,38 +389,6 @@ SIM_DLLEXPORT int simAnnounceSceneContentChange()
 {
     return (simAnnounceSceneContentChange_internal());
 }
-SIM_DLLEXPORT int simSetInt32Signal(const char *signalName, int signalValue)
-{
-    return (simSetInt32Signal_internal(signalName, signalValue));
-}
-SIM_DLLEXPORT int simGetInt32Signal(const char *signalName, int *signalValue)
-{
-    return (simGetInt32Signal_internal(signalName, signalValue));
-}
-SIM_DLLEXPORT int simClearInt32Signal(const char *signalName)
-{
-    return (simClearInt32Signal_internal(signalName));
-}
-SIM_DLLEXPORT int simClearFloatSignal(const char *signalName)
-{
-    return (simClearFloatSignal_internal(signalName));
-}
-SIM_DLLEXPORT int simSetStringSignal(const char *signalName, const char *signalValue, int stringLength)
-{
-    return (simSetStringSignal_internal(signalName, signalValue, stringLength));
-}
-SIM_DLLEXPORT char *simGetStringSignal(const char *signalName, int *stringLength)
-{
-    return (simGetStringSignal_internal(signalName, stringLength));
-}
-SIM_DLLEXPORT int simClearStringSignal(const char *signalName)
-{
-    return (simClearStringSignal_internal(signalName));
-}
-SIM_DLLEXPORT char *simGetSignalName(int signalIndex, int signalType)
-{
-    return (simGetSignalName_internal(signalIndex, signalType));
-}
 SIM_DLLEXPORT int simSetObjectProperty(int objectHandle, int prop)
 {
     return (simSetObjectProperty_internal(objectHandle, prop));
@@ -541,38 +473,6 @@ SIM_DLLEXPORT int simAuxiliaryConsolePrint(int consoleHandle, const char *text)
 {
     return (simAuxiliaryConsolePrint_internal(consoleHandle, text));
 }
-SIM_DLLEXPORT int simGetObjectInt32Param(int objectHandle, int ParamID, int *Param)
-{
-    return (simGetObjectInt32Param_internal(objectHandle, ParamID, Param));
-}
-SIM_DLLEXPORT int simSetObjectInt32Param(int objectHandle, int ParamID, int Param)
-{
-    return (simSetObjectInt32Param_internal(objectHandle, ParamID, Param));
-}
-SIM_DLLEXPORT char *simGetObjectStringParam(int objectHandle, int ParamID, int *ParamLength)
-{
-    return (simGetObjectStringParam_internal(objectHandle, ParamID, ParamLength));
-}
-SIM_DLLEXPORT int simSetObjectStringParam(int objectHandle, int ParamID, const char *Param, int ParamLength)
-{
-    return (simSetObjectStringParam_internal(objectHandle, ParamID, Param, ParamLength));
-}
-SIM_DLLEXPORT int simGetScriptInt32Param(int ScriptHandle, int ParamID, int *Param)
-{
-    return (simGetScriptInt32Param_internal(ScriptHandle, ParamID, Param));
-}
-SIM_DLLEXPORT int simSetScriptInt32Param(int ScriptHandle, int ParamID, int Param)
-{
-    return (simSetScriptInt32Param_internal(ScriptHandle, ParamID, Param));
-}
-SIM_DLLEXPORT char *simGetScriptStringParam(int ScriptHandle, int ParamID, int *ParamLength)
-{
-    return (simGetScriptStringParam_internal(ScriptHandle, ParamID, ParamLength));
-}
-SIM_DLLEXPORT int simSetScriptStringParam(int ScriptHandle, int ParamID, const char *Param, int ParamLength)
-{
-    return (simSetScriptStringParam_internal(ScriptHandle, ParamID, Param, ParamLength));
-}
 SIM_DLLEXPORT int simIsHandle(int generalObjectHandle, int generalObjectType)
 {
     return (simIsHandle_internal(generalObjectHandle, generalObjectType));
@@ -634,18 +534,6 @@ SIM_DLLEXPORT int simGetTextureId(const char *textureName, int *resolution)
 SIM_DLLEXPORT unsigned char *simReadTexture(int textureId, int options, int posX, int posY, int sizeX, int sizeY)
 {
     return (simReadTexture_internal(textureId, options, posX, posY, sizeX, sizeY));
-}
-SIM_DLLEXPORT int simWriteCustomDataBlock(int objectHandle, const char *tagName, const char *data, int dataSize)
-{
-    return (simWriteCustomDataBlock_internal(objectHandle, tagName, data, dataSize));
-}
-SIM_DLLEXPORT char *simReadCustomDataBlock(int objectHandle, const char *tagName, int *dataSize)
-{
-    return (simReadCustomDataBlock_internal(objectHandle, tagName, dataSize));
-}
-SIM_DLLEXPORT char *simReadCustomDataBlockTags(int objectHandle, int *tagCount)
-{
-    return (simReadCustomDataBlockTags_internal(objectHandle, tagCount));
 }
 SIM_DLLEXPORT int simGetObjects(int index, int objectType)
 {
@@ -856,22 +744,6 @@ SIM_DLLEXPORT int simUnfoldStackTable(int stackHandle)
 SIM_DLLEXPORT int simDebugStack(int stackHandle, int cIndex)
 {
     return (simDebugStack_internal(stackHandle, cIndex));
-}
-SIM_DLLEXPORT int simGetEngineInt32Param(int paramId, int objectHandle, const void *object, bool *ok)
-{
-    return (simGetEngineInt32Param_internal(paramId, objectHandle, object, ok));
-}
-SIM_DLLEXPORT bool simGetEngineBoolParam(int paramId, int objectHandle, const void *object, bool *ok)
-{
-    return (simGetEngineBoolParam_internal(paramId, objectHandle, object, ok));
-}
-SIM_DLLEXPORT int simSetEngineInt32Param(int paramId, int objectHandle, const void *object, int val)
-{
-    return (simSetEngineInt32Param_internal(paramId, objectHandle, object, val));
-}
-SIM_DLLEXPORT int simSetEngineBoolParam(int paramId, int objectHandle, const void *object, bool val)
-{
-    return (simSetEngineBoolParam_internal(paramId, objectHandle, object, val));
 }
 SIM_DLLEXPORT int simInsertObjectIntoOctree(int octreeHandle, int objectHandle, int options, const unsigned char *color,
                                             unsigned int tag, void *reserved)
@@ -1138,25 +1010,9 @@ SIM_DLLEXPORT int simSetObjectHierarchyOrder(int objectHandle, int order)
 
 
 
-SIM_DLLEXPORT int simSetArrayParam_D(int parameter, const double *arrayOfValues)
-{
-    return (simSetArrayParam_internal(parameter, arrayOfValues));
-}
-SIM_DLLEXPORT int simGetArrayParam_D(int parameter, double *arrayOfValues)
-{
-    return (simGetArrayParam_internal(parameter, arrayOfValues));
-}
 SIM_DLLEXPORT int simGetShapeViz_D(int shapeHandle, int index, struct SShapeVizInfo *info)
 {
     return (simGetShapeViz_internal(shapeHandle, index, info));
-}
-SIM_DLLEXPORT int simSetFloatParam_D(int parameter, double floatState)
-{
-    return (simSetFloatParam_internal(parameter, floatState));
-}
-SIM_DLLEXPORT int simGetFloatParam_D(int parameter, double *floatState)
-{
-    return (simGetFloatParam_internal(parameter, floatState));
 }
 SIM_DLLEXPORT int simGetObjectMatrix_D(int objectHandle, int relativeToObjectHandle, double *matrix)
 {
@@ -1401,27 +1257,9 @@ SIM_DLLEXPORT double simGetObjectSizeFactor_D(int objectHandle)
 {
     return (simGetObjectSizeFactor_internal(objectHandle));
 }
-SIM_DLLEXPORT int simSetFloatSignal_D(const char *signalName, double signalValue)
-{
-    return (simSetFloatSignal_internal(signalName, signalValue));
-}
-SIM_DLLEXPORT int simGetFloatSignal_D(const char *signalName, double *signalValue)
-{
-    return (simGetFloatSignal_internal(signalName, signalValue));
-}
 SIM_DLLEXPORT int simReadForceSensor_D(int objectHandle, double *forceVector, double *torqueVector)
 {
     return (simReadForceSensor_internal(objectHandle, forceVector, torqueVector));
-}
-SIM_DLLEXPORT int simSetLightParameters(int objectHandle, int state, const float *setToNULL, const float *diffusePart,
-                                        const float *specularPart)
-{
-    return (simSetLightParameters_internal(objectHandle, state, setToNULL, diffusePart, specularPart));
-}
-SIM_DLLEXPORT int simGetLightParameters_D(int objectHandle, double *setToNULL, double *diffusePart,
-                                          double *specularPart)
-{
-    return (simGetLightParameters_internal(objectHandle, setToNULL, diffusePart, specularPart));
 }
 SIM_DLLEXPORT int simGetVelocity_D(int shapeHandle, double *linearVelocity, double *angularVelocity)
 {
@@ -1512,22 +1350,6 @@ SIM_DLLEXPORT int simCreateJoint_D(int jointType, int jointMode, int options, co
                                    const double *reservedA, const double *reservedB)
 {
     return (simCreateJoint_internal(jointType, jointMode, options, sizes, reservedA, reservedB));
-}
-SIM_DLLEXPORT int simGetObjectFloatParam_D(int objectHandle, int ParamID, double *Param)
-{
-    return (simGetObjectFloatParam_internal(objectHandle, ParamID, Param));
-}
-SIM_DLLEXPORT int simSetObjectFloatParam_D(int objectHandle, int ParamID, double Param)
-{
-    return (simSetObjectFloatParam_internal(objectHandle, ParamID, Param));
-}
-SIM_DLLEXPORT double *simGetObjectFloatArrayParam_D(int objectHandle, int ParamID, int *size)
-{
-    return (simGetObjectFloatArrayParam_internal(objectHandle, ParamID, size));
-}
-SIM_DLLEXPORT int simSetObjectFloatArrayParam_D(int objectHandle, int ParamID, const double *params, int size)
-{
-    return (simSetObjectFloatArrayParam_internal(objectHandle, ParamID, params, size));
 }
 SIM_DLLEXPORT int simGetRotationAxis_D(const double *matrixStart, const double *matrixGoal, double *axis, double *angle)
 {
@@ -1643,14 +1465,6 @@ SIM_DLLEXPORT int simGetDecimatedMesh_D(const double *inVertices, int inVertices
 SIM_DLLEXPORT int simComputeMassAndInertia_D(int shapeHandle, double density)
 {
     return (simComputeMassAndInertia_internal(shapeHandle, density));
-}
-SIM_DLLEXPORT double simGetEngineFloatParam_D(int paramId, int objectHandle, const void *object, bool *ok)
-{
-    return (simGetEngineFloatParam_internal(paramId, objectHandle, object, ok));
-}
-SIM_DLLEXPORT int simSetEngineFloatParam_D(int paramId, int objectHandle, const void *object, double val)
-{
-    return (simSetEngineFloatParam_internal(paramId, objectHandle, object, val));
 }
 SIM_DLLEXPORT int simCreateOctree_D(double voxelSize, int options, double pointSize, void *reserved)
 {

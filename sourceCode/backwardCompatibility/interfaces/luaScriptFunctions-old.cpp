@@ -8704,3 +8704,893 @@ int _simGetPersistentDataTags(luaWrap_lua_State *L)
     LUA_END(0);
 }
 
+int _simSetBoolParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setBoolParam");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_bool, 0))
+        retVal = simSetBoolParam_internal(luaToInt(L, 1), luaToBool(L, 2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetBoolParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getBoolParam");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    {
+        int retVal = simGetBoolParam_internal(luaToInt(L, 1));
+        if (retVal != -1)
+        {
+            luaWrap_lua_pushboolean(L, retVal != 0);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetInt32Param(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setInt32Param");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int paramIndex = luaToInt(L, 1);
+        int v = luaToInt(L, 2);
+        if (paramIndex == sim_intparam_error_report_mode)
+        { // for backward compatibility (2020)
+            CScriptObject *it =
+                App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+            if (it != nullptr)
+            {
+                bool r = true; // default
+                if ((v & sim_api_error_report) == 0)
+                    r = false;
+                it->setRaiseErrors_backCompatibility(r);
+                retVal = 1;
+            }
+        }
+        else
+            retVal = simSetInt32Param_internal(paramIndex, v);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetInt32Param(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getInt32Param");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    {
+        int paramIndex = luaToInt(L, 1);
+        if (paramIndex == sim_intparam_error_report_mode)
+        { // for backward compatibility (2020)
+            CScriptObject *it =
+                App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+            if (it != nullptr)
+            {
+                int v = 1; // default
+                if (!it->getRaiseErrors_backCompatibility())
+                    v = 0;
+                luaWrap_lua_pushinteger(L, v);
+                LUA_END(1);
+            }
+        }
+        else
+        {
+            int v;
+            int retVal = simGetInt32Param_internal(paramIndex, &v);
+            if (retVal != -1)
+            {
+                luaWrap_lua_pushinteger(L, v);
+                LUA_END(1);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetFloatParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setFloatParam");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+        retVal = simSetFloatParam_internal(luaToInt(L, 1), luaToDouble(L, 2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetFloatParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getFloatParam");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    {
+        double v;
+        int retVal = simGetFloatParam_internal(luaToInt(L, 1), &v);
+        if (retVal != -1)
+        {
+            luaWrap_lua_pushnumber(L, v);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(1);
+}
+
+int _simSetStringParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setStringParam");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
+        retVal = simSetStringParam_internal(luaToInt(L, 1), luaWrap_lua_tostring(L, 2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetStringParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getStringParam");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    {
+        int param = luaToInt(L, 1);
+        if (sim_stringparam_addonpath == param)
+        {
+            std::string s;
+            CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(CScriptObject::getScriptHandleFromInterpreterState_lua(L));
+            if (it != nullptr)
+                s = it->getAddOnPath();
+            luaWrap_lua_pushtext(L, s.c_str());
+            LUA_END(1);
+        }
+        else
+        {
+            char *s = simGetStringParam_internal(param);
+            if (s != nullptr)
+            {
+                luaWrap_lua_pushtext(L, s);
+                delete[] s;
+                LUA_END(1);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetArrayParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setArrayParam");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_table, 0))
+    {
+        int parameter = luaToInt(L, 1);
+        if (true)
+        { // for now all array parameters are tables of 3 floats
+            double theArray[3];
+            getDoublesFromTable(L, 2, 3, theArray);
+            retVal = simSetArrayParam_internal(parameter, theArray);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetArrayParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getArrayParam");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    {
+        int parameter = luaToInt(L, 1);
+        if (true)
+        { // for now all parameters are tables of 3 floats
+            double theArray[3];
+            int retVal = simGetArrayParam_internal(parameter, theArray);
+            if (retVal != -1)
+            {
+                pushDoubleTableOntoStack(L, 3, theArray);
+                LUA_END(1);
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetNamedStringParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setNamedStringParam");
+    int retVal = -1;
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_string, 0))
+    {
+        std::string paramName(luaWrap_lua_tostring(L, 1));
+        size_t l;
+        const char *data = ((char *)luaWrap_lua_tobuffer(L, 2, &l));
+        retVal = simSetNamedStringParam_internal(paramName.c_str(), data, int(l));
+        if (retVal >= 0)
+        {
+            luaWrap_lua_pushinteger(L, retVal);
+            LUA_END(1);
+        }
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetNamedStringParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getNamedStringParam");
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0))
+    {
+        std::string paramName(luaWrap_lua_tostring(L, 1));
+        int l;
+        char *stringParam = simGetNamedStringParam_internal(paramName.c_str(), &l);
+        if (stringParam != nullptr)
+        {
+            luaWrap_lua_pushbinarystring(L, stringParam, l);
+            delete[] stringParam;
+            LUA_END(1);
+        }
+        LUA_END(0);
+    }
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetInt32Signal(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setInt32Signal");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0))
+    {
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),
+                                   CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
+                                       L)); // for transmitting to the master function additional info (e.g.for autom.
+                                            // name adjustment, or for autom. object deletion when script ends)
+        retVal = simSetInt32Signal_internal(luaWrap_lua_tostring(L, 1), luaToInt(L, 2));
+        setCurrentScriptInfo_cSide(-1, -1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetInt32Signal(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getInt32Signal");
+
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0))
+    {
+        int intVal;
+        if (simGetInt32Signal_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &intVal) == 1)
+        {
+            luaWrap_lua_pushinteger(L, intVal);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simClearInt32Signal(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.clearInt32Signal");
+
+    int retVal = -1; // error
+    int res = checkOneGeneralInputArgument(L, 1, lua_arg_string, 0, true, true, &errorString);
+    if (res >= 0)
+    {
+        if (res != 2)
+            retVal = simClearInt32Signal_internal(nullptr); // actually deprecated. No need for that
+        else
+            retVal = simClearInt32Signal_internal(luaWrap_lua_tostring(L, 1));
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simSetFloatSignal(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setFloatSignal");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_number, 0))
+    {
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),
+                                   CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
+                                       L)); // for transmitting to the master function additional info (e.g.for autom.
+                                            // name adjustment, or for autom. object deletion when script ends)
+        retVal = simSetFloatSignal_internal(luaWrap_lua_tostring(L, 1), luaToDouble(L, 2));
+        setCurrentScriptInfo_cSide(-1, -1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetFloatSignal(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getFloatSignal");
+
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0))
+    {
+        double floatVal;
+        if (simGetFloatSignal_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &floatVal) == 1)
+        {
+            luaWrap_lua_pushnumber(L, floatVal);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simClearFloatSignal(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.clearFloatSignal");
+
+    int retVal = -1; // error
+    int res = checkOneGeneralInputArgument(L, 1, lua_arg_string, 0, true, true, &errorString);
+    if (res >= 0)
+    {
+        if (res != 2)
+            retVal = simClearFloatSignal_internal(nullptr); // actually deprecated. No need for that
+        else
+            retVal = simClearFloatSignal_internal(luaWrap_lua_tostring(L, 1));
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simSetStringSignal(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setStringSignal");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0, lua_arg_string, 0))
+    {
+        size_t dataLength;
+        const char *data = luaWrap_lua_tobuffer(L, 2, &dataLength);
+        setCurrentScriptInfo_cSide(CScriptObject::getScriptHandleFromInterpreterState_lua(L),
+                                   CScriptObject::getScriptNameIndexFromInterpreterState_lua_old(
+                                       L)); // for transmitting to the master function additional info (e.g.for autom.
+                                            // name adjustment, or for autom. object deletion when script ends)
+        retVal = simSetStringSignal_internal(luaWrap_lua_tostring(L, 1), data, int(dataLength));
+        setCurrentScriptInfo_cSide(-1, -1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetStringSignal(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getStringSignal");
+
+    if (checkInputArguments(L, &errorString, lua_arg_string, 0))
+    {
+        int stringLength;
+        char *str = simGetStringSignal_internal(std::string(luaWrap_lua_tostring(L, 1)).c_str(), &stringLength);
+        if (str != nullptr)
+        {
+            luaWrap_lua_pushbinarystring(L, str, stringLength);
+            simReleaseBuffer_internal(str);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simClearStringSignal(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.clearStringSignal");
+
+    int retVal = -1; // error
+    int res = checkOneGeneralInputArgument(L, 1, lua_arg_string, 0, true, true, &errorString);
+    if (res >= 0)
+    {
+        if (res != 2)
+            retVal = simClearStringSignal_internal(nullptr);
+        else
+            retVal = simClearStringSignal_internal(luaWrap_lua_tostring(L, 1));
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetSignalName(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getSignalName");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        char *str = simGetSignalName_internal(luaToInt(L, 1), luaToInt(L, 2));
+        if (str != nullptr)
+        {
+            luaWrap_lua_pushtext(L, str);
+            simReleaseBuffer_internal(str);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetLightParameters(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getLightParameters");
+
+    int retVal = -1;
+    double ambientOld[3] = {0.0, 0.0, 0.0};
+    double diffuse[3] = {0.0, 0.0, 0.0};
+    double specular[3] = {0.0, 0.0, 0.0};
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+        retVal = simGetLightParameters_internal(luaToInt(L, 1), nullptr, diffuse, specular);
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    pushDoubleTableOntoStack(L, 3, ambientOld);
+    pushDoubleTableOntoStack(L, 3, diffuse);
+    pushDoubleTableOntoStack(L, 3, specular);
+    LUA_END(4);
+}
+
+int _simSetLightParameters(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setLightParameters");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int objHandle = luaToInt(L, 1);
+        int state = luaToInt(L, 2);
+        float *diffuseP = nullptr;
+        float *specularP = nullptr;
+        float diffuse_[3] = {0.0, 0.0, 0.0};
+        float specular_[3] = {0.0, 0.0, 0.0};
+        int res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 3, true, true, &errorString);
+        if (res != -1)
+        {
+            int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 3, true, true, &errorString);
+            if (res != -1)
+            {
+                if (res == 2)
+                { // get the data
+                    getFloatsFromTable(L, 4, 3, diffuse_);
+                    diffuseP = diffuse_;
+                }
+                int res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 3, true, true, &errorString);
+                if (res != -1)
+                {
+                    if (res == 2)
+                    { // get the data
+                        getFloatsFromTable(L, 5, 3, specular_);
+                        specularP = specular_;
+                    }
+                    retVal = simSetLightParameters_internal(objHandle, state, nullptr, diffuseP, specularP);
+                }
+            }
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectInt32Param(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectInt32Param");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int param;
+        int retVal = simGetObjectInt32Param_internal(luaToInt(L, 1), luaToInt(L, 2), &param);
+        if (retVal > 0)
+        {
+            luaWrap_lua_pushinteger(L, param);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetObjectInt32Param(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectInt32Param");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
+        retVal = simSetObjectInt32Param_internal(luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectFloatParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectFloatParam");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        double param;
+        int retVal = simGetObjectFloatParam_internal(luaToInt(L, 1), luaToInt(L, 2), &param);
+        if (retVal > 0)
+        {
+            luaWrap_lua_pushnumber(L, param);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetObjectFloatParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectFloatParam");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
+        retVal = simSetObjectFloatParam_internal(luaToInt(L, 1), luaToInt(L, 2), luaToDouble(L, 3));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectFloatArrayParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectFloatArrayParam");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int s;
+        double *params = simGetObjectFloatArrayParam_internal(luaToInt(L, 1), luaToInt(L, 2), &s);
+        if (params != nullptr)
+        {
+            pushDoubleTableOntoStack(L, s, params);
+            delete[] params;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetObjectFloatArrayParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectFloatArrayParam");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 1))
+    {
+        size_t cnt = luaWrap_lua_rawlen(L, 3);
+        std::vector<double> arr;
+        arr.resize(cnt);
+        getDoublesFromTable(L, 3, cnt, &arr[0]);
+        retVal = simSetObjectFloatArrayParam_internal(luaToInt(L, 1), luaToInt(L, 2), &arr[0], int(cnt));
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectStringParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectStringParam");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int paramLength;
+        char *strBuff = simGetObjectStringParam_internal(luaToInt(L, 1), luaToInt(L, 2), &paramLength);
+        if (strBuff != nullptr)
+        {
+            luaWrap_lua_pushbuffer(L, strBuff, paramLength);
+            delete[] strBuff;
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetObjectStringParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectStringParam");
+
+    int retVal = -1; // means error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_string, 0))
+    {
+        size_t dataLength;
+        char *data = (char *)luaWrap_lua_tobuffer(L, 3, &dataLength);
+        retVal = simSetObjectStringParam_internal(luaToInt(L, 1), luaToInt(L, 2), data, (int)dataLength);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simWriteCustomStringData(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.writeCustomStringData");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
+    {
+        int objectHandle = luaToInt(L, 1);
+        std::string dataName(luaWrap_lua_tostring(L, 2));
+        int res;
+        res = checkOneGeneralInputArgument(L, 3, lua_arg_string, 0, false, true, &errorString);
+        if (res >= 1)
+        {
+            size_t dataLength = 0;
+            char *data = nullptr;
+            if (res == 2)
+                data = (char *)luaWrap_lua_tobuffer(L, 3, &dataLength);
+            retVal = simWriteCustomDataBlock_internal(objectHandle, dataName.c_str(), data, (int)dataLength);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simReadCustomStringData(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.readCustomStringData");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_string, 0))
+    {
+        int objectHandle = luaToInt(L, 1);
+        std::string dataName(luaWrap_lua_tostring(L, 2));
+        int dataLength;
+        char *data = simReadCustomDataBlock_internal(objectHandle, dataName.c_str(), &dataLength);
+        if (data != nullptr)
+        {
+            luaWrap_lua_pushbinarystring(L, (const char *)data, dataLength);
+            simReleaseBuffer_internal(data);
+        }
+        else
+            luaWrap_lua_pushnil(L);
+        LUA_END(1);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simReadCustomDataTags(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.readCustomDataTags");
+
+    std::vector<std::string> stringTable;
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+    {
+        int objectHandle = luaToInt(L, 1);
+        int tagCount;
+        char *data = simReadCustomDataBlockTags_internal(objectHandle, &tagCount);
+        if (data != nullptr)
+        {
+            size_t off = 0;
+            for (int i = 0; i < tagCount; i++)
+            {
+                stringTable.push_back(data + off);
+                off += strlen(data + off) + 1;
+            }
+            simReleaseBuffer_internal(data);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    pushStringTableOntoStack(L, stringTable);
+    LUA_END(1);
+}
+
+int _simGetEngineFloatParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getEngineFloatParam_old");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int paramId = luaToInt(L, 1);
+        int objectHandle = luaToInt(L, 2);
+        bool ok;
+        double paramVal = simGetEngineFloatParam_internal(paramId, objectHandle, nullptr, &ok);
+        if (ok)
+        {
+            luaWrap_lua_pushnumber(L, paramVal);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetEngineInt32Param(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getEngineInt32Param");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int paramId = luaToInt(L, 1);
+        int objectHandle = luaToInt(L, 2);
+        bool ok;
+        int paramVal = simGetEngineInt32Param_internal(paramId, objectHandle, nullptr, &ok);
+        if (ok)
+        {
+            luaWrap_lua_pushinteger(L, paramVal);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetEngineBoolParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getEngineBoolParam_old");
+
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int paramId = luaToInt(L, 1);
+        int objectHandle = luaToInt(L, 2);
+        bool ok;
+        bool paramVal = simGetEngineBoolParam_internal(paramId, objectHandle, nullptr, &ok);
+        if (ok)
+        {
+            luaWrap_lua_pushboolean(L, paramVal);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetEngineFloatParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setEngineFloatParam_old");
+
+    int retVal = -1;
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int paramId = luaToInt(L, 1);
+        int objectHandle = luaToInt(L, 2);
+        double paramVal = luaToDouble(L, 3);
+        retVal = simSetEngineFloatParam_internal(paramId, objectHandle, nullptr, paramVal);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simSetEngineInt32Param(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setEngineInt32Param");
+
+    int retVal = -1;
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 0))
+    {
+        int paramId = luaToInt(L, 1);
+        int objectHandle = luaToInt(L, 2);
+        int paramVal = luaToInt(L, 3);
+        retVal = simSetEngineInt32Param_internal(paramId, objectHandle, nullptr, paramVal);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simSetEngineBoolParam(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setEngineBoolParam_old");
+
+    int retVal = -1;
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0, lua_arg_bool, 0))
+    {
+        int paramId = luaToInt(L, 1);
+        int objectHandle = luaToInt(L, 2);
+        bool paramVal = luaToBool(L, 3);
+        retVal = simSetEngineBoolParam_internal(paramId, objectHandle, nullptr, paramVal);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
