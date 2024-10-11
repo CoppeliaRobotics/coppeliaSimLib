@@ -16,10 +16,8 @@ bool CCbor::isText(const char *v, size_t l)
 
 CCbor::CCbor(const std::string *initBuff /*=nullptr*/, int options /*=0*/)
 {
+    clear();
     _options = options;
-    _eventDepth = 0;
-    _eventOpen = false;
-    _discardableEventCnt = 0;
     if (initBuff != nullptr)
         _buff.assign(initBuff->begin(), initBuff->end());
 }
@@ -32,10 +30,12 @@ void CCbor::swapWithEmptyBuffer(std::vector<unsigned char> *emptyBuff)
 {
     _buff.swap(emptyBuff[0]);
     clear();
+    _buff.clear();
 }
 
 void CCbor::appendInt(long long int v)
 {
+    _handleDataField();
     unsigned char add = 0;
     if (v < 0)
     {
@@ -48,7 +48,7 @@ void CCbor::appendInt(long long int v)
 
 void CCbor::appendUCharArray(const unsigned char *v, size_t cnt)
 {
-    openArray();
+    openArray(); // _handleDataField() called in there
 
     for (size_t i = 0; i < cnt; i++)
     {
@@ -66,7 +66,7 @@ void CCbor::appendUCharArray(const unsigned char *v, size_t cnt)
 
 void CCbor::appendIntArray(const int *v, size_t cnt)
 {
-    openArray();
+    openArray(); // _handleDataField() called in there
 
     unsigned char *w = (unsigned char *)v;
     for (size_t i = 0; i < cnt; i++)
@@ -97,7 +97,7 @@ void CCbor::appendIntArray(const int *v, size_t cnt)
 
 void CCbor::appendIntArray(const long long int *v, size_t cnt)
 {
-    openArray();
+    openArray(); // _handleDataField() called in there
 
     unsigned char *w = (unsigned char *)v;
     for (size_t i = 0; i < cnt; i++)
@@ -136,6 +136,7 @@ void CCbor::appendIntArray(const long long int *v, size_t cnt)
 
 void CCbor::appendFloat(float v)
 {
+    _handleDataField();
     _buff.push_back(128 + 64 + 32 + 26);
     _buff.push_back(((unsigned char *)&v)[3]);
     _buff.push_back(((unsigned char *)&v)[2]);
@@ -145,7 +146,7 @@ void CCbor::appendFloat(float v)
 
 void CCbor::appendFloatArray(const float *v, size_t cnt)
 {
-    openArray();
+    openArray(); // _handleDataField() called in there
 
     const unsigned char *w = (const unsigned char *)v;
     for (size_t i = 0; i < cnt; i++)
@@ -167,6 +168,7 @@ void CCbor::appendDouble(double v)
         appendFloat(float(v)); // treat doubles as floats
     else
     {
+        _handleDataField();
         _buff.push_back(128 + 64 + 32 + 27);
         _buff.push_back(((unsigned char *)&v)[7]);
         _buff.push_back(((unsigned char *)&v)[6]);
@@ -181,7 +183,7 @@ void CCbor::appendDouble(double v)
 
 void CCbor::appendDoubleArray(const double *v, size_t cnt)
 {
-    openArray();
+    openArray(); // _handleDataField() called in there
 
     if ((_options & 1) == 0)
     { // treat doubles as floats
@@ -219,11 +221,13 @@ void CCbor::appendDoubleArray(const double *v, size_t cnt)
 
 void CCbor::appendNull()
 {
-     _buff.push_back(128 + 64 + 32 + 22);
+    _handleDataField();
+    _buff.push_back(128 + 64 + 32 + 22);
 }
 
 void CCbor::appendBool(bool v)
 {
+    _handleDataField();
     if (v)
         _buff.push_back(128 + 64 + 32 + 21);
     else
@@ -269,6 +273,7 @@ void CCbor::_appendItemTypeAndLength(unsigned char t, long long int l)
 
 void CCbor::appendBuff(const unsigned char *v, size_t l)
 {
+    _handleDataField();
     _appendItemTypeAndLength(64, l);
     for (size_t i = 0; i < l; i++)
         _buff.push_back(v[i]);
@@ -276,6 +281,7 @@ void CCbor::appendBuff(const unsigned char *v, size_t l)
 
 void CCbor::appendText(const char *v, int l /*=-1*/)
 {
+    _handleDataField(v);
     if (l < 0)
         l = int(strlen(v));
     _appendItemTypeAndLength(64 + 32, size_t(l));
@@ -285,6 +291,7 @@ void CCbor::appendText(const char *v, int l /*=-1*/)
 
 void CCbor::appendRaw(const unsigned char *v, size_t l)
 {
+    _handleDataField();
     _buff.insert(_buff.end(), v, v + l);
 }
 
@@ -324,30 +331,42 @@ void CCbor::appendLuaString(const std::string &v, bool isBuffer, bool isText)
 
 void CCbor::openArray()
 {
+    _handleDataField();
     _eventDepth++;
     _buff.push_back(128 + 31); // array + use a break char
 }
 
 void CCbor::openMap()
 {
+    _handleDataField();
     _eventDepth++;
     _buff.push_back(128 + 32 + 31); // map + use a break char
 }
 
 void CCbor::closeArrayOrMap()
 {
+    if ( (_eventDepth == 2) && _inDataField)
+    { // we close the data field
+        _inDataField = false;
+        SEventInf* inf =  &_eventInfos[_eventInfos.size() - 1];
+        // for last key-value pair:
+        if (inf->fieldPositions.size() > 0)
+            inf->fieldSizes.push_back(_buff.size() - inf->fieldPositions[inf->fieldPositions.size() - 1]);
+    }
     _eventDepth--;
     _buff.push_back(255); // break char
 }
 
 void CCbor::clear()
 {
-    _buff.clear();
+    // do not clear _buff in here! _buff.clear();
     _eventInfos.clear();
     _mergeableEventIds.clear();
     _discardableEventCnt = 0;
     _eventDepth = 0;
     _eventOpen = false;
+    _nextIsKeyInData = true;
+    _inDataField = false;
 }
 
 std::string CCbor::getBuff() const
@@ -376,6 +395,7 @@ void CCbor::createEvent(const char *event, const char *fieldName, const char *ob
 
     SEventInf inf;
     inf.pos = _buff.size();
+    inf.target = handle;
     if (mergeable)
     {
         std::string eventId(event);
@@ -402,6 +422,7 @@ void CCbor::createEvent(const char *event, const char *fieldName, const char *ob
     {
         appendText("data");
         openMap(); // holding the data
+        _inDataField = true;
 #if SIM_EVENT_PROTOCOL_VERSION == 2
         if (objType != nullptr)
         {
@@ -410,6 +431,7 @@ void CCbor::createEvent(const char *event, const char *fieldName, const char *ob
         }
 #endif
     }
+    // Do not open any other map or array below here
 }
 
 void CCbor::pushEvent()
@@ -420,12 +442,16 @@ void CCbor::pushEvent()
             closeArrayOrMap(); // make sure to close the current event's arrays/maps, except for the one holding the event
         _eventDepth = 0; // yes, we intentionally forget to close the last array/map, but we anyways reset the depth to zero
         _eventOpen = false;
+        _nextIsKeyInData = true;
     }
     else
         App::logMsg(sim_verbosity_errors, "pushing an event unexisting event.");
+
+    SEventInf* inf =  &_eventInfos[_eventInfos.size() - 1];
+    inf->size = _buff.size() - inf->pos;
 }
 
-long long int CCbor::finalizeEvents(long long int nextSeq, bool seqChanges)
+long long int CCbor::finalizeEvents(long long int nextSeq, bool seqChanges, std::vector<SEventInf>* inf /*= nullptr*/)
 {
     if (_eventOpen)
         App::logMsg(sim_verbosity_errors, "finalizing events where an event push is expected.");
@@ -439,21 +465,32 @@ long long int CCbor::finalizeEvents(long long int nextSeq, bool seqChanges)
     {
         if ((_eventInfos[i].eventId.size() == 0) || (_mergeableEventIds.find(_eventInfos[i].eventId)->second == i))
         {
+            SEventInf n;
+            n.target = _eventInfos[i].target;
+            n.pos = _buff.size();
             if (i < _eventInfos.size() - 1)
                 _buff.insert(_buff.end(), events.begin() + _eventInfos[i].pos, events.begin() + _eventInfos[i + 1].pos);
             else
                 _buff.insert(_buff.end(), events.begin() + _eventInfos[i].pos, events.end());
             appendKeyInt("seq", nextSeq++);
             closeArrayOrMap(); // to close the event
+            n.size = _buff.size() - n.pos;
+            if (inf != nullptr)
+            {
+                for (size_t j = 0; j < _eventInfos[i].fieldNames.size(); j++)
+                {
+                    n.fieldNames.push_back(_eventInfos[i].fieldNames[j]);
+                    n.fieldPositions.push_back(n.pos + _eventInfos[i].fieldPositions[j] - _eventInfos[i].pos);
+                    n.fieldSizes.push_back(_eventInfos[i].fieldSizes[j]);
+                }
+                inf->push_back(n);
+            }
         }
     }
     closeArrayOrMap(); // to close the array holding all events
-    _eventInfos.clear();
-    _mergeableEventIds.clear();
-    _discardableEventCnt = 0;
-    _eventDepth = 0;
-    _eventOpen = false;
-    return (nextSeq);
+
+    clear();
+    return nextSeq;
 }
 
 size_t CCbor::getEventCnt() const
@@ -543,4 +580,26 @@ void CCbor::openKeyMap(const char *key)
 {
     appendText(key);
     openMap();
+}
+
+
+void CCbor::_handleDataField(const char* key /*= nullptr*/)
+{
+    if ((_eventDepth == 2) && _inDataField)
+    {
+        if (_nextIsKeyInData)
+        {
+            if (_eventInfos.size() > 0)
+            {
+                SEventInf* inf =  &_eventInfos[_eventInfos.size() - 1];
+                // for previous key-value pair:
+                if (inf->fieldPositions.size() > 0)
+                    inf->fieldSizes.push_back(_buff.size() - inf->fieldPositions[inf->fieldPositions.size() - 1]);
+                // For current key-value pair:
+                inf->fieldPositions.push_back(_buff.size());
+                inf->fieldNames.push_back(key);
+            }
+        }
+        _nextIsKeyInData = !_nextIsKeyInData;
+    }
 }

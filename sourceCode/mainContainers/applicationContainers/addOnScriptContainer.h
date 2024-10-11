@@ -36,6 +36,7 @@ class CAddOnScriptContainer
     void pushGenesisEvents() const;
 
     bool shouldTemporarilySuspendMainScript();
+    void getActiveScripts(std::vector<CScriptObject*>& scripts) const;
     int callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, int scriptToExclude = -1);
 
 #ifdef SIM_WITH_GUI

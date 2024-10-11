@@ -399,6 +399,33 @@ CInterfaceStackObject *CInterfaceStack::getStackMapObject(const char *fieldName)
     return (table->getMapObject(fieldName));
 }
 
+CInterfaceStackObject *CInterfaceStack::getStackIntMapObject(long long int key) const
+{
+    if (_stackObjects.size() == 0)
+        return (nullptr);
+    CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
+    if (obj->getObjectType() != sim_stackitem_table)
+        return (nullptr);
+    CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
+    if (table->isTableArray())
+        return (nullptr);
+    return (table->getIntMapObject(key));
+}
+
+void CInterfaceStack::getStackMapKeys(std::vector<std::string>* stringKeys, std::vector<long long int>* intKeys) const
+{
+    if (_stackObjects.size() != 0)
+    {
+        CInterfaceStackObject *obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable *table = (CInterfaceStackTable *)obj;
+            if (!table->isTableArray())
+                table->getMapKeys(stringKeys, intKeys);
+        }
+    }
+}
+
 bool CInterfaceStack::getStackMapBoolValue(const char *fieldName, bool &val) const
 {
     const CInterfaceStackObject *obj = getStackMapObject(fieldName);

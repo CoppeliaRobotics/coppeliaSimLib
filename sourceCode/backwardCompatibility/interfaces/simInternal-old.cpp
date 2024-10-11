@@ -5673,7 +5673,7 @@ int simSetDoubleSignalOld_internal(const char *signalName, double signalValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        std::string pName(SIGNALDOTSTR);
+        std::string pName(SIGNALPREFIX);
         pName += "DLEGACY.";
         pName += signalName;
         simSetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue);
@@ -5696,7 +5696,7 @@ int simGetDoubleSignalOld_internal(const char *signalName, double *signalValue)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = 0;
-        std::string pName(SIGNALDOTSTR);
+        std::string pName(SIGNALPREFIX);
         pName += "DLEGACY.";
         pName += signalName;
         if (1 == simGetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue))
@@ -5725,7 +5725,7 @@ int simClearDoubleSignalOld_internal(const char *signalName)
                 if (sn.size() != 0)
                 {
                     retVal ++;
-                    sn = SIGNALDOTSTR + sn;
+                    sn = SIGNALPREFIX + sn;
                     simRemoveProperty_internal(sim_handle_scene, sn.c_str());
                 }
             }
@@ -5733,7 +5733,7 @@ int simClearDoubleSignalOld_internal(const char *signalName)
         else
         {
             retVal = 0;
-            std::string pName(SIGNALDOTSTR);
+            std::string pName(SIGNALPREFIX);
             pName += "DLEGACY.";
             pName += signalName;
             if (1 == simRemoveProperty_internal(sim_handle_scene, pName.c_str()))

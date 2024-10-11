@@ -6,7 +6,7 @@
 
 CCustomData::CCustomData()
 {
-    _eventPrefix = CUSTOMDATAUNDERSCORESTR;
+    _eventPrefix = CUSTOMDATAPREFIX;
 }
 
 CCustomData::~CCustomData()
@@ -15,7 +15,7 @@ CCustomData::~CCustomData()
 
 void CCustomData::setItemsAreVolatile()
 {
-    _eventPrefix = SIGNALUNDERSCORESTR;
+    _eventPrefix = SIGNALPREFIX;
 }
 
 bool CCustomData::setData(const char *tag, const char *data, size_t dataLen, bool allowEmptyData /*= true*/)
@@ -182,7 +182,7 @@ bool CCustomData::getPropertyName(int& index, std::string& pName) const
         size_t p = nnmm.find("&.");
         if (p != std::string::npos)
             nnmm.erase(0, p + 2);
-        if ( (pName.size() == 0) || utils::startsWith((CUSTOMDATADOTSTR + nnmm).c_str(), pName.c_str()) )
+        if ( (pName.size() == 0) || utils::startsWith((CUSTOMDATAPREFIX + nnmm).c_str(), pName.c_str()) )
         {
             index--;
             if (index == -1)

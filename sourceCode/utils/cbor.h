@@ -9,6 +9,11 @@ struct SEventInf
 {
     size_t pos;
     std::string eventId;
+    long long int target;
+    size_t size;
+    std::vector<size_t> fieldPositions;
+    std::vector<std::string> fieldNames;
+    std::vector<size_t> fieldSizes;
 };
 
 class CCbor
@@ -57,7 +62,7 @@ class CCbor
 
     void createEvent(const char *event, const char *fieldName, const char *objType, long long int handle, long long int uid, bool mergeable, bool openDataField = true);
     void pushEvent();
-    long long int finalizeEvents(long long int nextSeq, bool seqChanges);
+    long long int finalizeEvents(long long int nextSeq, bool seqChanges, std::vector<SEventInf>* inf = nullptr);
     size_t getEventCnt() const;
     size_t getEventDepth() const;
 
@@ -67,6 +72,7 @@ class CCbor
     const unsigned char *getBuff(size_t &l) const;
 
   protected:
+    void _handleDataField(const char* key = nullptr);
     void _appendItemTypeAndLength(unsigned char t, long long int l);
     void _adjustEventSeq(size_t pos, long long int endSeq);
 
@@ -75,6 +81,8 @@ class CCbor
 
     size_t _eventDepth; // nb of array/map closes needed
     bool _eventOpen;    // true when not yet pushed
+    bool _nextIsKeyInData;
+    bool _inDataField;
     size_t _discardableEventCnt;
     std::vector<SEventInf> _eventInfos;
     std::map<std::string, size_t> _mergeableEventIds;

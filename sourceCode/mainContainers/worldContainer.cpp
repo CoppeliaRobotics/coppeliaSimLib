@@ -419,6 +419,27 @@ int CWorldContainer::getSysFuncAndHookCnt(int sysCall) const
     return (retVal);
 }
 
+void CWorldContainer::getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
+{
+    TRACE_INTERNAL;
+    if (reverse)
+    {
+        if ( (sandboxScript != nullptr) && (sandboxScript->getScriptState() == CScriptObject::scriptState_initialized) )
+            scripts.push_back(sandboxScript);
+        addOnScriptContainer->getActiveScripts(scripts);
+        if (currentWorld != nullptr)
+            currentWorld->getActiveScripts(scripts, reverse, alsoLegacyScripts);
+    }
+    else
+    {
+        if (currentWorld != nullptr)
+            currentWorld->getActiveScripts(scripts, reverse, alsoLegacyScripts);
+        addOnScriptContainer->getActiveScripts(scripts);
+        if ( (sandboxScript != nullptr) && (sandboxScript->getScriptState() == CScriptObject::scriptState_initialized) )
+            scripts.push_back(sandboxScript);
+    }
+}
+
 void CWorldContainer::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
@@ -643,19 +664,52 @@ void CWorldContainer::dispatchEvents()
             ev_->appendKeyInt("time", VDateTime::getUnixTimeInMs());
             pushEvent();
             _eventMutex.lock("CWorldContainer::dispatchEvents");
-            _eventSeq = _events->finalizeEvents(_eventSeq, true);
+            std::vector<SEventInf> _eventInfos;
+            _eventSeq = _events->finalizeEvents(_eventSeq, true, &_eventInfos);
             std::vector<unsigned char> ev;
             _events->swapWithEmptyBuffer(&ev);
-            CInterfaceStack *stack = interfaceStackContainer->createStack();
-            stack->pushBufferOntoStack((char *)ev.data(), ev.size());
             _eventMutex.unlock(); // below might lead to a deadlock if _eventMutex still locked
             int auxData[2];
             auxData[0] = int(_events->getEventCnt());
             auxData[1] = int(ev.size());
             pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_events, auxData, ev.data());
             if (getSysFuncAndHookCnt(sim_syscb_event) > 0)
-                callScripts(sim_syscb_event, stack, nullptr);
-            interfaceStackContainer->destroyStack(stack);
+            {
+                CInterfaceStack *fullEventsStack = nullptr;
+
+                std::vector<CScriptObject*> scripts;
+                getActiveScripts(scripts, false, true);
+                for (size_t sc = 0; sc < scripts.size(); sc++)
+                {
+                    CScriptObject* script = scripts[sc];
+                    if (script->hasSystemFunctionOrHook(sim_syscb_event))
+                    {
+                        std::vector<unsigned char> ew;
+                        if (script->prepareFilteredEventsBuffer(ev, _eventInfos, ew))
+                        { // events are filtered
+                            if (ew.size() > 2)
+                            { // make sure the event array is not empty
+                                CInterfaceStack *stack = interfaceStackContainer->createStack();
+                                stack->pushBufferOntoStack((char *)ew.data(), ew.size());
+                                script->systemCallScript(sim_syscb_event, stack, nullptr);
+                                interfaceStackContainer->destroyStack(stack);
+                            }
+                        }
+                        else
+                        { // events are not filtered
+                            if (fullEventsStack == nullptr)
+                            {
+                                fullEventsStack = interfaceStackContainer->createStack();
+                                fullEventsStack->pushBufferOntoStack((char *)ev.data(), ev.size());
+                            }
+                            script->systemCallScript(sim_syscb_event, fullEventsStack, nullptr);
+                        }
+                    }
+                }
+
+                if (fullEventsStack != nullptr)
+                    interfaceStackContainer->destroyStack(fullEventsStack);
+            }
         }
         else
             _eventMutex.unlock();

@@ -43,7 +43,8 @@ class CEmbeddedScriptContainer
     bool addCommandToOutsideCommandQueues(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4,
                                           const double aux2Vals[8], int aux2Count);
 
-    int callScripts_noMainScript(int scriptType, int callTypeOrResumeLocation, CInterfaceStack *inStack,
+    void getActiveLegacyScripts(std::vector<CScriptObject*>& scripts, bool reverse = false) const;
+    int callLegacyScripts(int scriptType, int callTypeOrResumeLocation, CInterfaceStack *inStack,
                                     CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr,
                                     int scriptToExclude = -1);
     bool shouldTemporarilySuspendMainScript();

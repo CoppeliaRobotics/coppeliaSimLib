@@ -6051,7 +6051,7 @@ int CSceneObject::setBufferProperty(const char* ppName, const char* buffer, int 
     if (buffer == nullptr)
         bufferL = 0;
     std::string pN(pName);
-    if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+    if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
     {
         if (pN.size() > 0)
         {
@@ -6076,7 +6076,7 @@ int CSceneObject::getBufferProperty(const char* ppName, std::string& pState) con
     const char* pName = _pName.c_str();
     int retVal = -1;
     std::string pN(pName);
-    if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+    if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
     {
         if (pN.size() > 0)
         {
@@ -6330,7 +6330,7 @@ int CSceneObject::removeProperty(const char* ppName)
     int retVal = -1;
 
     std::string pN(pName);
-    if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+    if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
     {
         if (pN.size() > 0)
         {
@@ -6373,7 +6373,7 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
     {
         if (customObjectData.getPropertyName(index, pName))
         {
-            pName = CUSTOMDATADOTSTR + pName;
+            pName = CUSTOMDATAPREFIX + pName;
             //pName = "object." + pName;
             retVal = 1;
         }
@@ -6423,7 +6423,7 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
     if (retVal == -1)
     {
         std::string pN(pName);
-        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
         {
             if (pN.size() > 0)
             {

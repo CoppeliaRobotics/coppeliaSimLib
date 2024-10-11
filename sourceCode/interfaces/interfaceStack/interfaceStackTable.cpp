@@ -184,6 +184,27 @@ bool CInterfaceStackTable::getDoubleArray(double *array, int count) const
     return (retVal);
 }
 
+void CInterfaceStackTable::getTextArray(std::vector<std::string>& array) const
+{
+    if (_isTableArray)
+    {
+        for (size_t i = 0; i < _tableObjects.size(); i++)
+        {
+            int t = _tableObjects[i]->getObjectType();
+            if (t == sim_stackitem_string)
+            {
+                CInterfaceStackString* v = (CInterfaceStackString *)_tableObjects[i];
+                if (!v->isBuffer())
+                    array.push_back(v->getValue(0));
+                else
+                    array.push_back("");
+            }
+            else
+                array.push_back("");
+        }
+    }
+}
+
 bool CInterfaceStackTable::containsKey(const char *fieldName) const
 {
     if (_isTableArray)
@@ -199,6 +220,22 @@ bool CInterfaceStackTable::containsKey(const char *fieldName) const
         }
     }
     return (false);
+}
+
+void CInterfaceStackTable::getMapKeys(std::vector<std::string>* stringKeys, std::vector<long long int>* intKeys) const
+{
+    if (!_isTableArray)
+    {
+        for (size_t i = 0; i < _tableObjects.size() / 2; i++)
+        {
+            CInterfaceStackObject *key = _tableObjects[2 * i + 0];
+            CInterfaceStackObject *obj = _tableObjects[2 * i + 1];
+            if ( (key->getObjectType() == sim_stackitem_string) && (stringKeys != nullptr) )
+                stringKeys->push_back(((CInterfaceStackString *)key)->getValue(0));
+            else if ( (key->getObjectType() == sim_stackitem_integer) && (intKeys != nullptr) )
+                intKeys->push_back(((CInterfaceStackInteger *)key)->getValue());
+        }
+    }
 }
 
 CInterfaceStackObject *CInterfaceStackTable::getMapObject(const char *fieldName) const
@@ -238,6 +275,24 @@ CInterfaceStackObject *CInterfaceStackTable::getMapObject(const char *fieldName)
                         return (theTable->getMapObject(tableName2.c_str()));
                 }
             }
+        }
+    }
+    return (nullptr);
+}
+
+CInterfaceStackObject *CInterfaceStackTable::getIntMapObject(const long long int key) const
+{
+    if (_isTableArray)
+        return (nullptr);
+    for (size_t i = 0; i < _tableObjects.size() / 2; i++)
+    {
+        CInterfaceStackObject *kkey = _tableObjects[2 * i + 0];
+        CInterfaceStackObject *obj = _tableObjects[2 * i + 1];
+        if (kkey->getObjectType() == sim_stackitem_integer)
+        {
+            long long int theKey = ((CInterfaceStackInteger *)kkey)->getValue();
+            if (theKey == key)
+                return (obj);
         }
     }
     return (nullptr);

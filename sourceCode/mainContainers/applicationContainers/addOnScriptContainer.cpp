@@ -273,6 +273,27 @@ bool CAddOnScriptContainer::shouldTemporarilySuspendMainScript()
     return (retVal);
 }
 
+void CAddOnScriptContainer::getActiveScripts(std::vector<CScriptObject*>& scripts) const
+{
+    std::vector<CScriptObject *> scripts_normal;
+    std::vector<CScriptObject *> scripts_last;
+    for (size_t i = 0; i < _addOns.size(); i++)
+    {
+        CScriptObject *it = _addOns[i];
+        if (it->getScriptState() == CScriptObject::scriptState_initialized)
+        {
+            if (it->getScriptExecPriority() == sim_scriptexecorder_first)
+                scripts.push_back(it);
+            if (it->getScriptExecPriority() == sim_scriptexecorder_normal)
+                scripts_normal.push_back(it);
+            if (it->getScriptExecPriority() == sim_scriptexecorder_last)
+                scripts_last.push_back(it);
+        }
+    }
+    scripts.insert(scripts.end(), scripts_normal.begin(), scripts_normal.end());
+    scripts.insert(scripts.end(), scripts_last.begin(), scripts_last.end());
+}
+
 int CAddOnScriptContainer::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack,
                                        int scriptToExclude /*=-1*/)
 {

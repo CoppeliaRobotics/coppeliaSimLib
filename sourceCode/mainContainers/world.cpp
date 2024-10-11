@@ -1163,6 +1163,12 @@ CScriptObject *CWorld::getScriptObjectFromUid(int uid) const
     return (retVal);
 }
 
+void CWorld::getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
+{
+    TRACE_INTERNAL;
+    sceneObjects->getActiveScripts(scripts, reverse, alsoLegacyScripts);
+}
+
 void CWorld::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
@@ -2434,6 +2440,13 @@ int CWorld::getWorldHandle() const
 
 int CWorld::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -2476,6 +2489,13 @@ int CWorld::setBoolProperty(long long int target, const char* ppName, bool pStat
 
 int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -2518,6 +2538,13 @@ int CWorld::getBoolProperty(long long int target, const char* ppName, bool& pSta
 
 int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -2560,6 +2587,13 @@ int CWorld::setIntProperty(long long int target, const char* ppName, int pState)
 
 int CWorld::getIntProperty(long long int target, const char* ppName, int& pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -2602,6 +2636,13 @@ int CWorld::getIntProperty(long long int target, const char* ppName, int& pState
 
 int CWorld::setLongProperty(long long int target, const char* ppName, long long int pState)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -2646,6 +2687,13 @@ int CWorld::setLongProperty(long long int target, const char* ppName, long long 
 
 int CWorld::getLongProperty(long long int target, const char* ppName, long long int& pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -2690,6 +2738,13 @@ int CWorld::getLongProperty(long long int target, const char* ppName, long long 
 
 int CWorld::setFloatProperty(long long int target, const char* ppName, double pState)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -2730,6 +2785,13 @@ int CWorld::setFloatProperty(long long int target, const char* ppName, double pS
 
 int CWorld::getFloatProperty(long long int target, const char* ppName, double& pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -2770,6 +2832,13 @@ int CWorld::getFloatProperty(long long int target, const char* ppName, double& p
 
 int CWorld::setStringProperty(long long int target, const char* ppName, const char* pState)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -2810,6 +2879,13 @@ int CWorld::setStringProperty(long long int target, const char* ppName, const ch
 
 int CWorld::getStringProperty(long long int target, const char* ppName, std::string& pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -2850,6 +2926,13 @@ int CWorld::getStringProperty(long long int target, const char* ppName, std::str
 
 int CWorld::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (buffer == nullptr)
         bufferL = 0;
@@ -2858,7 +2941,7 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         std::string pN(pName);
-        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
         {
             if (pN.size() > 0)
             {
@@ -2872,7 +2955,7 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
                 retVal = 1;
             }
         }
-        else if (utils::replaceSubstringStart(pN, SIGNALDOTSTR, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
         {
             if (pN.size() > 0)
             {
@@ -2912,13 +2995,20 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
 
 int CWorld::getBufferProperty(long long int target, const char* ppName, std::string& pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         std::string pN(pName);
-        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
         {
             if (pN.size() > 0)
             {
@@ -2929,7 +3019,7 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
                 }
             }
         }
-        if (utils::replaceSubstringStart(pN, SIGNALDOTSTR, ""))
+        if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
         {
             if (pN.size() > 0)
             {
@@ -2966,6 +3056,13 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
 
 int CWorld::setIntArray2Property(long long int target, const char* ppName, const int* pState)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3004,6 +3101,13 @@ int CWorld::setIntArray2Property(long long int target, const char* ppName, const
 
 int CWorld::getIntArray2Property(long long int target, const char* ppName, int* pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3042,6 +3146,13 @@ int CWorld::getIntArray2Property(long long int target, const char* ppName, int* 
 
 int CWorld::setVector2Property(long long int target, const char* ppName, const double* pState)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3080,6 +3191,13 @@ int CWorld::setVector2Property(long long int target, const char* ppName, const d
 
 int CWorld::getVector2Property(long long int target, const char* ppName, double* pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3118,6 +3236,13 @@ int CWorld::getVector2Property(long long int target, const char* ppName, double*
 
 int CWorld::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3156,6 +3281,13 @@ int CWorld::setVector3Property(long long int target, const char* ppName, const C
 
 int CWorld::getVector3Property(long long int target, const char* ppName, C3Vector& pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3194,6 +3326,13 @@ int CWorld::getVector3Property(long long int target, const char* ppName, C3Vecto
 
 int CWorld::setQuaternionProperty(long long int target, const char* ppName, const C4Vector& pState)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3230,6 +3369,13 @@ int CWorld::setQuaternionProperty(long long int target, const char* ppName, cons
 
 int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Vector& pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3266,6 +3412,13 @@ int CWorld::getQuaternionProperty(long long int target, const char* ppName, C4Ve
 
 int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Vector& pState)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3302,6 +3455,13 @@ int CWorld::setPoseProperty(long long int target, const char* ppName, const C7Ve
 
 int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3338,6 +3498,13 @@ int CWorld::getPoseProperty(long long int target, const char* ppName, C7Vector& 
 
 int CWorld::setColorProperty(long long int target, const char* ppName, const float* pState)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3376,6 +3543,13 @@ int CWorld::setColorProperty(long long int target, const char* ppName, const flo
 
 int CWorld::getColorProperty(long long int target, const char* ppName, float* pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3414,6 +3588,13 @@ int CWorld::getColorProperty(long long int target, const char* ppName, float* pS
 
 int CWorld::setFloatArrayProperty(long long int target, const char* ppName, const double* v, int vL)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3452,6 +3633,13 @@ int CWorld::setFloatArrayProperty(long long int target, const char* ppName, cons
 
 int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std::vector<double>& pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     pState.clear();
     if (target == sim_handle_scene)
@@ -3491,6 +3679,13 @@ int CWorld::getFloatArrayProperty(long long int target, const char* ppName, std:
 
 int CWorld::setIntArrayProperty(long long int target, const char* ppName, const int* v, int vL)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3529,6 +3724,13 @@ int CWorld::setIntArrayProperty(long long int target, const char* ppName, const 
 
 int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::vector<int>& pState) const
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     pState.clear();
     if (target == sim_handle_scene)
@@ -3568,13 +3770,20 @@ int CWorld::getIntArrayProperty(long long int target, const char* ppName, std::v
 
 int CWorld::removeProperty(long long int target, const char* ppName)
 {
+    if (target == sim_handle_mainscript)
+    {
+        CScriptObject* it = sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         std::string pN(pName);
-        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
         {
             if (pN.size() > 0)
             {
@@ -3592,7 +3801,7 @@ int CWorld::removeProperty(long long int target, const char* ppName)
                 }
             }
         }
-        else if (utils::replaceSubstringStart(pN, SIGNALDOTSTR, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
         {
             if (pN.size() > 0)
             {
@@ -3636,6 +3845,13 @@ int CWorld::removeProperty(long long int target, const char* ppName)
 
 int CWorld::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, CWorld* targetObject)
 {
+    if ( (target == sim_handle_mainscript) && (targetObject != nullptr) )
+    {
+        CScriptObject* it = targetObject->sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3659,12 +3875,12 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
             {
                 if (targetObject->customSceneData.getPropertyName(index, pName))
                 {
-                    pName = CUSTOMDATADOTSTR + pName;
+                    pName = CUSTOMDATAPREFIX + pName;
                     retVal = 1;
                 }
                 else if (targetObject->customSceneData_volatile.getPropertyName(index, pName))
                 {
-                    pName = SIGNALDOTSTR + pName;
+                    pName = SIGNALPREFIX + pName;
                     retVal = 1;
                 }
             }
@@ -3695,6 +3911,13 @@ int CWorld::getPropertyName(long long int target, int& index, std::string& pName
 
 int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt, CWorld* targetObject)
 {
+    if ( (target == sim_handle_mainscript) && (targetObject != nullptr) )
+    {
+        CScriptObject* it = targetObject->sceneObjects->embeddedScriptContainer->getMainScript();
+        if (it != nullptr)
+            target = it->getScriptHandle();
+    }
+
     int retVal = -1;
     if (target == sim_handle_scene)
     {
@@ -3716,7 +3939,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
         if (retVal == -1)
         {
             std::string pN(pName);
-            if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+            if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
             {
                 if (targetObject != nullptr)
                 {
@@ -3733,7 +3956,7 @@ int CWorld::getPropertyInfo(long long int target, const char* ppName, int& info,
                     }
                 }
             }
-            else if (utils::replaceSubstringStart(pN, SIGNALDOTSTR, ""))
+            else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
             {
                 if (targetObject != nullptr)
                 {

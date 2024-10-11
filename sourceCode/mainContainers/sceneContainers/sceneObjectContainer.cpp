@@ -2968,6 +2968,33 @@ void CSceneObjectContainer::setSysFuncAndHookCnt(int sysCall, int cnt)
         _sysFuncAndHookCnt_joint = cnt;
 }
 
+void CSceneObjectContainer::getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
+{
+    if (reverse)
+    { // reverse order
+        CScriptObject *script = embeddedScriptContainer->getMainScript();
+        if ( (script != nullptr) && (script->getScriptState() == CScriptObject::scriptState_initialized) )
+            scripts.push_back(script);
+
+        // child + customization scripts (legacy + new):
+        _getActiveScripts(scripts, reverse);
+        if (alsoLegacyScripts)
+            embeddedScriptContainer->getActiveLegacyScripts(scripts, reverse);
+    }
+    else
+    { // regular order, from unimportant, to most important
+
+        // child + customization scripts (legacy + new):
+        if (alsoLegacyScripts)
+            embeddedScriptContainer->getActiveLegacyScripts(scripts, reverse);
+        _getActiveScripts(scripts, reverse);
+
+        CScriptObject *script = embeddedScriptContainer->getMainScript();
+        if ( (script != nullptr) && (script->getScriptState() == CScriptObject::scriptState_initialized) )
+            scripts.push_back(script);
+    }
+}
+
 void CSceneObjectContainer::callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
 {
     bool doNotInterrupt = !CScriptObject::isSystemCallbackInterruptible(callType);
@@ -3021,12 +3048,12 @@ int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType
         retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
 
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            retVal += embeddedScriptContainer->callScripts_noMainScript(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
+            retVal += embeddedScriptContainer->callLegacyScripts(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
     }
     else
     { // regular order, from unimportant, to most important
 
-        retVal += embeddedScriptContainer->callScripts_noMainScript(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
+        retVal += embeddedScriptContainer->callLegacyScripts(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
 
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
             retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
@@ -3034,6 +3061,18 @@ int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType
     return retVal;
 }
 
+void CSceneObjectContainer::_getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse /*= false*/) const
+{
+    TRACE_INTERNAL;
+    std::vector<int> scriptHandles;
+    getScriptsToExecute(scriptHandles, -1, false, reverse);
+    for (size_t i = 0; i < scriptHandles.size(); i++)
+    {
+        CScript *script = getScriptFromHandle(scriptHandles[i]);
+        if ( (script != nullptr) && (script->scriptObject->getScriptState() == CScriptObject::scriptState_initialized) )
+            scripts.push_back(script->scriptObject);
+    }
+}
 
 int CSceneObjectContainer::_callScripts(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack,
                                            CSceneObject *objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
@@ -3094,7 +3133,6 @@ int CSceneObjectContainer::_callScripts(int scriptType, int callType, CInterface
 
     return cnt;
 }
-
 
 void CSceneObjectContainer::_removeObject(CSceneObject *object)
 { // Overridden from _CSceneObjectContainer_

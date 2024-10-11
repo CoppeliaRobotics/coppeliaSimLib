@@ -75,7 +75,10 @@ class CInterfaceStackTable : public CInterfaceStackObject
     bool getInt64Array(long long int *array, int count) const;
     bool getFloatArray(float *array, int count) const;
     bool getDoubleArray(double *array, int count) const;
+    void getTextArray(std::vector<std::string>& array) const;
+    void getMapKeys(std::vector<std::string>* stringKeys, std::vector<long long int>* intKeys) const;
     CInterfaceStackObject *getMapObject(const char *fieldName) const;
+    CInterfaceStackObject *getIntMapObject(const long long int key) const;
     bool containsKey(const char *fieldName) const;
 
     bool removeFromKey(const char *keyToRemove);

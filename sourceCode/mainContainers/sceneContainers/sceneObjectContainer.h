@@ -172,6 +172,8 @@ class CSceneObjectContainer
     void handleDataCallbacks();
     bool shouldTemporarilySuspendMainScript();
     size_t getScriptsToExecute(std::vector<int> &scriptHandles, int scriptType, bool legacyEmbeddedScripts, bool reverseOrder) const;
+
+    void getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
     void callScripts(int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     int callScripts_noMainScript(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     void setScriptsTemporarilySuspended(bool suspended);
@@ -301,6 +303,7 @@ class CSceneObjectContainer
     void _removeObject(CSceneObject *object);
 
   private:
+    void _getActiveScripts(std::vector<CScriptObject*>& scripts, bool reverse = false) const;
     int _callScripts(int scriptType, int callType, CInterfaceStack *inStack, CInterfaceStack *outStack, CSceneObject *objectBranch = nullptr, int scriptToExclude = -1);
     CShape *_readSimpleXmlShape(CSer &ar, C7Vector &desiredLocalFrame);
     CShape *_createSimpleXmlShape(CSer &ar, bool noHeightfield, const char *itemType, bool checkSibling);

@@ -11,12 +11,11 @@
 #include <simQApp.h>
 #endif
 
-#define CUSTOMDATADOTSTR "customData."
-#define CUSTOMDATAUNDERSCORESTR "customData_"
-#define SIGNALDOTSTR "signal."
-#define SIGNALUNDERSCORESTR "signal_"
-#define NAMEDPARAMDOTSTR "namedParam."
-#define NAMEDPARAMUNDERSCORESTR "namedParam_"
+#define CUSTOMDATAPREFIX "customData."
+#define SIGNALPREFIX "signal."
+#define NAMEDPARAMPREFIX "namedParam."
+#define COLORPREFIX "color."
+#define COLORPREFIX_CAP "Color."
 
 // ----------------------------------------------------------------------------------------------
 // flags: bit0: not writable, bit1: not readable, bit2: removable

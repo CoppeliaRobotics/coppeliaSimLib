@@ -157,7 +157,7 @@ bool CPersistentDataContainer::getPropertyName(int& index, std::string& pName)
         size_t p = nnmm.find("&.");
         if (p != std::string::npos)
             nnmm.erase(0, p + 2);
-        if ( (pName.size() == 0) || utils::startsWith((CUSTOMDATADOTSTR + nnmm).c_str(), pName.c_str()) )
+        if ( (pName.size() == 0) || utils::startsWith((CUSTOMDATAPREFIX + nnmm).c_str(), pName.c_str()) )
         {
             index--;
             if (index == -1)
@@ -315,55 +315,55 @@ void CPersistentDataContainer::appendEventData(const char* dataName, CCbor *ev, 
             if (tg.find(proptypetag_bool) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyBool(tg.c_str(), ((unsigned char*)dat.data())[0]);
             }
             else if (tg.find(proptypetag_int) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyInt(tg.c_str(), ((int*)dat.data())[0]);
             }
             else if (tg.find(proptypetag_float) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyDouble(tg.c_str(), ((double*)dat.data())[0]);
             }
             else if (tg.find(proptypetag_string) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyText(tg.c_str(), dat.c_str());
             }
             else if (tg.find(proptypetag_vector2) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_vector3) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_quaternion) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_pose) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_matrix3x3) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_matrix4x4) != std::string::npos)
@@ -376,49 +376,49 @@ void CPersistentDataContainer::appendEventData(const char* dataName, CCbor *ev, 
                 m[14] = 0.0;
                 m[15] = 1.0;
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), m, 16);
             }
             else if (tg.find(proptypetag_color) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyFloatArray(tg.c_str(), (float*)dat.data(), dat.size() / sizeof(float));
             }
             else if (tg.find(proptypetag_floatarray) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
             }
             else if (tg.find(proptypetag_intarray) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyIntArray(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(int));
             }
             else if (tg.find(proptypetag_intarray2) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyIntArray(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(int));
             }
             else if (tg.find(proptypetag_long) != std::string::npos)
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyIntArray(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(long long int));
             }
             else
             {
                 tg.erase(0, p + 2);
-                tg = CUSTOMDATAUNDERSCORESTR + tg;
+                tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyBuff(tg.c_str(), (unsigned char *)dat.data(), dat.size());
             }
         }
         else
         {
-            tg = CUSTOMDATAUNDERSCORESTR + tg;
+            tg = CUSTOMDATAPREFIX + tg;
             ev->appendKeyBuff(tg.c_str(), (unsigned char *)dat.data(), dat.size());
         }
     };
@@ -431,7 +431,7 @@ void CPersistentDataContainer::appendEventData(const char* dataName, CCbor *ev, 
             size_t p = tg.find("&.");
             if (p != std::string::npos)
                 tg.erase(0, p + 2);
-            tg = CUSTOMDATAUNDERSCORESTR + tg;
+            tg = CUSTOMDATAPREFIX + tg;
         }
         ev->appendKeyNull(tg.c_str());
     }

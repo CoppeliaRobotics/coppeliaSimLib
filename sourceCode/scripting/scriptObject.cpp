@@ -2674,6 +2674,7 @@ bool CScriptObject::_killInterpreterState()
         simRemoveProperty_internal(sim_handle_scene, toRem[i].c_str());
         signalRemoved(toRem[i].c_str());
     }
+    _eventFilters.clear();
 
     return (retVal);
 }
@@ -2713,6 +2714,71 @@ bool CScriptObject::addCommandToOutsideCommandQueue(int commandID, int auxVal1, 
     if (_outsideCommandQueue != nullptr)
         return (_outsideCommandQueue->addCommand(commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals, aux2Count));
     return (true);
+}
+
+void CScriptObject::setEventFilters(const std::map<long long int, std::set<std::string>>& filters)
+{
+    _eventFilters = filters;
+}
+
+bool CScriptObject::prepareFilteredEventsBuffer(const std::vector<unsigned char>& input, const std::vector<SEventInf>& inf, std::vector<unsigned char>& output) const
+{
+    bool retVal = false;
+    if (_eventFilters.size() > 0)
+    {
+        long long int mainScriptHandle = -1;
+        CScriptObject* mainScript = App::currentWorld->sceneObjects->embeddedScriptContainer->getMainScript();
+        if (mainScript != nullptr)
+            mainScriptHandle = mainScript->getScriptHandle();
+
+        output.push_back(input[0]); // "array open" (holding all events)
+        size_t p = 1;
+        for (size_t ev = 0; ev < inf.size(); ev ++)
+        {
+            long long int t = inf[ev].target;
+            long long int altT = t;
+            if ( (t >= 0) && (t <= SIM_IDEND_SCENEOBJECT) )
+                altT = sim_handle_sceneobject;
+            else if ( (t >= SIM_IDSTART_LUASCRIPT) && (t <= SIM_IDEND_LUASCRIPT) )
+            {
+                if (t == App::worldContainer->sandboxScript->getScriptHandle())
+                    altT = sim_handle_sandbox;
+                else if ( (mainScriptHandle != -1) && (t == mainScriptHandle) )
+                    altT = sim_handle_mainscript;
+            }
+            else if (t >= SIM_UIDSTART)
+                altT = sim_handle_mesh;
+            auto s_event = _eventFilters.find(t);
+            if ( (s_event == _eventFilters.end()) && (t != altT) )
+                s_event = _eventFilters.find(altT);
+            if (s_event != _eventFilters.end())
+            { // we keep that event... maybe (if not empty)
+                if (inf[ev].fieldPositions.size() == 0)
+                    output.insert(output.end(), input.begin() + inf[ev].pos, input.begin() + inf[ev].pos + inf[ev].size); // empty data field
+                else
+                {
+                    bool headerThere = false;
+                    for (size_t i = 0; i < inf[ev].fieldNames.size(); i++)
+                    {
+                        if (s_event->second.find(inf[ev].fieldNames[i]) != s_event->second.end())
+                        {
+                            if (!headerThere)
+                            {
+                                headerThere = true;
+                                output.insert(output.end(), input.begin() + inf[ev].pos, input.begin() + inf[ev].fieldPositions[0]); // up to the first data field
+                            }
+                            output.insert(output.end(), input.begin() + inf[ev].fieldPositions[i], input.begin() + inf[ev].fieldPositions[i] + inf[ev].fieldSizes[i]);
+                        }
+                    }
+                    if (headerThere)
+                        output.insert(output.end(), input.begin() + inf[ev].fieldPositions[inf[ev].fieldPositions.size() - 1] + inf[ev].fieldSizes[inf[ev].fieldSizes.size() - 1], input.begin() + inf[ev].pos + inf[ev].size); // to the end of that event
+                }
+            }
+        }
+        output.push_back(input[input.size() - 1]); // "array close" (holding all events)
+        retVal = true;
+    }
+    return retVal;
 }
 
 int CScriptObject::extractCommandFromOutsideCommandQueue(int auxVals[4], double aux2Vals[8], int &aux2Count)
@@ -5647,8 +5713,8 @@ const SNewApiMapping _simApiMapping[] = {
     "sim.handle_all_except_explicit",
     "sim_handle_self",
     "sim.handle_self",
-    "sim_handle_main_script",
-    "sim.handle_main_script",
+    "sim_handle_mainscript",
+    "sim.handle_mainscript",
     "sim_handle_tree",
     "sim.handle_tree",
     "sim_handle_chain",

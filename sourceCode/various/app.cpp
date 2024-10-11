@@ -562,7 +562,7 @@ void App::setAppNamedParam(const char *paramName, const char *param, int paramLe
         _applicationNamedParams[paramName] = newVal;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            std::string cmd(NAMEDPARAMUNDERSCORESTR);
+            std::string cmd(NAMEDPARAMPREFIX);
             cmd += paramName;
             CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyText(cmd.c_str(), param);
@@ -581,7 +581,7 @@ bool App::removeAppNamedParam(const char *paramName)
         retVal = true;
         if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
         {
-            std::string cmd(NAMEDPARAMUNDERSCORESTR);
+            std::string cmd(NAMEDPARAMPREFIX);
             cmd += paramName;
             CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyNull(cmd.c_str());
@@ -1455,6 +1455,9 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
 
 int App::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -1491,6 +1494,9 @@ int App::setBoolProperty(long long int target, const char* ppName, bool pState)
 
 int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -1554,6 +1560,9 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
 
 int App::setIntProperty(long long int target, const char* ppName, int pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -1594,6 +1603,9 @@ int App::setIntProperty(long long int target, const char* ppName, int pState)
 
 int App::getIntProperty(long long int target, const char* ppName, int& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -1690,6 +1702,9 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
 
 int App::setLongProperty(long long int target, const char* ppName, long long int pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -1709,6 +1724,9 @@ int App::setLongProperty(long long int target, const char* ppName, long long int
 
 int App::getLongProperty(long long int target, const char* ppName, long long int& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -1728,6 +1746,9 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
 
 int App::setFloatProperty(long long int target, const char* ppName, double pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -1759,6 +1780,9 @@ int App::setFloatProperty(long long int target, const char* ppName, double pStat
 
 int App::getFloatProperty(long long int target, const char* ppName, double& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -1799,6 +1823,9 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
 
 int App::setStringProperty(long long int target, const char* ppName, const char* pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -1810,7 +1837,7 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
         if (target == sim_handle_app)
         {
             std::string pN(pName);
-            if (utils::replaceSubstringStart(pN, NAMEDPARAMDOTSTR, ""))
+            if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIX, ""))
             {
                 if (pN.size() > 0)
                 {
@@ -1908,6 +1935,9 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
 
 int App::getStringProperty(long long int target, const char* ppName, std::string& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -1919,7 +1949,7 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
         if (target == sim_handle_app)
         {
             std::string pN(pName);
-            if (utils::replaceSubstringStart(pN, NAMEDPARAMDOTSTR, ""))
+            if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIX, ""))
             {
                 if (pN.size() > 0)
                 {
@@ -2127,6 +2157,9 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
 
 int App::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (buffer == nullptr)
         bufferL = 0;
@@ -2134,7 +2167,7 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
     {
         std::string PPName(utils::getWithoutPrefix(ppName, "appstorage."));
         std::string pN(PPName);
-        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
         {
             if (pN.size() > 0)
             {
@@ -2178,7 +2211,7 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
         if (target == sim_handle_app)
         {
             std::string pN(pName);
-            if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+            if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
             {
                 if (pN.size() > 0)
                 {
@@ -2206,11 +2239,14 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
 
 int App::getBufferProperty(long long int target, const char* ppName, std::string& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     {
         std::string pN(utils::getWithoutPrefix(ppName, "appstorage."));
-        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
             pN += "&customData"; // we add a suffix to separate user and system data
         if (pN.size() > 0)
         {
@@ -2226,7 +2262,7 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
         if (target == sim_handle_app)
         {
             std::string pN(pName);
-            if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+            if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
             {
                 if (pN.size() > 0)
                 {
@@ -2249,6 +2285,9 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
 
 int App::setIntArray2Property(long long int target, const char* ppName, const int* pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2268,6 +2307,9 @@ int App::setIntArray2Property(long long int target, const char* ppName, const in
 
 int App::getIntArray2Property(long long int target, const char* ppName, int* pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2287,6 +2329,9 @@ int App::getIntArray2Property(long long int target, const char* ppName, int* pSt
 
 int App::setVector2Property(long long int target, const char* ppName, const double* pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2306,6 +2351,9 @@ int App::setVector2Property(long long int target, const char* ppName, const doub
 
 int App::getVector2Property(long long int target, const char* ppName, double* pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2325,6 +2373,9 @@ int App::getVector2Property(long long int target, const char* ppName, double* pS
 
 int App::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2344,6 +2395,9 @@ int App::setVector3Property(long long int target, const char* ppName, const C3Ve
 
 int App::getVector3Property(long long int target, const char* ppName, C3Vector& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2363,6 +2417,9 @@ int App::getVector3Property(long long int target, const char* ppName, C3Vector& 
 
 int App::setQuaternionProperty(long long int target, const char* ppName, const C4Vector& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2382,6 +2439,9 @@ int App::setQuaternionProperty(long long int target, const char* ppName, const C
 
 int App::getQuaternionProperty(long long int target, const char* ppName, C4Vector& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2406,6 +2466,9 @@ int App::getQuaternionProperty(long long int target, const char* ppName, C4Vecto
 
 int App::setPoseProperty(long long int target, const char* ppName, const C7Vector& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2425,6 +2488,9 @@ int App::setPoseProperty(long long int target, const char* ppName, const C7Vecto
 
 int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2444,6 +2510,9 @@ int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pSt
 
 int App::setColorProperty(long long int target, const char* ppName, const float* pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2463,6 +2532,9 @@ int App::setColorProperty(long long int target, const char* ppName, const float*
 
 int App::getColorProperty(long long int target, const char* ppName, float* pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2482,6 +2554,9 @@ int App::getColorProperty(long long int target, const char* ppName, float* pStat
 
 int App::setFloatArrayProperty(long long int target, const char* ppName, const double* v, int vL)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2501,6 +2576,9 @@ int App::setFloatArrayProperty(long long int target, const char* ppName, const d
 
 int App::getFloatArrayProperty(long long int target, const char* ppName, std::vector<double>& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     pState.clear();
     if (target == sim_handle_appstorage)
@@ -2521,6 +2599,9 @@ int App::getFloatArrayProperty(long long int target, const char* ppName, std::ve
 
 int App::setIntArrayProperty(long long int target, const char* ppName, const int* v, int vL)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     { // all appstorage function go through setBufferProperty/getBufferProperty
@@ -2540,6 +2621,9 @@ int App::setIntArrayProperty(long long int target, const char* ppName, const int
 
 int App::getIntArrayProperty(long long int target, const char* ppName, std::vector<int>& pState)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     pState.clear();
     if (target == sim_handle_appstorage)
@@ -2560,12 +2644,15 @@ int App::getIntArrayProperty(long long int target, const char* ppName, std::vect
 
 int App::removeProperty(long long int target, const char* ppName)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     {
         std::string pN(utils::getWithoutPrefix(ppName, "appstorage."));
         bool canBeRemoved = false;
-        if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
         {
             canBeRemoved = true;
             pN += "&customData"; // we add a suffix to separate user and system data
@@ -2601,7 +2688,7 @@ int App::removeProperty(long long int target, const char* ppName)
         if (target == sim_handle_app)
         {
             std::string pN(pName);
-            if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+            if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
             {
                 if (pN.size() > 0)
                 {
@@ -2622,7 +2709,7 @@ int App::removeProperty(long long int target, const char* ppName)
                     }
                 }
             }
-            else if (utils::replaceSubstringStart(pN, NAMEDPARAMDOTSTR, ""))
+            else if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIX, ""))
             {
                 if (pN.size() > 0)
                 {
@@ -2641,6 +2728,9 @@ int App::removeProperty(long long int target, const char* ppName)
 
 int App::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, bool staticParsing)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     {
@@ -2654,7 +2744,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
                 if (p != std::string::npos)
                 {
                     pName.erase(p);
-                    pName = CUSTOMDATADOTSTR + pName;
+                    pName = CUSTOMDATAPREFIX + pName;
                     //pName = "appstorage." + pName;
                 }
                 retVal = 1;
@@ -2686,7 +2776,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
                 {
                     if (worldContainer->customAppData.getPropertyName(index, pName))
                     {
-                        pName = CUSTOMDATADOTSTR + pName;
+                        pName = CUSTOMDATAPREFIX + pName;
                         retVal = 1;
                     }
                 }
@@ -2694,12 +2784,12 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
                 {
                     for (const auto& pair : _applicationNamedParams)
                     {
-                        if ( (pName.size() == 0) || utils::startsWith((NAMEDPARAMDOTSTR + pair.first).c_str(), pName.c_str()) )
+                        if ( (pName.size() == 0) || utils::startsWith((NAMEDPARAMPREFIX + pair.first).c_str(), pName.c_str()) )
                         {
                             index--;
                             if (index == -1)
                             {
-                                pName = NAMEDPARAMDOTSTR + pair.first;
+                                pName = NAMEDPARAMPREFIX + pair.first;
                                 retVal = 1;
                                 break;
                             }
@@ -2721,6 +2811,9 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
 
 int App::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt, bool staticParsing)
 {
+    if ( (target == sim_handle_sandbox) && (worldContainer != nullptr) && (worldContainer->sandboxScript != nullptr) )
+        target = worldContainer->sandboxScript->getScriptHandle();
+
     int retVal = -1;
     if (target == sim_handle_appstorage)
     {
@@ -2728,7 +2821,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
         {
             std::string pN(utils::getWithoutPrefix(ppName, "appstorage."));
             int inf = 0;
-            if (utils::replaceSubstringStart(pN, CUSTOMDATADOTSTR, ""))
+            if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
             {
                 pN += "&customData";
                 inf = 4; // removable
@@ -2947,7 +3040,7 @@ void App::pushGenesisEvents()
 
         for (const auto& pair : _applicationNamedParams)
         {
-            std::string t(NAMEDPARAMUNDERSCORESTR);
+            std::string t(NAMEDPARAMPREFIX);
             t += pair.first;
             ev->appendKeyText(t.c_str(), pair.second.c_str());
         }

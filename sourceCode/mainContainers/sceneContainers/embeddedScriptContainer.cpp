@@ -504,7 +504,20 @@ bool CEmbeddedScriptContainer::shouldTemporarilySuspendMainScript()
     return (retVal);
 }
 
-int CEmbeddedScriptContainer::callScripts_noMainScript(int scriptType, int callTypeOrResumeLocation,
+void CEmbeddedScriptContainer::getActiveLegacyScripts(std::vector<CScriptObject*>& scripts, bool reverse /*= false*/) const
+{
+    std::vector<int> scriptHandles;
+    App::currentWorld->sceneObjects->getScriptsToExecute(scriptHandles, -1, true, reverse);
+
+    for (size_t i = 0; i < scriptHandles.size(); i++)
+    {
+        CScriptObject *script = getScriptObjectFromHandle(scriptHandles[i]);
+        if ( (script != nullptr) && (script->getScriptState() == CScriptObject::scriptState_initialized) )
+            scripts.push_back(script);
+    }
+}
+
+int CEmbeddedScriptContainer::callLegacyScripts(int scriptType, int callTypeOrResumeLocation,
                                                           CInterfaceStack *inStack, CInterfaceStack *outStack,
                                                           CSceneObject *objectBranch /*=nullptr*/,
                                                           int scriptToExclude /*=-1*/)

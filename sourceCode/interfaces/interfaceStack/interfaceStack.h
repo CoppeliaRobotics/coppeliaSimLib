@@ -79,6 +79,8 @@ class CInterfaceStack
     bool getStackDoubleArray(double *array, int count) const;
     bool unfoldStackTable();
     CInterfaceStackObject *getStackMapObject(const char *fieldName) const;
+    CInterfaceStackObject *getStackIntMapObject(long long int key) const;
+    void getStackMapKeys(std::vector<std::string>* stringKeys, std::vector<long long int>* intKeys) const;
     bool getStackMapBoolValue(const char *fieldName, bool &val) const;
     bool getStackMapStrictDoubleValue(const char *fieldName, double &val) const;
     bool getStackMapStrictInt64Value(const char *fieldName, long long int &val) const;

@@ -22,15 +22,15 @@ struct SDummyProperty {
     FUNCX(propDummy_dummyType,               "dummyType",                                sim_propertytype_int,       0, -1, -1, -1, -1, -1, "Type", "Dummy type") \
     FUNCX(propDummy_assemblyTag,             "assemblyTag",                              sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Assembly tag", "") \
     FUNCX(propDummy_engineProperties,        "engineProperties",                         sim_propertytype_string,    0, -1, -1, -1, -1, -1, "Engine properties", "Engine properties as JSON text") \
-    FUNCX(propDummy_mujocoLimitsEnabled,     "mujoco_limitsEnabled",                      sim_propertytype_bool,      0, sim_mujoco_dummy_limited, -1, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoLimitsRange,       "mujoco_limitsRange",                        sim_propertytype_floatarray,    0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoLimitsSolref,      "mujoco_limitsSolref",                       sim_propertytype_floatarray,    0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoLimitsSolimp,      "mujoco_limitsSolimp",                       sim_propertytype_floatarray,    0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, sim_mujoco_dummy_solimplimit4, sim_mujoco_dummy_solimplimit5, "", "") \
-    FUNCX(propDummy_mujocoMargin,            "mujoco_margin",                             sim_propertytype_float,     0, sim_mujoco_dummy_margin, -1, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoSpringStiffness,   "mujoco_springStiffness",                    sim_propertytype_float,     0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoSpringDamping,     "mujoco_springDamping",                      sim_propertytype_float,     0, sim_mujoco_dummy_damping, -1, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoSpringLength,      "mujoco_springLength",                       sim_propertytype_float,     0, sim_mujoco_dummy_springlength, -1, -1, -1, -1, "", "") \
-    FUNCX(propDummy_mujocoJointProxyHandle,  "mujoco_jointProxyHandle",                   sim_propertytype_int,       0, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1, "Joint proxy", "Handle of the joint proxy (MuJoCo only)") \
+    FUNCX(propDummy_mujocoLimitsEnabled,     "mujoco.limitsEnabled",                      sim_propertytype_bool,      0, sim_mujoco_dummy_limited, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoLimitsRange,       "mujoco.limitsRange",                        sim_propertytype_floatarray,    0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoLimitsSolref,      "mujoco.limitsSolref",                       sim_propertytype_floatarray,    0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoLimitsSolimp,      "mujoco.limitsSolimp",                       sim_propertytype_floatarray,    0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, sim_mujoco_dummy_solimplimit4, sim_mujoco_dummy_solimplimit5, "", "") \
+    FUNCX(propDummy_mujocoMargin,            "mujoco.margin",                             sim_propertytype_float,     0, sim_mujoco_dummy_margin, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoSpringStiffness,   "mujoco.springStiffness",                    sim_propertytype_float,     0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoSpringDamping,     "mujoco.springDamping",                      sim_propertytype_float,     0, sim_mujoco_dummy_damping, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoSpringLength,      "mujoco.springLength",                       sim_propertytype_float,     0, sim_mujoco_dummy_springlength, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_mujocoJointProxyHandle,  "mujoco.jointProxyHandle",                   sim_propertytype_int,       0, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1, "Joint proxy", "Handle of the joint proxy (MuJoCo only)") \
 
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) const SDummyProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
 DEFINE_PROPERTIES

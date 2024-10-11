@@ -169,6 +169,9 @@ class CScriptObject
                                          const double aux2Vals[8], int aux2Count);
     int extractCommandFromOutsideCommandQueue(int auxVals[4], double aux2Vals[8], int &aux2Count);
 
+    void setEventFilters(const std::map<long long int, std::set<std::string>>& filters);
+    bool prepareFilteredEventsBuffer(const std::vector<unsigned char>& input, const std::vector<SEventInf>& inf, std::vector<unsigned char>& output) const;
+
     bool hasSystemFunction(int callType, bool returnTrueIfNotInitialized = true) const;
     bool hasSystemFunctionOrHook(int callType) const;
     bool getOldCallMode() const;
@@ -318,6 +321,7 @@ class CScriptObject
     int _autoStartAddOn;
     int _addOnUiMenuHandle;
     int _addOnExecPriority; // only for add-ons. Not saved
+    std::map<long long int, std::set<std::string>> _eventFilters;
 
     bool _calledInThisSimulationStep;
 

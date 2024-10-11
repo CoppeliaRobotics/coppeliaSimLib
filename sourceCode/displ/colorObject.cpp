@@ -8,15 +8,12 @@
 #include <rendering.h>
 #endif
 
-#define COL_EVENT_PREFIX "color_"
-#define COL_EVENT_PREFIX_CAP "Color_"
-
 CColorObject::CColorObject()
 {
     for (size_t i = 0; i < 15; i++)
         _colors[i] = 0.0f;
     _opacity = 0.5;
-    _eventPrefix = COL_EVENT_PREFIX;
+    _eventPrefix = COLORPREFIX;
     _translucid = false;
     _shininess = 48;
     setColorName("");
@@ -45,7 +42,7 @@ void CColorObject::setEventParams(bool belongsToSceneObject, int eventObjectHand
         _eventFlags = eventFlags;
  //   _eventPrefix.clear();
     if ( (eventPrefix != nullptr) && (strlen(eventPrefix) != 0) )
-        _eventPrefix = std::string(eventPrefix) + COL_EVENT_PREFIX_CAP;
+        _eventPrefix = std::string(eventPrefix) + COLORPREFIX_CAP;
 }
 
 void CColorObject::setFlash(bool flashIsOn)
@@ -997,9 +994,9 @@ int CColorObject::getPropertyName_static(int& index, std::string& pName, int eve
         {
             std::string nnmm(allProps_col[i].name);
             if ( (eventPrefix != nullptr) && (strlen(eventPrefix) != 0) )
-                nnmm = std::string(eventPrefix) + COL_EVENT_PREFIX_CAP + nnmm;
+                nnmm = std::string(eventPrefix) + COLORPREFIX_CAP + nnmm;
             else
-                nnmm = COL_EVENT_PREFIX + nnmm;
+                nnmm = COLORPREFIX + nnmm;
             if ( (pName.size() == 0) || utils::startsWith(nnmm.c_str(), pName.c_str()) )
             {
                 index--;
@@ -1046,9 +1043,9 @@ int CColorObject::getPropertyInfo_static(const char* ppName, int& info, std::str
 {
     int retVal = -1;
 
-    std::string pr(COL_EVENT_PREFIX);
+    std::string pr(COLORPREFIX);
     if ( (eventPrefix != nullptr) && (strlen(eventPrefix) != 0) )
-        pr = std::string(eventPrefix) + COL_EVENT_PREFIX_CAP;
+        pr = std::string(eventPrefix) + COLORPREFIX_CAP;
 
     if (boost::algorithm::starts_with(ppName, pr))
     {
