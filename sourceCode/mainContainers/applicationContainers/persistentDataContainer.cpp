@@ -435,8 +435,8 @@ void CPersistentDataContainer::appendEventData(const char* dataName, CCbor *ev, 
             if (p != std::string::npos)
                 tg.erase(0, p + 2);
             tg = CUSTOMDATAPREFIX + tg;
+            ev->appendKeyNull(tg.c_str());
         }
-        ev->appendKeyNull(tg.c_str());
     }
     else
     {
@@ -447,8 +447,6 @@ void CPersistentDataContainer::appendEventData(const char* dataName, CCbor *ev, 
                 std::string tg(_dataNames[i]);
                 if (utils::replaceSubstring(tg, "&customData", ""))
                     appendKeyItem(tg, _dataValues[i]); // user data set via property functions
-                else
-                    ev->appendKeyBuff(tg.c_str(), (unsigned char *)_dataValues[i].data(), _dataValues[i].size()); // system data
             }
         }
     }

@@ -2118,7 +2118,7 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
                 {
                     if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
                     {
-                        CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_appstorage, nullptr, false);
+                        CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
                         cont.appendEventData(pN.c_str(), ev);
                         App::worldContainer->pushEvent();
                     }
@@ -2469,23 +2469,20 @@ int App::removeProperty(long long int target, const char* ppName)
         if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
         {
             pN += "&customData"; // we add a suffix to separate user and system data
-            if (pN.size() > 0)
+            CPersistentDataContainer cont("appStorage.dat");
+            int tp = cont.hasData(pN.c_str(), true);
+            if (tp >= 0)
             {
-                CPersistentDataContainer cont("appStorage.dat");
-                int tp = cont.hasData(pN.c_str(), true);
-                if (tp >= 0)
+                if (cont.clearData((propertyStrings[tp] + pN).c_str(), true))
                 {
-                    if (cont.clearData((propertyStrings[tp] + pN).c_str(), true))
+                    if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
                     {
-                        if ((App::worldContainer != nullptr) && App::worldContainer->getEventsEnabled())
-                        {
-                            CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_appstorage, nullptr, false);
-                            cont.appendEventData(pN.c_str(), ev, true);
-                            App::worldContainer->pushEvent();
-                        }
+                        CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_app, nullptr, false);
+                        cont.appendEventData(pN.c_str(), ev, true);
+                        App::worldContainer->pushEvent();
                     }
-                    retVal = 1;
                 }
+                retVal = 1;
             }
         }
         else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
@@ -2879,7 +2876,7 @@ void App::pushGenesisEvents()
 
         worldContainer->pushEvent();
 
-        ev = worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_appstorage, sim_handle_appstorage, nullptr, false);
+        ev = worldContainer->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
         CPersistentDataContainer cont("appStorage.dat");
         cont.appendEventData(nullptr, ev);
         worldContainer->pushEvent();
