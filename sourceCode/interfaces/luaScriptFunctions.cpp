@@ -6104,6 +6104,7 @@ int _simGetPropertyInfo(luaWrap_lua_State *L)
             CInterfaceStack* stack = App::worldContainer->interfaceStackContainer->createStack();
             CScriptObject::buildFromInterpreterStack_lua(L, stack, 3, 1);
             stack->getStackMapInt32Value("objectType", opt.objectType);
+            stack->getStackMapBoolValue("shortInfoTxt", opt.shortInfoTxt);
             App::worldContainer->interfaceStackContainer->destroyStack(stack);
         }
         SPropertyInfo infos;
