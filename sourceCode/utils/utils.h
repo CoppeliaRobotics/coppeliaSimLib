@@ -36,6 +36,7 @@ class utils
     static bool checkAssemblyTagValidity(const char *parentSideTag, const char *childSideTag);
     static bool replaceSubstring(std::string &str, const char *subStr, const char *replacementSubStr);
     static bool replaceSubstringStart(std::string &str, const char *subStr, const char *replacementSubStr);
+    static bool replaceSubstringEnd(std::string &str, const char *subStr, const char *replacementSubStr);
     static bool startsWith(const char* str, const char* prefix);
     static void regexReplace(std::string &str, const char *regexStr, const char *regexReplacementSubStr);
     static void removeComments(std::string &line);

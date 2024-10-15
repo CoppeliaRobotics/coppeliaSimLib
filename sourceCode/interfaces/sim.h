@@ -93,16 +93,10 @@ SIM_DLLEXPORT int simRegisterScriptFuncHook(int scriptHandle, const char *funcTo
 SIM_DLLEXPORT int simCopyPasteObjects(int *objectHandles, int objectCount, int options);
 SIM_DLLEXPORT int simRemoveDrawingObject(int objectHandle);
 SIM_DLLEXPORT int simAnnounceSceneContentChange();
-SIM_DLLEXPORT int simSetObjectProperty(int objectHandle, int prop);
-SIM_DLLEXPORT int simGetObjectProperty(int objectHandle);
-SIM_DLLEXPORT int simSetObjectSpecialProperty(int objectHandle, int prop);
-SIM_DLLEXPORT int simGetObjectSpecialProperty(int objectHandle);
 SIM_DLLEXPORT int simSetExplicitHandling(int objectHandle, int explicitFlags);
 SIM_DLLEXPORT int simGetExplicitHandling(int objectHandle);
 SIM_DLLEXPORT int simGetLinkDummy(int dummyHandle);
 SIM_DLLEXPORT int simSetLinkDummy(int dummyHandle, int linkedDummyHandle);
-SIM_DLLEXPORT int simSetModelProperty(int objectHandle, int modelProperty);
-SIM_DLLEXPORT int simGetModelProperty(int objectHandle);
 SIM_DLLEXPORT int simResetDynamicObject(int objectHandle);
 SIM_DLLEXPORT int simSetJointMode(int jointHandle, int jointMode, int options);
 SIM_DLLEXPORT int simGetJointMode(int jointHandle, int *options);

@@ -422,7 +422,7 @@ class CSceneObject
     C3Vector getBBHSize() const;
 
     CCustomData customObjectData;
-    CCustomData customObjectData_tempData_old; // this one is not serialized (but copied)!
+    CCustomData customObjectData_volatile; // this one is not serialized (but copied)! (object-level signals)
 
   protected:
     void _setMeasuredVelocity(const C3Vector& lin, const C3Vector& ang, const C3Vector& rotAxis, double angle);

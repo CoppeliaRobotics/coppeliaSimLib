@@ -389,22 +389,6 @@ SIM_DLLEXPORT int simAnnounceSceneContentChange()
 {
     return (simAnnounceSceneContentChange_internal());
 }
-SIM_DLLEXPORT int simSetObjectProperty(int objectHandle, int prop)
-{
-    return (simSetObjectProperty_internal(objectHandle, prop));
-}
-SIM_DLLEXPORT int simGetObjectProperty(int objectHandle)
-{
-    return (simGetObjectProperty_internal(objectHandle));
-}
-SIM_DLLEXPORT int simSetObjectSpecialProperty(int objectHandle, int prop)
-{
-    return (simSetObjectSpecialProperty_internal(objectHandle, prop));
-}
-SIM_DLLEXPORT int simGetObjectSpecialProperty(int objectHandle)
-{
-    return (simGetObjectSpecialProperty_internal(objectHandle));
-}
 SIM_DLLEXPORT int simSetExplicitHandling(int objectHandle, int explicitFlags)
 {
     return (simSetExplicitHandling_internal(objectHandle, explicitFlags));
@@ -420,14 +404,6 @@ SIM_DLLEXPORT int simGetLinkDummy(int dummyHandle)
 SIM_DLLEXPORT int simSetLinkDummy(int dummyHandle, int linkedDummyHandle)
 {
     return (simSetLinkDummy_internal(dummyHandle, linkedDummyHandle));
-}
-SIM_DLLEXPORT int simSetModelProperty(int objectHandle, int modelProperty)
-{
-    return (simSetModelProperty_internal(objectHandle, modelProperty));
-}
-SIM_DLLEXPORT int simGetModelProperty(int objectHandle)
-{
-    return (simGetModelProperty_internal(objectHandle));
 }
 SIM_DLLEXPORT int simResetDynamicObject(int objectHandle)
 {

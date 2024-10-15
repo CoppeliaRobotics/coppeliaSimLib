@@ -230,7 +230,7 @@ class CScriptObject
     static void setInExternalCall(int scriptHandle);
     static int getInExternalCall();
 
-    void signalSet(const char* sigName);
+    void signalSet(const char* sigName, long long int target = sim_handle_scene);
     void signalRemoved(const char* sigName);
 
     // Lua specific:
@@ -369,7 +369,7 @@ class CScriptObject
 
     static int _nextScriptHandle; // for main, sandbox, add-ons and old scripts
     static std::vector<int> _externalScriptCalls;
-    static std::map<std::string, int> _signalNameToScriptHandle; // a script that created a signal will automatically remove it at state destruction
+    static std::map<std::string, std::pair<int, int>> _signalNameToScriptHandle; // a script that created a signal will automatically remove it at state destruction
 
     // Lua specific:
     // -----------------------------

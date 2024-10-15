@@ -94,7 +94,7 @@ class CWorldContainer
     CCodeEditorInfos *codeEditorInfos;
     CScriptCustomFuncAndVarContainer *scriptCustomFuncAndVarContainer; // old
 
-    CCustomData customAppData;
+    CCustomData customAppData_volatile; // app-level signals
     CCustomData_old *customAppData_old;
     CPersistentDataContainer *persistentDataContainer_old;
     CAddOnScriptContainer *addOnScriptContainer;

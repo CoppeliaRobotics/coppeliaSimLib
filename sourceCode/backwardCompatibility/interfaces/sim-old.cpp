@@ -3827,6 +3827,30 @@ SIM_DLLEXPORT int simSetEngineFloatParam_D(int paramId, int objectHandle, const 
 {
     return (simSetEngineFloatParam_internal(paramId, objectHandle, object, val));
 }
+SIM_DLLEXPORT int simSetModelProperty(int objectHandle, int modelProperty)
+{
+    return (simSetModelProperty_internal(objectHandle, modelProperty));
+}
+SIM_DLLEXPORT int simGetModelProperty(int objectHandle)
+{
+    return (simGetModelProperty_internal(objectHandle));
+}
+SIM_DLLEXPORT int simSetObjectProperty(int objectHandle, int prop)
+{
+    return (simSetObjectProperty_internal(objectHandle, prop));
+}
+SIM_DLLEXPORT int simGetObjectProperty(int objectHandle)
+{
+    return (simGetObjectProperty_internal(objectHandle));
+}
+SIM_DLLEXPORT int simSetObjectSpecialProperty(int objectHandle, int prop)
+{
+    return (simSetObjectSpecialProperty_internal(objectHandle, prop));
+}
+SIM_DLLEXPORT int simGetObjectSpecialProperty(int objectHandle)
+{
+    return (simGetObjectSpecialProperty_internal(objectHandle));
+}
 
 
 

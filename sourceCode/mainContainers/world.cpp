@@ -2941,29 +2941,20 @@ int CWorld::setBufferProperty(long long int target, const char* ppName, const ch
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         std::string pN(pName);
+        CCustomData* customDataPtr = nullptr;
         if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
-        {
-            if (pN.size() > 0)
-            {
-                bool diff = customSceneData.setData(pN.c_str(), buffer, bufferL, true);
-                if (diff && App::worldContainer->getEventsEnabled())
-                {
-                    CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
-                    customSceneData.appendEventData(pN.c_str(), ev);
-                    App::worldContainer->pushEvent();
-                }
-                retVal = 1;
-            }
-        }
+            customDataPtr = &customSceneData;
         else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+            customDataPtr = &customSceneData_volatile;
+        if (customDataPtr != nullptr)
         {
             if (pN.size() > 0)
             {
-                bool diff = customSceneData_volatile.setData(pN.c_str(), buffer, bufferL, true);
+                bool diff = customDataPtr->setData(pN.c_str(), buffer, bufferL, true);
                 if (diff && App::worldContainer->getEventsEnabled())
                 {
                     CCbor *ev = App::worldContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
-                    customSceneData_volatile.appendEventData(pN.c_str(), ev);
+                    customDataPtr->appendEventData(pN.c_str(), ev);
                     App::worldContainer->pushEvent();
                 }
                 retVal = 1;
@@ -3008,24 +2999,18 @@ int CWorld::getBufferProperty(long long int target, const char* ppName, std::str
         std::string _pName(utils::getWithoutPrefix(ppName, "scene."));
         const char* pName = _pName.c_str();
         std::string pN(pName);
+        const CCustomData* customDataPtr = nullptr;
         if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+            customDataPtr = &customSceneData;
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+            customDataPtr = &customSceneData_volatile;
+        if (customDataPtr != nullptr)
         {
             if (pN.size() > 0)
             {
-                if (customSceneData.hasData(pN.c_str(), false) >= 0)
+                if (customDataPtr->hasData(pN.c_str(), false) >= 0)
                 {
-                    pState = customSceneData.getData(pN.c_str());
-                    retVal = 1;
-                }
-            }
-        }
-        if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
-        {
-            if (pN.size() > 0)
-            {
-                if (customSceneData_volatile.hasData(pN.c_str(), false) >= 0)
-                {
-                    pState = customSceneData_volatile.getData(pN.c_str());
+                    pState = customDataPtr->getData(pN.c_str());
                     retVal = 1;
                 }
             }

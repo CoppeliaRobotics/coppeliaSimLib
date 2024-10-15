@@ -27,7 +27,7 @@
 #define INITIALLY_SUSPEND_LOADED_SCRIPTS true
 int CScriptObject::_nextScriptHandle = SIM_IDSTART_LUASCRIPT;
 std::vector<int> CScriptObject::_externalScriptCalls;
-std::map<std::string, int> CScriptObject::_signalNameToScriptHandle;
+std::map<std::string, std::pair<int, int>> CScriptObject::_signalNameToScriptHandle;
 
 CScriptObject::CScriptObject(int scriptType)
 { // scriptType to -1 for serialization
@@ -2663,16 +2663,19 @@ bool CScriptObject::_killInterpreterState()
         setScriptState(scriptState_unloaded);
     }
 
-    std::vector<std::string> toRem;
+    std::vector<std::pair<std::string, int>> toRem;
     for (const auto& entry : _signalNameToScriptHandle)
     {
-        if (entry.second == _scriptHandle)
-            toRem.push_back(entry.first);
+        if (entry.second.first == _scriptHandle)
+            toRem.push_back(std::make_pair(entry.first, entry.second.second));
     }
     for (size_t i = 0; i < toRem.size(); i++)
     {
-        simRemoveProperty_internal(sim_handle_scene, toRem[i].c_str());
-        signalRemoved(toRem[i].c_str());
+        std::string nn(toRem[i].first);
+        signalRemoved(nn.c_str());
+        utils::replaceSubstringStart(nn, "app.", "");
+        utils::replaceSubstringStart(nn, "obj.", "");
+        simRemoveProperty_internal(toRem[i].second, nn.c_str());
     }
     _eventFilters.clear();
 
@@ -4317,13 +4320,13 @@ void CScriptObject::_pushOntoInterpreterStack_lua(void *LL, CInterfaceStackObjec
     }
 }
 
-void CScriptObject::signalSet(const char* sigName)
-{ // sigName is signal.name (no type info)
-    _signalNameToScriptHandle[sigName] = _scriptHandle;
+void CScriptObject::signalSet(const char* sigName, long long int target /*= sim_handle_scene*/)
+{ // sigName is xx.signal.name (no type info), with xx. 'app.', '' or 'ojb.' (for app, scene or object)
+    _signalNameToScriptHandle[sigName] = std::make_pair(_scriptHandle, target);
 }
 
 void CScriptObject::signalRemoved(const char* sigName)
-{ // sigName is signal.name (no type info)
+{ // sigName is xx.signal.name (no type info), with xx. 'app.', '' or 'ojb.' (for app, scene or object)
     _signalNameToScriptHandle.erase(sigName);
 }
 

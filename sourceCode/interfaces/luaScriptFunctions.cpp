@@ -261,12 +261,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.removeParticleObject", _simRemoveParticleObject},
     {"sim.addParticleObjectItem", _simAddParticleObjectItem},
     {"sim.getObjectSizeFactor", _simGetObjectSizeFactor},
-    {"sim.setObjectProperty", _simSetObjectProperty},
-    {"sim.getObjectProperty", _simGetObjectProperty},
-    {"sim.setObjectSpecialProperty", _simSetObjectSpecialProperty},
-    {"sim.getObjectSpecialProperty", _simGetObjectSpecialProperty},
-    {"sim.setModelProperty", _simSetModelProperty},
-    {"sim.getModelProperty", _simGetModelProperty},
     {"sim.readForceSensor", _simReadForceSensor},
     {"sim.getLinkDummy", _simGetLinkDummy},
     {"sim.setLinkDummy", _simSetLinkDummy},
@@ -446,6 +440,12 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.test", _simTest},
 
     // deprecated
+    {"sim.setObjectProperty", _simSetObjectProperty},
+    {"sim.getObjectProperty", _simGetObjectProperty},
+    {"sim.setObjectSpecialProperty", _simSetObjectSpecialProperty},
+    {"sim.getObjectSpecialProperty", _simGetObjectSpecialProperty},
+    {"sim.setModelProperty", _simSetModelProperty},
+    {"sim.getModelProperty", _simGetModelProperty},
     {"sim.persistentDataWrite", _simPersistentDataWrite},
     {"sim.persistentDataRead", _simPersistentDataRead},
     {"sim.getPersistentDataTags", _simGetPersistentDataTags},
@@ -5246,7 +5246,12 @@ int _simSetBoolProperty(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5296,7 +5301,12 @@ int _simSetIntProperty(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5346,7 +5356,12 @@ int _simSetLongProperty(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5396,7 +5411,12 @@ int _simSetFloatProperty(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5446,7 +5466,12 @@ int _simSetStringProperty(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5498,7 +5523,12 @@ int _simSetBufferProperty(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5551,7 +5581,12 @@ int _simSetIntArray2Property(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5602,7 +5637,12 @@ int _simSetVector2Property(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5653,7 +5693,12 @@ int _simSetVector3Property(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5704,7 +5749,12 @@ int _simSetQuaternionProperty(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5755,7 +5805,12 @@ int _simSetPoseProperty(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5806,7 +5861,12 @@ int _simSetColorProperty(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5859,7 +5919,12 @@ int _simSetFloatArrayProperty(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5914,7 +5979,12 @@ int _simSetIntArrayProperty(luaWrap_lua_State *L)
             {
                 int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
                 CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-                it->signalSet(pName.c_str());
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
             }
         }
     }
@@ -5964,7 +6034,12 @@ int _simRemoveProperty(luaWrap_lua_State *L)
         {
             int currentScriptID = CScriptObject::getScriptHandleFromInterpreterState_lua(L);
             CScriptObject *it = App::worldContainer->getScriptObjectFromHandle(currentScriptID);
-            it->signalRemoved(pName.c_str());
+            std::string nn(pName);
+            if (target == sim_handle_app)
+                nn = "app." + nn;
+            else if (target != sim_handle_scene)
+                nn = "obj." + nn;
+            it->signalRemoved(nn.c_str());
         }
     }
 
@@ -9887,90 +9962,6 @@ int _simGetObjectSizeFactor(luaWrap_lua_State *L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushnumber(L, retVal);
-    LUA_END(1);
-}
-
-int _simGetObjectProperty(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getObjectProperty");
-
-    int retVal = -1; // error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simGetObjectProperty_internal(luaToInt(L, 1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simSetObjectProperty(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setObjectProperty");
-
-    int retVal = -1; // error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetObjectProperty_internal(luaToInt(L, 1), luaToInt(L, 2));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simGetObjectSpecialProperty(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getObjectSpecialProperty");
-
-    int retVal = -1; // error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simGetObjectSpecialProperty_internal(luaToInt(L, 1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simSetObjectSpecialProperty(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setObjectSpecialProperty");
-
-    int retVal = -1; // error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetObjectSpecialProperty_internal(luaToInt(L, 1), luaToInt(L, 2));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simGetModelProperty(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getModelProperty");
-
-    int retVal = -1; // error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
-        retVal = simGetModelProperty_internal(luaToInt(L, 1));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
-    LUA_END(1);
-}
-
-int _simSetModelProperty(luaWrap_lua_State *L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setModelProperty");
-
-    int retVal = -1; // error
-    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
-        retVal = simSetModelProperty_internal(luaToInt(L, 1), luaToInt(L, 2));
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
     LUA_END(1);
 }
 

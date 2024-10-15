@@ -9594,3 +9594,87 @@ int _simSetEngineBoolParam(luaWrap_lua_State *L)
     LUA_END(1);
 }
 
+int _simGetObjectProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectProperty");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+        retVal = simGetObjectProperty_internal(luaToInt(L, 1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simSetObjectProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectProperty");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+        retVal = simSetObjectProperty_internal(luaToInt(L, 1), luaToInt(L, 2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetObjectSpecialProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getObjectSpecialProperty");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+        retVal = simGetObjectSpecialProperty_internal(luaToInt(L, 1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simSetObjectSpecialProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setObjectSpecialProperty");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+        retVal = simSetObjectSpecialProperty_internal(luaToInt(L, 1), luaToInt(L, 2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simGetModelProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getModelProperty");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0))
+        retVal = simGetModelProperty_internal(luaToInt(L, 1));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+
+int _simSetModelProperty(luaWrap_lua_State *L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setModelProperty");
+
+    int retVal = -1; // error
+    if (checkInputArguments(L, &errorString, lua_arg_number, 0, lua_arg_number, 0))
+        retVal = simSetModelProperty_internal(luaToInt(L, 1), luaToInt(L, 2));
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    luaWrap_lua_pushinteger(L, retVal);
+    LUA_END(1);
+}
+

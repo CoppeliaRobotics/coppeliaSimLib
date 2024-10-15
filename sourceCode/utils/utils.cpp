@@ -445,6 +445,22 @@ bool utils::replaceSubstringStart(std::string &str, const char *subStr, const ch
     return retVal;
 }
 
+bool utils::replaceSubstringEnd(std::string &str, const char *subStr, const char *replacementSubStr)
+{
+    bool retVal = false;
+    size_t str1L = strlen(subStr);
+    if (str1L > 0)
+    {
+        size_t index = str.find(subStr, 0);
+        if (index == str.size() - str1L)
+        {
+            str.replace(index, str1L, replacementSubStr);
+            retVal = true;
+        }
+    }
+    return retVal;
+}
+
 bool utils::startsWith(const char* str, const char* prefix)
 {
     std::string s(str);

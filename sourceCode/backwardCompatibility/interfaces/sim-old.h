@@ -825,3 +825,9 @@ SIM_DLLEXPORT double *simGetObjectFloatArrayParam_D(int objectHandle, int parame
 SIM_DLLEXPORT int simSetObjectFloatArrayParam_D(int objectHandle, int parameterID, const double *params, int size);
 SIM_DLLEXPORT double simGetEngineFloatParam_D(int paramId, int objectHandle, const void *object, bool *ok);
 SIM_DLLEXPORT int simSetEngineFloatParam_D(int paramId, int objectHandle, const void *object, double val);
+SIM_DLLEXPORT int simSetModelProperty(int objectHandle, int modelProperty);
+SIM_DLLEXPORT int simGetModelProperty(int objectHandle);
+SIM_DLLEXPORT int simSetObjectProperty(int objectHandle, int prop);
+SIM_DLLEXPORT int simGetObjectProperty(int objectHandle);
+SIM_DLLEXPORT int simSetObjectSpecialProperty(int objectHandle, int prop);
+SIM_DLLEXPORT int simGetObjectSpecialProperty(int objectHandle);

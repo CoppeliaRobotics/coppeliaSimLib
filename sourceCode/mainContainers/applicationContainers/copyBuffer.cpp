@@ -351,7 +351,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
         if ((options & 2) != 0)
         {
             it->customObjectData.setData(nullptr, nullptr, 0, true);
-            it->customObjectData_tempData_old.setData(nullptr, nullptr, 0, true);
+            it->customObjectData_volatile.setData(nullptr, nullptr, 0, true);
             it->clearObjectCustomData_old();
         }
         if ((options & 4) != 0)

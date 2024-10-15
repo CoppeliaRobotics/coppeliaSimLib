@@ -337,3 +337,9 @@ bool simGetEngineBoolParam_internal(int paramId, int objectHandle, const void *o
 int simSetEngineFloatParam_internal(int paramId, int objectHandle, const void *object, double val);
 int simSetEngineInt32Param_internal(int paramId, int objectHandle, const void *object, int val);
 int simSetEngineBoolParam_internal(int paramId, int objectHandle, const void *object, bool val);
+int simSetObjectProperty_internal(int objectHandle, int prop);
+int simGetObjectProperty_internal(int objectHandle);
+int simSetObjectSpecialProperty_internal(int objectHandle, int prop);
+int simGetObjectSpecialProperty_internal(int objectHandle);
+int simSetModelProperty_internal(int objectHandle, int modelProperty);
+int simGetModelProperty_internal(int objectHandle);

@@ -28,6 +28,7 @@
 
 CSceneObject::CSceneObject()
 {
+    customObjectData_volatile.setItemsAreVolatile();
     _selected = false;
     _isInScene = false;
     _modelInvisible = false;
@@ -1548,9 +1549,10 @@ void CSceneObject::_addCommonObjectEventData(CCbor *ev) const
     ev->appendKeyDoubleArray(propObject_bbHsize.name, _bbHalfSize.data, 3);
 
     customObjectData.appendEventData(nullptr, ev);
+    customObjectData_volatile.appendEventData(nullptr, ev);
 //    ev->openKeyMap("customData");
 //    customObjectData.appendEventData(ev);
-//    customObjectData_tempData_old.appendEventData(ev);
+//    customObjectData_volatile.appendEventData(ev);
 //    ev->closeArrayOrMap(); // customData
 
 #if SIM_EVENT_PROTOCOL_VERSION == 2
@@ -1666,7 +1668,7 @@ CSceneObject *CSceneObject::copyYourself()
     theNewObject->_modelAcknowledgement = _modelAcknowledgement;
     theNewObject->_transparentObjectDistanceOffset = _transparentObjectDistanceOffset;
     customObjectData.copyYourselfInto(theNewObject->customObjectData);
-    customObjectData_tempData_old.copyYourselfInto(theNewObject->customObjectData_tempData_old);
+    customObjectData_volatile.copyYourselfInto(theNewObject->customObjectData_volatile);
 
     delete theNewObject->_customObjectData_old;
     theNewObject->_customObjectData_old = nullptr;
@@ -1702,21 +1704,21 @@ bool CSceneObject::getCustomDataEvents(std::map<std::string, bool> &dataEvents)
 {
     dataEvents.clear();
     customObjectData.getDataEvents(dataEvents);
-    customObjectData_tempData_old.getDataEvents(dataEvents);
+    customObjectData_volatile.getDataEvents(dataEvents);
     return dataEvents.size() > 0;
 }
 
 void CSceneObject::clearCustomDataEvents()
 {
     customObjectData.clearDataEvents();
-    customObjectData_tempData_old.clearDataEvents();
+    customObjectData_volatile.clearDataEvents();
 }
 
 void CSceneObject::writeCustomDataBlock(bool tmpData, const char *dataName, const char *data, size_t dataLength)
 {
     bool diff = false;
     if (tmpData)
-        diff = customObjectData_tempData_old.setData(dataName, data, dataLength, false);
+        diff = customObjectData_volatile.setData(dataName, data, dataLength, false);
     else
         diff = customObjectData.setData(dataName, data, dataLength, false);
 
@@ -1733,7 +1735,7 @@ std::string CSceneObject::readCustomDataBlock(bool tmpData, const char *dataName
 {
     std::string retVal;
     if (tmpData)
-        retVal = customObjectData_tempData_old.getData(dataName);
+        retVal = customObjectData_volatile.getData(dataName);
     else
         retVal = customObjectData.getData(dataName);
     return (retVal);
@@ -1743,7 +1745,7 @@ std::string CSceneObject::getAllCustomDataBlockTags(bool tmpData, size_t *cnt) c
 {
     std::string retVal;
     if (tmpData)
-        retVal = customObjectData_tempData_old.getAllTags(cnt);
+        retVal = customObjectData_volatile.getAllTags(cnt);
     else
         retVal = customObjectData.getAllTags(cnt);
     return (retVal);
@@ -6051,15 +6053,20 @@ int CSceneObject::setBufferProperty(const char* ppName, const char* buffer, int 
     if (buffer == nullptr)
         bufferL = 0;
     std::string pN(pName);
+    CCustomData* customDataPtr = nullptr;
     if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        customDataPtr = &customObjectData;
+    else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        customDataPtr = &customObjectData_volatile;
+    if (customDataPtr != nullptr)
     {
         if (pN.size() > 0)
         {
-            bool diff = customObjectData.setData(pN.c_str(), buffer, bufferL, true);
+            bool diff = customDataPtr->setData(pN.c_str(), buffer, bufferL, true);
             if (diff && _isInScene && App::worldContainer->getEventsEnabled())
             {
                 CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
-                customObjectData.appendEventData(pN.c_str(), ev);
+                customDataPtr->appendEventData(pN.c_str(), ev);
                 // ev->appendKeyBuffer(cmd.c_str(), buffer, bufferL);
                 App::worldContainer->pushEvent();
             }
@@ -6076,13 +6083,18 @@ int CSceneObject::getBufferProperty(const char* ppName, std::string& pState) con
     const char* pName = _pName.c_str();
     int retVal = -1;
     std::string pN(pName);
+    const CCustomData* customDataPtr = nullptr;
     if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        customDataPtr = &customObjectData;
+    else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        customDataPtr = &customObjectData_volatile;
+    if (customDataPtr != nullptr)
     {
         if (pN.size() > 0)
         {
-            if (customObjectData.hasData(pN.c_str(), false) >= 0)
+            if (customDataPtr->hasData(pN.c_str(), false) >= 0)
             {
-                pState = customObjectData.getData(pN.c_str());
+                pState = customDataPtr->getData(pN.c_str());
                 retVal = 1;
             }
         }
@@ -6330,18 +6342,23 @@ int CSceneObject::removeProperty(const char* ppName)
     int retVal = -1;
 
     std::string pN(pName);
+    CCustomData* customDataPtr = nullptr;
     if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        customDataPtr = &customObjectData;
+    else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        customDataPtr = &customObjectData_volatile;
+    if (customDataPtr != nullptr)
     {
         if (pN.size() > 0)
         {
-            int tp = customObjectData.hasData(pN.c_str(), true);
+            int tp = customDataPtr->hasData(pN.c_str(), true);
             if (tp >= 0)
             {
-                bool diff = customObjectData.clearData((propertyStrings[tp] + pN).c_str());
+                bool diff = customDataPtr->clearData((propertyStrings[tp] + pN).c_str());
                 if (diff && _isInScene && App::worldContainer->getEventsEnabled())
                 {
                     CCbor *ev = App::worldContainer->createSceneObjectChangedEvent(this, true, nullptr, false);
-                    customObjectData.appendEventData(pN.c_str(), ev, true);
+                    customDataPtr->appendEventData(pN.c_str(), ev, true);
                     App::worldContainer->pushEvent();
                 }
                 retVal = 1;
@@ -6374,6 +6391,12 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
         if (customObjectData.getPropertyName(index, pName))
         {
             pName = CUSTOMDATAPREFIX + pName;
+            //pName = "object." + pName;
+            retVal = 1;
+        }
+        if (customObjectData_volatile.getPropertyName(index, pName))
+        {
+            pName = SIGNALPREFIX + pName;
             //pName = "object." + pName;
             retVal = 1;
         }
@@ -6423,12 +6446,17 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
     if (retVal == -1)
     {
         std::string pN(pName);
+        const CCustomData* customDataPtr = nullptr;
         if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+            customDataPtr = &customObjectData;
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+            customDataPtr = &customObjectData_volatile;
+        if (customDataPtr != nullptr)
         {
             if (pN.size() > 0)
             {
                 int s;
-                retVal = customObjectData.hasData(pN.c_str(), true, &s);
+                retVal = customDataPtr->hasData(pN.c_str(), true, &s);
                 if (retVal >= 0)
                 {
                     info = 4; // removable

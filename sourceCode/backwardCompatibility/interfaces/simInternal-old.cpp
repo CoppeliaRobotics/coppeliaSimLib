@@ -11481,7 +11481,7 @@ int simWriteCustomDataBlock_internal(int objectHandle, const char *tagName, cons
 
         if (objectHandle == sim_handle_app)
         { // here we have the app
-            App::worldContainer->customAppData.setData(tagName, data, dataSize, false);
+            App::worldContainer->customAppData_volatile.setData(tagName, data, dataSize, false);
             // ---------------------- Old -----------------------------
             if (strlen(tagName) != 0)
             {
@@ -11555,7 +11555,7 @@ char *simReadCustomDataBlock_internal(int objectHandle, const char *tagName, int
 
         if (objectHandle == sim_handle_app)
         {
-            rrr = App::worldContainer->customAppData.getData(tagName); // here we have the app
+            rrr = App::worldContainer->customAppData_volatile.getData(tagName); // here we have the app
             hand = true;
         }
 
@@ -11621,7 +11621,7 @@ char *simReadCustomDataBlockTags_internal(int objectHandle, int *tagCount)
         if (objectHandle == sim_handle_app)
         { // here we have the application
             size_t tc;
-            tags = App::worldContainer->customAppData.getAllTags(&tc);
+            tags = App::worldContainer->customAppData_volatile.getAllTags(&tc);
             tagCount[0] += int(tc);
             hand = true;
         }
@@ -12002,6 +12002,114 @@ int simSetEngineBoolParam_internal(int paramId, int objectHandle, const void *ob
     }
 
     CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return (-1);
+}
+
+int simSetObjectProperty_internal(int objectHandle, int prop)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__, objectHandle))
+            return (-1);
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        it->setObjectProperty(prop);
+        return (1);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+int simGetObjectProperty_internal(int objectHandle)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__, objectHandle))
+        {
+            return (-1);
+        }
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        int retVal = it->getObjectProperty();
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+int simSetObjectSpecialProperty_internal(int objectHandle, int prop)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__, objectHandle))
+        {
+            return (-1);
+        }
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        it->setLocalObjectSpecialProperty(prop);
+        return (1);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+int simGetObjectSpecialProperty_internal(int objectHandle)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__, objectHandle))
+        {
+            return (-1);
+        }
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        int retVal = it->getLocalObjectSpecialProperty();
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+int simSetModelProperty_internal(int objectHandle, int modelProperty)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__, objectHandle))
+        {
+            return (-1);
+        }
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        it->setModelProperty(modelProperty);
+        return (1);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return (-1);
+}
+
+int simGetModelProperty_internal(int objectHandle)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        if (!doesObjectExist(__func__, objectHandle))
+            return (-1);
+        CSceneObject *it = App::currentWorld->sceneObjects->getObjectFromHandle(objectHandle);
+        int retVal;
+        if (it->getModelBase())
+            retVal = it->getModelProperty();
+        else
+            retVal = sim_modelproperty_not_model;
+        return (retVal);
+    }
+    CApiErrors::setLastWarningOrError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return (-1);
 }
 
